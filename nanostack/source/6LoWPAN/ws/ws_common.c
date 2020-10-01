@@ -308,6 +308,16 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
         } else {
             return -1;
         }
+    } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_VN) {
+        if (hopping_schdule->operating_class == 1) {
+            hopping_schdule->ch0_freq = 9202;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+        } else if (hopping_schdule->operating_class == 2) {
+            hopping_schdule->ch0_freq = 9204;
+            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+        } else {
+            return -1;
+        }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_CN) {
         if (hopping_schdule->operating_class == 1) {
             hopping_schdule->ch0_freq = 4702;
@@ -477,6 +487,12 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
             return 416;
         } else if (operating_class == 2) {
             return 207;
+        }
+    } else if (regulatory_domain == REG_DOMAIN_VN) {
+        if (operating_class == 1) {
+            return 24;
+        } else if (operating_class == 2) {
+            return 12;
         }
     } else if (regulatory_domain == REG_DOMAIN_CN) {
         if (operating_class == 1) {
