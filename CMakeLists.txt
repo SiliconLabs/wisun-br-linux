@@ -57,6 +57,11 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/Common_Protocols/mld.c
     nanostack/source/Common_Protocols/tcp.c
     nanostack/source/Common_Protocols/udp.c
+    nanostack/source/Core/buffer_dyn.c
+    nanostack/source/Core/ns_address_internal.c
+    nanostack/source/Core/ns_monitor.c
+    nanostack/source/Core/ns_socket.c
+    nanostack/source/Core/sockbuf.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
