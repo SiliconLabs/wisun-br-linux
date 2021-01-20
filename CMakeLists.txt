@@ -197,6 +197,48 @@ ADD_LIBRARY(wisun-host STATIC
     # Exclude mbed-client-libservice/source/nvmHelper
     mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
+    mbedtls/library/aes.c
+    mbedtls/library/asn1parse.c
+    mbedtls/library/asn1write.c
+    mbedtls/library/base64.c
+    mbedtls/library/bignum.c
+    mbedtls/library/ccm.c
+    mbedtls/library/chacha20.c
+    mbedtls/library/chachapoly.c
+    mbedtls/library/cipher.c
+    mbedtls/library/cipher_wrap.c
+    mbedtls/library/cipher_wrap.c
+    mbedtls/library/ctr_drbg.c
+    mbedtls/library/debug.c
+    mbedtls/library/ecdh.c
+    mbedtls/library/ecdsa.c
+    mbedtls/library/ecp.c
+    mbedtls/library/ecp_curves.c
+    mbedtls/library/md.c
+    mbedtls/library/gcm.c
+    mbedtls/library/hmac_drbg.c
+    mbedtls/library/md.c
+    mbedtls/library/nist_kw.c
+    mbedtls/library/oid.c
+    mbedtls/library/pem.c
+    mbedtls/library/pk.c
+    mbedtls/library/pkparse.c
+    mbedtls/library/pk_wrap.c
+    mbedtls/library/platform_util.c
+    mbedtls/library/poly1305.c
+    mbedtls/library/rsa.c
+    mbedtls/library/rsa_internal.c
+    mbedtls/library/sha1.c
+    mbedtls/library/sha256.c
+    mbedtls/library/sha512.c
+    mbedtls/library/ssl_ciphersuites.c
+    mbedtls/library/ssl_cli.c
+    mbedtls/library/ssl_msg.c
+    mbedtls/library/ssl_srv.c
+    mbedtls/library/ssl_tls.c
+    mbedtls/library/x509.c
+    mbedtls/library/x509_crl.c
+    mbedtls/library/x509_crt.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
