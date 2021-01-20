@@ -99,6 +99,10 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c
+    nanostack/source/NWK_INTERFACE/protocol_core.c
+    nanostack/source/NWK_INTERFACE/protocol_core_sleep.c
+    nanostack/source/NWK_INTERFACE/protocol_stats.c
+    nanostack/source/NWK_INTERFACE/protocol_timer.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
