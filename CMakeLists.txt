@@ -256,3 +256,7 @@ target_include_directories(wisun-host PRIVATE
     nanostack/source/
 )
 target_compile_definitions(wisun-host PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(wisun-host PRIVATE Threads::Threads)
