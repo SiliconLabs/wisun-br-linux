@@ -186,12 +186,24 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
+    mbed-client-libservice/source/IPv6_fcf_lib/ip_fsc.c
+    mbed-client-libservice/source/libBits/common_functions.c
+    mbed-client-libservice/source/libip4string/ip4tos.c
+    mbed-client-libservice/source/libip4string/stoip4.c
+    mbed-client-libservice/source/libip6string/ip6tos.c
+    mbed-client-libservice/source/libip6string/stoip6.c
+    mbed-client-libservice/source/libList/ns_list.c
+    mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
+    # Exclude mbed-client-libservice/source/nvmHelper
+    mbed-client-randlib/source/randLIB.c
+    mbed-trace/source/mbed_trace.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
     mbedtls/include/
     mbed-trace/
     mbed-client-randlib/mbed-client-randlib/
+    mbed-client-libservice/
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/nanostack/
