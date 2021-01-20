@@ -103,6 +103,14 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/NWK_INTERFACE/protocol_core_sleep.c
     nanostack/source/NWK_INTERFACE/protocol_stats.c
     nanostack/source/NWK_INTERFACE/protocol_timer.c
+    nanostack/source/RPL/rpl_control.c
+    nanostack/source/RPL/rpl_mrhof.c
+    nanostack/source/RPL/rpl_downward.c
+    nanostack/source/RPL/rpl_data.c
+    nanostack/source/RPL/rpl_objective.c
+    nanostack/source/RPL/rpl_of0.c
+    nanostack/source/RPL/rpl_policy.c
+    nanostack/source/RPL/rpl_upward.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
