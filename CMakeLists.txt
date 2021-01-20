@@ -253,3 +253,4 @@ TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     nanostack/nanostack/
     nanostack/source/
 )
+target_compile_definitions(wisun-host PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
