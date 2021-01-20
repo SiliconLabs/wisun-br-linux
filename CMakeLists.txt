@@ -144,6 +144,44 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c
     nanostack/source/Security/TLS/tls_ccm_crypt.c
     nanostack/source/Security/TLS/tls_lib.c
+    nanostack/source/Service_Libs/blacklist/blacklist.c
+    nanostack/source/Service_Libs/CCM_lib/ccm_security.c
+    nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+    # Excluded nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls.c
+    nanostack/source/Service_Libs/etx/etx.c
+    nanostack/source/Service_Libs/fhss/channel_functions.c
+    nanostack/source/Service_Libs/fhss/channel_list.c
+    nanostack/source/Service_Libs/fhss/fhss.c
+    nanostack/source/Service_Libs/fhss/fhss_channel.c
+    nanostack/source/Service_Libs/fhss/fhss_common.c
+    nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
+    nanostack/source/Service_Libs/fhss/fhss_statistics.c
+    nanostack/source/Service_Libs/fhss/fhss_test_api.c
+    nanostack/source/Service_Libs/fhss/fhss_ws.c
+    nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
+    nanostack/source/Service_Libs/fnv_hash/fnv_hash.c
+    nanostack/source/Service_Libs/hmac/hmac_md.c
+    nanostack/source/Service_Libs/ieee_802_11/ieee_802_11.c
+    nanostack/source/Service_Libs/load_balance/load_balance.c
+    nanostack/source/Service_Libs/mac_neighbor_table/mac_neighbor_table.c
+    # Excluded nanostack/source/Service_Libs/mdns
+    nanostack/source/Service_Libs/mle_service/mle_service_buffer.c
+    nanostack/source/Service_Libs/mle_service/mle_service.c
+    nanostack/source/Service_Libs/mle_service/mle_service_frame_counter_table.c
+    nanostack/source/Service_Libs/mle_service/mle_service_interface.c
+    nanostack/source/Service_Libs/mle_service/mle_service_security.c
+    nanostack/source/Service_Libs/nd_proxy/nd_proxy.c
+    nanostack/source/Service_Libs/Neighbor_cache/neighbor_cache.c
+    nanostack/source/Service_Libs/nist_aes_kw/nist_aes_kw.c
+    nanostack/source/Service_Libs/pan_blacklist/pan_blacklist.c
+    nanostack/source/Service_Libs/SHA256_Lib/ns_sha256.c
+    nanostack/source/Service_Libs/SHA256_Lib/shalib.c
+    nanostack/source/Service_Libs/Trickle/trickle.c
+    nanostack/source/Service_Libs/utils/isqrt.c
+    nanostack/source/Service_Libs/utils/ns_conf.c
+    nanostack/source/Service_Libs/utils/ns_crc.c
+    nanostack/source/Service_Libs/utils/ns_file_system.c
+    nanostack/source/Service_Libs/whiteboard/whiteboard.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
