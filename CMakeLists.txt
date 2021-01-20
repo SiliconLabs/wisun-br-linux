@@ -182,6 +182,10 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
     nanostack/source/Service_Libs/whiteboard/whiteboard.c
+    nanostack-event-loop/source/ns_timer.c
+    nanostack-event-loop/source/ns_timeout.c
+    nanostack-event-loop/source/event.c
+    nanostack-event-loop/source/system_timer.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
