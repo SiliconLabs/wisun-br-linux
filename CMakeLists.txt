@@ -62,6 +62,17 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/Core/ns_monitor.c
     nanostack/source/Core/ns_socket.c
     nanostack/source/Core/sockbuf.c
+    nanostack/source/libNET/src/net_short_address_extension.c
+    nanostack/source/libNET/src/net_dns.c
+    nanostack/source/libNET/src/multicast_api.c
+    nanostack/source/libNET/src/net_6lowpan_parameter_api.c
+    nanostack/source/libNET/src/net_test.c
+    nanostack/source/libNET/src/net_rpl.c
+    nanostack/source/libNET/src/ns_net.c
+    nanostack/source/libNET/src/socket_api.c
+    nanostack/source/libNET/src/net_ipv6.c
+    nanostack/source/libNET/src/net_mle.c
+    nanostack/source/libNET/src/net_load_balance.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
