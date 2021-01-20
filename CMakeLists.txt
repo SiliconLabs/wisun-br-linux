@@ -47,6 +47,16 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
     nanostack/source/6LoWPAN/ws/ws_test_api.c
+    nanostack/source/Common_Protocols/icmpv6.c
+    nanostack/source/Common_Protocols/icmpv6_prefix.c
+    nanostack/source/Common_Protocols/icmpv6_radv.c
+    nanostack/source/Common_Protocols/ipv6.c
+    nanostack/source/Common_Protocols/ipv6_flow.c
+    nanostack/source/Common_Protocols/ipv6_fragmentation.c
+    nanostack/source/Common_Protocols/ipv6_resolution.c
+    nanostack/source/Common_Protocols/mld.c
+    nanostack/source/Common_Protocols/tcp.c
+    nanostack/source/Common_Protocols/udp.c
 )
 TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
     mbedtls/
