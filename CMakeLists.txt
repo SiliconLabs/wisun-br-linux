@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
 
-ADD_LIBRARY(wisun-host STATIC
+add_executable(wisun-host
+    main.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
     nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
@@ -242,7 +243,8 @@ ADD_LIBRARY(wisun-host STATIC
     mbedtls/library/x509_crl.c
     mbedtls/library/x509_crt.c
 )
-TARGET_INCLUDE_DIRECTORIES(wisun-host PRIVATE
+
+target_include_directories(wisun-host PRIVATE
     mbedtls/
     mbedtls/include/
     mbed-trace/
