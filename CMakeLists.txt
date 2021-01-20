@@ -6,6 +6,7 @@ add_executable(wisun-host
     hal_interrupt.c
     hal_timer.c
     os_scheduler.c
+    sli_wisun_nvm.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
     nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
