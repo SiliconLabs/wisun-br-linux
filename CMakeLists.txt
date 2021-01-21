@@ -260,6 +260,7 @@ target_include_directories(wisun-host PRIVATE
     nanostack/source/
 )
 target_compile_definitions(wisun-host PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wisun-host PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wisun-host PRIVATE STANDARD_MALLOC)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
