@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
 
 add_executable(wisun-br
-    main.c
+    wsbr.c
     bus_uart.c
     bus_spi.c
     hal_interrupt.c

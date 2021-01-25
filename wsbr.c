@@ -8,6 +8,7 @@
 #include <getopt.h>
 
 #include "log.h"
+#include "wsbr.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
 #include "hal_interrupt.h"
@@ -19,11 +20,6 @@
 #include "ws_bbr_api.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
-
-struct wsbr_ctxt {
-    int fd_trig;
-    int fd_bus;
-};
 
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi_SUN border router\n");
