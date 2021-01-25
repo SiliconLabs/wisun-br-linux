@@ -3,16 +3,10 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#include <stdio.h>
+#ifndef OS_SCHEDULER_H
+#define OS_SCHEDULER_H
 
 #include "eventOS_scheduler.h"
 
-void eventOS_scheduler_signal(void)
-{
-    printf("%s: FIXME\n", __func__);
-}
+#endif
 
-void eventOS_scheduler_idle(void)
-{
-    printf("%s: FIXME\n", __func__);
-}
