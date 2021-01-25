@@ -87,7 +87,6 @@ add_executable(wisun-host
     nanostack/source/libNET/src/net_mle.c
     nanostack/source/libNET/src/net_load_balance.c
     nanostack/source/MAC/rf_driver_storage.c
-    # Excluded nanostack/source/MAC/virtual_rf
     # Excluded nanostack/source/MAC/serial
     nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
     nanostack/source/MAC/IEEE802_15_4/sw_mac.c
@@ -101,6 +100,8 @@ add_executable(wisun-host
     nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
     nanostack/source/MAC/IEEE802_15_4/mac_filter.c
     nanostack/source/MAC/ethernet/ethernet_mac_api.c
+    # Excluded nanostack/source/MAC/virtual_rf/virtual_rf_client.c
+    nanostack/source/MAC/virtual_rf/virtual_rf_driver.c
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c
