@@ -12,7 +12,7 @@
 #include "wsbr.h"
 #include "bus_uart.h"
 
-int mux_uart_open(const char *device, int bitrate, bool hardflow)
+int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
 {
     static const struct {
         int val;
@@ -61,12 +61,12 @@ int mux_uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-int mux_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
+int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 {
     return write(ctxt->fd_bus, buf, len);
 }
 
-int mux_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
+int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
 {
     return read(ctxt->fd_bus, buf, len);
 }

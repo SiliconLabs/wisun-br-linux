@@ -10,9 +10,9 @@
 
 struct wsbr_ctxt;
 
-int mux_uart_open(const char *device, int bitrate, bool hardflow);
-int mux_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len);
-int mux_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len);
+int wsbr_uart_open(const char *device, int bitrate, bool hardflow);
+int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len);
+int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len);
 
 #endif
 

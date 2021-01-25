@@ -96,12 +96,12 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     if (bus == 's') {
         if (argc != optind + 2)
             print_help(stderr, 1);
-        ctxt->fd_bus = mux_spi_open(argv[optind + 0], frequency, 0);
-        ctxt->fd_trig = mux_gpio_open(argv[optind + 1], false);
+        ctxt->fd_bus = wsbr_spi_open(argv[optind + 0], frequency, 0);
+        ctxt->fd_trig = wsbr_gpio_open(argv[optind + 1], false);
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
-        ctxt->fd_bus = mux_uart_open(argv[optind + 0], baudrate, hardflow);
+        ctxt->fd_bus = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
         ctxt->fd_trig = ctxt->fd_bus;
     } else {
         print_help(stderr, 1);
