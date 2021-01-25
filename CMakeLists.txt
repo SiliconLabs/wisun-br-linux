@@ -3,6 +3,7 @@ project(wisun-host)
 
 add_executable(wisun-host
     main.c
+    hal_interrupt.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
     nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c

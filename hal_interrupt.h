@@ -3,12 +3,11 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#include <stdio.h>
-#include "hal_interrupt.h"
-int main(int argc, char *argv[])
-{
-    printf("Hello World!\n");
+#ifndef HAL_INTERRUPT_H
+#define HAL_INTERRUPT_H
 
-    return 0;
-}
+#include "platform/arm_hal_interrupt.h"
 
+void platform_critical_init(void);
+
+#endif
