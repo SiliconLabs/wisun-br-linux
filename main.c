@@ -9,6 +9,7 @@
 #include "mac_api.h"
 #include "ethernet_mac_api.h"
 #include "ns_virtual_rf_api.h"
+#include "ws_bbr_api.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
@@ -74,6 +75,9 @@ int main(int argc, char *argv[])
     tun_if_id = arm_nwk_interface_ethernet_init(tun_mac_api, "bh0");
     if (tun_if_id < 0)
         tr_err("%s: arm_nwk_interface_ethernet_init: %d", __func__, tun_if_id);
+
+    if (ws_bbr_start(rcp_if_id, tun_if_id))
+        tr_err("%s: ws_bbr_start", __func__);
 
     return 0;
 }
