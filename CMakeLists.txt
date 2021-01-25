@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
 
+add_executable(mux bus_spi.c bus_uart.c mux.c)
+target_link_libraries(mux PRIVATE util)
+
 add_executable(wisun-host
     main.c
     hal_interrupt.c
