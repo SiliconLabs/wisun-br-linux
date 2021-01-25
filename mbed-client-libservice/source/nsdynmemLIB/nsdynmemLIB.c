@@ -20,6 +20,9 @@
 #include <stdlib.h>
 #include "ns_list.h"
 
+static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
+typedef int ns_mem_word_size_t; // internal signed heap block size type
+
 #ifndef STANDARD_MALLOC
 typedef enum mem_stat_update_t {
     DEV_HEAP_ALLOC_OK,
@@ -30,8 +33,6 @@ typedef enum mem_stat_update_t {
 typedef struct {
     ns_list_link_t link;
 } hole_t;
-
-typedef int ns_mem_word_size_t; // internal signed heap block size type
 
 // Amount of memory regions
 #define REGION_COUNT 3
@@ -46,8 +47,6 @@ struct ns_mem_book {
     ns_mem_heap_size_t heap_size;
     ns_mem_heap_size_t temporary_alloc_heap_limit;   /* Amount of reserved heap temporary alloc can't exceed */
 };
-
-static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 
 // size of a hole_t in our word units
 #define HOLE_T_SIZE ((ns_mem_word_size_t) ((sizeof(hole_t) + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t)))
@@ -169,11 +168,12 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
         book->mem_stat_info_ptr->heap_sector_size = book->heap_size;
     }
     book->temporary_alloc_heap_limit = book->heap_size / 100 * (100 - TEMPORARY_ALLOC_FREE_HEAP_THRESHOLD);
-#endif
-    //There really is no support to standard malloc in this library anymore
     book->heap_failure_callback = passed_fptr;
 
     return book;
+#else
+    return NULL;
+#endif
 }
 
 int ns_mem_region_add(ns_mem_book_t *book, void *region_ptr, ns_mem_heap_size_t region_size)
@@ -585,6 +585,7 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
 }
 #endif
 
+#ifndef STANDARD_MALLOC
 static bool pointer_address_validate(ns_mem_book_t *book, ns_mem_word_size_t *ptr, ns_mem_word_size_t size)
 {
 
@@ -594,6 +595,7 @@ static bool pointer_address_validate(ns_mem_book_t *book, ns_mem_word_size_t *pt
 
     return false;
 }
+#endif
 
 void ns_mem_free(ns_mem_book_t *book, void *block)
 {
