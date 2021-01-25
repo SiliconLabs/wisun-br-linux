@@ -8,11 +8,7 @@
 
 #include <stdbool.h>
 
-struct mux_ctxt;
-
 int mux_uart_open(const char *device, int bitrate, bool hardflow);
-int mux_uart_tx(struct mux_ctxt *ctxt, const void *buf, unsigned int len);
-int mux_uart_rx(struct mux_ctxt *ctxt, void *buf, unsigned int len);
 
 #endif
 

@@ -9,7 +9,6 @@
 
 #include "log.h"
 #include "utils.h"
-#include "mux.h"
 #include "bus_uart.h"
 
 int mux_uart_open(const char *device, int bitrate, bool hardflow)
@@ -59,14 +58,4 @@ int mux_uart_open(const char *device, int bitrate, bool hardflow)
     if (tcsetattr(fd, TCSAFLUSH, &tty) < 0)
         FATAL(1, "tcsetattr: %m");
     return fd;
-}
-
-int mux_uart_tx(struct mux_ctxt *ctxt, const void *buf, unsigned int len)
-{
-    return write(ctxt->fd_bus, buf, len);
-}
-
-int mux_uart_rx(struct mux_ctxt *ctxt, void *buf, unsigned int len)
-{
-    return read(ctxt->fd_bus, buf, len);
 }

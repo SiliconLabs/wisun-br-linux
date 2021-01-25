@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
 
-add_executable(mux bus_spi.c bus_uart.c mux.c)
-target_link_libraries(mux PRIVATE util)
-
-add_executable(wisun-host
+add_executable(wisun-br
     main.c
+    bus_uart.c
+    bus_spi.c
     hal_interrupt.c
     hal_timer.c
     os_scheduler.c
@@ -252,7 +251,7 @@ add_executable(wisun-host
     mbedtls/library/x509_crt.c
 )
 
-target_include_directories(wisun-host PRIVATE
+target_include_directories(wisun-br PRIVATE
     mbedtls/
     mbedtls/include/
     mbed-trace/
@@ -263,10 +262,10 @@ target_include_directories(wisun-host PRIVATE
     nanostack/nanostack/
     nanostack/source/
 )
-target_compile_definitions(wisun-host PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
-target_compile_definitions(wisun-host PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-target_compile_definitions(wisun-host PRIVATE STANDARD_MALLOC)
+target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(wisun-host PRIVATE Threads::Threads)
+target_link_libraries(wisun-br PRIVATE Threads::Threads)

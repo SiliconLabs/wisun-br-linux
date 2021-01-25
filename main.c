@@ -3,6 +3,13 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <getopt.h>
+
+#include "log.h"
+#include "bus_uart.h"
+#include "bus_spi.h"
 #include "hal_interrupt.h"
 #include "net_interface.h"
 #include "sw_mac.h"
@@ -12,6 +19,98 @@
 #include "ws_bbr_api.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
+
+struct wsbr_ctxt {
+    int fd_trig;
+    int fd_bus;
+};
+
+void print_help(FILE *stream, int exit_code) {
+    fprintf(stream, "Start Wi_SUN border router\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Usage:\n");
+    fprintf(stream, "  wisun-br -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
+    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Common options:\n");
+    fprintf(stream, "  -u                     Use UART bus\n");
+    fprintf(stream, "  -s                     Use SPI bus\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "UART options\n");
+    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600,19200,38400,57600,115200 (default),230400,460800,921600\n");
+    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default disabled)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "SPI options:\n");
+    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default 1000000)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Exemples:\n");
+    fprintf(stream, "  wisun-br -u /dev/ttyUSB0 -H\n");
+    fprintf(stream, "  wisun-br -s /dev/spi1.1 141\n");
+    fprintf(stream, "  wisun-br -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
+    exit(exit_code);
+}
+
+void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
+{
+    static const struct option opt_list[] = {
+        { "help",        no_argument,       0,  'h' },
+        { "baudrate",    required_argument, 0,  'b' },
+        { "hardflow",    no_argument,       0,  'H' },
+        { "frequency",   required_argument, 0,  'f' },
+        { 0,             0,                 0,   0  }
+    };
+    char *end_ptr;
+    char bus = 0;
+    int baudrate = 115200;
+    int frequency = 1000000;
+    bool hardflow = false;
+    int opt;
+
+    while ((opt = getopt_long(argc, argv, "usf:Hb:h", opt_list, NULL)) != -1) {
+        switch (opt) {
+            case 'u':
+            case 's':
+                if (bus)
+                    print_help(stderr, 1);
+                bus = opt;
+                break;
+            case 'b':
+                baudrate = strtoul(optarg, &end_ptr, 10);
+                if (*end_ptr)
+                    FATAL(1, "invalid bitrate: %s", optarg);
+                break;
+            case 'f':
+                frequency = strtoul(optarg, &end_ptr, 10);
+                if (*end_ptr)
+                    FATAL(1, "invalid frequency: %s", optarg);
+                break;
+            case 'H':
+                hardflow = true;
+                break;
+            case 'h':
+                print_help(stdout, 0);
+                break;
+            case '?':
+            default:
+                print_help(stderr, 1);
+                break;
+        }
+    }
+    if (bus == 's') {
+        if (argc != optind + 2)
+            print_help(stderr, 1);
+        ctxt->fd_bus = mux_spi_open(argv[optind + 0], frequency, 0);
+        ctxt->fd_trig = mux_gpio_open(argv[optind + 1], false);
+    } else if (bus == 'u') {
+        if (argc != optind + 1)
+            print_help(stderr, 1);
+        ctxt->fd_bus = mux_uart_open(argv[optind + 0], baudrate, hardflow);
+        ctxt->fd_trig = ctxt->fd_bus;
+    } else {
+        print_help(stderr, 1);
+    }
+}
 
 static mac_description_storage_size_t storage_sizes = {
     .device_decription_table_size = 32, // FIXME: we have plenty of memory. Increase this value
@@ -44,6 +143,7 @@ static struct phy_device_driver_s tun_phy_driver = {
 
 int main(int argc, char *argv[])
 {
+    struct wsbr_ctxt ctxt;
     mac_api_t *rcp_mac_api;
     eth_mac_api_t *tun_mac_api;
     int rcp_driver_id, rcp_if_id;
@@ -51,6 +151,7 @@ int main(int argc, char *argv[])
 
     platform_critical_init();
     mbed_trace_init();
+    configure(&ctxt, argc, argv);
 
     if (net_init_core())
         tr_err("%s: net_init_core", __func__);

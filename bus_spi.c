@@ -11,7 +11,6 @@
 #include <linux/spi/spidev.h>
 
 #include "log.h"
-#include "mux.h"
 #include "bus_spi.h"
 
 static void simple_write(const char *filename, const char *data)
@@ -60,14 +59,4 @@ int mux_spi_open(const char *device, uint32_t frequency, uint8_t mode)
     if (ret < 0)
         FATAL(1, "SPI_IOC_WR_MAX_SPEED_HZ: %m");
     return fd;
-}
-
-int mux_spi_tx(struct mux_ctxt *ctxt, const void *buf, unsigned int len)
-{
-    return write(ctxt->fd_bus, buf, len);
-}
-
-int mux_spi_rx(struct mux_ctxt *ctxt, void *buf, unsigned int len)
-{
-    return read(ctxt->fd_bus, buf, len);
 }
