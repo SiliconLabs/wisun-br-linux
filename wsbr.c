@@ -5,10 +5,12 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <getopt.h>
 
 #include "log.h"
 #include "wsbr.h"
+#include "tun.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
 #include "hal_interrupt.h"
@@ -32,6 +34,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                     Use UART bus\n");
     fprintf(stream, "  -s                     Use SPI bus\n");
+    fprintf(stream, "  -t TUN                 Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "\n");
     fprintf(stream, "UART options\n");
     fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600,19200,38400,57600,115200 (default),230400,460800,921600\n");
@@ -51,6 +54,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 {
     static const struct option opt_list[] = {
         { "help",        no_argument,       0,  'h' },
+        { "tun",         required_argument, 0,  't' },
         { "baudrate",    required_argument, 0,  'b' },
         { "hardflow",    no_argument,       0,  'H' },
         { "frequency",   required_argument, 0,  'f' },
@@ -63,13 +67,16 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     bool hardflow = false;
     int opt;
 
-    while ((opt = getopt_long(argc, argv, "usf:Hb:h", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "usf:Hb:t:h", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'u':
             case 's':
                 if (bus)
                     print_help(stderr, 1);
                 bus = opt;
+                break;
+            case 't':
+                strncpy(ctxt->dev_tun, optarg, sizeof(ctxt->dev_tun) - 1);
                 break;
             case 'b':
                 baudrate = strtoul(optarg, &end_ptr, 10);
@@ -106,6 +113,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     } else {
         print_help(stderr, 1);
     }
+    ctxt->fd_tun = wsbr_tun_open(ctxt->dev_tun);
 }
 
 static mac_description_storage_size_t storage_sizes = {

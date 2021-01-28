@@ -6,7 +6,11 @@
 #ifndef WSBR_H
 #define WSBR_H
 
+#include <linux/if.h>
+
 struct wsbr_ctxt {
+    char dev_tun[IFNAMSIZ];
+    int fd_tun;
     int fd_trig;
     int fd_bus;
 };

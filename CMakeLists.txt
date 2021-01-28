@@ -5,6 +5,7 @@ add_executable(wisun-br
     wsbr.c
     bus_uart.c
     bus_spi.c
+    tun.c
     hal_interrupt.c
     hal_timer.c
     os_scheduler.c
