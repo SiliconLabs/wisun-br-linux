@@ -7,5 +7,12 @@
 #define OS_TIMER_H
 
 #include "eventOS_callback_timer.h"
+#include "slist.h"
+
+struct callback_timer {
+    int fd;
+    void (*fn)(int8_t, uint16_t);
+    struct slist node;
+};
 
 #endif

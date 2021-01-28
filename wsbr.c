@@ -7,12 +7,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <unistd.h>
+#include <sys/select.h>
 
 #include "log.h"
+#include "slist.h"
 #include "wsbr.h"
 #include "tun.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
+#include "os_timer.h"
 #include "hal_interrupt.h"
 #include "net_interface.h"
 #include "sw_mac.h"
@@ -155,6 +159,10 @@ int main(int argc, char *argv[])
     eth_mac_api_t *tun_mac_api;
     int rcp_driver_id, rcp_if_id;
     int tun_driver_id, tun_if_id;
+    struct callback_timer *timer;
+    fd_set rfds;
+    int maxfd, ret;
+    uint64_t timer_val;
 
     platform_critical_init();
     mbed_trace_init();
@@ -186,6 +194,24 @@ int main(int argc, char *argv[])
 
     if (ws_bbr_start(rcp_if_id, tun_if_id))
         tr_err("%s: ws_bbr_start", __func__);
+
+    for (;;) {
+        maxfd = 0;
+        FD_ZERO(&rfds);
+        SLIST_FOR_EACH_ENTRY(ctxt->fd_timer, timer, node) {
+            FD_SET(timer->fd, &rfds);
+            maxfd = max(maxfd, timer->fd);
+        }
+        ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
+        if (ret < 0)
+            FATAL(2, "pselect: %m");
+        SLIST_FOR_EACH_ENTRY(ctxt->fd_timer, timer, node) {
+            if (FD_ISSET(timer->fd, &rfds)) {
+                read(timer->fd, &timer_val, sizeof(timer_val));
+                timer->fn(timer->fd, 0);
+            }
+        }
+    }
 
     return 0;
 }

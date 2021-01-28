@@ -8,11 +8,14 @@
 
 #include <linux/if.h>
 
+struct slist;
+
 struct wsbr_ctxt {
     char dev_tun[IFNAMSIZ];
     int fd_tun;
     int fd_trig;
     int fd_bus;
+    struct slist *fd_timer;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
