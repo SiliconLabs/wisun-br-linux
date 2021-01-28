@@ -15,4 +15,8 @@ struct wsbr_ctxt {
     int fd_bus;
 };
 
+// This global variable is necessary for various API of nanostack. Beside this
+// case, please never use it.
+extern struct wsbr_ctxt g_ctxt;
+
 #endif

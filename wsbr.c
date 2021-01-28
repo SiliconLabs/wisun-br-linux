@@ -23,6 +23,9 @@
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
+// See warning in wsbr.h
+struct wsbr_ctxt g_ctxt = { };
+
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi_SUN border router\n");
     fprintf(stream, "\n");
@@ -147,7 +150,7 @@ static struct phy_device_driver_s tun_phy_driver = {
 
 int main(int argc, char *argv[])
 {
-    struct wsbr_ctxt ctxt;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
     mac_api_t *rcp_mac_api;
     eth_mac_api_t *tun_mac_api;
     int rcp_driver_id, rcp_if_id;
@@ -155,7 +158,7 @@ int main(int argc, char *argv[])
 
     platform_critical_init();
     mbed_trace_init();
-    configure(&ctxt, argc, argv);
+    configure(ctxt, argc, argv);
 
     if (net_init_core())
         tr_err("%s: net_init_core", __func__);
