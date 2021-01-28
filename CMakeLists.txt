@@ -10,6 +10,7 @@ add_executable(wisun-br
     hal_timer.c
     os_scheduler.c
     os_nvm.c
+    slist.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
     nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
