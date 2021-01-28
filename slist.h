@@ -20,6 +20,25 @@ struct slist {
          (entry) != container_of(NULL, typeof(*entry), member);     \
          (entry) = container_of((entry)->member.next, typeof(*entry), member))
 
+#define SLIST_REMOVE(head, entry, member, cond) \
+    ({                                                                 \
+        struct slist **__prev = &head;                                 \
+                                                                       \
+        if (*__prev) {                                                 \
+            entry = container_of(*__prev, typeof(*entry), member);     \
+            while (!(cond) && entry->member.next) {                    \
+                __prev = &entry->member.next;                          \
+                entry = container_of(*__prev, typeof(*entry), member); \
+            }                                                          \
+            if (cond) {                                                \
+                *__prev = entry->member.next;                          \
+                entry->member.next = NULL;                             \
+            }                                                          \
+        }                                                              \
+        entry;                                                         \
+    })
+
+
 unsigned int slist_len(struct slist **head);
 void slist_push(struct slist **head, struct slist *item);
 void slist_push_back(struct slist **head, struct slist *item);
