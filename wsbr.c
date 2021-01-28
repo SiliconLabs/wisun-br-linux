@@ -35,9 +35,9 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -u                     Use UART bus\n");
-    fprintf(stream, "  -s                     Use SPI bus\n");
-    fprintf(stream, "  -t TUN                 Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
+    fprintf(stream, "  -u      Use UART bus\n");
+    fprintf(stream, "  -s      Use SPI bus\n");
+    fprintf(stream, "  -t TUN  Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "\n");
     fprintf(stream, "UART options\n");
     fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600,19200,38400,57600,115200 (default),230400,460800,921600\n");
