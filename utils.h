@@ -7,6 +7,7 @@
 #define UTILS_H
 
 #include <string.h>
+#include <stdlib.h>
 
 #define min(x, y) ({ \
     typeof(x) _x = (x); \
@@ -22,5 +23,13 @@
 
 #define container_of(ptr, type, member)  (type *)((uintptr_t)(ptr) - ((uintptr_t)(&((type *)0)->member)))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+static inline void *zalloc(size_t size)
+{
+    void *ptr = malloc(size);
+
+    memset(ptr, 0, size);
+    return ptr;
+}
 
 #endif
