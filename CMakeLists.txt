@@ -7,7 +7,7 @@ add_executable(wisun-br
     bus_spi.c
     tun.c
     hal_interrupt.c
-    hal_timer.c
+    os_timer.c
     os_scheduler.c
     os_nvm.c
     slist.c
@@ -192,7 +192,6 @@ add_executable(wisun-br
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
     nanostack/source/Service_Libs/whiteboard/whiteboard.c
-    nanostack-event-loop/source/ns_timer.c
     nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c

@@ -3,10 +3,9 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef HAL_TIMER_H
-#define HAL_TIMER_H
+#ifndef OS_TIMER_H
+#define OS_TIMER_H
 
-#include "platform/arm_hal_timer.h"
+#include "eventOS_callback_timer.h"
 
 #endif
-
