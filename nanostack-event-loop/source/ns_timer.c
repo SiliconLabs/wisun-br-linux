@@ -134,19 +134,6 @@ static int8_t ns_timer_start_pl_timer(uint16_t pl_timer_start_slots)
     return 0;
 }
 
-int8_t ns_timer_sleep(void)
-{
-    int8_t ret_val = -1;
-    if (ns_timer_state & NS_TIMER_RUNNING) {
-        /*Start HAL timer*/
-        platform_timer_disable();
-        /*Set HAL timer state to running*/
-        ns_timer_state &= ~NS_TIMER_RUNNING;
-        ret_val = 0;
-    }
-    return ret_val;
-}
-
 static int8_t ns_timer_get_next_running_to(void)
 {
     uint8_t hold_count = 0;

@@ -57,14 +57,6 @@ extern void eventOS_scheduler_run_until_idle(void);
  * Calls eventOS_scheduler_idle() whenever event queue is empty.
  */
 NS_NORETURN extern void eventOS_scheduler_run(void);
-/**
- * \brief Disable Event scheduler Timers
- *
- * \return 0 Timer Stop OK
- * \return -1 Timer Stop Fail
- *
- * */
-int eventOS_scheduler_timer_stop(void);
 
 /**
  * \brief Synch Event scheduler timer after sleep

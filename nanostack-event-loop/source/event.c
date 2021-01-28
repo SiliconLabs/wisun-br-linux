@@ -287,15 +287,6 @@ void eventOS_scheduler_set_active_tasklet(int8_t tasklet)
     curr_tasklet = tasklet;
 }
 
-int eventOS_scheduler_timer_stop(void)
-{
-    timer_sys_disable();
-    if (ns_timer_sleep() != 0) {
-        return 1;
-    }
-    return 0;
-}
-
 int eventOS_scheduler_timer_synch_after_sleep(uint32_t sleep_ticks)
 {
     //Update MS to 10ms ticks
