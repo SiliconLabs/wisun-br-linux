@@ -56,19 +56,11 @@ struct slist *sl_slist_pop(struct slist **head)
     return item;
 }
 
-void slist_insert_after(struct slist *item, struct slist *pos)
+void slist_insert(struct slist *item, struct slist *pos)
 {
     BUG_ON(!item);
     BUG_ON(!pos);
 
     item->next = pos->next;
     pos->next = item;
-}
-
-void slist_remove_after(struct slist *pos)
-{
-    BUG_ON(!pos);
-    BUG_ON(!pos->next);
-
-    pos->next = pos->next->next;
 }
