@@ -64,10 +64,10 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
 
 int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 {
-    return write(ctxt->fd_bus, buf, len);
+    return write(ctxt->rcp_fd, buf, len);
 }
 
 int wsbr_spi_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
 {
-    return read(ctxt->fd_bus, buf, len);
+    return read(ctxt->rcp_fd, buf, len);
 }

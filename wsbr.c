@@ -83,7 +83,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 bus = opt;
                 break;
             case 't':
-                strncpy(ctxt->dev_tun, optarg, sizeof(ctxt->dev_tun) - 1);
+                strncpy(ctxt->tun_dev, optarg, sizeof(ctxt->tun_dev) - 1);
                 break;
             case 'b':
                 baudrate = strtoul(optarg, &end_ptr, 10);
@@ -110,17 +110,17 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     if (bus == 's') {
         if (argc != optind + 2)
             print_help(stderr, 1);
-        ctxt->fd_bus = wsbr_spi_open(argv[optind + 0], frequency, 0);
-        ctxt->fd_trig = wsbr_gpio_open(argv[optind + 1], false);
+        ctxt->rcp_fd = wsbr_spi_open(argv[optind + 0], frequency, 0);
+        ctxt->rcp_trig_fd = wsbr_gpio_open(argv[optind + 1], false);
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
-        ctxt->fd_bus = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
-        ctxt->fd_trig = ctxt->fd_bus;
+        ctxt->rcp_fd = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
+        ctxt->rcp_trig_fd = ctxt->rcp_fd;
     } else {
         print_help(stderr, 1);
     }
-    ctxt->fd_tun = wsbr_tun_open(ctxt->dev_tun);
+    ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev);
 }
 
 static mac_description_storage_size_t storage_sizes = {
@@ -139,7 +139,7 @@ static int8_t tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_protoco
     return 0;
 }
 
-static struct phy_device_driver_s tun_phy_driver = {
+static struct phy_device_driver_s tun_driver = {
     /* link_type must match with ifr.ifr_flags:
      *   IFF_TAP | IFF_NO_PI -> PHY_LINK_ETHERNET_TYPE
      *   IFF_TUN | IFF_NO_PI -> PHY_LINK_SLIP
@@ -155,10 +155,6 @@ static struct phy_device_driver_s tun_phy_driver = {
 int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    mac_api_t *rcp_mac_api;
-    eth_mac_api_t *tun_mac_api;
-    int rcp_driver_id, rcp_if_id;
-    int tun_driver_id, tun_if_id;
     struct callback_timer *timer;
     fd_set rfds;
     int maxfd, ret;
@@ -171,41 +167,42 @@ int main(int argc, char *argv[])
     if (net_init_core())
         tr_err("%s: net_init_core", __func__);
 
-    rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
-    if (rcp_driver_id < 0)
-        tr_err("%s: arm_net_phy_register: %d", __func__, rcp_driver_id);
-    arm_net_phy_mac64_set(rcp_mac, rcp_driver_id);
-    rcp_mac_api = ns_sw_mac_create(rcp_driver_id, &storage_sizes);
-    if (!rcp_mac_api)
+    ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
+    if (ctxt->rcp_driver_id < 0)
+        tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
+    arm_net_phy_mac64_set(rcp_mac, ctxt->rcp_driver_id);
+    ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
+    if (!ctxt->rcp_mac_api)
         tr_err("%s: ns_sw_mac_create", __func__);
-    rcp_if_id = arm_nwk_interface_lowpan_init(rcp_mac_api, "ws0");
-    if (rcp_if_id < 0)
-        tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, rcp_if_id);
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(ctxt->rcp_mac_api, "ws0");
+    if (ctxt->rcp_if_id < 0)
+        tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
 
-    tun_driver_id = arm_net_phy_register(&tun_phy_driver);
-    if (tun_driver_id < 0)
-        tr_err("%s: arm_net_phy_register: %d", __func__, tun_driver_id);
-    tun_mac_api = ethernet_mac_create(tun_driver_id);
-    if (!tun_mac_api)
+    ctxt->tun_driver = &tun_driver;
+    ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);
+    if (ctxt->tun_driver_id < 0)
+        tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->tun_driver_id);
+    ctxt->tun_mac_api = ethernet_mac_create(ctxt->tun_driver_id);
+    if (!ctxt->tun_mac_api)
         tr_err("%s: ethernet_mac_create", __func__);
-    tun_if_id = arm_nwk_interface_ethernet_init(tun_mac_api, "bh0");
-    if (tun_if_id < 0)
-        tr_err("%s: arm_nwk_interface_ethernet_init: %d", __func__, tun_if_id);
+    ctxt->tun_if_id = arm_nwk_interface_ethernet_init(ctxt->tun_mac_api, "bh0");
+    if (ctxt->tun_if_id < 0)
+        tr_err("%s: arm_nwk_interface_ethernet_init: %d", __func__, ctxt->tun_if_id);
 
-    if (ws_bbr_start(rcp_if_id, tun_if_id))
+    if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
         tr_err("%s: ws_bbr_start", __func__);
 
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);
-        SLIST_FOR_EACH_ENTRY(ctxt->fd_timer, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
         ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
-        SLIST_FOR_EACH_ENTRY(ctxt->fd_timer, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
                 timer->fn(timer->fd, 0);

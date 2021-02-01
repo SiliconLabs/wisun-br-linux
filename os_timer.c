@@ -20,7 +20,7 @@ int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, u
     item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
     FATAL_ON(item->fd < 0, 2);
     FATAL_ON(item->fd > 255, 2);
-    slist_push(&ctxt->fd_timer, &item->node);
+    slist_push(&ctxt->timers, &item->node);
     return item->fd;
 }
 
@@ -30,7 +30,7 @@ int8_t eventOS_callback_timer_unregister(int8_t ns_timer_id)
     struct callback_timer *item;
 
     close(ns_timer_id);
-    item = SLIST_REMOVE(ctxt->fd_timer, item, node, item->fd == ns_timer_id);
+    item = SLIST_REMOVE(ctxt->timers, item, node, item->fd == ns_timer_id);
     BUG_ON(!item);
     return item->fd;
 }
