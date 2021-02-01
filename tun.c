@@ -4,13 +4,17 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
+#include "platform/arm_hal_phy.h"
+
 #include "tun.h"
 #include "log.h"
+#include "wsbr.h"
 
 int wsbr_tun_open(char *devname)
 {
@@ -29,5 +33,14 @@ int wsbr_tun_open(char *devname)
     if (devname)
         strcpy(devname, ifr.ifr_name);
     return fd;
+}
+
+void wsbr_tun_read(struct wsbr_ctxt *ctxt)
+{
+    char buf[1504]; // Max ethernet frame size + TUN header
+    int len;
+
+    len = read(ctxt->tun_fd, buf, sizeof(buf));
+    ctxt->tun_driver->phy_rx_cb(buf, len, 0x80, 0, ctxt->tun_driver_id);
 }
 

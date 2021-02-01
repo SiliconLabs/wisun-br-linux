@@ -195,6 +195,8 @@ int main(int argc, char *argv[])
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);
+        FD_SET(ctxt->tun_fd, &rfds);
+        maxfd = max(maxfd, ctxt->tun_fd);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
@@ -202,6 +204,8 @@ int main(int argc, char *argv[])
         ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
+        if (FD_ISSET(ctxt->tun_fd, &rfds))
+            wsbr_tun_read(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
