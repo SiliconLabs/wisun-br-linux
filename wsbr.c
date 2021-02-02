@@ -23,6 +23,7 @@
 #include "ns_virtual_rf_api.h"
 #include "ws_bbr_api.h"
 #include "eventOS_scheduler.h"
+#include "eventOS_event.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
@@ -122,6 +123,28 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     pipe(ctxt->event_fd);
 }
 
+static void wsbr_tasklet(struct arm_event_s *event)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+
+    switch (event->event_type) {
+        case ARM_LIB_TASKLET_INIT_EVENT:
+            break;
+        case ARM_LIB_NWK_INTERFACE_EVENT:
+            if (event->event_id == ctxt->tun_if_id) {
+                printf("get event of tun interface\n");
+            } else if (event->event_id == ctxt->rcp_if_id) {
+                printf("get event of ws interface\n");
+            } else {
+                WARN("received unknown network event: %d", event->event_id);
+            }
+            break;
+        default:
+            WARN("received unknown event: %d", event->event_type);
+            break;
+    }
+}
+
 static mac_description_storage_size_t storage_sizes = {
     .device_decription_table_size = 32, // FIXME: we have plenty of memory. Increase this value
     .key_description_table_size = 4,
@@ -161,6 +184,9 @@ int main(int argc, char *argv[])
 
     if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
         tr_err("%s: ws_bbr_start", __func__);
+
+    if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
+        tr_err("%s: eventOS_event_handler_create", __func__);
 
     for (;;) {
         maxfd = 0;
