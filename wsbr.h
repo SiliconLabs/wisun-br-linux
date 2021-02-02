@@ -29,6 +29,11 @@ struct wsbr_ctxt {
 
     int  event_fd[2];
     struct slist *timers;
+
+    int  ws_domain;
+    int  ws_mode;
+    int  ws_class;
+    char ws_name[33]; // null-terminated string of 32 chars
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

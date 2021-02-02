@@ -25,6 +25,7 @@
 #include "ws_bbr_api.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event.h"
+#include "ws_management_api.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
@@ -40,9 +41,13 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -u      Use UART bus\n");
-    fprintf(stream, "  -s      Use SPI bus\n");
-    fprintf(stream, "  -t TUN  Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
+    fprintf(stream, "  -u                    Use UART bus\n");
+    fprintf(stream, "  -s                    Use SPI bus\n");
+    fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
+    fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SN\")\n");
+    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP... (default: EU)\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3, 4a, 4b and 5 (default: 3)\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 or 3 (default: 2)\n");
     fprintf(stream, "\n");
     fprintf(stream, "UART options\n");
     fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600,19200,38400,57600,115200 (default),230400,460800,921600\n");
@@ -60,9 +65,37 @@ void print_help(FILE *stream, int exit_code) {
 
 void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 {
+    static const int valid_ws_modes[] = { 0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05 };
+    static const struct {
+        char *name;
+        int val;
+    } valid_ws_domains[] = {
+        { "WW", REG_DOMAIN_WW }, // World wide
+        { "NA", REG_DOMAIN_NA }, // North America
+        { "JP", REG_DOMAIN_JP }, // Japan
+        { "EU", REG_DOMAIN_EU }, // European Union
+        { "CH", REG_DOMAIN_CH }, // China
+        { "IN", REG_DOMAIN_IN }, // India
+        { "MX", REG_DOMAIN_MX }, //
+        { "BZ", REG_DOMAIN_BZ }, // Brazil
+        { "AZ", REG_DOMAIN_AZ }, // Australia
+        { "NZ", REG_DOMAIN_NZ }, // New zealand
+        { "KR", REG_DOMAIN_KR }, // Korea
+        { "PH", REG_DOMAIN_PH }, //
+        { "MY", REG_DOMAIN_MY }, //
+        { "HK", REG_DOMAIN_HK }, //
+        { "SG", REG_DOMAIN_SG }, // band 866-869
+        { "TH", REG_DOMAIN_TH }, //
+        { "VN", REG_DOMAIN_VN }, //
+        { "SG", REG_DOMAIN_SG_H }, // band 920-925
+    };
     static const struct option opt_list[] = {
         { "help",        no_argument,       0,  'h' },
         { "tun",         required_argument, 0,  't' },
+        { "network",     required_argument, 0,  'n' },
+        { "domain",      required_argument, 0,  'd' },
+        { "mode",        required_argument, 0,  'm' },
+        { "class",       required_argument, 0,  'c' },
         { "baudrate",    required_argument, 0,  'b' },
         { "hardflow",    no_argument,       0,  'H' },
         { "frequency",   required_argument, 0,  'f' },
@@ -73,9 +106,13 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     int baudrate = 115200;
     int frequency = 1000000;
     bool hardflow = false;
-    int opt;
+    int opt, i;
 
-    while ((opt = getopt_long(argc, argv, "usf:Hb:t:h", opt_list, NULL)) != -1) {
+    ctxt->ws_class = 2;
+    ctxt->ws_domain = REG_DOMAIN_EU;
+    ctxt->ws_mode = 0x3;
+    strcpy(ctxt->ws_name, "Wi-SUN");
+    while ((opt = getopt_long(argc, argv, "usf:Hb:t:n:d:m:h", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'u':
             case 's':
@@ -85,6 +122,35 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 break;
             case 't':
                 strncpy(ctxt->tun_dev, optarg, sizeof(ctxt->tun_dev) - 1);
+                break;
+            case 'n':
+                strncpy(ctxt->ws_name, optarg, sizeof(ctxt->ws_name) - 1);
+                break;
+            case 'd':
+                ctxt->ws_domain = -1;
+                for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
+                    if (!strcmp(valid_ws_domains[i].name, optarg)) {
+                        ctxt->ws_domain = valid_ws_domains[i].val;
+                        break;
+                    }
+                }
+                if (ctxt->ws_domain < 0)
+                    FATAL(1, "invalid domain: %s", optarg);
+                break;
+            case 'm':
+                ctxt->ws_mode = strtoul(optarg, &end_ptr, 16);
+                if (*end_ptr)
+                    FATAL(1, "invalid mode: %s", optarg);
+                for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
+                    if (valid_ws_modes[i] == ctxt->ws_mode)
+                        break;
+                if (i == ARRAY_SIZE(valid_ws_modes))
+                    FATAL(1, "invalid mode: %s", optarg);
+                break;
+            case 'c':
+                ctxt->ws_class = strtoul(optarg, &end_ptr, 10);
+                if (*end_ptr || ctxt->ws_class > 3)
+                    FATAL(1, "invalid operating class: %s", optarg);
                 break;
             case 'b':
                 baudrate = strtoul(optarg, &end_ptr, 10);
