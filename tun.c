@@ -20,7 +20,11 @@
 
 static int8_t wsbr_tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_protocol_e protocol)
 {
-    printf("%s: FIXME\n", __func__);
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    int ret;
+
+    ret = write(ctxt->tun_fd, buf, len);
+    WARN_ON(ret != len);
     return 0;
 }
 
