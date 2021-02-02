@@ -18,10 +18,8 @@
 #include "bus_spi.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
-#include "net_interface.h"
 #include "sw_mac.h"
 #include "mac_api.h"
-#include "ethernet_mac_api.h"
 #include "ns_virtual_rf_api.h"
 #include "ws_bbr_api.h"
 #include "eventOS_scheduler.h"
@@ -121,7 +119,6 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     } else {
         print_help(stderr, 1);
     }
-    ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev);
     pipe(ctxt->event_fd);
 }
 
@@ -133,27 +130,6 @@ static mac_description_storage_size_t storage_sizes = {
 };
 
 static uint8_t rcp_mac[8] = { 10, 11, 12, 13, 14, 15, 16, 17 };
-static uint8_t tun_mac[8] = { 20, 21, 22, 23, 24, 25, 26, 27 };
-
-static int8_t tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_protocol_e protocol)
-{
-    tr_info("%s: FIXME\n", __func__);
-    return 0;
-}
-
-static struct phy_device_driver_s tun_driver = {
-    /* link_type must match with ifr.ifr_flags:
-     *   IFF_TAP | IFF_NO_PI -> PHY_LINK_ETHERNET_TYPE
-     *   IFF_TUN | IFF_NO_PI -> PHY_LINK_SLIP
-     *   IFF_TUN -> PHY_LINK_TUN
-     */
-    .link_type = PHY_LINK_TUN,
-    .PHY_MAC = tun_mac,
-    .data_request_layer = IPV6_DATAGRAMS_DATA_FLOW,
-    .driver_description = (char *)"TUN BH",
-    .tx = tun_tx,
-};
-
 int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
@@ -170,6 +146,8 @@ int main(int argc, char *argv[])
     if (net_init_core())
         tr_err("%s: net_init_core", __func__);
 
+    wsbr_tun_init(ctxt);
+
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
         tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
@@ -180,17 +158,6 @@ int main(int argc, char *argv[])
     ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(ctxt->rcp_mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
         tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
-
-    ctxt->tun_driver = &tun_driver;
-    ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);
-    if (ctxt->tun_driver_id < 0)
-        tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->tun_driver_id);
-    ctxt->tun_mac_api = ethernet_mac_create(ctxt->tun_driver_id);
-    if (!ctxt->tun_mac_api)
-        tr_err("%s: ethernet_mac_create", __func__);
-    ctxt->tun_if_id = arm_nwk_interface_ethernet_init(ctxt->tun_mac_api, "bh0");
-    if (ctxt->tun_if_id < 0)
-        tr_err("%s: arm_nwk_interface_ethernet_init: %d", __func__, ctxt->tun_if_id);
 
     if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
         tr_err("%s: ws_bbr_start", __func__);

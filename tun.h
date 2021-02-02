@@ -8,7 +8,7 @@
 
 struct wsbr_ctxt;
 
-int wsbr_tun_open(char *devname);
+void wsbr_tun_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);
 
 #endif
