@@ -41,7 +41,7 @@ add_executable(wisun-br
     nanostack/source/6LoWPAN/ws/ws_eapol_pdu.c
     nanostack/source/6LoWPAN/ws/ws_eapol_relay.c
     nanostack/source/6LoWPAN/ws/ws_eapol_relay_lib.c
-    nanostack/source/6LoWPAN/ws/ws_empty_functions.c
+    # Excluded nanostack/source/6LoWPAN/ws/ws_empty_functions.c
     nanostack/source/6LoWPAN/ws/ws_ie_lib.c
     nanostack/source/6LoWPAN/ws/ws_llc_data_service.c
     nanostack/source/6LoWPAN/ws/ws_management_api.c
