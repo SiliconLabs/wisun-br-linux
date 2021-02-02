@@ -27,6 +27,7 @@ struct wsbr_ctxt {
     int  rcp_trig_fd;
     int  rcp_fd;
 
+    int  event_fd[2];
     struct slist *timers;
 };
 

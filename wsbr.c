@@ -24,6 +24,7 @@
 #include "ethernet_mac_api.h"
 #include "ns_virtual_rf_api.h"
 #include "ws_bbr_api.h"
+#include "eventOS_scheduler.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
@@ -121,6 +122,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         print_help(stderr, 1);
     }
     ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev);
+    pipe(ctxt->event_fd);
 }
 
 static mac_description_storage_size_t storage_sizes = {
@@ -159,6 +161,7 @@ int main(int argc, char *argv[])
     fd_set rfds;
     int maxfd, ret;
     uint64_t timer_val;
+    char event_val;
 
     platform_critical_init();
     mbed_trace_init();
@@ -197,6 +200,8 @@ int main(int argc, char *argv[])
         FD_ZERO(&rfds);
         FD_SET(ctxt->tun_fd, &rfds);
         maxfd = max(maxfd, ctxt->tun_fd);
+        FD_SET(ctxt->event_fd[0], &rfds);
+        maxfd = max(maxfd, ctxt->event_fd[0]);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
@@ -206,6 +211,10 @@ int main(int argc, char *argv[])
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
+        if (FD_ISSET(ctxt->event_fd[0], &rfds)) {
+            read(ctxt->event_fd[0], &event_val, 1);
+            eventOS_scheduler_run_until_idle();
+        }
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
