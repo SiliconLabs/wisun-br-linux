@@ -125,10 +125,27 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 
 static void wsbr_tasklet(struct arm_event_s *event)
 {
+    static uint8_t tun_prefix[16] = { };
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     switch (event->event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
+            // The tasklet that call arm_nwk_interface_configure_*_bootstrap_set()
+            // will be used to receive ARM_LIB_NWK_INTERFACE_EVENT.
+            if (arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
+                                                                  NET_6LOWPAN_BORDER_ROUTER,
+                                                                  NET_6LOWPAN_WS))
+                WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
+            if (arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
+                                                               NET_IPV6_BOOTSTRAP_AUTONOMOUS,
+                                                               tun_prefix))
+                WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
+            if (arm_nwk_interface_up(ctxt->tun_if_id))
+                 WARN("arm_nwk_interface_up TUN");
+            if (arm_nwk_interface_up(ctxt->rcp_if_id))
+                 WARN("arm_nwk_interface_up RCP");
+            if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
+                 WARN("ws_bbr_start");
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
@@ -181,9 +198,6 @@ int main(int argc, char *argv[])
     ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(ctxt->rcp_mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
         tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
-
-    if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
-        tr_err("%s: ws_bbr_start", __func__);
 
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         tr_err("%s: eventOS_event_handler_create", __func__);
