@@ -8,6 +8,7 @@
 
 #include "os_scheduler.h"
 #include "wsbr.h"
+#include "log.h"
 
 void eventOS_scheduler_signal(void)
 {
@@ -18,5 +19,7 @@ void eventOS_scheduler_signal(void)
 
 void eventOS_scheduler_idle(void)
 {
-    printf("%s: FIXME\n", __func__);
+    // eventOS_scheduler_idle() is only called by eventOS_scheduler_run() and it
+    // makes no sense to use this function on Linux
+    BUG("Not implemented");
 }
