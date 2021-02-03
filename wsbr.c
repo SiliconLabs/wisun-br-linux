@@ -18,6 +18,7 @@
 #include "bus_spi.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
+#include "hal_fhss_timer.h"
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ns_virtual_rf_api.h"
@@ -25,6 +26,7 @@
 #include "ws_bbr_api.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event.h"
+#include "fhss_api.h"
 #include "ws_management_api.h"
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
@@ -190,6 +192,36 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     pipe(ctxt->event_fd);
 }
 
+static void wsbr_configure_fhss(struct wsbr_ctxt *ctxt)
+{
+    int ret;
+
+    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
+                                  ctxt->ws_name, &wsbr_fhss);
+    WARN_ON(ret);
+    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
+                                              ctxt->ws_class, ctxt->ws_mode);
+    WARN_ON(ret);
+    if (ctxt->ws_domain == 0xFE) {
+        FATAL(2, "Not yet supported");
+        // ret = ws_management_channel_plan_set(ctxt->rcp_if_id, ...);
+        // WARN_ON(ret);
+    }
+    // FIXME: allow to customize that
+    // ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, ...);
+    // WARN_ON(ret);
+    // ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, ...);
+    // WARN_ON(ret);
+    // ret = ws_management_fhss_timing_configure(ctxt->rcp_if_id, ...);
+    // WARN_ON(ret);
+    // ret = ws_management_network_size_set(ctxt->rcp_if_id, NETWORK_SIZE_SMALL);
+    // WARN_ON(ret);
+    // ret = ws_management_timing_parameters_set(ctxt->rcp_if_id, ...);
+    // WARN_ON(ret);
+    // ret = ws_bbr_rpl_parameters_set(ctxt->rcp_if_id, ...);
+    // WARN_ON(ret);
+}
+
 static void wsbr_tasklet(struct arm_event_s *event)
 {
     static uint8_t tun_prefix[16] = { };
@@ -207,6 +239,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                NET_IPV6_BOOTSTRAP_AUTONOMOUS,
                                                                tun_prefix))
                 WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
+            wsbr_configure_fhss(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
                  WARN("arm_nwk_interface_up TUN");
             if (arm_nwk_interface_up(ctxt->rcp_if_id))
