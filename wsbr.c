@@ -21,6 +21,7 @@
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ns_virtual_rf_api.h"
+#include "ns_file_system.h"
 #include "ws_bbr_api.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event.h"
@@ -182,6 +183,7 @@ int main(int argc, char *argv[])
     platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
+    ns_file_system_set_root_path("/tmp/wsbr_");
 
     if (net_init_core())
         tr_err("%s: net_init_core", __func__);

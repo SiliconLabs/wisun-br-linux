@@ -9,7 +9,6 @@ add_executable(wisun-br
     hal_interrupt.c
     os_timer.c
     os_scheduler.c
-    os_nvm.c
     slist.c
     spinel.c
     nanostack/source/BorderRouter/border_router.c
@@ -51,6 +50,7 @@ add_executable(wisun-br
     nanostack/source/6LoWPAN/ws/ws_pae_controller.c
     nanostack/source/6LoWPAN/ws/ws_pae_key_storage.c
     nanostack/source/6LoWPAN/ws/ws_pae_lib.c
+    nanostack/source/6LoWPAN/ws/ws_pae_nvm_store.c
     nanostack/source/6LoWPAN/ws/ws_pae_nvm_data.c
     nanostack/source/6LoWPAN/ws/ws_pae_supp.c
     nanostack/source/6LoWPAN/ws/ws_pae_time.c
