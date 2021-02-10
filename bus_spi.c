@@ -31,10 +31,13 @@ int wsbr_gpio_open(const char *device, bool use_fall_edge)
 {
     char *end_ptr;
     char buf[256];
+    int fd;
 
     strtol(device, &end_ptr, 10);
     if (*end_ptr) {
-        return open(device, O_RDONLY);
+        fd = open(device, O_RDONLY);
+        if (fd < 0)
+            FATAL(1, "%s: %m", buf);
     } else {
         simple_write("/sys/class/gpio/export", device);
         snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%s/direction", device);
@@ -42,8 +45,11 @@ int wsbr_gpio_open(const char *device, bool use_fall_edge)
         snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%s/edge", device);
         simple_write(buf, use_fall_edge ? "falling" : "rising");
         snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%s/value", device);
-        return open(buf, O_RDONLY);
+        fd = open(buf, O_RDONLY);
+        if (fd < 0)
+            FATAL(1, "%s: %m", buf);
     }
+    return fd;
 }
 
 int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
