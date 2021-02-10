@@ -75,5 +75,10 @@ int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 
 int wsbr_spi_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
 {
+    char trig_val[3];
+
+    lseek(ctxt->rcp_trig_fd, 0, SEEK_SET);
+    if (read(ctxt->rcp_trig_fd, trig_val, sizeof(buf)) != 2)
+        WARN("unexpected GPIO value");
     return read(ctxt->rcp_fd, buf, len);
 }
