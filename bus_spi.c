@@ -42,7 +42,7 @@ int wsbr_gpio_open(const char *device, bool use_fall_edge)
         snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%s/edge", device);
         simple_write(buf, use_fall_edge ? "falling" : "rising");
         snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%s/value", device);
-        return open(device, O_RDONLY);
+        return open(buf, O_RDONLY);
     }
 }
 
