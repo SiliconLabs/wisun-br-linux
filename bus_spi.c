@@ -10,9 +10,16 @@
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 
+#include "spinel.h"
 #include "log.h"
+#include "utils.h"
 #include "wsbr.h"
 #include "bus_spi.h"
+
+#define HDR_RST  0x01
+#define HDR_CRC  0x02
+#define HDR_CCF  0x04
+#define HDR_PAT  0xC0
 
 static void simple_write(const char *filename, const char *data)
 {
@@ -68,17 +75,47 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
     return fd;
 }
 
+// FIXME: take recv_len into account
 int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 {
-    return write(ctxt->rcp_fd, buf, len);
+    char *frame = malloc(len + 5);
+    uint8_t hdr = FIELD_PREP(HDR_PAT, 0x2);
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, len + 5, "CSSD", &hdr, UINT16_MAX, len, buf, len);
+    BUG_ON(frame_len != len + 5);
+    if (write(ctxt->rcp_fd, buf, frame_len) != frame_len)
+        BUG("write: %m");
+    free(frame);
+    return len;
 }
 
 int wsbr_spi_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
 {
-    char trig_val[3];
+    char tmp[5];
+    int data_len, recv_len, ret;
+    uint8_t hdr;
 
     lseek(ctxt->rcp_trig_fd, 0, SEEK_SET);
-    if (read(ctxt->rcp_trig_fd, trig_val, sizeof(buf)) != 2)
+    if (read(ctxt->rcp_trig_fd, tmp, sizeof(tmp)) != 2)
         WARN("unexpected GPIO value");
-    return read(ctxt->rcp_fd, buf, len);
+    read(ctxt->rcp_fd, tmp, sizeof(tmp));
+    spinel_datatype_unpack(tmp, sizeof(tmp), "CSS", &hdr, &recv_len, &data_len);
+    if (FIELD_GET(HDR_CRC, hdr))
+        data_len += 2;
+    if (len < data_len)
+        BUG("buffer too small");
+    if (read(ctxt->rcp_fd, buf, data_len) != data_len)
+        BUG("read: %m");
+    if (FIELD_GET(HDR_CRC, hdr))
+        data_len -= 2;
+    if (FIELD_GET(HDR_RST, hdr))
+        WARN("device reset");
+    if (FIELD_GET(HDR_CCF, hdr))
+        WARN("CRC check failure");
+    if (FIELD_GET(HDR_PAT, hdr) != 0x2) {
+        WARN("bad pattern, frame dropped");
+        return 0;
+    }
+    return data_len;
 }
