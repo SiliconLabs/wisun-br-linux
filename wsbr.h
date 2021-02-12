@@ -12,6 +12,7 @@ struct phy_device_driver_s;
 struct eth_mac_api_s;
 struct mac_api_s;
 struct slist;
+struct wsbr_ctxt;
 
 struct wsbr_ctxt {
     struct phy_device_driver_s *tun_driver;
@@ -22,6 +23,8 @@ struct wsbr_ctxt {
     char tun_dev[IFNAMSIZ];
 
     struct mac_api_s *rcp_mac_api;
+    int  (*rcp_tx)(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len);
+    int  (*rcp_rx)(struct wsbr_ctxt *ctxt, void *buf, unsigned int len);
     int  rcp_driver_id;
     int  rcp_if_id;
     int  rcp_trig_fd;

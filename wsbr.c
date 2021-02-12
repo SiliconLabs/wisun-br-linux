@@ -179,17 +179,30 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     if (bus == 's') {
         if (argc != optind + 2)
             print_help(stderr, 1);
+        ctxt->rcp_tx = wsbr_spi_tx;
+        ctxt->rcp_rx = wsbr_spi_rx;
         ctxt->rcp_fd = wsbr_spi_open(argv[optind + 0], frequency, 0);
         ctxt->rcp_trig_fd = wsbr_gpio_open(argv[optind + 1], false);
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
+        ctxt->rcp_tx = wsbr_uart_tx;
+        ctxt->rcp_rx = wsbr_uart_rx;
         ctxt->rcp_fd = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
         ctxt->rcp_trig_fd = ctxt->rcp_fd;
     } else {
         print_help(stderr, 1);
     }
     pipe(ctxt->event_fd);
+}
+
+void rcp_rx(struct wsbr_ctxt *ctxt)
+{
+    char buf[256];
+    int len;
+
+    len = ctxt->rcp_rx(ctxt, buf, sizeof(buf));
+    // FIXME: parse it and forwward it to upper layers
 }
 
 static void wsbr_configure_fhss(struct wsbr_ctxt *ctxt)
@@ -274,7 +287,7 @@ int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
-    fd_set rfds;
+    fd_set rfds, efds;
     int maxfd, ret;
     uint64_t timer_val;
     char event_val;
@@ -306,6 +319,12 @@ int main(int argc, char *argv[])
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);
+        FD_ZERO(&efds);
+        if (ctxt->rcp_trig_fd == ctxt->rcp_fd)
+            FD_SET(ctxt->rcp_trig_fd, &rfds); // UART
+        else
+            FD_SET(ctxt->rcp_trig_fd, &efds); // SPI + GPIO
+        maxfd = max(maxfd, ctxt->rcp_trig_fd);
         FD_SET(ctxt->tun_fd, &rfds);
         maxfd = max(maxfd, ctxt->tun_fd);
         FD_SET(ctxt->event_fd[0], &rfds);
@@ -314,7 +333,8 @@ int main(int argc, char *argv[])
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
-        ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
+        // FIXME: consider poll() usage
+        ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->tun_fd, &rfds))
@@ -323,6 +343,8 @@ int main(int argc, char *argv[])
             read(ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
         }
+        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) || FD_ISSET(ctxt->rcp_trig_fd, &efds))
+            rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
