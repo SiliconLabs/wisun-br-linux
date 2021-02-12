@@ -24,6 +24,10 @@
 #define container_of(ptr, type, member)  (type *)((uintptr_t)(ptr) - ((uintptr_t)(&((type *)0)->member)))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
+#define __bf_shf(x) (__builtin_ffsll(x) - 1)
+#define FIELD_GET(mask, reg) (((reg) & (mask)) >> __bf_shf(mask))
+#define FIELD_PREP(mask, val) (((val) << __bf_shf(mask)) & (mask))
+
 static inline void *zalloc(size_t size)
 {
     void *ptr = malloc(size);
