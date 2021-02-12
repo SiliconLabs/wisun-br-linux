@@ -183,6 +183,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         ctxt->rcp_rx = wsbr_spi_rx;
         ctxt->rcp_fd = wsbr_spi_open(argv[optind + 0], frequency, 0);
         ctxt->rcp_trig_fd = wsbr_gpio_open(argv[optind + 1], false);
+        ctxt->rcp_spi_recv_window = UINT16_MAX;
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
