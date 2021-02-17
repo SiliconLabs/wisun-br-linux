@@ -292,6 +292,7 @@ int main(int argc, char *argv[])
     int maxfd, ret;
     uint64_t timer_val;
     char event_val;
+    struct timespec ts = { };
 
     platform_critical_init();
     mbed_trace_init();
@@ -335,7 +336,10 @@ int main(int argc, char *argv[])
             maxfd = max(maxfd, timer->fd);
         }
         // FIXME: consider poll() usage
-        ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
+        if (ctxt->rcp_uart_rx_buf_len)
+            ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
+        else
+            ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->tun_fd, &rfds))
@@ -344,7 +348,7 @@ int main(int argc, char *argv[])
             read(ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
         }
-        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) || FD_ISSET(ctxt->rcp_trig_fd, &efds))
+        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) || FD_ISSET(ctxt->rcp_trig_fd, &efds) || ctxt->rcp_uart_rx_buf_len)
             rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
