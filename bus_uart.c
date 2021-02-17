@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <stdint.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
@@ -11,6 +12,22 @@
 #include "utils.h"
 #include "wsbr.h"
 #include "bus_uart.h"
+
+static uint16_t crc16(const uint8_t *data, int len)
+{
+    uint8_t x;
+    uint16_t crc = 0;
+
+    while (len--) {
+        x = crc >> 8 ^ *data++;
+        x ^= x >> 4;
+        crc <<= 8;
+        crc ^= ((uint16_t)x) << 12;
+        crc ^= ((uint16_t)x) << 5;
+        crc ^= x;
+    }
+    return crc;
+}
 
 int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
 {
