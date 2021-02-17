@@ -78,9 +78,31 @@ int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
+int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
-    return write(ctxt->rcp_fd, buf, len);
+    uint16_t crc = crc16(buf, buf_len);
+    uint8_t *frame = malloc(buf_len * 2 + 3);
+    const uint8_t *buf8 = buf;
+    int i, frame_len;
+    int ret;
+
+    frame_len = 0;
+    frame[frame_len++] = 0x7E;
+    for (i = 0; i < buf_len; i++) {
+        if (buf8[i] == 0x7D || buf8[i] == 0x7E) {
+            frame[frame_len++] = 0x7D;
+            frame[frame_len++] = buf8[i] ^ 0x20;
+        } else {
+            frame[frame_len++] = buf8[i];
+        }
+    }
+    memcpy(frame + frame_len, &crc, sizeof(crc));
+    frame_len += sizeof(crc);
+    ret = write(ctxt->rcp_fd, frame, frame_len);
+    BUG_ON(ret != frame_len);
+    free(frame);
+
+    return frame_len;
 }
 
 int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
