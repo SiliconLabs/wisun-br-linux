@@ -108,41 +108,49 @@ int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int buf_len)
 int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     uint8_t *buf8 = buf;
-    int i = 0;
-    int frame_len = 0;
     uint16_t crc;
+    int i, frame_len;
+    int ret;
 
-    BUG_ON(ctxt->rcp_uart_rx_buf_len && ctxt->rcp_uart_rx_buf[0] == 0x7E);
-    while (i == ctxt->rcp_uart_rx_buf_len) {
-        i = 0;
-        ctxt->rcp_uart_rx_buf_len = read(ctxt->rcp_fd, ctxt->rcp_uart_rx_buf, sizeof(ctxt->rcp_uart_rx_buf));
-        BUG_ON(ctxt->rcp_uart_rx_buf_len < 0);
-        while (buf8[i] == 0x7E && i < ctxt->rcp_uart_rx_buf_len)
+    if (!ctxt->rcp_uart_next_frame_ready) {
+        ret = read(ctxt->rcp_fd,
+                   ctxt->rcp_uart_rx_buf + ctxt->rcp_uart_rx_buf_len,
+                   sizeof(ctxt->rcp_uart_rx_buf) - ctxt->rcp_uart_rx_buf_len);
+        BUG_ON(ret <= 0);
+        ctxt->rcp_uart_rx_buf_len += ret;
+    }
+    i = 0;
+    frame_len = 0;
+    while (ctxt->rcp_uart_rx_buf[i] == 0x7E && i < ctxt->rcp_uart_rx_buf_len)
+        i++;
+    while (ctxt->rcp_uart_rx_buf[i] != 0x7E && i < ctxt->rcp_uart_rx_buf_len) {
+        BUG_ON(frame_len > buf_len);
+        if (buf8[i] == 0x7D) {
             i++;
-    };
-    while (ctxt->rcp_uart_rx_buf[i] != 0x7E) {
-        while (ctxt->rcp_uart_rx_buf[i] != 0x7E && i < ctxt->rcp_uart_rx_buf_len) {
-            BUG_ON(frame_len > buf_len);
-            if (buf8[i] == 0x7D) {
-                i++;
-                buf8[frame_len++] = ctxt->rcp_uart_rx_buf[i++] ^ 0x20;
-            } else {
-                BUG_ON(ctxt->rcp_uart_rx_buf[i] == 0x7E);
-                buf8[frame_len++] = buf8[i++];
-            }
+            buf8[frame_len++] = ctxt->rcp_uart_rx_buf[i++] ^ 0x20;
+        } else {
+            BUG_ON(ctxt->rcp_uart_rx_buf[i] == 0x7E);
+            buf8[frame_len++] = ctxt->rcp_uart_rx_buf[i++];
         }
-        if (i == ctxt->rcp_uart_rx_buf_len)
-            ctxt->rcp_uart_rx_buf_len = read(ctxt->rcp_fd, ctxt->rcp_uart_rx_buf, sizeof(ctxt->rcp_uart_rx_buf));
+    }
+    BUG_ON(ctxt->rcp_uart_next_frame_ready && i == ctxt->rcp_uart_rx_buf_len);
+    if (i == ctxt->rcp_uart_rx_buf_len)
+        return 0;
+    BUG_ON(frame_len <= 2);
+    frame_len -= sizeof(uint16_t);
+    crc = crc16(buf8, frame_len);
+    if (memcmp(buf8 + frame_len, &crc, sizeof(uint16_t))) {
+        WARN("bad crc, frame dropped");
+        frame_len = 0;
     }
     while (ctxt->rcp_uart_rx_buf[i] == 0x7E && i < ctxt->rcp_uart_rx_buf_len)
         i++;
     memmove(ctxt->rcp_uart_rx_buf, ctxt->rcp_uart_rx_buf + i, ctxt->rcp_uart_rx_buf_len - i);
     ctxt->rcp_uart_rx_buf_len -= i;
-    frame_len -= sizeof(uint16_t);
-    crc = crc16(buf8, frame_len);
-    if (memcmp(buf8 + frame_len, &crc, sizeof(uint16_t))) {
-        WARN("bad crc, frame dropped");
-        return 0;
-    }
+    i = 0;
+    ctxt->rcp_uart_next_frame_ready = false;
+    while (i < ctxt->rcp_uart_rx_buf_len)
+        if (ctxt->rcp_uart_rx_buf[i] == 0x7E)
+            ctxt->rcp_uart_next_frame_ready = true;
     return frame_len;
 }

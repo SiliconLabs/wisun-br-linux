@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
             maxfd = max(maxfd, timer->fd);
         }
         // FIXME: consider poll() usage
-        if (ctxt->rcp_uart_rx_buf_len)
+        if (ctxt->rcp_uart_next_frame_ready)
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
         else
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
@@ -348,7 +348,9 @@ int main(int argc, char *argv[])
             read(ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
         }
-        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) || FD_ISSET(ctxt->rcp_trig_fd, &efds) || ctxt->rcp_uart_rx_buf_len)
+        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) ||
+            FD_ISSET(ctxt->rcp_trig_fd, &efds) ||
+            ctxt->rcp_uart_next_frame_ready)
             rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {

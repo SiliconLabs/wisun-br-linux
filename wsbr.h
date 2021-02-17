@@ -6,6 +6,7 @@
 #ifndef WSBR_H
 #define WSBR_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <linux/if.h>
 
@@ -34,6 +35,7 @@ struct wsbr_ctxt {
     int  rcp_spi_recv_window;
     uint8_t rcp_uart_rx_buf[2048];
     int  rcp_uart_rx_buf_len;
+    bool rcp_uart_next_frame_ready;
 
     int  event_fd[2];
     struct slist *timers;
