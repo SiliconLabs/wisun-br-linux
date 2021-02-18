@@ -269,6 +269,10 @@ target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
+target_link_libraries(wisun-br PRIVATE PkgConfig::LIBNL_ROUTE)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(wisun-br PRIVATE Threads::Threads)

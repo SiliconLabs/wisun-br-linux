@@ -9,6 +9,8 @@
 #include <sys/ioctl.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#include <netlink/netlink.h>
+#include <netlink/route/link.h>
 
 #include "platform/arm_hal_phy.h"
 #include "ethernet_mac_api.h"
@@ -44,20 +46,42 @@ static struct phy_device_driver_s tun_driver = {
 
 static int wsbr_tun_open(char *devname)
 {
+    struct rtnl_link *link;
+    struct nl_sock *sock;
     struct ifreq ifr = {
         .ifr_flags = IFF_TUN,
     };
-    int fd;
+    int fd, ifindex;
 
     if (devname && *devname)
         strcpy(ifr.ifr_name, devname);
     fd = open("/dev/net/tun", O_RDWR);
     if (fd < 0)
         FATAL(2, "tun open: %m");
-    if (ioctl(fd, TUNSETIFF, &ifr) < 0)
+    if (ioctl(fd, TUNSETIFF, &ifr))
         FATAL(2, "tun ioctl: %m");
     if (devname)
         strcpy(devname, ifr.ifr_name);
+    sock = nl_socket_alloc();
+    if (nl_connect(sock, NETLINK_ROUTE))
+        FATAL(2, "nl_connect");
+    if (rtnl_link_get_kernel(sock, 0, ifr.ifr_name, &link))
+        FATAL(2, "rtnl_link_get_kernel %s", ifr.ifr_name);
+    if (rtnl_link_get_operstate(link) != IF_OPER_UP ||
+        !(rtnl_link_get_flags(link) & IFF_UP)) {
+        ifindex = rtnl_link_get_ifindex(link);
+        rtnl_link_put(link);
+        link = rtnl_link_alloc();
+        rtnl_link_set_ifindex(link, ifindex);
+        rtnl_link_set_operstate(link, IF_OPER_UP);
+        rtnl_link_set_flags(link, IFF_UP);
+        if (rtnl_link_add(sock, link, 0))
+            FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
+        rtnl_link_put(link);
+    } else {
+        rtnl_link_put(link);
+    }
+    nl_socket_free(sock);
     return fd;
 }
 
