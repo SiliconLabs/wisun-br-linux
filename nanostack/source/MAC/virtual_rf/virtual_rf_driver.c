@@ -272,6 +272,14 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 *data_ptr = data_request_pending_flag;
                 break;
             }
+            case PHY_EXTENSION_DYNAMIC_RF_SUPPORTED: {
+                *data_ptr = true;
+                break;
+            }
+            case PHY_EXTENSION_GET_SYMBOLS_PER_SECOND: {
+                *(uint32_t *)data_ptr = 100000;
+                break;
+            }
             default:
                 break;
         }
