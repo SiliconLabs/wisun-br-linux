@@ -27,6 +27,7 @@ static int8_t wsbr_tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_pr
 
     ret = write(ctxt->tun_fd, buf, len);
     WARN_ON(ret != len);
+    ctxt->tun_driver->phy_tx_done_cb(ctxt->tun_driver_id, tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
     return 0;
 }
 
