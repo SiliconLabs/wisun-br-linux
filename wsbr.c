@@ -263,9 +263,9 @@ static void wsbr_tasklet(struct arm_event_s *event)
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
-                printf("get event of tun interface\n");
+                printf("get event for tun interface\n");
             } else if (event->event_id == ctxt->rcp_if_id) {
-                printf("get event of ws interface\n");
+                printf("get event for ws interface\n");
             } else {
                 WARN("received unknown network event: %d", event->event_id);
             }
