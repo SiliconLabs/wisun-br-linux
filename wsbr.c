@@ -29,6 +29,7 @@
 #include "fhss_api.h"
 #include "ws_management_api.h"
 #include "mbed-trace/mbed_trace.h"
+#include "nanostack/source/MAC/rf_driver_storage.h"
 #define TRACE_GROUP  "main"
 
 // See warning in wsbr.h
@@ -206,6 +207,16 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     // FIXME: parse it and forwward it to upper layers
 }
 
+int8_t rcp_tx(const virtual_data_req_t *data_req, int8_t driver_id)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+
+    BUG_ON(driver_id != ctxt->rcp_driver_id);
+    // FIXME: convert the data to spinel and call ctxt->rcp_tx(ctxt, ... )
+    ctxt->tun_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 0, 0);
+    return 0;
+}
+
 static void wsbr_configure_fhss(struct wsbr_ctxt *ctxt)
 {
     int ret;
@@ -286,6 +297,7 @@ static mac_description_storage_size_t storage_sizes = {
 static uint8_t rcp_mac[8] = { 10, 11, 12, 13, 14, 15, 16, 17 };
 int main(int argc, char *argv[])
 {
+    struct arm_device_driver_list *virtual_driver;
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
     fd_set rfds, efds;
@@ -307,6 +319,9 @@ int main(int argc, char *argv[])
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
         tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
+    virtual_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
+    BUG_ON(!virtual_driver);
+    virtual_driver->phy_driver->arm_net_virtual_tx_cb = &rcp_tx;
     arm_net_phy_mac64_set(rcp_mac, ctxt->rcp_driver_id);
     ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
     if (!ctxt->rcp_mac_api)
