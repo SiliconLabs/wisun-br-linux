@@ -1,0 +1,53 @@
+Linux implementation of Wi-SUN
+==============================
+
+Compile
+-------
+
+Compile with:
+
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug .
+    ninja
+
+Quick start
+-----------
+
+You can directly run:
+
+    ./wisun-br -u /dev/ttyACM0
+
+For now, you have to wake up the tun interface manually:
+
+    sudo ip link set up dev tun0
+
+You may want to run radvd with this radvd.conf:
+
+    interface tun0
+    {
+            AdvSendAdvert on;
+            IgnoreIfMissing on;
+            AdvDefaultLifetime 0;
+            prefix fd01:1236::/64
+            {
+            };
+    };
+
+Run wisun-br without root privilege
+-----------------------------------
+
+Ensure you have permission to acces to UART device:
+
+    usermod -d dialout YOUR_USER
+
+(you have to logout/login after this step)
+
+Create a tun interface:
+
+    sudo ip tuntap add mode tun tun0 user YOUR_USER
+
+    sudo ip link set up dev tun0
+
+Start wisun-br:
+
+    ./wisun-br -t tun0 -u /dev/ttyACM0
+
