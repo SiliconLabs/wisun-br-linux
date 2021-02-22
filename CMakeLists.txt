@@ -214,6 +214,8 @@ ADD_LIBRARY(wisun-host STATIC
     mbedtls/library/ecdsa.c
     mbedtls/library/ecp.c
     mbedtls/library/ecp_curves.c
+    mbedtls/library/entropy.c
+    mbedtls/library/entropy_poll.c
     mbedtls/library/md.c
     mbedtls/library/gcm.c
     mbedtls/library/hmac_drbg.c
