@@ -3,6 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <time.h>
+
 #include "hal_fhss_timer.h"
 
 static int wsbr_fhss_timer_start(uint32_t slots, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *callback_param)
@@ -22,7 +24,10 @@ static uint32_t wsbr_fhss_get_remaining_slots(void (*callback)(const fhss_api_t 
 
 static uint32_t wsbr_fhss_get_timestamp(const fhss_api_t *api)
 {
-    return 0;
+    struct timespec tp;
+
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
 }
 
 struct fhss_timer wsbr_fhss = {
