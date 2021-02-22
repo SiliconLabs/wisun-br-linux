@@ -7,6 +7,8 @@
 #define UTILS_H
 
 #include <string.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define min(x, y) ({ \
@@ -34,6 +36,19 @@ static inline void *zalloc(size_t size)
 
     memset(ptr, 0, size);
     return ptr;
+}
+
+static inline void pr_hex(const uint8_t *buf, int len)
+{
+    int i;
+
+    printf("%04x:", 0);
+    for (i = 0; i < len; i++) {
+        printf(" %02x", buf[i]);
+        if (i % 16 == 15)
+            printf("\n%04x:", i);
+    }
+    printf("\n");
 }
 
 #endif

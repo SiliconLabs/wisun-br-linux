@@ -204,6 +204,8 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     int len;
 
     len = ctxt->rcp_rx(ctxt, buf, sizeof(buf));
+    printf("** Recv:\n");
+    pr_hex(buf, len);
     // FIXME: parse it and forwward it to upper layers
 }
 
@@ -212,6 +214,9 @@ int8_t rcp_tx(const virtual_data_req_t *data_req, int8_t driver_id)
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     BUG_ON(driver_id != ctxt->rcp_driver_id);
+    printf("** Send:\n");
+    pr_hex(data_req->parameters, data_req->parameter_length);
+    pr_hex(data_req->msdu, data_req->msduLength);
     // FIXME: convert the data to spinel and call ctxt->rcp_tx(ctxt, ... )
     ctxt->tun_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 0, 0);
     return 0;
