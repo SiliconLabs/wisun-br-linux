@@ -6,6 +6,7 @@ add_compile_options(-Wall)
 
 add_executable(wisun-mac
     wsmac.c
+    bus_uart.c
     hal_interrupt.c
     hal_fhss_timer.c
     os_scheduler.c

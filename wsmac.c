@@ -12,6 +12,7 @@
 #include "wsmac.h"
 #include "slist.h"
 #include "log.h"
+#include "bus_uart.h"
 #include "hal_fhss_timer.h"
 #include "os_timer.h"
 #include "os_types.h"
@@ -58,6 +59,18 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     }
     if (argc != optind + 1)
         print_help(stderr, 1);
+    ctxt->os_ctxt->data_fd = wsbr_uart_open(argv[optind + 0], 115200, false);
+    ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+}
+
+void rx(struct wsmac_ctxt *ctxt)
+{
+    uint8_t buf[256];
+    int len;
+
+    len = wsbr_uart_tx(ctxt->os_ctxt, buf, sizeof(buf));
+    (void)len;
+    // FIXME: parse it and forward it to upper layers
 }
 
 int main(int argc, char *argv[])
@@ -65,6 +78,7 @@ int main(int argc, char *argv[])
     struct wsmac_ctxt *ctxt = &g_ctxt;
     struct fhss_timer_entry *fhss_timer;
     struct callback_timer *timer;
+    struct timespec ts = { };
     uint64_t timer_val;
     char event_val;
     int maxfd, ret;
@@ -79,6 +93,8 @@ int main(int argc, char *argv[])
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);
+        FD_SET(ctxt->os_ctxt->trig_fd, &rfds);
+        maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
         maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
@@ -89,9 +105,14 @@ int main(int argc, char *argv[])
             FD_SET(fhss_timer->fd, &rfds);
             maxfd = max(maxfd, fhss_timer->fd);
         }
-        ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
+        if (ctxt->os_ctxt->uart_next_frame_ready)
+            ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, NULL);
+        else
+            ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
+        if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
+            rx(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
             read(ctxt->os_ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
