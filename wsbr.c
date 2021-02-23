@@ -313,8 +313,7 @@ int main(int argc, char *argv[])
     struct fhss_timer_entry *fhss_timer;
     fd_set rfds, efds;
     int maxfd, ret;
-    uint64_t timer_val;
-    char event_val;
+    uint64_t val;
     struct timespec ts = { };
 
     ctxt->os_ctxt = &g_os_ctxt;
@@ -377,7 +376,8 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
-            read(ctxt->os_ctxt->event_fd[0], &event_val, 1);
+            read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
+            WARN_ON(val != 'W');
             eventOS_scheduler_run_until_idle();
         }
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) ||
@@ -386,15 +386,15 @@ int main(int argc, char *argv[])
             rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
-                read(timer->fd, &timer_val, sizeof(timer_val));
-                WARN_ON(timer_val != 1);
+                read(timer->fd, &val, sizeof(val));
+                WARN_ON(val != 1);
                 timer->fn(timer->fd, 0);
             }
         }
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
             if (FD_ISSET(fhss_timer->fd, &rfds)) {
-                read(fhss_timer->fd, &timer_val, sizeof(timer_val));
-                WARN_ON(timer_val != 1);
+                read(fhss_timer->fd, &val, sizeof(val));
+                WARN_ON(val != 1);
                 fhss_timer->fn(fhss_timer->arg, 0);
             }
         }

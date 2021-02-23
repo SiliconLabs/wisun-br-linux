@@ -13,8 +13,9 @@
 void eventOS_scheduler_signal(void)
 {
     struct os_ctxt *ctxt = &g_os_ctxt;
+    uint64_t val = 'W';
 
-    write(ctxt->event_fd[1], "W", 1);
+    write(ctxt->event_fd[1], &val, sizeof(val));
 }
 
 void eventOS_scheduler_idle(void)
