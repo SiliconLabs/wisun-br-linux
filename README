@@ -49,3 +49,9 @@ Start wisun-br:
 
     ./wisun-br -t tun0 -u /dev/ttyACM0
 
+Bugs and limitations
+--------------------
+
+It seems that the FHSS implementation does not fit well with Linux. I think
+that FHSS timer should raise every 166ms, but in practice there is a lot of
+jitter.
