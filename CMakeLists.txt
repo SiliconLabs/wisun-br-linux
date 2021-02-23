@@ -197,7 +197,7 @@ add_executable(wisun-br
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
     nanostack/source/Service_Libs/whiteboard/whiteboard.c
-    nanostack-event-loop/source/ns_timeout.c
+    # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
     mbed-client-libservice/source/IPv6_fcf_lib/ip_fsc.c
@@ -208,7 +208,7 @@ add_executable(wisun-br
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
     mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
-    # Exclude mbed-client-libservice/source/nvmHelper
+    # Excluded mbed-client-libservice/source/nvmHelper
     mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
     mbedtls/library/aes.c
