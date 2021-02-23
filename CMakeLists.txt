@@ -6,6 +6,7 @@ add_compile_options(-Wall)
 
 add_executable(wisun-mac
     wsmac.c
+    hal_interrupt.c
     mbed-client-libservice/source/libBits/common_functions.c
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c

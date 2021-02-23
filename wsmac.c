@@ -8,6 +8,7 @@
 #include <getopt.h>
 
 #include "wsmac.h"
+#include "hal_interrupt.h"
 #include "mbed-trace/mbed_trace.h"
 
 #define TRACE_GROUP  "main"
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
 
+    platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
 
