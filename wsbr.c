@@ -16,6 +16,7 @@
 #include "tun.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
+#include "os_types.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
 #include "hal_fhss_timer.h"
@@ -34,6 +35,8 @@
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = { };
+// See warning in os_types.h
+struct os_ctxt g_os_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN border router\n");
@@ -315,6 +318,7 @@ int main(int argc, char *argv[])
     char event_val;
     struct timespec ts = { };
 
+    ctxt->os_ctxt = &g_os_ctxt;
     platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
@@ -355,7 +359,7 @@ int main(int argc, char *argv[])
         maxfd = max(maxfd, ctxt->tun_fd);
         FD_SET(ctxt->event_fd[0], &rfds);
         maxfd = max(maxfd, ctxt->event_fd[0]);
-        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
@@ -380,7 +384,7 @@ int main(int argc, char *argv[])
             FD_ISSET(ctxt->rcp_trig_fd, &efds) ||
             ctxt->rcp_uart_next_frame_ready)
             rcp_rx(ctxt);
-        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
                 WARN_ON(timer_val != 1);

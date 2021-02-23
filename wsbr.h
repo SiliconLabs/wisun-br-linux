@@ -17,6 +17,8 @@ struct slist;
 struct wsbr_ctxt;
 
 struct wsbr_ctxt {
+    struct os_ctxt *os_ctxt;
+
     struct phy_device_driver_s *tun_driver;
     struct eth_mac_api_s *tun_mac_api;
     int  tun_driver_id;
@@ -38,7 +40,6 @@ struct wsbr_ctxt {
     bool rcp_uart_next_frame_ready;
 
     int  event_fd[2];
-    struct slist *timers;
     struct slist *fhss_timers;
 
     int  ws_domain;

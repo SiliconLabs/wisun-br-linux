@@ -7,14 +7,14 @@
 #include <sys/timerfd.h>
 
 #include "os_timer.h"
+#include "os_types.h"
 #include "slist.h"
-#include "wsbr.h"
 #include "log.h"
 
 int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, uint16_t))
 {
     struct callback_timer *item = calloc(1, sizeof(struct callback_timer));
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct os_ctxt *ctxt = &g_os_ctxt;
 
     item->fn = timer_interrupt_handler;
     item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
@@ -26,7 +26,7 @@ int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, u
 
 int8_t eventOS_callback_timer_unregister(int8_t ns_timer_id)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct os_ctxt *ctxt = &g_os_ctxt;
     struct callback_timer *item;
 
     close(ns_timer_id);
