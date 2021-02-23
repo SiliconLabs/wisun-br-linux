@@ -13,7 +13,7 @@
 
 int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, uint16_t))
 {
-    struct callback_timer *item = zalloc(sizeof(struct callback_timer));
+    struct callback_timer *item = calloc(1, sizeof(struct callback_timer));
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     item->fn = timer_interrupt_handler;

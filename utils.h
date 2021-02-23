@@ -30,14 +30,6 @@
 #define FIELD_GET(mask, reg) (((reg) & (mask)) >> __bf_shf(mask))
 #define FIELD_PREP(mask, val) (((val) << __bf_shf(mask)) & (mask))
 
-static inline void *zalloc(size_t size)
-{
-    void *ptr = malloc(size);
-
-    memset(ptr, 0, size);
-    return ptr;
-}
-
 static inline void pr_hex(const uint8_t *buf, int len)
 {
     int i;
