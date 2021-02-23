@@ -188,16 +188,16 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
             print_help(stderr, 1);
         ctxt->rcp_tx = wsbr_spi_tx;
         ctxt->rcp_rx = wsbr_spi_rx;
-        ctxt->rcp_fd = wsbr_spi_open(argv[optind + 0], frequency, 0);
-        ctxt->rcp_trig_fd = wsbr_gpio_open(argv[optind + 1], false);
-        ctxt->rcp_spi_recv_window = UINT16_MAX;
+        ctxt->os_ctxt->data_fd = wsbr_spi_open(argv[optind + 0], frequency, 0);
+        ctxt->os_ctxt->trig_fd = wsbr_gpio_open(argv[optind + 1], false);
+        ctxt->os_ctxt->spi_recv_window = UINT16_MAX;
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = wsbr_uart_rx;
-        ctxt->rcp_fd = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
-        ctxt->rcp_trig_fd = ctxt->rcp_fd;
+        ctxt->os_ctxt->data_fd = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
+        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     } else {
         print_help(stderr, 1);
     }
@@ -208,7 +208,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     uint8_t buf[256];
     int len;
 
-    len = ctxt->rcp_rx(ctxt, buf, sizeof(buf));
+    len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
     printf("** Recv:\n");
     pr_hex(buf, len);
     // FIXME: parse it and forwward it to upper layers
@@ -350,11 +350,11 @@ int main(int argc, char *argv[])
         maxfd = 0;
         FD_ZERO(&rfds);
         FD_ZERO(&efds);
-        if (ctxt->rcp_trig_fd == ctxt->rcp_fd)
-            FD_SET(ctxt->rcp_trig_fd, &rfds); // UART
+        if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
+            FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
         else
-            FD_SET(ctxt->rcp_trig_fd, &efds); // SPI + GPIO
-        maxfd = max(maxfd, ctxt->rcp_trig_fd);
+            FD_SET(ctxt->os_ctxt->trig_fd, &efds); // SPI + GPIO
+        maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->tun_fd, &rfds);
         maxfd = max(maxfd, ctxt->tun_fd);
         FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
             maxfd = max(maxfd, fhss_timer->fd);
         }
         // FIXME: consider poll() usage
-        if (ctxt->rcp_uart_next_frame_ready)
+        if (ctxt->os_ctxt->uart_next_frame_ready)
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
         else
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
@@ -380,9 +380,9 @@ int main(int argc, char *argv[])
             read(ctxt->os_ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
         }
-        if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) ||
-            FD_ISSET(ctxt->rcp_trig_fd, &efds) ||
-            ctxt->rcp_uart_next_frame_ready)
+        if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) ||
+            FD_ISSET(ctxt->os_ctxt->trig_fd, &efds) ||
+            ctxt->os_ctxt->uart_next_frame_ready)
             rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {

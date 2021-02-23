@@ -10,7 +10,7 @@
 
 #include "log.h"
 #include "utils.h"
-#include "wsbr.h"
+#include "os_types.h"
 #include "bus_uart.h"
 
 // width=16 poly=0x1021 init=0xffff refin=true refout=true xorout=0xffff check=0x906e residue=0xf0b8 name="CRC-16/IBM-SDLC"
@@ -107,7 +107,7 @@ int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
     uint8_t *frame = malloc(buf_len * 2 + 3);
@@ -127,43 +127,43 @@ int wsbr_uart_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int buf_len)
     }
     memcpy(frame + frame_len, &crc, sizeof(crc));
     frame_len += sizeof(crc);
-    ret = write(ctxt->rcp_fd, frame, frame_len);
+    ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
 
     return frame_len;
 }
 
-int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int buf_len)
+int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     uint8_t *buf8 = buf;
     uint16_t crc;
     int i, frame_len;
     int ret;
 
-    if (!ctxt->rcp_uart_next_frame_ready) {
-        ret = read(ctxt->rcp_fd,
-                   ctxt->rcp_uart_rx_buf + ctxt->rcp_uart_rx_buf_len,
-                   sizeof(ctxt->rcp_uart_rx_buf) - ctxt->rcp_uart_rx_buf_len);
+    if (!ctxt->uart_next_frame_ready) {
+        ret = read(ctxt->data_fd,
+                   ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
+                   sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
         BUG_ON(ret <= 0);
-        ctxt->rcp_uart_rx_buf_len += ret;
+        ctxt->uart_rx_buf_len += ret;
     }
     i = 0;
     frame_len = 0;
-    while (ctxt->rcp_uart_rx_buf[i] == 0x7E && i < ctxt->rcp_uart_rx_buf_len)
+    while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
-    while (ctxt->rcp_uart_rx_buf[i] != 0x7E && i < ctxt->rcp_uart_rx_buf_len) {
+    while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len) {
         BUG_ON(frame_len > buf_len);
         if (buf8[i] == 0x7D) {
             i++;
-            buf8[frame_len++] = ctxt->rcp_uart_rx_buf[i++] ^ 0x20;
+            buf8[frame_len++] = ctxt->uart_rx_buf[i++] ^ 0x20;
         } else {
-            BUG_ON(ctxt->rcp_uart_rx_buf[i] == 0x7E);
-            buf8[frame_len++] = ctxt->rcp_uart_rx_buf[i++];
+            BUG_ON(ctxt->uart_rx_buf[i] == 0x7E);
+            buf8[frame_len++] = ctxt->uart_rx_buf[i++];
         }
     }
-    BUG_ON(ctxt->rcp_uart_next_frame_ready && i == ctxt->rcp_uart_rx_buf_len);
-    if (i == ctxt->rcp_uart_rx_buf_len)
+    BUG_ON(ctxt->uart_next_frame_ready && i == ctxt->uart_rx_buf_len);
+    if (i == ctxt->uart_rx_buf_len)
         return 0;
     BUG_ON(frame_len <= 2);
     frame_len -= sizeof(uint16_t);
@@ -172,14 +172,14 @@ int wsbr_uart_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int buf_len)
         WARN("bad crc, frame dropped");
         frame_len = 0;
     }
-    while (ctxt->rcp_uart_rx_buf[i] == 0x7E && i < ctxt->rcp_uart_rx_buf_len)
+    while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
-    memmove(ctxt->rcp_uart_rx_buf, ctxt->rcp_uart_rx_buf + i, ctxt->rcp_uart_rx_buf_len - i);
-    ctxt->rcp_uart_rx_buf_len -= i;
+    memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + i, ctxt->uart_rx_buf_len - i);
+    ctxt->uart_rx_buf_len -= i;
     i = 0;
-    ctxt->rcp_uart_next_frame_ready = false;
-    while (i < ctxt->rcp_uart_rx_buf_len)
-        if (ctxt->rcp_uart_rx_buf[i] == 0x7E)
-            ctxt->rcp_uart_next_frame_ready = true;
+    ctxt->uart_next_frame_ready = false;
+    while (i < ctxt->uart_rx_buf_len)
+        if (ctxt->uart_rx_buf[i] == 0x7E)
+            ctxt->uart_next_frame_ready = true;
     return frame_len;
 }

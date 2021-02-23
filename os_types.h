@@ -6,9 +6,19 @@
 #ifndef OS_H
 #define OS_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 struct slist;
 
 struct os_ctxt {
+    int     trig_fd;
+    int     data_fd;
+    int     spi_recv_window;
+    bool    uart_next_frame_ready;
+    int     uart_rx_buf_len;
+    uint8_t uart_rx_buf[2048];
+
     int event_fd[2];
     struct slist *timers;
     struct slist *fhss_timers;

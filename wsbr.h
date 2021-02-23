@@ -13,7 +13,6 @@
 struct phy_device_driver_s;
 struct eth_mac_api_s;
 struct mac_api_s;
-struct wsbr_ctxt;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
@@ -26,17 +25,10 @@ struct wsbr_ctxt {
     char tun_dev[IFNAMSIZ];
 
     struct mac_api_s *rcp_mac_api;
-    int  (*rcp_tx)(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len);
-    int  (*rcp_rx)(struct wsbr_ctxt *ctxt, void *buf, unsigned int len);
+    int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
+    int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
     int  rcp_driver_id;
     int  rcp_if_id;
-    int  rcp_trig_fd;
-    int  rcp_fd;
-
-    int  rcp_spi_recv_window;
-    uint8_t rcp_uart_rx_buf[2048];
-    int  rcp_uart_rx_buf_len;
-    bool rcp_uart_next_frame_ready;
 
     int  ws_domain;
     int  ws_mode;

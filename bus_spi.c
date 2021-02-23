@@ -13,7 +13,7 @@
 #include "spinel.h"
 #include "log.h"
 #include "utils.h"
-#include "wsbr.h"
+#include "os_types.h"
 #include "bus_spi.h"
 
 #define HDR_RST  0x01
@@ -75,41 +75,41 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
     return fd;
 }
 
-int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
+int wsbr_spi_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len)
 {
     uint8_t *frame = malloc(len + 5);
     uint8_t hdr = FIELD_PREP(HDR_PAT, 0x2);
     int frame_len;
 
-    if (ctxt->rcp_spi_recv_window < len + 5) {
+    if (ctxt->spi_recv_window < len + 5) {
         WARN("receive buffer is full");
         errno = ENOSPC;
         return -1;
     }
     frame_len = spinel_datatype_pack(frame, len + 5, "CSSD", &hdr, UINT16_MAX, len, buf, len);
     BUG_ON(frame_len != len + 5);
-    if (write(ctxt->rcp_fd, buf, frame_len) != frame_len)
+    if (write(ctxt->data_fd, buf, frame_len) != frame_len)
         BUG("write: %m");
     free(frame);
     return len;
 }
 
-int wsbr_spi_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
+int wsbr_spi_rx(struct os_ctxt *ctxt, void *buf, unsigned int len)
 {
     int data_len;
     uint8_t tmp[5];
     uint8_t hdr;
 
-    lseek(ctxt->rcp_trig_fd, 0, SEEK_SET);
-    if (read(ctxt->rcp_trig_fd, tmp, sizeof(tmp)) != 2)
+    lseek(ctxt->trig_fd, 0, SEEK_SET);
+    if (read(ctxt->trig_fd, tmp, sizeof(tmp)) != 2)
         WARN("unexpected GPIO value");
-    read(ctxt->rcp_fd, tmp, sizeof(tmp));
-    spinel_datatype_unpack(tmp, sizeof(tmp), "CSS", &hdr, &ctxt->rcp_spi_recv_window, &data_len);
+    read(ctxt->data_fd, tmp, sizeof(tmp));
+    spinel_datatype_unpack(tmp, sizeof(tmp), "CSS", &hdr, &ctxt->spi_recv_window, &data_len);
     if (FIELD_GET(HDR_CRC, hdr))
         data_len += 2;
     if (len < data_len)
         BUG("buffer too small");
-    if (read(ctxt->rcp_fd, buf, data_len) != data_len)
+    if (read(ctxt->data_fd, buf, data_len) != data_len)
         BUG("read: %m");
     if (FIELD_GET(HDR_CRC, hdr))
         data_len -= 2;
