@@ -36,7 +36,7 @@
 struct wsbr_ctxt g_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {
-    fprintf(stream, "Start Wi_SUN border router\n");
+    fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wisun-br -u [OPTIONS] UART_DEVICE\n");
@@ -48,18 +48,21 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SN\")\n");
-    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP... (default: EU)\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3, 4a, 4b and 5 (default: 3)\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 or 3 (default: 2)\n");
+    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU (default), NA,\n");
+    fprintf(stream, "                          JP...\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
+    fprintf(stream, "                          4b and 5\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
     fprintf(stream, "\n");
     fprintf(stream, "UART options\n");
-    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600,19200,38400,57600,115200 (default),230400,460800,921600\n");
-    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default disabled)\n");
+    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
+    fprintf(stream, "                           230400, 460800, 921600\n");
+    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
     fprintf(stream, "\n");
     fprintf(stream, "SPI options:\n");
-    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default 1000000)\n");
+    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
-    fprintf(stream, "Exemples:\n");
+    fprintf(stream, "Examples:\n");
     fprintf(stream, "  wisun-br -u /dev/ttyUSB0 -H\n");
     fprintf(stream, "  wisun-br -s /dev/spi1.1 141\n");
     fprintf(stream, "  wisun-br -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
