@@ -8,11 +8,16 @@ add_executable(wisun-mac
     wsmac.c
     hal_interrupt.c
     hal_fhss_timer.c
+    os_scheduler.c
     os_timer.c
     slist.c
+    nanostack-event-loop/source/event.c
+    nanostack-event-loop/source/system_timer.c
     mbed-client-libservice/source/libBits/common_functions.c
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
+    mbed-client-libservice/source/libList/ns_list.c
+    mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
     mbed-trace/source/mbed_trace.c
 )
 
@@ -25,6 +30,7 @@ target_include_directories(wisun-mac PRIVATE
 )
 
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
 add_executable(wisun-br
     wsbr.c
