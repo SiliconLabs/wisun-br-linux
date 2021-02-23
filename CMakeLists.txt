@@ -4,6 +4,10 @@ project(wisun-host)
 # compiler.
 add_compile_options(-Wall)
 
+add_executable(wisun-mac
+    wsmac.c
+)
+
 add_executable(wisun-br
     wsbr.c
     bus_uart.c
