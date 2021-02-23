@@ -7,6 +7,8 @@ add_compile_options(-Wall)
 add_executable(wisun-mac
     wsmac.c
     hal_interrupt.c
+    os_timer.c
+    slist.c
     mbed-client-libservice/source/libBits/common_functions.c
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
@@ -17,6 +19,7 @@ target_include_directories(wisun-mac PRIVATE
     mbed-trace/
     mbed-client-libservice
     mbed-client-libservice/mbed-client-libservice/
+    nanostack-event-loop/nanostack-event-loop/
 )
 
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)

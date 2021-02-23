@@ -6,7 +6,10 @@
 #ifndef WSMAC_H
 #define WSMAC_H
 
+struct os_ctxt;
+
 struct wsmac_ctxt {
+    struct os_ctxt *os_ctxt;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

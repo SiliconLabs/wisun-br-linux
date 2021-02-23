@@ -6,8 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <unistd.h>
+#include <sys/select.h>
 
 #include "wsmac.h"
+#include "slist.h"
+#include "log.h"
+#include "os_timer.h"
+#include "os_types.h"
 #include "hal_interrupt.h"
 #include "mbed-trace/mbed_trace.h"
 
@@ -15,6 +21,8 @@
 
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
+// See warning in os_types.h
+struct os_ctxt g_os_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN MAC emulation\n");
@@ -53,10 +61,34 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
+    struct callback_timer *timer;
+    uint64_t timer_val;
+    int maxfd, ret;
+    fd_set rfds;
 
+    ctxt->os_ctxt = &g_os_ctxt;
     platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
+
+    for (;;) {
+        maxfd = 0;
+        FD_ZERO(&rfds);
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
+            FD_SET(timer->fd, &rfds);
+            maxfd = max(maxfd, timer->fd);
+        }
+        ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
+        if (ret < 0)
+            FATAL(2, "pselect: %m");
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
+            if (FD_ISSET(timer->fd, &rfds)) {
+                read(timer->fd, &timer_val, sizeof(timer_val));
+                WARN_ON(timer_val != 1);
+                timer->fn(timer->fd, 0);
+            }
+        }
+    }
 
     return 0;
 }
