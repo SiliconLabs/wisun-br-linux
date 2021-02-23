@@ -7,6 +7,7 @@ add_compile_options(-Wall)
 add_executable(wisun-mac
     wsmac.c
     hal_interrupt.c
+    hal_fhss_timer.c
     os_timer.c
     slist.c
     mbed-client-libservice/source/libBits/common_functions.c
@@ -20,6 +21,7 @@ target_include_directories(wisun-mac PRIVATE
     mbed-client-libservice
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
+    nanostack/nanostack/
 )
 
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)

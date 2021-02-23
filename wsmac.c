@@ -12,6 +12,7 @@
 #include "wsmac.h"
 #include "slist.h"
 #include "log.h"
+#include "hal_fhss_timer.h"
 #include "os_timer.h"
 #include "os_types.h"
 #include "hal_interrupt.h"
@@ -61,6 +62,7 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
+    struct fhss_timer_entry *fhss_timer;
     struct callback_timer *timer;
     uint64_t timer_val;
     int maxfd, ret;
@@ -78,6 +80,10 @@ int main(int argc, char *argv[])
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
+            FD_SET(fhss_timer->fd, &rfds);
+            maxfd = max(maxfd, fhss_timer->fd);
+        }
         ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
@@ -86,6 +92,13 @@ int main(int argc, char *argv[])
                 read(timer->fd, &timer_val, sizeof(timer_val));
                 WARN_ON(timer_val != 1);
                 timer->fn(timer->fd, 0);
+            }
+        }
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
+            if (FD_ISSET(fhss_timer->fd, &rfds)) {
+                read(fhss_timer->fd, &timer_val, sizeof(timer_val));
+                WARN_ON(timer_val != 1);
+                fhss_timer->fn(fhss_timer->arg, 0);
             }
         }
     }
