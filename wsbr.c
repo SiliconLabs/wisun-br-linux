@@ -308,6 +308,7 @@ int main(int argc, char *argv[])
     struct arm_device_driver_list *virtual_driver;
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
+    struct fhss_timer_entry *fhss_timer;
     fd_set rfds, efds;
     int maxfd, ret;
     uint64_t timer_val;
@@ -358,6 +359,10 @@ int main(int argc, char *argv[])
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
+        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
+            FD_SET(fhss_timer->fd, &rfds);
+            maxfd = max(maxfd, fhss_timer->fd);
+        }
         // FIXME: consider poll() usage
         if (ctxt->rcp_uart_next_frame_ready)
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
@@ -378,7 +383,15 @@ int main(int argc, char *argv[])
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 read(timer->fd, &timer_val, sizeof(timer_val));
+                WARN_ON(timer_val != 1);
                 timer->fn(timer->fd, 0);
+            }
+        }
+        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
+            if (FD_ISSET(fhss_timer->fd, &rfds)) {
+                read(fhss_timer->fd, &timer_val, sizeof(timer_val));
+                WARN_ON(timer_val != 1);
+                fhss_timer->fn(fhss_timer->arg, 0);
             }
         }
     }

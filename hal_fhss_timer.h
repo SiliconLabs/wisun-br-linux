@@ -9,6 +9,14 @@
 #define HAL_FHSS_TIMER_H
 
 #include "fhss_config.h"
+#include "slist.h"
+
+struct fhss_timer_entry {
+    int fd;
+    const fhss_api_t *arg;
+    void (*fn)(const fhss_api_t *api, uint16_t);
+    struct slist node;
+};
 
 extern struct fhss_timer wsbr_fhss;
 

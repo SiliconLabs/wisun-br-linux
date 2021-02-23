@@ -39,6 +39,7 @@ struct wsbr_ctxt {
 
     int  event_fd[2];
     struct slist *timers;
+    struct slist *fhss_timers;
 
     int  ws_domain;
     int  ws_mode;

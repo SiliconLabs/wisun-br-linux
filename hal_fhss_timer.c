@@ -4,22 +4,72 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include <time.h>
+#include <sys/timerfd.h>
 
 #include "hal_fhss_timer.h"
+#include "wsbr.h"
+#include "slist.h"
+#include "log.h"
 
-static int wsbr_fhss_timer_start(uint32_t slots, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *callback_param)
+static int wsbr_fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct fhss_timer_entry *item;
+    struct itimerspec timer = {
+        .it_value.tv_sec = slots_us / 1000000,
+        .it_value.tv_nsec = slots_us % 1000000 * 1000,
+    };
+    int ret;
+
+    SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, item, node)
+        if (item->fn == callback)
+            break;
+    if (!&(item->node)) {
+        item = calloc(1, sizeof(struct fhss_timer));
+        item->fn = callback;
+        item->arg = api;
+        item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
+        FATAL_ON(item->fd < 0, 2);
+        FATAL_ON(item->fd > 255, 2);
+        slist_push(&ctxt->fhss_timers, &item->node);
+    }
+    ret = timerfd_settime(item->fd, 0, &timer, NULL);
+    FATAL_ON(ret < 0, 2);
     return 0;
 }
 
 static int wsbr_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
-    return 0;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct fhss_timer_entry *item;
+    struct itimerspec timer = { };
+    int ret;
+
+    SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, item, node) {
+        if (item->fn == callback) {
+            ret = timerfd_settime(item->fd, 0, &timer, NULL);
+            FATAL_ON(ret < 0, 2);
+            return 0;
+        }
+    }
+    return -1;
 }
 
 static uint32_t wsbr_fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
-    return 0;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct fhss_timer_entry *item;
+    struct itimerspec timer;
+    int ret;
+
+    SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, item, node) {
+        if (item->fn == callback) {
+            ret = timerfd_gettime(item->fd, &timer);
+            FATAL_ON(ret < 0, 2);
+            return timer.it_value.tv_sec * 1000000 + timer.it_value.tv_nsec / 1000;
+        }
+    }
+    return -1;
 }
 
 static uint32_t wsbr_fhss_get_timestamp(const fhss_api_t *api)
@@ -31,9 +81,9 @@ static uint32_t wsbr_fhss_get_timestamp(const fhss_api_t *api)
 }
 
 struct fhss_timer wsbr_fhss = {
-  .fhss_timer_start = wsbr_fhss_timer_start,
-  .fhss_timer_stop = wsbr_fhss_timer_stop,
-  .fhss_get_remaining_slots = wsbr_fhss_get_remaining_slots,
-  .fhss_get_timestamp = wsbr_fhss_get_timestamp,
-  .fhss_resolution_divider = 1
+    .fhss_timer_start         = wsbr_fhss_timer_start,
+    .fhss_timer_stop          = wsbr_fhss_timer_stop,
+    .fhss_get_remaining_slots = wsbr_fhss_get_remaining_slots,
+    .fhss_get_timestamp       = wsbr_fhss_get_timestamp,
+    .fhss_resolution_divider  = 1
 };
