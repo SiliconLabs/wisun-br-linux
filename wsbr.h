@@ -13,7 +13,6 @@
 struct phy_device_driver_s;
 struct eth_mac_api_s;
 struct mac_api_s;
-struct slist;
 struct wsbr_ctxt;
 
 struct wsbr_ctxt {
@@ -40,7 +39,6 @@ struct wsbr_ctxt {
     bool rcp_uart_next_frame_ready;
 
     int  event_fd[2];
-    struct slist *fhss_timers;
 
     int  ws_domain;
     int  ws_mode;

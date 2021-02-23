@@ -10,6 +10,7 @@ struct slist;
 
 struct os_ctxt {
     struct slist *timers;
+    struct slist *fhss_timers;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

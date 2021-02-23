@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
             FD_SET(fhss_timer->fd, &rfds);
             maxfd = max(maxfd, fhss_timer->fd);
         }
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
                 timer->fn(timer->fd, 0);
             }
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
             if (FD_ISSET(fhss_timer->fd, &rfds)) {
                 read(fhss_timer->fd, &timer_val, sizeof(timer_val));
                 WARN_ON(timer_val != 1);
