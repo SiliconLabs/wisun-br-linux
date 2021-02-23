@@ -200,7 +200,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
-    char buf[256];
+    uint8_t buf[256];
     int len;
 
     len = ctxt->rcp_rx(ctxt, buf, sizeof(buf));

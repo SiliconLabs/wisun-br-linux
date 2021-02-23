@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
+# These option only work with gcc, but we do not plan to compiler with another
+# compiler.
+add_compile_options(-Wall)
 
 add_executable(wisun-br
     wsbr.c

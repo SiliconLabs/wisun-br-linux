@@ -77,7 +77,7 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
 
 int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 {
-    char *frame = malloc(len + 5);
+    uint8_t *frame = malloc(len + 5);
     uint8_t hdr = FIELD_PREP(HDR_PAT, 0x2);
     int frame_len;
 
@@ -96,8 +96,8 @@ int wsbr_spi_tx(struct wsbr_ctxt *ctxt, const void *buf, unsigned int len)
 
 int wsbr_spi_rx(struct wsbr_ctxt *ctxt, void *buf, unsigned int len)
 {
-    char tmp[5];
-    int data_len, ret;
+    int data_len;
+    uint8_t tmp[5];
     uint8_t hdr;
 
     lseek(ctxt->rcp_trig_fd, 0, SEEK_SET);

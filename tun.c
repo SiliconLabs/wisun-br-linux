@@ -107,7 +107,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 {
-    char buf[1504]; // Max ethernet frame size + TUN header
+    uint8_t buf[1504]; // Max ethernet frame size + TUN header
     int len;
 
     len = read(ctxt->tun_fd, buf, sizeof(buf));
