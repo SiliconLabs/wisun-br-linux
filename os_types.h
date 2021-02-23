@@ -9,6 +9,7 @@
 struct slist;
 
 struct os_ctxt {
+    int event_fd[2];
     struct slist *timers;
     struct slist *fhss_timers;
 };

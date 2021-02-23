@@ -7,12 +7,12 @@
 #include <stdio.h>
 
 #include "os_scheduler.h"
-#include "wsbr.h"
+#include "os_types.h"
 #include "log.h"
 
 void eventOS_scheduler_signal(void)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct os_ctxt *ctxt = &g_os_ctxt;
 
     write(ctxt->event_fd[1], "W", 1);
 }

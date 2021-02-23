@@ -201,7 +201,6 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     } else {
         print_help(stderr, 1);
     }
-    pipe(ctxt->event_fd);
 }
 
 void rcp_rx(struct wsbr_ctxt *ctxt)
@@ -319,6 +318,7 @@ int main(int argc, char *argv[])
     struct timespec ts = { };
 
     ctxt->os_ctxt = &g_os_ctxt;
+    pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
@@ -357,8 +357,8 @@ int main(int argc, char *argv[])
         maxfd = max(maxfd, ctxt->rcp_trig_fd);
         FD_SET(ctxt->tun_fd, &rfds);
         maxfd = max(maxfd, ctxt->tun_fd);
-        FD_SET(ctxt->event_fd[0], &rfds);
-        maxfd = max(maxfd, ctxt->event_fd[0]);
+        FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
+        maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
@@ -376,8 +376,8 @@ int main(int argc, char *argv[])
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
-        if (FD_ISSET(ctxt->event_fd[0], &rfds)) {
-            read(ctxt->event_fd[0], &event_val, 1);
+        if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
+            read(ctxt->os_ctxt->event_fd[0], &event_val, 1);
             eventOS_scheduler_run_until_idle();
         }
         if (FD_ISSET(ctxt->rcp_trig_fd, &rfds) ||

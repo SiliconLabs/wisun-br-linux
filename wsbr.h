@@ -38,8 +38,6 @@ struct wsbr_ctxt {
     int  rcp_uart_rx_buf_len;
     bool rcp_uart_next_frame_ready;
 
-    int  event_fd[2];
-
     int  ws_domain;
     int  ws_mode;
     int  ws_class;
