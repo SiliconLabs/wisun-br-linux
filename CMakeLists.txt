@@ -30,6 +30,7 @@ target_include_directories(wisun-mac PRIVATE
     nanostack/nanostack/
 )
 
+target_compile_definitions(wisun-mac PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
