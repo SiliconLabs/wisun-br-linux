@@ -8,6 +8,9 @@
 #include <getopt.h>
 
 #include "wsmac.h"
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP  "main"
 
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
@@ -50,6 +53,7 @@ int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
 
+    mbed_trace_init();
     configure(ctxt, argc, argv);
 
     return 0;

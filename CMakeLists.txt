@@ -6,7 +6,19 @@ add_compile_options(-Wall)
 
 add_executable(wisun-mac
     wsmac.c
+    mbed-client-libservice/source/libBits/common_functions.c
+    mbed-client-libservice/source/libip6string/ip6tos.c
+    mbed-client-libservice/source/libip6string/stoip6.c
+    mbed-trace/source/mbed_trace.c
 )
+
+target_include_directories(wisun-mac PRIVATE
+    mbed-trace/
+    mbed-client-libservice
+    mbed-client-libservice/mbed-client-libservice/
+)
+
+target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 
 add_executable(wisun-br
     wsbr.c
@@ -283,3 +295,4 @@ target_link_libraries(wisun-br PRIVATE PkgConfig::LIBNL_ROUTE)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(wisun-br PRIVATE Threads::Threads)
+target_link_libraries(wisun-mac PRIVATE Threads::Threads)
