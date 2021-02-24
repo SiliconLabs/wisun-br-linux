@@ -49,6 +49,30 @@ Start wisun-br:
 
     ./wisun-br -t tun0 -u /dev/ttyACM0
 
+Run wisun-br with simulated Wi-SUN MAC
+--------------------------------------
+
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0
+    ./wisun-mac -u /dev/pty1
+    ./wisun-br -u /dev/pty2
+
+How to generate code coverage?
+------------------------------
+
+    sudo apt-get install lcov
+    mkdir build-cov
+    cd build-cov
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage ..
+    ninja
+    [Run your test]
+    lcov -c -d CMakeFiles/wisun-br.dir > wisun-br.trace
+    genhtml -o cov-br --prefix PROJECT_DIR wisun-br.trace
+    google-chrome cov-br/index.html
+    lcov -c -d CMakeFiles/wisun-mac.dir > wisun-mac.trace
+    genhtml -o cov-mac --prefix PROJECT_DIR wisun-mac.trace
+    google-chrome cov-mac/index.html
+
+
 Bugs and limitations
 --------------------
 
