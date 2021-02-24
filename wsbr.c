@@ -8,6 +8,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/select.h>
 
 #include "log.h"
@@ -304,6 +305,11 @@ static mac_description_storage_size_t storage_sizes = {
     .key_usage_size = 3,
 };
 
+void kill_handler(int signal)
+{
+    exit(3);
+}
+
 static uint8_t rcp_mac[8] = { 10, 11, 12, 13, 14, 15, 16, 17 };
 int main(int argc, char *argv[])
 {
@@ -316,6 +322,7 @@ int main(int argc, char *argv[])
     uint64_t val;
     struct timespec ts = { };
 
+    signal(SIGINT, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();

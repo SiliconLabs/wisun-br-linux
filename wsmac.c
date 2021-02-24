@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/select.h>
 
 #include "wsmac.h"
@@ -73,6 +74,11 @@ void rx(struct wsmac_ctxt *ctxt)
     // FIXME: parse it and forward it to upper layers
 }
 
+void kill_handler(int signal)
+{
+    exit(3);
+}
+
 int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -83,6 +89,7 @@ int main(int argc, char *argv[])
     uint64_t val;
     fd_set rfds;
 
+    signal(SIGINT, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
