@@ -9,6 +9,7 @@ add_executable(wisun-mac
     bus_uart.c
     hal_interrupt.c
     hal_fhss_timer.c
+    hal_random.c
     os_scheduler.c
     os_timer.c
     slist.c
@@ -26,6 +27,7 @@ target_include_directories(wisun-mac PRIVATE
     mbed-trace/
     mbed-client-libservice
     mbed-client-libservice/mbed-client-libservice/
+    mbed-client-randlib/mbed-client-randlib/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/nanostack/
 )
@@ -42,6 +44,7 @@ add_executable(wisun-br
     tun.c
     hal_interrupt.c
     hal_fhss_timer.c
+    hal_random.c
     os_timer.c
     os_scheduler.c
     slist.c
@@ -302,6 +305,9 @@ target_include_directories(wisun-br PRIVATE
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wisun-br PRIVATE EXTRA_DEBUG_INFO)
+target_compile_definitions(wisun-br PRIVATE MBEDTLS_TEST_NULL_ENTROPY)
+target_compile_definitions(wisun-br PRIVATE MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
+target_compile_definitions(wisun-br PRIVATE RANDLIB_PRNG)
 target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
 find_package(PkgConfig REQUIRED)

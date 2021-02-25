@@ -27,12 +27,6 @@
 
 #if defined(MBEDTLS_ENTROPY_C)
 
-#if defined(MBEDTLS_TEST_NULL_ENTROPY)
-#warning "**** WARNING!  MBEDTLS_TEST_NULL_ENTROPY defined! "
-#warning "**** THIS BUILD HAS NO DEFINED ENTROPY SOURCES "
-#warning "**** THIS BUILD IS *NOT* SUITABLE FOR PRODUCTION USE "
-#endif
-
 #include "mbedtls/entropy.h"
 #include "mbedtls/entropy_poll.h"
 #include "mbedtls/platform_util.h"
