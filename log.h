@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #define WARN(msg, ...) \
     do {                                                             \
@@ -38,14 +39,14 @@
 #define BUG(msg, ...) \
     do {                                                             \
         fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__);   \
-        exit(-1);                                                    \
+        raise(SIGTRAP);                                              \
     } while (0)
 
 #define BUG_ON(cond) \
     do {                                                             \
         if (cond) {                                                  \
             fprintf(stderr, "%s: bug: \"%s\"\n", __func__, #cond);   \
-            exit(-1);                                                \
+            raise(SIGTRAP);                                          \
         }                                                            \
     } while (0)
 
