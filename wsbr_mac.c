@@ -52,6 +52,13 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
     BUG_ON(!api);
     BUG_ON(!buffer);
 
+    // These values are taken from mac_description_storage_size_t
+    // FIXME: we have plenty of memory, increase these values
+    buffer->device_decription_table_size = 32;
+    buffer->key_description_table_size = 4;
+    buffer->key_lookup_size = 1;
+    buffer->key_usage_size = 3;
+
     return 0;
 }
 
