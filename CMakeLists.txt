@@ -56,6 +56,8 @@ target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
 add_executable(wisun-br
     wsbr.c
+    wsbr_mac.c
+    wsbr_fhss.c
     bus_uart.c
     bus_spi.c
     tun.c
@@ -148,20 +150,10 @@ add_executable(wisun-br
     nanostack/source/libNET/src/net_load_balance.c
     nanostack/source/MAC/rf_driver_storage.c
     # Excluded nanostack/source/MAC/serial
-    nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
-    nanostack/source/MAC/IEEE802_15_4/sw_mac.c
-    nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
-    nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
-    nanostack/source/MAC/IEEE802_15_4/mac_header_helper_functions.c
-    nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
-    nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
-    nanostack/source/MAC/IEEE802_15_4/mac_timer.c
-    nanostack/source/MAC/IEEE802_15_4/mac_cca_threshold.c
-    nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
-    nanostack/source/MAC/IEEE802_15_4/mac_filter.c
+    # Excluded nanostack/source/MAC/IEEE802_15_4
     nanostack/source/MAC/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/MAC/virtual_rf/virtual_rf_client.c
-    nanostack/source/MAC/virtual_rf/virtual_rf_driver.c
+    # Excluded nanostack/source/MAC/virtual_rf/virtual_rf_driver.c
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c

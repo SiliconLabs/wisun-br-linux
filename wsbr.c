@@ -14,6 +14,7 @@
 #include "log.h"
 #include "slist.h"
 #include "wsbr.h"
+#include "wsbr_mac.h"
 #include "tun.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
@@ -298,11 +299,20 @@ static void wsbr_tasklet(struct arm_event_s *event)
     }
 }
 
-static mac_description_storage_size_t storage_sizes = {
-    .device_decription_table_size = 32, // FIXME: we have plenty of memory. Increase this value
-    .key_description_table_size = 4,
-    .key_lookup_size = 1,
-    .key_usage_size = 3,
+static struct mac_api_s wsbr_mac_api = {
+    .mac_initialize = wsbr_mac_init,
+    .mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
+    .mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
+
+    .mac_storage_sizes_get = wsbr_mac_storage_sizes_get,
+    .mac64_set = wsbr_mac_addr_set,
+    .mac64_get = wsbr_mac_addr_get,
+
+    .mlme_req = wsbr_mlme,
+    .mcps_data_req = wsbr_mcps_req,
+    .mcps_purge_req = wsbr_mcps_purge,
+
+    .phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE,
 };
 
 void kill_handler(int signal)
@@ -310,10 +320,8 @@ void kill_handler(int signal)
     exit(3);
 }
 
-static uint8_t rcp_mac[8] = { 10, 11, 12, 13, 14, 15, 16, 17 };
 int main(int argc, char *argv[])
 {
-    struct arm_device_driver_list *virtual_driver;
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
     struct fhss_timer_entry *fhss_timer;
@@ -335,17 +343,7 @@ int main(int argc, char *argv[])
 
     wsbr_tun_init(ctxt);
 
-    ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
-    if (ctxt->rcp_driver_id < 0)
-        tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
-    virtual_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
-    BUG_ON(!virtual_driver);
-    virtual_driver->phy_driver->arm_net_virtual_tx_cb = &rcp_tx;
-    arm_net_phy_mac64_set(rcp_mac, ctxt->rcp_driver_id);
-    ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
-    if (!ctxt->rcp_mac_api)
-        tr_err("%s: ns_sw_mac_create", __func__);
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(ctxt->rcp_mac_api, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&wsbr_mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
         tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
 
