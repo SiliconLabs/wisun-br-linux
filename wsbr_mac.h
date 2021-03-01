@@ -8,6 +8,11 @@
 
 #include "mac_api.h"
 
+struct wsbr_mac {
+    uint8_t dynamic_mac[8];
+    struct mac_api_s mac_api;
+};
+
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data);
 void wsbr_mcps_req(const struct mac_api_s *api, const mcps_data_req_t *data);
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data);

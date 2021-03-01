@@ -9,6 +9,7 @@
 
 #include "wsbr_mac.h"
 #include "mac_api.h"
+#include "utils.h"
 #include "log.h"
 
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
@@ -30,20 +31,35 @@ uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data)
 
 int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
 {
+    struct wsbr_mac *ctxt = container_of(api, struct wsbr_mac, mac_api);
+
     BUG_ON(!api);
     BUG_ON(!mac64);
 
+    memcpy(ctxt->dynamic_mac, mac64, 8);
     return 0;
 }
 
 int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
                      mac_extended_address_type type, uint8_t *mac64)
 {
+    struct wsbr_mac *ctxt = container_of(api, struct wsbr_mac, mac_api);
+
     BUG_ON(!api);
     BUG_ON(!mac64);
 
-    memset(mac64, 0, 8);
-    return 0;
+    switch (type) {
+    case MAC_EXTENDED_READ_ONLY:
+        // FIXME: replace with true MAC address from RCP ROM
+        memcpy(mac64, "\x03\x14\x15\x92\x65\x35\x89\x79", 8);
+        return 0;
+    case MAC_EXTENDED_DYNAMIC:
+        memcpy(mac64, ctxt->dynamic_mac, 8);
+        return 0;
+    default:
+        BUG("Unknown address_type: %d", type);
+        return -1;
+    }
 }
 
 int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
