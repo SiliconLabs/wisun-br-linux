@@ -32,6 +32,7 @@ target_include_directories(wisun-mac PRIVATE
 
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wisun-mac PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
 add_executable(wisun-br
@@ -300,6 +301,7 @@ target_include_directories(wisun-br PRIVATE
 )
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wisun-br PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
 find_package(PkgConfig REQUIRED)
