@@ -7,6 +7,7 @@
 #define LOG_H
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <signal.h>
 
@@ -15,12 +16,17 @@
         fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__);   \
     } while (0)
 
-#define WARN_ON(cond) ({ \
-    int __ret = !!(cond);                                            \
-    if (__ret)                                                       \
-        fprintf(stderr, "%s: warning: \"%s\"\n", __func__, #cond);   \
-    __ret;                                                           \
-})
+#define WARN_ON(cond, ...) \
+    ({ \
+        typeof(cond) __ret = (cond);                                 \
+        if (__ret) {                                                 \
+            if (__VA_OPT__(!) false)                                 \
+                WARN(__VA_ARGS__);                                   \
+            else                                                     \
+                WARN("warning: \"%s\"", #cond);                      \
+        }                                                            \
+        __ret;                                                       \
+    })
 
 #define FATAL(code, msg, ...) \
     do {                                                             \
@@ -28,11 +34,14 @@
         exit(code);                                                  \
     } while (0)
 
-#define FATAL_ON(cond, code) \
+#define FATAL_ON(cond, code, ...) \
     do {                                                             \
-        if (cond) {                                                  \
-            fprintf(stderr, "%s: fatal: \"%s\"\n", __func__, #cond); \
-            exit(code);                                              \
+        typeof(cond) __ret = (cond);                                 \
+        if (__ret) {                                                 \
+            if (__VA_OPT__(!) false)                                 \
+                FATAL(code, __VA_ARGS__);                            \
+            else                                                     \
+                FATAL(code, "fatal: \"%s\"", #cond);                 \
         }                                                            \
     } while (0)
 
@@ -42,11 +51,14 @@
         raise(SIGTRAP);                                              \
     } while (0)
 
-#define BUG_ON(cond) \
+#define BUG_ON(cond, ...) \
     do {                                                             \
-        if (cond) {                                                  \
-            fprintf(stderr, "%s: bug: \"%s\"\n", __func__, #cond);   \
-            raise(SIGTRAP);                                          \
+        typeof(cond) __ret = (cond);                                 \
+        if (__ret) {                                                 \
+            if (__VA_OPT__(!) false)                                 \
+                BUG(__VA_ARGS__);                                    \
+            else                                                     \
+                BUG("bug: \"%s\"", #cond);                           \
         }                                                            \
     } while (0)
 
