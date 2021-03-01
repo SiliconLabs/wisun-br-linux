@@ -83,5 +83,11 @@ int8_t wsbr_mac_init(struct mac_api_s *api,
 {
     BUG_ON(!api);
 
+    api->data_conf_cb = data_conf_cb;
+    api->data_ind_cb = data_ind_cb;
+    api->purge_conf_cb = purge_conf_cb;
+    api->mlme_conf_cb = mlme_conf_cb;
+    api->mlme_ind_cb = mlme_ind_cb;
+    api->parent_id = parent_id;
     return 0;
 }
