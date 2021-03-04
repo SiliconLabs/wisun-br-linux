@@ -27,6 +27,7 @@ struct wsbr_ctxt {
     char tun_dev[IFNAMSIZ];
 
     uint8_t dynamic_mac[8];
+    struct fhss_api *fhss_api;
     struct mac_api_s mac_api;
 
     int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
