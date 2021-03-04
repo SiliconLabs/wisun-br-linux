@@ -138,7 +138,8 @@ int8_t wsbr_mac_edfe_ext_init(struct mac_api_s *api,
 {
     BUG_ON(!api);
 
-    return -1;
+    api->edfe_ind_cb = edfe_ind_cb;
+    return 0;
 }
 
 int8_t wsbr_mac_init(struct mac_api_s *api,
