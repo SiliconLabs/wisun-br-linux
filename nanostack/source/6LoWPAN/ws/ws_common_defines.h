@@ -360,9 +360,9 @@ typedef struct ws_bs_ie {
 /* Default FHSS timing information
  *
  */
-#define WS_FHSS_UC_DWELL_INTERVAL     255;
-#define WS_FHSS_BC_INTERVAL           1020;
-#define WS_FHSS_BC_DWELL_INTERVAL     255;
+#define WS_FHSS_UC_DWELL_INTERVAL     255
+#define WS_FHSS_BC_INTERVAL           1020
+#define WS_FHSS_BC_DWELL_INTERVAL     255
 
 /*
  * EAPOL relay and PAE authenticator socket settings
