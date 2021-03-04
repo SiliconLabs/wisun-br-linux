@@ -37,6 +37,28 @@ void wsbr_mcps_req(const struct mac_api_s *api,
     api->data_conf_cb(api, &conf);
 }
 
+void wsbr_mcps_req_ext(const struct mac_api_s *api,
+                       const struct mcps_data_req_s *data,
+                       const struct mcps_data_req_ie_list *ie_ext,
+                       const struct channel_list_s *asynch_channel_list)
+{
+    // FIXME: use true symbol duration
+    const unsigned int symbol_duration_us = 10;
+    struct timespec ts;
+    struct mcps_data_conf_s conf = {
+        .msduHandle = data->msduHandle,
+        .status = MLME_SUCCESS,
+    };
+    struct mcps_data_conf_payload_s data_conf = { };
+
+    BUG_ON(!api);
+    printf("%s:\n", __func__);
+    pr_hex(data->msdu, data->msduLength);
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
+    api->data_conf_ext_cb(api, &conf, &data_conf);
+}
+
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
                         const struct mcps_purge_s *data)
 {
@@ -105,7 +127,10 @@ int8_t wsbr_mac_mcps_ext_init(struct mac_api_s *api,
 {
     BUG_ON(!api);
 
-    return -1;
+    api->data_conf_ext_cb = data_cnf_cb;
+    api->data_ind_ext_cb = data_ind_cb;
+    api->enhanced_ack_data_req_cb = ack_data_req_cb;
+    return 0;
 }
 
 int8_t wsbr_mac_edfe_ext_init(struct mac_api_s *api,

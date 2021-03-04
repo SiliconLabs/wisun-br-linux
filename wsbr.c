@@ -310,6 +310,7 @@ static struct wsbr_mac wsbr_mac = {
 
     .mac_api.mlme_req = wsbr_mlme,
     .mac_api.mcps_data_req = wsbr_mcps_req,
+    .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
     .mac_api.mcps_purge_req = wsbr_mcps_purge,
 
     .mac_api.phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE,
