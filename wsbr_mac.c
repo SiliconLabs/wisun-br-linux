@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 /* MAC API imlementation */
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -17,9 +18,21 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
     BUG_ON(!api);
 }
 
-void wsbr_mcps_req(const struct mac_api_s *api, const mcps_data_req_t *data)
+void wsbr_mcps_req(const struct mac_api_s *api,
+                   const struct mcps_data_req_s *data)
 {
+    // FIXME: use true symbol duration
+    const unsigned int symbol_duration_us = 10;
+    struct timespec ts;
+    struct mcps_data_conf_s conf = {
+        .msduHandle = data->msduHandle,
+        .status = MLME_SUCCESS,
+    };
+
     BUG_ON(!api);
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
+    api->data_conf_cb(api, &conf);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data)
