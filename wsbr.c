@@ -15,6 +15,7 @@
 #include "slist.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "wsbr_certs.h"
 #include "tun.h"
 #include "bus_uart.h"
 #include "bus_spi.h"
@@ -248,6 +249,7 @@ int8_t rcp_tx(const virtual_data_req_t *data_req, int8_t driver_id)
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
+    arm_certificate_chain_entry_s chain_info = { };
     int ret;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
@@ -280,6 +282,18 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
 
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
+    WARN_ON(ret);
+
+    // ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
+    // WARN_ON(ret);
+
+    chain_info.cert_chain[0] = WISUN_ROOT_CERTIFICATE;
+    chain_info.cert_len[0] = sizeof(WISUN_ROOT_CERTIFICATE);
+    chain_info.cert_chain[1] = WISUN_SERVER_CERTIFICATE;
+    chain_info.cert_len[1] = sizeof(WISUN_SERVER_CERTIFICATE);
+    chain_info.chain_length = 2;
+    chain_info.key_chain[1] = WISUN_SERVER_KEY;
+    ret = arm_network_certificate_chain_set(&chain_info);
     WARN_ON(ret);
 }
 
