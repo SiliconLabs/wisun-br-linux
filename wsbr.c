@@ -33,6 +33,7 @@
 #include "ws_management_api.h"
 #include "mbed-trace/mbed_trace.h"
 #include "nanostack/source/MAC/rf_driver_storage.h"
+#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #define TRACE_GROUP  "main"
 
 // See warning in wsbr.h
@@ -245,34 +246,41 @@ int8_t rcp_tx(const virtual_data_req_t *data_req, int8_t driver_id)
     return 0;
 }
 
-static void wsbr_configure_fhss(struct wsbr_ctxt *ctxt)
+static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
                                   ctxt->ws_name, &wsbr_fhss);
     WARN_ON(ret);
+
+    WARN_ON(ctxt->ws_domain == 0xFE, "Not supported");
     ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
                                               ctxt->ws_class, ctxt->ws_mode);
     WARN_ON(ret);
-    if (ctxt->ws_domain == 0xFE) {
-        FATAL(2, "Not yet supported");
-        // ret = ws_management_channel_plan_set(ctxt->rcp_if_id, ...);
-        // WARN_ON(ret);
-    }
-    // FIXME: allow to customize that
-    // ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, ...);
-    // WARN_ON(ret);
-    // ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, ...);
-    // WARN_ON(ret);
-    // ret = ws_management_fhss_timing_configure(ctxt->rcp_if_id, ...);
-    // WARN_ON(ret);
-    // ret = ws_management_network_size_set(ctxt->rcp_if_id, NETWORK_SIZE_SMALL);
-    // WARN_ON(ret);
-    // ret = ws_management_timing_parameters_set(ctxt->rcp_if_id, ...);
-    // WARN_ON(ret);
-    // ret = ws_bbr_rpl_parameters_set(ctxt->rcp_if_id, ...);
-    // WARN_ON(ret);
+
+    // FIXME: allow to customize the values below using command line
+
+    // Default value as specified in ws_cfg_fhss_default_set().
+    // You may also use CHANNEL_FUNCTION_FIXED and a true value instead of
+    // 0xFFFF
+    // Note that calling ws_management_fhss_timing_configure() is redundant
+    // with the two function calls bellow.
+    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, WS_DH1CF, 0xFFFF,
+                                                                WS_FHSS_UC_DWELL_INTERVAL);
+    WARN_ON(ret);
+    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, WS_DH1CF, 0xFFFF,
+                                                                  WS_FHSS_BC_DWELL_INTERVAL, WS_FHSS_BC_INTERVAL);
+    WARN_ON(ret);
+
+    // You may also use NETWORK_SIZE_SMALL
+    // Note that calls to ws_management_timing_parameters_set() and
+    // ws_bbr_rpl_parameters_set() are done by the function below.
+    ret = ws_management_network_size_set(ctxt->rcp_if_id, NETWORK_SIZE_AUTOMATIC);
+    WARN_ON(ret);
+
+    ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
+    WARN_ON(ret);
 }
 
 static void wsbr_tasklet(struct arm_event_s *event)
@@ -292,7 +300,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                NET_IPV6_BOOTSTRAP_AUTONOMOUS,
                                                                tun_prefix))
                 WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
-            wsbr_configure_fhss(ctxt);
+            wsbr_configure_ws(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
                  WARN("arm_nwk_interface_up TUN");
             if (arm_nwk_interface_up(ctxt->rcp_if_id))
