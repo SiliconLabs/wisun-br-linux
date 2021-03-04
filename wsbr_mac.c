@@ -79,26 +79,6 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         table[i].fn(api, data);
     api->mlme_conf_cb(api, id, data);
 }
-
-void wsbr_mcps_req(const struct mac_api_s *api,
-                   const struct mcps_data_req_s *data)
-{
-    // FIXME: use true symbol duration
-    const unsigned int symbol_duration_us = 10;
-    struct timespec ts;
-    struct mcps_data_conf_s conf = {
-        .msduHandle = data->msduHandle,
-        .status = MLME_SUCCESS,
-    };
-
-    BUG_ON(!api);
-    printf("%s:\n", __func__);
-    pr_hex(data->msdu, data->msduLength);
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
-    api->data_conf_cb(api, &conf);
-}
-
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
@@ -118,7 +98,16 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     pr_hex(data->msdu, data->msduLength);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
-    api->data_conf_ext_cb(api, &conf, &data_conf);
+    if (api->data_conf_ext_cb)
+        api->data_conf_ext_cb(api, &conf, &data_conf);
+    else
+        api->data_conf_cb(api, &conf);
+}
+
+void wsbr_mcps_req(const struct mac_api_s *api,
+                   const struct mcps_data_req_s *data)
+{
+    return wsbr_mcps_req_ext(api, data, NULL, NULL);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
