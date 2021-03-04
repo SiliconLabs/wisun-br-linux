@@ -29,6 +29,8 @@ int mac_read_64bit_mac_address(const fhss_api_t *fhss_api, uint8_t *mac_address)
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     BUG_ON(ctxt->fhss_api != fhss_api);
+    // Call wsbr_mac_addr_get()
+    ctxt->mac_api.mac64_get(&ctxt->mac_api, MAC_EXTENDED_DYNAMIC, mac_address);
     return 0;
 }
 
