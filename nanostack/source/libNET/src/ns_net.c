@@ -981,15 +981,21 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
 
 int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info)
 {
+    int8_t ret = -2;
+
 #if !defined(PANA) && !defined(HAVE_WS)
     (void)chain_info;
 #endif
 
 #ifdef HAVE_WS
-    ws_pae_controller_certificate_chain_set(chain_info);
+    ret = ws_pae_controller_certificate_chain_set(chain_info);
 #endif
 
-    return pana_interface_certificate_chain_set(chain_info);
+#ifdef PANA
+    ret = pana_interface_certificate_chain_set(chain_info);
+#endif
+
+    return ret;
 }
 
 int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
