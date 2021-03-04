@@ -30,15 +30,22 @@ void wsbr_mcps_req(const struct mac_api_s *api,
     };
 
     BUG_ON(!api);
+    printf("%s:\n", __func__);
+    pr_hex(data->msdu, data->msduLength);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
     api->data_conf_cb(api, &conf);
 }
 
-uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data)
+uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
+                        const struct mcps_purge_s *data)
 {
-    BUG_ON(!api);
+    struct mcps_purge_conf_s conf = {
+        .msduHandle = data->msduHandle,
+    };
 
+    BUG_ON(!api);
+    api->purge_conf_cb(api, &conf);
     return 0;
 }
 
