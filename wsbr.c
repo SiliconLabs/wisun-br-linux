@@ -36,7 +36,23 @@
 #define TRACE_GROUP  "main"
 
 // See warning in wsbr.h
-struct wsbr_ctxt g_ctxt = { };
+struct wsbr_ctxt g_ctxt = {
+    .mac_api.mac_initialize = wsbr_mac_init,
+    .mac_api.mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
+    .mac_api.mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
+
+    .mac_api.mac_storage_sizes_get = wsbr_mac_storage_sizes_get,
+    .mac_api.mac64_set = wsbr_mac_addr_set,
+    .mac_api.mac64_get = wsbr_mac_addr_get,
+
+    .mac_api.mlme_req = wsbr_mlme,
+    .mac_api.mcps_data_req = wsbr_mcps_req,
+    .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
+    .mac_api.mcps_purge_req = wsbr_mcps_purge,
+
+    .mac_api.phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE,
+};
+
 // See warning in os_types.h
 struct os_ctxt g_os_ctxt = { };
 
@@ -299,23 +315,6 @@ static void wsbr_tasklet(struct arm_event_s *event)
     }
 }
 
-static struct wsbr_mac wsbr_mac = {
-    .mac_api.mac_initialize = wsbr_mac_init,
-    .mac_api.mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
-    .mac_api.mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
-
-    .mac_api.mac_storage_sizes_get = wsbr_mac_storage_sizes_get,
-    .mac_api.mac64_set = wsbr_mac_addr_set,
-    .mac_api.mac64_get = wsbr_mac_addr_get,
-
-    .mac_api.mlme_req = wsbr_mlme,
-    .mac_api.mcps_data_req = wsbr_mcps_req,
-    .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
-    .mac_api.mcps_purge_req = wsbr_mcps_purge,
-
-    .mac_api.phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE,
-};
-
 void kill_handler(int signal)
 {
     exit(3);
@@ -344,7 +343,7 @@ int main(int argc, char *argv[])
 
     wsbr_tun_init(ctxt);
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&wsbr_mac.mac_api, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
         tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
 

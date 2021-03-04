@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "wsbr.h"
 #include "wsbr_mac.h"
 #include "mac_api.h"
 #include "utils.h"
@@ -128,13 +129,14 @@ uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
     };
 
     BUG_ON(!api);
+    printf("%s\n", __func__);
     api->purge_conf_cb(api, &conf);
     return 0;
 }
 
 int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
 {
-    struct wsbr_mac *ctxt = container_of(api, struct wsbr_mac, mac_api);
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
 
     BUG_ON(!api);
     BUG_ON(!mac64);
@@ -146,7 +148,7 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
 int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
                      mac_extended_address_type type, uint8_t *mac64)
 {
-    struct wsbr_mac *ctxt = container_of(api, struct wsbr_mac, mac_api);
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
 
     BUG_ON(!api);
     BUG_ON(!mac64);

@@ -10,9 +10,11 @@
 #include <stdint.h>
 #include <linux/if.h>
 
+#include "mac_api.h"
+
 struct phy_device_driver_s;
 struct eth_mac_api_s;
-struct mac_api_s;
+struct fhss_api;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
@@ -24,7 +26,9 @@ struct wsbr_ctxt {
     int  tun_fd;
     char tun_dev[IFNAMSIZ];
 
-    struct mac_api_s *rcp_mac_api;
+    uint8_t dynamic_mac[8];
+    struct mac_api_s mac_api;
+
     int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
     int  rcp_driver_id;
