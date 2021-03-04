@@ -6,6 +6,7 @@ add_compile_options(-Wall)
 
 add_executable(wisun-mac
     wsmac.c
+    wsmac_ns_monitor.c
     bus_uart.c
     hal_interrupt.c
     hal_fhss_timer.c
@@ -13,14 +14,29 @@ add_executable(wisun-mac
     os_scheduler.c
     os_timer.c
     slist.c
-    nanostack-event-loop/source/event.c
-    nanostack-event-loop/source/system_timer.c
     mbed-client-libservice/source/libBits/common_functions.c
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
     mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
+    mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
+    nanostack-event-loop/source/event.c
+    nanostack-event-loop/source/system_timer.c
+    nanostack/source/MAC/IEEE802_15_4/mac_cca_threshold.c
+    nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
+    nanostack/source/MAC/IEEE802_15_4/mac_filter.c
+    nanostack/source/MAC/IEEE802_15_4/mac_header_helper_functions.c
+    nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
+    nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
+    nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
+    nanostack/source/MAC/IEEE802_15_4/mac_timer.c
+    nanostack/source/MAC/IEEE802_15_4/sw_mac.c
+    nanostack/source/MAC/rf_driver_storage.c
+    nanostack/source/Service_Libs/CCM_lib/ccm_security.c
+    nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
 )
 
 target_include_directories(wisun-mac PRIVATE
@@ -30,6 +46,7 @@ target_include_directories(wisun-mac PRIVATE
     mbed-client-randlib/mbed-client-randlib/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/nanostack/
+    nanostack/source/
 )
 
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
