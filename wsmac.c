@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     platform_critical_init();
     mbed_trace_init();
     configure(ctxt, argc, argv);
+    // FIXME call ws_fhss_initialize();
 
     for (;;) {
         maxfd = 0;

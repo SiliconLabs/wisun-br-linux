@@ -37,6 +37,16 @@ add_executable(wisun-mac
     nanostack/source/MAC/rf_driver_storage.c
     nanostack/source/Service_Libs/CCM_lib/ccm_security.c
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+    nanostack/source/Service_Libs/fhss/channel_functions.c
+    nanostack/source/Service_Libs/fhss/channel_list.c
+    nanostack/source/Service_Libs/fhss/fhss.c
+    nanostack/source/Service_Libs/fhss/fhss_channel.c
+    nanostack/source/Service_Libs/fhss/fhss_common.c
+    nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
+    nanostack/source/Service_Libs/fhss/fhss_statistics.c
+    nanostack/source/Service_Libs/fhss/fhss_ws.c
+    # Excluded nanostack/source/Service_Libs/fhss/fhss_test_api.c
+    # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
 )
 
 target_include_directories(wisun-mac PRIVATE
@@ -58,6 +68,8 @@ add_executable(wisun-br
     wsbr.c
     wsbr_mac.c
     wsbr_fhss.c
+    wsbr_fhss_net.c
+    wsbr_fhss_channel.c
     bus_uart.c
     bus_spi.c
     tun.c
@@ -207,16 +219,6 @@ add_executable(wisun-br
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
     # Excluded nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls.c
     nanostack/source/Service_Libs/etx/etx.c
-    nanostack/source/Service_Libs/fhss/channel_functions.c
-    nanostack/source/Service_Libs/fhss/channel_list.c
-    nanostack/source/Service_Libs/fhss/fhss.c
-    nanostack/source/Service_Libs/fhss/fhss_channel.c
-    nanostack/source/Service_Libs/fhss/fhss_common.c
-    nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
-    nanostack/source/Service_Libs/fhss/fhss_statistics.c
-    nanostack/source/Service_Libs/fhss/fhss_test_api.c
-    nanostack/source/Service_Libs/fhss/fhss_ws.c
-    nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
     nanostack/source/Service_Libs/fnv_hash/fnv_hash.c
     nanostack/source/Service_Libs/hmac/hmac_md.c
     nanostack/source/Service_Libs/ieee_802_11/ieee_802_11.c
