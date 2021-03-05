@@ -67,7 +67,7 @@ target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 add_executable(wisun-br
     wsbr.c
     wsbr_mac.c
-    wsbr_fhss.c
+    wsbr_fhss_mac.c
     wsbr_fhss_net.c
     wsbr_fhss_channel.c
     bus_uart.c

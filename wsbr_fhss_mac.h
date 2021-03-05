@@ -3,8 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef WSBR_FHSS_H
-#define WSBR_FHSS_H
+#ifndef WSBR_FHSS_MAC_H
+#define WSBR_FHSS_MAC_H
 
 #include "sw_mac.h"
 
