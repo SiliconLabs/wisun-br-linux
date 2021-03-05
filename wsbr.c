@@ -22,7 +22,6 @@
 #include "os_types.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
-#include "hal_fhss_timer.h"
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ns_virtual_rf_api.h"
@@ -253,7 +252,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     int ret;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
-                                  ctxt->ws_name, &wsbr_fhss);
+                                  ctxt->ws_name, (struct fhss_timer *)-1);
     WARN_ON(ret);
 
     WARN_ON(ctxt->ws_domain == 0xFE, "Not supported");
@@ -346,7 +345,6 @@ int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
-    struct fhss_timer_entry *fhss_timer;
     fd_set rfds, efds;
     int maxfd, ret;
     uint64_t val;
@@ -389,10 +387,6 @@ int main(int argc, char *argv[])
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
-            FD_SET(fhss_timer->fd, &rfds);
-            maxfd = max(maxfd, fhss_timer->fd);
-        }
         // FIXME: consider poll() usage
         if (ctxt->os_ctxt->uart_next_frame_ready)
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
@@ -416,13 +410,6 @@ int main(int argc, char *argv[])
                 read(timer->fd, &val, sizeof(val));
                 WARN_ON(val != 1);
                 timer->fn(timer->fd, 0);
-            }
-        }
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
-            if (FD_ISSET(fhss_timer->fd, &rfds)) {
-                read(fhss_timer->fd, &val, sizeof(val));
-                WARN_ON(val != 1);
-                fhss_timer->fn(fhss_timer->arg, 0);
             }
         }
     }

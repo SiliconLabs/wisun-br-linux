@@ -14,9 +14,14 @@
 #include "nanostack/nanostack/fhss_api.h"
 #include "wsbr_fhss_net.h"
 
+#include "log.h"
+
 struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                    const fhss_timer_t *fhss_timer)
 {
+    // fhss_timer is filled by wsbr_configure(). We know we know we pass -1.
+    BUG_ON(fhss_timer != (fhss_timer_t *)-1);
+
     // Upper layers absolutly want something != NULL
     return (struct fhss_api *)-1;
 }
