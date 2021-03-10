@@ -4408,6 +4408,123 @@ enum
     SPINEL_PROP_DEBUG__END = 0x4400,
 
     SPINEL_PROP_EXPERIMENTAL__BEGIN = 2000000,
+
+    SPINEL_PROP_WS__BEGIN = SPINEL_PROP_EXPERIMENTAL__BEGIN + 0,
+
+    /** Format: `L`. */
+    SPINEL_PROP_WS_15_4_MODE                        = SPINEL_PROP_WS__BEGIN +  0,
+    /** Format: `LLLSCC`.
+     *
+     *  `L`: Center frequency
+     *  `L`: Channel spacing
+     *  `L`: Data rate
+     *  `S`: Number of channels
+     *  `C`: Modulation scheme
+     *  `C`: Modulation index
+     *
+     */
+    SPINEL_PROP_WS_RF_CONFIGURATION                 = SPINEL_PROP_WS__BEGIN +  1,
+    /** Format: `iiiiiib`.
+     *
+     *  `i`: PAN id
+     *  `i`: Operated Logical channel
+     *  `i`: Operated Logical channel page
+     *  `i`: Start time
+     *  `i`: Beacon order
+     *  `i`: Super frame order
+     *  `b`: Enable beacon response for beacon request
+     */
+    SPINEL_PROP_WS_START                            = SPINEL_PROP_WS__BEGIN +  2,
+    /** Format: `b`.
+     *
+     *  `b`: Set standard default values
+     */
+    SPINEL_PROP_WS_RESET                            = SPINEL_PROP_WS__BEGIN +  3,
+    /** Format: `CS`.
+     *
+     *  `C`: Number of CSMA-CA periods
+     *  `S`: Length of the additional CSMA-CA period(s) in microseconds
+     *
+     */
+    SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS            = SPINEL_PROP_WS__BEGIN +  4,
+    /** Format: `CCCC`.
+     *
+     *  `C`: Number of channels
+     *  `C`: Default level in dBm
+     *  `C`: High limit in dBm
+     *  `C`: Low limit in dBm
+     *
+     */
+    SPINEL_PROP_WS_CCA_THRESHOLD_START              = SPINEL_PROP_WS__BEGIN +  5,
+    /** Format: `C`. */
+    SPINEL_PROP_WS_MAX_FRAME_RETRIES                = SPINEL_PROP_WS__BEGIN +  6,
+    /** Format: `S`. */
+    SPINEL_PROP_WS_ACK_WAIT_DURATION                = SPINEL_PROP_WS__BEGIN +  7,
+    /** Format: `b`. */
+    SPINEL_PROP_WS_RX_ON_WHEN_IDLE                  = SPINEL_PROP_WS__BEGIN +  8,
+    /** Format: `C`. */
+    SPINEL_PROP_WS_TX_POWER                         = SPINEL_PROP_WS__BEGIN +  9,
+    /** Format: `b`. */
+    SPINEL_PROP_WS_EDFE_FORCE_STOP                  = SPINEL_PROP_WS__BEGIN + 10,
+
+    /** Format: `D`. */
+    SPINEL_PROP_WS_BEACON_PAYLOAD                   = SPINEL_PROP_WS__BEGIN + 11,
+    /** Format: `C`. */
+    SPINEL_PROP_WS_BEACON_PAYLOAD_LENGTH            = SPINEL_PROP_WS__BEGIN + 12,
+    /** Format: `b`. */
+    SPINEL_PROP_WS_ASSOCIATION_PERMIT               = SPINEL_PROP_WS__BEGIN + 13,
+    /** Format: `S`. */
+    SPINEL_PROP_WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE = SPINEL_PROP_WS__BEGIN + 14,
+    /** Format: `S`. */
+    SPINEL_PROP_WS_COORD_SHORT_ADDRESS              = SPINEL_PROP_WS__BEGIN + 15,
+    /** Format: `E`. */
+    SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS           = SPINEL_PROP_WS__BEGIN + 16,
+
+    /** Format: `C`. */
+    SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL      = SPINEL_PROP_WS__BEGIN + 17,
+    /** Format: `C`. */
+    SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE         = SPINEL_PROP_WS__BEGIN + 18,
+    /** Format: `E`. */
+    SPINEL_PROP_WS_AUTO_REQUEST_KEY_SOURCE          = SPINEL_PROP_WS__BEGIN + 19,
+    /** Format: `C`. */
+    SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX           = SPINEL_PROP_WS__BEGIN + 20,
+    /** Format: `E`. */
+    SPINEL_PROP_WS_DEFAULT_KEY_SOURCE               = SPINEL_PROP_WS__BEGIN + 21,
+    /** Format: `b`. */
+    SPINEL_PROP_WS_SECURITY_ENABLED                 = SPINEL_PROP_WS__BEGIN + 22,
+    /** Format: `b`. */
+    SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE     = SPINEL_PROP_WS__BEGIN + 23,
+    /** Format: `i6A(A(C))A(Cbb)A(t())`.
+     *
+     *  `i`: Key table entry number
+     *  `6`: Actual value of Security key (128bits)
+     *  `A(A(C))`: List of Key lookup data for this descriptor. Each key can be
+     *             5 or 9 bytes length.
+     *  `A(Cbb)`: List of descriptor user entries indicating which devices are
+     *            valid or blacklisted (see mlme_key_device_descriptor_s)
+     *  `A(t())`: List of descriptor entries indicating which frame types this
+     *            key may be used with (not yet used)
+     */
+    SPINEL_PROP_WS_KEY_TABLE                        = SPINEL_PROP_WS__BEGIN + 24,
+    /** Format: `iL`.
+     *
+     *  `i`: Key number
+     *  `L`: Frame counter
+     *
+     */
+    SPINEL_PROP_WS_FRAME_COUNTER                    = SPINEL_PROP_WS__BEGIN + 25,
+    /** Format: `iSSELb`.
+     *
+     *  `i`: Device table entry number
+     *  `S`: PAN id
+     *  `S`: Device short address
+     *  `E`: Device extended address
+     *  `L`: Security frame counter
+     *  `b`: Reserved, always false
+     *
+     */
+    SPINEL_PROP_WS_DEVICE_TABLE                     = SPINEL_PROP_WS__BEGIN + 26,
+
     SPINEL_PROP_EXPERIMENTAL__END   = 2097152,
 };
 
