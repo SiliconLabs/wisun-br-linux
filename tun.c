@@ -12,9 +12,9 @@
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 
-#include "platform/arm_hal_phy.h"
-#include "ethernet_mac_api.h"
-#include "net_interface.h"
+#include "nanostack/platform/arm_hal_phy.h"
+#include "nanostack/ethernet_mac_api.h"
+#include "nanostack/net_interface.h"
 
 #include "tun.h"
 #include "log.h"

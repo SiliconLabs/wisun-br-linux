@@ -52,6 +52,11 @@ add_executable(wisun-mac
 target_include_directories(wisun-mac PRIVATE
     mbed-trace/
     mbed-client-libservice
+    mbed-client-randlib/
+    nanostack-event-loop/
+    nanostack/
+)
+target_include_directories(wisun-mac PRIVATE
     mbed-client-libservice/mbed-client-libservice/
     mbed-client-randlib/mbed-client-randlib/
     nanostack-event-loop/nanostack-event-loop/
@@ -295,11 +300,16 @@ add_executable(wisun-br
 )
 
 target_include_directories(wisun-br PRIVATE
-    mbedtls/
     mbedtls/include/
     mbed-trace/
-    mbed-client-randlib/mbed-client-randlib/
+    mbed-client-randlib/
     mbed-client-libservice/
+    nanostack-event-loop/
+    nanostack/
+)
+target_include_directories(wisun-br PRIVATE
+    mbedtls/
+    mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/nanostack/

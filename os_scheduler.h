@@ -6,7 +6,7 @@
 #ifndef OS_SCHEDULER_H
 #define OS_SCHEDULER_H
 
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 
 #endif
 

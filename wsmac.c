@@ -10,16 +10,17 @@
 #include <signal.h>
 #include <sys/select.h>
 
+#include "mbed-trace/mbed_trace.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+
 #include "wsmac.h"
 #include "slist.h"
 #include "log.h"
 #include "bus_uart.h"
 #include "hal_fhss_timer.h"
+#include "hal_interrupt.h"
 #include "os_timer.h"
 #include "os_types.h"
-#include "hal_interrupt.h"
-#include "eventOS_scheduler.h"
-#include "mbed-trace/mbed_trace.h"
 
 #define TRACE_GROUP  "main"
 

@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <linux/if.h>
 
-#include "mac_api.h"
+#include "nanostack/mac_api.h"
 
 struct phy_device_driver_s;
 struct eth_mac_api_s;

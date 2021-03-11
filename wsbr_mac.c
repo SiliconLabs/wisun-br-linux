@@ -8,9 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "nanostack/mac_api.h"
+
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "mac_api.h"
 #include "utils.h"
 #include "log.h"
 

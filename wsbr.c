@@ -11,6 +11,19 @@
 #include <signal.h>
 #include <sys/select.h>
 
+#include "mbed-trace/mbed_trace.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack/fhss_api.h"
+#include "nanostack/mac_api.h"
+#include "nanostack/ns_file_system.h"
+#include "nanostack/ns_virtual_rf_api.h"
+#include "nanostack/sw_mac.h"
+#include "nanostack/ws_bbr_api.h"
+#include "nanostack/ws_management_api.h"
+#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
+#include "nanostack/source/MAC/rf_driver_storage.h"
+
 #include "log.h"
 #include "slist.h"
 #include "wsbr.h"
@@ -22,18 +35,6 @@
 #include "os_types.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
-#include "sw_mac.h"
-#include "mac_api.h"
-#include "ns_virtual_rf_api.h"
-#include "ns_file_system.h"
-#include "ws_bbr_api.h"
-#include "eventOS_scheduler.h"
-#include "eventOS_event.h"
-#include "fhss_api.h"
-#include "ws_management_api.h"
-#include "mbed-trace/mbed_trace.h"
-#include "nanostack/source/MAC/rf_driver_storage.h"
-#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #define TRACE_GROUP  "main"
 
 // See warning in wsbr.h

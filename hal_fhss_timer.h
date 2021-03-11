@@ -8,7 +8,8 @@
 #ifndef HAL_FHSS_TIMER_H
 #define HAL_FHSS_TIMER_H
 
-#include "fhss_config.h"
+#include "nanostack/fhss_config.h"
+
 #include "slist.h"
 
 struct fhss_timer_entry {

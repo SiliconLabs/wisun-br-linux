@@ -6,7 +6,7 @@
 #ifndef OS_TIMER_H
 #define OS_TIMER_H
 
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "slist.h"
 
 struct callback_timer {

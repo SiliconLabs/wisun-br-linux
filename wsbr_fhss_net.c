@@ -10,8 +10,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "nanostack/nanostack/fhss_config.h"
-#include "nanostack/nanostack/fhss_api.h"
+#include "nanostack/fhss_config.h"
+#include "nanostack/fhss_api.h"
+
 #include "wsbr_fhss_net.h"
 
 #include "log.h"

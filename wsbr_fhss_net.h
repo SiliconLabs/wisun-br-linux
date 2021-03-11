@@ -6,8 +6,8 @@
 #ifndef WSBR_FHSS_NET_H
 #define WSBR_FHSS_NET_H
 
-#include "nanostack/nanostack/fhss_ws_extension.h"
-#include "nanostack/nanostack/net_fhss.h"
+#include "nanostack/fhss_ws_extension.h"
+#include "nanostack/net_fhss.h"
 
 #endif
 

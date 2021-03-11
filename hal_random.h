@@ -9,7 +9,7 @@
 // Necessary for arm_hal_random.h
 #include <stdint.h>
 
-#include "platform/arm_hal_random.h"
+#include "mbed-client-randlib/platform/arm_hal_random.h"
 
 #endif
 

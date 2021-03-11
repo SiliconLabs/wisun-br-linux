@@ -6,7 +6,7 @@
 #ifndef HAL_INTERRUPT_H
 #define HAL_INTERRUPT_H
 
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 
 void platform_critical_init(void);
 
