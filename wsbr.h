@@ -35,6 +35,9 @@ struct wsbr_ctxt {
     int  rcp_driver_id;
     int  rcp_if_id;
 
+    int spinel_tid;
+    int spinel_iid;
+
     int  ws_domain;
     int  ws_mode;
     int  ws_class;

@@ -13,7 +13,89 @@
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "utils.h"
+#include "spinel.h"
 #include "log.h"
+
+static uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
+{
+    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
+
+    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
+    if (!ctxt->spinel_tid)
+        ctxt->spinel_tid = 1;
+    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
+    return hdr;
+}
+
+static void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + sizeof(bool)];
+    int frame_len;
+
+    BUG_ON(data_len != sizeof(bool));
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciib", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((bool *)data));
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
+static void wsbr_spinel_set_u8(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + sizeof(uint8_t)];
+    int frame_len;
+
+    BUG_ON(data_len != sizeof(uint8_t));
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiC", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint8_t *)data));
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
+static void wsbr_spinel_set_u16(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + sizeof(uint16_t)];
+    int frame_len;
+
+    BUG_ON(data_len != sizeof(uint16_t));
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiS", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint16_t *)data));
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
+static void wsbr_spinel_set_u32(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + sizeof(uint32_t)];
+    int frame_len;
+
+    BUG_ON(data_len != sizeof(uint32_t));
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiL", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint32_t *)data));
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
+static void wsbr_spinel_set_eui64(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + 8];
+    int frame_len;
+
+    BUG_ON(data_len != 8);
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, (uint8_t *)data);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
+static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[256];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiD", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, data, data_len);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
 
 static const struct {
     const char *str;
@@ -21,6 +103,29 @@ static const struct {
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
+    { "macRxOnWhenIdle",                macRxOnWhenIdle,                 wsbr_spinel_set_bool,                   SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  }, 
+    { "macSecurityEnabled",             macSecurityEnabled,              wsbr_spinel_set_bool,                   SPINEL_PROP_WS_SECURITY_ENABLED,                 },
+    { "macAcceptByPassUnknowDevice",    macAcceptByPassUnknowDevice,     wsbr_spinel_set_bool,                   SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
+    { "macEdfeForceStop",               macEdfeForceStop,                wsbr_spinel_set_bool,                   SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
+    { "macAssociationPermit",           macAssociationPermit,            wsbr_spinel_set_bool,                   SPINEL_PROP_WS_ASSOCIATION_PERMIT,               },
+    { "phyCurrentChannel",              phyCurrentChannel,               wsbr_spinel_set_u8,                     SPINEL_PROP_PHY_CHAN,                            },
+    { "macAutoRequestKeyIdMode",        macAutoRequestKeyIdMode,         wsbr_spinel_set_u8,                     SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE,         },
+    { "macAutoRequestKeyIndex",         macAutoRequestKeyIndex,          wsbr_spinel_set_u8,                     SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX,           },
+    { "macAutoRequestSecurityLevel",    macAutoRequestSecurityLevel,     wsbr_spinel_set_u8,                     SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL,      },
+    { "macBeaconPayloadLength",         macBeaconPayloadLength,          wsbr_spinel_set_u8,                     SPINEL_PROP_WS_BEACON_PAYLOAD_LENGTH,            },
+    { "macMaxFrameRetries",             macMaxFrameRetries,              wsbr_spinel_set_u8,                     SPINEL_PROP_WS_MAX_FRAME_RETRIES,                },
+    { "macTXPower",                     macTXPower,                      wsbr_spinel_set_u8,                     SPINEL_PROP_PHY_TX_POWER,                        },
+    { "macCCAThreshold",                macCCAThreshold,                 wsbr_spinel_set_u8,                     SPINEL_PROP_PHY_CCA_THRESHOLD,                   },
+    { "macPANId",                       macPANId,                        wsbr_spinel_set_u16,                    SPINEL_PROP_MAC_15_4_PANID,                      },
+    { "macCoordShortAddress",           macCoordShortAddress,            wsbr_spinel_set_u16,                    SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
+    { "macShortAddress",                macShortAddress,                 wsbr_spinel_set_u16,                    SPINEL_PROP_MAC_15_4_SADDR,                      },
+    { "macDeviceDescriptionPanIDUpdate",macDeviceDescriptionPanIDUpdate, wsbr_spinel_set_u16,                    SPINEL_PROP_WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE, },
+    { "macAckWaitDuration",             macAckWaitDuration,              wsbr_spinel_set_u16,                    SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
+    { "mac802_15_4Mode",                mac802_15_4Mode,                 wsbr_spinel_set_u32,                    SPINEL_PROP_WS_15_4_MODE,                        },
+    { "macAutoRequestKeySource",        macAutoRequestKeySource,         wsbr_spinel_set_eui64,                  SPINEL_PROP_WS_AUTO_REQUEST_KEY_SOURCE,          },
+    { "macCoordExtendedAddress",        macCoordExtendedAddress,         wsbr_spinel_set_eui64,                  SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
+    { "macDefaultKeySource",            macDefaultKeySource,             wsbr_spinel_set_eui64,                  SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
+    { "macBeaconPayload",               macBeaconPayload,                wsbr_spinel_set_data,                   SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
     { }
 };
 
