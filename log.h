@@ -11,13 +11,19 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#define WARN(msg, ...) \
+#define __PRINT(msg, ...) \
+    fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__)
+
+#define WARN(...) \
     do {                                                             \
-        fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__);   \
+        if (__VA_OPT__(!) false)                                     \
+            __PRINT(__VA_ARGS__);                                    \
+        else                                                         \
+            __PRINT("warning");                                      \
     } while (0)
 
 #define WARN_ON(cond, ...) \
-    ({ \
+    ({                                                               \
         typeof(cond) __ret = (cond);                                 \
         if (__ret) {                                                 \
             if (__VA_OPT__(!) false)                                 \
@@ -28,9 +34,12 @@
         __ret;                                                       \
     })
 
-#define FATAL(code, msg, ...) \
+#define FATAL(code, ...) \
     do {                                                             \
-        fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__);   \
+        if (__VA_OPT__(!) false)                                     \
+            __PRINT(__VA_ARGS__);                                    \
+        else                                                         \
+            __PRINT("fatal");                                        \
         exit(code);                                                  \
     } while (0)
 
@@ -45,9 +54,12 @@
         }                                                            \
     } while (0)
 
-#define BUG(msg, ...) \
+#define BUG(...) \
     do {                                                             \
-        fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__);   \
+        if (__VA_OPT__(!) false)                                     \
+            __PRINT(__VA_ARGS__);                                    \
+        else                                                         \
+            __PRINT("bug");                                          \
         raise(SIGTRAP);                                              \
     } while (0)
 
