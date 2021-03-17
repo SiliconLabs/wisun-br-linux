@@ -35,7 +35,6 @@
 #include "os_types.h"
 #include "os_timer.h"
 #include "hal_interrupt.h"
-#define TRACE_GROUP  "main"
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
@@ -360,16 +359,16 @@ int main(int argc, char *argv[])
     ns_file_system_set_root_path("/tmp/wsbr_");
 
     if (net_init_core())
-        tr_err("%s: net_init_core", __func__);
+        BUG("net_init_core");
 
     wsbr_tun_init(ctxt);
 
     ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
-        tr_err("%s: arm_nwk_interface_lowpan_init: %d", __func__, ctxt->rcp_if_id);
+        BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
-        tr_err("%s: eventOS_event_handler_create", __func__);
+        BUG("eventOS_event_handler_create");
 
     for (;;) {
         maxfd = 0;
