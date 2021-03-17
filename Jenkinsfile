@@ -22,7 +22,7 @@ pipeline {
     }
     parameters {
         string(name: 'COMMIT_ID', defaultValue: 'refs/heads/master',
-               description: 'Branch (with syntax <b>refs/heads/&lt;branchName&gt;</b>), tag (with syntax <b>refs/tags/&lt;tagName&gt;</b>) or commit-id to build. If blank, it will build the last pushed version (not necessary on master).')
+               description: 'Branch (with syntax *refs/heads/<branchName>*), tag (with syntax *refs/tags/<tagName>*) or commit-id to build. If blank, it will build the last pushed version (not necessary on master).')
     }
     stages {
         stage('Compile') {
