@@ -178,8 +178,12 @@ int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     ctxt->uart_rx_buf_len -= i;
     i = 0;
     ctxt->uart_next_frame_ready = false;
-    while (i < ctxt->uart_rx_buf_len)
-        if (ctxt->uart_rx_buf[i] == 0x7E)
+    while (i < ctxt->uart_rx_buf_len) {
+        if (ctxt->uart_rx_buf[i] == 0x7E) {
             ctxt->uart_next_frame_ready = true;
+            break;
+        }
+        i++;
+    }
     return frame_len;
 }
