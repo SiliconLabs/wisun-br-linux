@@ -116,7 +116,6 @@ int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     int ret;
 
     frame_len = 0;
-    frame[frame_len++] = 0x7E;
     for (i = 0; i < buf_len; i++) {
         if (buf8[i] == 0x7D || buf8[i] == 0x7E) {
             frame[frame_len++] = 0x7D;
@@ -127,6 +126,7 @@ int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     }
     memcpy(frame + frame_len, &crc, sizeof(crc));
     frame_len += sizeof(crc);
+    frame[frame_len++] = 0x7E;
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
