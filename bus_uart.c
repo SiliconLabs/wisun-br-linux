@@ -156,11 +156,12 @@ int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         BUG_ON(frame_len > buf_len);
         if (ctxt->uart_rx_buf[i] == 0x7D) {
             i++;
-            buf8[frame_len++] = ctxt->uart_rx_buf[i++] ^ 0x20;
+            buf8[frame_len++] = ctxt->uart_rx_buf[i] ^ 0x20;
         } else {
             BUG_ON(ctxt->uart_rx_buf[i] == 0x7E);
-            buf8[frame_len++] = ctxt->uart_rx_buf[i++];
+            buf8[frame_len++] = ctxt->uart_rx_buf[i];
         }
+        i++;
     }
     BUG_ON(ctxt->uart_next_frame_ready && i == ctxt->uart_rx_buf_len);
     if (i == ctxt->uart_rx_buf_len)
