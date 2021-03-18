@@ -154,7 +154,7 @@ int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         i++;
     while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len) {
         BUG_ON(frame_len > buf_len);
-        if (buf8[i] == 0x7D) {
+        if (ctxt->uart_rx_buf[i] == 0x7D) {
             i++;
             buf8[frame_len++] = ctxt->uart_rx_buf[i++] ^ 0x20;
         } else {
