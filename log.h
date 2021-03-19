@@ -12,14 +12,14 @@
 #include <signal.h>
 
 #define __PRINT(msg, ...) \
-    fprintf(stderr, "%s: " msg "\n", __func__, ##__VA_ARGS__)
+    fprintf(stderr, "%s: " msg "[0m\n", __func__, ##__VA_ARGS__)
 
 #define WARN(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
-            __PRINT(__VA_ARGS__);                                    \
+            __PRINT("[93m" __VA_ARGS__);                           \
         else                                                         \
-            __PRINT("warning");                                      \
+            __PRINT("[93m" "warning");                             \
     } while (0)
 
 #define WARN_ON(cond, ...) \
@@ -37,9 +37,9 @@
 #define FATAL(code, ...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
-            __PRINT(__VA_ARGS__);                                    \
+            __PRINT("[30m" __VA_ARGS__);                           \
         else                                                         \
-            __PRINT("fatal");                                        \
+            __PRINT("[30m" "fatal");                               \
         exit(code);                                                  \
     } while (0)
 
@@ -57,9 +57,9 @@
 #define BUG(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
-            __PRINT(__VA_ARGS__);                                    \
+            __PRINT("[90m" __VA_ARGS__);                           \
         else                                                         \
-            __PRINT("bug");                                          \
+            __PRINT("[90m" "bug");                                 \
         raise(SIGTRAP);                                              \
     } while (0)
 
