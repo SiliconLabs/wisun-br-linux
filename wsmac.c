@@ -78,6 +78,19 @@ void rx(struct wsmac_ctxt *ctxt)
     // FIXME: parse it and forward it to upper layers
 }
 
+int8_t virtual_rf_tx(const virtual_data_req_t *data_req, int8_t driver_id)
+{
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+
+    BUG_ON(driver_id != ctxt->rcp_driver_id);
+    TRACE("RF tx msdu:");
+    pr_hex(data_req->msdu, data_req->msduLength);
+    TRACE("... parms:");
+    pr_hex(data_req->parameters, data_req->parameter_length);
+    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 0, 0);
+    return 0;
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -113,6 +126,7 @@ int main(int argc, char *argv[])
         tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
     ctxt->rf_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
     BUG_ON(!ctxt->rf_driver);
+    ctxt->rf_driver->phy_driver->arm_net_virtual_tx_cb = &virtual_rf_tx;
     arm_net_phy_mac64_set(rcp_mac, ctxt->rcp_driver_id);
     ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
     if (!ctxt->rcp_mac_api)
