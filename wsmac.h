@@ -7,9 +7,14 @@
 #define WSMAC_H
 
 struct os_ctxt;
+struct mac_api_s;
 
 struct wsmac_ctxt {
     struct os_ctxt *os_ctxt;
+
+    int  rcp_driver_id;
+    struct mac_api_s *rcp_mac_api;
+    struct arm_device_driver_list *rf_driver;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
