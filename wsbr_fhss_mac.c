@@ -28,7 +28,7 @@ int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api
     // The original function initialize of the callback. But it useless now.
     ctxt->fhss_api = fhss_api;
 
-    printf("%s\n", __func__);
+    WARN("not implemented");
     return 0;
 }
 
@@ -38,7 +38,7 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
 
     BUG_ON(!mac_api);
 
-    printf("%s\n", __func__);
+    WARN("not implemented");
     return ctxt->fhss_api;
 }
 
@@ -49,14 +49,14 @@ int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
     BUG_ON(!mac_api);
 
     ctxt->fhss_api = NULL;
-    printf("%s\n", __func__);
+    WARN("not implemented");
     return 0;
 }
 
 uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
 {
     BUG_ON(!mac_api);
-    printf("%s\n", __func__);
+    WARN("not implemented");
 
     return 0;
 }
@@ -65,7 +65,7 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
                                               bool enable_feature)
 {
     BUG_ON(!mac_api);
-    printf("%s\n", __func__);
+    WARN("not implemented");
 
     return 0;
 }
