@@ -389,7 +389,13 @@ static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
     const mlme_reset_t *req = data;
+
+    TRACE("mlmeReset");
+    // SPINEL_CMD_RESET or SPINEL_PROP_PHY_ENABLED
+    // It seems that SPINEL_CMD_RESET is too wide. It reset the whole device
+    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_RESET, &req->SetDefaultPIB, sizeof(bool));
 }
 
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
