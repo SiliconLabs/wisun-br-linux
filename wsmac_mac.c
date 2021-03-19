@@ -310,7 +310,16 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         if (prop == mlme_prop_cstr[i].prop)
             break;
 
-    if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
+    if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
+        int index;
+        spinel_datatype_unpack(data, data_len, "i", &index);
+        mlme_get_t req = {
+            .attr_index = index,
+            .attr = mlme_prop_cstr[i].attr,
+        };
+        TRACE("get %s", mlme_prop_cstr[i].str);
+        ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_GET, &req);
+    } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
         TRACE("set %s", mlme_prop_cstr[i].str);
         if (mlme_prop_cstr[i].prop_set)
             mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, data, data_len);
