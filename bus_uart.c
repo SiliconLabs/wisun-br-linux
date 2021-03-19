@@ -107,6 +107,18 @@ int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
+int wsbr_uart_tx_append(uint8_t *buf, uint8_t byte)
+{
+    if (byte == 0x7D || byte == 0x7E) {
+        buf[0] = 0x7D;
+        buf[1] = byte ^ 0x20;
+        return 2;
+    } else {
+        buf[0] = byte;
+        return 1;
+    }
+}
+
 int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
@@ -116,16 +128,10 @@ int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     int ret;
 
     frame_len = 0;
-    for (i = 0; i < buf_len; i++) {
-        if (buf8[i] == 0x7D || buf8[i] == 0x7E) {
-            frame[frame_len++] = 0x7D;
-            frame[frame_len++] = buf8[i] ^ 0x20;
-        } else {
-            frame[frame_len++] = buf8[i];
-        }
-    }
-    memcpy(frame + frame_len, &crc, sizeof(crc));
-    frame_len += sizeof(crc);
+    for (i = 0; i < buf_len; i++)
+        frame_len += wsbr_uart_tx_append(frame + frame_len, buf8[i]);
+    frame_len += wsbr_uart_tx_append(frame + frame_len, crc & 0xFF);
+    frame_len += wsbr_uart_tx_append(frame + frame_len, crc >> 8);
     frame[frame_len++] = 0x7E;
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
