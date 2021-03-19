@@ -17,6 +17,7 @@
 #include "nanostack/source/MAC/rf_driver_storage.h"
 
 #include "wsmac.h"
+#include "wsmac_mac.h"
 #include "slist.h"
 #include "log.h"
 #include "bus_uart.h"
@@ -131,6 +132,20 @@ int main(int argc, char *argv[])
     ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
     if (!ctxt->rcp_mac_api)
         tr_err("%s: ns_sw_mac_create", __func__);
+
+    // Initialize SW MAC
+    ret = ctxt->rcp_mac_api->mac_initialize(ctxt->rcp_mac_api,
+                                            wsmac_mcps_data_confirm,
+                                            wsmac_mcps_data_indication,
+                                            wsmac_mcps_purge_confirm,
+                                            wsmac_mlme_confirm,
+                                            wsmac_mlme_indication,
+                                            0); // Parent ID?
+
+    ret = ctxt->rcp_mac_api->mac_mcps_extension_enable(ctxt->rcp_mac_api,
+                                                       wsmac_mcps_data_indication_ext,
+                                                       wsmac_mcps_data_confirm_ext,
+                                                       wsmac_mcps_ack_data_req_ext);
 
     for (;;) {
         maxfd = 0;
