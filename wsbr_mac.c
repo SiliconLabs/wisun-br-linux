@@ -97,6 +97,79 @@ static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, cons
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
+static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    const uint8_t *req = data;
+    uint8_t frame[4];
+    int frame_len;
+
+    BUG_ON(prop != SPINEL_PROP_WS_CCA_THRESHOLD_START);
+    BUG_ON(data_len != 4);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CCCC", req[0], req[1], req[2], req[3]);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_CCA_THRESHOLD_START, frame, frame_len);
+}
+
+static void wsbr_spinel_set_multi_csma_parmameters(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    const struct mlme_multi_csma_ca_s *req = data;
+    uint8_t frame[3];
+    int frame_len;
+
+    BUG_ON(prop != SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS);
+    BUG_ON(data_len != sizeof(struct mlme_multi_csma_ca_s));
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CS",
+                                     req->number_of_csma_ca_periods,
+                                     req->multi_cca_interval);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS, frame, frame_len);
+}
+
+static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    const struct phy_rf_channel_configuration_s *req = data;
+    uint8_t frame[16];
+    int frame_len;
+
+    BUG_ON(prop != SPINEL_PROP_WS_RF_CONFIGURATION);
+    BUG_ON(data_len != sizeof(struct phy_rf_channel_configuration_s));
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "LLLSCC",
+                                     req->channel_0_center_frequency,
+                                     req->channel_spacing, req->datarate,
+                                     req->number_of_channels, req->modulation,
+                                     req->modulation_index);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_RF_CONFIGURATION, frame, frame_len);
+}
+
+static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
+{
+    uint8_t frame[20];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CSSELb",
+                                     entry_idx, req->PANId, req->ShortAddress,
+                                     req->ExtAddress, req->FrameCounter,
+                                     req->Exempt);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_DEVICE_TABLE, frame, frame_len);
+}
+
+static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_key_descriptor_entry_t *req)
+{
+    uint8_t frame[128];
+    int frame_len;
+
+    WARN("not implemented");
+    frame_len = 0;
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_KEY_TABLE, frame, frame_len);
+}
+
+static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, uint32_t val)
+{
+    uint8_t frame[7];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "iL", counter, val);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_FRAME_COUNTER, frame, frame_len);
+}
+
 static const struct {
     const char *str;
     mlme_attr_t attr;
@@ -126,6 +199,12 @@ static const struct {
     { "macCoordExtendedAddress",        macCoordExtendedAddress,         wsbr_spinel_set_eui64,                  SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { "macDefaultKeySource",            macDefaultKeySource,             wsbr_spinel_set_eui64,                  SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { "macBeaconPayload",               macBeaconPayload,                wsbr_spinel_set_data,                   SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
+    { "macCCAThresholdStart",           macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,    SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
+    { "macMultiCSMAParameters",         macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parmameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
+    { "macRfConfiguration",             macRfConfiguration,              wsbr_spinel_set_rf_configuration,       SPINEL_PROP_WS_RF_CONFIGURATION,                 },
+    { "macDeviceTable",                 macDeviceTable,                  NULL /* Special */,                     SPINEL_PROP_WS_DEVICE_TABLE,                     },
+    { "macKeyTable",                    macKeyTable,                     NULL /* Special */,                     SPINEL_PROP_WS_KEY_TABLE,                        },
+    { "macFrameCounter",                macFrameCounter,                 NULL /* Special */,                     SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
 
@@ -145,6 +224,15 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
     if (mlme_prop_cstr[i].prop_set) {
         // Normally, req->attr_index == 0, but nanostack is not rigorous on that
         mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].prop, req->value_pointer, req->value_size);
+    } else if (req->attr == macDeviceTable) {
+        BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
+        wsbr_spinel_set_device_table(ctxt, req->attr_index, req->value_pointer);
+    } else if (req->attr == macKeyTable) {
+        BUG_ON(req->value_size != sizeof(mlme_key_descriptor_entry_t));
+        wsbr_spinel_set_key_table(ctxt, req->attr_index, req->value_pointer);
+    } else if (req->attr == macFrameCounter) {
+        BUG_ON(req->value_size != sizeof(uint32_t));
+        wsbr_spinel_set_frame_counter(ctxt, req->attr_index, *(uint32_t *)req->value_pointer);
     } else {
         BUG("Unknown message");
     }
