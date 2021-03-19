@@ -14,6 +14,14 @@
 #define __PRINT(msg, ...) \
     fprintf(stderr, "%s: " msg "[0m\n", __func__, ##__VA_ARGS__)
 
+#define TRACE(...) \
+    do {                                                             \
+        if (__VA_OPT__(!) false)                                     \
+            __PRINT("[36m" __VA_ARGS__);                           \
+        else                                                         \
+            __PRINT("[36m" "trace");                               \
+    } while (0)
+
 #define WARN(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
