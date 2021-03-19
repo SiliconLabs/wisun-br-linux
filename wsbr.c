@@ -355,6 +355,7 @@ int main(int argc, char *argv[])
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
+    eventOS_scheduler_init();
     configure(ctxt, argc, argv);
     ns_file_system_set_root_path("/tmp/wsbr_");
 
