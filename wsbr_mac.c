@@ -51,23 +51,23 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         uint32_t    val;
         void (*fn)(const struct mac_api_s *, const void *);
     } table[] = {
-        { MLME_GET,              wsbr_mlme_get },
-        { MLME_SET,              wsbr_mlme_set },
-        { MLME_SCAN,             wsbr_mlme_scan },
-        { MLME_START,            wsbr_mlme_start },
-        { MLME_RESET,            wsbr_mlme_reset },
-        { MLME_POLL,             wsbr_mlme_poll },
+        { MLME_GET,           wsbr_mlme_get },
+        { MLME_SET,           wsbr_mlme_set },
+        { MLME_SCAN,          wsbr_mlme_scan },
+        { MLME_START,         wsbr_mlme_start },
+        { MLME_RESET,         wsbr_mlme_reset },
+        { MLME_POLL,          wsbr_mlme_poll },
         // Never used
-        { MLME_ASSOCIATE,        NULL },
-        { MLME_DISASSOCIATE,     NULL },
-        { MLME_RX_ENABLE,        NULL },
-        { MLME_SYNC,             NULL },
-        { MLME_GTS,              NULL },
-        // Only make sense in the MAC->WS direction
-        { MLME_BEACON_NOTIFY,    NULL },
-        { MLME_ORPHAN,           NULL },
-        { MLME_COMM_STATUS,      NULL },
-        { MLME_SYNC_LOSS,        NULL },
+        { MLME_ASSOCIATE,     NULL },
+        { MLME_DISASSOCIATE,  NULL },
+        { MLME_RX_ENABLE,     NULL },
+        { MLME_SYNC,          NULL },
+        { MLME_GTS,           NULL },
+        // These ones only make sense with mlme_ind_cb()
+        { MLME_BEACON_NOTIFY, NULL },
+        { MLME_ORPHAN,        NULL },
+        { MLME_COMM_STATUS,   NULL },
+        { MLME_SYNC_LOSS,     NULL },
         { -1, },
     };
     int i;
