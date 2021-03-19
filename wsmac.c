@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
+    eventOS_scheduler_init();
     configure(ctxt, argc, argv);
     // FIXME call ws_fhss_initialize();
 
