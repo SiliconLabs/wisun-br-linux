@@ -373,7 +373,18 @@ static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
     const mlme_start_t *req = data;
+    uint8_t frame[19];
+    int frame_len;
+
+    TRACE("mlmeStart");
+    // FIXME: consider SPINEL_PROP_PHY_ENABLED
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "SCCLCCb",
+                                     req->PANId, req->LogicalChannel, req->ChannelPage,
+                                     req->StartTime, req->BeaconOrder,
+                                     req->SuperframeOrder, req->PANCoordinator);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_START, frame, frame_len);
 }
 
 static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
