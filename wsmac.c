@@ -69,16 +69,6 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 }
 
-void rx(struct wsmac_ctxt *ctxt)
-{
-    uint8_t buf[256];
-    int len;
-
-    len = wsbr_uart_tx(ctxt->os_ctxt, buf, sizeof(buf));
-    (void)len;
-    // FIXME: parse it and forward it to upper layers
-}
-
 int8_t virtual_rf_tx(const virtual_data_req_t *data_req, int8_t driver_id)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -169,7 +159,7 @@ int main(int argc, char *argv[])
         if (ret < 0)
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
-            rx(ctxt);
+            uart_rx(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
             read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
             WARN_ON(val != 'W');

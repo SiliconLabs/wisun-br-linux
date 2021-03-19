@@ -9,6 +9,9 @@
 #include "nanostack/mac_api.h"
 
 struct mcps_ack_data_payload;
+struct wsmac_ctxt;
+
+void uart_rx(struct wsmac_ctxt *ctxt);
 
 void wsmac_mcps_data_confirm(const struct mac_api_s *mac_api,
                              const struct mcps_data_conf_s *data);
