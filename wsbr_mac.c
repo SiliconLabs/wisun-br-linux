@@ -42,6 +42,7 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
     static const struct {
         uint32_t    val;
         void (*fn)(const struct mac_api_s *, const void *);
@@ -68,10 +69,13 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
     int i;
 
     BUG_ON(!api);
+    BUG_ON(&ctxt->mac_api != api);
     for (i = 0; table[i].val != -1; i++)
         if (id == table[i].val)
             break;
-    if (table[i].fn)
+    if (!table[i].fn)
+        WARN("Try to reach unexpected API: id");
+    else
         table[i].fn(api, data);
     api->mlme_conf_cb(api, id, data);
 }
