@@ -34,13 +34,15 @@ static inline void pr_hex(const uint8_t *buf, int len)
 {
     int i;
 
-    fprintf(stderr, "    %04x:", 0);
     for (i = 0; i < len; i++) {
+        if (i % 16 == 0)
+            fprintf(stderr, "    %04x:", i);
         fprintf(stderr, " %02x", buf[i]);
         if (i % 16 == 15)
-            fprintf(stderr, "\n    %04x:", i);
+            fprintf(stderr, "\n");
     }
-    fprintf(stderr, "\n");
+    if (i % 16)
+        fprintf(stderr, "\n");
 }
 
 #endif
