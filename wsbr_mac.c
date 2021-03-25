@@ -40,11 +40,6 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
     const mlme_reset_t *req = data;
 }
 
-static void wsbr_mlme_poll(const struct mac_api_s *api, const void *data)
-{
-    const mlme_poll_t *req = data;
-}
-
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 {
     static const struct {
@@ -56,8 +51,8 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         { MLME_SCAN,          wsbr_mlme_scan },
         { MLME_START,         wsbr_mlme_start },
         { MLME_RESET,         wsbr_mlme_reset },
-        { MLME_POLL,          wsbr_mlme_poll },
         // Never used
+        { MLME_POLL,          NULL }, // Only used with Thread?
         { MLME_ASSOCIATE,     NULL },
         { MLME_DISASSOCIATE,  NULL },
         { MLME_RX_ENABLE,     NULL },
