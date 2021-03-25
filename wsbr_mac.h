@@ -8,6 +8,10 @@
 
 #include "nanostack/mac_api.h"
 
+struct wsbr_ctxt;
+
+void rcp_rx(struct wsbr_ctxt *ctxt);
+
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data);
 void wsbr_mcps_req(const struct mac_api_s *api, const mcps_data_req_t *data);
 void wsbr_mcps_req_ext(const struct mac_api_s *api,

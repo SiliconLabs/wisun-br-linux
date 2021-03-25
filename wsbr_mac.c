@@ -16,6 +16,85 @@
 #include "spinel.h"
 #include "log.h"
 
+static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, int frame_len)
+{
+    switch (prop) {
+    case SPINEL_PROP_WS_DEVICE_TABLE: {
+        struct mlme_device_descriptor_s data;
+        uint8_t *ext_address;
+        bool exempt;
+        mlme_get_conf_t req = {
+            .attr = macDeviceTable,
+            .value_pointer = &data,
+            .value_size = sizeof(data),
+        };
+
+        spinel_datatype_unpack(frame, sizeof(frame), "iSSELb",
+                               &req.attr_index, &data.PANId, &data.ShortAddress,
+                               &ext_address, &data.FrameCounter,
+                               &exempt);
+        memcpy(data.ExtAddress, ext_address, sizeof(uint8_t) * 8);
+        data.Exempt = exempt;
+        TRACE("cnf macDeviceTable");
+        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
+        break;
+    }
+    case SPINEL_PROP_WS_FRAME_COUNTER: {
+        uint32_t data;
+        mlme_get_conf_t req = {
+            .attr = macFrameCounter,
+            .value_pointer = &data,
+            .value_size = sizeof(data),
+        };
+
+        spinel_datatype_unpack(frame, sizeof(frame), "iL",
+                               &req.attr_index, &data);
+        TRACE("cnf macFrameCounter");
+        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
+        break;
+    }
+    case SPINEL_PROP_WS_CCA_THRESHOLD: {
+        mlme_get_conf_t req = {
+            .attr = macCCAThreshold,
+        };
+
+        spinel_datatype_unpack(frame, sizeof(frame), "d",
+                               &req.value_pointer, &req.value_size);
+        TRACE("cnf macCCAThreshold");
+        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
+        break;
+    }
+    // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
+    case SPINEL_PROP_LAST_STATUS: {
+        TRACE("cnf mlmeStart");
+        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_START, NULL);
+        break;
+    }
+    default:
+        WARN("not implemented");
+        break;
+    }
+}
+
+void rcp_rx(struct wsbr_ctxt *ctxt)
+{
+    uint8_t hdr;
+    int cmd, prop;
+    uint8_t buf[256];
+    uint8_t *data;
+    int len, data_len;
+
+    len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
+    spinel_datatype_unpack(buf, len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
+
+    if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
+        wsbr_spinel_is(ctxt, prop, data, data_len);
+    } else {
+        WARN("not implemented: %02x", cmd);
+        return;
+    }
+}
+
 static uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
 {
     uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
@@ -339,8 +418,8 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         WARN("Try to reach unexpected API: id");
     else
         table[i].fn(api, data);
-    api->mlme_conf_cb(api, id, data);
 }
+
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,

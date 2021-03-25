@@ -222,17 +222,6 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     }
 }
 
-void rcp_rx(struct wsbr_ctxt *ctxt)
-{
-    uint8_t buf[256];
-    int len;
-
-    len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
-    WARN("not implemented");
-    pr_hex(buf, len);
-    // FIXME: parse it and forwward it to upper layers
-}
-
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     arm_certificate_chain_entry_s chain_info = { };
