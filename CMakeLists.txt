@@ -165,11 +165,10 @@ add_executable(wisun-br
     nanostack/source/libNET/src/net_mle.c
     nanostack/source/libNET/src/net_load_balance.c
     nanostack/source/MAC/rf_driver_storage.c
+    nanostack/source/MAC/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/MAC/serial
     # Excluded nanostack/source/MAC/IEEE802_15_4
-    nanostack/source/MAC/ethernet/ethernet_mac_api.c
-    # Excluded nanostack/source/MAC/virtual_rf/virtual_rf_client.c
-    # Excluded nanostack/source/MAC/virtual_rf/virtual_rf_driver.c
+    # Excluded nanostack/source/MAC/virtual_rf
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c
