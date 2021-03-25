@@ -153,14 +153,22 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
 
 static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
-    uint8_t data[8];
+    struct mlme_device_descriptor_s data;
+    bool exempt;
     mlme_set_t req = {
         .attr = attr,
-        .value_pointer = data,
+        .value_pointer = &data,
         .value_size = sizeof(data),
     };
+    int ret;
 
-    WARN("not implemented");
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CSSELb",
+                           &req.attr_index, &data.PANId, &data.ShortAddress,
+                           data.ExtAddress, &data.FrameCounter,
+                           &exempt);
+    BUG_ON(ret != frame_len);
+    data.Exempt = exempt;
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
 static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
