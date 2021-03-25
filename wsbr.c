@@ -228,7 +228,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     int len;
 
     len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
-    printf("** Recv:\n");
+    WARN("not implemented");
     pr_hex(buf, len);
     // FIXME: parse it and forwward it to upper layers
 }
@@ -310,9 +310,9 @@ static void wsbr_tasklet(struct arm_event_s *event)
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
-                printf("get event for tun interface\n");
+                TRACE("get event for tun interface");
             } else if (event->event_id == ctxt->rcp_if_id) {
-                printf("get event for ws interface\n");
+                TRACE("get event for ws interface");
             } else {
                 WARN("received unknown network event: %d", event->event_id);
             }

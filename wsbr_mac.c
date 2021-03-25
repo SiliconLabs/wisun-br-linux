@@ -27,7 +27,7 @@ static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
 {
-    const mlme_scan_t *req = data;
+    WARN("not implemented");
 }
 
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
@@ -95,8 +95,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     struct mcps_data_conf_payload_s data_conf = { };
 
     BUG_ON(!api);
-    printf("%s:\n", __func__);
-    pr_hex(data->msdu, data->msduLength);
+    WARN("not implemented");
     clock_gettime(CLOCK_MONOTONIC, &ts);
     conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
     if (api->data_conf_ext_cb)
@@ -119,7 +118,7 @@ uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
     };
 
     BUG_ON(!api);
-    printf("%s\n", __func__);
+    WARN("not implemented");
     api->purge_conf_cb(api, &conf);
     return 0;
 }
