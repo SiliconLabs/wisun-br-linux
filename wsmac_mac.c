@@ -506,10 +506,38 @@ void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *d
     WARN("not implemented");
 }
 
+void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_ind_t *data,
+                                    const mcps_data_ie_list_t *ie_ext)
+{
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    BUG_ON(!mac_api);
+    BUG_ON(mac_api != ctxt->rcp_mac_api);
+    BUG_ON(!ie_ext, "not implemented");
+    TRACE("dataInd");
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCSECSECcLbCCCCEdd",
+                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_STREAM_RAW,
+                                     data->msdu_ptr, data->msduLength,
+                                     data->SrcAddrMode, data->SrcPANId, data->SrcAddr,
+                                     data->DstAddrMode, data->DstPANId, data->DstAddr,
+                                     data->mpduLinkQuality, data->signal_dbm, data->timestamp,
+                                     data->DSN_suppressed, data->DSN,
+                                     data->Key.SecurityLevel, data->Key.KeyIdMode,
+                                     data->Key.KeyIndex, data->Key.Keysource,
+                                     ie_ext->headerIeList, ie_ext->headerIeListLength,
+                                     ie_ext->payloadIeList, ie_ext->headerIeListLength);
+    BUG_ON(frame_len < 0);
+    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 void wsmac_mcps_data_indication(const mac_api_t *mac_api, const mcps_data_ind_t *data)
 {
-    WARN("not implemented");
+    wsmac_mcps_data_indication_ext(mac_api, data, NULL);
 }
+
 
 void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
 {
@@ -523,12 +551,6 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
 
 void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
                                  const mcps_data_conf_payload_t *conf_data)
-{
-    WARN("not implemented");
-}
-
-void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_ind_t *data,
-                                    const mcps_data_ie_list_t *ie_ext)
 {
     WARN("not implemented");
 }

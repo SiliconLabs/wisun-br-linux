@@ -15,8 +15,6 @@ void uart_rx(struct wsmac_ctxt *ctxt);
 
 void wsmac_mcps_data_confirm(const struct mac_api_s *mac_api,
                              const struct mcps_data_conf_s *data);
-void wsmac_mcps_data_indication(const struct mac_api_s *mac_api,
-                                const struct mcps_data_ind_s *data);
 void wsmac_mcps_purge_confirm(const struct mac_api_s *mac_api,
                               struct mcps_purge_conf_s *data);
 void wsmac_mlme_confirm(const struct mac_api_s *mac_api,
@@ -26,6 +24,8 @@ void wsmac_mlme_indication(const struct mac_api_s *mac_api,
 void wsmac_mcps_data_confirm_ext(const struct mac_api_s *mac_api,
                                  const struct mcps_data_conf_s *data,
                                  const struct mcps_data_conf_payload_s *conf_data);
+void wsmac_mcps_data_indication(const struct mac_api_s *mac_api,
+                                const struct mcps_data_ind_s *data);
 void wsmac_mcps_data_indication_ext(const struct mac_api_s *mac_api,
                                     const struct mcps_data_ind_s *data,
                                     const struct mcps_data_ie_list *ie_ext);
