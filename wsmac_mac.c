@@ -255,6 +255,73 @@ static void wsmac_spinel_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const 
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
 }
 
+static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    struct mcps_data_req_s data;
+    struct mcps_data_req_ie_list ie_ext = { };
+    struct channel_list_s async_channel_list;
+    uint8_t tmp8[4];
+    bool tmpB[6];
+    int tmpI;
+    int len[4];
+    void *buf[4];
+    void *buf_fixed[2];
+    int ret;
+
+    ret = spinel_datatype_unpack(frame, frame_len, "dCCSECbbbbbbCCCEiddd",
+                           &buf[0], &len[0],
+                           &tmp8[0], &tmp8[1],
+                           &data.DstPANId, &buf_fixed[0], &data.msduHandle,
+                           &tmpB[0], &tmpB[1], &tmpB[2],
+                           &tmpB[3], &tmpB[4], &tmpB[5],
+                           &tmp8[2], &tmp8[3], &data.Key.KeyIndex,
+                           &buf_fixed[1],
+                           &tmpI,
+                           &buf[1], &len[1],
+                           &buf[2], &len[2],
+                           &buf[3], &len[3]);
+    BUG_ON(ret != frame_len);
+    data.SrcAddrMode = tmp8[0];
+    data.DstAddrMode = tmp8[1];
+    data.TxAckReq = tmpB[0];
+    data.InDirectTx = tmpB[1];
+    data.PendingBit = tmpB[2];
+    data.SeqNumSuppressed = tmpB[3];
+    data.PanIdSuppressed = tmpB[4];
+    data.ExtendedFrameExchange = tmpB[5];
+    data.Key.SecurityLevel = tmp8[2];
+    data.Key.KeyIdMode = tmp8[3];
+
+    memcpy(data.DstAddr, buf_fixed[0], 8);
+    memcpy(data.Key.Keysource, buf_fixed[1], 8);
+
+    data.msduLength = len[0];
+    data.msdu = malloc(len[0]);
+    memcpy(data.msdu, buf[0], len[0]);
+
+    async_channel_list.channel_page = tmpI;
+    BUG_ON(sizeof(async_channel_list.channel_mask) != len[1]);
+    memcpy(async_channel_list.channel_mask, buf[1], len[1]);
+
+    if (len[2]) {
+        ie_ext.payloadIovLength = 1;
+        ie_ext.payloadIeVectorList = malloc(sizeof(struct ns_ie_iovec));
+        ie_ext.payloadIeVectorList->iovLen = len[2];
+        ie_ext.payloadIeVectorList->ieBase = malloc(len[2]);
+        memcpy(ie_ext.payloadIeVectorList->ieBase, buf[2], len[2]);
+    }
+    if (len[2]) {
+        ie_ext.headerIovLength = 1;
+        ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
+        ie_ext.headerIeVectorList->iovLen = len[2];
+        ie_ext.headerIeVectorList->ieBase = malloc(len[2]);
+        memcpy(ie_ext.headerIeVectorList->ieBase, buf[2], len[2]);
+    }
+
+    ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list);
+
+}
+
 static const struct {
     const char *str;
     mlme_attr_t attr;
@@ -292,6 +359,7 @@ static const struct {
     { "macFrameCounter",                 macFrameCounter,                 wsmac_spinel_set_frame_counter,         SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_reset,                     SPINEL_PROP_WS_RESET,                            },
+    { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
     { }
 };
 
