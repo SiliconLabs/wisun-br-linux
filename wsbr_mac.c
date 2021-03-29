@@ -440,19 +440,72 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list_s *asynch_channel_list)
+                       const struct channel_list_s *async_channel_list)
 {
     // FIXME: use true symbol duration
     const unsigned int symbol_duration_us = 10;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
     struct timespec ts;
     struct mcps_data_conf_s conf = {
         .msduHandle = data->msduHandle,
         .status = MLME_SUCCESS,
     };
     struct mcps_data_conf_payload_s data_conf = { };
+    uint8_t frame[2048];
+    int frame_len;
+    int total, i, ret;
 
     BUG_ON(!api);
-    WARN("not implemented");
+    BUG_ON(&ctxt->mac_api != api);
+    BUG_ON(!async_channel_list);
+    BUG_ON(!ie_ext);
+    BUG_ON(data->TxAckReq && async_channel_list);
+    TRACE("mcpsReq");
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCCSECbbbbbbCCCEid",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_STREAM_RAW,
+                                     data->msdu, data->msduLength,
+                                     data->SrcAddrMode, data->DstAddrMode,
+                                     data->DstPANId, data->DstAddr,
+                                     data->msduHandle, data->TxAckReq,
+                                     data->InDirectTx, data->PendingBit,
+                                     data->SeqNumSuppressed, data->PanIdSuppressed,
+                                     data->ExtendedFrameExchange,
+                                     data->Key.SecurityLevel, data->Key.KeyIdMode,
+                                     data->Key.KeyIndex, data->Key.Keysource,
+                                     async_channel_list->channel_page,
+                                     async_channel_list->channel_mask,
+                                     sizeof(async_channel_list->channel_mask));
+    total = 0;
+    for (i = 0; i < ie_ext->payloadIovLength; i++)
+        total += ie_ext->payloadIeVectorList[i].iovLen;
+    ret = spinel_datatype_pack(frame + frame_len, sizeof(frame) - frame_len,
+                               SPINEL_DATATYPE_UINT16_S, total);
+    BUG_ON(ret < 0);
+    frame_len += ret;
+    for (i = 0; i < ie_ext->payloadIovLength; i++) {
+        memcpy(frame + frame_len,
+               ie_ext->payloadIeVectorList[i].ieBase,
+               ie_ext->payloadIeVectorList[i].iovLen);
+        frame_len += ie_ext->payloadIeVectorList[i].iovLen;
+    }
+
+    total = 0;
+    for (i = 0; i < ie_ext->headerIovLength; i++)
+        total += ie_ext->headerIeVectorList[i].iovLen;
+    ret = spinel_datatype_pack(frame + frame_len, sizeof(frame) - frame_len,
+                               SPINEL_DATATYPE_UINT16_S, total);
+    BUG_ON(ret < 0);
+    frame_len += ret;
+    for (i = 0; i < ie_ext->headerIovLength; i++) {
+        memcpy(frame + frame_len,
+               ie_ext->headerIeVectorList[i].ieBase,
+               ie_ext->headerIeVectorList[i].iovLen);
+        frame_len += ie_ext->headerIeVectorList[i].iovLen;
+    }
+    BUG_ON(frame_len > sizeof(frame));
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+
     clock_gettime(CLOCK_MONOTONIC, &ts);
     conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
     if (api->data_conf_ext_cb)
