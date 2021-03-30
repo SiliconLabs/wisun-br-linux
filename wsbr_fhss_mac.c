@@ -14,8 +14,10 @@
 #include "nanostack/mac_api.h"
 
 #include "wsbr.h"
+#include "wsbr_mac.h"
 #include "wsbr_fhss_mac.h"
 #include "utils.h"
+#include "spinel.h"
 #include "log.h"
 
 int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
@@ -64,8 +66,11 @@ uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
 int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
                                               bool enable_feature)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+
     BUG_ON(!mac_api);
-    WARN("not implemented");
+    BUG_ON(mac_api != &ctxt->mac_api);
+    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY, &enable_feature, sizeof(bool));
 
     return 0;
 }
