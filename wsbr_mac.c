@@ -64,6 +64,24 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
+    case SPINEL_PROP_STREAM_STATUS: {
+        mcps_data_conf_t req = { };
+        mcps_data_conf_payload_t conf_req = { };
+
+        BUG_ON(!ctxt->mac_api.data_conf_ext_cb, "not implmemented");
+        spinel_datatype_unpack(frame, frame_len, "CCLCCddd",
+                               &req.status, &req.msduHandle,
+                               &req.timestamp, &req.cca_retries, &req.tx_retries,
+                               &conf_req.headerIeList, &conf_req.headerIeListLength,
+                               &conf_req.payloadIeList, &conf_req.headerIeListLength,
+                               &conf_req.payloadPtr, &conf_req.payloadLength);
+        TRACE("dataCnf");
+        if (ctxt->mac_api.data_conf_ext_cb)
+            ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
+        else
+            ctxt->mac_api.data_conf_cb(&ctxt->mac_api, &req);
+        break;
+    }
     case SPINEL_PROP_STREAM_RAW: {
         mcps_data_ind_t req = { };
         mcps_data_ie_list_t ie_ext = { };
@@ -480,16 +498,8 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_ie_list *ie_ext,
                        const struct channel_list_s *async_channel_list)
 {
-    // FIXME: use true symbol duration
-    const unsigned int symbol_duration_us = 10;
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    struct timespec ts;
-    struct mcps_data_conf_s conf = {
-        .msduHandle = data->msduHandle,
-        .status = MLME_SUCCESS,
-    };
-    struct mcps_data_conf_payload_s data_conf = { };
     uint8_t frame[2048];
     int frame_len;
     int total, i, ret;
@@ -543,13 +553,6 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     }
     BUG_ON(frame_len > sizeof(frame));
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
-
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    conf.timestamp = (ts.tv_sec * 1000000 + ts.tv_nsec / 1000) / symbol_duration_us;
-    if (api->data_conf_ext_cb)
-        api->data_conf_ext_cb(api, &conf, &data_conf);
-    else
-        api->data_conf_cb(api, &conf);
 }
 
 void wsbr_mcps_req(const struct mac_api_s *api,

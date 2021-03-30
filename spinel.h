@@ -4529,6 +4529,7 @@ enum
      *
      */
     SPINEL_PROP_WS_DEVICE_TABLE                     = SPINEL_PROP_WS__BEGIN + 27,
+    SPINEL_PROP_STREAM_STATUS                       = SPINEL_PROP_WS__BEGIN + 28,
 
     SPINEL_PROP_EXPERIMENTAL__END   = 2097152,
 };
