@@ -500,16 +500,20 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    const struct channel_list_s default_chan_list = {
+        .channel_page = CHANNEL_PAGE_UNDEFINED,
+    };
     uint8_t frame[2048];
     int frame_len;
     int total, i, ret;
 
     BUG_ON(!api);
     BUG_ON(&ctxt->mac_api != api);
-    BUG_ON(!async_channel_list);
     BUG_ON(!ie_ext);
     BUG_ON(data->TxAckReq && async_channel_list);
     TRACE("mcpsReq");
+    if (!async_channel_list)
+        async_channel_list = &default_chan_list;
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCCSECbbbbbbCCCEid",
                                      hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_STREAM_RAW,
                                      data->msdu, data->msduLength,
