@@ -10,6 +10,7 @@
 
 struct wsbr_ctxt;
 
+void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
 void rcp_rx(struct wsbr_ctxt *ctxt);
 
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data);

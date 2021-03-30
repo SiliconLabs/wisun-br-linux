@@ -162,7 +162,7 @@ static uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
     return hdr;
 }
 
-static void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
     uint8_t frame[1 + 3 + 3 + sizeof(bool)];
