@@ -285,7 +285,24 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
 static void wsbr_tasklet(struct arm_event_s *event)
 {
-    static uint8_t tun_prefix[16] = { };
+    const char *const nwk_events[] = {
+        "ARM_NWK_BOOTSTRAP_READY",
+        "ARM_NWK_RPL_INSTANCE_FLOODING_READY",
+        "ARM_NWK_SET_DOWN_COMPLETE",
+        "ARM_NWK_NWK_SCAN_FAIL",
+        "ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL",
+        "ARM_NWK_DUPLICATE_ADDRESS_DETECTED",
+        "ARM_NWK_AUHTENTICATION_START_FAIL",
+        "ARM_NWK_AUHTENTICATION_FAIL",
+        "ARM_NWK_NWK_CONNECTION_DOWN",
+        "ARM_NWK_NWK_PARENT_POLL_FAIL",
+        "ARM_NWK_PHY_CONNECTION_DOWN"
+    };
+    // FIXME: Random prefix
+    static uint8_t tun_prefix[16] = {
+        0xfd, 0x01, 0x12, 0x36, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     switch (event->event_type) {
@@ -310,9 +327,9 @@ static void wsbr_tasklet(struct arm_event_s *event)
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
-                TRACE("get event for tun interface");
+                TRACE("get event for tun interface: %s", nwk_events[event->event_data]);
             } else if (event->event_id == ctxt->rcp_if_id) {
-                TRACE("get event for ws interface");
+                TRACE("get event for ws interface: %s", nwk_events[event->event_data]);
             } else {
                 WARN("received unknown network event: %d", event->event_id);
             }
