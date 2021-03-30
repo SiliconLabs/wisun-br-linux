@@ -64,6 +64,44 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
+    case SPINEL_PROP_STREAM_RAW: {
+        mcps_data_ind_t req = { };
+        mcps_data_ie_list_t ie_ext = { };
+        uint8_t tmp_u8[4];
+        bool tmp_bool[1];
+        void *tmp_ptr[3];
+        int len[3];
+        int ret;
+
+        ret = spinel_datatype_unpack(frame, frame_len, "dCSECSECcLbCCCCEdd",
+                               &req.msdu_ptr, &len[0],
+                               &tmp_u8[0], &req.SrcPANId, &tmp_ptr[0],
+                               &tmp_u8[1], &req.DstPANId, &tmp_ptr[1],
+                               &req.mpduLinkQuality, &req.signal_dbm,
+                               &req.timestamp, &tmp_bool[0], &req.DSN,
+                               &tmp_u8[2], &tmp_u8[3],
+                               &req.Key.KeyIndex, &tmp_ptr[2],
+                               &ie_ext.headerIeList, &len[1],
+                               &ie_ext.payloadIeList, &len[2]);
+        BUG_ON(ret != frame_len);
+        req.msduLength = len[0];
+        ie_ext.headerIeListLength = len[1];
+        ie_ext.payloadIeListLength = len[2];
+        req.SrcAddrMode = tmp_u8[0];
+        req.DstAddrMode = tmp_u8[1];
+        memcpy(req.SrcAddr, tmp_ptr[0], sizeof(uint8_t) * 8);
+        memcpy(req.DstAddr, tmp_ptr[1], sizeof(uint8_t) * 8);
+        memcpy(req.Key.Keysource, tmp_ptr[2], sizeof(uint8_t) * 8);
+        req.DSN_suppressed = tmp_bool[0];
+        req.Key.SecurityLevel = tmp_u8[2];
+        req.Key.KeyIdMode = tmp_u8[3];
+        TRACE("dataInd");
+        if (ctxt->mac_api.data_ind_ext_cb)
+            ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
+        else
+            ctxt->mac_api.data_ind_cb(&ctxt->mac_api, &req);
+        break;
+    }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
     case SPINEL_PROP_LAST_STATUS: {
         TRACE("cnf mlmeStart");
