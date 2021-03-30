@@ -162,13 +162,26 @@ static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, 
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_DEVICE_TABLE, frame, frame_len);
 }
 
-static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_key_descriptor_entry_t *req)
+static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
+                                      const mlme_key_descriptor_entry_t *req)
 {
     uint8_t frame[128];
     int frame_len;
+    int len;
 
-    WARN("not implemented");
-    frame_len = 0;
+    BUG_ON(req->KeyIdLookupListEntries > 1);
+    BUG_ON(req->KeyUsageListEntries);
+    BUG_ON(req->KeyDeviceListEntries);
+    if (!req->KeyIdLookupListEntries)
+        len = 0;
+    else if (req->KeyIdLookupList->LookupDataSize)
+        len = 9;
+    else
+        len = 5;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cdd", entry_idx,
+                               req->Key, 16,
+                               req->KeyIdLookupList->LookupData, len);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_KEY_TABLE, frame, frame_len);
 }
 

@@ -173,7 +173,33 @@ static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t a
 
 static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
-    WARN("not implemented");
+    mlme_key_id_lookup_descriptor_t descr = { };
+    mlme_key_descriptor_entry_t data = {
+        .KeyIdLookupList = &descr,
+    };
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+    int len_key = sizeof(data.Key);
+    int len_data = sizeof(data.KeyIdLookupList->LookupData);
+    int ret;
+
+    BUG_ON(attr != macKeyTable);
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "Cdd", &req.attr_index,
+                                   data.Key, &len_key,
+                                   data.KeyIdLookupList->LookupData, &len_data);
+    BUG_ON(ret != frame_len);
+    BUG_ON(len_key != sizeof(data.Key));
+    if (len_data) {
+        data.KeyIdLookupListEntries = 1;
+        if (len_data == 9)
+            data.KeyIdLookupList->LookupDataSize = 1;
+        else
+            BUG_ON(len_data != 5);
+    }
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
 static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
