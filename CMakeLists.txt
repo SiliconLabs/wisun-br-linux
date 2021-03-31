@@ -77,7 +77,6 @@ add_executable(wisun-br
     wsbr_mac.c
     wsbr_fhss_mac.c
     wsbr_fhss_net.c
-    wsbr_fhss_channel.c
     bus_uart.c
     bus_spi.c
     tun.c
@@ -86,6 +85,7 @@ add_executable(wisun-br
     os_scheduler.c
     slist.c
     spinel.c
+    nanostack/source/Service_Libs/fhss/channel_list.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
     nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
