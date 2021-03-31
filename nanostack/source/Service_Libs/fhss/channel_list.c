@@ -51,54 +51,6 @@ static bool channel_list_bit_test(const uint32_t *list, int bit_number)
     return channel_list_bit_test32(list[word_index], bit_index);
 }
 
-static uint8_t channel_list_search(const uint32_t *list, int index)
-{
-    uint8_t channel = 0;
-    int enabled_channels = 0;
-    int i, j;
-
-    for (j = 0; j < 8; j++) {
-        for (i = 0; i < 32; i++) {
-            if (list[j] & ((uint32_t)1 << i)) {
-                enabled_channels++;
-                if (enabled_channels == (index + 1)) {
-                    goto exit;
-                }
-            }
-            channel++;
-        }
-    }
-exit:
-    return channel;
-
-}
-
-uint8_t channel_list_get_channel(const uint32_t *list, int current_index)
-{
-    uint8_t found_index;
-
-    if (current_index >= CHANNEL_LIST_SIZE_IN_BITS) {
-        current_index = 0;
-    }
-
-    found_index = channel_list_search(list, current_index);
-
-    return found_index;
-}
-
-void channel_list_set_channel(uint32_t *list, int channel, bool active)
-{
-    if (channel >= CHANNEL_LIST_SIZE_IN_BITS) {
-        return;
-    }
-    if (active) {
-        list[channel / 32] |= (1 << channel % 32);
-    } else {
-        list[channel / 32] &= ~(1 << channel % 32);
-    }
-    return;
-}
-
 // count the amount of channels enabled in a list
 int channel_list_count_channels(const uint32_t *list)
 {

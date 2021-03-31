@@ -104,17 +104,4 @@ struct fhss_bs {
     uint8_t fhss_scramble_table[MAX_SCRAMBLE_TABLE_INDEXES];
 };
 
-fhss_structure_t *fhss_enable(fhss_api_t *fhss_api, const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics);
-bool fhss_is_synch_root(fhss_structure_t *fhss_structure);
-/**
- * Calculate time in microseconds to start of next superframe.
- *
- * @param fhss_struct FHSS structure
- * @return microseconds left to start of next superframe
- */
-uint32_t fhss_get_remaining_time_to_next_superframe(const fhss_structure_t *fhss_struct);
-int8_t fhss_set_synch_configuration(fhss_structure_t *fhss_structure, const fhss_synch_configuration_t *fhss_synch_configuration);
-int fhss_set_callbacks(fhss_structure_t *fhss_structure);
-uint8_t fhss_calculate_uc_index(uint8_t channel_index, uint16_t number_of_channels, uint8_t number_of_broadcast_channels);
-
 #endif /* FHSS_H_ */

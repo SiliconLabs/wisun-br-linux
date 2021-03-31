@@ -34,10 +34,6 @@
 
 static fhss_structure_t *fhss_struct = NULL;
 
-static void fhss_set_active_event(fhss_structure_t *fhss_structure, uint8_t event_type);
-static bool fhss_read_active_event(fhss_structure_t *fhss_structure, uint8_t event_type);
-
-
 fhss_structure_t *fhss_allocate_instance(fhss_api_t *fhss_api, const fhss_timer_t *fhss_timer)
 {
     if (fhss_struct || !fhss_api || !fhss_timer) {
@@ -88,24 +84,6 @@ fhss_structure_t *fhss_get_object_with_api(const fhss_api_t *fhss_api)
     return NULL;
 }
 
-static void fhss_set_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    fhss_structure->active_fhss_events |= (1 << event_type);
-}
-
-void fhss_clear_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    fhss_structure->active_fhss_events &= ~(1 << event_type);
-}
-
-static bool fhss_read_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    if (fhss_structure->active_fhss_events & (1 << event_type)) {
-        return true;
-    }
-    return false;
-}
-
 int8_t fhss_disable(fhss_structure_t *fhss_structure)
 {
     if (!fhss_structure) {
@@ -138,99 +116,6 @@ void fhss_stop_timer(fhss_structure_t *fhss_structure, void (*callback)(const fh
     if (callback) {
         fhss_structure->platform_functions.fhss_timer_stop(callback, fhss_structure->fhss_api);
     }
-}
-
-int fhss_timeout_start(fhss_structure_t *fhss_structure, uint32_t time)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    fhss_structure->fhss_timeout = time;
-    fhss_structure->fhss_timer = 0;
-    return 0;
-}
-
-int fhss_timeout_stop(fhss_structure_t *fhss_structure)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    fhss_structure->fhss_timeout = 0;
-    fhss_structure->fhss_timer = 0;
-    return 0;
-}
-
-int fhss_update_synch_parent_address(fhss_structure_t *fhss_structure)
-{
-    uint8_t parent_address[8];
-
-    if (!fhss_get_parent_address(fhss_structure, parent_address)) {
-        memcpy(fhss_structure->synch_parent, parent_address, 8);
-        return 0;
-    }
-    return -1;
-}
-
-void fhss_trig_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    if (!fhss_structure || fhss_read_active_event(fhss_structure, event_type) == true) {
-        return;
-    }
-    arm_event_s event;
-    event.receiver = fhss_structure->beacon_tasklet_id;
-    event.sender = 0;
-    event.event_type = event_type;
-    event.event_id = 0;
-    event.data_ptr = fhss_structure;
-    event.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
-    event.event_data = 0;
-    if (eventOS_event_send(&event) != 0) {
-        tr_error("Event trigger failed: eventOS_event_send() failed");
-    } else {
-        fhss_set_active_event(fhss_structure, event_type);
-    }
-}
-
-int fhss_get_parent_address(fhss_structure_t *fhss_structure, uint8_t *p_addr)
-{
-    int ret_val = -1;
-    if (!fhss_structure || !p_addr) {
-        return -1;
-    }
-
-    ret_val = fhss_structure->callbacks.read_coord_mac_address(fhss_structure->fhss_api, p_addr);
-
-    if (ret_val) {
-        // Use default synchronization parent when RPL parent not found
-        memcpy(p_addr, fhss_structure->synch_parent, 8);
-        ret_val = 0;
-    }
-    return ret_val;
-}
-
-int fhss_compare_with_synch_parent_address(fhss_structure_t *fhss_structure, const uint8_t *source_addr)
-{
-    int ret_val = -1;
-    if (!fhss_structure || !source_addr) {
-        return ret_val;
-    }
-    uint8_t parent_address[8];
-
-    if (fhss_is_synch_root(fhss_structure) == false) {
-        if (!fhss_get_parent_address(fhss_structure, parent_address)) {
-            ret_val = memcmp(source_addr, parent_address, 8);
-        }
-    }
-    return ret_val;
-}
-
-uint32_t fhss_read_timestamp_cb(const fhss_api_t *api)
-{
-    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
-    if (!fhss_structure) {
-        return 0;
-    }
-    return (fhss_structure->platform_functions.fhss_get_timestamp(api) * fhss_structure->platform_functions.fhss_resolution_divider);
 }
 
 int fhss_init_callbacks_cb(const fhss_api_t *api, fhss_callback_t *callbacks)

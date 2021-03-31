@@ -23,26 +23,6 @@ extern "C" {
 #endif
 
 /**
- * Get channel number using channel index.
- *
- * @param list to scan
- * @param channel index
- *
- * @return channel number
- */
-uint8_t channel_list_get_channel(const uint32_t *list, int current_index);
-/**
- * set matching bit on in in channel mask.
- *
- * @param list channel mask
- * @param channel channel number
- * @param active set the channel on if true, disable channel if false.
- *
- * @return channel number
- */
-void channel_list_set_channel(uint32_t *list, int channel, bool active);
-
-/**
  * Count the amount of channels enabled in a list.
  *
  * @param list to scan

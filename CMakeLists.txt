@@ -42,8 +42,6 @@ add_executable(wisun-mac
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
     nanostack/source/Service_Libs/fhss/channel_functions.c
     nanostack/source/Service_Libs/fhss/channel_list.c
-    nanostack/source/Service_Libs/fhss/fhss.c
-    nanostack/source/Service_Libs/fhss/fhss_channel.c
     nanostack/source/Service_Libs/fhss/fhss_common.c
     nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
     nanostack/source/Service_Libs/fhss/fhss_statistics.c

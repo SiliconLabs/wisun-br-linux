@@ -17,22 +17,11 @@
 #ifndef FHSS_CHANNEL_H_
 #define FHSS_CHANNEL_H_
 
-bool fhss_change_to_next_channel(fhss_structure_t *fhss_structure);
-uint8_t fhss_get_offset(fhss_structure_t *fhss_structure, const uint8_t *ptr);
-bool fhss_is_current_channel_broadcast(fhss_structure_t *fhss_structure);
-int fhss_change_to_tx_channel(fhss_structure_t *fhss_structure, uint8_t *destination_address);
-int fhss_change_to_parent_channel(fhss_structure_t *fhss_structure);
-int fhss_change_to_rx_channel(fhss_structure_t *fhss_structure);
-
-
 // Enable this flag to use channel traces
 // #define FHSS_CHANNEL_DEBUG
 // Enable this flag to use debug callbacks
 // #define FHSS_CHANNEL_DEBUG_CBS
 
-#ifdef FHSS_CHANNEL_DEBUG
-extern uint8_t debug_destination_channel;
-#endif /*FHSS_CHANNEL_DEBUG*/
 #ifdef FHSS_CHANNEL_DEBUG_CBS
 extern void (*fhss_uc_switch)(void);
 extern void (*fhss_bc_switch)(void);

@@ -29,23 +29,6 @@
 
 #define TRACE_GROUP "fhss"
 
-fhss_api_t *ns_fhss_create(const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics)
-{
-    fhss_api_t *this = ns_dyn_mem_alloc(sizeof(fhss_api_t));
-    if (!this) {
-        return NULL;
-    }
-    // Create FHSS object
-    fhss_structure_t *fhss_struct = fhss_enable(this, fhss_configuration, fhss_timer, fhss_statistics);
-    if (!fhss_struct) {
-        tr_err("Failed to enable FHSS");
-        ns_dyn_mem_free(this);
-        return NULL;
-    }
-    fhss_set_callbacks(fhss_struct);
-    return this;
-}
-
 fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer)
 {
     fhss_api_t *this = ns_dyn_mem_alloc(sizeof(fhss_api_t));
@@ -94,15 +77,6 @@ int ns_fhss_delete(fhss_api_t *fhss_api)
     return 0;
 }
 
-int ns_fhss_configuration_set(fhss_api_t *fhss_api, const fhss_synch_configuration_t *fhss_synch_configuration)
-{
-    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
-    if (!fhss_structure) {
-        return -1;
-    }
-    return fhss_set_synch_configuration(fhss_structure, fhss_synch_configuration);
-}
-
 int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_neighbor_info *get_neighbor_info)
 {
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
@@ -138,13 +112,4 @@ int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count
         return -1;
     }
     return fhss_ws_set_hop_count(fhss_structure, hop_count);
-}
-
-int ns_fhss_statistics_start(const fhss_api_t *fhss_api, fhss_statistics_t *fhss_statistics)
-{
-    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
-    if (!fhss_structure) {
-        return -1;
-    }
-    return fhss_statistics_start(fhss_structure, fhss_statistics);
 }
