@@ -90,7 +90,6 @@ int8_t fhss_disable(fhss_structure_t *fhss_structure)
         return -1;
     }
     fhss_structure->fhss_api->synch_state_set(fhss_structure->fhss_api, FHSS_UNSYNCHRONIZED, 0);
-    ns_dyn_mem_free(fhss_structure->bs);
     ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
     ns_dyn_mem_free(fhss_structure->ws->tr51_output_table);
     ns_dyn_mem_free(fhss_structure->ws);

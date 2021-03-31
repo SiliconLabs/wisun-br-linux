@@ -46,7 +46,6 @@ struct fhss_structure {
     uint32_t fhss_timeout;
     uint32_t fhss_timer;
     struct fhss_api *fhss_api;
-    struct fhss_bs *bs;
     struct fhss_ws *ws;
     struct fhss_timer platform_functions;
     struct fhss_callback callbacks;

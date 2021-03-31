@@ -45,39 +45,6 @@ typedef enum {
 } fhss_ws_channel_functions;
 
 /**
- * \brief Struct fhss_tuning_parameter defines FHSS tuning parameters.
- * All delays are given in microseconds.
- */
-typedef struct fhss_tuning_parameter {
-    /** Delay between data pushed to PHY TX function and TX started (Contains CSMA-CA maximum random period). */
-    uint32_t tx_processing_delay;
-
-    /** Delay between TX done (by transmitter) and received data pushed to MAC (by receiver). */
-    uint32_t rx_processing_delay;
-
-    /** Delay between TX done (by transmitter) and Ack transmission started (by receiver) */
-    uint32_t ack_processing_delay;
-} fhss_tuning_parameter_t;
-
-/**
- * \brief Struct fhss_configuration defines basic configuration of FHSS.
- */
-typedef struct fhss_configuration {
-    /** Tuning parameters can be used to enhance synchronization accuracy*/
-    fhss_tuning_parameter_t fhss_tuning_parameters;
-
-    /** Maximum used interval for requesting synchronization info from FHSS parent device (seconds). */
-    uint16_t fhss_max_synch_interval;
-
-    /** Number of channel retries. */
-    uint8_t fhss_number_of_channel_retries;
-
-    /** Channel mask */
-    uint32_t channel_mask[8];
-
-} fhss_configuration_t;
-
-/**
  * @brief Get channel using vendor defined channel function.
  * @param api FHSS instance.
  * @param slot Slot number in channel schedule.
