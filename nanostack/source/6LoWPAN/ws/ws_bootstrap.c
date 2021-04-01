@@ -1594,7 +1594,7 @@ static void ws_bootstrap_pan_config_analyse(struct protocol_interface_info_entry
     if (neighbour_pointer_valid) {
         //Update Neighbor Broadcast and Unicast Parameters
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
         ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
     }
@@ -1681,7 +1681,7 @@ static void ws_bootstrap_pan_config_solicit_analyse(struct protocol_interface_in
     llc_neighbour_req_t neighbor_info;
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
     }
 
 
@@ -3407,7 +3407,7 @@ static int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, pa
     }
     ws_bootstrap_neighbor_set_stable(cur, parent_ptr->addr);
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &parent_ptr->ws_utt, parent_ptr->timestamp, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &parent_ptr->ws_us, &cur->ws_info->hopping_schdule);
+    ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &parent_ptr->ws_us, &cur->ws_info->hopping_schdule, parent_ptr->addr);
     return 0;
 }
 
