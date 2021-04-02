@@ -5,6 +5,9 @@
  */
 #include "nanostack/mlme.h"
 #include "nanostack/sw_mac.h"
+#include "nanostack/fhss_api.h"
+#include "nanostack/fhss_config.h"
+#include "nanostack/net_fhss.h"
 
 #include "bus_uart.h"
 #include "wsmac_mac.h"
@@ -240,6 +243,30 @@ static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme
     ns_sw_mac_enable_frame_counter_per_key(ctxt->rcp_mac_api, data);
 }
 
+static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    fhss_ws_configuration_t fhss_configuration;
+    fhss_timer_t fhss_timer;
+
+    ns_fhss_ws_create(&fhss_configuration, &fhss_timer);
+}
+
+static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    struct fhss_api fhss_api;
+
+    ns_sw_mac_fhss_register(ctxt->rcp_mac_api, &fhss_api);
+}
+
+static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
+}
+
+static void wsmac_spinel_fhss_update_neigh_timing(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+}
+
 static void wsmac_spinel_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     mlme_start_t req = { };
@@ -370,6 +397,10 @@ static const struct {
     { "macKeyTable",                     macKeyTable,                     wsmac_spinel_set_key_table,             SPINEL_PROP_WS_KEY_TABLE,                        },
     { "macFrameCounter",                 macFrameCounter,                 wsmac_spinel_set_frame_counter,         SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { "fhssEnableFrameCounterPerKey",    0 /* Special */,                 wsmac_spinel_set_frame_counter_per_key, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY,     },
+    { "fhssCreate",                      0 /* Special */,                 wsmac_spinel_fhss_create,               SPINEL_PROP_WS_FHSS_CREATE,                      },
+    { "fhssRegister",                    0 /* Special */,                 wsmac_spinel_fhss_register,             SPINEL_PROP_WS_FHSS_REGISTER,                    },
+    { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
+    { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_reset,                     SPINEL_PROP_WS_RESET,                            },
     { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
