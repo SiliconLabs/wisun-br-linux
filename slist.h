@@ -42,7 +42,7 @@ struct slist {
 unsigned int slist_len(struct slist **head);
 void slist_push(struct slist **head, struct slist *item);
 void slist_push_back(struct slist **head, struct slist *item);
-struct slist *sl_slist_pop(struct slist **head);
+struct slist *slist_pop(struct slist **head);
 void slist_insert(struct slist *item, struct slist *pos);
 
 #endif

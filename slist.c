@@ -42,7 +42,7 @@ void slist_push_back(struct slist **head, struct slist *item)
     *it = item;
 }
 
-struct slist *sl_slist_pop(struct slist **head)
+struct slist *slist_pop(struct slist **head)
 {
     struct slist *item;
 
