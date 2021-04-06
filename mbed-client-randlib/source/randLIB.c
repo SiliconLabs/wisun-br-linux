@@ -82,36 +82,6 @@ static uint64_t splitmix64(uint64_t *seed)
 }
 #endif // RANDOM_DEVICE
 
-void randLIB_seed_random(void)
-{
-#ifdef RANDOM_DEVICE
-    if (!random_file) {
-        random_file = fopen(RANDOM_DEVICE, "rb");
-    }
-#else
-    arm_random_module_init();
-
-    /* We exclusive-OR with the current state, in case they make this call
-     * multiple times,or in case someone has called randLIB_add_seed before
-     * this. We don't want to potentially lose entropy.
-     */
-
-    /* Spell out expressions so we get known ordering of 4 seed calls */
-    uint64_t s = (uint64_t) arm_random_seed_get() << 32;
-    state[0] ^= (s | arm_random_seed_get());
-
-    s = (uint64_t) arm_random_seed_get() << 32;
-    state[1] ^= s | arm_random_seed_get();
-
-    /* This check serves to both to stir the state if the platform is returning
-     * constant seeding values, and to avoid the illegal all-zero state.
-     */
-    if (state[0] == state[1]) {
-        randLIB_add_seed(state[0]);
-    }
-#endif // RANDOM_DEVICE
-}
-
 void randLIB_add_seed(uint64_t seed)
 {
 #ifndef RANDOM_DEVICE

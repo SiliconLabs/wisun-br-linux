@@ -20,7 +20,6 @@
  *
  *
  * \section net-boot Network Bootstrap Control API:
- *  - randLIB_seed_random(), Set seed for pseudo random
  *  - randLIB_get_8bit(), Generate 8-bit random number
  *  - randLIB_get_16bit(),Generate 16-bit random number
  *  - randLIB_get_32bit(),Generate 32-bit random number
@@ -43,18 +42,6 @@ extern "C" {
  * **not safe to use for security or cryptographic operations.**
  *
  */
-
-
-/**
-  * \brief Init seed for Pseudo Random.
-  *
-  * Makes call(s) to the platform's arm_random_seed_get() to seed the
-  * pseudo-random generator.
-  *
-  * \return None
-  *
-  */
-extern void randLIB_seed_random(void);
 
 /**
  * \brief Update seed for pseudo-random generator
