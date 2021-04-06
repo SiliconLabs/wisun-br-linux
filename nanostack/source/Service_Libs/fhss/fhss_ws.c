@@ -981,7 +981,6 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
     }
     //TODO: support multiple parents
-    fhss_structure->ws->parent_bc_info = bc_timing_info;
     if (prev_synchronization_time && fhss_structure->ws->fhss_configuration.ws_bc_channel_function != WS_FIXED_CHANNEL) {
         //TODO: Compensation for fixed channel configuration
         if (SYNCH_COMPENSATION_MIN_INTERVAL <= US_TO_S(time_since_last_synch_us)) {
@@ -1011,7 +1010,6 @@ int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[
     if (!fhss_structure->ws) {
         return -1;
     }
-    fhss_structure->ws->parent_bc_info = NULL;
     return 0;
 }
 

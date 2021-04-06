@@ -44,7 +44,6 @@ struct fhss_ws {
     bool broadcast_timer_running;
     bool is_on_bc_channel;
     struct fhss_ws_configuration fhss_configuration;
-    const struct broadcast_timing_info *parent_bc_info;
     fhss_get_neighbor_info *get_neighbor_info;
 };
 
