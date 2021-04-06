@@ -130,7 +130,7 @@ add_executable(wisun-br
     nanostack/source/6LoWPAN/ws/ws_pae_time.c
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
-    nanostack/source/6LoWPAN/ws/ws_test_api.c
+    # nanostack/source/6LoWPAN/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c
     nanostack/source/Common_Protocols/icmpv6_prefix.c
     nanostack/source/Common_Protocols/icmpv6_radv.c
@@ -158,7 +158,7 @@ add_executable(wisun-br
     nanostack/source/libNET/src/net_dns.c
     nanostack/source/libNET/src/multicast_api.c
     nanostack/source/libNET/src/net_6lowpan_parameter_api.c
-    nanostack/source/libNET/src/net_test.c
+    # nanostack/source/libNET/src/net_test.c
     nanostack/source/libNET/src/net_rpl.c
     nanostack/source/libNET/src/ns_net.c
     nanostack/source/libNET/src/socket_api.c
