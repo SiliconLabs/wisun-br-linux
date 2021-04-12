@@ -11,6 +11,7 @@
 #include <linux/if.h>
 
 #include "nanostack/mac_api.h"
+#include "nanostack/fhss_config.h"
 
 struct phy_device_driver_s;
 struct eth_mac_api_s;
@@ -29,6 +30,9 @@ struct wsbr_ctxt {
     uint8_t dynamic_mac[8];
     struct fhss_api *fhss_api;
     struct mac_api_s mac_api;
+
+    bool fhss_conf_valid;
+    struct fhss_ws_configuration fhss_conf;
 
     int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);

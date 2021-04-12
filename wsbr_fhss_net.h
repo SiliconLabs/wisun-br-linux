@@ -9,5 +9,7 @@
 #include "nanostack/fhss_ws_extension.h"
 #include "nanostack/net_fhss.h"
 
+#define FHSS_API_PLACEHOLDER ((struct fhss_api *) 0xbadbeef)
+
 #endif
 

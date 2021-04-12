@@ -9,10 +9,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "nanostack/fhss_config.h"
 #include "nanostack/fhss_api.h"
 
+#include "spinel.h"
+#include "wsbr.h"
+#include "wsbr_mac.h"
 #include "wsbr_fhss_net.h"
 
 #include "log.h"
@@ -20,12 +24,35 @@
 struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                    const fhss_timer_t *fhss_timer)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    TRACE();
     // fhss_timer is filled by wsbr_configure(). We know we know we pass -1.
     BUG_ON(fhss_timer != (fhss_timer_t *)-1);
-    WARN("not implemented");
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiCCSCLCCCddC",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_CREATE,
+                                     config->ws_uc_channel_function,
+                                     config->ws_bc_channel_function,
+                                     config->bsi,
+                                     config->fhss_uc_dwell_interval,
+                                     config->fhss_broadcast_interval,
+                                     config->fhss_bc_dwell_interval,
+                                     config->unicast_fixed_channel,
+                                     config->broadcast_fixed_channel,
+                                     config->channel_mask,
+                                     sizeof(config->channel_mask),
+                                     config->unicast_channel_mask,
+                                     sizeof(config->unicast_channel_mask),
+                                     config->config_parameters.number_of_channel_retries);
 
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    ctxt->fhss_conf_valid = true;
+    memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     // Upper layers absolutly want something != NULL
-    return (struct fhss_api *)-1;
+    return FHSS_API_PLACEHOLDER;
 }
 
 int ns_fhss_delete(struct fhss_api *fhss_api)
@@ -57,7 +84,9 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
                                  fhss_get_neighbor_info *get_neighbor_info)
 {
-    WARN("not implemented");
+    TRACE();
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    //BUG_ON(get_neighbor_info != ws_get_neighbor_info);
     return 0;
 }
 
