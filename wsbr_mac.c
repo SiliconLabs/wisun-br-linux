@@ -151,7 +151,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     }
 }
 
-static uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
+uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
 {
     uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
 
