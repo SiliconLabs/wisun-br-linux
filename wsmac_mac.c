@@ -9,6 +9,7 @@
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_fhss.h"
 
+#include "hal_fhss_timer.h"
 #include "bus_uart.h"
 #include "wsmac_mac.h"
 #include "wsmac.h"
@@ -245,10 +246,31 @@ static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme
 
 static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
-    fhss_ws_configuration_t fhss_configuration;
-    fhss_timer_t fhss_timer;
+    struct fhss_ws_configuration config = { };
+    uint8_t tmp[2];
+    int tmp1_len = sizeof(config.channel_mask);
+    int tmp2_len = sizeof(config.channel_mask);
+    int ret;
 
-    ns_fhss_ws_create(&fhss_configuration, &fhss_timer);
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddC",
+                           &tmp[0],
+                           &tmp[1],
+                           &config.bsi,
+                           &config.fhss_uc_dwell_interval,
+                           &config.fhss_broadcast_interval,
+                           &config.fhss_bc_dwell_interval,
+                           &config.unicast_fixed_channel,
+                           &config.broadcast_fixed_channel,
+                           config.channel_mask, &tmp1_len,
+                           config.unicast_channel_mask, &tmp2_len,
+                           &config.config_parameters.number_of_channel_retries);
+    BUG_ON(ret != frame_len);
+    config.ws_uc_channel_function = tmp[0];
+    config.ws_bc_channel_function = tmp[1];
+    BUG_ON(tmp1_len != sizeof(config.channel_mask));
+    BUG_ON(tmp2_len != sizeof(config.unicast_channel_mask));
+    ctxt->fhss_api = ns_fhss_ws_create(&config, &wsbr_fhss);
+    BUG_ON(!ctxt->fhss_api);
 }
 
 static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)

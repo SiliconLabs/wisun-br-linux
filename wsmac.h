@@ -8,6 +8,7 @@
 
 struct os_ctxt;
 struct mac_api_s;
+struct fhss_api;
 
 struct wsmac_ctxt {
     struct os_ctxt *os_ctxt;
@@ -15,6 +16,7 @@ struct wsmac_ctxt {
     int  rcp_driver_id;
     struct mac_api_s *rcp_mac_api;
     struct arm_device_driver_list *rf_driver;
+    struct fhss_api *fhss_api;
 
     int spinel_tid;
     int spinel_iid;
