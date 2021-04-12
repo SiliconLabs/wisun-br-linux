@@ -27,6 +27,7 @@
 #include "6LoWPAN/ws/ws_neighbor_class.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "ws_management_api.h"
+#include "../../../../wsbr_fhss_net.h"
 
 #ifdef HAVE_WS
 
@@ -122,13 +123,21 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
 
 void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
 {
+    struct unicast_timing_info *info = &ws_neighbor->fhss_data.uc_timing_info;
+
 #ifdef FEA_TRACE_SUPPORT
     ws_neighbor_calculate_ufsi_drift(ws_neighbor, ws_utt, timestamp, address);
 #else
     (void) address;
 #endif
-    ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp = timestamp;
-    ws_neighbor->fhss_data.uc_timing_info.ufsi = ws_utt->ufsi;
+    if (info->utt_rx_timestamp != timestamp ||
+        info->ufsi != ws_utt->ufsi) {
+        info->utt_rx_timestamp = timestamp;
+        info->ufsi = ws_utt->ufsi;
+        ns_fhss_ws_set_neighbor(NULL, address, &ws_neighbor->fhss_data);
+    } else {
+        tr_info("save a timing update");
+    }
 }
 
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
@@ -257,6 +266,7 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *
 
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
+    ns_fhss_ws_set_neighbor(NULL, address, &ws_neighbor->fhss_data);
 }
 
 

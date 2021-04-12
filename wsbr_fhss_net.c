@@ -139,6 +139,30 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
     return 0;
 }
 
+void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui64[8],
+                             fhss_ws_neighbor_timing_info_t *fhss_data)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiECCSdCCSSLL",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,
+                                     eui64, fhss_data->clock_drift, fhss_data->timing_accuracy,
+                                     fhss_data->uc_channel_list.channel_count,
+                                     fhss_data->uc_channel_list.channel_mask,
+                                     sizeof(fhss_data->uc_channel_list.channel_mask),
+                                     fhss_data->uc_timing_info.unicast_channel_function,
+                                     fhss_data->uc_timing_info.unicast_dwell_interval,
+                                     fhss_data->uc_timing_info.unicast_number_of_channels,
+                                     fhss_data->uc_timing_info.fixed_channel,
+                                     fhss_data->uc_timing_info.ufsi,
+                                     fhss_data->uc_timing_info.utt_rx_timestamp);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
                                  fhss_get_neighbor_info *get_neighbor_info)
 {

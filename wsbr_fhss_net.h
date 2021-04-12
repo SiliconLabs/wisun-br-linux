@@ -11,5 +11,8 @@
 
 #define FHSS_API_PLACEHOLDER ((struct fhss_api *) 0xbadbeef)
 
+void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui64[8],
+                             fhss_ws_neighbor_timing_info_t *fhss_data);
+
 #endif
 

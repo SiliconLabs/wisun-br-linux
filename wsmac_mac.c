@@ -499,7 +499,7 @@ static const struct {
     { "fhssDelete",                      0 /* Special */,                 wsmac_spinel_fhss_delete,               SPINEL_PROP_WS_FHSS_DELETE,                      },
     { "fhssRegister",                    0 /* Special */,                 wsmac_spinel_fhss_register,             SPINEL_PROP_WS_FHSS_REGISTER,                    },
     { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
-    { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
+    { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,                },
     { "fhssSetHopCount",                 0 /* Special */,                 wsmac_spinel_fhss_set_hop_count,        SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,               },
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
