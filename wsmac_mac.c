@@ -235,6 +235,29 @@ static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t 
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
+static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    uint8_t *eui64;
+    broadcast_timing_info_t bc_timing_info;
+    bool force_synch;
+    uint8_t tmp;
+    int ret;
+
+    ret = spinel_datatype_unpack(frame, frame_len, "EbCCSSSLLL",
+                           &eui64, &force_synch,
+                           &tmp,
+                           &bc_timing_info.broadcast_dwell_interval,
+                           &bc_timing_info.fixed_channel,
+                           &bc_timing_info.broadcast_slot,
+                           &bc_timing_info.broadcast_schedule_id,
+                           &bc_timing_info.broadcast_interval_offset,
+                           &bc_timing_info.broadcast_interval,
+                           &bc_timing_info.bt_rx_timestamp);
+    BUG_ON(ret != frame_len);
+    bc_timing_info.broadcast_channel_function = tmp;
+    ns_fhss_ws_set_parent(ctxt->fhss_api, eui64, &bc_timing_info, force_synch);
+}
+
 static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     bool data;
@@ -459,6 +482,7 @@ static const struct {
     { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
     { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
+    { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_reset,                     SPINEL_PROP_WS_RESET,                            },
     { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
