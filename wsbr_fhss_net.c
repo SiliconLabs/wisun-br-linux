@@ -80,7 +80,30 @@ const struct fhss_ws_configuration *ns_fhss_ws_configuration_get(const struct fh
 int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
                                  const struct fhss_ws_configuration *config)
 {
-    WARN("not implemented");
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    BUG_ON(!ctxt->fhss_conf_valid);
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiCCSCLCCCddC",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_CONF,
+                                     config->ws_uc_channel_function,
+                                     config->ws_bc_channel_function,
+                                     config->bsi,
+                                     config->fhss_uc_dwell_interval,
+                                     config->fhss_broadcast_interval,
+                                     config->fhss_bc_dwell_interval,
+                                     config->unicast_fixed_channel,
+                                     config->broadcast_fixed_channel,
+                                     config->channel_mask,
+                                     sizeof(config->channel_mask),
+                                     config->unicast_channel_mask,
+                                     sizeof(config->unicast_channel_mask),
+                                     config->config_parameters.number_of_channel_retries);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
 }
 
