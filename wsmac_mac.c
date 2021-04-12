@@ -332,9 +332,12 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
 
 static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
-    struct fhss_api fhss_api;
+    struct fhss_api *fhss_api = ns_sw_mac_get_fhss_api(ctxt->rcp_mac_api);
 
-    ns_sw_mac_fhss_register(ctxt->rcp_mac_api, &fhss_api);
+    TRACE();
+    BUG_ON(fhss_api, "fhss_api already regstered");
+    BUG_ON(!ctxt->fhss_api, "fhss_api not yet created");
+    ns_sw_mac_fhss_register(ctxt->rcp_mac_api, ctxt->fhss_api);
 }
 
 static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
