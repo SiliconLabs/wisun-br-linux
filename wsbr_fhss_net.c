@@ -150,7 +150,17 @@ int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
 
 int ns_fhss_ws_set_hop_count(const struct fhss_api *fhss_api, const uint8_t hop_count)
 {
-    WARN("not implemented");
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    TRACE();
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiC",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,
+                                     hop_count);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     return 0;
 }
 
