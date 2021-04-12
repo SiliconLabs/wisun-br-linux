@@ -130,6 +130,7 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8
  */
 int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t channel)
 {
+    tr_info("%s", __func__);
     (void)new_state;
     (void)channel;
     return 0;
@@ -281,14 +282,41 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 *(uint32_t *)data_ptr = 100000;
                 break;
             }
+            case PHY_EXTENSION_SET_CCA_THRESHOLD: {
+                tr_info("%s: change CCA threshold to %d", __func__, *data_ptr);
+                break;
+            }
+            case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD: {
+                tr_info("%s: change channel CCA threshold to %d", __func__, *data_ptr);
+                break;
+            }
+            case PHY_EXTENSION_SET_TX_POWER: {
+                tr_info("%s: change tx power to %u", __func__, *data_ptr);
+                break;
+            }
+            case PHY_EXTENSION_SET_RF_CONFIGURATION: {
+                tr_info("%s: change rf config to chan %u", __func__,
+                        ((struct phy_rf_channel_configuration_s *)data_ptr)->channel_0_center_frequency);
+                break;
+            }
+            case PHY_EXTENSION_SET_CSMA_PARAMETERS: {
+                tr_info("%s: change CSMA parameters", __func__);
+                break;
+            }
+            case PHY_EXTENSION_SET_CHANNEL: {
+                // tr_info("%s: change channel: %u", __func__,  *data_ptr);
+                break;
+            }
             case PHY_EXTENSION_GET_TIMESTAMP: {
                 struct timespec tp;
 
+                // FIXME: to make the things reproducible hack this function
                 clock_gettime(CLOCK_MONOTONIC, &tp);
                 *(uint32_t *)data_ptr = tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
                 break;
             }
             default:
+                tr_info("%s: not implemented: %02x", __func__, extension_type);
                 break;
         }
     }
