@@ -38,9 +38,7 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
 
-    BUG_ON(!mac_api);
-
-    WARN("not implemented");
+    TRACE();
     return ctxt->fhss_api;
 }
 
