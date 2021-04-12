@@ -115,7 +115,27 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
 int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8],
                           const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
 {
-    WARN("not implemented");
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiEbCCSSSLLL",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_PARENT,
+                                     eui64, force_synch,
+                                     bc_timing_info->broadcast_channel_function,
+                                     bc_timing_info->broadcast_dwell_interval,
+                                     bc_timing_info->fixed_channel,
+                                     bc_timing_info->broadcast_slot,
+                                     bc_timing_info->broadcast_schedule_id,
+                                     bc_timing_info->broadcast_interval_offset,
+                                     bc_timing_info->broadcast_interval,
+                                     bc_timing_info->bt_rx_timestamp);
+
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    ctxt->fhss_conf.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;
+    ctxt->fhss_conf.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
     return 0;
 }
 
