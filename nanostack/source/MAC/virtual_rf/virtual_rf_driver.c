@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -278,6 +279,13 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
             }
             case PHY_EXTENSION_GET_SYMBOLS_PER_SECOND: {
                 *(uint32_t *)data_ptr = 100000;
+                break;
+            }
+            case PHY_EXTENSION_GET_TIMESTAMP: {
+                struct timespec tp;
+
+                clock_gettime(CLOCK_MONOTONIC, &tp);
+                *(uint32_t *)data_ptr = tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
                 break;
             }
             default:
