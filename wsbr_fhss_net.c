@@ -73,8 +73,13 @@ int ns_fhss_delete(struct fhss_api *fhss_api)
 
 const struct fhss_ws_configuration *ns_fhss_ws_configuration_get(const struct fhss_api *fhss_api)
 {
-    WARN("not implemented");
-    return NULL;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    if (ctxt->fhss_conf_valid)
+        return &ctxt->fhss_conf;
+    else
+        return NULL;
 }
 
 int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
