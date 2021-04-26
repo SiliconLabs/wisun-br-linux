@@ -273,6 +273,12 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     BUG_ON(!ctxt->fhss_api);
 }
 
+static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    ns_fhss_delete(ctxt->fhss_api);
+    ctxt->fhss_api = NULL;
+}
+
 static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     struct fhss_api fhss_api;
@@ -420,6 +426,7 @@ static const struct {
     { "macFrameCounter",                 macFrameCounter,                 wsmac_spinel_set_frame_counter,         SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { "fhssEnableFrameCounterPerKey",    0 /* Special */,                 wsmac_spinel_set_frame_counter_per_key, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY,     },
     { "fhssCreate",                      0 /* Special */,                 wsmac_spinel_fhss_create,               SPINEL_PROP_WS_FHSS_CREATE,                      },
+    { "fhssDelete",                      0 /* Special */,                 wsmac_spinel_fhss_delete,               SPINEL_PROP_WS_FHSS_DELETE,                      },
     { "fhssRegister",                    0 /* Special */,                 wsmac_spinel_fhss_register,             SPINEL_PROP_WS_FHSS_REGISTER,                    },
     { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
     { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
