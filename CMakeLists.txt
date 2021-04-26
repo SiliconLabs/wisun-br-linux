@@ -15,6 +15,7 @@ add_executable(wisun-mac
     os_scheduler.c
     os_timer.c
     slist.c
+    spinel.c
     mbed-client-libservice/source/libBits/common_functions.c
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
