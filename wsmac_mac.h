@@ -13,14 +13,14 @@ struct wsmac_ctxt;
 
 void uart_rx(struct wsmac_ctxt *ctxt);
 
-void wsmac_mcps_data_confirm(const struct mac_api_s *mac_api,
-                             const struct mcps_data_conf_s *data);
 void wsmac_mcps_purge_confirm(const struct mac_api_s *mac_api,
                               struct mcps_purge_conf_s *data);
 void wsmac_mlme_confirm(const struct mac_api_s *mac_api,
                         mlme_primitive id, const void *data);
 void wsmac_mlme_indication(const struct mac_api_s *mac_api,
                            mlme_primitive id, const void *data);
+void wsmac_mcps_data_confirm(const struct mac_api_s *mac_api,
+                             const struct mcps_data_conf_s *data);
 void wsmac_mcps_data_confirm_ext(const struct mac_api_s *mac_api,
                                  const struct mcps_data_conf_s *data,
                                  const struct mcps_data_conf_payload_s *conf_data);

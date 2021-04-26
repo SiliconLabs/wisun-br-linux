@@ -501,9 +501,33 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
     table[i].fn(ctxt, data);
 }
 
+void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
+                                 const mcps_data_conf_payload_t *conf_data)
+{
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    BUG_ON(!mac_api);
+    BUG_ON(mac_api != ctxt->rcp_mac_api);
+    BUG_ON(!conf_data, "not implemented");
+    TRACE("dataCnf");
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiCCLCCddd",
+                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_STREAM_STATUS,
+                                     data->status, data->msduHandle,
+                                     data->timestamp, data->cca_retries, data->tx_retries,
+                                     conf_data->headerIeList, conf_data->headerIeListLength,
+                                     conf_data->payloadIeList, conf_data->headerIeListLength,
+                                     conf_data->payloadPtr, conf_data->payloadLength);
+    BUG_ON(frame_len < 0);
+    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+    WARN("FIXME: free msduHandle: %x", data->msduHandle);
+}
+
 void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *data)
 {
-    WARN("not implemented");
+    wsmac_mcps_data_confirm_ext(mac_api, data, NULL);
 }
 
 void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_ind_t *data,
@@ -545,12 +569,6 @@ void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
 }
 
 void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const void *data)
-{
-    WARN("not implemented");
-}
-
-void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
-                                 const mcps_data_conf_payload_t *conf_data)
 {
     WARN("not implemented");
 }
