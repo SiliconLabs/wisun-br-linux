@@ -375,6 +375,22 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
     }
 }
 
+void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
+{
+    const mlme_start_conf_t *req = data;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + 3];
+    int frame_len;
+
+    TRACE("mlmeStart");
+    WARN_ON(req->status);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr,
+                                     SPINEL_CMD_PROP_VALUE_IS,
+                                     SPINEL_PROP_LAST_STATUS,
+                                     SPINEL_STATUS_OK);
+    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -383,6 +399,7 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
         void (*fn)(struct wsmac_ctxt *, const void *);
     } table[] = {
         { MLME_GET,   wsmac_mlme_get },
+        { MLME_START, wsmac_mlme_start },
         { -1 },
     };
     int i;
