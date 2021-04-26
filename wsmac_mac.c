@@ -320,6 +320,61 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     }
 }
 
+void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
+{
+    const mlme_get_conf_t *req = data;
+
+    TRACE("mlmeGet");
+    switch (req->attr) {
+    case macDeviceTable: {
+        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+        const mlme_device_descriptor_t *req2 = req->value_pointer;
+        uint8_t frame[1 + 3 + 3 + 3 + sizeof(uint8_t)];
+        int frame_len;
+
+        frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiiSSELb",
+                                         hdr, SPINEL_CMD_PROP_VALUE_IS,
+                                         SPINEL_PROP_WS_DEVICE_TABLE,
+                                         req->attr_index, req2->PANId,
+                                         req2->ShortAddress, req2->ExtAddress,
+                                         req2->FrameCounter, req2->Exempt);
+        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+        break;
+    }
+    case macFrameCounter: {
+        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+        uint8_t frame[1 + 3 + 3 + 3 + sizeof(uint8_t)];
+        int frame_len;
+
+        BUG_ON(req->value_size != sizeof(uint32_t));
+        //BUG_ON(req->attr_index != XXXsecurity_frame_counter);
+        frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiiL", hdr,
+                                         SPINEL_CMD_PROP_VALUE_IS,
+                                         SPINEL_PROP_WS_FRAME_COUNTER,
+                                         req->attr_index,
+                                         *((uint32_t *)req->value_pointer));
+        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+        break;
+    }
+    case macCCAThreshold: {
+        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+        uint8_t frame[1 + 3 + 3 + 50 * sizeof(uint8_t)];
+        int frame_len;
+
+        BUG_ON(req->value_size > 50);
+        frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciid", hdr,
+                                         SPINEL_CMD_PROP_VALUE_IS,
+                                         SPINEL_PROP_WS_CCA_THRESHOLD,
+                                         req->value_pointer, req->value_size);
+        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+        break;
+    }
+    default:
+        WARN("not implemented");
+        break;
+    }
+}
+
 void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -327,6 +382,7 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
         uint32_t id;
         void (*fn)(struct wsmac_ctxt *, const void *);
     } table[] = {
+        { MLME_GET,   wsmac_mlme_get },
         { -1 },
     };
     int i;
