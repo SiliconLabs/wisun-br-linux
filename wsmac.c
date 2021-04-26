@@ -163,7 +163,11 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
             read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
             WARN_ON(val != 'W');
-            eventOS_scheduler_run_until_idle();
+            // You may use eventOS_scheduler_run_until_idle() instead of
+            // eventOS_scheduler_dispatch_event() identify tasks that shcedule
+            // themselves.
+            // eventOS_scheduler_run_until_idle();
+            eventOS_scheduler_dispatch_event();
         }
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
