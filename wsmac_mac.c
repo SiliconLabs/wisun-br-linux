@@ -9,7 +9,19 @@
 #include "wsmac_mac.h"
 #include "wsmac.h"
 #include "spinel.h"
+#include "utils.h"
 #include "log.h"
+
+static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
+{
+    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
+
+    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
+    if (!ctxt->spinel_tid)
+        ctxt->spinel_tid = 1;
+    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
+    return hdr;
+}
 
 static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
@@ -308,6 +320,29 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     }
 }
 
+void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *data)
+{
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    static const struct {
+        uint32_t id;
+        void (*fn)(struct wsmac_ctxt *, const void *);
+    } table[] = {
+        { -1 },
+    };
+    int i;
+
+    BUG_ON(!api);
+    BUG_ON(ctxt->rcp_mac_api != api);
+    for (i = 0; table[i].id != -1; i++)
+        if (id == table[i].id)
+            break;
+    if (!table[i].fn) {
+        WARN("not implemented");
+        return;
+    }
+    table[i].fn(ctxt, data);
+}
+
 void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *data)
 {
     WARN("not implemented");
@@ -319,11 +354,6 @@ void wsmac_mcps_data_indication(const mac_api_t *mac_api, const mcps_data_ind_t 
 }
 
 void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
-{
-    WARN("not implemented");
-}
-
-void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
     WARN("not implemented");
 }

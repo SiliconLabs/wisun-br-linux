@@ -15,6 +15,9 @@ struct wsmac_ctxt {
     int  rcp_driver_id;
     struct mac_api_s *rcp_mac_api;
     struct arm_device_driver_list *rf_driver;
+
+    int spinel_tid;
+    int spinel_iid;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
