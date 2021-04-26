@@ -306,6 +306,18 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
     BUG_ON(tmp_len != sizeof(fhss_data->uc_channel_list.channel_mask));
 }
 
+static fhss_ws_neighbor_timing_info_t *wsmac_fhss_get_neighbor_info(const fhss_api_t *fhss_api, uint8_t eui64[8])
+{
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    int i;
+
+    BUG_ON(fhss_api != ctxt->fhss_api);
+    for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
+        if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, sizeof(uint8_t[8])))
+            return &ctxt->neighbor_timings[i].val;
+    return NULL;
+}
+
 static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     struct fhss_ws_configuration config = { };
@@ -333,6 +345,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     BUG_ON(tmp2_len != sizeof(config.unicast_channel_mask));
     ctxt->fhss_api = ns_fhss_ws_create(&config, &wsbr_fhss);
     BUG_ON(!ctxt->fhss_api);
+    ns_fhss_set_neighbor_info_fp(ctxt->fhss_api, wsmac_fhss_get_neighbor_info);
 }
 
 static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
