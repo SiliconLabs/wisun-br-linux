@@ -330,6 +330,17 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     ns_fhss_ws_configuration_set(ctxt->fhss_api, &config);
 }
 
+static void wsmac_spinel_fhss_set_hop_count(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    uint8_t data;
+    int ret;
+
+    BUG_ON(frame_len != sizeof(uint8_t));
+    ret = spinel_datatype_unpack(frame, frame_len, "C", &data);
+    BUG_ON(ret != frame_len);
+    ns_fhss_ws_set_hop_count(ctxt->fhss_api, data);
+}
+
 static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     struct fhss_api *fhss_api = ns_sw_mac_get_fhss_api(ctxt->rcp_mac_api);
@@ -489,6 +500,7 @@ static const struct {
     { "fhssRegister",                    0 /* Special */,                 wsmac_spinel_fhss_register,             SPINEL_PROP_WS_FHSS_REGISTER,                    },
     { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
     { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
+    { "fhssSetHopCount",                 0 /* Special */,                 wsmac_spinel_fhss_set_hop_count,        SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,               },
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
