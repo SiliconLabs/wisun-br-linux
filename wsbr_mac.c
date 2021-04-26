@@ -15,9 +15,34 @@
 #include "utils.h"
 #include "log.h"
 
+static const struct {
+    const char *str;
+    mlme_attr_t attr;
+    void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
+    unsigned int prop;
+} mlme_prop_cstr[] = {
+    { }
+};
+
 static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
 {
+    struct wsbr_ctxt *ctxt = &g_ctxt;
     const mlme_set_t *req = data;
+    int i;
+
+    BUG_ON(!api);
+    BUG_ON(api != &ctxt->mac_api);
+    // SPINEL_CMD_PROP_VALUE_SET
+    for (i = 0; mlme_prop_cstr[i].prop; i++)
+        if (req->attr == mlme_prop_cstr[i].attr)
+            break;
+    TRACE("set %s", mlme_prop_cstr[i].str);
+    if (mlme_prop_cstr[i].prop_set) {
+        // Normally, req->attr_index == 0, but nanostack is not rigorous on that
+        mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].prop, req->value_pointer, req->value_size);
+    } else {
+        BUG("Unknown message");
+    }
 }
 
 static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
