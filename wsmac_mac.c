@@ -279,6 +279,34 @@ static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     ctxt->fhss_api = NULL;
 }
 
+static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    struct fhss_ws_configuration config = { };
+    uint8_t tmp[2];
+    int tmp1_len = sizeof(config.channel_mask);
+    int tmp2_len = sizeof(config.channel_mask);
+    int ret;
+
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddC",
+                                    &tmp[0],
+                                    &tmp[1],
+                                    &config.bsi,
+                                    &config.fhss_uc_dwell_interval,
+                                    &config.fhss_broadcast_interval,
+                                    &config.fhss_bc_dwell_interval,
+                                    &config.unicast_fixed_channel,
+                                    &config.broadcast_fixed_channel,
+                                    config.channel_mask, &tmp1_len,
+                                    config.unicast_channel_mask, &tmp2_len,
+                                    &config.config_parameters.number_of_channel_retries);
+    BUG_ON(ret != frame_len);
+    config.ws_uc_channel_function = tmp[0];
+    config.ws_bc_channel_function = tmp[1];
+    BUG_ON(tmp1_len != sizeof(config.channel_mask));
+    BUG_ON(tmp2_len != sizeof(config.unicast_channel_mask));
+    ns_fhss_ws_configuration_set(ctxt->fhss_api, &config);
+}
+
 static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     struct fhss_api fhss_api;
@@ -430,6 +458,7 @@ static const struct {
     { "fhssRegister",                    0 /* Special */,                 wsmac_spinel_fhss_register,             SPINEL_PROP_WS_FHSS_REGISTER,                    },
     { "fhssUnregister",                  0 /* Special */,                 wsmac_spinel_fhss_unregister,           SPINEL_PROP_WS_FHSS_UNREGISTER,                  },
     { "fhssUpdateNeighTiming",           0 /* Special */,                 wsmac_spinel_fhss_update_neigh_timing,  SPINEL_PROP_WS_FHSS_UPDATE_NEIGH_TIMING,         },
+    { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_reset,                     SPINEL_PROP_WS_RESET,                            },
     { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
