@@ -6,9 +6,15 @@
 #ifndef WSMAC_H
 #define WSMAC_H
 
+#include "nanostack/fhss_ws_extension.h"
+
 struct os_ctxt;
 struct mac_api_s;
-struct fhss_api;
+
+struct neighbor_timings {
+    uint8_t eui64[8];
+    struct fhss_ws_neighbor_timing_info val;
+};
 
 struct wsmac_ctxt {
     struct os_ctxt *os_ctxt;
@@ -17,6 +23,8 @@ struct wsmac_ctxt {
     struct mac_api_s *rcp_mac_api;
     struct arm_device_driver_list *rf_driver;
     struct fhss_api *fhss_api;
+
+    struct neighbor_timings neighbor_timings[17];
 
     int spinel_tid;
     int spinel_iid;
