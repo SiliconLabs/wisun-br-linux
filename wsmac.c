@@ -78,8 +78,8 @@ int8_t virtual_rf_tx(const virtual_data_req_t *data_req, int8_t driver_id)
     pr_hex(data_req->msdu, data_req->msduLength);
     TRACE("... parms:");
     pr_hex(data_req->parameters, data_req->parameter_length);
-    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 0, 0);
-    return 0;
+    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
+    return 1;
 }
 
 void kill_handler(int signal)
