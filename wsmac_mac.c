@@ -11,12 +11,114 @@
 #include "spinel.h"
 #include "log.h"
 
+static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    bool data;
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+
+    BUG_ON(frame_len != sizeof(data));
+    spinel_datatype_unpack(frame, frame_len, "b", &data);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
+static void wsmac_spinel_set_u8(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    uint8_t data;
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+
+    BUG_ON(frame_len != sizeof(data));
+    spinel_datatype_unpack(frame, frame_len, "C", &data);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
+static void wsmac_spinel_set_u16(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    uint16_t data;
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+
+    BUG_ON(frame_len != sizeof(data));
+    spinel_datatype_unpack(frame, frame_len, "S", &data);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
+static void wsmac_spinel_set_u32(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    uint32_t data;
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+
+    BUG_ON(frame_len != sizeof(data));
+    spinel_datatype_unpack(frame, frame_len, "L", &data);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
+static void wsmac_spinel_set_eui64(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    mlme_set_t req = {
+        .attr = attr,
+        .value_size = 8,
+    };
+
+    BUG_ON(frame_len != 8);
+    spinel_datatype_unpack(frame, frame_len, "E", &req.value_pointer);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
+static void wsmac_spinel_set_data(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = frame,
+        .value_size = frame_len,
+    };
+
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
 static const struct {
     const char *str;
     mlme_attr_t attr;
     void (*prop_set)(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
+    { "macRxOnWhenIdle",                 macRxOnWhenIdle,                 wsmac_spinel_set_bool,  SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  },
+    { "macSecurityEnabled",              macSecurityEnabled,              wsmac_spinel_set_bool,  SPINEL_PROP_WS_SECURITY_ENABLED,                 },
+    { "macAcceptByPassUnknowDevice",     macAcceptByPassUnknowDevice,     wsmac_spinel_set_bool,  SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
+    { "macEdfeForceStop",                macEdfeForceStop,                wsmac_spinel_set_bool,  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
+    { "macAssociationPermit",            macAssociationPermit,            wsmac_spinel_set_bool,  SPINEL_PROP_WS_ASSOCIATION_PERMIT,               },
+    { "phyCurrentChannel",               phyCurrentChannel,               wsmac_spinel_set_u8,    SPINEL_PROP_PHY_CHAN,                            },
+    { "macAutoRequestKeyIdMode",         macAutoRequestKeyIdMode,         wsmac_spinel_set_u8,    SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE,         },
+    { "macAutoRequestKeyIndex",          macAutoRequestKeyIndex,          wsmac_spinel_set_u8,    SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX,           },
+    { "macAutoRequestSecurityLevel",     macAutoRequestSecurityLevel,     wsmac_spinel_set_u8,    SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL,      },
+    { "macBeaconPayloadLength",          macBeaconPayloadLength,          wsmac_spinel_set_u8,    SPINEL_PROP_WS_BEACON_PAYLOAD_LENGTH,            },
+    { "macMaxFrameRetries",              macMaxFrameRetries,              wsmac_spinel_set_u8,    SPINEL_PROP_WS_MAX_FRAME_RETRIES,                },
+    { "macTXPower",                      macTXPower,                      wsmac_spinel_set_u8,    SPINEL_PROP_PHY_TX_POWER,                        },
+    { "macCCAThreshold",                 macCCAThreshold,                 wsmac_spinel_set_u8,    SPINEL_PROP_PHY_CCA_THRESHOLD,                   },
+    { "macPANId",                        macPANId,                        wsmac_spinel_set_u16,   SPINEL_PROP_MAC_15_4_PANID,                      },
+    { "macCoordShortAddress",            macCoordShortAddress,            wsmac_spinel_set_u16,   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
+    { "macShortAddress",                 macShortAddress,                 wsmac_spinel_set_u16,   SPINEL_PROP_MAC_15_4_SADDR,                      },
+    { "macDeviceDescriptionPanIDUpdate", macDeviceDescriptionPanIDUpdate, wsmac_spinel_set_u16,   SPINEL_PROP_WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE, },
+    { "macAckWaitDuration",              macAckWaitDuration,              wsmac_spinel_set_u16,   SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
+    { "mac802_15_4Mode",                 mac802_15_4Mode,                 wsmac_spinel_set_u32,   SPINEL_PROP_WS_15_4_MODE,                        },
+    { "macAutoRequestKeySource",         macAutoRequestKeySource,         wsmac_spinel_set_eui64, SPINEL_PROP_WS_AUTO_REQUEST_KEY_SOURCE,          },
+    { "macCoordExtendedAddress",         macCoordExtendedAddress,         wsmac_spinel_set_eui64, SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
+    { "macDefaultKeySource",             macDefaultKeySource,             wsmac_spinel_set_eui64, SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
+    { "macBeaconPayload",                macBeaconPayload,                wsmac_spinel_set_data,  SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
     { }
 };
 
