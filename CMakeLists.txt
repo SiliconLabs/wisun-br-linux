@@ -7,6 +7,7 @@ add_compile_options(-Wall)
 add_executable(wisun-mac
     wsmac.c
     wsmac_mac.c
+    wsmac_rf_driver.c
     wsmac_ns_monitor.c
     bus_uart.c
     hal_interrupt.c
@@ -37,7 +38,6 @@ add_executable(wisun-mac
     nanostack/source/MAC/IEEE802_15_4/mac_timer.c
     nanostack/source/MAC/IEEE802_15_4/sw_mac.c
     nanostack/source/MAC/rf_driver_storage.c
-    nanostack/source/MAC/virtual_rf/virtual_rf_driver.c
     nanostack/source/Service_Libs/CCM_lib/ccm_security.c
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
     nanostack/source/Service_Libs/fhss/channel_functions.c
