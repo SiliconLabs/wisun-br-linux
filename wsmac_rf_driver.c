@@ -27,6 +27,9 @@
 #include "serial_mac_api.h"
 #include "MAC/rf_driver_storage.h"
 #include "mac_api.h"
+#include "log.h"
+#include "utils.h"
+#include "wsmac.h"
 
 #include "nanostack/source/MAC/virtual_rf/virtual_rf_defines.h"
 
@@ -155,30 +158,14 @@ static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t chan
  */
 static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol)
 {
-    if (!data_ptr) {
-        return -1;
-    }
-    virtual_data_req_t data_req;
-    (void)protocol;
-    (void)tx_handle;
+    struct wsmac_ctxt *ctxt = &g_ctxt;
 
-    //Push TO LMAC
-    data_req.parameter_length = 0;
-    data_req.parameters = NULL;
+    BUG_ON(!data_ptr);
+    TRACE("RF tx msdu:");
+    pr_hex(data_ptr, data_len);
 
-    data_req.msdu = data_ptr;
-    data_req.msduLength = data_len + 1;
-
-    //SET PHY Header and increment length
-    *data_ptr = NAP_DATA_PHY_RAW_REQUEST;
-
-    //Push To LMAC
-    if (!device_driver.arm_net_virtual_tx_cb) {
-        tr_debug("Virtual Init not configured");
-        return -1;
-    }
-    return device_driver.arm_net_virtual_tx_cb(&data_req, rf_driver_id);
-
+    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
+    return 1;
 }
 
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
@@ -196,6 +183,8 @@ static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
     virtual_data_req_t data_req;
     uint8_t msg_aram[4];
     uint8_t temp = 0;
+
+    BUG("Not implemented");
     msg_aram[0] = NAP_MLME_REQUEST;
     msg_aram[1] = MLME_SET;
     msg_aram[2] = set_req->attr;
