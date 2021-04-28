@@ -164,8 +164,9 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     TRACE("RF tx msdu:");
     pr_hex(data_ptr, data_len);
 
-    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
-    return 1;
+    ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_DONE, 1, 1);
+
+    return 0;
 }
 
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
