@@ -318,7 +318,10 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
         memcpy(ie_ext.headerIeVectorList->ieBase, buf[2], len[2]);
     }
 
-    ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL);
+    if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list);
+    else
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL);
 }
 
 static const struct {
