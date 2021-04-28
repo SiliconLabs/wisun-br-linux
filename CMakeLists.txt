@@ -70,6 +70,7 @@ target_include_directories(wisun-mac PRIVATE
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wisun-mac PRIVATE FHSS_CHANNEL_DEBUG)
+# target_compile_definitions(wisun-mac PRIVATE TIMING_TOOL_TRACES)
 target_compile_definitions(wisun-mac PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
