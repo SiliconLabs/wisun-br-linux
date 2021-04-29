@@ -64,6 +64,17 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
+    case SPINEL_PROP_WS_MLME_IND: {
+        int id;
+        void *data;
+
+        BUG_ON(!ctxt->mac_api.mlme_ind_cb);
+        spinel_datatype_unpack(frame, frame_len, "id",
+                               &id, &data, NULL);
+        TRACE("mlmeInd");
+        ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
+        break;
+    }
     case SPINEL_PROP_STREAM_STATUS: {
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };

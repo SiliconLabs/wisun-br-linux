@@ -764,7 +764,40 @@ void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
 
 void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
-    WARN("not implemented");
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+    int data_len = 0;
+
+    BUG_ON(!mac_api);
+    BUG_ON(mac_api != ctxt->rcp_mac_api);
+    switch (id) {
+        case MLME_BEACON_NOTIFY: {
+            // data_len = sizeof(mlme_beacon_ind_t);
+            TRACE("dataInd MLME_BEACON_NOTIFY indication not yet supported");
+            break;
+        }
+        case MLME_COMM_STATUS: {
+            TRACE("dataInd MLME_COMM_STATUS");
+            data_len = sizeof(mlme_comm_status_t);
+            break;
+        }
+        case MLME_SYNC_LOSS: {
+            TRACE("dataInd MLME_SYNC_LOSS");
+             data_len = sizeof(mlme_sync_loss_t);
+            break;
+        }
+        default: {
+            TRACE("dataInd MLME indication ignored");
+        }
+    }
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciiid",
+                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_WS_MLME_IND,
+                                     id, data, data_len);
+    BUG_ON(frame_len < 0);
+    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
 void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload_t *data,
