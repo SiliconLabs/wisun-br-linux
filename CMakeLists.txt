@@ -219,8 +219,7 @@ add_executable(wisun-br
     nanostack/source/Security/protocols/sec_prot_lib.c
     nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot.c
     nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    nanostack/source/Security/TLS/tls_ccm_crypt.c
-    nanostack/source/Security/TLS/tls_lib.c
+    # Excluded nanostack/source/Security/TLS
     nanostack/source/Service_Libs/blacklist/blacklist.c
     nanostack/source/Service_Libs/CCM_lib/ccm_security.c
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
