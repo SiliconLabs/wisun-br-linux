@@ -78,15 +78,17 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
     case SPINEL_PROP_STREAM_STATUS: {
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };
+        int ret;
         int len[3];
 
         BUG_ON(!ctxt->mac_api.data_conf_ext_cb, "not implmemented");
-        spinel_datatype_unpack(frame, frame_len, "CCLCCddd",
+        ret = spinel_datatype_unpack(frame, frame_len, "CCLCCddd",
                                &req.status, &req.msduHandle,
                                &req.timestamp, &req.cca_retries, &req.tx_retries,
                                &conf_req.headerIeList, &len[0],
                                &conf_req.payloadIeList, &len[1],
                                &conf_req.payloadPtr, &len[2]);
+        BUG_ON(ret != frame_len);
         conf_req.headerIeListLength = len[0];
         conf_req.payloadIeListLength = len[1];
         conf_req.payloadLength = len[2];
