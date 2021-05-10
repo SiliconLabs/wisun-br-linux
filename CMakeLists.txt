@@ -4,6 +4,12 @@ project(wisun-host)
 # compiler.
 add_compile_options(-Wall)
 
+# Uncomment these to get fake random numbers (note: since Wi-SUN also relies on
+# timers, uncommenting that is not sufficient to get reproducible run)
+# add_compile_definitions(RANDLIB_PRNG)
+# add_compile_definitions(MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
+# add_compile_definitions(MBEDTLS_TEST_NULL_ENTROPY)
+
 add_executable(wisun-mac
     wsmac.c
     wsmac_mac.c
@@ -319,9 +325,6 @@ target_include_directories(wisun-br PRIVATE
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wisun-br PRIVATE EXTRA_DEBUG_INFO)
-target_compile_definitions(wisun-br PRIVATE MBEDTLS_TEST_NULL_ENTROPY)
-target_compile_definitions(wisun-br PRIVATE MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
-target_compile_definitions(wisun-br PRIVATE RANDLIB_PRNG)
 target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
 find_package(PkgConfig REQUIRED)
