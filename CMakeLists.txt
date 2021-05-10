@@ -24,6 +24,7 @@ add_executable(wisun-mac
     slist.c
     spinel.c
     mbed-client-libservice/source/libBits/common_functions.c
+    # Excluded mbed-client-libservice/source/libip4string
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
@@ -251,8 +252,7 @@ add_executable(wisun-br
     nanostack-event-loop/source/system_timer.c
     mbed-client-libservice/source/IPv6_fcf_lib/ip_fsc.c
     mbed-client-libservice/source/libBits/common_functions.c
-    mbed-client-libservice/source/libip4string/ip4tos.c
-    mbed-client-libservice/source/libip4string/stoip4.c
+    # Excluded mbed-client-libservice/source/libip4string
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
