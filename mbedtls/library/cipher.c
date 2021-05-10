@@ -38,6 +38,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #if defined(MBEDTLS_CHACHAPOLY_C)
 #include "mbedtls/chachapoly.h"
