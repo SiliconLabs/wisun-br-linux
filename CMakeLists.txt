@@ -246,7 +246,7 @@ add_executable(wisun-br
     nanostack/source/Service_Libs/utils/ns_conf.c
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
-    nanostack/source/Service_Libs/whiteboard/whiteboard.c
+    # Excluded nanostack/source/Service_Libs/whiteboard/whiteboard.c
     # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
