@@ -16,6 +16,17 @@
 #include "spinel.h"
 #include "log.h"
 
+
+void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3 + 3 + 3];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr, SPINEL_CMD_PROP_VALUE_GET, SPINEL_PROP_HWADDR);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, int frame_len)
 {
     switch (prop) {
@@ -135,6 +146,12 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
             ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
         else
             ctxt->mac_api.data_ind_cb(&ctxt->mac_api, &req);
+        break;
+    }
+    case SPINEL_PROP_HWADDR: {
+        TRACE("cnf macEui64");
+        spinel_datatype_unpack_in_place(frame, sizeof(frame), "E", ctxt->hw_mac);
+        ctxt->hw_addr_done = true;
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
@@ -616,8 +633,7 @@ int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
 
     switch (type) {
     case MAC_EXTENDED_READ_ONLY:
-        // FIXME: replace with true MAC address from RCP ROM
-        memcpy(mac64, "\x03\x14\x15\x92\x65\x35\x89\x79", 8);
+        memcpy(mac64, ctxt->hw_mac, 8);
         return 0;
     case MAC_EXTENDED_DYNAMIC:
         memcpy(mac64, ctxt->dynamic_mac, 8);

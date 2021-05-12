@@ -27,6 +27,8 @@ struct wsbr_ctxt {
     int  tun_fd;
     char tun_dev[IFNAMSIZ];
 
+    bool hw_addr_done;
+    uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
     struct fhss_api *fhss_api;
     struct mac_api_s mac_api;

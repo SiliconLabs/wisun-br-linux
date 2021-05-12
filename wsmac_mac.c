@@ -439,6 +439,18 @@ static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
 }
 
+static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
+{
+        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+        uint8_t frame[1 + 3 + 3 + 8];
+        int frame_len;
+
+        frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE",
+                                         hdr, SPINEL_CMD_PROP_VALUE_IS,
+                                         SPINEL_PROP_HWADDR, ctxt->eui64);
+        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     struct mcps_data_req_s data;
@@ -573,7 +585,10 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         if (prop == mlme_prop_cstr[i].prop)
             break;
 
-    if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
+    if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
+        TRACE("get hwAddr");
+        wsmac_spinel_get_hw_addr(ctxt);
+    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
         int index;
         spinel_datatype_unpack(data, data_len, "i", &index);
         mlme_get_t req = {
