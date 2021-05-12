@@ -414,7 +414,7 @@ static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t at
     ctxt->fhss_api = NULL;
 }
 
-static void wsmac_spinel_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_ws_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     mlme_start_t req = { };
     uint8_t tmp8[2];
@@ -431,7 +431,7 @@ static void wsmac_spinel_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const 
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_START, &req);
 }
 
-static void wsmac_spinel_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     mlme_reset_t req = { };
 
@@ -552,8 +552,8 @@ static const struct {
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
     { "fhssSetNeighbor",                 0 /* Special */,                 wsmac_spinel_fhss_set_neighbor,         SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,                },
-    { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_start,                     SPINEL_PROP_WS_START,                            },
-    { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_reset,                     SPINEL_PROP_WS_RESET,                            },
+    { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
+    { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_ws_reset,                  SPINEL_PROP_WS_RESET,                            },
     { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
     { }
 };
