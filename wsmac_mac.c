@@ -493,12 +493,12 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
         ie_ext.payloadIeVectorList->ieBase = malloc(len[2]);
         memcpy(ie_ext.payloadIeVectorList->ieBase, buf[2], len[2]);
     }
-    if (len[2]) {
+    if (len[3]) {
         ie_ext.headerIovLength = 1;
         ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
-        ie_ext.headerIeVectorList->iovLen = len[2];
-        ie_ext.headerIeVectorList->ieBase = malloc(len[2]);
-        memcpy(ie_ext.headerIeVectorList->ieBase, buf[2], len[2]);
+        ie_ext.headerIeVectorList->iovLen = len[3];
+        ie_ext.headerIeVectorList->ieBase = malloc(len[3]);
+        memcpy(ie_ext.headerIeVectorList->ieBase, buf[3], len[3]);
     }
 
     if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
