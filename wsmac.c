@@ -38,13 +38,13 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN MAC emulation\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE_NET UART_DEVICE_RF\n");
     fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -m, --eui64=ADDR Set MAC address (EUI64) to ADDR (default: random)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wisun-mac /dev/pts/15\n");
+    fprintf(stream, "  wisun-mac /dev/pts/7 /dev/pts/15\n");
     exit(exit_code);
 }
 
@@ -93,15 +93,39 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
                 break;
         }
     }
-    if (argc != optind + 1)
+    if (argc != optind + 2)
         print_help(stderr, 1);
     ctxt->os_ctxt->data_fd = wsbr_uart_open(argv[optind + 0], 115200, false);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
+    ctxt->rf_fd = wsbr_uart_open(argv[optind + 1], 115200, false);
 }
 
 void kill_handler(int signal)
 {
     exit(3);
+}
+
+void rf_rx(struct wsmac_ctxt *ctxt)
+{
+    uint8_t *buf;
+    uint8_t hdr[4];
+    uint16_t pkt_len;
+    int len;
+
+    len = read(ctxt->rf_fd, hdr, 4);
+    if (len != 4 || hdr[0] != 'x' || hdr[1] != 'x') {
+        TRACE("RF rx msdu: DROP invalid data");
+        return;
+    }
+    pkt_len = ((uint16_t *)hdr)[1];
+    WARN("Memory leak of %d bytes", pkt_len);
+    buf = malloc(pkt_len);
+    len = read(ctxt->rf_fd, buf, pkt_len);
+    WARN_ON(len != pkt_len);
+    TRACE("RF rx msdu:");
+    pr_hex(buf, len);
+
+    ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
 }
 
 static mac_description_storage_size_t storage_sizes = {
@@ -155,6 +179,8 @@ int main(int argc, char *argv[])
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);
+        FD_SET(ctxt->rf_fd, &rfds);
+        maxfd = max(maxfd, ctxt->rf_fd);
         FD_SET(ctxt->os_ctxt->trig_fd, &rfds);
         maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
@@ -167,12 +193,19 @@ int main(int argc, char *argv[])
             FD_SET(fhss_timer->fd, &rfds);
             maxfd = max(maxfd, fhss_timer->fd);
         }
-        if (ctxt->os_ctxt->uart_next_frame_ready)
+        if (ctxt->os_ctxt->uart_next_frame_ready || ctxt->rf_frame_cca_progress)
             ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, NULL);
         else
             ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
+        if (FD_ISSET(ctxt->rf_fd, &rfds))
+            rf_rx(ctxt);
+        if (ctxt->rf_frame_cca_progress) {
+            ctxt->rf_frame_cca_progress = false;
+            ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
+            ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
+        }
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
             uart_rx(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
