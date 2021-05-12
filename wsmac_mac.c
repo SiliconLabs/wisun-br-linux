@@ -8,6 +8,7 @@
 #include "nanostack/fhss_api.h"
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_fhss.h"
+#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 
 #include "hal_fhss_timer.h"
 #include "bus_uart.h"
@@ -800,10 +801,84 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
+// Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
+#define MAC_IE_HEADER_LENGTH_MASK 0x007f
+#define MAC_IE_HEADER_ID_MASK     0x7f80
+
+// Copy-paste from mbed-client-libservice/mbed-client-libservice/common_functions.h
+static uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2])
+{
+    *ptr++ = value;
+    *ptr++ = value >> 8;
+    return ptr;
+}
+
+// Copy-paste from nanostack/source/6LoWPAN/ws/ws_neighbor_class.c
+static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
+{
+    /* RSL MUST be calculated as the received signal level relative to standard
+     * thermal noise (290oK) at 1 Hz bandwidth or 174 dBm.
+     * This provides a range of -174 (0) to +80 (254) dBm.
+     */
+
+    return dbm_heard + 174;
+}
+
+// Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
+static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
+{
+    uint16_t ie_dummy = 0; //Header Type
+    ie_dummy |= (length & MAC_IE_HEADER_LENGTH_MASK);
+    ie_dummy |= ((type << 7) &  MAC_IE_HEADER_ID_MASK);
+    return common_write_16_bit_inverse(ie_dummy, ptr);
+}
+
+// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t type)
+{
+    ptr = mac_ie_header_base_write(ptr, MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID, length + 1);
+    *ptr++ = type;
+    return ptr;
+}
+
+// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+static uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type)
+{
+    ptr = ws_wh_header_base_write(ptr, 4, WH_IE_UTT_TYPE);
+    *ptr++ = message_type;
+    memset(ptr, 0, 3);
+    ptr += 3;
+    return ptr;
+}
+
+// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+static uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
+{
+    ptr = ws_wh_header_base_write(ptr, 1, WH_IE_RSL_TYPE);
+    *ptr++ = rsl;
+    return ptr;
+}
+
+// Inspired from ws_llc_ack_data_req_ext() from nanostack/source/6LoWPAN/ws/ws_llc_data_service.c
 void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload_t *data,
                                  int8_t rssi, uint8_t lqi)
 {
-    WARN("not implemented");
+    // FIXME: I think we can use a statically allocated buffer
+    ns_ie_iovec_t *header_vector = malloc(sizeof(ns_ie_iovec_t));
+    uint8_t *ie = malloc(20);
+
+    TRACE("ackDataReq");
+    WARN("Memory leak of %lu bytes", 20 + sizeof(ns_ie_iovec_t));
+    memset(data, 0, sizeof(mcps_ack_data_payload_t));
+    data->ie_elements.headerIovLength = 1;
+    data->ie_elements.headerIeVectorList = header_vector;
+    data->ie_elements.headerIeVectorList->ieBase = ie;
+
+    // Write Data to block
+    uint8_t *ptr = ie;
+    ptr = ws_wh_utt_write(ptr, WS_FT_ACK);
+    ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
+    data->ie_elements.headerIeVectorList->iovLen = ptr - ie;
 }
 
 void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *response_message)
