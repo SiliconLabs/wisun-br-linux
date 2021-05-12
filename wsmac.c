@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <sys/select.h>
 
 #include "mbed-trace/mbed_trace.h"
@@ -39,21 +40,50 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE\n");
     fprintf(stream, "\n");
+    fprintf(stream, "Options:\n");
+    fprintf(stream, "  -m, --eui64=ADDR Set MAC address (EUI64) to ADDR (default: random)\n");
+    fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wisun-mac /dev/pts/15\n");
     exit(exit_code);
 }
 
+void configure_mac(struct wsmac_ctxt *ctxt, const char *str)
+{
+    uint8_t *val = ctxt->eui64;
+    int ret;
+
+    ret = sscanf(str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%*c",
+                 &val[0], &val[1], &val[2], &val[3],
+                 &val[4], &val[5], &val[6], &val[7]);
+    FATAL_ON(ret != 8, 1, "malformated EUI64");
+}
+
+void fill_random(void *dest, size_t len)
+{
+    int rnd = open("/dev/urandom", O_RDONLY);
+
+    read(rnd, dest, len);
+    close(rnd);
+}
+
 void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
 {
     static const struct option opt_list[] = {
-        { "help", no_argument, 0, 'h' },
-        { 0,      0,           0,  0  }
+        { "eui64",     required_argument, 0, 'm' },
+        { "help",      no_argument,       0, 'h' },
+        { 0,           0,                 0,  0  }
     };
     int opt;
 
-    while ((opt = getopt_long(argc, argv, "h", opt_list, NULL)) != -1) {
+    fill_random(ctxt->eui64, sizeof(ctxt->eui64));
+    ctxt->eui64[0] &= ~1;
+    ctxt->eui64[0] |= 2;
+    while ((opt = getopt_long(argc, argv, "hm:", opt_list, NULL)) != -1) {
         switch (opt) {
+            case 'm':
+                configure_mac(ctxt, optarg);
+                break;
             case 'h':
                 print_help(stdout, 0);
                 break;
@@ -80,7 +110,6 @@ static mac_description_storage_size_t storage_sizes = {
     .key_lookup_size = 1,
     .key_usage_size = 3,
 };
-static uint8_t rcp_mac[8] = { 10, 11, 12, 13, 14, 15, 16, 17 };
 
 int main(int argc, char *argv[])
 {
@@ -104,7 +133,7 @@ int main(int argc, char *argv[])
         tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
     ctxt->rf_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
     BUG_ON(!ctxt->rf_driver);
-    arm_net_phy_mac64_set(rcp_mac, ctxt->rcp_driver_id);
+    arm_net_phy_mac64_set(ctxt->eui64, ctxt->rcp_driver_id);
     ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
     if (!ctxt->rcp_mac_api)
         tr_err("%s: ns_sw_mac_create", __func__);
