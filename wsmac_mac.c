@@ -562,7 +562,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
 {
     uint8_t hdr;
     int cmd, prop;
-    uint8_t buf[256];
+    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t *data;
     int len, data_len;
     int i;
