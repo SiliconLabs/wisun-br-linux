@@ -134,7 +134,7 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
         info->ufsi != ws_utt->ufsi) {
         info->utt_rx_timestamp = timestamp;
         info->ufsi = ws_utt->ufsi;
-        ns_fhss_ws_set_neighbor(NULL, address, &ws_neighbor->fhss_data);
+        ns_fhss_ws_set_neighbor(FHSS_API_PLACEHOLDER, address, &ws_neighbor->fhss_data);
     } else {
         tr_info("save a timing update");
     }
@@ -266,7 +266,7 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *
 
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
-    ns_fhss_ws_set_neighbor(NULL, address, &ws_neighbor->fhss_data);
+    ns_fhss_ws_set_neighbor(FHSS_API_PLACEHOLDER, address, &ws_neighbor->fhss_data);
 }
 
 
