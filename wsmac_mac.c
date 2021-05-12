@@ -746,7 +746,7 @@ void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_in
                                      data->Key.SecurityLevel, data->Key.KeyIdMode,
                                      data->Key.KeyIndex, data->Key.Keysource,
                                      ie_ext->headerIeList, ie_ext->headerIeListLength,
-                                     ie_ext->payloadIeList, ie_ext->headerIeListLength);
+                                     ie_ext->payloadIeList, ie_ext->payloadIeListLength);
     BUG_ON(frame_len < 0);
     wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
 }
