@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <pcap/pcap.h>
 
 #include "nanostack/fhss_ws_extension.h"
 
@@ -35,6 +36,9 @@ struct wsmac_ctxt {
 
     int spinel_tid;
     int spinel_iid;
+
+    pcap_t *pcap_ctxt;
+    pcap_dumper_t *pcap_dumper;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

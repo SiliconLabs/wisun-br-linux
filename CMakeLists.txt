@@ -332,6 +332,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 target_link_libraries(wisun-br PRIVATE PkgConfig::LIBNL_ROUTE)
 
+pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
+target_link_libraries(wisun-mac PRIVATE PkgConfig::LIBPCAP)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(wisun-br PRIVATE Threads::Threads)

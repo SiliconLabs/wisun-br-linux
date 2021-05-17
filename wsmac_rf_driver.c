@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <pcap/pcap.h>
 
 #include "ns_types.h"
 #include "ns_trace.h"
@@ -112,10 +113,10 @@ static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t chan
 static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
+    struct pcap_pkthdr pcap_hdr;
 
     BUG_ON(!data_ptr);
     TRACE("RF tx msdu%s", ctxt->rf_frame_cca_progress ? " (busy)" : "");
-    pr_hex(data_ptr, data_len);
 
     if (ctxt->rf_frame_cca_progress)
         return -1;
@@ -125,6 +126,12 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     write(ctxt->rf_fd, &data_len, 2);
     write(ctxt->rf_fd, data_ptr, data_len);
     ctxt->rf_frame_cca_progress = true;
+    if (ctxt->pcap_dumper) {
+        gettimeofday(&pcap_hdr.ts, NULL);
+        pcap_hdr.caplen = data_len;
+        pcap_hdr.len = data_len;
+        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, data_ptr);
+    }
     // HACK: wait the time for the remote to receive the message and ack it.
     // Else, message will be sent as fast as possible and it clutter the pcap.
     usleep(4000);
