@@ -13,6 +13,7 @@ struct wsbr_ctxt;
 uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
 
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt);
+void wsbr_rcp_reset(struct wsbr_ctxt *ctxt);
 
 void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
 void rcp_rx(struct wsbr_ctxt *ctxt);

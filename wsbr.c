@@ -355,6 +355,10 @@ int main(int argc, char *argv[])
     configure(ctxt, argc, argv);
     ns_file_system_set_root_path("/tmp/wsbr_");
 
+    wsbr_rcp_reset(ctxt);
+    while (!ctxt->reset_done)
+        rcp_rx(ctxt);
+
     wsbr_rcp_get_hw_addr(ctxt);
     while (!ctxt->hw_addr_done)
         rcp_rx(ctxt);

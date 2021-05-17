@@ -585,7 +585,18 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         if (prop == mlme_prop_cstr[i].prop)
             break;
 
-    if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
+    if (cmd == SPINEL_CMD_RESET) {
+        mlme_reset_t req = {
+            .SetDefaultPIB = true,
+        };
+
+        TRACE("reset");
+        ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
+        ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
+        ns_fhss_delete(ctxt->fhss_api);
+        ctxt->fhss_api = NULL;
+        wsmac_reset_ind(ctxt);
+    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
         TRACE("get hwAddr");
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
@@ -899,4 +910,14 @@ void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload
 void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *response_message)
 {
     WARN("not implemented");
+}
+
+void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ci", hdr, SPINEL_CMD_RESET);
+    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
 }

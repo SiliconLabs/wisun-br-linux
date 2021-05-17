@@ -13,6 +13,8 @@ struct wsmac_ctxt;
 
 void uart_rx(struct wsmac_ctxt *ctxt);
 
+void wsmac_reset_ind(struct wsmac_ctxt *ctxt);
+
 void wsmac_mcps_purge_confirm(const struct mac_api_s *mac_api,
                               struct mcps_purge_conf_s *data);
 void wsmac_mlme_confirm(const struct mac_api_s *mac_api,

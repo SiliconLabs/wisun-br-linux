@@ -16,6 +16,16 @@
 #include "spinel.h"
 #include "log.h"
 
+void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
+{
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[1 + 3];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ci", hdr, SPINEL_CMD_RESET);
+    BUG_ON(frame_len <= 0);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
 
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
@@ -180,6 +190,12 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
         wsbr_spinel_is(ctxt, prop, data, data_len);
+    } else if (cmd == SPINEL_CMD_RESET) {
+        // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
+        // STATUS_RESET_SOFTWARE
+        FATAL_ON(ctxt->reset_done, 3, "MAC layer has been reset. Operation not supported");
+        ctxt->reset_done = true;
+        TRACE("cnf reset");
     } else {
         WARN("not implemented: %02x", cmd);
         return;

@@ -27,6 +27,7 @@ struct wsbr_ctxt {
     int  tun_fd;
     char tun_dev[IFNAMSIZ];
 
+    bool reset_done;
     bool hw_addr_done;
     uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
