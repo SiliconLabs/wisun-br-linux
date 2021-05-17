@@ -47,7 +47,7 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                      config->unicast_channel_mask,
                                      sizeof(config->unicast_channel_mask),
                                      config->config_parameters.number_of_channel_retries);
-
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     ctxt->fhss_conf_valid = true;
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
@@ -66,6 +66,7 @@ int ns_fhss_delete(struct fhss_api *fhss_api)
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cii",
                                      hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_DELETE);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     ctxt->fhss_conf_valid = false;
     return 0;
@@ -107,6 +108,7 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
                                      config->unicast_channel_mask,
                                      sizeof(config->unicast_channel_mask),
                                      config->config_parameters.number_of_channel_retries);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
@@ -132,7 +134,7 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
                                      bc_timing_info->broadcast_interval_offset,
                                      bc_timing_info->broadcast_interval,
                                      bc_timing_info->bt_rx_timestamp);
-
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     ctxt->fhss_conf.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;
     ctxt->fhss_conf.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
@@ -160,6 +162,7 @@ void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui6
                                      fhss_data->uc_timing_info.fixed_channel,
                                      fhss_data->uc_timing_info.ufsi,
                                      fhss_data->uc_timing_info.utt_rx_timestamp);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -184,6 +187,7 @@ int ns_fhss_ws_set_hop_count(const struct fhss_api *fhss_api, const uint8_t hop_
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiC",
                                      hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,
                                      hop_count);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     return 0;
 }
