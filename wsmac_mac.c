@@ -907,15 +907,16 @@ static uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
 void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload_t *data,
                                  int8_t rssi, uint8_t lqi)
 {
-    // FIXME: I think we can use a statically allocated buffer
-    ns_ie_iovec_t *header_vector = malloc(sizeof(ns_ie_iovec_t));
-    uint8_t *ie = malloc(20);
+    // It is safe to use static buffer. Indeed, result of this function is
+    // always stored in enhanced_ack_buffer that is instanciated only once for
+    // each MAC.
+    static ns_ie_iovec_t header_vector;
+    static uint8_t ie[20];
 
     TRACE("ackDataReq");
-    WARN("Memory leak of %lu bytes", 20 + sizeof(ns_ie_iovec_t));
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
     data->ie_elements.headerIovLength = 1;
-    data->ie_elements.headerIeVectorList = header_vector;
+    data->ie_elements.headerIeVectorList = &header_vector;
     data->ie_elements.headerIeVectorList->ieBase = ie;
 
     // Write Data to block
