@@ -45,9 +45,9 @@
 #define FATAL(code, ...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
-            __PRINT("[30m" __VA_ARGS__);                           \
+            __PRINT("[31m" __VA_ARGS__);                           \
         else                                                         \
-            __PRINT("[30m" "fatal");                               \
+            __PRINT("[31m" "fatal");                               \
         exit(code);                                                  \
     } while (0)
 
@@ -65,9 +65,9 @@
 #define BUG(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
-            __PRINT("[90m" __VA_ARGS__);                           \
+            __PRINT("[91m" __VA_ARGS__);                           \
         else                                                         \
-            __PRINT("[90m" "bug");                                 \
+            __PRINT("[91m" "bug");                                 \
         raise(SIGTRAP);                                              \
     } while (0)
 
