@@ -146,7 +146,7 @@ void kill_handler(int signal)
 
 void rf_rx(struct wsmac_ctxt *ctxt)
 {
-    uint8_t *buf;
+    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t hdr[4];
     uint16_t pkt_len;
     int len;
@@ -158,8 +158,6 @@ void rf_rx(struct wsmac_ctxt *ctxt)
         return;
     }
     pkt_len = ((uint16_t *)hdr)[1];
-    WARN("Memory leak of %d bytes", pkt_len);
-    buf = malloc(pkt_len);
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
     TRACE("RF rx msdu");
