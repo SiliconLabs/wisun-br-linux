@@ -456,6 +456,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     struct mcps_data_req_s data;
     struct mcps_data_req_ie_list ie_ext = { };
     struct channel_list_s async_channel_list;
+    struct msdu_malloc_info *malloc_info;
     uint8_t tmp8[4];
     bool tmpB[6];
     int tmpI;
@@ -513,6 +514,13 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
         ie_ext.headerIeVectorList->ieBase = malloc(len[3]);
         memcpy(ie_ext.headerIeVectorList->ieBase, buf[3], len[3]);
     }
+    malloc_info = malloc(sizeof(*malloc_info));
+    malloc_info->payload = ie_ext.payloadIeVectorList;
+    malloc_info->header = ie_ext.headerIeVectorList;
+    malloc_info->msdu = data.msdu;
+    malloc_info->msduHandle = data.msduHandle;
+    memset(&malloc_info->list, 0, sizeof(struct slist));
+    slist_push(&ctxt->msdu_malloc_list, &malloc_info->list);
 
     if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
         ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list);
@@ -725,6 +733,7 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
 void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
                                  const mcps_data_conf_payload_t *conf_data)
 {
+    struct msdu_malloc_info *malloc_info;
     struct wsmac_ctxt *ctxt = &g_ctxt;
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
     uint8_t frame[2048];
@@ -743,7 +752,16 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
                                      conf_data->payloadPtr, conf_data->payloadLength);
     BUG_ON(frame_len < 0);
     wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
-    WARN("FIXME: free msduHandle: %x", data->msduHandle);
+
+    malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
+                               list, malloc_info->msduHandle == data->msduHandle);
+    BUG_ON(!malloc_info);
+    free(malloc_info->header->ieBase);
+    free(malloc_info->payload->ieBase);
+    free(malloc_info->header);
+    free(malloc_info->payload);
+    free(malloc_info->msdu);
+    free(malloc_info);
 }
 
 void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *data)

@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <pcap/pcap.h>
 
+#include "slist.h"
 #include "nanostack/fhss_ws_extension.h"
 
 struct os_ctxt;
@@ -18,6 +19,22 @@ struct mac_api_s;
 struct neighbor_timings {
     uint8_t eui64[8];
     struct fhss_ws_neighbor_timing_info val;
+};
+
+// When MAC receive an MSDU to send, it may be queued if the RF driver is busy.
+// In this case, lifetime of MSDU is longer and therefore, can't be stored on
+// the stack.
+//
+// So, we use heap to store them. The struct below aims to track these data and
+// freeing them when the MAC send confirmation.
+//
+// FIXME: more or less redundant with mac_pre_build_frame_t
+struct msdu_malloc_info {
+    int msduHandle;
+    void *msdu;
+    struct ns_ie_iovec *header;
+    struct ns_ie_iovec *payload;
+    struct slist list;
 };
 
 struct wsmac_ctxt {
@@ -31,6 +48,7 @@ struct wsmac_ctxt {
     struct mac_api_s *rcp_mac_api;
     struct arm_device_driver_list *rf_driver;
     struct fhss_api *fhss_api;
+    struct slist *msdu_malloc_list;
 
     struct neighbor_timings neighbor_timings[17];
 
