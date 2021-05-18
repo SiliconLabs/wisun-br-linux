@@ -10,6 +10,8 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/select.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <pcap/pcap.h>
 
 #include "mbed-trace/mbed_trace.h"
@@ -44,6 +46,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -m, --eui64=ADDR Set MAC address (EUI64) to ADDR (default: random)\n");
     fprintf(stream, "  -c, --pcap=FILE  Dump RF data to FILE\n");
+    fprintf(stream, "  -w, --wireshark  Invoke wireshark and dump RF data into\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wisun-mac /dev/pts/7 /dev/pts/15\n");
@@ -56,6 +59,24 @@ void configure_pcap_output(struct wsmac_ctxt *ctxt, const char *filename)
     pcap_set_immediate_mode(ctxt->pcap_ctxt, 1);
     ctxt->pcap_dumper = pcap_dump_open(ctxt->pcap_ctxt, filename);
     FATAL_ON(!ctxt->pcap_dumper, 1, "%s: %s", optarg, pcap_geterr(ctxt->pcap_ctxt));
+}
+
+static void invoke_wireshark(struct wsmac_ctxt *ctxt)
+{
+    int ret;
+    char file[] = "/tmp/wireshark-ws-XXXXXX";
+
+    mktemp(file);
+    mkfifo(file, 0600);
+    ret = fork();
+    FATAL_ON(ret < 0, 2);
+    if (!ret) {
+        execlp("wireshark", "wireshark", "-k", "-i", file, NULL);
+        printf("wireshark invocation fail\n");
+        exit(2);
+    } else {
+        configure_pcap_output(ctxt, file);
+    }
 }
 
 void configure_mac(struct wsmac_ctxt *ctxt, const char *str)
@@ -82,6 +103,7 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     static const struct option opt_list[] = {
         { "eui64",     required_argument, 0, 'm' },
         { "pcap",      required_argument, 0, 'c' },
+        { "wireshark", no_argument,       0, 'w' },
         { "help",      no_argument,       0, 'h' },
         { 0,           0,                 0,  0  }
     };
@@ -90,8 +112,11 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     fill_random(ctxt->eui64, sizeof(ctxt->eui64));
     ctxt->eui64[0] &= ~1;
     ctxt->eui64[0] |= 2;
-    while ((opt = getopt_long(argc, argv, "hm:c:", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hm:c:w", opt_list, NULL)) != -1) {
         switch (opt) {
+            case 'w':
+                invoke_wireshark(ctxt);
+                break;
             case 'c':
                 configure_pcap_output(ctxt, optarg);
                 break;
