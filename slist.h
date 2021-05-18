@@ -24,6 +24,7 @@ struct slist {
     ({                                                                 \
         struct slist **__prev = &head;                                 \
                                                                        \
+        entry = NULL;                                                  \
         if (*__prev) {                                                 \
             entry = container_of(*__prev, typeof(*entry), member);     \
             while (!(cond) && entry->member.next) {                    \
