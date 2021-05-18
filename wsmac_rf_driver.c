@@ -297,6 +297,19 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 // tr_info("%s: change channel: %u", __func__,  *data_ptr);
                 break;
             }
+            case PHY_EXTENSION_READ_RX_TIME: {
+                struct timespec tp;
+                uint32_t tmp;
+
+                // FIXME: to make the things reproducible hack this function
+                clock_gettime(CLOCK_MONOTONIC, &tp);
+                tmp = tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
+                data_ptr[3] = (tmp >> 0) & 0xFF;
+                data_ptr[2] = (tmp >> 8) & 0xFF;
+                data_ptr[1] = (tmp >> 16) & 0xFF;
+                data_ptr[0] = (tmp >> 24) & 0xFF;
+                break;
+            }
             case PHY_EXTENSION_GET_TIMESTAMP: {
                 struct timespec tp;
 

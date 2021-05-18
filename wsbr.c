@@ -51,7 +51,8 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
     .mac_api.mcps_purge_req = wsbr_mcps_purge,
 
-    // FIXME: retrieve from RCP
+    // FIXME: retrieve from RCP. Normally, MAC layer set this value when it
+    // receive the mac802_15_4Mode request.
     // .mac_api.phyMTU = MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE,
     .mac_api.phyMTU = 2043,
 };
