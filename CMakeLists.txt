@@ -173,7 +173,7 @@ add_executable(wisun-br
     nanostack/source/libNET/src/ns_net.c
     nanostack/source/libNET/src/socket_api.c
     nanostack/source/libNET/src/net_ipv6.c
-    nanostack/source/libNET/src/net_mle.c
+    # Excluded nanostack/source/libNET/src/net_mle.c
     nanostack/source/libNET/src/net_load_balance.c
     nanostack/source/MAC/rf_driver_storage.c
     nanostack/source/MAC/ethernet/ethernet_mac_api.c
