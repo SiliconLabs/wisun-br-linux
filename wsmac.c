@@ -16,12 +16,12 @@
 
 #include "mbed-trace/mbed_trace.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack/ns_virtual_rf_api.h"
 #include "nanostack/sw_mac.h"
 #include "nanostack/source/MAC/rf_driver_storage.h"
 
 #include "wsmac.h"
 #include "wsmac_mac.h"
+#include "wsmac_rf_driver.h"
 #include "slist.h"
 #include "log.h"
 #include "bus_uart.h"

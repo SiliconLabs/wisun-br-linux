@@ -17,7 +17,6 @@
 #include "nanostack/fhss_api.h"
 #include "nanostack/mac_api.h"
 #include "nanostack/ns_file_system.h"
-#include "nanostack/ns_virtual_rf_api.h"
 #include "nanostack/sw_mac.h"
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/ws_management_api.h"

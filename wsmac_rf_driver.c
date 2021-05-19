@@ -32,6 +32,7 @@
 #include "log.h"
 #include "utils.h"
 #include "wsmac.h"
+#include "wsmac_rf_driver.h"
 
 #include "nanostack/source/MAC/virtual_rf/virtual_rf_defines.h"
 
