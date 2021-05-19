@@ -273,6 +273,7 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
     const uint8_t *eui64;
     struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
     uint8_t tmp;
+    uint32_t tmp32;
     int tmp_len, i;
 
     spinel_datatype_unpack(frame, frame_len, "E", &eui64);
@@ -301,8 +302,9 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
                            &fhss_data->uc_timing_info.unicast_dwell_interval,
                            &fhss_data->uc_timing_info.unicast_number_of_channels,
                            &fhss_data->uc_timing_info.fixed_channel,
-                           &fhss_data->uc_timing_info.ufsi,
+                           &tmp32,
                            &fhss_data->uc_timing_info.utt_rx_timestamp);
+    fhss_data->uc_timing_info.ufsi = tmp32;
     fhss_data->uc_timing_info.unicast_channel_function = tmp;
     BUG_ON(tmp_len != sizeof(fhss_data->uc_channel_list.channel_mask));
 }

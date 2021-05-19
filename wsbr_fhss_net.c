@@ -160,7 +160,7 @@ void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui6
                                      fhss_data->uc_timing_info.unicast_dwell_interval,
                                      fhss_data->uc_timing_info.unicast_number_of_channels,
                                      fhss_data->uc_timing_info.fixed_channel,
-                                     fhss_data->uc_timing_info.ufsi,
+                                     (uint32_t)fhss_data->uc_timing_info.ufsi,
                                      fhss_data->uc_timing_info.utt_rx_timestamp);
     BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
