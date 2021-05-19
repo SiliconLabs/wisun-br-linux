@@ -41,6 +41,7 @@ static phy_device_driver_s device_driver;
 static uint8_t rf_mac_address[8];
 static int8_t rf_driver_id = (-1);
 static bool data_request_pending_flag = false;
+uint16_t channel = 0;
 
 /** XXX: dummy values copied from Atmel RF driver */
 static const phy_rf_channel_configuration_s phy_2_4ghz = {.channel_0_center_frequency = 2405000000, .channel_spacing = 5000000, .datarate = 250000, .number_of_channels = 16, .modulation = M_OQPSK};
@@ -112,18 +113,21 @@ static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t chan
  */
 static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol)
 {
+    uint8_t hdr[6];
     struct wsmac_ctxt *ctxt = &g_ctxt;
     struct pcap_pkthdr pcap_hdr;
 
     BUG_ON(!data_ptr);
-    TRACE("RF tx msdu%s", ctxt->rf_frame_cca_progress ? " (busy)" : "");
+    TRACE("RF tx msdu%s (channel %d)", ctxt->rf_frame_cca_progress ? " (busy)" : "", channel);
 
     if (ctxt->rf_frame_cca_progress)
         return -1;
 
     // Prepend data with a synchronisation marker
-    write(ctxt->rf_fd, "xx", 2);
-    write(ctxt->rf_fd, &data_len, 2);
+    memcpy(hdr + 0, "xx", 2);
+    memcpy(hdr + 2, &data_len, 2);
+    memcpy(hdr + 4, &channel, 2);
+    write(ctxt->rf_fd, hdr, 6);
     write(ctxt->rf_fd, data_ptr, data_len);
     ctxt->rf_frame_cca_progress = true;
     if (ctxt->pcap_dumper) {
@@ -264,6 +268,7 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
             }
             case PHY_EXTENSION_SET_CHANNEL: {
                 // tr_info("%s: change channel: %u", __func__,  *data_ptr);
+                channel = *data_ptr;
                 break;
             }
             case PHY_EXTENSION_READ_RX_TIME: {

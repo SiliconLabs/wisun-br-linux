@@ -144,23 +144,24 @@ void kill_handler(int signal)
     exit(3);
 }
 
+extern uint16_t channel;
 void rf_rx(struct wsmac_ctxt *ctxt)
 {
     uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
-    uint8_t hdr[4];
+    uint8_t hdr[6];
     uint16_t pkt_len;
     int len;
     struct pcap_pkthdr pcap_hdr;
 
-    len = read(ctxt->rf_fd, hdr, 4);
-    if (len != 4 || hdr[0] != 'x' || hdr[1] != 'x') {
+    len = read(ctxt->rf_fd, hdr, 6);
+    if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
         TRACE("RF rx msdu: DROP invalid data");
         return;
     }
     pkt_len = ((uint16_t *)hdr)[1];
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
-    TRACE("RF rx msdu");
+    TRACE("RF rx msdu on channel %d (while listening on %d)", ((uint16_t *)hdr)[2], channel);
     if (ctxt->pcap_dumper) {
         gettimeofday(&pcap_hdr.ts, NULL);
         pcap_hdr.caplen = len;
