@@ -144,34 +144,6 @@ void kill_handler(int signal)
     exit(3);
 }
 
-extern uint16_t channel;
-void rf_rx(struct wsmac_ctxt *ctxt)
-{
-    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
-    uint8_t hdr[6];
-    uint16_t pkt_len;
-    int len;
-    struct pcap_pkthdr pcap_hdr;
-
-    len = read(ctxt->rf_fd, hdr, 6);
-    if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
-        TRACE("RF rx msdu: DROP invalid data");
-        return;
-    }
-    pkt_len = ((uint16_t *)hdr)[1];
-    len = read(ctxt->rf_fd, buf, pkt_len);
-    WARN_ON(len != pkt_len);
-    TRACE("RF rx msdu on channel %d (while listening on %d)", ((uint16_t *)hdr)[2], channel);
-    if (ctxt->pcap_dumper) {
-        gettimeofday(&pcap_hdr.ts, NULL);
-        pcap_hdr.caplen = len;
-        pcap_hdr.len = len;
-        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, buf);
-    }
-
-    ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
-}
-
 static mac_description_storage_size_t storage_sizes = {
     .device_decription_table_size = 32,
     .key_description_table_size = 4,

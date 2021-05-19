@@ -42,7 +42,8 @@ static phy_device_driver_s device_driver;
 static uint8_t rf_mac_address[8];
 static int8_t rf_driver_id = (-1);
 static bool data_request_pending_flag = false;
-uint16_t channel = 0;
+static uint16_t channel = 0;
+
 
 /** XXX: dummy values copied from Atmel RF driver */
 static const phy_rf_channel_configuration_s phy_2_4ghz = {.channel_0_center_frequency = 2405000000, .channel_spacing = 5000000, .datarate = 250000, .number_of_channels = 16, .modulation = M_OQPSK};
@@ -92,6 +93,33 @@ static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t chan
     (void)new_state;
     (void)channel;
     return 0;
+}
+
+void rf_rx(struct wsmac_ctxt *ctxt)
+{
+    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
+    uint8_t hdr[6];
+    uint16_t pkt_len;
+    int len;
+    struct pcap_pkthdr pcap_hdr;
+
+    len = read(ctxt->rf_fd, hdr, 6);
+    if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
+        TRACE("RF rx msdu: DROP invalid data");
+        return;
+    }
+    pkt_len = ((uint16_t *)hdr)[1];
+    len = read(ctxt->rf_fd, buf, pkt_len);
+    WARN_ON(len != pkt_len);
+    TRACE("RF rx msdu on channel %d (while listening on %d)", ((uint16_t *)hdr)[2], channel);
+    if (ctxt->pcap_dumper) {
+        gettimeofday(&pcap_hdr.ts, NULL);
+        pcap_hdr.caplen = len;
+        pcap_hdr.len = len;
+        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, buf);
+    }
+
+    ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
 }
 
 /**
