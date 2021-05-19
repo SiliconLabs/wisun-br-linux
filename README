@@ -56,6 +56,19 @@ Run wisun-br with simulated Wi-SUN MAC
     ./wisun-mac -u /dev/pty1
     ./wisun-br -u /dev/pty2
 
+
+Run a small network with one route and one border router
+--------------------------------------------------------
+
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 1,2
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 3,4
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 5,6
+    ./wisun-mac -u /dev/pts/3 /dev/pts/1
+    ./wisun-br -u /dev/pts/4
+    ./wisun-mac -u /dev/pts/5 /dev/pts/2
+    ./wisun-router -u /dev/pts/6
+
+
 How to generate code coverage?
 ------------------------------
 
