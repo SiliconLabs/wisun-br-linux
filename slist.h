@@ -13,7 +13,7 @@ struct slist {
 };
 
 #define SLIST_FOR_EACH(head, it) \
-    for ((it) = (head); (it) != NULL; (it) = (it)->node)
+    for ((it) = (head); (it) != NULL; (it) = (it)->next)
 
 #define SLIST_FOR_EACH_ENTRY(head, entry, member) \
     for ((entry) = container_of(head, typeof(*entry), member); \
