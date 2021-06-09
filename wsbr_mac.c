@@ -186,6 +186,8 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     int len, data_len;
 
     len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
+    if (!len)
+        return;
     spinel_datatype_unpack(buf, len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
