@@ -169,8 +169,9 @@ int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         }
         i++;
     }
-    BUG_ON(ctxt->uart_next_frame_ready && i == ctxt->uart_rx_buf_len);
-    if (i == ctxt->uart_rx_buf_len)
+    // Note: if buffer ends with 0x7D, i == ctxt->uart_rx_buf_len + 1
+    BUG_ON(ctxt->uart_next_frame_ready && i >= ctxt->uart_rx_buf_len);
+    if (i >= ctxt->uart_rx_buf_len)
         return 0;
     BUG_ON(frame_len <= 2);
     frame_len -= sizeof(uint16_t);
