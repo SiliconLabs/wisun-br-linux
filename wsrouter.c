@@ -259,10 +259,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     chain_info.cert_chain[0] = WISUN_ROOT_CERTIFICATE;
     chain_info.cert_len[0] = sizeof(WISUN_ROOT_CERTIFICATE);
-    chain_info.cert_chain[1] = WISUN_SERVER_CERTIFICATE;
-    chain_info.cert_len[1] = sizeof(WISUN_SERVER_CERTIFICATE);
+    chain_info.cert_chain[1] = WISUN_CLIENT_CERTIFICATE;
+    chain_info.cert_len[1] = sizeof(WISUN_CLIENT_CERTIFICATE);
     chain_info.chain_length = 2;
-    chain_info.key_chain[1] = WISUN_SERVER_KEY;
+    chain_info.key_chain[1] = WISUN_CLIENT_KEY;
     ret = arm_network_certificate_chain_set(&chain_info);
     WARN_ON(ret);
 }
