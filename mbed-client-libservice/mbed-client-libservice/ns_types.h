@@ -54,6 +54,9 @@
 #endif
 
 #include <stddef.h>
+// include sys/types.h before inttypes.h to workaround "PRIi64 not available"
+// with some newlib versions
+#include <sys/types.h>
 #include <inttypes.h> // includes <stdint.h>; debugf() users need PRIu32 etc
 #include <stdbool.h>
 

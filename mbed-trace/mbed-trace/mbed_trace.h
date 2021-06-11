@@ -48,11 +48,14 @@
 extern "C" {
 #endif
 
+// include sys/types.h before inttypes.h to workaround "PRIi64 not available"
+// with some newlib versions
+#include <sys/types.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdarg.h>
-#include <inttypes.h>
 
 #ifndef YOTTA_CFG_MBED_TRACE
 #define YOTTA_CFG_MBED_TRACE 0
