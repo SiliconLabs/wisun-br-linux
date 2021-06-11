@@ -224,6 +224,7 @@ void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void 
     BUG_ON(data_len != sizeof(bool));
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciib", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((bool *)data));
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -236,6 +237,7 @@ static void wsbr_spinel_set_u8(struct wsbr_ctxt *ctxt, unsigned int prop, const 
     BUG_ON(data_len != sizeof(uint8_t));
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiC", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint8_t *)data));
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -248,6 +250,7 @@ static void wsbr_spinel_set_u16(struct wsbr_ctxt *ctxt, unsigned int prop, const
     BUG_ON(data_len != sizeof(uint16_t));
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiS", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint16_t *)data));
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -260,6 +263,7 @@ static void wsbr_spinel_set_u32(struct wsbr_ctxt *ctxt, unsigned int prop, const
     BUG_ON(data_len != sizeof(uint32_t));
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiL", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((uint32_t *)data));
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -272,6 +276,7 @@ static void wsbr_spinel_set_eui64(struct wsbr_ctxt *ctxt, unsigned int prop, con
     BUG_ON(data_len != 8);
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, (uint8_t *)data);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -282,6 +287,7 @@ static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, cons
     int frame_len;
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiD", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, data, data_len);
+    BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
@@ -293,6 +299,7 @@ static void wsbr_spinel_set_cca_threshold(struct wsbr_ctxt *ctxt, unsigned int p
     BUG_ON(prop != SPINEL_PROP_WS_CCA_THRESHOLD);
     BUG_ON(data_len != sizeof(uint8_t));
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "d", data, data_len);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_CCA_THRESHOLD_START, frame, frame_len);
 }
 
@@ -305,6 +312,7 @@ static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned
     BUG_ON(prop != SPINEL_PROP_WS_CCA_THRESHOLD_START);
     BUG_ON(data_len != 4);
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CCCC", req[0], req[1], req[2], req[3]);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_CCA_THRESHOLD_START, frame, frame_len);
 }
 
@@ -319,6 +327,7 @@ static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsign
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CS",
                                      req->number_of_csma_ca_periods,
                                      req->multi_cca_interval);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS, frame, frame_len);
 }
 
@@ -335,6 +344,7 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
                                      req->channel_spacing, req->datarate,
                                      req->number_of_channels, req->modulation,
                                      req->modulation_index);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_RF_CONFIGURATION, frame, frame_len);
 }
 
@@ -347,6 +357,7 @@ static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, 
                                      entry_idx, req->PANId, req->ShortAddress,
                                      req->ExtAddress, req->FrameCounter,
                                      req->Exempt);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_DEVICE_TABLE, frame, frame_len);
 }
 
@@ -370,6 +381,7 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cdd", entry_idx,
                                req->Key, 16,
                                req->KeyIdLookupList->LookupData, len);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_KEY_TABLE, frame, frame_len);
 }
 
@@ -379,6 +391,7 @@ static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, u
     int frame_len;
 
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "iL", counter, val);
+    BUG_ON(frame_len <= 0);
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_FRAME_COUNTER, frame, frame_len);
 }
 
