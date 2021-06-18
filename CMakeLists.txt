@@ -267,8 +267,6 @@ add_executable(wisun-br
     mbedtls/library/base64.c
     mbedtls/library/bignum.c
     mbedtls/library/ccm.c
-    mbedtls/library/chacha20.c
-    mbedtls/library/chachapoly.c
     mbedtls/library/cipher.c
     mbedtls/library/cipher_wrap.c
     mbedtls/library/cipher_wrap.c
@@ -280,8 +278,6 @@ add_executable(wisun-br
     mbedtls/library/ecp_curves.c
     mbedtls/library/entropy.c
     mbedtls/library/entropy_poll.c
-    mbedtls/library/md.c
-    mbedtls/library/gcm.c
     mbedtls/library/hmac_drbg.c
     mbedtls/library/md.c
     mbedtls/library/nist_kw.c
@@ -291,9 +287,6 @@ add_executable(wisun-br
     mbedtls/library/pkparse.c
     mbedtls/library/pk_wrap.c
     mbedtls/library/platform_util.c
-    mbedtls/library/poly1305.c
-    mbedtls/library/rsa.c
-    mbedtls/library/rsa_internal.c
     mbedtls/library/sha1.c
     mbedtls/library/sha256.c
     mbedtls/library/sha512.c
