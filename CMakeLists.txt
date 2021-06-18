@@ -62,6 +62,14 @@ ADD_LIBRARY(wisun-host STATIC
     nanostack/source/Core/ns_monitor.c
     nanostack/source/Core/ns_socket.c
     nanostack/source/Core/sockbuf.c
+    nanostack/source/DHCPv6_client/dhcpv6_client_service.c
+    nanostack/source/DHCPv6_Server/DHCPv6_Server_service.c
+    nanostack/source/ipv6_stack/ipv6_routing_table.c
+    nanostack/source/ipv6_stack/protocol_ipv6.c
+    nanostack/source/libDHCPv6/dhcp_service_api.c
+    nanostack/source/libDHCPv6/libDHCPv6.c
+    nanostack/source/libDHCPv6/libDHCPv6_server.c
+    nanostack/source/libDHCPv6/libDHCPv6_vendordata.c
     nanostack/source/libNET/src/net_short_address_extension.c
     nanostack/source/libNET/src/net_dns.c
     nanostack/source/libNET/src/multicast_api.c
