@@ -666,10 +666,10 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
     }
     case macCCAThreshold: {
         uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-        uint8_t frame[1 + 3 + 3 + 50 * sizeof(uint8_t)];
+        uint8_t frame[1 + 3 + 3 + 100 * sizeof(uint8_t)];
         int frame_len;
 
-        BUG_ON(req->value_size > 50);
+        BUG_ON(req->value_size > 100);
         frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciid", hdr,
                                          SPINEL_CMD_PROP_VALUE_IS,
                                          SPINEL_PROP_WS_CCA_THRESHOLD,
