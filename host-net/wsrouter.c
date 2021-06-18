@@ -144,11 +144,27 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         { "VN", REG_DOMAIN_VN }, //
         { "SG", REG_DOMAIN_SG_H }, // band 920-925
     };
+    static const struct {
+        char *name;
+        int val;
+    } valid_ws_size[] = {
+        { "AUTO",   NETWORK_SIZE_AUTOMATIC },
+        { "CERT",   NETWORK_SIZE_CERTIFICATE },
+        { "SMALL",  NETWORK_SIZE_SMALL },
+        { "S",      NETWORK_SIZE_SMALL },
+        { "MEDIUM", NETWORK_SIZE_MEDIUM },
+        { "M",      NETWORK_SIZE_MEDIUM },
+        { "LARGE",  NETWORK_SIZE_LARGE },
+        { "L",      NETWORK_SIZE_LARGE },
+        { "XLARGE", NETWORK_SIZE_XLARGE },
+        { "XL",     NETWORK_SIZE_XLARGE },
+    };
     static const struct option opt_list[] = {
         { "network",     required_argument, 0,  'n' },
         { "domain",      required_argument, 0,  'd' },
         { "mode",        required_argument, 0,  'm' },
         { "class",       required_argument, 0,  'c' },
+        { "size",        required_argument, 0,  'S' },
         { "key",         required_argument, 0,  'K' },
         { "cert",        required_argument, 0,  'C' },
         { "certificate", required_argument, 0,  'C' },
@@ -169,8 +185,9 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     ctxt->ws_class = 1;
     ctxt->ws_domain = REG_DOMAIN_EU;
     ctxt->ws_mode = 0x1a;
+    ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
     strcpy(ctxt->ws_name, "Wi-SUN");
-    while ((opt = getopt_long(argc, argv, "usn:d:m:c:K:C:A:b:f:Hh", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "usn:d:m:c:S:K:C:A:b:f:Hh", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'u':
             case 's':
@@ -206,6 +223,17 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 ctxt->ws_class = strtoul(optarg, &end_ptr, 10);
                 if (*end_ptr || ctxt->ws_class > 3)
                     FATAL(1, "invalid operating class: %s", optarg);
+                break;
+            case 'S':
+                ctxt->ws_size = -1;
+                for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
+                    if (!strcasecmp(valid_ws_size[i].name, optarg)) {
+                        ctxt->ws_size = valid_ws_size[i].val;
+                        break;
+                    }
+                }
+                if (ctxt->ws_size < 0)
+                    FATAL(1, "invalid network size: %s", optarg);
                 break;
             case 'K':
                 if (ctxt->tls_own.key)
@@ -297,11 +325,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                                   WS_FHSS_BC_DWELL_INTERVAL, WS_FHSS_BC_INTERVAL);
     WARN_ON(ret);
 
-    // You may also use NETWORK_SIZE_SMALL
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.
-    //ret = ws_management_network_size_set(ctxt->rcp_if_id, NETWORK_SIZE_AUTOMATIC);
-    ret = ws_management_network_size_set(ctxt->rcp_if_id, NETWORK_SIZE_SMALL);
+    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->ws_size);
     WARN_ON(ret);
 
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
