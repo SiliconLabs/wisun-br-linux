@@ -329,7 +329,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     int tmp2_len = sizeof(config.channel_mask);
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddC",
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddSC",
                            &tmp[0],
                            &tmp[1],
                            &config.bsi,
@@ -340,6 +340,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
                            &config.broadcast_fixed_channel,
                            config.channel_mask, &tmp1_len,
                            config.unicast_channel_mask, &tmp2_len,
+                           &config.channel_mask_size,
                            &config.config_parameters.number_of_channel_retries);
     BUG_ON(ret != frame_len);
     config.ws_uc_channel_function = tmp[0];
@@ -365,7 +366,7 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     int tmp2_len = sizeof(config.channel_mask);
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddC",
+    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddSC",
                                     &tmp[0],
                                     &tmp[1],
                                     &config.bsi,
@@ -376,6 +377,7 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
                                     &config.broadcast_fixed_channel,
                                     config.channel_mask, &tmp1_len,
                                     config.unicast_channel_mask, &tmp2_len,
+                                    &config.channel_mask_size,
                                     &config.config_parameters.number_of_channel_retries);
     BUG_ON(ret != frame_len);
     config.ws_uc_channel_function = tmp[0];
