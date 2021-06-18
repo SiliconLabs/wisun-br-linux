@@ -138,9 +138,9 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     bool hardflow = false;
     int opt, i;
 
-    ctxt->ws_class = 2;
+    ctxt->ws_class = 1;
     ctxt->ws_domain = REG_DOMAIN_EU;
-    ctxt->ws_mode = 0x3;
+    ctxt->ws_mode = 0x1a;
     strcpy(ctxt->ws_name, "Wi-SUN");
     while ((opt = getopt_long(argc, argv, "usf:Hb:t:n:d:m:h", opt_list, NULL)) != -1) {
         switch (opt) {
