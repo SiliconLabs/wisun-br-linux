@@ -562,7 +562,8 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list_s *async_channel_list)
+                       const struct channel_list_s *async_channel_list,
+                       mac_data_priority_t priority)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
@@ -628,7 +629,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
 void wsbr_mcps_req(const struct mac_api_s *api,
                    const struct mcps_data_req_s *data)
 {
-    return wsbr_mcps_req_ext(api, data, NULL, NULL);
+    return wsbr_mcps_req_ext(api, data, NULL, NULL, MAC_DATA_NORMAL_PRIORITY);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api,

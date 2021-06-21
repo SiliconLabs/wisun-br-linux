@@ -525,9 +525,9 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     slist_push(&ctxt->msdu_malloc_list, &malloc_info->list);
 
     if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list, MAC_DATA_NORMAL_PRIORITY);
     else
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, MAC_DATA_NORMAL_PRIORITY);
 }
 
 static const struct {

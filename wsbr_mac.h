@@ -23,7 +23,8 @@ void wsbr_mcps_req(const struct mac_api_s *api, const mcps_data_req_t *data);
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list_s *asynch_channel_list);
+                       const struct channel_list_s *asynch_channel_list,
+                       mac_data_priority_t priority);
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data);
 int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64);
 int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
