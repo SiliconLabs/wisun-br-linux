@@ -29,6 +29,22 @@
 /** Mode selection */
 enum add_or_remove {ADD = 1, REMOVE = 0};
 
+#ifndef __linux__
+/* Use DUMMY functions on non-Linux platforms. */
+/** \cond DOXYGEN_IGNORE */
 #define whiteboard_os_modify(x,y) ((void)(x),(void)(y))
+/** \endcond */
+
+#else /* LINUX */
+
+/** Modify the operating system whiteboard.
+ * Add entries to or remove from the OS routing table.
+ * \param address IPv6 address.
+ * \param add_or_remove select whether to add or remove address.
+ */
+void whiteboard_os_modify(const uint8_t address[static 16], enum add_or_remove mode);
+
+#endif
+
 
 #endif /* OS_WHITEBOARD_H */
