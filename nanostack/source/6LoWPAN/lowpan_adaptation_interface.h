@@ -36,8 +36,13 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api_s *mpx_api, uint16_t mpx_user_id);
 
+void lowpan_adaptation_free_heap(bool full_gc);
+
+int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, buffer_priority_t max_priority, uint32_t requested_amount);
+
+
 /**
- * \brief call this before normatl TX. This function prepare buffer link spesific metadata and verify packet destination
+ * \brief call this before normal TX. This function prepare buffer link specific metadata and verify packet destination
  */
 struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct protocol_interface_info_entry *cur, struct buffer *buf);
 
@@ -56,5 +61,9 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(struct protocol_interface_inf
 int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t adr_type);
 
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
+
+void lowpan_adaptation_expedite_forward_enable(struct protocol_interface_info_entry *cur);
+
+void lowpan_adaptation_interface_slow_timer(struct protocol_interface_info_entry *cur);
 
 #endif /* LOWPAN_ADAPTATION_INTERFACE_H_ */

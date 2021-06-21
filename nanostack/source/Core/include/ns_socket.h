@@ -52,6 +52,10 @@
 #define SOCKET_DEFAULT_STREAM_SNDLOWAT 512
 #endif
 
+#ifndef SOCKET_DEFAULT_REFERENCE_LIMIT
+#define SOCKET_DEFAULT_REFERENCE_LIMIT 512
+#endif
+
 typedef enum socket_family_e {
     SOCKET_FAMILY_NONE,
     SOCKET_FAMILY_IPV6,
@@ -130,7 +134,7 @@ typedef struct socket {
     int8_t    id;                     /*!< socket id */
     uint8_t   flags;                  /*!< Socket option flags */
     int8_t    tasklet;                /*!< Receiver tasklet */
-    uint8_t   refcount;
+    uint16_t   refcount;
     socket_family_t family;
     socket_type_t type;
     int8_t    default_interface_id;

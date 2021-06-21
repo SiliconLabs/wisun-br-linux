@@ -36,6 +36,7 @@ struct mcps_purge_s;
 struct mcps_data_req_ie_list;
 struct channel_list_s;
 struct mcps_enhanced_frame_response_s;
+struct mac_pre_parsed_frame_s;
 
 /** Address types */
 typedef enum {
@@ -48,6 +49,8 @@ typedef enum {
 #define MAC_PD_DATA_NORMAL_PRIORITY 0    //Normal MCPS DATA REQ
 #define MAC_PD_DATA_MEDIUM_PRIORITY 1    //Indirect Data which is polled
 #define MAC_PD_DATA_HIGH_PRIOTITY   2    //Beacon request Beacon response
+#define MAC_PD_DATA_EF_PRIORITY     3    //Expedited forwarding
+#define MAC_PD_DATA_TX_IMMEDIATELY  4    //Only for packets whose transmission was interrupted by wrong channel type. E.g. unicast on broadcast channel.
 
 #define MCPS_SAP_DATA_IND_EVENT         1
 #define MCPS_SAP_DATA_CNF_EVENT         2
@@ -100,6 +103,8 @@ void mcps_sap_pd_req_queue_write(struct protocol_interface_rf_mac_setup *rf_mac_
  */
 mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length);
 
+mac_pre_parsed_frame_t *mcps_sap_pre_parsed_ack_buffer_get(struct protocol_interface_rf_mac_setup *rf_ptr, const uint8_t *data_ptr, uint16_t frame_length);
+
 /**
  * Forward Buffer for MAC MCPS SAP layer event handler
  */
@@ -112,13 +117,13 @@ int8_t mcps_sap_pd_confirm(void *mac_ptr);
 
 int8_t mcps_sap_pd_confirm_failure(void *mac_ptr);
 
-void mcps_sap_pd_ack(void *ack_ptr);
+int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, struct mac_pre_parsed_frame_s *buffer);
 
 int8_t mac_virtual_sap_data_cb(void *identifier, struct arm_phy_sap_msg_s *message);
 
 void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req);
 
-void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list);
+void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_t priority);
 
 void mac_mcps_trig_buffer_from_queue(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 

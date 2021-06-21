@@ -50,6 +50,7 @@ typedef enum {
     PHY_LINK_TX_SUCCESS,        /**< MAC TX complete. MAC will a make decision to enter wait ACK or TX done state. */
     PHY_LINK_TX_FAIL,           /**< Link TX process fail. */
     PHY_LINK_CCA_FAIL,          /**< RF link CCA process fail. */
+    PHY_LINK_CCA_FAIL_RX,       /**< RF link CCA process failed because of packet reception. */
     PHY_LINK_CCA_OK,            /**< RF link CCA process ok. */
     PHY_LINK_CCA_PREPARE,       /**< Prepare for CCA after CSMA-CA: changes to CCA channel and gives permission to TX. See PHY_LINK_CCA_PREPARE status definitions for return values */
 } phy_link_tx_status_e;
@@ -175,6 +176,25 @@ typedef enum {
     MODULATION_INDEX_UNDEFINED  ///< Modulation index undefined
 } phy_modulation_index_e;
 
+/** OFDM option */
+typedef enum {
+    OFDM_OPTION_1 = 1,      ///< OFDM option 1
+    OFDM_OPTION_2 = 2,      ///< OFDM option 2
+    OFDM_OPTION_3 = 3,      ///< OFDM option 3
+    OFDM_OPTION_4 = 4       ///< OFDM option 4
+} phy_ofdm_option_e;
+
+/** Modulation and coding scheme (OFDM) */
+typedef enum {
+    OFDM_MCS_0 = 0,         ///< OFDM MCS 0
+    OFDM_MCS_1 = 1,         ///< OFDM MCS 1
+    OFDM_MCS_2 = 2,         ///< OFDM MCS 2
+    OFDM_MCS_3 = 3,         ///< OFDM MCS 3
+    OFDM_MCS_4 = 4,         ///< OFDM MCS 4
+    OFDM_MCS_5 = 5,         ///< OFDM MCS 5
+    OFDM_MCS_6 = 6          ///< OFDM MCS 6
+} phy_ofdm_mcs_e;
+
 /**
  * @brief enum phy_802_15_4_mode_t IEEE 802.15.4 mode
  *
@@ -192,6 +212,9 @@ typedef struct phy_rf_channel_configuration_s {
     uint16_t number_of_channels;                ///< Number of channels
     phy_modulation_e modulation;                ///< Modulation scheme
     phy_modulation_index_e modulation_index;    ///< Modulation index
+    bool fec;                                   ///< Forward error correction, true - enabled, false - disabled
+    phy_ofdm_option_e ofdm_option;              ///< OFDM option
+    phy_ofdm_mcs_e ofdm_mcs;                    ///< OFDM modulation and coding scheme
 } phy_rf_channel_configuration_s;
 
 /** Channel page configuration */

@@ -57,6 +57,7 @@ struct arm_device_driver_list;
 struct mlme_security_s;
 struct load_balance_api;
 struct nwk_wpan_nvm_api;
+struct red_info_s;
 
 #define SLEEP_MODE_REQ      0x80
 #define SLEEP_PERIOD_ACTIVE 0x40
@@ -123,6 +124,7 @@ typedef enum icmp_state {
     ER_BOOTSTRAP_NEW_FRAGMENT_START,
     ER_WAIT_RESTART,
     ER_RPL_LOCAL_REPAIR,
+    ER_RPL_NETWORK_LEAVING,
 } icmp_state_t;
 
 typedef enum {
@@ -445,6 +447,9 @@ struct protocol_interface_info_entry {
     struct auth_info *pana_sec_info_temp;
     br_info_t *border_router_setup;
     struct load_balance_api *lb_api;
+    struct red_info_s *random_early_detection;
+    struct red_info_s *llc_random_early_detection;
+    struct red_info_s *llc_eapol_random_early_detection;
     neigh_cache_s neigh_cache;
     pan_blaclist_cache_s pan_blaclist_cache;
     pan_coordinator_blaclist_cache_s pan_cordinator_black_list;
@@ -469,6 +474,7 @@ struct protocol_interface_info_entry {
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
     int8_t (*if_up)(struct protocol_interface_info_entry *cur);
     void (*if_stack_buffer_handler)(buffer_t *);
+    void (*if_common_forwarding_out_cb)(struct protocol_interface_info_entry *, buffer_t *);
     bool (*if_ns_transmit)(struct protocol_interface_info_entry *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);
     bool (*if_map_ip_to_link_addr)(struct protocol_interface_info_entry *cur, const uint8_t *ip_addr, addrtype_t *ll_type, const uint8_t **ll_addr_out);
     bool (*if_map_link_addr_to_ip)(struct protocol_interface_info_entry *cur, addrtype_t ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);

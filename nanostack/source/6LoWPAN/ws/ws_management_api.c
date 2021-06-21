@@ -156,6 +156,111 @@ int ws_management_network_name_validate(
     return 0;
 }
 
+int ws_management_domain_configuration_set(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
+    ws_phy_cfg_t cfg_default;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -3;
+    }
+
+    if (ws_cfg_phy_default_set(&cfg_default) < 0) {
+        return -3;
+    }
+
+    if (regulatory_domain == 255) {
+        cfg.regulatory_domain = cfg_default.regulatory_domain;
+    } else if (regulatory_domain != 0) {
+        cfg.regulatory_domain = regulatory_domain;
+    }
+
+    if (phy_mode_id == 255) {
+        cfg.phy_mode_id = cfg_default.phy_mode_id;
+    } else if (phy_mode_id != 0) {
+        cfg.phy_mode_id = phy_mode_id;
+    }
+
+    if (channel_plan_id == 255) {
+        cfg.channel_plan_id = cfg_default.channel_plan_id;
+    } else if (channel_plan_id != 0) {
+        cfg.channel_plan_id = channel_plan_id;
+    }
+
+    if (ws_cfg_phy_set(cur, NULL, &cfg, 0) < 0) {
+        return -4;
+    }
+
+    return 0;
+}
+
+int ws_management_domain_configuration_get(
+    int8_t interface_id,
+    uint8_t *regulatory_domain,
+    uint8_t *phy_mode_id,
+    uint8_t *channel_plan_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -2;
+    }
+
+    if (regulatory_domain) {
+        *regulatory_domain = cfg.regulatory_domain;
+    }
+    if (phy_mode_id) {
+        *phy_mode_id = cfg.phy_mode_id;
+    }
+    if (channel_plan_id) {
+        *channel_plan_id = cfg.channel_plan_id;
+    }
+
+    return 0;
+}
+
+int ws_management_domain_configuration_validate(
+    int8_t interface_id,
+    uint8_t regulatory_domain,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface_id >= 0 && (!cur || !ws_info(cur))) {
+        return -1;
+    }
+
+    ws_phy_cfg_t cfg;
+    if (ws_cfg_phy_get(&cfg, NULL) < 0) {
+        return -3;
+    }
+
+    cfg.regulatory_domain = regulatory_domain;
+    cfg.phy_mode_id = phy_mode_id;
+    cfg.channel_plan_id = channel_plan_id;
+
+    if (ws_cfg_phy_validate(NULL, &cfg) < 0) {
+        return -4;
+    }
+
+    return 0;
+}
+
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,
@@ -461,22 +566,22 @@ int ws_management_fhss_timing_configure(
         return -2;
     }
 
-    if (fhss_uc_dwell_interval > 0) {
-        cfg.fhss_uc_dwell_interval = fhss_uc_dwell_interval;
-    } else if (fhss_uc_dwell_interval == 0xff) {
+    if (fhss_uc_dwell_interval == 0) {
         cfg.fhss_uc_dwell_interval = cfg_default.fhss_uc_dwell_interval;
+    } else {
+        cfg.fhss_uc_dwell_interval = fhss_uc_dwell_interval;
     }
 
-    if (fhss_broadcast_interval > 0) {
-        cfg.fhss_bc_interval = fhss_broadcast_interval;
-    } else if (fhss_broadcast_interval == 0xffff) {
+    if (fhss_broadcast_interval > 0xffffff) {
         cfg.fhss_bc_interval = cfg_default.fhss_bc_interval;
+    } else if (fhss_broadcast_interval > 0) {
+        cfg.fhss_bc_interval = fhss_broadcast_interval;
     }
 
-    if (fhss_bc_dwell_interval > 0) {
-        cfg.fhss_bc_dwell_interval = fhss_bc_dwell_interval;
-    } else if (fhss_bc_dwell_interval == 0xff) {
+    if (fhss_bc_dwell_interval == 0) {
         cfg.fhss_bc_dwell_interval = cfg_default.fhss_bc_dwell_interval;
+    } else {
+        cfg.fhss_bc_dwell_interval = fhss_bc_dwell_interval;
     }
 
     if (ws_cfg_fhss_set(cur, NULL, &cfg, 0) < 0) {
@@ -509,10 +614,10 @@ int ws_management_fhss_unicast_channel_function_configure(
         return -2;
     }
 
-    if (dwell_interval > 0) {
-        cfg.fhss_uc_dwell_interval = dwell_interval;
-    } else {
+    if (dwell_interval == 0) {
         cfg.fhss_uc_dwell_interval = cfg_default.fhss_uc_dwell_interval;
+    } else {
+        cfg.fhss_uc_dwell_interval = dwell_interval;
     }
     if (channel_function < 0xff) {
         cfg.fhss_uc_channel_function = channel_function;
@@ -611,16 +716,16 @@ int ws_management_fhss_broadcast_channel_function_configure(
         return -2;
     }
 
-    if (dwell_interval > 0) {
-        cfg.fhss_bc_dwell_interval = dwell_interval;
-    } else {
+    if (dwell_interval == 0) {
         cfg.fhss_bc_dwell_interval = cfg_default.fhss_bc_dwell_interval;
+    } else {
+        cfg.fhss_bc_dwell_interval = dwell_interval;
     }
 
-    if (broadcast_interval > 0) {
-        cfg.fhss_bc_interval = broadcast_interval;
-    } else {
+    if (broadcast_interval > 0xffffff) {
         cfg.fhss_bc_interval = cfg_default.fhss_bc_interval;
+    } else if (broadcast_interval > 0) {
+        cfg.fhss_bc_interval = broadcast_interval;
     }
 
     if (channel_function != 0xff) {
@@ -822,7 +927,20 @@ int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
     if (!cur || !ws_info(cur) || !info_ptr) {
         return -1;
     }
-    return ws_bootstrap_get_info(cur, info_ptr);
+    return ws_bootstrap_stack_info_get(cur, info_ptr);
+}
+
+int ws_neighbor_info_get(
+    int8_t interface_id,
+    ws_neighbour_info_t *neighbor_ptr,
+    uint16_t count)
+{
+    protocol_interface_info_entry_t *cur;
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !ws_info(cur)) {
+        return -1;
+    }
+    return ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count);
 }
 
 int ws_device_min_sens_set(

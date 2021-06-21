@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Arm Limited and affiliates.
+ * Copyright (c) 2018-2021, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
+#include "randLIB.h"
+#include "common_functions.h"
 #include "net_interface.h"
 #include "socket_api.h"
 #include "eventOS_event.h"
@@ -31,20 +33,23 @@
 #include "6LoWPAN/ws/ws_bootstrap.h"
 #include "6LoWPAN/ws/ws_cfg_settings.h"
 #include "6LoWPAN/ws/ws_pae_key_storage.h"
+#include "6LoWPAN/ws/ws_pae_nvm_store.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
+#include "Common_Protocols/ip.h"
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
 #include "DHCPv6_client/dhcpv6_client_api.h"
 #include "libDHCPv6/libDHCPv6_vendordata.h"
 #include "libNET/src/net_dns_internal.h"
-
+#include "platform/os_whiteboard.h"
 
 #include "ws_bbr_api.h"
 
@@ -60,6 +65,20 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
 #define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
+
+//TAG ID This must be update if NVM_BBR_INFO_LEN or data structure
+#define NVM_BBR_INFO_TAG        1
+// BSI 2 bytes
+#define NVM_BBR_INFO_LEN        2
+
+typedef struct bbr_info_nvm_tlv {
+    uint16_t tag;                         /**< Unique tag */
+    uint16_t len;                         /**< Number of the bytes after the length field */
+    uint8_t data[NVM_BBR_INFO_LEN];       /**< Data */
+} bbr_info_nvm_tlv_t;
+
+//NVM file name
+static const char *BBR_INFO_FILE = "pae_bbr_info";
 
 /* when creating BBR make ULA dodag ID always and when network becomes available add prefix to DHCP
  *
@@ -105,6 +124,52 @@ typedef struct dns_resolution {
 #define MAX_DNS_RESOLUTIONS 4
 
 static dns_resolution_t pre_resolved_dns_queries[MAX_DNS_RESOLUTIONS] = {0};
+//BBR NVM info buffer
+
+#define BBR_NVM_BSI_OFFSET 0
+static bbr_info_nvm_tlv_t bbr_info_nvm_tlv = {
+    .tag = NVM_BBR_INFO_TAG,
+    .len = 0,
+    .data = {0}
+};
+
+static uint16_t ws_bbr_fhss_bsi = 0;
+
+static int8_t ws_bbr_nvm_info_read(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    tlv_entry->tag = NVM_BBR_INFO_TAG;
+    tlv_entry->len = NVM_BBR_INFO_LEN;
+
+    int8_t ret_val = ws_pae_nvm_store_tlv_file_read(BBR_INFO_FILE, (nvm_tlv_t *) &bbr_info_nvm_tlv);
+
+    if (ret_val < 0 || tlv_entry->tag != NVM_BBR_INFO_TAG || tlv_entry->len != NVM_BBR_INFO_LEN) {
+        ws_pae_nvm_store_tlv_file_remove(BBR_INFO_FILE);
+        tlv_entry->len = 0;
+        return -1;
+    }
+    return 0;
+}
+
+static void ws_bbr_nvm_info_write(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    tlv_entry->tag = NVM_BBR_INFO_TAG;
+    tlv_entry->len = NVM_BBR_INFO_LEN;
+    ws_pae_nvm_store_tlv_file_write(BBR_INFO_FILE, (nvm_tlv_t *) tlv_entry);
+    tr_debug("BBR info NVM update");
+}
+
+static uint16_t ws_bbr_bsi_read(bbr_info_nvm_tlv_t *tlv_entry)
+{
+    if (tlv_entry->tag != NVM_BBR_INFO_TAG || tlv_entry->len != NVM_BBR_INFO_LEN) {
+        return 0;
+    }
+    return common_read_16_bit(tlv_entry->data + BBR_NVM_BSI_OFFSET);
+}
+
+static void ws_bbr_bsi_write(bbr_info_nvm_tlv_t *tlv_entry, uint16_t bsi)
+{
+    common_write_16_bit(bsi, tlv_entry->data + BBR_NVM_BSI_OFFSET);
+}
 
 static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur, uint8_t version)
 {
@@ -113,12 +178,12 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
         //stable version for RPL so slow timer update is ok
         cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
-        if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_SMALL) {
-            // handles also NETWORK_SIZE_CERTIFICATE
+        if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
+            // Also handles CONFIG_CERTIFICATE
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_MEDIUM) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
-        } else if (cur->ws_info->cfg->gen.network_size <= NETWORK_SIZE_LARGE) {
+        } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
         } else  {
             cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
@@ -134,8 +199,7 @@ static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
     ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
 }
 
-
-void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase)
+void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
 {
     if (imin == 0 || doubling == 0) {
         // use default values
@@ -143,12 +207,33 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
         doubling = WS_RPL_DIO_DOUBLING_SMALL;
         redundancy = WS_RPL_DIO_REDUNDANCY_SMALL;
     }
+    uint8_t lifetime_unit = 60;
+    uint8_t default_lifetime;
+
+    if (lifetime == 0) {
+        // 2 hours default lifetime
+        lifetime = 120 * 60;
+    } else if (lifetime <= 250 * 60) {
+        // Lifetime unit of 60 is ok up to 4 hours
+    } else if (lifetime <= 250 * 120) {
+        //more than 4 hours needs larger lifetime unit
+        lifetime_unit = 120;
+    } else if (lifetime <= 250 * 240) {
+        lifetime_unit = 240;
+    } else {
+        // Maximum lifetime is 16 hours 40 minutes
+        lifetime = 250 * 240;
+        lifetime_unit = 240;
+    }
+    default_lifetime = lifetime / lifetime_unit;
 
     if (rpl_conf.dio_interval_min == imin &&
             rpl_conf.dio_interval_doublings == doubling &&
             rpl_conf.dio_redundancy_constant == redundancy &&
             rpl_conf.dag_max_rank_increase == dag_max_rank_increase &&
-            rpl_conf.min_hop_rank_increase == min_hop_rank_increase) {
+            rpl_conf.min_hop_rank_increase == min_hop_rank_increase &&
+            rpl_conf.default_lifetime == default_lifetime &&
+            rpl_conf.lifetime_unit == lifetime_unit) {
         // Same values no update needed
         return;
     }
@@ -158,6 +243,8 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
     rpl_conf.dio_redundancy_constant = redundancy;
     rpl_conf.dag_max_rank_increase = dag_max_rank_increase;
     rpl_conf.min_hop_rank_increase = min_hop_rank_increase;
+    rpl_conf.default_lifetime = default_lifetime;
+    rpl_conf.lifetime_unit = lifetime_unit;
 
     if (protocol_6lowpan_rpl_root_dodag) {
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
@@ -281,6 +368,34 @@ static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *u
     addr_policy_table_delete_entry(ula_prefix, 64);
 }
 
+/*
+ * 0 static non rooted self generated own address
+ * 1 static address with backbone connectivity
+ */
+static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
+{
+
+    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
+     *
+     * If there is no address we can use our own generated ULA as a backup ULA
+     */
+
+    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
+
+    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+        ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
+            if (bitsequal(addr->address, bb_interface->ipv6_configure->static_prefix64, 64)) {
+                // static address available in interface copy the prefix and return the address
+                if (dodag_id_ptr) {
+                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
+                }
+                return addr->address;
+            }
+        }
+    }
+    return NULL;
+}
+
 
 static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 {
@@ -288,6 +403,14 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
         // address generated
         return 0;
     }
+
+    uint8_t *static_address_ptr = ws_bbr_bb_static_prefix_get(NULL);
+    if (static_address_ptr) {
+        memcpy(current_dodag_id, static_address_ptr, 16);
+        tr_info("BBR Static DODAGID %s", trace_ipv6(current_dodag_id));
+        return 0;
+    }
+
     // This address is only used if no other address available.
     if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
     if (!add_entry) {
@@ -299,29 +422,6 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
 
     return 0;
 }
-
-/*
- * 0 static non rooted self generated own address
- * 1 static address with backbone connectivity
- */
-static void ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
-{
-
-    /* Get static ULA prefix if we have configuration in backbone and there is address we use that.
-     *
-     * If there is no address we can use our own generated ULA as a backup ULA
-     */
-
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
-
-    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-        if (protocol_address_prefix_cmp(bb_interface, bb_interface->ipv6_configure->static_prefix64, 64)) {
-            memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
-        }
-    }
-    return;
-}
-
 
 static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_ptr)
 {
@@ -352,6 +452,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     memcpy(global_prefix_ptr, global_address, 8);
     return;
 }
+
 static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -362,6 +463,8 @@ static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 1
     if (!cur->send_na) {
         return;
     }
+
+    whiteboard_os_modify(target, ADD);
 
     buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
     protocol_push(buffer);
@@ -416,12 +519,20 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             if (pre_resolved_dns_queries[n].domain_name != NULL) {
                 ptr = net_dns_option_vendor_option_data_dns_query_write(ptr, pre_resolved_dns_queries[n].address, pre_resolved_dns_queries[n].domain_name);
-                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             }
         }
     }
 
     DHCPv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+}
+
+static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
+{
+    (void) interfaceId;
+    (void) prefix_info;
+    if (targetAddress) {
+        whiteboard_os_modify(targetAddress, REMOVE);
+    }
 }
 
 static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
@@ -437,9 +548,11 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
         tr_error("DHCPv6 Server create fail");
         return;
     }
-    DHCPv6_server_service_callback_set(cur->id, global_id, NULL, wisun_dhcp_address_add_cb);
-    //Enable SLAAC mode to border router
-    DHCPv6_server_service_set_address_autonous_flag(cur->id, global_id, true, false);
+    DHCPv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
+    //Check for anonymous mode
+    bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
+
+    DHCPv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
     DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
@@ -448,6 +561,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 
     ws_dhcp_client_address_request(cur, global_id, ll);
 }
+
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     if (!cur) {
@@ -564,9 +678,16 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
      */
     if ((configuration & BBR_ULA_C) == 0 && memcmp(global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
         //Global prefix not available count if backup ULA should be created
+        uint32_t prefix_wait_time = BBR_BACKUP_ULA_DELAY;
         global_prefix_unavailable_timer += BBR_CHECK_INTERVAL;
-        tr_debug("Check for backup prefix %"PRIu32"", global_prefix_unavailable_timer);
-        if (global_prefix_unavailable_timer >= BBR_BACKUP_ULA_DELAY) {
+
+        if (NULL != ws_bbr_bb_static_prefix_get(NULL)) {
+            // If we have a static configuration we activate it faster.
+            prefix_wait_time = 40;
+        }
+
+        tr_debug("Check for backup prefix %"PRIu32" / %"PRIu32"", prefix_wait_time, global_prefix_unavailable_timer);
+        if (global_prefix_unavailable_timer >= prefix_wait_time) {
             if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
                 tr_info("start using backup prefix %s", trace_ipv6_prefix(local_prefix, 64));
             }
@@ -650,11 +771,13 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
         return;
     }
     tr_debug("Border router version number update");
-    if (configuration & BBR_REQUIRE_DAO_REFRESH) {
+    if (configuration & BBR_PERIODIC_VERSION_INC) {
+        // Periodically increase the version number.
+        // This removes need for DAO, but causes slowness in recovery
+        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
+    } else {
         // Version number is not periodically increased forcing nodes to check Border router availability using DAO
         pan_version_timer = 0;
-    } else {
-        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
     }
     cur->ws_info->pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
@@ -785,6 +908,48 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
 
     return true;
 }
+
+static void ws_bbr_forwarding_cb(protocol_interface_info_entry_t *interface, buffer_t *buf)
+{
+    uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
+
+    if (traffic_class == IP_DSCP_EF) {
+        //indicate EF forwarding to adaptation
+        lowpan_adaptation_expedite_forward_enable(interface);
+    }
+}
+
+
+
+void ws_bbr_init(protocol_interface_info_entry_t *interface)
+{
+    (void) interface;
+    //Read From NVM
+    if (ws_bbr_nvm_info_read(&bbr_info_nvm_tlv) < 0) {
+        //NVM value not available Randomize Value Here by first time
+        ws_bbr_fhss_bsi = randLIB_get_16bit();
+        tr_debug("Randomized init value BSI %u", ws_bbr_fhss_bsi);
+    } else {
+        ws_bbr_fhss_bsi = ws_bbr_bsi_read(&bbr_info_nvm_tlv);
+        tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);
+    }
+    interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
+}
+
+
+uint16_t ws_bbr_bsi_generate(protocol_interface_info_entry_t *interface)
+{
+    (void) interface;
+    //Give current one
+    uint16_t bsi = ws_bbr_fhss_bsi;
+    //Update value for next round
+    ws_bbr_fhss_bsi++;
+    //Store To NVN
+    ws_bbr_bsi_write(&bbr_info_nvm_tlv, ws_bbr_fhss_bsi);
+    ws_bbr_nvm_info_write(&bbr_info_nvm_tlv);
+    return bsi;
+}
+
 #endif //HAVE_WS_BORDER_ROUTER
 
 /* Public APIs
@@ -832,12 +997,16 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (protocol_6lowpan_rpl_root_dodag &&
-            options != configuration) {
-        //Configuration changed delete previous setup
-        ws_bbr_routing_stop(cur);
+    if (options == configuration) {
+        return 0;
     }
+    //Configuration changed
     configuration = options;
+    if (protocol_6lowpan_rpl_root_dodag) {
+        // Already active needs to restart
+        ws_bbr_routing_stop(cur);
+        ws_bbr_pan_version_increase(cur);
+    }
     return 0;
 #else
     (void)interface_id;
@@ -1070,6 +1239,33 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
 #endif
 }
 
+int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
+{
+    (void) interface_id;
+#ifdef HAVE_WS_BORDER_ROUTER
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    //Check if new value is different than current active
+    if (cur && cur->ws_info && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
+        if (cur->ws_info->hopping_schdule.fhss_bsi == new_bsi) {
+            return 0;
+        }
+        tr_debug("New BSI %u to delayed activate", new_bsi);
+        ws_bootstrap_restart_delayed(cur->id);
+    }
+
+    ws_bbr_bsi_write(&bbr_info_nvm_tlv, new_bsi);
+    ws_bbr_nvm_info_write(&bbr_info_nvm_tlv);
+    ws_bbr_fhss_bsi = new_bsi;
+    return 0;
+#else
+    (void) new_bsi;
+    return -1;
+#endif
+}
+
+
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {
     (void) interface_id;
@@ -1277,6 +1473,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
             if (address) {
                 // Update address
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
+                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
             } else {
                 // delete entry
                 memset(pre_resolved_dns_queries[n].address, 0, 16);
@@ -1299,6 +1496,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
                 }
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
                 strcpy(pre_resolved_dns_queries[n].domain_name, domain_name_ptr);
+                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
                 goto update_information;
             }
         }

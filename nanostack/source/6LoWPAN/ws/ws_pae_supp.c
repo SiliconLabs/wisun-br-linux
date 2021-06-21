@@ -151,7 +151,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
 static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
-static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
+static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
 
 
@@ -269,30 +269,14 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
 
 int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
 {
+    (void) br_iid;
+
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
         return -1;
     }
 
     tr_info("NW key valid indication");
-
-    // Store border router EUI-64 received on bootstrap complete
-    memcpy(pae_supp->comp_br_eui_64, br_iid, 8);
-    pae_supp->comp_br_eui_64[0] ^= 0x02;
-    pae_supp->comp_br_eui_64_set = true;
-
-    // Get the EUI-64 used on 4WH handshake PTK generation
-    uint8_t *ptk_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
-
-    /* If border router EUI-64 received on bootstrap complete does not match to
-       EUI-64 stored with keys, delete keys */
-    if (!ptk_eui_64 || memcmp(ptk_eui_64, pae_supp->comp_br_eui_64, 8) != 0) {
-        tr_warn("Delete keys: PTK EUI-64 %s does not match to BR EUI-64 %s",
-                ptk_eui_64 ? tr_array(ptk_eui_64, 8) : "", tr_array(pae_supp->comp_br_eui_64, 8));
-        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
-    }
 
     // Stored keys are valid
     pae_supp->nw_keys_used_cnt = 0;
@@ -415,25 +399,25 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
 
     ws_pae_nvm_store_keys_tlv_create(tlv, &pae_supp->entry.sec_keys);
-    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, tlv);
+    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, (nvm_tlv_t *) tlv);
 
     return 0;
 }
 
 static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
 {
-    nvm_tlv_t *tlv = ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
     if (!tlv) {
         return -1;
     }
-    ws_pae_nvm_store_generic_tlv_create(tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
-    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, tlv) < 0) {
+    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
+    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, (nvm_tlv_t *) tlv) < 0) {
         return -1;
     }
     ws_pae_nvm_store_keys_tlv_read(tlv, &pae_supp->entry.sec_keys);
@@ -445,11 +429,7 @@ static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_
     pae_supp->auth_trickle_running = false;
     if (pae_supp->auth_requested && pae_supp->auth_completed) {
         pae_supp->auth_requested = false;
-        uint8_t *target_eui_64 = NULL;
-        if (result != AUTH_RESULT_OK) {
-            target_eui_64 = pae_supp->target_addr.eui_64;
-        }
-        pae_supp->auth_completed(pae_supp->interface_ptr, result, target_eui_64);
+        pae_supp->auth_completed(pae_supp->interface_ptr, result, pae_supp->target_addr.eui_64);
     }
 }
 
@@ -857,7 +837,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                         }
                         auth_result_e result = AUTH_RESULT_ERR_UNSPEC;
                         if (pae_supp->tx_failure_on_initial_key) {
-                            result = AUTH_RESULT_ERR_TX_NO_ACK;
+                            result = AUTH_RESULT_ERR_TX_ERR;
                             pae_supp->tx_failure_on_initial_key = false;
                         }
                         ws_pae_supp_authenticate_response(pae_supp, result);
@@ -1242,12 +1222,12 @@ static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e typ
     kmp_api_create_response(kmp, KMP_RESULT_OK);
 }
 
-static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
+static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
 {
     kmp_service_t *service = kmp_api_service_get(kmp);
     pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
     if (!pae_supp) {
-        return;
+        return false;
     }
 
     kmp_type_e type = kmp_api_type_get(kmp);
@@ -1270,7 +1250,7 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
 
     /* If initial EAPOL-key message sending fails to tx no acknowledge, indicates failure so
        that bootstrap can decide if EAPOL target should be changed */
-    else if (type > IEEE_802_1X_INITIAL_KEY && result == KMP_RESULT_ERR_TX_NO_ACK) {
+    else if (type > IEEE_802_1X_INITIAL_KEY && (result == KMP_RESULT_ERR_TX_NO_ACK || result == KMP_RESULT_ERR_TX_UNSPEC)) {
         tr_info("Initial EAPOL-Key TX failure, target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
         /* Fails authentication only if other authentication protocols are not yet
            started by authenticator */
@@ -1279,6 +1259,8 @@ static void ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
             pae_supp->tx_failure_on_initial_key = true;
         }
     }
+
+    return false;
 }
 
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
