@@ -348,6 +348,21 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
     wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_RF_CONFIGURATION, frame, frame_len);
 }
 
+static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    const struct mlme_request_restart_config_s *req = data;
+    uint8_t frame[20];
+    int frame_len;
+
+    BUG_ON(prop != SPINEL_PROP_WS_REQUEST_RESTART);
+    BUG_ON(data_len != sizeof(struct mlme_request_restart_config_s));
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CCSS",
+                                     req->cca_failure_restart_max, req->tx_failure_restart_max,
+                                     req->blacklist_min_ms, req->blacklist_max_ms);
+    BUG_ON(frame_len <= 0);
+    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_REQUEST_RESTART, frame, frame_len);
+}
+
 static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
 {
     uint8_t frame[20];
@@ -430,6 +445,7 @@ static const struct {
     { "macCCAThresholdStart",            macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
     { "macMultiCSMAParameters",          macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
     { "macRfConfiguration",              macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
+    { "macRequestRestart",               macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
     { "macDeviceTable",                  macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { "macKeyTable",                     macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
     { "macFrameCounter",                 macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },

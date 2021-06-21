@@ -220,6 +220,25 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
+static void wsmac_spinel_set_request_restart(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    mlme_request_restart_config_t data;
+    mlme_set_t req = {
+        .attr = attr,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+    int ret;
+
+    BUG_ON(attr != macRequestRestart);
+    ret = spinel_datatype_unpack(frame, frame_len, "CCSS",
+                           &data.cca_failure_restart_max,
+                           &data.tx_failure_restart_max,
+                           &data.blacklist_min_ms, &data.blacklist_max_ms);
+    BUG_ON(ret != frame_len);
+    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+}
+
 static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     uint32_t data;
@@ -579,6 +598,7 @@ static const struct {
     { "macDeviceTable",                  macDeviceTable,                  wsmac_spinel_set_device_table,          SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { "macKeyTable",                     macKeyTable,                     wsmac_spinel_set_key_table,             SPINEL_PROP_WS_KEY_TABLE,                        },
     { "macFrameCounter",                 macFrameCounter,                 wsmac_spinel_set_frame_counter,         SPINEL_PROP_WS_FRAME_COUNTER,                    },
+    { "macRequestRestart",               macRequestRestart,               wsmac_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
     { "fhssEnableFrameCounterPerKey",    0 /* Special */,                 wsmac_spinel_set_frame_counter_per_key, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY,     },
     { "fhssCreate",                      0 /* Special */,                 wsmac_spinel_fhss_create,               SPINEL_PROP_WS_FHSS_CREATE,                      },
     { "fhssDelete",                      0 /* Special */,                 wsmac_spinel_fhss_delete,               SPINEL_PROP_WS_FHSS_DELETE,                      },

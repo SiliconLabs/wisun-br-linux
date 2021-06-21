@@ -4534,6 +4534,7 @@ enum
     SPINEL_PROP_WS_MAX_CSMA_BACKOFFS                = SPINEL_PROP_WS__BEGIN + 40,
     SPINEL_PROP_WS_MIN_BE                           = SPINEL_PROP_WS__BEGIN + 41,
     SPINEL_PROP_WS_MAX_BE                           = SPINEL_PROP_WS__BEGIN + 42,
+    SPINEL_PROP_WS_REQUEST_RESTART                  = SPINEL_PROP_WS__BEGIN + 43,
 
     /** Format: `b`. */
     SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY     = SPINEL_PROP_WS__BEGIN + 30,
