@@ -581,7 +581,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     TRACE("mcpsReq");
     if (!async_channel_list)
         async_channel_list = &default_chan_list;
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCCSECbbbbbbCCCEid",
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCCSECbbbbbbCCCESid",
                                      hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_STREAM_RAW,
                                      data->msdu, data->msduLength,
                                      data->SrcAddrMode, data->DstAddrMode,
@@ -592,6 +592,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                                      data->ExtendedFrameExchange,
                                      data->Key.SecurityLevel, data->Key.KeyIdMode,
                                      data->Key.KeyIndex, data->Key.Keysource,
+                                     (uint16_t)priority,
                                      async_channel_list->channel_page,
                                      async_channel_list->channel_mask,
                                      sizeof(async_channel_list->channel_mask));

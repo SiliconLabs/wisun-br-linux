@@ -469,6 +469,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     struct mcps_data_req_ie_list ie_ext = { };
     struct channel_list_s async_channel_list;
     struct msdu_malloc_info *malloc_info;
+    uint16_t prio;
     uint8_t tmp8[4];
     bool tmpB[6];
     int tmpI;
@@ -477,14 +478,14 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     void *buf_fixed[2];
     int ret;
 
-    ret = spinel_datatype_unpack(frame, frame_len, "dCCSECbbbbbbCCCEiddd",
+    ret = spinel_datatype_unpack(frame, frame_len, "dCCSECbbbbbbCCCESiddd",
                            &buf[0], &len[0],
                            &tmp8[0], &tmp8[1],
                            &data.DstPANId, &buf_fixed[0], &data.msduHandle,
                            &tmpB[0], &tmpB[1], &tmpB[2],
                            &tmpB[3], &tmpB[4], &tmpB[5],
                            &tmp8[2], &tmp8[3], &data.Key.KeyIndex,
-                           &buf_fixed[1],
+                           &buf_fixed[1], &prio,
                            &tmpI,
                            &buf[1], &len[1],
                            &buf[2], &len[2],
@@ -535,9 +536,9 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     slist_push(&ctxt->msdu_malloc_list, &malloc_info->list);
 
     if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list, MAC_DATA_NORMAL_PRIORITY);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list, prio);
     else
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, MAC_DATA_NORMAL_PRIORITY);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, prio);
 }
 
 static const struct {
