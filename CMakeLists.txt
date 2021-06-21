@@ -240,6 +240,7 @@ add_executable(wisun-br
     nanostack/source/Service_Libs/Neighbor_cache/neighbor_cache.c
     nanostack/source/Service_Libs/nist_aes_kw/nist_aes_kw.c
     nanostack/source/Service_Libs/pan_blacklist/pan_blacklist.c
+    nanostack/source/Service_Libs/random_early_detection/random_early_detection.c
     nanostack/source/Service_Libs/SHA256_Lib/ns_sha256.c
     nanostack/source/Service_Libs/SHA256_Lib/shalib.c
     nanostack/source/Service_Libs/Trickle/trickle.c
@@ -479,6 +480,7 @@ add_executable(wisun-router
     nanostack/source/Service_Libs/Neighbor_cache/neighbor_cache.c
     nanostack/source/Service_Libs/nist_aes_kw/nist_aes_kw.c
     nanostack/source/Service_Libs/pan_blacklist/pan_blacklist.c
+    nanostack/source/Service_Libs/random_early_detection/random_early_detection.c
     nanostack/source/Service_Libs/SHA256_Lib/ns_sha256.c
     nanostack/source/Service_Libs/SHA256_Lib/shalib.c
     nanostack/source/Service_Libs/Trickle/trickle.c
