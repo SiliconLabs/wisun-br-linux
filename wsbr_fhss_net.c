@@ -114,6 +114,14 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     return 0;
 }
 
+int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api,
+                                      const fhss_ws_tx_allow_level global_level,
+                                      const fhss_ws_tx_allow_level ef_level)
+{
+    WARN("Not implemented");
+    return 0;
+}
+
 int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8],
                           const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
 {
