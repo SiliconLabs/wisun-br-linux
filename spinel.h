@@ -4531,6 +4531,9 @@ enum
     SPINEL_PROP_WS_DEVICE_TABLE                     = SPINEL_PROP_WS__BEGIN + 27,
     SPINEL_PROP_STREAM_STATUS                       = SPINEL_PROP_WS__BEGIN + 28,
     SPINEL_PROP_WS_MLME_IND                         = SPINEL_PROP_WS__BEGIN + 29,
+    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS                = SPINEL_PROP_WS__BEGIN + 40,
+    SPINEL_PROP_WS_MIN_BE                           = SPINEL_PROP_WS__BEGIN + 41,
+    SPINEL_PROP_WS_MAX_BE                           = SPINEL_PROP_WS__BEGIN + 42,
 
     /** Format: `b`. */
     SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY     = SPINEL_PROP_WS__BEGIN + 30,
