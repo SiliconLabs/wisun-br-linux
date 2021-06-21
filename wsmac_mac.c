@@ -268,6 +268,14 @@ static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme
     ns_sw_mac_enable_frame_counter_per_key(ctxt->rcp_mac_api, data);
 }
 
+static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    int global_level, ef_level;
+
+    spinel_datatype_unpack(frame, frame_len, "ii", &global_level, &ef_level);
+    ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, global_level, ef_level);
+}
+
 static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     const uint8_t *eui64;
@@ -576,6 +584,7 @@ static const struct {
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
     { "fhssSetNeighbor",                 0 /* Special */,                 wsmac_spinel_fhss_set_neighbor,         SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,                },
+    { "fhssSetTxAllowanceLevel",         0 /* Special */,                 wsmac_spinel_fhss_set_tx_allowance_level, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL,    },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_ws_reset,                  SPINEL_PROP_WS_RESET,                            },
     { "dataReq",                         0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },

@@ -120,7 +120,18 @@ int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api,
                                       const fhss_ws_tx_allow_level global_level,
                                       const fhss_ws_tx_allow_level ef_level)
 {
-    WARN("Not implemented");
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[15];
+    int frame_len;
+
+    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciiii",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET,
+                                     SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL,
+                                     (int)global_level, (int)ef_level);
+    BUG_ON(frame_len <= 0);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
     return 0;
 }
 
