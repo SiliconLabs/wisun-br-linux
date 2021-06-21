@@ -657,6 +657,8 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         TRACE("set %s", mlme_prop_cstr[i].str);
         if (mlme_prop_cstr[i].prop_set)
             mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, data, data_len);
+        else
+            WARN("property not implemented: %08x", prop);
     } else {
         WARN("not implemented");
         return;

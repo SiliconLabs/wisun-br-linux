@@ -478,7 +478,7 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
         BUG_ON(req->value_size != sizeof(uint32_t));
         wsbr_spinel_set_frame_counter(ctxt, req->attr_index, *(uint32_t *)req->value_pointer);
     } else {
-        BUG("Unknown message");
+        WARN("unknown message: %02x", req->attr);
     }
 }
 
