@@ -92,6 +92,7 @@ add_executable(wisun-br
     hal_interrupt.c
     os_timer.c
     os_scheduler.c
+    os_whiteboard.c
     slist.c
     spinel.c
     nanostack/source/Service_Libs/fhss/channel_list.c
