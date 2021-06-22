@@ -11,12 +11,12 @@
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 
 #include "hal_fhss_timer.h"
-#include "bus_uart.h"
+#include "host-common/bus_uart.h"
 #include "wsmac_mac.h"
 #include "wsmac.h"
-#include "spinel.h"
-#include "utils.h"
-#include "log.h"
+#include "host-common/spinel.h"
+#include "host-common/utils.h"
+#include "host-common/log.h"
 
 static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
 {

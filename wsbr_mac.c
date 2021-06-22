@@ -12,9 +12,9 @@
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "utils.h"
-#include "spinel.h"
-#include "log.h"
+#include "host-common/utils.h"
+#include "host-common/spinel.h"
+#include "host-common/log.h"
 
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {

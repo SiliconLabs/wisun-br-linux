@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <pcap/pcap.h>
 
-#include "slist.h"
+#include "host-common/slist.h"
 #include "nanostack/fhss_ws_extension.h"
 
 struct os_ctxt;

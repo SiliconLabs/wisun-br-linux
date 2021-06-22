@@ -17,14 +17,14 @@ add_executable(wisun-mac
     wsmac_mac.c
     wsmac_rf_driver.c
     wsmac_ns_monitor.c
-    bus_uart.c
-    hal_interrupt.c
     hal_fhss_timer.c
     hal_random.c
-    os_scheduler.c
-    os_timer.c
-    slist.c
-    spinel.c
+    host-common/bus_uart.c
+    host-common/hal_interrupt.c
+    host-common/os_scheduler.c
+    host-common/os_timer.c
+    host-common/slist.c
+    host-common/spinel.c
     mbed-client-libservice/source/libBits/common_functions.c
     # Excluded mbed-client-libservice/source/libip4string
     mbed-client-libservice/source/libip6string/ip6tos.c
@@ -86,15 +86,15 @@ add_executable(wisun-br
     wsbr_mac.c
     wsbr_fhss_mac.c
     wsbr_fhss_net.c
-    bus_uart.c
-    bus_spi.c
     tun.c
-    hal_interrupt.c
-    os_timer.c
-    os_scheduler.c
     os_whiteboard.c
-    slist.c
-    spinel.c
+    host-common/bus_uart.c
+    host-common/bus_spi.c
+    host-common/hal_interrupt.c
+    host-common/os_timer.c
+    host-common/os_scheduler.c
+    host-common/slist.c
+    host-common/spinel.c
     nanostack/source/Service_Libs/fhss/channel_list.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
@@ -328,13 +328,13 @@ add_executable(wisun-router
     wsbr_mac.c
     wsbr_fhss_mac.c
     wsbr_fhss_net.c
-    bus_uart.c
-    bus_spi.c
-    hal_interrupt.c
-    os_timer.c
-    os_scheduler.c
-    slist.c
-    spinel.c
+    host-common/bus_uart.c
+    host-common/bus_spi.c
+    host-common/hal_interrupt.c
+    host-common/os_timer.c
+    host-common/os_scheduler.c
+    host-common/slist.c
+    host-common/spinel.c
     nanostack/source/Service_Libs/fhss/channel_list.c
     # nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c

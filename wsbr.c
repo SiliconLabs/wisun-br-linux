@@ -23,17 +23,17 @@
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #include "nanostack/source/MAC/rf_driver_storage.h"
 
-#include "log.h"
-#include "slist.h"
+#include "host-common/log.h"
+#include "host-common/slist.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "wsbr_certs.h"
 #include "tun.h"
-#include "bus_uart.h"
-#include "bus_spi.h"
-#include "os_types.h"
-#include "os_timer.h"
-#include "hal_interrupt.h"
+#include "host-common/bus_uart.h"
+#include "host-common/bus_spi.h"
+#include "host-common/os_types.h"
+#include "host-common/os_timer.h"
+#include "host-common/hal_interrupt.h"
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
@@ -56,7 +56,7 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.phyMTU = 2043,
 };
 
-// See warning in os_types.h
+// See warning in host-common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {

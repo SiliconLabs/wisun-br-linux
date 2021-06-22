@@ -17,7 +17,7 @@
 #include "nanostack/net_interface.h"
 
 #include "tun.h"
-#include "log.h"
+#include "host-common/log.h"
 #include "wsbr.h"
 
 static int8_t wsbr_tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_protocol_e protocol)

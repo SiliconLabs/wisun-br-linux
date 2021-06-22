@@ -29,8 +29,8 @@
 #include "serial_mac_api.h"
 #include "MAC/rf_driver_storage.h"
 #include "mac_api.h"
-#include "log.h"
-#include "utils.h"
+#include "host-common/log.h"
+#include "host-common/utils.h"
 #include "wsmac.h"
 #include "wsmac_rf_driver.h"
 

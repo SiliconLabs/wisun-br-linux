@@ -17,9 +17,9 @@
 #include "wsbr_mac.h"
 #include "wsbr_fhss_mac.h"
 #include "wsbr_fhss_net.h"
-#include "utils.h"
-#include "spinel.h"
-#include "log.h"
+#include "host-common/utils.h"
+#include "host-common/spinel.h"
+#include "host-common/log.h"
 
 int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
 {

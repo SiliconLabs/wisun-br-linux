@@ -1,7 +1,7 @@
 #include <platform/os_whiteboard.h>
 #include <mbed-client-libservice/ip6string.h>
 
-#include "log.h"
+#include "host-common/log.h"
 
 void whiteboard_os_modify(const uint8_t address[static 16], enum add_or_remove mode)
 {

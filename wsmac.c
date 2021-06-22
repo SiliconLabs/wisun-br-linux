@@ -22,19 +22,19 @@
 #include "wsmac.h"
 #include "wsmac_mac.h"
 #include "wsmac_rf_driver.h"
-#include "slist.h"
-#include "log.h"
-#include "bus_uart.h"
+#include "host-common/slist.h"
+#include "host-common/log.h"
+#include "host-common/bus_uart.h"
 #include "hal_fhss_timer.h"
-#include "hal_interrupt.h"
-#include "os_timer.h"
-#include "os_types.h"
+#include "host-common/hal_interrupt.h"
+#include "host-common/os_timer.h"
+#include "host-common/os_types.h"
 
 #define TRACE_GROUP  "main"
 
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
-// See warning in os_types.h
+// See warning in host-common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {
