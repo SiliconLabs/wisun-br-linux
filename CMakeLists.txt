@@ -13,12 +13,12 @@ add_compile_options(-Wall)
 add_compile_definitions(NO_TCP)
 
 add_executable(wisun-mac
-    wsmac.c
-    wsmac_mac.c
-    wsmac_rf_driver.c
-    wsmac_ns_monitor.c
-    hal_fhss_timer.c
-    hal_random.c
+    host-mac/wsmac.c
+    host-mac/wsmac_mac.c
+    host-mac/wsmac_rf_driver.c
+    host-mac/wsmac_ns_monitor.c
+    host-mac/hal_fhss_timer.c
+    host-mac/hal_random.c
     host-common/bus_uart.c
     host-common/hal_interrupt.c
     host-common/os_scheduler.c
@@ -60,6 +60,7 @@ add_executable(wisun-mac
 )
 
 target_include_directories(wisun-mac PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     mbed-trace/
     mbed-client-libservice
     mbed-client-randlib/
@@ -82,12 +83,12 @@ target_compile_definitions(wisun-mac PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
 
 add_executable(wisun-br
-    wsbr.c
-    wsbr_mac.c
-    wsbr_fhss_mac.c
-    wsbr_fhss_net.c
-    tun.c
-    os_whiteboard.c
+    host-net/wsbr.c
+    host-net/wsbr_mac.c
+    host-net/wsbr_fhss_mac.c
+    host-net/wsbr_fhss_net.c
+    host-net/tun.c
+    host-net/os_whiteboard.c
     host-common/bus_uart.c
     host-common/bus_spi.c
     host-common/hal_interrupt.c
@@ -303,6 +304,7 @@ add_executable(wisun-br
 )
 
 target_include_directories(wisun-br PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     mbedtls/include/
     mbed-trace/
     mbed-client-randlib/
@@ -324,10 +326,10 @@ target_compile_definitions(wisun-br PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
 
 add_executable(wisun-router
-    wsrouter.c
-    wsbr_mac.c
-    wsbr_fhss_mac.c
-    wsbr_fhss_net.c
+    host-net/wsrouter.c
+    host-net/wsbr_mac.c
+    host-net/wsbr_fhss_mac.c
+    host-net/wsbr_fhss_net.c
     host-common/bus_uart.c
     host-common/bus_spi.c
     host-common/hal_interrupt.c
@@ -544,6 +546,7 @@ add_executable(wisun-router
 )
 
 target_include_directories(wisun-router PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     mbedtls/include/
     mbed-trace/
     mbed-client-randlib/

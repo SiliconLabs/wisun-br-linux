@@ -27,7 +27,7 @@
 #include "6LoWPAN/ws/ws_neighbor_class.h"
 #include "6LoWPAN/ws/ws_common.h"
 #include "ws_management_api.h"
-#include "../../../../wsbr_fhss_net.h"
+#include "../../../../host-net/wsbr_fhss_net.h"
 
 #ifdef HAVE_WS
 
