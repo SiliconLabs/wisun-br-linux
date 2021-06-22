@@ -315,8 +315,10 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
                         "\x00\x00\x00\x00\x00\x00\x00\x00", 8)) {
                 fhss_data = &ctxt->neighbor_timings[i].val;
                 memcpy(ctxt->neighbor_timings[i].eui64, eui64, 8);
+                break;
             }
         }
+        BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "full");
     }
     if (WARN_ON(!fhss_data))
         return;
