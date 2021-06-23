@@ -361,6 +361,7 @@ int main(int argc, char *argv[])
     wsbr_rcp_get_hw_addr(ctxt);
     while (!ctxt->hw_addr_done)
         rcp_rx(ctxt);
+     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
     if (net_init_core())
         BUG("net_init_core");
