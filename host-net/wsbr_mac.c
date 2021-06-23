@@ -677,6 +677,9 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
     BUG_ON(!api);
     BUG_ON(!mac64);
 
+    if (memcmp(ctxt->dynamic_mac, mac64, 8))
+        WARN("Not implemented");
+
     memcpy(ctxt->dynamic_mac, mac64, 8);
     return 0;
 }
