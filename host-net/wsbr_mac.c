@@ -40,6 +40,8 @@ void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, int frame_len)
 {
+    int ret;
+
     switch (prop) {
     case SPINEL_PROP_WS_DEVICE_TABLE: {
         struct mlme_device_descriptor_s data;
@@ -51,10 +53,11 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
             .value_size = sizeof(data),
         };
 
-        spinel_datatype_unpack(frame, sizeof(frame), "iSSELb",
+        ret = spinel_datatype_unpack(frame, frame_len, "iSSELb",
                                &req.attr_index, &data.PANId, &data.ShortAddress,
                                &ext_address, &data.FrameCounter,
                                &exempt);
+        BUG_ON(ret != frame_len);
         memcpy(data.ExtAddress, ext_address, sizeof(uint8_t) * 8);
         data.Exempt = exempt;
         TRACE("cnf macDeviceTable");
@@ -69,8 +72,9 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
             .value_size = sizeof(data),
         };
 
-        spinel_datatype_unpack(frame, sizeof(frame), "iL",
+        ret = spinel_datatype_unpack(frame, frame_len, "iL",
                                &req.attr_index, &data);
+        BUG_ON(ret != frame_len);
         TRACE("cnf macFrameCounter");
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
@@ -80,8 +84,9 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
             .attr = macCCAThreshold,
         };
 
-        spinel_datatype_unpack(frame, sizeof(frame), "d",
+        ret = spinel_datatype_unpack(frame, frame_len, "d",
                                &req.value_pointer, &req.value_size);
+        BUG_ON(ret != frame_len);
         TRACE("cnf macCCAThreshold");
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
@@ -91,8 +96,9 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         void *data;
 
         BUG_ON(!ctxt->mac_api.mlme_ind_cb);
-        spinel_datatype_unpack(frame, frame_len, "id",
+        ret = spinel_datatype_unpack(frame, frame_len, "id",
                                &id, &data, NULL);
+        BUG_ON(ret != frame_len);
         TRACE("mlmeInd");
         ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
         break;
@@ -100,7 +106,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
     case SPINEL_PROP_STREAM_STATUS: {
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };
-        int ret;
         int len[3];
 
         BUG_ON(!ctxt->mac_api.data_conf_ext_cb, "not implmemented");
@@ -128,7 +133,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         bool tmp_bool[1];
         void *tmp_ptr[3];
         int len[3];
-        int ret;
 
         ret = spinel_datatype_unpack(frame, frame_len, "dCSECSECcLbCCCCEdd",
                                &req.msdu_ptr, &len[0],
@@ -161,7 +165,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
     }
     case SPINEL_PROP_HWADDR: {
         TRACE("cnf macEui64");
-        spinel_datatype_unpack_in_place(frame, sizeof(frame), "E", ctxt->hw_mac);
+        ret = spinel_datatype_unpack_in_place(frame, frame_len, "E", ctxt->hw_mac);
+        BUG_ON(ret != frame_len);
         ctxt->hw_addr_done = true;
         break;
     }
