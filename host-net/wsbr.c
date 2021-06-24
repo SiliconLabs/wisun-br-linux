@@ -352,6 +352,7 @@ int main(int argc, char *argv[])
     mbed_trace_init();
     eventOS_scheduler_init();
     configure(ctxt, argc, argv);
+    wsbr_tun_init(ctxt);
     ns_file_system_set_root_path("/tmp/wsbr_");
 
     wsbr_rcp_reset(ctxt);
@@ -365,8 +366,6 @@ int main(int argc, char *argv[])
 
     if (net_init_core())
         BUG("net_init_core");
-
-    wsbr_tun_init(ctxt);
 
     ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, "ws0");
     if (ctxt->rcp_if_id < 0)
