@@ -328,6 +328,7 @@ int main(int argc, char *argv[])
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
     configure(ctxt, argc, argv);
     ns_file_system_set_root_path("/tmp/wsrouter_");
