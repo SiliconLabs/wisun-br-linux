@@ -749,13 +749,13 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
     static const struct {
-        uint32_t id;
+        int id;
         void (*fn)(struct wsmac_ctxt *, const void *);
     } table[] = {
         { MLME_GET,   wsmac_mlme_get },
         { MLME_START, wsmac_mlme_start },
         { MLME_SCAN,  wsmac_mlme_scan },
-        { -1 },
+        { -1,         NULL },
     };
     int i;
 
