@@ -170,7 +170,6 @@ void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui6
     uint8_t frame[2048];
     int frame_len;
 
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiECCSdCCSSLL",
                                      hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,
                                      eui64, fhss_data->clock_drift, fhss_data->timing_accuracy,

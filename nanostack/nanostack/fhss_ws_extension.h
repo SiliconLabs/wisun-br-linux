@@ -102,6 +102,15 @@ extern int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64
  */
 extern int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8]);
 
+/* @brief Called when MAC change timning info of a neighbor. This function is
+ * not called by the original nanostack. It is used to push relevant information
+ * to the host in the case of a splited stack.
+ * @param fhss_api FHSS instance.
+ * @param eui64 MAC adress of the remote host
+ * @param fhss_data Pointer to timing information
+ */
+extern void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui64[8], fhss_ws_neighbor_timing_info_t *fhss_data);
+
 /**
  * @brief Set neighbor timing/hopping schedule request function.
  * @param fhss_api FHSS instance.

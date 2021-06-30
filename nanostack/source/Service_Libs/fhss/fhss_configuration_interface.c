@@ -64,6 +64,13 @@ int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8])
     return fhss_ws_remove_parent(fhss_structure, eui64);
 }
 
+void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui64[8], fhss_ws_neighbor_timing_info_t *fhss_data)
+{
+    (void)fhss_api;
+    (void)eui64;
+    (void)fhss_data;
+}
+
 int ns_fhss_delete(fhss_api_t *fhss_api)
 {
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
