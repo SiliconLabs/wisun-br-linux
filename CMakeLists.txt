@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wisun-host)
+include(GNUInstallDirs)
 # These option only work with gcc, but we do not plan to compiler with another
 # compiler.
 add_compile_options(-Wall)
@@ -582,3 +583,4 @@ target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
+install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
