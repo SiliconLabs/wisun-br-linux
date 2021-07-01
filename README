@@ -1,41 +1,90 @@
 Linux implementation of Wi-SUN
 ==============================
 
-Compile
--------
+This projects aims to implement the Wi-SUN protocol on Linux devices and
+especially allow to use Linux as Border Router for Wi-SUN networks . For now
+this work is mostly a port of the nanostack project on Linux hosts. However, the
+goal is to replace services currently provided by the nanostack by native
+Linux services.
 
-Install dependencies:
+Quick start guide
+-----------------
 
-    sudo apt-get install libnl-3-dev
+=== Prerequisites
 
-Compile with:
+This project provide a daemon which takes care of all the high level stuff of
+the Wi-SUN protocol. Then a RF device (RF Co-Processor, RCP) is necessary to
+transmit the data.  Currently, the only supported device is the EFR32.
 
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug .
+The EFR32 need to flashed with a specific firmware in order to communicate with
+the daemon. This firmware has not et been merged with the master branch of the
+Wi-SUN component. It is [available here][1]. The last tag tested is
+"rcp-v0.0.1". You will be able to compile the project wisunrcp as usual using
+the `slc` tool provided by Silabs. Then, you obviously need to flash the
+firmware.
+
+For now, from the RF device point of view, the serial link is the only bus
+supported to communicate with the host. Thanks to the WSTK board, the serial
+link is provided over the USB connector of the WSTK board. The device /dev/ACMx
+should appears when you plug the WSTK.
+
+[1]: https://stash.silabs.com/scm/~jepouill/wisun
+
+=== Compile
+
+The project depends on libnl-3-dev and libpcap. For the build, you will need
+`cmake`. We also encourage use of Ninja as `cmake` back-end.
+
+On Debian and its derivatives, you can install the necessary dependencies with:
+
+    sudo apt-get install libnl-3-dev libpcap-dev cmake ninja
+
+Then you can compile with:
+
+    cmake -G Ninja .
     ninja
 
-Quick start
------------
+And finally, you may install the service with:
 
-You can directly run:
+   ninja install
 
-    sudo ./wisun-br -u /dev/ttyACM0
+Note that no scripts for any start up service are provided for now.
 
-You may want to run radvd with this radvd.conf:
+=== Launch
 
-    interface tunX
+The Wi-SUN network will use IPv6. Router advertisement on the Wi-SUN network
+interface is necessary to make it work correctly.
+
+The configuration of the Router Advertiser hightly depends on your network
+environment. An example could be to run radvd with this radvd.conf:
+
+    interface tun0
     {
-            AdvSendAdvert on;
-            IgnoreIfMissing on;
-            AdvDefaultLifetime 0;
-            prefix fd01:1236::/64
-            {
-            };
+        AdvSendAdvert on;
+        IgnoreIfMissing on;
+        AdvDefaultLifetime 0;
+        prefix fd01:1236::/64
+        {
+        };
     };
 
-Run wisun-br without root privilege
+Note that an IP address will also been necessary on interface `tun0`. You can
+provide one manually with `ip addr add` and leave radvd to make the job with
+`sysctl net.ipv6.conf.tun0.accept_ra=2`.
+
+Then, you can run the Wi-SUN Border Router daemon with:
+
+    sudo wsbrd -u /dev/ttyACMx
+
+wsbrd accept several option to set the regulation domain, etc... They are
+documented in the output of `wsbrd --help`
+
+Run `wsbrd` without root privileges
 -----------------------------------
 
-Ensure you have permission to acces to UART device:
+If we are a bit careful, it possible to launch `wsbrd` without root privileges.
+
+First, ensure you have permission to access to UART device:
 
     sudo usermod -d dialout YOUR_USER
 
@@ -45,50 +94,47 @@ Create a tun interface:
 
     sudo ip tuntap add mode tun tun0 user YOUR_USER
 
-Start wisun-br:
+Start wsbrd:
 
-    ./wisun-br -t tun0 -u /dev/ttyACM0
+    wsbrd -t tun0 -u /dev/ttyACM0
 
-Run wisun-br with simulated Wi-SUN MAC
---------------------------------------
+
+Run `wsbrd` without RF hardware
+-------------------------------
+
+The compilation also generate binary `wshwsim` that simulate a RF device.
+This binary is not installed by default, you will find it in your build
+directory.
+
+To use it, you have first to create a pseudo UART device (a PTY) with `socat`:
 
     socat -d -d pty,raw,echo=0 pty,raw,echo=0
-    ./wisun-mac -u /dev/pty1
-    ./wisun-br -u /dev/pty2
 
+Then, report the names of created device to arguments of wsbrd and wshwsim:
 
-Run a small network with one route and one border router
---------------------------------------------------------
+    ./wshwsim -u /dev/pty1 /dev/null
+    ./wsbrd -u /dev/pty2
 
-    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 1,2
-    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 3,4
-    socat -d -d pty,raw,echo=0 pty,raw,echo=0 -> return 5,6
-    ./wisun-mac -u /dev/pts/3 /dev/pts/1
-    ./wisun-br -u /dev/pts/4
-    ./wisun-mac -u /dev/pts/5 /dev/pts/2
-    ./wisun-router -u /dev/pts/6
+The project also generate binary `wsnode` that act as a Wi-SUN node. `wsnode`
+will connect automatically to the Wi-SUN network and reply to the ping requests.
+It is sufficient for rough testing. Like `wsbrd`, `wsnode` need a RF device to
+work. The hardware can also been simulated with `wshwsim`:
 
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0
+    [...]
+    ./wshwsim -u /dev/pty3 /devnull
+    ./wsnode -u /dev/pty4
 
-How to generate code coverage?
-------------------------------
+Finally, you can link the `wshwsim` together using a third PTY:
 
-    sudo apt-get install lcov
-    mkdir build-cov
-    cd build-cov
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage ..
-    ninja
-    [Run your test]
-    lcov -c -d CMakeFiles/wisun-br.dir > wisun-br.trace
-    genhtml -o cov-br --prefix PROJECT_DIR wisun-br.trace
-    google-chrome cov-br/index.html
-    lcov -c -d CMakeFiles/wisun-mac.dir > wisun-mac.trace
-    genhtml -o cov-mac --prefix PROJECT_DIR wisun-mac.trace
-    google-chrome cov-mac/index.html
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0
+      -> return /dev/pts/1 and /dev/pts/2
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0
+      -> return /dev/pts/3 and /dev/pts/4
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0
+      -> return /dev/pts/5 and /dev/pts/6
+    ./wshwsim -u /dev/pts/3 /dev/pts/1
+    ./wsbrd -u /dev/pts/4
+    ./wshwsim -u /dev/pts/5 /dev/pts/2
+    ./wsnode -u /dev/pts/6
 
-
-Bugs and limitations
---------------------
-
-It seems that the FHSS implementation does not fit well with Linux. I think
-that FHSS timer should raise every 166ms, but in practice there is a lot of
-jitter.
