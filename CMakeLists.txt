@@ -12,7 +12,7 @@ add_compile_options(-Wall)
 
 add_compile_definitions(NO_TCP)
 
-add_executable(wisun-mac
+add_executable(wshwsim
     host-mac/wsmac.c
     host-mac/wsmac_mac.c
     host-mac/wsmac_rf_driver.c
@@ -59,7 +59,7 @@ add_executable(wisun-mac
     # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
 )
 
-target_include_directories(wisun-mac PRIVATE
+target_include_directories(wshwsim PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     mbed-trace/
     mbed-client-libservice
@@ -67,7 +67,7 @@ target_include_directories(wisun-mac PRIVATE
     nanostack-event-loop/
     nanostack/
 )
-target_include_directories(wisun-mac PRIVATE
+target_include_directories(wshwsim PRIVATE
     mbed-client-libservice/mbed-client-libservice/
     mbed-client-randlib/mbed-client-randlib/
     nanostack-event-loop/nanostack-event-loop/
@@ -75,14 +75,14 @@ target_include_directories(wisun-mac PRIVATE
     nanostack/source/
 )
 
-target_compile_definitions(wisun-mac PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
-target_compile_definitions(wisun-mac PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-# target_compile_definitions(wisun-mac PRIVATE FHSS_CHANNEL_DEBUG)
-# target_compile_definitions(wisun-mac PRIVATE TIMING_TOOL_TRACES)
-target_compile_definitions(wisun-mac PRIVATE EXTRA_DEBUG_INFO)
-target_compile_definitions(wisun-mac PRIVATE STANDARD_MALLOC)
+target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+# target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
+# target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
+target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
+target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
 
-add_executable(wisun-br
+add_executable(wsbrd
     host-net/wsbr.c
     host-net/wsbr_mac.c
     host-net/wsbr_fhss_mac.c
@@ -303,7 +303,7 @@ add_executable(wisun-br
     mbedtls/library/x509_crt.c
 )
 
-target_include_directories(wisun-br PRIVATE
+target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     mbedtls/include/
     mbed-trace/
@@ -312,7 +312,7 @@ target_include_directories(wisun-br PRIVATE
     nanostack-event-loop/
     nanostack/
 )
-target_include_directories(wisun-br PRIVATE
+target_include_directories(wsbrd PRIVATE
     mbedtls/
     mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
@@ -320,12 +320,12 @@ target_include_directories(wisun-br PRIVATE
     nanostack/nanostack/
     nanostack/source/
 )
-target_compile_definitions(wisun-br PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
-target_compile_definitions(wisun-br PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-target_compile_definitions(wisun-br PRIVATE EXTRA_DEBUG_INFO)
-target_compile_definitions(wisun-br PRIVATE STANDARD_MALLOC)
+target_compile_definitions(wsbrd PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
+target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
 
-add_executable(wisun-router
+add_executable(wsnode
     host-net/wsrouter.c
     host-net/wsbr_mac.c
     host-net/wsbr_fhss_mac.c
@@ -545,7 +545,7 @@ add_executable(wisun-router
     mbedtls/library/x509_crt.c
 )
 
-target_include_directories(wisun-router PRIVATE
+target_include_directories(wsnode PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     mbedtls/include/
     mbed-trace/
@@ -554,7 +554,7 @@ target_include_directories(wisun-router PRIVATE
     nanostack-event-loop/
     nanostack/
 )
-target_include_directories(wisun-router PRIVATE
+target_include_directories(wsnode PRIVATE
     mbedtls/
     mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
@@ -563,22 +563,22 @@ target_include_directories(wisun-router PRIVATE
     nanostack/source/
 )
 
-target_compile_definitions(wisun-router PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_router)
-target_compile_definitions(wisun-router PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-target_compile_definitions(wisun-router PRIVATE EXTRA_DEBUG_INFO)
-target_compile_definitions(wisun-router PRIVATE STANDARD_MALLOC)
+target_compile_definitions(wsnode PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_router)
+target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
+target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)
 
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
-target_link_libraries(wisun-br PRIVATE PkgConfig::LIBNL_ROUTE)
+target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 
 pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
-target_link_libraries(wisun-mac PRIVATE PkgConfig::LIBPCAP)
+target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(wisun-br PRIVATE Threads::Threads)
-target_link_libraries(wisun-router PRIVATE Threads::Threads)
-target_link_libraries(wisun-mac PRIVATE Threads::Threads)
+target_link_libraries(wsbrd PRIVATE Threads::Threads)
+target_link_libraries(wsnode PRIVATE Threads::Threads)
+target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
