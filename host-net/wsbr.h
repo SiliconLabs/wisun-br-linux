@@ -12,6 +12,7 @@
 
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
+#include "nanostack/net_interface.h"
 
 struct phy_device_driver_s;
 struct eth_mac_api_s;
@@ -49,6 +50,8 @@ struct wsbr_ctxt {
     int  ws_mode;
     int  ws_class;
     char ws_name[33]; // null-terminated string of 32 chars
+    arm_certificate_entry_s tls_own;
+    arm_certificate_entry_s tls_ca;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
