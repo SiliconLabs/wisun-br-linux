@@ -3,12 +3,14 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/stat.h>
 #include <sys/select.h>
 
 #include "mbed-trace/mbed_trace.h"
@@ -28,7 +30,6 @@
 #include "host-common/slist.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "wsbr_certs.h"
 #include "host-common/bus_uart.h"
 #include "host-common/bus_spi.h"
 #include "host-common/os_types.h"
@@ -67,12 +68,22 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
     fprintf(stream, "  -s                    Use SPI bus\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SN\")\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU (default), NA,\n");
     fprintf(stream, "                          JP...\n");
     fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Wi-SUN network authentication:\n");
+    fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
+    fprintf(stream, "  or DER format.\n");
+    fprintf(stream, "  -K, --key=FILE        Private key (keep it secret)\n");
+    fprintf(stream, "  -C, --cert=FILE       Certificate for the key\n");
+    fprintf(stream, "  -A, --authority=FILE  Certificate of the authority (CA) (shared with all devices\n");
+    fprintf(stream, "                        of the network)\n");
     fprintf(stream, "\n");
     fprintf(stream, "UART options\n");
     fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
@@ -87,6 +98,24 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  wisun-br -s /dev/spi1.1 141\n");
     fprintf(stream, "  wisun-br -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
     exit(exit_code);
+}
+
+size_t read_file(const char *filename, const uint8_t **ptr)
+{
+    uint8_t *tmp;
+    int fd, ret;
+    struct stat st;
+
+    fd = open(filename, O_RDONLY);
+    FATAL_ON(fd < 0, 1, "%s: %d %m", filename, fd);
+    ret = fstat(fd, &st);
+    FATAL_ON(ret < 0, 1, "fstat: %s: %m", filename);
+    tmp = malloc(st.st_size);
+    ret = read(fd, tmp, st.st_size);
+    FATAL_ON(ret != st.st_size, 1, "read: %s: %m", filename);
+    close(fd);
+    *ptr = tmp;
+    return st.st_size;
 }
 
 void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
@@ -121,6 +150,10 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         { "domain",      required_argument, 0,  'd' },
         { "mode",        required_argument, 0,  'm' },
         { "class",       required_argument, 0,  'c' },
+        { "key",         required_argument, 0,  'K' },
+        { "cert",        required_argument, 0,  'C' },
+        { "certificate", required_argument, 0,  'C' },
+        { "authority",   required_argument, 0,  'A' },
         { "baudrate",    required_argument, 0,  'b' },
         { "hardflow",    no_argument,       0,  'H' },
         { "frequency",   required_argument, 0,  'f' },
@@ -137,7 +170,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     ctxt->ws_domain = REG_DOMAIN_EU;
     ctxt->ws_mode = 0x1a;
     strcpy(ctxt->ws_name, "Wi-SUN");
-    while ((opt = getopt_long(argc, argv, "usf:Hb:t:n:d:m:h", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "usf:Hb:t:n:d:m:K:C:A:h", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'u':
             case 's':
@@ -174,6 +207,21 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 if (*end_ptr || ctxt->ws_class > 3)
                     FATAL(1, "invalid operating class: %s", optarg);
                 break;
+            case 'K':
+                if (ctxt->tls_own.key)
+                    FATAL(1, "--key can be specified only one time");
+                ctxt->tls_own.key_len = read_file(optarg, &ctxt->tls_own.key);
+                break;
+            case 'C':
+                if (ctxt->tls_own.cert)
+                    FATAL(1, "--cert can be specified only one time");
+                ctxt->tls_own.cert_len = read_file(optarg, &ctxt->tls_own.cert);
+                break;
+            case 'A':
+                if (ctxt->tls_ca.cert)
+                    FATAL(1, "--authority can be specified only one time");
+                ctxt->tls_ca.cert_len = read_file(optarg, &ctxt->tls_ca.cert);
+                break;
             case 'b':
                 baudrate = strtoul(optarg, &end_ptr, 10);
                 if (*end_ptr)
@@ -196,6 +244,12 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 break;
         }
     }
+    if (!ctxt->tls_own.key)
+        FATAL(1, "You must specify --key");
+    if (!ctxt->tls_own.cert)
+        FATAL(1, "You must specify --cert");
+    if (!ctxt->tls_ca.cert)
+        FATAL(1, "You must specify --authority");
     if (bus == 's') {
         if (argc != optind + 2)
             print_help(stderr, 1);
@@ -218,7 +272,6 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
-    arm_certificate_chain_entry_s chain_info = { };
     int ret;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
@@ -257,13 +310,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     // ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
     // WARN_ON(ret);
 
-    chain_info.cert_chain[0] = WISUN_ROOT_CERTIFICATE;
-    chain_info.cert_len[0] = sizeof(WISUN_ROOT_CERTIFICATE);
-    chain_info.cert_chain[1] = WISUN_CLIENT_CERTIFICATE;
-    chain_info.cert_len[1] = sizeof(WISUN_CLIENT_CERTIFICATE);
-    chain_info.chain_length = 2;
-    chain_info.key_chain[1] = WISUN_CLIENT_KEY;
-    ret = arm_network_certificate_chain_set(&chain_info);
+    ret = arm_network_own_certificate_add(&ctxt->tls_own);
+    WARN_ON(ret);
+
+    ret = arm_network_trusted_certificate_add(&ctxt->tls_ca);
     WARN_ON(ret);
 }
 
