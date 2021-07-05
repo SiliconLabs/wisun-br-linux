@@ -58,12 +58,12 @@ struct wsbr_ctxt g_ctxt = {
 struct os_ctxt g_os_ctxt = { };
 
 void print_help(FILE *stream, int exit_code) {
-    fprintf(stream, "Start Wi-SUN border router\n");
+    fprintf(stream, "Simulate a Wi-SUN node\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wisun-br -u [OPTIONS] UART_DEVICE\n");
-    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
-    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
+    fprintf(stream, "  wsnode -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
+    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
@@ -94,9 +94,9 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wisun-br -u /dev/ttyUSB0 -H\n");
-    fprintf(stream, "  wisun-br -s /dev/spi1.1 141\n");
-    fprintf(stream, "  wisun-br -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
+    fprintf(stream, "  wsnode -u /dev/ttyUSB0 -H\n");
+    fprintf(stream, "  wsnode -u /dev/pty/17 -n my_net\n");
+    fprintf(stream, "  wsnode -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
     exit(exit_code);
 }
 
