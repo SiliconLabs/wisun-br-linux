@@ -71,6 +71,8 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -u                    Use UART bus\n");
     fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SN\")\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU (default), NA,\n");
     fprintf(stream, "                          JP...\n");
