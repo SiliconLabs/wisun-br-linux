@@ -64,9 +64,9 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wisun-br -u [OPTIONS] UART_DEVICE\n");
-    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
-    fprintf(stream, "  wisun-br -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
+    fprintf(stream, "  wsbrd -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wsbrd -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
+    fprintf(stream, "  wsbrd -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
@@ -98,9 +98,9 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wisun-br -u /dev/ttyUSB0 -H\n");
-    fprintf(stream, "  wisun-br -s -n my_network /dev/spi1.1 141\n");
-    fprintf(stream, "  wisun-br -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
+    fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -H\n");
+    fprintf(stream, "  wsbrd -s -n my_network /dev/spi1.1 141\n");
+    fprintf(stream, "  wsbrd -s /dev/spi1.1 /sys/class/gpio/gpio141/value\n");
     exit(exit_code);
 }
 
