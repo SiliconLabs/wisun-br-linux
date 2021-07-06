@@ -25,6 +25,7 @@
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Core/include/ns_address_internal.h"
 #include "platform/topo_trace.h"
+#include "nanostack/fhss_ws_extension.h"
 
 mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)
 {
@@ -73,6 +74,7 @@ static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class,
     }
     topo_trace(TOPOLOGY_MLE, entry->mac64, TOPO_REMOVE);
 
+    ns_fhss_ws_drop_neighbor(entry->mac64);
 
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));

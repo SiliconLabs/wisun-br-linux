@@ -186,6 +186,20 @@ void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui6
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
+void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
+    uint8_t frame[2048];
+    int frame_len;
+
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE",
+                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR,
+                                     eui64);
+    BUG_ON(frame_len <= 0);
+    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+}
+
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
                                  fhss_get_neighbor_info *get_neighbor_info)
 {

@@ -111,6 +111,15 @@ extern int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eu
  */
 extern void ns_fhss_ws_set_neighbor(const struct fhss_api *fhss_api, const uint8_t eui64[8], fhss_ws_neighbor_timing_info_t *fhss_data);
 
+
+/**
+ * @brief Inform the MAC layer it can drop a neighbor from its list. This
+ *     function is not called by the original nanostack. It is used to push
+ *     relevant information to the host in the case of a splited stack.
+ * @param eui64 MAC adress of the remote host
+ */
+extern void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8]);
+
 /**
  * @brief Set neighbor timing/hopping schedule request function.
  * @param fhss_api FHSS instance.

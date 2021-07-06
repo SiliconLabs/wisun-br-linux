@@ -308,7 +308,6 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             fhss_data = &ctxt->neighbor_timings[i].val;
     if (!fhss_data) {
-        // FIXME: What about removing entries?
         TRACE("add new entry");
         for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++) {
             if (!memcmp(ctxt->neighbor_timings[i].eui64,
@@ -336,6 +335,21 @@ static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t 
     fhss_data->uc_timing_info.ufsi = tmp32;
     fhss_data->uc_timing_info.unicast_channel_function = tmp;
     BUG_ON(tmp_len != sizeof(fhss_data->uc_channel_list.channel_mask));
+}
+
+static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+{
+    const uint8_t *eui64;
+    struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
+    int i;
+
+    spinel_datatype_unpack(frame, frame_len, "E", &eui64);
+    for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
+        if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
+            fhss_data = &ctxt->neighbor_timings[i].val;
+    if (WARN_ON(!fhss_data))
+        return;
+    memset(ctxt->neighbor_timings[i].eui64, 0, 8);
 }
 
 static fhss_ws_neighbor_timing_info_t *wsmac_fhss_get_neighbor_info(const fhss_api_t *fhss_api, uint8_t eui64[8])
@@ -610,6 +624,7 @@ static const struct {
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
     { "fhssSetNeighbor",                 0 /* Special */,                 wsmac_spinel_fhss_set_neighbor,         SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,                },
+    { "fhssDropNeighbor",                0 /* Special */,                 wsmac_spinel_fhss_drop_neighbor,        SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR,               },
     { "fhssSetTxAllowanceLevel",         0 /* Special */,                 wsmac_spinel_fhss_set_tx_allowance_level, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL,    },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
     { "mlmeReset",                       0 /* Special */,                 wsmac_spinel_ws_reset,                  SPINEL_PROP_WS_RESET,                            },
