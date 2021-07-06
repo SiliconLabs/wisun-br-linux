@@ -145,7 +145,6 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         { "SG", REG_DOMAIN_SG_H }, // band 920-925
     };
     static const struct option opt_list[] = {
-        { "help",        no_argument,       0,  'h' },
         { "network",     required_argument, 0,  'n' },
         { "domain",      required_argument, 0,  'd' },
         { "mode",        required_argument, 0,  'm' },
@@ -155,8 +154,9 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
         { "certificate", required_argument, 0,  'C' },
         { "authority",   required_argument, 0,  'A' },
         { "baudrate",    required_argument, 0,  'b' },
-        { "hardflow",    no_argument,       0,  'H' },
         { "frequency",   required_argument, 0,  'f' },
+        { "hardflow",    no_argument,       0,  'H' },
+        { "help",        no_argument,       0,  'h' },
         { 0,             0,                 0,   0  }
     };
     char *end_ptr;
@@ -170,7 +170,7 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     ctxt->ws_domain = REG_DOMAIN_EU;
     ctxt->ws_mode = 0x1a;
     strcpy(ctxt->ws_name, "Wi-SUN");
-    while ((opt = getopt_long(argc, argv, "usf:Hb:t:n:d:m:K:C:A:h", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "usn:d:m:c:K:C:A:b:f:Hh", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'u':
             case 's':
