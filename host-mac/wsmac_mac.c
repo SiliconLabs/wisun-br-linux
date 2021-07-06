@@ -295,7 +295,7 @@ static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, ml
     ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, global_level, ef_level);
 }
 
-static void wsmac_spinel_fhss_set_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     const uint8_t *eui64;
     struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
@@ -623,7 +623,7 @@ static const struct {
     { "fhssSetHopCount",                 0 /* Special */,                 wsmac_spinel_fhss_set_hop_count,        SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,               },
     { "fhssSetConf",                     0 /* Special */,                 wsmac_spinel_fhss_set_conf,             SPINEL_PROP_WS_FHSS_SET_CONF,                    },
     { "fhssSetParent",                   0 /* Special */,                 wsmac_spinel_fhss_set_parent,           SPINEL_PROP_WS_FHSS_SET_PARENT,                  },
-    { "fhssSetNeighbor",                 0 /* Special */,                 wsmac_spinel_fhss_set_neighbor,         SPINEL_PROP_WS_FHSS_SET_NEIGHBOR,                },
+    { "fhssUpdateNeighbor",              0 /* Special */,                 wsmac_spinel_fhss_update_neighbor,      SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR,             },
     { "fhssDropNeighbor",                0 /* Special */,                 wsmac_spinel_fhss_drop_neighbor,        SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR,               },
     { "fhssSetTxAllowanceLevel",         0 /* Special */,                 wsmac_spinel_fhss_set_tx_allowance_level, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL,    },
     { "mlmeStart",                       0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
