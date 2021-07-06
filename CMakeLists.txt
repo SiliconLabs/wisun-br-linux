@@ -584,3 +584,10 @@ target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES
+    examples/br_cert.pem
+    examples/br_key.pem
+    examples/ca_cert.pem
+    examples/node_cert.pem
+    examples/node_key.pem
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/wsbrd/examples)
