@@ -72,12 +72,23 @@ Note that an IP address will also been necessary on interface `tun0`. You can
 provide one manually with `ip addr add` and leave radvd to make the job with
 `sysctl net.ipv6.conf.tun0.accept_ra=2`.
 
-Then, you can run the Wi-SUN Border Router daemon with:
+Then, you need certficates and keys to authenticate the Wi-SUN nodes of your
+network. The generation of these files is described in [[Generate Wi-SUN PKI]].
+For now, you can use the examples installed in `/usr/share/wsbrd/examples/`.
 
-    sudo wsbrd -u /dev/ttyACMx
+So, you can run the Wi-SUN Border Router daemon with:
+
+    cp -r /usr/share/wsbrd/examples/ pki
+    sudo wsbrd -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -u /dev/ttyACMx
 
 wsbrd accept several option to set the regulation domain, etc... They are
 documented in the output of `wsbrd --help`
+
+Generate Wi-SUN PKI
+-------------------
+
+TBD
+
 
 Run `wsbrd` without root privileges
 -----------------------------------
@@ -96,7 +107,7 @@ Create a tun interface:
 
 Start wsbrd:
 
-    wsbrd -t tun0 -u /dev/ttyACM0
+    wsbrd -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -t tun0 -u /dev/ttyACM0
 
 
 Run `wsbrd` without RF hardware
@@ -113,7 +124,7 @@ To use it, you have first to create a pseudo UART device (a PTY) with `socat`:
 Then, report the names of created device to arguments of wsbrd and wshwsim:
 
     ./wshwsim -u /dev/pty1 /dev/null
-    ./wsbrd -u /dev/pty2
+    ./wsbrd -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -u /dev/pty2
 
 The project also generate binary `wsnode` that act as a Wi-SUN node. `wsnode`
 will connect automatically to the Wi-SUN network and reply to the ping requests.
@@ -123,7 +134,7 @@ work. The hardware can also been simulated with `wshwsim`:
     socat -d -d pty,raw,echo=0 pty,raw,echo=0
     [...]
     ./wshwsim -u /dev/pty3 /devnull
-    ./wsnode -u /dev/pty4
+    ./wsnode -A pki/ca_cert.pem -C pki/node_cert.pem -K pki/node_key.pem -u /dev/pty4
 
 Finally, you can link the `wshwsim` together using a third PTY:
 
@@ -134,7 +145,7 @@ Finally, you can link the `wshwsim` together using a third PTY:
     socat -d -d pty,raw,echo=0 pty,raw,echo=0
       -> return /dev/pts/5 and /dev/pts/6
     ./wshwsim -u /dev/pts/3 /dev/pts/1
-    ./wsbrd -u /dev/pts/4
+    ./wsbrd -u /dev/pts/4 -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem
     ./wshwsim -u /dev/pts/5 /dev/pts/2
-    ./wsnode -u /dev/pts/6
+    ./wsnode -u /dev/pts/6 -A pki/ca_cert.pem -C pki/node_cert.pem -K pki/node_key.pem
 
