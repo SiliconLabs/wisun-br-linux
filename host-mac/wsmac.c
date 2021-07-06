@@ -114,14 +114,14 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     ctxt->eui64[0] |= 2;
     while ((opt = getopt_long(argc, argv, "hm:c:w", opt_list, NULL)) != -1) {
         switch (opt) {
-            case 'w':
-                invoke_wireshark(ctxt);
+            case 'm':
+                configure_mac(ctxt, optarg);
                 break;
             case 'c':
                 configure_pcap_output(ctxt, optarg);
                 break;
-            case 'm':
-                configure_mac(ctxt, optarg);
+            case 'w':
+                invoke_wireshark(ctxt);
                 break;
             case 'h':
                 print_help(stdout, 0);
