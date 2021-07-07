@@ -486,27 +486,25 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
     const mlme_get_t *req = data;
-    uint8_t frame[10];
-    int frame_len;
-    int i;
+    int i, index = 0;
 
-    // SPINEL_CMD_PROP_VALUE_GET
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;
+    if (mlme_prop_cstr[i].prop == SPINEL_PROP_WS_DEVICE_TABLE ||
+        mlme_prop_cstr[i].prop == SPINEL_PROP_WS_KEY_TABLE ||
+        mlme_prop_cstr[i].prop == SPINEL_PROP_WS_FRAME_COUNTER)
+        index = req->attr_index;
+
     TRACE("get %s", mlme_prop_cstr[i].str);
-    switch  (mlme_prop_cstr[i].prop) {
-    case SPINEL_PROP_WS_DEVICE_TABLE:
-    case SPINEL_PROP_WS_KEY_TABLE:
-    case SPINEL_PROP_WS_FRAME_COUNTER:
-        frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr, SPINEL_CMD_PROP_VALUE_GET, mlme_prop_cstr[i].prop, req->attr_index);
-    default:
-        frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr, SPINEL_CMD_PROP_VALUE_GET, mlme_prop_cstr[i].prop, 0);
-    }
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_GET);
+    spinel_push_int(buf, mlme_prop_cstr[i].prop);
+    spinel_push_int(buf, index);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
