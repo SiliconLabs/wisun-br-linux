@@ -19,23 +19,20 @@
 #include "wsbr_fhss_net.h"
 #include "host-common/utils.h"
 #include "host-common/spinel.h"
+#include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 
 int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[7];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
 
     TRACE();
     BUG_ON(!mac_api);
     BUG_ON(!fhss_api);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cii",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_REGISTER);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_REGISTER);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     // The original function initialize of the callback. But it useless now.
     ctxt->fhss_api = fhss_api;
     return 0;
