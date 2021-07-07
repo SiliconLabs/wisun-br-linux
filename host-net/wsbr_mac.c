@@ -357,25 +357,26 @@ static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, 
 static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
                                       const mlme_key_descriptor_entry_t *req)
 {
-    uint8_t frame[128];
-    int frame_len;
-    int len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 32);
+    int lookup_len;
 
     BUG_ON(req->KeyIdLookupListEntries > 1);
     BUG_ON(req->KeyUsageListEntries);
     BUG_ON(req->KeyDeviceListEntries);
     if (!req->KeyIdLookupListEntries)
-        len = 0;
+        lookup_len = 0;
     else if (req->KeyIdLookupList->LookupDataSize)
-        len = 9;
+        lookup_len = 9;
     else
-        len = 5;
+        lookup_len = 5;
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cdd", entry_idx,
-                               req->Key, 16,
-                               req->KeyIdLookupList->LookupData, len);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_KEY_TABLE, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, SPINEL_PROP_WS_KEY_TABLE);
+    spinel_push_u8(buf, entry_idx);
+    spinel_push_data(buf, req->Key, 16, false); // FIXME use fixed length array
+    spinel_push_data(buf, req->KeyIdLookupList->LookupData, lookup_len, false);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, uint32_t val)
