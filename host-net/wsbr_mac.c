@@ -568,66 +568,60 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct channel_list_s *async_channel_list,
                        mac_data_priority_t priority)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
     const struct channel_list_s default_chan_list = {
         .channel_page = CHANNEL_PAGE_UNDEFINED,
     };
-    uint8_t frame[2048];
-    int frame_len;
-    int total, i, ret;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE);
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    int total, i;
 
-    BUG_ON(!api);
     BUG_ON(&ctxt->mac_api != api);
-    BUG_ON(!ie_ext);
     BUG_ON(data->TxAckReq && async_channel_list);
-    TRACE("mcpsReq");
+    BUG_ON(!ie_ext);
     if (!async_channel_list)
         async_channel_list = &default_chan_list;
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCCSECbbbbbbCCCESid",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_STREAM_RAW,
-                                     data->msdu, data->msduLength,
-                                     data->SrcAddrMode, data->DstAddrMode,
-                                     data->DstPANId, data->DstAddr,
-                                     data->msduHandle, data->TxAckReq,
-                                     data->InDirectTx, data->PendingBit,
-                                     data->SeqNumSuppressed, data->PanIdSuppressed,
-                                     data->ExtendedFrameExchange,
-                                     data->Key.SecurityLevel, data->Key.KeyIdMode,
-                                     data->Key.KeyIndex, data->Key.Keysource,
-                                     (uint16_t)priority,
-                                     async_channel_list->channel_page,
-                                     async_channel_list->channel_mask,
-                                     sizeof(async_channel_list->channel_mask));
+
+    TRACE("mcpsReq");
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, SPINEL_PROP_STREAM_RAW);
+    spinel_push_data(buf, data->msdu, data->msduLength, false);
+    spinel_push_u8(buf,   data->SrcAddrMode);
+    spinel_push_u8(buf,   data->DstAddrMode);
+    spinel_push_u16(buf,  data->DstPANId);
+    spinel_push_fixed_u8_array(buf, data->DstAddr, 8);
+    spinel_push_u8(buf,   data->msduHandle);
+    spinel_push_bool(buf, data->TxAckReq);
+    spinel_push_bool(buf, data->InDirectTx);
+    spinel_push_bool(buf, data->PendingBit);
+    spinel_push_bool(buf, data->SeqNumSuppressed);
+    spinel_push_bool(buf, data->PanIdSuppressed);
+    spinel_push_bool(buf, data->ExtendedFrameExchange);
+    spinel_push_u8(buf,   data->Key.SecurityLevel);
+    spinel_push_u8(buf,   data->Key.KeyIdMode);
+    spinel_push_u8(buf,   data->Key.KeyIndex);
+    spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
+    spinel_push_u16(buf,  priority);
+    spinel_push_int(buf,  async_channel_list->channel_page);
+    spinel_push_data(buf, (uint8_t *)async_channel_list->channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+
     total = 0;
     for (i = 0; i < ie_ext->payloadIovLength; i++)
         total += ie_ext->payloadIeVectorList[i].iovLen;
-    ret = spinel_datatype_pack(frame + frame_len, sizeof(frame) - frame_len,
-                               SPINEL_DATATYPE_UINT16_S, total);
-    BUG_ON(ret < 0);
-    frame_len += ret;
-    for (i = 0; i < ie_ext->payloadIovLength; i++) {
-        memcpy(frame + frame_len,
-               ie_ext->payloadIeVectorList[i].ieBase,
-               ie_ext->payloadIeVectorList[i].iovLen);
-        frame_len += ie_ext->payloadIeVectorList[i].iovLen;
-    }
+    spinel_push_u16(buf, total);
+    for (i = 0; i < ie_ext->payloadIovLength; i++)
+        spinel_push_data(buf, ie_ext->payloadIeVectorList[i].ieBase,
+                         ie_ext->payloadIeVectorList[i].iovLen, true);
 
     total = 0;
     for (i = 0; i < ie_ext->headerIovLength; i++)
         total += ie_ext->headerIeVectorList[i].iovLen;
-    ret = spinel_datatype_pack(frame + frame_len, sizeof(frame) - frame_len,
-                               SPINEL_DATATYPE_UINT16_S, total);
-    BUG_ON(ret < 0);
-    frame_len += ret;
-    for (i = 0; i < ie_ext->headerIovLength; i++) {
-        memcpy(frame + frame_len,
-               ie_ext->headerIeVectorList[i].ieBase,
-               ie_ext->headerIeVectorList[i].iovLen);
-        frame_len += ie_ext->headerIeVectorList[i].iovLen;
-    }
-    BUG_ON(frame_len > sizeof(frame));
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_u16(buf, total);
+    for (i = 0; i < ie_ext->headerIovLength; i++)
+        spinel_push_data(buf, ie_ext->headerIeVectorList[i].ieBase,
+                         ie_ext->headerIeVectorList[i].iovLen, true);
+
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsbr_mcps_req(const struct mac_api_s *api,
