@@ -92,13 +92,12 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_WS_MLME_IND: {
         int id;
-        void *data;
+        uint8_t *data;
 
         TRACE("mlmeInd");
-        BUG_ON(!ctxt->mac_api.mlme_ind_cb);
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "id",
-                               &id, &data, NULL);
-        BUG_ON(ret != spinel_remaining_size(buf));
+        id = spinel_pop_int(buf);
+        spinel_pop_data_ptr(buf, &data, false);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
         break;
     }
