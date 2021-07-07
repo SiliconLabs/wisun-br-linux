@@ -204,15 +204,14 @@ uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
 
 void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[1 + 3 + 3 + sizeof(bool)];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + sizeof(bool));
 
     BUG_ON(data_len != sizeof(bool));
-
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciib", hdr, SPINEL_CMD_PROP_VALUE_SET, prop, *((bool *)data));
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, prop);
+    spinel_push_bool(buf, *(bool *)data);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_u8(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
