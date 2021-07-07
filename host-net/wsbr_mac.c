@@ -275,15 +275,16 @@ static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, cons
 
 static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 4);
     const uint8_t *req = data;
-    uint8_t frame[4];
-    int frame_len;
 
     BUG_ON(prop != SPINEL_PROP_WS_CCA_THRESHOLD_START);
     BUG_ON(data_len != 4);
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CCCC", req[0], req[1], req[2], req[3]);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_CCA_THRESHOLD_START, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, prop);
+    spinel_push_fixed_u8_array(buf, req, 4);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
