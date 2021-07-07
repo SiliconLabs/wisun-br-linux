@@ -159,8 +159,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_HWADDR: {
         TRACE("cnf macEui64");
-        ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, spinel_remaining_size(buf), "E", ctxt->hw_mac);
-        BUG_ON(ret != spinel_remaining_size(buf));
+        spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->hw_addr_done = true;
         break;
     }
