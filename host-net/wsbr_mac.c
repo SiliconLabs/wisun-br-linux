@@ -14,6 +14,7 @@
 #include "wsbr_mac.h"
 #include "host-common/utils.h"
 #include "host-common/spinel.h"
+#include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
@@ -180,16 +181,17 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
 
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
-    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t *data;
-    int len, data_len;
+    int data_len;
 
-    len = ctxt->rcp_rx(ctxt->os_ctxt, buf, sizeof(buf));
-    if (!len)
+    buf->cnt = 0;
+    buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
+    if (!buf->len)
         return;
-    spinel_datatype_unpack(buf, len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
+    spinel_datatype_unpack(buf->frame, buf->len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
         wsbr_spinel_is(ctxt, prop, data, data_len);

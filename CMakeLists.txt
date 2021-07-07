@@ -97,6 +97,7 @@ add_executable(wsbrd
     host-common/os_scheduler.c
     host-common/slist.c
     host-common/spinel.c
+    host-common/spinel_buffer.c
     nanostack/source/Service_Libs/fhss/channel_list.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
@@ -338,6 +339,7 @@ add_executable(wsnode
     host-common/os_scheduler.c
     host-common/slist.c
     host-common/spinel.c
+    host-common/spinel_buffer.c
     nanostack/source/Service_Libs/fhss/channel_list.c
     # nanostack/source/BorderRouter/border_router.c
     nanostack/source/6LoWPAN/adaptation_interface.c
