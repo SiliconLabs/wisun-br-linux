@@ -9,6 +9,10 @@ int spinel_remaining_size(const struct spinel_buffer *buf)
     return buf->len - buf->cnt;
 }
 
+uint8_t *spinel_ptr(struct spinel_buffer *buf)
+{
+    return buf->frame + buf->cnt;
+}
 
 void spinel_push_bool(struct spinel_buffer *buf, bool val)
 {

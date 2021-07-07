@@ -19,6 +19,7 @@ struct spinel_buffer {
 };
 
 int spinel_remaining_size(const struct spinel_buffer *buf);
+uint8_t *spinel_ptr(struct spinel_buffer *buf);
 
 void spinel_push_bool(struct spinel_buffer *buf, bool val);
 void spinel_push_int(struct spinel_buffer *buf, int val);
