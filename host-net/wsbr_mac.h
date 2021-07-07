@@ -9,8 +9,11 @@
 #include "nanostack/mac_api.h"
 
 struct wsbr_ctxt;
+struct spinel_buffer;
 
 uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
+void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop);
+void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop);
 
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt);
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt);
