@@ -49,16 +49,12 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
 int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[7];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
 
     TRACE();
     BUG_ON(!mac_api);
-
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cii",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_UNREGISTER);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     ctxt->fhss_api = NULL;
     return 0;
 }
