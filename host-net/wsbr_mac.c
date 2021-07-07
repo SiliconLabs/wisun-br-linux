@@ -154,10 +154,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         req.DSN_suppressed = tmp_bool[0];
         req.Key.SecurityLevel = tmp_u8[2];
         req.Key.KeyIdMode = tmp_u8[3];
-        if (ctxt->mac_api.data_ind_ext_cb)
-            ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
-        else
-            ctxt->mac_api.data_ind_cb(&ctxt->mac_api, &req);
+        // Note: we don't support data_ind_cb()
+        ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
         break;
     }
     case SPINEL_PROP_HWADDR: {
