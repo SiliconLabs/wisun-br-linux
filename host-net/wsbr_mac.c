@@ -19,13 +19,12 @@
 
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[1 + 3];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ci", hdr, SPINEL_CMD_RESET);
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    TRACE("reset");
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_RESET);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
