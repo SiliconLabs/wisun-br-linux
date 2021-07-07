@@ -122,34 +122,27 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     case SPINEL_PROP_STREAM_RAW: {
         mcps_data_ind_t req = { };
         mcps_data_ie_list_t ie_ext = { };
-        uint8_t tmp_u8[4];
-        bool tmp_bool[1];
-        void *tmp_ptr[3];
-        int len[3];
 
         TRACE("dataInd");
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "dCSECSECcLbCCCCEdd",
-                               &req.msdu_ptr, &len[0],
-                               &tmp_u8[0], &req.SrcPANId, &tmp_ptr[0],
-                               &tmp_u8[1], &req.DstPANId, &tmp_ptr[1],
-                               &req.mpduLinkQuality, &req.signal_dbm,
-                               &req.timestamp, &tmp_bool[0], &req.DSN,
-                               &tmp_u8[2], &tmp_u8[3],
-                               &req.Key.KeyIndex, &tmp_ptr[2],
-                               &ie_ext.headerIeList, &len[1],
-                               &ie_ext.payloadIeList, &len[2]);
-        BUG_ON(ret != spinel_remaining_size(buf));
-        req.msduLength = len[0];
-        ie_ext.headerIeListLength = len[1];
-        ie_ext.payloadIeListLength = len[2];
-        req.SrcAddrMode = tmp_u8[0];
-        req.DstAddrMode = tmp_u8[1];
-        memcpy(req.SrcAddr, tmp_ptr[0], sizeof(uint8_t) * 8);
-        memcpy(req.DstAddr, tmp_ptr[1], sizeof(uint8_t) * 8);
-        memcpy(req.Key.Keysource, tmp_ptr[2], sizeof(uint8_t) * 8);
-        req.DSN_suppressed = tmp_bool[0];
-        req.Key.SecurityLevel = tmp_u8[2];
-        req.Key.KeyIdMode = tmp_u8[3];
+        req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr, false);
+        req.SrcAddrMode            = spinel_pop_u8(buf);
+        req.SrcPANId               = spinel_pop_u16(buf);
+        spinel_pop_fixed_u8_array(buf, req.SrcAddr, 8);
+        req.DstAddrMode            = spinel_pop_u8(buf);
+        req.DstPANId               = spinel_pop_u16(buf);
+        spinel_pop_fixed_u8_array(buf, req.DstAddr, 8);
+        req.mpduLinkQuality        = spinel_pop_u8(buf);
+        req.signal_dbm             = spinel_pop_i8(buf);
+        req.timestamp              = spinel_pop_u32(buf);
+        req.DSN_suppressed         = spinel_pop_bool(buf);
+        req.DSN                    = spinel_pop_u8(buf);
+        req.Key.SecurityLevel      = spinel_pop_u8(buf);
+        req.Key.KeyIdMode          = spinel_pop_u8(buf);
+        req.Key.KeyIndex           = spinel_pop_u8(buf);
+        spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
+        ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList, false);
+        ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList, false);
+        BUG_ON(spinel_remaining_size(buf));
         // Note: we don't support data_ind_cb()
         ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
         break;
