@@ -104,20 +104,18 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     case SPINEL_PROP_STREAM_STATUS: {
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };
-        int len[3];
 
         TRACE("dataCnf");
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "CCLCCddd",
-                               &req.status, &req.msduHandle,
-                               &req.timestamp, &req.cca_retries, &req.tx_retries,
-                               &conf_req.headerIeList, &len[0],
-                               &conf_req.payloadIeList, &len[1],
-                               &conf_req.payloadPtr, &len[2]);
-        BUG_ON(ret != spinel_remaining_size(buf));
-        conf_req.headerIeListLength = len[0];
-        conf_req.payloadIeListLength = len[1];
-        conf_req.payloadLength = len[2];
-        BUG_ON(!ctxt->mac_api.data_conf_ext_cb);
+        req.status      = spinel_pop_u8(buf);
+        req.msduHandle  = spinel_pop_u8(buf);
+        req.timestamp   = spinel_pop_u32(buf);
+        req.cca_retries = spinel_pop_u8(buf);
+        req.tx_retries  = spinel_pop_u8(buf);
+        conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList, false);
+        conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList, false);
+        conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr, false);
+        BUG_ON(spinel_remaining_size(buf));
+        // Note: we don't support data_conf_cb()
         ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
         break;
     }
