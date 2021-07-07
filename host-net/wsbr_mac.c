@@ -289,7 +289,7 @@ static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned
 
 static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 4);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1 + 2);
     const struct mlme_multi_csma_ca_s *req = data;
 
     BUG_ON(prop != SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS);
@@ -304,19 +304,21 @@ static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsign
 
 static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 16);
     const struct phy_rf_channel_configuration_s *req = data;
-    uint8_t frame[16];
-    int frame_len;
 
     BUG_ON(prop != SPINEL_PROP_WS_RF_CONFIGURATION);
     BUG_ON(data_len != sizeof(struct phy_rf_channel_configuration_s));
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "LLLSCC",
-                                     req->channel_0_center_frequency,
-                                     req->channel_spacing, req->datarate,
-                                     req->number_of_channels, req->modulation,
-                                     req->modulation_index);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_RF_CONFIGURATION, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, prop);
+    spinel_push_u32(buf, req->channel_0_center_frequency);
+    spinel_push_u32(buf, req->channel_spacing);
+    spinel_push_u32(buf, req->datarate);
+    spinel_push_u16(buf, req->number_of_channels);
+    spinel_push_u8(buf,  req->modulation);
+    spinel_push_u8(buf,  req->modulation_index);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
