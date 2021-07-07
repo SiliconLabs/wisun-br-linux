@@ -81,7 +81,8 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
 
     BUG_ON(!mac_api);
     BUG_ON(mac_api != &ctxt->mac_api);
-    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY, &enable_feature, sizeof(bool));
+    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY,
+                         &enable_feature, sizeof(bool));
 
     return 0;
 }
