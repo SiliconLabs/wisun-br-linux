@@ -493,18 +493,23 @@ static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 20);
     struct wsbr_ctxt *ctxt = &g_ctxt;
     const mlme_start_t *req = data;
-    uint8_t frame[19];
-    int frame_len;
 
     TRACE("mlmeStart");
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
     // FIXME: consider SPINEL_PROP_PHY_ENABLED
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "SCCLCCb",
-                                     req->PANId, req->LogicalChannel, req->ChannelPage,
-                                     req->StartTime, req->BeaconOrder,
-                                     req->SuperframeOrder, req->PANCoordinator);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_START, frame, frame_len);
+    spinel_push_int(buf, SPINEL_PROP_WS_START);
+    spinel_push_u16(buf,  req->PANId);
+    spinel_push_u8(buf,   req->LogicalChannel);
+    spinel_push_u8(buf,   req->ChannelPage);
+    spinel_push_u32(buf,  req->StartTime);
+    spinel_push_u8(buf,   req->BeaconOrder);
+    spinel_push_u8(buf,   req->SuperframeOrder);
+    spinel_push_bool(buf, req->PANCoordinator);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
