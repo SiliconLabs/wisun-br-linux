@@ -323,17 +323,19 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
 
 static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 16);
     const struct mlme_request_restart_config_s *req = data;
-    uint8_t frame[20];
-    int frame_len;
 
     BUG_ON(prop != SPINEL_PROP_WS_REQUEST_RESTART);
     BUG_ON(data_len != sizeof(struct mlme_request_restart_config_s));
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CCSS",
-                                     req->cca_failure_restart_max, req->tx_failure_restart_max,
-                                     req->blacklist_min_ms, req->blacklist_max_ms);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_REQUEST_RESTART, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, prop);
+    spinel_push_u8(buf,  req->cca_failure_restart_max);
+    spinel_push_u8(buf,  req->tx_failure_restart_max);
+    spinel_push_u16(buf, req->blacklist_min_ms);
+    spinel_push_u16(buf, req->blacklist_max_ms);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
