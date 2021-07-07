@@ -47,8 +47,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     switch (prop) {
     case SPINEL_PROP_WS_DEVICE_TABLE: {
         struct mlme_device_descriptor_s data;
-        uint8_t *ext_address;
-        bool exempt;
         mlme_get_conf_t req = {
             .attr = macDeviceTable,
             .value_pointer = &data,
@@ -56,13 +54,13 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         };
 
         TRACE("cnf macDeviceTable");
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "iSSELb",
-                               &req.attr_index, &data.PANId, &data.ShortAddress,
-                               &ext_address, &data.FrameCounter,
-                               &exempt);
-        BUG_ON(ret != spinel_remaining_size(buf));
-        memcpy(data.ExtAddress, ext_address, sizeof(uint8_t) * 8);
-        data.Exempt = exempt;
+        req.attr_index    = spinel_pop_int(buf);
+        data.PANId        = spinel_pop_u16(buf);
+        data.ShortAddress = spinel_pop_u16(buf);
+        spinel_pop_fixed_u8_array(buf, data.ExtAddress, 8);
+        data.FrameCounter = spinel_pop_u32(buf);
+        data.Exempt       = spinel_pop_bool(buf);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
