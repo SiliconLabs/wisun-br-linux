@@ -381,12 +381,14 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
 
 static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, uint32_t val)
 {
-    uint8_t frame[7];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 7);
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "iL", counter, val);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_FRAME_COUNTER, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    spinel_push_int(buf, counter);
+    spinel_push_u32(buf, val);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static const struct {
