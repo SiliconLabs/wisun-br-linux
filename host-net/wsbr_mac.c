@@ -30,10 +30,11 @@ void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[1 + 3 + 3];
+    uint8_t frame[1 + 3 + 3 + 3];
     int frame_len;
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cii", hdr, SPINEL_CMD_PROP_VALUE_GET, SPINEL_PROP_HWADDR);
+    TRACE("get hw_addr");
+    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr, SPINEL_CMD_PROP_VALUE_GET, SPINEL_PROP_HWADDR, 0);
     BUG_ON(frame_len <= 0);
     ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
 }
