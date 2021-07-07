@@ -85,9 +85,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         };
 
         TRACE("cnf macCCAThreshold");
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "d",
-                               &req.value_pointer, &req.value_size);
-        BUG_ON(ret != spinel_remaining_size(buf));
+        req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer, false);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
