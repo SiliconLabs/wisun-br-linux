@@ -184,16 +184,16 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
-    uint8_t *data;
-    int data_len;
 
     buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
     if (!buf->len)
         return;
-    spinel_datatype_unpack(buf->frame, buf->len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
+    hdr  = spinel_pop_u8(buf);
+    cmd  = spinel_pop_int(buf);
+    prop = spinel_pop_int(buf);
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
-        wsbr_spinel_is(ctxt, prop, data, data_len);
+        wsbr_spinel_is(ctxt, prop, buf->frame + buf->cnt, spinel_remaining_size(buf));
     } else if (cmd == SPINEL_CMD_RESET) {
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
