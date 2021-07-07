@@ -273,18 +273,6 @@ static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, cons
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
-static void wsbr_spinel_set_cca_threshold(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    uint8_t frame[1];
-    int frame_len;
-
-    BUG_ON(prop != SPINEL_PROP_WS_CCA_THRESHOLD);
-    BUG_ON(data_len != sizeof(uint8_t));
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "d", data, data_len);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_CCA_THRESHOLD_START, frame, frame_len);
-}
-
 static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     const uint8_t *req = data;
@@ -413,6 +401,7 @@ static const struct {
     { "macMaxCSMABackoffs",              macMaxCSMABackoffs,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS,                },
     { "macMinBE",                        macMinBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MIN_BE,                           },
     { "macMaxBE",                        macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
+    { "macCCAThreshold",                 macCCAThreshold,                 wsbr_spinel_set_u8,                    SPINEL_PROP_WS_CCA_THRESHOLD,                    },
     { "macPANId",                        macPANId,                        wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_PANID,                      },
     { "macCoordShortAddress",            macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
     { "macShortAddress",                 macShortAddress,                 wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_SADDR,                      },
@@ -423,7 +412,6 @@ static const struct {
     { "macCoordExtendedAddress",         macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { "macDefaultKeySource",             macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { "macBeaconPayload",                macBeaconPayload,                wsbr_spinel_set_data,                  SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
-    { "macCCAThreshold",                 macCCAThreshold,                 wsbr_spinel_set_cca_threshold,         SPINEL_PROP_WS_CCA_THRESHOLD,                    },
     { "macCCAThresholdStart",            macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
     { "macMultiCSMAParameters",          macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
     { "macRfConfiguration",              macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
