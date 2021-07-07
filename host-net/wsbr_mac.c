@@ -73,9 +73,9 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         };
 
         TRACE("cnf macFrameCounter");
-        ret = spinel_datatype_unpack(buf->frame + buf->cnt, spinel_remaining_size(buf), "iL",
-                               &req.attr_index, &data);
-        BUG_ON(ret != spinel_remaining_size(buf));
+        req.attr_index = spinel_pop_int(buf);
+        data           = spinel_pop_u32(buf);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
