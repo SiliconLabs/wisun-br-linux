@@ -109,7 +109,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         int len[3];
 
         TRACE("dataCnf");
-        BUG_ON(!ctxt->mac_api.data_conf_ext_cb, "not implmemented");
         ret = spinel_datatype_unpack(frame, frame_len, "CCLCCddd",
                                &req.status, &req.msduHandle,
                                &req.timestamp, &req.cca_retries, &req.tx_retries,
@@ -120,10 +119,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, const void *frame, 
         conf_req.headerIeListLength = len[0];
         conf_req.payloadIeListLength = len[1];
         conf_req.payloadLength = len[2];
-        if (ctxt->mac_api.data_conf_ext_cb)
-            ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
-        else
-            ctxt->mac_api.data_conf_cb(&ctxt->mac_api, &req);
+        BUG_ON(!ctxt->mac_api.data_conf_ext_cb);
+        ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
         break;
     }
     case SPINEL_PROP_STREAM_RAW: {
