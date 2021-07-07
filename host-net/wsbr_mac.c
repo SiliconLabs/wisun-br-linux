@@ -340,15 +340,18 @@ static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int
 
 static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
 {
-    uint8_t frame[20];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 20);
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CSSELb",
-                                     entry_idx, req->PANId, req->ShortAddress,
-                                     req->ExtAddress, req->FrameCounter,
-                                     req->Exempt);
-    BUG_ON(frame_len <= 0);
-    wsbr_spinel_set_data(ctxt, SPINEL_PROP_WS_DEVICE_TABLE, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_int(buf, SPINEL_PROP_WS_DEVICE_TABLE);
+    spinel_push_u8(buf,   entry_idx);
+    spinel_push_u16(buf,  req->PANId);
+    spinel_push_u16(buf,  req->ShortAddress);
+    spinel_push_fixed_u8_array(buf, req->ExtAddress, 8);
+    spinel_push_u32(buf,  req->FrameCounter);
+    spinel_push_bool(buf, req->Exempt);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
