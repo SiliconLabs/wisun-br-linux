@@ -17,28 +17,6 @@
 #include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 
-void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
-{
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
-
-    TRACE("reset");
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_int(buf, SPINEL_CMD_RESET);
-    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
-}
-
-void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
-{
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
-
-    TRACE("get hw_addr");
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_GET);
-    spinel_push_int(buf, SPINEL_PROP_HWADDR);
-    spinel_push_int(buf, 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
-}
-
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
 {
     switch (prop) {
@@ -387,6 +365,28 @@ static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, u
     spinel_push_int(buf, SPINEL_PROP_WS_FRAME_COUNTER);
     spinel_push_int(buf, counter);
     spinel_push_u32(buf, val);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
+void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
+
+    TRACE("reset");
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_RESET);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
+void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
+
+    TRACE("get hw_addr");
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_GET);
+    spinel_push_int(buf, SPINEL_PROP_HWADDR);
+    spinel_push_int(buf, 0);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
