@@ -88,13 +88,15 @@ static void wsmac_spinel_set_u32(struct wsmac_ctxt *ctxt, mlme_attr_t attr, stru
 
 static void wsmac_spinel_set_eui64(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
+    uint8_t data[8];
     mlme_set_t req = {
         .attr = attr,
-        .value_size = 8,
+        .value_pointer = data,
+        .value_size = sizeof(data),
     };
 
-    BUG_ON(spinel_remaining_size(buf) != 8);
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &req.value_pointer);
+    spinel_pop_fixed_u8_array(buf, data, 8);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
