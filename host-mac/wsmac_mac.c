@@ -120,7 +120,8 @@ static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_a
         .value_size = sizeof(data),
     };
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CCCC", &data[0], &data[1], &data[2], &data[3]);
+    spinel_pop_fixed_u8_array(buf, data, 4);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
