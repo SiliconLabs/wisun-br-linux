@@ -243,24 +243,21 @@ static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t 
 
 static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
-    uint8_t *eui64;
     broadcast_timing_info_t bc_timing_info;
+    uint8_t eui64[8];
     bool force_synch;
-    uint8_t tmp;
-    int ret;
 
-    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "EbCCSSSLLL",
-                           &eui64, &force_synch,
-                           &tmp,
-                           &bc_timing_info.broadcast_dwell_interval,
-                           &bc_timing_info.fixed_channel,
-                           &bc_timing_info.broadcast_slot,
-                           &bc_timing_info.broadcast_schedule_id,
-                           &bc_timing_info.broadcast_interval_offset,
-                           &bc_timing_info.broadcast_interval,
-                           &bc_timing_info.bt_rx_timestamp);
-    BUG_ON(ret != spinel_remaining_size(buf));
-    bc_timing_info.broadcast_channel_function = tmp;
+    spinel_pop_fixed_u8_array(buf, eui64, 8);
+    force_synch                               = spinel_pop_bool(buf);
+    bc_timing_info.broadcast_channel_function = spinel_pop_u8(buf);
+    bc_timing_info.broadcast_dwell_interval   = spinel_pop_u8(buf);
+    bc_timing_info.fixed_channel              = spinel_pop_u16(buf);
+    bc_timing_info.broadcast_slot             = spinel_pop_u16(buf);
+    bc_timing_info.broadcast_schedule_id      = spinel_pop_u16(buf);
+    bc_timing_info.broadcast_interval_offset  = spinel_pop_u32(buf);
+    bc_timing_info.broadcast_interval         = spinel_pop_u32(buf);
+    bc_timing_info.bt_rx_timestamp            = spinel_pop_u32(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ns_fhss_ws_set_parent(ctxt->fhss_api, eui64, &bc_timing_info, force_synch);
 }
 
