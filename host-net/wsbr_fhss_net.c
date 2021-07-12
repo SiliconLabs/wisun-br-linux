@@ -182,18 +182,12 @@ int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
 
 int ns_fhss_ws_set_hop_count(const struct fhss_api *fhss_api, const uint8_t hop_count)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
 
-    TRACE();
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiC",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_HOP_COUNT,
-                                     hop_count);
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_SET_HOP_COUNT);
+    spinel_push_u8(buf, hop_count);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     return 0;
 }
 
