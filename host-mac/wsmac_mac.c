@@ -632,12 +632,12 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
-    uint8_t *data;
-    int data_len;
     int i;
 
     buf->len = wsbr_uart_rx(ctxt->os_ctxt, buf->frame, buf->len);
-    spinel_datatype_unpack(buf->frame, buf->len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
+    hdr  = spinel_pop_u8(buf);
+    cmd  = spinel_pop_int(buf);
+    prop = spinel_pop_int(buf);
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (prop == mlme_prop_cstr[i].prop)
             break;
@@ -657,8 +657,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         TRACE("get hwAddr");
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
-        int index;
-        spinel_datatype_unpack(data, data_len, "i", &index);
+        int index = spinel_pop_int(buf);
         mlme_get_t req = {
             .attr_index = index,
             .attr = mlme_prop_cstr[i].attr,
@@ -668,7 +667,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
         TRACE("set %s", mlme_prop_cstr[i].str);
         if (mlme_prop_cstr[i].prop_set)
-            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, data, data_len);
+            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, spinel_ptr(buf), spinel_remaining_size(buf));
         else
             WARN("property not implemented: %08x", prop);
     } else {
