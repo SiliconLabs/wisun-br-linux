@@ -71,11 +71,13 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
                                               bool enable_feature)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
 
     BUG_ON(!mac_api);
     BUG_ON(mac_api != &ctxt->mac_api);
-    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY,
-                         &enable_feature, sizeof(bool));
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY);
+    spinel_push_bool(buf, enable_feature);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 
     return 0;
 }
