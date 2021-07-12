@@ -30,7 +30,7 @@ static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
     return hdr;
 }
 
-static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     bool data;
     mlme_set_t req = {
@@ -39,12 +39,12 @@ static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
         .value_size = sizeof(data),
     };
 
-    BUG_ON(frame_len != sizeof(data));
-    spinel_datatype_unpack(frame, frame_len, "b", &data);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(data));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &data);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_u8(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_u8(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint8_t data;
     mlme_set_t req = {
@@ -53,12 +53,12 @@ static void wsmac_spinel_set_u8(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const
         .value_size = sizeof(data),
     };
 
-    BUG_ON(frame_len != sizeof(data));
-    spinel_datatype_unpack(frame, frame_len, "C", &data);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(data));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "C", &data);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_u16(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_u16(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint16_t data;
     mlme_set_t req = {
@@ -67,12 +67,12 @@ static void wsmac_spinel_set_u16(struct wsmac_ctxt *ctxt, mlme_attr_t attr, cons
         .value_size = sizeof(data),
     };
 
-    BUG_ON(frame_len != sizeof(data));
-    spinel_datatype_unpack(frame, frame_len, "S", &data);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(data));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "S", &data);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_u32(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_u32(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint32_t data;
     mlme_set_t req = {
@@ -81,48 +81,48 @@ static void wsmac_spinel_set_u32(struct wsmac_ctxt *ctxt, mlme_attr_t attr, cons
         .value_size = sizeof(data),
     };
 
-    BUG_ON(frame_len != sizeof(data));
-    spinel_datatype_unpack(frame, frame_len, "L", &data);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(data));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "L", &data);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_eui64(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_eui64(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_set_t req = {
         .attr = attr,
         .value_size = 8,
     };
 
-    BUG_ON(frame_len != 8);
-    spinel_datatype_unpack(frame, frame_len, "E", &req.value_pointer);
+    BUG_ON(spinel_remaining_size(buf) != 8);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &req.value_pointer);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_data(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_data(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_set_t req = {
         .attr = attr,
-        .value_pointer = frame,
-        .value_size = frame_len,
+        .value_pointer = spinel_ptr(buf),
+        .value_size = spinel_remaining_size(buf),
     };
 
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_cca_threshold(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_cca_threshold(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     int data_len;
     mlme_set_t req = {
         .attr = attr,
     };
 
-    BUG_ON(frame_len != sizeof(uint8_t));
-    spinel_datatype_unpack(frame, frame_len, "d", &req.value_pointer, &data_len);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(uint8_t));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "d", &req.value_pointer, &data_len);
     req.value_size = data_len;
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint8_t data[4];
     mlme_set_t req = {
@@ -131,11 +131,11 @@ static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_a
         .value_size = sizeof(data),
     };
 
-    spinel_datatype_unpack(frame, frame_len, "CCCC", &data[0], &data[1], &data[2], &data[3]);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CCCC", &data[0], &data[1], &data[2], &data[3]);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_multi_csma_parameters(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_multi_csma_parameters(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct mlme_multi_csma_ca_s data;
     mlme_set_t req = {
@@ -144,13 +144,13 @@ static void wsmac_spinel_set_multi_csma_parameters(struct wsmac_ctxt *ctxt, mlme
         .value_size = sizeof(data),
     };
 
-    spinel_datatype_unpack(frame, frame_len, "CS",
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CS",
                            &data.number_of_csma_ca_periods,
                            &data.multi_cca_interval);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct phy_rf_channel_configuration_s data;
     mlme_set_t req = {
@@ -160,7 +160,7 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
     };
     uint8_t tmp[2];
 
-    spinel_datatype_unpack(frame, frame_len, "LLLSCC",
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "LLLSCC",
                            &data.channel_0_center_frequency,
                            &data.channel_spacing, &data.datarate,
                            &data.number_of_channels, &tmp[0],
@@ -170,7 +170,7 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct mlme_device_descriptor_s data;
     bool exempt;
@@ -181,16 +181,16 @@ static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t a
     };
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CSSELb",
+    ret = spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "CSSELb",
                            &req.attr_index, &data.PANId, &data.ShortAddress,
                            data.ExtAddress, &data.FrameCounter,
                            &exempt);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     data.Exempt = exempt;
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_key_id_lookup_descriptor_t descr = { };
     mlme_key_descriptor_entry_t data = {
@@ -206,10 +206,10 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     int ret;
 
     BUG_ON(attr != macKeyTable);
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "Cdd", &req.attr_index,
+    ret = spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "Cdd", &req.attr_index,
                                    data.Key, &len_key,
                                    data.KeyIdLookupList->LookupData, &len_data);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     BUG_ON(len_key != sizeof(data.Key));
     if (len_data) {
         data.KeyIdLookupListEntries = 1;
@@ -221,7 +221,7 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_request_restart(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_request_restart(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_request_restart_config_t data;
     mlme_set_t req = {
@@ -232,15 +232,15 @@ static void wsmac_spinel_set_request_restart(struct wsmac_ctxt *ctxt, mlme_attr_
     int ret;
 
     BUG_ON(attr != macRequestRestart);
-    ret = spinel_datatype_unpack(frame, frame_len, "CCSS",
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CCSS",
                            &data.cca_failure_restart_max,
                            &data.tx_failure_restart_max,
                            &data.blacklist_min_ms, &data.blacklist_max_ms);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint32_t data;
     mlme_set_t req = {
@@ -250,13 +250,13 @@ static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t 
     };
     int ret;
 
-    ret = spinel_datatype_unpack(frame, frame_len, "iL",
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "iL",
                            &req.attr_index, req.value_pointer);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
-static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint8_t *eui64;
     broadcast_timing_info_t bc_timing_info;
@@ -264,7 +264,7 @@ static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t at
     uint8_t tmp;
     int ret;
 
-    ret = spinel_datatype_unpack(frame, frame_len, "EbCCSSSLLL",
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "EbCCSSSLLL",
                            &eui64, &force_synch,
                            &tmp,
                            &bc_timing_info.broadcast_dwell_interval,
@@ -274,29 +274,29 @@ static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_t at
                            &bc_timing_info.broadcast_interval_offset,
                            &bc_timing_info.broadcast_interval,
                            &bc_timing_info.bt_rx_timestamp);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     bc_timing_info.broadcast_channel_function = tmp;
     ns_fhss_ws_set_parent(ctxt->fhss_api, eui64, &bc_timing_info, force_synch);
 }
 
-static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     bool data;
 
-    BUG_ON(frame_len != sizeof(bool));
-    spinel_datatype_unpack(frame, frame_len, "b", &data);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(bool));
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &data);
     ns_sw_mac_enable_frame_counter_per_key(ctxt->rcp_mac_api, data);
 }
 
-static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     int global_level, ef_level;
 
-    spinel_datatype_unpack(frame, frame_len, "ii", &global_level, &ef_level);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "ii", &global_level, &ef_level);
     ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, global_level, ef_level);
 }
 
-static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     const uint8_t *eui64;
     struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
@@ -304,7 +304,7 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
     uint32_t tmp32;
     int tmp_len, i;
 
-    spinel_datatype_unpack(frame, frame_len, "E", &eui64);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &eui64);
     for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             fhss_data = &ctxt->neighbor_timings[i].val;
@@ -321,7 +321,7 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
         BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "full");
     }
 
-    spinel_datatype_unpack_in_place(frame, frame_len, "ECCSdCCSSLL",
+    spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "ECCSdCCSSLL",
                            NULL, &fhss_data->clock_drift, &fhss_data->timing_accuracy,
                            &fhss_data->uc_channel_list.channel_count,
                            fhss_data->uc_channel_list.channel_mask, &tmp_len,
@@ -336,12 +336,12 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
     BUG_ON(tmp_len != sizeof(fhss_data->uc_channel_list.channel_mask));
 }
 
-static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     const uint8_t *eui64;
     int i;
 
-    spinel_datatype_unpack(frame, frame_len, "E", &eui64);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &eui64);
     for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             break;
@@ -361,7 +361,7 @@ static fhss_ws_neighbor_timing_info_t *wsmac_fhss_get_neighbor_info(const fhss_a
     return NULL;
 }
 
-static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct fhss_ws_configuration config = { };
     uint8_t tmp[2];
@@ -369,7 +369,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     int tmp2_len = sizeof(config.channel_mask);
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddSC",
+    ret = spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "CCSCLCCCddSC",
                            &tmp[0],
                            &tmp[1],
                            &config.bsi,
@@ -382,7 +382,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
                            config.unicast_channel_mask, &tmp2_len,
                            &config.channel_mask_size,
                            &config.config_parameters.number_of_channel_retries);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     config.ws_uc_channel_function = tmp[0];
     config.ws_bc_channel_function = tmp[1];
     BUG_ON(tmp1_len != sizeof(config.channel_mask));
@@ -392,13 +392,13 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     ns_fhss_set_neighbor_info_fp(ctxt->fhss_api, wsmac_fhss_get_neighbor_info);
 }
 
-static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     ns_fhss_delete(ctxt->fhss_api);
     ctxt->fhss_api = NULL;
 }
 
-static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct fhss_ws_configuration config = { };
     uint8_t tmp[2];
@@ -406,7 +406,7 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     int tmp2_len = sizeof(config.channel_mask);
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(frame, frame_len, "CCSCLCCCddSC",
+    ret = spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "CCSCLCCCddSC",
                                     &tmp[0],
                                     &tmp[1],
                                     &config.bsi,
@@ -419,7 +419,7 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
                                     config.unicast_channel_mask, &tmp2_len,
                                     &config.channel_mask_size,
                                     &config.config_parameters.number_of_channel_retries);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     config.ws_uc_channel_function = tmp[0];
     config.ws_bc_channel_function = tmp[1];
     BUG_ON(tmp1_len != sizeof(config.channel_mask));
@@ -427,18 +427,18 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     ns_fhss_ws_configuration_set(ctxt->fhss_api, &config);
 }
 
-static void wsmac_spinel_fhss_set_hop_count(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_set_hop_count(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     uint8_t data;
     int ret;
 
-    BUG_ON(frame_len != sizeof(uint8_t));
-    ret = spinel_datatype_unpack(frame, frame_len, "C", &data);
-    BUG_ON(ret != frame_len);
+    BUG_ON(spinel_remaining_size(buf) != sizeof(uint8_t));
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "C", &data);
+    BUG_ON(ret != spinel_remaining_size(buf));
     ns_fhss_ws_set_hop_count(ctxt->fhss_api, data);
 }
 
-static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct fhss_api *fhss_api = ns_sw_mac_get_fhss_api(ctxt->rcp_mac_api);
 
@@ -447,7 +447,7 @@ static void wsmac_spinel_fhss_register(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     ns_sw_mac_fhss_register(ctxt->rcp_mac_api, ctxt->fhss_api);
 }
 
-static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct fhss_api *fhss_api = ns_sw_mac_get_fhss_api(ctxt->rcp_mac_api);
 
@@ -456,28 +456,28 @@ static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t at
     ctxt->fhss_api = NULL;
 }
 
-static void wsmac_spinel_ws_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_ws_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_start_t req = { };
     uint8_t tmp8[2];
     bool tmpB;
     int ret;
 
-    ret = spinel_datatype_unpack(frame, frame_len, "SCCLCCb",
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "SCCLCCb",
                            &req.PANId, &req.LogicalChannel, &req.ChannelPage,
                            &req.StartTime, &tmp8[0], &tmp8[1], &tmpB);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != spinel_remaining_size(buf));
     req.BeaconOrder = tmp8[0];
     req.SuperframeOrder = tmp8[1];
     req.PANCoordinator = tmpB;
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_START, &req);
 }
 
-static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_reset_t req = { };
 
-    spinel_datatype_unpack(frame, frame_len, "b", &req.SetDefaultPIB);
+    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &req.SetDefaultPIB);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
 }
 
@@ -493,7 +493,7 @@ static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
         wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
 }
 
-static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
+static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct mcps_data_req_s data;
     struct mcps_data_req_ie_list ie_ext = { };
@@ -504,12 +504,12 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
     bool tmpB[6];
     int tmpI;
     int len[4];
-    void *buf[4];
+    void *ptr[4];
     void *buf_fixed[2];
     int ret;
 
-    ret = spinel_datatype_unpack(frame, frame_len, "dCCSECbbbbbbCCCESiddd",
-                           &buf[0], &len[0],
+    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "dCCSECbbbbbbCCCESiddd",
+                           &ptr[0], &len[0],
                            &tmp8[0], &tmp8[1],
                            &data.DstPANId, &buf_fixed[0], &data.msduHandle,
                            &tmpB[0], &tmpB[1], &tmpB[2],
@@ -517,10 +517,10 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
                            &tmp8[2], &tmp8[3], &data.Key.KeyIndex,
                            &buf_fixed[1], &prio,
                            &tmpI,
-                           &buf[1], &len[1],
-                           &buf[2], &len[2],
-                           &buf[3], &len[3]);
-    BUG_ON(ret != frame_len);
+                           &ptr[1], &len[1],
+                           &ptr[2], &len[2],
+                           &ptr[3], &len[3]);
+    BUG_ON(ret != spinel_remaining_size(buf));
     data.SrcAddrMode = tmp8[0];
     data.DstAddrMode = tmp8[1];
     data.TxAckReq = tmpB[0];
@@ -537,25 +537,25 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
 
     data.msduLength = len[0];
     data.msdu = malloc(len[0]);
-    memcpy(data.msdu, buf[0], len[0]);
+    memcpy(data.msdu, ptr[0], len[0]);
 
     async_channel_list.channel_page = tmpI;
     BUG_ON(sizeof(async_channel_list.channel_mask) != len[1]);
-    memcpy(async_channel_list.channel_mask, buf[1], len[1]);
+    memcpy(async_channel_list.channel_mask, ptr[1], len[1]);
 
     if (len[2]) {
         ie_ext.payloadIovLength = 1;
         ie_ext.payloadIeVectorList = malloc(sizeof(struct ns_ie_iovec));
         ie_ext.payloadIeVectorList->iovLen = len[2];
         ie_ext.payloadIeVectorList->ieBase = malloc(len[2]);
-        memcpy(ie_ext.payloadIeVectorList->ieBase, buf[2], len[2]);
+        memcpy(ie_ext.payloadIeVectorList->ieBase, ptr[2], len[2]);
     }
     if (len[3]) {
         ie_ext.headerIovLength = 1;
         ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
         ie_ext.headerIeVectorList->iovLen = len[3];
         ie_ext.headerIeVectorList->ieBase = malloc(len[3]);
-        memcpy(ie_ext.headerIeVectorList->ieBase, buf[3], len[3]);
+        memcpy(ie_ext.headerIeVectorList->ieBase, ptr[3], len[3]);
     }
     malloc_info = malloc(sizeof(*malloc_info));
     malloc_info->payload = ie_ext.payloadIeVectorList;
@@ -574,7 +574,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, con
 static const struct {
     const char *str;
     mlme_attr_t attr;
-    void (*prop_set)(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len);
+    void (*prop_set)(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf);
     unsigned int prop;
 } mlme_prop_cstr[] = {
     { "macRxOnWhenIdle",                 macRxOnWhenIdle,                 wsmac_spinel_set_bool,                  SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  },
@@ -667,7 +667,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
         TRACE("set %s", mlme_prop_cstr[i].str);
         if (mlme_prop_cstr[i].prop_set)
-            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, spinel_ptr(buf), spinel_remaining_size(buf));
+            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, buf);
         else
             WARN("property not implemented: %08x", prop);
     } else {
