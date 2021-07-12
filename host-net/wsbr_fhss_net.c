@@ -163,16 +163,12 @@ void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
 
 void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 8);
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR,
-                                     eui64);
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
+    spinel_push_fixed_u8_array(buf, eui64, 8);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
