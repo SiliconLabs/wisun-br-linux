@@ -187,7 +187,6 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     uint8_t *data;
     int data_len;
 
-    buf->cnt = 0;
     buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
     if (!buf->len)
         return;

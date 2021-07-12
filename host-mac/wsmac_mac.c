@@ -15,6 +15,7 @@
 #include "wsmac_mac.h"
 #include "wsmac.h"
 #include "host-common/spinel.h"
+#include "host-common/spinel_buffer.h"
 #include "host-common/utils.h"
 #include "host-common/log.h"
 
@@ -628,15 +629,15 @@ static const struct {
 
 void uart_rx(struct wsmac_ctxt *ctxt)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
-    uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t *data;
-    int len, data_len;
+    int data_len;
     int i;
 
-    len = wsbr_uart_rx(ctxt->os_ctxt, buf, sizeof(buf));
-    spinel_datatype_unpack(buf, len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
+    buf->len = wsbr_uart_rx(ctxt->os_ctxt, buf->frame, buf->len);
+    spinel_datatype_unpack(buf->frame, buf->len, "CiiD", &hdr, &cmd, &prop, &data, &data_len);
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (prop == mlme_prop_cstr[i].prop)
             break;

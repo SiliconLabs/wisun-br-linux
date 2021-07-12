@@ -26,6 +26,7 @@ add_executable(wshwsim
     host-common/os_timer.c
     host-common/slist.c
     host-common/spinel.c
+    host-common/spinel_buffer.c
     mbed-client-libservice/source/libBits/common_functions.c
     # Excluded mbed-client-libservice/source/libip4string
     mbed-client-libservice/source/libip6string/ip6tos.c
