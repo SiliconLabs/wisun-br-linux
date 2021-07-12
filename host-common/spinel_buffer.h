@@ -18,6 +18,13 @@ struct spinel_buffer {
     uint8_t frame[];
 };
 
+#define ALLOC_STACK_SPINEL_BUF(SIZE) ({                        \
+    struct spinel_buffer *_tmp = alloca(SIZE + sizeof(*_tmp)); \
+    _tmp->cnt = 0;                                             \
+    _tmp->len = SIZE;                                          \
+    _tmp;                                                      \
+})
+
 int spinel_remaining_size(const struct spinel_buffer *buf);
 uint8_t *spinel_ptr(struct spinel_buffer *buf);
 
