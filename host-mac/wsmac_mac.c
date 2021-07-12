@@ -444,17 +444,15 @@ static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t at
 static void wsmac_spinel_ws_start(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     mlme_start_t req = { };
-    uint8_t tmp8[2];
-    bool tmpB;
-    int ret;
 
-    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "SCCLCCb",
-                           &req.PANId, &req.LogicalChannel, &req.ChannelPage,
-                           &req.StartTime, &tmp8[0], &tmp8[1], &tmpB);
-    BUG_ON(ret != spinel_remaining_size(buf));
-    req.BeaconOrder = tmp8[0];
-    req.SuperframeOrder = tmp8[1];
-    req.PANCoordinator = tmpB;
+    req.PANId           = spinel_pop_u16(buf);
+    req.LogicalChannel  = spinel_pop_u8(buf);
+    req.ChannelPage     = spinel_pop_u8(buf);
+    req.StartTime       = spinel_pop_u32(buf);
+    req.BeaconOrder     = spinel_pop_u8(buf);
+    req.SuperframeOrder = spinel_pop_u8(buf);
+    req.PANCoordinator  = spinel_pop_bool(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_START, &req);
 }
 
