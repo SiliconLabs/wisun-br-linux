@@ -39,8 +39,8 @@ static void wsmac_spinel_set_bool(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         .value_size = sizeof(data),
     };
 
-    BUG_ON(spinel_remaining_size(buf) != sizeof(data));
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &data);
+    data = spinel_pop_bool(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
