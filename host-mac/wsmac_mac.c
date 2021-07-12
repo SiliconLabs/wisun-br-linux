@@ -134,9 +134,9 @@ static void wsmac_spinel_set_multi_csma_parameters(struct wsmac_ctxt *ctxt, mlme
         .value_size = sizeof(data),
     };
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CS",
-                           &data.number_of_csma_ca_periods,
-                           &data.multi_cca_interval);
+    data.number_of_csma_ca_periods = spinel_pop_u8(buf);
+    data.multi_cca_interval        = spinel_pop_u16(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
