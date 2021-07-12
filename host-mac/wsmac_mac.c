@@ -189,15 +189,13 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
         .value_pointer = &data,
         .value_size = sizeof(data),
     };
-    int len_key = sizeof(data.Key);
-    int len_data = sizeof(data.KeyIdLookupList->LookupData);
-    int ret;
+    int len_key, len_data;
 
     BUG_ON(attr != macKeyTable);
-    ret = spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "Cdd", &req.attr_index,
-                                   data.Key, &len_key,
-                                   data.KeyIdLookupList->LookupData, &len_data);
-    BUG_ON(ret != spinel_remaining_size(buf));
+    req.attr_index = spinel_pop_u8(buf);
+    len_key  = spinel_pop_data(buf, data.Key, sizeof(data.Key), false); // FIXME Use a fixed length array
+    len_data = spinel_pop_data(buf, data.KeyIdLookupList->LookupData, sizeof(data.KeyIdLookupList->LookupData), false);
+    BUG_ON(spinel_remaining_size(buf));
     BUG_ON(len_key != sizeof(data.Key));
     if (len_data) {
         data.KeyIdLookupListEntries = 1;
