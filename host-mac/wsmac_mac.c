@@ -233,11 +233,11 @@ static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_t 
         .value_pointer = &data,
         .value_size = sizeof(data),
     };
-    int ret;
 
-    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "iL",
-                           &req.attr_index, req.value_pointer);
-    BUG_ON(ret != spinel_remaining_size(buf));
+    BUG_ON(attr != macFrameCounter);
+    req.attr_index = spinel_pop_int(buf);
+    data           = spinel_pop_u32(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
