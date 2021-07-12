@@ -218,14 +218,13 @@ static void wsmac_spinel_set_request_restart(struct wsmac_ctxt *ctxt, mlme_attr_
         .value_pointer = &data,
         .value_size = sizeof(data),
     };
-    int ret;
 
     BUG_ON(attr != macRequestRestart);
-    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "CCSS",
-                           &data.cca_failure_restart_max,
-                           &data.tx_failure_restart_max,
-                           &data.blacklist_min_ms, &data.blacklist_max_ms);
-    BUG_ON(ret != spinel_remaining_size(buf));
+    data.cca_failure_restart_max = spinel_pop_u8(buf);
+    data.tx_failure_restart_max  = spinel_pop_u8(buf);
+    data.blacklist_min_ms        = spinel_pop_u16(buf);
+    data.blacklist_max_ms        = spinel_pop_u16(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
