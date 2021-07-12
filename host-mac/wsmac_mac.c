@@ -265,8 +265,8 @@ static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme
 {
     bool data;
 
-    BUG_ON(spinel_remaining_size(buf) != sizeof(bool));
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &data);
+    data = spinel_pop_bool(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ns_sw_mac_enable_frame_counter_per_key(ctxt->rcp_mac_api, data);
 }
 
