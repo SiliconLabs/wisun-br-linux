@@ -319,8 +319,6 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
         }
         BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "full");
     }
-    if (WARN_ON(!fhss_data))
-        return;
 
     spinel_datatype_unpack_in_place(frame, frame_len, "ECCSdCCSSLL",
                            NULL, &fhss_data->clock_drift, &fhss_data->timing_accuracy,
