@@ -282,13 +282,11 @@ static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, ml
 
 static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
-    const uint8_t *eui64;
     struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
-    uint8_t tmp;
-    uint32_t tmp32;
-    int tmp_len, i;
+    uint8_t eui64[8];
+    int len, i;
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &eui64);
+    spinel_pop_fixed_u8_array(buf, eui64, 8);
     for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             fhss_data = &ctxt->neighbor_timings[i].val;
@@ -305,19 +303,18 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
         BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "full");
     }
 
-    spinel_datatype_unpack_in_place(spinel_ptr(buf), spinel_remaining_size(buf), "ECCSdCCSSLL",
-                           NULL, &fhss_data->clock_drift, &fhss_data->timing_accuracy,
-                           &fhss_data->uc_channel_list.channel_count,
-                           fhss_data->uc_channel_list.channel_mask, &tmp_len,
-                           &tmp,
-                           &fhss_data->uc_timing_info.unicast_dwell_interval,
-                           &fhss_data->uc_timing_info.unicast_number_of_channels,
-                           &fhss_data->uc_timing_info.fixed_channel,
-                           &tmp32,
-                           &fhss_data->uc_timing_info.utt_rx_timestamp);
-    fhss_data->uc_timing_info.ufsi = tmp32;
-    fhss_data->uc_timing_info.unicast_channel_function = tmp;
-    BUG_ON(tmp_len != sizeof(fhss_data->uc_channel_list.channel_mask));
+    fhss_data->clock_drift                               = spinel_pop_u8(buf);
+    fhss_data->timing_accuracy                           = spinel_pop_u8(buf);
+    fhss_data->uc_channel_list.channel_count             = spinel_pop_u16(buf);
+    len = spinel_pop_data(buf, (uint8_t *)fhss_data->uc_channel_list.channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+    fhss_data->uc_timing_info.unicast_channel_function   = spinel_pop_u8(buf);
+    fhss_data->uc_timing_info.unicast_dwell_interval     = spinel_pop_u8(buf);
+    fhss_data->uc_timing_info.unicast_number_of_channels = spinel_pop_u16(buf);
+    fhss_data->uc_timing_info.fixed_channel              = spinel_pop_u16(buf);
+    fhss_data->uc_timing_info.ufsi                       = spinel_pop_u32(buf);
+    fhss_data->uc_timing_info.utt_rx_timestamp           = spinel_pop_u32(buf);
+    BUG_ON(len != sizeof(uint32_t) * 8);
+    BUG_ON(spinel_remaining_size(buf));
 }
 
 static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
