@@ -148,15 +148,14 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
         .value_pointer = &data,
         .value_size = sizeof(data),
     };
-    uint8_t tmp[2];
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "LLLSCC",
-                           &data.channel_0_center_frequency,
-                           &data.channel_spacing, &data.datarate,
-                           &data.number_of_channels, &tmp[0],
-                           &tmp[1]);
-    data.modulation = tmp[0];
-    data.modulation_index = tmp[1];
+    data.channel_0_center_frequency = spinel_pop_u32(buf);
+    data.channel_spacing            = spinel_pop_u32(buf);
+    data.datarate                   = spinel_pop_u32(buf);
+    data.number_of_channels         = spinel_pop_u16(buf);
+    data.modulation                 = spinel_pop_u8(buf);
+    data.modulation_index           = spinel_pop_u8(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
