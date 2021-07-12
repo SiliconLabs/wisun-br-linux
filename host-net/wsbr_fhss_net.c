@@ -53,17 +53,13 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
 
 int ns_fhss_delete(struct fhss_api *fhss_api)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[7];
-    int frame_len;
 
     TRACE();
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Cii",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_DELETE);
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_DELETE);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     ctxt->fhss_conf_valid = false;
     return 0;
 }
