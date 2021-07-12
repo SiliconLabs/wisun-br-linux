@@ -78,31 +78,25 @@ const struct fhss_ws_configuration *ns_fhss_ws_configuration_get(const struct fh
 int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
                                  const struct fhss_ws_configuration *config)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
 
     BUG_ON(!ctxt->fhss_conf_valid);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiCCSCLCCCddSC",
-                                     hdr, SPINEL_CMD_PROP_VALUE_SET, SPINEL_PROP_WS_FHSS_SET_CONF,
-                                     config->ws_uc_channel_function,
-                                     config->ws_bc_channel_function,
-                                     config->bsi,
-                                     config->fhss_uc_dwell_interval,
-                                     config->fhss_broadcast_interval,
-                                     config->fhss_bc_dwell_interval,
-                                     config->unicast_fixed_channel,
-                                     config->broadcast_fixed_channel,
-                                     config->channel_mask,
-                                     sizeof(config->channel_mask),
-                                     config->unicast_channel_mask,
-                                     sizeof(config->unicast_channel_mask),
-                                     config->channel_mask_size,
-                                     config->config_parameters.number_of_channel_retries);
-    BUG_ON(frame_len <= 0);
-    ctxt->rcp_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_SET_CONF);
+    spinel_push_u8(buf, config->ws_uc_channel_function);
+    spinel_push_u8(buf, config->ws_bc_channel_function);
+    spinel_push_u16(buf, config->bsi);
+    spinel_push_u8(buf, config->fhss_uc_dwell_interval);
+    spinel_push_u32(buf, config->fhss_broadcast_interval);
+    spinel_push_u8(buf, config->fhss_bc_dwell_interval);
+    spinel_push_u8(buf, config->unicast_fixed_channel);
+    spinel_push_u8(buf, config->broadcast_fixed_channel);
+    spinel_push_data(buf, (uint8_t *)config->channel_mask, sizeof(uint32_t) * 8, false); // FIXME use fixed length array
+    spinel_push_data(buf, (uint8_t *)config->unicast_channel_mask, sizeof(uint32_t) * 8, false); // FIXME use fixed length array
+    spinel_push_u16(buf, config->channel_mask_size);
+    spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
 }
