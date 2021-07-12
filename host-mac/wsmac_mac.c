@@ -319,10 +319,10 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
 
 static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
-    const uint8_t *eui64;
+    uint8_t eui64[8];
     int i;
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "E", &eui64);
+    spinel_pop_fixed_u8_array(buf, eui64, 8);
     for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             break;
