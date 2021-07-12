@@ -460,7 +460,7 @@ static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
 {
     mlme_reset_t req = { };
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "b", &req.SetDefaultPIB);
+    req.SetDefaultPIB = spinel_pop_bool(buf);
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
 }
 
