@@ -277,7 +277,9 @@ static void wsmac_spinel_fhss_set_tx_allowance_level(struct wsmac_ctxt *ctxt, ml
 {
     int global_level, ef_level;
 
-    spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "ii", &global_level, &ef_level);
+    global_level = spinel_pop_int(buf);
+    ef_level     = spinel_pop_int(buf);
+    BUG_ON(spinel_remaining_size(buf));
     ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, global_level, ef_level);
 }
 
