@@ -420,12 +420,12 @@ static const struct {
 
 static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     const mlme_set_t *req = data;
     int i;
 
     BUG_ON(!api);
-    BUG_ON(api != &ctxt->mac_api);
+    BUG_ON(ctxt != &g_ctxt);
     // SPINEL_CMD_PROP_VALUE_SET
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
@@ -451,10 +451,12 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
 static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     const mlme_get_t *req = data;
     int i, index = 0;
 
+    BUG_ON(!api);
+    BUG_ON(ctxt != &g_ctxt);
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;
@@ -476,10 +478,12 @@ static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 {
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 20);
-    struct wsbr_ctxt *ctxt = &g_ctxt;
     const mlme_start_t *req = data;
 
+    BUG_ON(!api);
+    BUG_ON(ctxt != &g_ctxt);
     TRACE("mlmeStart");
     // FIXME: consider SPINEL_PROP_PHY_ENABLED
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_START);
@@ -495,9 +499,11 @@ static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     const mlme_reset_t *req = data;
 
+    BUG_ON(!api);
+    BUG_ON(ctxt != &g_ctxt);
     TRACE("mlmeReset");
     // SPINEL_CMD_RESET or SPINEL_PROP_PHY_ENABLED
     // It seems that SPINEL_CMD_RESET is too wide. It reset the whole device
@@ -506,7 +512,7 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 
 void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     static const struct {
         uint32_t    val;
         void (*fn)(const struct mac_api_s *, const void *);
@@ -533,7 +539,7 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
     int i;
 
     BUG_ON(!api);
-    BUG_ON(&ctxt->mac_api != api);
+    BUG_ON(ctxt != &g_ctxt);
     for (i = 0; table[i].val != -1; i++)
         if (id == table[i].val)
             break;
@@ -553,10 +559,10 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
         .channel_page = CHANNEL_PAGE_UNDEFINED,
     };
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE);
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     int total, i;
 
-    BUG_ON(&ctxt->mac_api != api);
+    BUG_ON(ctxt != &g_ctxt);
     BUG_ON(data->TxAckReq && async_channel_list);
     BUG_ON(!ie_ext);
     if (!async_channel_list)
@@ -628,6 +634,7 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
 
     BUG_ON(!api);
     BUG_ON(!mac64);
+    BUG_ON(ctxt != &g_ctxt);
 
     if (memcmp(ctxt->dynamic_mac, mac64, 8))
         WARN("Not implemented");
@@ -643,6 +650,7 @@ int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
 
     BUG_ON(!api);
     BUG_ON(!mac64);
+    BUG_ON(ctxt != &g_ctxt);
 
     switch (type) {
     case MAC_EXTENDED_READ_ONLY:

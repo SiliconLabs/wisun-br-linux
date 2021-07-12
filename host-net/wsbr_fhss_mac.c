@@ -29,7 +29,7 @@ int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api
 
     TRACE();
     BUG_ON(!mac_api);
-    BUG_ON(!fhss_api);
+    BUG_ON(ctxt != &g_ctxt);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_REGISTER);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
@@ -53,6 +53,7 @@ int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
 
     TRACE();
     BUG_ON(!mac_api);
+    BUG_ON(ctxt != &g_ctxt);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     ctxt->fhss_api = NULL;
@@ -70,11 +71,11 @@ uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
 int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
                                               bool enable_feature)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
 
     BUG_ON(!mac_api);
-    BUG_ON(mac_api != &ctxt->mac_api);
+    BUG_ON(ctxt != &g_ctxt);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY);
     spinel_push_bool(buf, enable_feature);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
