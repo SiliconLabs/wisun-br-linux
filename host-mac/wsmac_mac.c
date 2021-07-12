@@ -340,15 +340,13 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
 static void wsmac_spinel_fhss_drop_neighbor(struct wsmac_ctxt *ctxt, mlme_attr_t attr, const void *frame, int frame_len)
 {
     const uint8_t *eui64;
-    struct fhss_ws_neighbor_timing_info *fhss_data = NULL;
     int i;
 
     spinel_datatype_unpack(frame, frame_len, "E", &eui64);
     for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++)
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
-            fhss_data = &ctxt->neighbor_timings[i].val;
-    if (WARN_ON(!fhss_data))
-        return;
+            break;
+    BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "not found");
     memset(ctxt->neighbor_timings[i].eui64, 0, 8);
 }
 
