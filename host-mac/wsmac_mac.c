@@ -104,10 +104,10 @@ static void wsmac_spinel_set_data(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
 {
     mlme_set_t req = {
         .attr = attr,
-        .value_pointer = spinel_ptr(buf),
-        .value_size = spinel_remaining_size(buf),
     };
 
+    req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer, true);
+    BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
 
