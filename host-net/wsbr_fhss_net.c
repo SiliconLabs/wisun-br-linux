@@ -40,8 +40,8 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     spinel_push_u8(buf, config->fhss_bc_dwell_interval);
     spinel_push_u8(buf, config->unicast_fixed_channel);
     spinel_push_u8(buf, config->broadcast_fixed_channel);
-    spinel_push_data(buf, (uint8_t *)config->channel_mask, sizeof(uint32_t) * 8, false); // FIXME use fixed length array
-    spinel_push_data(buf, (uint8_t *)config->unicast_channel_mask, sizeof(uint32_t) * 8, false); // FIXME use fixed length array
+    spinel_push_fixed_u32_array(buf, config->channel_mask, 8);
+    spinel_push_fixed_u32_array(buf, config->unicast_channel_mask, 8);
     spinel_push_u16(buf, config->channel_mask_size);
     spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);

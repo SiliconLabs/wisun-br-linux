@@ -346,7 +346,6 @@ static fhss_ws_neighbor_timing_info_t *wsmac_fhss_get_neighbor_info(const fhss_a
 static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct fhss_ws_configuration config = { };
-    int tmp1_len, tmp2_len;
 
     config.ws_uc_channel_function  = spinel_pop_u8(buf);
     config.ws_bc_channel_function  = spinel_pop_u8(buf);
@@ -356,13 +355,11 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     config.fhss_bc_dwell_interval  = spinel_pop_u8(buf);
     config.unicast_fixed_channel   = spinel_pop_u8(buf);
     config.broadcast_fixed_channel = spinel_pop_u8(buf);
-    tmp1_len = spinel_pop_data(buf, (uint8_t *)config.channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
-    tmp2_len = spinel_pop_data(buf, (uint8_t *)config.unicast_channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+    spinel_pop_fixed_u32_array(buf, config.channel_mask, 8);
+    spinel_pop_fixed_u32_array(buf, config.unicast_channel_mask, 8);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
     BUG_ON(spinel_remaining_size(buf));
-    BUG_ON(tmp1_len != sizeof(config.channel_mask));
-    BUG_ON(tmp2_len != sizeof(config.unicast_channel_mask));
     ctxt->fhss_api = ns_fhss_ws_create(&config, &wsbr_fhss);
     BUG_ON(!ctxt->fhss_api);
     ns_fhss_set_neighbor_info_fp(ctxt->fhss_api, wsmac_fhss_get_neighbor_info);
