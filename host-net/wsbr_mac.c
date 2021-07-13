@@ -190,9 +190,9 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         return;
     hdr  = spinel_pop_u8(buf);
     cmd  = spinel_pop_int(buf);
-    prop = spinel_pop_int(buf);
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
+        prop = spinel_pop_int(buf);
         wsbr_spinel_is(ctxt, prop, buf);
     } else if (cmd == SPINEL_CMD_RESET) {
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
