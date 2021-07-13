@@ -785,25 +785,25 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
 void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
                                  const mcps_data_conf_payload_t *conf_data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     struct msdu_malloc_info *malloc_info;
     struct wsmac_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
 
     BUG_ON(!mac_api);
     BUG_ON(mac_api != ctxt->rcp_mac_api);
     BUG_ON(!conf_data, "not implemented");
     TRACE("dataCnf");
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiCCLCCddd",
-                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_STREAM_STATUS,
-                                     data->status, data->msduHandle,
-                                     data->timestamp, data->cca_retries, data->tx_retries,
-                                     conf_data->headerIeList, conf_data->headerIeListLength,
-                                     conf_data->payloadIeList, conf_data->headerIeListLength,
-                                     conf_data->payloadPtr, conf_data->payloadLength);
-    BUG_ON(frame_len < 0);
-    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+
+    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_STREAM_STATUS);
+    spinel_push_u8(buf,   data->status);
+    spinel_push_u8(buf,   data->msduHandle);
+    spinel_push_u32(buf,  data->timestamp);
+    spinel_push_u8(buf,   data->cca_retries);
+    spinel_push_u8(buf,   data->tx_retries);
+    spinel_push_data(buf, conf_data->headerIeList, conf_data->headerIeListLength, false);
+    spinel_push_data(buf, conf_data->payloadIeList, conf_data->headerIeListLength, false);
+    spinel_push_data(buf, conf_data->payloadPtr, conf_data->payloadLength, false);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 
     malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
                                list, malloc_info->msduHandle == data->msduHandle);
