@@ -464,18 +464,6 @@ static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
 }
 
-static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
-{
-        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-        uint8_t frame[1 + 3 + 3 + 8];
-        int frame_len;
-
-        frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiE",
-                                         hdr, SPINEL_CMD_PROP_VALUE_IS,
-                                         SPINEL_PROP_HWADDR, ctxt->eui64);
-        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
-}
-
 static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct mcps_data_req_s data;
@@ -600,6 +588,22 @@ static const struct {
     { }
 };
 
+void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
+{
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_IS);
+    spinel_push_int(buf, prop);
+}
+
+static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 8);
+
+    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_HWADDR);
+    spinel_push_fixed_u8_array(buf, ctxt->eui64, 8);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
 void uart_rx(struct wsmac_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
@@ -629,6 +633,8 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         ctxt->fhss_api = NULL;
         wsmac_reset_ind(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
+        int index = spinel_pop_int(buf);
+
         TRACE("get hwAddr");
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
@@ -637,6 +643,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
             .attr_index = index,
             .attr = mlme_prop_cstr[i].attr,
         };
+
         TRACE("get %s", mlme_prop_cstr[i].str);
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_GET, &req);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
@@ -649,13 +656,6 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         WARN("not implemented");
         return;
     }
-}
-
-void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
-{
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_IS);
-    spinel_push_int(buf, prop);
 }
 
 void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
