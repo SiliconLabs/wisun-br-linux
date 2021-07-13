@@ -151,7 +151,7 @@ void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
     spinel_push_u8(buf, fhss_data->clock_drift);
     spinel_push_u8(buf, fhss_data->timing_accuracy);
     spinel_push_u16(buf, fhss_data->uc_channel_list.channel_count);
-    spinel_push_data(buf, (uint8_t *)fhss_data->uc_channel_list.channel_mask, sizeof(uint32_t) * 8, false); // FIXME use fixed length array
+    spinel_push_fixed_u32_array(buf, fhss_data->uc_channel_list.channel_mask, 8);
     spinel_push_u8(buf, fhss_data->uc_timing_info.unicast_channel_function);
     spinel_push_u8(buf, fhss_data->uc_timing_info.unicast_dwell_interval);
     spinel_push_u16(buf, fhss_data->uc_timing_info.unicast_number_of_channels);
