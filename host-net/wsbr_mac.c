@@ -42,8 +42,6 @@ void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
 {
-    int ret;
-
     switch (prop) {
     case SPINEL_PROP_WS_DEVICE_TABLE: {
         struct mlme_device_descriptor_s data;
