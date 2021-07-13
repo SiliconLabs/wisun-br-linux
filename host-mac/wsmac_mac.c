@@ -718,18 +718,14 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
 
 void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
     const mlme_start_conf_t *req = data;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[1 + 3 + 3 + 3];
-    int frame_len;
 
     TRACE("mlmeStart");
     WARN_ON(req->status);
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciii", hdr,
-                                     SPINEL_CMD_PROP_VALUE_IS,
-                                     SPINEL_PROP_LAST_STATUS,
-                                     SPINEL_STATUS_OK);
-    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_LAST_STATUS);
+    spinel_push_int(buf, SPINEL_STATUS_OK);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsmac_mlme_scan(struct wsmac_ctxt *ctxt, const void *data)
