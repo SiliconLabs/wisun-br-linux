@@ -713,7 +713,7 @@ void wsmac_mlme_scan(struct wsmac_ctxt *ctxt, const void *data)
     WARN("not implemented");
 }
 
-void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *data)
+void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
     static const struct {
@@ -727,8 +727,8 @@ void wsmac_mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *dat
     };
     int i;
 
-    BUG_ON(!api);
-    BUG_ON(ctxt->rcp_mac_api != api);
+    BUG_ON(!mac_api);
+    BUG_ON(ctxt->rcp_mac_api != mac_api);
     for (i = 0; table[i].id != -1; i++)
         if (id == table[i].id)
             break;
