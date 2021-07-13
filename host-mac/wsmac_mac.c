@@ -824,28 +824,34 @@ void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *d
 void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_ind_t *data,
                                     const mcps_data_ie_list_t *ie_ext)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     struct wsmac_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
 
     BUG_ON(!mac_api);
     BUG_ON(mac_api != ctxt->rcp_mac_api);
     BUG_ON(!ie_ext, "not implemented");
     TRACE("dataInd");
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiidCSECSECcLbCCCCEdd",
-                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_STREAM_RAW,
-                                     data->msdu_ptr, data->msduLength,
-                                     data->SrcAddrMode, data->SrcPANId, data->SrcAddr,
-                                     data->DstAddrMode, data->DstPANId, data->DstAddr,
-                                     data->mpduLinkQuality, data->signal_dbm, data->timestamp,
-                                     data->DSN_suppressed, data->DSN,
-                                     data->Key.SecurityLevel, data->Key.KeyIdMode,
-                                     data->Key.KeyIndex, data->Key.Keysource,
-                                     ie_ext->headerIeList, ie_ext->headerIeListLength,
-                                     ie_ext->payloadIeList, ie_ext->payloadIeListLength);
-    BUG_ON(frame_len < 0);
-    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+
+    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_STREAM_RAW);
+    spinel_push_data(buf, data->msdu_ptr, data->msduLength, false);
+    spinel_push_u8(buf,   data->SrcAddrMode);
+    spinel_push_u16(buf,  data->SrcPANId);
+    spinel_push_fixed_u8_array(buf, data->SrcAddr, 8);
+    spinel_push_u8(buf,   data->DstAddrMode);
+    spinel_push_u16(buf,  data->DstPANId);
+    spinel_push_fixed_u8_array(buf, data->DstAddr, 8);
+    spinel_push_u8(buf,   data->mpduLinkQuality);
+    spinel_push_i8(buf,   data->signal_dbm);
+    spinel_push_u32(buf,  data->timestamp);
+    spinel_push_bool(buf, data->DSN_suppressed);
+    spinel_push_u8(buf,   data->DSN);
+    spinel_push_u8(buf,   data->Key.SecurityLevel);
+    spinel_push_u8(buf,   data->Key.KeyIdMode);
+    spinel_push_u8(buf,   data->Key.KeyIndex);
+    spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
+    spinel_push_data(buf, ie_ext->headerIeList, ie_ext->headerIeListLength, false);
+    spinel_push_data(buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength, false);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsmac_mcps_data_indication(const mac_api_t *mac_api, const mcps_data_ind_t *data)
