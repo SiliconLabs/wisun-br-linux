@@ -373,6 +373,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
 
 static void wsmac_spinel_fhss_delete(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
+    BUG_ON(spinel_remaining_size(buf));
     ns_fhss_delete(ctxt->fhss_api);
     ctxt->fhss_api = NULL;
 }
