@@ -437,6 +437,7 @@ static void wsmac_spinel_fhss_unregister(struct wsmac_ctxt *ctxt, mlme_attr_t at
 {
     struct fhss_api *fhss_api = ns_sw_mac_get_fhss_api(ctxt->rcp_mac_api);
 
+    BUG_ON(spinel_remaining_size(buf));
     BUG_ON(fhss_api != ctxt->fhss_api);
     ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
     ctxt->fhss_api = NULL;
