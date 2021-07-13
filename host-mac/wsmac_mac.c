@@ -612,6 +612,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         };
 
         TRACE("reset");
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
         ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
         ns_fhss_delete(ctxt->fhss_api);
@@ -621,6 +622,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         int index = spinel_pop_int(buf);
 
         TRACE("get hwAddr");
+        BUG_ON(spinel_remaining_size(buf));
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
         int index = spinel_pop_int(buf);
@@ -630,6 +632,7 @@ void uart_rx(struct wsmac_ctxt *ctxt)
         };
 
         TRACE("get %s", mlme_prop_cstr[i].str);
+        BUG_ON(spinel_remaining_size(buf));
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_GET, &req);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
         TRACE("set %s", mlme_prop_cstr[i].str);
