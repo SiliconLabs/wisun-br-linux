@@ -692,20 +692,18 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
     TRACE("mlmeGet");
     switch (req->attr) {
     case macDeviceTable: {
-        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-        const mlme_device_descriptor_t *req2 = req->value_pointer;
-        uint8_t frame[1 + 3 + 3 + 3 + 22];
-        int frame_len;
+        struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 22);
+        const mlme_device_descriptor_t *descr = req->value_pointer;
 
         BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
-        frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiiSSELb",
-                                         hdr, SPINEL_CMD_PROP_VALUE_IS,
-                                         SPINEL_PROP_WS_DEVICE_TABLE,
-                                         req->attr_index, req2->PANId,
-                                         req2->ShortAddress, req2->ExtAddress,
-                                         req2->FrameCounter, req2->Exempt);
-        BUG_ON(frame_len < 0);
-        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+        spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_DEVICE_TABLE);
+        spinel_push_int(buf,  req->attr_index);
+        spinel_push_u16(buf,  descr->PANId);
+        spinel_push_u16(buf,  descr->ShortAddress);
+        spinel_push_fixed_u8_array(buf, descr->ExtAddress, 8);
+        spinel_push_u32(buf,  descr->FrameCounter);
+        spinel_push_bool(buf, descr->Exempt);
+        wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
     case macFrameCounter: {
