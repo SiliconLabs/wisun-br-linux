@@ -719,17 +719,12 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         break;
     }
     case macCCAThreshold: {
-        uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-        uint8_t frame[1 + 3 + 3 + 100 * sizeof(uint8_t)];
-        int frame_len;
+        struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
 
         BUG_ON(req->value_size > 100);
-        frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciid", hdr,
-                                         SPINEL_CMD_PROP_VALUE_IS,
-                                         SPINEL_PROP_WS_CCA_THRESHOLD,
-                                         req->value_pointer, req->value_size);
-        BUG_ON(frame_len < 0);
-        wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+        spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_CCA_THRESHOLD);
+        spinel_push_data(buf, req->value_pointer, req->value_size, false);
+        wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
     default:
