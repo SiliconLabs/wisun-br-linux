@@ -11,6 +11,7 @@
 #include <linux/spi/spidev.h>
 
 #include "spinel.h"
+#include "spinel_buffer.h"
 #include "log.h"
 #include "utils.h"
 #include "os_types.h"
@@ -75,41 +76,37 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
     return fd;
 }
 
-int wsbr_spi_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len)
+int wsbr_spi_tx(struct os_ctxt *ctxt, const void *data, unsigned int len)
 {
-    uint8_t *frame = malloc(len + 5);
-    uint8_t hdr = FIELD_PREP(HDR_PAT, 0x2);
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(len + 5);
 
-    if (ctxt->spi_recv_window < len + 5) {
-        WARN("receive buffer is full");
-        errno = ENOSPC;
-        return -1;
-    }
-    frame_len = spinel_datatype_pack(frame, len + 5, "CSSD", &hdr, UINT16_MAX, len, buf, len);
-    BUG_ON(frame_len != len + 5);
-    if (write(ctxt->data_fd, buf, frame_len) != frame_len)
+    spinel_push_u8(buf, FIELD_PREP(HDR_PAT, 0x2));
+    spinel_push_u16(buf, UINT16_MAX);
+    spinel_push_data(buf, data, len, false);
+    if (write(ctxt->data_fd, buf->frame, buf->cnt) != buf->cnt)
         BUG("write: %m");
-    free(frame);
     return len;
 }
 
-int wsbr_spi_rx(struct os_ctxt *ctxt, void *buf, unsigned int len)
+int wsbr_spi_rx(struct os_ctxt *ctxt, void *data, unsigned int max_len)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(5);
+    uint8_t tmp[2];
     int data_len;
-    uint8_t tmp[5];
     uint8_t hdr;
 
     lseek(ctxt->trig_fd, 0, SEEK_SET);
     if (read(ctxt->trig_fd, tmp, sizeof(tmp)) != 2)
         WARN("unexpected GPIO value");
-    read(ctxt->data_fd, tmp, sizeof(tmp));
-    spinel_datatype_unpack(tmp, sizeof(tmp), "CSS", &hdr, &ctxt->spi_recv_window, &data_len);
+    read(ctxt->data_fd, buf->frame, buf->len);
+    hdr = spinel_pop_u8(buf);
+    ctxt->spi_recv_window = spinel_pop_u16(buf);
+    data_len = spinel_pop_u16(buf);
     if (FIELD_GET(HDR_CRC, hdr))
         data_len += 2;
-    if (len < data_len)
+    if (max_len < data_len)
         BUG("buffer too small");
-    if (read(ctxt->data_fd, buf, data_len) != data_len)
+    if (read(ctxt->data_fd, data, data_len) != data_len)
         BUG("read: %m");
     if (FIELD_GET(HDR_CRC, hdr))
         data_len -= 2;
