@@ -861,11 +861,9 @@ void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
 
 void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE);
     struct wsmac_ctxt *ctxt = &g_ctxt;
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[2048];
-    int frame_len;
-    int data_len = 0;
+    int data_len;
 
     BUG_ON(!mac_api);
     BUG_ON(mac_api != ctxt->rcp_mac_api);
@@ -882,19 +880,19 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
         }
         case MLME_SYNC_LOSS: {
             TRACE("dataInd MLME_SYNC_LOSS");
-             data_len = sizeof(mlme_sync_loss_t);
+            data_len = sizeof(mlme_sync_loss_t);
             break;
         }
         default: {
             TRACE("dataInd MLME indication ignored");
+            data_len = 0;
         }
     }
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ciiid",
-                                     hdr, SPINEL_CMD_PROP_VALUE_IS, SPINEL_PROP_WS_MLME_IND,
-                                     id, data, data_len);
-    BUG_ON(frame_len < 0);
-    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_MLME_IND);
+    spinel_push_int(buf, id);
+    spinel_push_data(buf, data, data_len, false);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 // Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
