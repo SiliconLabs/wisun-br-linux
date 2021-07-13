@@ -483,48 +483,36 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     struct channel_list_s async_channel_list;
     struct msdu_malloc_info *malloc_info;
     uint16_t prio;
-    uint8_t tmp8[4];
-    bool tmpB[6];
-    int tmpI;
+    uint8_t *ptr[4];
     int len[4];
-    void *ptr[4];
-    void *buf_fixed[2];
-    int ret;
 
-    ret = spinel_datatype_unpack(spinel_ptr(buf), spinel_remaining_size(buf), "dCCSECbbbbbbCCCESiddd",
-                           &ptr[0], &len[0],
-                           &tmp8[0], &tmp8[1],
-                           &data.DstPANId, &buf_fixed[0], &data.msduHandle,
-                           &tmpB[0], &tmpB[1], &tmpB[2],
-                           &tmpB[3], &tmpB[4], &tmpB[5],
-                           &tmp8[2], &tmp8[3], &data.Key.KeyIndex,
-                           &buf_fixed[1], &prio,
-                           &tmpI,
-                           &ptr[1], &len[1],
-                           &ptr[2], &len[2],
-                           &ptr[3], &len[3]);
-    BUG_ON(ret != spinel_remaining_size(buf));
-    data.SrcAddrMode = tmp8[0];
-    data.DstAddrMode = tmp8[1];
-    data.TxAckReq = tmpB[0];
-    data.InDirectTx = tmpB[1];
-    data.PendingBit = tmpB[2];
-    data.SeqNumSuppressed = tmpB[3];
-    data.PanIdSuppressed = tmpB[4];
-    data.ExtendedFrameExchange = tmpB[5];
-    data.Key.SecurityLevel = tmp8[2];
-    data.Key.KeyIdMode = tmp8[3];
-
-    memcpy(data.DstAddr, buf_fixed[0], 8);
-    memcpy(data.Key.Keysource, buf_fixed[1], 8);
+    len[0] = spinel_pop_data_ptr(buf, &ptr[0], false);
+    data.SrcAddrMode                = spinel_pop_u8(buf);
+    data.DstAddrMode                = spinel_pop_u8(buf);
+    data.DstPANId                   = spinel_pop_u16(buf);
+    spinel_pop_fixed_u8_array(buf, data.DstAddr, 8);
+    data.msduHandle                 = spinel_pop_u8(buf);
+    data.TxAckReq                   = spinel_pop_bool(buf);
+    data.InDirectTx                 = spinel_pop_bool(buf);
+    data.PendingBit                 = spinel_pop_bool(buf);
+    data.SeqNumSuppressed           = spinel_pop_bool(buf);
+    data.PanIdSuppressed            = spinel_pop_bool(buf);
+    data.ExtendedFrameExchange      = spinel_pop_bool(buf);
+    data.Key.SecurityLevel          = spinel_pop_u8(buf);
+    data.Key.KeyIdMode              = spinel_pop_u8(buf);
+    data.Key.KeyIndex               = spinel_pop_u8(buf);
+    spinel_pop_fixed_u8_array(buf, data.Key.Keysource, 8);
+    prio                            = spinel_pop_u16(buf);
+    async_channel_list.channel_page = spinel_pop_int(buf);
+    len[1] = spinel_pop_data(buf, (uint8_t *)async_channel_list.channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+    len[2] = spinel_pop_data_ptr(buf, &ptr[2], false);
+    len[3] = spinel_pop_data_ptr(buf, &ptr[3], false);
+    BUG_ON(spinel_remaining_size(buf));
+    BUG_ON(sizeof(async_channel_list.channel_mask) != len[1]);
 
     data.msduLength = len[0];
     data.msdu = malloc(len[0]);
     memcpy(data.msdu, ptr[0], len[0]);
-
-    async_channel_list.channel_page = tmpI;
-    BUG_ON(sizeof(async_channel_list.channel_mask) != len[1]);
-    memcpy(async_channel_list.channel_mask, ptr[1], len[1]);
 
     if (len[2]) {
         ie_ext.payloadIovLength = 1;
@@ -533,6 +521,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         ie_ext.payloadIeVectorList->ieBase = malloc(len[2]);
         memcpy(ie_ext.payloadIeVectorList->ieBase, ptr[2], len[2]);
     }
+
     if (len[3]) {
         ie_ext.headerIovLength = 1;
         ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
@@ -540,6 +529,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         ie_ext.headerIeVectorList->ieBase = malloc(len[3]);
         memcpy(ie_ext.headerIeVectorList->ieBase, ptr[3], len[3]);
     }
+
     malloc_info = malloc(sizeof(*malloc_info));
     malloc_info->payload = ie_ext.payloadIeVectorList;
     malloc_info->header = ie_ext.headerIeVectorList;
