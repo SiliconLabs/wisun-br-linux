@@ -189,20 +189,22 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
         .value_pointer = &data,
         .value_size = sizeof(data),
     };
-    int len_key, len_data;
+    int lookup_len;
 
     BUG_ON(attr != macKeyTable);
+    BUG_ON(sizeof(data.Key) != 16);
+
     req.attr_index = spinel_pop_u8(buf);
-    len_key  = spinel_pop_data(buf, data.Key, sizeof(data.Key), false); // FIXME Use a fixed length array
-    len_data = spinel_pop_data(buf, data.KeyIdLookupList->LookupData, sizeof(data.KeyIdLookupList->LookupData), false);
+    spinel_pop_fixed_u8_array(buf, data.Key, 16);
+    lookup_len = spinel_pop_data(buf, data.KeyIdLookupList->LookupData,
+                                 sizeof(data.KeyIdLookupList->LookupData), false);
     BUG_ON(spinel_remaining_size(buf));
-    BUG_ON(len_key != sizeof(data.Key));
-    if (len_data) {
+    if (lookup_len) {
         data.KeyIdLookupListEntries = 1;
-        if (len_data == 9)
+        if (lookup_len == 9)
             data.KeyIdLookupList->LookupDataSize = 1;
         else
-            BUG_ON(len_data != 5);
+            BUG_ON(lookup_len != 5);
     }
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }

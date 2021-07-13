@@ -329,6 +329,7 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 32);
     int lookup_len;
 
+    BUG_ON(sizeof(req->Key) != 16);
     BUG_ON(req->KeyIdLookupListEntries > 1);
     BUG_ON(req->KeyUsageListEntries);
     BUG_ON(req->KeyDeviceListEntries);
@@ -341,7 +342,7 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
 
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_KEY_TABLE);
     spinel_push_u8(buf, entry_idx);
-    spinel_push_data(buf, req->Key, 16, false); // FIXME use fixed length array
+    spinel_push_fixed_u8_array(buf, req->Key, 16);
     spinel_push_data(buf, req->KeyIdLookupList->LookupData, lookup_len, false);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
