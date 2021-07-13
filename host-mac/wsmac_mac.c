@@ -678,6 +678,13 @@ void uart_rx(struct wsmac_ctxt *ctxt)
     }
 }
 
+void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
+{
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_PROP_VALUE_IS);
+    spinel_push_int(buf, prop);
+}
+
 void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
 {
     const mlme_get_conf_t *req = data;
