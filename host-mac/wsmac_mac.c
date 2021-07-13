@@ -958,10 +958,9 @@ void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *res
 
 void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
 {
-    uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-    uint8_t frame[1 + 3];
-    int frame_len;
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
 
-    frame_len = spinel_datatype_pack(frame, sizeof(frame), "Ci", hdr, SPINEL_CMD_RESET);
-    wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(buf, SPINEL_CMD_RESET);
+    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
