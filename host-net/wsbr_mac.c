@@ -589,7 +589,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
     spinel_push_u16(buf,  priority);
     spinel_push_int(buf,  async_channel_list->channel_page);
-    spinel_push_data(buf, (uint8_t *)async_channel_list->channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+    spinel_push_fixed_u32_array(buf, async_channel_list->channel_mask, 8);
 
     total = 0;
     for (i = 0; i < ie_ext->payloadIovLength; i++)

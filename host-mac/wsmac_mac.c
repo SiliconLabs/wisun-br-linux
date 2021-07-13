@@ -472,11 +472,10 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     spinel_pop_fixed_u8_array(buf, data.Key.Keysource, 8);
     prio                            = spinel_pop_u16(buf);
     async_channel_list.channel_page = spinel_pop_int(buf);
-    len[1] = spinel_pop_data(buf, (uint8_t *)async_channel_list.channel_mask, sizeof(uint32_t) * 8, false); // FIXME Use a fixed length array
+    spinel_pop_fixed_u32_array(buf, async_channel_list.channel_mask, 8);
     len[2] = spinel_pop_data_ptr(buf, &ptr[2], false);
     len[3] = spinel_pop_data_ptr(buf, &ptr[3], false);
     BUG_ON(spinel_remaining_size(buf));
-    BUG_ON(sizeof(async_channel_list.channel_mask) != len[1]);
 
     data.msduLength = len[0];
     data.msdu = malloc(len[0]);
