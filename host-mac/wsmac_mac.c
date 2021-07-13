@@ -689,21 +689,23 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
     case macDeviceTable: {
         uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
         const mlme_device_descriptor_t *req2 = req->value_pointer;
-        uint8_t frame[1 + 3 + 3 + 3 + sizeof(uint8_t)];
+        uint8_t frame[1 + 3 + 3 + 3 + 22];
         int frame_len;
 
+        BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
         frame_len = spinel_datatype_pack(frame, sizeof(frame), "CiiiSSELb",
                                          hdr, SPINEL_CMD_PROP_VALUE_IS,
                                          SPINEL_PROP_WS_DEVICE_TABLE,
                                          req->attr_index, req2->PANId,
                                          req2->ShortAddress, req2->ExtAddress,
                                          req2->FrameCounter, req2->Exempt);
+        BUG_ON(frame_len < 0);
         wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
         break;
     }
     case macFrameCounter: {
         uint8_t hdr = wsbr_get_spinel_hdr(ctxt);
-        uint8_t frame[1 + 3 + 3 + 3 + sizeof(uint8_t)];
+        uint8_t frame[1 + 3 + 3 + 3 + 8];
         int frame_len;
 
         BUG_ON(req->value_size != sizeof(uint32_t));
@@ -713,6 +715,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
                                          SPINEL_PROP_WS_FRAME_COUNTER,
                                          req->attr_index,
                                          *((uint32_t *)req->value_pointer));
+        BUG_ON(frame_len < 0);
         wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
         break;
     }
@@ -726,6 +729,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
                                          SPINEL_CMD_PROP_VALUE_IS,
                                          SPINEL_PROP_WS_CCA_THRESHOLD,
                                          req->value_pointer, req->value_size);
+        BUG_ON(frame_len < 0);
         wsbr_uart_tx(ctxt->os_ctxt, frame, frame_len);
         break;
     }
