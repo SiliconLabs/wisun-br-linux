@@ -451,10 +451,11 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     struct channel_list_s async_channel_list;
     struct msdu_malloc_info *malloc_info;
     uint16_t prio;
-    uint8_t *ptr[4];
-    int len[4];
+    int len;
 
-    len[0] = spinel_pop_data_ptr(buf, &ptr[0]);
+    data.msduLength                 = spinel_pop_u16(buf);
+    data.msdu = malloc(data.msduLength);
+    spinel_pop_raw(buf, data.msdu, data.msduLength, true);
     data.SrcAddrMode                = spinel_pop_u8(buf);
     data.DstAddrMode                = spinel_pop_u8(buf);
     data.DstPANId                   = spinel_pop_u16(buf);
@@ -473,29 +474,25 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     prio                            = spinel_pop_u16(buf);
     async_channel_list.channel_page = spinel_pop_int(buf);
     spinel_pop_fixed_u32_array(buf, async_channel_list.channel_mask, 8);
-    len[2] = spinel_pop_data_ptr(buf, &ptr[2]);
-    len[3] = spinel_pop_data_ptr(buf, &ptr[3]);
-    BUG_ON(spinel_remaining_size(buf));
 
-    data.msduLength = len[0];
-    data.msdu = malloc(len[0]);
-    memcpy(data.msdu, ptr[0], len[0]);
-
-    if (len[2]) {
+    len = spinel_pop_u16(buf);
+    if (len) {
         ie_ext.payloadIovLength = 1;
         ie_ext.payloadIeVectorList = malloc(sizeof(struct ns_ie_iovec));
-        ie_ext.payloadIeVectorList->iovLen = len[2];
-        ie_ext.payloadIeVectorList->ieBase = malloc(len[2]);
-        memcpy(ie_ext.payloadIeVectorList->ieBase, ptr[2], len[2]);
+        ie_ext.payloadIeVectorList->iovLen = len;
+        ie_ext.payloadIeVectorList->ieBase = malloc(len);
+        spinel_pop_raw(buf, ie_ext.payloadIeVectorList->ieBase, len, true);
     }
 
-    if (len[3]) {
+    len = spinel_pop_u16(buf);
+    if (len) {
         ie_ext.headerIovLength = 1;
         ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
-        ie_ext.headerIeVectorList->iovLen = len[3];
-        ie_ext.headerIeVectorList->ieBase = malloc(len[3]);
-        memcpy(ie_ext.headerIeVectorList->ieBase, ptr[3], len[3]);
+        ie_ext.headerIeVectorList->iovLen = len;
+        ie_ext.headerIeVectorList->ieBase = malloc(len);
+        spinel_pop_raw(buf, ie_ext.headerIeVectorList->ieBase, len, true);
     }
+    BUG_ON(spinel_remaining_size(buf));
 
     malloc_info = malloc(sizeof(*malloc_info));
     malloc_info->payload = ie_ext.payloadIeVectorList;
