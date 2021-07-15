@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 
 #include "spinel_buffer.h"
 #include "spinel.h"
@@ -259,28 +260,60 @@ void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int nu
         val[i] = spinel_pop_u32(buf);
 }
 
-unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int size, bool up_to_end)
+unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int size)
 {
     int ret;
 
-    ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, up_to_end ? "D" : "d", val, &size);
+    ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, &size);
     BUG_ON(ret < 0);
-    BUG_ON(ret != (up_to_end ? size : size + 2));
+    BUG_ON(ret != size + 2);
     buf->cnt += ret;
     return size;
 }
 
-unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val, bool up_to_end)
+unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
-    int ret;
     unsigned int size = -1;
+    int ret;
 
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, up_to_end ? "D" : "d", val, &size);
+    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, &size);
     BUG_ON(ret < 0);
-    BUG_ON(ret != (up_to_end ? size : size + 2), "%u %d", size, ret);
+    BUG_ON(ret != size + 2);
     buf->cnt += ret;
     return size;
 }
 
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size, bool check_exact_size)
+{
+    unsigned int true_size = size;
+    int ret;
 
+    if (size >= spinel_remaining_size(buf)) {
+        ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, &true_size);
+    } else {
+        // There is no way to make that with spinel_datatype_unpack_in_place()
+        memcpy(val, buf->frame + buf->cnt, size);
+        ret = size;
+    }
+    BUG_ON(ret < 0);
+    BUG_ON(ret != true_size);
+    if (check_exact_size)
+        BUG_ON(true_size != size);
+    buf->cnt += ret;
+    return size;
+}
 
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int size, bool check_exact_size)
+{
+    unsigned int true_size = -1;
+    int ret;
+
+    BUG_ON(check_exact_size && size < 0);
+    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, &true_size);
+    BUG_ON(ret < 0);
+    BUG_ON(ret != true_size);
+    if (check_exact_size)
+        BUG_ON(true_size != size);
+    buf->cnt += ret;
+    return size;
+}

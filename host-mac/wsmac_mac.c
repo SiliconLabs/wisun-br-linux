@@ -106,7 +106,7 @@ static void wsmac_spinel_set_data(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         .attr = attr,
     };
 
-    req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer, true);
+    req.value_size = spinel_pop_raw_ptr(buf, (uint8_t **)&req.value_pointer, -1, false);
     BUG_ON(spinel_remaining_size(buf));
     ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
 }
@@ -197,7 +197,7 @@ static void wsmac_spinel_set_key_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     req.attr_index = spinel_pop_u8(buf);
     spinel_pop_fixed_u8_array(buf, data.Key, 16);
     lookup_len = spinel_pop_data(buf, data.KeyIdLookupList->LookupData,
-                                 sizeof(data.KeyIdLookupList->LookupData), false);
+                                 sizeof(data.KeyIdLookupList->LookupData));
     BUG_ON(spinel_remaining_size(buf));
     if (lookup_len) {
         data.KeyIdLookupListEntries = 1;
@@ -454,7 +454,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     uint8_t *ptr[4];
     int len[4];
 
-    len[0] = spinel_pop_data_ptr(buf, &ptr[0], false);
+    len[0] = spinel_pop_data_ptr(buf, &ptr[0]);
     data.SrcAddrMode                = spinel_pop_u8(buf);
     data.DstAddrMode                = spinel_pop_u8(buf);
     data.DstPANId                   = spinel_pop_u16(buf);
@@ -473,8 +473,8 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     prio                            = spinel_pop_u16(buf);
     async_channel_list.channel_page = spinel_pop_int(buf);
     spinel_pop_fixed_u32_array(buf, async_channel_list.channel_mask, 8);
-    len[2] = spinel_pop_data_ptr(buf, &ptr[2], false);
-    len[3] = spinel_pop_data_ptr(buf, &ptr[3], false);
+    len[2] = spinel_pop_data_ptr(buf, &ptr[2]);
+    len[3] = spinel_pop_data_ptr(buf, &ptr[3]);
     BUG_ON(spinel_remaining_size(buf));
 
     data.msduLength = len[0];

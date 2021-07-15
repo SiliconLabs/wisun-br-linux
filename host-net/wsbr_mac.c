@@ -60,7 +60,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         };
 
         TRACE("cnf macCCAThreshold");
-        req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer, false);
+        req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer);
         BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
@@ -71,7 +71,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 
         TRACE("mlmeInd");
         id = spinel_pop_int(buf);
-        spinel_pop_data_ptr(buf, &data, false);
+        spinel_pop_data_ptr(buf, &data);
         BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
         break;
@@ -86,9 +86,9 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         req.timestamp   = spinel_pop_u32(buf);
         req.cca_retries = spinel_pop_u8(buf);
         req.tx_retries  = spinel_pop_u8(buf);
-        conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList, false);
-        conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList, false);
-        conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr, false);
+        conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList);
+        conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
+        conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
         BUG_ON(spinel_remaining_size(buf));
         // Note: we don't support data_conf_cb()
         ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
@@ -99,7 +99,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         mcps_data_ie_list_t ie_ext = { };
 
         TRACE("dataInd");
-        req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr, false);
+        req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr);
         req.SrcAddrMode            = spinel_pop_u8(buf);
         req.SrcPANId               = spinel_pop_u16(buf);
         spinel_pop_fixed_u8_array(buf, req.SrcAddr, 8);
@@ -115,8 +115,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         req.Key.KeyIdMode          = spinel_pop_u8(buf);
         req.Key.KeyIndex           = spinel_pop_u8(buf);
         spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
-        ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList, false);
-        ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList, false);
+        ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
+        ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
         BUG_ON(spinel_remaining_size(buf));
         // Note: we don't support data_ind_cb()
         ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
