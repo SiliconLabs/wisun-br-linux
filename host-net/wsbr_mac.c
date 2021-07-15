@@ -248,7 +248,7 @@ static void wsbr_spinel_set_data(struct wsbr_ctxt *ctxt, unsigned int prop, cons
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 256);
 
     spinel_push_hdr_set_prop(ctxt, buf, prop);
-    spinel_push_data(buf, data, data_len, true);
+    spinel_push_raw(buf, data, data_len);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
@@ -343,7 +343,7 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_KEY_TABLE);
     spinel_push_u8(buf, entry_idx);
     spinel_push_fixed_u8_array(buf, req->Key, 16);
-    spinel_push_data(buf, req->KeyIdLookupList->LookupData, lookup_len, false);
+    spinel_push_data(buf, req->KeyIdLookupList->LookupData, lookup_len);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
@@ -571,7 +571,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
 
     TRACE("mcpsReq");
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_STREAM_RAW);
-    spinel_push_data(buf, data->msdu, data->msduLength, false);
+    spinel_push_data(buf, data->msdu, data->msduLength);
     spinel_push_u8(buf,   data->SrcAddrMode);
     spinel_push_u8(buf,   data->DstAddrMode);
     spinel_push_u16(buf,  data->DstPANId);
@@ -596,16 +596,16 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
         total += ie_ext->payloadIeVectorList[i].iovLen;
     spinel_push_u16(buf, total);
     for (i = 0; i < ie_ext->payloadIovLength; i++)
-        spinel_push_data(buf, ie_ext->payloadIeVectorList[i].ieBase,
-                         ie_ext->payloadIeVectorList[i].iovLen, true);
+        spinel_push_raw(buf, ie_ext->payloadIeVectorList[i].ieBase,
+                        ie_ext->payloadIeVectorList[i].iovLen);
 
     total = 0;
     for (i = 0; i < ie_ext->headerIovLength; i++)
         total += ie_ext->headerIeVectorList[i].iovLen;
     spinel_push_u16(buf, total);
     for (i = 0; i < ie_ext->headerIovLength; i++)
-        spinel_push_data(buf, ie_ext->headerIeVectorList[i].ieBase,
-                         ie_ext->headerIeVectorList[i].iovLen, true);
+        spinel_push_raw(buf, ie_ext->headerIeVectorList[i].ieBase,
+                        ie_ext->headerIeVectorList[i].iovLen);
 
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }

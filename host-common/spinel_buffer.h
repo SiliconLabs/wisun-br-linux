@@ -39,7 +39,8 @@ void spinel_push_i32(struct spinel_buffer *buf, int32_t val);
 void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num);
 void spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num);
 void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num);
-void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size, bool up_to_end);
+void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size);
+void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size);
 
 bool spinel_pop_bool(struct spinel_buffer *buf);
 int spinel_pop_int(struct spinel_buffer *buf);

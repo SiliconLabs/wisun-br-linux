@@ -82,7 +82,7 @@ int wsbr_spi_tx(struct os_ctxt *ctxt, const void *data, unsigned int len)
 
     spinel_push_u8(buf, FIELD_PREP(HDR_PAT, 0x2));
     spinel_push_u16(buf, UINT16_MAX);
-    spinel_push_data(buf, data, len, false);
+    spinel_push_data(buf, data, len);
     if (write(ctxt->data_fd, buf->frame, buf->cnt) != buf->cnt)
         BUG("write: %m");
     return len;

@@ -678,7 +678,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
 
         BUG_ON(req->value_size > 100);
         spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_CCA_THRESHOLD);
-        spinel_push_data(buf, req->value_pointer, req->value_size, false);
+        spinel_push_data(buf, req->value_pointer, req->value_size);
         wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
@@ -751,9 +751,9 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
     spinel_push_u32(buf,  data->timestamp);
     spinel_push_u8(buf,   data->cca_retries);
     spinel_push_u8(buf,   data->tx_retries);
-    spinel_push_data(buf, conf_data->headerIeList, conf_data->headerIeListLength, false);
-    spinel_push_data(buf, conf_data->payloadIeList, conf_data->headerIeListLength, false);
-    spinel_push_data(buf, conf_data->payloadPtr, conf_data->payloadLength, false);
+    spinel_push_data(buf, conf_data->headerIeList, conf_data->headerIeListLength);
+    spinel_push_data(buf, conf_data->payloadIeList, conf_data->headerIeListLength);
+    spinel_push_data(buf, conf_data->payloadPtr, conf_data->payloadLength);
     wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 
     malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
@@ -784,7 +784,7 @@ void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_in
     TRACE("dataInd");
 
     spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_STREAM_RAW);
-    spinel_push_data(buf, data->msdu_ptr, data->msduLength, false);
+    spinel_push_data(buf, data->msdu_ptr, data->msduLength);
     spinel_push_u8(buf,   data->SrcAddrMode);
     spinel_push_u16(buf,  data->SrcPANId);
     spinel_push_fixed_u8_array(buf, data->SrcAddr, 8);
@@ -800,8 +800,8 @@ void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_in
     spinel_push_u8(buf,   data->Key.KeyIdMode);
     spinel_push_u8(buf,   data->Key.KeyIndex);
     spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
-    spinel_push_data(buf, ie_ext->headerIeList, ie_ext->headerIeListLength, false);
-    spinel_push_data(buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength, false);
+    spinel_push_data(buf, ie_ext->headerIeList, ie_ext->headerIeListLength);
+    spinel_push_data(buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength);
     wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
@@ -848,7 +848,7 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
 
     spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_MLME_IND);
     spinel_push_int(buf, id);
-    spinel_push_data(buf, data, data_len, false);
+    spinel_push_data(buf, data, data_len);
     wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 

@@ -118,16 +118,25 @@ void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val,
         spinel_push_u32(buf, val[i]);
 }
 
-void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size, bool up_to_end)
+void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
+{
+    int ret;
+
+    BUG_ON(buf->cnt + size + 2 > buf->len);
+    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, size);
+    BUG_ON(ret != size + 2);
+    buf->cnt += ret;
+}
+
+void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
     int ret;
 
     BUG_ON(buf->cnt + size > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, up_to_end ? "D" : "d", val, size);
-    BUG_ON(ret != (up_to_end ? size : size + 2));
+    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, size);
+    BUG_ON(ret != size);
     buf->cnt += ret;
 }
-
 
 bool spinel_pop_bool(struct spinel_buffer *buf)
 {
