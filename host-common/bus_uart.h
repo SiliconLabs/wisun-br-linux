@@ -10,9 +10,9 @@
 
 struct os_ctxt;
 
-int wsbr_uart_open(const char *device, int bitrate, bool hardflow);
-int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+int uart_open(const char *device, int bitrate, bool hardflow);
+int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
+int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
 #endif
 

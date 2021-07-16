@@ -261,9 +261,9 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     } else if (bus == 'u') {
         if (argc != optind + 1)
             print_help(stderr, 1);
-        ctxt->rcp_tx = wsbr_uart_tx;
-        ctxt->rcp_rx = wsbr_uart_rx;
-        ctxt->os_ctxt->data_fd = wsbr_uart_open(argv[optind + 0], baudrate, hardflow);
+        ctxt->rcp_tx = uart_tx;
+        ctxt->rcp_rx = uart_rx;
+        ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], baudrate, hardflow);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     } else {
         print_help(stderr, 1);

@@ -11,7 +11,7 @@
 struct mcps_ack_data_payload;
 struct wsmac_ctxt;
 
-void uart_rx(struct wsmac_ctxt *ctxt);
+void wsmac_rx_host(struct wsmac_ctxt *ctxt);
 
 void wsmac_reset_ind(struct wsmac_ctxt *ctxt);
 

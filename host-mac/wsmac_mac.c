@@ -577,17 +577,17 @@ static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
 
     spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_HWADDR);
     spinel_push_fixed_u8_array(buf, ctxt->eui64, 8);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
-void uart_rx(struct wsmac_ctxt *ctxt)
+void wsmac_rx_host(struct wsmac_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
     int i;
 
-    buf->len = wsbr_uart_rx(ctxt->os_ctxt, buf->frame, buf->len);
+    buf->len = uart_rx(ctxt->os_ctxt, buf->frame, buf->len);
     hdr  = spinel_pop_u8(buf);
     cmd  = spinel_pop_int(buf);
     if (cmd == SPINEL_CMD_PROP_VALUE_GET || cmd == SPINEL_CMD_PROP_VALUE_SET) {
@@ -655,7 +655,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         spinel_push_fixed_u8_array(buf, descr->ExtAddress, 8);
         spinel_push_u32(buf,  descr->FrameCounter);
         spinel_push_bool(buf, descr->Exempt);
-        wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
     case macFrameCounter: {
@@ -667,7 +667,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_FRAME_COUNTER);
         spinel_push_int(buf, req->attr_index);
         spinel_push_u32(buf, *descr);
-        wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
     case macCCAThreshold: {
@@ -676,7 +676,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         BUG_ON(req->value_size > 100);
         spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_CCA_THRESHOLD);
         spinel_push_data(buf, req->value_pointer, req->value_size);
-        wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
         break;
     }
     default:
@@ -694,7 +694,7 @@ void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
     WARN_ON(req->status);
     spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_LAST_STATUS);
     spinel_push_int(buf, SPINEL_STATUS_OK);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsmac_mlme_scan(struct wsmac_ctxt *ctxt, const void *data)
@@ -751,7 +751,7 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
     spinel_push_data(buf, conf_data->headerIeList, conf_data->headerIeListLength);
     spinel_push_data(buf, conf_data->payloadIeList, conf_data->headerIeListLength);
     spinel_push_data(buf, conf_data->payloadPtr, conf_data->payloadLength);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 
     malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
                                list, malloc_info->msduHandle == data->msduHandle);
@@ -799,7 +799,7 @@ void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_in
     spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
     spinel_push_data(buf, ie_ext->headerIeList, ie_ext->headerIeListLength);
     spinel_push_data(buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 void wsmac_mcps_data_indication(const mac_api_t *mac_api, const mcps_data_ind_t *data)
@@ -846,7 +846,7 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_MLME_IND);
     spinel_push_int(buf, id);
     spinel_push_data(buf, data, data_len);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 // Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
@@ -941,5 +941,5 @@ void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
 
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_int(buf, SPINEL_CMD_RESET);
-    wsbr_uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }

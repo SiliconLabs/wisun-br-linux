@@ -134,9 +134,9 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     }
     if (argc != optind + 2)
         print_help(stderr, 1);
-    ctxt->os_ctxt->data_fd = wsbr_uart_open(argv[optind + 0], 115200, false);
+    ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], 115200, false);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-    ctxt->rf_fd = wsbr_uart_open(argv[optind + 1], 115200, false);
+    ctxt->rf_fd = uart_open(argv[optind + 1], 115200, false);
 }
 
 void kill_handler(int signal)
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
             ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
         }
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
-            uart_rx(ctxt);
+            wsmac_rx_host(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
             read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
             WARN_ON(val != 'W');

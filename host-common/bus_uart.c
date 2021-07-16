@@ -58,7 +58,7 @@ static uint16_t crc16(const uint8_t *data, int len)
     return crc ^ 0xFFFF;
 }
 
-int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
+int uart_open(const char *device, int bitrate, bool hardflow)
 {
     static const struct {
         int val;
@@ -107,7 +107,7 @@ int wsbr_uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-int wsbr_uart_tx_append(uint8_t *buf, uint8_t byte)
+int uart_tx_append(uint8_t *buf, uint8_t byte)
 {
     if (byte == 0x7D || byte == 0x7E) {
         buf[0] = 0x7D;
@@ -119,7 +119,7 @@ int wsbr_uart_tx_append(uint8_t *buf, uint8_t byte)
     }
 }
 
-int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
     uint8_t *frame = malloc(buf_len * 2 + 3);
@@ -129,9 +129,9 @@ int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 
     frame_len = 0;
     for (i = 0; i < buf_len; i++)
-        frame_len += wsbr_uart_tx_append(frame + frame_len, buf8[i]);
-    frame_len += wsbr_uart_tx_append(frame + frame_len, crc & 0xFF);
-    frame_len += wsbr_uart_tx_append(frame + frame_len, crc >> 8);
+        frame_len += uart_tx_append(frame + frame_len, buf8[i]);
+    frame_len += uart_tx_append(frame + frame_len, crc & 0xFF);
+    frame_len += uart_tx_append(frame + frame_len, crc >> 8);
     frame[frame_len++] = 0x7E;
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
@@ -141,7 +141,7 @@ int wsbr_uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     return frame_len;
 }
 
-int wsbr_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     uint8_t *buf8 = buf;
     uint16_t crc;
