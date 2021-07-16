@@ -19,6 +19,6 @@ struct fhss_timer_entry {
     struct slist node;
 };
 
-extern struct fhss_timer wsbr_fhss;
+extern struct fhss_timer wsmac_fhss;
 
 #endif

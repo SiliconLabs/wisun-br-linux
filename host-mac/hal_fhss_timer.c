@@ -11,7 +11,7 @@
 #include "host-common/slist.h"
 #include "host-common/log.h"
 
-static int wsbr_fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
+static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
     struct os_ctxt *ctxt = &g_os_ctxt;
     struct fhss_timer_entry *item;
@@ -38,7 +38,7 @@ static int wsbr_fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_
     return 0;
 }
 
-static int wsbr_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
+static int fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
     struct os_ctxt *ctxt = &g_os_ctxt;
     struct fhss_timer_entry *item;
@@ -55,7 +55,7 @@ static int wsbr_fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t
     return -1;
 }
 
-static uint32_t wsbr_fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
+static uint32_t fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
     struct os_ctxt *ctxt = &g_os_ctxt;
     struct fhss_timer_entry *item;
@@ -72,7 +72,7 @@ static uint32_t wsbr_fhss_get_remaining_slots(void (*callback)(const fhss_api_t 
     return -1;
 }
 
-static uint32_t wsbr_fhss_get_timestamp(const fhss_api_t *api)
+static uint32_t fhss_get_timestamp(const fhss_api_t *api)
 {
     struct timespec tp;
 
@@ -80,10 +80,10 @@ static uint32_t wsbr_fhss_get_timestamp(const fhss_api_t *api)
     return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
 }
 
-struct fhss_timer wsbr_fhss = {
-    .fhss_timer_start         = wsbr_fhss_timer_start,
-    .fhss_timer_stop          = wsbr_fhss_timer_stop,
-    .fhss_get_remaining_slots = wsbr_fhss_get_remaining_slots,
-    .fhss_get_timestamp       = wsbr_fhss_get_timestamp,
+struct fhss_timer wsmac_fhss = {
+    .fhss_timer_start         = fhss_timer_start,
+    .fhss_timer_stop          = fhss_timer_stop,
+    .fhss_get_remaining_slots = fhss_get_remaining_slots,
+    .fhss_get_timestamp       = fhss_get_timestamp,
     .fhss_resolution_divider  = 1
 };

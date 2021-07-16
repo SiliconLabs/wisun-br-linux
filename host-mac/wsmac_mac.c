@@ -360,7 +360,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
     BUG_ON(spinel_remaining_size(buf));
-    ctxt->fhss_api = ns_fhss_ws_create(&config, &wsbr_fhss);
+    ctxt->fhss_api = ns_fhss_ws_create(&config, &wsmac_fhss);
     BUG_ON(!ctxt->fhss_api);
     ns_fhss_set_neighbor_info_fp(ctxt->fhss_api, wsmac_fhss_get_neighbor_info);
 }
