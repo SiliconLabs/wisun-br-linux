@@ -11,10 +11,10 @@
 
 struct os_ctxt;
 
-int wsbr_gpio_open(const char *device, bool use_fall_edge);
-int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode);
-int wsbr_spi_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-int wsbr_spi_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+int gpio_open(const char *device, bool use_fall_edge);
+int spi_open(const char *device, uint32_t frequency, uint8_t mode);
+int spi_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
+int spi_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
 #endif
 

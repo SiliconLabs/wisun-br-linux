@@ -35,7 +35,7 @@ static void simple_write(const char *filename, const char *data)
     close(fd);
 }
 
-int wsbr_gpio_open(const char *device, bool use_fall_edge)
+int gpio_open(const char *device, bool use_fall_edge)
 {
     char *end_ptr;
     char buf[256];
@@ -60,7 +60,7 @@ int wsbr_gpio_open(const char *device, bool use_fall_edge)
     return fd;
 }
 
-int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
+int spi_open(const char *device, uint32_t frequency, uint8_t mode)
 {
     int fd, ret;
 
@@ -76,7 +76,7 @@ int wsbr_spi_open(const char *device, uint32_t frequency, uint8_t mode)
     return fd;
 }
 
-int wsbr_spi_tx(struct os_ctxt *ctxt, const void *data, unsigned int len)
+int spi_tx(struct os_ctxt *ctxt, const void *data, unsigned int len)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(len + 5);
 
@@ -88,7 +88,7 @@ int wsbr_spi_tx(struct os_ctxt *ctxt, const void *data, unsigned int len)
     return len;
 }
 
-int wsbr_spi_rx(struct os_ctxt *ctxt, void *data, unsigned int max_len)
+int spi_rx(struct os_ctxt *ctxt, void *data, unsigned int max_len)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(5);
     uint8_t tmp[2];
