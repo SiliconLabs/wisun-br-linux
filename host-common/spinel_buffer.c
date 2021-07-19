@@ -15,6 +15,11 @@ uint8_t *spinel_ptr(struct spinel_buffer *buf)
     return buf->frame + buf->cnt;
 }
 
+void spinel_reset(struct spinel_buffer *buf)
+{
+    buf->cnt = 0;
+}
+
 void spinel_push_bool(struct spinel_buffer *buf, bool val)
 {
     int ret;
