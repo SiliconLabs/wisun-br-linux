@@ -566,6 +566,15 @@ static const struct {
 
 #define SPINEL_SIZE_MAX (MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70)
 
+// Warning, no re-entrancy for any of indications or confirmations.
+struct {
+    struct spinel_buffer s;
+    char b[SPINEL_SIZE_MAX];
+} __tx_buf = {
+    .s.len = SPINEL_SIZE_MAX,
+};
+static struct spinel_buffer *tx_buf = (struct spinel_buffer *)&__tx_buf;
+
 // Warning, no re-entrancy for wsmac_rx_host().
 struct {
     struct spinel_buffer s;
@@ -584,11 +593,10 @@ void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf,
 
 static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 8);
-
-    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_HWADDR);
-    spinel_push_fixed_u8_array(buf, ctxt->eui64, 8);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_HWADDR);
+    spinel_push_fixed_u8_array(tx_buf, ctxt->eui64, 8);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 void wsmac_rx_host(struct wsmac_ctxt *ctxt)
@@ -697,14 +705,14 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
 
 void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
     const mlme_start_conf_t *req = data;
 
     TRACE("mlmeStart");
     WARN_ON(req->status);
-    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_LAST_STATUS);
-    spinel_push_int(buf, SPINEL_STATUS_OK);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_LAST_STATUS);
+    spinel_push_int(tx_buf, SPINEL_STATUS_OK);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 void wsmac_mlme_scan(struct wsmac_ctxt *ctxt, const void *data)
@@ -743,7 +751,6 @@ void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void 
 void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_t *data,
                                  const mcps_data_conf_payload_t *conf_data)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     struct msdu_malloc_info *malloc_info;
     struct wsmac_ctxt *ctxt = &g_ctxt;
 
@@ -752,16 +759,17 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
     BUG_ON(!conf_data, "not implemented");
     TRACE("dataCnf");
 
-    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_STREAM_STATUS);
-    spinel_push_u8(buf,   data->status);
-    spinel_push_u8(buf,   data->msduHandle);
-    spinel_push_u32(buf,  data->timestamp);
-    spinel_push_u8(buf,   data->cca_retries);
-    spinel_push_u8(buf,   data->tx_retries);
-    spinel_push_data(buf, conf_data->headerIeList, conf_data->headerIeListLength);
-    spinel_push_data(buf, conf_data->payloadIeList, conf_data->headerIeListLength);
-    spinel_push_data(buf, conf_data->payloadPtr, conf_data->payloadLength);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_STREAM_STATUS);
+    spinel_push_u8(tx_buf,   data->status);
+    spinel_push_u8(tx_buf,   data->msduHandle);
+    spinel_push_u32(tx_buf,  data->timestamp);
+    spinel_push_u8(tx_buf,   data->cca_retries);
+    spinel_push_u8(tx_buf,   data->tx_retries);
+    spinel_push_data(tx_buf, conf_data->headerIeList, conf_data->headerIeListLength);
+    spinel_push_data(tx_buf, conf_data->payloadIeList, conf_data->headerIeListLength);
+    spinel_push_data(tx_buf, conf_data->payloadPtr, conf_data->payloadLength);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 
     malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
                                list, malloc_info->msduHandle == data->msduHandle);
@@ -782,7 +790,6 @@ void wsmac_mcps_data_confirm(const mac_api_t *mac_api, const mcps_data_conf_t *d
 void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_ind_t *data,
                                     const mcps_data_ie_list_t *ie_ext)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     struct wsmac_ctxt *ctxt = &g_ctxt;
 
     BUG_ON(!mac_api);
@@ -790,26 +797,27 @@ void wsmac_mcps_data_indication_ext(const mac_api_t *mac_api, const mcps_data_in
     BUG_ON(!ie_ext, "not implemented");
     TRACE("dataInd");
 
-    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_STREAM_RAW);
-    spinel_push_data(buf, data->msdu_ptr, data->msduLength);
-    spinel_push_u8(buf,   data->SrcAddrMode);
-    spinel_push_u16(buf,  data->SrcPANId);
-    spinel_push_fixed_u8_array(buf, data->SrcAddr, 8);
-    spinel_push_u8(buf,   data->DstAddrMode);
-    spinel_push_u16(buf,  data->DstPANId);
-    spinel_push_fixed_u8_array(buf, data->DstAddr, 8);
-    spinel_push_u8(buf,   data->mpduLinkQuality);
-    spinel_push_i8(buf,   data->signal_dbm);
-    spinel_push_u32(buf,  data->timestamp);
-    spinel_push_bool(buf, data->DSN_suppressed);
-    spinel_push_u8(buf,   data->DSN);
-    spinel_push_u8(buf,   data->Key.SecurityLevel);
-    spinel_push_u8(buf,   data->Key.KeyIdMode);
-    spinel_push_u8(buf,   data->Key.KeyIndex);
-    spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
-    spinel_push_data(buf, ie_ext->headerIeList, ie_ext->headerIeListLength);
-    spinel_push_data(buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_STREAM_RAW);
+    spinel_push_data(tx_buf, data->msdu_ptr, data->msduLength);
+    spinel_push_u8(tx_buf,   data->SrcAddrMode);
+    spinel_push_u16(tx_buf,  data->SrcPANId);
+    spinel_push_fixed_u8_array(tx_buf, data->SrcAddr, 8);
+    spinel_push_u8(tx_buf,   data->DstAddrMode);
+    spinel_push_u16(tx_buf,  data->DstPANId);
+    spinel_push_fixed_u8_array(tx_buf, data->DstAddr, 8);
+    spinel_push_u8(tx_buf,   data->mpduLinkQuality);
+    spinel_push_i8(tx_buf,   data->signal_dbm);
+    spinel_push_u32(tx_buf,  data->timestamp);
+    spinel_push_bool(tx_buf, data->DSN_suppressed);
+    spinel_push_u8(tx_buf,   data->DSN);
+    spinel_push_u8(tx_buf,   data->Key.SecurityLevel);
+    spinel_push_u8(tx_buf,   data->Key.KeyIdMode);
+    spinel_push_u8(tx_buf,   data->Key.KeyIndex);
+    spinel_push_fixed_u8_array(tx_buf, data->Key.Keysource, 8);
+    spinel_push_data(tx_buf, ie_ext->headerIeList, ie_ext->headerIeListLength);
+    spinel_push_data(tx_buf, ie_ext->payloadIeList, ie_ext->payloadIeListLength);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 void wsmac_mcps_data_indication(const mac_api_t *mac_api, const mcps_data_ind_t *data)
@@ -825,7 +833,6 @@ void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
 
 void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE);
     struct wsmac_ctxt *ctxt = &g_ctxt;
     int data_len;
 
@@ -853,10 +860,11 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
         }
     }
 
-    spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_MLME_IND);
-    spinel_push_int(buf, id);
-    spinel_push_data(buf, data, data_len);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_MLME_IND);
+    spinel_push_int(tx_buf, id);
+    spinel_push_data(tx_buf, data, data_len);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 // Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
@@ -947,9 +955,8 @@ void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *res
 
 void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
-
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_int(buf, SPINEL_CMD_RESET);
-    uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    spinel_reset(tx_buf);
+    spinel_push_u8(tx_buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(tx_buf, SPINEL_CMD_RESET);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
