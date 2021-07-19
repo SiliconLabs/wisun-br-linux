@@ -564,6 +564,17 @@ static const struct {
     { }
 };
 
+#define SPINEL_SIZE_MAX (MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70)
+
+// Warning, no re-entrancy for wsmac_rx_host().
+struct {
+    struct spinel_buffer s;
+    char b[SPINEL_SIZE_MAX];
+} __rx_buf = {
+    .s.len = SPINEL_SIZE_MAX,
+};
+static struct spinel_buffer *rx_buf = (struct spinel_buffer *)&__rx_buf;
+
 void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
 {
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
@@ -582,16 +593,16 @@ static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
 
 void wsmac_rx_host(struct wsmac_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
     uint8_t hdr;
     int cmd, prop;
     int i;
 
-    buf->len = uart_rx(ctxt->os_ctxt, buf->frame, buf->len);
-    hdr  = spinel_pop_u8(buf);
-    cmd  = spinel_pop_int(buf);
+    rx_buf->len = uart_rx(ctxt->os_ctxt, rx_buf->frame, SPINEL_SIZE_MAX);
+    spinel_reset(rx_buf);
+    hdr = spinel_pop_u8(rx_buf);
+    cmd = spinel_pop_int(rx_buf);
     if (cmd == SPINEL_CMD_PROP_VALUE_GET || cmd == SPINEL_CMD_PROP_VALUE_SET) {
-        prop = spinel_pop_int(buf);
+        prop = spinel_pop_int(rx_buf);
         for (i = 0; mlme_prop_cstr[i].prop; i++)
             if (prop == mlme_prop_cstr[i].prop)
                 break;
@@ -603,32 +614,32 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
         };
 
         TRACE("reset");
-        BUG_ON(spinel_remaining_size(buf));
+        BUG_ON(spinel_remaining_size(rx_buf));
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
         ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
         ns_fhss_delete(ctxt->fhss_api);
         ctxt->fhss_api = NULL;
         wsmac_reset_ind(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
-        int index = spinel_pop_int(buf);
+        int index = spinel_pop_int(rx_buf);
 
         TRACE("get hwAddr");
-        BUG_ON(spinel_remaining_size(buf));
+        BUG_ON(spinel_remaining_size(rx_buf));
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
-        int index = spinel_pop_int(buf);
+        int index = spinel_pop_int(rx_buf);
         mlme_get_t req = {
             .attr_index = index,
             .attr = mlme_prop_cstr[i].attr,
         };
 
         TRACE("get %s", mlme_prop_cstr[i].str);
-        BUG_ON(spinel_remaining_size(buf));
+        BUG_ON(spinel_remaining_size(rx_buf));
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_GET, &req);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
         TRACE("set %s", mlme_prop_cstr[i].str);
         if (mlme_prop_cstr[i].prop_set)
-            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, buf);
+            mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, rx_buf);
         else
             WARN("property not implemented: %08x", prop);
     } else {
@@ -644,39 +655,38 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
     TRACE("mlmeGet");
     switch (req->attr) {
     case macDeviceTable: {
-        struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 22);
         const mlme_device_descriptor_t *descr = req->value_pointer;
 
         BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
-        spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_DEVICE_TABLE);
-        spinel_push_int(buf,  req->attr_index);
-        spinel_push_u16(buf,  descr->PANId);
-        spinel_push_u16(buf,  descr->ShortAddress);
-        spinel_push_fixed_u8_array(buf, descr->ExtAddress, 8);
-        spinel_push_u32(buf,  descr->FrameCounter);
-        spinel_push_bool(buf, descr->Exempt);
-        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        spinel_reset(tx_buf);
+        spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_DEVICE_TABLE);
+        spinel_push_int(tx_buf,  req->attr_index);
+        spinel_push_u16(tx_buf,  descr->PANId);
+        spinel_push_u16(tx_buf,  descr->ShortAddress);
+        spinel_push_fixed_u8_array(tx_buf, descr->ExtAddress, 8);
+        spinel_push_u32(tx_buf,  descr->FrameCounter);
+        spinel_push_bool(tx_buf, descr->Exempt);
+        uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
         break;
     }
     case macFrameCounter: {
-        struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 8);
         const uint32_t *descr = req->value_pointer;
 
         BUG_ON(req->value_size != sizeof(uint32_t));
         //BUG_ON(req->attr_index != XXXsecurity_frame_counter);
-        spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_FRAME_COUNTER);
-        spinel_push_int(buf, req->attr_index);
-        spinel_push_u32(buf, *descr);
-        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        spinel_reset(tx_buf);
+        spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_FRAME_COUNTER);
+        spinel_push_int(tx_buf, req->attr_index);
+        spinel_push_u32(tx_buf, *descr);
+        uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
         break;
     }
     case macCCAThreshold: {
-        struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
-
         BUG_ON(req->value_size > 100);
-        spinel_push_hdr_is_prop(ctxt, buf, SPINEL_PROP_WS_CCA_THRESHOLD);
-        spinel_push_data(buf, req->value_pointer, req->value_size);
-        uart_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+        spinel_reset(tx_buf);
+        spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_CCA_THRESHOLD);
+        spinel_push_data(tx_buf, req->value_pointer, req->value_size);
+        uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
         break;
     }
     default:
