@@ -606,6 +606,8 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     int i;
 
     rx_buf->len = uart_rx(ctxt->os_ctxt, rx_buf->frame, SPINEL_SIZE_MAX);
+    if (!rx_buf->len)
+        return;
     spinel_reset(rx_buf);
     hdr = spinel_pop_u8(rx_buf);
     cmd = spinel_pop_int(rx_buf);
