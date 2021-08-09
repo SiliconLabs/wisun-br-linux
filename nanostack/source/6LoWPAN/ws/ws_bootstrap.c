@@ -3335,7 +3335,7 @@ static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *c
     if (mem_stats) {
         heap_size = mem_stats->heap_sector_size;
     } else {
-        heap_size = 0;
+        heap_size = UINT32_MAX;
     }
 
     /*
