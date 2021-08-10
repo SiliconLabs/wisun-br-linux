@@ -19,7 +19,7 @@ transmit the data.  Currently, the only supported device is the EFR32.
 The EFR32 need to flashed with a specific firmware in order to communicate with
 the daemon. This firmware has not et been merged with the master branch of the
 Wi-SUN component. It is [available here][1]. The last tag tested is
-"rcp-v0.0.1". You will be able to compile the project wisunrcp as usual using
+"rcp-v0.0.2". You will be able to compile the project wisunrcp as usual using
 the `slc` tool provided by Silabs. Then, you obviously need to flash the
 firmware.
 
