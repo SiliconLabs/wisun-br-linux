@@ -8,7 +8,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <pcap/pcap.h>
+#ifdef HAVE_LIBPCAP
+#  include <pcap/pcap.h>
+#endif
 
 #include "host-common/slist.h"
 #include "nanostack/fhss_ws_extension.h"
@@ -55,8 +57,10 @@ struct wsmac_ctxt {
     int spinel_tid;
     int spinel_iid;
 
+#ifdef HAVE_LIBPCAP
     pcap_t *pcap_ctxt;
     pcap_dumper_t *pcap_dumper;
+#endif
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

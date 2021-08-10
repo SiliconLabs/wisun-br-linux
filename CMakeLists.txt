@@ -577,8 +577,14 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 
-pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
-target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
+# Note that old libpcap releases didn't provide pkg-config file and are not
+# detected by the line below. The user have to compile without support for
+# libpcap or manually defines the flags.
+pkg_check_modules(LIBPCAP IMPORTED_TARGET libpcap)
+if(LIBPCAP_FOUND)
+    target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
+    target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
+endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)

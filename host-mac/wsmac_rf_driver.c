@@ -19,7 +19,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include <pcap/pcap.h>
+#ifdef HAVE_LIBPCAP
+#  include <pcap/pcap.h>
+#endif
 
 #include "ns_types.h"
 #include "ns_trace.h"
@@ -95,13 +97,26 @@ static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t chan
     return 0;
 }
 
+void write_pcap(struct wsmac_ctxt *ctxt, uint8_t *buf, int len)
+{
+#ifdef HAVE_LIBPCAP
+    struct pcap_pkthdr pcap_hdr;
+
+    if (ctxt->pcap_dumper) {
+        gettimeofday(&pcap_hdr.ts, NULL);
+        pcap_hdr.caplen = len;
+        pcap_hdr.len = len;
+        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, buf);
+    }
+#endif
+}
+
 void rf_rx(struct wsmac_ctxt *ctxt)
 {
     uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t hdr[6];
     uint16_t pkt_len;
     int len;
-    struct pcap_pkthdr pcap_hdr;
 
     len = read(ctxt->rf_fd, hdr, 6);
     if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
@@ -112,13 +127,7 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
     TRACE("RF rx msdu on channel %d (while listening on %d)", ((uint16_t *)hdr)[2], channel);
-    if (ctxt->pcap_dumper) {
-        gettimeofday(&pcap_hdr.ts, NULL);
-        pcap_hdr.caplen = len;
-        pcap_hdr.len = len;
-        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, buf);
-    }
-
+    write_pcap(ctxt, buf, len);
     ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
 }
 
@@ -144,7 +153,6 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
 {
     uint8_t hdr[6];
     struct wsmac_ctxt *ctxt = &g_ctxt;
-    struct pcap_pkthdr pcap_hdr;
 
     BUG_ON(!data_ptr);
     TRACE("RF tx msdu%s (channel %d)", ctxt->rf_frame_cca_progress ? " (busy)" : "", channel);
@@ -159,12 +167,7 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     write(ctxt->rf_fd, hdr, 6);
     write(ctxt->rf_fd, data_ptr, data_len);
     ctxt->rf_frame_cca_progress = true;
-    if (ctxt->pcap_dumper) {
-        gettimeofday(&pcap_hdr.ts, NULL);
-        pcap_hdr.caplen = data_len;
-        pcap_hdr.len = data_len;
-        pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, data_ptr);
-    }
+    write_pcap(ctxt, data_ptr, data_len);
     // HACK: wait the time for the remote to receive the message and ack it.
     // Else, message will be sent as fast as possible and it clutter the pcap.
     usleep(4000);

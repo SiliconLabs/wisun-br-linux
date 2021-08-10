@@ -12,7 +12,9 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <pcap/pcap.h>
+#ifdef HAVE_LIBPCAP
+#  include <pcap/pcap.h>
+#endif
 
 #include "mbed-trace/mbed_trace.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
@@ -55,10 +57,14 @@ void print_help(FILE *stream, int exit_code) {
 
 void configure_pcap_output(struct wsmac_ctxt *ctxt, const char *filename)
 {
+#ifdef HAVE_LIBPCAP
     ctxt->pcap_ctxt = pcap_open_dead(DLT_IEEE802_15_4_NOFCS, 0xFFFF);
     pcap_set_immediate_mode(ctxt->pcap_ctxt, 1);
     ctxt->pcap_dumper = pcap_dump_open(ctxt->pcap_ctxt, filename);
     FATAL_ON(!ctxt->pcap_dumper, 1, "%s: %s", optarg, pcap_geterr(ctxt->pcap_ctxt));
+#else
+    FATAL(1, "Support for libcpap not compiled");
+#endif
 }
 
 static void invoke_wireshark(struct wsmac_ctxt *ctxt)
