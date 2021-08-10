@@ -37,7 +37,7 @@ The project depends on libnl-3-dev and libpcap. For the build, you will need
 
 On Debian and its derivatives, you can install the necessary dependencies with:
 
-    sudo apt-get install libnl-3-dev libpcap-dev cmake ninja
+    sudo apt-get install libnl-3-dev libpcap-dev cmake ninja-build
 
 Then you can compile with:
 
