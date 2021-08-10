@@ -104,7 +104,7 @@ void print_help(FILE *stream, int exit_code) {
     exit(exit_code);
 }
 
-size_t read_file(const char *filename, const uint8_t **ptr)
+size_t read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
     int fd, ret;
@@ -114,12 +114,21 @@ size_t read_file(const char *filename, const uint8_t **ptr)
     FATAL_ON(fd < 0, 1, "%s: %d %m", filename, fd);
     ret = fstat(fd, &st);
     FATAL_ON(ret < 0, 1, "fstat: %s: %m", filename);
-    tmp = malloc(st.st_size);
+
+    /* See https://github.com/ARMmbed/mbedtls/issues/3896 and
+     * mbedtls_x509_crt_parse()
+     */
+    tmp = malloc(st.st_size + 1);
+    tmp[st.st_size] = 0;
     ret = read(fd, tmp, st.st_size);
     FATAL_ON(ret != st.st_size, 1, "read: %s: %m", filename);
     close(fd);
     *ptr = tmp;
-    return st.st_size;
+
+    if (strstr(tmp, "-----BEGIN CERTIFICATE-----"))
+        return st.st_size + 1;
+    else
+        return st.st_size;
 }
 
 void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
@@ -218,17 +227,17 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
             case 'K':
                 if (ctxt->tls_own.key)
                     FATAL(1, "--key can be specified only one time");
-                ctxt->tls_own.key_len = read_file(optarg, &ctxt->tls_own.key);
+                ctxt->tls_own.key_len = read_cert(optarg, &ctxt->tls_own.key);
                 break;
             case 'C':
                 if (ctxt->tls_own.cert)
                     FATAL(1, "--cert can be specified only one time");
-                ctxt->tls_own.cert_len = read_file(optarg, &ctxt->tls_own.cert);
+                ctxt->tls_own.cert_len = read_cert(optarg, &ctxt->tls_own.cert);
                 break;
             case 'A':
                 if (ctxt->tls_ca.cert)
                     FATAL(1, "--authority can be specified only one time");
-                ctxt->tls_ca.cert_len = read_file(optarg, &ctxt->tls_ca.cert);
+                ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
                 break;
             case 'b':
                 baudrate = strtoul(optarg, &end_ptr, 10);
