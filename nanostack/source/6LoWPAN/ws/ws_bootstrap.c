@@ -4327,7 +4327,7 @@ static void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t 
     if (mem_stats) {
         heap_size = mem_stats->heap_sector_size;
     } else {
-        heap_size = 0;
+        heap_size = UINT32_MAX;
     }
 
     uint16_t packet_per_seconds = ws_bootstrap_packet_per_seconds(cur, WS_CONGESTION_PACKET_SIZE);
