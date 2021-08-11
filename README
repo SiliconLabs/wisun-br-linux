@@ -10,7 +10,7 @@ Linux services.
 Quick start guide
 -----------------
 
-=== Prerequisites
+### Prerequisites
 
 This project provide a daemon which takes care of all the high level stuff of
 the Wi-SUN protocol. Then a RF device (RF Co-Processor, RCP) is necessary to
@@ -30,7 +30,7 @@ should appears when you plug the WSTK.
 
 [1]: https://stash.silabs.com/scm/~jepouill/wisun
 
-=== Compile
+### Compile
 
 The project depends on libnl-3-dev and libpcap. For the build, you will need
 `cmake`. We also encourage use of Ninja as `cmake` back-end.
@@ -50,7 +50,7 @@ And finally, you may install the service with:
 
 Note that no scripts for any start up service are provided for now.
 
-=== Launch
+### Launch
 
 The Wi-SUN network will use IPv6. Router advertisement on the Wi-SUN network
 interface is necessary to make it work correctly.
