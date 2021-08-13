@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,6 +74,8 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -u                    Use UART bus\n");
     fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
+    fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
+    fprintf(stream, "                          on config file\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SUN\")\n");
@@ -135,48 +138,118 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
+static const int valid_ws_modes[] = { 0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05 };
+static const struct {
+    char *name;
+    int val;
+} valid_ws_domains[] = {
+    { "WW", REG_DOMAIN_WW }, // World wide
+    { "NA", REG_DOMAIN_NA }, // North America
+    { "JP", REG_DOMAIN_JP }, // Japan
+    { "EU", REG_DOMAIN_EU }, // European Union
+    { "CH", REG_DOMAIN_CH }, // China
+    { "IN", REG_DOMAIN_IN }, // India
+    { "MX", REG_DOMAIN_MX }, //
+    { "BZ", REG_DOMAIN_BZ }, // Brazil
+    { "AZ", REG_DOMAIN_AZ }, // Australia
+    { "NZ", REG_DOMAIN_NZ }, // New zealand
+    { "KR", REG_DOMAIN_KR }, // Korea
+    { "PH", REG_DOMAIN_PH }, //
+    { "MY", REG_DOMAIN_MY }, //
+    { "HK", REG_DOMAIN_HK }, //
+    { "SG", REG_DOMAIN_SG }, // band 866-869
+    { "TH", REG_DOMAIN_TH }, //
+    { "VN", REG_DOMAIN_VN }, //
+    { "SG", REG_DOMAIN_SG_H }, // band 920-925
+};
+static const struct {
+    char *name;
+    int val;
+} valid_ws_size[] = {
+    { "AUTO",   NETWORK_SIZE_AUTOMATIC },
+    { "CERT",   NETWORK_SIZE_CERTIFICATE },
+    { "SMALL",  NETWORK_SIZE_SMALL },
+    { "S",      NETWORK_SIZE_SMALL },
+    { "MEDIUM", NETWORK_SIZE_MEDIUM },
+    { "M",      NETWORK_SIZE_MEDIUM },
+    { "LARGE",  NETWORK_SIZE_LARGE },
+    { "L",      NETWORK_SIZE_LARGE },
+    { "XLARGE", NETWORK_SIZE_XLARGE },
+    { "XL",     NETWORK_SIZE_XLARGE },
+};
+
+static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
+{
+    FILE *f = fopen(filename, "r");
+    int line_no = 0;
+    char line[256];
+    char tmp[256];
+    char garbage; // detect garbage at end of the line
+    int len;
+    int i;
+
+    if (!f)
+        FATAL(1, "%s: %m", filename);
+    while (fgets(line, sizeof(line), f)) {
+        line_no++;
+        len = strlen(line) - 1;
+        if (len < 0)
+            continue;
+        if (line[len] == '\n')
+            line[len--] = '\0';
+        if (line[len] == '\r')
+            line[len--] = '\0';
+        *(strchrnul(line, '#')) = '\0';
+        if (sscanf(line, " %c", &garbage) == EOF) {
+            /* blank line*/;
+        } else if (sscanf(line, " network_name = %s %c", ctxt->ws_name, &garbage) == 1) {
+            /* nothing to do */;
+        } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
+            ctxt->tls_own.cert_len = read_cert(tmp, &ctxt->tls_own.cert);
+        } else if (sscanf(line, " key = %s %c", tmp, &garbage) == 1) {
+            ctxt->tls_own.key_len = read_cert(tmp, &ctxt->tls_own.key);
+        } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
+            ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
+        } else if (sscanf(line, " domain = %s %c", tmp, &garbage) == 1) {
+            ctxt->ws_domain = -1;
+            for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
+                if (!strcmp(valid_ws_domains[i].name, tmp)) {
+                    ctxt->ws_domain = valid_ws_domains[i].val;
+                    break;
+                }
+            }
+            if (ctxt->ws_domain < 0)
+                FATAL(1, "%s:%d: invalid domain: %s", filename, line_no, tmp);
+        } else if (sscanf(line, " mode = %x %c", &ctxt->ws_mode, &garbage) == 1) {
+            for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
+                if (valid_ws_modes[i] == ctxt->ws_mode)
+                    break;
+            if (i == ARRAY_SIZE(valid_ws_modes))
+                FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
+        } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
+            if (ctxt->ws_class > 3)
+                FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
+        } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
+                ctxt->ws_size = -1;
+                for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
+                    if (!strcasecmp(valid_ws_size[i].name, tmp)) {
+                        ctxt->ws_size = valid_ws_size[i].val;
+                        break;
+                    }
+                }
+                if (ctxt->ws_size < 0)
+                   FATAL(1, "%s:%d: invalid network size: %s", filename, line_no, tmp);
+        } else {
+            FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
+        }
+    }
+}
+
 void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
 {
-    static const int valid_ws_modes[] = { 0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05 };
-    static const struct {
-        char *name;
-        int val;
-    } valid_ws_domains[] = {
-        { "WW", REG_DOMAIN_WW }, // World wide
-        { "NA", REG_DOMAIN_NA }, // North America
-        { "JP", REG_DOMAIN_JP }, // Japan
-        { "EU", REG_DOMAIN_EU }, // European Union
-        { "CH", REG_DOMAIN_CH }, // China
-        { "IN", REG_DOMAIN_IN }, // India
-        { "MX", REG_DOMAIN_MX }, //
-        { "BZ", REG_DOMAIN_BZ }, // Brazil
-        { "AZ", REG_DOMAIN_AZ }, // Australia
-        { "NZ", REG_DOMAIN_NZ }, // New zealand
-        { "KR", REG_DOMAIN_KR }, // Korea
-        { "PH", REG_DOMAIN_PH }, //
-        { "MY", REG_DOMAIN_MY }, //
-        { "HK", REG_DOMAIN_HK }, //
-        { "SG", REG_DOMAIN_SG }, // band 866-869
-        { "TH", REG_DOMAIN_TH }, //
-        { "VN", REG_DOMAIN_VN }, //
-        { "SG", REG_DOMAIN_SG_H }, // band 920-925
-    };
-    static const struct {
-        char *name;
-        int val;
-    } valid_ws_size[] = {
-        { "AUTO",   NETWORK_SIZE_AUTOMATIC },
-        { "CERT",   NETWORK_SIZE_CERTIFICATE },
-        { "SMALL",  NETWORK_SIZE_SMALL },
-        { "S",      NETWORK_SIZE_SMALL },
-        { "MEDIUM", NETWORK_SIZE_MEDIUM },
-        { "M",      NETWORK_SIZE_MEDIUM },
-        { "LARGE",  NETWORK_SIZE_LARGE },
-        { "L",      NETWORK_SIZE_LARGE },
-        { "XLARGE", NETWORK_SIZE_XLARGE },
-        { "XL",     NETWORK_SIZE_XLARGE },
-    };
-    static const struct option opt_list[] = {
+    const char *opts_short = "usF:t:n:d:m:c:S:K:C:A:b:f:Hh";
+    static const struct option opts_long[] = {
+        { "config",      required_argument, 0,  'F' },
         { "tun",         required_argument, 0,  't' },
         { "network",     required_argument, 0,  'n' },
         { "domain",      required_argument, 0,  'd' },
@@ -205,8 +278,20 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     ctxt->ws_mode = 0x1a;
     ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
     strcpy(ctxt->ws_name, "Wi-SUN");
-    while ((opt = getopt_long(argc, argv, "ust:n:d:m:c:S:K:C:A:b:f:Hh", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
+            case 'F':
+                read_config_file(ctxt, optarg);
+                break;
+            default:
+                break;
+        }
+    }
+    optind = 1; /* reset getopt */
+    while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
+        switch (opt) {
+            case 'F':
+                break;
             case 'u':
             case 's':
                 if (bus)
