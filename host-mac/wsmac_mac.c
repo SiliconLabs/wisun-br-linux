@@ -14,6 +14,7 @@
 #include "host-common/bus_uart.h"
 #include "wsmac_mac.h"
 #include "wsmac.h"
+#include "version.h"
 #include "host-common/spinel.h"
 #include "host-common/spinel_buffer.h"
 #include "host-common/utils.h"
@@ -960,5 +961,13 @@ void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
     spinel_reset(tx_buf);
     spinel_push_u8(tx_buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_int(tx_buf, SPINEL_CMD_RESET);
+    spinel_push_u32(tx_buf, version_api);
+    spinel_push_u32(tx_buf, version_fw);
+    spinel_push_str(tx_buf, version_fw_str);
+    // Further bytes reserved for RF parameters
+    spinel_push_u32(tx_buf, 0);
+    spinel_push_u32(tx_buf, 0);
+    spinel_push_u32(tx_buf, 0);
+    spinel_push_u32(tx_buf, 0);
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
