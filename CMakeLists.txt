@@ -5,6 +5,12 @@ include(GNUInstallDirs)
 # compiler.
 add_compile_options(-Wall)
 
+add_custom_target(check_git
+    ALL
+    BYPRODUCTS version.c
+    COMMENT "Checking the git repository for changes..."
+    COMMAND ${CMAKE_SOURCE_DIR}/version.sh ${CMAKE_SOURCE_DIR} version.c)
+
 # Uncomment these to get fake random numbers (note: since Wi-SUN also relies on
 # timers, uncommenting that is not sufficient to get reproducible run)
 # add_compile_definitions(RANDLIB_PRNG)
