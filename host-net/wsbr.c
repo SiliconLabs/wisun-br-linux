@@ -27,6 +27,7 @@
 
 #include "host-common/log.h"
 #include "host-common/slist.h"
+#include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "tun.h"
@@ -434,6 +435,7 @@ int main(int argc, char *argv[])
     uint64_t val;
     struct timespec ts = { };
 
+    TRACE("Silicon Labs Wi-SUN border router %s", version_daemon);
     signal(SIGINT, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     pipe(ctxt->os_ctxt->event_fd);

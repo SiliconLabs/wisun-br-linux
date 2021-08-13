@@ -20,6 +20,7 @@ add_custom_target(check_git
 add_compile_definitions(NO_TCP)
 
 add_executable(wshwsim
+    version.c
     host-mac/wsmac.c
     host-mac/wsmac_mac.c
     host-mac/wsmac_rf_driver.c
@@ -91,6 +92,7 @@ target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
 
 add_executable(wsbrd
+    version.c
     host-net/wsbr.c
     host-net/wsbr_mac.c
     host-net/wsbr_fhss_mac.c
@@ -335,6 +337,7 @@ target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
 
 add_executable(wsnode
+    version.c
     host-net/wsrouter.c
     host-net/wsbr_mac.c
     host-net/wsbr_fhss_mac.c
