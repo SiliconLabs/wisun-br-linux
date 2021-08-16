@@ -104,7 +104,7 @@ void print_help(FILE *stream, int exit_code) {
     exit(exit_code);
 }
 
-size_t read_cert(const char *filename, const uint8_t **ptr)
+static size_t read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
     int fd, ret;
@@ -125,7 +125,7 @@ size_t read_cert(const char *filename, const uint8_t **ptr)
     close(fd);
     *ptr = tmp;
 
-    if (strstr(tmp, "-----BEGIN CERTIFICATE-----"))
+    if (strstr((char *)tmp, "-----BEGIN CERTIFICATE-----"))
         return st.st_size + 1;
     else
         return st.st_size;
