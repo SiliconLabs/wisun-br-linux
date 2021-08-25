@@ -6,9 +6,14 @@
 #ifndef WSBR_COMMANDLINE_H
 #define WSBR_COMMANDLINE_H
 
+#include <stdio.h>
+
 struct wsbr_ctxt;
 
-void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[]);
+void print_help_br(FILE *stream, int exit_code);
+
+void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
+                       void (*print_help)(FILE *stream, int exit_code));
 
 #endif
 

@@ -64,7 +64,7 @@ static const struct {
     { "XL",     NETWORK_SIZE_XLARGE },
 };
 
-static void print_help(FILE *stream, int exit_code) {
+void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
@@ -206,7 +206,8 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
     }
 }
 
-void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[])
+void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
+                       void (*print_help)(FILE *stream, int exit_code))
 {
     const char *opts_short = "usF:t:n:d:m:c:S:K:C:A:b:f:Hh";
     static const struct option opts_long[] = {

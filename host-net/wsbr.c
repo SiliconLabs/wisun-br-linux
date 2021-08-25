@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
-    parse_commandline(ctxt, argc, argv);
+    parse_commandline(ctxt, argc, argv, print_help_br);
     wsbr_tun_init(ctxt);
     ns_file_system_set_root_path("/tmp/wsbr_");
 
