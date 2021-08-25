@@ -98,6 +98,7 @@ add_executable(wsbrd
     host-net/wsbr_fhss_mac.c
     host-net/wsbr_fhss_net.c
     host-net/tun.c
+    host-net/commandline.c
     host-net/os_whiteboard.c
     host-common/bus_uart.c
     host-common/bus_spi.c
