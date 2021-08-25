@@ -112,6 +112,53 @@ void print_help_br(FILE *stream, int exit_code) {
     exit(exit_code);
 }
 
+void print_help_node(FILE *stream, int exit_code) {
+    fprintf(stream, "Simulate a Wi-SUN node\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Usage:\n");
+    fprintf(stream, "  wsnode -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
+    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Common options:\n");
+    fprintf(stream, "  -u                    Use UART bus\n");
+    fprintf(stream, "  -s                    Use SPI bus\n");
+    fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
+    fprintf(stream, "                          on config file\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Wi-SUN related options:\n");
+    fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
+    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
+    fprintf(stream, "                          4b and 5\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
+    fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
+    fprintf(stream, "                          the network. Valid values: AUTO (default), CERT (development and\n");
+    fprintf(stream, "                          certification), S (< 100), M (100-800), L (800-2500), XL (> 2500)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Wi-SUN network authentication:\n");
+    fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
+    fprintf(stream, "  or DER format.\n");
+    fprintf(stream, "  -K, --key=FILE        Private key (keep it secret)\n");
+    fprintf(stream, "  -C, --cert=FILE       Certificate for the key\n");
+    fprintf(stream, "  -A, --authority=FILE  Certificate of the authority (CA) (shared with all devices\n");
+    fprintf(stream, "                        of the network)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "UART options\n");
+    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
+    fprintf(stream, "                           230400, 460800, 921600\n");
+    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "SPI options:\n");
+    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
+    fprintf(stream, "\n");
+    fprintf(stream, "Examples:\n");
+    fprintf(stream, "  wsnode -u /dev/ttyUSB0 -H -C cert.pem -A ca.pem -K key.pem\n");
+    fprintf(stream, "  wsnode -s -n my_network -C cert.pem -A ca.pem -K key.pem /dev/spi1.1 141\n");
+    fprintf(stream, "  wsnode -s /dev/spi1.1 /sys/class/gpio/gpio141/value -C cert.pem -A ca.pem -K key.pem\n");
+    exit(exit_code);
+}
+
 static size_t read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
