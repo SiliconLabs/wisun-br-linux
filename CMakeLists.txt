@@ -603,6 +603,7 @@ target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES
+    examples/wsbrd.conf
     examples/br_cert.pem
     examples/br_key.pem
     examples/ca_cert.pem
