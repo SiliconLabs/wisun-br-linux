@@ -78,9 +78,8 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
-    fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name (default \"Wi-SUN\")\n");
-    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU (default), NA,\n");
-    fprintf(stream, "                          JP...\n");
+    fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
+    fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
     fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
@@ -274,10 +273,9 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
     int opt, i;
 
     ctxt->ws_class = 1;
-    ctxt->ws_domain = REG_DOMAIN_EU;
+    ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1a;
     ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
-    strcpy(ctxt->ws_name, "Wi-SUN");
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
@@ -378,12 +376,16 @@ void configure(struct wsbr_ctxt *ctxt, int argc, char *argv[])
                 break;
         }
     }
+    if (!ctxt->ws_name[0])
+        FATAL(1, "You must specify --name");
     if (!ctxt->tls_own.key)
         FATAL(1, "You must specify --key");
     if (!ctxt->tls_own.cert)
         FATAL(1, "You must specify --cert");
     if (!ctxt->tls_ca.cert)
         FATAL(1, "You must specify --authority");
+    if (ctxt->ws_domain == -1)
+        FATAL(1, "You must specify --domain");
     if (bus == 's') {
         if (argc != optind + 2)
             print_help(stderr, 1);
