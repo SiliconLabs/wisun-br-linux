@@ -19,6 +19,29 @@
 #define __PRINT_WITH_LINE(color, msg, ...) \
     __PRINT(color, "%s():%d: " msg, __func__, __LINE__, ##__VA_ARGS__)
 
+#define __PRINT_WITH_TIME(color, msg, ...) \
+    do {                                                             \
+        struct timespec tp;                                          \
+        clock_gettime(CLOCK_REALTIME, &tp);                          \
+        __PRINT(color, "%jd.%06jd: " msg, tp.tv_sec, tp.tv_nsec / 1000, ##__VA_ARGS__); \
+    } while (0)
+
+extern unsigned int g_enabled_traces;
+
+enum {
+    TR_BUS  = 0x01,
+};
+
+#define TRACE2(COND, ...) \
+    do {                                                             \
+        if (g_enabled_traces & (COND)) {                             \
+            if (__VA_OPT__(!) false)                                 \
+                __PRINT_WITH_TIME(90, __VA_ARGS__);                  \
+            else                                                     \
+                __PRINT_WITH_TIME(90, "%s:%d", __FILE__, __LINE__);  \
+        }                                                            \
+    } while (0)
+
 #define TRACE(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
