@@ -34,6 +34,8 @@
 
 #define TRACE_GROUP  "main"
 
+// See log.h
+unsigned int g_enabled_traces = 0;
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
 // See warning in host-common/os_types.h
@@ -46,9 +48,10 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE_NET UART_DEVICE_RF\n");
     fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
-    fprintf(stream, "  -m, --eui64=ADDR Set MAC address (EUI64) to ADDR (default: random)\n");
-    fprintf(stream, "  -c, --pcap=FILE  Dump RF data to FILE\n");
-    fprintf(stream, "  -w, --wireshark  Invoke wireshark and dump RF data into\n");
+    fprintf(stream, "  -m, --eui64=ADDR      Set MAC address (EUI64) to ADDR (default: random)\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: uart, hif\n");
+    fprintf(stream, "  -c, --pcap=FILE       Dump RF data to FILE\n");
+    fprintf(stream, "  -w, --wireshark       Invoke wireshark and dump RF data into\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wisun-mac /dev/pts/7 /dev/pts/15\n");
@@ -106,14 +109,26 @@ void fill_random(void *dest, size_t len)
 
 void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
 {
+    static const struct {
+        char *name;
+        int val;
+    } valid_traces[] = {
+        { "rf",   TR_RF },
+        { "chan", TR_CHAN },
+        { "bus",  TR_BUS },
+        { "hdlc", TR_HDLC },
+        { "hif",  TR_HIF },
+    };
     static const struct option opt_list[] = {
         { "eui64",     required_argument, 0, 'm' },
         { "pcap",      required_argument, 0, 'c' },
+        { "trace",     required_argument, 0, 'T' },
         { "wireshark", no_argument,       0, 'w' },
         { "help",      no_argument,       0, 'h' },
         { 0,           0,                 0,  0  }
     };
-    int opt;
+    char *tag;
+    int opt, i;
 
     fill_random(ctxt->eui64, sizeof(ctxt->eui64));
     ctxt->eui64[0] &= ~1;
@@ -122,6 +137,18 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
         switch (opt) {
             case 'm':
                 configure_mac(ctxt, optarg);
+                break;
+            case 'T':
+                while ((tag = strtok(optarg, ","))) {
+                    for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
+                        if (!strcmp(valid_traces[i].name, tag)) {
+                            g_enabled_traces |= valid_traces[i].val;
+                            break;
+                        }
+                    }
+                    if (i == ARRAY_SIZE(valid_traces))
+                        FATAL(1, "invalid tag: %s", tag);
+                }
                 break;
             case 'c':
                 configure_pcap_output(ctxt, optarg);
