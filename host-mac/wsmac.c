@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
     fd_set rfds;
 
     signal(SIGINT, kill_handler);
+    signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
