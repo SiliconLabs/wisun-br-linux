@@ -182,6 +182,8 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
 
     if (strstr((char *)tmp, "-----BEGIN CERTIFICATE-----"))
         return st.st_size + 1;
+    else if (strstr((char *)tmp, "-----BEGIN PRIVATE KEY-----"))
+        return st.st_size + 1;
     else
         return st.st_size;
 }
