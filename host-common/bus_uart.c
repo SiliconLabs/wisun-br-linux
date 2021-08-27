@@ -121,6 +121,7 @@ int uart_tx_append(uint8_t *buf, uint8_t byte)
 
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
+    static char trace_buffer[128];
     uint16_t crc = crc16(buf, buf_len);
     uint8_t *frame = malloc(buf_len * 2 + 3);
     const uint8_t *buf8 = buf;
@@ -133,6 +134,8 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     frame_len += uart_tx_append(frame + frame_len, crc & 0xFF);
     frame_len += uart_tx_append(frame + frame_len, crc >> 8);
     frame[frame_len++] = 0x7E;
+    TRACE2(TR_BUS, " bus tx: %s (%d bytes)",
+           bytes_str(frame, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
@@ -143,6 +146,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 
 int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
+    static char trace_buffer[128];
     uint8_t *buf8 = buf;
     uint16_t crc;
     int i, frame_len;
@@ -153,6 +157,8 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
                    ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
                    sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
         BUG_ON(ret <= 0);
+        TRACE2(TR_BUS, " bus rx: %s (%d bytes)",
+               bytes_str(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), ret);
         ctxt->uart_rx_buf_len += ret;
     }
     i = 0;
