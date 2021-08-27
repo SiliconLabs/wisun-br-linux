@@ -33,6 +33,7 @@ enum {
     TR_HDLC = 0x02,
     TR_RF   = 0x04,
     TR_CHAN = 0x08,
+    TR_HIF  = 0x10,
 };
 
 #define TRACE2(COND, ...) \
