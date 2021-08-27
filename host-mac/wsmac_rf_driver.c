@@ -306,7 +306,7 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 break;
             }
             case PHY_EXTENSION_SET_CHANNEL: {
-                // tr_info("%s: change channel: %u", __func__,  *data_ptr);
+                TRACE2(TR_CHAN, "channel switch: %2d -> %2u", channel, *data_ptr);
                 channel = *data_ptr;
                 break;
             }
