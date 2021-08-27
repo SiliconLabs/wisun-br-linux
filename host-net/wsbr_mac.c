@@ -28,7 +28,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
             .value_size = sizeof(data),
         };
 
-        TRACE("cnf macDeviceTable");
         req.attr_index    = spinel_pop_int(buf);
         data.PANId        = spinel_pop_u16(buf);
         data.ShortAddress = spinel_pop_u16(buf);
@@ -47,7 +46,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
             .value_size = sizeof(data),
         };
 
-        TRACE("cnf macFrameCounter");
         req.attr_index = spinel_pop_int(buf);
         data           = spinel_pop_u32(buf);
         BUG_ON(spinel_remaining_size(buf));
@@ -59,7 +57,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
             .attr = macCCAThreshold,
         };
 
-        TRACE("cnf macCCAThreshold");
         req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer);
         BUG_ON(spinel_remaining_size(buf));
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
@@ -69,7 +66,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         int id;
         uint8_t *data;
 
-        TRACE("mlmeInd");
         id = spinel_pop_int(buf);
         spinel_pop_data_ptr(buf, &data);
         BUG_ON(spinel_remaining_size(buf));
@@ -80,7 +76,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };
 
-        TRACE("dataCnf");
         req.status      = spinel_pop_u8(buf);
         req.msduHandle  = spinel_pop_u8(buf);
         req.timestamp   = spinel_pop_u32(buf);
@@ -98,7 +93,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         mcps_data_ind_t req = { };
         mcps_data_ie_list_t ie_ext = { };
 
-        TRACE("dataInd");
         req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr);
         req.SrcAddrMode            = spinel_pop_u8(buf);
         req.SrcPANId               = spinel_pop_u16(buf);
@@ -123,7 +117,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         break;
     }
     case SPINEL_PROP_HWADDR: {
-        TRACE("cnf macEui64");
         spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
         BUG_ON(spinel_remaining_size(buf));
         ctxt->hw_addr_done = true;
@@ -131,7 +124,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
     case SPINEL_PROP_LAST_STATUS: {
-        TRACE("cnf mlmeStart");
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_START, NULL);
         break;
     }
@@ -173,7 +165,6 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
               FIELD_GET(0x00FFFF00, version_api),
               FIELD_GET(0x000000FF, version_api));
         ctxt->reset_done = true;
-        TRACE("cnf reset");
     } else {
         WARN("not implemented: %02x", cmd);
         return;
@@ -373,7 +364,6 @@ void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
 
-    TRACE("reset");
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_int(buf, SPINEL_CMD_RESET);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
@@ -383,51 +373,49 @@ void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
 
-    TRACE("get hw_addr");
     spinel_push_hdr_get_prop(ctxt, buf, SPINEL_PROP_HWADDR);
     spinel_push_int(buf, 0);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
 static const struct {
-    const char *str;
     mlme_attr_t attr;
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
-    { "macRxOnWhenIdle",                 macRxOnWhenIdle,                 wsbr_spinel_set_bool,                  SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  },
-    { "macSecurityEnabled",              macSecurityEnabled,              wsbr_spinel_set_bool,                  SPINEL_PROP_WS_SECURITY_ENABLED,                 },
-    { "macAcceptByPassUnknowDevice",     macAcceptByPassUnknowDevice,     wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
-    { "macEdfeForceStop",                macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
-    { "macAssociationPermit",            macAssociationPermit,            wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ASSOCIATION_PERMIT,               },
-    { "phyCurrentChannel",               phyCurrentChannel,               wsbr_spinel_set_u8,                    SPINEL_PROP_PHY_CHAN,                            },
-    { "macAutoRequestKeyIdMode",         macAutoRequestKeyIdMode,         wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE,         },
-    { "macAutoRequestKeyIndex",          macAutoRequestKeyIndex,          wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX,           },
-    { "macAutoRequestSecurityLevel",     macAutoRequestSecurityLevel,     wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL,      },
-    { "macBeaconPayloadLength",          macBeaconPayloadLength,          wsbr_spinel_set_u8,                    SPINEL_PROP_WS_BEACON_PAYLOAD_LENGTH,            },
-    { "macMaxFrameRetries",              macMaxFrameRetries,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_FRAME_RETRIES,                },
-    { "macTXPower",                      macTXPower,                      wsbr_spinel_set_u8,                    SPINEL_PROP_PHY_TX_POWER,                        },
-    { "macMaxCSMABackoffs",              macMaxCSMABackoffs,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS,                },
-    { "macMinBE",                        macMinBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MIN_BE,                           },
-    { "macMaxBE",                        macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
-    { "macCCAThreshold",                 macCCAThreshold,                 wsbr_spinel_set_u8,                    SPINEL_PROP_WS_CCA_THRESHOLD,                    },
-    { "macPANId",                        macPANId,                        wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_PANID,                      },
-    { "macCoordShortAddress",            macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
-    { "macShortAddress",                 macShortAddress,                 wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_SADDR,                      },
-    { "macDeviceDescriptionPanIDUpdate", macDeviceDescriptionPanIDUpdate, wsbr_spinel_set_u16,                   SPINEL_PROP_WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE, },
-    { "macAckWaitDuration",              macAckWaitDuration,              wsbr_spinel_set_u16,                   SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
-    { "mac802_15_4Mode",                 mac802_15_4Mode,                 wsbr_spinel_set_u32,                   SPINEL_PROP_WS_15_4_MODE,                        },
-    { "macAutoRequestKeySource",         macAutoRequestKeySource,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_AUTO_REQUEST_KEY_SOURCE,          },
-    { "macCoordExtendedAddress",         macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
-    { "macDefaultKeySource",             macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
-    { "macBeaconPayload",                macBeaconPayload,                wsbr_spinel_set_data,                  SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
-    { "macCCAThresholdStart",            macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
-    { "macMultiCSMAParameters",          macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
-    { "macRfConfiguration",              macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
-    { "macRequestRestart",               macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
-    { "macDeviceTable",                  macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
-    { "macKeyTable",                     macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
-    { "macFrameCounter",                 macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },
+    { macRxOnWhenIdle,                 wsbr_spinel_set_bool,                  SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  },
+    { macSecurityEnabled,              wsbr_spinel_set_bool,                  SPINEL_PROP_WS_SECURITY_ENABLED,                 },
+    { macAcceptByPassUnknowDevice,     wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
+    { macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
+    { macAssociationPermit,            wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ASSOCIATION_PERMIT,               },
+    { phyCurrentChannel,               wsbr_spinel_set_u8,                    SPINEL_PROP_PHY_CHAN,                            },
+    { macAutoRequestKeyIdMode,         wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE,         },
+    { macAutoRequestKeyIndex,          wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX,           },
+    { macAutoRequestSecurityLevel,     wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL,      },
+    { macBeaconPayloadLength,          wsbr_spinel_set_u8,                    SPINEL_PROP_WS_BEACON_PAYLOAD_LENGTH,            },
+    { macMaxFrameRetries,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_FRAME_RETRIES,                },
+    { macTXPower,                      wsbr_spinel_set_u8,                    SPINEL_PROP_PHY_TX_POWER,                        },
+    { macMaxCSMABackoffs,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS,                },
+    { macMinBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MIN_BE,                           },
+    { macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
+    { macCCAThreshold,                 wsbr_spinel_set_u8,                    SPINEL_PROP_WS_CCA_THRESHOLD,                    },
+    { macPANId,                        wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_PANID,                      },
+    { macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
+    { macShortAddress,                 wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_SADDR,                      },
+    { macDeviceDescriptionPanIDUpdate, wsbr_spinel_set_u16,                   SPINEL_PROP_WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE, },
+    { macAckWaitDuration,              wsbr_spinel_set_u16,                   SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
+    { mac802_15_4Mode,                 wsbr_spinel_set_u32,                   SPINEL_PROP_WS_15_4_MODE,                        },
+    { macAutoRequestKeySource,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_AUTO_REQUEST_KEY_SOURCE,          },
+    { macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
+    { macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
+    { macBeaconPayload,                wsbr_spinel_set_data,                  SPINEL_PROP_WS_BEACON_PAYLOAD,                   },
+    { macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
+    { macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
+    { macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
+    { macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
+    { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
+    { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
+    { macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
 
@@ -443,7 +431,6 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;
-    TRACE("set %s", mlme_prop_cstr[i].str);
     if (mlme_prop_cstr[i].prop_set) {
         // Normally, req->attr_index == 0, but nanostack is not rigorous on that
         mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].prop, req->value_pointer, req->value_size);
@@ -478,7 +465,6 @@ static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
         mlme_prop_cstr[i].prop == SPINEL_PROP_WS_FRAME_COUNTER)
         index = req->attr_index;
 
-    TRACE("get %s", mlme_prop_cstr[i].str);
     spinel_push_hdr_get_prop(ctxt, buf, mlme_prop_cstr[i].prop);
     spinel_push_int(buf, index);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
@@ -497,7 +483,6 @@ static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
-    TRACE("mlmeStart");
     // FIXME: consider SPINEL_PROP_PHY_ENABLED
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_START);
     spinel_push_u16(buf,  req->PANId);
@@ -517,7 +502,6 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
-    TRACE("mlmeReset");
     // SPINEL_CMD_RESET or SPINEL_PROP_PHY_ENABLED
     // It seems that SPINEL_CMD_RESET is too wide. It reset the whole device
     wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_RESET, &req->SetDefaultPIB, sizeof(bool));
@@ -581,7 +565,6 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     if (!async_channel_list)
         async_channel_list = &default_chan_list;
 
-    TRACE("mcpsReq");
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_STREAM_RAW);
     spinel_push_data(buf, data->msdu, data->msduLength);
     spinel_push_u8(buf,   data->SrcAddrMode);

@@ -28,7 +28,6 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
-    TRACE();
     // fhss_timer is filled by wsbr_configure(). We know we know we pass -1.
     BUG_ON(fhss_timer != (fhss_timer_t *)-1);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_CREATE);
@@ -56,7 +55,6 @@ int ns_fhss_delete(struct fhss_api *fhss_api)
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
-    TRACE();
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_DELETE);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
@@ -174,7 +172,6 @@ void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
                                  fhss_get_neighbor_info *get_neighbor_info)
 {
-    TRACE();
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     //BUG_ON(get_neighbor_info != ws_get_neighbor_info);
     return 0;

@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "os_types.h"
 #include "bus_uart.h"
+#include "spinel_buffer.h"
 
 // width=16 poly=0x1021 init=0xffff refin=true refout=true xorout=0xffff check=0x906e residue=0xf0b8 name="CRC-16/IBM-SDLC"
 // https://reveng.sourceforge.io/crc-catalogue/16.htm#crc.cat.crc-16-ibm-sdlc
@@ -138,6 +139,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
            bytes_str(frame, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE2(TR_HDLC, "hdlc tx: %s (%d bytes)",
            bytes_str(buf, buf_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), buf_len);
+    spinel_trace(buf, buf_len, " hif tx: ");
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
@@ -205,6 +207,7 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     if (frame_len) {
         TRACE2(TR_HDLC, "hdlc rx: %s (%d bytes)",
                bytes_str(buf, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
+        spinel_trace(buf, frame_len, " hif rx: ");
     }
     return frame_len;
 }

@@ -27,7 +27,6 @@ int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
 
-    TRACE();
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
@@ -42,7 +41,6 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
 
-    TRACE();
     return ctxt->fhss_api;
 }
 
@@ -51,7 +49,6 @@ int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
 
-    TRACE();
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
