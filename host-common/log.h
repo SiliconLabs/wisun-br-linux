@@ -31,6 +31,7 @@ extern unsigned int g_enabled_traces;
 enum {
     TR_BUS  = 0x01,
     TR_HDLC = 0x02,
+    TR_RF   = 0x04,
 };
 
 #define TRACE2(COND, ...) \
