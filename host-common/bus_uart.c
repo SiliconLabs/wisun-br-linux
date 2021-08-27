@@ -135,9 +135,9 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     frame_len += uart_tx_append(frame + frame_len, crc & 0xFF);
     frame_len += uart_tx_append(frame + frame_len, crc >> 8);
     frame[frame_len++] = 0x7E;
-    TRACE2(TR_BUS, " bus tx: %s (%d bytes)",
+    TRACE(TR_BUS, " bus tx: %s (%d bytes)",
            bytes_str(frame, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
-    TRACE2(TR_HDLC, "hdlc tx: %s (%d bytes)",
+    TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
            bytes_str(buf, buf_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), buf_len);
     spinel_trace(buf, buf_len, " hif tx: ");
     ret = write(ctxt->data_fd, frame, frame_len);
@@ -161,7 +161,7 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
                    ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
                    sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
         BUG_ON(ret <= 0);
-        TRACE2(TR_BUS, " bus rx: %s (%d bytes)",
+        TRACE(TR_BUS, " bus rx: %s (%d bytes)",
                bytes_str(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), ret);
         ctxt->uart_rx_buf_len += ret;
     }
@@ -205,7 +205,7 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         i++;
     }
     if (frame_len) {
-        TRACE2(TR_HDLC, "hdlc rx: %s (%d bytes)",
+        TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
                bytes_str(buf, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
         spinel_trace(buf, frame_len, " hif rx: ");
     }

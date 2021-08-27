@@ -36,7 +36,7 @@ enum {
     TR_HIF  = 0x10,
 };
 
-#define TRACE2(COND, ...) \
+#define TRACE(COND, ...) \
     do {                                                             \
         if (g_enabled_traces & (COND)) {                             \
             if (__VA_OPT__(!) false)                                 \

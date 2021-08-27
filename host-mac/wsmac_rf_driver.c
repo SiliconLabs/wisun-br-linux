@@ -122,7 +122,7 @@ void rf_rx(struct wsmac_ctxt *ctxt)
 
     len = read(ctxt->rf_fd, hdr, 6);
     if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
-        TRACE2(TR_RF, " rf drop: chan=%2d/%2d %s", -1, channel,
+        TRACE(TR_RF, " rf drop: chan=%2d/%2d %s", -1, channel,
                bytes_str(hdr, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR));
         return;
     }
@@ -130,7 +130,7 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     pkt_chan = ((uint16_t *)hdr)[2];
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
-    TRACE2(TR_RF, "   rf rx: chan=%2d/%2d %s (%d bytes)", pkt_chan, channel,
+    TRACE(TR_RF, "   rf rx: chan=%2d/%2d %s (%d bytes)", pkt_chan, channel,
            bytes_str(buf, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), pkt_len);
     write_pcap(ctxt, buf, len);
     ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
@@ -169,7 +169,7 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     memcpy(hdr + 0, "xx", 2);
     memcpy(hdr + 2, &data_len, 2);
     memcpy(hdr + 4, &channel, 2);
-    TRACE2(TR_RF, "   rf tx: chan=%2d/%2d %s (%d bytes)", channel, channel,
+    TRACE(TR_RF, "   rf tx: chan=%2d/%2d %s (%d bytes)", channel, channel,
            bytes_str(data_ptr, data_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), data_len);
     write(ctxt->rf_fd, hdr, 6);
     write(ctxt->rf_fd, data_ptr, data_len);
@@ -301,7 +301,7 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 break;
             }
             case PHY_EXTENSION_SET_CHANNEL: {
-                TRACE2(TR_CHAN, "channel switch: %2d -> %2u", channel, *data_ptr);
+                TRACE(TR_CHAN, "channel switch: %2d -> %2u", channel, *data_ptr);
                 channel = *data_ptr;
                 break;
             }
