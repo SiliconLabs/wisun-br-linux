@@ -117,4 +117,13 @@ enum {
         }                                                            \
     } while (0)
 
+enum bytes_str_options {
+    DELIM_SPACE     = 0x01, // Add space between each bytes
+    DELIM_COLON     = 0x02, // Add colon between each bytes
+    ELLIPSIS_ABRT   = 0x04, // Assert if output is too small
+    ELLIPSIS_STAR   = 0x08, // End output with * if too small
+    ELLIPSIS_DOTS   = 0x10, // End output with ... if too small
+};
+char *bytes_str(const void *in_start, int in_len, const void **in_done, char *out_start, int out_len, int opt);
+
 #endif

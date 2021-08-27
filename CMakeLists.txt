@@ -31,6 +31,7 @@ add_executable(wshwsim
     host-common/hal_interrupt.c
     host-common/os_scheduler.c
     host-common/os_timer.c
+    host-common/log.c
     host-common/slist.c
     host-common/spinel.c
     host-common/spinel_buffer.c
@@ -105,6 +106,7 @@ add_executable(wsbrd
     host-common/hal_interrupt.c
     host-common/os_timer.c
     host-common/os_scheduler.c
+    host-common/log.c
     host-common/slist.c
     host-common/spinel.c
     host-common/spinel_buffer.c
@@ -349,6 +351,7 @@ add_executable(wsnode
     host-common/hal_interrupt.c
     host-common/os_timer.c
     host-common/os_scheduler.c
+    host-common/log.c
     host-common/slist.c
     host-common/spinel.c
     host-common/spinel_buffer.c
