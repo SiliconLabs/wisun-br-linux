@@ -294,7 +294,7 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
         if (!memcmp(ctxt->neighbor_timings[i].eui64, eui64, 8))
             fhss_data = &ctxt->neighbor_timings[i].val;
     if (!fhss_data) {
-        TRACE("add new entry");
+        DEBUG("add new entry");
         for (i = 0; i < ARRAY_SIZE(ctxt->neighbor_timings); i++) {
             if (!memcmp(ctxt->neighbor_timings[i].eui64,
                         "\x00\x00\x00\x00\x00\x00\x00\x00", 8)) {
@@ -835,21 +835,21 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     switch (id) {
         case MLME_BEACON_NOTIFY: {
             // data_len = sizeof(mlme_beacon_ind_t);
-            TRACE("dataInd MLME_BEACON_NOTIFY indication not yet supported");
+            DEBUG("dataInd MLME_BEACON_NOTIFY indication not yet supported");
             break;
         }
         case MLME_COMM_STATUS: {
-            TRACE("dataInd MLME_COMM_STATUS");
+            DEBUG("dataInd MLME_COMM_STATUS");
             data_len = sizeof(mlme_comm_status_t);
             break;
         }
         case MLME_SYNC_LOSS: {
-            TRACE("dataInd MLME_SYNC_LOSS");
+            DEBUG("dataInd MLME_SYNC_LOSS");
             data_len = sizeof(mlme_sync_loss_t);
             break;
         }
         default: {
-            TRACE("dataInd MLME indication ignored");
+            DEBUG("dataInd MLME indication ignored");
             data_len = 0;
         }
     }
@@ -929,7 +929,7 @@ void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload
     static ns_ie_iovec_t header_vector;
     static uint8_t ie[20];
 
-    TRACE("ackDataReq");
+    DEBUG("ackDataReq");
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
     data->ie_elements.headerIovLength = 1;
     data->ie_elements.headerIeVectorList = &header_vector;

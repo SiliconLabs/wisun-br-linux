@@ -157,7 +157,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         version_api = spinel_pop_u32(buf);
         version_hw = spinel_pop_u32(buf);
         version_fw_str = spinel_pop_str(buf);
-        TRACE("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
+        DEBUG("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
               FIELD_GET(0xFF000000, version_hw),
               FIELD_GET(0x00FFFF00, version_hw),
               FIELD_GET(0x000000FF, version_hw),

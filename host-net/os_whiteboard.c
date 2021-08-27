@@ -10,8 +10,8 @@ void whiteboard_os_modify(const uint8_t address[static 16], enum add_or_remove m
 
     ip6tos(address, tmp);
     if (mode == ADD)
-        TRACE("Add %s to neighbor table", tmp);
+        DEBUG("Add %s to neighbor table", tmp);
     if (mode == REMOVE)
-        TRACE("Remove %s from neighbor table", tmp);
+        DEBUG("Remove %s from neighbor table", tmp);
 }
 

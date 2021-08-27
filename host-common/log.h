@@ -46,7 +46,7 @@ enum {
         }                                                            \
     } while (0)
 
-#define TRACE(...) \
+#define DEBUG(...) \
     do {                                                             \
         if (__VA_OPT__(!) false)                                     \
             __PRINT_WITH_LINE(94, __VA_ARGS__);                      \

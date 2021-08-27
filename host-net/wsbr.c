@@ -141,9 +141,9 @@ static void wsbr_tasklet(struct arm_event_s *event)
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
-                TRACE("get event for tun interface: %s", nwk_events[event->event_data]);
+                DEBUG("get event for tun interface: %s", nwk_events[event->event_data]);
             } else if (event->event_id == ctxt->rcp_if_id) {
-                TRACE("get event for ws interface: %s", nwk_events[event->event_data]);
+                DEBUG("get event for ws interface: %s", nwk_events[event->event_data]);
             } else {
                 WARN("received unknown network event: %d", event->event_id);
             }
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     uint64_t val;
     struct timespec ts = { };
 
-    TRACE("Silicon Labs Wi-SUN border router %s", version_daemon);
+    DEBUG("Silicon Labs Wi-SUN border router %s", version_daemon);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
