@@ -29,10 +29,10 @@
 extern unsigned int g_enabled_traces;
 
 enum {
-    TR_BUS  = 0x01,
-    TR_HDLC = 0x02,
-    TR_RF   = 0x04,
-    TR_CHAN = 0x08,
+    TR_RF   = 0x01,
+    TR_CHAN = 0x02,
+    TR_BUS  = 0x04,
+    TR_HDLC = 0x08,
     TR_HIF  = 0x10,
 };
 
