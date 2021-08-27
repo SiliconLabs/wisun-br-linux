@@ -136,6 +136,8 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     frame[frame_len++] = 0x7E;
     TRACE2(TR_BUS, " bus tx: %s (%d bytes)",
            bytes_str(frame, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
+    TRACE2(TR_HDLC, "hdlc tx: %s (%d bytes)",
+           bytes_str(buf, buf_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), buf_len);
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
@@ -199,6 +201,10 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
             break;
         }
         i++;
+    }
+    if (frame_len) {
+        TRACE2(TR_HDLC, "hdlc rx: %s (%d bytes)",
+               bytes_str(buf, frame_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     }
     return frame_len;
 }
