@@ -285,24 +285,19 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 break;
             }
             case PHY_EXTENSION_SET_CCA_THRESHOLD: {
-                tr_info("%s: change CCA threshold to %d", __func__, *data_ptr);
                 break;
             }
             case PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD: {
-                tr_info("%s: change channel CCA threshold to %d", __func__, *data_ptr);
                 break;
             }
             case PHY_EXTENSION_SET_TX_POWER: {
-                tr_info("%s: change tx power to %u", __func__, *data_ptr);
+                INFO("change tx power to %u", *data_ptr);
                 break;
             }
             case PHY_EXTENSION_SET_RF_CONFIGURATION: {
-                tr_info("%s: change rf config to chan %u", __func__,
-                        ((struct phy_rf_channel_configuration_s *)data_ptr)->channel_0_center_frequency);
                 break;
             }
             case PHY_EXTENSION_SET_CSMA_PARAMETERS: {
-                tr_info("%s: change CSMA parameters", __func__);
                 break;
             }
             case PHY_EXTENSION_SET_CHANNEL: {
@@ -332,7 +327,7 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 break;
             }
             default:
-                tr_info("%s: not implemented: %02x", __func__, extension_type);
+                WARN("RF extention not implemented: %02x", extension_type);
                 break;
         }
     }
