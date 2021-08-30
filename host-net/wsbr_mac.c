@@ -151,9 +151,10 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     } else if (cmd == SPINEL_CMD_RESET) {
         uint32_t version_api, version_hw;
         const char *version_fw_str;
+        bool is_hw_reset;
+
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
-        FATAL_ON(ctxt->reset_done, 3, "MAC layer has been reset. Operation not supported");
         version_api = spinel_pop_u32(buf);
         version_hw = spinel_pop_u32(buf);
         version_fw_str = spinel_pop_str(buf);
@@ -164,6 +165,17 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
               FIELD_GET(0xFF000000, version_api),
               FIELD_GET(0x00FFFF00, version_api),
               FIELD_GET(0x000000FF, version_api));
+        if (FIELD_GET(0xFF000000, version_api) == 0 && FIELD_GET(0x00FFFF00, version_api) < 2)
+            FATAL(3, "RCP API is too old");
+        is_hw_reset = spinel_pop_bool(buf);
+        if (ctxt->reset_done) {
+            // A race may happens when BR and RCP are started simultaneously.
+            // Just ignore it the second reset indication
+            if (!is_hw_reset)
+                return;
+            else
+                FATAL(3, "MAC layer has been reset. Operation not supported");
+        }
         ctxt->reset_done = true;
     } else {
         WARN("not implemented: %02x", cmd);

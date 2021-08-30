@@ -13,7 +13,7 @@ struct wsmac_ctxt;
 
 void wsmac_rx_host(struct wsmac_ctxt *ctxt);
 
-void wsmac_reset_ind(struct wsmac_ctxt *ctxt);
+void wsmac_reset_ind(struct wsmac_ctxt *ctxt, bool hw);
 
 void wsmac_mcps_purge_confirm(const struct mac_api_s *mac_api,
                               struct mcps_purge_conf_s *data);

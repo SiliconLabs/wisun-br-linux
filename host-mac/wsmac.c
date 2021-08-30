@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                                                        wsmac_mcps_data_confirm_ext,
                                                        wsmac_mcps_ack_data_req_ext);
 
-    wsmac_reset_ind(ctxt);
+    wsmac_reset_ind(ctxt, true);
     for (;;) {
         maxfd = 0;
         FD_ZERO(&rfds);

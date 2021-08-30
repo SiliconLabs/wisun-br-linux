@@ -628,7 +628,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
         ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
         ns_fhss_delete(ctxt->fhss_api);
         ctxt->fhss_api = NULL;
-        wsmac_reset_ind(ctxt);
+        wsmac_reset_ind(ctxt, false);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
         int index = spinel_pop_int(rx_buf);
 
@@ -947,7 +947,7 @@ void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *res
     WARN("not implemented");
 }
 
-void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
+void wsmac_reset_ind(struct wsmac_ctxt *ctxt, bool hw)
 {
     spinel_reset(tx_buf);
     spinel_push_u8(tx_buf, wsbr_get_spinel_hdr(ctxt));
@@ -955,10 +955,13 @@ void wsmac_reset_ind(struct wsmac_ctxt *ctxt)
     spinel_push_u32(tx_buf, version_api);
     spinel_push_u32(tx_buf, version_fw);
     spinel_push_str(tx_buf, version_fw_str);
+    spinel_push_bool(tx_buf, hw);
     // Further bytes reserved for RF parameters
     spinel_push_u32(tx_buf, 0);
     spinel_push_u32(tx_buf, 0);
     spinel_push_u32(tx_buf, 0);
-    spinel_push_u32(tx_buf, 0);
+    spinel_push_u8(tx_buf, 0);
+    spinel_push_u8(tx_buf, 0);
+    spinel_push_u8(tx_buf, 0);
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
