@@ -194,6 +194,7 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_ent
 
 static void ws_bootstrap_neighbor_delete(struct protocol_interface_info_entry *interface, mac_neighbor_table_entry_t *entry_ptr)
 {
+    ns_fhss_ws_drop_neighbor(entry_ptr->mac64);
     mac_helper_devicetable_remove(interface->mac_api, entry_ptr->index, entry_ptr->mac64);
     etx_neighbor_remove(interface->id, entry_ptr->index, entry_ptr->mac64);
     ws_neighbor_class_entry_remove(&interface->ws_info->neighbor_storage, entry_ptr->index);

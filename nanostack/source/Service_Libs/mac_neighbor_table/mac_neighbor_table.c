@@ -74,8 +74,6 @@ static void neighbor_table_class_remove_entry(mac_neighbor_table_t *table_class,
     }
     topo_trace(TOPOLOGY_MLE, entry->mac64, TOPO_REMOVE);
 
-    ns_fhss_ws_drop_neighbor(entry->mac64);
-
     uint8_t index = entry->index;
     memset(entry, 0, sizeof(mac_neighbor_table_entry_t));
     entry->index = index;
