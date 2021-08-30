@@ -19,7 +19,6 @@
 #include "mbed-trace/mbed_trace.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/sw_mac.h"
-#include "nanostack/source/MAC/rf_driver_storage.h"
 
 #include "wsmac.h"
 #include "wsmac_mac.h"
@@ -40,6 +39,13 @@ unsigned int g_enabled_traces = 0;
 struct wsmac_ctxt g_ctxt = { };
 // See warning in host-common/os_types.h
 struct os_ctxt g_os_ctxt = { };
+// FIXME: should be const
+mac_description_storage_size_t g_storage_sizes = {
+    .device_decription_table_size = ARRAY_SIZE(g_ctxt.neighbor_timings),
+    .key_description_table_size = 4,
+    .key_lookup_size = 1,
+    .key_usage_size = 3,
+};
 
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN MAC emulation\n");
@@ -177,13 +183,6 @@ void kill_handler(int signal)
     exit(3);
 }
 
-static mac_description_storage_size_t storage_sizes = {
-    .device_decription_table_size = ARRAY_SIZE(g_ctxt.neighbor_timings),
-    .key_description_table_size = 4,
-    .key_lookup_size = 1,
-    .key_usage_size = 3,
-};
-
 int main(int argc, char *argv[])
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -209,7 +208,7 @@ int main(int argc, char *argv[])
     ctxt->rf_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
     BUG_ON(!ctxt->rf_driver);
     arm_net_phy_mac64_set(ctxt->eui64, ctxt->rcp_driver_id);
-    ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &storage_sizes);
+    ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &g_storage_sizes);
     if (!ctxt->rcp_mac_api)
         tr_err("%s: ns_sw_mac_create", __func__);
 

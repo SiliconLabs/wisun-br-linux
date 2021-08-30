@@ -176,6 +176,10 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
             else
                 FATAL(3, "MAC layer has been reset. Operation not supported");
         }
+        ctxt->storage_sizes.device_decription_table_size = spinel_pop_u8(buf);
+        ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
+        ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
+        ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
         ctxt->reset_done = true;
     } else {
         WARN("not implemented: %02x", cmd);
@@ -677,16 +681,13 @@ int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
 int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
                                   struct mac_description_storage_size_s *buffer)
 {
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
+
     BUG_ON(!api);
     BUG_ON(!buffer);
+    BUG_ON(ctxt != &g_ctxt);
 
-    // These values are taken from mac_description_storage_size_t
-    // FIXME: we have plenty of memory, increase these values
-    buffer->device_decription_table_size = 32;
-    buffer->key_description_table_size = 4;
-    buffer->key_lookup_size = 1;
-    buffer->key_usage_size = 3;
-
+    memcpy(buffer, &ctxt->storage_sizes, sizeof(struct mac_description_storage_size_s));
     return 0;
 }
 

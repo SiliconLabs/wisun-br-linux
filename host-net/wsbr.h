@@ -13,6 +13,7 @@
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_interface.h"
+#include "nanostack/source/MAC/rf_driver_storage.h"
 
 struct phy_device_driver_s;
 struct eth_mac_api_s;
@@ -34,6 +35,7 @@ struct wsbr_ctxt {
     uint8_t dynamic_mac[8];
     struct fhss_api *fhss_api;
     struct mac_api_s mac_api;
+    struct mac_description_storage_size_s storage_sizes;
 
     bool fhss_conf_valid;
     struct fhss_ws_configuration fhss_conf;

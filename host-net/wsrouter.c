@@ -24,7 +24,6 @@
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
-#include "nanostack/source/MAC/rf_driver_storage.h"
 
 #include "host-common/log.h"
 #include "host-common/slist.h"

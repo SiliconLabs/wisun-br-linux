@@ -14,6 +14,7 @@
 
 #include "host-common/slist.h"
 #include "nanostack/fhss_ws_extension.h"
+#include "nanostack/source/MAC/rf_driver_storage.h"
 
 struct os_ctxt;
 struct mac_api_s;
@@ -66,5 +67,6 @@ struct wsmac_ctxt {
 // This global variable is necessary for various API of nanostack. Beside this
 // case, please never use it.
 extern struct wsmac_ctxt g_ctxt;
+extern mac_description_storage_size_t g_storage_sizes;
 
 #endif
