@@ -5,8 +5,8 @@
  * Main authors:
  *    - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef WSMAC_RF_DRIVER_H
-#define WSMAC_RF_DRIVER_H
+#ifndef SL_RF_DRIVER_H
+#define SL_RF_DRIVER_H
 
 #include <stdint.h>
 

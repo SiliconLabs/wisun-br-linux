@@ -3,8 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef WSMAC_MAC_H
-#define WSMAC_MAC_H
+#ifndef SL_WSRCP_MAC_H
+#define SL_WSRCP_MAC_H
 
 #include "nanostack/mac_api.h"
 

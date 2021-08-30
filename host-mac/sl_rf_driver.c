@@ -33,8 +33,8 @@
 #include "mac_api.h"
 #include "host-common/log.h"
 #include "host-common/utils.h"
-#include "wsmac.h"
-#include "wsmac_rf_driver.h"
+#include "sl_wsrcp.h"
+#include "sl_rf_driver.h"
 
 #include "nanostack/source/MAC/virtual_rf/virtual_rf_defines.h"
 

@@ -21,10 +21,10 @@ add_compile_definitions(NO_TCP)
 
 add_executable(wshwsim
     version.c
-    host-mac/wsmac.c
-    host-mac/wsmac_mac.c
-    host-mac/wsmac_rf_driver.c
-    host-mac/wsmac_ns_monitor.c
+    host-mac/sl_wsrcp.c
+    host-mac/sl_wsrcp_mac.c
+    host-mac/sl_rf_driver.c
+    host-mac/ns_monitor.c
     host-mac/hal_fhss_timer.c
     host-mac/hal_random.c
     host-common/bus_uart.c

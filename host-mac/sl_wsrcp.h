@@ -3,8 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef WSMAC_H
-#define WSMAC_H
+#ifndef SL_WSRCP_H
+#define SL_WSRCP_H
 
 #include <stdbool.h>
 #include <stdint.h>
