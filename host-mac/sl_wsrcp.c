@@ -20,6 +20,7 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/sw_mac.h"
 
+#include "version.h"
 #include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
 #include "sl_rf_driver.h"
@@ -201,6 +202,7 @@ int main(int argc, char *argv[])
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
+    INFO("Silicon Labs Wi-SUN RCP simulation %s", version_fw_str);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
