@@ -228,6 +228,7 @@ add_executable(wsbrd
     nanostack/source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
     nanostack/source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
     nanostack/source/Security/protocols/key_sec_prot/key_sec_prot.c
+    nanostack/source/Security/protocols/msg_sec_prot/msg_sec_prot.c
     nanostack/source/Security/protocols/radius_sec_prot/avp_helper.c
     nanostack/source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c
     nanostack/source/Security/protocols/sec_prot_certs.c
@@ -264,6 +265,7 @@ add_executable(wsbrd
     nanostack/source/Service_Libs/utils/ns_conf.c
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
+    nanostack/source/Service_Libs/utils/ns_time.c
     # Excluded nanostack/source/Service_Libs/whiteboard/whiteboard.c
     # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
@@ -473,6 +475,7 @@ add_executable(wsnode
     nanostack/source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
     nanostack/source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
     nanostack/source/Security/protocols/key_sec_prot/key_sec_prot.c
+    nanostack/source/Security/protocols/msg_sec_prot/msg_sec_prot.c
     nanostack/source/Security/protocols/radius_sec_prot/avp_helper.c
     nanostack/source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c
     nanostack/source/Security/protocols/sec_prot_certs.c
@@ -509,6 +512,7 @@ add_executable(wsnode
     nanostack/source/Service_Libs/utils/ns_conf.c
     nanostack/source/Service_Libs/utils/ns_crc.c
     nanostack/source/Service_Libs/utils/ns_file_system.c
+    nanostack/source/Service_Libs/utils/ns_time.c
     # Excluded nanostack/source/Service_Libs/whiteboard/whiteboard.c
     # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
