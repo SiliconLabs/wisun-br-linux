@@ -119,9 +119,7 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -H -C cert.pem -A ca.pem -K key.pem\n");
-    fprintf(stream, "  wsbrd -s -n my_network -C cert.pem -A ca.pem -K key.pem /dev/spi1.1 141\n");
-    fprintf(stream, "  wsbrd -s /dev/spi1.1 /sys/class/gpio/gpio141/value -C cert.pem -A ca.pem -K key.pem\n");
+    fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
     exit(exit_code);
 }
 
@@ -167,9 +165,7 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wsnode -u /dev/ttyUSB0 -H -C cert.pem -A ca.pem -K key.pem\n");
-    fprintf(stream, "  wsnode -s -n my_network -C cert.pem -A ca.pem -K key.pem /dev/spi1.1 141\n");
-    fprintf(stream, "  wsnode -s /dev/spi1.1 /sys/class/gpio/gpio141/value -C cert.pem -A ca.pem -K key.pem\n");
+    fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
     exit(exit_code);
 }
 
