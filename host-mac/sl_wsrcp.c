@@ -56,7 +56,8 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -m, --eui64=ADDR      Set MAC address (EUI64) to ADDR (default: random)\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: uart, hif\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: rf, chan,\n");
+    fprintf(stream, "                        bus, hdlc, hif\n");
     fprintf(stream, "  -c, --pcap=FILE       Dump RF data to FILE\n");
     fprintf(stream, "  -w, --wireshark       Invoke wireshark and dump RF data into\n");
     fprintf(stream, "\n");
@@ -140,13 +141,14 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     fill_random(ctxt->eui64, sizeof(ctxt->eui64));
     ctxt->eui64[0] &= ~1;
     ctxt->eui64[0] |= 2;
-    while ((opt = getopt_long(argc, argv, "hm:c:w", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hm:c:T:w", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'm':
                 configure_mac(ctxt, optarg);
                 break;
             case 'T':
-                while ((tag = strtok(optarg, ","))) {
+                tag = strtok(optarg, ",");
+                do {
                     for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
                         if (!strcmp(valid_traces[i].name, tag)) {
                             g_enabled_traces |= valid_traces[i].val;
@@ -155,7 +157,7 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
                     }
                     if (i == ARRAY_SIZE(valid_traces))
                         FATAL(1, "invalid tag: %s", tag);
-                }
+                } while ((tag = strtok(NULL, ",")));
                 break;
             case 'c':
                 configure_pcap_output(ctxt, optarg);
