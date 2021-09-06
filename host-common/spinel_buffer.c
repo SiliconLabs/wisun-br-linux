@@ -449,6 +449,6 @@ void spinel_trace(const uint8_t *buf, int len, const char *prefix)
     for (i = 0; i < ARRAY_SIZE(spinel_props); i++)
         if (prop == spinel_props[i].val)
             prop_str = spinel_props[i].str;
-    TRACE(TR_HIF, "%s%02x %s/%s %s (%d bytes)", prefix, hdr, cmd_str, prop_str,
+    TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
            bytes_str(buf + cnt, len - cnt, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), len);
 }
