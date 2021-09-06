@@ -88,7 +88,7 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "  -u                    Use UART bus\n");
     fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: uart, hif\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "\n");
@@ -136,7 +136,7 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
     fprintf(stream, "  -s                    Use SPI bus\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: uart, hif\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "\n");
@@ -236,7 +236,8 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
             ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
         } else if (sscanf(line, " trace = %s %c", tmp, &garbage) == 1) {
-            while ((tag = strtok(tmp, ","))) {
+            tag = strtok(tmp, ",");
+            do {
                 for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
                     if (!strcmp(valid_traces[i].name, tag)) {
                         g_enabled_traces |= valid_traces[i].val;
@@ -245,7 +246,7 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                 }
                 if (i == ARRAY_SIZE(valid_traces))
                     FATAL(1, "%s:%d: invalid tag: %s", filename, line_no, tag);
-            }
+            } while ((tag = strtok(NULL, ",")));
         } else if (sscanf(line, " domain = %s %c", tmp, &garbage) == 1) {
             ctxt->ws_domain = -1;
             for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
@@ -284,7 +285,7 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream, int exit_code))
 {
-    const char *opts_short = "usF:t:n:d:m:c:S:K:C:A:b:f:Hh";
+    const char *opts_short = "usF:t:T:n:d:m:c:S:K:C:A:b:f:Hh";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "tun",         required_argument, 0,  't' },
@@ -340,7 +341,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 strncpy(ctxt->tun_dev, optarg, sizeof(ctxt->tun_dev) - 1);
                 break;
             case 'T':
-                while ((tag = strtok(optarg, ","))) {
+                tag = strtok(optarg, ",");
+                do {
                     for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
                         if (!strcmp(valid_traces[i].name, tag)) {
                             g_enabled_traces |= valid_traces[i].val;
@@ -349,7 +351,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                     }
                     if (i == ARRAY_SIZE(valid_traces))
                         FATAL(1, "invalid tag: %s", tag);
-                }
+                } while ((tag = strtok(NULL, ",")));
                 break;
             case 'n':
                 strncpy(ctxt->ws_name, optarg, sizeof(ctxt->ws_name) - 1);
