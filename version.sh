@@ -5,7 +5,7 @@
 
 SRC_DIR=$1
 VERSION_FILE=$2
-GIT_LABEL="$(git -C $SRC_DIR describe --tags --dirty --match v\*)"
+GIT_LABEL="$(git -C $SRC_DIR describe --tags --dirty --match "*v[0-9]*")"
 
 cat << EOF > $VERSION_FILE.tmp
 /* SPDX-License-Identifier: GPL-2.0 */
