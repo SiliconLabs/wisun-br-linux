@@ -95,9 +95,9 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a (default), 1b, 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
     fprintf(stream, "                          the network. Valid values: AUTO (default), CERT (development and\n");
     fprintf(stream, "                          certification), S (< 100), M (100-800), L (800-2500), XL (> 2500)\n");
@@ -143,9 +143,9 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b, 2a, 2b, 3 (default), 4a,\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a (default), 1b, 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1, 2 (default) or 3\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
     fprintf(stream, "                          the network. Valid values: AUTO (default), CERT (development and\n");
     fprintf(stream, "                          certification), S (< 100), M (100-800), L (800-2500), XL (> 2500)\n");
