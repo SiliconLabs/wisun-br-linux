@@ -95,7 +95,7 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a (default), 1b, 2a, 2b, 3, 4a,\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
@@ -143,7 +143,7 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
-    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a (default), 1b, 2a, 2b, 3, 4a,\n");
+    fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
@@ -315,7 +315,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
 
     ctxt->ws_class = 1;
     ctxt->ws_domain = -1;
-    ctxt->ws_mode = 0x1a;
+    ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
