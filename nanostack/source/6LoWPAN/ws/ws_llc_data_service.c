@@ -1675,7 +1675,7 @@ static uint16_t ws_llc_calculate_dynamic_entries_max(uint16_t min_entry, uint16_
 {
     const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
     if (!mem_stats) {
-        return min_entry;
+        return max_entry;
     }
 
     uint32_t total_heap_size = mem_stats->heap_sector_size;
