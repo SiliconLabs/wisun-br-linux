@@ -132,6 +132,10 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
         }
 
         uint32_t ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
+        if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
+            // add ufsi sequence length
+            ufsi_diff_ms += seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval;
+
         int32_t ufsi_drift_ms = (int32_t)(time_since_last_ufsi_us / 1000 - ufsi_diff_ms);
         // Only trace if there is significant error
         if (ufsi_drift_ms < -5 || ufsi_drift_ms > 5) {
