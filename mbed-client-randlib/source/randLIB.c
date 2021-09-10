@@ -119,7 +119,7 @@ uint64_t randLIB_get_64bit(void)
 {
 #ifdef RANDOM_DEVICE
     if (!random_file) {
-        return 0;
+        random_file = fopen(RANDOM_DEVICE, "r");
     }
     uint64_t result;
     if (fread(&result, sizeof result, 1, random_file) != 1) {
