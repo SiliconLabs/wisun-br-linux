@@ -53,6 +53,7 @@ struct wsbr_ctxt {
     int  ws_class;
     int  ws_size;
     char ws_name[33]; // null-terminated string of 32 chars
+    uint32_t ws_allowed_channels[8];
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
 };

@@ -58,9 +58,27 @@ struct wsbr_ctxt g_ctxt = {
 // See warning in host-common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 
+static int get_fixed_channel(uint32_t bitmask[8])
+{
+    int i, j, val;
+
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 32; j++) {
+            if (bitmask[i] & 1 << j) {
+                if (val >= 0)
+                    return 0xFFFF;
+                val = i * 32 + j;
+            }
+        }
+    }
+    return val;
+}
+
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret;
+    int fixed_channel = get_fixed_channel(ctxt->ws_allowed_channels);
+    uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
                                   ctxt->ws_name, (struct fhss_timer *)-1);
@@ -71,19 +89,17 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                               ctxt->ws_class, ctxt->ws_mode);
     WARN_ON(ret);
 
-    // FIXME: allow to customize the values below using command line
-
-    // Default value as specified in ws_cfg_fhss_default_set().
-    // You may also use CHANNEL_FUNCTION_FIXED and a true value instead of
-    // 0xFFFF
     // Note that calling ws_management_fhss_timing_configure() is redundant
     // with the two function calls bellow.
-    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, WS_DH1CF, 0xFFFF,
+    ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
                                                                 WS_FHSS_UC_DWELL_INTERVAL);
     WARN_ON(ret);
-    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, WS_DH1CF, 0xFFFF,
+    ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
                                                                   WS_FHSS_BC_DWELL_INTERVAL, WS_FHSS_BC_INTERVAL);
     WARN_ON(ret);
+    ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->ws_allowed_channels);
+    WARN_ON(ret);
+
 
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.

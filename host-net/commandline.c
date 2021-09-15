@@ -198,6 +198,44 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
+static int set_bitmask(int shift, uint32_t *out, int size)
+{
+    int word_nr = shift / 32;
+    int bit_nr = shift % 32;
+
+    if (word_nr >= size)
+        return -1;
+    out[word_nr] |= 1 << bit_nr;
+    return 0;
+}
+
+static int parse_bitmask(char *str, uint32_t *out, int size)
+{
+    char *range;
+    char *endptr;
+    unsigned long cur, end;
+
+    memset(out, 0, size);
+    range = strtok(str, ",");
+    do {
+        cur = strtoul(range, &endptr, 0);
+        if (*endptr == '-') {
+            range = endptr + 1;
+            end = strtol(range, &endptr, 0);
+        } else {
+            end = cur;
+        }
+        if (*endptr != '\0')
+            return -1;
+        if (cur > end)
+            return -1;
+        for (; cur <= end; cur++)
+            if (set_bitmask(cur, out, size) < 0)
+                return -1;
+    } while ((range = strtok(NULL, ",")));
+    return 0;
+}
+
 static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 {
     FILE *f = fopen(filename, "r");
@@ -262,6 +300,9 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
             if (ctxt->ws_class > 3)
                 FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
+        } else if (sscanf(line, " allowed_channels = %s %c", tmp, &garbage) == 1) {
+            if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
+                FATAL(1, "%s:%d: invalid range", filename, line_no);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
                 ctxt->ws_size = -1;
                 for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
@@ -313,6 +354,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
+    memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
