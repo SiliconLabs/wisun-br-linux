@@ -264,10 +264,16 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " network_name = %s %c", ctxt->ws_name, &garbage) == 1) {
             /* nothing to do */;
         } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
+            if (ctxt->tls_own.cert)
+                FATAL(1, "\"cert\" can be specified only one time");
             ctxt->tls_own.cert_len = read_cert(tmp, &ctxt->tls_own.cert);
         } else if (sscanf(line, " key = %s %c", tmp, &garbage) == 1) {
+            if (ctxt->tls_own.key)
+                FATAL(1, "\"key\" can be specified only one time");
             ctxt->tls_own.key_len = read_cert(tmp, &ctxt->tls_own.key);
         } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
+            if (ctxt->tls_ca.cert)
+                FATAL(1, "\"authority\" can be specified only one time");
             ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
         } else if (sscanf(line, " trace = %s %c", tmp, &garbage) == 1) {
             tag = strtok(tmp, ",");
@@ -433,17 +439,17 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
             case 'K':
                 if (ctxt->tls_own.key)
-                    FATAL(1, "--key can be specified only one time");
+                    free((char *)ctxt->tls_own.key);
                 ctxt->tls_own.key_len = read_cert(optarg, &ctxt->tls_own.key);
                 break;
             case 'C':
                 if (ctxt->tls_own.cert)
-                    FATAL(1, "--cert can be specified only one time");
+                    free((char *)ctxt->tls_own.cert);
                 ctxt->tls_own.cert_len = read_cert(optarg, &ctxt->tls_own.cert);
                 break;
             case 'A':
                 if (ctxt->tls_ca.cert)
-                    FATAL(1, "--authority can be specified only one time");
+                    free((char *)ctxt->tls_ca.cert);
                 ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
                 break;
             case 'b':
