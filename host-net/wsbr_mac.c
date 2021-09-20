@@ -201,7 +201,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
         ctxt->reset_done = true;
     } else {
-        WARN("not implemented: %02x", cmd);
+        WARN("%s: not implemented: %02x", __func__, cmd);
         return;
     }
 }
@@ -507,7 +507,7 @@ static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
 {
-    WARN("not implemented");
+    WARN("%s: not implemented", __func__);
 }
 
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
@@ -668,7 +668,7 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
     BUG_ON(ctxt != &g_ctxt);
 
     if (memcmp(ctxt->dynamic_mac, mac64, 8))
-        WARN("Not implemented");
+        WARN("%s: Not implemented", __func__);
 
     memcpy(ctxt->dynamic_mac, mac64, 8);
     return 0;
