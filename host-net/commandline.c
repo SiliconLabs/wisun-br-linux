@@ -20,9 +20,6 @@
 #include "host-common/log.h"
 #include "wsbr.h"
 
-// See log.h
-unsigned int g_enabled_traces = 0;
-
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05
 };

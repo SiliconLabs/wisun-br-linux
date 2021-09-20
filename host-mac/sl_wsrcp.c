@@ -34,8 +34,6 @@
 
 #define TRACE_GROUP  "main"
 
-// See log.h
-unsigned int g_enabled_traces = 0;
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
 // See warning in host-common/os_types.h
