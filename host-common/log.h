@@ -13,6 +13,40 @@
 #include <signal.h>
 #include <time.h>
 
+
+/*
+ * Use BUG() and BUG_ON() in the same ways than assert(). Consider this
+ * statement as a part of the developer documentation. If the user encounter
+ * this error, it means he won't be able to solve it himself and he should
+ * send a bug report to the developer. For errors resulting from the user
+ * environment, consider FATAL().
+ *
+ * Use FATAL() and FATAL_ON() you have detected something wrong in the
+ * environment. You consider it make no sense to continue, but it is not your
+ * fault. You should always provide an explanation as precise as possible to
+ * help the user. Typically:
+ *     fd = open(filename, O_RDWR);
+ *     FATAL_ON(fd < 0, 1, "open: %s: %m", filename);
+ *
+ * Use WARN() and WARN_ON() to log unexpected events but you are able to
+ * recover. They are not (yet) a bug and not (yet) fatal.
+ *
+ * Use INFO() to log some useful information for user. Use it thrifty. Only log
+ * useful information for final user. Some people may consider these logs as a part
+ * of the API.
+ *
+ * Use DEBUG() to add a temporary trace. DEBUG() shouldn't appears in final
+ * code.
+ *
+ * Use TRACE() to provide debug traces in final code. TRACE() is always
+ * conditional. The user have to set g_enabled_traces to make some traces
+ * appear.
+ *
+ * BUG_ON(), FATAL_ON() and WARN_ON(), allow to keep error handling small
+ * enough. However, as soon as you add a description of the error, the code will
+ * be probably clearer if you use the unconditional versions of these macros.
+ */
+
 #define __PRINT(color, msg, ...) \
     fprintf(stderr, "[" #color "m" msg "[0m\n", ##__VA_ARGS__)
 
