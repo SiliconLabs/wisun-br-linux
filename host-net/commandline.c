@@ -100,8 +100,8 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
-    fprintf(stream, "                          the network. Valid values: AUTO (default), CERT (development and\n");
-    fprintf(stream, "                          certification), S (< 100), M (100-800), L (800-2500), XL (> 2500)\n");
+    fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
+    fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN network authentication:\n");
     fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
@@ -147,8 +147,8 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
-    fprintf(stream, "                          the network. Valid values: AUTO (default), CERT (development and\n");
-    fprintf(stream, "                          certification), S (< 100), M (100-800), L (800-2500), XL (> 2500)\n");
+    fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
+    fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN network authentication:\n");
     fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
@@ -361,7 +361,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_class = 1;
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
-    ctxt->ws_size = NETWORK_SIZE_AUTOMATIC;
+    ctxt->ws_size = NETWORK_SIZE_SMALL;
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
