@@ -17,6 +17,23 @@
 #include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 
+static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
+{
+    struct timespec tp;
+    int rcp_time_diff;
+
+    // FIXME: explain when it happens
+    if (!rcp_time)
+        return;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    rcp_time_diff = (tp.tv_sec * 1000000 + tp.tv_nsec / 1000) - rcp_time;
+    if (!ctxt->rcp_time_diff)
+        ctxt->rcp_time_diff = rcp_time_diff;
+    rcp_time_diff = rcp_time_diff * 0.10 + ctxt->rcp_time_diff * 0.9; // smooth adjustement
+    DEBUG("Adjust time diff (from %u): %d -> %d (%d)", rcp_time, ctxt->rcp_time_diff, rcp_time_diff, ctxt->rcp_time_diff - rcp_time_diff);
+    ctxt->rcp_time_diff = rcp_time_diff;
+}
+
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
 {
     switch (prop) {
@@ -85,6 +102,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
         conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
         BUG_ON(spinel_remaining_size(buf));
+        adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_conf_cb()
         ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
         break;
@@ -112,6 +130,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
         ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
         BUG_ON(spinel_remaining_size(buf));
+        adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_ind_cb()
         ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
         break;

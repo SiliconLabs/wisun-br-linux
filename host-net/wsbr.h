@@ -44,6 +44,7 @@ struct wsbr_ctxt {
     int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
     int  rcp_driver_id;
     int  rcp_if_id;
+    int  rcp_time_diff;
 
     int spinel_tid;
     int spinel_iid;

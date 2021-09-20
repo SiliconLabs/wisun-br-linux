@@ -59,10 +59,14 @@ int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
 
 uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
 {
-    BUG_ON(!mac_api);
-    WARN("not implemented");
+    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
+    struct timespec tp;
 
-    return 0;
+    BUG_ON(!mac_api);
+    BUG_ON(ctxt != &g_ctxt);
+
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return (tp.tv_sec * 1000000 + tp.tv_nsec / 1000) - ctxt->rcp_time_diff;
 }
 
 int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
