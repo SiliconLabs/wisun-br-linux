@@ -47,17 +47,17 @@
  * be probably clearer if you use the unconditional versions of these macros.
  */
 
-#define __PRINT(color, msg, ...) \
-    fprintf(stderr, "[" #color "m" msg "[0m\n", ##__VA_ARGS__)
+#define __PRINT(COLOR, MSG, ...) \
+    fprintf(stderr, "[" #COLOR "m" MSG "[0m\n", ##__VA_ARGS__)
 
-#define __PRINT_WITH_LINE(color, msg, ...) \
-    __PRINT(color, "%s():%d: " msg, __func__, __LINE__, ##__VA_ARGS__)
+#define __PRINT_WITH_LINE(COLOR, MSG, ...) \
+    __PRINT(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
 
-#define __PRINT_WITH_TIME(color, msg, ...) \
+#define __PRINT_WITH_TIME(COLOR, MSG, ...) \
     do {                                                             \
         struct timespec tp;                                          \
         clock_gettime(CLOCK_REALTIME, &tp);                          \
-        __PRINT(color, "%jd.%06jd: " msg, tp.tv_sec, tp.tv_nsec / 1000, ##__VA_ARGS__); \
+        __PRINT(COLOR, "%jd.%06jd: " MSG, tp.tv_sec, tp.tv_nsec / 1000, ##__VA_ARGS__); \
     } while (0)
 
 extern unsigned int g_enabled_traces;
