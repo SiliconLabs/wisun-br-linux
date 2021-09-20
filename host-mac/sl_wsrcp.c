@@ -49,6 +49,7 @@ mac_description_storage_size_t g_storage_sizes = {
 };
 
 void print_help(FILE *stream, int exit_code) {
+    fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN MAC emulation\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");

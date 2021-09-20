@@ -77,6 +77,7 @@ static const struct {
 };
 
 void print_help_br(FILE *stream, int exit_code) {
+    fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
@@ -124,6 +125,7 @@ void print_help_br(FILE *stream, int exit_code) {
 }
 
 void print_help_node(FILE *stream, int exit_code) {
+    fprintf(stream, "\n");
     fprintf(stream, "Simulate a Wi-SUN node\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
