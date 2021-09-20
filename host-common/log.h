@@ -48,7 +48,12 @@
  */
 
 #define __PRINT(COLOR, MSG, ...) \
-    fprintf(stderr, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__)
+    do {                                                             \
+        if (COLOR != 0 && g_enable_color_traces)                           \
+            fprintf(stderr, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__); \
+        else                                                         \
+            fprintf(stderr, MSG "\n", ##__VA_ARGS__);                \
+    } while(0)
 
 #define __PRINT_WITH_LINE(COLOR, MSG, ...) \
     __PRINT(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
@@ -61,6 +66,7 @@
     } while (0)
 
 extern unsigned int g_enabled_traces;
+extern bool g_enable_color_traces;
 
 enum {
     TR_RF   = 0x01,

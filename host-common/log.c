@@ -8,6 +8,8 @@
 
 #include "log.h"
 
+bool g_enable_color_traces = true;
+
 char *bytes_str(const void *in_start, int in_len, const void **in_done, char *out_start, int out_len, int opt)
 {
     static const char *hex = "0123456789abcdef";
