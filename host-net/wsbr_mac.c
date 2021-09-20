@@ -172,6 +172,8 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         const char *version_fw_str;
         bool is_hw_reset;
 
+        if (spinel_remaining_size(buf) < 9)
+            FATAL(1, "RCP firmware probably too old (unknown RESET format)");
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
         version_api = spinel_pop_u32(buf);
