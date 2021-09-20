@@ -36,90 +36,96 @@ enum {
     TR_HIF  = 0x10,
 };
 
-#define TRACE(COND, ...) \
+#define __TRACE(COND, MSG, ...) \
     do {                                                             \
         if (g_enabled_traces & (COND)) {                             \
-            if (__VA_OPT__(!) false)                                 \
-                __PRINT_WITH_TIME(90, __VA_ARGS__);                  \
+            if (MSG[0] != '\0')                                      \
+                __PRINT_WITH_TIME(90, MSG, ##__VA_ARGS__);           \
             else                                                     \
                 __PRINT_WITH_TIME(90, "%s:%d", __FILE__, __LINE__);  \
         }                                                            \
     } while (0)
+#define TRACE(COND, ...)  __TRACE(COND, "" __VA_ARGS__)
 
-#define DEBUG(...) \
+#define __DEBUG(MSG, ...) \
     do {                                                             \
-        if (__VA_OPT__(!) false)                                     \
-            __PRINT_WITH_LINE(94, __VA_ARGS__);                      \
+        if (MSG[0] != '\0')                                          \
+            __PRINT_WITH_LINE(94, MSG, ##__VA_ARGS__);               \
         else                                                         \
             __PRINT_WITH_LINE(94, "trace");                          \
     } while (0)
+#define DEBUG(...)  __DEBUG("" __VA_ARGS__)
 
-#define INFO(...) \
+#define INFO(MSG, ...) \
     do {                                                             \
-        __PRINT(0, __VA_ARGS__);                                     \
+        __PRINT(0, MSG, ##__VA_ARGS__);                              \
     } while (0)
 
-#define WARN(...) \
+#define __WARN(MSG, ...) \
     do {                                                             \
-        if (__VA_OPT__(!) false)                                     \
-            __PRINT(93, "warning: " __VA_ARGS__);                    \
+        if (MSG[0] != '\0')                                          \
+            __PRINT(93, "warning: " MSG, ##__VA_ARGS__);             \
         else                                                         \
             __PRINT_WITH_LINE(93, "warning");                        \
     } while (0)
+#define WARN(...)  __WARN("" __VA_ARGS__)
 
-#define WARN_ON(cond, ...) \
+#define __WARN_ON(COND, MSG, ...) \
     ({                                                               \
-        typeof(cond) __ret = (cond);                                 \
+        typeof(COND) __ret = (COND);                                 \
         if (__ret) {                                                 \
-            if (__VA_OPT__(!) false)                                 \
-                __PRINT(93, "warning: " __VA_ARGS__);                \
+            if (MSG[0] != '\0')                                      \
+                __PRINT(93, "warning: " MSG, ##__VA_ARGS__);         \
             else                                                     \
-                __PRINT_WITH_LINE(93, "warning: \"%s\"", #cond);     \
+                __PRINT_WITH_LINE(93, "warning: \"%s\"", #COND);     \
         }                                                            \
         __ret;                                                       \
     })
+#define WARN_ON(COND, ...) __WARN_ON(COND, "" __VA_ARGS__)
 
-#define FATAL(code, ...) \
+#define __FATAL(CODE, MSG, ...) \
     do {                                                             \
-        if (__VA_OPT__(!) false)                                     \
-            __PRINT(31, __VA_ARGS__);                                \
+        if (MSG[0] != '\0')                                          \
+            __PRINT(31, MSG, ##__VA_ARGS__);                         \
         else                                                         \
             __PRINT_WITH_LINE(31, "fatal error");                    \
-        exit(code);                                                  \
+        exit(CODE);                                                  \
     } while (0)
+#define FATAL(CODE, ...) __FATAL(CODE, "" __VA_ARGS__)
 
-#define FATAL_ON(cond, code, ...) \
+#define __FATAL_ON(COND, CODE, MSG, ...) \
     do {                                                             \
-        typeof(cond) __ret = (cond);                                 \
-        if (__ret) {                                                 \
-            if (__VA_OPT__(!) false)                                 \
-                __PRINT(31, __VA_ARGS__);                            \
+        if (COND) {                                                  \
+            if (MSG[0] != '\0')                                      \
+                __PRINT(31, MSG, ##__VA_ARGS__);                     \
             else                                                     \
-                __PRINT_WITH_LINE(31, "fatal error: \"%s\"", #cond); \
-            exit(code);                                              \
+                __PRINT_WITH_LINE(31, "fatal error: \"%s\"", #COND); \
+            exit(CODE);                                              \
         }                                                            \
     } while (0)
+#define FATAL_ON(COND, CODE, ...) __FATAL_ON(COND, CODE, "" __VA_ARGS__)
 
-#define BUG(...) \
+#define __BUG(MSG, ...) \
     do {                                                             \
-        if (__VA_OPT__(!) false)                                     \
-            __PRINT_WITH_LINE(91, "bug: " __VA_ARGS__);              \
+        if (MSG[0] != '\0')                                          \
+            __PRINT_WITH_LINE(91, "bug: " MSG, ##__VA_ARGS__);       \
         else                                                         \
             __PRINT_WITH_LINE(91, "bug");                            \
         raise(SIGTRAP);                                              \
     } while (0)
+#define BUG(...) __BUG("" __VA_ARGS__)
 
-#define BUG_ON(cond, ...) \
+#define __BUG_ON(COND, MSG, ...) \
     do {                                                             \
-        typeof(cond) __ret = (cond);                                 \
-        if (__ret) {                                                 \
-            if (__VA_OPT__(!) false)                                 \
-                __PRINT_WITH_LINE(91, "bug: " __VA_ARGS__);          \
+        if (COND) {                                                  \
+            if (MSG[0] != '\0')                                      \
+                __PRINT_WITH_LINE(91, "bug: " MSG, ##__VA_ARGS__);   \
             else                                                     \
-                __PRINT_WITH_LINE(91, "bug: \"%s\"", #cond);         \
+                __PRINT_WITH_LINE(91, "bug: \"%s\"", #COND);         \
             raise(SIGTRAP);                                          \
         }                                                            \
     } while (0)
+#define BUG_ON(COND, ...) __BUG_ON(COND, "" __VA_ARGS__)
 
 enum bytes_str_options {
     DELIM_SPACE     = 0x01, // Add space between each bytes
