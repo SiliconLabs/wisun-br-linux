@@ -48,7 +48,7 @@
  */
 
 #define __PRINT(COLOR, MSG, ...) \
-    fprintf(stderr, "[" #COLOR "m" MSG "[0m\n", ##__VA_ARGS__)
+    fprintf(stderr, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__)
 
 #define __PRINT_WITH_LINE(COLOR, MSG, ...) \
     __PRINT(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
