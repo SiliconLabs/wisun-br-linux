@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     uint64_t val;
     struct timespec ts = { };
 
-    DEBUG("Silicon Labs Wi-SUN router %s", version_daemon);
+    INFO("Silicon Labs Wi-SUN router %s", version_daemon);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
