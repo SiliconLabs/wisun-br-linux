@@ -485,21 +485,19 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     if (ctxt->ws_domain == -1)
         FATAL(1, "You must specify --domain");
     if (bus == 's') {
-        if (argc != optind + 2)
-            print_help(stderr, 1);
+        FATAL_ON(argc != optind + 2, 1, "You must specify a device name and a GPIO");
         ctxt->rcp_tx = spi_tx;
         ctxt->rcp_rx = spi_rx;
         ctxt->os_ctxt->data_fd = spi_open(argv[optind + 0], frequency, 0);
         ctxt->os_ctxt->trig_fd = gpio_open(argv[optind + 1], false);
         ctxt->os_ctxt->spi_recv_window = UINT16_MAX;
     } else if (bus == 'u') {
-        if (argc != optind + 1)
-            print_help(stderr, 1);
+        FATAL_ON(argc != optind + 1, 1, "You must specify a device name");
         ctxt->rcp_tx = uart_tx;
         ctxt->rcp_rx = uart_rx;
         ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], baudrate, hardflow);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     } else {
-        print_help(stderr, 1);
+        FATAL(1, "You must specify a UART or a SPI device");
     }
 }
