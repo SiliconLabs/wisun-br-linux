@@ -698,7 +698,6 @@ int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
     }
 }
 
-// FIXME Retrieve these values from the MAC on boot
 int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
                                   struct mac_description_storage_size_s *buffer)
 {
