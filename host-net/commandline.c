@@ -12,7 +12,9 @@
 #include <getopt.h>
 #include <sys/stat.h>
 
+#include "mbed-client-libservice/ip6string.h"
 #include "nanostack/ws_management_api.h"
+#include "nanostack/source/Core/include/ns_address_internal.h"
 #include "host-common/os_types.h"
 #include "host-common/bus_uart.h"
 #include "host-common/bus_spi.h"
@@ -243,6 +245,7 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
     char tmp[256];
     char garbage; // detect garbage at end of the line
     char *tag;
+    int tmpi;
     int len;
     int i;
 
@@ -262,6 +265,13 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             /* blank line*/;
         } else if (sscanf(line, " network_name = %s %c", ctxt->ws_name, &garbage) == 1) {
             /* nothing to do */;
+        } else if (sscanf(line, " rpl_prefix = %[0-9a-zA-Z:]/%d %c", tmp, &tmpi, &garbage) == 2) {
+            if (memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "rpl_prefix");
+            if (tmpi != 64)
+                FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, tmpi);
+            if (!stoip6(tmp, strlen(tmp), ctxt->rpl_prefix))
+                FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, tmp);
         } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_own.cert)
                 FATAL(1, "\"cert\" can be specified only one time");
@@ -474,6 +484,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
         }
     }
+    if (!memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "You must specify a rpl_prefix");
     if (!ctxt->ws_name[0])
         FATAL(1, "You must specify --name");
     if (!ctxt->tls_own.key)

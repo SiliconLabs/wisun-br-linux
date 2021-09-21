@@ -129,11 +129,6 @@ static void wsbr_tasklet(struct arm_event_s *event)
         "ARM_NWK_NWK_PARENT_POLL_FAIL",
         "ARM_NWK_PHY_CONNECTION_DOWN"
     };
-    // FIXME: Random prefix
-    static uint8_t tun_prefix[16] = {
-        0xfd, 0x01, 0x12, 0x36, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
-    };
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     switch (event->event_type) {
@@ -145,8 +140,8 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_WS))
                 WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
             if (arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
-                                                               NET_IPV6_BOOTSTRAP_AUTONOMOUS,
-                                                               tun_prefix))
+                                                               NET_IPV6_BOOTSTRAP_STATIC,
+                                                               ctxt->rpl_prefix))
                 WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
             wsbr_configure_ws(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
