@@ -94,7 +94,7 @@ static uint8_t static_dodag_id_prefix[8] = {0xfd, 0x00, 0x61, 0x72, 0x6d};
 static uint8_t current_dodag_id[16] = {0};
 static uint8_t current_local_prefix[8] = {0};
 static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
-static uint32_t bbr_delay_timer = BBR_CHECK_INTERVAL; // initial delay.
+static uint32_t bbr_delay_timer = 10; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
 
 static bbr_timezone_configuration_t *bbr_time_config = NULL;
