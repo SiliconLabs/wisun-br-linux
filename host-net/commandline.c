@@ -217,7 +217,7 @@ static int parse_bitmask(char *str, uint32_t *out, int size)
     char *endptr;
     unsigned long cur, end;
 
-    memset(out, 0, size);
+    memset(out, 0, size * sizeof(uint32_t));
     range = strtok(str, ",");
     do {
         cur = strtoul(range, &endptr, 0);
@@ -310,7 +310,7 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                 FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
         } else if (sscanf(line, " allowed_channels = %s %c", tmp, &garbage) == 1) {
             if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
-                FATAL(1, "%s:%d: invalid range", filename, line_no);
+                FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
                 ctxt->ws_size = -1;
                 for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
