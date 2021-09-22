@@ -72,6 +72,7 @@ enum bytes_str_options {
     ELLIPSIS_ABRT   = 0x04, // Assert if output is too small
     ELLIPSIS_STAR   = 0x08, // End output with * if too small
     ELLIPSIS_DOTS   = 0x10, // End output with ... if too small
+    UPPER_HEX       = 0x20, // Use upper letters for hexadecimal digits
 };
 
 char *bytes_str(const void *in_start, int in_len, const void **in_done, char *out_start, int out_len, int opt);

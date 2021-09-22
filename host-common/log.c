@@ -13,8 +13,9 @@ bool g_enable_color_traces = true;
 
 char *bytes_str(const void *in_start, int in_len, const void **in_done, char *out_start, int out_len, int opt)
 {
-    static const char *hex = "0123456789abcdef";
-
+    static const char *hex_l = "0123456789abcdef";
+    static const char *hex_u = "0123456789ABCDEF";
+    const char *hex = hex_l;
     const uint8_t *in = in_start;
     const uint8_t *in_end = in + in_len;
     char *out = out_start;
@@ -26,6 +27,8 @@ char *bytes_str(const void *in_start, int in_len, const void **in_done, char *ou
 
     BUG_ON(!out);
     BUG_ON(!out_len);
+    if (opt & UPPER_HEX)
+        hex = hex_u;
     if (opt & DELIM_SPACE)
         delim = ' ';
     if (opt & DELIM_COLON)
