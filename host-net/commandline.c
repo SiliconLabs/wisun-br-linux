@@ -354,15 +354,15 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
                 FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
-                ctxt->ws_size = -1;
-                for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
-                    if (!strcasecmp(valid_ws_size[i].name, tmp)) {
-                        ctxt->ws_size = valid_ws_size[i].val;
-                        break;
-                    }
+            ctxt->ws_size = -1;
+            for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
+                if (!strcasecmp(valid_ws_size[i].name, tmp)) {
+                    ctxt->ws_size = valid_ws_size[i].val;
+                    break;
                 }
-                if (ctxt->ws_size < 0)
-                   FATAL(1, "%s:%d: invalid network size: %s", filename, line_no, tmp);
+            }
+            if (ctxt->ws_size < 0)
+                FATAL(1, "%s:%d: invalid network size: %s", filename, line_no, tmp);
         } else {
             FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
         }
