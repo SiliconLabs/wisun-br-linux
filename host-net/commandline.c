@@ -286,6 +286,11 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         *(strchrnul(line, '#')) = '\0';
         if (sscanf(line, " %c", &garbage) == EOF) {
             /* blank line*/;
+        } else if (sscanf(line, " tun_device = %s %c", tmp, &garbage) == 1) {
+            if (ctxt->tun_dev[0])
+                FATAL(1, "%s:%d: \"tun_device\" can be specified only one time", filename, line_no);
+            if (parse_escape_sequences(ctxt->tun_dev, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
         } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(ctxt->ws_name, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
