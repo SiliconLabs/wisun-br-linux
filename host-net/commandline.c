@@ -236,6 +236,30 @@ static int parse_bitmask(char *str, uint32_t *out, int size)
     return 0;
 }
 
+static int parse_escape_sequences(char *out, char *in)
+{
+    char tmp[3], *end_ptr;
+    int i, j;
+
+    j = 0;
+    for (i = 0; in[i]; ) {
+        if (in[i] == '\\') {
+            if (in[i + 1] != 'x')
+                return -1;
+            tmp[0] = in[i + 2];
+            tmp[1] = in[i + 3];
+            tmp[2] = '\0';
+            out[j++] = strtol(tmp, &end_ptr, 16);
+            if (*end_ptr)
+                return -1;
+            i += 4;
+        } else {
+            out[j++] = in[i++];
+        }
+    }
+    return 0;
+}
+
 static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 {
     FILE *f = fopen(filename, "r");
@@ -262,8 +286,9 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         *(strchrnul(line, '#')) = '\0';
         if (sscanf(line, " %c", &garbage) == EOF) {
             /* blank line*/;
-        } else if (sscanf(line, " network_name = %s %c", ctxt->ws_name, &garbage) == 1) {
-            /* nothing to do */;
+        } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
+            if (parse_escape_sequences(ctxt->ws_name, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
         } else if (sscanf(line, " rpl_prefix = %[0-9a-zA-Z:]/%d %c", tmp, &tmpi, &garbage) == 2) {
             if (memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
                 FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "rpl_prefix");
@@ -274,14 +299,20 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_own.cert)
                 FATAL(1, "\"cert\" can be specified only one time");
+            if (parse_escape_sequences(tmp, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_own.cert_len = read_cert(tmp, &ctxt->tls_own.cert);
         } else if (sscanf(line, " key = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_own.key)
                 FATAL(1, "\"key\" can be specified only one time");
+            if (parse_escape_sequences(tmp, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_own.key_len = read_cert(tmp, &ctxt->tls_own.key);
         } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_ca.cert)
                 FATAL(1, "\"authority\" can be specified only one time");
+            if (parse_escape_sequences(tmp, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
         } else if (sscanf(line, " trace = %s %c", tmp, &garbage) == 1) {
             tag = strtok(tmp, ",");
