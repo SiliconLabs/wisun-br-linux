@@ -52,13 +52,13 @@ struct wsbr_ctxt g_ctxt = {
 // See warning in host-common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 
-static int get_fixed_channel(uint32_t bitmask[8])
+static int get_fixed_channel(uint32_t bitmask[static 8])
 {
-    int i, j, val;
+    int i, j, val = -1;
 
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 32; j++) {
-            if (bitmask[i] & 1 << j) {
+            if (bitmask[i] & (1 << j)) {
                 if (val >= 0)
                     return 0xFFFF;
                 val = i * 32 + j;
@@ -91,8 +91,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
                                                                   WS_FHSS_BC_DWELL_INTERVAL, WS_FHSS_BC_INTERVAL);
     WARN_ON(ret);
-    ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->ws_allowed_channels);
-    WARN_ON(ret);
+    if (fixed_channel == 0xFFFF) {
+        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->ws_allowed_channels);
+        WARN_ON(ret);
+    }
 
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.
