@@ -236,7 +236,7 @@ static int parse_bitmask(char *str, uint32_t *out, int size)
     return 0;
 }
 
-static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
+static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 {
     FILE *f = fopen(filename, "r");
     int line_no = 0;
@@ -373,7 +373,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'F':
-                read_config_file(ctxt, optarg);
+                parse_config_file(ctxt, optarg);
                 break;
             default:
                 break;
