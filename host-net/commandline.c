@@ -288,7 +288,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             /* blank line*/;
         } else if (sscanf(line, " tun_device = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tun_dev[0])
-                FATAL(1, "%s:%d: \"tun_device\" can be specified only one time", filename, line_no);
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "tun_device");
             if (parse_escape_sequences(ctxt->tun_dev, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
         } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
@@ -303,19 +303,19 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                 FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, tmp);
         } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_own.cert)
-                FATAL(1, "\"cert\" can be specified only one time");
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "cert");
             if (parse_escape_sequences(tmp, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_own.cert_len = read_cert(tmp, &ctxt->tls_own.cert);
         } else if (sscanf(line, " key = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_own.key)
-                FATAL(1, "\"key\" can be specified only one time");
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "key");
             if (parse_escape_sequences(tmp, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_own.key_len = read_cert(tmp, &ctxt->tls_own.key);
         } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
             if (ctxt->tls_ca.cert)
-                FATAL(1, "\"authority\" can be specified only one time");
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "authority");
             if (parse_escape_sequences(tmp, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
@@ -332,7 +332,8 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                     FATAL(1, "%s:%d: invalid tag: %s", filename, line_no, tag);
             } while ((tag = strtok(NULL, ",")));
         } else if (sscanf(line, " domain = %s %c", tmp, &garbage) == 1) {
-            ctxt->ws_domain = -1;
+            if (ctxt->ws_domain != -1)
+                FATAL(1, "%s:%d: \"%s\" can be specified only one time", filename, line_no, "domain");
             for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
                 if (!strcmp(valid_ws_domains[i].name, tmp)) {
                     ctxt->ws_domain = valid_ws_domains[i].val;
@@ -520,15 +521,15 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         }
     }
     if (!ctxt->ws_name[0])
-        FATAL(1, "You must specify --name");
+        FATAL(1, "You must specify a network name (--name)");
     if (!ctxt->tls_own.key)
-        FATAL(1, "You must specify --key");
+        FATAL(1, "You must specify a key (--key)");
     if (!ctxt->tls_own.cert)
-        FATAL(1, "You must specify --cert");
+        FATAL(1, "You must specify a certificate (--cert)");
     if (!ctxt->tls_ca.cert)
-        FATAL(1, "You must specify --authority");
+        FATAL(1, "You must specify a certificate authority (--authority)");
     if (ctxt->ws_domain == -1)
-        FATAL(1, "You must specify --domain");
+        FATAL(1, "You must specify a regulation domain (--domain)");
     if (bus == 's') {
         FATAL_ON(argc != optind + 2, 1, "You must specify a device name and a GPIO");
         ctxt->rcp_tx = spi_tx;
