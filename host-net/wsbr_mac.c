@@ -587,7 +587,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
                        const struct channel_list_s *async_channel_list,
-                       mac_data_priority_t priority)
+                       mac_data_priority_t priority, uint8_t phy_id)
 {
     const struct channel_list_s default_chan_list = {
         .channel_page = CHANNEL_PAGE_UNDEFINED,
@@ -638,6 +638,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     for (i = 0; i < ie_ext->headerIovLength; i++)
         spinel_push_raw(buf, ie_ext->headerIeVectorList[i].ieBase,
                         ie_ext->headerIeVectorList[i].iovLen);
+    // FIXME: also push phy_id
 
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
@@ -645,7 +646,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
 void wsbr_mcps_req(const struct mac_api_s *api,
                    const struct mcps_data_req_s *data)
 {
-    return wsbr_mcps_req_ext(api, data, NULL, NULL, MAC_DATA_NORMAL_PRIORITY);
+    return wsbr_mcps_req_ext(api, data, NULL, NULL, MAC_DATA_NORMAL_PRIORITY, 0);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
