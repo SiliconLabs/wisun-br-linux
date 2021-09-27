@@ -503,10 +503,11 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     memset(&malloc_info->list, 0, sizeof(struct slist));
     slist_push(&ctxt->msdu_malloc_list, &malloc_info->list);
 
+    // FIXME: replace 0 by the Phy ID provided by the Host
     if (async_channel_list.channel_page != CHANNEL_PAGE_UNDEFINED)
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list, prio);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, &async_channel_list, prio, 0);
     else
-        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, prio);
+        ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, prio, 0);
 }
 
 static const struct {

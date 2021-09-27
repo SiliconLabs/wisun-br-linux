@@ -52,6 +52,7 @@ add_executable(wshwsim
     nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
     nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
     nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mode_switch.c
     nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
     nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
     nanostack/source/MAC/IEEE802_15_4/mac_timer.c
@@ -134,6 +135,9 @@ add_executable(wsbrd
     # Excluded nanostack/source/6LoWPAN/Thread
     nanostack/source/6LoWPAN/ws/ws_bbr_api.c
     nanostack/source/6LoWPAN/ws/ws_bootstrap.c
+    nanostack/source/6LoWPAN/ws/ws_bootstrap_6lbr.c
+    nanostack/source/6LoWPAN/ws/ws_bootstrap_ffn.c
+    nanostack/source/6LoWPAN/ws/ws_bootstrap_lfn.c
     nanostack/source/6LoWPAN/ws/ws_cfg_settings.c
     nanostack/source/6LoWPAN/ws/ws_common.c
     nanostack/source/6LoWPAN/ws/ws_eapol_auth_relay.c
@@ -155,6 +159,7 @@ add_executable(wsbrd
     nanostack/source/6LoWPAN/ws/ws_pae_supp.c
     nanostack/source/6LoWPAN/ws/ws_pae_time.c
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
+    nanostack/source/6LoWPAN/ws/ws_phy.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
     # nanostack/source/6LoWPAN/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c
@@ -381,6 +386,8 @@ add_executable(wsnode
     # Excluded nanostack/source/6LoWPAN/Thread
     nanostack/source/6LoWPAN/ws/ws_bbr_api.c
     nanostack/source/6LoWPAN/ws/ws_bootstrap.c
+    nanostack/source/6LoWPAN/ws/ws_bootstrap_ffn.c
+    nanostack/source/6LoWPAN/ws/ws_bootstrap_lfn.c
     nanostack/source/6LoWPAN/ws/ws_cfg_settings.c
     nanostack/source/6LoWPAN/ws/ws_common.c
     nanostack/source/6LoWPAN/ws/ws_eapol_auth_relay.c
@@ -402,6 +409,7 @@ add_executable(wsnode
     nanostack/source/6LoWPAN/ws/ws_pae_supp.c
     nanostack/source/6LoWPAN/ws/ws_pae_time.c
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
+    nanostack/source/6LoWPAN/ws/ws_phy.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
     # nanostack/source/6LoWPAN/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c

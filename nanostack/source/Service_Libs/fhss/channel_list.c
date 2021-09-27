@@ -35,7 +35,7 @@ static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number)
 {
     bool bitSet;
 
-    if (word & ((uint32_t) 1 << bit_number)) {
+    if (word & (1U << bit_number)) {
         bitSet = true;
     } else {
         bitSet = false;
