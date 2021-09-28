@@ -21,14 +21,16 @@
 #include "host-common/log.h"
 #include "wsbr.h"
 
+struct name_value {
+    char *name;
+    int val;
+};
+
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05
 };
 
-static const struct {
-    char *name;
-    int val;
-} valid_ws_domains[] = {
+static const struct name_value valid_ws_domains[] = {
     { "WW", REG_DOMAIN_WW }, // World wide
     { "NA", REG_DOMAIN_NA }, // North America
     { "JP", REG_DOMAIN_JP }, // Japan
@@ -47,12 +49,10 @@ static const struct {
     { "TH", REG_DOMAIN_TH }, //
     { "VN", REG_DOMAIN_VN }, //
     { "SG", REG_DOMAIN_SG_H }, // band 920-925
+    { NULL },
 };
 
-static const struct {
-    char *name;
-    int val;
-} valid_ws_size[] = {
+static const struct name_value valid_ws_size[] = {
     { "AUTO",   NETWORK_SIZE_AUTOMATIC },
     { "CERT",   NETWORK_SIZE_CERTIFICATE },
     { "SMALL",  NETWORK_SIZE_SMALL },
@@ -63,15 +63,14 @@ static const struct {
     { "L",      NETWORK_SIZE_LARGE },
     { "XLARGE", NETWORK_SIZE_XLARGE },
     { "XL",     NETWORK_SIZE_XLARGE },
+    { NULL },
 };
 
-static const struct {
-    char *name;
-    int val;
-} valid_traces[] = {
+static const struct name_value valid_traces[] = {
     { "bus",  TR_BUS },
     { "hdlc", TR_HDLC },
     { "hif",  TR_HIF },
+    { NULL },
 };
 
 void print_help_br(FILE *stream, int exit_code) {
@@ -198,6 +197,18 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
+static int val_from_str(const char *str, const struct name_value table[])
+{
+    int i;
+
+    for (i = 0; table[i].name; i++) {
+        if (!strcasecmp(table[i].name, str)) {
+            return table[i].val;
+        }
+    }
+    FATAL(1, "invalid value: %s", str);
+}
+
 static int set_bitmask(int shift, uint32_t *out, int size)
 {
     int word_nr = shift / 32;
@@ -313,24 +324,10 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             g_enabled_traces = 0;
             tag = strtok(tmp, ",");
             do {
-                for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
-                    if (!strcmp(valid_traces[i].name, tag)) {
-                        g_enabled_traces |= valid_traces[i].val;
-                        break;
-                    }
-                }
-                if (i == ARRAY_SIZE(valid_traces))
-                    FATAL(1, "%s:%d: invalid tag: %s", filename, line_no, tag);
+                g_enabled_traces |= val_from_str(tag, valid_traces);
             } while ((tag = strtok(NULL, ",")));
         } else if (sscanf(line, " domain = %s %c", tmp, &garbage) == 1) {
-            for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
-                if (!strcmp(valid_ws_domains[i].name, tmp)) {
-                    ctxt->ws_domain = valid_ws_domains[i].val;
-                    break;
-                }
-            }
-            if (ctxt->ws_domain < 0)
-                FATAL(1, "%s:%d: invalid domain: %s", filename, line_no, tmp);
+            ctxt->ws_domain = val_from_str(tmp, valid_ws_domains);
         } else if (sscanf(line, " mode = %x %c", &ctxt->ws_mode, &garbage) == 1) {
             for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
                 if (valid_ws_modes[i] == ctxt->ws_mode)
@@ -344,15 +341,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
                 FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
-            ctxt->ws_size = -1;
-            for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
-                if (!strcasecmp(valid_ws_size[i].name, tmp)) {
-                    ctxt->ws_size = valid_ws_size[i].val;
-                    break;
-                }
-            }
-            if (ctxt->ws_size < 0)
-                FATAL(1, "%s:%d: invalid network size: %s", filename, line_no, tmp);
+            ctxt->ws_size = val_from_str(tmp, valid_ws_size);
         } else {
             FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
         }
@@ -422,29 +411,14 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             case 'T':
                 tag = strtok(optarg, ",");
                 do {
-                    for (i = 0; i < ARRAY_SIZE(valid_traces); i++) {
-                        if (!strcmp(valid_traces[i].name, tag)) {
-                            g_enabled_traces |= valid_traces[i].val;
-                            break;
-                        }
-                    }
-                    if (i == ARRAY_SIZE(valid_traces))
-                        FATAL(1, "invalid tag: %s", tag);
+                    g_enabled_traces |= val_from_str(tag, valid_traces);
                 } while ((tag = strtok(NULL, ",")));
                 break;
             case 'n':
                 strncpy(ctxt->ws_name, optarg, sizeof(ctxt->ws_name) - 1);
                 break;
             case 'd':
-                ctxt->ws_domain = -1;
-                for (i = 0; i < ARRAY_SIZE(valid_ws_domains); i++) {
-                    if (!strcmp(valid_ws_domains[i].name, optarg)) {
-                        ctxt->ws_domain = valid_ws_domains[i].val;
-                        break;
-                    }
-                }
-                if (ctxt->ws_domain < 0)
-                    FATAL(1, "invalid domain: %s", optarg);
+                ctxt->ws_domain = val_from_str(optarg, valid_ws_domains);
                 break;
             case 'm':
                 ctxt->ws_mode = strtoul(optarg, &end_ptr, 16);
@@ -462,15 +436,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                     FATAL(1, "invalid operating class: %s", optarg);
                 break;
             case 'S':
-                ctxt->ws_size = -1;
-                for (i = 0; i < ARRAY_SIZE(valid_ws_size); i++) {
-                    if (!strcasecmp(valid_ws_size[i].name, optarg)) {
-                        ctxt->ws_size = valid_ws_size[i].val;
-                        break;
-                    }
-                }
-                if (ctxt->ws_size < 0)
-                    FATAL(1, "invalid network size: %s", optarg);
+                ctxt->ws_size = val_from_str(optarg, valid_ws_size);
                 break;
             case 'K':
                 if (ctxt->tls_own.key)
