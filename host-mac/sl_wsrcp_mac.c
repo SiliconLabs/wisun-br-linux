@@ -602,7 +602,6 @@ static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
 
 void wsmac_rx_host(struct wsmac_ctxt *ctxt)
 {
-    uint8_t hdr;
     int cmd, prop;
     int i;
 
@@ -610,7 +609,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     if (!rx_buf->len)
         return;
     spinel_reset(rx_buf);
-    hdr = spinel_pop_u8(rx_buf);
+    spinel_pop_u8(rx_buf); /* packet header */
     cmd = spinel_pop_int(rx_buf);
     if (cmd == SPINEL_CMD_PROP_VALUE_GET || cmd == SPINEL_CMD_PROP_VALUE_SET) {
         prop = spinel_pop_int(rx_buf);
@@ -633,6 +632,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
         int index = spinel_pop_int(rx_buf);
 
+        WARN_ON(index != 0);
         BUG_ON(spinel_remaining_size(rx_buf));
         wsmac_spinel_get_hw_addr(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
