@@ -155,14 +155,13 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
-    uint8_t hdr;
     int cmd, prop;
 
     buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
     if (!buf->len)
         return;
-    hdr  = spinel_pop_u8(buf);
-    cmd  = spinel_pop_int(buf);
+    spinel_pop_u8(buf); /* packet header */
+    cmd = spinel_pop_int(buf);
 
     if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
         prop = spinel_pop_int(buf);
