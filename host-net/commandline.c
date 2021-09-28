@@ -14,6 +14,7 @@
 
 #include "mbed-client-libservice/ip6string.h"
 #include "nanostack/ws_management_api.h"
+#include "nanostack/ns_file_system.h"
 #include "host-common/os_types.h"
 #include "host-common/bus_uart.h"
 #include "host-common/bus_spi.h"
@@ -342,6 +343,10 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                 FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
             ctxt->ws_size = val_from_str(tmp, valid_ws_size);
+        } else if (sscanf(line, " storage_directory = %s %c", tmp, &garbage) == 1) {
+            if (parse_escape_sequences(tmp, tmp))
+                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+            ns_file_system_set_root_path(tmp);
         } else {
             FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
         }
@@ -384,6 +389,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
+    ns_file_system_set_root_path("/var/lib/wsbrd");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -475,6 +481,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
         }
     }
+    if (access(ns_file_system_get_root_path(), W_OK))
+        FATAL(1, "%s: %m", ns_file_system_get_root_path());
     if (!ctxt->ws_name[0])
         FATAL(1, "You must specify a network name (--name)");
     if (!ctxt->tls_own.key)

@@ -194,7 +194,6 @@ int main(int argc, char *argv[])
     if (!memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
         FATAL(1, "You must specify a rpl_prefix");
     wsbr_tun_init(ctxt);
-    ns_file_system_set_root_path("/tmp/wsbr_");
 
     wsbr_rcp_reset(ctxt);
     while (!ctxt->reset_done)
