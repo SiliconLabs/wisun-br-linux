@@ -7,6 +7,7 @@
 #define LOG_H
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -68,6 +69,13 @@ enum {
 #define BUG(...)                  __BUG("" __VA_ARGS__)
 #define BUG_ON(COND, ...)         __BUG_ON(COND, "" __VA_ARGS__)
 
+#define STR_MAX_LEN_IPV6         46
+#define STR_MAX_LEN_IPV6_NET     50
+#define STR_MAX_LEN_IPV4         16
+#define STR_MAX_LEN_IPV4_NET     19
+#define STR_MAX_LEN_EUI64        24
+#define STR_MAX_LEN_EUI48        18
+
 enum str_bytes_options {
     DELIM_SPACE     = 0x01, // Add space between each bytes
     DELIM_COLON     = 0x02, // Add colon between each bytes
@@ -75,9 +83,17 @@ enum str_bytes_options {
     ELLIPSIS_STAR   = 0x08, // End output with * if too small
     ELLIPSIS_DOTS   = 0x10, // End output with ... if too small
     UPPER_HEX       = 0x20, // Use upper letters for hexadecimal digits
+    ONLY_ALNUM      = 0x40, // In str_bytes_ascii() print other printable char with hexa
 };
 
+char *str_eui48(const uint8_t in[static 6], char out[static STR_MAX_LEN_EUI48]);
+char *str_eui64(const uint8_t in[static 8], char out[static STR_MAX_LEN_EUI64]);
+char *str_ipv4(uint8_t in[static 4], char out[static STR_MAX_LEN_IPV4]);
+char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6]);
+char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV4_NET]);
+char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV6_NET]);
 char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
+char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, int opt);
 
 #define __TRACE(COND, MSG, ...) \
     do {                                                             \

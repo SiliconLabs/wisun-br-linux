@@ -5,6 +5,7 @@
  */
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "log.h"
 
@@ -85,4 +86,126 @@ out:
     if (in_done)
         *in_done = in;
     return out_start;
+}
+char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, int opt)
+{
+    static const char *hex = "0123456789ABCDEF";
+    const char *in = in_start;
+    bool print_direct;
+    bool fit = true;
+    int i, j = 0;
+
+    for (i = 0; i < in_len; i++) {
+        print_direct = false;
+        if (isalnum(in[i]))
+            print_direct = true;
+        else if (!(opt & ONLY_ALNUM) && isprint(in[i]) && in[i] != '\\')
+            print_direct = true;
+        if (print_direct && out_len - j > 1) {
+            out[j++] = in[i];
+        } else if (!print_direct && out_len - j > 4) {
+            out[j++] = '\\';
+            out[j++] = 'x';
+            out[j++] = hex[in[i] / 8];
+            out[j++] = hex[in[i] % 8];
+        } else {
+            fit = false;
+            break;
+        }
+    }
+    if (!fit && opt & ELLIPSIS_ABRT)
+        BUG("buffer is too small");
+    out[j++] = '\0';
+    return out;
+}
+
+char *str_eui48(const uint8_t in[static 6], char out[static STR_MAX_LEN_EUI48])
+{
+    return str_bytes(in, 6, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
+}
+
+char *str_eui64(const uint8_t in[static 8], char out[static STR_MAX_LEN_EUI64])
+{
+    return str_bytes(in, 8, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
+}
+
+char *str_ipv4(uint8_t in[static 4], char out[static STR_MAX_LEN_IPV4])
+{
+    sprintf(out, "%d.%d.%d.%d", in[0], in[1], in[2], in[3]);
+    return out;
+}
+
+char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6])
+{
+    int zero_start = -1;
+    int zero_len = 0;
+    int last_zero_start = -1;
+    int last_zero_len = 0;
+    int i, j;
+
+    // Find largest 0 sequence
+    for (i = 0; i <= 8; i++) {
+        if (i == 8 || in[i * 2] || in[i * 2 + 1]) {
+            if (last_zero_len > zero_len) {
+                zero_len = last_zero_len;
+                zero_start = last_zero_start;
+            }
+            last_zero_start = -1;
+            last_zero_len = 0;;
+        } else {
+            if (last_zero_start < 0)
+                last_zero_start = i;
+            last_zero_len++;
+        }
+    }
+
+    i = j = 0;
+    while (i < 8) {
+        if (i == zero_start) {
+            out[j++] = ':';
+            i += zero_len;
+        } else {
+            if (i)
+                out[j++] = ':';
+            j += sprintf(out + j, "%x", in[i * 2] * 256 + in[i * 2 + 1]);
+            i++;
+        }
+    }
+    out[j] = '\0';
+    return out;
+}
+
+static void bitcpy(void *dst, const void *src, int len)
+{
+    const uint8_t *src8 = src;
+    uint8_t *dst8 = dst;
+    int nb_bytes = len / 8;
+    int nb_bits = len % 8;
+    char mask = 0xFFu >> nb_bits;
+
+    memcpy(dst8, src8, nb_bytes);
+    dst8 += nb_bytes;
+    src8 += nb_bytes;
+    *dst8 &= mask;
+    *dst8 |= *src8 & ~mask;
+}
+
+char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV4_NET])
+{
+    uint8_t tmp[4];
+
+    bitcpy(tmp, in, prefix_len);
+    str_ipv4(tmp, out);
+    sprintf(out + strlen(out), "/%d", prefix_len);
+    return out;
+}
+
+char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV6_NET])
+{
+    uint8_t tmp[16];
+
+    bitcpy(tmp, in, prefix_len);
+    str_ipv6(tmp, out);
+    sprintf(out + strlen(out), "/%d", prefix_len);
+    return out;
 }
