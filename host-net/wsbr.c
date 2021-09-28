@@ -15,6 +15,7 @@
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
+#include "nanostack/source/Core/include/ns_address_internal.h"
 
 #include "host-common/hal_interrupt.h"
 #include "host-common/os_types.h"
@@ -190,6 +191,8 @@ int main(int argc, char *argv[])
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
+    if (!memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "You must specify a rpl_prefix");
     wsbr_tun_init(ctxt);
     ns_file_system_set_root_path("/tmp/wsbr_");
 

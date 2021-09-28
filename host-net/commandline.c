@@ -14,7 +14,6 @@
 
 #include "mbed-client-libservice/ip6string.h"
 #include "nanostack/ws_management_api.h"
-#include "nanostack/source/Core/include/ns_address_internal.h"
 #include "host-common/os_types.h"
 #include "host-common/bus_uart.h"
 #include "host-common/bus_spi.h"
@@ -484,8 +483,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
         }
     }
-    if (!memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "You must specify a rpl_prefix");
     if (!ctxt->ws_name[0])
         FATAL(1, "You must specify --name");
     if (!ctxt->tls_own.key)
