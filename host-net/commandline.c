@@ -304,10 +304,10 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(ctxt->ws_name, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        } else if (sscanf(line, " rpl_prefix = %[0-9a-zA-Z:]/%d %c", tmp, &tmpi, &garbage) == 2) {
+        } else if (sscanf(line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", tmp, &tmpi, &garbage) == 2) {
             if (tmpi != 64)
                 FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, tmpi);
-            if (!stoip6(tmp, strlen(tmp), ctxt->rpl_prefix))
+            if (!stoip6(tmp, strlen(tmp), ctxt->ipv6_prefix))
                 FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, tmp);
         } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(tmp, tmp))

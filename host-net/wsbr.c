@@ -153,7 +153,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                 WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
             if (arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
                                                                NET_IPV6_BOOTSTRAP_STATIC,
-                                                               ctxt->rpl_prefix))
+                                                               ctxt->ipv6_prefix))
                 WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
             wsbr_configure_ws(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
-    if (!memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "You must specify a rpl_prefix");
+    if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "You must specify a ipv6_prefix");
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);

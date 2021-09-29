@@ -200,8 +200,8 @@ int main(int argc, char *argv[])
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_node);
-    if (memcmp(ctxt->rpl_prefix, ADDR_UNSPECIFIED, 16))
-        WARN("rpl_prefix is ignored");
+    if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+        WARN("ipv6_prefix is ignored");
     ns_file_system_set_root_path("/tmp/wsrouter_");
 
     wsbr_rcp_reset(ctxt);
