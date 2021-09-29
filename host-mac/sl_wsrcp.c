@@ -14,6 +14,8 @@
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
@@ -54,7 +56,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN MAC emulation\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE_NET UART_DEVICE_RF\n");
+    fprintf(stream, "  wisun-mac [OPTIONS] UART_DEVICE_NET SOCKET_RF\n");
     fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -m, --eui64=ADDR      Set MAC address (EUI64) to ADDR (default: random)\n");
@@ -64,7 +66,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "  -w, --wireshark       Invoke wireshark and dump RF data into\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
-    fprintf(stream, "  wisun-mac /dev/pts/7 /dev/pts/15\n");
+    fprintf(stream, "  wisun-mac /dev/pts/7 /tmp/rf_server\n");
     exit(exit_code);
 }
 
@@ -115,6 +117,22 @@ void fill_random(void *dest, size_t len)
 
     read(rnd, dest, len);
     close(rnd);
+}
+
+int socket_open(const char *path)
+{
+    struct sockaddr_un addr = {
+        .sun_family = AF_UNIX
+    };
+    int fd;
+    int ret;
+
+    strcpy(addr.sun_path, path);
+    fd = socket(AF_UNIX, SOCK_SEQPACKET, 0); // use SOCK_SEQPACKET or SOCK_STREAM
+    FATAL_ON(fd < 0, 2, "socket %s: %m", path);
+    ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+    FATAL_ON(ret < 0, 2, "connect %s: %m", path);
+    return fd;
 }
 
 int pty_open(const char *dest_path, int bitrate, bool hardflow)
@@ -232,7 +250,7 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
         print_help(stderr, 1);
     ctxt->os_ctxt->data_fd = pty_open(argv[optind + 0], 115200, false);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-    ctxt->rf_fd = uart_open(argv[optind + 1], 115200, false);
+    ctxt->rf_fd = socket_open(argv[optind + 1]);
 }
 
 void kill_handler(int signal)

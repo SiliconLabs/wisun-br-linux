@@ -180,7 +180,7 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     write_pcap(ctxt, data_ptr, data_len);
     // HACK: wait the time for the remote to receive the message and ack it.
     // Else, message will be sent as fast as possible and it clutter the pcap.
-    usleep(4000);
+    //usleep(4000);
 
     return 0;
 }
