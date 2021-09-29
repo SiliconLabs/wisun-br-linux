@@ -1,0 +1,27 @@
+
+v0.1.2
+------
+
+  - Fix support for allowed_channel
+  - Improve documentation
+  - Add this release note
+
+v0.1.1
+------
+
+  - Add support for allowed_channel
+  - Change the defualt sieze of the network (it is "small" now)
+  - DO not raise error if certificate are overloaded on command line
+
+v0.1
+----
+
+  - Fix random seed
+  - Increase number of EAPOL slots
+
+v0.0.7
+------
+
+  - Initial pre-alpha release
+
+
