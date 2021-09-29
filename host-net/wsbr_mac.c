@@ -752,3 +752,13 @@ int8_t wsbr_mac_init(struct mac_api_s *api,
     api->parent_id = parent_id;
     return 0;
 }
+
+int8_t wsbr_mac_mode_switch_resolver_set(mac_api_t *api,
+                                         mode_switch_resolver *mode_resolver_cb,
+                                         uint8_t base_phy_mode)
+{
+    BUG_ON(!api);
+
+    WARN("%s: Not implemented", __func__);
+    return 0;
+}

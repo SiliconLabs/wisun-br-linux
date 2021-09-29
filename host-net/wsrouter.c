@@ -40,6 +40,7 @@
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
     .mac_api.mac_initialize = wsbr_mac_init,
+    .mac_api.mac_mode_switch_resolver_set = wsbr_mac_mode_switch_resolver_set,
     .mac_api.mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
     .mac_api.mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
 
