@@ -108,6 +108,8 @@ static void wsbr_tun_accept_ra(char *devname)
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev);
+    if (ctxt->tun_autoconf)
+        wsbr_tun_accept_ra(ctxt->tun_dev);
 
     ctxt->tun_driver = &tun_driver;
     ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);

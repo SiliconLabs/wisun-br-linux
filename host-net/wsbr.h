@@ -28,6 +28,7 @@ struct wsbr_ctxt {
     int  tun_if_id;
     int  tun_fd;
     char tun_dev[IFNAMSIZ];
+    bool tun_autoconf;
 
     bool reset_done;
     bool hw_addr_done;

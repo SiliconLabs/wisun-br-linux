@@ -315,6 +315,8 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " tun_device = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(ctxt->tun_dev, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        } else if (sscanf(line, " tun_autoconf = %s %c", tmp, &garbage) == 1) {
+            ctxt->tun_autoconf = val_from_str(tmp, valid_booleans);
         } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(ctxt->ws_name, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -413,6 +415,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     int opt, i;
     char *tag;
 
+    ctxt->tun_autoconf = true;
     ctxt->ws_class = 1;
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
