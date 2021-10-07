@@ -104,6 +104,8 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
+    fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
+    fprintf(stream, "                          in the config file\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
@@ -151,6 +153,8 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
+    fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
+    fprintf(stream, "                          in the config file\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
@@ -393,9 +397,10 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream, int exit_code))
 {
-    const char *opts_short = "usF:t:T:n:d:m:c:S:K:C:A:b:f:Hh";
+    const char *opts_short = "usF:o:t:T:n:d:m:c:S:K:C:A:b:f:Hh";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
+        { "opt",         required_argument, 0,  'o' },
         { "tun",         required_argument, 0,  't' },
         { "trace",       required_argument, 0,  'T' },
         { "network",     required_argument, 0,  'n' },
@@ -447,6 +452,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 if (bus)
                     print_help(stderr, 1);
                 bus = opt;
+                break;
+            case 'o':
+                parse_config_line(ctxt, "command line", 0, optarg);
                 break;
             case 't':
                 strncpy(ctxt->tun_dev, optarg, sizeof(ctxt->tun_dev) - 1);
