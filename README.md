@@ -21,21 +21,21 @@ by the stack by native Linux services.
 
 ## Prerequisites
 
-This project provide a daemon which takes care of all the high level stuff of
-the Wi-SUN protocol. Then a RF device (RF Co-Processor, RCP) is necessary to
-transmit the data. Currently, the only supported device is the Silicon Labs
-EFR32.
+This project provides a daemon which is responsible of running the Wi-SUN
+protocol high-level layers. It is paired with an RF device (Radio Coprocessor,
+RCP) handling the low-level layers and RF activities. The RCP devices currently
+supported are the EFR32FG12 and EFR32MG12.
 
-The EFR32 need to flashed with a specific firmware in order to communicate with
-the daemon. The sources of the firmware are not yet publicly available. However,
-you can check the repository [wisun-br-linux-docker][1] that contains a bundle
-of all the necessary components (including a compiled firmware) to make the
-Border Router working.
+The EFR32 needs to be flashed with a specific firmware in order to communicate
+with the daemon. This firmware is provided in a binary format. To help users
+deploy and evaluate the solution, a repository [wisun-br-linux-docker][1] is
+provided. It contains a bundle of all the necessary software components
+(including a compiled RCP firmware) to run the Linux Wi-SUN border router.
 
-For now, from the RF device point of view, the serial link is the only bus
-supported to communicate with the host. Thanks to the WSTK board, the serial
-link is provided over the USB connector of the WSTK board. The device /dev/ACMx
-should appears when you plug the WSTK.
+The communication between the Linux host and the EFR32 is supported through a
+serial link (UART). Thanks to the Silicon Labs mainboard, the serial link is
+provided over a USB communication. The device `/dev/ACMx` should appears when
+you plug the mainboard.
 
 [1]: https://github.com/SiliconLabs/wisun-br-linux-docker
 
