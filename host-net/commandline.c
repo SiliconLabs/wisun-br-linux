@@ -285,18 +285,93 @@ static int parse_escape_sequences(char *out, char *in)
     }
     return 0;
 }
+static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
+                              int line_no, const char *line)
+{
+    char garbage; // detect garbage at end of the line
+    char str_arg[256];
+    char *substr;
+    int int_arg;
+    int i;
+
+    if (sscanf(line, " %c", &garbage) == EOF) {
+        /* blank line*/;
+    } else if (sscanf(line, " tun_device = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(ctxt->tun_dev, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+    } else if (sscanf(line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
+        ctxt->tun_autoconf = val_from_str(str_arg, valid_booleans);
+    } else if (sscanf(line, " network_name = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(ctxt->ws_name, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+    } else if (sscanf(line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
+        if (int_arg != 64)
+            FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, int_arg);
+        if (!stoip6(str_arg, strlen(str_arg), ctxt->ipv6_prefix))
+            FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, str_arg);
+    } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(str_arg, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        ctxt->tls_own.cert_len = read_cert(str_arg, &ctxt->tls_own.cert);
+    } else if (sscanf(line, " key = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(str_arg, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        ctxt->tls_own.key_len = read_cert(str_arg, &ctxt->tls_own.key);
+    } else if (sscanf(line, " authority = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(str_arg, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        ctxt->tls_ca.cert_len = read_cert(str_arg, &ctxt->tls_ca.cert);
+    } else if (sscanf(line, " trace = %s %c", str_arg, &garbage) == 1) {
+        g_enabled_traces = 0;
+        substr = strtok(str_arg, ",");
+        do {
+            g_enabled_traces |= val_from_str(substr, valid_traces);
+        } while ((substr = strtok(NULL, ",")));
+    } else if (sscanf(line, " domain = %s %c", str_arg, &garbage) == 1) {
+        ctxt->ws_domain = val_from_str(str_arg, valid_ws_domains);
+    } else if (sscanf(line, " mode = %x %c", &ctxt->ws_mode, &garbage) == 1) {
+        for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
+            if (valid_ws_modes[i] == ctxt->ws_mode)
+                break;
+        if (i == ARRAY_SIZE(valid_ws_modes))
+            FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
+    } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
+        if (ctxt->ws_class > 4)
+            FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
+    } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
+        if (parse_bitmask(str_arg, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
+            FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
+    } else if (sscanf(line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
+        if (int_arg < 0 || int_arg > 3)
+            FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, int_arg);
+        substr = str_arg;
+        for (i = 0; i < 16; i++) {
+            if (substr[2] != '\0' && substr[2] != ':')
+                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+            if (sscanf(substr, "%hhx", &ctxt->ws_gtk[int_arg][i]) != 1)
+                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+            substr += 3;
+        }
+        if (substr[-1] != '\0')
+            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+        ctxt->ws_gtk_force[int_arg] = true;
+    } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
+        ctxt->ws_size = val_from_str(str_arg, valid_ws_size);
+    } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(str_arg, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        ns_file_system_set_root_path(str_arg);
+    } else {
+        FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
+    }
+}
 
 static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 {
     FILE *f = fopen(filename, "r");
     int line_no = 0;
     char line[256];
-    char tmp[256];
-    char garbage; // detect garbage at end of the line
-    char *tag;
-    int tmpi;
     int len;
-    int i;
 
     if (!f)
         FATAL(1, "%s: %m", filename);
@@ -310,76 +385,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         if (line[len] == '\r')
             line[len--] = '\0';
         *(strchrnul(line, '#')) = '\0';
-        if (sscanf(line, " %c", &garbage) == EOF) {
-            /* blank line*/;
-        } else if (sscanf(line, " tun_device = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(ctxt->tun_dev, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        } else if (sscanf(line, " tun_autoconf = %s %c", tmp, &garbage) == 1) {
-            ctxt->tun_autoconf = val_from_str(tmp, valid_booleans);
-        } else if (sscanf(line, " network_name = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(ctxt->ws_name, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        } else if (sscanf(line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", tmp, &tmpi, &garbage) == 2) {
-            if (tmpi != 64)
-                FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, tmpi);
-            if (!stoip6(tmp, strlen(tmp), ctxt->ipv6_prefix))
-                FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, tmp);
-        } else if (sscanf(line, " certificate = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(tmp, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-            ctxt->tls_own.cert_len = read_cert(tmp, &ctxt->tls_own.cert);
-        } else if (sscanf(line, " key = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(tmp, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-            ctxt->tls_own.key_len = read_cert(tmp, &ctxt->tls_own.key);
-        } else if (sscanf(line, " authority = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(tmp, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-            ctxt->tls_ca.cert_len = read_cert(tmp, &ctxt->tls_ca.cert);
-        } else if (sscanf(line, " trace = %s %c", tmp, &garbage) == 1) {
-            g_enabled_traces = 0;
-            tag = strtok(tmp, ",");
-            do {
-                g_enabled_traces |= val_from_str(tag, valid_traces);
-            } while ((tag = strtok(NULL, ",")));
-        } else if (sscanf(line, " domain = %s %c", tmp, &garbage) == 1) {
-            ctxt->ws_domain = val_from_str(tmp, valid_ws_domains);
-        } else if (sscanf(line, " mode = %x %c", &ctxt->ws_mode, &garbage) == 1) {
-            for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
-                if (valid_ws_modes[i] == ctxt->ws_mode)
-                    break;
-            if (i == ARRAY_SIZE(valid_ws_modes))
-                FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
-        } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
-            if (ctxt->ws_class > 4)
-                FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
-        } else if (sscanf(line, " allowed_channels = %s %c", tmp, &garbage) == 1) {
-            if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
-                FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
-        } else if (sscanf(line, " gtk[%d] = %s %c", &tmpi, tmp, &garbage) == 2) {
-            if (tmpi < 0 || tmpi > 3)
-                FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, tmpi);
-            tag = tmp;
-            for (i = 0; i < 16; i++) {
-                if (tag[2] != '\0' && tag[2] != ':')
-                    FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
-                if (sscanf(tag, "%hhx", &ctxt->ws_gtk[tmpi][i]) != 1)
-                    FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
-                tag += 3;
-            }
-            if (tag[-1] != '\0')
-                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
-            ctxt->ws_gtk_force[tmpi] = true;
-        } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
-            ctxt->ws_size = val_from_str(tmp, valid_ws_size);
-        } else if (sscanf(line, " storage_prefix = %s %c", tmp, &garbage) == 1) {
-            if (parse_escape_sequences(tmp, tmp))
-                FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-            ns_file_system_set_root_path(tmp);
-        } else {
-            FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
-        }
+        parse_config_line(ctxt, filename, line_no, line);
     }
     fclose(f);
 }
