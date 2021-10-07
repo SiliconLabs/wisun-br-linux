@@ -61,42 +61,25 @@ And finally, install the service with:
 
 ## Launch
 
+You have to provide a configuration file to the Wi-SUN border router. An
+commented example is available in `/usr/local/share/wsbrd/examples/wsbrd.conf`.
 
-The Wi-SUN network will use IPv6. Router advertisement on the Wi-SUN network
-interface is necessary to make it work correctly.
+    cp -r /usr/local/share/wsbrd/examples .
+    <edit examples/wsbrd.conf>
 
-The configuration of the Router Advertiser highly depends on your network
-environment. An example could be to run `radvd` with this `radvd.conf`:
+You can copy and edit it. You will notice you need certificates and keys to
+authenticate the Wi-SUN nodes of your network. The generation of these files is
+described in [[Generate Wi-SUN PKI]].  For now, you can use the certificates
+examples installed in `/usr/local/share/wsbrd/examples/`.
 
-    interface tun0
-    {
-        AdvSendAdvert on;
-        IgnoreIfMissing on;
-        AdvDefaultLifetime 0;
-        prefix fd01:1236::/64
-        {
-        };
-    };
+You will also need to provide the path of the UART representing your EFR
+device.
 
-Note that an IP address will also been necessary on interface `tun0`. You can
-provide one manually with `ip addr add` and leave `radvd` to make the job with
-`sysctl net.ipv6.conf.tun0.accept_ra=2`.
+Finally, you will launch `wsbrd` with:
 
-To launch `wsbrd`, user have to provide the path of the EFR device, the network
-name to use and the regulation domain.
+    sudo wsbrd -F examples/wsbrd.conf -u /dev/ttyACM0
 
-Then, you need certificates and keys to authenticate the Wi-SUN nodes of your
-network. The generation of these files is described in [[Generate Wi-SUN PKI]].
-For now, you can use the examples installed in `/usr/local/share/wsbrd/examples/`.
-
-So, you should be able to run the Wi-SUN Border Router daemon with:
-
-    cp -r /usr/local/share/wsbrd/examples/ pki
-    sudo wsbrd -n network -d EU -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -u /dev/ttyACM0
-
-`wsbrd` lists the useful options in output of `wsbrd --help`. Also note that a
-sample configuration file is installed in
-/usr/local/share/wsbrd/examples/wsbrd.conf
+`wsbrd` lists the useful options in the output of `wsbrd --help`.
 
 # Generate Wi-SUN Public Key Infrastructure
 
@@ -124,4 +107,4 @@ Create a tun interface:
 
 Start `wsbrd`:
 
-    wsbrd -n network -d EU -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -t tun0 -u /dev/ttyACM0
+    wsbrd -F examples/wsbrd.conf -t tun0 -u /dev/ttyACM0
