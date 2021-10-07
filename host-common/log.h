@@ -175,7 +175,7 @@ char *bytes_str(const void *in_start, int in_len, const void **in_done, char *ou
     do {                                                             \
         struct timespec tp;                                          \
         clock_gettime(CLOCK_REALTIME, &tp);                          \
-        __PRINT(COLOR, "%jd.%06jd: " MSG, tp.tv_sec, tp.tv_nsec / 1000, ##__VA_ARGS__); \
+        __PRINT(COLOR, "%ju.%06ju: " MSG, (uintmax_t)tp.tv_sec, (uintmax_t)tp.tv_nsec / 1000, ##__VA_ARGS__); \
     } while (0)
 
 #endif
