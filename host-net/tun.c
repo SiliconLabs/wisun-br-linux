@@ -89,6 +89,22 @@ static int wsbr_tun_open(char *devname)
     return fd;
 }
 
+static void wsbr_tun_accept_ra(char *devname)
+{
+    char buf[256];
+    int fd;
+
+    // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
+    // but this API is not mapped in libnl-route.
+    snprintf(buf, sizeof(buf), "/proc/sys/net/ipv6/conf/%s/accept_ra", devname);
+    fd = open(buf, O_RDWR);
+    if (fd < 0)
+        FATAL(2, "open %s: %m", buf);
+    if (write(fd, "2", 1) <= 0)
+        FATAL(2, "write %s: %m", buf);
+    close(fd);
+}
+
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev);
