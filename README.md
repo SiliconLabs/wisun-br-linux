@@ -1,11 +1,11 @@
 Linux implementation of Wi-SUN
 ==============================
 
-This projects aims to implement the Wi-SUN protocol on Linux devices and
-especially allow to use Linux as Border Router for Wi-SUN networks . For now
-this work is mostly a port of the nanostack project on Linux hosts. However, the
-goal is to replace services currently provided by the nanostack by native
-Linux services.
+This projects aims at implementing the Wi-SUN protocol on Linux devices and
+allow the use of Linux hosts as Border Router for Wi-SUN networks. For the time
+being, the implementation is mostly a port of Silicon Labs embedded stack on a
+Linux host. However, the ultimate goal is to replace services currently provided
+by the stack by native Linux services.
 
 Quick start guide
 -----------------
