@@ -343,7 +343,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
                 FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
             ctxt->ws_size = val_from_str(tmp, valid_ws_size);
-        } else if (sscanf(line, " storage_directory = %s %c", tmp, &garbage) == 1) {
+        } else if (sscanf(line, " storage_prefix = %s %c", tmp, &garbage) == 1) {
             if (parse_escape_sequences(tmp, tmp))
                 FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
             ns_file_system_set_root_path(tmp);
@@ -389,7 +389,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
-    ns_file_system_set_root_path("/var/lib/wsbrd");
+    ns_file_system_set_root_path("/var/lib/wsbrd/");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
