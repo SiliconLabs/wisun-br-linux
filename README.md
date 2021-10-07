@@ -98,31 +98,30 @@ So, you should be able to run the Wi-SUN Border Router daemon with:
 sample configuration file is installed in
 /usr/local/share/wsbrd/examples/wsbrd.conf
 
-# Generate Wi-SUN PKI
+# Generate Wi-SUN Public Key Infrastructure
 
 The certificate generation process is described in section 6.5.1 of the Wi-SUN
 specification. It uses the standard X.509 certificate format. Some fields and
 algorithm are enforced.
 
-The process to get official certificates is described on the Wi-SUN alliance web
-site[1] (restricted access).
+The process to get official certificates is described on the [Wi-SUN alliance
+Web site][2] (restricted access).
 
 [2]: https://wi-sun.org/cyber-security-certificates/
 
-# Run `wsbrd` without root privileges
+# Run `wsbrd` without Root Privileges
 
-If we are a bit careful, it possible to launch `wsbrd` without root privileges.
-
-First, ensure you have permission to access to UART device:
+It is possible to launch `wsbrd` without root privileges. First, ensure you have
+the permission to access the UART device:
 
     sudo usermod -d dialout YOUR_USER
 
-(you have to logout/login after this step)
+> You have to logout/login after this step
 
 Create a tun interface:
 
     sudo ip tuntap add mode tun tun0 user YOUR_USER
 
-Start wsbrd:
+Start `wsbrd`:
 
     wsbrd -n network -d EU -A pki/ca_cert.pem -C pki/br_cert.pem -K pki/br_key.pem -t tun0 -u /dev/ttyACM0
