@@ -1,5 +1,15 @@
-Linux implementation of Wi-SUN
-==============================
+<table border="0">
+  <tr>
+    <td align="left" valign="middle">
+    <h1>Wi-SUN Linux Border Router</h1>
+  </td>
+  <td align="left" valign="middle">
+    <a href="https://wi-sun.org/">
+      <img src="pics/Wi-SUN-logo.png" title="Wi-SUN" alt="Wi-SUN Logo" width="300"/>
+    </a>
+  </td>
+  </tr>
+</table>
 
 This projects aims at implementing the Wi-SUN protocol on Linux devices and
 allow the use of Linux hosts as Border Router for Wi-SUN networks. For the time
@@ -7,10 +17,9 @@ being, the implementation is mostly a port of Silicon Labs embedded stack on a
 Linux host. However, the ultimate goal is to replace services currently provided
 by the stack by native Linux services.
 
-Quick start guide
------------------
+# Quick Start Guide
 
-### Prerequisites
+## Prerequisites
 
 This project provide a daemon which takes care of all the high level stuff of
 the Wi-SUN protocol. Then a RF device (RF Co-Processor, RCP) is necessary to
@@ -30,7 +39,7 @@ should appears when you plug the WSTK.
 
 [1]: https://github.com/SiliconLabs/wisun-br-linux-docker
 
-### Compile
+## Compile
 
 The project depends on libnl-3-dev, libnl-route-3-dev and optionally to libpcap.
 For the build, you will need `cmake`. We also encourage use of Ninja as `cmake`
@@ -51,7 +60,7 @@ And finally, you may install the service with:
 
 Note that no scripts for any start-up service are provided for now.
 
-### Launch
+## Launch
 
 
 The Wi-SUN network will use IPv6. Router advertisement on the Wi-SUN network
@@ -90,8 +99,7 @@ So, you should be able to run the Wi-SUN Border Router daemon with:
 sample configuration file is installed in
 /usr/local/share/wsbrd/examples/wsbrd.conf
 
-Generate Wi-SUN PKI
--------------------
+# Generate Wi-SUN PKI
 
 The certificate generation process is described in section 6.5.1 of the Wi-SUN
 specification. It uses the standard X.509 certificate format. Some fields and
@@ -102,8 +110,7 @@ site[1] (restricted access).
 
 [2]: https://wi-sun.org/cyber-security-certificates/
 
-Run `wsbrd` without root privileges
------------------------------------
+# Run `wsbrd` without root privileges
 
 If we are a bit careful, it possible to launch `wsbrd` without root privileges.
 
