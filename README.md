@@ -32,12 +32,13 @@ should appears when you plug the WSTK.
 
 ### Compile
 
-The project depends on libnl-3-dev and libpcap. For the build, you will need
-`cmake`. We also encourage use of Ninja as `cmake` back-end.
+The project depends on libnl-3-dev, libnl-route-3-dev and optionally to libpcap.
+For the build, you will need `cmake`. We also encourage use of Ninja as `cmake`
+back-end.
 
 On Debian and its derivatives, you can install the necessary dependencies with:
 
-    sudo apt-get install libnl-3-dev libpcap-dev cmake ninja-build
+    sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev cmake ninja-build
 
 Then you can compile with:
 
