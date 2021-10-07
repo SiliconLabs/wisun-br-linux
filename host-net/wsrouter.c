@@ -21,7 +21,7 @@
 #include "nanostack/ns_file_system.h"
 #include "nanostack/ns_virtual_rf_api.h"
 #include "nanostack/sw_mac.h"
-#include "nanostack/ws_bbr_api.h"
+#include "nanostack/net_ws_test.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #include "nanostack/source/Core/include/ns_address_internal.h"
@@ -78,9 +78,11 @@ static int get_fixed_channel(uint32_t bitmask[static 8])
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
-    int ret;
+    int ret, i;
     int fixed_channel = get_fixed_channel(ctxt->ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
+    uint8_t *gtks[4] = { };
+    bool gtk_force = false;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
                                   ctxt->ws_name, (struct fhss_timer *)-1);
@@ -113,14 +115,23 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
-    // ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
-    // WARN_ON(ret);
-
     ret = arm_network_own_certificate_add(&ctxt->tls_own);
     WARN_ON(ret);
 
     ret = arm_network_trusted_certificate_add(&ctxt->tls_ca);
     WARN_ON(ret);
+
+
+    for (i = 0; i < ARRAY_SIZE(ctxt->ws_gtk_force); i++) {
+        if (ctxt->ws_gtk_force[i]) {
+            gtk_force = true;
+            gtks[i] = ctxt->ws_gtk[i];
+        }
+    }
+    if (gtk_force) {
+        ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
+        WARN_ON(ret);
+    }
 }
 
 static void wsbr_tasklet(struct arm_event_s *event)

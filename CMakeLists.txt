@@ -161,7 +161,7 @@ add_executable(wsbrd
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
     nanostack/source/6LoWPAN/ws/ws_phy.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
-    # nanostack/source/6LoWPAN/ws/ws_test_api.c
+    nanostack/source/6LoWPAN/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c
     nanostack/source/Common_Protocols/icmpv6_prefix.c
     nanostack/source/Common_Protocols/icmpv6_radv.c
@@ -411,7 +411,7 @@ add_executable(wsnode
     nanostack/source/6LoWPAN/ws/ws_pae_timers.c
     nanostack/source/6LoWPAN/ws/ws_phy.c
     nanostack/source/6LoWPAN/ws/ws_stats.c
-    # nanostack/source/6LoWPAN/ws/ws_test_api.c
+    nanostack/source/6LoWPAN/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c
     nanostack/source/Common_Protocols/icmpv6_prefix.c
     nanostack/source/Common_Protocols/icmpv6_radv.c

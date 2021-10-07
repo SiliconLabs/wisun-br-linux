@@ -341,6 +341,20 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         } else if (sscanf(line, " allowed_channels = %s %c", tmp, &garbage) == 1) {
             if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
                 FATAL(1, "%s:%d: invalid range: %s", filename, line_no, tmp);
+        } else if (sscanf(line, " gtk[%d] = %s %c", &tmpi, tmp, &garbage) == 2) {
+            if (tmpi < 0 || tmpi > 3)
+                FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, tmpi);
+            tag = tmp;
+            for (i = 0; i < 16; i++) {
+                if (tag[2] != '\0' && tag[2] != ':')
+                    FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
+                if (sscanf(tag, "%hhx", &ctxt->ws_gtk[tmpi][i]) != 1)
+                    FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
+                tag += 3;
+            }
+            if (tag[-1] != '\0')
+                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, tmp);
+            ctxt->ws_gtk_force[tmpi] = true;
         } else if (sscanf(line, " size = %s %c", tmp, &garbage) == 1) {
             ctxt->ws_size = val_from_str(tmp, valid_ws_size);
         } else if (sscanf(line, " storage_prefix = %s %c", tmp, &garbage) == 1) {
