@@ -22,7 +22,7 @@ static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
     struct timespec tp;
     int rcp_time_diff;
 
-    // FIXME: explain when it happens
+    // FIXME: explain hy and when this case happens
     if (!rcp_time)
         return;
     clock_gettime(CLOCK_MONOTONIC, &tp);
@@ -30,7 +30,6 @@ static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
     if (!ctxt->rcp_time_diff)
         ctxt->rcp_time_diff = rcp_time_diff;
     rcp_time_diff = rcp_time_diff * 0.10 + ctxt->rcp_time_diff * 0.9; // smooth adjustement
-    DEBUG("Adjust time diff (from %u): %d -> %d (%d)", rcp_time, ctxt->rcp_time_diff, rcp_time_diff, ctxt->rcp_time_diff - rcp_time_diff);
     ctxt->rcp_time_diff = rcp_time_diff;
 }
 
