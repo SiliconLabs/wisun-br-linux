@@ -41,24 +41,23 @@ you plug the mainboard.
 
 ## Compile
 
-The project depends on libnl-3-dev, libnl-route-3-dev and optionally to libpcap.
-For the build, you will need `cmake`. We also encourage use of Ninja as `cmake`
-back-end.
+The build requires `libnl-3-dev`, `libnl-route-3-dev`, `cmake` and optionally to
+`libpcap`. We also encourage the use of Ninja as `cmake` back-end.
 
-On Debian and its derivatives, you can install the necessary dependencies with:
+On Debian and its derivatives, install the necessary dependencies with:
 
     sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev cmake ninja-build
 
-Then you can compile with:
+Then, compile with:
 
     cmake -G Ninja .
     ninja
 
-And finally, you may install the service with:
+And finally, install the service with:
 
-   ninja install
+    ninja install
 
-Note that no scripts for any start-up service are provided for now.
+> No script for any start-up service is provided for now.
 
 ## Launch
 
