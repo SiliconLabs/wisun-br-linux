@@ -96,7 +96,7 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
     fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2, 3 or 4\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
     fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
     fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
@@ -143,7 +143,7 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
     fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
     fprintf(stream, "                          4b and 5\n");
-    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2 or 3\n");
+    fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2, 3 or 4\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
     fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
     fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
@@ -336,7 +336,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             if (i == ARRAY_SIZE(valid_ws_modes))
                 FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
         } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
-            if (ctxt->ws_class > 3)
+            if (ctxt->ws_class > 4)
                 FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
         } else if (sscanf(line, " allowed_channels = %s %c", tmp, &garbage) == 1) {
             if (parse_bitmask(tmp, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
