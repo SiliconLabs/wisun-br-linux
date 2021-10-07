@@ -322,6 +322,7 @@ static void read_config_file(struct wsbr_ctxt *ctxt, const char *filename)
             FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
         }
     }
+    fclose(f);
 }
 
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
