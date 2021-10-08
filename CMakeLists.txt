@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION  3.16.3)
-project(wisun-host)
+project(wsbrd)
 include(GNUInstallDirs)
 # These option only work with gcc, but we do not plan to compiler with another
 # compiler.
@@ -629,4 +629,4 @@ install(FILES
     examples/ca_cert.pem
     examples/node_cert.pem
     examples/node_key.pem
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/wsbrd/examples)
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)

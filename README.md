@@ -62,15 +62,15 @@ And finally, install the service with:
 ## Launch
 
 You have to provide a configuration file to the Wi-SUN border router. An
-commented example is available in `/usr/local/share/wsbrd/examples/wsbrd.conf`.
+commented example is available in `/usr/local/share/doc/wsbrd/examples/wsbrd.conf`.
 
-    cp -r /usr/local/share/wsbrd/examples .
+    cp -r /usr/local/share/doc/wsbrd/examples .
     <edit examples/wsbrd.conf>
 
 You can copy and edit it. You will notice you need certificates and keys to
 authenticate the Wi-SUN nodes of your network. The generation of these files is
 described in [[Generate Wi-SUN PKI]].  For now, you can use the certificates
-examples installed in `/usr/local/share/wsbrd/examples/`.
+examples installed in `/usr/local/share/doc/wsbrd/examples/`.
 
 You will also need to provide the path of the UART representing your EFR
 device.
