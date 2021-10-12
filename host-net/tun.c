@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <ifaddrs.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -47,6 +48,41 @@ static struct phy_device_driver_s tun_driver = {
     .driver_description = (char *)"TUN BH",
     .tx = wsbr_tun_tx,
 };
+
+int get_link_local_addr(char* if_name, uint8_t ip[static 16])
+{
+    struct sockaddr_in6 *ipv6;
+    struct ifaddrs *ifaddr, *ifa;
+
+    if (getifaddrs(&ifaddr) < 0) {
+            WARN("getifaddrs: %m");
+            freeifaddrs(ifaddr);
+            return -1;
+    }
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+            if (!ifa->ifa_addr)
+                continue;
+
+            if (ifa->ifa_addr->sa_family != AF_INET6)
+                continue;
+
+            if (strcmp(ifa->ifa_name, if_name))
+                continue;
+
+            ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+
+            if (!IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
+                continue;
+
+            memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
+            freeifaddrs(ifaddr);
+            return 0;
+    }
+
+    freeifaddrs(ifaddr);
+    return -2;
+}
 
 static int wsbr_tun_open(char *devname)
 {

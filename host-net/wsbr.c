@@ -142,6 +142,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
         "ARM_NWK_PHY_CONNECTION_DOWN"
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t ipv6[16];
 
     switch (event->event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
@@ -155,6 +156,8 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                NET_IPV6_BOOTSTRAP_STATIC,
                                                                ctxt->ipv6_prefix))
                 WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
+            get_link_local_addr(ctxt->tun_dev, ipv6);
+            arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
             wsbr_configure_ws(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
                  WARN("arm_nwk_interface_up TUN");
