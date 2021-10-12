@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 
 #include "mbed-client-libservice/ip6string.h"
+#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/ns_file_system.h"
 #include "host-common/os_types.h"
@@ -365,6 +366,15 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
         ns_file_system_set_root_path(str_arg);
+    } else if (sscanf(line, " uc_dwell_interval = %d %c", &ctxt->uc_dwell_interval, &garbage) == 1) {
+        if (ctxt->uc_dwell_interval < 15 || ctxt->uc_dwell_interval > 255)
+            FATAL(1, "%s:%d: invalid unicast dwell interval: %d", filename, line_no, ctxt->uc_dwell_interval);
+    } else if (sscanf(line, " bc_interval = %d %c", &ctxt->bc_interval, &garbage) == 1) {
+        if (ctxt->bc_interval < 100 || ctxt->bc_interval > 16777215) // UINT24_MAX
+            FATAL(1, "%s:%d: invalid broadcast interval: %d", filename, line_no, ctxt->bc_interval);
+    } else if (sscanf(line, " bc_dwell_interval = %d %c", &ctxt->bc_dwell_interval, &garbage) == 1) {
+        if (ctxt->bc_dwell_interval < 100 || ctxt->bc_dwell_interval > 255)
+            FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", filename, line_no, ctxt->bc_dwell_interval);
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
     }
@@ -431,6 +441,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
+    ctxt->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
+    ctxt->bc_interval = WS_FHSS_BC_INTERVAL;
+    ctxt->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
     ns_file_system_set_root_path("/var/lib/wsbrd/");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
@@ -538,6 +551,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "You must specify a certificate authority (--authority)");
     if (ctxt->ws_domain == -1)
         FATAL(1, "You must specify a regulation domain (--domain)");
+    if (ctxt->bc_interval < ctxt->bc_dwell_interval)
+        FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
     if (bus == 's') {
         FATAL_ON(argc != optind + 2, 1, "You must specify a device name and a GPIO");
         ctxt->rcp_tx = spi_tx;

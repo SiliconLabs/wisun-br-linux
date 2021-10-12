@@ -61,6 +61,9 @@ struct wsbr_ctxt {
     uint32_t ws_allowed_channels[8];
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
+    int uc_dwell_interval;
+    int bc_interval;
+    int bc_dwell_interval;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
