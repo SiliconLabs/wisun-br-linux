@@ -9,8 +9,23 @@
 #include "dbus.h"
 #include "wsbr.h"
 
+int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
+               const char *property, sd_bus_message *reply,
+               void *userdata, sd_bus_error *ret_error)
+{
+    char *val = userdata;
+    int ret;
+
+    ret = sd_bus_message_append(reply, "s", val);
+    WARN_ON(ret < 0, "%s", strerror(-ret));
+    return 0;
+}
+
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
+                        offsetof(struct wsbr_ctxt, ws_name),
+                        SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_VTABLE_END
 };
 
