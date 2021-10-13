@@ -22,6 +22,18 @@ int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
+int wsbrd_get_ws_size(sd_bus *bus, const char *path, const char *interface,
+                        const char *property, sd_bus_message *reply,
+                        void *userdata, sd_bus_error *ret_error)
+{
+    int *size = userdata;
+    int ret;
+
+    ret = sd_bus_message_append(reply, "s", val_to_str(*size, valid_ws_size));
+    WARN_ON(ret < 0, "%s", strerror(-ret));
+    return 0;
+}
+
 int dbus_get_int(sd_bus *bus, const char *path, const char *interface,
                  const char *property, sd_bus_message *reply,
                  void *userdata, sd_bus_error *ret_error)
@@ -50,6 +62,9 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, ws_name),
+                        SD_BUS_VTABLE_PROPERTY_CONST),
+        SD_BUS_PROPERTY("WisunSize", "s", wsbrd_get_ws_size,
+                        offsetof(struct wsbr_ctxt, ws_size),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("WisunDomain", "s", wsbrd_get_ws_domain,
                         offsetof(struct wsbr_ctxt, ws_domain),
