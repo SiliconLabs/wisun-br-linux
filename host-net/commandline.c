@@ -21,72 +21,11 @@
 #include "host-common/bus_spi.h"
 #include "host-common/utils.h"
 #include "host-common/log.h"
+#include "named_values.h"
 #include "wsbr.h"
-
-struct name_value {
-    char *name;
-    int val;
-};
 
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05
-};
-
-static const struct name_value valid_ws_domains[] = {
-    { "WW", REG_DOMAIN_WW }, // World wide
-    { "NA", REG_DOMAIN_NA }, // North America
-    { "JP", REG_DOMAIN_JP }, // Japan
-    { "EU", REG_DOMAIN_EU }, // European Union
-    { "CH", REG_DOMAIN_CH }, // China
-    { "IN", REG_DOMAIN_IN }, // India
-    { "MX", REG_DOMAIN_MX }, //
-    { "BZ", REG_DOMAIN_BZ }, // Brazil
-    { "AZ", REG_DOMAIN_AZ }, // Australia
-    { "NZ", REG_DOMAIN_NZ }, // New zealand
-    { "KR", REG_DOMAIN_KR }, // Korea
-    { "PH", REG_DOMAIN_PH }, //
-    { "MY", REG_DOMAIN_MY }, //
-    { "HK", REG_DOMAIN_HK }, //
-    { "SG", REG_DOMAIN_SG }, // band 866-869
-    { "TH", REG_DOMAIN_TH }, //
-    { "VN", REG_DOMAIN_VN }, //
-    { "SG", REG_DOMAIN_SG_H }, // band 920-925
-    { NULL },
-};
-
-static const struct name_value valid_ws_size[] = {
-    { "AUTO",   NETWORK_SIZE_AUTOMATIC },
-    { "CERT",   NETWORK_SIZE_CERTIFICATE },
-    { "SMALL",  NETWORK_SIZE_SMALL },
-    { "S",      NETWORK_SIZE_SMALL },
-    { "MEDIUM", NETWORK_SIZE_MEDIUM },
-    { "M",      NETWORK_SIZE_MEDIUM },
-    { "LARGE",  NETWORK_SIZE_LARGE },
-    { "L",      NETWORK_SIZE_LARGE },
-    { "XLARGE", NETWORK_SIZE_XLARGE },
-    { "XL",     NETWORK_SIZE_XLARGE },
-    { NULL },
-};
-
-static const struct name_value valid_traces[] = {
-    { "bus",  TR_BUS },
-    { "hdlc", TR_HDLC },
-    { "hif",  TR_HIF },
-    { NULL },
-};
-
-static const struct name_value valid_booleans[] = {
-    { "true",    1 },
-    { "false",   0 },
-    { "enable",  1 },
-    { "disable", 0 },
-    { "yes",     1 },
-    { "no",      0 },
-    { "y",       1 },
-    { "n",       0 },
-    { "1",       1 },
-    { "0",       0 },
-    { NULL },
 };
 
 void print_help_br(FILE *stream, int exit_code) {
@@ -219,18 +158,6 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
-static int val_from_str(const char *str, const struct name_value table[])
-{
-    int i;
-
-    for (i = 0; table[i].name; i++) {
-        if (!strcasecmp(table[i].name, str)) {
-            return table[i].val;
-        }
-    }
-    FATAL(1, "invalid value: %s", str);
-}
-
 static int set_bitmask(int shift, uint32_t *out, int size)
 {
     int word_nr = shift / 32;
@@ -307,7 +234,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (parse_escape_sequences(ctxt->tun_dev, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
     } else if (sscanf(line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
-        ctxt->tun_autoconf = val_from_str(str_arg, valid_booleans);
+        ctxt->tun_autoconf = str_to_val(str_arg, valid_booleans);
     } else if (sscanf(line, " network_name = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(ctxt->ws_name, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -332,10 +259,10 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         g_enabled_traces = 0;
         substr = strtok(str_arg, ",");
         do {
-            g_enabled_traces |= val_from_str(substr, valid_traces);
+            g_enabled_traces |= str_to_val(substr, valid_traces);
         } while ((substr = strtok(NULL, ",")));
     } else if (sscanf(line, " domain = %s %c", str_arg, &garbage) == 1) {
-        ctxt->ws_domain = val_from_str(str_arg, valid_ws_domains);
+        ctxt->ws_domain = str_to_val(str_arg, valid_ws_domains);
     } else if (sscanf(line, " mode = %x %c", &ctxt->ws_mode, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
             if (valid_ws_modes[i] == ctxt->ws_mode)
@@ -363,7 +290,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_gtk_force[int_arg] = true;
     } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
-        ctxt->ws_size = val_from_str(str_arg, valid_ws_size);
+        ctxt->ws_size = str_to_val(str_arg, valid_ws_size);
     } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -477,14 +404,14 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             case 'T':
                 tag = strtok(optarg, ",");
                 do {
-                    g_enabled_traces |= val_from_str(tag, valid_traces);
+                    g_enabled_traces |= str_to_val(tag, valid_traces);
                 } while ((tag = strtok(NULL, ",")));
                 break;
             case 'n':
                 strncpy(ctxt->ws_name, optarg, sizeof(ctxt->ws_name) - 1);
                 break;
             case 'd':
-                ctxt->ws_domain = val_from_str(optarg, valid_ws_domains);
+                ctxt->ws_domain = str_to_val(optarg, valid_ws_domains);
                 break;
             case 'm':
                 ctxt->ws_mode = strtoul(optarg, &end_ptr, 16);
@@ -502,7 +429,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                     FATAL(1, "invalid operating class: %s", optarg);
                 break;
             case 'S':
-                ctxt->ws_size = val_from_str(optarg, valid_ws_size);
+                ctxt->ws_size = str_to_val(optarg, valid_ws_size);
                 break;
             case 'K':
                 ctxt->tls_own.key_len = read_cert(optarg, &ctxt->tls_own.key);
