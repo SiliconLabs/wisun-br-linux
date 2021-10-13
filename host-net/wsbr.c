@@ -27,6 +27,7 @@
 #include "wsbr_mac.h"
 #include "wsbr.h"
 #include "commandline.h"
+#include "dbus.h"
 #include "tun.h"
 
 // See warning in wsbr.h
@@ -207,6 +208,7 @@ int main(int argc, char *argv[])
     parse_commandline(ctxt, argc, argv, print_help_br);
     if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         FATAL(1, "You must specify a ipv6_prefix");
+    ctxt->dbus = dbus_register(ctxt);
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);
@@ -232,6 +234,8 @@ int main(int argc, char *argv[])
         maxfd = 0;
         FD_ZERO(&rfds);
         FD_ZERO(&efds);
+        FD_SET(sd_bus_get_fd(ctxt->dbus), &rfds);
+        maxfd = max(maxfd, sd_bus_get_fd(ctxt->dbus));
         if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
             FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
         else
@@ -252,6 +256,8 @@ int main(int argc, char *argv[])
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
+        if (FD_ISSET(sd_bus_get_fd(ctxt->dbus), &rfds))
+            dbus_process(ctxt, ctxt->dbus);
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {

@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <linux/if.h>
+#include <systemd/sd-bus.h>
 
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
@@ -21,6 +22,7 @@ struct fhss_api;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
+    sd_bus *dbus;
 
     struct phy_device_driver_s *tun_driver;
     struct eth_mac_api_s *tun_mac_api;
