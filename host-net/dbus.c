@@ -3,12 +3,31 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <errno.h>
 #include <systemd/sd-bus.h>
+
+#include "nsconfig.h"
+#include "nanostack/source/6LoWPAN/ws/ws_common.h"
+#include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
 
 #include "host-common/log.h"
 #include "named_values.h"
 #include "dbus.h"
 #include "wsbr.h"
+
+int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
+                       const char *property, sd_bus_message *reply,
+                       void *userdata, sd_bus_error *ret_error)
+{
+    protocol_interface_info_entry_t *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
+    int ret;
+
+    if (!net_if || !net_if->ws_info)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ret = sd_bus_message_append(reply, "q", net_if->ws_info->network_pan_id);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    return 0;
+}
 
 int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
                         const char *property, sd_bus_message *reply,
@@ -74,6 +93,9 @@ static const sd_bus_vtable dbus_vtable[] = {
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("WisunClass", "u", dbus_get_int,
                         offsetof(struct wsbr_ctxt, ws_class),
+                        SD_BUS_VTABLE_PROPERTY_CONST),
+        SD_BUS_PROPERTY("WisunPanId", "q", dbus_get_ws_pan_id,
+                        offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_VTABLE_END
 };
