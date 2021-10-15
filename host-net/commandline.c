@@ -207,6 +207,8 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
     ret = read(fd, tmp, st.st_size);
     FATAL_ON(ret != st.st_size, 1, "read: %s: %m", filename);
     close(fd);
+    if (*ptr)
+        free((uint8_t *)*ptr);
     *ptr = tmp;
 
     if (strstr((char *)tmp, "-----BEGIN CERTIFICATE-----"))
@@ -503,18 +505,12 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 ctxt->ws_size = val_from_str(optarg, valid_ws_size);
                 break;
             case 'K':
-                if (ctxt->tls_own.key)
-                    free((char *)ctxt->tls_own.key);
                 ctxt->tls_own.key_len = read_cert(optarg, &ctxt->tls_own.key);
                 break;
             case 'C':
-                if (ctxt->tls_own.cert)
-                    free((char *)ctxt->tls_own.cert);
                 ctxt->tls_own.cert_len = read_cert(optarg, &ctxt->tls_own.cert);
                 break;
             case 'A':
-                if (ctxt->tls_ca.cert)
-                    free((char *)ctxt->tls_ca.cert);
                 ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
                 break;
             case 'b':
