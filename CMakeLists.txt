@@ -99,7 +99,6 @@ add_executable(wsbrd
     host-net/wsbr_mac.c
     host-net/wsbr_fhss_mac.c
     host-net/wsbr_fhss_net.c
-    host-net/dbus.c
     host-net/tun.c
     host-net/commandline.c
     host-net/os_whiteboard.c
@@ -604,7 +603,11 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 pkg_check_modules(LIBSYSTEMD REQUIRED IMPORTED_TARGET libsystemd)
-target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
+if(LIBSYSTEMD_FOUND)
+    target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
+    target_sources(wsbrd PRIVATE host-net/dbus.c)
+    target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
+endif()
 
 # Note that old libpcap releases didn't provide pkg-config file and are not
 # detected by the line below. The user have to compile without support for
