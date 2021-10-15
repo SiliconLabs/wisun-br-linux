@@ -128,17 +128,28 @@ static int wsbr_tun_open(char *devname)
 static void wsbr_tun_accept_ra(char *devname)
 {
     char buf[256];
+    char content;
     int fd;
 
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
     snprintf(buf, sizeof(buf), "/proc/sys/net/ipv6/conf/%s/accept_ra", devname);
-    fd = open(buf, O_RDWR);
+    fd = open(buf, O_RDONLY);
     if (fd < 0)
         FATAL(2, "open %s: %m", buf);
-    if (write(fd, "2", 1) <= 0)
-        FATAL(2, "write %s: %m", buf);
+    if (read(fd, &content, 1) <= 0)
+        FATAL(2, "read %s: %m", buf);
     close(fd);
+    // Don't try to write the file if not necessary so wsrbd can launched
+    // without root permissions.
+    if (content != '2') {
+        fd = open(buf, O_WRONLY);
+        if (fd < 0)
+            FATAL(2, "open %s: %m", buf);
+        if (write(fd, "2", 1) <= 0)
+            FATAL(2, "write %s: %m", buf);
+        close(fd);
+    }
 }
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
