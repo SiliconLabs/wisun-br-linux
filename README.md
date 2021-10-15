@@ -41,12 +41,15 @@ you plug the mainboard.
 
 ## Compile
 
-The build requires `libnl-3-dev`, `libnl-route-3-dev`, `cmake` and optionally to
-`libpcap`. We also encourage the use of Ninja as `cmake` back-end.
+The build requires `libnl-3-dev`, `libnl-route-3-dev`, `cmake`. It is also
+recommended to have `libsystemd` (note that it can be replaced by `elogind` if
+you don't want to pull `systemd`). Optionally, you can also install `libpcap`.
+
+We also encourage the use of Ninja as `cmake` back-end.
 
 On Debian and its derivatives, install the necessary dependencies with:
 
-    sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev cmake ninja-build
+    sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev libsystemd-dev cmake ninja-build
 
 Then, compile with:
 
