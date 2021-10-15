@@ -1883,5 +1883,17 @@ static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_e
 
 }
 
+sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    pae_controller_t *controller = ws_pae_controller_get(cur);
+
+    if (!cur)
+        return NULL;
+    if (!controller)
+        return NULL;
+    return &controller->gtks;
+}
+
 #endif /* HAVE_WS */
 

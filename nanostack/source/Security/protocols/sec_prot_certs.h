@@ -18,6 +18,8 @@
 #ifndef SEC_PROT_CERTS_H_
 #define SEC_PROT_CERTS_H_
 
+#include <ns_list.h>
+
 /*
  * Security protocols certificate interface. This is used by security protocols to
  * access certificate information.

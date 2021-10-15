@@ -18,6 +18,12 @@
 #ifndef WS_PAE_CONTROLLER_H_
 #define WS_PAE_CONTROLLER_H_
 
+#include "nsconfig.h"
+#include "net_interface.h"
+
+#include "Security/protocols/sec_prot_keys.h"
+#include "NWK_INTERFACE/Include/protocol_abstract.h"
+
 #ifdef HAVE_WS
 
 typedef enum {
@@ -696,6 +702,8 @@ struct nvm_tlv *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *i
  */
 void ws_pae_controller_forced_gc(bool full_gc);
 
+sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);
+
 #else
 
 #define ws_pae_controller_set_target(interface_ptr, target_pan_id, target_dest_eui_64)
@@ -719,6 +727,8 @@ void ws_pae_controller_forced_gc(bool full_gc);
 #define ws_pae_controller_nvm_tlv_get(interface_ptr) NULL
 
 #define ws_pae_controller_forced_gc NULL
+
+#define ws_pae_controller_get_gtks NULL
 
 #endif
 

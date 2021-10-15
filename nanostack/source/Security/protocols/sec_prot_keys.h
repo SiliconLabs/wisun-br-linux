@@ -18,6 +18,8 @@
 #ifndef SEC_PROT_KEYS_H_
 #define SEC_PROT_KEYS_H_
 
+#include "Security/protocols/sec_prot_certs.h"
+
 /*
  * Security protocols EAPOL key storage module. This is used by EAPOL protocols to store
  * and update key information. This can be used either as supplicant key storage or as
