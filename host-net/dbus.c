@@ -8,12 +8,36 @@
 
 #include "nsconfig.h"
 #include "nanostack/source/6LoWPAN/ws/ws_common.h"
+#include "nanostack/source/6LoWPAN/ws/ws_pae_controller.h"
 #include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
+#include "nanostack/source/Security/protocols/sec_prot_keys.h"
 
+#include "host-common/utils.h"
 #include "host-common/log.h"
 #include "named_values.h"
 #include "dbus.h"
 #include "wsbr.h"
+
+int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
+                  const char *property, sd_bus_message *reply,
+                  void *userdata, sd_bus_error *ret_error)
+{
+    int interface_id = *(int *)userdata;
+    sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_gtks(interface_id);
+    int ret, i;
+
+    if (!gtks)
+        return sd_bus_error_set_errno(ret_error, EBADR);
+    ret = sd_bus_message_open_container(reply, 'a', "ay");
+    WARN_ON(ret < 0, "%s", strerror(-ret));
+    for (i = 0; i < ARRAY_SIZE(gtks->gtk); i++) {
+        ret = sd_bus_message_append_array(reply, 'y', gtks->gtk[i].key, ARRAY_SIZE(gtks->gtk[i].key));
+        WARN_ON(ret < 0, "%s", strerror(-ret));
+    }
+    ret = sd_bus_message_close_container(reply);
+    WARN_ON(ret < 0, "%s", strerror(-ret));
+    return 0;
+}
 
 int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
@@ -73,12 +97,15 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
     int ret;
 
     ret = sd_bus_message_append(reply, "s", val);
-    WARN_ON(ret < 0, "%s", strerror(-ret));
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     return 0;
 }
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
+                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, ws_name),
                         SD_BUS_VTABLE_PROPERTY_CONST),
