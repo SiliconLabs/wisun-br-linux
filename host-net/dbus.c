@@ -12,6 +12,8 @@
 #include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
 #include "nanostack/source/Security/protocols/sec_prot_keys.h"
 
+#include "nanostack/ws_bbr_api.h"
+
 #include "host-common/utils.h"
 #include "host-common/log.h"
 #include "named_values.h"
@@ -36,6 +38,66 @@ int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "%s", strerror(-ret));
+    return 0;
+}
+
+static int dbus_root_certificate_add(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    arm_certificate_entry_s cert = { };
+    const char *content;
+    int ret;
+
+    ret = sd_bus_message_read(m, "s", &content);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    cert.cert = (uint8_t *)strdup(content);
+    cert.cert_len = strlen(content);
+    arm_network_trusted_certificate_add(&cert);
+
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_root_certificate_remove(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    arm_certificate_entry_s cert = { };
+    int ret;
+
+    ret = sd_bus_message_read(m, "s", &cert.cert);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    cert.cert_len = strlen((char *)cert.cert);
+    // FIXME: I think that old cert is not freed
+    arm_network_trusted_certificate_remove(&cert);
+
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    size_t eui64_len;
+    uint8_t *eui64;
+    int ret;
+
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    if (eui64_len != 8)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ws_bbr_node_keys_remove(ctxt->rcp_if_id, eui64);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+
+    DEBUG();
+    ws_bbr_node_access_revoke_start(ctxt->rcp_if_id);
+    sd_bus_reply_method_return(m, NULL);
     return 0;
 }
 
@@ -103,6 +165,22 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_METHOD_WITH_ARGS("AddRootCertificate",
+                                SD_BUS_ARGS("s", certificate),
+                                SD_BUS_NO_RESULT,
+                                dbus_root_certificate_add, 0),
+        SD_BUS_METHOD_WITH_ARGS("RemoveRootCertificate",
+                                SD_BUS_ARGS("s", certificate),
+                                SD_BUS_NO_RESULT,
+                                dbus_root_certificate_remove, 0),
+        SD_BUS_METHOD_WITH_ARGS("RevokeNode",
+                                SD_BUS_ARGS("ay", eui64),
+                                SD_BUS_NO_RESULT,
+                                dbus_revoke_node, 0),
+        SD_BUS_METHOD_WITH_ARGS("RevokeApply",
+                                SD_BUS_NO_ARGS,
+                                SD_BUS_NO_RESULT,
+                                dbus_revoke_apply, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         0),
