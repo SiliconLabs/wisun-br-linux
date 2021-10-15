@@ -619,7 +619,9 @@ target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd)
+# FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
+# the code
+install(DIRECTORY DESTINATION /var/lib/wsbrd)
 install(FILES
     examples/wsbrd.conf
     examples/br_cert.pem
