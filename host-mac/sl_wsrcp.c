@@ -278,11 +278,13 @@ int main(int argc, char *argv[])
                                             wsmac_mlme_confirm,
                                             wsmac_mlme_indication,
                                             0); // Parent ID?
+    WARN_ON(ret);
 
     ret = ctxt->rcp_mac_api->mac_mcps_extension_enable(ctxt->rcp_mac_api,
                                                        wsmac_mcps_data_indication_ext,
                                                        wsmac_mcps_data_confirm_ext,
                                                        wsmac_mcps_ack_data_req_ext);
+    WARN_ON(ret);
 
     wsmac_reset_ind(ctxt, true);
     for (;;) {
