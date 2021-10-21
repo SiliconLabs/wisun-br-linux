@@ -9,7 +9,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <linux/if.h>
-#include <systemd/sd-bus.h>
+#ifdef HAVE_LIBSYSTEMD
+#  include <systemd/sd-bus.h>
+#else
+typedef struct sd_bus sd_bus;
+#endif
 
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
