@@ -307,6 +307,27 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " bc_dwell_interval = %d %c", &ctxt->bc_dwell_interval, &garbage) == 1) {
         if (ctxt->bc_dwell_interval < 100 || ctxt->bc_dwell_interval > 255)
             FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", filename, line_no, ctxt->bc_dwell_interval);
+    } else if (sscanf(line, " pmk_lifetime = %d %c", &ctxt->ws_pmk_lifetime, &garbage) == 1) {
+        if (ctxt->ws_pmk_lifetime <= 0)
+            FATAL(1, "%s:%d: invalid pmk_lifetime: %d", filename, line_no, ctxt->ws_pmk_lifetime);
+    } else if (sscanf(line, " ptk_lifetime = %d %c", &ctxt->ws_ptk_lifetime, &garbage) == 1) {
+        if (ctxt->ws_ptk_lifetime <= 0)
+            FATAL(1, "%s:%d: invalid ptk_lifetime: %d", filename, line_no, ctxt->ws_ptk_lifetime);
+    } else if (sscanf(line, " gtk_expire_offset = %d %c", &ctxt->ws_gtk_expire_offset, &garbage) == 1) {
+        if (ctxt->ws_gtk_expire_offset <= 0)
+            FATAL(1, "%s:%d: invalid gtk_expire_offset: %d", filename, line_no, ctxt->ws_gtk_expire_offset);
+    } else if (sscanf(line, " gtk_new_activation_time = %d %c", &ctxt->ws_gtk_new_activation_time, &garbage) == 1) {
+        if (ctxt->ws_gtk_new_activation_time <= 1)
+            FATAL(1, "%s:%d: invalid gtk_new_activation_time: %d", filename, line_no, ctxt->ws_gtk_new_activation_time);
+    } else if (sscanf(line, " gtk_new_install_required = %d %c", &ctxt->ws_gtk_new_install_required, &garbage) == 1) {
+        if (ctxt->ws_gtk_new_install_required <= 0 || ctxt->ws_gtk_new_install_required > 100)
+            FATAL(1, "%s:%d: invalid gtk_new_install_required: %d", filename, line_no, ctxt->ws_gtk_new_install_required);
+    } else if (sscanf(line, " revocation_lifetime_reduction = %d %c", &ctxt->ws_revocation_lifetime_reduction, &garbage) == 1) {
+        if (ctxt->ws_revocation_lifetime_reduction <= 0)
+            FATAL(1, "%s:%d: invalid revocation_lifetime_reduction: %d", filename, line_no, ctxt->ws_revocation_lifetime_reduction);
+    } else if (sscanf(line, " gtk_max_mismatch = %d %c", &ctxt->ws_gtk_max_mismatch, &garbage) == 1) {
+        if (ctxt->ws_gtk_max_mismatch <= 0)
+            FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", filename, line_no, ctxt->ws_gtk_max_mismatch);
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
     }

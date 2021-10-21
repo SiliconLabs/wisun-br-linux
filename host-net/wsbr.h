@@ -71,6 +71,13 @@ struct wsbr_ctxt {
     bool ws_gtk_force[4];
     uint8_t ipv6_prefix[16];
     uint32_t ws_allowed_channels[8];
+    int ws_pmk_lifetime;
+    int ws_ptk_lifetime;
+    int ws_gtk_expire_offset;
+    int ws_gtk_new_activation_time;
+    int ws_gtk_new_install_required;
+    int ws_revocation_lifetime_reduction;
+    int ws_gtk_max_mismatch;
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
     int uc_dwell_interval;

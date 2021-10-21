@@ -113,6 +113,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
+    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id, ctxt->ws_gtk_expire_offset, ctxt->ws_pmk_lifetime, ctxt->ws_ptk_lifetime);
+    WARN_ON(ret);
+
+    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id, ctxt->ws_revocation_lifetime_reduction, ctxt->ws_gtk_new_activation_time, ctxt->ws_gtk_new_install_required, ctxt->ws_gtk_max_mismatch);
+    WARN_ON(ret);
+
     ret = arm_network_own_certificate_add(&ctxt->tls_own);
     WARN_ON(ret);
 
