@@ -1,3 +1,37 @@
+v0.2.3
+------
+
+  - File "CHANGES" was missing
+
+v0.2.2
+------
+
+  - Fix creation of /var/lib/wsbrd during install
+
+v0.2.1
+------
+
+  - v0.2.0 broke IPv6 routing
+
+v0.2.0
+------
+
+  - Do not rely on external Router Advertisement anymore. It is no more
+    necessary to launch radvd before wsbrd. wsbrd now relies on `ipv6_prefix`
+    parameter.
+  - Add parameter "tun_autoconf" to automatically configure the IP of the tun
+    interface seen by Linux.
+  - Command line now accepts any parameter accepted in configuration file
+    through "-o KEY=VAL".
+  - Fix accepted range for ws_class
+  - Change default location of non volatile data (was /tmp, it is now
+    /var/lib/wsbrd)
+  - Allow to configure location (and file prefix) of the non volatile data
+  - Allow to set initial GTKs
+  - Add list of valid domain/mode/class combinations in documentation
+  - Fix possible crash on 32bits hosts
+  - Remove some traces
+  - Provide a better error message if RCP firmware < 0.0.3 replies
 
 v0.1.2
 ------
