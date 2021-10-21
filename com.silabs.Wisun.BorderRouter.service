@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0 or APACHE-2.0
+
+[D-BUS Service]
+Name=com.silabs.Wisun.BorderRouter
+Exec=/bin/false
+User=root
+SystemdService=wisun-borderouter.service

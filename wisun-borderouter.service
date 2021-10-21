@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0 or APACHE-2.0
+[Unit]
+Description=Wi-SUN Border Router Service
+Documentation=file:///usr/local/share/doc/wsbrd/examples/wsbrd.conf
+
+[Service]
+BusName=com.silabs.WiSun.BorderRouter
+ExecStart=/usr/local/bin/wsbrd -u /dev/ttyACM0 -F /etc/wsbrd.conf
+WatchdogSec=3min
