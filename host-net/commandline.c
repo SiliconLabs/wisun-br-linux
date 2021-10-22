@@ -216,6 +216,13 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
 
     if (sscanf(line, " %c", &garbage) == EOF) {
         /* blank line*/;
+    } else if (sscanf(line, " uart_device = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(ctxt->uart_dev, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+    } else if (sscanf(line, " uart_baudrate = %u %c", &ctxt->uart_baudrate, &garbage) == 1) {
+        /* empty */
+    } else if (sscanf(line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
+        ctxt->uart_rtscts = str_to_val(str_arg, valid_booleans);
     } else if (sscanf(line, " tun_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(ctxt->tun_dev, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
