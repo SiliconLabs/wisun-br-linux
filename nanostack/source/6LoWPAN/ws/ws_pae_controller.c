@@ -1597,9 +1597,7 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id)
         return -1;
     }
 
-    ws_pae_auth_node_access_revoke_start(controller->interface_ptr);
-
-    return -1;
+    return ws_pae_auth_node_access_revoke_start(controller->interface_ptr);
 }
 
 int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)

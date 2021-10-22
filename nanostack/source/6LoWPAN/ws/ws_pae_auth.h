@@ -301,7 +301,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_nw_key_index_update NULL
 #define ws_pae_auth_nw_info_set NULL
 #define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
-#define ws_pae_auth_node_access_revoke_start(interface_ptr)
+#define ws_pae_auth_node_access_revoke_start(interface_ptr) -1
 #define ws_pae_auth_node_limit_set(interface_ptr, limit)
 #define ws_pae_auth_forced_gc(interface_ptr)
 #define ws_pae_auth_fast_timer NULL
