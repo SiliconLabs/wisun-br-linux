@@ -33,7 +33,6 @@
 #include "wsbr_mac.h"
 #include "commandline.h"
 #include "host-common/bus_uart.h"
-#include "host-common/bus_spi.h"
 #include "host-common/os_types.h"
 #include "host-common/os_timer.h"
 #include "host-common/hal_interrupt.h"

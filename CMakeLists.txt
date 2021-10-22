@@ -104,7 +104,6 @@ add_executable(wsbrd
     host-net/commandline.c
     host-net/os_whiteboard.c
     host-common/bus_uart.c
-    host-common/bus_spi.c
     host-common/hal_interrupt.c
     host-common/os_timer.c
     host-common/os_scheduler.c
@@ -356,7 +355,6 @@ add_executable(wsnode
     host-net/commandline.c
     host-net/named_values.c
     host-common/bus_uart.c
-    host-common/bus_spi.c
     host-common/hal_interrupt.c
     host-common/os_timer.c
     host-common/os_scheduler.c

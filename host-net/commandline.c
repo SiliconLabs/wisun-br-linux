@@ -18,7 +18,6 @@
 #include "nanostack/ns_file_system.h"
 #include "host-common/os_types.h"
 #include "host-common/bus_uart.h"
-#include "host-common/bus_spi.h"
 #include "host-common/utils.h"
 #include "host-common/log.h"
 #include "named_values.h"
@@ -34,12 +33,9 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wsbrd -u [OPTIONS] UART_DEVICE\n");
-    fprintf(stream, "  wsbrd -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
-    fprintf(stream, "  wsbrd -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
-    fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
@@ -70,9 +66,6 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "                           230400, 460800, 921600\n");
     fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
     fprintf(stream, "\n");
-    fprintf(stream, "SPI options:\n");
-    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
-    fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
     exit(exit_code);
@@ -84,12 +77,9 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wsnode -u [OPTIONS] UART_DEVICE\n");
-    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_FILE\n");
-    fprintf(stream, "  wsnode -s [OPTIONS] SPI_DEVICE GPIO_NUMBER\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u                    Use UART bus\n");
-    fprintf(stream, "  -s                    Use SPI bus\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
@@ -118,9 +108,6 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
     fprintf(stream, "                           230400, 460800, 921600\n");
     fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "SPI options:\n");
-    fprintf(stream, "  -f, --frequency=FREQUENCY  Clock frequency (default: 1000000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
@@ -336,7 +323,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream, int exit_code))
 {
-    const char *opts_short = "usF:o:t:T:n:d:m:c:S:K:C:A:b:f:Hh";
+    const char *opts_short = "usF:o:t:T:n:d:m:c:S:K:C:A:b:Hh";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -352,7 +339,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         { "certificate", required_argument, 0,  'C' },
         { "authority",   required_argument, 0,  'A' },
         { "baudrate",    required_argument, 0,  'b' },
-        { "frequency",   required_argument, 0,  'f' },
         { "hardflow",    no_argument,       0,  'H' },
         { "help",        no_argument,       0,  'h' },
         { 0,             0,                 0,   0  }
@@ -360,7 +346,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     char *end_ptr;
     char bus = 0;
     int baudrate = 115200;
-    int frequency = 1000000;
     bool hardflow = false;
     int opt, i;
     char *tag;
@@ -445,11 +430,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 if (*end_ptr)
                     FATAL(1, "invalid bitrate: %s", optarg);
                 break;
-            case 'f':
-                frequency = strtoul(optarg, &end_ptr, 10);
-                if (*end_ptr)
-                    FATAL(1, "invalid frequency: %s", optarg);
-                break;
             case 'H':
                 hardflow = true;
                 break;
@@ -476,20 +456,13 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "You must specify a regulation domain (--domain)");
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
-    if (bus == 's') {
-        FATAL_ON(argc != optind + 2, 1, "You must specify a device name and a GPIO");
-        ctxt->rcp_tx = spi_tx;
-        ctxt->rcp_rx = spi_rx;
-        ctxt->os_ctxt->data_fd = spi_open(argv[optind + 0], frequency, 0);
-        ctxt->os_ctxt->trig_fd = gpio_open(argv[optind + 1], false);
-        ctxt->os_ctxt->spi_recv_window = UINT16_MAX;
-    } else if (bus == 'u') {
+    if (bus == 'u') {
         FATAL_ON(argc != optind + 1, 1, "You must specify a device name");
         ctxt->rcp_tx = uart_tx;
         ctxt->rcp_rx = uart_rx;
         ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], baudrate, hardflow);
         ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     } else {
-        FATAL(1, "You must specify a UART or a SPI device");
+        FATAL(1, "You must specify a UART device");
     }
 }
