@@ -110,7 +110,7 @@ char *bytes_str(const void *in_start, int in_len, const void **in_done, char *ou
 
 #define __WARN_ON(COND, MSG, ...) \
     ({                                                               \
-        typeof(COND) __ret = (COND);                                 \
+        bool __ret = (COND);                                         \
         if (__ret) {                                                 \
             if (MSG[0] != '\0')                                      \
                 __PRINT(93, "warning: " MSG, ##__VA_ARGS__);         \
