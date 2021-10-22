@@ -52,7 +52,9 @@ static int dbus_root_certificate_add(sd_bus_message *m, void *userdata, sd_bus_e
         return sd_bus_error_set_errno(ret_error, -ret);
     cert.cert = (uint8_t *)strdup(content);
     cert.cert_len = strlen(content);
-    arm_network_trusted_certificate_add(&cert);
+    ret = arm_network_trusted_certificate_add(&cert);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
@@ -68,7 +70,9 @@ static int dbus_root_certificate_remove(sd_bus_message *m, void *userdata, sd_bu
         return sd_bus_error_set_errno(ret_error, -ret);
     cert.cert_len = strlen((char *)cert.cert);
     // FIXME: I think that old cert is not freed
-    arm_network_trusted_certificate_remove(&cert);
+    ret = arm_network_trusted_certificate_remove(&cert);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
@@ -86,7 +90,9 @@ static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret
         return sd_bus_error_set_errno(ret_error, -ret);
     if (eui64_len != 8)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ws_bbr_node_keys_remove(ctxt->rcp_if_id, eui64);
+    ret = ws_bbr_node_keys_remove(ctxt->rcp_if_id, eui64);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -94,9 +100,11 @@ static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret
 static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
+    int ret;
 
-    DEBUG();
-    ws_bbr_node_access_revoke_start(ctxt->rcp_if_id);
+    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
