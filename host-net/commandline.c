@@ -268,6 +268,8 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
         if (parse_bitmask(str_arg, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
             FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
+    } else if (sscanf(line, " pan_id = %u %c", &ctxt->ws_pan_id, &garbage) == 1) {
+        /* empty */
     } else if (sscanf(line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
         if (int_arg < 0 || int_arg > 3)
             FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, int_arg);
@@ -359,6 +361,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_domain = -1;
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
+    ctxt->ws_pan_id = -1;
     ctxt->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
     ctxt->bc_interval = WS_FHSS_BC_INTERVAL;
     ctxt->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
