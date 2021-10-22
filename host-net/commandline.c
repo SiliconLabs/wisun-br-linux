@@ -17,7 +17,6 @@
 #include "nanostack/ws_management_api.h"
 #include "nanostack/ns_file_system.h"
 #include "host-common/os_types.h"
-#include "host-common/bus_uart.h"
 #include "host-common/utils.h"
 #include "host-common/log.h"
 #include "named_values.h"
@@ -32,10 +31,10 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wsbrd -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wsbrd [OPTIONS]\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -u                    Use UART bus\n");
+    fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
@@ -76,10 +75,10 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "Simulate a Wi-SUN node\n");
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
-    fprintf(stream, "  wsnode -u [OPTIONS] UART_DEVICE\n");
+    fprintf(stream, "  wsnode [OPTIONS]\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
-    fprintf(stream, "  -u                    Use UART bus\n");
+    fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
@@ -323,7 +322,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream, int exit_code))
 {
-    const char *opts_short = "usF:o:t:T:n:d:m:c:S:K:C:A:b:Hh";
+    const char *opts_short = "u:sF:o:t:T:n:d:m:c:S:K:C:A:b:Hh";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -344,12 +343,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         { 0,             0,                 0,   0  }
     };
     char *end_ptr;
-    char bus = 0;
-    int baudrate = 115200;
-    bool hardflow = false;
     int opt, i;
     char *tag;
 
+    ctxt->uart_baudrate = 115200;
     ctxt->tun_autoconf = true;
     ctxt->ws_class = 1;
     ctxt->ws_domain = -1;
@@ -375,10 +372,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             case 'F':
                 break;
             case 'u':
-            case 's':
-                if (bus)
-                    print_help(stderr, 1);
-                bus = opt;
+                strncpy(ctxt->uart_dev, optarg, sizeof(ctxt->uart_dev) - 1);
                 break;
             case 'o':
                 parse_config_line(ctxt, "command line", 0, optarg);
@@ -426,12 +420,12 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
                 break;
             case 'b':
-                baudrate = strtoul(optarg, &end_ptr, 10);
+                ctxt->uart_baudrate = strtoul(optarg, &end_ptr, 10);
                 if (*end_ptr)
                     FATAL(1, "invalid bitrate: %s", optarg);
                 break;
             case 'H':
-                hardflow = true;
+                ctxt->uart_rtscts = true;
                 break;
             case 'h':
                 print_help(stdout, 0);
@@ -442,6 +436,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
         }
     }
+    if (optind != argc)
+        FATAL(1, "Unexpected argument: %s", argv[optind]);
     if (access(ns_file_system_get_root_path(), W_OK))
         FATAL(1, "%s: %m", ns_file_system_get_root_path());
     if (!ctxt->ws_name[0])
@@ -456,13 +452,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "You must specify a regulation domain (--domain)");
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
-    if (bus == 'u') {
-        FATAL_ON(argc != optind + 1, 1, "You must specify a device name");
-        ctxt->rcp_tx = uart_tx;
-        ctxt->rcp_rx = uart_rx;
-        ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], baudrate, hardflow);
-        ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-    } else {
+    if (!ctxt->uart_dev[0])
         FATAL(1, "You must specify a UART device");
-    }
 }

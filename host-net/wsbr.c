@@ -19,6 +19,7 @@
 #include "nanostack/source/Core/include/ns_address_internal.h"
 
 #include "host-common/hal_interrupt.h"
+#include "host-common/bus_uart.h"
 #include "host-common/os_types.h"
 #include "host-common/os_timer.h"
 #include "host-common/slist.h"
@@ -201,6 +202,8 @@ int main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->ping_socket_fd = -1;
+    ctxt->rcp_tx = uart_tx;
+    ctxt->rcp_rx = uart_rx;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
@@ -209,6 +212,8 @@ int main(int argc, char *argv[])
     parse_commandline(ctxt, argc, argv, print_help_br);
     if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         FATAL(1, "You must specify a ipv6_prefix");
+    ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
+    ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);

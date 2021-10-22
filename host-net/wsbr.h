@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <linux/if.h>
+#include <linux/limits.h>
 #ifdef HAVE_LIBSYSTEMD
 #  include <systemd/sd-bus.h>
 #else
@@ -27,6 +28,10 @@ struct fhss_api;
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
     sd_bus *dbus;
+
+    char uart_dev[PATH_MAX];
+    int  uart_baudrate;
+    bool uart_rtscts;
 
     struct phy_device_driver_s *tun_driver;
     struct eth_mac_api_s *tun_mac_api;
