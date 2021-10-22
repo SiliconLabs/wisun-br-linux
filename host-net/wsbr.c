@@ -208,7 +208,6 @@ int main(int argc, char *argv[])
     parse_commandline(ctxt, argc, argv, print_help_br);
     if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         FATAL(1, "You must specify a ipv6_prefix");
-    dbus_register(ctxt);
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);
@@ -229,6 +228,8 @@ int main(int argc, char *argv[])
 
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         BUG("eventOS_event_handler_create");
+
+    dbus_register(ctxt);
 
     for (;;) {
         maxfd = 0;
