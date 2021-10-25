@@ -51,7 +51,11 @@ static int dbus_root_certificate_add(sd_bus_message *m, void *userdata, sd_bus_e
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
     cert.cert = (uint8_t *)strdup(content);
-    cert.cert_len = strlen(content);
+    /* mbedtls expects a \0 at the end of PEM certificate (but not on end of DER
+     * certificates). Since this API use a string as input the argument cannot
+     * be in DER format. So, add '\0' unconditionally.
+     */
+    cert.cert_len = strlen(content) + 1;
     ret = arm_network_trusted_certificate_add(&cert);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
@@ -68,8 +72,9 @@ static int dbus_root_certificate_remove(sd_bus_message *m, void *userdata, sd_bu
     ret = sd_bus_message_read(m, "s", &cert.cert);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    cert.cert_len = strlen((char *)cert.cert);
-    // FIXME: I think that old cert is not freed
+    /* See comment in dbus_root_certificate_add() */
+    cert.cert_len = strlen((char *)cert.cert) + 1;
+    // FIXME: I think that the removed cert is not freed
     ret = arm_network_trusted_certificate_remove(&cert);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
