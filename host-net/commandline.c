@@ -315,13 +315,13 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
         FATAL(1, "%s: %m", filename);
     while (fgets(line, sizeof(line), f)) {
         line_no++;
-        len = strlen(line) - 1;
-        if (len < 0)
+        len = strlen(line);
+        if (len > 0 && line[len - 1] == '\n')
+            line[--len] = '\0';
+        if (len > 0 && line[len - 1] == '\r')
+            line[--len] = '\0';
+        if (len <= 0)
             continue;
-        if (line[len] == '\n')
-            line[len--] = '\0';
-        if (line[len] == '\r')
-            line[len--] = '\0';
         *(strchrnul(line, '#')) = '\0';
         parse_config_line(ctxt, filename, line_no, line);
     }
