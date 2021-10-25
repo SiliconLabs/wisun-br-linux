@@ -372,6 +372,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             case 'F':
                 parse_config_file(ctxt, optarg);
                 break;
+            case '?':
+                print_help(stderr, 1);
+                break;
             default:
                 break;
         }
@@ -440,9 +443,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             case 'h':
                 print_help(stdout, 0);
                 break;
-            case '?':
             default:
-                print_help(stderr, 1);
+                BUG(); /* Cannot happen */
                 break;
         }
     }
