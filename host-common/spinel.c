@@ -603,7 +603,6 @@ static spinel_ssize_t spinel_datatype_vunpack_(bool           in_place,
                 block_ptr += pui_len;
 
                 require(pui_len > 0, bail);
-                require(block_len < SPINEL_FRAME_MAX_SIZE, bail);
             }
             else
             {
@@ -654,7 +653,6 @@ static spinel_ssize_t spinel_datatype_vunpack_(bool           in_place,
                 block_ptr += pui_len;
 
                 require(pui_len > 0, bail);
-                require(block_len < SPINEL_FRAME_MAX_SIZE, bail);
             }
             else
             {

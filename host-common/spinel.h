@@ -392,28 +392,12 @@
 #define SPINEL_MIN_HOST_SUPPORTED_RCP_API_VERSION 1
 
 /**
- * @def SPINEL_FRAME_MAX_SIZE
- *
- *  The maximum size of SPINEL frame.
- *
- */
-#define SPINEL_FRAME_MAX_SIZE 1300
-
-/**
  * @def SPINEL_FRAME_MAX_COMMAND_HEADER_SIZE
  *
  *  The maximum size of SPINEL command header.
  *
  */
 #define SPINEL_FRAME_MAX_COMMAND_HEADER_SIZE 4
-
-/**
- * @def SPINEL_FRAME_MAX_PAYLOAD_SIZE
- *
- *  The maximum size of SPINEL command payload.
- *
- */
-#define SPINEL_FRAME_MAX_COMMAND_PAYLOAD_SIZE (SPINEL_FRAME_MAX_SIZE - SPINEL_FRAME_MAX_COMMAND_HEADER_SIZE)
 
 /**
  * @def SPINEL_ENCRYPTER_EXTRA_DATA_SIZE
@@ -423,15 +407,6 @@
  *
  */
 #define SPINEL_ENCRYPTER_EXTRA_DATA_SIZE 0
-
-/**
- * @def SPINEL_FRAME_BUFFER_SIZE
- *
- *  The size of buffer large enough to fit one whole spinel frame with extra data
- *  needed by Spinel Encrypter.
- *
- */
-#define SPINEL_FRAME_BUFFER_SIZE (SPINEL_FRAME_MAX_SIZE + SPINEL_ENCRYPTER_EXTRA_DATA_SIZE)
 
 /// Macro for generating bit masks using bit index from the spec
 #define SPINEL_BIT_MASK(bit_index, field_bit_count) ((1 << ((field_bit_count)-1)) >> (bit_index))
