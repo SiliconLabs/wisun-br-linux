@@ -1579,11 +1579,11 @@ int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold)
     return 0;
 }
 
-int8_t arm_nwk_set_tx_output_power(int8_t interface_id, uint8_t tx_power)
+int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
 {
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->mac_api || (tx_power > 100)) {
+    if (!cur || !cur->mac_api) {
         return -1;
     }
     mlme_set_t set_req;

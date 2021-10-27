@@ -1198,16 +1198,15 @@ extern int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_thresho
 /**
  * \brief Set TX output power.
  *
- * This function can be used to set TX output power to PHY layer. TX power is given as percentage of maximum output power.
- * 0 is the lowest possible TX power and 100 is the highest possible TX power.
+ * This function can be used to set TX output power to PHY layer.
  *
  * Note! Software MAC must be created and registered before using this function.
  *
  * \param interface_id Network interface ID.
- * \param tx_power TX output power (%).
+ * \param tx_power TX output power (dBm).
  * \return 0 on success, <0 on errors.
  */
-extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, uint8_t tx_power);
+extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
 
 /**
  * \brief Get CCA threshold table.
