@@ -292,7 +292,7 @@ unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned i
     int ret;
 
     ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, &size);
-    BUG_ON(ret < 0);
+    BUG_ON(ret < 2);
     BUG_ON(ret != size + 2);
     buf->cnt += ret;
     return size;
