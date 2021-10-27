@@ -126,11 +126,11 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index);
 /**
  * Sets lifetime for keys
  *
- * Sets Group Transient Key (GTK), Pairwise Master Key (PMK) and
+ * Sets Group Transient Key expire offset (GTK expire offset), Pairwise Master Key (PMK) and
  * Pairwise Transient Key (PTK) lifetimes.
  *
  * \param interface_id Network interface ID.
- * \param gtk_lifetime GTK lifetime in minutes or zero if value is not changed
+ * \param gtk_expire_offset GTK expire offset in minutes or zero if value is not changed
  * \param pmk_lifetime PMK lifetime in minutes or zero if value is not changed
  * \param ptk_lifetime PTK lifetime in minutes or zero if value is not changed
  *
@@ -139,7 +139,7 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index);
  */
 int ws_test_key_lifetime_set(
     int8_t interface_id,
-    uint32_t gtk_lifetime,
+    uint32_t gtk_expire_offset,
     uint32_t pmk_lifetime,
     uint32_t ptk_lifetime
 );

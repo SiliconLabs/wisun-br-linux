@@ -398,10 +398,10 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index)
     return -1;
 }
 
-int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
+int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
 {
     (void) interface_id;
-    (void) gtk_lifetime;
+    (void) gtk_expire_offset;
     (void) pmk_lifetime;
     (void) ptk_lifetime;
 
