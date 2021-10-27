@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <libgen.h>
 #include <sys/stat.h>
 
 #include "mbed-client-libservice/ip6string.h"
@@ -290,6 +291,13 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
         ns_file_system_set_root_path(str_arg);
+        if (strlen(str_arg) && str_arg[strlen(str_arg) - 1] == '/') {
+            if (access(str_arg, W_OK))
+                FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+        } else {
+            if (access(dirname(str_arg), W_OK))
+                FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+        }
     } else if (sscanf(line, " uc_dwell_interval = %d %c", &ctxt->uc_dwell_interval, &garbage) == 1) {
         if (ctxt->uc_dwell_interval < 15 || ctxt->uc_dwell_interval > 255)
             FATAL(1, "%s:%d: invalid unicast dwell interval: %d", filename, line_no, ctxt->uc_dwell_interval);
@@ -450,8 +458,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     }
     if (optind != argc)
         FATAL(1, "Unexpected argument: %s", argv[optind]);
-    if (access(ns_file_system_get_root_path(), W_OK))
-        FATAL(1, "%s: %m", ns_file_system_get_root_path());
     if (!ctxt->ws_name[0])
         FATAL(1, "You must specify a network name (--name)");
     if (!ctxt->tls_own.key)
