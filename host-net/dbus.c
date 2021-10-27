@@ -265,6 +265,7 @@ static const sd_bus_vtable dbus_vtable[] = {
 void dbus_register(struct wsbr_ctxt *ctxt)
 {
     int ret;
+    const char *dbus_scope = "undefined";
 
     ret = sd_bus_default(&ctxt->dbus);
     if (ret < 0) {
@@ -286,6 +287,9 @@ void dbus_register(struct wsbr_ctxt *ctxt)
         WARN("%s: %s", __func__, strerror(-ret));
         return;
     }
+
+    sd_bus_get_scope(ctxt->dbus, &dbus_scope);
+    INFO("Successfully registered to %s DBus", dbus_scope);
 }
 
 int dbus_process(struct wsbr_ctxt *ctxt)
