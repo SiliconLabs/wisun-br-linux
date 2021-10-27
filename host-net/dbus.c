@@ -44,6 +44,7 @@ static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_
         .type = ADDRESS_IPV6,
     };
     uint8_t payload[8] = { ICMPV6_TYPE_INFO_ECHO_REQUEST, };
+    int16_t multicast_hop_limit = 64;
     int ret;
 
     ret = sd_bus_message_read(m, "s", &ipv6str);
@@ -56,6 +57,9 @@ static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_
         socket_close(ctxt->ping_socket_fd);
     ctxt->ping_socket_fd = socket_open(SOCKET_ICMP, 0, print_ping_reply);
     if (ctxt->ping_socket_fd < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ret = socket_setsockopt(ctxt->ping_socket_fd, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &multicast_hop_limit, sizeof(multicast_hop_limit));
+    if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     ret = socket_sendto(ctxt->ping_socket_fd, &dest_addr, payload, sizeof(payload));
     if (ret < 0)
