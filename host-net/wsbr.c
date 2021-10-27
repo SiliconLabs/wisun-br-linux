@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
+    ctxt->ping_socket_fd = -1;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();

@@ -11,14 +11,58 @@
 #include "nanostack/source/6LoWPAN/ws/ws_pae_controller.h"
 #include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
 #include "nanostack/source/Security/protocols/sec_prot_keys.h"
+#include "nanostack/source/Common_Protocols/icmpv6.h"
 
 #include "nanostack/ws_bbr_api.h"
+#include "nanostack/socket_api.h"
+#include "mbed-client-libservice/ip6string.h"
 
 #include "host-common/utils.h"
 #include "host-common/log.h"
 #include "named_values.h"
 #include "dbus.h"
 #include "wsbr.h"
+
+static void print_ping_reply(void *cb)
+{
+    socket_callback_t *event = (socket_callback_t *)cb;
+    ns_address_t src_addr;
+    uint8_t data[256];
+    int len;
+
+    len = socket_recvfrom(event->socket_id, data, sizeof(data), 0, &src_addr);
+    DEBUG("if %d, socket %d, event %2X, %d/%d bytes", event->interface_id,
+          event->socket_id, event->event_type, event->d_len, len);
+}
+
+
+static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    const char *ipv6str;
+    struct ns_address dest_addr = {
+        .type = ADDRESS_IPV6,
+    };
+    uint8_t payload[8] = { ICMPV6_TYPE_INFO_ECHO_REQUEST, };
+    int ret;
+
+    ret = sd_bus_message_read(m, "s", &ipv6str);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    ret = stoip6(ipv6str, strlen(ipv6str), dest_addr.address);
+    if (!ret)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    if (ctxt->ping_socket_fd >= 0)
+        socket_close(ctxt->ping_socket_fd);
+    ctxt->ping_socket_fd = socket_open(SOCKET_ICMP, 0, print_ping_reply);
+    if (ctxt->ping_socket_fd < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ret = socket_sendto(ctxt->ping_socket_fd, &dest_addr, payload, sizeof(payload));
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
 
 int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
                   const char *property, sd_bus_message *reply,
@@ -178,6 +222,8 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_METHOD("DebugPing", "s", NULL,
+                      dbus_debug_ping, 0),
         SD_BUS_METHOD("AddRootCertificate", "s", NULL,
                       dbus_root_certificate_add, 0),
         SD_BUS_METHOD("RemoveRootCertificate", "s", NULL,

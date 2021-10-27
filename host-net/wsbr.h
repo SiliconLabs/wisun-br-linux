@@ -70,6 +70,9 @@ struct wsbr_ctxt {
     int uc_dwell_interval;
     int bc_interval;
     int bc_dwell_interval;
+
+    // For DebugPing dbus interface
+    int ping_socket_fd;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
