@@ -271,14 +271,21 @@ void dbus_register(struct wsbr_ctxt *ctxt)
         WARN("DBus not available: %s", strerror(-ret));
         return;
     }
+
     ret = sd_bus_add_object_vtable(ctxt->dbus, NULL, "/com/silabs/Wisun/BorderRouter",
                                    "com.silabs.Wisun.BorderRouter",
-                                   dbus_vtable,
-                                   ctxt);
-    WARN_ON(ret < 0, "%s: %s", __func__, strerror(-ret));
+                                   dbus_vtable, ctxt);
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return;
+    }
+
     ret = sd_bus_request_name(ctxt->dbus, "com.silabs.Wisun.BorderRouter",
                               SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
-    WARN_ON(ret < 0, "%s: %s", __func__, strerror(-ret));
+    if (ret < 0) {
+        WARN("%s: %s", __func__, strerror(-ret));
+        return;
+    }
 }
 
 int dbus_process(struct wsbr_ctxt *ctxt)
