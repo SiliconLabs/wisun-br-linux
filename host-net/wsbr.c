@@ -110,6 +110,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->ws_size);
     WARN_ON(ret);
 
+    ret = arm_nwk_set_tx_output_power(ctxt->rcp_if_id, ctxt->tx_power);
+    WARN_ON(ret);
+
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 

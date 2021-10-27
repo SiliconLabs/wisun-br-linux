@@ -287,6 +287,9 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         ctxt->ws_gtk_force[int_arg] = true;
     } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
         ctxt->ws_size = str_to_val(str_arg, valid_ws_size);
+    } else if (sscanf(line, " tx_power = %d %c", &ctxt->tx_power, &garbage) == 1) {
+        if (ctxt->tx_power < INT8_MIN || ctxt->tx_power > INT8_MAX)
+            FATAL(1, "%s:%d: invalid tx_power: %d", filename, line_no, ctxt->tx_power);
     } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -391,6 +394,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_mode = 0x1b;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
     ctxt->ws_pan_id = -1;
+    ctxt->tx_power = 20;
     ctxt->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
     ctxt->bc_interval = WS_FHSS_BC_INTERVAL;
     ctxt->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;

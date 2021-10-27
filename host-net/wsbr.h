@@ -67,6 +67,7 @@ struct wsbr_ctxt {
     int  ws_size;
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_pan_id;
+    int  tx_power;
     uint8_t ws_gtk[4][16];
     bool ws_gtk_force[4];
     uint8_t ipv6_prefix[16];
