@@ -88,6 +88,10 @@ struct wsbr_ctxt {
     int uc_dwell_interval;
     int bc_interval;
     int bc_dwell_interval;
+    uint8_t ws_allowed_mac_addresses[10][8];
+    uint8_t ws_allowed_mac_address_count;
+    uint8_t ws_denied_mac_addresses[10][8];
+    uint8_t ws_denied_mac_address_count;
 
     // For DebugPing dbus interface
     int ping_socket_fd;

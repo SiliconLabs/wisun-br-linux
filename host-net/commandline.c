@@ -338,6 +338,22 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " gtk_max_mismatch = %d %c", &ctxt->ws_gtk_max_mismatch, &garbage) == 1) {
         if (ctxt->ws_gtk_max_mismatch <= 0)
             FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", filename, line_no, ctxt->ws_gtk_max_mismatch);
+    } else if (sscanf(line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
+        if (ctxt->ws_denied_mac_address_count > 0)
+            FATAL(1, "%s:%d: allowing one MAC address while others are denied has no effect", filename, line_no);
+        if (ctxt->ws_allowed_mac_address_count >= ARRAY_SIZE(ctxt->ws_allowed_mac_addresses))
+            FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", filename, line_no);
+        if (parse_byte_array(str_arg, ctxt->ws_allowed_mac_addresses[ctxt->ws_allowed_mac_address_count], 8))
+            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+        ctxt->ws_allowed_mac_address_count++;
+    } else if (sscanf(line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
+        if (ctxt->ws_allowed_mac_address_count > 0)
+            FATAL(1, "%s:%d: denying one MAC address while others are allowed has no effect", filename, line_no);
+        if (ctxt->ws_denied_mac_address_count >= ARRAY_SIZE(ctxt->ws_denied_mac_addresses))
+            FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", filename, line_no);
+        if (parse_byte_array(str_arg, ctxt->ws_denied_mac_addresses[ctxt->ws_denied_mac_address_count], 8))
+            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+        ctxt->ws_denied_mac_address_count++;
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
     }
@@ -405,6 +421,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
     ctxt->bc_interval = WS_FHSS_BC_INTERVAL;
     ctxt->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
+    ctxt->ws_allowed_mac_address_count = 0;
+    ctxt->ws_denied_mac_address_count = 0;
     ns_file_system_set_root_path("/var/lib/wsbrd/");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
