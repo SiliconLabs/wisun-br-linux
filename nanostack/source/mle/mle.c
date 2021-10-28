@@ -39,6 +39,7 @@
 #include "mle/mle_tlv.h"
 #include "nwk_interface/protocol_timer.h"
 #include "common_protocols/ipv6_constants.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/etx/etx.h"
 #include "6lowpan/mac/mac_helper.h"

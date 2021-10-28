@@ -37,6 +37,7 @@
 #include "common_functions.h"
 
 #include "rpl/rpl_control.h"
+#include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "addr"
 
