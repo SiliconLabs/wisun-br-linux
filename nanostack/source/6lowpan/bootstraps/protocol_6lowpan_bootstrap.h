@@ -79,7 +79,6 @@ int protocol_6lowpan_router_synch_to_new_router(struct protocol_interface_info_e
 void protocol_6lowpan_bootstrap(struct protocol_interface_info_entry *cur);
 int protocol_6lowpan_del_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);
 int protocol_6lowpan_set_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);
-int8_t arm_6lowpan_bootstrap_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension);
 struct mle_6lowpan_data *protocol_6lowpan_mle_data_get(void);
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address);
 void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur);
@@ -90,7 +89,6 @@ void protocol_6lowpan_mle_timer(uint16_t ticks_update);
 #define protocol_6lowpan_bootstrap(cur) ((void)0)
 #define protocol_6lowpan_del_ll16(cur, mac_short_address) -1
 #define protocol_6lowpan_set_ll16(cur, mac_short_address) -1
-#define arm_6lowpan_bootstrap_bootstrap_set(interface_id, bootstrap_mode, net_6lowpan_mode_extension) -1
 #define protocol_6lowpan_mle_data_get() NULL
 #define arm_6lowpan_security_init_ifup(cur) ((void)0)
 #define protocol_6lowpan_mle_timer(ticks_update) ((void)0)
