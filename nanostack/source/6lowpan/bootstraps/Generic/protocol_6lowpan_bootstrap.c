@@ -1402,9 +1402,6 @@ void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
                 mle_service_security_set_security_key(cur->id, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, true);
                 mle_service_security_set_frame_counter(cur->id, cur->if_lowpan_security_params->mle_security_frame_counter);
                 break;
-            case NET_SEC_MODE_PANA_LINK_SECURITY:
-                mle_service_interface_receiver_bypass_handler_update(cur->id, lowpan_mle_receive_security_bypass_cb);
-                break;
             default:
                 break;
         }
@@ -1414,15 +1411,10 @@ void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
     cur->mac_parameters->mac_configured_sec_level = cur->if_lowpan_security_params->security_level;
     switch (cur->if_lowpan_security_params->nwk_security_mode) {
 
-        case NET_SEC_MODE_PANA_LINK_SECURITY:
-            cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
-            break;
-
         case NET_SEC_MODE_PSK_LINK_SECURITY:
             mac_helper_security_default_key_set(cur, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, MAC_KEY_ID_MODE_IDX);
         /* fall through */
         default:
-            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
             break;
     }
 }
@@ -1818,46 +1810,12 @@ void nwk_6lowpan_router_scan_state(protocol_interface_info_entry_t *cur)
 void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
-        uint8_t bootstrap_ready = 0;
-
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-
-            if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
-                if (pana_ping_notify_msg_tx(cur->mac_parameters->pan_id) == 0) {
-                    tr_warn("PING TX fail");
-                } else {
-                    bootstrap_ready = 1;
-                }
-
-            } else {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
-#ifndef NO_MLE
-                    tr_debug("MLE Parent Advertisment");
-                    if (protocol_6lowpan_mle_neigh_advertise(cur) == 0) {
-                        bootstrap_ready = 1;
-                    } else {
-                        tr_warn("MLE Host Parent Advert TX fail");
-                    }
-#endif
-                } else {
-                    bootstrap_ready = 1;
-                }
-            }
-        } else {
-            bootstrap_ready = 1;
-
+        if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
+            // Updates beacon
+            beacon_join_priority_update(cur->id);
+            lowpan_bootstrap_pan_control(cur, true);
         }
-        if (bootstrap_ready) {
-            if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
-                // Updates beacon
-                beacon_join_priority_update(cur->id);
-                lowpan_bootstrap_pan_control(cur, true);
-            }
-            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
-        } else {
-            cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
-            cur->bootstrap_state_machine_cnt = 2;
-        }
+        nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
     }
 }
 
@@ -2262,33 +2220,13 @@ uint8_t *protocol_6lowpan_mle_service_security_notify_cb(int8_t interface_id, ml
     return NULL;
 }
 
-static void nwk_protocol_network_key_init_from_pana(protocol_interface_info_entry_t *cur)
-{
-    uint8_t *key_ptr = pana_key_get(cur->pana_sec_info_temp->network_key);
-
-    if (key_ptr) {
-        mac_helper_security_default_key_set(cur, (key_ptr + 16), cur->pana_sec_info_temp->key_id, MAC_KEY_ID_MODE_IDX);
-        //mac_security_interface_link_frame_counter_reset(cur->id);
-        mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);
-        mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
-        //Init MLE Frame counter and key's and security
-        mle_service_security_init(cur->id, SEC_ENC_MIC32, cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
-        mle_service_security_set_security_key(cur->id, key_ptr, cur->pana_sec_info_temp->key_id, true);
-        mle_service_security_set_frame_counter(cur->id, cur->if_lowpan_security_params->mle_security_frame_counter);
-    }
-}
-
 static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entry_t *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
         mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-            nwk_protocol_network_key_init_from_pana(cur);
-        } else {
-            tr_debug("SET NO security");
-            mac_helper_default_security_level_set(cur, SEC_NONE);
-        }
+        tr_debug("SET NO security");
+        mac_helper_default_security_level_set(cur, SEC_NONE);
 
 #ifndef NO_MLE
         if (protocol_6lowpan_parent_link_req(cur) != 0) {
@@ -2373,11 +2311,7 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
         mac_helper_default_security_key_id_mode_set(interface, MAC_KEY_ID_MODE_IDX);
     }
 
-    //Check first pana and then MLE and else start RS scan pahse
-    if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-        bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
-        return false;
-    } else if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
+    if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
         if (protocol_6lowpan_parent_link_req(interface) != 0) {
             bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
             return false;

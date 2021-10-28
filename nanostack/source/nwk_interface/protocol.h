@@ -165,7 +165,6 @@ typedef enum {
 
 #define INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY   1
 #define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
-#define INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION      4
 #define INTERFACE_NWK_ACTIVE                            8
 #define INTERFACE_NWK_ROUTER_DEVICE                     16
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64

@@ -147,7 +147,6 @@ typedef enum {
 typedef enum {
     NET_SEC_MODE_NO_LINK_SECURITY,      /**< Security disabled at link layer, DEFAULT. */
     NET_SEC_MODE_PSK_LINK_SECURITY,     /**< Link security by PSK key. */
-    NET_SEC_MODE_PANA_LINK_SECURITY, /**< PANA network authentication defined link KEY. */
 } net_6lowpan_link_layer_sec_mode_e;
 
 
@@ -574,7 +573,6 @@ extern int8_t arm_nwk_6lowpan_beacon_compare_rx_callback_set(int8_t interface_id
   * \param mode Defines link layer security mode.
   *  NET_SEC_MODE_NO_LINK_SECURITY, No security.
   *  NET_SEC_MODE_PSK_LINK_SECURITY, Predefined PSK link layer key and ID.
-  *  NET_SEC_MODE_PANA_LINK_SECURITY, PANA bootstrap network authentication.
   *
   * \param sec_level Defined security level is checked only when the mode is not NET_SEC_MODE_NO_LINK_SECURITY.
   * \param psk_key_info Pointer for PSK link layer keys. Checked only when the mode is NET_SEC_MODE_PSK_LINK_SECURITY.

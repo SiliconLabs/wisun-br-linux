@@ -585,12 +585,6 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
         //set 6LoWPAN default
         mac_helper_mac_mlme_max_retry_set(cur->id, LOWPAN_MAX_FRAME_RETRIES);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-            if (pana_server_key_material_load(cur->id) != 0) {
-                tr_warn("Border router security load fail");
-                return -3;
-            }
-        }
     }
 
     int number_of_channels = arm_mac_channel_list_analyze(cur);

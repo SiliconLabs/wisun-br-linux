@@ -97,9 +97,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
 
             }
 #endif
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-            pana_reset_values(cur->mac_parameters->pan_id);
-        }
 
         if (cur->interface_mode == INTERFACE_UP) {
             cur->mac_parameters->pan_id = 0xffff;
@@ -146,9 +143,7 @@ static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
         mac_helper_panid_set(cur, 0xffff);
         mac_helper_mac16_address_set(cur, 0xffff);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-            mac_helper_default_security_level_set(cur, SEC_NONE);
-        }
+
         cur->interface_mode = INTERFACE_UP;
         ret_val = 0;
     }
