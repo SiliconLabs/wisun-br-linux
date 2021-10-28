@@ -904,9 +904,7 @@ int8_t arm_nwk_interface_down(int8_t interface_id)
 
 int8_t arm_pana_client_key_pull(int8_t interface_id)
 {
-#ifndef PANA
     (void)interface_id;
-#endif
     return pana_client_key_pull(interface_id);
 }
 
@@ -983,9 +981,6 @@ int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *ch
     ret = ws_pae_controller_certificate_chain_set(chain_info);
 #endif
 
-#ifdef PANA
-    ret = pana_interface_certificate_chain_set(chain_info);
-#endif
 
     return ret;
 }
@@ -1107,9 +1102,7 @@ int8_t arm_pana_server_key_update(int8_t interface_id, const uint8_t *network_ke
 
 int8_t net_pana_parameter_set(const pana_lib_parameters_s *parameter_ptr)
 {
-#ifndef PANA
     (void)parameter_ptr;
-#endif
     return pana_set_params(parameter_ptr);
 }
 
@@ -1122,19 +1115,15 @@ int8_t net_pana_parameter_set(const pana_lib_parameters_s *parameter_ptr)
  */
 int8_t net_pana_parameter_read(pana_lib_parameters_s *parameter_ptr)
 {
-#ifndef PANA
     (void)parameter_ptr;
-#endif
     return pana_get_params(parameter_ptr);
 }
 
 int8_t arm_pana_client_library_init(int8_t interface_id, net_tls_cipher_e cipher_mode, uint32_t psk_key_id)
 {
-#ifndef PANA
     (void)interface_id;
     (void)cipher_mode;
     (void)psk_key_id;
-#endif
     return pana_client_interface_init(interface_id, cipher_mode, psk_key_id);
 }
 

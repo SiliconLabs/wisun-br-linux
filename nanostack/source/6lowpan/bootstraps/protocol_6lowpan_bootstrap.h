@@ -65,9 +65,6 @@ typedef struct mle_6lowpan_data {
     uint8_t link_req_token_bucket;          // Token bucket for MLE link request with non-valid security counter
 } mle_6lowpan_data_t;
 
-#ifdef PANA
-extern void nwk_6lowpan_bootstrap_pana_authentication_cb(bool processSuccesfully, struct protocol_interface_info_entry *cur);
-#endif
 #ifdef HAVE_6LOWPAN_ND
 uint8_t *protocol_6lowpan_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId);
 void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);

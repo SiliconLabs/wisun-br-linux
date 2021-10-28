@@ -29,17 +29,6 @@
 #include "shalib.h"
 #include "common_protocols/ipv6_constants.h"
 
-#ifdef PANA
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
-#include "security/tls/tls_lib.h"
-#include "security/common/sec_lib.h"
-#include "net_nvm_api.h"
-#include "security/pana/pana.h"
-#include "ccm.h"
-#endif
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "net_nwk_scan.h"

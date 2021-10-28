@@ -1387,31 +1387,7 @@ static int8_t arm_6lowpan_bootstrap_down(protocol_interface_info_entry_t *cur)
 static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_message_t *mle_msg)
 {
     (void) interface_id;
-#ifdef PANA
-    protocol_interface_info_entry_t *interface = mle_msg->interface_ptr;
-    //Accept Only Link Reject
-    if (mle_msg->message_type == MLE_COMMAND_REJECT) {
-
-        if ((interface->lowpan_info & (INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION)) != (INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION)) {
-            return;
-        }
-
-        if (protocol_6lowpan_interface_compare_cordinator_netid(interface, mle_msg->packet_src_address + 8) != 0) {
-            return;
-        }
-
-        if (interface->nwk_bootstrap_state != ER_PANA_AUTH) {
-            return;
-        }
-
-        //Stop Pana and call ECC
-        tr_debug("MLE Link reject from cordinator");
-        pana_reset_client_session();
-        bootstrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
-    }
-#else
     (void)mle_msg;
-#endif
 }
 
 void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
@@ -2212,93 +2188,9 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
 #endif
 #endif
 }
-#ifdef PANA
-void nwk_6lowpan_pana_key_pull(protocol_interface_info_entry_t *cur)
-{
-    //REG GP16 address
-    if (pana_ping_notify_msg_tx(cur->mac_parameters->pan_id) == 0) {
-        tr_warn("PING TX fail");
-        cur->nwk_bootstrap_state = ER_PANA_PING;
-        cur->bootstrap_state_machine_cnt = 2;
-    }
-}
-#endif
 
 #ifndef NO_MLE
 
-#ifdef PANA
-void nwk_6lowpan_bootstrap_pana_authentication_cb(bool processSuccesfully, protocol_interface_info_entry_t *cur)
-{
-    if (processSuccesfully) {
-        bootstrap_next_state_kick(ER_PANA_AUTH_DONE, cur);
-    } else {
-        bootstrap_next_state_kick(ER_PANA_AUTH_ERROR, cur);
-
-    }
-}
-
-static void nwk_6lowpan_bootstrap_pana_authentication_start(protocol_interface_info_entry_t *cur)
-{
-    uint8_t temp_coordinator_address[16];
-    pana_tls_setup_s setup;
-    sec_suite_t *suite = 0;
-    tr_debug("Wake Pana by Bootstrap");
-    protocol_6lowpan_interface_get_link_local_cordinator_address(cur, temp_coordinator_address);
-    //Release old before copy new
-    if (cur->pana_sec_info_temp == 0) {
-        tr_debug("Allocate Pana auth Info");
-        cur->pana_sec_info_temp = ns_dyn_mem_alloc(sizeof(auth_info_t));
-    }
-    if (cur->if_lowpan_security_params->pana_params) {
-        setup.psk_key_id = cur->if_lowpan_security_params->pana_params->psk_key_id;
-
-        switch (cur->if_lowpan_security_params->pana_params->nwk_chipher_mode) {
-            case NET_TLS_PSK_CIPHER:        /**< Network Authentication support only PSK */
-                setup.security_support = SEC_CIPHERSUITE_PSK;
-                break;
-
-            case NET_TLS_ECC_CIPHER:        /**< Network Authentication support only ECC */
-                setup.security_support = SEC_CIPHERSUITE_ECC;
-                break;
-            case NET_TLS_PSK_AND_ECC_CIPHER:
-                setup.security_support = SEC_CIPHERSUITE_PSK | SEC_CIPHERSUITE_ECC;
-                break;
-        }
-
-        setup.pan_id = cur->mac_parameters->pan_id;
-        suite = pana_client_init(cur->pana_sec_info_temp, temp_coordinator_address, &setup);
-
-    }
-    if (suite) {
-        //SET address
-        //SET CORD Address
-        nd_router_t   *object = nd_get_pana_address();
-        cur->nwk_bootstrap_state = ER_PANA_AUTH;
-        cur->bootstrap_state_machine_cnt = 0;
-        if (object) {
-            icmp_nd_set_nd_def_router_address(suite->session_address, object);
-
-            tr_debug("ND Router adr: %s", trace_ipv6(suite->session_address));
-
-            //SET CORD ADDRESS
-            if (memcmp(&suite->session_address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-                mac_helper_coordinator_address_set(cur, ADDR_802_15_4_SHORT, &(suite->session_address[14]));
-            } else {
-                suite->session_address[8] ^= 2;
-                mac_helper_coordinator_address_set(cur, ADDR_802_15_4_LONG, &(suite->session_address[8]));
-                suite->session_address[8] ^= 2;
-            }
-        } else {
-            tr_debug("Use Mac Coordinator");
-        }
-        suite->session_port = UDP_PORT_PANA;
-        suite->interface = cur;
-    } else {
-        cur->nwk_bootstrap_state = ER_PANA_AUTH_ERROR;
-        cur->bootstrap_state_machine_cnt = 1;
-    }
-}
-#endif
 
 #endif
 
@@ -2415,10 +2307,6 @@ static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entr
             nwk_6lowpan_bootstrap_ready(cur);
         } else {
             tr_debug("PULL kEY Done by Router");
-#ifdef PANA
-            cur->nwk_bootstrap_state = ER_PANA_PING;
-            nwk_6lowpan_pana_key_pull(cur);
-#endif
         }
 
         nwk_protocol_network_key_set_from_pana(cur);
@@ -2487,13 +2375,8 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
 
     //Check first pana and then MLE and else start RS scan pahse
     if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
-#ifdef PANA
-        nwk_6lowpan_bootstrap_pana_authentication_start(interface);
-        tr_debug("Pana auth");
-#else
         bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
         return false;
-#endif
     } else if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
         if (protocol_6lowpan_parent_link_req(interface) != 0) {
             bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
@@ -2667,11 +2550,6 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
             tr_debug("Network Bootstrap Start Fail");
             nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
             break;
-#ifdef PANA
-        case ER_PANA_PING:
-            nwk_6lowpan_pana_key_pull(cur);
-            break;
-#endif
         case ER_MLE_LINK_REQ:
             //No need to do anything in this case
             break;

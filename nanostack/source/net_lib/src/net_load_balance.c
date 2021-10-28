@@ -39,10 +39,6 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#ifdef PANA
-#include "security/pana/pana.h"
-#include "security/pana/pana_internal_api.h"
-#endif
 #include "6lowpan/nd/nd_router_object.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
@@ -85,9 +81,6 @@ static bool net_load_balance_network_switch_req(void *load_balance_user, struct 
     if (interface->if_down(interface) != 0) {
         return false;
     }
-#ifdef PANA
-    pana_reset_client_session();
-#endif
     if (interface->if_up(interface) != 0) {
         return false;
     }
