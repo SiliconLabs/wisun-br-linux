@@ -93,17 +93,9 @@ static int8_t host_link_configuration(bool rx_on_idle, protocol_interface_info_e
     }
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, rx_on_idle);
 
-    if (thread_info(cur)) {
-        if (rx_on_idle != backUp_bool) {
-            //If mode have been changed, send child update
-            thread_bootstrap_child_update_trig(cur);
-        }
+    if (protocol_6lowpan_child_update(cur) == 0) {
+        mac_data_poll_init_protocol_poll(cur);
         return 0;
-    } else {
-        if (protocol_6lowpan_child_update(cur) == 0) {
-            mac_data_poll_init_protocol_poll(cur);
-            return 0;
-        }
     }
 
     //Swap back If Send Fail
@@ -351,9 +343,6 @@ void mac_mlme_poll_confirm(protocol_interface_info_entry_t *cur, const mlme_poll
                 poll_time = 2000;
             }
             break;
-    }
-    if (thread_info(cur) && entry) {
-        thread_neighbor_communication_update(cur, entry->index);
     }
 
     mac_poll_timer_trig(poll_time, cur);

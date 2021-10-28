@@ -231,13 +231,6 @@ bool mld_querier = false;
 
 buffer_t *mld_query_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
 {
-    /* Thread has its own mechanism (as ever), and borrows the mld_timer field,
-     * so we can't do MLD.
-     */
-    if (thread_info(cur)) {
-        goto invalid;
-    }
-
     /* RFC 4541 (MLD Snooping Switches) says we should accept unspecified source */
     if (!(addr_is_ipv6_link_local(buf->src_sa.address) || addr_is_ipv6_unspecified(buf->src_sa.address)) || buffer_data_length(buf) < 20) {
         goto invalid;
@@ -289,10 +282,6 @@ invalid:
 
 buffer_t *mld_report_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
 {
-    if (thread_info(cur)) {
-        goto invalid;
-    }
-
     if (!addr_is_ipv6_link_local(buf->src_sa.address) || buffer_data_length(buf) < 20) {
         goto invalid;
     }
@@ -325,11 +314,6 @@ invalid:
 
 void mld_start_listening(protocol_interface_info_entry_t *interface, if_group_entry_t *entry)
 {
-    if (thread_info(interface)) {
-        thread_mcast_group_change(interface, entry, true);
-        return;
-    }
-
     /* "Send MLD" flag only controls sending unsolicited reports when we join. We will still always respond if queried */
     if (interface->send_mld && addr_ipv6_multicast_scope(entry->group) >= IPV6_SCOPE_LINK_LOCAL) {
         entry->mld_timer = randLIB_get_random_in_range(1, MLD_UNSOLICITED_REPORT_INTERVAL);
@@ -343,11 +327,6 @@ void mld_start_listening(protocol_interface_info_entry_t *interface, if_group_en
 
 void mld_stop_listening(protocol_interface_info_entry_t *interface, if_group_entry_t *entry)
 {
-    if (thread_info(interface)) {
-        thread_mcast_group_change(interface, entry, false);
-        return;
-    }
-
     if (entry->mld_last_reporter) {
         protocol_push(mld_build(interface, ICMPV6_TYPE_INFO_MCAST_LIST_DONE, 0, entry->group));
     }
@@ -367,10 +346,6 @@ void mld_slow_timer(protocol_interface_info_entry_t *interface, uint_fast16_t se
 
 void mld_fast_timer(protocol_interface_info_entry_t *interface, uint_fast16_t ticks)
 {
-    if (thread_info(interface)) {
-        return;
-    }
-
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
         if (entry->mld_timer == 0) {
             continue;

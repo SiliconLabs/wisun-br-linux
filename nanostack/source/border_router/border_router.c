@@ -274,12 +274,10 @@ int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id)
         } else if ((cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
             ret_val = -2;
         } else {
-            if (thread_info(cur_interface) == NULL) {
-                cur_interface->border_router_setup->nd_nwk->nd_timer = 1;
-                cur_interface->border_router_setup->nd_nwk->nd_re_validate = 1;
-                cur_interface->border_router_setup->nd_nwk->abro_version_num++;
-                ret_val = 0;
-            }
+            cur_interface->border_router_setup->nd_nwk->nd_timer = 1;
+            cur_interface->border_router_setup->nd_nwk->nd_re_validate = 1;
+            cur_interface->border_router_setup->nd_nwk->abro_version_num++;
+            ret_val = 0;
         }
     }
     return ret_val;
@@ -356,8 +354,6 @@ int8_t arm_nwk_6lowpan_border_router_init(int8_t interface_id, const border_rout
             ret_val = -4;
         } else if (cur->border_router_setup == 0) {
             ret_val = -3;
-        } else if (thread_info(cur)) {
-            ret_val = -5;
         } else if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) ==  0) {
             uint8_t *ptr = cur->border_router_setup->border_router_gp_adr;
             memcpy(ptr, border_router_setup_ptr->lowpan_nd_prefix, 8);

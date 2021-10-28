@@ -248,9 +248,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
             if (cur->nwk_id == IF_6LoWPAN) {
                 if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                    if (thread_info(cur)) {
-                        thread_seconds_timer(cur, seconds);
-                    } else if (ws_info(cur)) {
+                    if (ws_info(cur)) {
                         ws_common_seconds_timer(cur, seconds);
                     } else if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
                         beacon_join_priority_update(cur->id);
@@ -322,9 +320,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 nwk_bootstrap_timer(cur);
                 nd_object_timer(cur, ticksUpdate);
-                if (thread_info(cur)) {
-                    thread_timer(cur, ticksUpdate);
-                } else if (ws_info(cur)) {
+                if (ws_info(cur)) {
                     ws_common_fast_timer(cur, ticksUpdate);
                 }
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
@@ -1153,9 +1149,7 @@ void net_bootstrap_cb_run(uint8_t event)
     if (cur) {
         if (cur->nwk_id == IF_6LoWPAN) {
             //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
-            if (thread_info(cur)) {
-                thread_bootstrap_state_machine(cur);
-            } else if (ws_info(cur)) {
+            if (ws_info(cur)) {
                 ws_common_state_machine(cur);
             } else {
                 protocol_6lowpan_bootstrap(cur);

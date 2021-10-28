@@ -1687,7 +1687,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 
 static bool mcps_data_indication_neighbor_validate(protocol_interface_info_entry_t *cur, const sockaddr_t *addr)
 {
-    if (thread_info(cur) || ws_info(cur) || (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE)) {
+    if (ws_info(cur) || (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE)) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
         if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
             return true;

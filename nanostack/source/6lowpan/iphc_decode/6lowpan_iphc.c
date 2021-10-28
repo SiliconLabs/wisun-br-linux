@@ -76,9 +76,6 @@ buffer_t *lowpan_down(buffer_t *buf)
         if (!n) {
             return NULL;
         }
-        if (thread_info(cur)) {
-            stable_only = thread_stable_context_check(cur, buf);
-        }
     }
 
     if (!buf->link_specific.ieee802_15_4.useDefaultPanId) {
@@ -90,13 +87,7 @@ buffer_t *lowpan_down(buffer_t *buf)
      * source, for best compression, and to ensure if the layer above uses LL64
      * (like MLE), it forces us to use our MAC64.
      */
-    if (thread_info(cur) && !(link_local && thread_insist_that_mesh_isnt_a_link(cur)) && buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
-        /* For Thread, we want to always use short source address for unicast
-         * to non-link-local 16-bit addresses, which is the case where we want
-         * to use mesh headers.
-         */
-        buf->src_sa.addr_type = ADDR_802_15_4_SHORT;
-    } else if (addr_iid_matches_eui64(ip_src + 8, cur->mac)) {
+    if (addr_iid_matches_eui64(ip_src + 8, cur->mac)) {
         buf->src_sa.addr_type = ADDR_802_15_4_LONG;
     } else if (cur->mac_parameters->mac_short_address < 0xfffe && addr_iid_matches_lowpan_short(ip_src + 8, cur->mac_parameters->mac_short_address)) {
         buf->src_sa.addr_type = ADDR_802_15_4_SHORT;

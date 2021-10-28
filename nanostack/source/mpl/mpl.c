@@ -485,7 +485,7 @@ static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *me
 
     /* Modify the M flag [Thread says it must be clear] */
     uint8_t *flag = buffer_data_pointer(buf) + message->mpl_opt_data_offset;
-    if (newest && !thread_info(domain->interface)) {
+    if (newest) {
         *flag |= MPL_OPT_M;
     } else {
         *flag &= ~MPL_OPT_M;
@@ -896,7 +896,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     }
 
     /* If the M flag is set, we report an inconsistency against any messages with higher sequences */
-    if ((opt_data[0] & MPL_OPT_M) && !thread_info(buf->interface)) {
+    if ((opt_data[0] & MPL_OPT_M)) {
         ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
             if (common_serial_number_greater_8(mpl_buffer_sequence(message), sequence)) {
                 mpl_buffer_inconsistent(domain, message);
@@ -924,8 +924,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
         hop_limit--;
     }
 
-    if (domain->data_trickle_params.TimerExpirations == 0 || hop_limit == 0 ||
-            (thread_info(domain->interface) && !thread_i_am_router(domain->interface))) {
+    if (domain->data_trickle_params.TimerExpirations == 0 || hop_limit == 0) {
         /* As a non-forwarder, just accept the packet and advance the
          * min_sequence - means we will drop anything arriving out-of-order, but
          * old implementation always did this in all cases anyway (even if

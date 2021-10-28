@@ -1405,12 +1405,6 @@ int8_t addr_interface_address_compare(protocol_interface_info_entry_t *cur, cons
         if (other != cur &&
                 other->zone_index[scope] == cur->zone_index[scope] &&
                 addr_is_assigned_to_interface(other, addr)) {
-            // special handling for Thread - external global-scope ULA coming in,
-            // which would match, but we need to restrict if that ULA is mesh-local
-            // on the Thread side.
-            if (thread_info(other) && addr_ipv6_scope(addr, other) <= IPV6_SCOPE_REALM_LOCAL) {
-                continue;
-            }
             return 0;
         }
     }

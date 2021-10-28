@@ -90,8 +90,7 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
         /* Change Active -> Idle */
         /* Disable Protocols Timers */
-        if (!thread_info(cur)) {
-            mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
+        mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 #ifndef NO_MLE
             if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
 
@@ -99,7 +98,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
 
             }
 #endif
-        }
         if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
             pana_reset_values(cur->mac_parameters->pan_id);
         }

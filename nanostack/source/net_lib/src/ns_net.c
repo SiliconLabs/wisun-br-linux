@@ -387,10 +387,6 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
         return -3;
     }
 
-    if (thread_info(cur)) {
-        return -2;
-    }
-
     if (short_address_base < 0xfffe) {
         cur->lowpan_desired_short_address = short_address_base;
     } else {
@@ -921,7 +917,7 @@ int8_t arm_pana_client_key_pull(int8_t interface_id)
 int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || thread_info(cur) || !cur->mac_parameters || (cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED) == 0) {
+    if (!cur || !cur->mac_parameters || (cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED) == 0) {
         return -1;
     }
 
@@ -1443,19 +1439,6 @@ int8_t arm_nwk_host_mode_set(int8_t interface_id, net_host_mode_t mode, uint32_t
         return -1;
     }
 
-    if (thread_info(cur)) {
-        //save polltime for later use, polltime is zero for fast poll mode
-        thread_info(cur)->sleepy_host_poll_time = 0;
-        if (mode == NET_HOST_SLOW_POLL_MODE) {
-            thread_info(cur)->sleepy_host_poll_time = poll_time;
-        }
-        if (old_mode == NET_HOST_RX_ON_IDLE && mode != old_mode
-                && thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE) {
-            tr_debug("End device changing to SED");
-            thread_management_device_type_set(cur->id, THREAD_DEVICE_SED);
-            return 0;
-        }
-    }
     return mac_data_poll_host_mode_set(cur, mode, poll_time);
 }
 

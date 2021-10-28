@@ -70,14 +70,8 @@ uint8_t nwk_ready(nwk_interface_id id)
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get(id);
     if (cur) {
-        if (thread_info(cur)) {
-            if (thread_attach_ready(cur) == 0) {
-                ret_val = 1;
-            }
-        } else {
-            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
-                ret_val =  1;
-            }
+        if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
+            ret_val =  1;
         }
     }
     return ret_val;
@@ -91,12 +85,7 @@ void nwk_parent_poll_fail_cb(int8_t id)
         tr_error("Data Poll Fail Event: No interface");
         return;
     }
-    if (thread_info(cur)) {
-        //Initialize Bootstrap
-        thread_bootstrap_connection_error(cur->id, CON_ERROR_POLL, NULL);
-    } else {
-        nwk_bootstrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
-    }
+    nwk_bootstrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
 
 }
 

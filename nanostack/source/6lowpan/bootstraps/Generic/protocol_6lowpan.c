@@ -411,11 +411,7 @@ void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interf
     ptr = common_write_16_bit(shortAddress, ptr);
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_SHORT, temp_ll);
-    if (thread_info(cur)) {
-        thread_nd_address_remove(cur, ADDR_802_15_4_SHORT, temp_ll);
-    } else {
-        nd_remove_registration(cur, ADDR_802_15_4_SHORT, temp_ll);
-    }
+    nd_remove_registration(cur, ADDR_802_15_4_SHORT, temp_ll);
 }
 
 void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64)
@@ -426,11 +422,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
     memcpy(ptr, mac64, 8);
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_LONG, temp_ll);
-    if (thread_info(cur)) {
-        thread_nd_address_remove(cur, ADDR_802_15_4_LONG, temp_ll);
-    } else  {
-        nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
-    }
+    nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
 #ifdef HAVE_6LOWPAN_ND
 
@@ -791,9 +783,6 @@ bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latenc
     if (cur_interface->eth_mac_api) {
         // either PPP or Ethernet interface.
         latency_estimate = 1000;
-    } else if (thread_info(cur_interface)) {
-        // thread network
-        latency_estimate = 5000;
     } else if (ws_info(cur_interface)) {
         latency_estimate = ws_common_latency_estimate_get(cur_interface);
     } else {
@@ -824,10 +813,6 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
         // either PPP or Ethernet interface.
         network_size = 1;
         datarate = 1000000;
-    } else if (thread_info(cur_interface)) {
-        // thread network
-        network_size = 23;
-        datarate = 250000;
     } else if (ws_info(cur_interface)) {
         network_size = ws_common_network_size_estimate_get(cur_interface);
         datarate = ws_common_usable_application_datarate_get(cur_interface);
