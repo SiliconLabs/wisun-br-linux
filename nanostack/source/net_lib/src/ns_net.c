@@ -1206,9 +1206,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 
     if (ret_val == 0) {
 
-        if (net_6lowpan_mode_extension == NET_6LOWPAN_THREAD) {
-            ret_val = -1;
-        } else if (net_6lowpan_mode_extension == NET_6LOWPAN_WS) {
+        if (net_6lowpan_mode_extension == NET_6LOWPAN_WS) {
             ret_val = ws_common_init(interface_id, bootstrap_mode);
         } else {
             ret_val = arm_6lowpan_bootstrap_bootstrap_set(interface_id, bootstrap_mode, net_6lowpan_mode_extension);
