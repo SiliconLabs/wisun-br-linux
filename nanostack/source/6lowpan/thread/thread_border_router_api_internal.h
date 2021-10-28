@@ -36,64 +36,6 @@
 
 #include "net_interface.h"
 
-#ifdef HAVE_THREAD_ROUTER
-
-/**
- * \brief Initialize thread border router instance
- *
- * \param interface_id current interface id
- * \param external_commisssioner_port port for external commissioner
- *
- * \return 0 on success, <0 in case of error
- */
-int8_t thread_border_router_init(int8_t interface_id);
-
-/**
- * \brief Delete thread border router instance
- *
- * \param interface_id current interface id
- */
-void thread_border_router_delete(int8_t interface_id);
-
-/**
- * \brief seconds timer for border router
- *
- * \param interface_id current interface id
- * \param tics seconds pass since last call
- */
-void thread_border_router_seconds_timer(int8_t interface_id, uint32_t tics);
-
-/**
- * \brief Set thread resubmit timer timeout.
- *
- * \param interface_id Network interface ID.
- * \param seconds seconds to set to the timer,. -1 to initialize to default value.
-  */
-void thread_border_router_resubmit_timer_set(int8_t interface_id, int16_t seconds);
-
-/**
- * \brief Call application callback with current Network Data TLV
- *
- * \param cur current interface entry
- */
-void thread_border_router_network_data_appl_callback(protocol_interface_info_entry_t *cur);
-
-/**
- * \brief Notify about network data update.
- *
- * \param cur current interface entry
- *
- */
-void thread_border_router_network_data_update_notify(protocol_interface_info_entry_t *cur);
-
-/**
- * \brief Clear data related to old partition.
- *
- * \param interface_id Network interface ID.
-  */
-void thread_border_router_old_partition_data_clean(int8_t interface_id);
-
-#else
 #define thread_border_router_init(interface_id)
 #define thread_border_router_delete(interface_id)
 #define thread_border_router_seconds_timer(interface_id, tics)
@@ -102,5 +44,4 @@ void thread_border_router_old_partition_data_clean(int8_t interface_id);
 #define thread_border_router_network_data_update_notify(cur)
 #define thread_border_router_old_partition_data_clean(interface_id)
 
-#endif
 #endif /* THREAD_BORDER_ROUTER_API_INTERNAL_H_ */

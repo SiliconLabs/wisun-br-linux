@@ -35,51 +35,10 @@
 #define THREAD_BBR_API_INTERNAL_H_
 
 #include "net_interface.h"
-#ifdef HAVE_THREAD_ROUTER
-struct ipv6_route;
-
-/**
- * \brief Initialize Thread Commissioner relay for BBR and Routers
- *
- * \param interface_id current interface id
- * \param external_commisssioner_port External commissioner port
- */
-int8_t thread_bbr_init(int8_t interface_id, uint16_t external_commisssioner_port);
-/**
- * \brief delete Thread Commissioner relay for BBR and Routers
- *
- * \param interface_id current interface id
- */
-void thread_bbr_delete(int8_t interface_id);
-
-/**
- * \brief seconds timer for border router
- *
- * \param interface_id current interface id
- * \param tics seconds pass since last call
- */
-void thread_bbr_seconds_timer(int8_t interface_id, uint32_t tics);
-
-/**
- * \brief enable/disable UDP proxy
- *
- * \param interface_id current interface id
- */
-int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
-/**
- * \brief get commissioner service id to add new services
- *
- * \param interface_id current interface id
- * \return service id or 0 if invalid
- */
-int8_t thread_bbr_get_commissioner_service(int8_t interface_id);
-
-#else
 #define thread_bbr_init(interface_id, external_commisssioner_port)
 #define thread_bbr_delete(interface_id)
 #define thread_bbr_seconds_timer(interface_id, tics)
 #define thread_bbr_commissioner_proxy_service_update(interface_id)
-#endif //HAVE_THREAD_ROUTER
 
 #ifdef HAVE_THREAD_BORDER_ROUTER
 /**

@@ -131,55 +131,6 @@ typedef struct thread_routing_info_s {
 thread_routing_info_t;
 
 
-#ifdef HAVE_THREAD_ROUTER
-
-bool thread_i_am_router(const protocol_interface_info_entry_t *cur);
-
-void thread_routing_init(thread_routing_info_t *routing);
-void thread_routing_reset(thread_routing_info_t *routing);
-void thread_routing_free(thread_routing_info_t *routing);
-void thread_routing_activate(thread_routing_info_t *routing);
-void thread_routing_deactivate(thread_routing_info_t *routing);
-bool thread_routing_timer(struct thread_info_s *thread, uint8_t ticks);
-void thread_routing_trickle_advance(thread_routing_info_t *routing, uint16_t ticks);
-void thread_routing_leader_connection_validate(struct thread_info_s *thread, uint16_t disconnect_period);
-void thread_routing_set_mesh_callbacks(protocol_interface_info_entry_t *cur);
-
-uint_fast8_t thread_routing_cost_get_by_router_id(thread_routing_info_t *routing, uint8_t routerId);
-bool router_id_sequence_is_greater(const thread_routing_info_t *routing, uint8_t seq);
-
-uint_fast8_t thread_routing_count_neighbours_for_downgrade(thread_routing_info_t *routing, uint_fast8_t *as_good);
-uint_fast8_t thread_routing_count_active_routers(thread_routing_info_t *routing);
-uint_fast8_t thread_routing_count_active_routers_from_mask(const uint8_t *id_mask);
-
-//Init
-void thread_routing_update_id_set(protocol_interface_info_entry_t *cur, uint8_t seq, const uint8_t *id_mask);
-void thread_routing_force_next_hop(protocol_interface_info_entry_t *cur, uint8_t id_seq, const uint8_t *id_mask, thread_router_id_t next_hop_id);
-
-int_fast8_t thread_routing_update_link_margin(protocol_interface_info_entry_t *cur,
-                                              uint16_t sender,
-                                              uint8_t link_margin_db,
-                                              uint8_t outgoing_link_margin_db);
-int_fast8_t thread_routing_force_link_margin(protocol_interface_info_entry_t *cur,
-                                             uint16_t addr,
-                                             uint8_t link_margin_db);
-int_fast8_t thread_routing_add_link(protocol_interface_info_entry_t *cur,
-                                    uint16_t sender, uint8_t link_margin_db,
-                                    uint8_t id_seq,
-                                    const uint8_t *id_mask,
-                                    const uint8_t *route_data,
-                                    bool is_static);
-int_fast8_t thread_routing_remove_link(protocol_interface_info_entry_t *cur,
-                                       uint16_t sender);
-
-uint8_t thread_routing_get_route_data_size(protocol_interface_info_entry_t *cur);
-
-int_fast8_t thread_routing_get_route_data(protocol_interface_info_entry_t *cur,
-                                          uint8_t *id_seq,
-                                          uint8_t *id_mask,
-                                          uint8_t *data,
-                                          uint8_t *len_out);
-#else // HAVE_THREAD_ROUTER
 
 #define thread_i_am_router(cur) false
 #define thread_routing_init(routing)
@@ -205,6 +156,5 @@ int_fast8_t thread_routing_get_route_data(protocol_interface_info_entry_t *cur,
 #define thread_addr_is_equal_or_child(a, b) false
 #define thread_addr_is_child(a, b) false
 
-#endif // HAVE_THREAD_ROUTER
 
 #endif /* THREAD_ROUTING_H_ */

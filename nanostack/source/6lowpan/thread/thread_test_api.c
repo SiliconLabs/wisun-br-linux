@@ -70,16 +70,6 @@ int_fast8_t arm_nwk_6lowpan_thread_test_add_neighbour(
     const uint8_t *id_mask,
     const uint8_t *route_data)
 {
-#ifdef HAVE_THREAD_ROUTER
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        tr_warn("Invalid interface id");
-        return -1;
-    }
-
-    return thread_routing_add_link(cur, neighbour_short_addr, link_margin_db, id_sequence, id_mask, route_data, true);
-#else
     (void)interface_id;
     (void)neighbour_short_addr;
     (void)link_margin_db;
@@ -87,27 +77,15 @@ int_fast8_t arm_nwk_6lowpan_thread_test_add_neighbour(
     (void)id_mask;
     (void)route_data;
     return -1;
-#endif
 }
 
 int_fast8_t arm_nwk_6lowpan_thread_test_remove_neighbour(
     int8_t interface_id,
     uint16_t neighbour_short_addr)
 {
-#ifdef HAVE_THREAD_ROUTER
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        tr_warn("Invalid interface id");
-        return -1;
-    }
-
-    return thread_routing_remove_link(cur, neighbour_short_addr);
-#else
     (void)interface_id;
     (void)neighbour_short_addr;
     return -1;
-#endif
 
 }
 
@@ -398,28 +376,9 @@ int8_t thread_test_initial_slaac_iid_set(int8_t interface_id, uint8_t *iid)
 
 int8_t thread_test_router_id_request_send(int8_t interface_id, uint8_t status)
 {
-#ifdef HAVE_THREAD_ROUTER
-    protocol_interface_info_entry_t *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->thread_info) {
-        return -1;
-    }
-
-    if (thread_attach_ready(cur) != 0) {
-        return -1;
-    }
-
-    tr_debug("Trigger REED router upgrade process with status %d", status);
-
-    thread_router_bootstrap_router_id_request(cur, status);
-
-    return 0;
-#else
     (void)interface_id;
     (void)status;
     return -1;
-#endif
 
 }
 
