@@ -901,12 +901,6 @@ int8_t arm_nwk_interface_down(int8_t interface_id)
     return ret_val;
 }
 
-int8_t arm_pana_client_key_pull(int8_t interface_id)
-{
-    (void)interface_id;
-    return pana_client_key_pull(interface_id);
-}
-
 int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -1041,51 +1035,6 @@ int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_
     (void) crl;
     return -1;
 #endif
-}
-
-/**
- * \brief Read Pana server security key material
- *
- * previous_active_network_key is information is only valid when current_active_key_index is bigger than 1.
- *
- *\param key pointer for store keymaterial information.
- *
- * \return 0 Key Read OK
- * \return -1 Pana server key material not available
- */
-int8_t arm_network_key_get(int8_t interface_id, ns_keys_t *key)
-{
-    (void)interface_id;
-    (void)key;
-    return pana_network_key_get(interface_id, key);
-}
-
-int8_t arm_pana_server_library_init(int8_t interface_id, net_tls_cipher_e cipher_mode, const uint8_t *key_material, uint32_t time_period_before_activate_key)
-{
-    (void)interface_id;
-    (void)cipher_mode;
-    (void)key_material;
-    (void)time_period_before_activate_key;
-    return pana_server_interface_init(interface_id, cipher_mode, key_material, time_period_before_activate_key);
-}
-
-int8_t arm_pana_activate_new_key(int8_t interface_id)
-{
-    (void)interface_id;
-    return  pana_server_trig_new_key(interface_id);
-}
-
-int8_t arm_pana_server_key_update(int8_t interface_id, const uint8_t *network_key_material)
-{
-    (void)interface_id;
-    (void)network_key_material;
-    return pana_server_key_update(interface_id, network_key_material);
-}
-
-int8_t net_pana_parameter_set(const pana_lib_parameters_s *parameter_ptr)
-{
-    (void)parameter_ptr;
-    return pana_set_params(parameter_ptr);
 }
 
 int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)
