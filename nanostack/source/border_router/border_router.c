@@ -525,7 +525,6 @@ void border_router_start(protocol_interface_info_entry_t *cur, bool warm_link_re
         cur->nwk_nd_re_scan_count = 2;
 
     } else {
-        thread_interface_up(cur);
         rpl_control_remove_domain_from_interface(cur);
         nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
     }

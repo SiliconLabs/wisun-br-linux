@@ -187,13 +187,6 @@ uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const protocol_inter
     if (addr_is_ipv6_site_local(addr)) {
         return IPV6_SCOPE_SITE_LOCAL;
     }
-    /* Thread-specific hack - we want to treat one specific "mesh local" ULA as
-     * "realm local" scope. (This is necessary, for example, to use a
-     * mesh-local ULA address as source when sending realm-local multicast).
-     */
-    if (thread_addr_is_mesh_local(addr, interface)) {
-        return IPV6_SCOPE_REALM_LOCAL;
-    }
     if (addr_is_ipv4_mapped(addr)) {
         if ((addr[12] == 169 && addr[13] == 254) || addr[12] == 127) {
             return IPV6_SCOPE_LINK_LOCAL;

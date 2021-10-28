@@ -300,12 +300,6 @@ static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t
             memcpy(&ll_addr[2], &ip_addr[8], 8);
             ll_addr[2] ^= 2;
         }
-    } else if (thread_addr_is_mesh_local(ip_addr, cur)) {
-        if (memcmp(&ip_addr[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-            /* Thread ML16s map directly to MAC (mesh) short */
-            *ll_type = ADDR_802_15_4_SHORT;
-            memcpy(&ll_addr[2], &ip_addr[14], 2);
-        }
     }
 
     if (*ll_type != ADDR_NONE) {

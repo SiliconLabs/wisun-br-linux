@@ -1778,10 +1778,6 @@ int8_t arm_6lowpan_bootstrap_bootstrap_set(int8_t interface_id, net_6lowpan_mode
 
 bootstrap_finish_check:
     if (ret_val == 0) {
-        /**
-         *  Do Thread dealloc
-         */
-        thread_info_deallocate(cur);
         //ADD RPL Support if supported and device is router
 #ifdef HAVE_RPL
         /**

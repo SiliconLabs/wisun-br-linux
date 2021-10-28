@@ -110,28 +110,24 @@ buffer_t *lowpan_down(buffer_t *buf)
     }
 
     uint_fast8_t mesh_size;
-    if (link_local && thread_insist_that_mesh_isnt_a_link(cur)) {
-        mesh_size = 0;
-    } else {
-        /* Allow the link-layer destination addresses passed from upper layers
-         * to be remapped - used to implement Thread anycast.
-         *
-         * Mapping function can change address and type - if it returns false,
-         * packet is dropped.
-         *
-         * Note that this mapping has to be done before IPHC compression, which
-         * is why it moved from mesh.c.
-         */
-        if (!mesh_address_map(cur, &buf->dst_sa.addr_type, buf->dst_sa.address)) {
-            tr_debug("mesh_address_map fail");
-            return buffer_free(buf);
-        }
-
-        /* After mapping, compute final mesh header size (which depends on
-         * the final address).
-         */
-        mesh_size = mesh_header_size(buf);
+    /* Allow the link-layer destination addresses passed from upper layers
+     * to be remapped - used to implement Thread anycast.
+     *
+     * Mapping function can change address and type - if it returns false,
+     * packet is dropped.
+     *
+     * Note that this mapping has to be done before IPHC compression, which
+     * is why it moved from mesh.c.
+     */
+    if (!mesh_address_map(cur, &buf->dst_sa.addr_type, buf->dst_sa.address)) {
+        tr_debug("mesh_address_map fail");
+        return buffer_free(buf);
     }
+
+    /* After mapping, compute final mesh header size (which depends on
+     * the final address).
+     */
+    mesh_size = mesh_header_size(buf);
 
     if (mesh_size == 0) {
         if (buf->dst_sa.addr_type == ADDR_BROADCAST) {

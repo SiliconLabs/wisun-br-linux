@@ -722,13 +722,6 @@ buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cu
         if (seed_id_type == MPL_SEED_IPV6_SRC) {
             seed_id = buf->src_sa.address;
             seed_id_len = 16;
-            /* Thread spec says, or at least implies, that ML16/RLOC address is
-             * matched against corresponding 16-bit seed id (although
-             * Thread doesn't use control messages...) */
-            if (thread_addr_is_mesh_local_16(seed_id, cur)) {
-                seed_id += 14;
-                seed_id_len = 2;
-            }
         } else {
             seed_id = ptr;
             ptr += seed_id_len;
@@ -877,12 +870,6 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     if (seed_id_type == MPL_SEED_IPV6_SRC) {
         seed_id = buf->src_sa.address;
         seed_id_len = 16;
-        /* Thread spec says, or at least implies, that ML16/RLOC address is
-         * matched against corresponding 16-bit seed id */
-        if (thread_addr_is_mesh_local_16(seed_id, buf->interface)) {
-            seed_id += 14;
-            seed_id_len = 2;
-        }
     }
 
     tr_debug("seed %s seq %"PRIu8, tr_array(seed_id, seed_id_len), sequence);
@@ -1113,12 +1100,8 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
     }
 
     /* "Compress" seed ID if it's the IPv6 source address */
-    /* (For Thread, also compress if source is the 16-bit address) */
     /* (For Wi-sun, not support seed id address compression */
     if (!ws_info(buf->interface) && seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
-        seed_id_len = 0;
-    } else if (seed_id_len == 2 && thread_addr_is_mesh_local_16(buf->src_sa.address, buf->interface) &&
-               seed_id[0] == buf->src_sa.address[14] && seed_id[1] == buf->src_sa.address[15]) {
         seed_id_len = 0;
     }
 
