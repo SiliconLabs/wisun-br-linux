@@ -49,7 +49,6 @@
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
-#include "net_pana_parameters_api.h"
 #ifdef ECC
 #include "libX509_V3.h"
 #include "ecc.h"
@@ -1087,27 +1086,6 @@ int8_t net_pana_parameter_set(const pana_lib_parameters_s *parameter_ptr)
 {
     (void)parameter_ptr;
     return pana_set_params(parameter_ptr);
-}
-
-
-/**
- * \brief API to read PANA library parameters.
- *
- * \param parameter_ptr Output pointer for Pana parameters
- *
- */
-int8_t net_pana_parameter_read(pana_lib_parameters_s *parameter_ptr)
-{
-    (void)parameter_ptr;
-    return pana_get_params(parameter_ptr);
-}
-
-int8_t arm_pana_client_library_init(int8_t interface_id, net_tls_cipher_e cipher_mode, uint32_t psk_key_id)
-{
-    (void)interface_id;
-    (void)cipher_mode;
-    (void)psk_key_id;
-    return pana_client_interface_init(interface_id, cipher_mode, psk_key_id);
 }
 
 int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)

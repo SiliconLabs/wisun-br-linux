@@ -38,7 +38,6 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "mac_api.h"
-#include "net_pana_parameters_api.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif
