@@ -167,12 +167,6 @@ void protocol_6lowpan_stack(buffer_t *b)
                     /* Resolution, Compress IP header */
                     b = lowpan_down(b);
                     break;
-#ifdef HAVE_MESH
-                case B_TO_MESH_ROUTING:
-                    /* Add mesh header */
-                    b = mesh_down(b);
-                    break;
-#endif
 
                 case B_TO_MAC:
                 /* no break */
@@ -220,12 +214,6 @@ void protocol_6lowpan_stack(buffer_t *b)
                     /* Handle MAC Payload */
                     b = lowpan_up(b);
                     break;
-#ifdef HAVE_MESH
-                case B_TO_MESH_ROUTING:
-                    /* Handle Mesh header */
-                    b = mesh_up(b);
-                    break;
-#endif
                 case B_TO_TCP:
                     b = tcp_up(b);
                     break;

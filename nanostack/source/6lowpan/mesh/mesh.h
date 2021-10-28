@@ -53,29 +53,12 @@ typedef struct mesh_callbacks_s {
     mesh_address_map_fn_t *address_map;
 } mesh_callbacks_t;
 
-#ifdef HAVE_MESH
-buffer_t *mesh_up(buffer_t *buf);
-buffer_t *mesh_down(buffer_t *buf);
-
-bool mesh_address_map(protocol_interface_info_entry_t *cur, addrtype_t *addr_type, uint8_t *addr);
-bool mesh_forwardable_address(const protocol_interface_info_entry_t *cur, addrtype_t addr_type, const uint8_t *addr);
-bool mesh_header_needed(const buffer_t *buf);
-bool mesh_supports_multicast(void);
-void mesh_all_addresses_unicast(bool flag);
-bool mesh_short_address_is_multicast(uint16_t addr);
-bool mesh_short_address_is_broadcast_or_multicast(uint16_t addr);
-void mesh_rewrite_bc0_header(uint8_t *header);
-uint_fast8_t mesh_header_size(const buffer_t *buf);
-uint_fast8_t mesh_header_len_from_type_byte(uint8_t type);
-uint_fast8_t mesh_header_len_from_buffer_type_byte(const buffer_t *buf);
-#else
 #define mesh_address_map(cur, addr_type, addr) true
 #define mesh_forwardable_address(cur, addr_type, addr) false
 #define mesh_header_needed(buf) false
 #define mesh_rewrite_bc0_header(header) ((void) 0)
 #define mesh_header_size(buf) false
 #define mesh_header_len_from_type_byte(type) 0
-#endif
 
 #ifdef __cplusplus
 }
