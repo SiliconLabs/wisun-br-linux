@@ -53,8 +53,6 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "security/pana/pana.h"
-#include "security/pana/pana_internal_api.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
 #include "security/common/sec_lib_definitions.h"
@@ -1369,7 +1367,6 @@ int8_t net_nvm_data_clean(int8_t interface_id)
                 mac_helper_nwk_id_filter_set(0, filter);
                 mac_helper_panid_set(cur, 0xffff);
                 mac_helper_mac16_address_set(cur, 0xffff);
-                pana_reset_client_session();
                 ret_val = 0;
             } else {
                 ret_val = 0;
@@ -1379,7 +1376,6 @@ int8_t net_nvm_data_clean(int8_t interface_id)
 
     return ret_val;
 }
-
 
 static void trace_cmd_print(const char *fmt, ...)
 {

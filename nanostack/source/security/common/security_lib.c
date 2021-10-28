@@ -32,10 +32,6 @@
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "security/pana/pana_nvm.h"
-#include "security/pana/pana.h"
-#include "security/pana/eap_protocol.h"
-#include "security/pana/pana_internal_api.h"
 #include "common_functions.h"
 
 

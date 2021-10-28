@@ -57,8 +57,6 @@
 #include "net_interface.h"
 #include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
-#include "security/pana/pana.h"
-#include "security/pana/pana_internal_api.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "border_router/border_router.h"
 #include "service_libs/mle_service/mle_service_api.h"
@@ -2181,20 +2179,6 @@ static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entr
     nwk_bootstrap_state_update(ARM_NWK_AUHTENTICATION_FAIL, cur);
 }
 
-
-static void nwk_protocol_network_key_set_from_pana(protocol_interface_info_entry_t *cur)
-{
-    uint8_t *key_ptr = pana_key_get(cur->pana_sec_info_temp->network_key);
-
-    if (key_ptr) {
-        mac_helper_security_default_key_set(cur, (key_ptr + 16), cur->pana_sec_info_temp->key_id, MAC_KEY_ID_MODE_IDX);
-        mle_service_security_set_security_key(cur->id, key_ptr, cur->pana_sec_info_temp->key_id, true);
-        if (cur->nwk_wpan_nvm_api) {
-            cur->nwk_wpan_nvm_api->nvm_params_update_cb(cur->nwk_wpan_nvm_api, true);
-        }
-    }
-}
-
 uint8_t *protocol_6lowpan_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId)
 {
     (void)keyId;
@@ -2246,7 +2230,6 @@ static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entr
             tr_debug("PULL kEY Done by Router");
         }
 
-        nwk_protocol_network_key_set_from_pana(cur);
 #ifndef NO_TLS
 #endif
 
