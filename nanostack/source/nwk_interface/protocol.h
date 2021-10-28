@@ -268,13 +268,6 @@ typedef struct nwk_rfd_poll_setups {
     mac_poll_fail_cb *pollFailCb;
 } nwk_rfd_poll_setups_s;
 
-typedef struct nwk_pana_params {
-    net_tls_cipher_e nwk_chipher_mode;
-    net_pana_session_mode_e client_session_mode;
-    uint32_t psk_key_id;
-    uint8_t pana_client;
-} nwk_pana_params_s;
-
 typedef struct gp_ipv6_address_entry {
     uint8_t address[16];
     ns_list_link_t link;
@@ -290,7 +283,6 @@ typedef struct if_6lowpan_dad_entry {
 } if_6lowpan_dad_entry_t;
 
 typedef struct if_6lowpan_security_info {
-    nwk_pana_params_s *pana_params;
     net_link_layer_psk_security_info_s psk_key_info;
     uint32_t mle_security_frame_counter;
     net_6lowpan_link_layer_sec_mode_e nwk_security_mode;

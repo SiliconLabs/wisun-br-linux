@@ -528,7 +528,6 @@ static int lowpan_security_parameters_allocate(protocol_interface_info_entry_t *
 
     entry->if_lowpan_security_params->security_level = 0;
     entry->if_lowpan_security_params->mle_security_frame_counter = 0;
-    entry->if_lowpan_security_params->pana_params = NULL;
     entry->if_lowpan_security_params->nwk_security_mode = NET_SEC_MODE_NO_LINK_SECURITY;
     return 0;
 }

@@ -137,12 +137,6 @@ typedef enum {
     NET_TLS_PSK_AND_ECC_CIPHER, /**< Network authentication support, PSK & ECC. */
 } net_tls_cipher_e;
 
-/** PANA session type. */
-typedef enum {
-    NET_PANA_SINGLE_SESSION,        /**< Client tracks only one PANA session data, default use case. */
-    NET_PANA_MULTI_SESSION,         /**< Client supports many Start network coordinator session data */
-} net_pana_session_mode_e;
-
 /** 6LoWPAN network security & authentication modes. */
 typedef enum {
     NET_SEC_MODE_NO_LINK_SECURITY,      /**< Security disabled at link layer, DEFAULT. */
