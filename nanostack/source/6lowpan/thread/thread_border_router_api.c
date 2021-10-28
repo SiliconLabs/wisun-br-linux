@@ -122,26 +122,18 @@ int thread_border_router_service_delete(int8_t interface_id, uint8_t *service_da
 
 int thread_border_router_recursive_dns_server_option_set(int8_t interface_id, uint8_t *recursive_dns_server_option, uint16_t recursive_dns_server_option_len)
 {
-#ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_border_router_recursive_dns_server_option_store(interface_id, recursive_dns_server_option, recursive_dns_server_option_len);
-#else
     (void)interface_id;
     (void)recursive_dns_server_option;
     (void)recursive_dns_server_option_len;
     return -1;
-#endif
 }
 
 int thread_border_router_dns_search_list_option_set(int8_t interface_id, uint8_t *dns_search_list_option, uint16_t search_list_option_len)
 {
-#ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_border_router_dns_search_list_option_store(interface_id, dns_search_list_option, search_list_option_len);
-#else
     (void)interface_id;
     (void)dns_search_list_option;
     (void)search_list_option_len;
     return -1;
-#endif
 }
 
 /** Network data set response callback.
@@ -218,22 +210,14 @@ int thread_border_router_server_tlv_find(uint8_t *service_tlv, uint16_t service_
 
 int thread_border_router_mdns_responder_start(int8_t interface_id, int8_t interface_id_mdns, const char *service_name)
 {
-#ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_mdns_start(interface_id, interface_id_mdns, service_name);
-#else
     (void)interface_id;
     (void)interface_id_mdns;
     (void)service_name;
     return -1;
-#endif
 }
 
 int thread_border_router_mdns_responder_stop(void)
 {
-#ifdef HAVE_THREAD_BORDER_ROUTER
-    return thread_mdns_stop();
-#else
     return -1;
-#endif
 }
 

@@ -46,23 +46,6 @@ typedef struct thread_pbbr_dua_info {
     uint32_t last_contact_time;
 } thread_pbbr_dua_info_t;
 
-#if defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)
-int8_t thread_bbr_commercial_init(int8_t interface_id, int8_t backbone_interface_id);
-void thread_bbr_commercial_delete(int8_t interface_id);
-bool thread_bbr_commercial_nd_query_process(protocol_interface_info_entry_t *cur, const uint8_t *target_addr, uint16_t rloc);
-void thread_bbr_commercial_seconds_timer(int8_t interface_id, uint32_t seconds);
-int thread_bbr_commercial_sequence_number_set(int8_t interface_id, uint8_t seq_number);
-int thread_bbr_commercial_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t timeout_b, uint32_t delay);
-int thread_bbr_commercial_address_set(int8_t interface_id, const uint8_t *addr_ptr, uint16_t port);
-void thread_bbr_commercial_route_update(protocol_interface_info_entry_t *cur);
-int thread_bbr_commercial_prefix_set(int8_t interface_id, uint8_t *prefix);
-void thread_bbr_commercial_old_partition_data_clean(int8_t interface_id);
-void thread_bbr_commercial_status_override_get(uint8_t *dua_status, uint8_t *dua_count, uint8_t *ba_failure_count);
-void thread_bbr_commercial_status_override_set(uint8_t dua_status, uint8_t dua_count, uint8_t ba_failure_count);
-void thread_bbr_commercial_mcast_fwd_check(int8_t interface_id, bool *multicast_fwd);
-
-
-#else
 
 #define thread_bbr_commercial_init(interface_id, backbone_interface_id)
 #define thread_bbr_commercial_delete(interface_id)
@@ -77,7 +60,6 @@ void thread_bbr_commercial_mcast_fwd_check(int8_t interface_id, bool *multicast_
 #define thread_bbr_commercial_status_override_get(dua_status, dua_count, ba_failure_count);
 #define thread_bbr_commercial_status_override_set(dua_status, dua_count, ba_failure_count);
 #define thread_bbr_commercial_mcast_fwd_check(interface_id, multicast_fwd)
-#endif
 
 #ifdef __cplusplus
 }
