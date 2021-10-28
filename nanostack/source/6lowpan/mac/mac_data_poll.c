@@ -26,6 +26,7 @@
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_callback_timer.h"
+#include "eventOS_event_timer.h"
 #include "string.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
