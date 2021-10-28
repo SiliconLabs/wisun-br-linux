@@ -61,10 +61,6 @@
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
-#include "6lowpan/thread/thread_common.h"
-#include "6lowpan/thread/thread_bootstrap.h"
-#include "6lowpan/thread/thread_routing.h"
-#include "6lowpan/thread/thread_management_internal.h"
 #include "6lowpan/ws/ws_common.h"
 #ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"

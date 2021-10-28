@@ -47,7 +47,6 @@
 #include "rpl/rpl_data.h"
 #endif
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "6lowpan/thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "libdhcpv6/libdhcpv6.h"
@@ -981,11 +980,6 @@ static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
 {
     // Mle messages
     if (buf->dst_sa.port == MLE_ALLOCATED_PORT || buf->src_sa.port == MLE_ALLOCATED_PORT) {
-        return true;
-    }
-
-    // Management messages: address solicit, response, query, notification
-    if (buf->dst_sa.port  == THREAD_MANAGEMENT_PORT || buf->src_sa.port == THREAD_MANAGEMENT_PORT) {
         return true;
     }
 

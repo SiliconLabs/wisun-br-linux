@@ -31,7 +31,6 @@
 #include "common_functions.h"
 #include "platform/arm_hal_interrupt.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/thread/thread_common.h"
 #include "6lowpan/mac/mac_data_poll.h"
 #include "sw_mac.h"
 

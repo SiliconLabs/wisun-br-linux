@@ -39,8 +39,6 @@
 #include "common_functions.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/network_lib.h"
-#include "6lowpan/thread/thread_common.h"
-#include "6lowpan/thread/thread_bootstrap.h"
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif

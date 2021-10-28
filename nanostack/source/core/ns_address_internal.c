@@ -33,7 +33,6 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
-#include "6lowpan/thread/thread_common.h"
 #include "common_functions.h"
 
 #include "rpl/rpl_control.h"

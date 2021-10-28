@@ -48,7 +48,6 @@
 #include "mle/mle.h"
 #endif
 #include "6lowpan/mesh/mesh.h"
-#include "6lowpan/thread/thread_common.h"
 
 #ifdef ECC
 #include "libX509_V3.h"

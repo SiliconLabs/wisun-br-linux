@@ -32,7 +32,6 @@
 #include "common_protocols/icmpv6.h"
 #include "service_libs/trickle/trickle.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"
 #include "mpl/mpl.h"
 

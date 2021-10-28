@@ -24,8 +24,6 @@
 #include "service_libs/mle_service/mle_service_api.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_socket.h"
-#include "6lowpan/thread/thread_common.h"
-#include "6lowpan/thread/thread_management_internal.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "mle/mle.h"
 #include "mac_mcps.h"

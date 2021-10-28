@@ -41,8 +41,6 @@
 #include "mle/mle.h"
 #endif
 #include "6lowpan/mesh/mesh.h"
-#include "6lowpan/thread/thread_common.h"
-#include "6lowpan/thread/thread_nd.h"
 #include "6lowpan/mac/mac_helper.h"
 
 #ifdef ECC

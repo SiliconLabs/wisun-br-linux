@@ -29,8 +29,6 @@
 #include "string.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
-#include "6lowpan/thread/thread_common.h"
-#include "6lowpan/thread/thread_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "platform/arm_hal_interrupt.h"
