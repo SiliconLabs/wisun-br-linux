@@ -19,9 +19,5 @@
 #define PANA_NVM_H_
 
 #include "net_nvm_api.h"
-#ifdef PANA_SERVER_API
-extern void pana_session_nvm_udate(sec_suite_t *suite, pana_nvm_update_process_t update_event);
-#else
 #define pana_session_nvm_udate(suite, update_event) ((void)0)
-#endif
 #endif /* PANA_NVM_H_ */
