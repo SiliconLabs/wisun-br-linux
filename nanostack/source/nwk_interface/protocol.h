@@ -45,10 +45,10 @@
 #include "service_libs/neighbor_cache/neighbor_table_definition.h"
 #include "service_libs/trickle/trickle.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "net_polling_api.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
+struct mac_neighbor_table;
 struct mlme_scan_s;
 struct mlme_scan_conf_s;
 struct mac_api_s;
@@ -251,7 +251,7 @@ typedef struct arm_15_4_mac_parameters_t {
     beacon_compare_rx_cb *beacon_compare_rx_cb_ptr;
     beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
     uint8_t (*beacon_ind)(uint8_t *ptr, uint8_t len, protocol_interface_info_entry_t *cur);
-    mac_neighbor_table_t *mac_neighbor_table;
+    struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
 
 typedef void mac_poll_fail_cb(int8_t nwk_interface_id);

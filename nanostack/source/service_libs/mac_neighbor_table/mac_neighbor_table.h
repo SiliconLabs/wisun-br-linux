@@ -21,6 +21,8 @@
 #include "ns_types.h"
 #include "ns_list.h"
 
+#include "nwk_interface/protocol.h"
+
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240
 
 #define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time
@@ -75,7 +77,7 @@ typedef bool neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, vo
 /**
  * Neighbor table class structure
  */
-typedef struct mac_neighbor_table_class {
+typedef struct mac_neighbor_table {
     mac_neighbor_table_list_t neighbour_list;               /*!< List of active neighbors */
     mac_neighbor_table_list_t free_list;                    /*!< List of free neighbors entries */
     uint32_t nud_threshold;                                 /*!< NUD threshold time which generates keep alive message */
