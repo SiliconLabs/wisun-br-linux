@@ -177,9 +177,7 @@ static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
 uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const protocol_interface_info_entry_t *interface)
 {
-#ifndef HAVE_THREAD
     (void)interface;
-#endif
     if (addr_is_ipv6_multicast(addr)) {
         return addr_ipv6_multicast_scope(addr);
     }

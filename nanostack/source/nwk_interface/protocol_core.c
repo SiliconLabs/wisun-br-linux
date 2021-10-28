@@ -516,9 +516,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->if_stack_buffer_handler = NULL;
     entry->interface_name = 0;
     entry->border_router_setup = NULL;
-#ifdef HAVE_THREAD
-    entry->thread_info = NULL;
-#endif
     entry->mesh_callbacks = NULL;
     entry->ip_addresses_max_slaac_entries = 0;
     ns_list_init(&entry->lowpan_contexts);

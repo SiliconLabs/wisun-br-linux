@@ -33,14 +33,10 @@
 
 int thread_net_config_nd_data_request(int8_t interface_id, const uint8_t destination[16], const uint8_t *options, uint8_t options_len, thread_net_config_nd_data_req_cb *callback)
 {
-#ifdef HAVE_THREAD
-    return thread_management_client_neighbor_discovery_data_request(interface_id, destination, options, options_len, callback);
-#else
     (void)interface_id;
     (void)destination;
     (void)options;
     (void)options_len;
     (void)callback;
     return -1;
-#endif // HAVE_THREAD
 }

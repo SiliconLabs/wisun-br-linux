@@ -38,15 +38,6 @@
 
 #include ns_cfg_header(NSCONFIG)
 
-#if defined(HAVE_THREAD)
-/** For thread HAVE_MESH and HAVE_DHCPV6 must be defined minimal */
-#ifndef HAVE_MESH
-#define HAVE_MESH
-#endif
-#ifndef HAVE_DHCPV6
-#define HAVE_DHCPV6
-#endif
-#endif /* HAVE_THREAD */
 
 #if defined(HAVE_WS)
 #ifndef HAVE_DHCPV6

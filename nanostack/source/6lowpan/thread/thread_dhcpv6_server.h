@@ -29,11 +29,7 @@
 
 #ifndef THREAD_DHCPV6_SERVER_H_
 #define THREAD_DHCPV6_SERVER_H_
-#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
-int thread_dhcp6_server_init(int8_t interface_id, uint8_t prefix[8], uint8_t eui64[8], uint32_t validLifeTimne);
-#else
 #define thread_dhcp6_server_init(interface_id, prefix, eui64, validLifeTimne) (-1)
-#endif
 
 
 #endif /* THREAD_DHCPV6_SERVER_H_ */

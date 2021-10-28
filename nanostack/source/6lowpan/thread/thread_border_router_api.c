@@ -977,173 +977,52 @@ int thread_border_router_delete_all(int8_t interface_id)
 
 int thread_border_router_network_data_callback_register(int8_t interface_id, thread_network_data_tlv_cb *nwk_data_cb)
 {
-#ifdef HAVE_THREAD
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    if (!cur->thread_info || thread_attach_ready(cur) != 0) {
-        return -2;
-    }
-
-    cur->thread_info->network_data_tlv_cb = nwk_data_cb;
-
-    thread_border_router_network_data_appl_callback(cur);
-
-    return 0;
-#else
     (void)interface_id;
     (void)nwk_data_cb;
     return -1;
-#endif
 }
 
 int thread_border_router_prefix_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **prefix_tlv, bool *stable)
 {
-#ifdef HAVE_THREAD
-    uint16_t tlv_length;
-    if (!network_data_tlv || !network_data_tlv_length || !prefix_tlv) {
-        return -1;
-    }
-    //tr_debug("thread_tlv_lib_prefix_find() len=%d, tlv=%s", network_data_tlv_length, trace_array(network_data_tlv, network_data_tlv_length));
-    *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_PREFIX | THREAD_NWK_STABLE_DATA, prefix_tlv);
-    if (tlv_length == 0) {
-        tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_PREFIX, prefix_tlv);
-        *stable = false;
-    }
-    return tlv_length;
-#else
     (void)network_data_tlv;
     (void)network_data_tlv_length;
     (void)prefix_tlv;
     (void)stable;
     return -1;
-#endif
 }
 
 int thread_border_router_tlv_find(uint8_t *prefix_tlv, uint16_t prefix_tlv_length, uint8_t **border_router_tlv, bool *stable)
 {
-#ifdef HAVE_THREAD
-    uint16_t tlv_length;
-    if (!prefix_tlv || !prefix_tlv_length || !border_router_tlv) {
-        return -1;
-    }
-
-    //tr_debug("thread_tlv_lib_border_router_find() len=%d, tlv=%s", prefix_tlv_length, trace_array(prefix_tlv, prefix_tlv_length));
-    uint8_t prefix_length = prefix_tlv[1];
-    uint8_t prefix_byte_len = prefixBits_to_bytes(prefix_length);
-    prefix_tlv = prefix_tlv + 2 + prefix_byte_len; //2 = domain ID + prefix length
-    prefix_tlv_length = prefix_tlv_length - prefix_byte_len - 2;
-
-    // find stable prefix first and if not found return unstable data
-    *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(prefix_tlv, prefix_tlv_length, THREAD_NWK_DATA_TYPE_BORDER_ROUTER | THREAD_NWK_STABLE_DATA, border_router_tlv);
-    if (tlv_length == 0) {
-        tlv_length = thread_meshcop_tlv_find_next(prefix_tlv, prefix_tlv_length, THREAD_NWK_DATA_TYPE_BORDER_ROUTER, border_router_tlv);
-        *stable = false;
-    }
-    return tlv_length;
-#else
     (void)prefix_tlv;
     (void)prefix_tlv_length;
     (void)border_router_tlv;
     (void)stable;
     return -1;
-#endif
 }
 
 int thread_border_router_prefix_context_id(uint8_t *prefix_tlv, uint16_t prefix_tlv_length)
 {
-#ifdef HAVE_THREAD
-    if (!prefix_tlv || !prefix_tlv_length) {
-        return -1;
-    }
-
-    uint16_t data_length = prefix_tlv_length;
-
-    while (data_length) {
-        uint8_t type = *prefix_tlv++;
-        uint16_t len = *prefix_tlv++;
-        data_length -= 2;
-
-        type &= THREAD_NWK_DATA_TYPE_MASK;
-
-        if (type == THREAD_NWK_DATA_TYPE_6LOWPAN_ID) {
-            return (*prefix_tlv & 0x0f);
-        }
-
-        data_length -= len;
-        prefix_tlv += len;
-    }
-
-    return -2;
-#else
     (void)prefix_tlv;
     (void)prefix_tlv_length;
     return -1;
-#endif
 }
 
 int thread_border_router_service_tlv_find(uint8_t *network_data_tlv, uint16_t network_data_tlv_length, uint8_t **service_tlv, bool *stable)
 {
-#ifdef HAVE_THREAD
-    uint16_t tlv_length;
-    if (!network_data_tlv || !network_data_tlv_length || !service_tlv) {
-        return -1;
-    }
-
-    *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_SERVICE_DATA | THREAD_NWK_STABLE_DATA, service_tlv);
-    if (tlv_length == 0) {
-        tlv_length = thread_meshcop_tlv_find_next(network_data_tlv, network_data_tlv_length, THREAD_NWK_DATA_TYPE_SERVICE_DATA, service_tlv);
-        *stable = false;
-    }
-    return tlv_length;
-#else
     (void)network_data_tlv;
     (void)network_data_tlv_length;
     (void)service_tlv;
     (void)stable;
     return -1;
-#endif
 }
 
 int thread_border_router_server_tlv_find(uint8_t *service_tlv, uint16_t service_tlv_length, uint8_t **server_tlv, bool *stable)
 {
-#ifdef HAVE_THREAD
-    uint16_t tlv_length;
-    if (!service_tlv || !service_tlv_length || !server_tlv) {
-        return -1;
-    }
-
-    uint8_t t_flag = service_tlv[0] >> 7;
-    service_tlv += 1;
-
-    if (!t_flag) {
-        service_tlv_length -= 4;
-        service_tlv += 4;
-    }
-
-    uint8_t service_data_len = *service_tlv;
-    service_tlv += 1 + service_data_len;
-    service_tlv_length = service_tlv_length - service_data_len - 2;
-
-    *stable = true;
-    tlv_length = thread_meshcop_tlv_find_next(service_tlv, service_tlv_length, THREAD_NWK_DATA_TYPE_SERVER_DATA | THREAD_NWK_STABLE_DATA, server_tlv);
-    if (tlv_length == 0) {
-        tlv_length = thread_meshcop_tlv_find_next(service_tlv, service_tlv_length, THREAD_NWK_DATA_TYPE_SERVER_DATA, server_tlv);
-        *stable = false;
-    }
-    return tlv_length;
-#else
     (void)service_tlv;
     (void)service_tlv_length;
     (void)server_tlv;
     (void)stable;
     return -1;
-#endif
 }
 
 int thread_border_router_mdns_responder_start(int8_t interface_id, int8_t interface_id_mdns, const char *service_name)

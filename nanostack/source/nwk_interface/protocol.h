@@ -453,9 +453,6 @@ struct protocol_interface_info_entry {
     neigh_cache_s neigh_cache;
     pan_blacklist_cache_s pan_blacklist_cache;
     pan_coordinator_blacklist_cache_s pan_cordinator_black_list;
-#ifdef HAVE_THREAD
-    struct thread_info_s *thread_info;
-#endif
 #ifdef HAVE_WS
     struct ws_info_s *ws_info;
 #endif

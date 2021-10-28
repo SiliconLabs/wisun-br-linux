@@ -130,56 +130,6 @@ typedef struct thread_routing_info_s {
 }
 thread_routing_info_t;
 
-#ifdef HAVE_THREAD
-
-/* See ns_types.h for explanation */
-NS_INLINE thread_router_id_t thread_router_id_from_addr(uint16_t addr);
-NS_INLINE uint16_t thread_router_addr_from_id(thread_router_id_t addr);
-NS_INLINE uint16_t thread_router_addr_from_addr(uint16_t addr);
-NS_INLINE bool thread_is_router_addr(uint16_t addr);
-NS_INLINE bool thread_addr_is_child(uint16_t a, uint16_t b);
-NS_INLINE bool thread_addr_is_equal_or_child(uint16_t a, uint16_t b);
-
-#if defined NS_ALLOW_INLINING || defined THREAD_ROUTING_FN
-#ifndef THREAD_ROUTING_FN
-#define THREAD_ROUTING_FN NS_INLINE
-#endif
-THREAD_ROUTING_FN thread_router_id_t thread_router_id_from_addr(uint16_t addr)
-{
-    return addr >> THREAD_ROUTER_SHIFT;
-}
-
-THREAD_ROUTING_FN uint16_t thread_router_addr_from_id(thread_router_id_t addr)
-{
-    return (uint_fast16_t) addr << THREAD_ROUTER_SHIFT;
-}
-
-THREAD_ROUTING_FN uint16_t thread_router_addr_from_addr(uint16_t addr)
-{
-    return (addr & THREAD_ROUTER_MASK) | THREAD_ROUTER_IDX;
-}
-
-THREAD_ROUTING_FN bool thread_is_router_addr(uint16_t addr)
-{
-    return (addr & ~ THREAD_ROUTER_MASK) == THREAD_ROUTER_IDX;
-}
-
-/* Return true if b is a child of a */
-THREAD_ROUTING_FN bool thread_addr_is_child(uint16_t a, uint16_t b)
-{
-    if (thread_is_router_addr(b)) {
-        return false;
-    }
-    return thread_router_addr_from_addr(b) == a;
-}
-
-/* Return true if b is equal to a, or b is a child of a */
-THREAD_ROUTING_FN bool thread_addr_is_equal_or_child(uint16_t a, uint16_t b)
-{
-    return b == a || thread_addr_is_child(a, b);
-}
-#endif /* NS_ALLOW_INLINING || defined THREAD_ROUTING_FN */
-#endif // HAVE_THREAD
 
 #ifdef HAVE_THREAD_ROUTER
 
