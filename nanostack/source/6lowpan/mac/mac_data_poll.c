@@ -273,23 +273,6 @@ void mac_poll_timer_trig(uint32_t poll_time, protocol_interface_info_entry_t *cu
         }
     }
 }
-static mac_neighbor_table_entry_t *neighbor_data_poll_referesh(protocol_interface_info_entry_t *cur, uint8_t *address, addrtype_t type)
-{
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address, type);
-
-    if (!entry) {
-        return NULL;
-    }
-
-    if (!entry->connected_device) {
-        return NULL;
-    }
-
-    if (!entry->nud_active) {
-        entry->lifetime = entry->link_lifetime;
-    }
-    return entry;
-}
 
 void mac_mlme_poll_confirm(protocol_interface_info_entry_t *cur, const mlme_poll_conf_t *confirm)
 {
@@ -304,21 +287,18 @@ void mac_mlme_poll_confirm(protocol_interface_info_entry_t *cur, const mlme_poll
     }
 
     rf_ptr->pollActive = false;
-    mac_neighbor_table_entry_t *entry = NULL;
 
     switch (confirm->status) {
         case MLME_SUCCESS:
             //tr_debug("Poll Confirm: Data with Data");
             rf_ptr->nwk_parent_poll_fail = 0;
             //Trig new Data Poll immediately
-            entry = neighbor_data_poll_referesh(cur, rf_ptr->poll_req.CoordAddress, (addrtype_t)rf_ptr->poll_req.CoordAddrMode);
             poll_time = 1;
             break;
 
         case MLME_NO_DATA:
             //Start next case timer
             rf_ptr->nwk_parent_poll_fail = 0;
-            entry = neighbor_data_poll_referesh(cur, rf_ptr->poll_req.CoordAddress, (addrtype_t)rf_ptr->poll_req.CoordAddrMode);
             //tr_debug("Poll Confirm: No Data");
 
             if (rf_ptr->protocol_poll == 0) {

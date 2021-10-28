@@ -60,7 +60,6 @@ buffer_t *lowpan_down(buffer_t *buf)
 
     const uint8_t *ip_src = buffer_data_pointer(buf) + 8;
     const uint8_t *next_hop = buf->route->route_info.next_hop_addr;
-    bool link_local = addr_is_ipv6_link_local(next_hop);
     bool stable_only = false;
 
     /* We have IP next hop - figure out the MAC address */
