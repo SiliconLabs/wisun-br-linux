@@ -1065,38 +1065,30 @@ int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_
  */
 int8_t arm_network_key_get(int8_t interface_id, ns_keys_t *key)
 {
-#ifndef PANA_SERVER
     (void)interface_id;
     (void)key;
-#endif
     return pana_network_key_get(interface_id, key);
 }
 
 int8_t arm_pana_server_library_init(int8_t interface_id, net_tls_cipher_e cipher_mode, const uint8_t *key_material, uint32_t time_period_before_activate_key)
 {
-#ifndef PANA_SERVER
     (void)interface_id;
     (void)cipher_mode;
     (void)key_material;
     (void)time_period_before_activate_key;
-#endif
     return pana_server_interface_init(interface_id, cipher_mode, key_material, time_period_before_activate_key);
 }
 
 int8_t arm_pana_activate_new_key(int8_t interface_id)
 {
-#ifndef PANA_SERVER
     (void)interface_id;
-#endif
     return  pana_server_trig_new_key(interface_id);
 }
 
 int8_t arm_pana_server_key_update(int8_t interface_id, const uint8_t *network_key_material)
 {
-#ifndef PANA_SERVER
     (void)interface_id;
     (void)network_key_material;
-#endif
     return pana_server_key_update(interface_id, network_key_material);
 }
 
