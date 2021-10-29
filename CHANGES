@@ -1,3 +1,22 @@
+v0.3.1
+------
+
+  - File "CHANGES" has been added in branch v0.2, but not in main branch.
+
+v0.3.0
+------
+
+  - Add DBus interface
+  - Allow to change Tx power
+  - Allow to set UART device from configuration file
+  - Allow to set PAN ID
+  - Allow to change parameters relative to GTK lifetime
+  - Allow to change dwell delays
+  - Fix bug with frames > 1200 bytes
+  - Fix error when prefix_storage did not end with '/'
+  - Drop references to SPI bus since it is not yet implemented
+  - Examples were not copied in the right directory
+
 v0.2.3
 ------
 
