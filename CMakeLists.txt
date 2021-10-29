@@ -68,7 +68,6 @@ add_executable(wsbrd
     host-common/os_scheduler.c
     host-common/log.c
     host-common/slist.c
-    host-common/spinel.c
     host-common/spinel_buffer.c
     nanostack/source/6lowpan/adaptation_interface.c
     nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
@@ -290,7 +289,6 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/os_scheduler.c
         host-common/log.c
         host-common/slist.c
-        host-common/spinel.c
         host-common/spinel_buffer.c
         nanostack/source/6lowpan/adaptation_interface.c
         nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
@@ -487,7 +485,6 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/os_timer.c
         host-common/log.c
         host-common/slist.c
-        host-common/spinel.c
         host-common/spinel_buffer.c
         mbed-client-libservice/source/libBits/common_functions.c
         # Excluded mbed-client-libservice/source/libip4string

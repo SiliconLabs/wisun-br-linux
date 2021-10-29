@@ -23,92 +23,78 @@ void spinel_reset(struct spinel_buffer *buf)
 
 void spinel_push_bool(struct spinel_buffer *buf, bool val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "b", val);
-    BUG_ON(ret != 1);
-    buf->cnt += ret;
+    buf->frame[buf->cnt + 0] = val;
+    buf->cnt += 1;
+    BUG_ON(buf->cnt > buf->len);
 }
 
+static int spinel_encode_uint(uint8_t *buf, int val)
+{
+    int cnt = 0;
+
+    do {
+        buf[cnt++] = (val & 0x7F) | 0x80;
+        val >>= 7;
+    } while(val);
+    buf[cnt - 1] &= ~0x80;
+    return cnt;
+}
+
+// FIXME: replace by
+// void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
 void spinel_push_int(struct spinel_buffer *buf, int val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 3 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "i", val);
-    BUG_ON(ret < 1 || ret > 3);
-    buf->cnt += ret;
+    buf->cnt += spinel_encode_uint(buf->frame + buf->cnt, val);
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "C", val);
-    BUG_ON(ret != 1);
-    buf->cnt += ret;
+    buf->frame[buf->cnt] = val;
+    buf->cnt += 1;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 2 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "S", val);
-    BUG_ON(ret != 2);
-    buf->cnt += ret;
+    buf->frame[buf->cnt + 0] = val >> 0;
+    buf->frame[buf->cnt + 1] = val >> 8;
+    buf->cnt += 2;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 4 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "L", val);
-    BUG_ON(ret != 4);
-    buf->cnt += ret;
+    buf->frame[buf->cnt + 0] = val >> 0;
+    buf->frame[buf->cnt + 1] = val >> 8;
+    buf->frame[buf->cnt + 2] = val >> 16;
+    buf->frame[buf->cnt + 3] = val >> 24;
+    buf->cnt += 4;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_i8(struct spinel_buffer *buf, int8_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "c", val);
-    BUG_ON(ret != 1);
-    buf->cnt += ret;
+    spinel_push_u8(buf, (uint8_t)val);
 }
 
 void spinel_push_i16(struct spinel_buffer *buf, int16_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 2 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "s", val);
-    BUG_ON(ret != 2);
-    buf->cnt += ret;
+    spinel_push_u16(buf, (uint16_t)val);
 }
 
 void spinel_push_i32(struct spinel_buffer *buf, int32_t val)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + 4 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "l", val);
-    BUG_ON(ret != 4);
-    buf->cnt += ret;
+    spinel_push_u32(buf, (uint32_t)val);
 }
 
 void spinel_push_str(struct spinel_buffer *buf, const char *val)
 {
-    int ret;
+    int size = strlen(val) + 1; // include final '\0'
 
-    BUG_ON(buf->cnt + (int)strlen(val) + 1 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "U", val);
-    BUG_ON(ret != (int)strlen(val) + 1);
-    buf->cnt += ret;
+    memcpy(buf->frame + buf->cnt, val, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
@@ -137,129 +123,112 @@ void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val,
 
 void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + size + 2 > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, size);
-    BUG_ON(ret != size + 2);
-    buf->cnt += ret;
+    spinel_push_u16(buf, size);
+    memcpy(buf->frame + buf->cnt, val, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
-    int ret;
-
-    BUG_ON(buf->cnt + size > buf->len);
-    ret = spinel_datatype_pack(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, size);
-    BUG_ON(ret != size);
-    buf->cnt += ret;
+    memcpy(buf->frame + buf->cnt, val, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
 }
 
 bool spinel_pop_bool(struct spinel_buffer *buf)
 {
     uint8_t val;
-    int ret;
 
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "b", &val);
-    BUG_ON(ret != 1);
+    val = buf->frame[buf->cnt];
     WARN_ON(val != 1 && val != 0);
-    buf->cnt += ret;
+    buf->cnt += 1;
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
+static size_t spinel_decode_uint(const uint8_t *frame, unsigned int *val)
+{
+    int i = 0;
+    int cnt = 0;
+
+    *val = 0;
+    do {
+        *val |= (frame[cnt] & 0x7F) << i;
+        cnt += 1;
+        i += 7;
+        BUG_ON(i > 32);
+    } while (frame[cnt - 1] & 0x80);
+    return cnt;
+}
+
+// FIXME: replace by
+// unsigned int spinel_pop_uint(struct spinel_buffer *buf)
 int spinel_pop_int(struct spinel_buffer *buf)
 {
-    int val;
-    int ret;
+    unsigned int val;
 
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "i", &val);
-    BUG_ON(ret < 1 || ret > 3, "%d %d %d", ret, buf->cnt, buf->len);
-    buf->cnt += ret;
+    buf->cnt += spinel_decode_uint(buf->frame + buf->cnt, &val);
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
 uint8_t spinel_pop_u8(struct spinel_buffer *buf)
 {
     uint8_t val;
-    int ret;
 
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "C", &val);
-    BUG_ON(ret != 1);
-    buf->cnt += ret;
+    val = buf->frame[buf->cnt];
+    buf->cnt += 1;
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
 uint16_t spinel_pop_u16(struct spinel_buffer *buf)
 {
-    uint16_t val;
-    int ret;
+    uint16_t val = 0;
 
-    BUG_ON(buf->cnt + 2 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "S", &val);
-    BUG_ON(ret != 2);
-    buf->cnt += ret;
+    val |= buf->frame[buf->cnt + 0] << 0;
+    val |= buf->frame[buf->cnt + 1] << 8;
+    buf->cnt += 2;
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
 uint32_t spinel_pop_u32(struct spinel_buffer *buf)
 {
-    uint32_t val;
-    int ret;
+    uint32_t val = 0;
 
-    BUG_ON(buf->cnt + 4 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "L", &val);
-    BUG_ON(ret != 4);
-    buf->cnt += ret;
+    val |= buf->frame[buf->cnt + 0] << 0;
+    val |= buf->frame[buf->cnt + 1] << 8;
+    val |= buf->frame[buf->cnt + 2] << 16;
+    val |= buf->frame[buf->cnt + 3] << 24;
+    buf->cnt += 4;
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
 int8_t spinel_pop_i8(struct spinel_buffer *buf)
 {
-    int8_t val;
-    int ret;
-
-    BUG_ON(buf->cnt + 1 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "c", &val);
-    BUG_ON(ret != 1);
-    buf->cnt += ret;
-    return val;
+    return (int8_t)spinel_pop_u8(buf);
 }
 
 int16_t spinel_pop_i16(struct spinel_buffer *buf)
 {
-    int16_t val;
-    int ret;
-
-    BUG_ON(buf->cnt + 2 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "s", &val);
-    BUG_ON(ret != 2);
-    buf->cnt += ret;
-    return val;
+    return (int16_t)spinel_pop_u16(buf);
 }
 
 int32_t spinel_pop_i32(struct spinel_buffer *buf)
 {
-    int32_t val;
-    int ret;
-
-    BUG_ON(buf->cnt + 4 > buf->len);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "l", &val);
-    BUG_ON(ret != 4);
-    buf->cnt += ret;
-    return val;
+    return (int32_t)spinel_pop_u32(buf);
 }
 
 const char *spinel_pop_str(struct spinel_buffer *buf)
 {
     const char *val;
-    int ret;
 
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "U", &val);
-    BUG_ON(ret != (int)strlen(val) + 1);
-    buf->cnt += ret;
+    val = (char *)buf->frame + buf->cnt;
+    buf->cnt += strlen(val) + 1;
+    BUG_ON(buf->cnt > buf->len);
     return val;
 }
 
@@ -287,61 +256,53 @@ void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int nu
         val[i] = spinel_pop_u32(buf);
 }
 
-unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int size)
+unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
-    int ret;
+    unsigned int size;
 
-    ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, &size);
-    BUG_ON(ret < 2);
-    BUG_ON(ret != size + 2);
-    buf->cnt += ret;
+    size = spinel_pop_u16(buf);
+    BUG_ON(size > val_size);
+    memcpy(val, buf->frame + buf->cnt, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
 unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
-    unsigned int size = -1;
-    int ret;
+    unsigned int size;
 
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "d", val, &size);
-    BUG_ON(ret < 0);
-    BUG_ON(ret != size + 2);
-    buf->cnt += ret;
+    size = spinel_pop_u16(buf);
+    *val = buf->frame + buf->cnt;
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size, bool check_exact_size)
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
 {
-    unsigned int true_size = size;
-    int ret;
+    unsigned int size = spinel_remaining_size(buf);
 
-    if (size >= spinel_remaining_size(buf)) {
-        ret = spinel_datatype_unpack_in_place(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, &true_size);
-    } else {
-        // There is no way to make that with spinel_datatype_unpack_in_place()
-        memcpy(val, buf->frame + buf->cnt, size);
-        ret = size;
-    }
-    BUG_ON(ret < 0);
-    BUG_ON(ret != true_size);
     if (check_exact_size)
-        BUG_ON(true_size != size);
-    buf->cnt += ret;
+        BUG_ON(size < val_size);
+    if (size > val_size)
+        size = val_size;
+    memcpy(val, buf->frame + buf->cnt, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int size, bool check_exact_size)
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
 {
-    unsigned int true_size = -1;
-    int ret;
+    unsigned int size = spinel_remaining_size(buf);
 
-    BUG_ON(check_exact_size && size < 0);
-    ret = spinel_datatype_unpack(buf->frame + buf->cnt, buf->len - buf->cnt, "D", val, &true_size);
-    BUG_ON(ret < 0);
-    BUG_ON(ret != true_size);
+    BUG_ON(check_exact_size != !!(val_size > 0));
     if (check_exact_size)
-        BUG_ON(true_size != size);
-    buf->cnt += ret;
+        BUG_ON(size < val_size);
+    *val = buf->frame + buf->cnt;
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
@@ -422,28 +383,26 @@ static const struct {
 void spinel_trace(const uint8_t *buf, int len, const char *prefix)
 {
     static char trace_buffer[128];
-    int cmd, prop = -1;
+    unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
-    uint8_t hdr;
     int cnt = 0;
-    int ret, i;
+    int i;
 
-    ret = spinel_datatype_unpack(buf + cnt, len - cnt, "Ci", &hdr, &cmd);
-    if (ret < 0) {
+    cnt = 1; // ignore header
+    cnt += spinel_decode_uint(buf + cnt, &cmd);
+    if (cnt > len) {
         WARN("malformed spinel_buffer");
         return;
     }
-    cnt += ret;
     switch (cmd) {
         case SPINEL_CMD_PROP_VALUE_IS:
         case SPINEL_CMD_PROP_VALUE_GET:
         case SPINEL_CMD_PROP_VALUE_SET:
-            ret = spinel_datatype_unpack(buf + cnt, len - cnt, "i", &prop);
-            if (ret < 0) {
+            cnt += spinel_decode_uint(buf + cnt, &prop);
+            if (cnt > len) {
                 WARN("malformed spinel_buffer");
                 return;
             }
-            cnt += ret;
             break;
     }
     cmd_str = NULL;

@@ -9,7 +9,6 @@
 #define SPINEL_BUFFER_H
 #include <stdint.h>
 
-#include "spinel.h"
 #include "log.h"
 
 struct spinel_buffer {
