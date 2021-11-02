@@ -1057,3 +1057,81 @@ int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_o
     cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
     return 0;
 }
+
+int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    mlme_set_t set_req;
+    mlme_request_mac_filter_start_t args = {
+        .lqi_m = lqi_m,
+        .lqi_add = lqi_add,
+        .dbm_m = dbm_m,
+        .dbm_add = dbm_add
+    };
+
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+
+    set_req.attr = macFilterStart;
+    set_req.value_pointer = &args;
+    set_req.value_size = sizeof(mlme_request_mac_filter_start_t);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
+
+int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    mlme_set_t set_req;
+
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+
+    set_req.attr = macFilterClear;
+    set_req.value_pointer = NULL;
+    set_req.value_size = 0;
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
+
+int8_t mac_helper_mac_mlme_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    mlme_set_t set_req;
+    mlme_request_mac_filter_add_long_t args = {
+        .mac64 = { 0 },
+        .lqi_m = lqi_m,
+        .lqi_add = lqi_add,
+        .dbm_m = dbm_m,
+        .dbm_add = dbm_add
+    };
+
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+
+    memcpy(&args.mac64, mac64, 8);
+    set_req.attr = macFilterAddLong;
+    set_req.value_pointer = &args;
+    set_req.value_size = sizeof(mlme_request_mac_filter_add_long_t);
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
+
+int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    mlme_set_t set_req;
+
+    if (!cur || !cur->mac_api) {
+        return -1;
+    }
+
+    set_req.attr = macFilterStop;
+    set_req.value_pointer = NULL;
+    set_req.value_size = 0;
+    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    return 0;
+}
