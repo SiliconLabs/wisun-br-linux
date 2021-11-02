@@ -264,8 +264,12 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macFilterStop = 0xed,           /*< Stops MAC level filter. */
+    macFilterAddLong = 0xee,        /*< Adds a filter using EUI-64. */
+    macFilterClear = 0xef,          /*< Deletes all filters. */
+    macFilterStart = 0xf0,          /*< Starts a MAC level filter. */
     macRequestRestart = 0xf1,       /*< Configure failed packet data request restart */
-    macEdfeForceStop = 0xf2,          /*< Use this command for Data wait timeout at LLC: Mac stop Edfe session data wait and enable normal FHSS mode */
+    macEdfeForceStop = 0xf2,        /*< Use this command for Data wait timeout at LLC: Mac stop Edfe session data wait and enable normal FHSS mode */
     macSetDataWhitening = 0xf3,     /*< Enable or disable data whitening, boolean true for enable, false for disable */
     macCCAThresholdStart = 0xf4,    /*< Start automatic CCA threshold */
     mac802_15_4Mode = 0xf6,         /*<IEEE 802.15.4 mode*/
@@ -529,5 +533,26 @@ typedef struct mlme_request_restart_config_s {
     uint16_t blacklist_min_ms;          /**< Blacklist min, which is doubled by every restart */
     uint16_t blacklist_max_ms;          /**< Blacklist max, largest allowed blacklist time */
 } mlme_request_restart_config_t;
+
+/**
+ * Represents payload of MAC filter start request.
+ */
+typedef struct mlme_request_mac_filter_start_s {
+    int16_t lqi_m;
+    int16_t lqi_add;
+    int16_t dbm_m;
+    int16_t dbm_add;
+} mlme_request_mac_filter_start_t;
+
+/**
+ * Represents payload of MAC filter add long request.
+ */
+typedef struct mlme_request_mac_filter_add_long_s {
+    uint8_t mac64[8];
+    int16_t lqi_m;
+    int16_t lqi_add;
+    int16_t dbm_m;
+    int16_t dbm_add;
+} mlme_request_mac_filter_add_long_t;
 
 #endif /* MLME_H_ */

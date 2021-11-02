@@ -37,6 +37,7 @@
 #include "sw_mac.h"
 #include "mlme.h"
 #include "mac_api.h"
+#include "mac_filter_api.h"
 #include "fhss_api.h"
 
 #include "MAC/IEEE802_15_4/sw_mac_internal.h"
@@ -761,6 +762,29 @@ static int8_t mac_mlme_set_data_request_restart_config(protocol_interface_rf_mac
     return 0;
 }
 
+static int8_t mac_mlme_filter_start(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    mlme_request_mac_filter_start_t *p = (mlme_request_mac_filter_start_t *)set_req->value_pointer;
+    return mac_filter_start(rf_mac_setup->mac_interface_id, p->lqi_m, p->lqi_add, p->dbm_m, p->dbm_add);
+}
+
+static int8_t mac_mlme_filter_clear(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    return mac_filter_clear(rf_mac_setup->mac_interface_id);
+}
+
+static int8_t mac_mlme_filter_add_long(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
+{
+    mlme_request_mac_filter_add_long_t *p = (mlme_request_mac_filter_add_long_t *)set_req->value_pointer;
+    return mac_filter_add_long(rf_mac_setup->mac_interface_id, p->mac64, p->lqi_m, p->lqi_add, p->dbm_m, p->dbm_add);
+}
+
+static int8_t mac_mlme_filter_stop(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    mac_filter_stop(rf_mac_setup->mac_interface_id);
+    return 0;
+}
+
 int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (!set_req || !rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
@@ -832,6 +856,14 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
         case macRequestRestart:
             return mac_mlme_set_data_request_restart_config(rf_mac_setup, set_req);
+        case macFilterStart:
+            return mac_mlme_filter_start(rf_mac_setup, set_req);
+        case macFilterClear:
+            return mac_mlme_filter_clear(rf_mac_setup);
+        case macFilterAddLong:
+            return mac_mlme_filter_add_long(rf_mac_setup, set_req);
+        case macFilterStop:
+            return mac_mlme_filter_stop(rf_mac_setup);
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
