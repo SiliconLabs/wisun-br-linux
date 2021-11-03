@@ -1095,6 +1095,10 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
             }
         }
     }
+    // Exclusion Mask is stored most significant byte first
+    for (uint16_t i = 0; i < (number_of_channels + 31) / 32; ++i) {
+        common_write_32_bit(mask_ptr[i], (uint8_t *)&mask_ptr[i]);
+    }
 }
 
 void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
