@@ -16,6 +16,7 @@
 typedef struct sd_bus sd_bus;
 #endif
 
+#include "host-common/utils.h"
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_interface.h"
@@ -95,5 +96,27 @@ struct wsbr_ctxt {
 // This global variable is necessary for various API of nanostack. Beside this
 // case, please never use it.
 extern struct wsbr_ctxt g_ctxt;
+
+/**
+ * Indicates RCP firmware API is older than specified version.
+ * (major.minor.patch).
+ */
+static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
+                                     uint8_t major,
+                                     uint16_t minor,
+                                     uint8_t patch)
+{
+    uint8_t fw_api_major = FIELD_GET(0xFF000000, ctxt->rcp_version_api);
+    uint16_t fw_api_minor = FIELD_GET(0x00FFFF00, ctxt->rcp_version_api);
+    uint8_t fw_api_patch = FIELD_GET(0x000000FF, ctxt->rcp_version_api);
+
+    if (fw_api_major < major)
+        return true;
+    if (fw_api_major == major && fw_api_minor < minor)
+        return true;
+    if (fw_api_major == major && fw_api_minor == minor && fw_api_patch < patch)
+        return true;
+    return false;
+}
 
 #endif

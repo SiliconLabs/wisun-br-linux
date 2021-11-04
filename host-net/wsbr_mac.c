@@ -183,8 +183,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
               FIELD_GET(0xFF000000, ctxt->rcp_version_api),
               FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
               FIELD_GET(0x000000FF, ctxt->rcp_version_api));
-        if (FIELD_GET(0xFF000000, ctxt->rcp_version_api) == 0 &&
-            FIELD_GET(0x00FFFF00, ctxt->rcp_version_api) < 2)
+        if (fw_api_older_than(ctxt, 0, 2, 0))
             FATAL(3, "RCP API is too old");
         is_hw_reset = spinel_pop_bool(buf);
         if (ctxt->reset_done) {
