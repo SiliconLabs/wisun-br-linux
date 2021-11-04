@@ -14,7 +14,7 @@
 #include "wsbr_mac.h"
 #include "host-net/dbus.h"
 #include "host-common/utils.h"
-#include "host-common/spinel.h"
+#include "host-common/spinel_defs.h"
 #include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 

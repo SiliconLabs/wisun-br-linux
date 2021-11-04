@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "spinel_buffer.h"
-#include "spinel.h"
+#include "spinel_defs.h"
 #include "utils.h"
 #include "log.h"
 

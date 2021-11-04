@@ -14,7 +14,7 @@
 #include "nanostack/fhss_config.h"
 #include "nanostack/fhss_api.h"
 
-#include "host-common/spinel.h"
+#include "host-common/spinel_defs.h"
 #include "host-common/spinel_buffer.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"

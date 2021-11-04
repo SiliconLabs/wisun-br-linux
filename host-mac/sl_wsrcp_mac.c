@@ -15,7 +15,7 @@
 #include "sl_wsrcp_mac.h"
 #include "hal_fhss_timer.h"
 #include "host-common/bus_uart.h"
-#include "host-common/spinel.h"
+#include "host-common/spinel_defs.h"
 #include "host-common/spinel_buffer.h"
 #include "host-common/utils.h"
 #include "host-common/log.h"

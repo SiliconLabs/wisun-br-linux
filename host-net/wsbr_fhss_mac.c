@@ -18,7 +18,7 @@
 #include "wsbr_fhss_mac.h"
 #include "wsbr_fhss_net.h"
 #include "host-common/utils.h"
-#include "host-common/spinel.h"
+#include "host-common/spinel_defs.h"
 #include "host-common/spinel_buffer.h"
 #include "host-common/log.h"
 
