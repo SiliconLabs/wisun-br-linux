@@ -412,6 +412,10 @@ static const struct {
     prop_name(WS_RX_ON_WHEN_IDLE),
     prop_name(WS_SECURITY_ENABLED),
     prop_name(WS_START),
+    prop_name(WS_MAC_FILTER_START),
+    prop_name(WS_MAC_FILTER_CLEAR),
+    prop_name(WS_MAC_FILTER_ADD_LONG),
+    prop_name(WS_MAC_FILTER_STOP)
 };
 
 void spinel_trace(const uint8_t *buf, int len, const char *prefix)
