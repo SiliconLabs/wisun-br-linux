@@ -166,7 +166,6 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         prop = spinel_pop_int(buf);
         wsbr_spinel_is(ctxt, prop, buf);
     } else if (cmd == SPINEL_CMD_RESET) {
-        uint32_t version_api, version_hw;
         const char *version_fw_str;
         bool is_hw_reset;
 
@@ -174,17 +173,18 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
             FATAL(1, "RCP firmware probably too old (unknown RESET format)");
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
-        version_api = spinel_pop_u32(buf);
-        version_hw = spinel_pop_u32(buf);
+        ctxt->rcp_version_api = spinel_pop_u32(buf);
+        ctxt->rcp_version_fw = spinel_pop_u32(buf);
         version_fw_str = spinel_pop_str(buf);
         INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
-              FIELD_GET(0xFF000000, version_hw),
-              FIELD_GET(0x00FFFF00, version_hw),
-              FIELD_GET(0x000000FF, version_hw),
-              FIELD_GET(0xFF000000, version_api),
-              FIELD_GET(0x00FFFF00, version_api),
-              FIELD_GET(0x000000FF, version_api));
-        if (FIELD_GET(0xFF000000, version_api) == 0 && FIELD_GET(0x00FFFF00, version_api) < 2)
+              FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
+              FIELD_GET(0x00FFFF00, ctxt->rcp_version_fw),
+              FIELD_GET(0x000000FF, ctxt->rcp_version_fw),
+              FIELD_GET(0xFF000000, ctxt->rcp_version_api),
+              FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
+              FIELD_GET(0x000000FF, ctxt->rcp_version_api));
+        if (FIELD_GET(0xFF000000, ctxt->rcp_version_api) == 0 &&
+            FIELD_GET(0x00FFFF00, ctxt->rcp_version_api) < 2)
             FATAL(3, "RCP API is too old");
         is_hw_reset = spinel_pop_bool(buf);
         if (ctxt->reset_done) {

@@ -61,6 +61,9 @@ struct wsbr_ctxt {
     int spinel_tid;
     int spinel_iid;
 
+    uint32_t rcp_version_api;
+    uint32_t rcp_version_fw;
+
     int  ws_domain;
     int  ws_mode;
     int  ws_class;
