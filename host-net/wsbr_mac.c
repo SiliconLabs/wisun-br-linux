@@ -346,6 +346,57 @@ static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
+static void wsbr_spinel_set_mac_filter_start(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 8);
+    const mlme_request_mac_filter_start_t *req = data;
+
+    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_START);
+    BUG_ON(data_len != sizeof(mlme_request_mac_filter_start_t));
+    spinel_push_hdr_set_prop(ctxt, buf, prop);
+    spinel_push_u16(buf, req->lqi_m);
+    spinel_push_u16(buf, req->lqi_add);
+    spinel_push_u16(buf, req->dbm_m);
+    spinel_push_u16(buf, req->dbm_add);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
+static void wsbr_spinel_set_mac_filter_clear(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
+
+    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_CLEAR);
+    BUG_ON(data_len != 0);
+    spinel_push_hdr_set_prop(ctxt, buf, prop);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
+static void wsbr_spinel_set_mac_filter_add_long(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 16);
+    const mlme_request_mac_filter_add_long_t *req = data;
+
+    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
+    BUG_ON(data_len != sizeof(mlme_request_mac_filter_add_long_t));
+    spinel_push_hdr_set_prop(ctxt, buf, prop);
+    spinel_push_fixed_u8_array(buf, req->mac64, 8);
+    spinel_push_u16(buf, req->lqi_m);
+    spinel_push_u16(buf, req->lqi_add);
+    spinel_push_u16(buf, req->dbm_m);
+    spinel_push_u16(buf, req->dbm_add);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
+static void wsbr_spinel_set_mac_filter_stop(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
+
+    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_STOP);
+    BUG_ON(data_len != 0);
+    spinel_push_hdr_set_prop(ctxt, buf, prop);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
 static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 20);
@@ -447,6 +498,10 @@ static const struct {
     { macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
     { macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
     { macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
+    { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
+    { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
+    { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
+    { macFilterStop,                   wsbr_spinel_set_mac_filter_stop,       SPINEL_PROP_WS_MAC_FILTER_STOP,                  },
     { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
     { macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },
