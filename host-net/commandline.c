@@ -206,6 +206,21 @@ static int parse_escape_sequences(char *out, char *in)
     }
     return 0;
 }
+
+static int parse_byte_array(const char *in, uint8_t *out, int len)
+{
+    for (int i = 0; i < len; i++) {
+        if (in[2] != '\0' && in[2] != ':')
+            return -1;
+        if (sscanf(in, "%hhx", out + i) != 1)
+            return -2;
+        in += 3;
+    }
+    if (in[-1] != '\0')
+        return -3;
+    return 0;
+}
+
 static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
                               int line_no, const char *line)
 {
@@ -274,15 +289,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
         if (int_arg < 0 || int_arg > 3)
             FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, int_arg);
-        substr = str_arg;
-        for (i = 0; i < 16; i++) {
-            if (substr[2] != '\0' && substr[2] != ':')
-                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
-            if (sscanf(substr, "%hhx", &ctxt->ws_gtk[int_arg][i]) != 1)
-                FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
-            substr += 3;
-        }
-        if (substr[-1] != '\0')
+        if (parse_byte_array(str_arg, ctxt->ws_gtk[int_arg], 16))
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_gtk_force[int_arg] = true;
     } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
