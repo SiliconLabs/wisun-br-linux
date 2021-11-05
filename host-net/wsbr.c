@@ -11,10 +11,12 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/fhss_api.h"
+#include "nanostack/mac_filter_api.h"
 #include "nanostack/ns_file_system.h"
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/net_ws_test.h"
 #include "nanostack/ws_management_api.h"
+#include "nanostack/source/6LoWPAN/MAC/mac_helper.h"
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #include "nanostack/source/Core/include/ns_address_internal.h"
 
@@ -70,6 +72,44 @@ static int get_fixed_channel(uint32_t bitmask[static 8])
         }
     }
     return val;
+}
+
+static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
+{
+    int ret;
+    int i;
+
+    if (ctxt->ws_allowed_mac_address_count > 0 || ctxt->ws_denied_mac_address_count > 0) {
+        if (fw_api_older_than(ctxt, 0, 3, 0))
+            FATAL(1, "RCP API is too old to enable MAC address filtering");
+    }
+
+    if (ctxt->ws_allowed_mac_address_count > 0)
+        ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_BLOCKED);
+    else if (ctxt->ws_denied_mac_address_count > 0)
+        ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_ALLOWED);
+    else
+        return 0;
+    if (ret)
+        return -1;
+
+    ret = mac_helper_mac_mlme_filter_clear(ctxt->rcp_if_id);
+    if (ret)
+        return -2;
+
+    for (i = 0; i < ctxt->ws_allowed_mac_address_count; i++) {
+        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->ws_allowed_mac_addresses[i], MAC_FILTER_ALLOWED);
+        if (ret)
+            return -3;
+    }
+
+    for (i = 0; i < ctxt->ws_denied_mac_address_count; i++) {
+        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->ws_denied_mac_addresses[i], MAC_FILTER_BLOCKED);
+        if (ret)
+            return -4;
+    }
+
+    return 0;
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
@@ -138,6 +178,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
         WARN_ON(ret);
     }
+
+    ret = ws_enable_mac_filtering(ctxt);
+    WARN_ON(ret);
 }
 
 static void wsbr_tasklet(struct arm_event_s *event)
