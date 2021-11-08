@@ -640,6 +640,10 @@ install(FILES
     com.silabs.Wisun.BorderRouter.conf
     DESTINATION /etc/dbus-1/system.d)
 install(FILES
+    CHANGES
+    README.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES
     examples/wsbrd.conf
     examples/br_cert.pem
     examples/br_key.pem
