@@ -1,3 +1,13 @@
+v0.4.0
+------
+
+  - Allow to filter Wi-SUN nodes. Mainly used to simulation specific network
+    topologies
+  - Allow to retrieve GAKs from DBus interface
+  - Add DBus events when GTKs and GAKs are modifed
+  - Fix build error if libsystemd is not available
+  - Also copy documentation during install process
+
 v0.3.1
 ------
 
