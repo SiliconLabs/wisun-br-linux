@@ -83,9 +83,9 @@ static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_
     return 0;
 }
 
-int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
-                  const char *property, sd_bus_message *reply,
-                  void *userdata, sd_bus_error *ret_error)
+static int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
+                         const char *property, sd_bus_message *reply,
+                         void *userdata, sd_bus_error *ret_error)
 {
     int interface_id = *(int *)userdata;
     sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_gtks(interface_id);
