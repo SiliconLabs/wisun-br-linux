@@ -143,7 +143,6 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len);
     free(frame);
-    usleep(20000);
 
     return frame_len;
 }
