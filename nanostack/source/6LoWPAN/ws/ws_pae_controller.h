@@ -702,6 +702,8 @@ struct nvm_tlv *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *i
  */
 void ws_pae_controller_forced_gc(bool full_gc);
 
+int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name);
+
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);
 
 #else
@@ -728,6 +730,7 @@ sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);
 
 #define ws_pae_controller_forced_gc NULL
 
+#define ws_pae_controller_gak_from_gtk -1
 #define ws_pae_controller_get_gtks NULL
 
 #endif

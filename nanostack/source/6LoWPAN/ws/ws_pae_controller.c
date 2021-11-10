@@ -132,7 +132,6 @@ static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *inte
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key);
 static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index);
-static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
@@ -546,7 +545,7 @@ static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key)
     nw_key->installed = false;
 }
 
-static int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
+int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
 {
 #if defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH)
     uint8_t network_name_len = strlen(network_name);
