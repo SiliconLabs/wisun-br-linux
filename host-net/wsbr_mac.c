@@ -12,6 +12,7 @@
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "host-net/dbus.h"
 #include "host-common/utils.h"
 #include "host-common/spinel.h"
 #include "host-common/spinel_buffer.h"
@@ -433,6 +434,7 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
     spinel_push_fixed_u8_array(buf, req->Key, 16);
     spinel_push_data(buf, req->KeyIdLookupList->LookupData, lookup_len);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    dbus_emit_keys_change(ctxt);
 }
 
 static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, uint32_t val)

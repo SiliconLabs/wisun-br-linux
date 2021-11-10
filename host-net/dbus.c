@@ -24,6 +24,19 @@
 #include "dbus.h"
 #include "wsbr.h"
 
+void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
+{
+    sd_bus_emit_properties_changed(ctxt->dbus,
+                       "/com/silabs/Wisun/BorderRouter",
+                       "com.silabs.Wisun.BorderRouter",
+                       "Gtks", NULL);
+    sd_bus_emit_properties_changed(ctxt->dbus,
+                       "/com/silabs/Wisun/BorderRouter",
+                       "com.silabs.Wisun.BorderRouter",
+                       "Gaks", NULL);
+}
+
+
 static void print_ping_reply(void *cb)
 {
     socket_callback_t *event = (socket_callback_t *)cb;
@@ -267,10 +280,10 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_revoke_apply, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
-                        0),
+                        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Gaks", "aay", dbus_get_gaks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
-                        0),
+                        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, ws_name),
                         SD_BUS_VTABLE_PROPERTY_CONST),

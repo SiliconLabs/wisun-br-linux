@@ -10,6 +10,7 @@ struct wsbr_ctxt;
 
 #ifdef HAVE_LIBSYSTEMD
 
+void dbus_emit_keys_change(struct wsbr_ctxt *ctxt);
 void dbus_register(struct wsbr_ctxt *ctxt);
 int dbus_get_fd(struct wsbr_ctxt *ctxt);
 int dbus_process(struct wsbr_ctxt *ctxt);
@@ -17,6 +18,10 @@ int dbus_process(struct wsbr_ctxt *ctxt);
 #else
 
 #include "host-common/log.h"
+
+static void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
+{
+}
 
 static void dbus_register(struct wsbr_ctxt *ctxt)
 {
