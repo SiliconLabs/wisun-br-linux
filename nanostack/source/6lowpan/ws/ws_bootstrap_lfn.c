@@ -35,7 +35,6 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_ie_lib.h"
 #include "mpl/mpl.h"

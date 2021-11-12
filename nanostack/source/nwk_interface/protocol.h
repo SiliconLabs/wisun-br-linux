@@ -44,7 +44,6 @@
 #include "multicast_api.h"
 #include "service_libs/neighbor_cache/neighbor_table_definition.h"
 #include "service_libs/trickle/trickle.h"
-#include "net_polling_api.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;
@@ -248,19 +247,6 @@ typedef struct arm_15_4_mac_parameters_t {
 
 typedef void mac_poll_fail_cb(int8_t nwk_interface_id);
 
-typedef struct nwk_rfd_poll_setups {
-    uint32_t nwk_app_poll_time;
-    net_host_mode_t host_mode;
-    uint32_t slow_poll_rate_seconds;
-    uint32_t timeOutInSeconds;
-    uint8_t nwk_parent_poll_fail;
-    uint8_t protocol_poll;
-    mlme_poll_t poll_req;
-    bool pollActive: 1;
-    bool macDeepSleepEnabled: 1;
-    mac_poll_fail_cb *pollFailCb;
-} nwk_rfd_poll_setups_s;
-
 typedef struct gp_ipv6_address_entry {
     uint8_t address[16];
     ns_list_link_t link;
@@ -445,7 +431,6 @@ struct protocol_interface_info_entry {
     struct eth_mac_api_s *eth_mac_api;
 
     struct nwk_wpan_nvm_api *nwk_wpan_nvm_api;
-    nwk_rfd_poll_setups_s *rfd_poll_info;
     struct arm_device_driver_list *dev_driver;
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
     int8_t (*if_up)(struct protocol_interface_info_entry *cur);
@@ -478,7 +463,6 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry);
 
 extern void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
 
-protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void);
 extern uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
 extern protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id);

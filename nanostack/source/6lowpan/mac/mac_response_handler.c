@@ -25,7 +25,6 @@
 #include "core/include/ns_socket.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "mac_mcps.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -188,11 +187,7 @@ void mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const void *d
             stop_bootstrap_timer(info_entry);
             break;
         }
-        case MLME_POLL: {
-            const mlme_poll_conf_t *dat = (mlme_poll_conf_t *)data;
-            mac_mlme_poll_confirm(info_entry, dat);
-            break;
-        }
+        case MLME_POLL:
         case MLME_ORPHAN:
         case MLME_COMM_STATUS:
         case MLME_SYNC:

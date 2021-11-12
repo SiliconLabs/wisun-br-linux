@@ -82,7 +82,6 @@ add_executable(wsbrd
     nanostack/source/6lowpan/iphc_decode/iphc_compress.c
     nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
     nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-    nanostack/source/6lowpan/mac/mac_data_poll.c
     nanostack/source/6lowpan/mac/mac_helper.c
     nanostack/source/6lowpan/mac/mac_ie_lib.c
     nanostack/source/6lowpan/mac/mac_response_handler.c
@@ -158,7 +157,6 @@ add_executable(wsbrd
     # Excluded nanostack/source/mac/virtual_rf
     nanostack/source/mpl/mpl.c
     nanostack/source/nwk_interface/protocol_core.c
-    nanostack/source/nwk_interface/protocol_core_sleep.c
     nanostack/source/nwk_interface/protocol_stats.c
     nanostack/source/nwk_interface/protocol_timer.c
     nanostack/source/rpl/rpl_control.c
@@ -312,7 +310,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/iphc_decode/iphc_compress.c
         nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
         nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-        nanostack/source/6lowpan/mac/mac_data_poll.c
         nanostack/source/6lowpan/mac/mac_helper.c
         nanostack/source/6lowpan/mac/mac_ie_lib.c
         nanostack/source/6lowpan/mac/mac_response_handler.c
@@ -387,7 +384,6 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded nanostack/source/mac/virtual_rf
         nanostack/source/mpl/mpl.c
         nanostack/source/nwk_interface/protocol_core.c
-        nanostack/source/nwk_interface/protocol_core_sleep.c
         nanostack/source/nwk_interface/protocol_stats.c
         nanostack/source/nwk_interface/protocol_timer.c
         nanostack/source/rpl/rpl_control.c

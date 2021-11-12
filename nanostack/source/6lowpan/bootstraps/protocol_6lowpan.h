@@ -64,7 +64,6 @@ int8_t protocol_6lowpan_interface_compare_cordinator_netid(struct protocol_inter
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, struct ns_sockaddr *adr_ptr);
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void);
-bool protocol_6lowpan_bootstrap_start(struct protocol_interface_info_entry *interface);
 bool protocol_6lowpan_bootstrap_link_set(struct protocol_interface_info_entry *interface, struct mlme_pan_descriptor_s *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length);
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);
 bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand);

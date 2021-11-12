@@ -64,7 +64,6 @@
 
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_response_handler.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/nvm/nwk_nvm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
@@ -784,34 +783,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(vo
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void)
-{
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (!cur->if_stack_buffer_handler) {
-            continue;
-        }
-
-        if (cur->nwk_id == IF_IPV6) {
-            return NULL;
-        }
-
-        /* Note that rf_mac_setup == NULL is okay */
-        if (cur->mac_parameters && cur->rfd_poll_info == NULL) {
-            return NULL;
-        }
-    }
-
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->mac_parameters && cur->rfd_poll_info) {
-            if (!cur->rfd_poll_info->pollActive && lowpan_adaptation_tx_active(cur->id)) {
-                return cur;
-            }
-        }
-    }
-
-    return NULL;
-}
-
 uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = 0;
@@ -1090,7 +1061,6 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
                 break;
 
             default:
-                mac_data_poll_protocol_poll_mode_disable(cur);
                 if (!cur->rpl_domain) {
                     tr_info("NON RPL Ready");
                     //nwk_protocol_poll_mode_disable(cur->nwk_id, 0);

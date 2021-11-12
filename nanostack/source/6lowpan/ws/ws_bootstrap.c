@@ -35,7 +35,6 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_ie_lib.h"
 #include "mpl/mpl.h"
@@ -1519,10 +1518,6 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
 
     protocol_interface_info_entry_t *cur = user_data;
     lowpan_adaptation_neigh_remove_free_tx_tables(cur, entry_ptr);
-    // Sleepy host
-    if (cur->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
-        mac_data_poll_protocol_poll_mode_decrement(cur);
-    }
 
     //TODO State machine check here
 

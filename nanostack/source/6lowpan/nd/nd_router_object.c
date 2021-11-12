@@ -38,7 +38,6 @@
 #include "service_libs/whiteboard/whiteboard.h"
 #include "common_functions.h"
 #include "border_router/border_router.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
@@ -363,9 +362,6 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     }
 
                     protocol_6lowpan_bootstrap_nd_ready(interface);
-                } else {
-                    //Disable protocol poll
-                    mac_data_poll_protocol_poll_mode_decrement(interface);
                 }
 
             }
@@ -398,10 +394,6 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     addr->state_timer += (randLIB_get_16bit() & nd_params.timer_random_max);
                     tr_debug("NS Configured");
                     interface->if_6lowpan_dad_process.count--;
-                    //Enable Protocol Poll mode
-                    if (interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
-                        mac_data_poll_init_protocol_poll(interface);
-                    }
                 } else {
 
                     //ND FAIL
@@ -1230,7 +1222,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
             } else {
                 router->nd_timer = 1;
                 tr_debug("RS Unicast Done");
-                mac_data_poll_protocol_poll_mode_decrement(cur);
             }
             router->ns_retry = nd_params.ns_retry_max;
             router->nd_state = ND_READY;
@@ -1511,9 +1502,6 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_e
         set_power_state(ICMP_ACTIVE);
         cur->nd_timer = 1;
         cur->nd_bootstrap_tick = (nd_base_tick - 1);
-        if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
-            mac_data_poll_init_protocol_poll(cur_interface);
-        }
         nd_router_bootstrap_timer(cur, cur_interface, 1);
     } else { /* ND_BR_READY */
         nd_border_router_setup_refresh(cur->nwk_id, true);

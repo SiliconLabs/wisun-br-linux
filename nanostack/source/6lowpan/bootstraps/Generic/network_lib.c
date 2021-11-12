@@ -64,17 +64,6 @@ uint8_t nwk_ready(nwk_interface_id id)
 
 }
 
-void nwk_parent_poll_fail_cb(int8_t id)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(id);
-    if (!cur) {
-        tr_error("Data Poll Fail Event: No interface");
-        return;
-    }
-    nwk_bootstrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
-
-}
-
 void network_library_init(void)
 {
     socket_init();

@@ -57,7 +57,6 @@
 #include "border_router/border_router.h"
 #include "service_libs/etx/etx.h"
 #include "mac_api.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "net_lib/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/nvm/nwk_nvm.h"
@@ -104,7 +103,6 @@ static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
     } else {
         tr_debug("RE ND ready");
         clear_power_state(ICMP_ACTIVE);
-        mac_data_poll_protocol_poll_mode_disable(cur);
     }
 }
 
@@ -128,10 +126,6 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
         icmpv6_restart_router_advertisements(cur_interface, cur->border_router);
         /* Stop the ND revalidate timer - this means we don't do RS again */
         cur->nd_re_validate = 0;
-    } else {
-        if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
-            mac_data_poll_protocol_poll_mode_decrement(cur_interface);
-        }
     }
     cur->mle_advert_timer = 0;
 }
@@ -186,27 +180,6 @@ bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interf
     interface->mac_api->mlme_req(interface->mac_api, MLME_START, &start_req);
     mac_helper_panid_set(interface, pan_descriptor->CoordPANId);
 
-    return true;
-}
-
-bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface)
-{
-    //SET allways RX ON Idle device by default
-    mac_helper_pib_boolean_set(interface, macRxOnWhenIdle, true);
-    interface->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-
-    mac_data_poll_init(interface);
-    mac_helper_mac16_address_set(interface, 0xffff);
-    tr_debug("Mac Ready");
-    interface->nwk_nd_re_scan_count = 2;
-
-    if (interface->if_lowpan_security_params->nwk_security_mode == NET_SEC_MODE_PSK_LINK_SECURITY) {
-        tr_debug("SET Security Mode");
-        mac_helper_default_security_level_set(interface, interface->mac_parameters->mac_configured_sec_level);
-        mac_helper_default_security_key_id_mode_set(interface, MAC_KEY_ID_MODE_IDX);
-    }
-
-    bootstrap_next_state_kick(ER_SCAN, interface);
     return true;
 }
 

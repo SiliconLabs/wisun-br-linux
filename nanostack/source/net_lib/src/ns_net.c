@@ -61,7 +61,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
 #include "border_router/border_router.h"
-#include "6lowpan/mac/mac_data_poll.h"
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ethernet_mac_api.h"
@@ -313,24 +312,6 @@ int16_t arm_net_get_current_channel(int8_t interface_id)
 
     return ret_val;
 }
-
-/**
- * \brief A function to set sleep mode of a host.
- * \param state equals to 1 if the sleep mode is to be enabled, 0 if the sleep mode is to be disabled.
- */
-void arm_net_host_enter_sleep_state_set(int8_t interface_id, uint8_t state)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur && cur->rfd_poll_info) {
-
-        if (state) {
-            cur->rfd_poll_info->macDeepSleepEnabled = true;
-        } else {
-            cur->rfd_poll_info->macDeepSleepEnabled = false;
-        }
-    }
-}
-
 
 /**
  * \brief A function to read library version information.
@@ -1221,76 +1202,6 @@ int8_t net_init_core(void)
     addr_notification_register(net_automatic_loopback_route_update);
     return 0;
 }
-
-static int8_t mac_data_poll_host_polling_state_change_check(protocol_interface_info_entry_t *cur)
-{
-    int8_t ret_val = 0;
-    if (cur->lowpan_info  & INTERFACE_NWK_ROUTER_DEVICE) {
-        tr_warn("Host Control not accepted for Router");
-        ret_val = -1;
-    } else if (nwk_bootstrap_ready(cur) == 0) {
-        tr_debug("Bootstrap Active");
-        ret_val = -2;
-    }
-    return ret_val;
-}
-
-
-/**
-  * \brief Set new Host state.
-  *
-  * \param mode new host state
-  * \param poll_time poll time in seconds only handled when NET_HOST_SLOW_POLL_MODE is enabled
-  *
-  * Valid poll time for NET_HOST_SLOW_POLL_MODE is 0 < poll_time poll_time < 864001 (1 Day)
-  *
-  * \return 0, State update OK
-  * \return -1, unknown state
-  * \return -2, invalid time
-  * \return -3 MLE handshake trig Fail
-  *
-  */
-int8_t arm_nwk_host_mode_set(int8_t interface_id, net_host_mode_t mode, uint32_t poll_time)
-{
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    if (mac_data_poll_host_polling_state_change_check(cur) != 0) {
-        return -3;
-    }
-
-    net_host_mode_t old_mode;
-
-    if (mac_data_poll_host_mode_get(cur, &old_mode) != 0) {
-        return -1;
-    }
-
-    return mac_data_poll_host_mode_set(cur, mode, poll_time);
-}
-
-/**
-  * \brief Read Current Host State.
-  *
-  * \param mode pointer where host state will be saved
-
-  * \return 0, State Read update OK
-  * \return -1, Net Role is Router or stack is idle
-  *
-  */
-int8_t arm_nwk_host_mode_get(int8_t interface_id, net_host_mode_t *mode)
-{
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return -1;
-    }
-
-    return mac_data_poll_host_mode_get(cur, mode);
-}
-
 
 int8_t net_nvm_data_clean(int8_t interface_id)
 {
