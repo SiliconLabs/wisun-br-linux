@@ -1026,7 +1026,6 @@ void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
     // Configure IP stack to operate as Wi-SUN node
 
     // Do not process beacons
-    cur->mac_parameters->beacon_ind = NULL;
     cur->mac_parameters->mac_security_level = 0;
 
     // Set default parameters to interface

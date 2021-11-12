@@ -244,9 +244,6 @@ typedef struct arm_15_4_mac_parameters_t {
     nwk_scan_params_t nwk_scan_params;
     nwk_filter_params_s nwk_filter_params;
     uint16_t mac_in_direct_entry_timeout;
-    beacon_compare_rx_cb *beacon_compare_rx_cb_ptr;
-    beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
-    uint8_t (*beacon_ind)(uint8_t *ptr, uint8_t len, protocol_interface_info_entry_t *cur);
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
 
@@ -330,12 +327,10 @@ typedef struct ipv6_ra_timing {
  * @param conf MLME-SCAN confirm object (ownership not passed)
  */
 typedef void scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t *conf);
-typedef void beacon_indication_cb(int8_t if_id, const mlme_beacon_ind_t *conf);
 typedef void comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status);
 
 
 struct protocol_interface_info_entry {
-    beacon_indication_cb *beacon_cb;
     scan_confirm_cb *scan_cb;
     comm_status_indication_cb *comm_status_ind_cb;
     nwk_interface_id nwk_id;

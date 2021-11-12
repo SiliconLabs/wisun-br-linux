@@ -1361,103 +1361,6 @@ uint16_t mac_mlme_get_panid(protocol_interface_rf_mac_setup_s *rf_setup)
     return panId;
 }
 
-static bool add_or_update_beacon(mlme_scan_conf_t *conf, mlme_beacon_ind_t *data, fhss_api_t *fhss_api)
-{
-    bool found = false;
-    bool update_beacon = false;
-    for (int i = 0; i < conf->ResultListSize; i++) {
-        mlme_pan_descriptor_t *cur_desc = conf->PAN_values[i];
-        if (!cur_desc) { //Not an active or passive scan
-            break;
-        }
-        /* When FHSS is enabled, logical channel check is not valid
-         * as the Beacon can be sent on any enabled channel */
-        if (fhss_api || (cur_desc->LogicalChannel == data->PANDescriptor.LogicalChannel)) {
-            if (cur_desc->CoordPANId == data->PANDescriptor.CoordPANId) {
-                if (cur_desc->LinkQuality < data->PANDescriptor.LinkQuality) {
-                    cur_desc->CoordAddrMode = data->PANDescriptor.CoordAddrMode;
-                    memcpy(cur_desc->CoordAddress, data->PANDescriptor.CoordAddress, 8);
-                    cur_desc->LinkQuality = data->PANDescriptor.LinkQuality;
-                    update_beacon = true;
-                }
-                found = true;
-            }
-        }
-    }
-    if (!found && conf->ResultListSize != MLME_MAC_RES_SIZE_MAX) {
-        mlme_pan_descriptor_t *desc = ns_dyn_mem_temporary_alloc(sizeof(mlme_pan_descriptor_t));
-        if (!desc) {
-            return false;
-        }
-        memset(desc, 0, sizeof(mlme_pan_descriptor_t));
-        mlme_pan_descriptor_t *dat = &data->PANDescriptor;
-
-        desc->CoordAddrMode = dat->CoordAddrMode;
-        desc->CoordPANId = dat->CoordPANId;
-        memcpy(desc->CoordAddress, dat->CoordAddress, 8);
-        desc->LogicalChannel = dat->LogicalChannel;
-        desc->ChannelPage = dat->ChannelPage;
-        memcpy(desc->SuperframeSpec, dat->SuperframeSpec, 2);
-        desc->GTSPermit = dat->GTSPermit;
-        desc->LinkQuality = dat->LinkQuality;
-        desc->Timestamp = dat->Timestamp;
-        desc->SecurityFailure = dat->SecurityFailure;
-
-        desc->Key.SecurityLevel = dat->Key.SecurityLevel;
-        desc->Key.KeyIdMode = dat->Key.KeyIdMode;
-        desc->Key.KeyIndex = dat->Key.KeyIndex;
-        memcpy(desc->Key.Keysource, dat->Key.Keysource, 8);
-
-        conf->PAN_values[conf->ResultListSize] = desc;
-        conf->ResultListSize++;
-        update_beacon = true;
-    }
-    return update_beacon;
-}
-
-int mac_mlme_beacon_notify(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_beacon_ind_t *data)
-{
-    bool update_beacon = true;
-    bool contains_fhss_synch_info = false;
-    if (!rf_mac_setup || !data) {
-        return -1;
-    }
-
-    /* Cut FHSS synchronization info from Beacon payload length.
-     * Synchronization info is stored later in this function but
-     * should not be delivered to upper layer as a part of Beacon payload.
-     */
-    if (rf_mac_setup->fhss_api) {
-        if (data->beacon_data_length > FHSS_SYNCH_INFO_START) {
-            data->beacon_data_length -= FHSS_SYNCH_INFO_LENGTH;
-            contains_fhss_synch_info = true;
-        } else {
-            // Received single channel Beacon when FHSS enabled.
-            return 0;
-        }
-    }
-
-    mac_api_t *mac = get_sw_mac_api(rf_mac_setup);
-    if (mac && mac->mlme_ind_cb) {
-        mac->mlme_ind_cb(mac, MLME_BEACON_NOTIFY, data);
-    }
-
-    if (rf_mac_setup->mac_mlme_scan_resp) {
-        mlme_scan_conf_t *conf = rf_mac_setup->mac_mlme_scan_resp;
-        update_beacon = add_or_update_beacon(conf, data, rf_mac_setup->fhss_api);
-    }
-    if (rf_mac_setup->fhss_api && (update_beacon == true)) {
-        if (contains_fhss_synch_info == true) {
-            // Assume synchronization info is found from the end of the Beacon payload
-            uint8_t *synch_info_start = data->beacon_data + data->beacon_data_length;
-            rf_mac_setup->fhss_api->receive_frame(rf_mac_setup->fhss_api, data->PANDescriptor.CoordPANId, data->PANDescriptor.CoordAddress,
-                                                  data->PANDescriptor.Timestamp, synch_info_start, FHSS_SYNCH_FRAME);
-        }
-    }
-
-    return 0;
-}
-
 int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *data_ptr, uint16_t length)
 {
     (void) length;
@@ -1811,9 +1714,6 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
     if (rf_ptr->fhss_api) {
         length += FHSS_SYNCH_INFO_LENGTH;
     }
-    /* if (rf_ptr->beacon_join_priority_tx_cb_ptr) {
-         length += 2;
-     }*/
 
     mac_pre_build_frame_t *buf = mcps_sap_prebuild_frame_buffer_get(length);
     if (!buf) {
@@ -1861,13 +1761,6 @@ int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
 
     if (rf_ptr->mac_beacon_payload_size) {
         memcpy(ptr, rf_ptr->mac_beacon_payload, rf_ptr->mac_beacon_payload_size);
-
-        /*if (rf_ptr->beacon_join_priority_tx_cb_ptr) {
-            uint8_t beacon_join_priority = rf_ptr->beacon_join_priority_tx_cb_ptr(rf_ptr->mac_interface_id);
-            ptr[PLAIN_BEACON_PAYLOAD_SIZE] = BEACON_OPTION_JOIN_PRIORITY_TYPE_LEN;
-            ptr[PLAIN_BEACON_PAYLOAD_SIZE + 1] = beacon_join_priority;
-            ptr += BEACON_OPTION_JOIN_PRIORITY_LEN;
-        }*/
     }
     buf->priority = MAC_PD_DATA_HIGH_PRIORITY;
     mcps_sap_pd_req_queue_write(rf_ptr, buf);

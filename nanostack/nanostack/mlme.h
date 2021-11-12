@@ -305,20 +305,6 @@ typedef struct mlme_beacon_gts_spec_s {
 } mlme_beacon_gts_spec_t;
 
 /**
- * @brief struct mlme_beacon_ind_t Beacon notify structure
- *
- * See IEEE standard 802.15.4-2006 (table 54) for more details
- */
-typedef struct mlme_beacon_ind_s {
-    uint8_t BSN;                                        /**< Beacon sequence number */
-    mlme_pan_descriptor_t PANDescriptor;                /**< Beacon parsed Pan description */
-    mlme_beacon_pending_address_spec_t PendAddrSpec;    /**< Address pending field */
-    uint8_t *AddrList;                                  /**< Address pending list */
-    uint16_t beacon_data_length;                        /**< Length of beacon payload */
-    uint8_t *beacon_data;                               /**< Pointer to beacon payload */
-} mlme_beacon_ind_t;
-
-/**
  * @brief struct mlme_scan_t Scan request structure
  *
  * See IEEE standard 802.15.4-2006 (table 67) for more details

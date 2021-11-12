@@ -42,7 +42,6 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/mac/beacon_handler.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -1198,18 +1197,6 @@ static void net_automatic_loopback_route_update(protocol_interface_info_entry_t 
         default:
             break;
     }
-}
-
-int8_t arm_nwk_6lowpan_beacon_join_priority_tx_callback_set(int8_t interface_id,
-                                                            beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr)
-{
-    return (mac_beacon_link_beacon_join_priority_tx_callback_set(interface_id, beacon_join_priority_tx_cb_ptr));
-}
-
-int8_t arm_nwk_6lowpan_beacon_compare_rx_callback_set(int8_t interface_id,
-                                                      beacon_compare_rx_cb *beacon_compare_rx_cb_ptr)
-{
-    return (mac_beacon_link_beacon_compare_rx_callback_set(interface_id, beacon_compare_rx_cb_ptr));
 }
 
 /**

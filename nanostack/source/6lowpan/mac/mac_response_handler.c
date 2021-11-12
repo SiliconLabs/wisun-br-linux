@@ -193,7 +193,6 @@ void mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const void *d
             mac_mlme_poll_confirm(info_entry, dat);
             break;
         }
-        case MLME_BEACON_NOTIFY:
         case MLME_ORPHAN:
         case MLME_COMM_STATUS:
         case MLME_SYNC:
@@ -216,14 +215,6 @@ void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void
         case MLME_DISASSOCIATE: {
             //Unsupported
             //mlme_disassociate_ind_t *dat = (mlme_disassociate_ind_t*)data;
-            break;
-        }
-        case MLME_BEACON_NOTIFY: {
-            const mlme_beacon_ind_t *dat = (mlme_beacon_ind_t *)data;
-            protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-            if (info_entry && info_entry->beacon_cb) {
-                info_entry->beacon_cb(api->parent_id, dat);
-            }
             break;
         }
         case MLME_GTS: {

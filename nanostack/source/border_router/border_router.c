@@ -50,7 +50,6 @@
 #include "net_thread_test.h"
 #include "border_router/border_router.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/mac/beacon_handler.h"
 #include "6lowpan/nvm/nwk_nvm.h"
 #include "net_lib/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

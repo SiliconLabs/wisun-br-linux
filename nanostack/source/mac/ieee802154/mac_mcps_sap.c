@@ -957,96 +957,6 @@ static void mac_nap_tun_data_handler(mac_pre_parsed_frame_t *buf, protocol_inter
     mcps_sap_pre_parsed_frame_buffer_free(buf);
 }
 
-static void mac_data_interface_parse_beacon(mac_pre_parsed_frame_t *buf, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    mlme_beacon_ind_t ind_data;
-
-    uint16_t len;
-    uint8_t *ptr;
-    mlme_beacon_gts_spec_t gts_spec;
-//    uint8_t *gts_info = NULL;
-    uint8_t *pending_address_list = NULL;
-    uint8_t SuperframeSpec[2];
-
-    uint16_t src_pan_id = mac_header_get_src_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), rf_mac_setup->pan_id);
-
-    //validate beacon pan-id and filter other network out
-    if (rf_mac_setup->pan_id < 0xffff && (rf_mac_setup->pan_id != src_pan_id && !rf_mac_setup->macAcceptAnyBeacon)) {
-        tr_debug("Drop Beacon by unknow panid");
-        return;
-    }
-
-    if (!mac_payload_information_elements_parse(buf)) {
-        return;
-    }
-
-    /*Add received bytes in statistics*/
-    tr_debug("mac_parse_beacon");
-
-    ptr = buf->macPayloadPtr;
-    len = buf->mac_payload_length;
-    SuperframeSpec[0] = *ptr++;
-    SuperframeSpec[1] = *ptr++;
-    gts_spec.description_count = (*ptr & 7);
-    gts_spec.gts_permit = ((*ptr++ & 0x80) >> 7);
-    len -= 3;
-    if (gts_spec.description_count) {
-        tr_error("GTS info count not zero");
-        //calucalate Length
-        uint8_t gts_field_length = ((gts_spec.description_count) * 3);
-        if (len < gts_field_length) {
-            return;
-        }
-        len -= gts_field_length;
-        ptr += gts_field_length;
-    }
-    //Pendinlist
-    ind_data.PendAddrSpec.short_address_count = (*ptr & 7);
-    ind_data.PendAddrSpec.extended_address_count = ((*ptr++ & 0x70) >> 4);
-    len -= 1;
-    if (ind_data.PendAddrSpec.short_address_count || ind_data.PendAddrSpec.extended_address_count) {
-        if ((ind_data.PendAddrSpec.extended_address_count + ind_data.PendAddrSpec.short_address_count)  > 7) {
-            //over 7 address
-            return;
-        }
-        uint8_t pending_address_list_size = (ind_data.PendAddrSpec.short_address_count * 2);
-        pending_address_list_size += (ind_data.PendAddrSpec.extended_address_count * 8);
-        if (len < pending_address_list_size) {
-            return;
-        }
-        pending_address_list = ptr;
-        ptr += pending_address_list_size;
-        len -= pending_address_list_size;
-    }
-
-    memset(&ind_data.PANDescriptor, 0, sizeof(mlme_pan_descriptor_t));
-
-    if (rf_mac_setup->fhss_api) {
-        ind_data.PANDescriptor.LogicalChannel = 0; //Force Allways same channel
-    } else {
-        ind_data.PANDescriptor.LogicalChannel = rf_mac_setup->mac_channel;
-    }
-    ind_data.PANDescriptor.ChannelPage = 0;
-    ind_data.PANDescriptor.CoordAddrMode = buf->fcf_dsn.SrcAddrMode;
-    mac_header_get_src_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), ind_data.PANDescriptor.CoordAddress);
-    ind_data.PANDescriptor.CoordPANId = src_pan_id;
-    ind_data.PANDescriptor.LinkQuality = buf->LQI;
-    ind_data.PANDescriptor.GTSPermit = gts_spec.gts_permit;
-    ind_data.PANDescriptor.Timestamp = buf->timestamp;
-    mac_header_security_components_read(buf, &ind_data.PANDescriptor.Key);
-    ind_data.PANDescriptor.SecurityFailure = 0;
-    ind_data.PANDescriptor.SuperframeSpec[0] = SuperframeSpec[0];
-    ind_data.PANDescriptor.SuperframeSpec[1] = SuperframeSpec[1];
-
-    ind_data.BSN = buf->fcf_dsn.DSN;
-    ind_data.AddrList = pending_address_list;
-    ind_data.beacon_data_length = len;
-    ind_data.beacon_data = ptr;
-
-    mac_mlme_beacon_notify(rf_mac_setup, &ind_data);
-
-}
-
 static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
 {
     protocol_interface_rf_mac_setup_s *rf_mac_setup = buf->mac_class_ptr;
@@ -1069,11 +979,6 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
     }
     sw_mac_stats_update(rf_mac_setup, STAT_MAC_RX_COUNT, 0);
     switch (buf->fcf_dsn.frametype) {
-        case MAC_FRAME_BEACON:
-            sw_mac_stats_update(rf_mac_setup, STAT_MAC_BEA_RX_COUNT, 0);
-            mac_data_interface_parse_beacon(buf, rf_mac_setup);
-            mcps_sap_pre_parsed_frame_buffer_free(buf);
-            break;
         case MAC_FRAME_DATA:
             if (rf_mac_setup->tun_extension_rf_driver) {
                 mac_nap_tun_data_handler(buf, rf_mac_setup);
@@ -1093,6 +998,9 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
             mac_command_sap_rx_handler(buf, rf_mac_setup, mac);
             break;
 
+        case MAC_FRAME_BEACON:
+            tr_error("Beacons are not supported");
+            // Fall through
         default:
             mcps_sap_pre_parsed_frame_buffer_free(buf);
     }

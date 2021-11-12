@@ -528,39 +528,6 @@ typedef uint8_t beacon_join_priority_tx_cb(int8_t interface_id);
 typedef uint8_t beacon_compare_rx_cb(int8_t interface_id, uint8_t join_priority, uint8_t link_quality);
 
 /**
-  * \brief Set callback for beacon join priority transmit
-  *
-  * Sets callback that defines join priority that is transmitted in beacon.
-  * If callback is not set default functionality is used. On default functionality
-  * join priority is combined from RPL DAGRank and RPL DODAG preference.
-  *
-  * \param interface_id The network interface ID.
-  * \param beacon_join_priority_tx_cb_ptr Function pointer.
-  *
-  * \return 0 on success.
-  * \return -1 Unknown network ID.
-  * \return -2 Other error.
-  */
-extern int8_t arm_nwk_6lowpan_beacon_join_priority_tx_callback_set(int8_t interface_id, beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr);
-
-/**
-  * \brief Set callback for comparing received beacon
-  *
-  * Sets callback that defines how preferred the node that has sent beacon is for
-  * connecting to the network. If callback is not set default functionality is used.
-  * On default functionality connecting priority is defined based on join priority
-  * received in beacon and link quality.
-  *
-  * \param interface_id Network interface ID.
-  * \param beacon_compare_rx_cb_ptr Function pointer.
-  *
-  * \return 0 on success.
-  * \return -1 Unknown network ID.
-  * \return -2 Other error.
-  */
-extern int8_t arm_nwk_6lowpan_beacon_compare_rx_callback_set(int8_t interface_id, beacon_compare_rx_cb *beacon_compare_rx_cb_ptr);
-
-/**
   * \brief Initialize and configure the interface security mode.
   *
   * \param interface_id Network interface ID.

@@ -831,11 +831,6 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     BUG_ON(!mac_api);
     BUG_ON(mac_api != ctxt->rcp_mac_api);
     switch (id) {
-        case MLME_BEACON_NOTIFY: {
-            // data_len = sizeof(mlme_beacon_ind_t);
-            DEBUG("dataInd MLME_BEACON_NOTIFY indication not yet supported");
-            break;
-        }
         case MLME_COMM_STATUS: {
             DEBUG("dataInd MLME_COMM_STATUS");
             data_len = sizeof(mlme_comm_status_t);

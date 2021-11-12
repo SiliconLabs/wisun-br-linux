@@ -62,7 +62,6 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "service_libs/whiteboard/whiteboard.h"
 
-#include "6lowpan/mac/beacon_handler.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/mac/mac_data_poll.h"
@@ -581,8 +580,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
     entry->mac_parameters->mac_default_key_attribute_id = 1;
     entry->mac_parameters->mac_next_key_attribute_id = 2;
     entry->mac_parameters->mac_default_key_index = 0;
-
-    entry->beacon_cb = beacon_received;
 
     entry->mac_api = api;
     int8_t err = entry->mac_api->mac_initialize(entry->mac_api, &mcps_data_confirm_handler, &mcps_data_indication_handler,

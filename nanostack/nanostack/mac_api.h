@@ -62,7 +62,6 @@ typedef struct mac_api_s mac_api_t;
 typedef enum {
     MLME_ASSOCIATE,
     MLME_DISASSOCIATE,
-    MLME_BEACON_NOTIFY,
     MLME_GET,
     MLME_GTS,
     MLME_ORPHAN,

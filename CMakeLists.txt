@@ -82,7 +82,6 @@ add_executable(wsbrd
     nanostack/source/6lowpan/iphc_decode/iphc_compress.c
     nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
     nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-    nanostack/source/6lowpan/mac/beacon_handler.c
     nanostack/source/6lowpan/mac/mac_data_poll.c
     nanostack/source/6lowpan/mac/mac_helper.c
     nanostack/source/6lowpan/mac/mac_ie_lib.c
@@ -315,7 +314,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/iphc_decode/iphc_compress.c
         nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
         nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-        nanostack/source/6lowpan/mac/beacon_handler.c
         nanostack/source/6lowpan/mac/mac_data_poll.c
         nanostack/source/6lowpan/mac/mac_helper.c
         nanostack/source/6lowpan/mac/mac_ie_lib.c

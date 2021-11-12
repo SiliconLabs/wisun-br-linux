@@ -33,7 +33,6 @@ struct protocol_interface_rf_mac_setup;
 struct arm_event_s;
 struct arm_device_driver_list;
 struct mlme_poll_s;
-struct mlme_beacon_ind_s;
 struct mlme_reset_s;
 struct mlme_scan_s;
 struct mlme_start_s;
@@ -93,14 +92,6 @@ void mac_mlme_mac_radio_enable(struct protocol_interface_rf_mac_setup *rf_mac_se
 int8_t mac_mlme_rf_channel_change(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t new_channel);
 
 void mac_mlme_active_scan_response_timer_start(void *interface);
-
-/**
- * @brief mac_mlme_beacon_notify Function which is called every time a beacon is received
- * @param rf_mac_setup Current MAC setup
- * @param data Reference to beacon data
- * @return
- */
-int mac_mlme_beacon_notify(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mlme_beacon_ind_s *data);
 
 void mac_mlme_event_cb(void *mac_ptr);
 

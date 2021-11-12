@@ -323,7 +323,6 @@ typedef struct protocol_interface_rf_mac_setup {
     /* End of API Control */
     struct mlme_scan_conf_s *mac_mlme_scan_resp;
     struct mac_cca_threshold *cca_threshold;
-    //beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
     struct mac_statistics_s *mac_statistics;
     mac_mcps_edfe_frame_info_t *mac_edfe_info;
     /* FHSS API*/

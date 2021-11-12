@@ -56,7 +56,6 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "border_router/border_router.h"
 #include "service_libs/etx/etx.h"
-#include "6lowpan/mac/beacon_handler.h"
 #include "mac_api.h"
 #include "6lowpan/mac/mac_data_poll.h"
 #include "net_lib/src/net_load_balance_internal.h"
