@@ -29,7 +29,7 @@ uint8_t *spinel_ptr(struct spinel_buffer *buf);
 void spinel_reset(struct spinel_buffer *buf);
 
 void spinel_push_bool(struct spinel_buffer *buf, bool val);
-void spinel_push_int(struct spinel_buffer *buf, int val);
+void spinel_push_uint(struct spinel_buffer *buf, unsigned int val);
 void spinel_push_u8(struct spinel_buffer *buf, uint8_t val);
 void spinel_push_u16(struct spinel_buffer *buf, uint16_t val);
 void spinel_push_u32(struct spinel_buffer *buf, uint32_t val);
@@ -44,7 +44,7 @@ void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size
 void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size);
 
 bool spinel_pop_bool(struct spinel_buffer *buf);
-int spinel_pop_int(struct spinel_buffer *buf);
+unsigned int spinel_pop_uint(struct spinel_buffer *buf);
 uint8_t spinel_pop_u8(struct spinel_buffer *buf);
 uint16_t spinel_pop_u16(struct spinel_buffer *buf);
 uint32_t spinel_pop_u32(struct spinel_buffer *buf);

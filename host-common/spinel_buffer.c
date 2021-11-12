@@ -28,7 +28,7 @@ void spinel_push_bool(struct spinel_buffer *buf, bool val)
     BUG_ON(buf->cnt > buf->len);
 }
 
-static int spinel_encode_uint(uint8_t *buf, int val)
+static int spinel_encode_uint(uint8_t *buf, unsigned int val)
 {
     int cnt = 0;
 
@@ -42,7 +42,7 @@ static int spinel_encode_uint(uint8_t *buf, int val)
 
 // FIXME: replace by
 // void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
-void spinel_push_int(struct spinel_buffer *buf, int val)
+void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
 {
     buf->cnt += spinel_encode_uint(buf->frame + buf->cnt, val);
     BUG_ON(buf->cnt > buf->len);
@@ -164,7 +164,7 @@ static size_t spinel_decode_uint(const uint8_t *frame, unsigned int *val)
 
 // FIXME: replace by
 // unsigned int spinel_pop_uint(struct spinel_buffer *buf)
-int spinel_pop_int(struct spinel_buffer *buf)
+unsigned int spinel_pop_uint(struct spinel_buffer *buf)
 {
     unsigned int val;
 

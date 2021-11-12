@@ -108,8 +108,8 @@ int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api,
 
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
-    spinel_push_int(buf, global_level);
-    spinel_push_int(buf, ef_level);
+    spinel_push_uint(buf, global_level);
+    spinel_push_uint(buf, ef_level);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     return 0;
 }
