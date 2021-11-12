@@ -45,8 +45,6 @@ void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
 #ifdef HAVE_6LOWPAN_ND
-void protocol_6lowpan_neighbor_priority_update(struct protocol_interface_info_entry *cur, uint8_t *removed_priority, uint8_t *updated_priority);
-
 #ifdef HAVE_RPL
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
@@ -55,7 +53,6 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 
 #else
 #define protocol_6lowpan_child_update(cur) (-1)
-#define protocol_6lowpan_neighbor_priority_update(cur, removed_priority, updated_priority) ((void)0)
 #endif
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);

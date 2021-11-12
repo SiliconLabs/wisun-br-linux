@@ -386,10 +386,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 }
 #ifdef HAVE_6LOWPAN_ND
 
-void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *cur, uint8_t *removed_priority, uint8_t *updated_priority)
-{
-}
-
 #ifdef HAVE_RPL
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)

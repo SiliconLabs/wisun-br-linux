@@ -1136,18 +1136,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
         icmp_nd_prefixs_parse(buf, router, cur);
         icmp_nd_context_parse(buf, router);
 
-        if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
-            //SET OnlY primary
-            uint8_t address[8];
-            if (router->default_hop.addrtype == ADDR_802_15_4_SHORT) {
-                address[6] = router->default_hop.address[0];
-                address[7] = router->default_hop.address[1];
-                memcpy(address, ADDR_SHORT_ADR_SUFFIC, 6);
-            } else {
-                memcpy(address, router->default_hop.address, 8);
-            }
-            protocol_6lowpan_neighbor_priority_update(cur, NULL, address);
-        }
         router->nd_state = ND_READY;
         router->nd_re_validate = (router_lifetime / 5) * 4;
         router->nd_timer = 10;
@@ -1184,12 +1172,10 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
         } else if (router->default_hop.LQI < buf->options.lqi) {
             /* XXX another zero-hysteresis parent swap */
             if (new_router) {
-                uint8_t *sec_ptr = NULL;
                 if (router->secondaty_hop == 0) {
                     router->secondaty_hop = ns_dyn_mem_alloc(sizeof(nd_router_next_hop));
                 } else {
                     nd_router_next_hop *hop = router->secondaty_hop;
-                    sec_ptr = hop->address;
                     if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
                         if (hop->addrtype == ADDR_802_15_4_SHORT) {
                             hop->address[6] = hop->address[0];
@@ -1197,10 +1183,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
                             memcpy(hop->address, ADDR_SHORT_ADR_SUFFIC, 6);
                         }
                     }
-                }
-                if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
-                    //Remove old secondary priority and set new primary
-                    protocol_6lowpan_neighbor_priority_update(cur, sec_ptr, &buf->src_sa.address[8]);
                 }
                 //
                 if (router->secondaty_hop) {
@@ -1220,10 +1202,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
                 if (router->secondaty_hop->LQI < buf->options.lqi) {
                     icmp_nd_set_next_hop(router->secondaty_hop, &buf->src_sa);
                     router->secondaty_hop->LQI = buf->options.lqi;
-                    if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
-                        //SET only new primary
-                        protocol_6lowpan_neighbor_priority_update(cur, 0, &buf->src_sa.address[8]);
-                    }
                 }
             }
         }
