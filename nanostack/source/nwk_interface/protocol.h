@@ -44,7 +44,6 @@
 #include "multicast_api.h"
 #include "service_libs/neighbor_cache/neighbor_table_definition.h"
 #include "service_libs/trickle/trickle.h"
-#include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "net_polling_api.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
@@ -433,8 +432,6 @@ struct protocol_interface_info_entry {
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;
     neigh_cache_s neigh_cache;
-    pan_blacklist_cache_s pan_blacklist_cache;
-    pan_coordinator_blacklist_cache_s pan_cordinator_black_list;
 #ifdef HAVE_WS
     struct ws_info_s *ws_info;
 #endif

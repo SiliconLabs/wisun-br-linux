@@ -38,7 +38,6 @@
 #include "service_libs/whiteboard/whiteboard.h"
 #include "common_functions.h"
 #include "border_router/border_router.h"
-#include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -428,10 +427,6 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
         case ADDR_CALLBACK_PARENT_FULL:
             interface->if_6lowpan_dad_process.count = 0;
             tr_error("ND cache full--> Black list by given lifetime");
-            cur = nd_get_object_by_nwk_id(interface->nwk_id);
-            if (cur) {
-                pan_blacklist_pan_set(&interface->pan_blacklist_cache, mac_helper_panid_get(interface), cur->life_time);
-            }
             break;
 
         case ADDR_CALLBACK_DAD_FAILED:

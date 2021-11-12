@@ -68,7 +68,6 @@
 #include "6lowpan/nvm/nwk_nvm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "service_libs/etx/etx.h"
 #include "net_lib/src/net_dns_internal.h"
 
@@ -260,8 +259,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
             addr_slow_timer(cur, seconds);
             mld_slow_timer(cur, seconds);
             ipv6_neighbour_cache_slow_timer(&cur->ipv6_neighbour_cache, seconds);
-            pan_blacklist_time_update(&cur->pan_blacklist_cache, seconds);
-            pan_coordinator_blacklist_time_update(&cur->pan_cordinator_black_list, seconds);
             if (cur->reachable_time_ttl > seconds) {
                 cur->reachable_time_ttl -= seconds;
             } else {
@@ -870,7 +867,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
     }
 
     neighbor_cache_init(&(new_entry->neigh_cache));
-    pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t mac[6];
@@ -908,7 +904,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_a
     }
 
     neighbor_cache_init(&(new_entry->neigh_cache));
-    pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t iid64[8];
@@ -946,7 +941,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
 
     if (new_entry) {
         neighbor_cache_init(&(new_entry->neigh_cache));
-        pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
 
         uint8_t mac[8];
