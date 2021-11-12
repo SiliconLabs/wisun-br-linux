@@ -19,21 +19,21 @@ int dbus_process(struct wsbr_ctxt *ctxt);
 
 #include "host-common/log.h"
 
-static void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
+static inline void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {
 }
 
-static void dbus_register(struct wsbr_ctxt *ctxt)
+static inline void dbus_register(struct wsbr_ctxt *ctxt)
 {
     WARN("support for DBus is disabled");
 }
 
-static int dbus_get_fd(struct wsbr_ctxt *ctxt)
+static inline int dbus_get_fd(struct wsbr_ctxt *ctxt)
 {
     return -1;
 }
 
-static int dbus_process(struct wsbr_ctxt *ctxt)
+static inline int dbus_process(struct wsbr_ctxt *ctxt)
 {
     return 0;
 }
