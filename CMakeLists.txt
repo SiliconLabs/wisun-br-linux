@@ -85,7 +85,6 @@ add_executable(wsbrd
     nanostack/source/6lowpan/mac/mac_data_poll.c
     nanostack/source/6lowpan/mac/mac_helper.c
     nanostack/source/6lowpan/mac/mac_ie_lib.c
-    nanostack/source/6lowpan/mac/mac_pairwise_key.c
     nanostack/source/6lowpan/mac/mac_response_handler.c
     # Excluded nanostack/source/6lowpan/Mesh
     nanostack/source/6lowpan/nd/nd_router_object.c
@@ -316,7 +315,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/mac/mac_data_poll.c
         nanostack/source/6lowpan/mac/mac_helper.c
         nanostack/source/6lowpan/mac/mac_ie_lib.c
-        nanostack/source/6lowpan/mac/mac_pairwise_key.c
         nanostack/source/6lowpan/mac/mac_response_handler.c
         # Excluded nanostack/source/6lowpan/Mesh
         nanostack/source/6lowpan/nd/nd_router_object.c
