@@ -193,6 +193,8 @@ int main(int argc, char *argv[])
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
+    ctxt->rcp_tx = uart_tx;
+    ctxt->rcp_rx = uart_rx;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
     mbed_trace_init();
@@ -201,7 +203,8 @@ int main(int argc, char *argv[])
     parse_commandline(ctxt, argc, argv, print_help_node);
     if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         WARN("ipv6_prefix is ignored");
-    ns_file_system_set_root_path("/tmp/wsrouter_");
+    ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
+    ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     wsbr_rcp_reset(ctxt);
     while (!ctxt->reset_done)
