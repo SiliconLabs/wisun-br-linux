@@ -93,7 +93,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
             cur->mac_parameters->mac_security_level = 0;
             protocol_mac_reset(cur);
             cur->interface_mode = INTERFACE_IDLE;
-            net_load_balance_internal_state_activate(cur, false);
         }
         lowpan_adaptation_interface_reset(cur->id);
         reassembly_interface_reset(cur->id);

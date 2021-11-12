@@ -153,7 +153,6 @@ add_executable(wsbrd
     nanostack/source/net_lib/src/ns_net.c
     nanostack/source/net_lib/src/socket_api.c
     nanostack/source/net_lib/src/net_ipv6.c
-    nanostack/source/net_lib/src/net_load_balance.c
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/mac/serial
@@ -206,7 +205,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/fnv_hash/fnv_hash.c
     nanostack/source/service_libs/hmac/hmac_md.c
     nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
-    nanostack/source/service_libs/load_balance/load_balance.c
     nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     # Excluded nanostack/source/service_libs/mdns
     nanostack/source/service_libs/nd_proxy/nd_proxy.c
@@ -387,7 +385,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/net_lib/src/ns_net.c
         nanostack/source/net_lib/src/socket_api.c
         nanostack/source/net_lib/src/net_ipv6.c
-        nanostack/source/net_lib/src/net_load_balance.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded nanostack/source/mac/serial
@@ -440,7 +437,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/fnv_hash/fnv_hash.c
         nanostack/source/service_libs/hmac/hmac_md.c
         nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
-        nanostack/source/service_libs/load_balance/load_balance.c
         nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
         # Excluded nanostack/source/service_libs/mdns
         nanostack/source/service_libs/nd_proxy/nd_proxy.c

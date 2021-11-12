@@ -434,7 +434,6 @@ struct protocol_interface_info_entry {
     ipv6_interface_info_t *ipv6_configure;
     struct auth_info *pana_sec_info_temp;
     br_info_t *border_router_setup;
-    struct load_balance_api *lb_api;
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;

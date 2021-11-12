@@ -192,8 +192,6 @@ bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interf
 
 bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface)
 {
-    net_load_balance_internal_state_activate(interface, false);
-
     //SET allways RX ON Idle device by default
     mac_helper_pib_boolean_set(interface, macRxOnWhenIdle, true);
     interface->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;

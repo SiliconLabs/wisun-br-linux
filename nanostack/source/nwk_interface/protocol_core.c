@@ -69,7 +69,6 @@
 #include "6lowpan/nvm/nwk_nvm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "service_libs/load_balance/load_balance_api.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "service_libs/etx/etx.h"
 #include "net_lib/src/net_dns_internal.h"
@@ -258,12 +257,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                 //Slow Pointer Update
                 ipv6_core_slow_timer_event_handle(cur);
             }
-
-            if (cur->lb_api) {
-                cur->lb_api->lb_seconds_tick_update(cur->lb_api);
-            }
-
-
 
             addr_slow_timer(cur, seconds);
             mld_slow_timer(cur, seconds);
@@ -465,7 +458,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->configure_flags = 0;
     entry->bootstrap_state_machine_cnt = 0;
     entry->pana_sec_info_temp = NULL;
-    entry->lb_api = NULL;
     entry->global_address_available = false;
     entry->reallocate_short_address_if_duplicate = true;
     entry->iids_map_to_mac = false;

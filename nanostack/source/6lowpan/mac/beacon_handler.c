@@ -21,7 +21,6 @@
 #include "nsdynmemLIB.h"
 #include "mlme.h"
 #include "mac_helper.h"
-#include "service_libs/load_balance/load_balance_api.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "nwk_interface/protocol.h"
 #include "ns_trace.h"
@@ -57,19 +56,8 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t *data)
 
     nwk_scan_params_t *scan_params = &interface->mac_parameters->nwk_scan_params;
 
-    if (!scan_params || !scan_params->active_scan_active) {
-
-        if (interface->lb_api && data->PANDescriptor.CoordPANId != interface->mac_parameters->pan_id) {
-
-            uint8_t priority;
-            if (interface->mac_parameters->beacon_ind && beacon_join_priority_tlv_val_get(data->beacon_data_length, data->beacon_data, PLAIN_BEACON_PAYLOAD_SIZE, &priority)) {
-                if (interface->mac_parameters->beacon_ind(data->beacon_data, data->beacon_data_length, interface)) {
-                    interface->lb_api->lb_beacon_notify(interface->lb_api, data, priority);
-                }
-            }
-        }
+    if (!scan_params || !scan_params->active_scan_active)
         return;
-    }
 
     nwk_filter_params_s *filter = &(interface->mac_parameters->nwk_filter_params);
 
