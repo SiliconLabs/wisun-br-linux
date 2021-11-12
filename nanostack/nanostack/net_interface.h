@@ -601,16 +601,6 @@ extern int8_t arm_nwk_interface_up(int8_t interface_id);
 extern int8_t arm_nwk_interface_down(int8_t interface_id);
 
 /**
- * \brief Define border router MAC and 6LoWPAN ND setup for selected interface.
- *
- * \param interface_id Network interface ID.
- * \param border_router_setup_ptr Pointer to MAC and 6LoWPAN ND setup.
- *
- * \return 0 on success, negative value on error case.
- */
-extern int8_t arm_nwk_6lowpan_border_router_init(int8_t interface_id, const border_router_setup_s *border_router_setup_ptr);
-
-/**
  * \brief Add context at 6LoWPAN interface configure state.
  *
  * \param interface_id Network interface ID.

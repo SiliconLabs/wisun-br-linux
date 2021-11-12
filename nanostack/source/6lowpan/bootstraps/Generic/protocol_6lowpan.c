@@ -37,9 +37,6 @@
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
-#ifndef NO_MLE
-#include "mle/mle.h"
-#endif
 #include "6lowpan/mesh/mesh.h"
 #include "6lowpan/mac/mac_helper.h"
 
@@ -328,30 +325,6 @@ static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t
     }
 }
 
-void protocol_6lowpan_host_init(protocol_interface_info_entry_t *cur, bool sleepy_host)
-{
-    if (sleepy_host) {
-        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST;
-    } else {
-        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
-    }
-    //Clear always INTERFACE_NWK_ROUTER_DEVICE, INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE
-    cur->lowpan_info &= ~(INTERFACE_NWK_ROUTER_DEVICE | INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE);
-    mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
-    mac_data_poll_init(cur);
-    arm_nwk_6lowpan_borderrouter_data_free(cur);
-}
-
-void protocol_6lowpan_router_init(protocol_interface_info_entry_t *cur)
-{
-    cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
-    cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
-    cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-    mac_data_poll_init(cur);
-    arm_nwk_6lowpan_borderrouter_data_free(cur);
-}
-
-
 void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
 {
     cur->dup_addr_detect_transmits = 0;
@@ -413,44 +386,8 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 }
 #ifdef HAVE_6LOWPAN_ND
 
-static int8_t  mle_set_link_priority(protocol_interface_info_entry_t *cur, const uint8_t *address, bool priority)
-{
-    uint8_t mac64[8];
-    mac_neighbor_table_entry_t *entry;
-    if (!memcmp(address, ADDR_SHORT_ADR_SUFFIC, 6)) {
-        entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address + 6, ADDR_802_15_4_SHORT);
-    } else {
-
-        memcpy(mac64, address, 8);
-        mac64[0] ^= 2;
-        entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), mac64, ADDR_802_15_4_LONG);
-    }
-
-    if (!entry) {
-        return -1;
-    }
-
-    if (priority) {
-        entry->link_role = PRIORITY_PARENT_NEIGHBOUR;
-    } else {
-        entry->link_role = NORMAL_NEIGHBOUR;
-    }
-    return 0;
-}
-
 void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *cur, uint8_t *removed_priority, uint8_t *updated_priority)
 {
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
-#ifndef NO_MLE
-        if (removed_priority) {
-            mle_set_link_priority(cur, removed_priority, false);
-        }
-
-        if (updated_priority) {
-            mle_set_link_priority(cur, updated_priority, true);
-        }
-#endif
-    }
 }
 
 #ifdef HAVE_RPL
@@ -625,29 +562,6 @@ int8_t protocol_6lowpan_interface_compare_cordinator_netid(protocol_interface_in
     return ret_val;
 }
 
-int8_t protocol_6lowpan_interface_get_link_local_cordinator_address(protocol_interface_info_entry_t *cur, uint8_t *adr_ptr)
-{
-    addrtype_t addrType;
-    uint8_t tempAddress[8];
-
-    addrType = mac_helper_coordinator_address_get(cur, tempAddress);
-    if (addrType == ADDR_NONE) {
-        return -1;
-    }
-    memcpy(adr_ptr, ADDR_LINK_LOCAL_PREFIX, 8);
-    adr_ptr += 8;
-    if (addrType == ADDR_802_15_4_LONG) {
-        tempAddress[0] ^= 2;
-        memcpy(adr_ptr, tempAddress, 8);
-    } else {
-        memcpy(adr_ptr, ADDR_SHORT_ADR_SUFFIC, 6);
-        adr_ptr += 6;
-        *adr_ptr++ = tempAddress[0];
-        *adr_ptr = tempAddress[1];
-    }
-    return 0;
-}
-
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, sockaddr_t *adr_ptr)
 {
     common_write_16_bit(cur->mac_parameters->pan_id, adr_ptr->address + 0);
@@ -707,55 +621,6 @@ int16_t protocol_6lowpan_rpl_global_priority_get(void)
 #else
     return 255;
 #endif
-}
-
-uint8_t protocol_6lowpan_beacon_join_priority_tx(int8_t interface_id)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return 255;
-    }
-
-    int16_t priority = 0;
-#ifdef HAVE_RPL
-    if (cur->rpl_domain) {
-        priority = protocol_6lowpan_rpl_global_priority_get();
-    }
-#endif
-
-#ifndef NO_MLE
-    mle_6lowpan_data_t *mle_6lowpan_data = protocol_6lowpan_mle_data_get();
-
-    if (mle_6lowpan_data && mle_6lowpan_data->nbr_of_neigh_max != 0) {
-        uint16_t mle_neigh_cnt = mle_class_active_neigh_counter(cur);
-
-        if (mle_neigh_cnt > mle_6lowpan_data->nbr_of_neigh_lower_threshold) {
-            uint16_t mle_neigh_limit;
-            mle_neigh_cnt -= mle_6lowpan_data->nbr_of_neigh_lower_threshold;
-            mle_neigh_limit = 32 * mle_neigh_cnt / (mle_6lowpan_data->nbr_of_neigh_max - mle_6lowpan_data->nbr_of_neigh_lower_threshold);
-            priority += mle_neigh_limit;
-        }
-    }
-#endif
-
-    if (priority < 0) {
-        priority = 0;
-    } else if (priority > 255) {
-        priority = 255;
-    }
-
-    return priority;
-}
-
-uint8_t protocol_6lowpan_beacon_compare_rx(int8_t interface_id, uint8_t join_priority, uint8_t link_quality)
-{
-    (void)interface_id; // not used, perhaps should be removed completely
-
-    uint16_t conn_to_pref;
-
-    conn_to_pref = ((256 - join_priority) * (uint16_t) link_quality) >> 8;
-
-    return conn_to_pref;
 }
 
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)

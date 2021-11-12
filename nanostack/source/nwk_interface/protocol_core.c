@@ -28,9 +28,6 @@
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "platform/arm_hal_interrupt.h"
-#ifndef NO_MLE
-#include "mle/mle.h"
-#endif
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/network_lib.h"
@@ -244,7 +241,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                     if (ws_info(cur)) {
                         ws_common_seconds_timer(cur, seconds);
                     } else if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
-                        beacon_join_priority_update(cur->id);
+                        tr_error("unexpected: !ws_info(cur)");
                     }
 
                     if (cur->mac_parameters) {
@@ -301,7 +298,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
 #ifdef HAVE_WS
         ws_pae_controller_slow_timer(seconds);
 #endif
-        protocol_6lowpan_mle_timer(seconds);
         ns_monitor_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
@@ -886,7 +882,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
 
     neighbor_cache_init(&(new_entry->neigh_cache));
     pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
-    pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t mac[6];
@@ -925,7 +920,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_a
 
     neighbor_cache_init(&(new_entry->neigh_cache));
     pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
-    pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t iid64[8];
@@ -964,7 +958,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
     if (new_entry) {
         neighbor_cache_init(&(new_entry->neigh_cache));
         pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
-        pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
 
         uint8_t mac[8];
@@ -1094,8 +1087,6 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
 
         switch (cur->bootstrap_mode) {
 
-            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT:
-            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER:
             case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST:
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER:
@@ -1144,7 +1135,7 @@ void net_bootstrap_cb_run(uint8_t event)
             if (ws_info(cur)) {
                 ws_common_state_machine(cur);
             } else {
-                protocol_6lowpan_bootstrap(cur);
+                tr_error("unexpected: !ws_info(cur)");
             }
         } else if (cur->nwk_id == IF_IPV6) {
             //IPV6 Bootstrap Run

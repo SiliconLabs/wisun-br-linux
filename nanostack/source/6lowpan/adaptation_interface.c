@@ -39,8 +39,6 @@
 #include "6lowpan/mesh/mesh.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "lowpan_adaptation_interface.h"
-#include "mle/mle.h"
-#include "service_libs/mle_service/mle_service_api.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #ifdef HAVE_RPL
@@ -163,43 +161,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
 static bool lowpan_adaptation_purge_from_mac(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
-
-static void lowpan_adaptation_etx_update_cb(protocol_interface_info_entry_t *cur, buffer_t *buf, const mcps_data_conf_t *confirm)
-{
-    switch (confirm->status) {
-        case MLME_TX_NO_ACK:
-        case MLME_NO_DATA:
-        case MLME_SUCCESS:
-            if (buf->link_specific.ieee802_15_4.requestAck) {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
-                    bool success = false;
-                    if (confirm->status == MLME_SUCCESS) {
-                        success = true;
-                    }
-                    // Gets table entry
-                    mac_neighbor_table_entry_t *neigh_table_ptr = mac_neighbor_table_address_discover(mac_neighbor_info(cur), buf->dst_sa.address + PAN_ID_LEN, buf->dst_sa.addr_type);
-                    if (neigh_table_ptr) {
-                        etx_transm_attempts_update(cur->id, 1 + confirm->tx_retries, success, neigh_table_ptr->index, neigh_table_ptr->mac64);
-                        // Updates ETX statistics
-                        etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, neigh_table_ptr->index);
-                        if (etx_entry) {
-                            if (neigh_table_ptr->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-                                protocol_stats_update(STATS_ETX_1ST_PARENT, etx_entry->etx >> 4);
-                            } else if (neigh_table_ptr->link_role == SECONDARY_PARENT_NEIGHBOUR) {
-                                protocol_stats_update(STATS_ETX_2ND_PARENT, etx_entry->etx >> 4);
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-        default:
-
-            break;
-
-    }
-}
-
 
 //Discover
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId)
@@ -437,14 +398,6 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
     ns_list_add_to_end(&fragmenter_interface_list, interface_ptr);
 
     return 0;
-}
-
-void lowpan_adaptation_interface_etx_update_enable(int8_t interface_id)
-{
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
-    if (interface_ptr) {
-        interface_ptr->etx_update_cb = lowpan_adaptation_etx_update_cb;
-    }
 }
 
 int8_t lowpan_adaptation_interface_free(int8_t interface_id)
@@ -978,11 +931,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_first_cached_request_ge
 
 static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
 {
-    // Mle messages
-    if (buf->dst_sa.port == MLE_ALLOCATED_PORT || buf->src_sa.port == MLE_ALLOCATED_PORT) {
-        return true;
-    }
-
     // dhcp messages
     if (buf->dst_sa.port == DHCPV6_SERVER_PORT || buf->src_sa.port == DHCPV6_SERVER_PORT) {
         return true;
@@ -1624,7 +1572,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
     } else if ((confirm->status == MLME_BUSY_CHAN) && !ws_info(cur)) {
-        lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
+        tr_error("unexpected: !ws_info(cur)");
     } else if ((buf->link_specific.ieee802_15_4.requestAck) && (confirm->status == MLME_TRANSACTION_EXPIRED)) {
         lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
@@ -1682,7 +1630,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 
 static bool mcps_data_indication_neighbor_validate(protocol_interface_info_entry_t *cur, const sockaddr_t *addr)
 {
-    if (ws_info(cur) || (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE)) {
+    if (ws_info(cur)) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
         if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
             return true;

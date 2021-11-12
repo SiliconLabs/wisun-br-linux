@@ -42,8 +42,6 @@ int8_t mac_beacon_link_beacon_compare_rx_callback_set(int8_t interface_id,
 int8_t mac_beacon_link_beacon_join_priority_tx_callback_set(int8_t interface_id,
                                                             beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr);
 
-void beacon_join_priority_update(int8_t interface_id);
-
 //TODO: beacon storage here if needed by 6loWPAN?
 
 #endif // BEACON_HANDLER_H

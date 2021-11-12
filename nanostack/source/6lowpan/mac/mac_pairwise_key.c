@@ -27,7 +27,6 @@
 #include "mac_common_defines.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_pairwise_key.h"
-#include "mle/mle.h"
 #include "nwk_interface/protocol.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

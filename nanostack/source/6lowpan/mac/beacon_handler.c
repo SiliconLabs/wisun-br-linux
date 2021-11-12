@@ -35,8 +35,6 @@ static nwk_pan_descriptor_t *get_local_description(uint16_t payload_length, uint
 
 static uint8_t *beacon_optional_tlv_field_get(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t type);
 static bool beacon_join_priority_tlv_val_get(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t *join_priority);
-static bool beacon_join_priority_tlv_val_set(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority);
-static bool beacon_join_priority_tlv_add(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority);
 
 void beacon_received(int8_t if_id, const mlme_beacon_ind_t *data)
 {
@@ -55,11 +53,6 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t *data)
     memcpy(coord_pan_address + 2, data->PANDescriptor.CoordAddress, 8);
     if (data->PANDescriptor.CoordAddrMode == MAC_ADDR_MODE_16_BIT) {
         memset(coord_pan_address + 4, 0, 6);
-    }
-
-    if (pan_cordinator_blacklist_filter(&interface->pan_cordinator_black_list, coord_pan_address)) {
-        tr_debug("Drop black listed beacon by coordinator");
-        return;
     }
 
     nwk_scan_params_t *scan_params = &interface->mac_parameters->nwk_scan_params;
@@ -239,40 +232,6 @@ static bool beacon_join_priority_tlv_val_get(uint8_t len, uint8_t *ptr, uint8_t 
     return false;
 }
 
-static bool beacon_join_priority_tlv_val_set(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority)
-{
-    uint8_t *tlv_ptr = beacon_optional_tlv_field_get(len, ptr, offset, BEACON_OPTION_JOIN_PRIORITY_TYPE);
-
-    // If TLV is found and its contains value field
-    if (tlv_ptr && ((*tlv_ptr & 0x0F) >= BEACON_OPTION_JOIN_PRIORITY_VAL_LEN)) {
-        *(++tlv_ptr) = join_priority;
-        return true;
-    }
-
-    return false;
-}
-
-static bool beacon_join_priority_tlv_add(uint8_t len, uint8_t *ptr, uint8_t offset, uint8_t join_priority)
-{
-    // Invalid length
-    if (len < offset + BEACON_OPTION_JOIN_PRIORITY_LEN) {
-        return false;
-    }
-
-    ptr += offset;
-    offset += BEACON_OPTION_JOIN_PRIORITY_LEN;
-
-    // If there is already data adds TLV right after the plain beacon data
-    if (len > offset) {
-        memmove(ptr + BEACON_OPTION_JOIN_PRIORITY_LEN, ptr, len - offset);
-    }
-
-    *ptr++ = BEACON_OPTION_JOIN_PRIORITY_TYPE_LEN;
-    *ptr = join_priority;
-
-    return true;
-}
-
 static nwk_pan_descriptor_t *get_local_description(uint16_t payload_length, uint8_t *payload_ptr)
 {
     nwk_pan_descriptor_t *description = ns_dyn_mem_temporary_alloc(sizeof(nwk_pan_descriptor_t));
@@ -357,39 +316,6 @@ int8_t mac_beacon_link_beacon_compare_rx_callback_set(int8_t interface_id, beaco
     return 0;
 }
 
-static void mac_beacon_joining_priority_update(protocol_interface_info_entry_t *cur, uint8_t join_priority)
-{
-    uint8_t beacon_payload_len = mac_helper_beacon_payload_length_get(cur);
-    uint8_t *beacon_payload_ptr = mac_helper_beacon_payload_pointer_get(cur);
-
-    // Checks if join priority TLV exists
-    if (beacon_payload_len >= PLAIN_BEACON_PAYLOAD_SIZE + BEACON_OPTION_JOIN_PRIORITY_LEN) {
-        // If TLV list exists
-        if (beacon_payload_ptr[PLAIN_BEACON_PAYLOAD_SIZE] != BEACON_OPTION_END_DELIMITER) {
-            uint8_t current_join_priority;
-            uint8_t tlv_exists = beacon_join_priority_tlv_val_get(beacon_payload_len, beacon_payload_ptr, PLAIN_BEACON_PAYLOAD_SIZE, &current_join_priority);
-            if (tlv_exists) {
-                if (current_join_priority != join_priority) {
-                    beacon_join_priority_tlv_val_set(beacon_payload_len, beacon_payload_ptr, PLAIN_BEACON_PAYLOAD_SIZE, join_priority);
-                    // Updates beacon to MAC
-                    (void) mac_helper_beacon_payload_register(cur);
-                }
-                return;
-            }
-        }
-    }
-
-    // Adds join priority TLV as first field after plain beacon data
-    if (beacon_payload_len >= PLAIN_BEACON_PAYLOAD_SIZE) {
-        beacon_payload_len = beacon_payload_len + BEACON_OPTION_JOIN_PRIORITY_LEN;
-        beacon_payload_ptr = mac_helper_beacon_payload_reallocate(cur, beacon_payload_len);
-        beacon_join_priority_tlv_add(beacon_payload_len, beacon_payload_ptr,
-                                     PLAIN_BEACON_PAYLOAD_SIZE, join_priority);
-        // Updates beacon to MAC
-        (void) mac_helper_beacon_payload_register(cur);
-    }
-}
-
 int8_t mac_beacon_link_beacon_join_priority_tx_callback_set(int8_t interface_id, beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -401,17 +327,4 @@ int8_t mac_beacon_link_beacon_join_priority_tx_callback_set(int8_t interface_id,
     cur->mac_parameters->beacon_join_priority_tx_cb_ptr = beacon_join_priority_tx_cb_ptr;
 
     return 0;
-}
-
-void beacon_join_priority_update(int8_t interface_id)
-{
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!interface || !interface->mac_parameters ||
-            !interface->mac_parameters->beacon_join_priority_tx_cb_ptr) {
-        return;
-    }
-
-    uint8_t join_priority = interface->mac_parameters->beacon_join_priority_tx_cb_ptr(interface_id);
-    mac_beacon_joining_priority_update(interface, join_priority);
 }

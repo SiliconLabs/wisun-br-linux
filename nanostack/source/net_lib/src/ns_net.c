@@ -43,9 +43,6 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/beacon_handler.h"
-#ifndef NO_MLE
-#include "mle/mle.h"
-#endif
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -65,7 +62,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
 #include "border_router/border_router.h"
-#include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/mac/mac_data_poll.h"
 #include "sw_mac.h"
 #include "mac_api.h"
@@ -809,46 +805,6 @@ int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_l
         ret_val = -2;
     } else if (link_setup && (link_setup->beacon_payload_tlv_length && link_setup->beacon_payload_tlv_ptr == NULL)) {
         ret_val = -4;
-    } else if (link_setup && (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER)) {
-
-        ret_val = 0;
-
-        if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT) {
-            //Configure setup
-            uint8_t *beaon_payload = mac_helper_beacon_payload_reallocate(cur, 18);
-            if (beaon_payload) {
-                *beaon_payload++ = link_setup->beacon_protocol_id;
-                *beaon_payload++ = 7; //Accept Join / Host & Router
-                memcpy(beaon_payload, link_setup->network_id, 16);
-                ret_val = mac_helper_beacon_payload_register(cur);
-            } else {
-                ret_val = -3;
-            }
-            cur->mac_parameters->mac_channel_list = *nwk_channel_list;
-        } else {
-
-        }
-
-        if (ret_val == 0) {
-            if (link_setup->mac_short_adr < 0xfffe) {
-                cur->lowpan_address_mode = NET_6LOWPAN_GP16_ADDRESS;
-            } else {
-                cur->lowpan_address_mode = NET_6LOWPAN_GP64_ADDRESS;
-            }
-            mac_helper_panid_set(cur, link_setup->mac_panid);
-            mac_helper_mac16_address_set(cur, link_setup->mac_short_adr);
-
-            int channel_number = arm_net_channel_bit_mask_to_number(nwk_channel_list->channel_mask);
-
-            if (channel_number >= 0) {
-                // copy the channel list information, which is needed by FHSS
-                //Set Channel
-                mac_helper_mac_channel_set(cur, channel_number);
-                cur->configure_flags |= INTERFACE_NETWORK_DRIVER_SETUP_DEFINED;
-            }
-        } else {
-            mac_helper_beacon_payload_reallocate(cur, 0);
-        }
     } else {
         ret_val = -2;
     }
@@ -914,11 +870,6 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
 #else
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
         return -4;
-    }
-
-    //Verify MLE Service
-    if (arm_6lowpan_mle_service_ready_for_security_init(cur) != 0) {
-        return -1;
     }
 
     cur->if_lowpan_security_params->nwk_security_mode = mode;

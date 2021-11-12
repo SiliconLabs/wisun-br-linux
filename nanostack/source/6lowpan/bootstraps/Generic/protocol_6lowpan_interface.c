@@ -44,9 +44,6 @@
 #include "rpl/rpl_control.h"
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
-#ifndef NO_MLE
-#include "mle/mle.h"
-#endif
 #include "6lowpan/mesh/mesh.h"
 
 #ifdef ECC
@@ -88,13 +85,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         /* Change Active -> Idle */
         /* Disable Protocols Timers */
         mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
-#ifndef NO_MLE
-            if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
-
-                blacklist_clear();
-
-            }
-#endif
 
         if (cur->interface_mode == INTERFACE_UP) {
             cur->mac_parameters->pan_id = 0xffff;

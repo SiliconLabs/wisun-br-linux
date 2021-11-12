@@ -20,7 +20,6 @@
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "nwk_interface/protocol.h"
-#include "service_libs/mle_service/mle_service_api.h"
 
 #include "net_test_api.h"
 #include "common_protocols/tcp.h"
@@ -77,9 +76,4 @@ int8_t arm_nwk_test_tcp_drop_rx(int state, uint8_t count)
 void arm_nwk_test_tcp_drop_reset()
 {
     tcp_test_drop_reset();
-}
-
-void arm_nwk_test_mle_receive_filter_set(mle_service_filter_cb *response_filter_cb)
-{
-    mle_service_receive_filter_cb_set(response_filter_cb);
 }

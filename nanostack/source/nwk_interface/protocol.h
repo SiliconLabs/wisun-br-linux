@@ -148,8 +148,6 @@ typedef enum {
     ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST,
     ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST,
     ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER,
-    ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT,
-    ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER,
     ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER,
     ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST,
 } arm_nwk_bootstrap_mode_e;
@@ -168,7 +166,6 @@ typedef enum {
 #define INTERFACE_NWK_ACTIVE                            8
 #define INTERFACE_NWK_ROUTER_DEVICE                     16
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
-#define INTERFACE_NWK_BOOTSTRAP_MLE                      128
 
 struct nd_router;
 struct nd_router_setup;

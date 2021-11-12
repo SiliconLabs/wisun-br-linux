@@ -39,9 +39,6 @@
 #include "common_functions.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/network_lib.h"
-#ifndef NO_MLE
-#include "mle/mle.h"
-#endif
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_data_poll.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -91,11 +88,6 @@ static int8_t host_link_configuration(bool rx_on_idle, protocol_interface_info_e
         cur->lowpan_info |= INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     }
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, rx_on_idle);
-
-    if (protocol_6lowpan_child_update(cur) == 0) {
-        mac_data_poll_init_protocol_poll(cur);
-        return 0;
-    }
 
     //Swap back If Send Fail
     if (!backUp_bool) {

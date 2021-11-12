@@ -25,7 +25,6 @@
 #ifdef HAVE_6LOWPAN_ND
 #include "net_rpl.h"
 #include "service_libs/load_balance/load_balance_api.h"
-#include "service_libs/mle_service/mle_service_api.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -95,11 +94,6 @@ static bool net_load_balance_network_switch_req(void *load_balance_user, struct 
 
 static void net_load_balance_link_reject(const protocol_interface_info_entry_t *cur)
 {
-    uint8_t ll_all_nodes[16];
-    memcpy(ll_all_nodes, ADDR_LINK_LOCAL_ALL_NODES, 16);
-    mle_service_interface_receiver_handler_update(cur->id, NULL);
-    mle_service_reject_message_build(cur->id, ll_all_nodes, false);
-
     nd_router_t *nd_router = nd_get_object_by_nwk_id(cur->nwk_id);
     if (nd_router) {
         nd_router->nd_timer = 0;

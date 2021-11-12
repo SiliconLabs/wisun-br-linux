@@ -29,7 +29,6 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #endif
-#include "mle/mle.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/network_lib.h"

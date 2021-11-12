@@ -23,7 +23,6 @@
 #ifndef PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #define PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #include "net_interface.h"
-#include "service_libs/mle_service/mle_service_api.h"
 
 struct protocol_interface_info_entry;
 struct nd_router;
@@ -66,7 +65,6 @@ typedef struct mle_6lowpan_data {
 } mle_6lowpan_data_t;
 
 #ifdef HAVE_6LOWPAN_ND
-uint8_t *protocol_6lowpan_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId);
 void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);
 uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id);
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
@@ -74,24 +72,11 @@ void protocol_6lowpan_bootstrap_re_start(struct protocol_interface_info_entry *i
 void protocol_6lowpan_link_advertise_handle(struct nd_router *cur, struct protocol_interface_info_entry *cur_interface, uint16_t tick);
 void protocol_6lowpan_bootstrap_nd_ready(struct protocol_interface_info_entry *cur_interface);
 void protocol_6lowpan_nd_borderrouter_connection_down(struct protocol_interface_info_entry *interface);
-int8_t arm_6lowpan_mle_service_ready_for_security_init(protocol_interface_info_entry_t *cur);
-int protocol_6lowpan_router_synch_to_new_router(struct protocol_interface_info_entry *cur, uint8_t *ll64, uint8_t incoming_idr, bool retrans);
-void protocol_6lowpan_bootstrap(struct protocol_interface_info_entry *cur);
 int protocol_6lowpan_del_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);
-int protocol_6lowpan_set_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);
-struct mle_6lowpan_data *protocol_6lowpan_mle_data_get(void);
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address);
-void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur);
-void protocol_6lowpan_mle_timer(uint16_t ticks_update);
 #else
 #define protocol_6lowpan_nd_border_router_address_get(nwk_id) NULL
-#define arm_6lowpan_mle_service_ready_for_security_init(cur) -1
-#define protocol_6lowpan_bootstrap(cur) ((void)0)
 #define protocol_6lowpan_del_ll16(cur, mac_short_address) -1
-#define protocol_6lowpan_set_ll16(cur, mac_short_address) -1
-#define protocol_6lowpan_mle_data_get() NULL
-#define arm_6lowpan_security_init_ifup(cur) ((void)0)
-#define protocol_6lowpan_mle_timer(ticks_update) ((void)0)
 #endif
 void bootstrap_timer_handle(uint16_t ticks);
 

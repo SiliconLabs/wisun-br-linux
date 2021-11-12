@@ -42,12 +42,9 @@ typedef enum {
 #endif
 
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
-void protocol_6lowpan_host_init(struct protocol_interface_info_entry *cur,  bool sleepy_host);
-void protocol_6lowpan_router_init(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
 #ifdef HAVE_6LOWPAN_ND
-int protocol_6lowpan_child_update(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_neighbor_priority_update(struct protocol_interface_info_entry *cur, uint8_t *removed_priority, uint8_t *updated_priority);
 
 #ifdef HAVE_RPL
@@ -67,12 +64,9 @@ int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cu
 void protocol_6lowpan_allocate_mac16(protocol_interface_info_entry_t *cur);
 
 int8_t protocol_6lowpan_interface_compare_cordinator_netid(struct protocol_interface_info_entry *cur, uint8_t *adr_ptr);
-int8_t protocol_6lowpan_interface_get_link_local_cordinator_address(protocol_interface_info_entry_t *cur, uint8_t *adr_ptr);
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, struct ns_sockaddr *adr_ptr);
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void);
-uint8_t protocol_6lowpan_beacon_join_priority_tx(int8_t interface_id);
-uint8_t protocol_6lowpan_beacon_compare_rx(int8_t interface_id, uint8_t join_priority, uint8_t link_quality);
 bool protocol_6lowpan_bootstrap_start(struct protocol_interface_info_entry *interface);
 bool protocol_6lowpan_bootstrap_link_set(struct protocol_interface_info_entry *interface, struct mlme_pan_descriptor_s *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length);
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);

@@ -153,15 +153,12 @@ add_executable(wsbrd
     nanostack/source/net_lib/src/ns_net.c
     nanostack/source/net_lib/src/socket_api.c
     nanostack/source/net_lib/src/net_ipv6.c
-    # Excluded nanostack/source/net_lib/src/net_mle.c
     nanostack/source/net_lib/src/net_load_balance.c
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/mac/serial
     # Excluded nanostack/source/mac/ieee802154
     # Excluded nanostack/source/mac/virtual_rf
-    nanostack/source/mle/mle.c
-    nanostack/source/mle/mle_tlv.c
     nanostack/source/mpl/mpl.c
     nanostack/source/nwk_interface/protocol_core.c
     nanostack/source/nwk_interface/protocol_core_sleep.c
@@ -212,11 +209,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/load_balance/load_balance.c
     nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     # Excluded nanostack/source/service_libs/mdns
-    nanostack/source/service_libs/mle_service/mle_service_buffer.c
-    nanostack/source/service_libs/mle_service/mle_service.c
-    nanostack/source/service_libs/mle_service/mle_service_frame_counter_table.c
-    nanostack/source/service_libs/mle_service/mle_service_interface.c
-    nanostack/source/service_libs/mle_service/mle_service_security.c
     nanostack/source/service_libs/nd_proxy/nd_proxy.c
     nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
     nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
@@ -395,15 +387,12 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/net_lib/src/ns_net.c
         nanostack/source/net_lib/src/socket_api.c
         nanostack/source/net_lib/src/net_ipv6.c
-        # Excluded nanostack/source/net_lib/src/net_mle.c
         nanostack/source/net_lib/src/net_load_balance.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded nanostack/source/mac/serial
         # Excluded nanostack/source/mac/ieee802154
         # Excluded nanostack/source/mac/virtual_rf
-        nanostack/source/mle/mle.c
-        nanostack/source/mle/mle_tlv.c
         nanostack/source/mpl/mpl.c
         nanostack/source/nwk_interface/protocol_core.c
         nanostack/source/nwk_interface/protocol_core_sleep.c
@@ -454,11 +443,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/load_balance/load_balance.c
         nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
         # Excluded nanostack/source/service_libs/mdns
-        nanostack/source/service_libs/mle_service/mle_service_buffer.c
-        nanostack/source/service_libs/mle_service/mle_service.c
-        nanostack/source/service_libs/mle_service/mle_service_frame_counter_table.c
-        nanostack/source/service_libs/mle_service/mle_service_interface.c
-        nanostack/source/service_libs/mle_service/mle_service_security.c
         nanostack/source/service_libs/nd_proxy/nd_proxy.c
         nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
         nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
