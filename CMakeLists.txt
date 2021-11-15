@@ -71,7 +71,6 @@ add_executable(wsbrd
     host-common/spinel.c
     host-common/spinel_buffer.c
     nanostack/source/service_libs/fhss/channel_list.c
-    nanostack/source/border_router/border_router.c
     nanostack/source/6lowpan/adaptation_interface.c
     nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
     nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
@@ -299,7 +298,6 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/spinel.c
         host-common/spinel_buffer.c
         nanostack/source/service_libs/fhss/channel_list.c
-        # nanostack/source/border_router/border_router.c
         nanostack/source/6lowpan/adaptation_interface.c
         nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
         nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c

@@ -54,7 +54,6 @@
 #include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "border_router/border_router.h"
 #include "service_libs/etx/etx.h"
 #include "mac_api.h"
 #include "net_lib/src/net_load_balance_internal.h"

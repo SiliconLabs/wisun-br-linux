@@ -37,7 +37,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "common_functions.h"
-#include "border_router/border_router.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

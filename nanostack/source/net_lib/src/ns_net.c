@@ -60,7 +60,6 @@
 #ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
-#include "border_router/border_router.h"
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ethernet_mac_api.h"
