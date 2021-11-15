@@ -25,12 +25,11 @@
 
 typedef enum {
     ND_READY = 0,
-    ND_BR_READY = 1,
     ND_RS_UNCAST = 2,
     ND_RS_MULTICAST = 3,
 } nd_obj_state;
 
-#define nd_is_ready_state(state) ((state) == ND_READY || (state) == ND_BR_READY)
+#define nd_is_ready_state(state) ((state) == ND_READY)
 #define nd_is_bootstrap_state(state) (!nd_is_ready_state(state))
 
 typedef enum {

@@ -191,9 +191,6 @@ nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interfa
     uint_fast8_t count = 0;
 
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nd_state == ND_BR_READY) {
-            return NULL;
-        }
         if (cur->nwk_id == nwk_id) {
             if (memcmp(cur->border_router, border_router, 16) == 0) {
                 return cur;
@@ -285,12 +282,10 @@ uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol
                 cur->lifetime -= seconds;
             } else {
                 tr_debug("Prefix Expiry");
-                if (nd_router_object->nd_state != ND_BR_READY) {
-                    if (cur->options & PIO_A) {
-                        tr_debug("Delete GP Address by Prefix, start RS");
-                        nd_router_remove(nd_router_object, cur_interface);
-                        return 1;
-                    }
+                if (cur->options & PIO_A) {
+                    tr_debug("Delete GP Address by Prefix, start RS");
+                    nd_router_remove(nd_router_object, cur_interface);
+                    return 1;
                 }
             }
         }
@@ -1495,20 +1490,13 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_e
         return 0;
     }
 
-    if (cur->nd_state == ND_READY) {
-        tr_debug("RE ND Process: RS Unicast!");
-        cur->ns_retry = nd_params.rs_retry_max;
-        cur->nd_state = ND_RS_UNCAST;
-        set_power_state(ICMP_ACTIVE);
-        cur->nd_timer = 1;
-        cur->nd_bootstrap_tick = (nd_base_tick - 1);
-        nd_router_bootstrap_timer(cur, cur_interface, 1);
-    } else { /* ND_BR_READY */
-        nd_border_router_setup_refresh(cur->nwk_id, true);
-        tr_debug("ND BR refresh ABRO");
-        cur->nd_re_validate = (cur->life_time / 4) * 3;
-        icmpv6_restart_router_advertisements(cur_interface, cur->border_router);
-    }
+    tr_debug("RE ND Process: RS Unicast!");
+    cur->ns_retry = nd_params.rs_retry_max;
+    cur->nd_state = ND_RS_UNCAST;
+    set_power_state(ICMP_ACTIVE);
+    cur->nd_timer = 1;
+    cur->nd_bootstrap_tick = (nd_base_tick - 1);
+    nd_router_bootstrap_timer(cur, cur_interface, 1);
     return 0;
 }
 
@@ -1575,7 +1563,6 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
             break;
 
         case ND_READY:
-        case ND_BR_READY:
             /* Not called for these states - put in to suppress GCC warning */
             break;
     }
@@ -1592,9 +1579,7 @@ void nd_object_timer(protocol_interface_info_entry_t *cur_interface, uint16_t ti
 
             protocol_6lowpan_link_advertise_handle(cur, cur_interface, ticks_update);
 
-            if (cur->nd_state != ND_BR_READY) {
-                nd_router_forward_timer(cur, ticks_update);
-            }
+            nd_router_forward_timer(cur, ticks_update);
 
             if (nd_is_ready_state(cur->nd_state)) {
                 nd_router_ready_timer(cur, cur_interface, ticks_update);
