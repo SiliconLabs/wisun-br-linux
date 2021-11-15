@@ -30,19 +30,4 @@
 #define FIELD_GET(mask, reg) (((reg) & (mask)) >> __bf_shf(mask))
 #define FIELD_PREP(mask, val) (((val) << __bf_shf(mask)) & (mask))
 
-static inline void pr_hex(const uint8_t *buf, int len)
-{
-    int i;
-
-    for (i = 0; i < len; i++) {
-        if (i % 16 == 0)
-            fprintf(stderr, "    %04x:", i);
-        fprintf(stderr, " %02x", buf[i]);
-        if (i % 16 == 15)
-            fprintf(stderr, "\n");
-    }
-    if (i % 16)
-        fprintf(stderr, "\n");
-}
-
 #endif
