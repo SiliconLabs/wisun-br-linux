@@ -90,7 +90,7 @@ target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_
 target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
 # target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
-target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
+# target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
 
 add_executable(wsbrd
@@ -343,7 +343,7 @@ target_include_directories(wsbrd PRIVATE
 )
 target_compile_definitions(wsbrd PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
 target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
+# target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
 
 add_executable(wsnode
@@ -595,7 +595,7 @@ target_include_directories(wsnode PRIVATE
 
 target_compile_definitions(wsnode PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_router)
 target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
+# target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)
 
 
