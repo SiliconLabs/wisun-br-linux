@@ -193,9 +193,6 @@ add_executable(wsbrd
     nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
     # Excluded nanostack/source/security/TLS
     nanostack/source/service_libs/blacklist/blacklist.c
-    nanostack/source/service_libs/ccm/ccm_security.c
-    nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
-    # Excluded nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls.c
     nanostack/source/service_libs/etx/etx.c
     nanostack/source/service_libs/fnv_hash/fnv_hash.c
     nanostack/source/service_libs/hmac/hmac_md.c
@@ -418,9 +415,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
         # Excluded nanostack/source/security/TLS
         nanostack/source/service_libs/blacklist/blacklist.c
-        nanostack/source/service_libs/ccm/ccm_security.c
-        nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
-        # Excluded nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls.c
         nanostack/source/service_libs/etx/etx.c
         nanostack/source/service_libs/fnv_hash/fnv_hash.c
         nanostack/source/service_libs/hmac/hmac_md.c
