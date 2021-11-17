@@ -84,6 +84,21 @@ Finally, you will launch `wsbrd` with:
 
 `wsbrd` lists the useful options in the output of `wsbrd --help`.
 
+# Using DBus interface
+
+`wsbrd` provides a DBus interface. You can use a generic DBus tool like
+[`busctl`][3] to get communicate with `wsbrd`. Typically, the command below
+gives an overview of the DBus interface:
+
+    busctl --user introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
+
+DBus bindings are available in [all][4] [common][5] [languages][6].
+
+[3]: https://www.freedesktop.org/software/systemd/man/busctl.html
+[4]: https://www.freedesktop.org/software/systemd/man/sd-bus.html
+[5]: https://python-sdbus.readthedocs.io/
+[6]: https://www.npmjs.com/package/dbus-next
+
 # Generate Wi-SUN Public Key Infrastructure
 
 The certificate generation process is described in section 6.5.1 of the Wi-SUN
