@@ -201,7 +201,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/hmac/hmac_md.c
     nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
     nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
-    # Excluded nanostack/source/service_libs/mdns
     nanostack/source/service_libs/nd_proxy/nd_proxy.c
     nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
     nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
@@ -427,7 +426,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/hmac/hmac_md.c
         nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
         nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
-        # Excluded nanostack/source/service_libs/mdns
         nanostack/source/service_libs/nd_proxy/nd_proxy.c
         nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
         nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
