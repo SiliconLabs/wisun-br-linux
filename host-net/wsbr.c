@@ -238,6 +238,18 @@ static void wsbr_tasklet(struct arm_event_s *event)
     }
 }
 
+static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    int ret;
+
+    ret = uart_tx(os_ctxt, buf, buf_len);
+    // Old firmware may merge close Rx events
+    if (fw_api_older_than(ctxt, 0, 4, 0))
+        usleep(20000);
+    return ret;
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -257,7 +269,7 @@ int main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->ping_socket_fd = -1;
-    ctxt->rcp_tx = uart_tx;
+    ctxt->rcp_tx = wsbr_uart_tx;
     ctxt->rcp_rx = uart_rx;
     pipe(ctxt->os_ctxt->event_fd);
     platform_critical_init();
