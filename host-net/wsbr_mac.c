@@ -89,6 +89,13 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
         break;
     }
+    case SPINEL_PROP_WS_MCPS_DROP: {
+        struct mcps_purge_conf_s req = { };
+
+        req.msduHandle = spinel_pop_u8(buf);
+        ctxt->mac_api.purge_conf_cb(&ctxt->mac_api, &req);
+        break;
+    }
     case SPINEL_PROP_STREAM_STATUS: {
         mcps_data_conf_t req = { };
         mcps_data_conf_payload_t conf_req = { };
@@ -706,13 +713,21 @@ void wsbr_mcps_req(const struct mac_api_s *api,
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
                         const struct mcps_purge_s *data)
 {
+    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
     struct mcps_purge_conf_s conf = {
         .msduHandle = data->msduHandle,
     };
 
     BUG_ON(!api);
-    WARN("not implemented");
-    api->purge_conf_cb(api, &conf);
+    BUG_ON(ctxt != &g_ctxt);
+    if (!fw_api_older_than(ctxt, 0, 4, 0)) {
+        spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_MCPS_DROP);
+        spinel_push_u8(buf, data->msduHandle);
+        ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+    } else {
+        api->purge_conf_cb(api, &conf);
+    }
     return 0;
 }
 
