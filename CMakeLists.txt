@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
 include(GNUInstallDirs)
+include(CheckIncludeFile)
+
 # These option only work with gcc, but we do not plan to compiler with another
 # compiler.
 add_compile_options(-Wall)
@@ -616,6 +618,19 @@ pkg_check_modules(LIBPCAP IMPORTED_TARGET libpcap)
 if(LIBPCAP_FOUND)
     target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
     target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
+endif()
+
+check_include_file(backtrace.h BACKTRACE_FOUND)
+if(BACKTRACE_FOUND)
+    target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
+    target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
+    target_compile_definitions(wshwsim PRIVATE HAVE_BACKTRACE)
+    target_sources(wsbrd PRIVATE host-common/backtrace.c)
+    target_sources(wsnode PRIVATE host-common/backtrace.c)
+    target_sources(wshwsim PRIVATE host-common/backtrace.c)
+    target_link_libraries(wsbrd PRIVATE backtrace)
+    target_link_libraries(wsnode PRIVATE backtrace)
+    target_link_libraries(wshwsim PRIVATE backtrace)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

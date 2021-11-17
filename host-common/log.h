@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <time.h>
 
+#include "backtrace.h"
 
 /*
  * Use BUG() and BUG_ON() in the same ways than assert(). Consider this
@@ -146,6 +147,7 @@ char *bytes_str(const void *in_start, size_t in_len, const void **in_done, char 
             __PRINT_WITH_LINE(91, "bug: " MSG, ##__VA_ARGS__);       \
         else                                                         \
             __PRINT_WITH_LINE(91, "bug");                            \
+        backtrace_show();                                            \
         raise(SIGTRAP);                                              \
     } while (0)
 
@@ -156,6 +158,7 @@ char *bytes_str(const void *in_start, size_t in_len, const void **in_done, char 
                 __PRINT_WITH_LINE(91, "bug: " MSG, ##__VA_ARGS__);   \
             else                                                     \
                 __PRINT_WITH_LINE(91, "bug: \"%s\"", #COND);         \
+            backtrace_show();                                        \
             raise(SIGTRAP);                                          \
         }                                                            \
     } while (0)
