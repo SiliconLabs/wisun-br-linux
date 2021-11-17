@@ -1,3 +1,13 @@
+v1.0.0
+------
+
+  - Fix compatibility with RCP < 0.4.0 (which has a race in UART frames
+    reception)
+  - Improve case where nodes are ejected of the network (add support for MCPS
+    purge)
+  - Do not show secrets in logs anymore
+  - If available, show backtraces when a bug occurs
+
 v0.4.0
 ------
 
