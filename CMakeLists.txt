@@ -105,6 +105,13 @@ target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
 
+add_executable(simple_broadcast_server
+    host-common/log.c
+    host-mac/simple_broadcast_server.c)
+target_include_directories(simple_broadcast_server PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    host-common/)
+
 add_executable(wsbrd
     version.c
     host-net/wsbr.c
