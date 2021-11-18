@@ -107,6 +107,7 @@ void write_pcap(struct wsmac_ctxt *ctxt, uint8_t *buf, int len)
         pcap_hdr.caplen = len;
         pcap_hdr.len = len;
         pcap_dump((uint8_t *)ctxt->pcap_dumper, &pcap_hdr, buf);
+        pcap_dump_flush(ctxt->pcap_dumper);
     }
 #endif
 }
