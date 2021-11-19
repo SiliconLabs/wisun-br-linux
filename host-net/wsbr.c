@@ -27,6 +27,7 @@
 #include "host-common/os_timer.h"
 #include "host-common/slist.h"
 #include "host-common/log.h"
+#include "mbedtls_config_check.h"
 #include "version.h"
 #include "wsbr_mac.h"
 #include "wsbr.h"
@@ -289,6 +290,7 @@ int main(int argc, char *argv[])
     ctxt->ping_socket_fd = -1;
     ctxt->rcp_tx = wsbr_uart_tx;
     ctxt->rcp_rx = uart_rx;
+    wsbr_check_mbedtls_features();
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
     platform_critical_init();

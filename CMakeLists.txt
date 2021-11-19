@@ -115,6 +115,7 @@ add_executable(wsbrd
     host-net/named_values.c
     host-net/commandline.c
     host-net/os_whiteboard.c
+    host-net/mbedtls_config_check.c
     host-common/bus_uart.c
     host-common/hal_interrupt.c
     host-common/os_timer.c
@@ -297,48 +298,10 @@ add_executable(wsbrd
     # Excluded mbed-client-libservice/source/nvmHelper
     mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
-    mbedtls/library/aes.c
-    mbedtls/library/asn1parse.c
-    mbedtls/library/asn1write.c
-    mbedtls/library/base64.c
-    mbedtls/library/bignum.c
-    mbedtls/library/ccm.c
-    mbedtls/library/cipher.c
-    mbedtls/library/cipher_wrap.c
-    mbedtls/library/cipher_wrap.c
-    mbedtls/library/ctr_drbg.c
-    mbedtls/library/ecdh.c
-    mbedtls/library/ecdsa.c
-    mbedtls/library/ecp.c
-    mbedtls/library/ecp_curves.c
-    mbedtls/library/entropy.c
-    mbedtls/library/entropy_poll.c
-    mbedtls/library/hmac_drbg.c
-    mbedtls/library/md5.c
-    mbedtls/library/md.c
-    mbedtls/library/nist_kw.c
-    mbedtls/library/oid.c
-    mbedtls/library/pem.c
-    mbedtls/library/pk.c
-    mbedtls/library/pkparse.c
-    mbedtls/library/pk_wrap.c
-    mbedtls/library/platform_util.c
-    mbedtls/library/sha1.c
-    mbedtls/library/sha256.c
-    mbedtls/library/sha512.c
-    mbedtls/library/ssl_ciphersuites.c
-    mbedtls/library/ssl_cli.c
-    mbedtls/library/ssl_msg.c
-    mbedtls/library/ssl_srv.c
-    mbedtls/library/ssl_tls.c
-    mbedtls/library/x509.c
-    mbedtls/library/x509_crl.c
-    mbedtls/library/x509_crt.c
 )
 
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    mbedtls/include/
     mbed-trace/
     mbed-client-randlib/
     mbed-client-libservice/
@@ -346,7 +309,6 @@ target_include_directories(wsbrd PRIVATE
     nanostack/
 )
 target_include_directories(wsbrd PRIVATE
-    mbedtls/
     mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
@@ -547,48 +509,10 @@ add_executable(wsnode
     # Excluded mbed-client-libservice/source/nvmHelper
     mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
-    mbedtls/library/aes.c
-    mbedtls/library/asn1parse.c
-    mbedtls/library/asn1write.c
-    mbedtls/library/base64.c
-    mbedtls/library/bignum.c
-    mbedtls/library/ccm.c
-    mbedtls/library/cipher.c
-    mbedtls/library/cipher_wrap.c
-    mbedtls/library/cipher_wrap.c
-    mbedtls/library/ctr_drbg.c
-    mbedtls/library/ecdh.c
-    mbedtls/library/ecdsa.c
-    mbedtls/library/ecp.c
-    mbedtls/library/ecp_curves.c
-    mbedtls/library/entropy.c
-    mbedtls/library/entropy_poll.c
-    mbedtls/library/hmac_drbg.c
-    mbedtls/library/md5.c
-    mbedtls/library/md.c
-    mbedtls/library/nist_kw.c
-    mbedtls/library/oid.c
-    mbedtls/library/pem.c
-    mbedtls/library/pk.c
-    mbedtls/library/pkparse.c
-    mbedtls/library/pk_wrap.c
-    mbedtls/library/platform_util.c
-    mbedtls/library/sha1.c
-    mbedtls/library/sha256.c
-    mbedtls/library/sha512.c
-    mbedtls/library/ssl_ciphersuites.c
-    mbedtls/library/ssl_cli.c
-    mbedtls/library/ssl_msg.c
-    mbedtls/library/ssl_srv.c
-    mbedtls/library/ssl_tls.c
-    mbedtls/library/x509.c
-    mbedtls/library/x509_crl.c
-    mbedtls/library/x509_crt.c
 )
 
 target_include_directories(wsnode PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    mbedtls/include/
     mbed-trace/
     mbed-client-randlib/
     mbed-client-libservice
@@ -596,7 +520,6 @@ target_include_directories(wsnode PRIVATE
     nanostack/
 )
 target_include_directories(wsnode PRIVATE
-    mbedtls/
     mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
@@ -647,6 +570,11 @@ find_package(Threads REQUIRED)
 target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
+
+# FIXME syntax "MbedTLS 2.18...<4" does not work :(
+find_package(MbedTLS REQUIRED)
+target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 
 target_link_libraries(wshwsim PRIVATE util)
 

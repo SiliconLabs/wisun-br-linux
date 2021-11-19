@@ -46,17 +46,39 @@ If it is not yet done, start by cloning his repository:
 
 ## Compiling
 
-The build requires `libnl-3-dev`, `libnl-route-3-dev`, `cmake`. It is also
-recommended to have `libsystemd` (note that it can be replaced by `elogind` if
-you don't want to pull `systemd`). Optionally, you can also install `libpcap`.
+The build requires `mbedTLS` (> 2.18), `libnl-3-dev`, `libnl-route-3-dev`,
+`cmake`. It is also recommended to have `libsystemd` (note that it can be
+replaced by `elogind` if you don't want to pull `systemd`). Optionally, you can
+also install `libpcap`.
 
 We also encourage the use of Ninja as `cmake` back-end.
 
-On Debian and its derivatives, install the necessary dependencies with:
+On Debian and its derivatives, install the necessary dependencies (but mbedTLS)
+with:
 
     sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev libsystemd-dev cmake ninja-build
 
-Then, compile with:
+Debian does not (yet) package `mbedTLS` > 2.18. So you have to build it from
+sources. Note that support for `cmake` has been added to `mbedTLS` 2.27. So, if
+you want to use `mbedTLS` < 2.27, the process below does not work. In add,
+`wsbrd` is mainly tested with `mbedTLS` 3.0. So we suggest to use this version.
+
+    git clone --branch=v3.0.0 https://github.com/ARMmbed/mbedtls
+    cd mbedtls
+    cmake -G Ninja .
+    ninja
+    sudo ninja install
+
+`MbedTLS` is highly customizable. The default configuration is sane. However, if
+you want a striped down version you can configure it with the configuration file
+provided in `examples/mbedtls-config.h`:
+
+    CFLAGS="-I$FULL_PATH_TO_WSBRD_SRC/examples -DMBEDTLS_CONFIG_FILE='<mbedtls-config.h>'" cmake -G Ninja .
+
+> This configuration file has been written for `mbedtls` 3.0. Adapt it if
+> necessary.
+
+Then, you can compile `wsbrd` with:
 
     cd wisun-br-linux/
     cmake -G Ninja .
