@@ -48,6 +48,14 @@ int8_t multicast_fwd_full_for_scope(int8_t interface_id, uint_fast8_t min_scope)
         return -1;
     }
     cur->ip_mcast_fwd_for_scope = min_scope;
+    // By default, each interface has its own zones and Nanostack does not
+    // forward between zones.
+    if (min_scope <= IPV6_SCOPE_INTERFACE_LOCAL)
+        cur->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = 0;
+    if (min_scope <= IPV6_SCOPE_LINK_LOCAL)
+        cur->zone_index[IPV6_SCOPE_LINK_LOCAL] = 0;
+    if (min_scope <= IPV6_SCOPE_REALM_LOCAL)
+        cur->zone_index[IPV6_SCOPE_REALM_LOCAL] = 0;
     return 0;
 }
 
