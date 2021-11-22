@@ -21,25 +21,30 @@ by the stack by native Linux services.
 
 ## Prerequisites
 
-This project provides a daemon which is responsible of running the Wi-SUN
-protocol high-level layers. It is paired with an RF device (Radio Coprocessor,
-RCP) handling the low-level layers and RF activities. The RCP devices currently
-supported are the EFR32FG12 and EFR32MG12.
+This project provides the `wsbrd` daemon which is responsible for running the
+Wi-SUN protocol high-level layers. It is paired with an RF device RCP (Radio
+Co-Processor) handling the low-level layers and RF activities. The RCP devices
+currently supported are the EFR32FG12 and EFR32MG12.
 
-The EFR32 needs to be flashed with a specific firmware in order to communicate
-with the daemon. This firmware is provided in a binary format. To help users
-deploy and evaluate the solution, a repository [wisun-br-linux-docker][1] is
+The RCP needs to be flashed with a specific firmware in order to communicate
+with the daemon. This firmware is provided in binary format. To help users
+deploy and evaluate the solution, a [wisun-br-linux-docker][1] repository is
 provided. It contains a bundle of all the necessary software components
 (including a compiled RCP firmware) to run the Linux Wi-SUN border router.
 
-The communication between the Linux host and the EFR32 is supported through a
-serial link (UART). Thanks to the Silicon Labs mainboard, the serial link is
-provided over a USB communication. The device `/dev/ACMx` should appears when
-you plug the mainboard.
+The communication between the Linux host and the RCP is supported through a
+serial link (UART). On Silicon Labs mainboards, this serial link is provided
+over USB. The `/dev/ACMx` device should appear when you plug the mainboard.
 
 [1]: https://github.com/SiliconLabs/wisun-br-linux-docker
 
-## Compile
+## Cloning wisun-br-linux
+
+If it is not yet done, start by cloning his repository:
+
+    git clone git@github.com:SiliconLabs/wisun-br-linux.git
+
+## Compiling
 
 The build requires `libnl-3-dev`, `libnl-route-3-dev`, `cmake`. It is also
 recommended to have `libsystemd` (note that it can be replaced by `elogind` if
@@ -53,29 +58,30 @@ On Debian and its derivatives, install the necessary dependencies with:
 
 Then, compile with:
 
+    cd wisun-br-linux/
     cmake -G Ninja .
     ninja
 
-And finally, install the service with:
+Finally, install the service with:
 
-    ninja install
+    sudo ninja install
 
 > No script for any start-up service is provided for now.
 
-## Launch
+## Launching
 
-You have to provide a configuration file to the Wi-SUN border router. An
+You have to provide a configuration file to the Wi-SUN border router. A
 commented example is available in `/usr/local/share/doc/wsbrd/examples/wsbrd.conf`.
 
     cp -r /usr/local/share/doc/wsbrd/examples .
     <edit examples/wsbrd.conf>
 
-You can copy and edit it. You will notice you need certificates and keys to
+You can copy and edit it. You will notice that you need certificates and keys to
 authenticate the Wi-SUN nodes of your network. The generation of these files is
 described in [[Generate Wi-SUN PKI]].  For now, you can use the certificates
 examples installed in `/usr/local/share/doc/wsbrd/examples/`.
 
-You will also need to provide the path of the UART representing your EFR
+You will also need to provide the path of the UART representing your RCP
 device.
 
 Finally, you will launch `wsbrd` with:
@@ -84,11 +90,11 @@ Finally, you will launch `wsbrd` with:
 
 `wsbrd` lists the useful options in the output of `wsbrd --help`.
 
-# Using DBus interface
+# Using the DBus interface
 
 `wsbrd` provides a DBus interface. You can use a generic DBus tool like
-[`busctl`][3] to get communicate with `wsbrd`. Typically, the command below
-gives an overview of the DBus interface:
+[`busctl`][3] to communicate with `wsbrd`. Typically, the command below gives an
+overview of the DBus interface:
 
     busctl --user introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
 
@@ -110,7 +116,7 @@ Web site][2] (restricted access).
 
 [2]: https://wi-sun.org/cyber-security-certificates/
 
-# Run `wsbrd` without Root Privileges
+# Running `wsbrd` without Root Privileges
 
 It is possible to launch `wsbrd` without root privileges. First, ensure you have
 the permission to access the UART device:
