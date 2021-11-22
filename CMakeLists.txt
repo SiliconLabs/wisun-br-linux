@@ -314,6 +314,7 @@ add_executable(wsbrd
     mbedtls/library/entropy.c
     mbedtls/library/entropy_poll.c
     mbedtls/library/hmac_drbg.c
+    mbedtls/library/md5.c
     mbedtls/library/md.c
     mbedtls/library/nist_kw.c
     mbedtls/library/oid.c
