@@ -16,6 +16,7 @@
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/net_ws_test.h"
 #include "nanostack/ws_management_api.h"
+#include "nanostack/multicast_api.h"
 #include "nanostack/source/6lowpan/mac/mac_helper.h"
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/source/6lowpan/ws/ws_regulation.h"
@@ -226,6 +227,8 @@ static void wsbr_tasklet(struct arm_event_s *event)
             WARN_ON(ret, "arm_nwk_interface_configure_ipv6_bootstrap_set: %d", ret);
             get_link_local_addr(ctxt->tun_dev, ipv6);
             arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
+            multicast_fwd_full_for_scope(ctxt->tun_if_id, 3);
+            multicast_fwd_full_for_scope(ctxt->rcp_if_id, 3);
             wsbr_configure_ws(ctxt);
             if (arm_nwk_interface_up(ctxt->tun_if_id))
                  WARN("arm_nwk_interface_up TUN");
