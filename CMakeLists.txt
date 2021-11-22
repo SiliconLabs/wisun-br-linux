@@ -307,7 +307,6 @@ add_executable(wsbrd
     mbedtls/library/cipher_wrap.c
     mbedtls/library/cipher_wrap.c
     mbedtls/library/ctr_drbg.c
-    mbedtls/library/debug.c
     mbedtls/library/ecdh.c
     mbedtls/library/ecdsa.c
     mbedtls/library/ecp.c
@@ -557,7 +556,6 @@ add_executable(wsnode
     mbedtls/library/cipher_wrap.c
     mbedtls/library/cipher_wrap.c
     mbedtls/library/ctr_drbg.c
-    mbedtls/library/debug.c
     mbedtls/library/ecdh.c
     mbedtls/library/ecdsa.c
     mbedtls/library/ecp.c
