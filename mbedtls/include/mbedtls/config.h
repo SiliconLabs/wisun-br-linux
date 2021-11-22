@@ -1416,7 +1416,7 @@
  *
  * Uncomment to enable support for record checking.
  */
-#define MBEDTLS_SSL_RECORD_CHECKING
+//#define MBEDTLS_SSL_RECORD_CHECKING
 
 /**
  * \def MBEDTLS_SSL_DTLS_CONNECTION_ID
