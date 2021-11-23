@@ -509,7 +509,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     if (optind != argc)
         FATAL(1, "Unexpected argument: %s", argv[optind]);
     if (!ctxt->ws_name[0])
-        FATAL(1, "You must specify a network name (--name)");
+        FATAL(1, "You must specify a network name (--network)");
     if (!ctxt->tls_own.key)
         FATAL(1, "You must specify a key (--key)");
     if (!ctxt->tls_own.cert)
