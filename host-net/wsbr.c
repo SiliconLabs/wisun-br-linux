@@ -22,6 +22,7 @@
 
 #include "host-common/hal_interrupt.h"
 #include "host-common/bus_uart.h"
+#include "host-common/os_scheduler.h"
 #include "host-common/os_types.h"
 #include "host-common/os_timer.h"
 #include "host-common/slist.h"
@@ -271,10 +272,10 @@ int main(int argc, char *argv[])
     ctxt->ping_socket_fd = -1;
     ctxt->rcp_tx = wsbr_uart_tx;
     ctxt->rcp_rx = uart_rx;
-    pipe(ctxt->os_ctxt->event_fd);
-    platform_critical_init();
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
+    platform_critical_init();
+    eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
     if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))

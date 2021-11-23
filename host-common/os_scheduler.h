@@ -8,5 +8,9 @@
 
 #include "nanostack-event-loop/eventOS_scheduler.h"
 
+struct os_ctxt;
+
+void eventOS_scheduler_os_init(struct os_ctxt *ctxt);
+
 #endif
 

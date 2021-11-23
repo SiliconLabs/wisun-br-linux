@@ -31,6 +31,7 @@
 #include "host-common/hal_interrupt.h"
 #include "host-common/os_timer.h"
 #include "host-common/os_types.h"
+#include "host-common/os_scheduler.h"
 
 #define TRACE_GROUP  "main"
 
@@ -198,10 +199,10 @@ int main(int argc, char *argv[])
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
-    pipe(ctxt->os_ctxt->event_fd);
-    platform_critical_init();
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
+    platform_critical_init();
+    eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     INFO("Silicon Labs Wi-SUN RCP simulation %s", version_fw_str);
     configure(ctxt, argc, argv);
@@ -269,7 +270,8 @@ int main(int argc, char *argv[])
             // eventOS_scheduler_dispatch_event() identify tasks that shcedule
             // themselves.
             // eventOS_scheduler_run_until_idle();
-            eventOS_scheduler_dispatch_event();
+            if (eventOS_scheduler_dispatch_event())
+                eventOS_scheduler_signal();
         }
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
