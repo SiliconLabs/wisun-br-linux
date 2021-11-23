@@ -28,10 +28,10 @@
 #include "host-common/slist.h"
 #include "host-common/log.h"
 #include "mbedtls_config_check.h"
+#include "commandline.h"
 #include "version.h"
 #include "wsbr_mac.h"
 #include "wsbr.h"
-#include "commandline.h"
 #include "dbus.h"
 #include "tun.h"
 

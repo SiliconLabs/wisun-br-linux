@@ -26,17 +26,17 @@
 #include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
 #include "nanostack/source/Core/include/ns_address_internal.h"
 
-#include "host-common/log.h"
+#include "host-common/hal_interrupt.h"
+#include "host-common/bus_uart.h"
+#include "host-common/os_scheduler.h"
+#include "host-common/os_types.h"
+#include "host-common/os_timer.h"
 #include "host-common/slist.h"
+#include "host-common/log.h"
+#include "commandline.h"
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "commandline.h"
-#include "host-common/bus_uart.h"
-#include "host-common/os_types.h"
-#include "host-common/os_timer.h"
-#include "host-common/os_scheduler.h"
-#include "host-common/hal_interrupt.h"
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
