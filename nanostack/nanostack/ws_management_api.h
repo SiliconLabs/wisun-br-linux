@@ -41,7 +41,7 @@ extern "C" {
 #define REG_DOMAIN_NA   0x01 /**< North America */
 #define REG_DOMAIN_JP   0x02 /**< Japan */
 #define REG_DOMAIN_EU   0x03 /**< European Union */
-#define REG_DOMAIN_CH   0x04 /**< China */
+#define REG_DOMAIN_CN   0x04 /**< China */
 #define REG_DOMAIN_IN   0x05 /**< India */
 #define REG_DOMAIN_MX   0x06 /**< Mexico */
 #define REG_DOMAIN_BZ   0x07 /**< Brazil */

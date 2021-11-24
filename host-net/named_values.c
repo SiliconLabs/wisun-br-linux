@@ -13,7 +13,7 @@ const struct name_value valid_ws_domains[] = {
     { "NA", REG_DOMAIN_NA }, // North America
     { "JP", REG_DOMAIN_JP }, // Japan
     { "EU", REG_DOMAIN_EU }, // European Union
-    { "CH", REG_DOMAIN_CH }, // China
+    { "CN", REG_DOMAIN_CN }, // China
     { "IN", REG_DOMAIN_IN }, // India
     { "MX", REG_DOMAIN_MX }, //
     { "BZ", REG_DOMAIN_BZ }, // Brazil
