@@ -1,3 +1,15 @@
+v1.0.1
+------
+
+  - Fix string termination in configuration file. Especially, the network name
+    could be wrong when specified twice
+  - Fix possible dead lock on high workload
+  - Fix possible dead lock when event are cancelled
+  - Fix support for Chinese PHY
+  - Make DBus start more reliable when launched with sudo
+  - Fix backtrace display on ARM hosts
+  - Improve documentation
+
 v1.0.0
 ------
 
