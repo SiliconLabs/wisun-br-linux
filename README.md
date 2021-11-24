@@ -132,3 +132,34 @@ Create a tun interface:
 Start `wsbrd`:
 
     wsbrd -F examples/wsbrd.conf -t tun0 -u /dev/ttyACM0
+
+# Bugs and Limitations
+
+## Hidden internal network interfaces
+
+The network interface presented on Linux side is not directly linked to the RF
+interface. Instead, `wsbrd` sees the Linux interface as a backhaul and the RF as
+a separate interface.
+
+So, you can encounter three interfaces with their own MAC and IPv6 addresses:
+  - The Linux interface as displayed by `ip link`
+  - The other side of the Linux interface seen by `wsbrd` (called the backhaul
+    interface)
+  - The RF interface
+
+This is mostly invisible for the end user. However, an attentive user may notice
+small details:
+  - The DODAGID does not match the IP of the Linux interface
+  - The origin of RPL frames does not match the IP of the Linux interface
+  - The IPv6 hop-limit (formerly known as TTL in IPv4) field is decremented
+  - Direct consequence of the previous item, packet with a hot-limit of 1 are
+    not forwarded to the Wi-SUN network. Typically, to ping a multicast address,
+    you have to enforce the hop-limit:
+
+    ping -t 2 -I tun0 ff03::fc
+
+  - Multicast link-local frames (typically Router Solicitation and Router
+    Advertisement are not forwarded to the Wi-SUN network (these frames are
+    ignored in the Wi-SUN network anyway)
+
+
