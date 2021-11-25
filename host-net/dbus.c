@@ -307,9 +307,21 @@ static const sd_bus_vtable dbus_vtable[] = {
 void dbus_register(struct wsbr_ctxt *ctxt)
 {
     int ret;
+    char mode = 'A';
+    const char *env_var;
     const char *dbus_scope = "undefined";
 
-    ret = sd_bus_default(&ctxt->dbus);
+    env_var = getenv("DBUS_STARTER_BUS_TYPE");
+    if (env_var && !strcmp(env_var, "system"))
+        mode = 'S';
+    if (env_var && !strcmp(env_var, "user"))
+        mode = 'U';
+    if (env_var && !strcmp(env_var, "session"))
+        mode = 'U';
+    if (mode == 'U' || mode == 'A')
+        ret = sd_bus_default_user(&ctxt->dbus);
+    if (mode == 'S' || (mode == 'A' && ret < 0))
+        ret = sd_bus_default_system(&ctxt->dbus);
     if (ret < 0) {
         WARN("DBus not available: %s", strerror(-ret));
         return;
