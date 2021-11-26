@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
 include(GNUInstallDirs)
 include(CheckIncludeFile)
+include(CheckCCompilerFlag)
 
-# These option only work with gcc, but we do not plan to compiler with another
-# compiler.
-add_compile_options(-Wall)
+# Greatly improve warning messages. There is no reason to not enable that.
+check_c_compiler_flag(-Wall CC_HAVE_WALL)
+if(CC_HAVE_WALL)
+    add_compile_options(-Wall)
+endif()
 
 add_custom_target(check_git
     ALL
