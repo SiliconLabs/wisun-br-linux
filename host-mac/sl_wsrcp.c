@@ -3,6 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <pty.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -115,6 +117,58 @@ void fill_random(void *dest, size_t len)
     close(rnd);
 }
 
+int pty_open(const char *dest_path, int bitrate, bool hardflow)
+{
+    static const struct {
+        int val;
+        int symbolic;
+    } conversion[] = {
+        { 9600, B9600 },
+        { 19200, B19200 },
+        { 38400, B38400 },
+        { 57600, B57600 },
+        { 115200, B115200 },
+        { 230400, B230400 },
+        { 460800, B460800 },
+        { 921600, B921600 },
+    };
+    char pty_path[255];
+    struct termios tty = { };
+    int sym_bitrate = -1;
+    int master, slave;
+    int i, ret;
+
+    for (i = 0; i < ARRAY_SIZE(conversion); i++)
+        if (conversion[i].val == bitrate)
+            sym_bitrate = conversion[i].symbolic;
+    if (sym_bitrate < 0)
+        FATAL(1, "invalid bitrate: %d", bitrate);
+    cfsetispeed(&tty, sym_bitrate);
+    cfsetospeed(&tty, sym_bitrate);
+    cfmakeraw(&tty);
+    tty.c_cc[VTIME] = 0;
+    tty.c_cc[VMIN] = 1;
+    tty.c_iflag &= ~IXON;
+    tty.c_iflag &= ~IXOFF;
+    tty.c_iflag &= ~IXANY;
+    tty.c_cflag &= ~HUPCL;
+    tty.c_cflag |= CLOCAL;
+    if (hardflow)
+        tty.c_cflag |= CRTSCTS;
+    else
+        tty.c_cflag &= ~CRTSCTS;
+    ret = openpty(&master, &slave, pty_path, &tty, NULL);
+    if (ret < 0)
+        FATAL(1, "openpty: %m");
+    ret = unlink(dest_path);
+    if (ret < 0 && errno != ENOENT)
+        FATAL(1, "unlink: %m");
+    ret = symlink(pty_path, dest_path);
+    if (ret < 0)
+        FATAL(1, "symlink: %m");
+    return master;
+}
+
 void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
 {
     static const struct {
@@ -176,7 +230,7 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     }
     if (argc != optind + 2)
         print_help(stderr, 1);
-    ctxt->os_ctxt->data_fd = uart_open(argv[optind + 0], 115200, false);
+    ctxt->os_ctxt->data_fd = pty_open(argv[optind + 0], 115200, false);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     ctxt->rf_fd = uart_open(argv[optind + 1], 115200, false);
 }

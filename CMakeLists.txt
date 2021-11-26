@@ -649,6 +649,8 @@ target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
+target_link_libraries(wshwsim PRIVATE util)
+
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 # FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
 # the code
