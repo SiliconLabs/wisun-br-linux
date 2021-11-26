@@ -121,6 +121,8 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     int len;
 
     len = read(ctxt->rf_fd, hdr, 6);
+    FATAL_ON(!len, 2, "RF server has gone");
+    FATAL_ON(len < 0, 2, "RF socket: %m");
     if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
         TRACE(TR_RF, " rf drop: chan=%2d/%2d %s", -1, channel,
                bytes_str(hdr, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR));
