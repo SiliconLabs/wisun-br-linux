@@ -10,6 +10,13 @@ if(CC_HAVE_WALL)
     add_compile_options(-Wall)
 endif()
 
+# In come case, backtraces are not available without that flags. Increase size
+# of the  binary file, but can be stripped.
+check_c_compiler_flag(-funwind-tables CC_HAVE_UNWIND_TABLES)
+if(CC_HAVE_UNWIND_TABLES)
+    add_compile_options(-funwind-tables)
+endif()
+
 add_custom_target(check_git
     ALL
     BYPRODUCTS version.c
