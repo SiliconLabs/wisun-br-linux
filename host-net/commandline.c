@@ -204,6 +204,7 @@ static int parse_escape_sequences(char *out, char *in)
             out[j++] = in[i++];
         }
     }
+    out[j++] = '\0';
     return 0;
 }
 
