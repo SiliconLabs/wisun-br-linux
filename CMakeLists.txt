@@ -217,7 +217,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/utils/ns_file_system.c
     nanostack/source/service_libs/utils/ns_time.c
     # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
-    # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
     mbed-client-libservice/source/IPv6_fcf_lib/ip_fsc.c
@@ -430,7 +429,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/utils/ns_file_system.c
         nanostack/source/service_libs/utils/ns_time.c
         # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
-        # Excluded nanostack-event-loop/source/ns_timeout.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
         mbed-client-libservice/source/IPv6_fcf_lib/ip_fsc.c
