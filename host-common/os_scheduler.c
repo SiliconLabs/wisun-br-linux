@@ -26,10 +26,3 @@ void eventOS_scheduler_signal(void)
 
     write(ctxt->event_fd[1], &val, sizeof(val));
 }
-
-void eventOS_scheduler_idle(void)
-{
-    // eventOS_scheduler_idle() is only called by eventOS_scheduler_run() and it
-    // makes no sense to use this function on Linux
-    BUG("Not implemented");
-}

@@ -289,18 +289,6 @@ void eventOS_scheduler_set_active_tasklet(int8_t tasklet)
     curr_tasklet = tasklet;
 }
 
-int eventOS_scheduler_timer_synch_after_sleep(uint32_t sleep_ticks)
-{
-    //Update MS to 10ms ticks
-    sleep_ticks /= 10;
-    sleep_ticks++;
-    system_timer_tick_update(sleep_ticks);
-    if (timer_sys_wakeup() == 0) {
-        return 0;
-    }
-    return -1;
-}
-
 /**
  *
  * \brief Infinite Event Read Loop.
@@ -343,22 +331,6 @@ bool eventOS_scheduler_dispatch_event(void)
 void eventOS_scheduler_run_until_idle(void)
 {
     while (eventOS_scheduler_dispatch_event());
-}
-
-/**
- *
- * \brief Infinite Event Read Loop.
- *
- * Function Read and handle Cores Event and switch/enable tasklet which are event receiver. WhenEvent queue is empty it goes to sleep
- *
- */
-NS_NORETURN void eventOS_scheduler_run(void)
-{
-    while (1) {
-        if (!eventOS_scheduler_dispatch_event()) {
-            eventOS_scheduler_idle();
-        }
-    }
 }
 
 void eventOS_cancel(arm_event_storage_t *event)

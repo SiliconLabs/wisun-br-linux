@@ -163,21 +163,6 @@
  * Event system must first be initialized by callind eventOS_scheduler_init(). This is usually done just after ns_dyn_mem_init() call.
  * Where porting is already provided, these both are initialized in function called ns_hal_init().
  *
- * After initialization, you can start the event loop by calling eventOS_scheduler_run() which will never return. This is usually
- * end of the `main()` function.
- *
- * \code
- * extern void my_event_handler(arm_event_t *e);
- * extern int8_t my_eventhandler_id;
- *
- * void main(void)
- * {
- *     ns_dyn_mem_init(NULL, HEAP_SIZE, NULL, NULL);
- *     eventOS_scheduler_init();
- *     my_eventhandler_id = eventOS_event_handler_create(my_event_handler, INITIALIZATION_EVENT);
- *     eventOS_scheduler_run()
- * }
- * \endcode
  */
 
 /**
