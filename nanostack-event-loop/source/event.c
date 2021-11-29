@@ -20,7 +20,6 @@
 #include "eventOS_scheduler.h"
 #include "timer_sys.h"
 #include "nsdynmemLIB.h"
-#include "ns_timer.h"
 #include "event.h"
 #include "platform/arm_hal_interrupt.h"
 

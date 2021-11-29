@@ -24,8 +24,6 @@
 #include "event.h"
 #include "eventOS_callback_timer.h"
 
-#include "ns_timer.h"
-
 #ifndef ST_MAX
 #define ST_MAX 6
 #endif
