@@ -53,7 +53,7 @@ struct wsmac_ctxt {
     struct fhss_api *fhss_api;
     struct slist *msdu_malloc_list;
 
-    struct neighbor_timings neighbor_timings[32];
+    struct neighbor_timings neighbor_timings[255];
 
     int spinel_tid;
     int spinel_iid;
