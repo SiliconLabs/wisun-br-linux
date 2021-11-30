@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/timerfd.h>
 
@@ -20,6 +21,7 @@ int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, u
     item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
     FATAL_ON(item->fd < 0, 2);
     FATAL_ON(item->fd > 255, 2);
+    fcntl(item->fd, F_SETFL, O_NONBLOCK);
     slist_push(&ctxt->timers, &item->node);
     return item->fd;
 }

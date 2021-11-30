@@ -275,15 +275,15 @@ int main(int argc, char *argv[])
         }
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
-                read(timer->fd, &val, sizeof(val));
-                WARN_ON(val != 1);
+                ret = read(timer->fd, &val, sizeof(val));
+                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
                 timer->fn(timer->fd, 0);
             }
         }
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
             if (FD_ISSET(fhss_timer->fd, &rfds)) {
-                read(fhss_timer->fd, &val, sizeof(val));
-                WARN_ON(val != 1);
+                ret = read(fhss_timer->fd, &val, sizeof(val));
+                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
                 fhss_timer->fn(fhss_timer->arg, 0);
             }
         }
