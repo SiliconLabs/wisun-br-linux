@@ -96,7 +96,7 @@ Finally, you will launch `wsbrd` with:
 [`busctl`][3] to communicate with `wsbrd`. Typically, the command below gives an
 overview of the DBus interface:
 
-    busctl --user introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
+    busctl introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
 
 DBus bindings are available in [all][4] [common][5] [languages][6].
 
@@ -168,17 +168,21 @@ You have to know there is several DBus instance on your system:
   - One system instance
   - Each user also have a instance
 
-By default, `wsbrd` try to use `user` instance. However, if you use `sudo` to
-launch `wsbrd` as root user, it may be more convenient to connect to the
-`system` instance.
-
-You can enforce the session used with environment variable
-`DBUS_STARTER_BUS_TYPE=system` or `DBUS_STARTER_BUS_TYPE=user`. In add, if you
-use `sudo`, you have to define this variable inside the `sudo` environment:
-
-    sudo env DBUS_STARTER_BUS_TYPE=system wsbrd ...
+By default, `wsbrd` try to use `user` instance and falls back to `system`
+instance.
 
 You can check the DBus session used in the first lines of the log output:
 
     Successfully registered to system DBus
+
+Then, use `busctl --system` or `busctl --user` accordingly.
+
+Note, that If you use `sudo` to launch `wsbrd` as root user, it will use the
+`system` instance.
+
+You can enforce the session used with environment variable
+`DBUS_STARTER_BUS_TYPE=system` or `DBUS_STARTER_BUS_TYPE=user`. If you use
+`sudo`, you have to define this variable inside the `sudo` environment:
+
+    sudo env DBUS_STARTER_BUS_TYPE=system wsbrd ...
 
