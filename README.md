@@ -11,11 +11,11 @@
   </tr>
 </table>
 
-This projects aims at implementing the Wi-SUN protocol on Linux devices and
-allow the use of Linux hosts as Border Router for Wi-SUN networks. For the time
-being, the implementation is mostly a port of Silicon Labs embedded stack on a
-Linux host. However, the ultimate goal is to replace services currently provided
-by the stack by native Linux services.
+This project aims at implementing the Wi-SUN protocol on Linux devices and
+allowing the use of Linux hosts as Border Router for Wi-SUN networks. For the
+time being, the implementation is mostly a port of Silicon Labs embedded stack
+on a Linux host. However, the ultimate goal is to replace services currently
+provided by the stack with native Linux services.
 
 # Quick Start Guide
 
@@ -26,11 +26,11 @@ Wi-SUN protocol high-level layers. It is paired with an RF device RCP (Radio
 Co-Processor) handling the low-level layers and RF activities. The RCP devices
 currently supported are the EFR32FG12 and EFR32MG12.
 
-The RCP needs to be flashed with a specific firmware in order to communicate
-with the daemon. This firmware is provided in binary format. To help users
-deploy and evaluate the solution, a [wisun-br-linux-docker][1] repository is
-provided. It contains a bundle of all the necessary software components
-(including a compiled RCP firmware) to run the Linux Wi-SUN border router.
+The RCP needs to be flashed with a specific firmware to communicate with the
+daemon. This firmware is provided in binary format. To help users deploy and
+evaluate the solution, a [wisun-br-linux-docker][1] repository is provided. It
+contains a bundle of all the necessary software components (including a compiled
+RCP firmware) to run the Linux Wi-SUN border router.
 
 The communication between the Linux host and the RCP is supported through a
 serial link (UART). On Silicon Labs mainboards, this serial link is provided
@@ -109,7 +109,7 @@ DBus bindings are available in [all][4] [common][5] [languages][6].
 
 The certificate generation process is described in section 6.5.1 of the Wi-SUN
 specification. It uses the standard X.509 certificate format. Some fields and
-algorithm are enforced.
+algorithms are enforced.
 
 The process to get official certificates is described on the [Wi-SUN alliance
 Web site][2] (restricted access).
@@ -137,9 +137,9 @@ Start `wsbrd`:
 
 ## Hidden internal network interfaces
 
-The network interface presented on Linux side is not directly linked to the RF
-interface. Instead, `wsbrd` sees the Linux interface as a backhaul and the RF as
-a separate interface.
+The network interface presented on the Linux side is not directly linked to the
+RF interface. Instead, `wsbrd` sees the Linux interface as a backhaul and the RF
+as a separate interface.
 
 So, you can encounter three interfaces with their own MAC and IPv6 addresses:
   - The Linux interface as displayed by `ip link`
@@ -147,26 +147,26 @@ So, you can encounter three interfaces with their own MAC and IPv6 addresses:
     interface)
   - The RF interface
 
-This is mostly invisible for the end user. However, an attentive user may notice
+This is mostly invisible for the end-user. However, an attentive user may notice
 small details:
   - The DODAGID does not match the IP of the Linux interface
   - The origin of RPL frames does not match the IP of the Linux interface
   - The IPv6 hop-limit (formerly known as TTL in IPv4) field is decremented
-  - Direct consequence of the previous item, packet with a hot-limit of 1 are
+  - Direct consequence of the previous item, packet with a hop-limit of 1 are
     not forwarded to the Wi-SUN network. Typically, to ping a multicast address,
     you have to enforce the hop-limit:
 
     ping -t 2 -I tun0 ff03::fc
 
-  - Multicast link-local frames (typically Router Solicitation and Router
-    Advertisement are not forwarded to the Wi-SUN network (these frames are
-    ignored in the Wi-SUN network anyway)
+  - Multicast link-local frames (typically Router Solicitations and Router
+    Advertisements) are not forwarded to the Wi-SUN network. These frames would
+    be ignored in the Wi-SUN network anyway.
 
 ## I cannot connect to DBus interface
 
 You have to know there is several DBus instance on your system:
   - One system instance
-  - Each user also have a instance
+  - Each user also have an instance
 
 By default, `wsbrd` try to use `user` instance and falls back to `system`
 instance.
@@ -180,7 +180,7 @@ Then, use `busctl --system` or `busctl --user` accordingly.
 Note, that If you use `sudo` to launch `wsbrd` as root user, it will use the
 `system` instance.
 
-You can enforce the session used with environment variable
+You can enforce the session used with an environment variable
 `DBUS_STARTER_BUS_TYPE=system` or `DBUS_STARTER_BUS_TYPE=user`. If you use
 `sudo`, you have to define this variable inside the `sudo` environment:
 
