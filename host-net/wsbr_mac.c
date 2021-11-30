@@ -175,7 +175,6 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         wsbr_spinel_is(ctxt, prop, buf);
     } else if (cmd == SPINEL_CMD_RESET) {
         const char *version_fw_str;
-        bool is_hw_reset;
 
         if (spinel_remaining_size(buf) < 9)
             FATAL(1, "RCP firmware probably too old (unknown RESET format)");
@@ -193,11 +192,11 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
               FIELD_GET(0x000000FF, ctxt->rcp_version_api));
         if (fw_api_older_than(ctxt, 0, 2, 0))
             FATAL(3, "RCP API is too old");
-        is_hw_reset = spinel_pop_bool(buf);
+        spinel_pop_bool(buf); // is_hw_reset is no more used
         if (ctxt->reset_done) {
             // A race may happens when BR and RCP are started simultaneously.
             // Just ignore it the second reset indication
-            if (!is_hw_reset)
+            if (!ctxt->hw_addr_done)
                 return;
             else
                 FATAL(3, "MAC layer has been reset. Operation not supported");
