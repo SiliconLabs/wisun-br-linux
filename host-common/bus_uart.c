@@ -82,7 +82,7 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     if (fd < 0)
         FATAL(1, "%s: %m", device);
 
-    if(tcgetattr(fd, &tty) == -1)
+    if (tcgetattr(fd, &tty) == -1)
         FATAL(1, "tcgetattr: %m");
     for (i = 0; i < ARRAY_SIZE(conversion); i++)
         if (conversion[i].val == bitrate)
