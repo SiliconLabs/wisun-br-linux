@@ -688,7 +688,7 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         break;
     }
     case macCCAThreshold: {
-        BUG_ON(req->value_size > 100);
+        BUG_ON(req->value_size > 200);
         spinel_reset(tx_buf);
         spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_CCA_THRESHOLD);
         spinel_push_data(tx_buf, req->value_pointer, req->value_size);
