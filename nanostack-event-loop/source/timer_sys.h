@@ -30,9 +30,6 @@ typedef struct sys_timer_struct_s {
  * */
 extern void timer_sys_init(void);
 
-extern uint32_t timer_get_runtime_ticks(void);
-int8_t timer_sys_wakeup(void);
-void timer_sys_disable(void);
 void timer_sys_event_free(struct arm_event_storage *event);
 
 // This require lock to be held

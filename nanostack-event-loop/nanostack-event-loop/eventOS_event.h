@@ -116,13 +116,12 @@
  *      };
  *
  *      uint32_t delay = eventOS_event_timer_ms_to_ticks(MY_DELAY_MS);
- *      eventOS_event_send_after(e, delay);
+ *      eventOS_event_timer_request_after(e, delay);
  * \endcode
  *
  * \sa eventOS_event.h
  * \sa eventOS_event_send_at
  * \sa eventOS_event_send_in
- * \sa eventOS_event_send_after
  * \sa eventOS_event_send_every
  *
  * <h3>Pre-allocated events</h3>
@@ -249,13 +248,6 @@ typedef struct arm_event_storage {
  * \return -1 Memory allocation Fail
  */
 extern int8_t eventOS_event_send(const arm_event_t *event);
-
-/* Alternate names for timer function from eventOS_event_timer.h;
- * implementations may one day merge */
-#define eventOS_event_send_at(event, at)       eventOS_event_timer_request_at(event, at)       ///< \copydoc eventOS_event_timer_request_at
-#define eventOS_event_send_in(event, in)       eventOS_event_timer_request_in(event, in)       ///< \copydoc eventOS_event_timer_request_in
-#define eventOS_event_send_after(event, after) eventOS_event_timer_request_after(event, after) ///< \copydoc eventOS_event_timer_request_after
-#define eventOS_event_send_every(event, every) eventOS_event_timer_request_every(event, every) ///< \copydoc eventOS_event_timer_request_every
 
 /**
  * \brief Send user-allocated event to event scheduler.

@@ -76,11 +76,6 @@ static int8_t platform_tick_timer_start(uint32_t period_ms)
 {
     return eventOS_callback_timer_start(tick_timer_id, TIMER_SLOTS_PER_MS * period_ms);
 }
-
-static int8_t platform_tick_timer_stop(void)
-{
-    return eventOS_callback_timer_stop(tick_timer_id);
-}
 #endif // !NS_EVENTLOOP_USE_TICK_TIMER
 
 /*
@@ -99,19 +94,6 @@ void timer_sys_init(void)
 
 
 /*-------------------SYSTEM TIMER FUNCTIONS--------------------------*/
-void timer_sys_disable(void)
-{
-    platform_tick_timer_stop();
-}
-
-/*
- * Starts ticking system timer interrupts every 10ms
- */
-int8_t timer_sys_wakeup(void)
-{
-    return platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
-}
-
 
 static void timer_sys_interrupt(void)
 {
@@ -172,17 +154,6 @@ void timer_sys_event_cancel_critical(struct arm_event_storage *event)
     }
 }
 
-uint32_t eventOS_event_timer_ticks(void)
-{
-    uint32_t ret_val;
-    // Enter/exit critical is a bit clunky, but necessary on 16-bit platforms,
-    // which won't be able to do an atomic 32-bit read.
-    platform_enter_critical();
-    ret_val = timer_sys_ticks;
-    platform_exit_critical();
-    return ret_val;
-}
-
 /* Called internally with lock held */
 static void timer_sys_add(sys_timer_struct_s *timer)
 {
@@ -231,29 +202,6 @@ static arm_event_storage_t *eventOS_event_timer_request_at_(const arm_event_t *e
     return &timer->event;
 }
 
-arm_event_storage_t *eventOS_event_timer_request_at(const arm_event_t *event, uint32_t at)
-{
-    platform_enter_critical();
-
-    arm_event_storage_t *ret = eventOS_event_timer_request_at_(event, at, 0);
-
-    platform_exit_critical();
-
-    return ret;
-}
-
-arm_event_storage_t *eventOS_event_timer_request_in(const arm_event_t *event, int32_t in)
-{
-    platform_enter_critical();
-
-    arm_event_storage_t *ret = eventOS_event_timer_request_at_(event, timer_sys_ticks + in, 0);
-
-    platform_exit_critical();
-
-    return ret;
-
-}
-
 arm_event_storage_t *eventOS_event_timer_request_every(const arm_event_t *event, int32_t period)
 {
     if (period <= 0) {
@@ -298,54 +246,6 @@ int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t 
     arm_event_storage_t *ret = eventOS_event_timer_request_at_(&event, timer_sys_ticks + time, 0);
     platform_exit_critical();
     return ret ? 0 : -1;
-}
-
-int8_t eventOS_event_timer_cancel(uint8_t event_id, int8_t tasklet_id)
-{
-    platform_enter_critical();
-
-    /* First check pending timers */
-    ns_list_foreach(sys_timer_struct_s, cur, &system_timer_list) {
-        if (cur->event.data.receiver == tasklet_id && cur->event.data.event_id == event_id) {
-            eventOS_cancel(&cur->event);
-            goto done;
-        }
-    }
-
-    /* No pending timer, so check for already-pending event */
-    arm_event_storage_t *event = eventOS_event_find_by_id_critical(tasklet_id, event_id);
-    if (event && event->allocator == ARM_LIB_EVENT_TIMER) {
-        eventOS_cancel(event);
-        goto done;
-    }
-
-    /* No match found */
-    platform_exit_critical();
-    return -1;
-
-done:
-    platform_exit_critical();
-    return 0;
-}
-
-uint32_t eventOS_event_timer_shortest_active_timer(void)
-{
-    uint32_t ret_val = 0;
-
-    platform_enter_critical();
-    sys_timer_struct_s *first = ns_list_get_first(&system_timer_list);
-    if (first == NULL) {
-        // Weird API has 0 for "no events"
-        ret_val = 0;
-    } else if (TICKS_BEFORE_OR_AT(first->launch_time, timer_sys_ticks)) {
-        // Which means an immediate/overdue event has to be 1
-        ret_val = 1;
-    } else {
-        ret_val = first->launch_time - timer_sys_ticks;
-    }
-
-    platform_exit_critical();
-    return eventOS_event_timer_ticks_to_ms(ret_val);
 }
 
 void system_timer_tick_update(uint32_t ticks)

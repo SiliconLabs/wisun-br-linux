@@ -74,13 +74,6 @@ extern int8_t platform_tick_timer_register(void (*tick_timer_cb_handler)(void));
  */
 extern int8_t platform_tick_timer_start(uint32_t period_ms);
 
-/**
- * \brief This function is API for stopping the low resolution tick timer
- *
- * \return -1 for failure, success otherwise
- */
-extern int8_t platform_tick_timer_stop(void);
-
 #endif // NS_EVENTLOOP_USE_TICK_TIMER
 
 #endif /* ARM_HAL_TIMER_H_ */
