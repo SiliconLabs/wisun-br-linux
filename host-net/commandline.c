@@ -61,11 +61,6 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "  -A, --authority=FILE  Certificate of the authority (CA) (shared with all devices\n");
     fprintf(stream, "                        of the network)\n");
     fprintf(stream, "\n");
-    fprintf(stream, "UART options\n");
-    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
-    fprintf(stream, "                           230400, 460800, 921600\n");
-    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
-    fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
     exit(exit_code);
@@ -492,12 +487,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
                 break;
             case 'b':
-                ctxt->uart_baudrate = strtoul(optarg, &end_ptr, 10);
-                if (*end_ptr)
-                    FATAL(1, "invalid bitrate: %s", optarg);
+                FATAL(1, "deprecated option: -b/--baudrate");
                 break;
             case 'H':
-                ctxt->uart_rtscts = true;
+                FATAL(1, "deprecated option: -H/--hardflow");
                 break;
             case 'h':
                 print_help(stdout, 0);
