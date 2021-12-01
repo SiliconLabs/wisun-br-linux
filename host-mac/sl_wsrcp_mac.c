@@ -950,6 +950,12 @@ void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *res
 
 void wsmac_reset_ind(struct wsmac_ctxt *ctxt, bool hw)
 {
+    // If garabage has already been sent, flush it
+    spinel_reset(tx_buf);
+    spinel_push_u8(tx_buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_int(tx_buf, SPINEL_CMD_NOOP);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
+
     spinel_reset(tx_buf);
     spinel_push_u8(tx_buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_int(tx_buf, SPINEL_CMD_RESET);
