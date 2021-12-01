@@ -54,12 +54,12 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN network authentication:\n");
-    fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
-    fprintf(stream, "  or DER format.\n");
-    fprintf(stream, "  -K, --key=FILE        Private key (keep it secret)\n");
-    fprintf(stream, "  -C, --cert=FILE       Certificate for the key\n");
-    fprintf(stream, "  -A, --authority=FILE  Certificate of the authority (CA) (shared with all devices\n");
-    fprintf(stream, "                        of the network)\n");
+    fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM od DER\n");
+    fprintf(stream, "  format.\n");
+    fprintf(stream, "  -K, --key=FILE         Private key (keep it secret)\n");
+    fprintf(stream, "  -C, --certificate=FILE Certificate for the key\n");
+    fprintf(stream, "  -A, --authority=FILE   Certificate of the authority (CA) (shared with all devices of the\n");
+    fprintf(stream, "                           network)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
@@ -94,15 +94,10 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "Wi-SUN network authentication:\n");
     fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
     fprintf(stream, "  or DER format.\n");
-    fprintf(stream, "  -K, --key=FILE        Private key (keep it secret)\n");
-    fprintf(stream, "  -C, --cert=FILE       Certificate for the key\n");
-    fprintf(stream, "  -A, --authority=FILE  Certificate of the authority (CA) (shared with all devices\n");
-    fprintf(stream, "                        of the network)\n");
-    fprintf(stream, "\n");
-    fprintf(stream, "UART options\n");
-    fprintf(stream, "  -b, --baudrate=BAUDRATE  UART baudrate: 9600, 19200, 38400, 57600, 115200 (default),\n");
-    fprintf(stream, "                           230400, 460800, 921600\n");
-    fprintf(stream, "  -H, --hardflow           Hardware CTS/RTS flow control (default: disabled)\n");
+    fprintf(stream, "  -K, --key=FILE         Private key (keep it secret)\n");
+    fprintf(stream, "  -C, --certificate=FILE Certificate for the key\n");
+    fprintf(stream, "  -A, --authority=FILE   Certificate of the authority (CA) (shared with all devices of the\n");
+    fprintf(stream, "                           network)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
@@ -507,7 +502,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     if (!ctxt->tls_own.key)
         FATAL(1, "You must specify a key (--key)");
     if (!ctxt->tls_own.cert)
-        FATAL(1, "You must specify a certificate (--cert)");
+        FATAL(1, "You must specify a certificate (--certificate)");
     if (!ctxt->tls_ca.cert)
         FATAL(1, "You must specify a certificate authority (--authority)");
     if (ctxt->ws_domain == -1)
