@@ -170,7 +170,9 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     spinel_pop_u8(buf); /* packet header */
     cmd = spinel_pop_int(buf);
 
-    if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
+    if (cmd == SPINEL_CMD_NOOP) {
+        /* empty */
+    } else if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
         prop = spinel_pop_int(buf);
         wsbr_spinel_is(ctxt, prop, buf);
     } else if (cmd == SPINEL_CMD_RESET) {
