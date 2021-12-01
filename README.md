@@ -152,9 +152,9 @@ small details:
   - The DODAGID does not match the IP of the Linux interface
   - The origin of RPL frames does not match the IP of the Linux interface
   - The IPv6 hop-limit (formerly known as TTL in IPv4) field is decremented
-  - Direct consequence of the previous item, packet with a hop-limit of 1 are
+  - Direct consequence of the previous item: packets with a hop-limit of 1 are
     not forwarded to the Wi-SUN network. Typically, to ping a multicast address,
-    you have to enforce the hop-limit:
+    you have to enforce the hop-limit to at least 2
 
     ping -t 2 -I tun0 ff03::fc
 
@@ -164,11 +164,11 @@ small details:
 
 ## I cannot connect to DBus interface
 
-You have to know there is several DBus instance on your system:
+You have to know there are several DBus instances on your system:
   - One system instance
-  - Each user also have an instance
+  - Each user also has an instance
 
-By default, `wsbrd` try to use `user` instance and falls back to `system`
+By default, `wsbrd` tries to use the `user` instance and falls back to `system`
 instance.
 
 You can check the DBus session used in the first lines of the log output:
