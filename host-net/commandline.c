@@ -331,7 +331,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", filename, line_no, ctxt->ws_gtk_max_mismatch);
     } else if (sscanf(line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
         if (ctxt->ws_denied_mac_address_count > 0)
-            FATAL(1, "%s:%d: allowing one MAC address while others are denied has no effect", filename, line_no);
+            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
         if (ctxt->ws_allowed_mac_address_count >= ARRAY_SIZE(ctxt->ws_allowed_mac_addresses))
             FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", filename, line_no);
         if (parse_byte_array(str_arg, ctxt->ws_allowed_mac_addresses[ctxt->ws_allowed_mac_address_count], 8))
@@ -339,7 +339,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         ctxt->ws_allowed_mac_address_count++;
     } else if (sscanf(line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
         if (ctxt->ws_allowed_mac_address_count > 0)
-            FATAL(1, "%s:%d: denying one MAC address while others are allowed has no effect", filename, line_no);
+            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
         if (ctxt->ws_denied_mac_address_count >= ARRAY_SIZE(ctxt->ws_denied_mac_addresses))
             FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", filename, line_no);
         if (parse_byte_array(str_arg, ctxt->ws_denied_mac_addresses[ctxt->ws_denied_mac_address_count], 8))
