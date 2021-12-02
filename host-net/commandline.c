@@ -104,16 +104,18 @@ void print_help_node(FILE *stream, int exit_code) {
     exit(exit_code);
 }
 
-static size_t read_cert(const char *filename, const uint8_t **ptr)
+static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
     int fd, ret;
     struct stat st;
 
     fd = open(filename, O_RDONLY);
-    FATAL_ON(fd < 0, 1, "%s: %d %m", filename, fd);
+    if (fd < 0)
+        return -1;
     ret = fstat(fd, &st);
-    FATAL_ON(ret < 0, 1, "fstat: %s: %m", filename);
+    if (ret < 0)
+        return -1;
 
     /* See https://github.com/ARMmbed/mbedtls/issues/3896 and
      * mbedtls_x509_crt_parse()
@@ -121,7 +123,8 @@ static size_t read_cert(const char *filename, const uint8_t **ptr)
     tmp = malloc(st.st_size + 1);
     tmp[st.st_size] = 0;
     ret = read(fd, tmp, st.st_size);
-    FATAL_ON(ret != st.st_size, 1, "read: %s: %m", filename);
+    if (ret != st.st_size)
+        return -1;
     close(fd);
     if (*ptr)
         free((uint8_t *)*ptr);
@@ -246,15 +249,24 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        ctxt->tls_own.cert_len = read_cert(str_arg, &ctxt->tls_own.cert);
+        int_arg = read_cert(str_arg, &ctxt->tls_own.cert);
+        if (int_arg < 0)
+            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+        ctxt->tls_own.cert_len = int_arg;
     } else if (sscanf(line, " key = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        ctxt->tls_own.key_len = read_cert(str_arg, &ctxt->tls_own.key);
+        int_arg = read_cert(str_arg, &ctxt->tls_own.key);
+        if (int_arg < 0)
+            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+        ctxt->tls_own.key_len = int_arg;
     } else if (sscanf(line, " authority = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        ctxt->tls_ca.cert_len = read_cert(str_arg, &ctxt->tls_ca.cert);
+        int_arg = read_cert(str_arg, &ctxt->tls_ca.cert);
+        if (int_arg < 0)
+            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+        ctxt->tls_ca.cert_len = int_arg;
     } else if (sscanf(line, " trace = %s %c", str_arg, &garbage) == 1) {
         g_enabled_traces = 0;
         substr = strtok(str_arg, ",");
@@ -398,7 +410,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         { 0,             0,                 0,   0  }
     };
     char *end_ptr;
-    int opt, i;
+    int opt, i, ret;
     char *tag;
 
     ctxt->uart_baudrate = 115200;
@@ -473,13 +485,22 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 ctxt->ws_size = str_to_val(optarg, valid_ws_size);
                 break;
             case 'K':
-                ctxt->tls_own.key_len = read_cert(optarg, &ctxt->tls_own.key);
+                ret = read_cert(optarg, &ctxt->tls_own.key);
+                if (ret < 0)
+                    FATAL(1, "%s: %m", optarg);
+                ctxt->tls_own.key_len = ret;
                 break;
             case 'C':
-                ctxt->tls_own.cert_len = read_cert(optarg, &ctxt->tls_own.cert);
+                ret = read_cert(optarg, &ctxt->tls_own.cert);
+                if (ret < 0)
+                    FATAL(1, "%s: %m", optarg);
+                ctxt->tls_own.cert_len = ret;
                 break;
             case 'A':
-                ctxt->tls_ca.cert_len = read_cert(optarg, &ctxt->tls_ca.cert);
+                ret = read_cert(optarg, &ctxt->tls_ca.cert);
+                if (ret < 0)
+                    FATAL(1, "%s: %m", optarg);
+                ctxt->tls_ca.cert_len = ret;
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
