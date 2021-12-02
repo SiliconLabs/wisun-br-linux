@@ -299,13 +299,13 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             if (access(dirname(str_arg), W_OK))
                 FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
         }
-    } else if (sscanf(line, " uc_dwell_interval = %d %c", &ctxt->uc_dwell_interval, &garbage) == 1) {
+    } else if (sscanf(line, " unicast_dwell_interval = %d %c", &ctxt->uc_dwell_interval, &garbage) == 1) {
         if (ctxt->uc_dwell_interval < 15 || ctxt->uc_dwell_interval > 255)
             FATAL(1, "%s:%d: invalid unicast dwell interval: %d", filename, line_no, ctxt->uc_dwell_interval);
-    } else if (sscanf(line, " bc_interval = %d %c", &ctxt->bc_interval, &garbage) == 1) {
+    } else if (sscanf(line, " broadcast_interval = %d %c", &ctxt->bc_interval, &garbage) == 1) {
         if (ctxt->bc_interval < 100 || ctxt->bc_interval > 16777215) // UINT24_MAX
             FATAL(1, "%s:%d: invalid broadcast interval: %d", filename, line_no, ctxt->bc_interval);
-    } else if (sscanf(line, " bc_dwell_interval = %d %c", &ctxt->bc_dwell_interval, &garbage) == 1) {
+    } else if (sscanf(line, " broadcast_dwell_interval = %d %c", &ctxt->bc_dwell_interval, &garbage) == 1) {
         if (ctxt->bc_dwell_interval < 100 || ctxt->bc_dwell_interval > 255)
             FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", filename, line_no, ctxt->bc_dwell_interval);
     } else if (sscanf(line, " pmk_lifetime = %d %c", &ctxt->ws_pmk_lifetime, &garbage) == 1) {
