@@ -1,3 +1,15 @@
+v1.0.2
+------
+
+  - Support the way RCP >= 0.5.0 reset. This fix case where node were unable to
+    reconnect after wsbrd restarted
+  - Fix warning when RCP >= 0.5.0 starts
+  - Remove useless --baudrate and --hardflow (it is still possible to use "-o
+    uart_baudrate=115200" and "-o uart_rtscts=true"
+  - Fix typos in broadcast_interval, broadcast_dwell_interval and
+    unicast_dwell_interval
+  - Show location when a certificate cannot be read
+
 v1.0.1
 ------
 
