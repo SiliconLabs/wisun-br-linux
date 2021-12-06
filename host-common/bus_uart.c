@@ -183,12 +183,16 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     BUG_ON(ctxt->uart_next_frame_ready && i >= ctxt->uart_rx_buf_len);
     if (i >= ctxt->uart_rx_buf_len)
         return 0;
-    BUG_ON(frame_len <= 2);
-    frame_len -= sizeof(uint16_t);
-    crc = crc16(buf8, frame_len);
-    if (memcmp(buf8 + frame_len, &crc, sizeof(uint16_t))) {
-        WARN("bad crc, frame dropped");
+    if (frame_len <= 2) {
+        WARN("frame length < 2, frame dropped");
         frame_len = 0;
+    } else {
+        frame_len -= sizeof(uint16_t);
+        crc = crc16(buf8, frame_len);
+        if (memcmp(buf8 + frame_len, &crc, sizeof(uint16_t))) {
+            WARN("bad crc, frame dropped");
+            frame_len = 0;
+        }
     }
     while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
