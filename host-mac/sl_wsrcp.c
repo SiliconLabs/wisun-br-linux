@@ -253,6 +253,32 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     ctxt->rf_fd = socket_open(argv[optind + 1]);
 }
 
+struct mac_api_s *init_mac_api(int rcp_driver_id)
+{
+    struct mac_api_s *rcp_mac_api;
+    int ret;
+
+    rcp_mac_api = ns_sw_mac_create(rcp_driver_id, &g_storage_sizes);
+    BUG_ON(!rcp_mac_api);
+
+    // Initialize SW MAC
+    ret = rcp_mac_api->mac_initialize(rcp_mac_api,
+                                            wsmac_mcps_data_confirm,
+                                            wsmac_mcps_data_indication,
+                                            wsmac_mcps_purge_confirm,
+                                            wsmac_mlme_confirm,
+                                            wsmac_mlme_indication,
+                                            0); // Parent ID?
+    WARN_ON(ret);
+
+    ret = rcp_mac_api->mac_mcps_extension_enable(rcp_mac_api,
+                                                       wsmac_mcps_data_indication_ext,
+                                                       wsmac_mcps_data_confirm_ext,
+                                                       wsmac_mcps_ack_data_req_ext);
+    WARN_ON(ret);
+    return rcp_mac_api;
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -284,25 +310,7 @@ int main(int argc, char *argv[])
     ctxt->rf_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
     BUG_ON(!ctxt->rf_driver);
     arm_net_phy_mac64_set(ctxt->eui64, ctxt->rcp_driver_id);
-    ctxt->rcp_mac_api = ns_sw_mac_create(ctxt->rcp_driver_id, &g_storage_sizes);
-    if (!ctxt->rcp_mac_api)
-        tr_err("%s: ns_sw_mac_create", __func__);
-
-    // Initialize SW MAC
-    ret = ctxt->rcp_mac_api->mac_initialize(ctxt->rcp_mac_api,
-                                            wsmac_mcps_data_confirm,
-                                            wsmac_mcps_data_indication,
-                                            wsmac_mcps_purge_confirm,
-                                            wsmac_mlme_confirm,
-                                            wsmac_mlme_indication,
-                                            0); // Parent ID?
-    WARN_ON(ret);
-
-    ret = ctxt->rcp_mac_api->mac_mcps_extension_enable(ctxt->rcp_mac_api,
-                                                       wsmac_mcps_data_indication_ext,
-                                                       wsmac_mcps_data_confirm_ext,
-                                                       wsmac_mcps_ack_data_req_ext);
-    WARN_ON(ret);
+    ctxt->rcp_mac_api = init_mac_api(ctxt->rcp_driver_id);
 
     wsmac_reset_ind(ctxt, true);
     for (;;) {
