@@ -69,4 +69,6 @@ struct wsmac_ctxt {
 extern struct wsmac_ctxt g_ctxt;
 extern mac_description_storage_size_t g_storage_sizes;
 
+struct mac_api_s *init_mac_api(int rcp_driver_id);
+
 #endif

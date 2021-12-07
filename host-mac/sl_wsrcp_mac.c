@@ -619,16 +619,12 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     }
 
     if (cmd == SPINEL_CMD_RESET) {
-        mlme_reset_t req = {
-            .SetDefaultPIB = true,
-        };
-
         BUG_ON(spinel_remaining_size(rx_buf));
-        ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_RESET, &req);
         ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
         ns_fhss_delete(ctxt->fhss_api);
         memset(ctxt->neighbor_timings, 0, sizeof(ctxt->neighbor_timings));
         ctxt->fhss_api = NULL;
+        ctxt->rcp_mac_api = init_mac_api(ctxt->rcp_driver_id);
         wsmac_reset_ind(ctxt, false);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
         int index = spinel_pop_int(rx_buf);
