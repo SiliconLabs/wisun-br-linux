@@ -1,3 +1,9 @@
+v1.0.3
+------
+
+  - Fix regression during `ninja install` introduced in v1.0.2
+
+
 v1.0.2
 ------
 
