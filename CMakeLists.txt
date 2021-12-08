@@ -665,7 +665,7 @@ install(FILES
     com.silabs.Wisun.BorderRouter.conf
     DESTINATION /etc/dbus-1/system.d)
 install(FILES
-    CHANGES
+    CHANGES.md
     README.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(FILES
