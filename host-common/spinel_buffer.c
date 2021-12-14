@@ -352,6 +352,7 @@ static const struct {
     { "PROP_IS",  SPINEL_CMD_PROP_VALUE_IS },
     { "PROP_SET", SPINEL_CMD_PROP_VALUE_SET },
     { "PROP_GET", SPINEL_CMD_PROP_VALUE_GET },
+    { "NOOP",     SPINEL_CMD_NOOP },
     { "RESET",    SPINEL_CMD_RESET },
 };
 
