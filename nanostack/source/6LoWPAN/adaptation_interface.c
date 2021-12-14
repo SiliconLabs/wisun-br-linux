@@ -1307,6 +1307,13 @@ static bool lowpan_adaptation_interface_check_buffer_timeout(buffer_t *buf)
     return false;
 }
 
+int lowpan_adaptation_queue_size(int8_t interface_id)
+{
+    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
+
+    return interface_ptr->directTxQueue_size;
+}
+
 int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buffer_t *buf)
 {
     bool is_room_for_new_message;

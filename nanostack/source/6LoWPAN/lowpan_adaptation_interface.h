@@ -41,6 +41,7 @@ void lowpan_adaptation_free_heap(bool full_gc);
 
 int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, enum buffer_priority max_priority, uint32_t requested_amount);
 
+int lowpan_adaptation_queue_size(int8_t interface_id);
 
 /**
  * \brief call this before normal TX. This function prepare buffer link specific metadata and verify packet destination
