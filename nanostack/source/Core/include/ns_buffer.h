@@ -177,7 +177,7 @@ typedef enum {
     B_DIR_MASK          = 0x0800,
 } buffer_info_t;
 
-typedef enum {
+typedef enum buffer_priority {
     QOS_NORMAL = 0,
     QOS_HIGH = 1,
     QOS_NETWORK_CTRL = 2,

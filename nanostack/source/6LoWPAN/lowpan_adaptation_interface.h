@@ -25,6 +25,7 @@ struct mcps_data_ind_s;
 struct buffer;
 struct mpx_api_s;
 struct mac_neighbor_table_entry;
+enum buffer_priority;
 
 int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_size);
 
@@ -38,7 +39,7 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
 
 void lowpan_adaptation_free_heap(bool full_gc);
 
-int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, buffer_priority_t max_priority, uint32_t requested_amount);
+int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, enum buffer_priority max_priority, uint32_t requested_amount);
 
 
 /**
