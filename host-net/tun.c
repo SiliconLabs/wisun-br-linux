@@ -118,6 +118,7 @@ static int wsbr_tun_open(char *devname)
         rtnl_link_set_ifindex(link, ifindex);
         rtnl_link_set_operstate(link, IF_OPER_UP);
         rtnl_link_set_flags(link, IFF_UP);
+        rtnl_link_set_txqlen(link, 10);
         if (rtnl_link_add(sock, link, 0))
             FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
         rtnl_link_put(link);
