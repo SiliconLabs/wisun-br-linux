@@ -17,6 +17,9 @@
 #include "nanostack/ethernet_mac_api.h"
 #include "nanostack/net_interface.h"
 
+
+#include "nanostack/source/6LoWPAN/lowpan_adaptation_interface.h"
+
 #include "tun.h"
 #include "host-common/log.h"
 #include "wsbr.h"
@@ -175,6 +178,8 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     uint8_t buf[1504]; // Max ethernet frame size + TUN header
     int len;
 
+    if (lowpan_adaptation_queue_size(ctxt->rcp_if_id) > 2)
+        return;
     len = read(ctxt->tun_fd, buf, sizeof(buf));
     ctxt->tun_driver->phy_rx_cb(buf, len, 0x80, 0, ctxt->tun_driver_id);
 }
