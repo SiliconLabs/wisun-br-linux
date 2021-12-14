@@ -202,19 +202,20 @@ static void wsbr_tasklet(struct arm_event_s *event)
     };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t ipv6[16];
+    int ret;
 
     switch (event->event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
             // The tasklet that call arm_nwk_interface_configure_*_bootstrap_set()
             // will be used to receive ARM_LIB_NWK_INTERFACE_EVENT.
-            if (arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
+            ret = arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
                                                                   NET_6LOWPAN_BORDER_ROUTER,
-                                                                  NET_6LOWPAN_WS))
-                WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
-            if (arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
+                                                                  NET_6LOWPAN_WS);
+            WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
+            ret = arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
                                                                NET_IPV6_BOOTSTRAP_STATIC,
-                                                               ctxt->ipv6_prefix))
-                WARN("arm_nwk_interface_configure_ipv6_bootstrap_set");
+                                                               ctxt->ipv6_prefix);
+            WARN_ON(ret, "arm_nwk_interface_configure_ipv6_bootstrap_set: %d", ret);
             get_link_local_addr(ctxt->tun_dev, ipv6);
             arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
             wsbr_configure_ws(ctxt);
