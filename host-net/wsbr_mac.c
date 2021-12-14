@@ -178,36 +178,19 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     } else if (cmd == SPINEL_CMD_RESET) {
         const char *version_fw_str;
 
-        if (spinel_remaining_size(buf) < 9)
-            FATAL(1, "RCP firmware probably too old (unknown RESET format)");
+        if (spinel_remaining_size(buf) < 16)
+            FATAL(1, "unknown RESET format (bad firmware?)");
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
         ctxt->rcp_version_api = spinel_pop_u32(buf);
         ctxt->rcp_version_fw = spinel_pop_u32(buf);
         version_fw_str = spinel_pop_str(buf);
-        INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
-              FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
-              FIELD_GET(0x00FFFF00, ctxt->rcp_version_fw),
-              FIELD_GET(0x000000FF, ctxt->rcp_version_fw),
-              FIELD_GET(0xFF000000, ctxt->rcp_version_api),
-              FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
-              FIELD_GET(0x000000FF, ctxt->rcp_version_api));
-        if (fw_api_older_than(ctxt, 0, 2, 0))
-            FATAL(3, "RCP API is too old");
         spinel_pop_bool(buf); // is_hw_reset is no more used
-        if (ctxt->reset_done) {
-            // A race may happens when BR and RCP are started simultaneously.
-            // Just ignore it the second reset indication
-            if (!ctxt->hw_addr_done)
-                return;
-            else
-                FATAL(3, "MAC layer has been reset. Operation not supported");
-        }
         ctxt->storage_sizes.device_decription_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
-        ctxt->reset_done = true;
+        wsbr_handle_reset(ctxt, version_fw_str);
     } else {
         WARN("%s: not implemented: %02x", __func__, cmd);
         return;

@@ -123,4 +123,6 @@ static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
     return false;
 }
 
+void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
+
 #endif
