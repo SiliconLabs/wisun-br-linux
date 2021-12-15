@@ -1,8 +1,12 @@
+v1.0.4
+------
+
+  - Fix possible dead-lock when wsbrd is started simultaneously with the RCP
+
 v1.0.3
 ------
 
   - Fix regression during `ninja install` introduced in v1.0.2
-
 
 v1.0.2
 ------
