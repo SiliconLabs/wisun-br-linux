@@ -186,3 +186,32 @@ You can enforce the session used with an environment variable
 
     sudo env DBUS_STARTER_BUS_TYPE=system wsbrd ...
 
+## I have issues when trying to send UDP data
+
+Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
+replies with `ICMPv6/Packet Too Big` if necessary (keep in minds that IPv6,
+routers can't fragment packets, sender is responsible of the size of the
+packet). Direct neighbors of the Border Router can receive frames up to 1504
+bytes while the other nodes can receive frames up to 1280 bytes.
+
+If the user tries to send a UDP frame larger than the MTU, there are two
+options:
+  - The packet has been sent with `IPV6_DONTFRAG`, the operating system will
+    return an error
+  - The packet is not marked with `IPV6_DONTFRAG`, the operating system will
+    fragment the packet
+
+On the receiver, a large enough (up to 64kB) buffer is necessary to handle
+the fragmented packet. So, this feature is sometimes limited on embedded
+devices. Typically, on Silicon Labs nodes, the default fragmentation buffer
+size is 1504 bytes.
+
+Therefore, if the user sends a buffer greater than 1504 bytes (including IP and
+MAC headers), the packet will be silently dropped.
+
+As another consequence, the commonly used tool `nc` can't be used with Wi-SUN
+networks. Indeed, `nc` sends UDP frames of 16kB long. There is no option to
+reduce frames size (nor to enable `IPV6_DONTFRAG`).
+
+So, sending UDP packets with `IPV6_DONTFRAG` is recommended. The user may rely
+on `IPV6_PATHMTU` and `IPV6_RECVPATHMTU` to know the optimal packet size.
