@@ -6,6 +6,10 @@
 #include "host-common/log.h"
 #include "host-common/utils.h"
 
+struct ctxt {
+    struct sockaddr_un addr;
+};
+
 static void broadcast(int sender_fd, struct pollfd *fds, int fds_len, void *buf, int buf_len)
 {
     int j;
@@ -26,25 +30,25 @@ int main(int argc, char **argv)
     int on = 1;
     int ret, len;
     struct pollfd fds[256] = { };
-    struct sockaddr_un addr = {
-        .sun_family = AF_UNIX
+    struct ctxt ctxt = {
+        .addr.sun_family = AF_UNIX
     };
 
     FATAL_ON(argc != 2, 1);
-    FATAL_ON(strlen(argv[1]) >= sizeof(addr.sun_path), 1);
-    strcpy(addr.sun_path, argv[1]);
+    FATAL_ON(strlen(argv[1]) >= sizeof(ctxt.addr.sun_path), 1);
+    strcpy(ctxt.addr.sun_path, argv[1]);
     for (i = 0; i < ARRAY_SIZE(fds); i++)
         fds[i].fd = -1;
 
     fds[0].events = POLLIN;
     fds[0].fd = socket(AF_UNIX, SOCK_SEQPACKET, 0); // use SOCK_SEQPACKET or SOCK_STREAM
-    FATAL_ON(fds[0].fd < 0, 1, "socket: %s: %m", addr.sun_path);
+    FATAL_ON(fds[0].fd < 0, 1, "socket: %s: %m", ctxt.addr.sun_path);
     ret = setsockopt(fds[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
-    FATAL_ON(ret < 0, 1, "setsockopt: %s: %m", addr.sun_path);
-    ret = bind(fds[0].fd, (struct sockaddr *)&addr, sizeof(addr));
-    FATAL_ON(ret < 0, 1, "bind: %s: %m", addr.sun_path);
+    FATAL_ON(ret < 0, 1, "setsockopt: %s: %m", ctxt.addr.sun_path);
+    ret = bind(fds[0].fd, (struct sockaddr *)&ctxt.addr, sizeof(ctxt.addr));
+    FATAL_ON(ret < 0, 1, "bind: %s: %m", ctxt.addr.sun_path);
     ret = listen(fds[0].fd, 4096);
-    FATAL_ON(ret < 0, 1, "listen: %s: %m", addr.sun_path);
+    FATAL_ON(ret < 0, 1, "listen: %s: %m", ctxt.addr.sun_path);
 
     while (true) {
         ret = poll(fds, ARRAY_SIZE(fds), -1);
