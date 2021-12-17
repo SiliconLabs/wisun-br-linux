@@ -6,11 +6,24 @@
 #include "host-common/log.h"
 #include "host-common/utils.h"
 
+static void broadcast(int sender_fd, struct pollfd *fds, int fds_len, void *buf, int buf_len)
+{
+    int j;
+    int ret;
+
+    for (j = 0; j < fds_len; j++) {
+        if (fds[j].fd >= 0 && fds[j].fd != sender_fd) {
+            ret = write(fds[j].fd, buf, buf_len);
+            FATAL_ON(ret != buf_len, 1, "write: %m");
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     char buf[4096];
-    int i, j;
-    int on= 1;
+    int i;
+    int on = 1;
     int ret, len;
     struct pollfd fds[256] = { };
     struct sockaddr_un addr = {
@@ -56,20 +69,10 @@ int main(int argc, char **argv)
                     fds[i].fd = -1;
                     fds[i].events = 0;
                 } else {
-                    for (j = 1; j < ARRAY_SIZE(fds); j++) {
-                        if (fds[j].fd >= 0 && j != i) {
-                            ret = write(fds[j].fd, buf, len);
-                            FATAL_ON(ret != len, 1, "write: %m");
-                        }
-                    }
+                    broadcast(fds[i].fd, fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
                     if (len == 6 && buf[0] == 'x' && buf[1] == 'x') {
                         len = read(fds[i].fd, buf, sizeof(buf));
-                        for (j = 1; j < ARRAY_SIZE(fds); j++) {
-                            if (fds[j].fd >= 0 && j != i) {
-                                ret = write(fds[j].fd, buf, len);
-                                FATAL_ON(ret != len, 1, "write: %m");
-                            }
-                        }
+                        broadcast(fds[i].fd, fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
                     }
                 }
             }
