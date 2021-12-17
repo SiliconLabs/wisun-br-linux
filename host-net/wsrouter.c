@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
             rcp_rx(ctxt);
         SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
-                read(timer->fd, &val, sizeof(val));
-                WARN_ON(val != 1);
+                ret = read(timer->fd, &val, sizeof(val));
+                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
                 timer->fn(timer->fd, 0);
             }
         }
