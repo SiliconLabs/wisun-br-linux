@@ -2,6 +2,7 @@
 #include <poll.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <sys/socket.h>
 #include "host-common/log.h"
 #include "host-common/utils.h"
@@ -9,6 +10,40 @@
 struct ctxt {
     struct sockaddr_un addr;
 };
+
+void print_help(FILE *stream, int exit_code) {
+    fprintf(stream, "broadcast server to create networks of wshwsim\n");
+    exit(exit_code);
+}
+
+void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
+{
+    const char *opts_short = "h";
+    static const struct option opts_long[] = {
+        { "help",  no_argument,       0,  'h' },
+        { 0,       0,                 0,   0  }
+    };
+    int opt;
+
+    while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
+        switch (opt) {
+            case 'h':
+                print_help(stdout, 0);
+                break;
+            case '?':
+                print_help(stderr, 1);
+                break;
+            default:
+                break;
+        }
+    }
+    if (optind >= argc)
+        FATAL(1, "Expected argument: socket path");
+    if (optind + 1 < argc)
+        FATAL(1, "Too many arguments argument: %s", argv[optind + 1]);
+    FATAL_ON(strlen(argv[optind]) >= sizeof(ctxt->addr.sun_path), 1);
+    strcpy(ctxt->addr.sun_path, argv[optind]);
+}
 
 static void broadcast(int sender_fd, struct pollfd *fds, int fds_len, void *buf, int buf_len)
 {
@@ -34,9 +69,7 @@ int main(int argc, char **argv)
         .addr.sun_family = AF_UNIX
     };
 
-    FATAL_ON(argc != 2, 1);
-    FATAL_ON(strlen(argv[1]) >= sizeof(ctxt.addr.sun_path), 1);
-    strcpy(ctxt.addr.sun_path, argv[1]);
+    parse_commandline(&ctxt, argc, argv);
     for (i = 0; i < ARRAY_SIZE(fds); i++)
         fds[i].fd = -1;
 
