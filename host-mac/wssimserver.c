@@ -139,13 +139,13 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     strcpy(ctxt->addr.sun_path, argv[optind]);
 }
 
-static void broadcast(int sender_fd, struct pollfd *fds, int fds_len, void *buf, int buf_len)
+static void broadcast(uint32_t *node_graph, struct pollfd *fds, int fds_len, void *buf, int buf_len)
 {
     int j;
     int ret;
 
     for (j = 0; j < fds_len; j++) {
-        if (fds[j].fd >= 0 && fds[j].fd != sender_fd) {
+        if (fds[j].fd >= 0 && bitmap_get(j, node_graph, 256 / 4)) {
             ret = write(fds[j].fd, buf, buf_len);
             FATAL_ON(ret != buf_len, 1, "write: %m");
         }
@@ -200,10 +200,10 @@ int main(int argc, char **argv)
                     fds[i].fd = -1;
                     fds[i].events = 0;
                 } else {
-                    broadcast(fds[i].fd, fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
+                    broadcast(ctxt.node_graph[i - 1], fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
                     if (len == 6 && buf[0] == 'x' && buf[1] == 'x') {
                         len = read(fds[i].fd, buf, sizeof(buf));
-                        broadcast(fds[i].fd, fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
+                        broadcast(ctxt.node_graph[i - 1], fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
                     }
                 }
             }
