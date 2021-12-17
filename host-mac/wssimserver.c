@@ -9,7 +9,93 @@
 
 struct ctxt {
     struct sockaddr_un addr;
+    uint32_t node_graph[256][256 / 32];
 };
+
+static int bitmap_get(int shift, uint32_t *in, int size)
+{
+    int word_nr = shift / 32;
+    int bit_nr = shift % 32;
+
+    if (word_nr >= size)
+        return -1;
+    return !!(in[word_nr] & (1 << bit_nr));
+}
+
+static int bitmap_set(int shift, uint32_t *out, int size)
+{
+    int word_nr = shift / 32;
+    int bit_nr = shift % 32;
+
+    if (word_nr >= size)
+        return -1;
+    out[word_nr] |= 1 << bit_nr;
+    return 0;
+}
+
+static int bitmap_parse(char *str, uint32_t *out, int size)
+{
+    char *range;
+    char *endptr;
+    unsigned long cur, end;
+
+    memset(out, 0, size * sizeof(uint32_t));
+    range = strtok(str, ",");
+    do {
+        cur = strtoul(range, &endptr, 0);
+        if (*endptr == '-') {
+            range = endptr + 1;
+            end = strtol(range, &endptr, 0);
+        } else {
+            end = cur;
+        }
+        if (*endptr != '\0')
+            return -1;
+        if (cur > end)
+            return -1;
+        for (; cur <= end; cur++)
+            if (bitmap_set(cur, out, size) < 0)
+                return -1;
+    } while ((range = strtok(NULL, ",")));
+    return 0;
+}
+
+static void graph_apply_mask(uint32_t node_graph[256][256 / 32], uint32_t mask[256 / 32])
+{
+    int i, j;
+
+    for (i = 0; i < 256; i++)
+        for (j = 0; j < 256; j++)
+            if (i != j
+                && bitmap_get(i, mask, 256 / 32)
+                && bitmap_get(j, mask, 256 / 32))
+                bitmap_set(j, node_graph[i], 256 / 32);
+}
+
+static int graph_get_num_nodes(struct ctxt *ctxt)
+{
+    int max = 0;
+    int i, j;
+
+    for (i = 0; i < 256; i++)
+        for (j = 0; j < 256; j++)
+            if (bitmap_get(j, ctxt->node_graph[i], 256 / 32))
+                max = i;
+    return max + 1;
+}
+
+static void graph_dump(struct ctxt *ctxt)
+{
+    int max = graph_get_num_nodes(ctxt);
+    int i, j;
+
+    for (i = 0; i < max; i++) {
+        printf("%02x ", i);
+        for (j = 0; j < max; j++)
+            printf("%s", bitmap_get(j, ctxt->node_graph[i], 256 / 32) ? "x" : "-");
+        printf("\n");
+    }
+}
 
 void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "broadcast server to create networks of wshwsim\n");
@@ -18,15 +104,21 @@ void print_help(FILE *stream, int exit_code) {
 
 void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
 {
-    const char *opts_short = "h";
+    const char *opts_short = "hg:";
     static const struct option opts_long[] = {
+        { "group", required_argument, 0,  'g' },
         { "help",  no_argument,       0,  'h' },
         { 0,       0,                 0,   0  }
     };
+    uint32_t mask[256 / 32];
     int opt;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
+            case 'g':
+                bitmap_parse(optarg, mask, 256 / 32);
+                graph_apply_mask(ctxt->node_graph, mask);
+                break;
             case 'h':
                 print_help(stdout, 0);
                 break;
@@ -37,6 +129,8 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
                 break;
         }
     }
+    if (!graph_get_num_nodes(ctxt))
+        memset(ctxt->node_graph, 0xFF, sizeof(ctxt->node_graph));
     if (optind >= argc)
         FATAL(1, "Expected argument: socket path");
     if (optind + 1 < argc)
