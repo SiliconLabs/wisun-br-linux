@@ -309,7 +309,7 @@ struct protocol_interface_info_entry {
     struct rpl_domain *rpl_domain;
 
     struct mac_api_s *mac_api;
-    arm_15_4_mac_parameters_t *mac_parameters;
+    arm_15_4_mac_parameters_t mac_parameters;
 
     struct eth_mac_api_s *eth_mac_api;
 

@@ -119,7 +119,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct pro
     neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     mac_helper_device_description_write(interface, &device_desc, neighbor->mac64, neighbor->mac16, 0, false);
-    mac_helper_devicetable_set(&device_desc, interface, neighbor->index, interface->mac_parameters->mac_default_key_index, true);
+    mac_helper_devicetable_set(&device_desc, interface, neighbor->index, interface->mac_parameters.mac_default_key_index, true);
 
     return neighbor;
 }
@@ -542,7 +542,7 @@ void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
 static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss_api_t *api, uint8_t eui64[8])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_fhss_api(api);
-    if (!cur || !cur->mac_parameters || !mac_neighbor_info(cur)) {
+    if (!cur || !mac_neighbor_info(cur)) {
         return NULL;
     }
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, MAC_ADDR_MODE_64_BIT);
@@ -993,8 +993,7 @@ void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
 {
     // Configure IP stack to operate as Wi-SUN node
 
-    // Do not process beacons
-    cur->mac_parameters->mac_security_level = 0;
+    cur->mac_parameters.mac_security_level = 0;
 
     // Set default parameters to interface
     cur->configure_flags = INTERFACE_BOOTSTRAP_DEFINED;
@@ -1972,8 +1971,8 @@ static void ws_bootstrap_mac_activate(protocol_interface_info_entry_t *cur, uint
     mlme_start_t start_req;
     memset(&start_req, 0, sizeof(mlme_start_t));
 
-    cur->mac_parameters->pan_id = panid;
-    cur->mac_parameters->mac_channel = channel;
+    cur->mac_parameters.pan_id = panid;
+    cur->mac_parameters.mac_channel = channel;
 
     start_req.PANId = panid;
     start_req.LogicalChannel = channel;
@@ -2701,7 +2700,7 @@ static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, 
 {
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (cur->mac_parameters->mac_default_key_index != 0 && cur->mac_parameters->mac_default_key_index  != index + 1) {
+        if (cur->mac_parameters.mac_default_key_index != 0 && cur->mac_parameters.mac_default_key_index  != index + 1) {
             tr_info("New Pending key Request %u", index + 1);
             cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
             cur->ws_info->pending_key_index_info.index = index;

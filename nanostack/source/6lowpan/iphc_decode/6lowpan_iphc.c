@@ -61,7 +61,7 @@ buffer_t *lowpan_down(buffer_t *buf)
     /* We have IP next hop - figure out the MAC address */
     if (addr_is_ipv6_multicast(next_hop)) {
         buf->dst_sa.addr_type = ADDR_BROADCAST;
-        common_write_16_bit(cur->mac_parameters->pan_id, buf->dst_sa.address);
+        common_write_16_bit(cur->mac_parameters.pan_id, buf->dst_sa.address);
         buf->dst_sa.address[2] = 0x80 | (next_hop[14] & 0x1f);
         buf->dst_sa.address[3] = next_hop[15];
         stable_only = true;
@@ -83,7 +83,7 @@ buffer_t *lowpan_down(buffer_t *buf)
      */
     if (addr_iid_matches_eui64(ip_src + 8, cur->mac)) {
         buf->src_sa.addr_type = ADDR_802_15_4_LONG;
-    } else if (cur->mac_parameters->mac_short_address < 0xfffe && addr_iid_matches_lowpan_short(ip_src + 8, cur->mac_parameters->mac_short_address)) {
+    } else if (cur->mac_parameters.mac_short_address < 0xfffe && addr_iid_matches_lowpan_short(ip_src + 8, cur->mac_parameters.mac_short_address)) {
         buf->src_sa.addr_type = ADDR_802_15_4_SHORT;
     } else {
         /* This lets mac_mlme_write_our_addr choose based on address mode */
@@ -95,7 +95,7 @@ buffer_t *lowpan_down(buffer_t *buf)
     }
 
     /* Clear Link Layer Re Transmission Counter */
-    //buf->fhss_channel_retries_left = 1+ cur->mac_parameters->number_of_fhss_channel_retries;
+    //buf->fhss_channel_retries_left = 1+ cur->mac_parameters.number_of_fhss_channel_retries;
 
 
     if (buf->dst_sa.addr_type != ADDR_802_15_4_LONG && buf->dst_sa.addr_type != ADDR_802_15_4_SHORT && buf->dst_sa.addr_type != ADDR_BROADCAST) {
@@ -154,7 +154,7 @@ buffer_t *lowpan_up(buffer_t *buf)
     /* If our PAN ID is set to 0xffff (eg during beacon scan), the MAC will be
      * receiving all packets to all PANs. "Mute" 6LoWPAN reception in this state.
      */
-    if (cur->mac_parameters->pan_id == 0xffff) {
+    if (cur->mac_parameters.pan_id == 0xffff) {
         goto drop;
     }
 

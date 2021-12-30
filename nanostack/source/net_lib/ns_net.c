@@ -99,7 +99,7 @@ int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_para
         network_params->addr_mode = ADDR_MAC_LONG64;
     }
 
-    network_params->LogicalChannel = cur->mac_parameters->mac_channel;
+    network_params->LogicalChannel = cur->mac_parameters.mac_channel;
     network_params->sf = 0xff;
     return 0;
 }
@@ -119,13 +119,8 @@ int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_p
         ret_val = 0;
         memcpy(mac_params->mac_long, cur->mac, 8);
         memcpy(mac_params->iid_eui64, cur->iid_eui64, 8);
-        if (cur->mac_parameters) {
-            mac_params->PANId = cur->mac_parameters->pan_id;
-            mac_params->mac_short = cur->mac_parameters->mac_short_address;
-        } else {
-            mac_params->PANId = 0xffff;
-            mac_params->mac_short = 0xffff;
-        }
+        mac_params->PANId = cur->mac_parameters.pan_id;
+        mac_params->mac_short = cur->mac_parameters.mac_short_address;
     }
     return ret_val;
 }
@@ -169,7 +164,7 @@ int16_t arm_net_get_current_channel(int8_t interface_id)
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            ret_val = cur->mac_parameters->mac_channel;
+            ret_val = cur->mac_parameters.mac_channel;
         }
     }
 
@@ -795,7 +790,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->mac_parameters) {
+    if (!cur) {
         return -1;
     }
 
@@ -813,7 +808,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
         return -2;
     } else {
         // copy the channel information and store one internal pointer to it
-        cur->mac_parameters->mac_channel_list = *nwk_channel_list;
+        cur->mac_parameters.mac_channel_list = *nwk_channel_list;
         ret_val = 0;
     }
     return ret_val;
@@ -869,14 +864,12 @@ int8_t net_nvm_data_clean(int8_t interface_id)
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
-        if (cur->mac_parameters) {
-            if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
-                mac_helper_panid_set(cur, 0xffff);
-                mac_helper_mac16_address_set(cur, 0xffff);
-                ret_val = 0;
-            } else {
-                ret_val = 0;
-            }
+        if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
+            mac_helper_panid_set(cur, 0xffff);
+            mac_helper_mac16_address_set(cur, 0xffff);
+            ret_val = 0;
+        } else {
+            ret_val = 0;
         }
     }
 
@@ -976,12 +969,12 @@ const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     // Interface or MAC parameters not initialized
-    if (!cur || !cur->mac_parameters) {
+    if (!cur) {
         return NULL;
     }
     // Automatic CCA threshold not initialized
-    if (!cur->mac_parameters->cca_thr_table.cca_threshold_table || !cur->mac_parameters->cca_thr_table.number_of_channels) {
+    if (!cur->mac_parameters.cca_thr_table.cca_threshold_table || !cur->mac_parameters.cca_thr_table.number_of_channels) {
         return NULL;
     }
-    return &cur->mac_parameters->cca_thr_table;
+    return &cur->mac_parameters.cca_thr_table;
 }

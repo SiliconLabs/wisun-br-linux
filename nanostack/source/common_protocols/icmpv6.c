@@ -611,7 +611,7 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
             addr_generate_opaque_iid(cur, ipv6_address);
             break;
         case SLAAC_IID_6LOWPAN_SHORT:
-            if (cur->nwk_id != IF_6LoWPAN || !cur->mac_parameters) {
+            if (cur->nwk_id != IF_6LoWPAN) {
                 return NULL;
             }
             memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);

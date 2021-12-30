@@ -41,15 +41,15 @@ static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface
 {
     switch (attribute) {
         case macAutoRequestKeyIdMode:
-            interface->mac_parameters->mac_key_id_mode = value;
+            interface->mac_parameters.mac_key_id_mode = value;
             break;
         case macAutoRequestKeyIndex:
-            interface->mac_parameters->mac_default_key_index = value;
+            interface->mac_parameters.mac_default_key_index = value;
             break;
 
         case macAutoRequestSecurityLevel:
         default:
-            interface->mac_parameters->mac_security_level = value;
+            interface->mac_parameters.mac_security_level = value;
             break;
     }
 
@@ -67,7 +67,7 @@ static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface
 
 void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t panId)
 {
-    interface->mac_parameters->pan_id = panId;
+    interface->mac_parameters.pan_id = panId;
     mlme_set_t set_req;
     set_req.attr = macPANId;
     set_req.attr_index = 0;
@@ -78,11 +78,11 @@ void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t p
 
 void mac_helper_mac16_address_set(protocol_interface_info_entry_t *interface, uint16_t mac16)
 {
-    interface->mac_parameters->mac_short_address = mac16;
+    interface->mac_parameters.mac_short_address = mac16;
     if (mac16 < 0xfffe) {
-        interface->mac_parameters->shortAdressValid = true;
+        interface->mac_parameters.shortAdressValid = true;
     } else {
-        interface->mac_parameters->shortAdressValid = false;
+        interface->mac_parameters.shortAdressValid = false;
     }
     mlme_set_t set_req;
     set_req.attr = macShortAddress;
@@ -96,7 +96,7 @@ uint16_t mac_helper_mac16_address_get(const protocol_interface_info_entry_t *int
 {
     uint16_t shortAddress = 0xfffe;
     if (interface) {
-        shortAddress = interface->mac_parameters->mac_short_address;
+        shortAddress = interface->mac_parameters.mac_short_address;
     }
     return shortAddress;
 }
@@ -105,19 +105,19 @@ uint16_t mac_helper_panid_get(const protocol_interface_info_entry_t *interface)
 {
     uint16_t panId = 0xffff;
     if (interface) {
-        panId = interface->mac_parameters->pan_id;
+        panId = interface->mac_parameters.pan_id;
     }
     return panId;
 }
 
 void mac_helper_default_key_index_set(protocol_interface_info_entry_t *interface, uint8_t keyIndex)
 {
-    interface->mac_parameters->mac_default_key_index = keyIndex;
+    interface->mac_parameters.mac_default_key_index = keyIndex;
 }
 
 uint8_t mac_helper_default_key_index_get(protocol_interface_info_entry_t *interface)
 {
-    return interface->mac_parameters->mac_default_key_index;
+    return interface->mac_parameters.mac_default_key_index;
 }
 
 void mac_helper_set_default_key_source(protocol_interface_info_entry_t *interface)
@@ -150,7 +150,7 @@ void mac_helper_default_security_level_set(protocol_interface_info_entry_t *inte
 
 uint8_t mac_helper_default_security_level_get(protocol_interface_info_entry_t *interface)
 {
-    return interface->mac_parameters->mac_security_level;
+    return interface->mac_parameters.mac_security_level;
 }
 
 void mac_helper_default_security_key_id_mode_set(protocol_interface_info_entry_t *interface, uint8_t keyIdMode)
@@ -160,7 +160,7 @@ void mac_helper_default_security_key_id_mode_set(protocol_interface_info_entry_t
 
 uint8_t mac_helper_default_security_key_id_mode_get(protocol_interface_info_entry_t *interface)
 {
-    return interface->mac_parameters->mac_key_id_mode;
+    return interface->mac_parameters.mac_key_id_mode;
 }
 
 static void mac_helper_key_lookup_set(mlme_key_id_lookup_descriptor_t *lookup, uint8_t id)
@@ -200,7 +200,7 @@ int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *inte
     }
 
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters->mac_default_key_attribute_id);
+    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters.mac_default_key_attribute_id);
     return 0;
 }
 
@@ -209,7 +209,7 @@ int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_en
     if (id == 0) {
         return -1;
     }
-    interface->mac_parameters->mac_default_key_attribute_id = key_attibute_index;
+    interface->mac_parameters.mac_default_key_attribute_id = key_attibute_index;
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
     return 0;
 }
@@ -249,17 +249,17 @@ void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interfa
     set_req.attr_index = 0;
 
     if (adr_type == ADDR_802_15_4_SHORT) {
-        memcpy(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 2);
-        interface->mac_parameters->mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_16_BIT;
-        short_addr = common_read_16_bit(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address);
+        memcpy(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 2);
+        interface->mac_parameters.mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_16_BIT;
+        short_addr = common_read_16_bit(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address);
         set_req.attr = macCoordShortAddress;
         set_req.value_pointer = &short_addr;
         set_req.value_size = 2;
     } else if (adr_type == ADDR_802_15_4_LONG) {
-        memcpy(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 8);
-        interface->mac_parameters->mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_64_BIT;
+        memcpy(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 8);
+        interface->mac_parameters.mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_64_BIT;
         set_req.attr = macCoordExtendedAddress;
-        set_req.value_pointer = &interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address;
+        set_req.value_pointer = &interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address;
         set_req.value_size = 8;
     }
 
@@ -275,11 +275,11 @@ addrtype_t mac_helper_coordinator_address_get(protocol_interface_info_entry_t *i
         return ret;
     }
 
-    if (interface->mac_parameters->mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_16_BIT) {
-        memcpy(adr_ptr, interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, 2);
+    if (interface->mac_parameters.mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_16_BIT) {
+        memcpy(adr_ptr, interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, 2);
         ret = ADDR_802_15_4_SHORT;
-    } else if (interface->mac_parameters->mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_64_BIT) {
-        memcpy(adr_ptr, interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, 8);
+    } else if (interface->mac_parameters.mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_64_BIT) {
+        memcpy(adr_ptr, interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, 8);
         ret = ADDR_802_15_4_LONG;
     }
     return ret;
@@ -290,11 +290,11 @@ int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, ml
 
     switch (attribute) {
         case macSecurityEnabled:
-            interface->mac_parameters->SecurityEnabled = value;
+            interface->mac_parameters.SecurityEnabled = value;
             break;
 
         case macRxOnWhenIdle:
-            interface->mac_parameters->RxOnWhenIdle = value;
+            interface->mac_parameters.RxOnWhenIdle = value;
             break;
 
         default:
@@ -315,9 +315,9 @@ int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, ml
 int8_t mac_helper_mac_channel_set(protocol_interface_info_entry_t *interface, uint8_t new_channel)
 {
 
-    if (interface->mac_parameters->mac_channel != new_channel) {
+    if (interface->mac_parameters.mac_channel != new_channel) {
 
-        interface->mac_parameters->mac_channel = new_channel;
+        interface->mac_parameters.mac_channel = new_channel;
         if (interface->mac_api && interface->mac_api->mlme_req) {
             mlme_set_t set_req;
             set_req.attr = phyCurrentChannel;
@@ -347,10 +347,10 @@ bool mac_helper_write_our_addr(protocol_interface_info_entry_t *interface, socka
     bool normal = true;
 
     //Set First PANID
-    normal &= mac_helper_write_16bit(interface->mac_parameters->pan_id, ptr->address);
+    normal &= mac_helper_write_16bit(interface->mac_parameters.pan_id, ptr->address);
 
     if (ptr->addr_type != ADDR_802_15_4_LONG && ptr->addr_type != ADDR_802_15_4_SHORT) {
-        if (interface->mac_parameters->shortAdressValid) {
+        if (interface->mac_parameters.shortAdressValid) {
             ptr->addr_type = ADDR_802_15_4_SHORT;
         } else {
             ptr->addr_type = ADDR_802_15_4_LONG;
@@ -358,7 +358,7 @@ bool mac_helper_write_our_addr(protocol_interface_info_entry_t *interface, socka
     }
 
     if (ptr->addr_type == ADDR_802_15_4_SHORT) {
-        normal &= mac_helper_write_16bit(interface->mac_parameters->mac_short_address, &ptr->address[2]);
+        normal &= mac_helper_write_16bit(interface->mac_parameters.mac_short_address, &ptr->address[2]);
     } else {
         memcpy(&ptr->address[2], interface->mac, 8);
     }
@@ -392,7 +392,7 @@ uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, 
 
     /* But if we want IEEE 802.15.4-2003 compatibility (and it looks like a
      * standard PHY), limit ourselves to the 2003 maximum */
-    if (cur->mac_parameters->MacUnsusecured_2003_cab && max > MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE &&
+    if (cur->mac_parameters.MacUnsusecured_2003_cab && max > MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE &&
             cur->mac_api->phyMTU == MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
         max = MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE;
     }
@@ -412,7 +412,7 @@ uint_fast8_t mac_helper_frame_overhead(protocol_interface_info_entry_t *cur, con
 
     /*8bytes src address, 2 frame control, 1 sequence, 2 pan-id, 2 FCS*/
     if (buf->src_sa.addr_type == ADDR_NONE) {
-        if (cur->mac_parameters->shortAdressValid) {
+        if (cur->mac_parameters.shortAdressValid) {
             length -= 6; //Cut 6 bytes from src address
         }
     } else if (buf->src_sa.addr_type == ADDR_802_15_4_SHORT) {
@@ -429,9 +429,9 @@ uint_fast8_t mac_helper_frame_overhead(protocol_interface_info_entry_t *cur, con
         length += 4;
     }
 
-    if (cur->mac_parameters->mac_security_level && (!buf->options.ll_security_bypass_tx)) {
-        length += mac_helper_header_security_aux_header_length(cur->mac_parameters->mac_key_id_mode);
-        length += mac_helper_security_mic_length_get(cur->mac_parameters->mac_security_level);
+    if (cur->mac_parameters.mac_security_level && (!buf->options.ll_security_bypass_tx)) {
+        length += mac_helper_header_security_aux_header_length(cur->mac_parameters.mac_key_id_mode);
+        length += mac_helper_security_mic_length_get(cur->mac_parameters.mac_security_level);
     }
 
     return length;
@@ -491,7 +491,7 @@ int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr
         return -1;
     }
 
-    return mac_helper_key_link_frame_counter_read(interface_id, seq_ptr, cur->mac_parameters->mac_default_key_attribute_id);
+    return mac_helper_key_link_frame_counter_read(interface_id, seq_ptr, cur->mac_parameters.mac_default_key_attribute_id);
 }
 
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
@@ -505,7 +505,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
     get_req.attr = macFrameCounter;
     get_req.attr_index = descriptor;
     cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
-    *seq_ptr = cur->mac_parameters->security_frame_counter;
+    *seq_ptr = cur->mac_parameters.security_frame_counter;
 
     return 0;
 }
@@ -559,8 +559,8 @@ void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, m
 
 void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
 {
-    if (!force_set && cur->mac_parameters->SecurityEnabled && cur->mac_parameters->mac_default_key_index != keyID) {
-        tr_debug("Do not set counter by index %u != %u", cur->mac_parameters->mac_default_key_index, keyID);
+    if (!force_set && cur->mac_parameters.SecurityEnabled && cur->mac_parameters.mac_default_key_index != keyID) {
+        tr_debug("Do not set counter by index %u != %u", cur->mac_parameters.mac_default_key_index, keyID);
         return;
     }
 

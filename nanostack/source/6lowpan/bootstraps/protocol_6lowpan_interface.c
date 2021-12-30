@@ -72,10 +72,10 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 
         if (cur->interface_mode == INTERFACE_UP) {
-            cur->mac_parameters->pan_id = 0xffff;
-            cur->mac_parameters->SecurityEnabled = false;
-            cur->mac_parameters->security_frame_counter = 0;
-            cur->mac_parameters->mac_security_level = 0;
+            cur->mac_parameters.pan_id = 0xffff;
+            cur->mac_parameters.SecurityEnabled = false;
+            cur->mac_parameters.security_frame_counter = 0;
+            cur->mac_parameters.mac_security_level = 0;
             protocol_mac_reset(cur);
             cur->interface_mode = INTERFACE_IDLE;
         }

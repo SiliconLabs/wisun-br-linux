@@ -653,7 +653,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, 
 
     protocol_interface_info_entry_t *interface = base->interface_ptr;
 
-    if (interface->mac_parameters->pan_id != 0xffff && data->SrcPANId != interface->mac_parameters->pan_id) {
+    if (interface->mac_parameters.pan_id != 0xffff && data->SrcPANId != interface->mac_parameters.pan_id) {
         //Drop wrong PAN-id messages in this phase.
         return NULL;
     }

@@ -940,8 +940,8 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
     }
     if (buf->link_specific.ieee802_15_4.rf_channel_switch) {
         //Switch channel if selected channel is different
-        if (cur->mac_parameters->mac_channel != buf->link_specific.ieee802_15_4.selected_channel) {
-            uint8_t channel = cur->mac_parameters->mac_channel;
+        if (cur->mac_parameters.mac_channel != buf->link_specific.ieee802_15_4.selected_channel) {
+            uint8_t channel = cur->mac_parameters.mac_channel;
             mac_helper_mac_channel_set(cur, buf->link_specific.ieee802_15_4.selected_channel);
             buf->link_specific.ieee802_15_4.selected_channel = channel;
         } else {
@@ -1268,7 +1268,7 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
         if (neigh_entry_ptr) {
             buf->link_specific.ieee802_15_4.indirectTTL = (uint32_t) neigh_entry_ptr->link_lifetime * 1000;
         } else {
-            buf->link_specific.ieee802_15_4.indirectTTL = cur->mac_parameters->mac_in_direct_entry_timeout;
+            buf->link_specific.ieee802_15_4.indirectTTL = cur->mac_parameters.mac_in_direct_entry_timeout;
         }
 
         tr_debug_extra("indirect seq: %d, addr=%s", tx_ptr->buf->seq, trace_ipv6(buf->dst_sa.address));

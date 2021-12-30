@@ -771,7 +771,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
             lowpan_adaptation_interface_reset(cur->id);
             //Clear Pending Key Index State
             cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
-            cur->mac_parameters->mac_default_key_index = 0;
+            cur->mac_parameters.mac_default_key_index = 0;
 
             ipv6_destination_cache_clean(cur->id);
 

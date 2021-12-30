@@ -219,9 +219,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                         tr_error("unexpected: !ws_info(cur)");
                     }
 
-                    if (cur->mac_parameters) {
-                        mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
-                    }
+                    mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
 
                     etx_cache_timer(cur->id, seconds);
                     lowpan_adaptation_interface_slow_timer(cur);
@@ -487,20 +485,16 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
         goto interface_failure;
     }
 
-    entry->mac_parameters = ns_dyn_mem_alloc(sizeof(arm_15_4_mac_parameters_t));
-    if (!entry->mac_parameters) {
-        goto interface_failure;
-    }
-    memset(entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
-    entry->mac_parameters->MacUnsusecured_2003_cab = mac_unsecured_2003_compatibility;
-    entry->mac_parameters->mac_short_address = 0xffff;
-    entry->mac_parameters->pan_id = 0xffff;
-    entry->mac_parameters->mac_in_direct_entry_timeout = 7000; //default timeout
+    memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
+    entry->mac_parameters.MacUnsusecured_2003_cab = mac_unsecured_2003_compatibility;
+    entry->mac_parameters.mac_short_address = 0xffff;
+    entry->mac_parameters.pan_id = 0xffff;
+    entry->mac_parameters.mac_in_direct_entry_timeout = 7000; //default timeout
 
-    entry->mac_parameters->mac_prev_key_attribute_id = 0;
-    entry->mac_parameters->mac_default_key_attribute_id = 1;
-    entry->mac_parameters->mac_next_key_attribute_id = 2;
-    entry->mac_parameters->mac_default_key_index = 0;
+    entry->mac_parameters.mac_prev_key_attribute_id = 0;
+    entry->mac_parameters.mac_default_key_attribute_id = 1;
+    entry->mac_parameters.mac_next_key_attribute_id = 2;
+    entry->mac_parameters.mac_default_key_index = 0;
 
     entry->mac_api = api;
     int8_t err = entry->mac_api->mac_initialize(entry->mac_api, &mcps_data_confirm_handler, &mcps_data_indication_handler,
@@ -519,7 +513,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
 interface_failure:
     lowpan_adaptation_interface_free(entry->id);
     reassembly_interface_free(entry->id);
-    ns_dyn_mem_free(entry->mac_parameters);
     entry = NULL;
     return NULL;
 }
@@ -844,7 +837,7 @@ bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uin
 
     switch (addrlen) {
         case 2:
-            return cur->mac_parameters && cur->mac_parameters->mac_short_address == common_read_16_bit(addr);
+            return cur->mac_parameters.mac_short_address == common_read_16_bit(addr);
         case 8:
             return memcmp(addr, cur->mac, 8) == 0;
         default:

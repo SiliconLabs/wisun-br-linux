@@ -228,7 +228,7 @@ static uint8_t protocol_6lowpan_llao_write(protocol_interface_info_entry_t *cur,
 /* Parse, and return actual size, or 0 if error */
 static uint8_t protocol_6lowpan_llao_parse(protocol_interface_info_entry_t *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out)
 {
-    common_write_16_bit(cur->mac_parameters->pan_id, ll_addr_out->address + 0);
+    common_write_16_bit(cur->mac_parameters.pan_id, ll_addr_out->address + 0);
 
     switch (opt_in[1]) {
         case 1:
@@ -264,7 +264,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t
     }
 
     if (*ll_type != ADDR_NONE) {
-        common_write_16_bit(cur->mac_parameters->pan_id, &ll_addr[0]);
+        common_write_16_bit(cur->mac_parameters.pan_id, &ll_addr[0]);
         *ll_addr_out = ll_addr;
         return true;
     } else {
@@ -334,7 +334,7 @@ void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interf
 {
     uint8_t temp_ll[4];
     uint8_t *ptr = temp_ll;
-    ptr = common_write_16_bit(cur->mac_parameters->pan_id, ptr);
+    ptr = common_write_16_bit(cur->mac_parameters.pan_id, ptr);
     ptr = common_write_16_bit(shortAddress, ptr);
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_SHORT, temp_ll);
@@ -345,7 +345,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 {
     uint8_t temp_ll[10];
     uint8_t *ptr = temp_ll;
-    ptr = common_write_16_bit(cur->mac_parameters->pan_id, ptr);
+    ptr = common_write_16_bit(cur->mac_parameters.pan_id, ptr);
     memcpy(ptr, mac64, 8);
     ipv6_neighbour_invalidate_ll_addr(&cur->ipv6_neighbour_cache,
                                       ADDR_802_15_4_LONG, temp_ll);
@@ -523,7 +523,7 @@ int8_t protocol_6lowpan_interface_compare_cordinator_netid(protocol_interface_in
 
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, sockaddr_t *adr_ptr)
 {
-    common_write_16_bit(cur->mac_parameters->pan_id, adr_ptr->address + 0);
+    common_write_16_bit(cur->mac_parameters.pan_id, adr_ptr->address + 0);
 
     adr_ptr->addr_type = mac_helper_coordinator_address_get(cur, adr_ptr->address + 2);
     if (adr_ptr->addr_type == ADDR_NONE) {
