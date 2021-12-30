@@ -94,6 +94,9 @@ typedef struct {
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
+// maximum value of nwk_interface_id is 1
+protocol_interface_info_entry_t protocol_interface_info[2];
+
 static lowpan_core_timer_structures_s protocol_core_timer_info;
 
 /** Cores Power Save Varibale whic indicate States  */
@@ -453,17 +456,16 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
 
 static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_interface_id nwk_id)
 {
-    protocol_interface_info_entry_t *entry = ns_dyn_mem_alloc(sizeof(protocol_interface_info_entry_t));
-    if (entry) {
-        memset(entry, 0, sizeof(protocol_interface_info_entry_t));
-        /* We assume for now zone indexes for interface, link and realm all equal interface id */
-        int8_t id = net_interface_get_free_id();
-        entry->id = id;
-        entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
-        entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
-        entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
-        protocol_core_base_init(entry, nwk_id);
-    }
+    protocol_interface_info_entry_t *entry = &protocol_interface_info[nwk_id];
+    int id = net_interface_get_free_id();
+
+    memset(entry, 0, sizeof(protocol_interface_info_entry_t));
+    /* We assume for now zone indexes for interface, link and realm all equal interface id */
+    entry->id = id;
+    entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
+    entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
+    entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
+    protocol_core_base_init(entry, nwk_id);
     return entry;
 }
 
@@ -518,7 +520,6 @@ interface_failure:
     lowpan_adaptation_interface_free(entry->id);
     reassembly_interface_free(entry->id);
     ns_dyn_mem_free(entry->mac_parameters);
-    ns_dyn_mem_free(entry);
     entry = NULL;
     return NULL;
 }
@@ -552,7 +553,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_ethernet_entry_g
         return NULL;
     }
     if (!protocol_ipv6_setup_allocate(entry)) {
-        ns_dyn_mem_free(entry);
         entry = NULL;
     } else {
         entry->eth_mac_api = api;
@@ -757,7 +757,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
     int8_t error = api->mac48_get(api, mac);
     if (error) {
         tr_error("mac_ext_mac64_address_get failed: %d", error);
-        ns_dyn_mem_free(new_entry);
         return NULL;
     }
 
@@ -793,7 +792,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_a
     int8_t error = api->iid64_get(api, iid64);
     if (error) {
         tr_error("iid64_get failed: %d", error);
-        ns_dyn_mem_free(new_entry);
         return NULL;
     }
     memcpy(new_entry->iid_slaac, iid64, 8);
@@ -829,7 +827,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
         int8_t error = api->mac64_get(api, MAC_EXTENDED_READ_ONLY, mac);
         if (error) {
             tr_error("mac_ext_mac64_address_get failed: %d", error);
-            ns_dyn_mem_free(new_entry);
             return NULL;
         }
         protocol_stack_interface_iid_eui64_generate(new_entry, mac);
