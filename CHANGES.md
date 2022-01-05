@@ -1,3 +1,10 @@
+v1.1.0
+------
+
+  - Reduce Bufferbloat (https://en.wikipedia.org/wiki/Bufferbloat)
+  - Fix possible crash if UART frames are too small to contains CRC
+  - Explain some Wi-SUN specificities about frames fragmentation
+
 v1.0.4
 ------
 
