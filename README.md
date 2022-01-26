@@ -32,11 +32,15 @@ evaluate the solution, a [wisun-br-linux-docker][1] repository is provided. It
 contains a bundle of all the necessary software components (including a compiled
 RCP firmware) to run the Linux Wi-SUN border router.
 
+Alternatively, [Application Note 1332][2] explains how to build RCP firmware and
+flash it.
+
 The communication between the Linux host and the RCP is supported through a
 serial link (UART). On Silicon Labs mainboards, this serial link is provided
 over USB. The `/dev/ACMx` device should appear when you plug the mainboard.
 
 [1]: https://github.com/SiliconLabs/wisun-br-linux-docker
+[2]: https://www.silabs.com/documents/public/application-notes/an1332-wi-sun-network-configuration.pdf
 
 ## Cloning wisun-br-linux
 
@@ -134,9 +138,9 @@ specification. It uses the standard X.509 certificate format. Some fields and
 algorithms are enforced.
 
 The process to get official certificates is described on the [Wi-SUN alliance
-Web site][2] (restricted access).
+Web site][7] (restricted access).
 
-[2]: https://wi-sun.org/cyber-security-certificates/
+[7]: https://wi-sun.org/cyber-security-certificates/
 
 # Running `wsbrd` without Root Privileges
 
