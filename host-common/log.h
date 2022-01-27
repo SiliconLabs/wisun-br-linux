@@ -23,9 +23,9 @@
  * environment, consider FATAL().
  *
  * Use FATAL() and FATAL_ON() you have detected something wrong in the
- * environment. You consider it make no sense to continue, but it is not your
- * fault. You should always provide an explanation as precise as possible to
- * help the user. Typically:
+ * environment. You consider it make no sense to continue, but it is not the
+ * developper fault. You should always provide an explanation as precise as
+ * possible to help the user. Typically:
  *     fd = open(filename, O_RDWR);
  *     FATAL_ON(fd < 0, 1, "open: %s: %m", filename);
  *
@@ -33,8 +33,8 @@
  * recover. They are not (yet) a bug and not (yet) fatal.
  *
  * Use INFO() to log some useful information for user. Use it thrifty. Only log
- * useful information for final user. Some people may consider these logs as a part
- * of the API.
+ * useful information for final user. Some people may consider these logs as a
+ * part of the API.
  *
  * Use DEBUG() to add a temporary trace. DEBUG() shouldn't appears in final
  * code.
