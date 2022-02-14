@@ -27,6 +27,10 @@ static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05
 };
 
+static const int valid_ws_classes[] = {
+    0x1, 0x2, 0x3, 0x4,
+};
+
 void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN border router\n");
@@ -282,8 +286,11 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (i == ARRAY_SIZE(valid_ws_modes))
             FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
     } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
-        if (ctxt->ws_class > 4)
-            FATAL(1, "%s:%d: invalid operating class: %d", filename, line_no, ctxt->ws_class);
+        for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
+            if (valid_ws_classes[i] == ctxt->ws_class)
+                break;
+        if (i == ARRAY_SIZE(valid_ws_classes))
+            FATAL(1, "%s:%d: invalid class: %x", filename, line_no, ctxt->ws_class);
     } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
         if (parse_bitmask(str_arg, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
             FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
@@ -478,8 +485,13 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
             case 'c':
                 ctxt->ws_class = strtoul(optarg, &end_ptr, 10);
-                if (*end_ptr || ctxt->ws_class > 3)
-                    FATAL(1, "invalid operating class: %s", optarg);
+                if (*end_ptr)
+                    FATAL(1, "invalid class: %s", optarg);
+                for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
+                    if (valid_ws_classes[i] == ctxt->ws_class)
+                        break;
+                if (i == ARRAY_SIZE(valid_ws_classes))
+                    FATAL(1, "invalid class: %s", optarg);
                 break;
             case 'S':
                 ctxt->ws_size = str_to_val(optarg, valid_ws_size);
