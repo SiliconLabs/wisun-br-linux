@@ -7,9 +7,13 @@
 #include "host-common/log.h"
 #include "host-common/utils.h"
 
+// FIXME: get value from RLIMIT_NOFILE (use ulimit -n XXX to increase RLIMIT_NOFILE)
+// FIXME: handle case where this limit is reached
+#define MAX_NODES 256
+
 struct ctxt {
     struct sockaddr_un addr;
-    uint32_t node_graph[256][256 / 32];
+    uint32_t node_graph[MAX_NODES][MAX_NODES / 32];
 };
 
 static int bitmap_get(int shift, uint32_t *in, int size)
@@ -60,16 +64,16 @@ static int bitmap_parse(char *str, uint32_t *out, int size)
     return 0;
 }
 
-static void graph_apply_mask(uint32_t node_graph[256][256 / 32], uint32_t mask[256 / 32])
+static void graph_apply_mask(uint32_t node_graph[MAX_NODES][MAX_NODES / 32], uint32_t mask[256 / 32])
 {
     int i, j;
 
-    for (i = 0; i < 256; i++)
-        for (j = 0; j < 256; j++)
+    for (i = 0; i < MAX_NODES; i++)
+        for (j = 0; j < MAX_NODES; j++)
             if (i != j
-                && bitmap_get(i, mask, 256 / 32)
-                && bitmap_get(j, mask, 256 / 32))
-                bitmap_set(j, node_graph[i], 256 / 32);
+                && bitmap_get(i, mask, MAX_NODES / 32)
+                && bitmap_get(j, mask, MAX_NODES / 32))
+                bitmap_set(j, node_graph[i], MAX_NODES / 32);
 }
 
 static int graph_get_num_nodes(struct ctxt *ctxt)
@@ -77,9 +81,9 @@ static int graph_get_num_nodes(struct ctxt *ctxt)
     int max = 0;
     int i, j;
 
-    for (i = 0; i < 256; i++)
-        for (j = 0; j < 256; j++)
-            if (bitmap_get(j, ctxt->node_graph[i], 256 / 32))
+    for (i = 0; i < MAX_NODES; i++)
+        for (j = 0; j < MAX_NODES; j++)
+            if (bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 32))
                 max = i;
     return max + 1;
 }
@@ -92,7 +96,7 @@ static void graph_dump(struct ctxt *ctxt)
     for (i = 0; i < max; i++) {
         printf("%02x ", i);
         for (j = 0; j < max; j++)
-            printf("%s", bitmap_get(j, ctxt->node_graph[i], 256 / 32) ? "x" : "-");
+            printf("%s", bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 32) ? "x" : "-");
         printf("\n");
     }
 }
@@ -110,13 +114,13 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
         { "help",  no_argument,       0,  'h' },
         { 0,       0,                 0,   0  }
     };
-    uint32_t mask[256 / 32];
+    uint32_t mask[MAX_NODES / 32];
     int opt;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'g':
-                bitmap_parse(optarg, mask, 256 / 32);
+                bitmap_parse(optarg, mask, MAX_NODES / 32);
                 graph_apply_mask(ctxt->node_graph, mask);
                 break;
             case 'h':
@@ -145,7 +149,7 @@ static void broadcast(uint32_t *node_graph, struct pollfd *fds, int fds_len, voi
     int ret;
 
     for (j = 0; j < fds_len; j++) {
-        if (fds[j].fd >= 0 && bitmap_get(j, node_graph, 256 / 4)) {
+        if (fds[j].fd >= 0 && bitmap_get(j, node_graph, MAX_NODES / 32)) {
             ret = write(fds[j].fd, buf, buf_len);
             FATAL_ON(ret != buf_len, 1, "write: %m");
         }
@@ -158,7 +162,7 @@ int main(int argc, char **argv)
     int i;
     int on = 1;
     int ret, len;
-    struct pollfd fds[256] = { };
+    struct pollfd fds[MAX_NODES + 1] = { };
     struct ctxt ctxt = {
         .addr.sun_family = AF_UNIX
     };
