@@ -4,17 +4,28 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/socket.h>
+#include <sys/resource.h>
 #include "host-common/log.h"
 #include "host-common/utils.h"
 
-// FIXME: get value from RLIMIT_NOFILE (use ulimit -n XXX to increase RLIMIT_NOFILE)
-// FIXME: handle case where this limit is reached
-#define MAX_NODES 256
+#define MAX_NODES 4096
 
 struct ctxt {
     struct sockaddr_un addr;
     uint32_t node_graph[MAX_NODES][MAX_NODES / 32];
 };
+
+static int increase_limit_fd()
+{
+    struct rlimit rlimit;
+
+    getrlimit(RLIMIT_NOFILE, &rlimit);
+    DEBUG("Increase file descriptors limit from %ld to %ld",
+          rlimit.rlim_cur, rlimit.rlim_max);
+    rlimit.rlim_cur = rlimit.rlim_max;
+    setrlimit(RLIMIT_NOFILE, &rlimit);
+    return rlimit.rlim_cur;
+}
 
 static int bitmap_get(int shift, uint32_t *in, int size)
 {
@@ -162,13 +173,15 @@ int main(int argc, char **argv)
     int i;
     int on = 1;
     int ret, len;
+    int fd_limit;
     struct pollfd fds[MAX_NODES + 1] = { };
     struct ctxt ctxt = {
         .addr.sun_family = AF_UNIX
     };
 
+    fd_limit = min(increase_limit_fd(), ARRAY_SIZE(fds));
     parse_commandline(&ctxt, argc, argv);
-    for (i = 0; i < ARRAY_SIZE(fds); i++)
+    for (i = 0; i < fd_limit; i++)
         fds[i].fd = -1;
 
     fds[0].events = POLLIN;
@@ -182,10 +195,10 @@ int main(int argc, char **argv)
     FATAL_ON(ret < 0, 1, "listen: %s: %m", ctxt.addr.sun_path);
 
     while (true) {
-        ret = poll(fds, ARRAY_SIZE(fds), -1);
+        ret = poll(fds, fd_limit, -1);
         FATAL_ON(ret < 0, 1, "poll: %m");
         if (fds[0].revents) {
-            for (i = 0; i < ARRAY_SIZE(fds); i++) {
+            for (i = 0; i < fd_limit; i++) {
                 if (fds[i].fd == -1) {
                     fds[i].events = POLLIN;
                     fds[i].fd = accept(fds[0].fd, NULL, NULL);
@@ -194,8 +207,10 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+            if (i == fd_limit)
+                FATAL(1, "can't accept new node %d %d", i, fd_limit);
         }
-        for (i = 1; i < ARRAY_SIZE(fds); i++) {
+        for (i = 1; i < fd_limit; i++) {
             if (fds[i].revents) {
                 len = read(fds[i].fd, buf, sizeof(buf));
                 if (len < 1) {
@@ -204,10 +219,10 @@ int main(int argc, char **argv)
                     fds[i].fd = -1;
                     fds[i].events = 0;
                 } else {
-                    broadcast(ctxt.node_graph[i - 1], fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
+                    broadcast(ctxt.node_graph[i - 1], fds + 1, fd_limit - 1, buf, len);
                     if (len == 6 && buf[0] == 'x' && buf[1] == 'x') {
                         len = read(fds[i].fd, buf, sizeof(buf));
-                        broadcast(ctxt.node_graph[i - 1], fds + 1, ARRAY_SIZE(fds) - 1, buf, len);
+                        broadcast(ctxt.node_graph[i - 1], fds + 1, fd_limit - 1, buf, len);
                     }
                 }
             }
