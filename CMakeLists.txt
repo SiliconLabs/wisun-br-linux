@@ -48,87 +48,6 @@ add_custom_target(check_git
 
 add_compile_definitions(NO_TCP)
 
-add_executable(wshwsim
-    version.c
-    host-mac/sl_wsrcp.c
-    host-mac/sl_wsrcp_mac.c
-    host-mac/sl_rf_driver.c
-    host-mac/ns_monitor.c
-    host-mac/hal_fhss_timer.c
-    host-mac/hal_random.c
-    host-common/bus_uart.c
-    host-common/hal_interrupt.c
-    host-common/os_scheduler.c
-    host-common/os_timer.c
-    host-common/log.c
-    host-common/slist.c
-    host-common/spinel.c
-    host-common/spinel_buffer.c
-    mbed-client-libservice/source/libBits/common_functions.c
-    # Excluded mbed-client-libservice/source/libip4string
-    mbed-client-libservice/source/libip6string/ip6tos.c
-    mbed-client-libservice/source/libip6string/stoip6.c
-    mbed-client-libservice/source/libList/ns_list.c
-    mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
-    mbed-client-randlib/source/randLIB.c
-    mbed-trace/source/mbed_trace.c
-    nanostack-event-loop/source/event.c
-    nanostack-event-loop/source/system_timer.c
-    nanostack/source/MAC/IEEE802_15_4/mac_cca_threshold.c
-    nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
-    nanostack/source/MAC/IEEE802_15_4/mac_filter.c
-    nanostack/source/MAC/IEEE802_15_4/mac_header_helper_functions.c
-    nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
-    nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
-    nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
-    nanostack/source/MAC/IEEE802_15_4/mac_mode_switch.c
-    nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
-    nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
-    nanostack/source/MAC/IEEE802_15_4/mac_timer.c
-    nanostack/source/MAC/IEEE802_15_4/sw_mac.c
-    nanostack/source/MAC/rf_driver_storage.c
-    nanostack/source/Service_Libs/CCM_lib/ccm_security.c
-    nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-    nanostack/source/Service_Libs/fhss/channel_functions.c
-    nanostack/source/Service_Libs/fhss/channel_list.c
-    nanostack/source/Service_Libs/fhss/fhss_common.c
-    nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
-    nanostack/source/Service_Libs/fhss/fhss_statistics.c
-    nanostack/source/Service_Libs/fhss/fhss_ws.c
-    # Excluded nanostack/source/Service_Libs/fhss/fhss_test_api.c
-    # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
-)
-
-target_include_directories(wshwsim PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    mbed-trace/
-    mbed-client-libservice
-    mbed-client-randlib/
-    nanostack-event-loop/
-    nanostack/
-)
-target_include_directories(wshwsim PRIVATE
-    mbed-client-libservice/mbed-client-libservice/
-    mbed-client-randlib/mbed-client-randlib/
-    nanostack-event-loop/nanostack-event-loop/
-    nanostack/nanostack/
-    nanostack/source/
-)
-
-target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
-target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
-# target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
-# target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
-# target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
-target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
-
-add_executable(simple_broadcast_server
-    host-common/log.c
-    host-mac/simple_broadcast_server.c)
-target_include_directories(simple_broadcast_server PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    host-common/)
-
 add_executable(wsbrd
     version.c
     host-net/wsbr.c
@@ -343,6 +262,50 @@ target_compile_definitions(wsbrd PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_bo
 target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
+target_link_libraries(wsbrd PRIVATE Threads::Threads)
+target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
+target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+
+if(LIBSYSTEMD_FOUND)
+    target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
+    target_sources(wsbrd PRIVATE host-net/dbus.c)
+    target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
+endif()
+
+if(BACKTRACE_FOUND)
+    target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
+    target_sources(wsbrd PRIVATE host-common/backtrace.c)
+    target_link_libraries(wsbrd PRIVATE backtrace)
+endif()
+
+install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
+# the code
+install(DIRECTORY DESTINATION /var/lib/wsbrd)
+install(FILES
+    misc/com.silabs.Wisun.BorderRouter.service
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
+install(FILES
+    misc/wisun-borderouter.service
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+# FIXME: we try to avoid PATH hardcoding, but dbus does not watch
+# /usr/local/share/dbus-1/system.d
+install(FILES
+    misc/com.silabs.Wisun.BorderRouter.conf
+    DESTINATION /etc/dbus-1/system.d)
+install(FILES
+    CHANGES.md
+    README.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES
+    examples/wsbrd.conf
+    examples/br_cert.pem
+    examples/br_key.pem
+    examples/ca_cert.pem
+    examples/node_cert.pem
+    examples/node_key.pem
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
+
 
 add_executable(wsnode
     version.c
@@ -555,14 +518,91 @@ target_compile_definitions(wsnode PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_r
 target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)
+target_link_libraries(wsnode PRIVATE Threads::Threads)
+target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 
-
-target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
-if(LIBSYSTEMD_FOUND)
-    target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(wsbrd PRIVATE host-net/dbus.c)
-    target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
+if(BACKTRACE_FOUND)
+    target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
+    target_sources(wsnode PRIVATE host-common/backtrace.c)
+    target_link_libraries(wsnode PRIVATE backtrace)
 endif()
+
+
+add_executable(wshwsim
+    version.c
+    host-mac/sl_wsrcp.c
+    host-mac/sl_wsrcp_mac.c
+    host-mac/sl_rf_driver.c
+    host-mac/ns_monitor.c
+    host-mac/hal_fhss_timer.c
+    host-mac/hal_random.c
+    host-common/bus_uart.c
+    host-common/hal_interrupt.c
+    host-common/os_scheduler.c
+    host-common/os_timer.c
+    host-common/log.c
+    host-common/slist.c
+    host-common/spinel.c
+    host-common/spinel_buffer.c
+    mbed-client-libservice/source/libBits/common_functions.c
+    # Excluded mbed-client-libservice/source/libip4string
+    mbed-client-libservice/source/libip6string/ip6tos.c
+    mbed-client-libservice/source/libip6string/stoip6.c
+    mbed-client-libservice/source/libList/ns_list.c
+    mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
+    mbed-client-randlib/source/randLIB.c
+    mbed-trace/source/mbed_trace.c
+    nanostack-event-loop/source/event.c
+    nanostack-event-loop/source/system_timer.c
+    nanostack/source/MAC/IEEE802_15_4/mac_cca_threshold.c
+    nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
+    nanostack/source/MAC/IEEE802_15_4/mac_filter.c
+    nanostack/source/MAC/IEEE802_15_4/mac_header_helper_functions.c
+    nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
+    nanostack/source/MAC/IEEE802_15_4/mac_mode_switch.c
+    nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
+    nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
+    nanostack/source/MAC/IEEE802_15_4/mac_timer.c
+    nanostack/source/MAC/IEEE802_15_4/sw_mac.c
+    nanostack/source/MAC/rf_driver_storage.c
+    nanostack/source/Service_Libs/CCM_lib/ccm_security.c
+    nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+    nanostack/source/Service_Libs/fhss/channel_functions.c
+    nanostack/source/Service_Libs/fhss/channel_list.c
+    nanostack/source/Service_Libs/fhss/fhss_common.c
+    nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
+    nanostack/source/Service_Libs/fhss/fhss_statistics.c
+    nanostack/source/Service_Libs/fhss/fhss_ws.c
+    # Excluded nanostack/source/Service_Libs/fhss/fhss_test_api.c
+    # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
+)
+
+target_include_directories(wshwsim PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    mbed-trace/
+    mbed-client-libservice
+    mbed-client-randlib/
+    nanostack-event-loop/
+    nanostack/
+)
+target_include_directories(wshwsim PRIVATE
+    mbed-client-libservice/mbed-client-libservice/
+    mbed-client-randlib/mbed-client-randlib/
+    nanostack-event-loop/nanostack-event-loop/
+    nanostack/nanostack/
+    nanostack/source/
+)
+
+target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
+# target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
+# target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
+# target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
+target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
+target_link_libraries(wshwsim PRIVATE Threads::Threads)
+target_link_libraries(wshwsim PRIVATE util)
 
 if(LIBPCAP_FOUND)
     target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
@@ -570,50 +610,14 @@ if(LIBPCAP_FOUND)
 endif()
 
 if(BACKTRACE_FOUND)
-    target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
-    target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
     target_compile_definitions(wshwsim PRIVATE HAVE_BACKTRACE)
-    target_sources(wsbrd PRIVATE host-common/backtrace.c)
-    target_sources(wsnode PRIVATE host-common/backtrace.c)
     target_sources(wshwsim PRIVATE host-common/backtrace.c)
-    target_link_libraries(wsbrd PRIVATE backtrace)
-    target_link_libraries(wsnode PRIVATE backtrace)
     target_link_libraries(wshwsim PRIVATE backtrace)
 endif()
 
-target_link_libraries(wsbrd PRIVATE Threads::Threads)
-target_link_libraries(wsnode PRIVATE Threads::Threads)
-target_link_libraries(wshwsim PRIVATE Threads::Threads)
-
-target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
-target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
-
-target_link_libraries(wshwsim PRIVATE util)
-
-install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-# FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
-# the code
-install(DIRECTORY DESTINATION /var/lib/wsbrd)
-install(FILES
-    misc/com.silabs.Wisun.BorderRouter.service
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
-install(FILES
-    misc/wisun-borderouter.service
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
-# FIXME: we try to avoid PATH hardcoding, but dbus does not watch
-# /usr/local/share/dbus-1/system.d
-install(FILES
-    misc/com.silabs.Wisun.BorderRouter.conf
-    DESTINATION /etc/dbus-1/system.d)
-install(FILES
-    CHANGES.md
-    README.md
-    DESTINATION ${CMAKE_INSTALL_DOCDIR})
-install(FILES
-    examples/wsbrd.conf
-    examples/br_cert.pem
-    examples/br_key.pem
-    examples/ca_cert.pem
-    examples/node_cert.pem
-    examples/node_key.pem
-    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
+add_executable(simple_broadcast_server
+    host-common/log.c
+    host-mac/simple_broadcast_server.c)
+target_include_directories(simple_broadcast_server PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    host-common/)
