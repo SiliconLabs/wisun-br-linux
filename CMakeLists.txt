@@ -530,6 +530,8 @@ if(COMPILE_SIMULATION_TOOLS)
         target_link_libraries(wsnode PRIVATE backtrace)
     endif()
 
+    install(TARGETS wsnode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 
     add_executable(wshwsim
         version.c
@@ -618,11 +620,16 @@ if(COMPILE_SIMULATION_TOOLS)
         target_link_libraries(wshwsim PRIVATE backtrace)
     endif()
 
+    install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+
     add_executable(simple_broadcast_server
         host-common/log.c
         host-mac/simple_broadcast_server.c)
     target_include_directories(simple_broadcast_server PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         host-common/)
+
+    install(TARGETS simple_broadcast_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
