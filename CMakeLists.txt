@@ -1,18 +1,35 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
 include(GNUInstallDirs)
-include(CheckIncludeFile)
+
 include(CheckCCompilerFlag)
+check_c_compiler_flag(-Wall           CC_HAVE_WALL)
+check_c_compiler_flag(-funwind-tables CC_HAVE_UNWIND_TABLES)
+
+include(CheckIncludeFile)
+check_include_file(backtrace.h BACKTRACE_FOUND)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+# Syntax "MbedTLS 2.18...<4" does not work :(
+find_package(MbedTLS REQUIRED)
+
+find_package(PkgConfig REQUIRED)
+# Note that old libpcap releases didn't provide pkg-config file and are not
+# detected by the line below. The user have to compile without support for
+# libpcap or manually defines the flags.
+pkg_check_modules(LIBPCAP              IMPORTED_TARGET libpcap)
+pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
+pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 
 # Greatly improve warning messages. There is no reason to not enable that.
-check_c_compiler_flag(-Wall CC_HAVE_WALL)
 if(CC_HAVE_WALL)
     add_compile_options(-Wall)
 endif()
 
 # In come case, backtraces are not available without that flags. Increase size
 # of the  binary file, but can be stripped.
-check_c_compiler_flag(-funwind-tables CC_HAVE_UNWIND_TABLES)
 if(CC_HAVE_UNWIND_TABLES)
     add_compile_options(-funwind-tables)
 endif()
@@ -540,26 +557,18 @@ target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)
 
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
-pkg_check_modules(LIBSYSTEMD IMPORTED_TARGET libsystemd)
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(wsbrd PRIVATE host-net/dbus.c)
     target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 
-# Note that old libpcap releases didn't provide pkg-config file and are not
-# detected by the line below. The user have to compile without support for
-# libpcap or manually defines the flags.
-pkg_check_modules(LIBPCAP IMPORTED_TARGET libpcap)
 if(LIBPCAP_FOUND)
     target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
     target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
 endif()
 
-check_include_file(backtrace.h BACKTRACE_FOUND)
 if(BACKTRACE_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
     target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
@@ -572,14 +581,10 @@ if(BACKTRACE_FOUND)
     target_link_libraries(wshwsim PRIVATE backtrace)
 endif()
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
 target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsnode PRIVATE Threads::Threads)
 target_link_libraries(wshwsim PRIVATE Threads::Threads)
 
-# FIXME syntax "MbedTLS 2.18...<4" does not work :(
-find_package(MbedTLS REQUIRED)
 target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 
