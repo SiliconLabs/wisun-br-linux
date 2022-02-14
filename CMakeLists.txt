@@ -597,12 +597,12 @@ if(COMPILE_SIMULATION_TOOLS)
     endif()
     install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-    add_executable(simple_broadcast_server
+    add_executable(wssimserver
         host-common/log.c
-        host-mac/simple_broadcast_server.c)
-    target_include_directories(simple_broadcast_server PRIVATE
+        host-mac/wssimserver.c)
+    target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         host-common/)
-    install(TARGETS simple_broadcast_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
