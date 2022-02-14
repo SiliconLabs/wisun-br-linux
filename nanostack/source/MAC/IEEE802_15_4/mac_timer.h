@@ -24,6 +24,6 @@ extern void timer_mac_start(struct protocol_interface_rf_mac_setup *rf_ptr, mac_
 
 extern void timer_mac_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
 
-void timer_mac_interrupt(int8_t timer_id, uint16_t slots);
+void timer_mac_interrupt(int timer_id, uint16_t slots);
 
 #endif /* MAC_TIMER_H_ */

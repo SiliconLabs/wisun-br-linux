@@ -32,7 +32,6 @@ static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t
         item->arg = api;
         item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
         FATAL_ON(item->fd < 0, 2);
-        FATAL_ON(item->fd > 255, 2);
         slist_push(&ctxt->fhss_timers, &item->node);
     }
     ret = timerfd_settime(item->fd, 0, &timer, NULL);

@@ -37,7 +37,7 @@ typedef struct {
 extern int protocol_timer_init(void);
 extern void protocol_timer_event_lock_free(void);
 extern void protocol_timer_cb(uint16_t ticks);
-extern void protocol_timer_interrupt(int8_t timer_id, uint16_t slots);
+extern void protocol_timer_interrupt(int timer_id, uint16_t slots);
 extern void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time_ms);
 extern void protocol_timer_stop(protocol_timer_id_t id);
 extern void protocol_timer_sleep_balance(uint32_t time_in_ms);

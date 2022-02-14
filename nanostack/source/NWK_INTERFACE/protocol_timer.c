@@ -28,7 +28,7 @@
 #define PROTOCOL_TIMER_INTERVAL 1000    // 50us units, so we use 50ms
 
 NS_LARGE protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
-int8_t protocol_timer_id = -1;
+int protocol_timer_id = -1;
 bool protocol_tick_handle_busy = false;
 static uint16_t  protocol_tick_update = 0;
 int protocol_timer_init(void)
@@ -163,7 +163,7 @@ void protocol_timer_cb(uint16_t ticks)
     }
 }
 
-void protocol_timer_interrupt(int8_t timer_id, uint16_t slots)
+void protocol_timer_interrupt(int timer_id, uint16_t slots)
 {
     (void)timer_id;
     (void)slots;

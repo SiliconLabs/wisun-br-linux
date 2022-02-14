@@ -56,7 +56,7 @@ static void ns_timer_interrupt_handler(void);
 static ns_timer_struct *ns_timer_get_pointer_to_timer_struct(int8_t timer_id);
 static bool ns_timer_initialized = 0;
 
-int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, uint16_t))
+int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t))
 {
     int8_t retval = -1;
 

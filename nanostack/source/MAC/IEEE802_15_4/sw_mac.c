@@ -384,7 +384,7 @@ protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_fhss_api(const fhss_api_t *
     return NULL;
 }
 
-protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_timer(int8_t id, arm_nwk_timer_id_e type)
+protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_timer(int id, arm_nwk_timer_id_e type)
 {
 
     if (!mac_store.mac_api || mac_store.mac_api->parent_id == -1) {
@@ -692,7 +692,7 @@ static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_li
     return mac_pd_sap_data_cb(driver->phy_sap_identifier, &phy_msg);
 }
 
-static void bc_enable_timer_cb(int8_t timer_id, uint16_t slots)
+static void bc_enable_timer_cb(int timer_id, uint16_t slots)
 {
     (void)slots;
     protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_timer(timer_id, ARM_NWK_BC_TIMER);

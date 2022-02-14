@@ -62,7 +62,7 @@ void timer_mac_stop(protocol_interface_rf_mac_setup_s *rf_ptr)
     platform_exit_critical();
 }
 
-void timer_mac_interrupt(int8_t timer_id, uint16_t slots)
+void timer_mac_interrupt(int timer_id, uint16_t slots)
 {
     (void)slots;
 

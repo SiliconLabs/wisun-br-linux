@@ -67,7 +67,7 @@ static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s 
 static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t pan_id);
 static int8_t mac_mlme_set_mac16(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t mac16);
 static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t new_channel);
-static void mac_mlme_timer_cb(int8_t timer_id, uint16_t slots);
+static void mac_mlme_timer_cb(int timer_id, uint16_t slots);
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf);
 static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf);
 static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
@@ -1031,7 +1031,7 @@ void mac_mlme_event_cb(void *mac_ptr)
     }
 }
 
-static void mac_mcps_timer_cb(int8_t timer_id, uint16_t slots)
+static void mac_mcps_timer_cb(int timer_id, uint16_t slots)
 {
 
     protocol_interface_rf_mac_setup_s *rf_ptr = get_sw_mac_ptr_by_timer(timer_id, ARM_MCPS_TIMER);
@@ -1044,7 +1044,7 @@ static void mac_mcps_timer_cb(int8_t timer_id, uint16_t slots)
 }
 
 
-static void mac_mlme_timer_cb(int8_t timer_id, uint16_t slots)
+static void mac_mlme_timer_cb(int timer_id, uint16_t slots)
 {
     protocol_interface_rf_mac_setup_s *rf_ptr = get_sw_mac_ptr_by_timer(timer_id, ARM_NWK_MLME_TIMER);
     if (!rf_ptr || !rf_ptr->dev_driver || !rf_ptr->dev_driver->phy_driver) {

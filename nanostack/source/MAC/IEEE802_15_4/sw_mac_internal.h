@@ -54,7 +54,7 @@ struct protocol_interface_rf_mac_setup;
 struct mac_api_s *get_sw_mac_api(struct protocol_interface_rf_mac_setup *setup);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_mac_api(struct mac_api_s *api);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_fhss_api(const struct fhss_api *api);
-struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_timer(int8_t id, enum arm_nwk_timer_id type);
+struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_timer(int id, enum arm_nwk_timer_id type);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_driver_id(int8_t id);
 void sw_mac_stats_update(struct protocol_interface_rf_mac_setup *setup, mac_stats_type_t type, uint32_t update_val);
 

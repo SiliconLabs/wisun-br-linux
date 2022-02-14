@@ -20,11 +20,11 @@ extern "C" {
 #endif
 #include "ns_types.h"
 
-extern int8_t eventOS_callback_timer_register(void (*timer_interrupt_handler)(int8_t, uint16_t));
-extern int8_t eventOS_callback_timer_unregister(int8_t ns_timer_id);
+extern int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
+extern int eventOS_callback_timer_unregister(int ns_timer_id);
 
-extern int8_t eventOS_callback_timer_stop(int8_t ns_timer_id);
-extern int8_t eventOS_callback_timer_start(int8_t ns_timer_id, uint16_t slots);
+extern int eventOS_callback_timer_stop(int ns_timer_id);
+extern int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots);
 #ifdef __cplusplus
 }
 #endif

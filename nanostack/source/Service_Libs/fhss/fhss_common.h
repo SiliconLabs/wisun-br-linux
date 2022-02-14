@@ -37,7 +37,7 @@ struct fhss_structure {
     uint8_t fhss_resolution_divider;
     uint8_t rx_channel;
     int8_t beacon_tasklet_id;
-    int8_t fhss_event_timer;
+    int fhss_event_timer;
     uint8_t active_fhss_events;
     uint16_t number_of_channels;
     uint16_t number_of_uc_channels;
@@ -55,7 +55,7 @@ struct fhss_structure {
     uint8_t synch_parent[8];
 };
 
-fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id);
+fhss_structure_t *fhss_get_object_with_timer_id(const int timer_id);
 fhss_structure_t *fhss_allocate_instance(fhss_api_t *fhss_api, const fhss_timer_t *fhss_timer);
 int8_t fhss_free_instance(fhss_api_t *fhss_api);
 fhss_structure_t *fhss_get_object_with_api(const fhss_api_t *fhss_api);

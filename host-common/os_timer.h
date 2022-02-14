@@ -11,7 +11,7 @@
 
 struct callback_timer {
     int fd;
-    void (*fn)(int8_t, uint16_t);
+    void (*fn)(int, uint16_t);
     struct slist node;
 };
 

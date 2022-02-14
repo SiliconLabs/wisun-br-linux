@@ -284,12 +284,12 @@ typedef struct protocol_interface_rf_mac_setup {
     mac_event_t mac_tx_result;
     uint16_t active_mac_events;
     int8_t mac_tasklet_id;
-    int8_t mac_mcps_timer;
-    int8_t mac_timer_id;
-    int8_t ifs_timer_id;
-    int8_t mlme_timer_id;
-    int8_t cca_timer_id;
-    int8_t bc_timer_id;
+    int mac_mcps_timer;
+    int mac_timer_id;
+    int ifs_timer_id;
+    int mlme_timer_id;
+    int cca_timer_id;
+    int bc_timer_id;
     uint32_t mlme_tick_count;
     uint32_t symbol_rate;
     uint32_t symbol_time_ns;

@@ -79,7 +79,7 @@ struct ws_ie_t {
 };
 
 static int fhss_ws_manage_channel_table_allocation(fhss_structure_t *fhss_structure, uint16_t channel_count);
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
+static void fhss_event_timer_cb(int timer_id, uint16_t slots);
 static void fhss_ws_update_uc_channel_callback(fhss_structure_t *fhss_structure);
 static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay);
@@ -443,7 +443,7 @@ static int own_ceil(float value)
     return ivalue + 1;
 }
 
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
+static void fhss_event_timer_cb(int timer_id, uint16_t slots)
 {
     (void) slots;
     uint16_t queue_size = 0;

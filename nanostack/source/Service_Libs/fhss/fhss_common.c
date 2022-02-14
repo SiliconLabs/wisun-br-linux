@@ -62,7 +62,7 @@ int8_t fhss_free_instance(fhss_api_t *fhss_api)
     return 0;
 }
 
-fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id)
+fhss_structure_t *fhss_get_object_with_timer_id(const int timer_id)
 {
     if (timer_id < 0 || !fhss_struct) {
         return NULL;

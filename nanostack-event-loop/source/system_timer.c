@@ -53,10 +53,10 @@ static int8_t platform_tick_timer_start(uint32_t period_ms);
 /* Implement platform tick timer using eventOS timer */
 // platform tick timer callback function
 static void (*tick_timer_callback)(void);
-static int8_t tick_timer_id = -1;   // eventOS timer id for tick timer
+static int tick_timer_id = -1;   // eventOS timer id for tick timer
 
 // EventOS timer callback function
-static void tick_timer_eventOS_callback(int8_t timer_id, uint16_t slots)
+static void tick_timer_eventOS_callback(int timer_id, uint16_t slots)
 {
     // Not interested in timer id or slots
     (void)slots;
