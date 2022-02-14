@@ -243,7 +243,6 @@ add_executable(wsbrd
     mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
 )
-
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     mbed-trace/
@@ -266,47 +265,33 @@ target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
 target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
-
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(wsbrd PRIVATE host-net/dbus.c)
     target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
-
 if(BACKTRACE_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
     target_sources(wsbrd PRIVATE host-common/backtrace.c)
     target_link_libraries(wsbrd PRIVATE backtrace)
 endif()
-
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 # FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
 # the code
 install(DIRECTORY DESTINATION /var/lib/wsbrd)
-install(FILES
-    misc/com.silabs.Wisun.BorderRouter.service
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
-install(FILES
-    misc/wisun-borderouter.service
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
-# FIXME: we try to avoid PATH hardcoding, but dbus does not watch
+install(FILES misc/com.silabs.Wisun.BorderRouter.service
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
+install(FILES misc/wisun-borderouter.service
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
+# We try to avoid PATH hardcoding, but dbus does not watch
 # /usr/local/share/dbus-1/system.d
-install(FILES
-    misc/com.silabs.Wisun.BorderRouter.conf
-    DESTINATION /etc/dbus-1/system.d)
-install(FILES
-    CHANGES.md
-    README.md
-    DESTINATION ${CMAKE_INSTALL_DOCDIR})
-install(FILES
-    examples/wsbrd.conf
-    examples/br_cert.pem
-    examples/br_key.pem
-    examples/ca_cert.pem
-    examples/node_cert.pem
-    examples/node_key.pem
-    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
-
+install(FILES misc/com.silabs.Wisun.BorderRouter.conf
+        DESTINATION /etc/dbus-1/system.d)
+install(FILES CHANGES.md README.md
+        DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
+              examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
+        DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
 if(COMPILE_SIMULATION_TOOLS)
 
@@ -500,7 +485,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-randlib/source/randLIB.c
         mbed-trace/source/mbed_trace.c
     )
-
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
@@ -516,22 +500,18 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/nanostack/
         nanostack/source/
     )
-
     target_compile_definitions(wsnode PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_router)
     target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
     target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)
     target_link_libraries(wsnode PRIVATE Threads::Threads)
     target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
-
     if(BACKTRACE_FOUND)
         target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
         target_sources(wsnode PRIVATE host-common/backtrace.c)
         target_link_libraries(wsnode PRIVATE backtrace)
     endif()
-
     install(TARGETS wsnode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 
     add_executable(wshwsim
         version.c
@@ -583,7 +563,6 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded nanostack/source/Service_Libs/fhss/fhss_test_api.c
         # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
     )
-
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
@@ -599,7 +578,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/nanostack/
         nanostack/source/
     )
-
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
@@ -608,20 +586,16 @@ if(COMPILE_SIMULATION_TOOLS)
     target_compile_definitions(wshwsim PRIVATE STANDARD_MALLOC)
     target_link_libraries(wshwsim PRIVATE Threads::Threads)
     target_link_libraries(wshwsim PRIVATE util)
-
     if(LIBPCAP_FOUND)
         target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
         target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
     endif()
-
     if(BACKTRACE_FOUND)
         target_compile_definitions(wshwsim PRIVATE HAVE_BACKTRACE)
         target_sources(wshwsim PRIVATE host-common/backtrace.c)
         target_link_libraries(wshwsim PRIVATE backtrace)
     endif()
-
     install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 
     add_executable(simple_broadcast_server
         host-common/log.c
@@ -629,7 +603,6 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(simple_broadcast_server PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         host-common/)
-
     install(TARGETS simple_broadcast_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
