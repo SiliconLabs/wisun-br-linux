@@ -16,6 +16,7 @@ find_package(Threads REQUIRED)
 
 # Syntax "MbedTLS 2.18...<4" does not work :(
 find_package(MbedTLS REQUIRED)
+mark_as_advanced(MbedTLS_DIR)
 
 find_package(PkgConfig REQUIRED)
 # Note that old libpcap releases didn't provide pkg-config file and are not
