@@ -278,7 +278,7 @@ if(RUST_FOUND AND CARGO_FOUND)
         set(RUST_BUILD_FLAG --release)
     endif()
 
-    add_custom_target(cargo-wsbrd_cli DEPENDS wsbrd_cli)
+    add_custom_target(cargo-wsbrd_cli ALL DEPENDS wsbrd_cli)
     add_custom_command(OUTPUT wsbrd_cli
         COMMAND ${CARGO_COMMAND} build ${RUST_BUILD_FLAG} --target=${RUST_TARGET} --target-dir=cargo/
                                        --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/wsbrd_cli/Cargo.toml
@@ -287,6 +287,7 @@ if(RUST_FOUND AND CARGO_FOUND)
         USES_TERMINAL
     )
     set_target_properties(cargo-wsbrd_cli PROPERTIES ADDITIONAL_CLEAN_FILES cargo)
+    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/wsbrd_cli DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
 
