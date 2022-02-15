@@ -47,7 +47,7 @@ int8_t eventOS_callback_timer_start(int8_t ns_timer_id, uint16_t slots)
     };
 
     ret = timerfd_settime(ns_timer_id, 0, &timer, NULL);
-    FATAL_ON(ret < 0, 2);
+    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
     return 0;
 }
 
@@ -57,6 +57,6 @@ int8_t eventOS_callback_timer_stop(int8_t ns_timer_id)
     struct itimerspec timer = { };
 
     ret = timerfd_settime(ns_timer_id, 0, &timer, NULL);
-    FATAL_ON(ret < 0, 2);
+    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
     return 0;
 }

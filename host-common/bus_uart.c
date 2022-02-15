@@ -141,7 +141,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
            bytes_str(buf, buf_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), buf_len);
     spinel_trace(buf, buf_len, "hif tx: ");
     ret = write(ctxt->data_fd, frame, frame_len);
-    BUG_ON(ret != frame_len);
+    BUG_ON(ret != frame_len, "write: %m");
     free(frame);
 
     return frame_len;
@@ -159,7 +159,7 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         ret = read(ctxt->data_fd,
                    ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
                    sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
-        BUG_ON(ret <= 0);
+        BUG_ON(ret <= 0, "read: %m");
         TRACE(TR_BUS, "bus rx: %s (%d bytes)",
                bytes_str(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), ret);
         ctxt->uart_rx_buf_len += ret;
