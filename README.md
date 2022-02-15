@@ -5,7 +5,7 @@
   </td>
   <td align="left" valign="middle">
     <a href="https://wi-sun.org/">
-      <img src="pics/Wi-SUN-logo.png" title="Wi-SUN" alt="Wi-SUN Logo" width="300"/>
+      <img src="misc/wisun-logo.png" title="Wi-SUN" alt="Wi-SUN Logo" width="300"/>
     </a>
   </td>
   </tr>
