@@ -14,6 +14,9 @@ check_c_compiler_flag(-rdynamic              CC_HAVE_RDYNAMIC)
 include(CheckIncludeFile)
 check_include_file(backtrace.h BACKTRACE_FOUND)
 
+find_package(Rust)
+find_package(Cargo)
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -263,6 +266,29 @@ install(FILES CHANGES.md README.md
 install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
               examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
+
+if(RUST_FOUND AND CARGO_FOUND)
+
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+    if(NOT CMAKE_BUILD_TYPE_UPPER OR CMAKE_BUILD_TYPE_UPPER STREQUAL DEBUG)
+        set(RUST_TARGET_DIR cargo/${RUST_TARGET}/debug)
+        set(RUST_BUILD_FLAG)
+    else()
+        set(RUST_TARGET_DIR cargo/${RUST_TARGET}/release)
+        set(RUST_BUILD_FLAG --release)
+    endif()
+
+    add_custom_target(cargo-wsbrd_cli DEPENDS wsbrd_cli)
+    add_custom_command(OUTPUT wsbrd_cli
+        COMMAND ${CARGO_COMMAND} build ${RUST_BUILD_FLAG} --target=${RUST_TARGET} --target-dir=cargo/
+                                       --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/wsbrd_cli/Cargo.toml
+        COMMAND ${CMAKE_COMMAND} -E copy ${RUST_TARGET_DIR}/wsbrd_cli wsbrd_cli
+        DEPENDS wsbrd_cli/Cargo.toml wsbrd_cli/wsbrd_cli.rs wsbrd_cli/wsbrddbusapi.rs
+        BYPRODUCTS cargo
+        USES_TERMINAL
+    )
+
+endif()
 
 if(COMPILE_SIMULATION_TOOLS)
 
