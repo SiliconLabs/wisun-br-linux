@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
 set(COMPILE_SIMULATION_TOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
 include(CheckCCompilerFlag)
