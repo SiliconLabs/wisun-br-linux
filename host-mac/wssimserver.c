@@ -12,7 +12,7 @@
 
 struct ctxt {
     struct sockaddr_un addr;
-    uint32_t node_graph[MAX_NODES][MAX_NODES / 32];
+    uint64_t node_graph[MAX_NODES][MAX_NODES / 64];
 };
 
 static int increase_limit_fd()
@@ -27,20 +27,20 @@ static int increase_limit_fd()
     return rlimit.rlim_cur;
 }
 
-static int bitmap_get(int shift, uint32_t *in, int size)
+static int bitmap_get(int shift, uint64_t *in, int size)
 {
-    int word_nr = shift / 32;
-    int bit_nr = shift % 32;
+    int word_nr = shift / 64;
+    int bit_nr = shift % 64;
 
     if (word_nr >= size)
         return -1;
     return !!(in[word_nr] & (1 << bit_nr));
 }
 
-static int bitmap_set(int shift, uint32_t *out, int size)
+static int bitmap_set(int shift, uint64_t *out, int size)
 {
-    int word_nr = shift / 32;
-    int bit_nr = shift % 32;
+    int word_nr = shift / 64;
+    int bit_nr = shift % 64;
 
     if (word_nr >= size)
         return -1;
@@ -48,13 +48,13 @@ static int bitmap_set(int shift, uint32_t *out, int size)
     return 0;
 }
 
-static int bitmap_parse(char *str, uint32_t *out, int size)
+static int bitmap_parse(char *str, uint64_t *out, int size)
 {
     char *range;
     char *endptr;
     unsigned long cur, end;
 
-    memset(out, 0, size * sizeof(uint32_t));
+    memset(out, 0, size * sizeof(uint64_t));
     range = strtok(str, ",");
     do {
         cur = strtoul(range, &endptr, 0);
@@ -75,16 +75,16 @@ static int bitmap_parse(char *str, uint32_t *out, int size)
     return 0;
 }
 
-static void graph_apply_mask(uint32_t node_graph[MAX_NODES][MAX_NODES / 32], uint32_t mask[256 / 32])
+static void graph_apply_mask(uint64_t node_graph[MAX_NODES][MAX_NODES / 64], uint64_t mask[MAX_NODES / 64])
 {
     int i, j;
 
     for (i = 0; i < MAX_NODES; i++)
         for (j = 0; j < MAX_NODES; j++)
             if (i != j
-                && bitmap_get(i, mask, MAX_NODES / 32)
-                && bitmap_get(j, mask, MAX_NODES / 32))
-                bitmap_set(j, node_graph[i], MAX_NODES / 32);
+                && bitmap_get(i, mask, MAX_NODES / 64)
+                && bitmap_get(j, mask, MAX_NODES / 64))
+                bitmap_set(j, node_graph[i], MAX_NODES / 64);
 }
 
 static int graph_get_num_nodes(struct ctxt *ctxt)
@@ -94,7 +94,7 @@ static int graph_get_num_nodes(struct ctxt *ctxt)
 
     for (i = 0; i < MAX_NODES; i++)
         for (j = 0; j < MAX_NODES; j++)
-            if (bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 32))
+            if (bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 64))
                 max = i;
     return max + 1;
 }
@@ -107,7 +107,7 @@ static void graph_dump(struct ctxt *ctxt)
     for (i = 0; i < max; i++) {
         printf("%02x ", i);
         for (j = 0; j < max; j++)
-            printf("%s", bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 32) ? "x" : "-");
+            printf("%s", bitmap_get(j, ctxt->node_graph[i], MAX_NODES / 64) ? "x" : "-");
         printf("\n");
     }
 }
@@ -126,14 +126,14 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
         { "help",  no_argument,       0,  'h' },
         { 0,       0,                 0,   0  }
     };
-    uint32_t mask[MAX_NODES / 32];
+    uint64_t mask[MAX_NODES / 64];
     bool dump = false;
     int opt;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'g':
-                bitmap_parse(optarg, mask, MAX_NODES / 32);
+                bitmap_parse(optarg, mask, MAX_NODES / 64);
                 graph_apply_mask(ctxt->node_graph, mask);
                 break;
             case 'l':
@@ -161,13 +161,13 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     strcpy(ctxt->addr.sun_path, argv[optind]);
 }
 
-static void broadcast(uint32_t *node_graph, struct pollfd *fds, int fds_len, void *buf, int buf_len)
+static void broadcast(uint64_t *node_graph, struct pollfd *fds, int fds_len, void *buf, int buf_len)
 {
     int j;
     int ret;
 
     for (j = 0; j < fds_len; j++) {
-        if (fds[j].fd >= 0 && bitmap_get(j, node_graph, MAX_NODES / 32)) {
+        if (fds[j].fd >= 0 && bitmap_get(j, node_graph, MAX_NODES / 64)) {
             ret = write(fds[j].fd, buf, buf_len);
             FATAL_ON(ret != buf_len, 1, "write: %m");
         }
