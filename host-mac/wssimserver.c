@@ -119,13 +119,15 @@ void print_help(FILE *stream, int exit_code) {
 
 void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
 {
-    const char *opts_short = "hg:";
+    const char *opts_short = "hlg:";
     static const struct option opts_long[] = {
         { "group", required_argument, 0,  'g' },
+        { "dump",  no_argument,       0,  'l' },
         { "help",  no_argument,       0,  'h' },
         { 0,       0,                 0,   0  }
     };
     uint32_t mask[MAX_NODES / 32];
+    bool dump = false;
     int opt;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
@@ -133,6 +135,9 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
             case 'g':
                 bitmap_parse(optarg, mask, MAX_NODES / 32);
                 graph_apply_mask(ctxt->node_graph, mask);
+                break;
+            case 'l':
+                dump = true;
                 break;
             case 'h':
                 print_help(stdout, 0);
@@ -146,6 +151,8 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     }
     if (!graph_get_num_nodes(ctxt))
         memset(ctxt->node_graph, 0xFF, sizeof(ctxt->node_graph));
+    if (dump)
+        graph_dump(ctxt);
     if (optind >= argc)
         FATAL(1, "Expected argument: socket path");
     if (optind + 1 < argc)
