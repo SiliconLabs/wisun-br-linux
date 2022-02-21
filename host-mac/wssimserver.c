@@ -34,7 +34,7 @@ static int bitmap_get(int shift, uint64_t *in, int size)
 
     if (word_nr >= size)
         return -1;
-    return !!(in[word_nr] & (1 << bit_nr));
+    return !!(in[word_nr] & (1ULL << bit_nr));
 }
 
 static int bitmap_set(int shift, uint64_t *out, int size)
@@ -44,7 +44,7 @@ static int bitmap_set(int shift, uint64_t *out, int size)
 
     if (word_nr >= size)
         return -1;
-    out[word_nr] |= 1 << bit_nr;
+    out[word_nr] |= 1ULL << bit_nr;
     return 0;
 }
 
