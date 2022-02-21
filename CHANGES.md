@@ -1,3 +1,18 @@
+v1.2.0
+------
+
+  - Add a D-Bus API to retrieve list of nodes and their parents. This API can
+    be used by third party application to draw diagrams of the network
+  - Add automatic subscription to multicast group ff03::
+  - Add initial support for region regulations, initially only for ARIB (Japan)
+  - Drop built-in MbedTLS; now users must build their own (see README for
+    install instructions)
+  - Fix missing fields in RCP protocol to support high data rates
+  - Allow connection to the RCP even if the OS/HW buffers contain garbage
+  - Fix possible overflow on timer IDs
+  - Improve simulation tools (developers)
+
+
 v1.1.0
 ------
 
