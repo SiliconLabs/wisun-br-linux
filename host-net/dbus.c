@@ -203,6 +203,64 @@ static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *re
     return 0;
 }
 
+static int route_info_compare(const void *obj_a, const void *obj_b)
+{
+    const bbr_route_info_t *a = obj_a, *b = obj_b;
+    int ret;
+
+    ret = memcmp(a->parent, b->parent, sizeof(a->parent));
+    if (ret)
+        return ret;
+    ret = memcmp(a->target, b->target, sizeof(a->target));
+    return ret;
+}
+
+int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
+                       const char *property, sd_bus_message *reply,
+                       void *userdata, sd_bus_error *ret_error)
+{
+    int rcp_if_id = *(int *)userdata;
+    bbr_route_info_t table[4096];
+    int ret, len, i;
+
+    len = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
+    if (len < 0)
+        return sd_bus_error_set_errno(ret_error, EAGAIN);
+    qsort(table, len, sizeof(table[0]), route_info_compare);
+    ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    for (i = 0; i < len; i++) {
+        ret = sd_bus_message_open_container(reply, 'r', "aya{sv}");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_append_array(reply, 'y', table[i].target, ARRAY_SIZE(table[i].target));
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_open_container(reply, 'a', "{sv}");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        {
+            ret = sd_bus_message_open_container(reply, 'e', "sv");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append(reply, "s", "parent");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_open_container(reply, 'v', "ay");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append_array(reply, 'y', table[i].parent, ARRAY_SIZE(table[i].parent));
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(reply);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(reply);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        }
+        ret = sd_bus_message_close_container(reply);
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_close_container(reply);
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    }
+    ret = sd_bus_message_close_container(reply);
+    WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
+    return 0;
+}
+
+
 int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
@@ -283,6 +341,9 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_PROPERTY("Gaks", "aay", dbus_get_gaks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+        SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes,
+                        offsetof(struct wsbr_ctxt, rcp_if_id),
+                        0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, ws_name),
                         SD_BUS_VTABLE_PROPERTY_CONST),
