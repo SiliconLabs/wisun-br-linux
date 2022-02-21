@@ -47,6 +47,17 @@ static int bitmap_set(int shift, uint64_t *out, int size)
     return 0;
 }
 
+static int bitmap_clr(int shift, uint64_t *out, int size)
+{
+    int word_nr = shift / 64;
+    int bit_nr = shift % 64;
+
+    if (word_nr >= size)
+        return -1;
+    out[word_nr] &= ~(1ULL << bit_nr);
+    return 0;
+}
+
 static int bitmap_parse(char *str, uint64_t *out, int size)
 {
     char *range;
@@ -79,11 +90,10 @@ static void graph_apply_mask(uint64_t node_graph[MAX_NODES][MAX_NODES / 64], uin
     int i, j;
 
     for (i = 0; i < MAX_NODES; i++)
-        for (j = 0; j < MAX_NODES; j++)
-            if (i != j
-                && bitmap_get(i, mask, MAX_NODES / 64)
-                && bitmap_get(j, mask, MAX_NODES / 64))
-                bitmap_set(j, node_graph[i], MAX_NODES / 64);
+        if (bitmap_get(i, mask, MAX_NODES / 64))
+            for (j = 0; j < MAX_NODES; j++)
+                if (bitmap_get(j, mask, MAX_NODES / 64))
+                    bitmap_set(j, node_graph[i], MAX_NODES / 64);
 }
 
 static int graph_get_num_nodes(struct ctxt *ctxt)
@@ -127,7 +137,7 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     };
     uint64_t mask[MAX_NODES / 64];
     bool dump = false, has_filter = false;
-    int opt, ret;
+    int opt, i, ret;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -152,6 +162,8 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     }
     if (!has_filter)
         memset(ctxt->node_graph, 0xFF, sizeof(ctxt->node_graph));
+    for (i = 0; i < MAX_NODES; i++)
+        bitmap_clr(i, ctxt->node_graph[i], MAX_NODES / 64);
     if (dump) {
         FATAL_ON(!has_filter, 1, "No graph to dump");
         graph_dump(ctxt);
