@@ -126,7 +126,7 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
         { 0,       0,                 0,   0  }
     };
     uint64_t mask[MAX_NODES / 64];
-    bool dump = false;
+    bool dump = false, has_filter = false;
     int opt, ret;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
@@ -135,6 +135,7 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
                 ret = bitmap_parse(optarg, mask, MAX_NODES / 64);
                 FATAL_ON(ret, 1, "Bad mask: %s", optarg);
                 graph_apply_mask(ctxt->node_graph, mask);
+                has_filter = true;
                 break;
             case 'l':
                 dump = true;
@@ -149,10 +150,12 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
                 break;
         }
     }
-    if (!graph_get_num_nodes(ctxt))
+    if (!has_filter)
         memset(ctxt->node_graph, 0xFF, sizeof(ctxt->node_graph));
-    if (dump)
+    if (dump) {
+        FATAL_ON(!has_filter, 1, "No graph to dump");
         graph_dump(ctxt);
+    }
     if (optind >= argc)
         FATAL(1, "Expected argument: socket path");
     if (optind + 1 < argc)
