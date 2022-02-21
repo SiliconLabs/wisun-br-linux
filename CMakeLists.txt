@@ -284,9 +284,9 @@ if(RUST_FOUND AND CARGO_FOUND)
                                        --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/wsbrd_cli/Cargo.toml
         COMMAND ${CMAKE_COMMAND} -E copy ${RUST_TARGET_DIR}/wsbrd_cli wsbrd_cli
         DEPENDS wsbrd_cli/Cargo.toml wsbrd_cli/wsbrd_cli.rs wsbrd_cli/wsbrddbusapi.rs
-        BYPRODUCTS cargo
         USES_TERMINAL
     )
+    set_target_properties(cargo-wsbrd_cli PROPERTIES ADDITIONAL_CLEAN_FILES cargo)
 
 endif()
 
