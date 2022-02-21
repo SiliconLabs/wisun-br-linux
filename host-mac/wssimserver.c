@@ -32,8 +32,7 @@ static int bitmap_get(int shift, uint64_t *in, int size)
     int word_nr = shift / 64;
     int bit_nr = shift % 64;
 
-    if (word_nr >= size)
-        return -1;
+    BUG_ON(word_nr >= size);
     return !!(in[word_nr] & (1ULL << bit_nr));
 }
 
