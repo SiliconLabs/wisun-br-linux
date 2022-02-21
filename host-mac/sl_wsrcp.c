@@ -248,9 +248,9 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     }
     if (argc != optind + 2)
         print_help(stderr, 1);
+    ctxt->rf_fd = socket_open(argv[optind + 1]);
     ctxt->os_ctxt->data_fd = pty_open(argv[optind + 0], 115200, false);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-    ctxt->rf_fd = socket_open(argv[optind + 1]);
 }
 
 struct mac_api_s *init_mac_api(int rcp_driver_id)
