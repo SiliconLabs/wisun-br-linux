@@ -127,12 +127,13 @@ void parse_commandline(struct ctxt *ctxt, int argc, char *argv[])
     };
     uint64_t mask[MAX_NODES / 64];
     bool dump = false;
-    int opt;
+    int opt, ret;
 
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
             case 'g':
-                bitmap_parse(optarg, mask, MAX_NODES / 64);
+                ret = bitmap_parse(optarg, mask, MAX_NODES / 64);
+                FATAL_ON(ret, 1, "Bad mask: %s", optarg);
                 graph_apply_mask(ctxt->node_graph, mask);
                 break;
             case 'l':
