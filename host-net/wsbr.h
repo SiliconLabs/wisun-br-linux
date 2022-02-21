@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/socket.h> // Compatibility with linux headers < 4.12
 #include <linux/if.h>
 #include <linux/limits.h>
 #ifdef HAVE_LIBSYSTEMD
