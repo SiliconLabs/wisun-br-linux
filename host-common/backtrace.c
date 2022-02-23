@@ -30,6 +30,10 @@ static int backtrace_cb(void *data, uintptr_t pc, const char *filename, int line
 void backtrace_show() {
     struct backtrace_state *state = backtrace_create_state(NULL, false, NULL, NULL);
 
-    printf("Backtrace:\n");
-    backtrace_full(state, 1, backtrace_cb, NULL, NULL);
+    if (state) {
+        printf("Backtrace:\n");
+        backtrace_full(state, 1, backtrace_cb, NULL, NULL);
+    } else {
+        printf("Backtrace not available\n");
+    }
 }
