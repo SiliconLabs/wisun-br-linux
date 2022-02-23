@@ -261,6 +261,20 @@ int ws_management_domain_configuration_validate(
     return 0;
 }
 
+// If using PhyModeId and ChanPlanId on FAN1.0 API, convert operating mode and operating class
+// into PhyModeId ChanPlanId
+void ws_management_convert_legacy_config(ws_phy_cfg_t *cfg)
+{
+    if (cfg->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT) {
+        // Channel plan ID is coded on the operating class LSB
+        cfg->channel_plan_id = cfg->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
+    }
+
+    if (cfg->operating_mode & OPERATING_MODE_PHY_MODE_ID_BIT) {
+        cfg->phy_mode_id = cfg->operating_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
+    }
+}
+
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,
@@ -300,6 +314,7 @@ int ws_management_regulatory_domain_set(
         cfg.operating_class = cfg_default.operating_class;
     }
 
+    ws_management_convert_legacy_config(&cfg);
     if (ws_cfg_phy_set(cur, &cfg, 0) < 0) {
         return -4;
     }
