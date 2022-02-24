@@ -40,12 +40,12 @@
  * /param enableAddressMapping
  *
  */
-int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType);
+int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType);
 
 
-void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb);
+void dhcpv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb);
 
-int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length);
+int dhcpv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length);
 
 /* Delete dhcp thread dhcp router ID server.
  *
@@ -55,10 +55,10 @@ int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static
  *  /param guaPrefix Prefix which will be removed
  *  /param delete_gua_addresses Whether or not assigned addresses with the prefix should be removed from the interface.
  */
-void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses);
+void dhcpv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses);
 
 
-void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
+void dhcpv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
 
 /* Control GUA address for client by DUI.Default value is true
  *
@@ -74,7 +74,7 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds);
  *  /param mode true assign addresses anonymously. false define address by Prefix + client id
  *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
+int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list);
 
 
 /* SET max accepted clients to server, Default is 200
@@ -84,7 +84,7 @@ int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uin
  *  /param guaPrefix Prefix which will be removed
  *  /param maxClientCount
  */
-int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount);
+int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount);
 
 
 /* SET Address Valid Lifetime parameter for allocated address, Default is 7200 seconds
@@ -94,15 +94,15 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
  *  /param guaPrefix Prefix which will be removed
  *  /param validLifeTimne in seconds
  */
-int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne);
+int dhcpv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne);
 
-int DHCPv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len);
+int dhcpv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len);
 
-int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len);
+int dhcpv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len);
 
-int DHCPv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb);
+int dhcpv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb);
 
 #else
-#define DHCPv6_server_service_delete(interface, guaPrefix, delete_gua_addresses)
+#define dhcpv6_server_service_delete(interface, guaPrefix, delete_gua_addresses)
 #endif
 #endif /* DHCPV6_SERVER_SERVICE_H_ */

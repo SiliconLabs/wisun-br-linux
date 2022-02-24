@@ -100,13 +100,13 @@ static bool thread_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_up
 
 int thread_dhcp6_server_init(int8_t interface_id, uint8_t prefix[8], uint8_t eui64[8], uint32_t validLifeTimne)
 {
-    if (DHCPv6_server_service_init(interface_id, prefix, eui64, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
+    if (dhcpv6_server_service_init(interface_id, prefix, eui64, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
         return -1;
     }
     //Register Callbacks
-    DHCPv6_server_service_callback_set(interface_id, prefix, thread_dhcp_address_prefer_remove_cb, thread_dhcp_address_add_cb);
+    dhcpv6_server_service_callback_set(interface_id, prefix, thread_dhcp_address_prefer_remove_cb, thread_dhcp_address_add_cb);
     //SET Timeout
-    DHCPv6_server_service_set_address_validlifetime(interface_id, prefix, validLifeTimne);
+    dhcpv6_server_service_set_address_validlifetime(interface_id, prefix, validLifeTimne);
 
     return 0;
 }

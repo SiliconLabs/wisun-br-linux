@@ -1147,7 +1147,7 @@ void thread_network_local_data_free_and_clean(thread_network_local_data_cache_en
 {
     ns_list_foreach_safe(thread_network_local_data_entry_t, cur, &cachePtr->prefix_list) {
         if (cur->dhcpv6ServerActive) {
-            DHCPv6_server_service_delete(interface_id, cur->servicesPrefix, true);
+            dhcpv6_server_service_delete(interface_id, cur->servicesPrefix, true);
         }
 
         ns_list_remove(&cachePtr->prefix_list, cur);

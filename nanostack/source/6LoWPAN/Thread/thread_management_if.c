@@ -640,7 +640,7 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
     service.stableData = stableData;
 
     // SET maximum number of accepted clients
-    DHCPv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_cnt);
+    dhcpv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_cnt);
 
     tr_debug("GUA server Generate OK");
     memcpy(ptr, prefix_ptr, 8);
@@ -667,7 +667,7 @@ int thread_dhcpv6_server_set_lifetime(int8_t interface_id, uint8_t *prefix_ptr, 
         return -1;
     }
 
-    return DHCPv6_server_service_set_address_validlifetime(interface_id, prefix_ptr, valid_lifetime);
+    return dhcpv6_server_service_set_address_validlifetime(interface_id, prefix_ptr, valid_lifetime);
 #else
     (void) interface_id;
     (void) prefix_ptr;
@@ -683,7 +683,7 @@ int thread_dhcpv6_server_set_max_client(int8_t interface_id, uint8_t *prefix_ptr
         return -1;
     }
 
-    return DHCPv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_count);
+    return dhcpv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_count);
 #else
     (void) interface_id;
     (void) prefix_ptr;
@@ -699,7 +699,7 @@ int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *
         return -1;
     }
 
-    return DHCPv6_server_service_set_address_generation_anonymous(interface_id, prefix_ptr, anonymous, false);
+    return dhcpv6_server_service_set_address_generation_anonymous(interface_id, prefix_ptr, anonymous, false);
 #else
     (void) interface_id;
     (void) prefix_ptr;
@@ -733,7 +733,7 @@ int thread_dhcpv6_server_delete(int8_t interface_id, uint8_t *prefix_ptr)
     prefixTlv.Prefix = prefix_ptr;
     prefixTlv.PrefixLen = 64;
     //Delete dhcp service
-    DHCPv6_server_service_delete(interface_id, prefix_ptr, false);
+    dhcpv6_server_service_delete(interface_id, prefix_ptr, false);
     ipv6_route_delete(temp, 64, cur->id, NULL, ROUTE_THREAD);
     thread_local_server_list_del_on_mesh_server(&cur->thread_info->localServerDataBase, &prefixTlv);
 

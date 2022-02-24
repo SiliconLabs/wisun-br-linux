@@ -596,7 +596,7 @@ static void thread_bbr_network_data_remove(thread_bbr_t *this)
 {
     tr_info("br: remove default route from network");
     thread_border_router_prefix_delete(this->interface_id, this->bbr_prefix, 64);
-    DHCPv6_server_service_delete(this->interface_id, this->bbr_prefix, true);
+    dhcpv6_server_service_delete(this->interface_id, this->bbr_prefix, true);
     memset(this->bbr_prefix, 0, 8);
     this->br_info_published = false;
 }

@@ -85,7 +85,7 @@ static void DHCP_server_service_timer_stop(void)
     }
 }
 
-int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
+int dhcpv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
 {
     dhcpv6_allocated_address_t *dhcp_allocated_address = NULL;
     //Validate Client DUID
@@ -167,7 +167,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                     tr_debug("Response dhcp sol %s clientDUID", trace_array(replyPacket.clientDUID.duid, replyPacket.clientDUID.duid_length));
 
                     //Check First Current list
-                    if (DHCPv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, true) == 0) {
+                    if (dhcpv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, true) == 0) {
                         //Respond
                         dhcp_service_send_resp(msg_tr_id, TX_OPT_NONE, responseBuf.responsePtr, responseBuf.responseLength);
                         ns_dyn_mem_free(responseBuf.responsePtr);
@@ -194,7 +194,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                         replyPacket.iaId = dhcp_ia_non_temporal_params.iaId;
                         replyPacket.transaction_ID = msg_tr_id;
                         //Check First Current list
-                        if (DHCPv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, false) == 0) {
+                        if (dhcpv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, false) == 0) {
                             //Respond
                             dhcp_service_send_resp(msg_tr_id, TX_OPT_NONE, responseBuf.responsePtr, responseBuf.responseLength);
                             ns_dyn_mem_free(responseBuf.responsePtr);
@@ -213,7 +213,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
 }
 
 
-void DHCPv6_server_service_tasklet(arm_event_s *event)
+void dhcpv6_server_service_tasklet(arm_event_s *event)
 {
     if (event->event_type == DHCPV6_SERVER_SERVICE_TASKLET_INIT) {
         //We should define peridiocally timer service!!
@@ -225,7 +225,7 @@ void DHCPv6_server_service_tasklet(arm_event_s *event)
 static int8_t dhcpv6_server_service_tasklet_generated(void)
 {
     if (dhcpv6_service_tasklet == -1) {
-        dhcpv6_service_tasklet = eventOS_event_handler_create(DHCPv6_server_service_tasklet, DHCPV6_SERVER_SERVICE_TASKLET_INIT);
+        dhcpv6_service_tasklet = eventOS_event_handler_create(dhcpv6_server_service_tasklet, DHCPV6_SERVER_SERVICE_TASKLET_INIT);
     }
 
     return dhcpv6_service_tasklet;
@@ -242,7 +242,7 @@ static int8_t dhcpv6_server_service_tasklet_generated(void)
  * /param serverDUIDType
  *
  */
-int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
+int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
 {
     int retVal = -1;
     uint16_t socketInstance;
@@ -275,7 +275,7 @@ int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], u
     return retVal;
 }
 
-void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
+void dhcpv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
 {
     libdhcpv6_gua_servers_time_update(timeUpdateInSeconds);
 }
@@ -288,7 +288,7 @@ void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
  *  /param guaPrefix Prefix which will be removed
  *  /param delete_gua_addresses Whether or not assigned addresses with the prefix should be removed from the interface.
  */
-void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
+void dhcpv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (serverInfo) {
@@ -335,7 +335,7 @@ void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
  *  /param mode true assign addresses anonymously. false define address by Prefix + client id
  *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool disable_address_list)
+int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool disable_address_list)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -354,7 +354,7 @@ int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uin
     return 0;
 }
 
-void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb)
+void dhcpv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -366,7 +366,7 @@ void DHCPv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[stat
 }
 
 
-int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length)
+int dhcpv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static 16],  uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length)
 {
 
     //Validate length and type
@@ -392,7 +392,7 @@ int DHCPv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static
  *  /param guaPrefix Prefix which will be removed
  *  /param maxClientCount
  */
-int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
+int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
 {
     dhcpv6_gua_server_entry_s *serverInfo;
     if (maxClientCount == 0 || maxClientCount > MAX_SUPPORTED_ADDRESS_LIST_SIZE) {
@@ -416,7 +416,7 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
  *  /param guaPrefix Prefix which will be removed
  *  /param validLifeTimne in seconds
  */
-int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
+int dhcpv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
 {
     dhcpv6_gua_server_entry_s *serverInfo;
     if (validLifeTimne < 120) {
@@ -432,7 +432,7 @@ int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t gu
     return 0;
 }
 
-int DHCPv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len)
+int dhcpv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[static 16], uint8_t dns_server_address[static 16], uint8_t *dns_search_list_ptr, uint8_t dns_search_list_len)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -464,7 +464,7 @@ int DHCPv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[sta
     return 0;
 }
 
-int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len)
+int dhcpv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -496,7 +496,7 @@ int DHCPv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[st
     return 0;
 }
 
-int DHCPv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb)
+int dhcpv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -513,7 +513,7 @@ int DHCPv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t gua
 }
 #else
 
-int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
+int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
 {
     (void) interface;
     (void) guaPrefix;
@@ -522,17 +522,17 @@ int DHCPv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], u
 
     return -1;
 }
-void DHCPv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
+void dhcpv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
 {
     (void) interface;
     (void) guaPrefix;
     (void) delete_gua_addresses;
 }
-void DHCPv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
+void dhcpv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
 {
     (void) timeUpdateInSeconds;
 }
-int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
+int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
 {
     (void) interface;
     (void) guaPrefix;
@@ -541,7 +541,7 @@ int DHCPv6_server_service_set_address_generation_anonymous(int8_t interface, uin
 
     return -1;
 }
-int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
+int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
 {
     (void) interface;
     (void) guaPrefix;
@@ -549,7 +549,7 @@ int DHCPv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
 
     return -1;
 }
-int DHCPv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
+int dhcpv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
 {
     (void) interface;
     (void) guaPrefix;

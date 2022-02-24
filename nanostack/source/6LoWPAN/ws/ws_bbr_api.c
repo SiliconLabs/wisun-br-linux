@@ -275,7 +275,7 @@ void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint
         return;
     }
     // Change the setting if the border router is active
-    DHCPv6_server_service_set_address_validlifetime(cur->id, current_global_prefix, dhcp_address_lifetime);
+    dhcpv6_server_service_set_address_validlifetime(cur->id, current_global_prefix, dhcp_address_lifetime);
 }
 
 bool ws_bbr_backbone_address_get(uint8_t *address)
@@ -548,7 +548,7 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
     (void)cur;
     if (net_dns_server_get(backbone_interface_id, dns_server_address, &dns_search_list_ptr, &dns_search_list_len, 0) == 0) {
         /*Only supporting one DNS server address*/
-        DHCPv6_server_service_set_dns_server(cur->id, global_id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
+        dhcpv6_server_service_set_dns_server(cur->id, global_id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
     }
 
     //Generate ARM specific vendor data in Wi-SUN network
@@ -581,9 +581,9 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
             }
         }
     }
-    DHCPv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
+    dhcpv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
 
-    DHCPv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
+    dhcpv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
     ns_dyn_mem_free(dhcp_vendor_data_ptr);
 }
 
@@ -605,18 +605,18 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
 
     tr_debug("DHCP server activate %s", trace_ipv6_prefix(global_id, 64));
 
-    if (DHCPv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
+    if (dhcpv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
         tr_error("DHCPv6 Server create fail");
         return;
     }
-    DHCPv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
+    dhcpv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
     //Check for anonymous mode
     bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
 
-    DHCPv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
-    DHCPv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
+    dhcpv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
+    dhcpv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
-    DHCPv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
+    dhcpv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
 
     ws_bbr_dhcp_server_dns_info_update(cur, global_id);
 
@@ -632,7 +632,7 @@ static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_
     memcpy(temp_address, global_id, 8);
     memset(temp_address + 8, 0, 8);
     tr_debug("DHCP server deactivate %s", trace_ipv6(temp_address));
-    DHCPv6_server_service_delete(cur->id, global_id, false);
+    dhcpv6_server_service_delete(cur->id, global_id, false);
     //Delete Client
     dhcp_client_global_address_delete(cur->id, NULL, temp_address);
 }
