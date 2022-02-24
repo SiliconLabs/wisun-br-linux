@@ -123,7 +123,7 @@ static bool dhcpv6_socket_timeout_timer_active = false;
 
 void dhcp_service_send_message(msg_tr_t *msg_tr_ptr);
 
-void DHCPv6_socket_service_tasklet(arm_event_s *event)
+void dhcpv6_socket_service_tasklet(arm_event_s *event)
 {
     if (event->event_type == DHCPV6_SOCKET_SERVICE_TASKLET_INIT) {
         //We should define peridiocally timer service!!
@@ -153,7 +153,7 @@ bool dhcp_service_allocate(void)
             dhcp_service->dhcp_client_socket = -1;
             dhcp_service->dhcp_server_socket = -1;
             dhcp_service->dhcp_relay_socket = -1;
-            dhcp_service->dhcpv6_socket_service_tasklet = eventOS_event_handler_create(DHCPv6_socket_service_tasklet, DHCPV6_SOCKET_SERVICE_TASKLET_INIT);
+            dhcp_service->dhcpv6_socket_service_tasklet = eventOS_event_handler_create(dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_SERVICE_TASKLET_INIT);
             if (dhcp_service->dhcpv6_socket_service_tasklet < 0) {
                 ns_dyn_mem_free(dhcp_service);
                 dhcp_service = NULL;
