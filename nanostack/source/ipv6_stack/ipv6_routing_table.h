@@ -24,7 +24,7 @@
 #define IPV6_ROUTING_TABLE_H_
 
 #include "ns_list.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 
 /* Address Resolution and Neighbour Unreachablity Detection constants from
  * RFC 4861, updated by RFC 7048.

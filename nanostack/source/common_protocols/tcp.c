@@ -20,7 +20,7 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "eventOS_event.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nsdynmemLIB.h"
 #include "ip_fsc.h"
 #include "ns_sha256.h"

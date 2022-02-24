@@ -28,7 +28,7 @@
 #include "socket_api.h"
 #include "nsdynmemLIB.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_of0.h"
 #include "RPL/rpl_mrhof.h"

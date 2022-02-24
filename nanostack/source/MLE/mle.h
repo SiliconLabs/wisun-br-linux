@@ -19,7 +19,7 @@
 #define MLE_H_
 
 #include "nsconfig.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "ns_list.h"
 
 struct buffer;

@@ -28,9 +28,9 @@
 #ifndef _NS_SOCKET_H
 #define _NS_SOCKET_H
 
-#include "Core/include/ns_error_types.h"
-#include "Core/include/ns_buffer.h"
-#include "Core/include/sockbuf.h"
+#include "core/include/ns_error_types.h"
+#include "core/include/ns_buffer.h"
+#include "core/include/sockbuf.h"
 
 #ifndef SOCKET_RX_LIMIT
 #define SOCKET_RX_LIMIT 3

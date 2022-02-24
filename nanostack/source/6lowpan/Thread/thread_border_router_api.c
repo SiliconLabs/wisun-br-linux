@@ -34,7 +34,7 @@
 #include "eventOS_event.h"
 #include <ns_list.h>
 #include "ns_trace.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "common_functions.h"
 #include "randLIB.h"
 #include "thread_border_router_api.h"

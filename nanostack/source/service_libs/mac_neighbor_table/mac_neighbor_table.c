@@ -23,7 +23,7 @@
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "platform/topo_trace.h"
 #include "nanostack/fhss_ws_extension.h"
 

@@ -29,7 +29,7 @@
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/MAC/mac_helper.h"
 

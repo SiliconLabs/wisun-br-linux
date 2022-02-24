@@ -21,7 +21,7 @@
 #include "ns_types.h"
 #include "nsdynmemLIB.h"
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "nwk_interface/Include/protocol.h"

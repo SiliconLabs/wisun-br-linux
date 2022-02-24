@@ -33,8 +33,8 @@
 #include "nwk_interface/Include/protocol_abstract.h"
 
 // Users of protocol.h can assume it includes these headers
-#include "Core/include/ns_address_internal.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_address_internal.h"
+#include "core/include/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
 #include "6lowpan/IPHC_Decode/lowpan_context.h"

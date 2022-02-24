@@ -18,14 +18,14 @@
 #include "ns_types.h"
 #ifdef PANA
 #include "string.h"
-#include "Core/include/ns_address_internal.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_address_internal.h"
+#include "core/include/ns_buffer.h"
 #ifdef ECC
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
 #include "randLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 //#include "6lowpan/Bootstraps/network_lib.h"
 #include "shalib.h"
 #include "security/TLS/tls_lib.h"

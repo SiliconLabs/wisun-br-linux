@@ -131,11 +131,11 @@ add_executable(wsbrd
     nanostack/source/common_protocols/mld.c
     nanostack/source/common_protocols/tcp.c
     nanostack/source/common_protocols/udp.c
-    nanostack/source/Core/buffer_dyn.c
-    nanostack/source/Core/ns_address_internal.c
-    nanostack/source/Core/ns_monitor.c
-    nanostack/source/Core/ns_socket.c
-    nanostack/source/Core/sockbuf.c
+    nanostack/source/core/buffer_dyn.c
+    nanostack/source/core/ns_address_internal.c
+    nanostack/source/core/ns_monitor.c
+    nanostack/source/core/ns_socket.c
+    nanostack/source/core/sockbuf.c
     nanostack/source/dhcpv6_client/dhcpv6_client_service.c
     nanostack/source/dhcpv6_server/dhcpv6_server_service.c
     nanostack/source/ipv6_stack/ipv6_routing_table.c
@@ -373,11 +373,11 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/common_protocols/mld.c
         nanostack/source/common_protocols/tcp.c
         nanostack/source/common_protocols/udp.c
-        nanostack/source/Core/buffer_dyn.c
-        nanostack/source/Core/ns_address_internal.c
-        nanostack/source/Core/ns_monitor.c
-        nanostack/source/Core/ns_socket.c
-        nanostack/source/Core/sockbuf.c
+        nanostack/source/core/buffer_dyn.c
+        nanostack/source/core/ns_address_internal.c
+        nanostack/source/core/ns_monitor.c
+        nanostack/source/core/ns_socket.c
+        nanostack/source/core/sockbuf.c
         nanostack/source/dhcpv6_client/dhcpv6_client_service.c
         nanostack/source/dhcpv6_server/dhcpv6_server_service.c
         nanostack/source/ipv6_stack/ipv6_routing_table.c

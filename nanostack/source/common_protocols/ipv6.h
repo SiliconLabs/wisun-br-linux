@@ -18,7 +18,7 @@
 #ifndef _IPV6_H
 #define _IPV6_H
 
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "common_protocols/ipv6_constants.h"
 
 extern uint16_t ipv6_header_size_required(buffer_t *buf);

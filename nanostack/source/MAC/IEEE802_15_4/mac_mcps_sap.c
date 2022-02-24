@@ -34,7 +34,7 @@
 #include "fhss_api.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "Core/include/ns_monitor.h"
+#include "core/include/ns_monitor.h"
 #include "randLIB.h"
 
 #include "MAC/IEEE802_15_4/sw_mac_internal.h"

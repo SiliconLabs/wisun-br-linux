@@ -37,7 +37,7 @@
 #include "MAC/IEEE802_15_4/mac_cca_threshold.h"
 #include "MAC/IEEE802_15_4/mac_mode_switch.h"
 #include "MAC/rf_driver_storage.h"
-#include "Core/include/ns_monitor.h"
+#include "core/include/ns_monitor.h"
 #include "ns_trace.h"
 
 #define TRACE_GROUP "mPDs"

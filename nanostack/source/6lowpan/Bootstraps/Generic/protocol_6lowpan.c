@@ -22,7 +22,7 @@
 #include "eventOS_scheduler.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/udp.h"
 #include "common_protocols/ipv6.h"

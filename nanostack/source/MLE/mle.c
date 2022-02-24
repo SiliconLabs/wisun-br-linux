@@ -23,7 +23,7 @@
 #include "eventOS_event.h"
 #include "eventOS_event_timer.h"
 #include "socket_api.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
 #include "string.h"

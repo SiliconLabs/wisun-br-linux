@@ -69,7 +69,7 @@
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "common_protocols/ipv6_constants.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "mlme.h"
 
 #ifdef HAVE_THREAD

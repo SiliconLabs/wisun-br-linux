@@ -18,7 +18,7 @@
 #ifndef RPL_POLICY_H_
 #define RPL_POLICY_H_
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "rpl_control.h"
 
 bool rpl_policy_force_tunnel(void);

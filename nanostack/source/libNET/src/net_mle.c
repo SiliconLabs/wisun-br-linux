@@ -25,7 +25,7 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "net_mle_api.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "net_interface.h"
 #include "MLE/mle.h"
 #include "nwk_interface/Include/protocol.h"

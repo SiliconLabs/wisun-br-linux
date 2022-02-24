@@ -20,7 +20,7 @@
 #ifndef NO_IP_FRAGMENT_RX
 
 #include "common_protocols/ipv6_constants.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 
 /* How large a fragmented packet are we prepared to handle? */
 /* Must be a multiple of 8. This default can be overridden. */

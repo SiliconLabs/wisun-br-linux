@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include "ns_trace.h"
 #include <string.h>
-#include "Core/include/sockbuf.h"
+#include "core/include/sockbuf.h"
 
 #define TRACE_GROUP "sbuf"
 

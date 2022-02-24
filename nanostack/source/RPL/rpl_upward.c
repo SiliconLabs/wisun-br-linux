@@ -38,7 +38,7 @@
 
 #include "net_interface.h"
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "nwk_interface/Include/protocol_abstract.h"

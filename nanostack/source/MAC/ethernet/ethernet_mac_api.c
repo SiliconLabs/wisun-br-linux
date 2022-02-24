@@ -22,7 +22,7 @@
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
 #include "MAC/rf_driver_storage.h"
-#include "Core/include/ns_monitor.h"
+#include "core/include/ns_monitor.h"
 
 typedef struct eth_mac_internal_s {
     eth_mac_api_t *mac_api;

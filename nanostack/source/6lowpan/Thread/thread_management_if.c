@@ -38,7 +38,7 @@
 #include <net_thread_test.h>
 #include <net_ipv6_api.h>
 #include "ns_trace.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "common_functions.h"
 #include "6lowpan/Thread/thread_config.h"
 #include "6lowpan/Thread/thread_common.h"

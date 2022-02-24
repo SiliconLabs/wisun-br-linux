@@ -25,7 +25,7 @@
 #include "nsdynmemLIB.h"
 #include "randLIB.h"
 #include <string.h>
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_timer.h"
 #include "common_protocols/ipv6.h"

@@ -35,7 +35,7 @@
 #include <ns_list.h>
 #include <net_thread_test.h>
 #include "ns_trace.h"
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "common_functions.h"
 #include "nwk_interface/Include/protocol.h"
 #include "6lowpan/Thread/thread_common.h"

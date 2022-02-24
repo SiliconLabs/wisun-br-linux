@@ -40,7 +40,7 @@
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
 
-#include "Core/include/ns_buffer.h"
+#include "core/include/ns_buffer.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "common_protocols/ipv6_constants.h"

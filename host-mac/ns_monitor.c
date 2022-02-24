@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nanostack/source/Core/include/ns_monitor.h"
+#include "nanostack/source/core/include/ns_monitor.h"
 
 bool ns_monitor_packet_allocation_allowed(void)
 {

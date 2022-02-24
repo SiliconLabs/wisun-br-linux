@@ -58,11 +58,11 @@ SRCS += \
 	source/common_protocols/mld.c \
 	source/common_protocols/tcp.c \
 	source/common_protocols/udp.c \
-	source/Core/ns_address_internal.c \
-	source/Core/ns_monitor.c \
-	source/Core/buffer_dyn.c \
-	source/Core/sockbuf.c \
-	source/Core/ns_socket.c \
+	source/core/ns_address_internal.c \
+	source/core/ns_monitor.c \
+	source/core/buffer_dyn.c \
+	source/core/sockbuf.c \
+	source/core/ns_socket.c \
 	source/ipv6_stack/ipv6_routing_table.c \
 	source/ipv6_stack/protocol_ipv6.c \
 	source/libNET/src/net_6lowpan_parameter_api.c \

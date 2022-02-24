@@ -22,7 +22,7 @@
 #include "string.h"
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
 #include "ccmLIB.h"
 #include "shalib.h"

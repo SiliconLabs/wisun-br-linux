@@ -34,7 +34,7 @@
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/mld.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ip_fsc.h"

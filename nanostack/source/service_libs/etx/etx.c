@@ -23,7 +23,7 @@
 #include "platform/arm_hal_phy.h"
 #include "net_interface.h"
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "MLE/mle.h"
 #include "nwk_interface/Include/protocol_abstract.h"
 #include "nwk_interface/Include/protocol.h"

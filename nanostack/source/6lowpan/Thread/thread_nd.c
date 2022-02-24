@@ -42,7 +42,7 @@
 #include "eventOS_event.h"
 #include "common_functions.h"
 #include "socket_api.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"

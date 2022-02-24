@@ -23,7 +23,7 @@
 #include "common_functions.h"
 #include "ns_trace.h"
 #include "MAC/rf_driver_storage.h"
-#include "Core/include/ns_monitor.h"
+#include "core/include/ns_monitor.h"
 
 #define TRACE_GROUP "seMa"
 

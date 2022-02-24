@@ -33,7 +33,7 @@
 #include "ns_trace.h"
 #include "string.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"

@@ -20,9 +20,9 @@
 #include <limits.h>
 #include "ns_types.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_address_internal.h"
-#include "Core/include/ns_buffer.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_address_internal.h"
+#include "core/include/ns_buffer.h"
+#include "core/include/ns_socket.h"
 #include "ns_trace.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nwk_interface/Include/protocol_stats.h"

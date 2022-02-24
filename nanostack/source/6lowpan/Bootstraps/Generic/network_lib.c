@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include <string.h>
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"

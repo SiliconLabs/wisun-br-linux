@@ -33,7 +33,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "thread_tmfcop_lib.h"
 
 #include "coap_service_api.h"

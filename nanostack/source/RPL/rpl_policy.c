@@ -24,7 +24,7 @@
 #include "randLIB.h"
 #include "net_interface.h"
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "service_libs/etx/etx.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "ipv6_stack/ipv6_routing_table.h"

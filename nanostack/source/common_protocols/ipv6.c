@@ -23,7 +23,7 @@
 #include "ns_types.h"
 #include "string.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"

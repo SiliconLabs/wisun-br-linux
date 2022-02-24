@@ -18,7 +18,7 @@
 #ifndef ND_DEFINES_H_
 #define ND_DEFINES_H_
 
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "ns_list.h"
 #include "6lowpan/IPHC_Decode/lowpan_context.h"
 #include "common_protocols/icmpv6_prefix.h"

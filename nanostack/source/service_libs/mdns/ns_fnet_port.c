@@ -33,7 +33,7 @@
 #include "socket_api.h"
 #include "net_interface.h"
 #include "nsdynmemLIB.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 
 #include "ns_fnet_events.h"
 

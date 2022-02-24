@@ -85,7 +85,7 @@
 #include "6lowpan/MAC/mac_pairwise_key.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "service_libs/etx/etx.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 #include "6lowpan/Thread/thread_nvm_store.h"
 
 #define TRACE_GROUP "thrd"

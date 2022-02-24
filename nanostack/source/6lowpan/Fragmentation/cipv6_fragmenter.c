@@ -26,7 +26,7 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "randLIB.h"
-#include "Core/include/ns_socket.h"
+#include "core/include/ns_socket.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "6lowpan/Fragmentation/cipv6_fragmenter.h"
 #include "nwk_interface/Include/protocol.h"

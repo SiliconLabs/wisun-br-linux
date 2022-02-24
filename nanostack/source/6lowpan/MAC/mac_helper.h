@@ -19,7 +19,7 @@
 #define MAC_HELPER_H
 
 #include "mlme.h"
-#include "Core/include/ns_address_internal.h"
+#include "core/include/ns_address_internal.h"
 
 struct channel_list_s;
 struct nwk_scan_params;
