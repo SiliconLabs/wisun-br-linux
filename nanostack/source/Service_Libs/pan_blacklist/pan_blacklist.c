@@ -24,12 +24,12 @@
 #include "pan_blacklist_api.h"
 
 #define TRACE_GROUP "pbl"
-static pan_blaclist_entry_t *pan_blacklist_entry_find(pan_blaclist_cache_s *list_ptr, uint16_t pan_id);
-static pan_blaclist_entry_t *pan_blacklist_entry_allocate(pan_blaclist_cache_s *list_ptr);
+static pan_blacklist_entry_t *pan_blacklist_entry_find(pan_blacklist_cache_s *list_ptr, uint16_t pan_id);
+static pan_blacklist_entry_t *pan_blacklist_entry_allocate(pan_blacklist_cache_s *list_ptr);
 static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data);
 static pan_coordinator_blacklist_entry_t *pan_coordinator_blacklist_entry_allocate(pan_coordinator_blaclist_cache_s *list_ptr);
 
-void pan_blacklist_cache_init(pan_blaclist_cache_s *blacklist_cache)
+void pan_blacklist_cache_init(pan_blacklist_cache_s *blacklist_cache)
 {
     ns_list_init(&blacklist_cache->head);
 }
@@ -39,9 +39,9 @@ void pan_coordinator_blacklist_cache_init(pan_coordinator_blaclist_cache_s *blac
     ns_list_init(&blacklist_cache->head);
 }
 
-void pan_blacklist_pan_set(pan_blaclist_cache_s *list_ptr, uint16_t panid, uint16_t timeout)
+void pan_blacklist_pan_set(pan_blacklist_cache_s *list_ptr, uint16_t panid, uint16_t timeout)
 {
-    pan_blaclist_entry_t *entry = pan_blacklist_entry_find(list_ptr, panid);
+    pan_blacklist_entry_t *entry = pan_blacklist_entry_find(list_ptr, panid);
     if (!entry) {
         //Allocate entry
         entry = pan_blacklist_entry_allocate(list_ptr);
@@ -67,9 +67,9 @@ void pan_cordinator_blacklist_pan_set(pan_coordinator_blaclist_cache_s *list_ptr
     }
 }
 
-void pan_blacklist_time_update(pan_blaclist_cache_s *list_ptr, uint16_t time_update_in_seconds)
+void pan_blacklist_time_update(pan_blacklist_cache_s *list_ptr, uint16_t time_update_in_seconds)
 {
-    ns_list_foreach_safe(pan_blaclist_entry_t, cur_ptr, &list_ptr->head) {
+    ns_list_foreach_safe(pan_blacklist_entry_t, cur_ptr, &list_ptr->head) {
         if (cur_ptr->timeout_in_seconds > time_update_in_seconds) {
             cur_ptr->timeout_in_seconds -= time_update_in_seconds;
         } else {
@@ -99,7 +99,7 @@ void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr)
     }
 }
 
-bool pan_blacklist_filter(pan_blaclist_cache_s *list_ptr, uint16_t panid)
+bool pan_blacklist_filter(pan_blacklist_cache_s *list_ptr, uint16_t panid)
 {
     if (pan_blacklist_entry_find(list_ptr, panid)) {
         return true;
@@ -116,9 +116,9 @@ bool pan_cordinator_blacklist_filter(pan_coordinator_blaclist_cache_s *list_ptr,
 }
 
 
-static pan_blaclist_entry_t *pan_blacklist_entry_find(pan_blaclist_cache_s *list_ptr, uint16_t pan_id)
+static pan_blacklist_entry_t *pan_blacklist_entry_find(pan_blacklist_cache_s *list_ptr, uint16_t pan_id)
 {
-    ns_list_foreach(pan_blaclist_entry_t, cur_ptr, &list_ptr->head) {
+    ns_list_foreach(pan_blacklist_entry_t, cur_ptr, &list_ptr->head) {
         if (cur_ptr->pan_id == pan_id) {
             return cur_ptr;
         }
@@ -126,9 +126,9 @@ static pan_blaclist_entry_t *pan_blacklist_entry_find(pan_blaclist_cache_s *list
     return NULL;
 }
 
-static pan_blaclist_entry_t *pan_blacklist_entry_allocate(pan_blaclist_cache_s *list_ptr)
+static pan_blacklist_entry_t *pan_blacklist_entry_allocate(pan_blacklist_cache_s *list_ptr)
 {
-    pan_blaclist_entry_t *entry = ns_dyn_mem_alloc(sizeof(pan_blaclist_entry_t));
+    pan_blacklist_entry_t *entry = ns_dyn_mem_alloc(sizeof(pan_blacklist_entry_t));
     if (entry) {
         //Add to list
         ns_list_add_to_end(&list_ptr->head, entry);

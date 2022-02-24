@@ -280,7 +280,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
             addr_slow_timer(cur, seconds);
             mld_slow_timer(cur, seconds);
             ipv6_neighbour_cache_slow_timer(&cur->ipv6_neighbour_cache, seconds);
-            pan_blacklist_time_update(&cur->pan_blaclist_cache, seconds);
+            pan_blacklist_time_update(&cur->pan_blacklist_cache, seconds);
             pan_coordinator_blacklist_time_update(&cur->pan_cordinator_black_list, seconds);
             if (cur->reachable_time_ttl > seconds) {
                 cur->reachable_time_ttl -= seconds;
@@ -900,7 +900,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
     }
 
     neighbor_cache_init(&(new_entry->neigh_cache));
-    pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
+    pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
     pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
@@ -939,7 +939,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_a
     }
 
     neighbor_cache_init(&(new_entry->neigh_cache));
-    pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
+    pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
     pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
@@ -978,7 +978,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
 
     if (new_entry) {
         neighbor_cache_init(&(new_entry->neigh_cache));
-        pan_blacklist_cache_init(&(new_entry->pan_blaclist_cache));
+        pan_blacklist_cache_init(&(new_entry->pan_blacklist_cache));
         pan_coordinator_blacklist_cache_init(&(new_entry->pan_cordinator_black_list));
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
 

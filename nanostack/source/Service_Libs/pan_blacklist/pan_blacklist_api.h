@@ -18,11 +18,11 @@
 #ifndef SERVICE_LIBS_PAN_BLACKLIST_PAN_BLACKLIST_API_H_
 #define SERVICE_LIBS_PAN_BLACKLIST_PAN_BLACKLIST_API_H_
 #include "ns_list.h"
-typedef struct pan_blaclist_entry {
+typedef struct pan_blacklist_entry {
     uint16_t pan_id;
     uint16_t timeout_in_seconds;
     ns_list_link_t link;
-} pan_blaclist_entry_t;
+} pan_blacklist_entry_t;
 
 typedef struct pan_coordinator_blacklist_entry {
     uint8_t coordinator_pan_address[10];
@@ -31,15 +31,15 @@ typedef struct pan_coordinator_blacklist_entry {
 } pan_coordinator_blacklist_entry_t;
 
 /*!
- * \struct pan_blaclist_cache_s
+ * \struct pan_blacklist_cache_s
  *
  * \brief Top-level pan blacklist cache descriptor.
  *
  * This passed by reference to all APIs. Users should not manipulate contents.
  */
-typedef struct pan_blaclist_cache_s {
-    NS_LIST_HEAD(pan_blaclist_entry_t, link) head;
-} pan_blaclist_cache_s;
+typedef struct pan_blacklist_cache_s {
+    NS_LIST_HEAD(pan_blacklist_entry_t, link) head;
+} pan_blacklist_cache_s;
 
 /*!
  * \struct pan_coordinator_blaclist_cache_s
@@ -53,21 +53,21 @@ typedef struct pan_coordinator_blacklist_cache_s {
 } pan_coordinator_blaclist_cache_s;
 
 
-void pan_blacklist_cache_init(pan_blaclist_cache_s *blacklist_cache);
+void pan_blacklist_cache_init(pan_blacklist_cache_s *blacklist_cache);
 
 void pan_coordinator_blacklist_cache_init(pan_coordinator_blaclist_cache_s *blacklist_cache);
 
 void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr);
 
-void pan_blacklist_pan_set(pan_blaclist_cache_s *list_ptr, uint16_t panid, uint16_t timeout);
+void pan_blacklist_pan_set(pan_blacklist_cache_s *list_ptr, uint16_t panid, uint16_t timeout);
 
 void pan_cordinator_blacklist_pan_set(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *cordinator_data, uint16_t timeout);
 
-void pan_blacklist_time_update(pan_blaclist_cache_s *list_ptr, uint16_t time_update_in_seconds);
+void pan_blacklist_time_update(pan_blacklist_cache_s *list_ptr, uint16_t time_update_in_seconds);
 
 void pan_coordinator_blacklist_time_update(pan_coordinator_blaclist_cache_s *list_ptr, uint16_t time_update_in_seconds);
 
-bool pan_blacklist_filter(pan_blaclist_cache_s *list_ptr, uint16_t panid);
+bool pan_blacklist_filter(pan_blacklist_cache_s *list_ptr, uint16_t panid);
 
 bool pan_cordinator_blacklist_filter(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data);
 

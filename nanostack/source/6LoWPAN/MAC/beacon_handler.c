@@ -45,7 +45,7 @@ void beacon_received(int8_t if_id, const mlme_beacon_ind_t *data)
         return;
     }
 
-    if (pan_blacklist_filter(&interface->pan_blaclist_cache, data->PANDescriptor.CoordPANId)) {
+    if (pan_blacklist_filter(&interface->pan_blacklist_cache, data->PANDescriptor.CoordPANId)) {
         tr_debug("Drop black listed beacon");
         return;
     }

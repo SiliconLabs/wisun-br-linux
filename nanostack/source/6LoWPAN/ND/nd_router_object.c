@@ -431,7 +431,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
             tr_error("ND cache full--> Black list by given lifetime");
             cur = nd_get_object_by_nwk_id(interface->nwk_id);
             if (cur) {
-                pan_blacklist_pan_set(&interface->pan_blaclist_cache, mac_helper_panid_get(interface), cur->life_time);
+                pan_blacklist_pan_set(&interface->pan_blacklist_cache, mac_helper_panid_get(interface), cur->life_time);
             }
             break;
 
