@@ -68,7 +68,7 @@ typedef struct mlme_security_s {
     uint8_t Keysource[8];       /**< Key source */
 } mlme_security_t;
 
-#define MAC_HEADER_VENDOR_SPESIFIC_IE_ID          0x00  /**< Vendor specific Header IE element */
+#define MAC_HEADER_VENDOR_SPECIFIC_IE_ID          0x00  /**< Vendor specific Header IE element */
 #define MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID    0x2a  /**< External organisation defined Header IE element */
 #define MAC_HEADER_TERMINATION1_IE_ID             0x7e  /**< Header IE element termination when Payload element is following Header IE */
 #define MAC_HEADER_TERMINATION2_IE_ID             0x7f  /**< Header IE element termination when no Payload element is following Header IE but normal payload is */

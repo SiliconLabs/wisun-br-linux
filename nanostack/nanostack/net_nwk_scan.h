@@ -68,7 +68,7 @@ extern "C" {
 /** List PAN networks with any beacon payload */
 #define NET_ACTIVE_SCAN_ACCEPT_ANY_BEACON_PAYLOAD 1
 /** List PAN networks with ZIP-specific payload that accept join */
-#define NET_ACTIVE_SCAN_ACCEPT_ONLY_ZIP_SPESIFIC  2
+#define NET_ACTIVE_SCAN_ACCEPT_ONLY_ZIP_SPECIFIC  2
 /*!
  * \struct nwk_pan_alternative_parent_t
  * \brief Network alternative parent structure.
@@ -112,7 +112,7 @@ extern int8_t arm_net_energy_scan(int8_t interface_id, channel_list_s *scan_list
  * \param interface_id Interface id.
  * \param scan_list Channel list for scan operation.
  * \param passed_fptr A function pointer for scan result notify.
- * \param scan_level NET_ACTIVE_SCAN_ONLY_NWK, NET_ACTIVE_SCAN_ACCEPT_ANY_BEACON_PAYLOAD,NET_ACTIVE_SCAN_ACCEPT_ONLY_ZIP_SPESIFIC
+ * \param scan_level NET_ACTIVE_SCAN_ONLY_NWK, NET_ACTIVE_SCAN_ACCEPT_ANY_BEACON_PAYLOAD,NET_ACTIVE_SCAN_ACCEPT_ONLY_ZIP_SPECIFIC
  *
  * \return 0 Scan operation started OK.
  * \return -1 Stack is active.
