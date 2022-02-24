@@ -89,7 +89,7 @@
 #define TRACE_GROUP "wsbs"
 
 static void ws_bootstrap_event_handler(arm_event_s *event);
-static int8_t ws_bootsrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
@@ -356,7 +356,7 @@ static void ws_nwk_event_post(protocol_interface_info_entry_t *cur, arm_nwk_inte
     }
 }
 
-static int8_t ws_bootsrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
 {
     arm_event_s event = {
         .receiver = interface_id,
@@ -2922,11 +2922,11 @@ congestion_get_end:
  * */
 void ws_bootstrap_event_discovery_start(protocol_interface_info_entry_t *cur)
 {
-    ws_bootsrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 void ws_bootstrap_event_configuration_start(protocol_interface_info_entry_t *cur)
 {
-    ws_bootsrap_event_trig(WS_CONFIGURATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_CONFIGURATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 void ws_bootstrap_event_authentication_start(protocol_interface_info_entry_t *cur)
 {
@@ -2934,23 +2934,23 @@ void ws_bootstrap_event_authentication_start(protocol_interface_info_entry_t *cu
 }
 void ws_bootstrap_event_operation_start(protocol_interface_info_entry_t *cur)
 {
-    ws_bootsrap_event_trig(WS_OPERATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_OPERATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur)
 {
-    ws_bootsrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 
 void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type)
 {
-    ws_bootsrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
+    ws_bootstrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 void ws_bootstrap_event_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure)
 {
     if (cur->bootStrapId < 0) {
         return;
     }
-    ws_bootsrap_event_trig(WS_TEST_PROC_TRIGGER, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, (void *) procedure);
+    ws_bootstrap_event_trig(WS_TEST_PROC_TRIGGER, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, (void *) procedure);
 }
 
 void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *cur)
