@@ -42,7 +42,7 @@
 #define NEIGH_SECURITY_HANSHAKE_PENGING_FLAG    0x0040 /** Indicate that Security Handshake is not ready with this neighbour  */
 #define NEIGH_PRIORITY_FLAG                     0x0020 /** Indicate priority Neighbor (Cordinator or ND/RPL Router) */
 #define NEIGH_RESERVED_FLAG                     0x0010
-#define NEIGH_IDR_MASK                          0x000f /** MLE Spesific IDR value */
+#define NEIGH_IDR_MASK                          0x000f /** MLE Specific IDR value */
 
 /** Mode bit definition for MLE */
 #define NEIGH_MODE_DEV_MASK 2

@@ -1719,7 +1719,7 @@ void lowpan_adaptation_interface_data_ind(protocol_interface_info_entry_t *cur, 
     buf->dst_sa.addr_type = (addrtype_t)data_ind->DstAddrMode;
     ptr = common_write_16_bit(data_ind->DstPANId, buf->dst_sa.address);
     memcpy(ptr, data_ind->DstAddr, 8);
-    //Set Link spesific stuff to seperately
+    //Set Link specific stuff to seperately
     buf->link_specific.ieee802_15_4.srcPanId = data_ind->SrcPANId;
     buf->link_specific.ieee802_15_4.dstPanId = data_ind->DstPANId;
 

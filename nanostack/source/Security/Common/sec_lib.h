@@ -34,7 +34,7 @@ extern sec_suite_t *sec_suite_verify(sec_suite_t *session);
 extern uint8_t sec_suite_socket_event(uint8_t event_type, sec_suite_t *session_ptr);
 
 extern uint16_t sec_pana_key_update_trig(uint16_t th_time);
-/* TLS spesific use case */
+/* TLS specific use case */
 extern void eap_fragmentation_init(sec_suite_t *suite);
 #ifdef PANA_SERVER_API
 uint8_t tls_server_certi_hash_copy(sec_suite_t *suite);

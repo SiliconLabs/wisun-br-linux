@@ -70,15 +70,15 @@ typedef struct {
 typedef struct {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
     uint16_t                network_name_length;    /**< Network name length */
-    uint16_t                vendor_payload_length;  /**< Vendor spesific payload length */
-    uint8_t                 vendor_header_length;   /**< Vendor spesific header length */
+    uint16_t                vendor_payload_length;  /**< Vendor specific payload length */
+    uint8_t                 vendor_header_length;   /**< Vendor specific header length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     struct ws_hopping_schedule_s *hopping_schedule;/**< Channel hopping schedule */
     uint8_t                 *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
-    uint8_t                 *vendor_header_data;    /**< Vendor spesific header data */
-    uint8_t                 *vendor_payload;        /**< Vendor spesific payload data */
+    uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
+    uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
 } llc_ie_params_t;
 
 typedef struct {
@@ -1949,7 +1949,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
         }
 
         if (request->wp_requested_nested_ie_list.vp_ie) {
-            //Write Vendor spesific payload
+            //Write Vendor specific payload
             ptr = ws_wp_nested_vp_write(ptr, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
         }
 

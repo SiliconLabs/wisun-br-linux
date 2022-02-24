@@ -54,7 +54,7 @@ extern void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 
 
 
-/** 6LoWPAN spesific ICMP message Handler */
+/** 6LoWPAN specific ICMP message Handler */
 extern buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
 extern buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
 extern void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint8_t *address_ptr);
@@ -69,7 +69,7 @@ void icmp_nd_routers_init(void);
 ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16]);
 void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_interface_info_entry_t *cur_interface);
 void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface);
-/** 6LoWPAN spesific ICMP message Handler */
+/** 6LoWPAN specific ICMP message Handler */
 bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address);
 #else

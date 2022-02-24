@@ -72,7 +72,7 @@ typedef struct lb_monitor_internal_s {
 typedef struct lb_internal_s {
     load_balance_api_t *lb_api;
     lb_monitor_internal_t *lb_border_router;
-    //user spesific callback
+    //user specific callback
     load_balance_beacon_tx *load_balance_beacon_tx_cb;
     load_balance_priority_get *lb_priority_get_cb;
     load_balance_network_switch_req *lb_nwk_switch_cb;

@@ -322,7 +322,7 @@ typedef struct ws_channel_function_zero {
 } ws_channel_function_zero_t;
 
 /**
- * @brief ws_channel_function_three_t WS function 3 vendor spesific channel hop
+ * @brief ws_channel_function_three_t WS function 3 vendor specific channel hop
  */
 typedef struct ws_channel_function_three {
     uint8_t channel_hop_count;
@@ -487,7 +487,7 @@ typedef struct ws_bs_ie {
 #define WS_CERTIFICATE_RPL_SELECTED_PARENT_MAX 4
 
 /**
- * Wi-sun spesific non-preferred prefix policy label
+ * Wi-sun specific non-preferred prefix policy label
  */
 
 #define WS_NON_PREFFRED_LABEL 36

@@ -43,7 +43,7 @@ uint8_t *mac_ie_nested_ie_long_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t
 /** Nested IE short header write */
 uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t length);
 
-/** Payload IE discover for spesific group ID */
+/** Payload IE discover for specific group ID */
 uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, struct mac_payload_IE_s *payload_ie);
 
 /** Nested IE element discover inside parsed payload element */
