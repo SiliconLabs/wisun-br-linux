@@ -38,7 +38,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "common_functions.h"
-#include "BorderRouter/border_router.h"
+#include "border_router/border_router.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/ws/ws_common.h"

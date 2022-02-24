@@ -61,7 +61,7 @@
 #include "security/PANA/pana.h"
 #include "security/PANA/pana_internal_api.h"
 #include "6lowpan/ND/nd_router_object.h"
-#include "BorderRouter/border_router.h"
+#include "border_router/border_router.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/etx/etx.h"

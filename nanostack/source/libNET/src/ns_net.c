@@ -71,7 +71,7 @@
 #ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
-#include "BorderRouter/border_router.h"
+#include "border_router/border_router.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "sw_mac.h"

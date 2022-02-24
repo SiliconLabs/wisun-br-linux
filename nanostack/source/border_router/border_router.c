@@ -55,7 +55,7 @@
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_bootstrap.h"
 #include "6lowpan/Thread/thread_routing.h"
-#include "BorderRouter/border_router.h"
+#include "border_router/border_router.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/beacon_handler.h"
 #include "6lowpan/NVM/nwk_nvm.h"

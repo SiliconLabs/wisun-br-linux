@@ -47,7 +47,7 @@ SRCS += \
 	source/6lowpan/ws/ws_stats.c \
 	source/6lowpan/ws/ws_cfg_settings.c \
 	source/6lowpan/ws/ws_phy.c \
-	source/BorderRouter/border_router.c \
+	source/border_router/border_router.c \
 	source/Common_Protocols/icmpv6.c \
 	source/Common_Protocols/icmpv6_prefix.c \
 	source/Common_Protocols/icmpv6_radv.c \

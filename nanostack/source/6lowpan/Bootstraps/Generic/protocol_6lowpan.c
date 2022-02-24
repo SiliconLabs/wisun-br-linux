@@ -60,7 +60,7 @@
 #include "randLIB.h"
 #include "6lowpan/ND/nd_router_object.h"
 #include "common_functions.h"
-#include "BorderRouter/border_router.h"
+#include "border_router/border_router.h"
 #include "net_rpl.h"
 #ifdef HAVE_RPL
 #ifndef NO_MLE
