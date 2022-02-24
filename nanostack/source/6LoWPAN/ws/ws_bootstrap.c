@@ -194,7 +194,7 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
         //If address is generated manually we need to force registration
         if (addr->source != ADDR_SOURCE_DHCP) {
             //Trigger Address Registration only when Bootstrap is ready
-            if (interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+            if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
                 tr_debug("Address registration %s", trace_ipv6(addr->address));
                 ws_address_registration_update(interface, addr->address);
             }
@@ -228,7 +228,7 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
 
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
     if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER &&
-            interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+            interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
         if (interface->bootstrap_state_machine_cnt == 0) {
             interface->bootstrap_state_machine_cnt = 10; //Re trigger state check
         }
@@ -2409,7 +2409,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
 
 bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
         return true;
     }
 
@@ -3133,7 +3133,7 @@ void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_boot
     // We are no longer connected
     cur->ws_info->connected_time = 0;
 
-    if (cur->rpl_domain && cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+    if (cur->rpl_domain && cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
         //Stop Asych Timer
         ws_bootstrap_asynch_trickle_stop(cur);
         tr_debug("Start Network soft leaving");
@@ -3188,7 +3188,7 @@ bool ws_bootstrap_state_wait_rpl(struct protocol_interface_info_entry *cur)
 
 bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur)
 {
-    if (cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+    if (cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
         return true;
     }
     return false;

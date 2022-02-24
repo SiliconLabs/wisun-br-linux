@@ -838,7 +838,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
             ws_pae_controller_bootstrap_done(cur);
 
             ws_bootstrap_advertise_start(cur);
-            ws_bootstrap_state_change(cur, ER_BOOTSRAP_DONE);
+            ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
             break;
         case WS_FAST_DISCONNECT:
             ws_bootstrap_state_disconnect(cur, WS_FAST_DISCONNECT);
@@ -964,7 +964,7 @@ void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur)
             tr_debug("WS SM:Wait RPL to contact DODAG root");
             ws_bootstrap_ffn_rpl_wait_process(cur);
             break;
-        case ER_BOOTSRAP_DONE:
+        case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
             // Bootstrap_done event to application
             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);

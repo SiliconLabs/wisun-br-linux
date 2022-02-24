@@ -804,7 +804,7 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
 #endif
         else if (cur->nwk_bootstrap_state == ER_MLE_LINK_ADDRESS_SYNCH) {
             mac_data_poll_protocol_poll_mode_disable(cur);
-            bootstrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_DONE, cur);
 
         } else if (cur->nwk_bootstrap_state == ER_MLE_LINK_SHORT_SYNCH) {
             tr_debug("MAC16 address synch ready");
@@ -1567,7 +1567,7 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
             net_load_balance_internal_state_activate(cur, true);
         }
 
-        cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+        cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
         cur->interface_mode = INTERFACE_UP;
         cur->nwk_mode = ARM_NWK_RAW_PHY_MODE;
         cur->lowpan_info |= (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY);
@@ -1884,7 +1884,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
             }
             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
         } else {
-            cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+            cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
             cur->bootstrap_state_machine_cnt = 2;
         }
     }
@@ -2052,12 +2052,12 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
     switch (event) {
         case RPL_EVENT_DAO_DONE:
             if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
-                bootstrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
+                bootstrap_next_state_kick(ER_BOOTSTRAP_DONE, cur);
                 clear_power_state(ICMP_ACTIVE);
             } else if (cur->nwk_bootstrap_state == ER_RPL_LOCAL_REPAIR) {
                 // Updates beacon
                 cur->bootstrap_state_machine_cnt = 0;
-                cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+                cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
                 beacon_join_priority_update(cur->id);
                 lowpan_bootstrap_pan_control(cur, true);
             }
@@ -2147,7 +2147,7 @@ void nwk_6lowpan_rpl_router_discover(protocol_interface_info_entry_t *cur)
             cur->bootstrap_state_machine_cnt = 15;
         }
     } else {
-        cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+        cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
         nwk_6lowpan_bootstrap_ready(cur);
     }
 }
@@ -2162,7 +2162,7 @@ void nwk_6lowpan_rpl_router_result_check(protocol_interface_info_entry_t *cur)
             nwk_rpl_dio_scan(cur);
         }
     } else {
-        cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+        cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
         nwk_6lowpan_bootstrap_ready(cur);
     }
 }
@@ -2203,7 +2203,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
                 nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
             }
         } else {
-            cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+            cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
             nwk_6lowpan_bootstrap_ready(cur);
         }
     }
@@ -2212,7 +2212,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
     cur->nwk_bootstrap_state = ER_RPL_SCAN;
     nwk_6lowpan_rpl_router_result_check(cur);
 #else
-    cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+    cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
     nwk_6lowpan_bootstrap_ready(cur);
 #endif
 #endif
@@ -2416,7 +2416,7 @@ static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entr
         mac_data_poll_protocol_poll_mode_disable(cur);
         if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
             tr_debug("PULL kEY Done by Host");
-            cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+            cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
             nwk_6lowpan_bootstrap_ready(cur);
         } else {
             tr_debug("PULL kEY Done by Router");
@@ -2563,7 +2563,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
         if (interface->nwk_bootstrap_state == ER_WARM_ACTIVE_SCAN) {
             border_router_start(interface, true);
             interface->bootstrap_state_machine_cnt = 0;
-            interface->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+            interface->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
         } else {
             border_router_start(interface, false);
         }
@@ -2646,7 +2646,7 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
             nwk_6lowpan_rpl_router_result_check(cur);
             break;
 #endif
-        case ER_BOOTSRAP_DONE:
+        case ER_BOOTSTRAP_DONE:
             nwk_6lowpan_bootstrap_ready(cur);
             break;
 

@@ -1071,7 +1071,7 @@ static bool thread_child_id_req_timeout(int8_t interface_id, uint16_t msgId, boo
     cur->thread_info->releaseRouterId = false;
     cur->thread_info->networkDataRequested = false;
 
-    cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+    cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
 
 exit:
     mle_service_interface_receiver_handler_update(cur->id, thread_general_mle_receive_cb);

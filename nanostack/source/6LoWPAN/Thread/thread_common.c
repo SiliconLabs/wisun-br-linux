@@ -1018,7 +1018,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
 
     // add more checks here when to become router
     // If we are doing attach to new partition, do not upgrade
-    if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+    if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
         return;
     }
 
@@ -1062,7 +1062,7 @@ void thread_timer(protocol_interface_info_entry_t *cur, uint8_t ticks)
         return;
     }
 
-    if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+    if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
         /* Own attach is ongoing, do not send advertisements */
         return;
     }

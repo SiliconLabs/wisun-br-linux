@@ -321,7 +321,7 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
 
     // Check device mode & bootstrap state
     if ((thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) ||
-            (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY)) {
+            (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY)) {
         return;
     }
 

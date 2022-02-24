@@ -1468,7 +1468,7 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
             mle_tlv_info_t challengeTlv;
             tr_info("Recv MLE Parent Request");
 
-            if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+            if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
                 // If own attach is ongoing, do not process parent request
                 return;
             }
@@ -1592,7 +1592,7 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
 
         case MLE_COMMAND_CHILD_ID_REQUEST:
             tr_info("Recv MLE Child ID Request from %s", trace_ipv6(mle_msg->packet_src_address));
-            if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+            if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
                 // If own attach is ongoing, do not process child ID req
                 return;
             }
@@ -2509,7 +2509,7 @@ static void thread_reed_advertisements_cb(void *arg)
 
     cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = NULL;
 
-    if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+    if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
         /* Own attach is ongoing, try to send advertisement after few seconds */
         cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = eventOS_timeout_ms(thread_reed_advertisements_cb, 2 * 1000, cur);
         return;

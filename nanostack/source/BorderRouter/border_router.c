@@ -551,7 +551,7 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
     bool warm_restart = false;
     if (cur->interface_mode == INTERFACE_UP || cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
         //Disable interface like starting normal scan request
-        if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE) {
+        if (cur->nwk_bootstrap_state != ER_BOOTSTRAP_DONE) {
             return -4;
         }
         warm_restart = true;
@@ -680,7 +680,7 @@ void arm_border_router_ready(protocol_interface_info_entry_t *cur)
         beacon_join_priority_update(cur->id);
 
         cur->bootstrap_state_machine_cnt = 0;
-        cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+        cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
         net_load_balance_internal_state_activate(cur, true);
         nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
         nd_proxy_downstream_interface_register(cur->id, arm_border_router_proxy_validate, arm_border_router_proxy_state_update);

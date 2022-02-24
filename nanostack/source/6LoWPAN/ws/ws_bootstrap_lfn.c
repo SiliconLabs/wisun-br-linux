@@ -150,7 +150,7 @@ void ws_bootstrap_lfn_state_machine(protocol_interface_info_entry_t *cur)
         case ER_RPL_SCAN:
             tr_debug("WS SM:Wait RPL to contact DODAG root");
             break;
-        case ER_BOOTSRAP_DONE:
+        case ER_BOOTSTRAP_DONE:
             tr_info("WS SM:Bootstrap Done");
             // Bootstrap_done event to application
             break;

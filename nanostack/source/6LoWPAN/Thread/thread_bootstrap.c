@@ -1079,7 +1079,7 @@ void thread_tasklet(arm_event_s *event)
         case THREAD_ATTACH_ROUTER_ID_GET_FAIL:
             tr_debug_extra("Thread SM THREAD_ATTACH_ROUTER_ID_GET_FAIL");
             tr_debug("Thread Router Id request Fail");
-            cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+            cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
             cur->thread_info->thread_attached_state = THREAD_STATE_CONNECTED;
             thread_router_bootstrap_child_information_clear(cur);
             thread_router_bootstrap_reed_advertisements_start(cur);
@@ -1164,7 +1164,7 @@ int thread_proxy_validate(int8_t interface_id, uint8_t *addrerss)
 
 void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
-    cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
+    cur->nwk_bootstrap_state = ER_BOOTSTRAP_DONE;
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
@@ -2307,7 +2307,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             tr_debug("Thread SM:Attach Ready");
             break;
 
-        case ER_BOOTSRAP_DONE:
+        case ER_BOOTSTRAP_DONE:
             tr_info("Thread SM:Bootstrap Done");
             cur->nwk_nd_re_scan_count = 0;
             break;

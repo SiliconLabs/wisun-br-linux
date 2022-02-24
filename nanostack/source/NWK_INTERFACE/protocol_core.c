@@ -849,7 +849,7 @@ uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = 0;
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) == 0) {
-        if (cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+        if (cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
             ret_val = 1;
         }
     }
