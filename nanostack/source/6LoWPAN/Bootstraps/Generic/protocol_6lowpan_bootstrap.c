@@ -1650,7 +1650,7 @@ static bool lowpan_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_p
 }
 
 
-int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension)
+int8_t arm_6lowpan_bootstrap_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension)
 {
     int8_t ret_val = -1;
     bool enable_mle_protocol = true;
