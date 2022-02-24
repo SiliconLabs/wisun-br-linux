@@ -20,7 +20,7 @@
 #include "string.h"
 #include "nwk_interface/Include/protocol.h"
 #include "net_6lowpan_parameter_api.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 
 /**
  * \brief API to change 6LoWPAN ND bootstrap parameters.

@@ -57,7 +57,7 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
 #include "common_protocols/udp.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"

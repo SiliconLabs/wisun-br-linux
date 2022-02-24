@@ -31,7 +31,7 @@
 #endif
 #include "mle/mle.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"

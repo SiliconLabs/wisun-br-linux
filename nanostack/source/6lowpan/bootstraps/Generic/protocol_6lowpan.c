@@ -29,14 +29,14 @@
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_protocol.h"
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif
@@ -58,7 +58,7 @@
 #include "security/pana/pana_internal_api.h"
 #include "common_protocols/tcp.h"
 #include "randLIB.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "common_functions.h"
 #include "border_router/border_router.h"
 #include "net_rpl.h"

@@ -63,7 +63,7 @@
 #include "security/pana/pana_internal_api.h"
 #include "common_protocols/tcp.h"
 
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "mac_api.h"

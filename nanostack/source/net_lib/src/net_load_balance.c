@@ -43,7 +43,7 @@
 #include "security/pana/pana.h"
 #include "security/pana/pana_internal_api.h"
 #endif
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif

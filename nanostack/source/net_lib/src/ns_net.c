@@ -40,7 +40,7 @@
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/beacon_handler.h"
 #ifndef NO_MLE

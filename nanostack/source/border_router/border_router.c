@@ -30,7 +30,7 @@
 #include "mac_api.h"
 
 #include "rpl/rpl_control.h"
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/nd_proxy/nd_proxy.h"

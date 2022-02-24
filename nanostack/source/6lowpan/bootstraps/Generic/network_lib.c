@@ -40,7 +40,7 @@
 #include "security/pana/pana.h"
 #include "ccmLIB.h"
 #endif
-#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "net_nwk_scan.h"
 #include "nwk_stats_api.h"

@@ -89,7 +89,7 @@ add_executable(wsbrd
     nanostack/source/6lowpan/MAC/mac_pairwise_key.c
     nanostack/source/6lowpan/MAC/mac_response_handler.c
     # Excluded nanostack/source/6lowpan/Mesh
-    nanostack/source/6lowpan/ND/nd_router_object.c
+    nanostack/source/6lowpan/nd/nd_router_object.c
     # Excluded nanostack/source/6lowpan/NVM
     # Excluded nanostack/source/6lowpan/Thread
     nanostack/source/6lowpan/ws/ws_bbr_api.c
@@ -332,7 +332,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/MAC/mac_pairwise_key.c
         nanostack/source/6lowpan/MAC/mac_response_handler.c
         # Excluded nanostack/source/6lowpan/Mesh
-        nanostack/source/6lowpan/ND/nd_router_object.c
+        nanostack/source/6lowpan/nd/nd_router_object.c
         # Excluded nanostack/source/6lowpan/NVM
         # Excluded nanostack/source/6lowpan/Thread
         nanostack/source/6lowpan/ws/ws_bbr_api.c

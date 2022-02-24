@@ -40,7 +40,7 @@
 #define NEIGH_RX_ON_IDLE                        0x0100 /** Radio is ON when mac is at idle */
 #define NEIGH_HANDSHAKE_READY                   0x0080 /** MLE association is ready or MAC association complete */
 #define NEIGH_SECURITY_HANSHAKE_PENGING_FLAG    0x0040 /** Indicate that Security Handshake is not ready with this neighbour  */
-#define NEIGH_PRIORITY_FLAG                     0x0020 /** Indicate priority Neighbor (Cordinator or ND/RPL Router) */
+#define NEIGH_PRIORITY_FLAG                     0x0020 /** Indicate priority Neighbor (Cordinator or nd/RPL Router) */
 #define NEIGH_RESERVED_FLAG                     0x0010
 #define NEIGH_IDR_MASK                          0x000f /** MLE Specific IDR value */
 

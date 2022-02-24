@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "6lowpan/ND/nd_defines.h"
+#include "6lowpan/nd/nd_defines.h"
 #include "net_6lowpan_parameter_api.h"
 
 #ifndef ND_ROUTER_OBJECT_H_

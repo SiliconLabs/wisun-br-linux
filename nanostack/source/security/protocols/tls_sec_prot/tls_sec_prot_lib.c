@@ -357,7 +357,7 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
         return -1;
     }
 
-    // Defines MBEDTLS_SSL_CONF_RECV/SEND/RECV_TIMEOUT define global functions which should be the same for all
+    // Defines MBEDTLS_SSL_CONF_RECV/SEnd/RECV_TIMEOUT define global functions which should be the same for all
     // callers of mbedtls_ssl_set_bio_ctx and there should be only one ssl context. If these rules don't apply,
     // these defines can't be used.
 #if !defined(MBEDTLS_SSL_CONF_RECV) && !defined(MBEDTLS_SSL_CONF_SEND) && !defined(MBEDTLS_SSL_CONF_RECV_TIMEOUT)
