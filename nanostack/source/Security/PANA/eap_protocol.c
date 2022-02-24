@@ -24,8 +24,8 @@
 #include "string.h"
 #include "Core/include/ns_socket.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifdef ECC
 #include "libX509_V3.h"
 #include "ecc.h"

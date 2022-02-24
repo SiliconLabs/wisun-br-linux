@@ -23,7 +23,7 @@
 #include "nanostack/sw_mac.h"
 #include "nanostack/net_ws_test.h"
 #include "nanostack/ws_management_api.h"
-#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
+#include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/source/Core/include/ns_address_internal.h"
 
 #include "host-common/hal_interrupt.h"

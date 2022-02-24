@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 
 #include "mbed-client-libservice/ip6string.h"
-#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
+#include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/ns_file_system.h"
 #include "host-common/os_types.h"

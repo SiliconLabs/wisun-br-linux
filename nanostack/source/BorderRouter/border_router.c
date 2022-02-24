@@ -22,15 +22,15 @@
 #include "nsdynmemLIB.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "NWK_INTERFACE/Include/protocol_timer.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifndef NO_MLE
 #include "MLE/mle.h"
 #endif
 #include "mac_api.h"
 
 #include "RPL/rpl_control.h"
-#include "6LoWPAN/ND/nd_router_object.h"
+#include "6lowpan/ND/nd_router_object.h"
 #include "Service_Libs/whiteboard/whiteboard.h"
 #include "Service_Libs/blacklist/blacklist.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
@@ -52,16 +52,16 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "common_functions.h"
 #include "net_thread_test.h"
-#include "6LoWPAN/Thread/thread_common.h"
-#include "6LoWPAN/Thread/thread_bootstrap.h"
-#include "6LoWPAN/Thread/thread_routing.h"
+#include "6lowpan/Thread/thread_common.h"
+#include "6lowpan/Thread/thread_bootstrap.h"
+#include "6lowpan/Thread/thread_routing.h"
 #include "BorderRouter/border_router.h"
-#include "6LoWPAN/MAC/mac_helper.h"
-#include "6LoWPAN/MAC/beacon_handler.h"
-#include "6LoWPAN/NVM/nwk_nvm.h"
+#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/MAC/beacon_handler.h"
+#include "6lowpan/NVM/nwk_nvm.h"
 #include "libNET/src/net_load_balance_internal.h"
-#include "6LoWPAN/lowpan_adaptation_interface.h"
-#include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
+#include "6lowpan/Fragmentation/cipv6_fragmenter.h"
 
 #ifdef HAVE_6LOWPAN_BORDER_ROUTER
 
@@ -589,7 +589,7 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
 
         mac_helper_default_security_level_set(cur, cur->mac_parameters->mac_configured_sec_level);
 
-        //set 6lowpan default
+        //set 6LoWPAN default
         mac_helper_mac_mlme_max_retry_set(cur->id, LOWPAN_MAX_FRAME_RETRIES);
 
         if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {

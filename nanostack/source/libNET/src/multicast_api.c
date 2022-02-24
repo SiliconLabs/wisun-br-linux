@@ -417,7 +417,7 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MA
 
     if (lowpan && ethernet &&
             lowpan->zone_index[scope] == ethernet->zone_index[scope]) {
-        ethernet = NULL; // Both interfaces in same zone, join only on 6LoWPAN
+        ethernet = NULL; // Both interfaces in same zone, join only on 6lowpan
     }
 
     if (lowpan) {

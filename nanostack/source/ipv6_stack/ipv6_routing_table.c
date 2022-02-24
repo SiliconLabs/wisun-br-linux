@@ -186,7 +186,7 @@ void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
     entry->is_router = false;
     /* Only delete RA routes to satisfy RFC 4861. We should have a callback to
      * other route providers here - eg RPL might want to know, and delete from
-     * the Candidate Neighbour set. But unfortunately our 6LoWPAN-ND routers do
+     * the Candidate Neighbour set. But unfortunately our 6lowpan-ND routers do
      * currently send RS packets while running, which means this would break
      * stuff. We get spurious switches of IsRouter to false :(
      */

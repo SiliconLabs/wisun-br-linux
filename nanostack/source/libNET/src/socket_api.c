@@ -39,7 +39,7 @@
 #include "Common_Protocols/ipv6_flow.h"
 #include "Common_Protocols/tcp.h"
 #include "Common_Protocols/udp.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "common_functions.h"
 
 #define TRACE_GROUP "sckA"

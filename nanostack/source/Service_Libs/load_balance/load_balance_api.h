@@ -17,7 +17,7 @@
 
 /**
  * \file load_balance_api.h
- * \brief A API class to support 6lowpan network load balance which based on RPL routing.
+ * \brief A API class to support 6LoWPAN network load balance which based on RPL routing.
  */
 
 #ifndef LOAD_BALANCE_API_H

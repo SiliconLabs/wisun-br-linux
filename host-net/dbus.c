@@ -7,9 +7,9 @@
 #include <systemd/sd-bus.h>
 
 #include "nsconfig.h"
-#include "nanostack/source/6LoWPAN/ws/ws_common.h"
-#include "nanostack/source/6LoWPAN/ws/ws_pae_controller.h"
-#include "nanostack/source/6LoWPAN/ws/ws_cfg_settings.h"
+#include "nanostack/source/6lowpan/ws/ws_common.h"
+#include "nanostack/source/6lowpan/ws/ws_pae_controller.h"
+#include "nanostack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
 #include "nanostack/source/Security/protocols/sec_prot_keys.h"
 #include "nanostack/source/Common_Protocols/icmpv6.h"

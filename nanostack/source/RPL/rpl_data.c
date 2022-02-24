@@ -46,7 +46,7 @@
 #include "RPL/rpl_structures.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_data.h"
-#include "6LoWPAN/ws/ws_common.h"
+#include "6lowpan/ws/ws_common.h"
 
 #define TRACE_GROUP "RPLa"
 

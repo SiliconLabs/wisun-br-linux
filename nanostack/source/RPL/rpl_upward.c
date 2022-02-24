@@ -45,7 +45,7 @@
 #include "NWK_INTERFACE/Include/protocol_stats.h"
 #include "Service_Libs/Trickle/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "Common_Protocols/ipv6_resolution.h"
 
 #include "RPL/rpl_protocol.h"

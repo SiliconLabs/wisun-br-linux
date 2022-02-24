@@ -221,7 +221,7 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
  *  value, the ETX module calls the accumulated failures callback on
  *  every transmission failure.
  *
- * \param nwk_id network ID (6LoWPAN)
+ * \param nwk_id network ID (6lowpan)
  * \param interface_id interface ID
  * \param threshold threshold value for accumulated failures
  * \param callback_ptr callback function pointer

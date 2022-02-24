@@ -42,10 +42,10 @@
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "NWK_INTERFACE/Include/protocol_stats.h"
 #include "common_functions.h"
-#include "6LoWPAN/ND/nd_router_object.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
-#include "6LoWPAN/ws/ws_common_defines.h"
-#include "6LoWPAN/ws/ws_common.h"
+#include "6lowpan/ND/nd_router_object.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/ws/ws_common_defines.h"
+#include "6lowpan/ws/ws_common.h"
 #include "libNET/src/net_dns_internal.h"
 
 #define TRACE_GROUP "icmp"
@@ -1501,7 +1501,7 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
             memcpy(buf->src_sa.address, prompting_src_addr, 16);
         } else {
             /* Otherwise, according to RFC 4861, we could use any address.
-             * But there is a 6LoWPAN/RPL hiccup - a node may have registered
+             * But there is a 6lowpan/RPL hiccup - a node may have registered
              * to us with an ARO, and we might send it's global address a NUD
              * probe. But it doesn't know _our_ global address, which default
              * address selection would favour.

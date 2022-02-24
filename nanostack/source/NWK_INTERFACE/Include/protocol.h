@@ -37,7 +37,7 @@
 #include "Core/include/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
-#include "6LoWPAN/IPHC_Decode/lowpan_context.h"
+#include "6lowpan/IPHC_Decode/lowpan_context.h"
 #include "platform/arm_hal_phy.h"
 #include "net_nwk_scan.h"
 #include "net_interface.h"

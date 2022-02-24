@@ -31,9 +31,9 @@
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Service_Libs/Trickle/trickle.h"
-#include "6LoWPAN/MAC/mac_helper.h"
-#include "6LoWPAN/Thread/thread_common.h"
-#include "6LoWPAN/ws/ws_common.h"
+#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/Thread/thread_common.h"
+#include "6lowpan/ws/ws_common.h"
 #include "MPL/mpl.h"
 
 #define TRACE_GROUP "mpl"

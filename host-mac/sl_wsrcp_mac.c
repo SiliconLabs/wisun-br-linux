@@ -8,7 +8,7 @@
 #include "nanostack/fhss_api.h"
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_fhss.h"
-#include "nanostack/source/6LoWPAN/ws/ws_common_defines.h"
+#include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 
 #include "version.h"
 #include "sl_wsrcp.h"
@@ -859,7 +859,7 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/MAC/mac_ie_lib.c
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK     0x7f80
 
@@ -871,7 +871,7 @@ static uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2
     return ptr;
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/ws/ws_neighbor_class.c
+// Copy-paste from nanostack/source/6lowpan/ws/ws_neighbor_class.c
 static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
 {
     /* RSL MUST be calculated as the received signal level relative to standard
@@ -882,7 +882,7 @@ static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
     return dbm_heard + 174;
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/MAC/mac_ie_lib.c
 static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
 {
     uint16_t ie_dummy = 0; //Header Type
@@ -891,7 +891,7 @@ static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t le
     return common_write_16_bit_inverse(ie_dummy, ptr);
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/ws/ws_ie_lib.c
 static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t type)
 {
     ptr = mac_ie_header_base_write(ptr, MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID, length + 1);
@@ -899,7 +899,7 @@ static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t t
     return ptr;
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/ws/ws_ie_lib.c
 static uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type)
 {
     ptr = ws_wh_header_base_write(ptr, 4, WH_IE_UTT_TYPE);
@@ -909,7 +909,7 @@ static uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type)
     return ptr;
 }
 
-// Copy-paste from nanostack/source/6LoWPAN/ws/ws_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/ws/ws_ie_lib.c
 static uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
 {
     ptr = ws_wh_header_base_write(ptr, 1, WH_IE_RSL_TYPE);
@@ -917,7 +917,7 @@ static uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
     return ptr;
 }
 
-// Inspired from ws_llc_ack_data_req_ext() from nanostack/source/6LoWPAN/ws/ws_llc_data_service.c
+// Inspired from ws_llc_ack_data_req_ext() from nanostack/source/6lowpan/ws/ws_llc_data_service.c
 void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload_t *data,
                                  int8_t rssi, uint8_t lqi)
 {

@@ -24,7 +24,7 @@
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "6LoWPAN/ws/ws_config.h"
+#include "6lowpan/ws/ws_config.h"
 #include "Service_Libs/Trickle/trickle.h"
 #include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"

@@ -55,13 +55,13 @@
 #include "RPL/rpl_downward.h"
 #include "RPL/rpl_policy.h"
 #include "RPL/rpl_control.h"
-#include "6LoWPAN/ws/ws_common.h"
+#include "6lowpan/ws/ws_common.h"
 
 #define TRACE_GROUP "rplc"
 
 const uint8_t ADDR_LINK_LOCAL_ALL_RPL_NODES[16] = { 0xff, 0x02, [15] = 0x1a };
 
-/* Sensible default limits for a 6LoWPAN-ND node */
+/* Sensible default limits for a 6lowpan-ND node */
 static size_t rpl_purge_threshold = 2 * 1024;
 static size_t rpl_alloc_limit = 4 * 1024; // 0 means no limit
 

@@ -27,8 +27,8 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "ccmLIB.h"
 #include "shalib.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifdef ECC
 #include "libX509_V3.h"
 #include "ecc.h"
@@ -38,9 +38,9 @@
 #include "net_nvm_api.h"
 #include "Security/PANA/pana.h"
 #include "Security/PANA/pana_internal_api.h"
-#include "6LoWPAN/MAC/mac_helper.h"
-#include "6LoWPAN/MAC/mac_data_poll.h"
-#include "6LoWPAN/ND/nd_router_object.h"
+#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/ND/nd_router_object.h"
 #include "Common_Protocols/udp.h"
 
 #ifdef ECC
@@ -54,7 +54,7 @@
 #include "Security/PANA/eap_protocol.h"
 #include "net_pana_parameters_api.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
-#include "6LoWPAN/NVM/nwk_nvm.h"
+#include "6lowpan/NVM/nwk_nvm.h"
 
 #ifdef PANA
 #define TRACE_GROUP "PanC"

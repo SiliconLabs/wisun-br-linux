@@ -28,7 +28,7 @@
 #include "Common_Protocols/icmpv6_radv.h"
 #include "Common_Protocols/ipv6_resolution.h"
 #include "Common_Protocols/udp.h"
-#include "6LoWPAN/ND/nd_router_object.h" // for gp_address_ functions - better place?
+#include "6lowpan/ND/nd_router_object.h" // for gp_address_ functions - better place?
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Common_Protocols/tcp.h"

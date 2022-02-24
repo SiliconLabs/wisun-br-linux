@@ -21,7 +21,7 @@
 
 #include "Core/include/ns_address_internal.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "RPL/rpl_protocol.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"

@@ -39,7 +39,7 @@
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/mld.h"
-#include "6LoWPAN/Thread/thread_common.h"
+#include "6lowpan/Thread/thread_common.h"
 
 #define MLD_UNSOLICITED_REPORT_INTERVAL (10 * 10) /* 10 seconds */
 

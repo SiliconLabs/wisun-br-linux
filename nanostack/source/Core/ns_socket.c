@@ -1545,7 +1545,7 @@ struct protocol_interface_info_entry *socket_interface_determine(const socket_t 
 {
     protocol_interface_info_entry_t *cur_interface;
 
-    /* Link or realm-local scope uses default interface id if set (as if dest scope id), else multicast if, else choose 6LoWPAN, else IPv6(Ethernet) */
+    /* Link or realm-local scope uses default interface id if set (as if dest scope id), else multicast if, else choose 6lowpan, else IPv6(Ethernet) */
     /* Also for packets addressed to ourself (not needed any more - have loopback routes? */
     if (addr_ipv6_scope(buf->dst_sa.address, NULL) <= IPV6_SCOPE_REALM_LOCAL) {
         if (socket_ptr->default_interface_id != -1) {

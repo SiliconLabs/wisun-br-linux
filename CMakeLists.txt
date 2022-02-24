@@ -72,55 +72,55 @@ add_executable(wsbrd
     host-common/spinel_buffer.c
     nanostack/source/Service_Libs/fhss/channel_list.c
     nanostack/source/BorderRouter/border_router.c
-    nanostack/source/6LoWPAN/adaptation_interface.c
-    nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
-    nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan.c
-    nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
-    nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan_interface.c
-    nanostack/source/6LoWPAN/Fragmentation/cipv6_fragmenter.c
-    nanostack/source/6LoWPAN/IPHC_Decode/6lowpan_iphc.c
-    nanostack/source/6LoWPAN/IPHC_Decode/iphc_compress.c
-    nanostack/source/6LoWPAN/IPHC_Decode/iphc_decompress.c
-    nanostack/source/6LoWPAN/IPHC_Decode/lowpan_context.c
-    nanostack/source/6LoWPAN/MAC/beacon_handler.c
-    nanostack/source/6LoWPAN/MAC/mac_data_poll.c
-    nanostack/source/6LoWPAN/MAC/mac_helper.c
-    nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
-    nanostack/source/6LoWPAN/MAC/mac_pairwise_key.c
-    nanostack/source/6LoWPAN/MAC/mac_response_handler.c
-    # Excluded nanostack/source/6LoWPAN/Mesh
-    nanostack/source/6LoWPAN/ND/nd_router_object.c
-    # Excluded nanostack/source/6LoWPAN/NVM
-    # Excluded nanostack/source/6LoWPAN/Thread
-    nanostack/source/6LoWPAN/ws/ws_bbr_api.c
-    nanostack/source/6LoWPAN/ws/ws_bootstrap.c
-    nanostack/source/6LoWPAN/ws/ws_bootstrap_6lbr.c
-    nanostack/source/6LoWPAN/ws/ws_bootstrap_ffn.c
-    nanostack/source/6LoWPAN/ws/ws_bootstrap_lfn.c
-    nanostack/source/6LoWPAN/ws/ws_cfg_settings.c
-    nanostack/source/6LoWPAN/ws/ws_common.c
-    nanostack/source/6LoWPAN/ws/ws_eapol_auth_relay.c
-    nanostack/source/6LoWPAN/ws/ws_eapol_pdu.c
-    nanostack/source/6LoWPAN/ws/ws_eapol_relay.c
-    nanostack/source/6LoWPAN/ws/ws_eapol_relay_lib.c
-    # Excluded nanostack/source/6LoWPAN/ws/ws_empty_functions.c
-    nanostack/source/6LoWPAN/ws/ws_ie_lib.c
-    nanostack/source/6LoWPAN/ws/ws_llc_data_service.c
-    nanostack/source/6LoWPAN/ws/ws_management_api.c
-    nanostack/source/6LoWPAN/ws/ws_mpx_header.c
-    nanostack/source/6LoWPAN/ws/ws_neighbor_class.c
-    nanostack/source/6LoWPAN/ws/ws_pae_auth.c
-    nanostack/source/6LoWPAN/ws/ws_pae_controller.c
-    nanostack/source/6LoWPAN/ws/ws_pae_key_storage.c
-    nanostack/source/6LoWPAN/ws/ws_pae_lib.c
-    nanostack/source/6LoWPAN/ws/ws_pae_nvm_store.c
-    nanostack/source/6LoWPAN/ws/ws_pae_nvm_data.c
-    nanostack/source/6LoWPAN/ws/ws_pae_supp.c
-    nanostack/source/6LoWPAN/ws/ws_pae_time.c
-    nanostack/source/6LoWPAN/ws/ws_pae_timers.c
-    nanostack/source/6LoWPAN/ws/ws_phy.c
-    nanostack/source/6LoWPAN/ws/ws_stats.c
-    nanostack/source/6LoWPAN/ws/ws_test_api.c
+    nanostack/source/6lowpan/adaptation_interface.c
+    nanostack/source/6lowpan/Bootstraps/Generic/network_lib.c
+    nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan.c
+    nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
+    nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c
+    nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
+    nanostack/source/6lowpan/IPHC_Decode/6lowpan_iphc.c
+    nanostack/source/6lowpan/IPHC_Decode/iphc_compress.c
+    nanostack/source/6lowpan/IPHC_Decode/iphc_decompress.c
+    nanostack/source/6lowpan/IPHC_Decode/lowpan_context.c
+    nanostack/source/6lowpan/MAC/beacon_handler.c
+    nanostack/source/6lowpan/MAC/mac_data_poll.c
+    nanostack/source/6lowpan/MAC/mac_helper.c
+    nanostack/source/6lowpan/MAC/mac_ie_lib.c
+    nanostack/source/6lowpan/MAC/mac_pairwise_key.c
+    nanostack/source/6lowpan/MAC/mac_response_handler.c
+    # Excluded nanostack/source/6lowpan/Mesh
+    nanostack/source/6lowpan/ND/nd_router_object.c
+    # Excluded nanostack/source/6lowpan/NVM
+    # Excluded nanostack/source/6lowpan/Thread
+    nanostack/source/6lowpan/ws/ws_bbr_api.c
+    nanostack/source/6lowpan/ws/ws_bootstrap.c
+    nanostack/source/6lowpan/ws/ws_bootstrap_6lbr.c
+    nanostack/source/6lowpan/ws/ws_bootstrap_ffn.c
+    nanostack/source/6lowpan/ws/ws_bootstrap_lfn.c
+    nanostack/source/6lowpan/ws/ws_cfg_settings.c
+    nanostack/source/6lowpan/ws/ws_common.c
+    nanostack/source/6lowpan/ws/ws_eapol_auth_relay.c
+    nanostack/source/6lowpan/ws/ws_eapol_pdu.c
+    nanostack/source/6lowpan/ws/ws_eapol_relay.c
+    nanostack/source/6lowpan/ws/ws_eapol_relay_lib.c
+    # Excluded nanostack/source/6lowpan/ws/ws_empty_functions.c
+    nanostack/source/6lowpan/ws/ws_ie_lib.c
+    nanostack/source/6lowpan/ws/ws_llc_data_service.c
+    nanostack/source/6lowpan/ws/ws_management_api.c
+    nanostack/source/6lowpan/ws/ws_mpx_header.c
+    nanostack/source/6lowpan/ws/ws_neighbor_class.c
+    nanostack/source/6lowpan/ws/ws_pae_auth.c
+    nanostack/source/6lowpan/ws/ws_pae_controller.c
+    nanostack/source/6lowpan/ws/ws_pae_key_storage.c
+    nanostack/source/6lowpan/ws/ws_pae_lib.c
+    nanostack/source/6lowpan/ws/ws_pae_nvm_store.c
+    nanostack/source/6lowpan/ws/ws_pae_nvm_data.c
+    nanostack/source/6lowpan/ws/ws_pae_supp.c
+    nanostack/source/6lowpan/ws/ws_pae_time.c
+    nanostack/source/6lowpan/ws/ws_pae_timers.c
+    nanostack/source/6lowpan/ws/ws_phy.c
+    nanostack/source/6lowpan/ws/ws_stats.c
+    nanostack/source/6lowpan/ws/ws_test_api.c
     nanostack/source/Common_Protocols/icmpv6.c
     nanostack/source/Common_Protocols/icmpv6_prefix.c
     nanostack/source/Common_Protocols/icmpv6_radv.c
@@ -315,54 +315,54 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/spinel_buffer.c
         nanostack/source/Service_Libs/fhss/channel_list.c
         # nanostack/source/BorderRouter/border_router.c
-        nanostack/source/6LoWPAN/adaptation_interface.c
-        nanostack/source/6LoWPAN/Bootstraps/Generic/network_lib.c
-        nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan.c
-        nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
-        nanostack/source/6LoWPAN/Bootstraps/Generic/protocol_6lowpan_interface.c
-        nanostack/source/6LoWPAN/Fragmentation/cipv6_fragmenter.c
-        nanostack/source/6LoWPAN/IPHC_Decode/6lowpan_iphc.c
-        nanostack/source/6LoWPAN/IPHC_Decode/iphc_compress.c
-        nanostack/source/6LoWPAN/IPHC_Decode/iphc_decompress.c
-        nanostack/source/6LoWPAN/IPHC_Decode/lowpan_context.c
-        nanostack/source/6LoWPAN/MAC/beacon_handler.c
-        nanostack/source/6LoWPAN/MAC/mac_data_poll.c
-        nanostack/source/6LoWPAN/MAC/mac_helper.c
-        nanostack/source/6LoWPAN/MAC/mac_ie_lib.c
-        nanostack/source/6LoWPAN/MAC/mac_pairwise_key.c
-        nanostack/source/6LoWPAN/MAC/mac_response_handler.c
-        # Excluded nanostack/source/6LoWPAN/Mesh
-        nanostack/source/6LoWPAN/ND/nd_router_object.c
-        # Excluded nanostack/source/6LoWPAN/NVM
-        # Excluded nanostack/source/6LoWPAN/Thread
-        nanostack/source/6LoWPAN/ws/ws_bbr_api.c
-        nanostack/source/6LoWPAN/ws/ws_bootstrap.c
-        nanostack/source/6LoWPAN/ws/ws_bootstrap_ffn.c
-        nanostack/source/6LoWPAN/ws/ws_bootstrap_lfn.c
-        nanostack/source/6LoWPAN/ws/ws_cfg_settings.c
-        nanostack/source/6LoWPAN/ws/ws_common.c
-        nanostack/source/6LoWPAN/ws/ws_eapol_auth_relay.c
-        nanostack/source/6LoWPAN/ws/ws_eapol_pdu.c
-        nanostack/source/6LoWPAN/ws/ws_eapol_relay.c
-        nanostack/source/6LoWPAN/ws/ws_eapol_relay_lib.c
-        # Excluded nanostack/source/6LoWPAN/ws/ws_empty_functions.c
-        nanostack/source/6LoWPAN/ws/ws_ie_lib.c
-        nanostack/source/6LoWPAN/ws/ws_llc_data_service.c
-        nanostack/source/6LoWPAN/ws/ws_management_api.c
-        nanostack/source/6LoWPAN/ws/ws_mpx_header.c
-        nanostack/source/6LoWPAN/ws/ws_neighbor_class.c
-        nanostack/source/6LoWPAN/ws/ws_pae_auth.c
-        nanostack/source/6LoWPAN/ws/ws_pae_controller.c
-        nanostack/source/6LoWPAN/ws/ws_pae_key_storage.c
-        nanostack/source/6LoWPAN/ws/ws_pae_lib.c
-        nanostack/source/6LoWPAN/ws/ws_pae_nvm_store.c
-        nanostack/source/6LoWPAN/ws/ws_pae_nvm_data.c
-        nanostack/source/6LoWPAN/ws/ws_pae_supp.c
-        nanostack/source/6LoWPAN/ws/ws_pae_time.c
-        nanostack/source/6LoWPAN/ws/ws_pae_timers.c
-        nanostack/source/6LoWPAN/ws/ws_phy.c
-        nanostack/source/6LoWPAN/ws/ws_stats.c
-        nanostack/source/6LoWPAN/ws/ws_test_api.c
+        nanostack/source/6lowpan/adaptation_interface.c
+        nanostack/source/6lowpan/Bootstraps/Generic/network_lib.c
+        nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan.c
+        nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
+        nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c
+        nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
+        nanostack/source/6lowpan/IPHC_Decode/6lowpan_iphc.c
+        nanostack/source/6lowpan/IPHC_Decode/iphc_compress.c
+        nanostack/source/6lowpan/IPHC_Decode/iphc_decompress.c
+        nanostack/source/6lowpan/IPHC_Decode/lowpan_context.c
+        nanostack/source/6lowpan/MAC/beacon_handler.c
+        nanostack/source/6lowpan/MAC/mac_data_poll.c
+        nanostack/source/6lowpan/MAC/mac_helper.c
+        nanostack/source/6lowpan/MAC/mac_ie_lib.c
+        nanostack/source/6lowpan/MAC/mac_pairwise_key.c
+        nanostack/source/6lowpan/MAC/mac_response_handler.c
+        # Excluded nanostack/source/6lowpan/Mesh
+        nanostack/source/6lowpan/ND/nd_router_object.c
+        # Excluded nanostack/source/6lowpan/NVM
+        # Excluded nanostack/source/6lowpan/Thread
+        nanostack/source/6lowpan/ws/ws_bbr_api.c
+        nanostack/source/6lowpan/ws/ws_bootstrap.c
+        nanostack/source/6lowpan/ws/ws_bootstrap_ffn.c
+        nanostack/source/6lowpan/ws/ws_bootstrap_lfn.c
+        nanostack/source/6lowpan/ws/ws_cfg_settings.c
+        nanostack/source/6lowpan/ws/ws_common.c
+        nanostack/source/6lowpan/ws/ws_eapol_auth_relay.c
+        nanostack/source/6lowpan/ws/ws_eapol_pdu.c
+        nanostack/source/6lowpan/ws/ws_eapol_relay.c
+        nanostack/source/6lowpan/ws/ws_eapol_relay_lib.c
+        # Excluded nanostack/source/6lowpan/ws/ws_empty_functions.c
+        nanostack/source/6lowpan/ws/ws_ie_lib.c
+        nanostack/source/6lowpan/ws/ws_llc_data_service.c
+        nanostack/source/6lowpan/ws/ws_management_api.c
+        nanostack/source/6lowpan/ws/ws_mpx_header.c
+        nanostack/source/6lowpan/ws/ws_neighbor_class.c
+        nanostack/source/6lowpan/ws/ws_pae_auth.c
+        nanostack/source/6lowpan/ws/ws_pae_controller.c
+        nanostack/source/6lowpan/ws/ws_pae_key_storage.c
+        nanostack/source/6lowpan/ws/ws_pae_lib.c
+        nanostack/source/6lowpan/ws/ws_pae_nvm_store.c
+        nanostack/source/6lowpan/ws/ws_pae_nvm_data.c
+        nanostack/source/6lowpan/ws/ws_pae_supp.c
+        nanostack/source/6lowpan/ws/ws_pae_time.c
+        nanostack/source/6lowpan/ws/ws_pae_timers.c
+        nanostack/source/6lowpan/ws/ws_phy.c
+        nanostack/source/6lowpan/ws/ws_stats.c
+        nanostack/source/6lowpan/ws/ws_test_api.c
         nanostack/source/Common_Protocols/icmpv6.c
         nanostack/source/Common_Protocols/icmpv6_prefix.c
         nanostack/source/Common_Protocols/icmpv6_radv.c

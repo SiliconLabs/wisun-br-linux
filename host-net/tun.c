@@ -18,7 +18,7 @@
 #include "nanostack/net_interface.h"
 
 
-#include "nanostack/source/6LoWPAN/lowpan_adaptation_interface.h"
+#include "nanostack/source/6lowpan/lowpan_adaptation_interface.h"
 
 #include "tun.h"
 #include "host-common/log.h"

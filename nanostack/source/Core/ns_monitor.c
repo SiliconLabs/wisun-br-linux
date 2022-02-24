@@ -33,8 +33,8 @@
 #include "nsdynmemLIB.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "6LoWPAN/ws/ws_pae_controller.h"
-#include "6LoWPAN/lowpan_adaptation_interface.h"
+#include "6lowpan/ws/ws_pae_controller.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 
 #define TRACE_GROUP "mntr"

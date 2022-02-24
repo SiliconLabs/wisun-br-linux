@@ -21,14 +21,14 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "6LoWPAN/ws/ws_config.h"
+#include "6lowpan/ws/ws_config.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Security/protocols/sec_prot_cfg.h"
 #include "Security/kmp/kmp_addr.h"
 #include "Security/kmp/kmp_api.h"
 #include "Security/kmp/kmp_eapol_pdu_if.h"
-#include "6LoWPAN/MAC/mpx_api.h"
-#include "6LoWPAN/ws/ws_eapol_pdu.h"
+#include "6lowpan/MAC/mpx_api.h"
+#include "6lowpan/ws/ws_eapol_pdu.h"
 
 #ifdef HAVE_WS
 

@@ -26,7 +26,7 @@
 #include "eventOS_event_timer.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
-#include "6LoWPAN/ws/ws_config.h"
+#include "6lowpan/ws/ws_config.h"
 #include "Security/kmp/kmp_addr.h"
 
 #ifdef HAVE_WS

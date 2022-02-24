@@ -28,12 +28,12 @@
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "mlme.h"
 #include "mac_api.h"
 #include "sw_mac.h"
-#include "6LoWPAN/MAC/mac_helper.h"
-#include "6LoWPAN/MAC/mac_data_poll.h"
+#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/MAC/mac_data_poll.h"
 #include "libNET/src/net_load_balance_internal.h"
 #ifdef ECC
 #include "libX509_V3.h"
@@ -43,7 +43,7 @@
 #include "Security/PANA/pana.h"
 #include "Security/PANA/pana_internal_api.h"
 #endif
-#include "6LoWPAN/ND/nd_router_object.h"
+#include "6lowpan/ND/nd_router_object.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_control.h"
 #endif
