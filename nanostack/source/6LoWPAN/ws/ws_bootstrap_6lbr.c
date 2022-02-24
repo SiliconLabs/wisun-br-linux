@@ -273,8 +273,8 @@ void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *inte
 
 void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
 {
-    ws_bootsrap_event_type_e event_type;
-    event_type = (ws_bootsrap_event_type_e)event->event_type;
+    ws_bootstrap_event_type_e event_type;
+    event_type = (ws_bootstrap_event_type_e)event->event_type;
 
     switch (event_type) {
         case WS_INIT_EVENT:

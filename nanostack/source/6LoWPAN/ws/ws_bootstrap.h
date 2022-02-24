@@ -28,7 +28,7 @@ typedef enum {
     WS_FAST_DISCONNECT,      /**< Do fast timeout after Border router timeout*/
     WS_NORMAL_DISCONNECT,    /**< Border have been rebooted so Slow poison Process*/
     WS_TEST_PROC_TRIGGER     /**< Trigger test procedure */
-} ws_bootsrap_event_type_e;
+} ws_bootstrap_event_type_e;
 
 /* Bootstrap internal test procedures, these must match to ws_test_proc_t
    on net_ws_test_ext.h */
@@ -139,7 +139,7 @@ void ws_bootstrap_event_operation_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur);
 
-void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type);
+void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
 
 void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootsrap_procedure_t procedure);
 
@@ -155,7 +155,7 @@ bool ws_bootstrap_state_authenticate(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_configure(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_wait_rpl(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur);
-void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type);
+void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
 void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_t nwk_bootstrap_state);
 
 void ws_bootstrap_candidate_list_clean(struct protocol_interface_info_entry *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);

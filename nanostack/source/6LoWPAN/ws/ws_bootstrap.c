@@ -89,7 +89,7 @@
 #define TRACE_GROUP "wsbs"
 
 static void ws_bootstrap_event_handler(arm_event_s *event);
-static int8_t ws_bootsrap_event_trig(ws_bootsrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
+static int8_t ws_bootsrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
@@ -356,7 +356,7 @@ static void ws_nwk_event_post(protocol_interface_info_entry_t *cur, arm_nwk_inte
     }
 }
 
-static int8_t ws_bootsrap_event_trig(ws_bootsrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
+static int8_t ws_bootsrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
 {
     arm_event_s event = {
         .receiver = interface_id,
@@ -2941,7 +2941,7 @@ void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur)
     ws_bootsrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 
-void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type)
+void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type)
 {
     ws_bootsrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
@@ -3124,7 +3124,7 @@ int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_in
  * State machine
  *
  * */
-void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootsrap_event_type_e event_type)
+void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type)
 {
     if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
         //Already moved to leaving state.

@@ -110,8 +110,8 @@ void ws_bootstrap_lfn_asynch_confirm(struct protocol_interface_info_entry *inter
 void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
 {
     (void)cur;
-    ws_bootsrap_event_type_e event_type;
-    event_type = (ws_bootsrap_event_type_e)event->event_type;
+    ws_bootstrap_event_type_e event_type;
+    event_type = (ws_bootstrap_event_type_e)event->event_type;
 
     switch (event_type) {
         case WS_INIT_EVENT:
