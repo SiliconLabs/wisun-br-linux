@@ -390,12 +390,12 @@ uint8_t tls_certificate_build(sec_suite_t *suite)
                 ptr_2 = ptr;
                 ptr_2 += 9;
                 tmp_msg->msg_ptr = ptr;
-                ptr = tls_build_change_chipher_suite_finnish_msg(ptr, suite->tls_session);
+                ptr = tls_build_change_chipher_suite_finish_msg(ptr, suite->tls_session);
                 tmp_msg->len = ptr - ptr_2;
                 tls_handshake_copy(tmp_msg, suite->tls_session->tls_heap);
                 suite->setups |= TLS_HANSHAKE_HASH;
             } else {
-                ptr = tls_build_change_chipher_suite_finnish_msg(ptr, suite->tls_session);
+                ptr = tls_build_change_chipher_suite_finish_msg(ptr, suite->tls_session);
             }
             buf->buf_end = ptr - buf->buf;
 

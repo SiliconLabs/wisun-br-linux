@@ -716,7 +716,7 @@ uint8_t *tls_set_client_key_excange(uint8_t *ptr, sec_suite_t *tls_suite)
     return ptr;
 }
 
-uint8_t *tls_build_change_chipher_suite_finnish_msg(uint8_t *ptr, tls_session_t *tls_session)
+uint8_t *tls_build_change_chipher_suite_finish_msg(uint8_t *ptr, tls_session_t *tls_session)
 {
     *ptr++ = TLS_CHANGE_CIPHER_SPEC;
     ptr = common_write_16_bit(TLS_1_2_VERSION, ptr);
@@ -744,7 +744,7 @@ void tls_build_client_change_chipher_suite_finnish(buffer_t *buf, sec_suite_t *t
     if ((tls_suite->setups & TLS_SERVER_MODE) == 0) {
         ptr = tls_set_client_key_excange(ptr, tls_suite);
     }
-    ptr = tls_build_change_chipher_suite_finnish_msg(ptr, tls_suite->tls_session);
+    ptr = tls_build_change_chipher_suite_finish_msg(ptr, tls_suite->tls_session);
     buffer_data_end_set(buf, ptr);
     tr_debug("TLS TX: KEY Exchange");
 }
