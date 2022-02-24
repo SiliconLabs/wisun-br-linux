@@ -78,7 +78,7 @@
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/NVM/nwk_nvm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/Fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "service_libs/load_balance/load_balance_api.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "service_libs/etx/etx.h"

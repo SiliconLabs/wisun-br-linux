@@ -28,7 +28,7 @@
 #include "randLIB.h"
 #include "core/include/ns_socket.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/Fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nsdynmemLIB.h"
 #include "6lowpan/mesh/mesh.h"

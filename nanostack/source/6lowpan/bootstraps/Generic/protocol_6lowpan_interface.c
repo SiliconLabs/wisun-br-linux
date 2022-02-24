@@ -69,7 +69,7 @@
 #include "mac_api.h"
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/Fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "net_lib/src/net_load_balance_internal.h"
 
 void protocol_mac_reset(protocol_interface_info_entry_t *cur)

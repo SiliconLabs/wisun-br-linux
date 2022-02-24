@@ -4,7 +4,7 @@ SRCS += \
 	source/6lowpan/bootstraps/Generic/protocol_6lowpan.c \
 	source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c \
 	source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c \
-	source/6lowpan/Fragmentation/cipv6_fragmenter.c \
+	source/6lowpan/fragmentation/cipv6_fragmenter.c \
 	source/6lowpan/iphc_decode/6lowpan_iphc.c \
 	source/6lowpan/iphc_decode/iphc_compress.c \
 	source/6lowpan/iphc_decode/iphc_decompress.c \

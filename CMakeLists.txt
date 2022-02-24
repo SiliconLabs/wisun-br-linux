@@ -77,7 +77,7 @@ add_executable(wsbrd
     nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
     nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c
     nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c
-    nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
+    nanostack/source/6lowpan/fragmentation/cipv6_fragmenter.c
     nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
     nanostack/source/6lowpan/iphc_decode/iphc_compress.c
     nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
@@ -320,7 +320,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
         nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c
         nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c
-        nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
+        nanostack/source/6lowpan/fragmentation/cipv6_fragmenter.c
         nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
         nanostack/source/6lowpan/iphc_decode/iphc_compress.c
         nanostack/source/6lowpan/iphc_decode/iphc_decompress.c

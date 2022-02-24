@@ -71,7 +71,7 @@
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/Fragmentation/cipv6_fragmenter.h"
+#include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common.h"
