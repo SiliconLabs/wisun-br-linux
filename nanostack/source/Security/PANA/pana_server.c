@@ -585,7 +585,7 @@ pana_failure:
     return;
 }
 
-static void pana_server_finnish_error_build(buffer_t *buf, sec_suite_t *suite)
+static void pana_server_finish_error_build(buffer_t *buf, sec_suite_t *suite)
 {
     buf->buf_ptr = PANA_HEADER_LENGTH;
     uint8_t *ptr = buffer_data_pointer(buf);
@@ -825,7 +825,7 @@ static void pana_server_state_machine_func(sec_suite_t *suite)
                         break;
 
                     case PANA_FAILURE:
-                        pana_server_finnish_error_build(buf, suite);
+                        pana_server_finish_error_build(buf, suite);
                         pana_down(buf, suite);
 
                         break;
