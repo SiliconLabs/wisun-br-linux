@@ -18,7 +18,7 @@
 #include <string.h>
 #include "ns_types.h"
 #include "nwk_stats_api.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol_stats.h"
 
 nwk_stats_t *NS_LARGE nwk_stats_ptr = 0;
 

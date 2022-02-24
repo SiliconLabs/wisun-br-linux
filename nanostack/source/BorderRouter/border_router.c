@@ -20,8 +20,8 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "NWK_INTERFACE/Include/protocol.h"
-#include "NWK_INTERFACE/Include/protocol_timer.h"
+#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/Include/protocol_timer.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifndef NO_MLE

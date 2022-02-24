@@ -25,7 +25,7 @@
 #include "net_interface.h"
 #include "socket_api.h"
 #include "eventOS_event.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/ws/ws_config.h"

@@ -19,7 +19,7 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "randLIB.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "RPL/rpl_control.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_data.h"
@@ -40,7 +40,7 @@
 #include "ip_fsc.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol_stats.h"
 #include "common_functions.h"
 #include "6lowpan/ND/nd_router_object.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"

@@ -26,8 +26,8 @@
 #include <ns_list.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "NWK_INTERFACE/Include/protocol.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/Include/protocol_stats.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "Core/include/ns_socket.h"
 #include "6lowpan/Mesh/mesh.h"

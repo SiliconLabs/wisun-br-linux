@@ -21,7 +21,7 @@
 #include <string.h>
 #include "net_load_balance_api.h"
 #include "net_interface.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #ifdef HAVE_6LOWPAN_ND
 #include "net_rpl.h"
 #include "Service_Libs/load_balance/load_balance_api.h"

@@ -42,7 +42,7 @@
 #include "thread_config.h"
 #include "eventOS_event_timer.h"
 #include "MLE/mle.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "thread_lowpower_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/Thread/thread_bootstrap.h"
@@ -51,7 +51,7 @@
 #include "thread_management_if.h"
 #include "6lowpan/Thread/thread_joiner_application.h"
 #include "6lowpan/Thread/thread_management_internal.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 
 #ifdef HAVE_THREAD_V2
 

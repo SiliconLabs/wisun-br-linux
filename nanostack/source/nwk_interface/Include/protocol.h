@@ -30,7 +30,7 @@
 #error "Why haven't you included config.h before all other headers?"
 #endif
 
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol_abstract.h"
 
 // Users of protocol.h can assume it includes these headers
 #include "Core/include/ns_address_internal.h"

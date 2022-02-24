@@ -27,7 +27,7 @@
 #include "ns_trace.h"
 #include "socket_api.h"
 #include "nsdynmemLIB.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Core/include/ns_socket.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_of0.h"
@@ -57,7 +57,7 @@
 #include "security/PANA/pana.h"
 #include "security/PANA/pana_internal_api.h"
 #include "nwk_stats_api.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol_stats.h"
 #include "security/Common/sec_lib_definitions.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"

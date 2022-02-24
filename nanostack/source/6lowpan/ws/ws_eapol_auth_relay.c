@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "mac_api.h"
 #include "mac_mcps.h"
 #include "Common_Protocols/ipv6_constants.h"

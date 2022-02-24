@@ -95,10 +95,10 @@ SRCS += \
 	source/MLE/mle.c \
 	source/MLE/mle_tlv.c \
 	source/MPL/mpl.c \
-	source/NWK_INTERFACE/protocol_core.c \
-	source/NWK_INTERFACE/protocol_core_sleep.c \
-	source/NWK_INTERFACE/protocol_stats.c \
-	source/NWK_INTERFACE/protocol_timer.c \
+	source/nwk_interface/protocol_core.c \
+	source/nwk_interface/protocol_core_sleep.c \
+	source/nwk_interface/protocol_stats.c \
+	source/nwk_interface/protocol_timer.c \
 	source/RPL/rpl_control.c \
 	source/RPL/rpl_data.c \
 	source/RPL/rpl_upward.c \

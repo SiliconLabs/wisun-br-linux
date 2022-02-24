@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include "nsdynmemLIB.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 
 #include "net_test_api.h"

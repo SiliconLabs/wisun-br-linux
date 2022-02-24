@@ -29,7 +29,7 @@
 #ifndef THREAD_ROUTING_H_
 #define THREAD_ROUTING_H_
 
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include <ns_list.h>
 #ifndef UINT_FAST12_MAX
 typedef uint_fast16_t   uint_fast12_t;

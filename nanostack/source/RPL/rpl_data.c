@@ -34,8 +34,8 @@
 #include <string.h>
 
 #include "Core/include/ns_buffer.h"
-#include "NWK_INTERFACE/Include/protocol.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/Include/protocol_stats.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/ipv6_resolution.h"
 #include "Common_Protocols/icmpv6.h"

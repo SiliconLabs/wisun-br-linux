@@ -44,7 +44,7 @@
 #include  <net_thread_test.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "MLE/mle.h"
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"

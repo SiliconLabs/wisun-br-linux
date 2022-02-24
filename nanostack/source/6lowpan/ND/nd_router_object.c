@@ -20,7 +20,7 @@
 #include "string.h"
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_prefix.h"
 #include "Common_Protocols/icmpv6_radv.h"

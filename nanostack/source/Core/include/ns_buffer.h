@@ -33,7 +33,7 @@
 
 #include "ns_types.h"
 #include "Core/include/ns_address_internal.h"
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol_abstract.h"
 #include "ns_list.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 

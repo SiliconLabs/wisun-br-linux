@@ -19,8 +19,8 @@
 #include "ns_trace.h"
 #include "eventOS_event.h"
 #include "eventOS_callback_timer.h"
-#include "NWK_INTERFACE/Include/protocol.h"
-#include "NWK_INTERFACE/Include/protocol_timer.h"
+#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/Include/protocol_timer.h"
 #include "platform/arm_hal_interrupt.h"
 
 #define TRACE_GROUP "ctim"

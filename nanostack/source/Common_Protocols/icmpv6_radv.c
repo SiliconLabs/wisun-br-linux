@@ -44,7 +44,7 @@
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "6lowpan/ND/nd_router_object.h" // for nd_ra_timing()
 #include "Common_Protocols/icmpv6.h"

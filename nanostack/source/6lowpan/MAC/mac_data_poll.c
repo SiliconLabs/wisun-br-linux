@@ -32,8 +32,8 @@
 #include "mac_api.h"
 #include "mlme.h"
 
-#include "NWK_INTERFACE/Include/protocol_stats.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"

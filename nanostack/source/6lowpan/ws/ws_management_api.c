@@ -23,7 +23,7 @@
 #include <nsdynmemLIB.h>
 #include "fhss_config.h"
 #include "ws_management_api.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

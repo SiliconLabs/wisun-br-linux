@@ -28,7 +28,7 @@
 #include "Core/include/ns_address_internal.h"
 #include "net_interface.h"
 #include "MLE/mle.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 

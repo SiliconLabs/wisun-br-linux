@@ -24,7 +24,7 @@
 #ifndef ETX_H_
 #define ETX_H_
 
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol_abstract.h"
 
 /* Fraction that is used when calculating moving average
    e.g. ETX = 7/8 * current ETX + 1/8 * new ETX sample

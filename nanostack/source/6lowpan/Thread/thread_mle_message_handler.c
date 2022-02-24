@@ -32,7 +32,7 @@
 #include "ns_trace.h"
 #include "string.h"
 #include "common_functions.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include <nsdynmemLIB.h>
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"

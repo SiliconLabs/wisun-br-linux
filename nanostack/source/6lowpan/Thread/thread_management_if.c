@@ -30,7 +30,7 @@
 #include <string.h>
 #include "ns_types.h"
 #include "mlme.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "thread_management_if.h"
 #include <nsdynmemLIB.h>
 #include "eventOS_event.h"

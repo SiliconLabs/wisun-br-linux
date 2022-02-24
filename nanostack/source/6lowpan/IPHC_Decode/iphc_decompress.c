@@ -19,7 +19,7 @@
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
 #include <string.h>
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "6lowpan/IPHC_Decode/iphc_decompress.h"

@@ -40,7 +40,7 @@
 #include "thread_tmfcop_lib.h"
 #include "ns_sha256.h"
 
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Service_Libs/blacklist/blacklist.h"
 
 #include "coap_service_api.h"

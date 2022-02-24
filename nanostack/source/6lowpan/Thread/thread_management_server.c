@@ -35,7 +35,7 @@
 #include <ns_trace.h>
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_management_server.h"
 #include "6lowpan/Thread/thread_network_data_lib.h"

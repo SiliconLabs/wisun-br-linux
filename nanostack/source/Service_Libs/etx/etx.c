@@ -25,9 +25,9 @@
 
 #include "Core/include/ns_address_internal.h"
 #include "MLE/mle.h"
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
-#include "NWK_INTERFACE/Include/protocol.h"
-#include "NWK_INTERFACE/Include/protocol_stats.h"
+#include "nwk_interface/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/Include/protocol_stats.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "Service_Libs/utils/isqrt.h"

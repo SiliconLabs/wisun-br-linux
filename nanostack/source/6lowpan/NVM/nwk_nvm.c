@@ -23,7 +23,7 @@
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
 #include "Core/include/ns_socket.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/NVM/nwk_nvm.h"
 #include "Service_Libs/mle_service/mle_service_api.h"

@@ -34,7 +34,7 @@
 #include "string.h"
 #include "nsdynmemLIB.h"
 #include "Core/include/ns_socket.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/ipv6_flow.h"
 #include "Common_Protocols/tcp.h"

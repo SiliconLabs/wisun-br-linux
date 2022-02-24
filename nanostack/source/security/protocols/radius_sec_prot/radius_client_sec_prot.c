@@ -27,7 +27,7 @@
 #include "mbedtls/md5.h"
 #include "fhss_config.h"
 #include "Service_Libs/Trickle/trickle.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"

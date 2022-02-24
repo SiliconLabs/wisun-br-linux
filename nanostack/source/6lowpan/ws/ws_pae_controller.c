@@ -27,7 +27,7 @@
 #include "ws_bbr_api.h"
 #include "Service_Libs/utils/ns_file.h"
 #include "Service_Libs/utils/ns_time.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"

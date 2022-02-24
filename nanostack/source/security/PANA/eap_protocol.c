@@ -23,7 +23,7 @@
 #include "ns_trace.h"
 #include "string.h"
 #include "Core/include/ns_socket.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifdef ECC

@@ -42,7 +42,7 @@
 #include "randLIB.h"
 #include "ns_sha256.h"
 #include "common_functions.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "net_thread_test.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "libdhcpv6/libdhcpv6.h"

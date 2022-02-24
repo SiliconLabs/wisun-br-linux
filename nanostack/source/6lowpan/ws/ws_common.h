@@ -24,7 +24,7 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "net_fhss.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"

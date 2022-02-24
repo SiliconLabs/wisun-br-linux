@@ -38,7 +38,7 @@
 #include <string.h>
 #include <ns_types.h>
 #include <nsdynmemLIB.h>
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "common_functions.h"
 #include "ns_trace.h"
 #include "ip6string.h"

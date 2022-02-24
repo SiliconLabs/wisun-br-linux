@@ -163,10 +163,10 @@ add_executable(wsbrd
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c
-    nanostack/source/NWK_INTERFACE/protocol_core.c
-    nanostack/source/NWK_INTERFACE/protocol_core_sleep.c
-    nanostack/source/NWK_INTERFACE/protocol_stats.c
-    nanostack/source/NWK_INTERFACE/protocol_timer.c
+    nanostack/source/nwk_interface/protocol_core.c
+    nanostack/source/nwk_interface/protocol_core_sleep.c
+    nanostack/source/nwk_interface/protocol_stats.c
+    nanostack/source/nwk_interface/protocol_timer.c
     nanostack/source/RPL/rpl_control.c
     nanostack/source/RPL/rpl_mrhof.c
     nanostack/source/RPL/rpl_downward.c
@@ -405,10 +405,10 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/MLE/mle.c
         nanostack/source/MLE/mle_tlv.c
         nanostack/source/MPL/mpl.c
-        nanostack/source/NWK_INTERFACE/protocol_core.c
-        nanostack/source/NWK_INTERFACE/protocol_core_sleep.c
-        nanostack/source/NWK_INTERFACE/protocol_stats.c
-        nanostack/source/NWK_INTERFACE/protocol_timer.c
+        nanostack/source/nwk_interface/protocol_core.c
+        nanostack/source/nwk_interface/protocol_core_sleep.c
+        nanostack/source/nwk_interface/protocol_stats.c
+        nanostack/source/nwk_interface/protocol_timer.c
         nanostack/source/RPL/rpl_control.c
         nanostack/source/RPL/rpl_mrhof.c
         nanostack/source/RPL/rpl_downward.c

@@ -36,7 +36,7 @@
 #include "eventOS_event_timer.h"
 #include "common_functions.h"
 #include "ns_trace.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/ipv6.h"

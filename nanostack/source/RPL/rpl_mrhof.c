@@ -24,7 +24,7 @@
 
 #include "net_rpl.h"
 
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol_abstract.h"
 #include "Common_Protocols/ipv6_resolution.h"
 #include "Service_Libs/etx/etx.h"
 

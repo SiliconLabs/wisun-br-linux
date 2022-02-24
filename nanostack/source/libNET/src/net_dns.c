@@ -21,7 +21,7 @@
 #include <string.h>
 #include "net_dns_internal.h"
 #include "net_interface.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "libNET/src/net_dns_internal.h"

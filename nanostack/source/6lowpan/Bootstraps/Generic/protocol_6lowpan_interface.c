@@ -27,7 +27,7 @@
 #include "eventOS_scheduler.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "Common_Protocols/udp.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"

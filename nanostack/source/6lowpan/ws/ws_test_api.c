@@ -26,7 +26,7 @@
 #include "ws_management_api.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "NWK_INTERFACE/Include/protocol.h"
+#include "nwk_interface/Include/protocol.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"

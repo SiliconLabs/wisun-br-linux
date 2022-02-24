@@ -22,7 +22,7 @@
 #include "net_interface.h"
 
 #include "security/protocols/sec_prot_keys.h"
-#include "NWK_INTERFACE/Include/protocol_abstract.h"
+#include "nwk_interface/Include/protocol_abstract.h"
 
 #ifdef HAVE_WS
 
