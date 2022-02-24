@@ -38,10 +38,10 @@
 #include "ns_trace.h"
 #include "Core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ip.h"
-#include "Common_Protocols/ipv6.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/ipv6_fragmentation.h"
+#include "common_protocols/ip.h"
+#include "common_protocols/ipv6.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/ipv6_fragmentation.h"
 
 #include "nwk_interface/Include/protocol_stats.h"
 

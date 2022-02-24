@@ -28,12 +28,12 @@
 #ifdef HAVE_MPL
 #include "MPL/mpl.h"
 #endif
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/icmpv6_prefix.h"
-#include "Common_Protocols/icmpv6_radv.h"
-#include "Common_Protocols/ip.h"
-#include "Common_Protocols/ipv6.h"
-#include "Common_Protocols/mld.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_radv.h"
+#include "common_protocols/ip.h"
+#include "common_protocols/ipv6.h"
+#include "common_protocols/mld.h"
 #include "Core/include/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"

@@ -32,9 +32,9 @@
 #include "Core/include/ns_socket.h"
 #include "socket_api.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/tcp.h"
-#include "Common_Protocols/ipv6.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/tcp.h"
+#include "common_protocols/ipv6.h"
+#include "common_protocols/icmpv6.h"
 #include "ip6string.h"
 #include "common_functions.h"
 

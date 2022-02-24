@@ -64,7 +64,7 @@
 #include "6lowpan/Thread/thread_tmfcop_lib.h"
 #include "6lowpan/Thread/thread_neighbor_class.h"
 #include "thread_management_if.h"
-#include "Common_Protocols/ipv6.h"
+#include "common_protocols/ipv6.h"
 #include "MPL/mpl.h"
 #include "MLE/mle_tlv.h"
 #include "thread_config.h"

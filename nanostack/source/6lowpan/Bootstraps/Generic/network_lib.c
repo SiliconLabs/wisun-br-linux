@@ -22,12 +22,12 @@
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/udp.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/udp.h"
 #include "6lowpan/Bootstraps/network_lib.h"
 #include "MLE/mle.h"
 #include "shalib.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 
 #ifdef PANA
 #ifdef ECC

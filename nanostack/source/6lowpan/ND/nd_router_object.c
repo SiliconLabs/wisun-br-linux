@@ -21,9 +21,9 @@
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/icmpv6_prefix.h"
-#include "Common_Protocols/icmpv6_radv.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_radv.h"
 #include "randLIB.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_control.h"

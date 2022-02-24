@@ -25,7 +25,7 @@
 #include "nwk_interface/Include/protocol.h"
 #include "mac_api.h"
 #include "mac_mcps.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 #include "socket_api.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mpx_api.h"

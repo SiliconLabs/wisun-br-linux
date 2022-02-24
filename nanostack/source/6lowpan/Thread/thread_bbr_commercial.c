@@ -54,7 +54,7 @@
 #include "6lowpan/Thread/thread_ccm.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ipv6.h"
+#include "common_protocols/ipv6.h"
 
 
 #if defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)

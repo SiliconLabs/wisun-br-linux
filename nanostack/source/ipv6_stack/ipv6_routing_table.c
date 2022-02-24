@@ -39,11 +39,11 @@
 #include "string.h"
 #include "Core/include/ns_address_internal.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "Common_Protocols/ipv6_constants.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/ipv6_constants.h"
+#include "common_protocols/icmpv6.h"
 #include "nsdynmemLIB.h"
 #include "service_libs/etx/etx.h"
-#include "Common_Protocols/ipv6_resolution.h"
+#include "common_protocols/ipv6_resolution.h"
 #include <stdarg.h>
 #include <stdio.h>
 

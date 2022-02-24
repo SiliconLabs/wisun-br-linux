@@ -121,16 +121,16 @@ add_executable(wsbrd
     nanostack/source/6lowpan/ws/ws_phy.c
     nanostack/source/6lowpan/ws/ws_stats.c
     nanostack/source/6lowpan/ws/ws_test_api.c
-    nanostack/source/Common_Protocols/icmpv6.c
-    nanostack/source/Common_Protocols/icmpv6_prefix.c
-    nanostack/source/Common_Protocols/icmpv6_radv.c
-    nanostack/source/Common_Protocols/ipv6.c
-    nanostack/source/Common_Protocols/ipv6_flow.c
-    nanostack/source/Common_Protocols/ipv6_fragmentation.c
-    nanostack/source/Common_Protocols/ipv6_resolution.c
-    nanostack/source/Common_Protocols/mld.c
-    nanostack/source/Common_Protocols/tcp.c
-    nanostack/source/Common_Protocols/udp.c
+    nanostack/source/common_protocols/icmpv6.c
+    nanostack/source/common_protocols/icmpv6_prefix.c
+    nanostack/source/common_protocols/icmpv6_radv.c
+    nanostack/source/common_protocols/ipv6.c
+    nanostack/source/common_protocols/ipv6_flow.c
+    nanostack/source/common_protocols/ipv6_fragmentation.c
+    nanostack/source/common_protocols/ipv6_resolution.c
+    nanostack/source/common_protocols/mld.c
+    nanostack/source/common_protocols/tcp.c
+    nanostack/source/common_protocols/udp.c
     nanostack/source/Core/buffer_dyn.c
     nanostack/source/Core/ns_address_internal.c
     nanostack/source/Core/ns_monitor.c
@@ -363,16 +363,16 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/ws/ws_phy.c
         nanostack/source/6lowpan/ws/ws_stats.c
         nanostack/source/6lowpan/ws/ws_test_api.c
-        nanostack/source/Common_Protocols/icmpv6.c
-        nanostack/source/Common_Protocols/icmpv6_prefix.c
-        nanostack/source/Common_Protocols/icmpv6_radv.c
-        nanostack/source/Common_Protocols/ipv6.c
-        nanostack/source/Common_Protocols/ipv6_flow.c
-        nanostack/source/Common_Protocols/ipv6_fragmentation.c
-        nanostack/source/Common_Protocols/ipv6_resolution.c
-        nanostack/source/Common_Protocols/mld.c
-        nanostack/source/Common_Protocols/tcp.c
-        nanostack/source/Common_Protocols/udp.c
+        nanostack/source/common_protocols/icmpv6.c
+        nanostack/source/common_protocols/icmpv6_prefix.c
+        nanostack/source/common_protocols/icmpv6_radv.c
+        nanostack/source/common_protocols/ipv6.c
+        nanostack/source/common_protocols/ipv6_flow.c
+        nanostack/source/common_protocols/ipv6_fragmentation.c
+        nanostack/source/common_protocols/ipv6_resolution.c
+        nanostack/source/common_protocols/mld.c
+        nanostack/source/common_protocols/tcp.c
+        nanostack/source/common_protocols/udp.c
         nanostack/source/Core/buffer_dyn.c
         nanostack/source/Core/ns_address_internal.c
         nanostack/source/Core/ns_monitor.c

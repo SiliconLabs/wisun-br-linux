@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 #include "MPL/mpl.h"
 #include "multicast_api.h"
 

@@ -23,7 +23,7 @@
 #include "common_functions.h"
 #include <ns_list.h>
 #include <nsdynmemLIB.h>
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/icmpv6.h"
 #include "mac_common_defines.h"
 #include "net_interface.h"
 #include "eventOS_event.h"

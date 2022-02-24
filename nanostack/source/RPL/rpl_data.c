@@ -36,9 +36,9 @@
 #include "Core/include/ns_buffer.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"
-#include "Common_Protocols/ipv6.h"
-#include "Common_Protocols/ipv6_resolution.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/ipv6.h"
+#include "common_protocols/ipv6_resolution.h"
+#include "common_protocols/icmpv6.h"
 
 #include "RPL/rpl_protocol.h"
 #include "RPL/rpl_upward.h"

@@ -16,7 +16,7 @@
  */
 #ifndef _ICMPV6_H
 #define _ICMPV6_H
-#include "Common_Protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_prefix.h"
 
 #define ICMPV6_TYPE_ERROR_DESTINATION_UNREACH       1
 #define ICMPV6_TYPE_ERROR_PACKET_TOO_BIG            2

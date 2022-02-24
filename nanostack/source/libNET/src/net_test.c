@@ -23,7 +23,7 @@
 #include "service_libs/mle_service/mle_service_api.h"
 
 #include "net_test_api.h"
-#include "Common_Protocols/tcp.h"
+#include "common_protocols/tcp.h"
 
 #include "ns_trace.h"
 

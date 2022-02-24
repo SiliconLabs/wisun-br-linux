@@ -48,16 +48,16 @@ SRCS += \
 	source/6lowpan/ws/ws_cfg_settings.c \
 	source/6lowpan/ws/ws_phy.c \
 	source/border_router/border_router.c \
-	source/Common_Protocols/icmpv6.c \
-	source/Common_Protocols/icmpv6_prefix.c \
-	source/Common_Protocols/icmpv6_radv.c \
-	source/Common_Protocols/ipv6.c \
-	source/Common_Protocols/ipv6_resolution.c \
-	source/Common_Protocols/ipv6_fragmentation.c \
-	source/Common_Protocols/ipv6_flow.c \
-	source/Common_Protocols/mld.c \
-	source/Common_Protocols/tcp.c \
-	source/Common_Protocols/udp.c \
+	source/common_protocols/icmpv6.c \
+	source/common_protocols/icmpv6_prefix.c \
+	source/common_protocols/icmpv6_radv.c \
+	source/common_protocols/ipv6.c \
+	source/common_protocols/ipv6_resolution.c \
+	source/common_protocols/ipv6_fragmentation.c \
+	source/common_protocols/ipv6_flow.c \
+	source/common_protocols/mld.c \
+	source/common_protocols/tcp.c \
+	source/common_protocols/udp.c \
 	source/Core/ns_address_internal.c \
 	source/Core/ns_monitor.c \
 	source/Core/buffer_dyn.c \

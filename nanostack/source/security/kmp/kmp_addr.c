@@ -25,7 +25,7 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/kmp/kmp_addr.h"
 

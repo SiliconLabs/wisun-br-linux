@@ -38,8 +38,8 @@
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "Common_Protocols/ipv6_constants.h"
-#include "Common_Protocols/ipv6.h"
+#include "common_protocols/ipv6_constants.h"
+#include "common_protocols/ipv6.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6lowpan/Thread/thread_bbr_api_internal.h"
 

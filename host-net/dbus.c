@@ -12,7 +12,7 @@
 #include "nanostack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "nanostack/source/nwk_interface/Include/protocol.h"
 #include "nanostack/source/security/protocols/sec_prot_keys.h"
-#include "nanostack/source/Common_Protocols/icmpv6.h"
+#include "nanostack/source/common_protocols/icmpv6.h"
 
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/socket_api.h"

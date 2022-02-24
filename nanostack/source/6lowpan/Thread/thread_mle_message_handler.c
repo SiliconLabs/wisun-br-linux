@@ -53,7 +53,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"
-#include "Common_Protocols/ipv6.h"
+#include "common_protocols/ipv6.h"
 #include "MLE/mle.h"
 #include "mac_api.h"
 #define TRACE_GROUP "thmh"

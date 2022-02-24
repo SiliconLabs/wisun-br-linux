@@ -47,8 +47,8 @@
 #include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "6lowpan/ND/nd_router_object.h" // for nd_ra_timing()
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/icmpv6_radv.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/icmpv6_radv.h"
 
 #ifdef RADV_TX
 

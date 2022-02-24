@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 #include "socket_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_certs.h"

@@ -21,7 +21,7 @@
 #include "Core/include/ns_address_internal.h"
 #include "ns_list.h"
 #include "6lowpan/IPHC_Decode/lowpan_context.h"
-#include "Common_Protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_prefix.h"
 
 typedef enum {
     ND_READY = 0,

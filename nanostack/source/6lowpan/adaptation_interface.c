@@ -41,8 +41,8 @@
 #include "lowpan_adaptation_interface.h"
 #include "MLE/mle.h"
 #include "service_libs/mle_service/mle_service_api.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/ip.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/ip.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_data.h"
 #endif

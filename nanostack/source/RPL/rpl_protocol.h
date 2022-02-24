@@ -20,7 +20,7 @@
 
 #include "net_rpl.h" // for RPL_INSTANCE_LOCAL
 
-/* RPL messages are defined as ICMPv6 Codes in Common_Protocols/icmpv6.h */
+/* RPL messages are defined as ICMPv6 Codes in common_protocols/icmpv6.h */
 
 /* Options in ICMPv6 RPL messages (RFC 6550) */
 #define RPL_PAD1_OPTION         0

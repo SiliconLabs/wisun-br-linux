@@ -22,9 +22,9 @@
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "6lowpan/Bootstraps/network_lib.h" // for nwk_udp_rx_security_check
-#include "Common_Protocols/ipv6_constants.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/udp.h"
+#include "common_protocols/ipv6_constants.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/udp.h"
 #include "Core/include/ns_socket.h"
 #include "common_functions.h"
 

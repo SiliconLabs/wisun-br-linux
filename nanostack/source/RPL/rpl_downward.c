@@ -88,10 +88,10 @@
 #include "randLIB.h"
 #include "ip6string.h"
 
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/icmpv6.h"
 #include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "Common_Protocols/ip.h"
+#include "common_protocols/ip.h"
 
 #include "net_rpl.h"
 #include "RPL/rpl_protocol.h"

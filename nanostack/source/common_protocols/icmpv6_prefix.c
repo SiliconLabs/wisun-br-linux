@@ -21,7 +21,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "Common_Protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_prefix.h"
 #include "common_functions.h"
 
 /*

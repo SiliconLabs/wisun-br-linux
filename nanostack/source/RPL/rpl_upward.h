@@ -18,7 +18,7 @@
 #ifndef RPL_UPWARD_H_
 #define RPL_UPWARD_H_
 
-#include "Common_Protocols/icmpv6_prefix.h"
+#include "common_protocols/icmpv6_prefix.h"
 #include "rpl_control.h"
 
 /* Structures are abstract for outer control layer */

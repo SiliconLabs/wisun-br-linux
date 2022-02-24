@@ -43,9 +43,9 @@
 #include "Core/include/ns_buffer.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"
-#include "Common_Protocols/ipv6_constants.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/ip.h"
+#include "common_protocols/ipv6_constants.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/ip.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "service_libs/etx/etx.h" /* slight ick */
 

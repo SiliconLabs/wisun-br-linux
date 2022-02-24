@@ -70,7 +70,7 @@
 #include "thread_meshcop_lib.h"
 #include "thread_commissioning_if.h"
 #include "shalib.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/icmpv6.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6lowpan/Thread/thread_dhcpv6_server.h"
 #include "service_libs/mle_service/mle_service_api.h"

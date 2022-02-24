@@ -19,7 +19,7 @@
 #include "string.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/icmpv6.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "platform/os_whiteboard.h"
 

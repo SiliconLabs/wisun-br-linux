@@ -22,8 +22,8 @@
 #include "nsdynmemLIB.h"
 
 #include "Core/include/ns_address_internal.h"
-#include "Common_Protocols/ipv6_flow.h"
-#include "Common_Protocols/ipv6_fragmentation.h"
+#include "common_protocols/ipv6_flow.h"
+#include "common_protocols/ipv6_fragmentation.h"
 #include "nwk_interface/Include/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 

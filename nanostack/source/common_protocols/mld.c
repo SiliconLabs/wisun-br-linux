@@ -35,10 +35,10 @@
 #include <string.h>
 
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ip.h"
-#include "Common_Protocols/ipv6.h"
-#include "Common_Protocols/icmpv6.h"
-#include "Common_Protocols/mld.h"
+#include "common_protocols/ip.h"
+#include "common_protocols/ipv6.h"
+#include "common_protocols/icmpv6.h"
+#include "common_protocols/mld.h"
 #include "6lowpan/Thread/thread_common.h"
 
 #define MLD_UNSOLICITED_REPORT_INTERVAL (10 * 10) /* 10 seconds */

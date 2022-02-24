@@ -40,7 +40,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/ND/nd_router_object.h"
-#include "Common_Protocols/udp.h"
+#include "common_protocols/udp.h"
 
 #ifdef ECC
 #include    "ecc.h"

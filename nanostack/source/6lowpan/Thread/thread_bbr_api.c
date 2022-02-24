@@ -42,7 +42,7 @@
 #include "thread_bbr_api.h"
 #include "net_ipv6_api.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Common_Protocols/ipv6_constants.h"
+#include "common_protocols/ipv6_constants.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6lowpan/Thread/thread_dhcpv6_server.h"
 #include "thread_management_if.h"
@@ -63,7 +63,7 @@
 #include "thread_management_server.h"
 #include "socket_api.h"
 #include "coap_service_api.h"
-#include "Common_Protocols/icmpv6.h"
+#include "common_protocols/icmpv6.h"
 
 #define TRACE_GROUP "tBBR"
 
