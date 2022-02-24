@@ -153,13 +153,13 @@ static mlme_device_descriptor_t *mac_sec_mib_device_description_get_by_mac64(pro
 }
 
 //Remove entry from the list
-static void mac_sec_mib_key_device_description_remove_from_list(mlme_key_descriptor_t *key_descpription_table, uint8_t device_descriptor_handle)
+static void mac_sec_mib_key_device_description_remove_from_list(mlme_key_descriptor_t *key_description_table, uint8_t device_descriptor_handle)
 {
     bool removed_entry = false;
     mlme_key_device_descriptor_t *cur, *prev;
     prev = NULL;
-    cur = key_descpription_table->KeyDeviceList;
-    for (uint8_t i = 0; i < key_descpription_table->KeyDeviceListEntries; i++) {
+    cur = key_description_table->KeyDeviceList;
+    for (uint8_t i = 0; i < key_description_table->KeyDeviceListEntries; i++) {
         if (removed_entry) {
             //copy current to last one
             *prev = *cur;
@@ -172,11 +172,11 @@ static void mac_sec_mib_key_device_description_remove_from_list(mlme_key_descrip
     }
 
     if (removed_entry) {
-        key_descpription_table->KeyDeviceListEntries--;
+        key_description_table->KeyDeviceListEntries--;
         //Clear Also frame counter per key if it its enabled
-        if (key_descpription_table->KeyFrameCounterPerKey) {
+        if (key_description_table->KeyFrameCounterPerKey) {
             //SET frame counter to 0
-            mac_sec_mib_key_device_frame_counter_set(key_descpription_table, NULL, 0, device_descriptor_handle);
+            mac_sec_mib_key_device_frame_counter_set(key_description_table, NULL, 0, device_descriptor_handle);
         }
     }
 }
@@ -595,20 +595,20 @@ void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_
 }
 
 
-void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint32_t frame_counter, uint8_t attribute_index)
+void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_description_table, mlme_device_descriptor_t *device_info, uint32_t frame_counter, uint8_t attribute_index)
 {
-    if (key_descpription_table->KeyFrameCounterPerKey) {
-        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCounterList + attribute_index;
+    if (key_description_table->KeyFrameCounterPerKey) {
+        uint32_t *counter_ptr = key_description_table->KeyDeviceFrameCounterList + attribute_index;
         *counter_ptr = frame_counter;
     } else if (device_info) {
         device_info->FrameCounter = frame_counter;
     }
 }
 
-uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_descpription_table, mlme_device_descriptor_t *device_info, uint8_t attribute_index)
+uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_description_table, mlme_device_descriptor_t *device_info, uint8_t attribute_index)
 {
-    if (key_descpription_table->KeyFrameCounterPerKey) {
-        uint32_t *counter_ptr = key_descpription_table->KeyDeviceFrameCounterList + attribute_index;
+    if (key_description_table->KeyFrameCounterPerKey) {
+        uint32_t *counter_ptr = key_description_table->KeyDeviceFrameCounterList + attribute_index;
         return *counter_ptr;
     }
     return device_info->FrameCounter;
@@ -616,13 +616,13 @@ uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_descpri
 
 
 //allocate new entry and update entries size
-mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_list_update(mlme_key_descriptor_t *key_descpription_table)
+mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_list_update(mlme_key_descriptor_t *key_description_table)
 {
-    if (!key_descpription_table || key_descpription_table->KeyDeviceListEntries == key_descpription_table->KeyDeviceListSize) {
+    if (!key_description_table || key_description_table->KeyDeviceListEntries == key_description_table->KeyDeviceListSize) {
         return NULL;
     }
-    mlme_key_device_descriptor_t *new_entry = key_descpription_table->KeyDeviceList;
-    new_entry += key_descpription_table->KeyDeviceListEntries++;
+    mlme_key_device_descriptor_t *new_entry = key_description_table->KeyDeviceList;
+    new_entry += key_description_table->KeyDeviceListEntries++;
     new_entry->Blacklisted = false;
     new_entry->UniqueDevice = false;
     return new_entry;
