@@ -215,7 +215,7 @@ void protocol_core_security_tick_update(uint16_t tick_update)
     }
 }
 
-static void nwk_bootsrap_timer(protocol_interface_info_entry_t *cur)
+static void nwk_bootstrap_timer(protocol_interface_info_entry_t *cur)
 {
     if (cur->bootstrap_state_machine_cnt) {
         if (cur->bootstrap_state_machine_cnt-- == 1) {
@@ -229,7 +229,7 @@ static void nwk_bootsrap_timer(protocol_interface_info_entry_t *cur)
             };
             if (eventOS_event_send(&event) != 0) {
                 cur->bootstrap_state_machine_cnt = 1; // Try again next tick
-                tr_error("nwk_bootsrap_timer(): event send failed");
+                tr_error("nwk_bootstrap_timer(): event send failed");
             }
         }
     }
@@ -320,7 +320,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
         if (cur->nwk_id == IF_6LoWPAN) {
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                nwk_bootsrap_timer(cur);
+                nwk_bootstrap_timer(cur);
                 nd_object_timer(cur, ticksUpdate);
                 if (thread_info(cur)) {
                     thread_timer(cur, ticksUpdate);
