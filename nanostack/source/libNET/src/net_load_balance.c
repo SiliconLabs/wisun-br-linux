@@ -97,7 +97,7 @@ static bool net_load_balance_network_switch_req(void *load_balance_user, struct 
     }
 
     //Start configured bootstrap
-    return protocol_6lowpan_bootsrap_start(interface);
+    return protocol_6lowpan_bootstrap_start(interface);
 }
 
 static void net_load_balance_link_reject(const protocol_interface_info_entry_t *cur)

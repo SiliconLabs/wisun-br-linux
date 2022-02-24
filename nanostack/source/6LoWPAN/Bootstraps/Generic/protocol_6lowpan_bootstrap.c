@@ -2471,7 +2471,7 @@ bool protocol_6lowpan_bootsrap_link_set(protocol_interface_info_entry_t *interfa
     return true;
 }
 
-bool protocol_6lowpan_bootsrap_start(protocol_interface_info_entry_t *interface)
+bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface)
 {
     net_load_balance_internal_state_activate(interface, false);
 
@@ -2556,7 +2556,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
     best = mac_helper_free_pan_descriptions(best);
 
     if (link_start_ok) {
-        protocol_6lowpan_bootsrap_start(interface);
+        protocol_6lowpan_bootstrap_start(interface);
     }
 
     if (is_border_router == true) {
