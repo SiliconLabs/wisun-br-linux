@@ -58,7 +58,7 @@
 #include "border_router/border_router.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/beacon_handler.h"
-#include "6lowpan/NVM/nwk_nvm.h"
+#include "6lowpan/nvm/nwk_nvm.h"
 #include "net_lib/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
