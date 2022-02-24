@@ -94,17 +94,17 @@ typedef struct dhcp_gen_option {
     uint8_t *data;
 } dhcp_gen_option_t;
 
-typedef struct dhcp_vendor_spesific_option {
+typedef struct dhcp_vendor_specific_option {
     uint32_t enterprise_number;
     uint16_t data_length;
     uint8_t *data;
-} dhcp_vendor_spesific_option_t;
+} dhcp_vendor_specific_option_t;
 
 typedef struct dhcp_option_notify_s {
     uint8_t option_type;
     union {
         dhcp_gen_option_t generic;
-        dhcp_vendor_spesific_option_t vendor_specific;
+        dhcp_vendor_specific_option_t vendor_specific;
     } option;
 } dhcp_option_notify_t;
 
