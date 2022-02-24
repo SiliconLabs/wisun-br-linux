@@ -22,7 +22,7 @@
 #include <string.h>
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6_constants.h"
-#include "6lowpan/IPHC_Decode/cipv6.h"
+#include "6lowpan/iphc_decode/cipv6.h"
 
 #define TRACE_GROUP "iphc"
 

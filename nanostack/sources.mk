@@ -5,10 +5,10 @@ SRCS += \
 	source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c \
 	source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c \
 	source/6lowpan/Fragmentation/cipv6_fragmenter.c \
-	source/6lowpan/IPHC_Decode/6lowpan_iphc.c \
-	source/6lowpan/IPHC_Decode/iphc_compress.c \
-	source/6lowpan/IPHC_Decode/iphc_decompress.c \
-	source/6lowpan/IPHC_Decode/lowpan_context.c \
+	source/6lowpan/iphc_decode/6lowpan_iphc.c \
+	source/6lowpan/iphc_decode/iphc_compress.c \
+	source/6lowpan/iphc_decode/iphc_decompress.c \
+	source/6lowpan/iphc_decode/lowpan_context.c \
 	source/6lowpan/MAC/beacon_handler.c \
 	source/6lowpan/MAC/mac_helper.c \
 	source/6lowpan/MAC/mac_ie_lib.c \

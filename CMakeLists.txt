@@ -78,10 +78,10 @@ add_executable(wsbrd
     nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
     nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c
     nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
-    nanostack/source/6lowpan/IPHC_Decode/6lowpan_iphc.c
-    nanostack/source/6lowpan/IPHC_Decode/iphc_compress.c
-    nanostack/source/6lowpan/IPHC_Decode/iphc_decompress.c
-    nanostack/source/6lowpan/IPHC_Decode/lowpan_context.c
+    nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
+    nanostack/source/6lowpan/iphc_decode/iphc_compress.c
+    nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
+    nanostack/source/6lowpan/iphc_decode/lowpan_context.c
     nanostack/source/6lowpan/MAC/beacon_handler.c
     nanostack/source/6lowpan/MAC/mac_data_poll.c
     nanostack/source/6lowpan/MAC/mac_helper.c
@@ -321,10 +321,10 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c
         nanostack/source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c
         nanostack/source/6lowpan/Fragmentation/cipv6_fragmenter.c
-        nanostack/source/6lowpan/IPHC_Decode/6lowpan_iphc.c
-        nanostack/source/6lowpan/IPHC_Decode/iphc_compress.c
-        nanostack/source/6lowpan/IPHC_Decode/iphc_decompress.c
-        nanostack/source/6lowpan/IPHC_Decode/lowpan_context.c
+        nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
+        nanostack/source/6lowpan/iphc_decode/iphc_compress.c
+        nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
+        nanostack/source/6lowpan/iphc_decode/lowpan_context.c
         nanostack/source/6lowpan/MAC/beacon_handler.c
         nanostack/source/6lowpan/MAC/mac_data_poll.c
         nanostack/source/6lowpan/MAC/mac_helper.c

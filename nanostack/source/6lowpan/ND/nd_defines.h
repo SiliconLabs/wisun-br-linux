@@ -20,7 +20,7 @@
 
 #include "core/include/ns_address_internal.h"
 #include "ns_list.h"
-#include "6lowpan/IPHC_Decode/lowpan_context.h"
+#include "6lowpan/iphc_decode/lowpan_context.h"
 #include "common_protocols/icmpv6_prefix.h"
 
 typedef enum {

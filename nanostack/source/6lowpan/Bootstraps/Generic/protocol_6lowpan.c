@@ -35,7 +35,7 @@
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_protocol.h"
 #endif
-#include "6lowpan/IPHC_Decode/cipv6.h"
+#include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/ND/nd_router_object.h"
 #ifndef NO_MLE
 #include "mle/mle.h"

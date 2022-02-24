@@ -43,7 +43,7 @@
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif
-#include "6lowpan/IPHC_Decode/cipv6.h"
+#include "6lowpan/iphc_decode/cipv6.h"
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif

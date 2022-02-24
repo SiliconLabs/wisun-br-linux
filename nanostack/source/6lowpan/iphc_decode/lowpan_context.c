@@ -26,7 +26,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "6lowpan/IPHC_Decode/lowpan_context.h"
+#include "6lowpan/iphc_decode/lowpan_context.h"
 #include "common_functions.h"
 
 #define TRACE_GROUP "lCon"

@@ -41,7 +41,7 @@
 #include "ccmLIB.h"
 #endif
 #include "6lowpan/ND/nd_router_object.h"
-#include "6lowpan/IPHC_Decode/cipv6.h"
+#include "6lowpan/iphc_decode/cipv6.h"
 #include "net_nwk_scan.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"
