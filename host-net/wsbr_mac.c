@@ -308,7 +308,7 @@ static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsign
 
 static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 16);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 27);
     const struct phy_rf_channel_configuration_s *req = data;
 
     BUG_ON(prop != SPINEL_PROP_WS_RF_CONFIGURATION);
@@ -320,6 +320,11 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
     spinel_push_u16(buf, req->number_of_channels);
     spinel_push_u8(buf,  req->modulation);
     spinel_push_u8(buf,  req->modulation_index);
+    if (!fw_api_older_than(ctxt, 0, 6, 0)) {
+        spinel_push_bool(buf, req->fec);
+        spinel_push_int(buf, req->ofdm_option);
+        spinel_push_int(buf, req->ofdm_mcs);
+    }
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
