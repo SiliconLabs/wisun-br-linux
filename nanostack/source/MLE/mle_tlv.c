@@ -20,7 +20,7 @@
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
 #include "common_functions.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 
 int mle_message_malformed_check(uint8_t *ptr, uint16_t data_len)
 {

@@ -36,13 +36,13 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "Service_Libs/whiteboard/whiteboard.h"
+#include "service_libs/whiteboard/whiteboard.h"
 #include "common_functions.h"
 #include "BorderRouter/border_router.h"
-#include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
+#include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/ws/ws_common.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "loND"
 

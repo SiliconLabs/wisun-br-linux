@@ -55,8 +55,8 @@
 #include "thread_meshcop_lib.h"
 #include "thread_diagcop_lib.h"
 #include "coap_service_api.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mle_service/mle_service_api.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/MAC/mac_helper.h"
 
 #define TRACE_GROUP "tapi"

@@ -70,7 +70,7 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
 #include "ipv6_stack/protocol_ipv6.h"
-#include "Service_Libs/whiteboard/whiteboard.h"
+#include "service_libs/whiteboard/whiteboard.h"
 
 #include "6lowpan/MAC/beacon_handler.h"
 #include "6lowpan/MAC/mac_helper.h"
@@ -79,9 +79,9 @@
 #include "6lowpan/NVM/nwk_nvm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/Fragmentation/cipv6_fragmenter.h"
-#include "Service_Libs/load_balance/load_balance_api.h"
-#include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/load_balance/load_balance_api.h"
+#include "service_libs/pan_blacklist/pan_blacklist_api.h"
+#include "service_libs/etx/etx.h"
 #include "libNET/src/net_dns_internal.h"
 
 #include "mac_api.h"

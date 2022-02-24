@@ -47,7 +47,7 @@
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/ip.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "Service_Libs/etx/etx.h" /* slight ick */
+#include "service_libs/etx/etx.h" /* slight ick */
 
 #include "net_rpl.h"
 #include "RPL/rpl_protocol.h"

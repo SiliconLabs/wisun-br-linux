@@ -49,7 +49,7 @@
 #include "thread_diagcop_lib.h"
 #include "common_functions.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_api.h"
 
 

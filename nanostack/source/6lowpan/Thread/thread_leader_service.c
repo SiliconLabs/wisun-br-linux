@@ -54,7 +54,7 @@
 #include "6lowpan/Thread/thread_router_bootstrap.h"
 #include "6lowpan/Thread/thread_network_synch.h"
 #include "6lowpan/Thread/thread_nvm_store.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/Thread/thread_host_bootstrap.h"
 #include "6lowpan/Thread/thread_border_router_api_internal.h"
 #include "MPL/mpl.h"

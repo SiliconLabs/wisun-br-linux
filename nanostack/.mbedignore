@@ -1,5 +1,5 @@
 test/*
 unittest/*
 release/*
-source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls.c
+source/service_libs/CCM_lib/mbedOS/aes_mbedtls.c
 output/*

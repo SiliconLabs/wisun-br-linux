@@ -140,38 +140,38 @@ SRCS += \
 	source/security/PANA/pana_server.c \
 	source/security/TLS/tls_lib.c \
 	source/security/TLS/tls_ccm_crypt.c \
-	source/Service_Libs/CCM_lib/ccm_security.c \
-	source/Service_Libs/fhss/fhss_channel.c \
-	source/Service_Libs/fhss/fhss_configuration_interface.c \
-	source/Service_Libs/fhss/fhss_statistics.c \
-	source/Service_Libs/fhss/fhss.c \
-	source/Service_Libs/fhss/fhss_ws.c \
-	source/Service_Libs/fhss/fhss_ws_empty_functions.c \
-	source/Service_Libs/fhss/fhss_common.c \
-	source/Service_Libs/fhss/channel_functions.c \
-	source/Service_Libs/fhss/channel_list.c \
-	source/Service_Libs/fhss/fhss_test_api.c \
-	source/Service_Libs/fnv_hash/fnv_hash.c \
-	source/Service_Libs/hmac/hmac_md.c \
-	source/Service_Libs/ieee_802_11/ieee_802_11.c \
-	source/Service_Libs/nist_aes_kw/nist_aes_kw.c \
-	source/Service_Libs/mac_neighbor_table/mac_neighbor_table.c \
-	source/Service_Libs/mle_service/mle_service.c \
-	source/Service_Libs/mle_service/mle_service_buffer.c \
-	source/Service_Libs/mle_service/mle_service_frame_counter_table.c \
-	source/Service_Libs/mle_service/mle_service_interface.c \
-	source/Service_Libs/mle_service/mle_service_security.c \
-	source/Service_Libs/blacklist/blacklist.c \
-	source/Service_Libs/etx/etx.c \
-	source/Service_Libs/Neighbor_cache/neighbor_cache.c \
-	source/Service_Libs/nd_proxy/nd_proxy.c \
-	source/Service_Libs/load_balance/load_balance.c \
-	source/Service_Libs/SHA256_Lib/shalib.c \
-	source/Service_Libs/SHA256_Lib/ns_sha256.c \
-	source/Service_Libs/Trickle/trickle.c \
-	source/Service_Libs/whiteboard/whiteboard.c \
-	source/Service_Libs/pan_blacklist/pan_blacklist.c \
-	source/Service_Libs/random_early_detection/random_early_detection.c \
+	source/service_libs/CCM_lib/ccm_security.c \
+	source/service_libs/fhss/fhss_channel.c \
+	source/service_libs/fhss/fhss_configuration_interface.c \
+	source/service_libs/fhss/fhss_statistics.c \
+	source/service_libs/fhss/fhss.c \
+	source/service_libs/fhss/fhss_ws.c \
+	source/service_libs/fhss/fhss_ws_empty_functions.c \
+	source/service_libs/fhss/fhss_common.c \
+	source/service_libs/fhss/channel_functions.c \
+	source/service_libs/fhss/channel_list.c \
+	source/service_libs/fhss/fhss_test_api.c \
+	source/service_libs/fnv_hash/fnv_hash.c \
+	source/service_libs/hmac/hmac_md.c \
+	source/service_libs/ieee_802_11/ieee_802_11.c \
+	source/service_libs/nist_aes_kw/nist_aes_kw.c \
+	source/service_libs/mac_neighbor_table/mac_neighbor_table.c \
+	source/service_libs/mle_service/mle_service.c \
+	source/service_libs/mle_service/mle_service_buffer.c \
+	source/service_libs/mle_service/mle_service_frame_counter_table.c \
+	source/service_libs/mle_service/mle_service_interface.c \
+	source/service_libs/mle_service/mle_service_security.c \
+	source/service_libs/blacklist/blacklist.c \
+	source/service_libs/etx/etx.c \
+	source/service_libs/Neighbor_cache/neighbor_cache.c \
+	source/service_libs/nd_proxy/nd_proxy.c \
+	source/service_libs/load_balance/load_balance.c \
+	source/service_libs/SHA256_Lib/shalib.c \
+	source/service_libs/SHA256_Lib/ns_sha256.c \
+	source/service_libs/Trickle/trickle.c \
+	source/service_libs/whiteboard/whiteboard.c \
+	source/service_libs/pan_blacklist/pan_blacklist.c \
+	source/service_libs/random_early_detection/random_early_detection.c \
 	source/6lowpan/Thread/thread_management_if.c \
 	source/6lowpan/Thread/thread_management_api.c \
 	source/6lowpan/Thread/thread_commissioning_api.c \
@@ -214,18 +214,18 @@ SRCS += \
 	source/libdhcpv6/libdhcpv6.c \
 	source/libdhcpv6/libdhcpv6_vendordata.c \
 	source/libdhcpv6/libdhcpv6_server.c \
-	source/Service_Libs/utils/ns_crc.c \
-	source/Service_Libs/utils/isqrt.c \
-	source/Service_Libs/utils/ns_file_system.c \
-	source/Service_Libs/utils/ns_time.c \
-	source/Service_Libs/utils/ns_conf.c \
-	source/Service_Libs/mdns/ns_mdns_api.c \
-	source/Service_Libs/mdns/ns_fnet_port.c \
-	source/Service_Libs/mdns/ns_fnet_events.c \
-	source/Service_Libs/mdns/fnet/fnet_stack/services/mdns/fnet_mdns.c \
-	source/Service_Libs/mdns/fnet/fnet_stack/services/poll/fnet_poll.c \
-	source/Service_Libs/mdns/fnet/fnet_stack/stack/fnet_stdlib.c \
-	source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c \
+	source/service_libs/utils/ns_crc.c \
+	source/service_libs/utils/isqrt.c \
+	source/service_libs/utils/ns_file_system.c \
+	source/service_libs/utils/ns_time.c \
+	source/service_libs/utils/ns_conf.c \
+	source/service_libs/mdns/ns_mdns_api.c \
+	source/service_libs/mdns/ns_fnet_port.c \
+	source/service_libs/mdns/ns_fnet_events.c \
+	source/service_libs/mdns/fnet/fnet_stack/services/mdns/fnet_mdns.c \
+	source/service_libs/mdns/fnet/fnet_stack/services/poll/fnet_poll.c \
+	source/service_libs/mdns/fnet/fnet_stack/stack/fnet_stdlib.c \
+	source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c \
 
 
 #LAST ONE(S) EXPERIMENTAL (aes_mbedtls_adapter.c last real)

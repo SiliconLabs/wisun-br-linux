@@ -23,7 +23,7 @@
 #ifndef PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #define PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #include "net_interface.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 
 struct protocol_interface_info_entry;
 struct nd_router;

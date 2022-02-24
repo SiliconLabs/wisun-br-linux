@@ -29,7 +29,7 @@
 #include "6lowpan/MAC/mac_pairwise_key.h"
 #include "MLE/mle.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "mPKe"
 

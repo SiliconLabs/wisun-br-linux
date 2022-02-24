@@ -41,7 +41,7 @@
 #include "ns_sha256.h"
 
 #include "nwk_interface/Include/protocol.h"
-#include "Service_Libs/blacklist/blacklist.h"
+#include "service_libs/blacklist/blacklist.h"
 
 #include "coap_service_api.h"
 

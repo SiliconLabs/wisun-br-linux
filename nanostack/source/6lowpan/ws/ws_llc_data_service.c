@@ -41,9 +41,9 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "security/PANA/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/etx/etx.h"
 #include "fhss_ws_extension.h"
-#include "Service_Libs/random_early_detection/random_early_detection_api.h"
+#include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "ws_management_api.h"
 
 #ifdef HAVE_WS

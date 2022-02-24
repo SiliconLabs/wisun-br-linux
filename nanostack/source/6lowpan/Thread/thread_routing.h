@@ -36,7 +36,7 @@ typedef uint_fast16_t   uint_fast12_t;
 #define UINT_FAST12_MAX UINT_FAST16_MAX
 #endif
 
-#include "Service_Libs/Trickle/trickle.h"
+#include "service_libs/Trickle/trickle.h"
 
 struct thread_info_s;
 

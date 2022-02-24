@@ -31,9 +31,9 @@
 
 #include "RPL/rpl_control.h"
 #include "6lowpan/ND/nd_router_object.h"
-#include "Service_Libs/whiteboard/whiteboard.h"
-#include "Service_Libs/blacklist/blacklist.h"
-#include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "service_libs/whiteboard/whiteboard.h"
+#include "service_libs/blacklist/blacklist.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
 #include "shalib.h"
 
 #ifdef ECC

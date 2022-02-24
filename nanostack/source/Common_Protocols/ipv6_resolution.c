@@ -33,8 +33,8 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Common_Protocols/ipv6_resolution.h"
 #include "Common_Protocols/tcp.h"
-#include "Service_Libs/whiteboard/whiteboard.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/whiteboard/whiteboard.h"
+#include "service_libs/etx/etx.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 

@@ -58,12 +58,12 @@
 #include "6lowpan/Thread/thread_bootstrap.h"
 #include "6lowpan/Thread/thread_bbr_api_internal.h"
 #include "6lowpan/Thread/thread_bbr_commercial.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "Common_Protocols/icmpv6.h"
 #include "MLE/mle.h"
 #include "dhcp_service_api.h"
-#include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
 
 #define TRACE_GROUP "thdn"
 

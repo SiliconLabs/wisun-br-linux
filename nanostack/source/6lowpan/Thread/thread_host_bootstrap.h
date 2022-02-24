@@ -36,7 +36,7 @@
 #ifndef THREAD_HOST_BOOTSTRAP_H_
 #define THREAD_HOST_BOOTSTRAP_H_
 
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "MLE/mle.h"
 struct protocol_interface_info_entry;
 struct mle_security_header;

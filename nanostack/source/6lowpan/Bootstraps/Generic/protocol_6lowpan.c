@@ -72,8 +72,8 @@
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/Fragmentation/cipv6_fragmenter.h"
-#include "Service_Libs/etx/etx.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/etx/etx.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common.h"
 #ifdef HAVE_WS
 #include "6lowpan/ws/ws_cfg_settings.h"

@@ -33,23 +33,23 @@
 #include "nwk_interface/Include/protocol_stats.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "nwk_interface/Include/protocol_timer.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/etx/etx.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/IPHC_Decode/iphc_decompress.h"
 #include "lowpan_adaptation_interface.h"
 #include "MLE/mle.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/ip.h"
 #ifdef HAVE_RPL
 #include "RPL/rpl_data.h"
 #endif
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"
-#include "Service_Libs/random_early_detection/random_early_detection_api.h"
+#include "service_libs/random_early_detection/random_early_detection_api.h"
 #define TRACE_GROUP "6lAd"
 
 typedef void (adaptation_etx_update_cb)(protocol_interface_info_entry_t *cur, buffer_t *buf, const mcps_data_conf_t *confirm);

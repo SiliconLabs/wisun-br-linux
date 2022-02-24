@@ -70,7 +70,7 @@ add_executable(wsbrd
     host-common/slist.c
     host-common/spinel.c
     host-common/spinel_buffer.c
-    nanostack/source/Service_Libs/fhss/channel_list.c
+    nanostack/source/service_libs/fhss/channel_list.c
     nanostack/source/BorderRouter/border_router.c
     nanostack/source/6lowpan/adaptation_interface.c
     nanostack/source/6lowpan/Bootstraps/Generic/network_lib.c
@@ -201,36 +201,36 @@ add_executable(wsbrd
     nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
     nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
     # Excluded nanostack/source/security/TLS
-    nanostack/source/Service_Libs/blacklist/blacklist.c
-    nanostack/source/Service_Libs/CCM_lib/ccm_security.c
-    nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-    # Excluded nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls.c
-    nanostack/source/Service_Libs/etx/etx.c
-    nanostack/source/Service_Libs/fnv_hash/fnv_hash.c
-    nanostack/source/Service_Libs/hmac/hmac_md.c
-    nanostack/source/Service_Libs/ieee_802_11/ieee_802_11.c
-    nanostack/source/Service_Libs/load_balance/load_balance.c
-    nanostack/source/Service_Libs/mac_neighbor_table/mac_neighbor_table.c
-    # Excluded nanostack/source/Service_Libs/mdns
-    nanostack/source/Service_Libs/mle_service/mle_service_buffer.c
-    nanostack/source/Service_Libs/mle_service/mle_service.c
-    nanostack/source/Service_Libs/mle_service/mle_service_frame_counter_table.c
-    nanostack/source/Service_Libs/mle_service/mle_service_interface.c
-    nanostack/source/Service_Libs/mle_service/mle_service_security.c
-    nanostack/source/Service_Libs/nd_proxy/nd_proxy.c
-    nanostack/source/Service_Libs/Neighbor_cache/neighbor_cache.c
-    nanostack/source/Service_Libs/nist_aes_kw/nist_aes_kw.c
-    nanostack/source/Service_Libs/pan_blacklist/pan_blacklist.c
-    nanostack/source/Service_Libs/random_early_detection/random_early_detection.c
-    nanostack/source/Service_Libs/SHA256_Lib/ns_sha256.c
-    nanostack/source/Service_Libs/SHA256_Lib/shalib.c
-    nanostack/source/Service_Libs/Trickle/trickle.c
-    nanostack/source/Service_Libs/utils/isqrt.c
-    nanostack/source/Service_Libs/utils/ns_conf.c
-    nanostack/source/Service_Libs/utils/ns_crc.c
-    nanostack/source/Service_Libs/utils/ns_file_system.c
-    nanostack/source/Service_Libs/utils/ns_time.c
-    # Excluded nanostack/source/Service_Libs/whiteboard/whiteboard.c
+    nanostack/source/service_libs/blacklist/blacklist.c
+    nanostack/source/service_libs/CCM_lib/ccm_security.c
+    nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+    # Excluded nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls.c
+    nanostack/source/service_libs/etx/etx.c
+    nanostack/source/service_libs/fnv_hash/fnv_hash.c
+    nanostack/source/service_libs/hmac/hmac_md.c
+    nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
+    nanostack/source/service_libs/load_balance/load_balance.c
+    nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
+    # Excluded nanostack/source/service_libs/mdns
+    nanostack/source/service_libs/mle_service/mle_service_buffer.c
+    nanostack/source/service_libs/mle_service/mle_service.c
+    nanostack/source/service_libs/mle_service/mle_service_frame_counter_table.c
+    nanostack/source/service_libs/mle_service/mle_service_interface.c
+    nanostack/source/service_libs/mle_service/mle_service_security.c
+    nanostack/source/service_libs/nd_proxy/nd_proxy.c
+    nanostack/source/service_libs/Neighbor_cache/neighbor_cache.c
+    nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
+    nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
+    nanostack/source/service_libs/random_early_detection/random_early_detection.c
+    nanostack/source/service_libs/SHA256_Lib/ns_sha256.c
+    nanostack/source/service_libs/SHA256_Lib/shalib.c
+    nanostack/source/service_libs/Trickle/trickle.c
+    nanostack/source/service_libs/utils/isqrt.c
+    nanostack/source/service_libs/utils/ns_conf.c
+    nanostack/source/service_libs/utils/ns_crc.c
+    nanostack/source/service_libs/utils/ns_file_system.c
+    nanostack/source/service_libs/utils/ns_time.c
+    # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
     # Excluded nanostack-event-loop/source/ns_timeout.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
@@ -313,7 +313,7 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/slist.c
         host-common/spinel.c
         host-common/spinel_buffer.c
-        nanostack/source/Service_Libs/fhss/channel_list.c
+        nanostack/source/service_libs/fhss/channel_list.c
         # nanostack/source/BorderRouter/border_router.c
         nanostack/source/6lowpan/adaptation_interface.c
         nanostack/source/6lowpan/Bootstraps/Generic/network_lib.c
@@ -443,36 +443,36 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
         nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
         # Excluded nanostack/source/security/TLS
-        nanostack/source/Service_Libs/blacklist/blacklist.c
-        nanostack/source/Service_Libs/CCM_lib/ccm_security.c
-        nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-        # Excluded nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls.c
-        nanostack/source/Service_Libs/etx/etx.c
-        nanostack/source/Service_Libs/fnv_hash/fnv_hash.c
-        nanostack/source/Service_Libs/hmac/hmac_md.c
-        nanostack/source/Service_Libs/ieee_802_11/ieee_802_11.c
-        nanostack/source/Service_Libs/load_balance/load_balance.c
-        nanostack/source/Service_Libs/mac_neighbor_table/mac_neighbor_table.c
-        # Excluded nanostack/source/Service_Libs/mdns
-        nanostack/source/Service_Libs/mle_service/mle_service_buffer.c
-        nanostack/source/Service_Libs/mle_service/mle_service.c
-        nanostack/source/Service_Libs/mle_service/mle_service_frame_counter_table.c
-        nanostack/source/Service_Libs/mle_service/mle_service_interface.c
-        nanostack/source/Service_Libs/mle_service/mle_service_security.c
-        nanostack/source/Service_Libs/nd_proxy/nd_proxy.c
-        nanostack/source/Service_Libs/Neighbor_cache/neighbor_cache.c
-        nanostack/source/Service_Libs/nist_aes_kw/nist_aes_kw.c
-        nanostack/source/Service_Libs/pan_blacklist/pan_blacklist.c
-        nanostack/source/Service_Libs/random_early_detection/random_early_detection.c
-        nanostack/source/Service_Libs/SHA256_Lib/ns_sha256.c
-        nanostack/source/Service_Libs/SHA256_Lib/shalib.c
-        nanostack/source/Service_Libs/Trickle/trickle.c
-        nanostack/source/Service_Libs/utils/isqrt.c
-        nanostack/source/Service_Libs/utils/ns_conf.c
-        nanostack/source/Service_Libs/utils/ns_crc.c
-        nanostack/source/Service_Libs/utils/ns_file_system.c
-        nanostack/source/Service_Libs/utils/ns_time.c
-        # Excluded nanostack/source/Service_Libs/whiteboard/whiteboard.c
+        nanostack/source/service_libs/blacklist/blacklist.c
+        nanostack/source/service_libs/CCM_lib/ccm_security.c
+        nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+        # Excluded nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls.c
+        nanostack/source/service_libs/etx/etx.c
+        nanostack/source/service_libs/fnv_hash/fnv_hash.c
+        nanostack/source/service_libs/hmac/hmac_md.c
+        nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
+        nanostack/source/service_libs/load_balance/load_balance.c
+        nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
+        # Excluded nanostack/source/service_libs/mdns
+        nanostack/source/service_libs/mle_service/mle_service_buffer.c
+        nanostack/source/service_libs/mle_service/mle_service.c
+        nanostack/source/service_libs/mle_service/mle_service_frame_counter_table.c
+        nanostack/source/service_libs/mle_service/mle_service_interface.c
+        nanostack/source/service_libs/mle_service/mle_service_security.c
+        nanostack/source/service_libs/nd_proxy/nd_proxy.c
+        nanostack/source/service_libs/Neighbor_cache/neighbor_cache.c
+        nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
+        nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
+        nanostack/source/service_libs/random_early_detection/random_early_detection.c
+        nanostack/source/service_libs/SHA256_Lib/ns_sha256.c
+        nanostack/source/service_libs/SHA256_Lib/shalib.c
+        nanostack/source/service_libs/Trickle/trickle.c
+        nanostack/source/service_libs/utils/isqrt.c
+        nanostack/source/service_libs/utils/ns_conf.c
+        nanostack/source/service_libs/utils/ns_crc.c
+        nanostack/source/service_libs/utils/ns_file_system.c
+        nanostack/source/service_libs/utils/ns_time.c
+        # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
         # Excluded nanostack-event-loop/source/ns_timeout.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
@@ -554,16 +554,16 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/MAC/IEEE802_15_4/mac_timer.c
         nanostack/source/MAC/IEEE802_15_4/sw_mac.c
         nanostack/source/MAC/rf_driver_storage.c
-        nanostack/source/Service_Libs/CCM_lib/ccm_security.c
-        nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-        nanostack/source/Service_Libs/fhss/channel_functions.c
-        nanostack/source/Service_Libs/fhss/channel_list.c
-        nanostack/source/Service_Libs/fhss/fhss_common.c
-        nanostack/source/Service_Libs/fhss/fhss_configuration_interface.c
-        nanostack/source/Service_Libs/fhss/fhss_statistics.c
-        nanostack/source/Service_Libs/fhss/fhss_ws.c
-        # Excluded nanostack/source/Service_Libs/fhss/fhss_test_api.c
-        # Excluded nanostack/source/Service_Libs/fhss/fhss_ws_empty_functions.c
+        nanostack/source/service_libs/CCM_lib/ccm_security.c
+        nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+        nanostack/source/service_libs/fhss/channel_functions.c
+        nanostack/source/service_libs/fhss/channel_list.c
+        nanostack/source/service_libs/fhss/fhss_common.c
+        nanostack/source/service_libs/fhss/fhss_configuration_interface.c
+        nanostack/source/service_libs/fhss/fhss_statistics.c
+        nanostack/source/service_libs/fhss/fhss_ws.c
+        # Excluded nanostack/source/service_libs/fhss/fhss_test_api.c
+        # Excluded nanostack/source/service_libs/fhss/fhss_ws_empty_functions.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}

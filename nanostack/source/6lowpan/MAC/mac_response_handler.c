@@ -21,7 +21,7 @@
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol_abstract.h"
 #include "nwk_interface/Include/protocol_timer.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "Core/include/ns_address_internal.h"
 #include "Core/include/ns_socket.h"
 #include "6lowpan/Thread/thread_common.h"
@@ -33,7 +33,7 @@
 #include "6lowpan/MAC/mac_response_handler.h"
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "MRsH"
 

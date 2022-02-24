@@ -42,7 +42,7 @@
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
 #include "nsdynmemLIB.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/etx/etx.h"
 #include "Common_Protocols/ipv6_resolution.h"
 #include <stdarg.h>
 #include <stdio.h>

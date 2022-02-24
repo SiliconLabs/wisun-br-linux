@@ -41,7 +41,7 @@
 #include "6lowpan/Thread/thread_joiner_application.h"
 #include "ns_sha256.h"
 #include "ns_mdns_api.h"
-#include "Service_Libs/utils/ns_crc.h"
+#include "service_libs/utils/ns_crc.h"
 
 #define TRACE_GROUP "tmDNS"
 

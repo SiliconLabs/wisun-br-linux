@@ -36,7 +36,7 @@
 #include <string.h>
 #include "ns_trace.h"
 /*service lib includes */
-#include "Service_Libs/utils/ns_crc.h"
+#include "service_libs/utils/ns_crc.h"
 #define TRACE_GROUP "Tbcn"
 //#define TRACE_DEEP
 #ifdef TRACE_DEEP

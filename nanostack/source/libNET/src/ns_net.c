@@ -48,7 +48,7 @@
 #endif
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "Service_Libs/whiteboard/whiteboard.h"
+#include "service_libs/whiteboard/whiteboard.h"
 #include "net_pana_parameters_api.h"
 #ifdef ECC
 #include "libX509_V3.h"
@@ -72,7 +72,7 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
 #include "BorderRouter/border_router.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "sw_mac.h"
 #include "mac_api.h"

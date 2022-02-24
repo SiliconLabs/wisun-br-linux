@@ -39,7 +39,7 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ip_fsc.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "common_functions.h"
 #include "6lowpan/ND/nd_router_object.h"

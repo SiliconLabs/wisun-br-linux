@@ -39,7 +39,7 @@
 #ifdef HAVE_MPL
 #include "MPL/mpl.h"
 #endif
-#include "Service_Libs/nd_proxy/nd_proxy.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
 #include "common_functions.h"
 
 #define TRACE_GROUP "ipv6"

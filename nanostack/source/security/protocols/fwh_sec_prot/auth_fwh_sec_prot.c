@@ -36,8 +36,8 @@
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/fwh_sec_prot/auth_fwh_sec_prot.h"
-#include "Service_Libs/hmac/hmac_md.h"
-#include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
+#include "service_libs/hmac/hmac_md.h"
+#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
 #ifdef HAVE_WS
 

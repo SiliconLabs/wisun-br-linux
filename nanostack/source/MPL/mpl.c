@@ -30,7 +30,7 @@
 #include "nwk_interface/Include/protocol_timer.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"
-#include "Service_Libs/Trickle/trickle.h"
+#include "service_libs/Trickle/trickle.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"

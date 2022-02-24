@@ -28,7 +28,7 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
 #include "ns_address.h"
-#include "Service_Libs/utils/ns_file.h"
+#include "service_libs/utils/ns_file.h"
 #include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"

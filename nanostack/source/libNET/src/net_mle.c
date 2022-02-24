@@ -29,7 +29,7 @@
 #include "net_interface.h"
 #include "MLE/mle.h"
 #include "nwk_interface/Include/protocol.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 
 /** Set parameter.

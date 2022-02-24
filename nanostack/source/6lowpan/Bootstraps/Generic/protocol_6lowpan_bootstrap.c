@@ -35,7 +35,7 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
-#include "Service_Libs/blacklist/blacklist.h"
+#include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "net_pana_parameters_api.h"
@@ -63,15 +63,15 @@
 #include "6lowpan/ND/nd_router_object.h"
 #include "BorderRouter/border_router.h"
 #include "6lowpan/Thread/thread_common.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
-#include "Service_Libs/etx/etx.h"
+#include "service_libs/mle_service/mle_service_api.h"
+#include "service_libs/etx/etx.h"
 #include "6lowpan/MAC/beacon_handler.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "libNET/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/NVM/nwk_nvm.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 
 /* Fixed-point randomisation limits for randlib_randomise_base() - RFC 3315

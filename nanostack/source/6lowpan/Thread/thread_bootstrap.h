@@ -38,7 +38,7 @@
 
 #include "eventOS_event.h"
 #include "net_polling_api.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 
 #define THREAD_NETWORK_ACTIVE_SCAN_COUNTER 3
 /** Thread Attach Retry limiters */

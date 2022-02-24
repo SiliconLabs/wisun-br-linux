@@ -24,8 +24,8 @@
 #include "nwk_interface/Include/protocol.h"
 #ifdef HAVE_6LOWPAN_ND
 #include "net_rpl.h"
-#include "Service_Libs/load_balance/load_balance_api.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/load_balance/load_balance_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"

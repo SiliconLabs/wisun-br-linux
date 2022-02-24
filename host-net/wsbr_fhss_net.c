@@ -3,7 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-/* Interface with nanostack/source/Service_Libs/fhss that is now relocated to
+/* Interface with nanostack/source/service_libs/fhss that is now relocated to
  * the device.
  */
 #include <stdio.h>

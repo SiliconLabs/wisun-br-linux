@@ -43,7 +43,7 @@
 #include "Common_Protocols/icmpv6_prefix.h"
 #include "nwk_interface/Include/protocol_abstract.h"
 #include "nwk_interface/Include/protocol_stats.h"
-#include "Service_Libs/Trickle/trickle.h"
+#include "service_libs/Trickle/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "Common_Protocols/ipv6_resolution.h"

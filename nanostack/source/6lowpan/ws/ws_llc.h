@@ -19,7 +19,7 @@
 #define WS_LLC_H_
 
 #include "6lowpan/ws/ws_neighbor_class.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 struct protocol_interface_info_entry;
 struct mcps_data_ind_s;

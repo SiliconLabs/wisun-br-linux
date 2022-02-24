@@ -47,7 +47,7 @@
 #include "6lowpan/Thread/thread_management_internal.h"
 #include "6lowpan/Thread/thread_bootstrap.h"
 #include "6lowpan/Thread/thread_ccm.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
 #include "thread_tmfcop_lib.h"

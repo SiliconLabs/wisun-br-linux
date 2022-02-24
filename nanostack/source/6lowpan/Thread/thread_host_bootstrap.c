@@ -68,12 +68,12 @@
 #include "MPL/mpl.h"
 #include "MLE/mle_tlv.h"
 #include "thread_config.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
-#include "Service_Libs/blacklist/blacklist.h"
+#include "service_libs/mle_service/mle_service_api.h"
+#include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "Core/include/ns_address_internal.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "tebs"
 

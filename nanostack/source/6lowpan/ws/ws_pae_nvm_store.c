@@ -24,7 +24,7 @@
 #include "common_functions.h"
 #include "6lowpan/ws/ws_config.h"
 #include "ns_file_system.h"
-#include "Service_Libs/utils/ns_file.h"
+#include "service_libs/utils/ns_file.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_pae_nvm_store.h"

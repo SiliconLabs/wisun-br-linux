@@ -74,16 +74,16 @@
 #include "MLE/mle_tlv.h"
 #include "thread_config.h"
 #include "multicast_api.h"
-#include "Service_Libs/nd_proxy/nd_proxy.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
-#include "Service_Libs/blacklist/blacklist.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
+#include "service_libs/mle_service/mle_service_api.h"
+#include "service_libs/blacklist/blacklist.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "thread_border_router_api.h"
 #include "Core/include/ns_address_internal.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #ifdef HAVE_THREAD_ROUTER
 

@@ -45,7 +45,7 @@
 #endif
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "mPol"
 

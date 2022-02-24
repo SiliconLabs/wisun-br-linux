@@ -52,7 +52,7 @@
 #include "security/PANA/pana_header.h"
 #include "security/PANA/eap_protocol.h"
 #include "net_pana_parameters_api.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/NVM/nwk_nvm.h"
 
 #ifdef PANA

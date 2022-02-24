@@ -25,7 +25,7 @@
 #include "fhss_config.h"
 #include "nwk_interface/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
-#include "Service_Libs/Trickle/trickle.h"
+#include "service_libs/Trickle/trickle.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
@@ -36,9 +36,9 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
-#include "Service_Libs/hmac/hmac_md.h"
-#include "Service_Libs/ieee_802_11/ieee_802_11.h"
-#include "Service_Libs/nist_aes_kw/nist_aes_kw.h"
+#include "service_libs/hmac/hmac_md.h"
+#include "service_libs/ieee_802_11/ieee_802_11.h"
+#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "mbedtls/sha256.h"
 
 #ifdef HAVE_WS

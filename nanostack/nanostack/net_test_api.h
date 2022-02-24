@@ -24,7 +24,7 @@
 #define NET_TEST_API_H_
 
 #include "ns_types.h"
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 
 /**
  * \brief Makes TCP protocol drop given number of packets from a particular state (TX side).

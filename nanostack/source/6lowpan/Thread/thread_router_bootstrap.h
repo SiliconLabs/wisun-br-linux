@@ -35,7 +35,7 @@
 
 #ifndef THREAD_ROUTER_BOOTSTRAP_H_
 #define THREAD_ROUTER_BOOTSTRAP_H_
-#include "Service_Libs/mle_service/mle_service_api.h"
+#include "service_libs/mle_service/mle_service_api.h"
 
 #ifdef HAVE_THREAD_ROUTER
 

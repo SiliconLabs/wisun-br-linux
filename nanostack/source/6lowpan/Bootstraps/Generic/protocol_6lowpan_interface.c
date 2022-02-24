@@ -35,9 +35,9 @@
 #include "6lowpan/Bootstraps/network_lib.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
-#include "Service_Libs/blacklist/blacklist.h"
+#include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_api.h"
 
 #ifdef HAVE_RPL

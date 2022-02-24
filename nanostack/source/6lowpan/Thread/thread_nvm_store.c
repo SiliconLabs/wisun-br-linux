@@ -34,7 +34,7 @@
 #include "nsconfig.h"
 
 #include <string.h>
-#include "Service_Libs/utils/ns_file.h"
+#include "service_libs/utils/ns_file.h"
 #include "Core/include/ns_address_internal.h"
 #include "ns_file_system.h"
 #include "thread_config.h"
