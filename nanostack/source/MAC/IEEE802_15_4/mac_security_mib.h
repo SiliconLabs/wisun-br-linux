@@ -55,7 +55,7 @@ mlme_device_descriptor_t *mac_sec_mib_device_description_get(struct protocol_int
 
 void mac_sec_mib_device_description_pan_update(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint16_t pan_id);
 
-uint8_t mac_mib_device_descption_attribute_get_by_descriptor(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_device_descriptor_t *descriptor);
+uint8_t mac_mib_device_description_attribute_get_by_descriptor(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_device_descriptor_t *descriptor);
 
 mlme_key_descriptor_t *mac_sec_key_description_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_security_t *key_source, uint8_t address_mode, uint8_t *address_ptr, uint16_t pan_id);
 

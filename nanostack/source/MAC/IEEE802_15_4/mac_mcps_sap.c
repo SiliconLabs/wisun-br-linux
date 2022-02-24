@@ -640,7 +640,7 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
             }
         }
 
-        device_descriptor_handle = mac_mib_device_descption_attribute_get_by_descriptor(rf_mac_setup, b->neigh_info);
+        device_descriptor_handle = mac_mib_device_description_attribute_get_by_descriptor(rf_mac_setup, b->neigh_info);
         key_device_description =  mac_sec_mib_key_device_description_discover_from_list(key_description, device_descriptor_handle);
     }
 

@@ -401,7 +401,7 @@ mlme_device_descriptor_t *mac_sec_mib_device_description_get(protocol_interface_
     return NULL;
 }
 
-uint8_t mac_mib_device_descption_attribute_get_by_descriptor(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_device_descriptor_t *descriptor)
+uint8_t mac_mib_device_description_attribute_get_by_descriptor(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_device_descriptor_t *descriptor)
 {
     if (!rf_mac_setup || !descriptor) {
         return 0xff;
