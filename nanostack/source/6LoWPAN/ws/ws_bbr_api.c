@@ -48,7 +48,7 @@
 #include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
-#include "libDHCPv6/libDHCPv6_vendordata.h"
+#include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "libNET/src/net_dns_internal.h"
 #include "platform/os_whiteboard.h"
 

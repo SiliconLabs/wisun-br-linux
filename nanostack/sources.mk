@@ -210,10 +210,10 @@ SRCS += \
 	source/6LoWPAN/Thread/thread_ccm.c \
 	source/dhcpv6_server/dhcpv6_server_service.c \
 	source/dhcpv6_client/dhcpv6_client_service.c \
-	source/libDHCPv6/dhcp_service_api.c \
-	source/libDHCPv6/libDHCPv6.c \
-	source/libDHCPv6/libDHCPv6_vendordata.c \
-	source/libDHCPv6/libDHCPv6_server.c \
+	source/libdhcpv6/dhcp_service_api.c \
+	source/libdhcpv6/libdhcpv6.c \
+	source/libdhcpv6/libdhcpv6_vendordata.c \
+	source/libdhcpv6/libdhcpv6_server.c \
 	source/Service_Libs/utils/ns_crc.c \
 	source/Service_Libs/utils/isqrt.c \
 	source/Service_Libs/utils/ns_file_system.c \

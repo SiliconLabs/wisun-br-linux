@@ -16,7 +16,7 @@
  */
 
 /*
- * \file libDHCPv6.h
+ * \file libdhcpv6.h
  * \brief Add short description about this file!!!
  *
  */

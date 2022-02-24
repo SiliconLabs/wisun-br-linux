@@ -16,7 +16,7 @@
  */
 
 /*
- * \file libDHCPv6_server.h
+ * \file libdhcpv6_server.h
  * \brief Add short description about this file!!!
  *
  */
@@ -26,7 +26,7 @@
 #ifdef HAVE_DHCPV6_SERVER
 #include "ns_list.h"
 
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6.h"
 
 #define MAX_SUPPORTED_ADDRESS_LIST_SIZE 0x0000fffd
 #define DHCP_ADDRESS_ID_START 2

@@ -24,8 +24,8 @@
 #include <string.h>
 #include <ns_types.h>
 #include <nsdynmemLIB.h>
-#include "libDHCPv6/libDHCPv6_server.h"
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
 #include "common_functions.h"
 #include "ns_trace.h"
 

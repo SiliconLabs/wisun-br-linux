@@ -30,7 +30,7 @@
 #include "net_interface.h"
 #include "common_functions.h"
 
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6.h"
 #include "NWK_INTERFACE/Include/protocol.h" // just for protocol_core_monotonic_time
 #include "Common_Protocols/ip.h"
 #include "dhcp_service_api.h"

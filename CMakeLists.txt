@@ -140,10 +140,10 @@ add_executable(wsbrd
     nanostack/source/dhcpv6_server/dhcpv6_server_service.c
     nanostack/source/ipv6_stack/ipv6_routing_table.c
     nanostack/source/ipv6_stack/protocol_ipv6.c
-    nanostack/source/libDHCPv6/dhcp_service_api.c
-    nanostack/source/libDHCPv6/libDHCPv6.c
-    nanostack/source/libDHCPv6/libDHCPv6_server.c
-    nanostack/source/libDHCPv6/libDHCPv6_vendordata.c
+    nanostack/source/libdhcpv6/dhcp_service_api.c
+    nanostack/source/libdhcpv6/libdhcpv6.c
+    nanostack/source/libdhcpv6/libdhcpv6_server.c
+    nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
     nanostack/source/libNET/src/net_short_address_extension.c
     nanostack/source/libNET/src/net_dns.c
     nanostack/source/libNET/src/multicast_api.c
@@ -382,10 +382,10 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/dhcpv6_server/dhcpv6_server_service.c
         nanostack/source/ipv6_stack/ipv6_routing_table.c
         nanostack/source/ipv6_stack/protocol_ipv6.c
-        nanostack/source/libDHCPv6/dhcp_service_api.c
-        nanostack/source/libDHCPv6/libDHCPv6.c
-        nanostack/source/libDHCPv6/libDHCPv6_server.c
-        nanostack/source/libDHCPv6/libDHCPv6_vendordata.c
+        nanostack/source/libdhcpv6/dhcp_service_api.c
+        nanostack/source/libdhcpv6/libdhcpv6.c
+        nanostack/source/libdhcpv6/libdhcpv6_server.c
+        nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
         nanostack/source/libNET/src/net_short_address_extension.c
         nanostack/source/libNET/src/net_dns.c
         nanostack/source/libNET/src/multicast_api.c

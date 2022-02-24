@@ -30,8 +30,8 @@
 #define LOWPAN_THREAD_H_
 
 #include "ns_list.h"
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
+#include "libdhcpv6/libdhcpv6_server.h"
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
 #include "thread_management_if.h"

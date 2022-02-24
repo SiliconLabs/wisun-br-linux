@@ -37,8 +37,8 @@
 
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "net_thread_test.h"
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
+#include "libdhcpv6/libdhcpv6_server.h"
 #include "ns_trace.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan_interface.h"

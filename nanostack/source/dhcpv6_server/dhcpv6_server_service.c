@@ -29,8 +29,8 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
 #include <nsdynmemLIB.h>
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
+#include "libdhcpv6/libdhcpv6_server.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "common_functions.h"
 #include "NWK_INTERFACE/Include/protocol.h"

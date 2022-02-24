@@ -20,8 +20,8 @@
 #include "ns_trace.h"
 #include <string.h>
 #include "common_functions.h"
-#include "libDHCPv6.h"
-#include "libDHCPv6_vendordata.h"
+#include "libdhcpv6.h"
+#include "libdhcpv6_vendordata.h"
 
 #define TRACE_GROUP "vend"
 

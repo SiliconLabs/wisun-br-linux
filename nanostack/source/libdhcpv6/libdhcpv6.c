@@ -16,7 +16,7 @@
  */
 
 /*
- * \file libDHCPv6.c
+ * \file libdhcpv6.c
  * \brief Add short description about this file!!!
  *
  */
@@ -25,7 +25,7 @@
 #include <ns_types.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6.h"
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
 #ifdef HAVE_DHCPV6

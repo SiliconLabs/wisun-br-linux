@@ -27,7 +27,7 @@
 #ifdef HAVE_DHCPV6
 #include "dhcp_service_api.h"
 #include "dhcpv6_client_api.h"
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 
 #define TRACE_GROUP "DHP"

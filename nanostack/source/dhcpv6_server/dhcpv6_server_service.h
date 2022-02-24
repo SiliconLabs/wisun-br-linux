@@ -24,8 +24,8 @@
 #ifndef DHCPV6_SERVER_SERVICE_H_
 #define DHCPV6_SERVER_SERVICE_H_
 #ifdef HAVE_DHCPV6_SERVER
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
+#include "libdhcpv6/libdhcpv6_server.h"
 
 /* Initialize dhcp Global address server.
  *

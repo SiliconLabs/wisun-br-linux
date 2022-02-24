@@ -60,7 +60,7 @@
 #include "6LoWPAN/ND/nd_router_object.h"
 #include "MPL/mpl.h"
 #include "RPL/rpl_control.h"
-#include "libDHCPv6/libDHCPv6.h"
+#include "libdhcpv6/libdhcpv6.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_routing.h"
