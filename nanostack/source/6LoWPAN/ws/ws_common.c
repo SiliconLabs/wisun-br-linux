@@ -286,17 +286,32 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
             }
         }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_JP) {
-        if (hopping_schdule->operating_class == 1) {
-            hopping_schdule->ch0_freq = 9206;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schdule->operating_class == 2) {
-            hopping_schdule->ch0_freq = 9209;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
-        } else if (hopping_schdule->operating_class == 3) {
-            hopping_schdule->ch0_freq = 9208;
-            hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+        if (hopping_schdule->channel_plan_id == 255) {
+            if (hopping_schdule->operating_class == 1) {
+                hopping_schdule->ch0_freq = 9206;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->operating_class == 2) {
+                hopping_schdule->ch0_freq = 9209;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->operating_class == 3) {
+                hopping_schdule->ch0_freq = 9208;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_600;
+            } else {
+                return -1;
+            }
         } else {
-            return -1;
+            if (hopping_schdule->channel_plan_id == 21) {
+                hopping_schdule->ch0_freq = 9206;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_200;
+            } else if (hopping_schdule->channel_plan_id == 22) {
+                hopping_schdule->ch0_freq = 9209;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->channel_plan_id == 24) {
+                hopping_schdule->ch0_freq = 9211;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_800;
+            } else {
+                return -1;
+            }
         }
     } else if (hopping_schdule->regulatory_domain == REG_DOMAIN_WW) {
         if (hopping_schdule->operating_class == 1) {
@@ -469,12 +484,22 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
         }
         return ws_phy_get_number_of_channels_using_channel_plan_id(channel_plan_id);
     } else if (regulatory_domain == REG_DOMAIN_JP) {
-        if (operating_class == 1) {
-            return 38;
-        } else if (operating_class == 2) {
-            return 18;
-        } else if (operating_class == 3) {
-            return 12;
+        if (channel_plan_id == 255) {
+            if (operating_class == 1) {
+                return 38;
+            } else if (operating_class == 2) {
+                return 18;
+            } else if (operating_class == 3) {
+                return 12;
+            }
+        } else {
+            if (channel_plan_id == 21) {
+                return 38;
+            } else if (channel_plan_id == 22) {
+                return 18;
+            } else if (channel_plan_id == 24) {
+                return 9;
+            }
         }
     } else if (regulatory_domain == REG_DOMAIN_BZ) {
         if (channel_plan_id == 255) {
