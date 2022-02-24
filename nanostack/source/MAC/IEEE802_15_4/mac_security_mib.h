@@ -71,12 +71,12 @@ void mac_sec_mib_key_device_frame_counter_set(mlme_key_descriptor_t *key_descrip
 
 uint32_t mac_mib_key_device_frame_counter_get(mlme_key_descriptor_t *key_description_table, mlme_device_descriptor_t *device_info, uint8_t attribute_index);
 
-uint32_t mac_sec_mib_key_outgoing_frame_counter_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription);
+uint32_t mac_sec_mib_key_outgoing_frame_counter_get(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description);
 
-void mac_sec_mib_key_outgoing_frame_counter_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription, uint32_t value);
+void mac_sec_mib_key_outgoing_frame_counter_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description, uint32_t value);
 
-void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription);
+void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description);
 
-void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription);
+void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description);
 
 #endif /* MAC_SECURITY_MIB_H_ */

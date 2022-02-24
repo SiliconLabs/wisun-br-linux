@@ -548,12 +548,12 @@ void mac_sec_mib_deinit(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 
 }
 
-uint32_t mac_sec_mib_key_outgoing_frame_counter_get(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+uint32_t mac_sec_mib_key_outgoing_frame_counter_get(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_description)
 {
     uint32_t value;
     platform_enter_critical();
-    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
-        value = key_descpription->KeyFrameCounter;
+    if (key_description && key_description->KeyFrameCounterPerKey) {
+        value = key_description->KeyFrameCounter;
     } else {
         value = rf_mac_setup->security_frame_counter;
     }
@@ -561,33 +561,33 @@ uint32_t mac_sec_mib_key_outgoing_frame_counter_get(protocol_interface_rf_mac_se
     return value;
 }
 
-void mac_sec_mib_key_outgoing_frame_counter_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_descpription, uint32_t value)
+void mac_sec_mib_key_outgoing_frame_counter_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_key_descriptor_t *key_description, uint32_t value)
 {
     platform_enter_critical();
-    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
-        key_descpription->KeyFrameCounter = value;
+    if (key_description && key_description->KeyFrameCounterPerKey) {
+        key_description->KeyFrameCounter = value;
     } else {
         rf_mac_setup->security_frame_counter = value;
     }
     platform_exit_critical();
 }
 
-void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description)
 {
     platform_enter_critical();
-    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
-        key_descpription->KeyFrameCounter++;
+    if (key_description && key_description->KeyFrameCounterPerKey) {
+        key_description->KeyFrameCounter++;
     } else {
         rf_mac_setup->security_frame_counter++;
     }
     platform_exit_critical();
 }
 
-void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_descpription)
+void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description)
 {
     platform_enter_critical();
-    if (key_descpription && key_descpription->KeyFrameCounterPerKey) {
-        key_descpription->KeyFrameCounter--;
+    if (key_description && key_description->KeyFrameCounterPerKey) {
+        key_description->KeyFrameCounter--;
     } else {
         rf_mac_setup->security_frame_counter--;
     }
