@@ -1847,7 +1847,7 @@ void nwk_6lowpan_router_scan_state(protocol_interface_info_entry_t *cur)
 void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
-        uint8_t bootsrap_ready = 0;
+        uint8_t bootstrap_ready = 0;
 
         if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
 
@@ -1855,7 +1855,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
                 if (pana_ping_notify_msg_tx(cur->mac_parameters->pan_id) == 0) {
                     tr_warn("PING TX fail");
                 } else {
-                    bootsrap_ready = 1;
+                    bootstrap_ready = 1;
                 }
 
             } else {
@@ -1863,20 +1863,20 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
 #ifndef NO_MLE
                     tr_debug("MLE Parent Advertisment");
                     if (protocol_6lowpan_mle_neigh_advertise(cur) == 0) {
-                        bootsrap_ready = 1;
+                        bootstrap_ready = 1;
                     } else {
                         tr_warn("MLE Host Parent Advert TX fail");
                     }
 #endif
                 } else {
-                    bootsrap_ready = 1;
+                    bootstrap_ready = 1;
                 }
             }
         } else {
-            bootsrap_ready = 1;
+            bootstrap_ready = 1;
 
         }
-        if (bootsrap_ready) {
+        if (bootstrap_ready) {
             if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
                 // Updates beacon
                 beacon_join_priority_update(cur->id);
