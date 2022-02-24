@@ -111,7 +111,7 @@ void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur);
 
 static void thread_bootstrap_orphan_scan_start(struct protocol_interface_info_entry *cur_interface);
 static int thread_configuration_security_activate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration);
-static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t *cur);
+static void thread_interface_bootstrap_mode_init(protocol_interface_info_entry_t *cur);
 static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_entry_t *cur);
 static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_state_type_e state);
 static void thread_bootsrap_network_discovery_failure(int8_t interface_id);
@@ -937,7 +937,7 @@ void thread_interface_init(protocol_interface_info_entry_t *cur)
 
 }
 
-static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t *cur)
+static void thread_interface_bootstrap_mode_init(protocol_interface_info_entry_t *cur)
 {
     thread_routing_reset(&cur->thread_info->routing);
     mac_helper_mac16_address_set(cur, 0xffff);
@@ -1514,7 +1514,7 @@ void thread_bootstrap_connection_error(int8_t interface_id, nwk_connect_error_ty
 void thread_interface_up(protocol_interface_info_entry_t *cur)
 {
     thread_interface_init(cur);
-    thread_interface_bootsrap_mode_init(cur);
+    thread_interface_bootstrap_mode_init(cur);
     cur->nwk_nd_re_scan_count = 0;
 }
 
