@@ -1544,7 +1544,7 @@ void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool
     if (!newPartition) {
         if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN && cur->nwk_nd_re_scan_count < THREAD_NETWORK_ACTIVE_SCAN_COUNTER) {
             tr_debug("RE trig Active Scan");
-            cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(1, 6);
+            cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(1, 6);
             return;
         }
     }

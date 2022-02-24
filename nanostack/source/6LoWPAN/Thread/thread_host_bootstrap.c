@@ -288,11 +288,11 @@ void thread_network_attach_start(protocol_interface_info_entry_t *cur)
     if (thread_parent_request_build(cur) == 0) {
         tr_debug("MLE Parent request");
         cur->nwk_bootstrap_state = ER_MLE_SCAN;
-        cur->bootsrap_state_machine_cnt = 0;
+        cur->bootstrap_state_machine_cnt = 0;
         /* advance trickle timer by 6 (in 100ms ticks) seconds if needed */
         thread_routing_trickle_advance(&cur->thread_info->routing, 6 * 10);
     } else {
-        cur->bootsrap_state_machine_cnt = 5;
+        cur->bootstrap_state_machine_cnt = 5;
     }
 }
 

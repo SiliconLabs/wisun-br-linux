@@ -227,9 +227,9 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
     if (time_to_solicit > 0xffff) {
         time_to_solicit = 0xffff;
     }
-    cur->bootsrap_state_machine_cnt = time_to_solicit;
+    cur->bootstrap_state_machine_cnt = time_to_solicit;
 
-    tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
+    tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
 }
 
 // Start configuration learning
@@ -392,11 +392,11 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
      */
 
     if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
-            cur->bootsrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
+            cur->bootstrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
 
-        cur->bootsrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+        cur->bootstrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
 
-        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
+        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     }
 
     if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -627,7 +627,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
         tr_info("learn network configuration");
         cur->ws_info->configuration_learned = true;
         // return to state machine after 1-2 s
-        cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(10, 20);
+        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(10, 20);
         // enable frequency hopping for unicast channel and start listening first neighbour
         ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_HARD_SYNCH);
         // set neighbor as priority parent clear if there is others
@@ -881,9 +881,9 @@ select_best_candidate:
         if (random_start > 0xffff) {
             random_start = 0xffff;
         }
-        cur->bootsrap_state_machine_cnt = random_start;
+        cur->bootstrap_state_machine_cnt = random_start;
 
-        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
+        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
         return;
     }
     tr_info("selected parent:%s panid %u", trace_array(selected_parent_ptr->addr, 8), selected_parent_ptr->pan_id);
@@ -922,7 +922,7 @@ void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
             rpl_control_transmit_dis(cur->rpl_domain, cur, 0, 0, NULL, 0, ADDR_LINK_LOCAL_ALL_RPL_NODES);
         }
         // set timer for next DIS
-        cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
+        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
     }
     return;
 }

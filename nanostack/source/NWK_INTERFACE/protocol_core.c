@@ -217,8 +217,8 @@ void protocol_core_security_tick_update(uint16_t tick_update)
 
 static void nwk_bootsrap_timer(protocol_interface_info_entry_t *cur)
 {
-    if (cur->bootsrap_state_machine_cnt) {
-        if (cur->bootsrap_state_machine_cnt-- == 1) {
+    if (cur->bootstrap_state_machine_cnt) {
+        if (cur->bootstrap_state_machine_cnt-- == 1) {
             arm_event_s event = {
                 .receiver = protocol_root_tasklet_ID,
                 .sender = 0,
@@ -228,7 +228,7 @@ static void nwk_bootsrap_timer(protocol_interface_info_entry_t *cur)
                 .priority = ARM_LIB_LOW_PRIORITY_EVENT,
             };
             if (eventOS_event_send(&event) != 0) {
-                cur->bootsrap_state_machine_cnt = 1; // Try again next tick
+                cur->bootstrap_state_machine_cnt = 1; // Try again next tick
                 tr_error("nwk_bootsrap_timer(): event send failed");
             }
         }
@@ -421,7 +421,7 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
 
 void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur)
 {
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;
     arm_event_s event = {
         .receiver = protocol_root_tasklet_ID,
@@ -478,7 +478,7 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
 static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entry)
 {
     entry->configure_flags = 0;
-    entry->bootsrap_state_machine_cnt = 0;
+    entry->bootstrap_state_machine_cnt = 0;
     entry->pana_sec_info_temp = NULL;
     entry->lb_api = NULL;
     entry->global_address_available = false;
@@ -1102,7 +1102,7 @@ void nwk_bootsrap_state_update(arm_nwk_interface_status_type_e posted_event, pro
 {
     //Clear Bootsrap Active Bit allways
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ACTIVE;
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     nwk_net_event_post(posted_event, cur->net_start_tasklet, cur->id);
 
     if (posted_event == ARM_NWK_BOOTSTRAP_READY) {

@@ -519,10 +519,10 @@ void border_router_start(protocol_interface_info_entry_t *cur, bool warm_link_re
     if (nd_nwk) {
         if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
             protocol_6lowpan_router_synch_to_new_router(cur, NULL, 0, true);
-            cur->bootsrap_state_machine_cnt = 30;
+            cur->bootstrap_state_machine_cnt = 30;
         } else {
             nd_nwk->mle_advert_timer = 0;
-            cur->bootsrap_state_machine_cnt = 1;
+            cur->bootstrap_state_machine_cnt = 1;
         }
         cur->nwk_bootstrap_state = ER_SCAN;
         whiteboard_interface_register(nd_nwk->border_router, cur->id);
@@ -679,7 +679,7 @@ void arm_border_router_ready(protocol_interface_info_entry_t *cur)
         //Updates beacon contents
         beacon_join_priority_update(cur->id);
 
-        cur->bootsrap_state_machine_cnt = 0;
+        cur->bootstrap_state_machine_cnt = 0;
         cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
         net_load_balance_internal_state_activate(cur, true);
         nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
@@ -728,7 +728,7 @@ static int8_t arm_border_router_interface_down(protocol_interface_info_entry_t *
     lowpan_adaptation_interface_reset(cur->id);
     reassembly_interface_reset(cur->id);
     protocol_core_interface_info_reset(cur);
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     cur->interface_mode = INTERFACE_IDLE;
     nd_proxy_downstream_interface_unregister(cur->id);
     return ret_val;

@@ -362,7 +362,7 @@ struct protocol_interface_info_entry {
     arm_nwk_interface_mode_e nwk_mode;
     uint8_t configure_flags;
     uint8_t lowpan_info;
-    uint16_t bootsrap_state_machine_cnt;
+    uint16_t bootstrap_state_machine_cnt;
     icmp_state_t nwk_bootstrap_state;
     if_address_list_t ip_addresses;
     uint8_t ip_addresses_max_slaac_entries;

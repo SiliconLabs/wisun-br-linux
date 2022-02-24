@@ -322,7 +322,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
 
             if ((cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) && cur_interface->nwk_bootstrap_state == ER_SCAN) {
                 cur_interface->nwk_bootstrap_state = ER_ADDRESS_REQ;
-                cur_interface->bootsrap_state_machine_cnt = 0;
+                cur_interface->bootstrap_state_machine_cnt = 0;
             }
         }
         return 0;

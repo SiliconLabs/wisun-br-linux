@@ -1212,7 +1212,7 @@ void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
         thread_info(cur)->childUpdateReqTimer = 1;
     }
 
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     mac_data_poll_protocol_poll_mode_decrement(cur);
 }
 
@@ -1318,7 +1318,7 @@ static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_st
     thread_end_device_mode_set(cur, false);
     cur->nwk_nd_re_scan_count = 0;
     cur->nwk_bootstrap_state = ER_SCAN;
-    cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(1, 10);
+    cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(1, 10);
     return 0;
 }
 
@@ -1336,7 +1336,7 @@ static void thread_bootsrap_network_discovery_failure(int8_t interface_id)
 
     tr_debug("Continue network scan");
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-    cur->bootsrap_state_machine_cnt = backof_delay + randLIB_get_random_in_range(1, 6);
+    cur->bootstrap_state_machine_cnt = backof_delay + randLIB_get_random_in_range(1, 6);
 }
 
 static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_entry_t *cur)
@@ -1403,7 +1403,7 @@ static void thread_bootstrap_orphan_scan_ready_cb(struct protocol_interface_info
     link_configuration->rfChannel = discover_response->channel;
     link_configuration->channel_page = 0;
     cur_interface->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-    cur_interface->bootsrap_state_machine_cnt = 1;
+    cur_interface->bootstrap_state_machine_cnt = 1;
     ns_dyn_mem_free(discover_response);
 }
 
@@ -1532,7 +1532,7 @@ int thread_bootstrap_reset(protocol_interface_info_entry_t *cur)
     neighbor_cache_flush(&cur->neigh_cache);
     thread_bootstrap_stop(cur);
     mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
     //tr_debug( "--> idle");
     cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
@@ -1685,7 +1685,7 @@ void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur)
     cur->nwk_bootstrap_state = ER_MLE_ATTACH_READY;
     cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
     cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
-    cur->bootsrap_state_machine_cnt = 10;
+    cur->bootstrap_state_machine_cnt = 10;
     cur->thread_info->routerIdRequested = false;
     cur->thread_info->networkDataRequested = false;
     clear_power_state(ICMP_ACTIVE);
@@ -1826,7 +1826,7 @@ void thread_parent_scan(protocol_interface_info_entry_t *cur)
     cur->thread_info->thread_attached_state = THREAD_STATE_NETWORK_DISCOVER;
     cur->nwk_nd_re_scan_count = 0;
     cur->nwk_bootstrap_state = ER_SCAN;
-    cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(5, 15);
+    cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(5, 15);
     nwk_thread_host_control(cur, NET_HOST_RX_ON_IDLE, 0);
 }
 
@@ -1839,7 +1839,7 @@ void thread_bootstrap_joiner_application_commission_done_cb(int8_t interface_id)
     }
     tr_debug("Commission Ready trig bootsrap to starting from init again");
     interface->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-    interface->bootsrap_state_machine_cnt = randLIB_get_random_in_range(1, 4);
+    interface->bootstrap_state_machine_cnt = randLIB_get_random_in_range(1, 4);
 }
 
 static int compare_steering_and_joiner_bloom(uint8_t *steering_bloom, uint8_t *joiner_bloom, uint8_t steering_tlv_length)
@@ -1962,7 +1962,7 @@ void thread_bootsrap_discovery_ready_cb(struct protocol_interface_info_entry *cu
     }
 
     cur_interface->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-    cur_interface->bootsrap_state_machine_cnt = 1;
+    cur_interface->bootstrap_state_machine_cnt = 1;
     return;
 
 
@@ -2084,7 +2084,7 @@ void thread_discover_native_commissioner_response(protocol_interface_info_entry_
     interface->thread_info->routerIdRequested = false;
     interface->thread_info->networkDataRequested = false;
 
-    interface->bootsrap_state_machine_cnt = 10;
+    interface->bootstrap_state_machine_cnt = 10;
 
     clear_power_state(ICMP_ACTIVE);
     thread_bootstrap_ready(interface);
@@ -2130,7 +2130,7 @@ static void thread_bootsrap_network_join_start(struct protocol_interface_info_en
     uint8_t parentLLAddress[16];
     protocol_6lowpan_interface_get_link_local_cordinator_address(cur_interface, parentLLAddress);
     tr_debug("Start commission with %s", trace_ipv6(parentLLAddress));
-    cur_interface->bootsrap_state_machine_cnt = 0;
+    cur_interface->bootstrap_state_machine_cnt = 0;
 
     if (0 > thread_ccm_commission_start(cur_interface, parentLLAddress, nwk_info, thread_bootstrap_joiner_application_commission_done_cb)) {
         thread_joiner_application_pskd_commission_start(cur_interface->id, parentLLAddress, nwk_info->joiner_port, nwk_info->pan_id, nwk_info->extented_pan_id, nwk_info->channel, thread_bootstrap_joiner_application_commission_done_cb);

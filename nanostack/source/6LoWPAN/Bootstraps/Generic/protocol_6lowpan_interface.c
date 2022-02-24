@@ -123,7 +123,7 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
             cur->pana_sec_info_temp = 0;
         }
         /* Init RPL Timers */
-        cur->bootsrap_state_machine_cnt = 0;
+        cur->bootstrap_state_machine_cnt = 0;
         mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
 
         cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
@@ -144,7 +144,7 @@ static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
         cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
         cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootsrap
         cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY; //Clear Bind
-        cur->bootsrap_state_machine_cnt = 2;
+        cur->bootstrap_state_machine_cnt = 2;
         //Possible mac_mlme_start_req(call)
         mac_helper_panid_set(cur, 0xffff);
         mac_helper_mac16_address_set(cur, 0xffff);

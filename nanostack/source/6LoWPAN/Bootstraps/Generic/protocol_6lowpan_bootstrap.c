@@ -799,7 +799,7 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
         else if (cur->nwk_bootstrap_state == ER_ROUTER_SYNCH) {
             //Trig RPL multicast dis
             cur->nwk_bootstrap_state = ER_RPL_MC;
-            cur->bootsrap_state_machine_cnt = 55;
+            cur->bootstrap_state_machine_cnt = 55;
         }
 #endif
         else if (cur->nwk_bootstrap_state == ER_MLE_LINK_ADDRESS_SYNCH) {
@@ -1571,7 +1571,7 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
         cur->interface_mode = INTERFACE_UP;
         cur->nwk_mode = ARM_NWK_RAW_PHY_MODE;
         cur->lowpan_info |= (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY);
-        cur->bootsrap_state_machine_cnt = 0;
+        cur->bootstrap_state_machine_cnt = 0;
         nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
 
         ret_val = 0;
@@ -1832,12 +1832,12 @@ void nwk_6lowpan_router_scan_state(protocol_interface_info_entry_t *cur)
             protocol_6lowpan_bootstrap_icmp_rs_msg_tx(cur);
             cur->nwk_nd_re_scan_count--;
             if (cur->border_router_setup) {
-                cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(25, 50);
+                cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(25, 50);
             } else {
                 if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
-                    cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(25, 40);
+                    cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(25, 40);
                 } else {
-                    cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(60, 70);
+                    cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(60, 70);
                 }
             }
         }
@@ -1885,7 +1885,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
             nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
         } else {
             cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
-            cur->bootsrap_state_machine_cnt = 2;
+            cur->bootstrap_state_machine_cnt = 2;
         }
     }
 }
@@ -2056,7 +2056,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
                 clear_power_state(ICMP_ACTIVE);
             } else if (cur->nwk_bootstrap_state == ER_RPL_LOCAL_REPAIR) {
                 // Updates beacon
-                cur->bootsrap_state_machine_cnt = 0;
+                cur->bootstrap_state_machine_cnt = 0;
                 cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
                 beacon_join_priority_update(cur->id);
                 lowpan_bootstrap_pan_control(cur, true);
@@ -2067,7 +2067,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
             if (!(cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
                 tr_error("RPL Local repair started");
                 lowpan_bootstrap_pan_control(cur, false);
-                cur->bootsrap_state_machine_cnt = 0;
+                cur->bootstrap_state_machine_cnt = 0;
                 cur->nwk_bootstrap_state = ER_RPL_LOCAL_REPAIR;
             }
             break;
@@ -2121,12 +2121,12 @@ static void nwk_rpl_dio_scan(protocol_interface_info_entry_t *cur)
 {
     if (cur->nwk_rpl_scan_counter < MAX_MC_DIS_COUNT) {
         if (nwk_bootstrap_icmp_rpl_dis_msg_tx(cur)) {
-            cur->bootsrap_state_machine_cnt = 45 << cur->nwk_rpl_scan_counter;
+            cur->bootstrap_state_machine_cnt = 45 << cur->nwk_rpl_scan_counter;
             cur->nwk_rpl_scan_counter++;
             tr_debug("MC_DIS");
             cur->nwk_bootstrap_state = ER_RPL_SCAN;
         } else {
-            cur->bootsrap_state_machine_cnt = 3;
+            cur->bootstrap_state_machine_cnt = 3;
         }
     } else {
         //GivE Up Bootsrap
@@ -2141,10 +2141,10 @@ void nwk_6lowpan_rpl_router_discover(protocol_interface_info_entry_t *cur)
         tr_debug("MC DIS Force");
         if (nwk_bootstrap_icmp_rpl_dis_msg_tx(cur)) {
             cur->nwk_bootstrap_state = ER_RPL_SCAN;
-            cur->bootsrap_state_machine_cnt = 55;
+            cur->bootstrap_state_machine_cnt = 55;
         } else {
             cur->nwk_bootstrap_state = ER_RPL_MC;
-            cur->bootsrap_state_machine_cnt = 15;
+            cur->bootstrap_state_machine_cnt = 15;
         }
     } else {
         cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
@@ -2157,7 +2157,7 @@ void nwk_6lowpan_rpl_router_result_check(protocol_interface_info_entry_t *cur)
     if (cur->rpl_domain) {
         if (rpl_control_have_dodag(cur->rpl_domain)) {
             tr_debug("UNI DIS");
-            cur->bootsrap_state_machine_cnt = 0;
+            cur->bootstrap_state_machine_cnt = 0;
         } else {
             nwk_rpl_dio_scan(cur);
         }
@@ -2224,7 +2224,7 @@ void nwk_6lowpan_pana_key_pull(protocol_interface_info_entry_t *cur)
     if (pana_ping_notify_msg_tx(cur->mac_parameters->pan_id) == 0) {
         tr_warn("PING TX fail");
         cur->nwk_bootstrap_state = ER_PANA_PING;
-        cur->bootsrap_state_machine_cnt = 2;
+        cur->bootstrap_state_machine_cnt = 2;
     }
 }
 #endif
@@ -2279,7 +2279,7 @@ static void nwk_6lowpan_bootsrap_pana_authentication_start(protocol_interface_in
         //SET CORD Address
         nd_router_t   *object = nd_get_pana_address();
         cur->nwk_bootstrap_state = ER_PANA_AUTH;
-        cur->bootsrap_state_machine_cnt = 0;
+        cur->bootstrap_state_machine_cnt = 0;
         if (object) {
             icmp_nd_set_nd_def_router_address(suite->session_address, object);
 
@@ -2300,7 +2300,7 @@ static void nwk_6lowpan_bootsrap_pana_authentication_start(protocol_interface_in
         suite->interface = cur;
     } else {
         cur->nwk_bootstrap_state = ER_PANA_AUTH_ERROR;
-        cur->bootsrap_state_machine_cnt = 1;
+        cur->bootstrap_state_machine_cnt = 1;
     }
 }
 #endif
@@ -2562,7 +2562,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
     if (is_border_router == true) {
         if (interface->nwk_bootstrap_state == ER_WARM_ACTIVE_SCAN) {
             border_router_start(interface, true);
-            interface->bootsrap_state_machine_cnt = 0;
+            interface->bootstrap_state_machine_cnt = 0;
             interface->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
         } else {
             border_router_start(interface, false);

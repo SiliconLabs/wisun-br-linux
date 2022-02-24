@@ -229,8 +229,8 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
     if (interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER &&
             interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
-        if (interface->bootsrap_state_machine_cnt == 0) {
-            interface->bootsrap_state_machine_cnt = 10; //Re trigger state check
+        if (interface->bootstrap_state_machine_cnt == 0) {
+            interface->bootstrap_state_machine_cnt = 10; //Re trigger state check
         }
     }
 }
@@ -944,7 +944,7 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     }
 
     /* Wi-sun will trig event for stamechine this timer must be zero on init */
-    cur->bootsrap_state_machine_cnt = 0;
+    cur->bootstrap_state_machine_cnt = 0;
     /* Disable SLLAO send/mandatory receive with the ARO */
     cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = true;
     /* Omit sending of NA if ARO SUCCESS */
@@ -1868,7 +1868,7 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
         return -1;
     }
     ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
-    cur->bootsrap_state_machine_cnt = 3;
+    cur->bootstrap_state_machine_cnt = 3;
     return 0;
 }
 
@@ -2336,7 +2336,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
     if (event == RPL_EVENT_POISON_FINISHED) {
         //If we are waiting poison we will trig Discovery after couple seconds
         if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
-            cur->bootsrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
+            cur->bootstrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
         }
         return;
     }
@@ -2344,7 +2344,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
     // if waiting for RPL and
     if (event == RPL_EVENT_DAO_DONE) {
         // Trigger statemachine check
-        cur->bootsrap_state_machine_cnt = 1;
+        cur->bootstrap_state_machine_cnt = 1;
         rpl_dodag_info_t dodag_info;
         struct rpl_instance *instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
 
@@ -2650,7 +2650,7 @@ void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
     //For Large network and medium should do passive scan
     if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
         // Set timeout for check to 30 - 60 seconds
-        cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
+        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
     }
 }
 
@@ -2813,8 +2813,8 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
         trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
 
         // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
-        cur->bootsrap_state_machine_cnt = randLIB_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
-        tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
+        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
+        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     } else {
         tr_debug("authentication failed");
         // What else to do to start over again...
@@ -3139,10 +3139,10 @@ void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_boot
         tr_debug("Start Network soft leaving");
         if (event_type == WS_FAST_DISCONNECT) {
             rpl_control_instant_poison(cur, cur->rpl_domain);
-            cur->bootsrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
+            cur->bootstrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
         } else {
             rpl_control_poison(cur->rpl_domain, 1);
-            cur->bootsrap_state_machine_cnt = 6000; //Give 10 minutes time for poison if RPL is not report
+            cur->bootstrap_state_machine_cnt = 6000; //Give 10 minutes time for poison if RPL is not report
         }
 
     } else {
@@ -3196,7 +3196,7 @@ bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur)
 
 void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_t nwk_bootstrap_state)
 {
-    cur->bootsrap_state_machine_cnt = 1;
+    cur->bootstrap_state_machine_cnt = 1;
     cur->nwk_bootstrap_state = nwk_bootstrap_state;
 }
 
@@ -3625,8 +3625,8 @@ void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *c
         case PROCEDURE_EAPOL:
             if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
                 tr_info("trigger EAPOL target selection");
-                if (cur->bootsrap_state_machine_cnt > 3) {
-                    cur->bootsrap_state_machine_cnt = 3;
+                if (cur->bootstrap_state_machine_cnt > 3) {
+                    cur->bootstrap_state_machine_cnt = 3;
                 }
             } else {
                 tr_info("wrong state: EAPOL target selection not triggered");
