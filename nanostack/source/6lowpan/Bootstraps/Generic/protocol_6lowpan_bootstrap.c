@@ -57,7 +57,7 @@
 #include "common_functions.h"
 #include "net_interface.h"
 #include "security/TLS/tls_lib.h"
-#include "security/Common/sec_lib.h"
+#include "security/common/sec_lib.h"
 #include "security/PANA/pana.h"
 #include "security/PANA/pana_internal_api.h"
 #include "6lowpan/ND/nd_router_object.h"

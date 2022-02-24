@@ -30,7 +30,7 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "security/Common/sec_lib.h"
+#include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana.h"
 

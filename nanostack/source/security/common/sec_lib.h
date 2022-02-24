@@ -17,7 +17,7 @@
 
 #ifndef SEC_LIB_H_
 #define SEC_LIB_H_
-#include "security/Common/sec_lib_definitions.h"
+#include "security/common/sec_lib_definitions.h"
 #ifdef PANA
 extern int sec_pana_protocol_init(sec_suite_t *suite);
 extern void sec_suite_tls_free(sec_suite_t *suite, bool free_session);

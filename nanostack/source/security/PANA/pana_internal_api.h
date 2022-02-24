@@ -24,7 +24,7 @@
 #endif
 #include "net_interface.h"
 #include "net_pana_parameters_api.h"
-#include "security/Common/sec_lib_definitions.h"
+#include "security/common/sec_lib_definitions.h"
 struct nwk_pana_params;
 
 void pana_reset_values(uint16_t pan_id);

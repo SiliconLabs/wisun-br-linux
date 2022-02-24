@@ -30,7 +30,7 @@
 #include "shalib.h"
 #include "security/TLS/tls_lib.h"
 #include "security/TLS/tls_ccm_crypt.h"
-#include "security/Common/sec_lib.h"
+#include "security/common/sec_lib.h"
 #include "nsdynmemLIB.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana.h"

@@ -107,7 +107,7 @@ SRCS += \
 	source/rpl/rpl_of0.c \
 	source/rpl/rpl_mrhof.c \
 	source/rpl/rpl_policy.c \
-	source/security/Common/security_lib.c \
+	source/security/common/security_lib.c \
 	source/security/eapol/eapol_helper.c \
 	source/security/eapol/kde_helper.c \
 	source/security/kmp/kmp_api.c \

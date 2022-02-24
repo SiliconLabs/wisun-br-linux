@@ -30,7 +30,7 @@
 #endif
 #include "security/TLS/tls_lib.h"
 #include "security/TLS/tls_ccm_crypt.h"
-#include "security/Common/sec_lib.h"
+#include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana_nvm.h"
 #include "security/PANA/pana.h"

@@ -41,7 +41,7 @@
 #include "ecc.h"
 #endif
 #include "security/TLS/tls_lib.h"
-#include "security/Common/sec_lib.h"
+#include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana.h"
 #include "security/PANA/pana_internal_api.h"

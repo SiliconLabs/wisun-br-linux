@@ -18,7 +18,7 @@
 #ifndef TLS_LIB_H_
 #define TLS_LIB_H_
 
-#include "security/Common/sec_lib_definitions.h"
+#include "security/common/sec_lib_definitions.h"
 
 extern tls_session_t *amr_tls_session_allocate(void);
 extern void arm_tls_session_clear(tls_session_t *t_session);
