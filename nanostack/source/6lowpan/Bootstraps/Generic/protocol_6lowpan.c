@@ -51,7 +51,7 @@
 #endif
 #include "ccmLIB.h"
 #include "shalib.h"
-#include "security/TLS/tls_lib.h"
+#include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana.h"

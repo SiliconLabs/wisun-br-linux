@@ -138,8 +138,8 @@ SRCS += \
 	source/security/PANA/pana_eap_header.c \
 	source/security/PANA/pana_header.c \
 	source/security/PANA/pana_server.c \
-	source/security/TLS/tls_lib.c \
-	source/security/TLS/tls_ccm_crypt.c \
+	source/security/tls/tls_lib.c \
+	source/security/tls/tls_ccm_crypt.c \
 	source/service_libs/ccm/ccm_security.c \
 	source/service_libs/fhss/fhss_channel.c \
 	source/service_libs/fhss/fhss_configuration_interface.c \

@@ -28,8 +28,8 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "security/TLS/tls_lib.h"
-#include "security/TLS/tls_ccm_crypt.h"
+#include "security/tls/tls_lib.h"
+#include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/PANA/pana_nvm.h"
@@ -346,7 +346,7 @@ uint8_t tls_certificate_build(sec_suite_t *suite)
     if (temp) {
 
         len = tls_certificate_len(temp);
-        len += 50; //TLS/EAP/PANA/TCP /IP
+        len += 50; //tls/EAP/PANA/TCP /IP
 
         //Client Key Exchange 70, Certiverify max 80, Finnish 43
         len += (70 + 80 + 43);

@@ -56,7 +56,7 @@
 #include "net_nvm_api.h"
 #include "common_functions.h"
 #include "net_interface.h"
-#include "security/TLS/tls_lib.h"
+#include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
 #include "security/PANA/pana.h"
 #include "security/PANA/pana_internal_api.h"
