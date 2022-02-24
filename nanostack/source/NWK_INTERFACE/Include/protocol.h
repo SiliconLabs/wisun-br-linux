@@ -152,7 +152,7 @@ typedef enum {
     ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER,
     ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER,
     ARM_NWK_BOOTSRAP_MODE_ETHERNET_HOST,
-} arm_nwk_bootsrap_mode_e;
+} arm_nwk_bootstrap_mode_e;
 
 typedef enum {
     ARM_NWK_IDLE_MODE = 0,
@@ -357,7 +357,7 @@ struct protocol_interface_info_entry {
     int8_t net_start_tasklet;
     const char *interface_name;
     ns_list_link_t link;
-    arm_nwk_bootsrap_mode_e bootstrap_mode;
+    arm_nwk_bootstrap_mode_e bootstrap_mode;
     net_6lowpan_gp_address_mode_e lowpan_address_mode;
     arm_nwk_interface_mode_e nwk_mode;
     uint8_t configure_flags;
