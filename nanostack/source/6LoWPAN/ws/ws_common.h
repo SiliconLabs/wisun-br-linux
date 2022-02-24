@@ -148,7 +148,7 @@ typedef struct ws_info_s {
 #endif
     struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information_s pan_information;
-    ws_hopping_schedule_t hopping_schdule;
+    ws_hopping_schedule_t hopping_schedule;
     struct ws_statistics *stored_stats_ptr;
     struct ws_neighbor_class_s neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
@@ -161,7 +161,7 @@ int8_t ws_common_generate_channel_list(uint32_t *channel_mask, uint16_t number_o
 
 uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
-int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schdule);
+int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schedule);
 
 uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 

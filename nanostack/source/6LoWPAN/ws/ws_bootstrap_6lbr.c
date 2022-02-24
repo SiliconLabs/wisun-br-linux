@@ -93,8 +93,8 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(protocol_interface_info_entry_t *
     fhss_configuration.bsi = ws_bbr_bsi_generate(cur);
     ws_bootstrap_fhss_configure_channel_masks(cur, &fhss_configuration);
     // Randomize fixed channels. Only used if channel plan is fixed.
-    cur->ws_info->cfg->fhss.fhss_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_uc_fixed_channel, cur->ws_info->hopping_schdule.number_of_channels, fhss_configuration.channel_mask);
-    cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_bc_fixed_channel, cur->ws_info->hopping_schdule.number_of_channels, fhss_configuration.channel_mask);
+    cur->ws_info->cfg->fhss.fhss_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_uc_fixed_channel, cur->ws_info->hopping_schedule.number_of_channels, fhss_configuration.channel_mask);
+    cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_bc_fixed_channel, cur->ws_info->hopping_schedule.number_of_channels, fhss_configuration.channel_mask);
     ws_bootstrap_fhss_set_defaults(cur, &fhss_configuration);
     ns_fhss_ws_configuration_set(cur->ws_info->fhss_api, &fhss_configuration);
     ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
@@ -162,7 +162,7 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         //Update Neighbor Broadcast and Unicast Parameters
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schedule, data->SrcAddr);
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
         ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
     }
@@ -178,7 +178,7 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interfa
 
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schedule, data->SrcAddr);
     }
 }
 
@@ -350,7 +350,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             ws_bbr_pan_version_increase(cur);
 
             // Set default parameters for FHSS when starting a discovery
-            ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule);
+            ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule);
             ws_bootstrap_6lbr_fhss_configure(cur);
             ws_bootstrap_set_domain_rf_config(cur);
             ws_bootstrap_fhss_activate(cur);

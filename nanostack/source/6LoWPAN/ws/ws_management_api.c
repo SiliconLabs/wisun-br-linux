@@ -547,12 +547,12 @@ int ws_management_channel_plan_set(
     if (!cur || !ws_info(cur)) {
         return -1;
     }
-    cur->ws_info->hopping_schdule.channel_plan = channel_plan;
-    cur->ws_info->hopping_schdule.uc_channel_function = uc_channel_function;
-    cur->ws_info->hopping_schdule.bc_channel_function = bc_channel_function;
-    cur->ws_info->hopping_schdule.ch0_freq = ch0_freq;
-    cur->ws_info->hopping_schdule.channel_spacing = channel_spacing;
-    cur->ws_info->hopping_schdule.number_of_channels = number_of_channels;
+    cur->ws_info->hopping_schedule.channel_plan = channel_plan;
+    cur->ws_info->hopping_schedule.uc_channel_function = uc_channel_function;
+    cur->ws_info->hopping_schedule.bc_channel_function = bc_channel_function;
+    cur->ws_info->hopping_schedule.ch0_freq = ch0_freq;
+    cur->ws_info->hopping_schedule.channel_spacing = channel_spacing;
+    cur->ws_info->hopping_schedule.number_of_channels = number_of_channels;
 
     // TODO update fields to llc
     return 0;

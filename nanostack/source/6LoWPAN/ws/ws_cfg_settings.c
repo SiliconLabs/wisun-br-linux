@@ -600,7 +600,7 @@ int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg)
             cfg->phy_mode_id != new_cfg->phy_mode_id ||
             cfg->channel_plan_id != new_cfg->channel_plan_id) {
 
-        ws_hopping_schedule_t hopping_schdule = {
+        ws_hopping_schedule_t hopping_schedule = {
             .regulatory_domain = new_cfg->regulatory_domain,
             .operating_mode = new_cfg->operating_mode,
             .operating_class = new_cfg->operating_class,
@@ -609,7 +609,7 @@ int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg)
         };
 
         // Check that new settings are valid
-        if (ws_common_regulatory_domain_config(NULL, &hopping_schdule) < 0) {
+        if (ws_common_regulatory_domain_config(NULL, &hopping_schedule) < 0) {
             // Invalid regulatory domain set
             return CFG_SETTINGS_ERROR_PHY_CONF;
         }
@@ -630,30 +630,30 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *new_cf
     if (cur) {
         // Set operating mode for FSK if given with PHY mode ID
         if ((new_cfg->phy_mode_id == 1) || (new_cfg->phy_mode_id == 17)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_1a;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_1a;
         } else if ((new_cfg->phy_mode_id == 2) || (new_cfg->phy_mode_id == 18)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_1b;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_1b;
         } else if ((new_cfg->phy_mode_id == 3) || (new_cfg->phy_mode_id == 19)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_2a;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_2a;
         } else if ((new_cfg->phy_mode_id == 4) || (new_cfg->phy_mode_id == 20)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_2b;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_2b;
         } else if ((new_cfg->phy_mode_id == 5) || (new_cfg->phy_mode_id == 21)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_3;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_3;
         } else if ((new_cfg->phy_mode_id == 6) || (new_cfg->phy_mode_id == 22)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_4a;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_4a;
         } else if ((new_cfg->phy_mode_id == 7) || (new_cfg->phy_mode_id == 23)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_4b;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_4b;
         } else if ((new_cfg->phy_mode_id == 8) || (new_cfg->phy_mode_id == 24)) {
-            cur->ws_info->hopping_schdule.operating_mode = OPERATING_MODE_5;
+            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_5;
         } else {
-            cur->ws_info->hopping_schdule.operating_mode = new_cfg->operating_mode;
+            cur->ws_info->hopping_schedule.operating_mode = new_cfg->operating_mode;
         }
-        cur->ws_info->hopping_schdule.phy_mode_id = new_cfg->phy_mode_id;
-        cur->ws_info->hopping_schdule.channel_plan_id = new_cfg->channel_plan_id;
-        cur->ws_info->hopping_schdule.regulatory_domain = new_cfg->regulatory_domain;
-        cur->ws_info->hopping_schdule.operating_class = new_cfg->operating_class;
+        cur->ws_info->hopping_schedule.phy_mode_id = new_cfg->phy_mode_id;
+        cur->ws_info->hopping_schedule.channel_plan_id = new_cfg->channel_plan_id;
+        cur->ws_info->hopping_schedule.regulatory_domain = new_cfg->regulatory_domain;
+        cur->ws_info->hopping_schedule.operating_class = new_cfg->operating_class;
 
-        if (ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule) < 0) {
+        if (ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule) < 0) {
             return CFG_SETTINGS_ERROR_PHY_CONF;
         }
     }

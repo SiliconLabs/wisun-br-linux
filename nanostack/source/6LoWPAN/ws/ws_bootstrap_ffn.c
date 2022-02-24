@@ -149,8 +149,8 @@ static int8_t ws_bootstrap_ffn_fhss_configure(protocol_interface_info_entry_t *c
     }
     fhss_configuration.ws_bc_channel_function = WS_FIXED_CHANNEL;
     fhss_configuration.fhss_broadcast_interval = 0;
-    uint8_t tmp_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_uc_fixed_channel, cur->ws_info->hopping_schdule.number_of_channels, fhss_configuration.channel_mask);
-    uint8_t tmp_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_bc_fixed_channel, cur->ws_info->hopping_schdule.number_of_channels, fhss_configuration.channel_mask);
+    uint8_t tmp_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_uc_fixed_channel, cur->ws_info->hopping_schedule.number_of_channels, fhss_configuration.channel_mask);
+    uint8_t tmp_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info->cfg->fhss.fhss_bc_fixed_channel, cur->ws_info->hopping_schedule.number_of_channels, fhss_configuration.channel_mask);
     fhss_configuration.unicast_fixed_channel = tmp_uc_fixed_channel;
     fhss_configuration.broadcast_fixed_channel = tmp_bc_fixed_channel;
     ns_fhss_ws_configuration_set(cur->ws_info->fhss_api, &fhss_configuration);
@@ -165,7 +165,7 @@ void ws_bootstrap_ffn_network_discovery_configure(protocol_interface_info_entry_
     // Reset information to defaults
     cur->ws_info->network_pan_id = 0xffff;
 
-    ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schdule);
+    ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule);
     ws_bootstrap_set_domain_rf_config(cur);
     ws_bootstrap_ffn_fhss_configure(cur, true);
 
@@ -530,14 +530,14 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
         }
 
         //When Config is learned and USE Parent BS is enabled compare is this new BSI
-        if (cur->ws_info->configuration_learned && cur->ws_info->pan_information.use_parent_bs && ws_bs_ie.broadcast_schedule_identifier != cur->ws_info->hopping_schdule.fhss_bsi) {
+        if (cur->ws_info->configuration_learned && cur->ws_info->pan_information.use_parent_bs && ws_bs_ie.broadcast_schedule_identifier != cur->ws_info->hopping_schedule.fhss_bsi) {
             //Accept only next possible BSI number
-            if ((cur->ws_info->hopping_schdule.fhss_bsi + 1) != ws_bs_ie.broadcast_schedule_identifier) {
+            if ((cur->ws_info->hopping_schedule.fhss_bsi + 1) != ws_bs_ie.broadcast_schedule_identifier) {
                 tr_debug("Do not accept a unknown BSI: %u", ws_bs_ie.broadcast_schedule_identifier);
             } else {
                 tr_debug("NEW Brodcast Schedule %u...BR rebooted", ws_bs_ie.broadcast_schedule_identifier);
                 cur->ws_info->ws_bsi_block.block_time = cur->ws_info->cfg->timing.pan_timeout;
-                cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schdule.fhss_bsi;
+                cur->ws_info->ws_bsi_block.old_bsi = cur->ws_info->hopping_schedule.fhss_bsi;
                 ws_bootstrap_event_disconnect(cur, WS_NORMAL_DISCONNECT);
             }
             return;
@@ -560,7 +560,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     if (neighbour_pointer_valid) {
         //Update Neighbor Broadcast and Unicast Parameters
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schedule, data->SrcAddr);
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
         ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
     }
@@ -654,7 +654,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interfac
     llc_neighbour_req_t neighbor_info;
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schdule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schedule, data->SrcAddr);
     }
 
     if (ws_bootstrap_state_active(cur) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -956,7 +956,7 @@ void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur)
             int8_t new_default = cur->ws_info->weakest_received_rssi - 1;
             if ((new_default < CCA_DEFAULT_DBM) && (new_default >= CCA_LOW_LIMIT) && (new_default <= CCA_HIGH_LIMIT)) {
                 // Restart automatic CCA threshold using weakest received RSSI as new default
-                mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+                mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
             }
             ws_bootstrap_start_authentication(cur);
             break;

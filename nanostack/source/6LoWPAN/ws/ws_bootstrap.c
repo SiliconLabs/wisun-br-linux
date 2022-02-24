@@ -568,15 +568,15 @@ static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss
 
 void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
-    cur->ws_info->hopping_schdule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
-    cur->ws_info->hopping_schdule.bc_fixed_channel = fhss_configuration->broadcast_fixed_channel;
+    cur->ws_info->hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
+    cur->ws_info->hopping_schedule.bc_fixed_channel = fhss_configuration->broadcast_fixed_channel;
     // Read UC channel function from WS info because FHSS might be temporarily configured to fixed channel during discovery.
-    cur->ws_info->hopping_schdule.uc_channel_function = cur->ws_info->cfg->fhss.fhss_uc_channel_function;
-    cur->ws_info->hopping_schdule.bc_channel_function = fhss_configuration->ws_bc_channel_function;
-    cur->ws_info->hopping_schdule.fhss_bc_dwell_interval = fhss_configuration->fhss_bc_dwell_interval;
-    cur->ws_info->hopping_schdule.fhss_broadcast_interval = fhss_configuration->fhss_broadcast_interval;
-    cur->ws_info->hopping_schdule.fhss_uc_dwell_interval = fhss_configuration->fhss_uc_dwell_interval;
-    cur->ws_info->hopping_schdule.fhss_bsi = fhss_configuration->bsi;
+    cur->ws_info->hopping_schedule.uc_channel_function = cur->ws_info->cfg->fhss.fhss_uc_channel_function;
+    cur->ws_info->hopping_schedule.bc_channel_function = fhss_configuration->ws_bc_channel_function;
+    cur->ws_info->hopping_schedule.fhss_bc_dwell_interval = fhss_configuration->fhss_bc_dwell_interval;
+    cur->ws_info->hopping_schedule.fhss_broadcast_interval = fhss_configuration->fhss_broadcast_interval;
+    cur->ws_info->hopping_schedule.fhss_uc_dwell_interval = fhss_configuration->fhss_uc_dwell_interval;
+    cur->ws_info->hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 
 static uint8_t ws_bootstrap_generate_exluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint32_t *selected_channel_mask, const uint32_t *global_channel_mask, uint16_t number_of_channels)
@@ -644,15 +644,15 @@ static uint8_t ws_bootstrap_generate_exluded_channel_list_from_active_channels(w
 
 void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    fhss_configuration->channel_mask_size = cur->ws_info->hopping_schdule.number_of_channels;
-    ws_common_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
-    ws_common_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
+    fhss_configuration->channel_mask_size = cur->ws_info->hopping_schedule.number_of_channels;
+    ws_common_generate_channel_list(fhss_configuration->channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+    ws_common_generate_channel_list(fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
     for (uint8_t n = 0; n < 8; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
     }
     //Update Exluded channels
-    cur->ws_info->hopping_schdule.channel_plan = ws_bootstrap_generate_exluded_channel_list_from_active_channels(&cur->ws_info->hopping_schdule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schdule.number_of_channels);
+    cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_exluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
 }
 
 static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
@@ -748,7 +748,7 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
         }
         fhss_configuration.ws_bc_channel_function = (fhss_ws_channel_functions)neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function;
         if (fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
-            cur->ws_info->hopping_schdule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
+            cur->ws_info->hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
             cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
         }
         fhss_configuration.bsi = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id;
@@ -1312,22 +1312,22 @@ void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cu
     ns_list_add_to_end(&cur->ws_info->parent_list_reserved, new_entry);
 }
 
-static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hopping_schedule_t *hopping_schdule)
+static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    if (rx_plan->operation_class != hopping_schdule->operating_class) {
+    if (rx_plan->operation_class != hopping_schedule->operating_class) {
         return false;
-    } else if (rx_plan->regulator_domain != hopping_schdule->regulatory_domain) {
+    } else if (rx_plan->regulator_domain != hopping_schedule->regulatory_domain) {
         return false;
     }
     return true;
 }
 
-static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hopping_schedule_t *hopping_schdule)
+static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    uint16_t num_of_channel = hopping_schdule->number_of_channels;
-    if (rx_plan->ch0 != hopping_schdule->ch0_freq) {
+    uint16_t num_of_channel = hopping_schedule->number_of_channels;
+    if (rx_plan->ch0 != hopping_schedule->ch0_freq) {
         return false;
-    } else if (rx_plan->channel_spacing != hopping_schdule->channel_spacing) {
+    } else if (rx_plan->channel_spacing != hopping_schedule->channel_spacing) {
         return false;
     } else if (rx_plan->number_of_channel != num_of_channel) {
         return false;
@@ -1335,11 +1335,11 @@ static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hoppi
     return true;
 }
 
-static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hopping_schedule_t *hopping_schdule)
+static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    if (rx_plan->channel_plan_id != hopping_schdule->channel_plan_id) {
+    if (rx_plan->channel_plan_id != hopping_schedule->channel_plan_id) {
         return false;
-    } else if (rx_plan->regulator_domain != hopping_schdule->regulatory_domain) {
+    } else if (rx_plan->regulator_domain != hopping_schedule->regulatory_domain) {
         return false;
     }
     return true;
@@ -1348,18 +1348,18 @@ static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hoppi
 bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, struct protocol_interface_info_entry *cur)
 {
     if (ws_us->channel_plan == 0) {
-        if (!ws_channel_plan_zero_compare(&ws_us->plan.zero, &cur->ws_info->hopping_schdule)) {
+        if (!ws_channel_plan_zero_compare(&ws_us->plan.zero, &cur->ws_info->hopping_schedule)) {
             return false;
         }
     } else if (ws_us->channel_plan == 1) {
-        if (!ws_channel_plan_one_compare(&ws_us->plan.one, &cur->ws_info->hopping_schdule)) {
+        if (!ws_channel_plan_one_compare(&ws_us->plan.one, &cur->ws_info->hopping_schedule)) {
             return false;
         }
     } else if (ws_us->channel_plan == 2) {
         if (!ws_version_1_1(cur)) {
             return false;
         }
-        if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schdule)) {
+        if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schedule)) {
             return false;
         }
     } else {
@@ -1882,10 +1882,10 @@ static int8_t ws_bootstrap_phy_mode_resolver(const mac_api_t *api, uint8_t phy_m
     if (!interface) {
         return -1;
     }
-    uint8_t regulatory_domain = interface->ws_info->hopping_schdule.regulatory_domain;
-    uint8_t base_channel_plan_id = interface->ws_info->hopping_schdule.channel_plan_id;
+    uint8_t regulatory_domain = interface->ws_info->hopping_schedule.regulatory_domain;
+    uint8_t base_channel_plan_id = interface->ws_info->hopping_schedule.channel_plan_id;
     if (base_channel_plan_id == 255) {
-        base_channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(interface->ws_info->hopping_schdule.operating_class, regulatory_domain);
+        base_channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(interface->ws_info->hopping_schedule.operating_class, regulatory_domain);
     }
     if (!base_channel_plan_id) {
         return -1;
@@ -1941,11 +1941,11 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     set_request.value_size = sizeof(mlme_multi_csma_ca_param_t);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Start automatic CCA threshold
-    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schdule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     // Enable MAC mode switch when base PHY mode ID could be found, otherwise disable the feature
-    uint8_t phy_mode_id = cur->ws_info->hopping_schdule.phy_mode_id;
+    uint8_t phy_mode_id = cur->ws_info->hopping_schedule.phy_mode_id;
     if (phy_mode_id == 255) {
-        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schdule.operating_mode);
+        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schedule.operating_mode);
     }
     if (!phy_mode_id) {
         cur->mac_api->mac_mode_switch_resolver_set(cur->mac_api, NULL, phy_mode_id);
@@ -1977,11 +1977,11 @@ static int ws_bootstrap_operating_mode_resolver(protocol_interface_info_entry_t 
     memset(rf_config, 0, sizeof(phy_rf_channel_configuration_s));
     rf_config->fec = false;
     rf_config->modulation = M_2FSK;
-    rf_config->datarate = ws_phy_get_datarate_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_config->modulation_index = ws_phy_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schdule.operating_mode);
-    rf_config->channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schdule.ch0_freq * 100000;
-    rf_config->channel_spacing = ws_phy_decode_channel_spacing(cur->ws_info->hopping_schdule.channel_spacing);
-    rf_config->number_of_channels = cur->ws_info->hopping_schdule.number_of_channels;
+    rf_config->datarate = ws_phy_get_datarate_using_operating_mode(cur->ws_info->hopping_schedule.operating_mode);
+    rf_config->modulation_index = ws_phy_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schedule.operating_mode);
+    rf_config->channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schedule.ch0_freq * 100000;
+    rf_config->channel_spacing = ws_phy_decode_channel_spacing(cur->ws_info->hopping_schedule.channel_spacing);
+    rf_config->number_of_channels = cur->ws_info->hopping_schedule.number_of_channels;
     return 0;
 }
 
@@ -1990,9 +1990,9 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
     phy_rf_channel_configuration_s rf_config;
     memset(&rf_config, 0, sizeof(phy_rf_channel_configuration_s));
 
-    uint8_t phy_mode_id = cur->ws_info->hopping_schdule.phy_mode_id;
+    uint8_t phy_mode_id = cur->ws_info->hopping_schedule.phy_mode_id;
     if (phy_mode_id == 255) {
-        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schdule.operating_mode);
+        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schedule.operating_mode);
     }
 
     if (!phy_mode_id || ws_bootstrap_phy_mode_resolver(cur->mac_api, phy_mode_id, &rf_config)) {
@@ -2027,7 +2027,7 @@ void ws_bootstrap_fhss_activate(protocol_interface_info_entry_t *cur)
 {
     tr_debug("FHSS activate");
     ws_bootstrap_fhss_enable(cur);
-    ws_llc_hopping_schedule_config(cur, &cur->ws_info->hopping_schdule);
+    ws_llc_hopping_schedule_config(cur, &cur->ws_info->hopping_schedule);
     // Only supporting fixed channel
 
     tr_debug("MAC init");
@@ -2966,7 +2966,7 @@ static void ws_bootstrap_set_asynch_channel_list(protocol_interface_info_entry_t
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.channel_mask[channel_number / 32] = 1U << (channel_number % 32);
     } else {
-        ws_common_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schdule.number_of_channels, cur->ws_info->hopping_schdule.regulatory_domain, cur->ws_info->hopping_schdule.operating_class, cur->ws_info->hopping_schdule.channel_plan_id);
+        ws_common_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;
@@ -3116,7 +3116,7 @@ int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_in
     }
     ws_bootstrap_neighbor_set_stable(cur, parent_ptr->addr);
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &parent_ptr->ws_utt, parent_ptr->timestamp, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &parent_ptr->ws_us, &cur->ws_info->hopping_schdule, parent_ptr->addr);
+    ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, &parent_ptr->ws_us, &cur->ws_info->hopping_schedule, parent_ptr->addr);
     return 0;
 }
 

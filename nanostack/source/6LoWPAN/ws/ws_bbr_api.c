@@ -1311,7 +1311,7 @@ int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
 
     //Check if new value is different than current active
     if (cur && cur->ws_info && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        if (cur->ws_info->hopping_schdule.fhss_bsi == new_bsi) {
+        if (cur->ws_info->hopping_schedule.fhss_bsi == new_bsi) {
             return 0;
         }
         tr_debug("New BSI %u to delayed activate", new_bsi);
