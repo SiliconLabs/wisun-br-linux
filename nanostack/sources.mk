@@ -166,8 +166,8 @@ SRCS += \
 	source/service_libs/Neighbor_cache/neighbor_cache.c \
 	source/service_libs/nd_proxy/nd_proxy.c \
 	source/service_libs/load_balance/load_balance.c \
-	source/service_libs/SHA256_Lib/shalib.c \
-	source/service_libs/SHA256_Lib/ns_sha256.c \
+	source/service_libs/sha256/shalib.c \
+	source/service_libs/sha256/ns_sha256.c \
 	source/service_libs/Trickle/trickle.c \
 	source/service_libs/whiteboard/whiteboard.c \
 	source/service_libs/pan_blacklist/pan_blacklist.c \

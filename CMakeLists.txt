@@ -222,8 +222,8 @@ add_executable(wsbrd
     nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
     nanostack/source/service_libs/random_early_detection/random_early_detection.c
-    nanostack/source/service_libs/SHA256_Lib/ns_sha256.c
-    nanostack/source/service_libs/SHA256_Lib/shalib.c
+    nanostack/source/service_libs/sha256/ns_sha256.c
+    nanostack/source/service_libs/sha256/shalib.c
     nanostack/source/service_libs/Trickle/trickle.c
     nanostack/source/service_libs/utils/isqrt.c
     nanostack/source/service_libs/utils/ns_conf.c
@@ -464,8 +464,8 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
         nanostack/source/service_libs/random_early_detection/random_early_detection.c
-        nanostack/source/service_libs/SHA256_Lib/ns_sha256.c
-        nanostack/source/service_libs/SHA256_Lib/shalib.c
+        nanostack/source/service_libs/sha256/ns_sha256.c
+        nanostack/source/service_libs/sha256/shalib.c
         nanostack/source/service_libs/Trickle/trickle.c
         nanostack/source/service_libs/utils/isqrt.c
         nanostack/source/service_libs/utils/ns_conf.c
