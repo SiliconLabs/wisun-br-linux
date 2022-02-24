@@ -27,7 +27,7 @@ extern void tls_finnish_copy(uint8_t *ptr, tls_heap_t *heap_ptr);
 extern void tls_alert_build(buffer_t *buf, uint8_t alert);
 
 extern void tls_prepare_change_chipher_spec(sec_suite_t *tls_suite);
-extern void tls_build_client_change_chipher_suite_finnish(buffer_t *buf, sec_suite_t *tls_suite);
+extern void tls_build_client_change_chipher_suite_finish(buffer_t *buf, sec_suite_t *tls_suite);
 #ifdef PANA_SERVER_API
 extern void tls_server_hello_build(buffer_t *buf, sec_suite_t *tls_suite);
 #endif

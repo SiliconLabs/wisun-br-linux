@@ -808,7 +808,7 @@ static void pana_server_state_machine_func(sec_suite_t *suite)
                         //Print Handshake message
                         tls_prepare_change_chipher_spec(suite);
 
-                        tls_build_client_change_chipher_suite_finnish(buf, suite);
+                        tls_build_client_change_chipher_suite_finish(buf, suite);
                         tls_nonce_update(suite->tls_session->tls_nonce_explit);
                         tr_debug("Set Keys");
                         pana_eap_down(buf, suite);

@@ -595,7 +595,7 @@ static void pana_client_state_machine_func(sec_suite_t *suite)
                     case TLS_KEY_CHANGE:
                         //Print Handshake message
                         tls_prepare_change_chipher_spec(suite);
-                        tls_build_client_change_chipher_suite_finnish(buf, suite);
+                        tls_build_client_change_chipher_suite_finish(buf, suite);
                         pana_eap_down(buf, suite);
                         break;
 

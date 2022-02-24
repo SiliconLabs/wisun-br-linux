@@ -736,7 +736,7 @@ uint8_t *tls_build_change_chipher_suite_finish_msg(uint8_t *ptr, tls_session_t *
     return ptr;
 }
 
-void tls_build_client_change_chipher_suite_finnish(buffer_t *buf, sec_suite_t *tls_suite)
+void tls_build_client_change_chipher_suite_finish(buffer_t *buf, sec_suite_t *tls_suite)
 {
     uint8_t *ptr;
     buffer_data_clear(buf);
