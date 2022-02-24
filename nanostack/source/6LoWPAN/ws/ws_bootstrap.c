@@ -579,7 +579,7 @@ void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, 
     cur->ws_info->hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 
-static uint8_t ws_bootstrap_generate_exluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint32_t *selected_channel_mask, const uint32_t *global_channel_mask, uint16_t number_of_channels)
+static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint32_t *selected_channel_mask, const uint32_t *global_channel_mask, uint16_t number_of_channels)
 {
     bool active_range = false;
 
@@ -652,7 +652,7 @@ void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
     }
     //Update Exluded channels
-    cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_exluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
+    cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
 }
 
 static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
