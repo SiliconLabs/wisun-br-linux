@@ -202,9 +202,9 @@ add_executable(wsbrd
     nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
     # Excluded nanostack/source/security/TLS
     nanostack/source/service_libs/blacklist/blacklist.c
-    nanostack/source/service_libs/CCM_lib/ccm_security.c
-    nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-    # Excluded nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls.c
+    nanostack/source/service_libs/ccm/ccm_security.c
+    nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
+    # Excluded nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls.c
     nanostack/source/service_libs/etx/etx.c
     nanostack/source/service_libs/fnv_hash/fnv_hash.c
     nanostack/source/service_libs/hmac/hmac_md.c
@@ -444,9 +444,9 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
         # Excluded nanostack/source/security/TLS
         nanostack/source/service_libs/blacklist/blacklist.c
-        nanostack/source/service_libs/CCM_lib/ccm_security.c
-        nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
-        # Excluded nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls.c
+        nanostack/source/service_libs/ccm/ccm_security.c
+        nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
+        # Excluded nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls.c
         nanostack/source/service_libs/etx/etx.c
         nanostack/source/service_libs/fnv_hash/fnv_hash.c
         nanostack/source/service_libs/hmac/hmac_md.c
@@ -554,8 +554,8 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/mac/IEEE802_15_4/mac_timer.c
         nanostack/source/mac/IEEE802_15_4/sw_mac.c
         nanostack/source/mac/rf_driver_storage.c
-        nanostack/source/service_libs/CCM_lib/ccm_security.c
-        nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
+        nanostack/source/service_libs/ccm/ccm_security.c
+        nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
         nanostack/source/service_libs/fhss/channel_functions.c
         nanostack/source/service_libs/fhss/channel_list.c
         nanostack/source/service_libs/fhss/fhss_common.c

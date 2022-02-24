@@ -140,7 +140,7 @@ SRCS += \
 	source/security/PANA/pana_server.c \
 	source/security/TLS/tls_lib.c \
 	source/security/TLS/tls_ccm_crypt.c \
-	source/service_libs/CCM_lib/ccm_security.c \
+	source/service_libs/ccm/ccm_security.c \
 	source/service_libs/fhss/fhss_channel.c \
 	source/service_libs/fhss/fhss_configuration_interface.c \
 	source/service_libs/fhss/fhss_statistics.c \
@@ -225,7 +225,7 @@ SRCS += \
 	source/service_libs/mdns/fnet/fnet_stack/services/mdns/fnet_mdns.c \
 	source/service_libs/mdns/fnet/fnet_stack/services/poll/fnet_poll.c \
 	source/service_libs/mdns/fnet/fnet_stack/stack/fnet_stdlib.c \
-	source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c \
+	source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c \
 
 
 #LAST ONE(S) EXPERIMENTAL (aes_mbedtls_adapter.c last real)
