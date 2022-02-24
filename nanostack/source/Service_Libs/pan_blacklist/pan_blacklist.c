@@ -26,15 +26,15 @@
 #define TRACE_GROUP "pbl"
 static pan_blacklist_entry_t *pan_blacklist_entry_find(pan_blacklist_cache_s *list_ptr, uint16_t pan_id);
 static pan_blacklist_entry_t *pan_blacklist_entry_allocate(pan_blacklist_cache_s *list_ptr);
-static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data);
-static pan_coordinator_blacklist_entry_t *pan_coordinator_blacklist_entry_allocate(pan_coordinator_blaclist_cache_s *list_ptr);
+static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pan_coordinator_blacklist_cache_s *list_ptr, uint8_t *compare_data);
+static pan_coordinator_blacklist_entry_t *pan_coordinator_blacklist_entry_allocate(pan_coordinator_blacklist_cache_s *list_ptr);
 
 void pan_blacklist_cache_init(pan_blacklist_cache_s *blacklist_cache)
 {
     ns_list_init(&blacklist_cache->head);
 }
 
-void pan_coordinator_blacklist_cache_init(pan_coordinator_blaclist_cache_s *blacklist_cache)
+void pan_coordinator_blacklist_cache_init(pan_coordinator_blacklist_cache_s *blacklist_cache)
 {
     ns_list_init(&blacklist_cache->head);
 }
@@ -53,7 +53,7 @@ void pan_blacklist_pan_set(pan_blacklist_cache_s *list_ptr, uint16_t panid, uint
     }
 }
 
-void pan_cordinator_blacklist_pan_set(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *cordinator_data, uint16_t timeout)
+void pan_cordinator_blacklist_pan_set(pan_coordinator_blacklist_cache_s *list_ptr, uint8_t *cordinator_data, uint16_t timeout)
 {
     pan_coordinator_blacklist_entry_t *entry = pan_cordinator_blacklist_entry_find(list_ptr, cordinator_data);
     if (!entry) {
@@ -79,7 +79,7 @@ void pan_blacklist_time_update(pan_blacklist_cache_s *list_ptr, uint16_t time_up
     }
 }
 
-void pan_coordinator_blacklist_time_update(pan_coordinator_blaclist_cache_s *list_ptr, uint16_t time_update_in_seconds)
+void pan_coordinator_blacklist_time_update(pan_coordinator_blacklist_cache_s *list_ptr, uint16_t time_update_in_seconds)
 {
     ns_list_foreach_safe(pan_coordinator_blacklist_entry_t, cur_ptr, &list_ptr->head) {
         if (cur_ptr->timeout_in_seconds > time_update_in_seconds) {
@@ -91,7 +91,7 @@ void pan_coordinator_blacklist_time_update(pan_coordinator_blaclist_cache_s *lis
     }
 }
 
-void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr)
+void pan_coordinator_blacklist_free(pan_coordinator_blacklist_cache_s *list_ptr)
 {
     ns_list_foreach_safe(pan_coordinator_blacklist_entry_t, cur_ptr, &list_ptr->head) {
         ns_list_remove(&list_ptr->head, cur_ptr);
@@ -107,7 +107,7 @@ bool pan_blacklist_filter(pan_blacklist_cache_s *list_ptr, uint16_t panid)
     return false;
 }
 
-bool pan_cordinator_blacklist_filter(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data)
+bool pan_cordinator_blacklist_filter(pan_coordinator_blacklist_cache_s *list_ptr, uint8_t *compare_data)
 {
     if (pan_cordinator_blacklist_entry_find(list_ptr, compare_data)) {
         return true;
@@ -136,7 +136,7 @@ static pan_blacklist_entry_t *pan_blacklist_entry_allocate(pan_blacklist_cache_s
     return entry;
 }
 
-static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *compare_data)
+static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pan_coordinator_blacklist_cache_s *list_ptr, uint8_t *compare_data)
 {
     ns_list_foreach(pan_coordinator_blacklist_entry_t, cur_ptr, &list_ptr->head) {
         if (memcmp(cur_ptr->coordinator_pan_address, compare_data, 10) == 0) {
@@ -146,7 +146,7 @@ static pan_coordinator_blacklist_entry_t *pan_cordinator_blacklist_entry_find(pa
     return NULL;
 }
 
-static pan_coordinator_blacklist_entry_t *pan_coordinator_blacklist_entry_allocate(pan_coordinator_blaclist_cache_s *list_ptr)
+static pan_coordinator_blacklist_entry_t *pan_coordinator_blacklist_entry_allocate(pan_coordinator_blacklist_cache_s *list_ptr)
 {
     pan_coordinator_blacklist_entry_t *entry = ns_dyn_mem_alloc(sizeof(pan_coordinator_blacklist_entry_t));
     if (entry) {

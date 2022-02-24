@@ -452,7 +452,7 @@ struct protocol_interface_info_entry {
     struct red_info_s *llc_eapol_random_early_detection;
     neigh_cache_s neigh_cache;
     pan_blacklist_cache_s pan_blacklist_cache;
-    pan_coordinator_blaclist_cache_s pan_cordinator_black_list;
+    pan_coordinator_blacklist_cache_s pan_cordinator_black_list;
 #ifdef HAVE_THREAD
     struct thread_info_s *thread_info;
 #endif
