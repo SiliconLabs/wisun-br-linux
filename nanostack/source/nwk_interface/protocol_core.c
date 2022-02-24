@@ -82,7 +82,7 @@
 #include "service_libs/load_balance/load_balance_api.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "service_libs/etx/etx.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 
 #include "mac_api.h"
 #include "ethernet_mac_api.h"

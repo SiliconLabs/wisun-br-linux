@@ -144,17 +144,17 @@ add_executable(wsbrd
     nanostack/source/libdhcpv6/libdhcpv6.c
     nanostack/source/libdhcpv6/libdhcpv6_server.c
     nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
-    nanostack/source/libNET/src/net_short_address_extension.c
-    nanostack/source/libNET/src/net_dns.c
-    nanostack/source/libNET/src/multicast_api.c
-    nanostack/source/libNET/src/net_6lowpan_parameter_api.c
-    # nanostack/source/libNET/src/net_test.c
-    nanostack/source/libNET/src/net_rpl.c
-    nanostack/source/libNET/src/ns_net.c
-    nanostack/source/libNET/src/socket_api.c
-    nanostack/source/libNET/src/net_ipv6.c
-    # Excluded nanostack/source/libNET/src/net_mle.c
-    nanostack/source/libNET/src/net_load_balance.c
+    nanostack/source/net_lib/src/net_short_address_extension.c
+    nanostack/source/net_lib/src/net_dns.c
+    nanostack/source/net_lib/src/multicast_api.c
+    nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
+    # nanostack/source/net_lib/src/net_test.c
+    nanostack/source/net_lib/src/net_rpl.c
+    nanostack/source/net_lib/src/ns_net.c
+    nanostack/source/net_lib/src/socket_api.c
+    nanostack/source/net_lib/src/net_ipv6.c
+    # Excluded nanostack/source/net_lib/src/net_mle.c
+    nanostack/source/net_lib/src/net_load_balance.c
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/mac/serial
@@ -386,17 +386,17 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/libdhcpv6/libdhcpv6.c
         nanostack/source/libdhcpv6/libdhcpv6_server.c
         nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
-        nanostack/source/libNET/src/net_short_address_extension.c
-        nanostack/source/libNET/src/net_dns.c
-        nanostack/source/libNET/src/multicast_api.c
-        nanostack/source/libNET/src/net_6lowpan_parameter_api.c
-        # nanostack/source/libNET/src/net_test.c
-        nanostack/source/libNET/src/net_rpl.c
-        nanostack/source/libNET/src/ns_net.c
-        nanostack/source/libNET/src/socket_api.c
-        nanostack/source/libNET/src/net_ipv6.c
-        # Excluded nanostack/source/libNET/src/net_mle.c
-        nanostack/source/libNET/src/net_load_balance.c
+        nanostack/source/net_lib/src/net_short_address_extension.c
+        nanostack/source/net_lib/src/net_dns.c
+        nanostack/source/net_lib/src/multicast_api.c
+        nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
+        # nanostack/source/net_lib/src/net_test.c
+        nanostack/source/net_lib/src/net_rpl.c
+        nanostack/source/net_lib/src/ns_net.c
+        nanostack/source/net_lib/src/socket_api.c
+        nanostack/source/net_lib/src/net_ipv6.c
+        # Excluded nanostack/source/net_lib/src/net_mle.c
+        nanostack/source/net_lib/src/net_load_balance.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded nanostack/source/mac/serial

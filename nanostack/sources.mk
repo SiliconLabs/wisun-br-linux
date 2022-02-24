@@ -65,16 +65,16 @@ SRCS += \
 	source/core/ns_socket.c \
 	source/ipv6_stack/ipv6_routing_table.c \
 	source/ipv6_stack/protocol_ipv6.c \
-	source/libNET/src/net_6lowpan_parameter_api.c \
-	source/libNET/src/net_ipv6.c \
-	source/libNET/src/net_test.c \
-	source/libNET/src/net_mle.c \
-	source/libNET/src/net_rpl.c \
-	source/libNET/src/net_load_balance.c \
-	source/libNET/src/net_dns.c \
-	source/libNET/src/ns_net.c \
-	source/libNET/src/socket_api.c \
-	source/libNET/src/multicast_api.c \
+	source/net_lib/src/net_6lowpan_parameter_api.c \
+	source/net_lib/src/net_ipv6.c \
+	source/net_lib/src/net_test.c \
+	source/net_lib/src/net_mle.c \
+	source/net_lib/src/net_rpl.c \
+	source/net_lib/src/net_load_balance.c \
+	source/net_lib/src/net_dns.c \
+	source/net_lib/src/ns_net.c \
+	source/net_lib/src/socket_api.c \
+	source/net_lib/src/multicast_api.c \
 	source/mac/rf_driver_storage.c \
 	source/mac/IEEE802_15_4/mac_header_helper_functions.c \
 	source/mac/IEEE802_15_4/mac_indirect_data.c \

@@ -49,7 +49,7 @@
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6_vendordata.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 #include "platform/os_whiteboard.h"
 
 #include "ws_bbr_api.h"

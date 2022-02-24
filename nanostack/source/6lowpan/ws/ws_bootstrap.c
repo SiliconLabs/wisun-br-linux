@@ -83,7 +83,7 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
 #include "6lowpan/ws/ws_eapol_relay.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 
 #define TRACE_GROUP "wsbs"

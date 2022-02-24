@@ -24,7 +24,7 @@
 #include "nwk_interface/Include/protocol.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 #define TRACE_GROUP "Ndns"
 
 

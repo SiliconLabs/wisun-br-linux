@@ -46,7 +46,7 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 
 #define TRACE_GROUP "icmp"
 

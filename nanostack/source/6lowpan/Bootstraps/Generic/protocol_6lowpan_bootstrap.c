@@ -68,7 +68,7 @@
 #include "6lowpan/MAC/beacon_handler.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"
-#include "libNET/src/net_load_balance_internal.h"
+#include "net_lib/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/NVM/nwk_nvm.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

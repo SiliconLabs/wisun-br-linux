@@ -61,7 +61,7 @@
 #include "security/Common/sec_lib_definitions.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "libNET/src/net_dns_internal.h"
+#include "net_lib/src/net_dns_internal.h"
 #include "net_thread_test.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_routing.h"
