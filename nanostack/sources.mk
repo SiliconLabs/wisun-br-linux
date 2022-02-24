@@ -107,39 +107,39 @@ SRCS += \
 	source/RPL/rpl_of0.c \
 	source/RPL/rpl_mrhof.c \
 	source/RPL/rpl_policy.c \
-	source/Security/Common/security_lib.c \
-	source/Security/eapol/eapol_helper.c \
-	source/Security/eapol/kde_helper.c \
-	source/Security/kmp/kmp_api.c \
-	source/Security/kmp/kmp_addr.c \
-	source/Security/kmp/kmp_eapol_pdu_if.c \
-	source/Security/kmp/kmp_socket_if.c \
-	source/Security/protocols/sec_prot_lib.c \
-	source/Security/protocols/sec_prot_keys.c \
-	source/Security/protocols/sec_prot_certs.c \
-	source/Security/protocols/key_sec_prot/key_sec_prot.c \
-	source/Security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c \
-	source/Security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c \
-	source/Security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c \
-	source/Security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c \
-	source/Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c \
-	source/Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c \
-	source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c \
-	source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c \
-	source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c \
-	source/Security/protocols/radius_sec_prot/avp_helper.c \
-	source/Security/protocols/msg_sec_prot/msg_sec_prot.c \
-	source/Security/protocols/tls_sec_prot/tls_sec_prot.c \
-	source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c \
-	source/Security/PANA/eap_protocol.c \
-	source/Security/PANA/pana.c \
-	source/Security/PANA/pana_avp.c \
-	source/Security/PANA/pana_client.c \
-	source/Security/PANA/pana_eap_header.c \
-	source/Security/PANA/pana_header.c \
-	source/Security/PANA/pana_server.c \
-	source/Security/TLS/tls_lib.c \
-	source/Security/TLS/tls_ccm_crypt.c \
+	source/security/Common/security_lib.c \
+	source/security/eapol/eapol_helper.c \
+	source/security/eapol/kde_helper.c \
+	source/security/kmp/kmp_api.c \
+	source/security/kmp/kmp_addr.c \
+	source/security/kmp/kmp_eapol_pdu_if.c \
+	source/security/kmp/kmp_socket_if.c \
+	source/security/protocols/sec_prot_lib.c \
+	source/security/protocols/sec_prot_keys.c \
+	source/security/protocols/sec_prot_certs.c \
+	source/security/protocols/key_sec_prot/key_sec_prot.c \
+	source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c \
+	source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c \
+	source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c \
+	source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c \
+	source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c \
+	source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c \
+	source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c \
+	source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c \
+	source/security/protocols/radius_sec_prot/radius_client_sec_prot.c \
+	source/security/protocols/radius_sec_prot/avp_helper.c \
+	source/security/protocols/msg_sec_prot/msg_sec_prot.c \
+	source/security/protocols/tls_sec_prot/tls_sec_prot.c \
+	source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c \
+	source/security/PANA/eap_protocol.c \
+	source/security/PANA/pana.c \
+	source/security/PANA/pana_avp.c \
+	source/security/PANA/pana_client.c \
+	source/security/PANA/pana_eap_header.c \
+	source/security/PANA/pana_header.c \
+	source/security/PANA/pana_server.c \
+	source/security/TLS/tls_lib.c \
+	source/security/TLS/tls_ccm_crypt.c \
 	source/Service_Libs/CCM_lib/ccm_security.c \
 	source/Service_Libs/fhss/fhss_channel.c \
 	source/Service_Libs/fhss/fhss_configuration_interface.c \

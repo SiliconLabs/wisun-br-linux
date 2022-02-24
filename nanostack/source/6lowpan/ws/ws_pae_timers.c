@@ -26,7 +26,7 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "Security/protocols/sec_prot_cfg.h"
+#include "security/protocols/sec_prot_cfg.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 
 #ifdef HAVE_WS

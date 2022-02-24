@@ -21,7 +21,7 @@
 #include "nsconfig.h"
 #include "net_interface.h"
 
-#include "Security/protocols/sec_prot_keys.h"
+#include "security/protocols/sec_prot_keys.h"
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
 
 #ifdef HAVE_WS

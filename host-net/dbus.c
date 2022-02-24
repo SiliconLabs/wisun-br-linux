@@ -11,7 +11,7 @@
 #include "nanostack/source/6lowpan/ws/ws_pae_controller.h"
 #include "nanostack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "nanostack/source/NWK_INTERFACE/Include/protocol.h"
-#include "nanostack/source/Security/protocols/sec_prot_keys.h"
+#include "nanostack/source/security/protocols/sec_prot_keys.h"
 #include "nanostack/source/Common_Protocols/icmpv6.h"
 
 #include "nanostack/ws_bbr_api.h"

@@ -34,10 +34,10 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "Security/TLS/tls_lib.h"
-#include "Security/Common/sec_lib.h"
+#include "security/TLS/tls_lib.h"
+#include "security/Common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "Security/PANA/pana.h"
+#include "security/PANA/pana.h"
 #include "ccmLIB.h"
 #endif
 #include "6lowpan/ND/nd_router_object.h"

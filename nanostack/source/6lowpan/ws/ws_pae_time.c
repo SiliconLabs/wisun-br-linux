@@ -23,8 +23,8 @@
 #include "ns_time_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_pae_time.h"
-#include "Security/protocols/sec_prot_certs.h"
-#include "Security/protocols/sec_prot_keys.h"
+#include "security/protocols/sec_prot_certs.h"
+#include "security/protocols/sec_prot_keys.h"
 #include "Service_Libs/utils/ns_time.h"
 
 #ifdef HAVE_WS

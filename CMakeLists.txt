@@ -175,32 +175,32 @@ add_executable(wsbrd
     nanostack/source/RPL/rpl_of0.c
     nanostack/source/RPL/rpl_policy.c
     nanostack/source/RPL/rpl_upward.c
-    nanostack/source/Security/eapol/eapol_helper.c
-    nanostack/source/Security/eapol/kde_helper.c
-    nanostack/source/Security/kmp/kmp_addr.c
-    nanostack/source/Security/kmp/kmp_api.c
-    nanostack/source/Security/kmp/kmp_eapol_pdu_if.c
-    nanostack/source/Security/kmp/kmp_socket_if.c
-    # Excluded nanostack/source/Security/PANA
-    nanostack/source/Security/PANA/pana_eap_header.c
-    nanostack/source/Security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-    nanostack/source/Security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
-    nanostack/source/Security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-    nanostack/source/Security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
-    nanostack/source/Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-    nanostack/source/Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
-    nanostack/source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-    nanostack/source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
-    nanostack/source/Security/protocols/key_sec_prot/key_sec_prot.c
-    nanostack/source/Security/protocols/msg_sec_prot/msg_sec_prot.c
-    nanostack/source/Security/protocols/radius_sec_prot/avp_helper.c
-    nanostack/source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c
-    nanostack/source/Security/protocols/sec_prot_certs.c
-    nanostack/source/Security/protocols/sec_prot_keys.c
-    nanostack/source/Security/protocols/sec_prot_lib.c
-    nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot.c
-    nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-    # Excluded nanostack/source/Security/TLS
+    nanostack/source/security/eapol/eapol_helper.c
+    nanostack/source/security/eapol/kde_helper.c
+    nanostack/source/security/kmp/kmp_addr.c
+    nanostack/source/security/kmp/kmp_api.c
+    nanostack/source/security/kmp/kmp_eapol_pdu_if.c
+    nanostack/source/security/kmp/kmp_socket_if.c
+    # Excluded nanostack/source/security/PANA
+    nanostack/source/security/PANA/pana_eap_header.c
+    nanostack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
+    nanostack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
+    nanostack/source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
+    nanostack/source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
+    nanostack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
+    nanostack/source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
+    nanostack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
+    nanostack/source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
+    nanostack/source/security/protocols/key_sec_prot/key_sec_prot.c
+    nanostack/source/security/protocols/msg_sec_prot/msg_sec_prot.c
+    nanostack/source/security/protocols/radius_sec_prot/avp_helper.c
+    nanostack/source/security/protocols/radius_sec_prot/radius_client_sec_prot.c
+    nanostack/source/security/protocols/sec_prot_certs.c
+    nanostack/source/security/protocols/sec_prot_keys.c
+    nanostack/source/security/protocols/sec_prot_lib.c
+    nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
+    nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
+    # Excluded nanostack/source/security/TLS
     nanostack/source/Service_Libs/blacklist/blacklist.c
     nanostack/source/Service_Libs/CCM_lib/ccm_security.c
     nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
@@ -417,32 +417,32 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/RPL/rpl_of0.c
         nanostack/source/RPL/rpl_policy.c
         nanostack/source/RPL/rpl_upward.c
-        nanostack/source/Security/eapol/eapol_helper.c
-        nanostack/source/Security/eapol/kde_helper.c
-        nanostack/source/Security/kmp/kmp_addr.c
-        nanostack/source/Security/kmp/kmp_api.c
-        nanostack/source/Security/kmp/kmp_eapol_pdu_if.c
-        nanostack/source/Security/kmp/kmp_socket_if.c
-        # Excluded nanostack/source/Security/PANA
-        nanostack/source/Security/PANA/pana_eap_header.c
-        nanostack/source/Security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-        nanostack/source/Security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
-        nanostack/source/Security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-        nanostack/source/Security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
-        nanostack/source/Security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-        nanostack/source/Security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
-        nanostack/source/Security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-        nanostack/source/Security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
-        nanostack/source/Security/protocols/key_sec_prot/key_sec_prot.c
-        nanostack/source/Security/protocols/msg_sec_prot/msg_sec_prot.c
-        nanostack/source/Security/protocols/radius_sec_prot/avp_helper.c
-        nanostack/source/Security/protocols/radius_sec_prot/radius_client_sec_prot.c
-        nanostack/source/Security/protocols/sec_prot_certs.c
-        nanostack/source/Security/protocols/sec_prot_keys.c
-        nanostack/source/Security/protocols/sec_prot_lib.c
-        nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot.c
-        nanostack/source/Security/protocols/tls_sec_prot/tls_sec_prot_lib.c
-        # Excluded nanostack/source/Security/TLS
+        nanostack/source/security/eapol/eapol_helper.c
+        nanostack/source/security/eapol/kde_helper.c
+        nanostack/source/security/kmp/kmp_addr.c
+        nanostack/source/security/kmp/kmp_api.c
+        nanostack/source/security/kmp/kmp_eapol_pdu_if.c
+        nanostack/source/security/kmp/kmp_socket_if.c
+        # Excluded nanostack/source/security/PANA
+        nanostack/source/security/PANA/pana_eap_header.c
+        nanostack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
+        nanostack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
+        nanostack/source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
+        nanostack/source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
+        nanostack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
+        nanostack/source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
+        nanostack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
+        nanostack/source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
+        nanostack/source/security/protocols/key_sec_prot/key_sec_prot.c
+        nanostack/source/security/protocols/msg_sec_prot/msg_sec_prot.c
+        nanostack/source/security/protocols/radius_sec_prot/avp_helper.c
+        nanostack/source/security/protocols/radius_sec_prot/radius_client_sec_prot.c
+        nanostack/source/security/protocols/sec_prot_certs.c
+        nanostack/source/security/protocols/sec_prot_keys.c
+        nanostack/source/security/protocols/sec_prot_lib.c
+        nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot.c
+        nanostack/source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c
+        # Excluded nanostack/source/security/TLS
         nanostack/source/Service_Libs/blacklist/blacklist.c
         nanostack/source/Service_Libs/CCM_lib/ccm_security.c
         nanostack/source/Service_Libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
