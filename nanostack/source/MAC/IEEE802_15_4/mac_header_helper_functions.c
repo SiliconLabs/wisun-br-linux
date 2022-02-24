@@ -707,7 +707,7 @@ bool mac_payload_information_elements_parse(mac_pre_parsed_frame_t *buffer)
 }
 
 
-static uint8_t *mac_header_ie_terimate(uint8_t *ptr, uint8_t type)
+static uint8_t *mac_header_ie_terminate(uint8_t *ptr, uint8_t type)
 {
     uint16_t ie_dummy = 0;
     ie_dummy |= (type << 7);
@@ -716,7 +716,7 @@ static uint8_t *mac_header_ie_terimate(uint8_t *ptr, uint8_t type)
 
 }
 
-static uint8_t *mac_payload_ie_terimate(uint8_t *ptr)
+static uint8_t *mac_payload_ie_terminate(uint8_t *ptr)
 {
     uint16_t ie_dummy = 0;
     ie_dummy |= (MAC_PAYLOAD_TERMINATION_IE_GROUP_ID << 11);
@@ -767,16 +767,16 @@ static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_
                 //No termination needed
                 return ptr;
             } else if (!buffer->payloadsIeLength && buffer->mac_payload_length) {
-                return mac_header_ie_terimate(ptr, MAC_HEADER_TERMINATION2_IE_ID);
+                return mac_header_ie_terminate(ptr, MAC_HEADER_TERMINATION2_IE_ID);
             }
         }
         //Add Header Termination
-        ptr = mac_header_ie_terimate(ptr, MAC_HEADER_TERMINATION1_IE_ID);
+        ptr = mac_header_ie_terminate(ptr, MAC_HEADER_TERMINATION1_IE_ID);
 
         if (buffer->payloadsIeLength) {
             ptr = mac_write_ie_vector_list(buffer->ie_elements.payloadIeVectorList, buffer->ie_elements.payloadIovLength, ptr);
             if (buffer->mac_payload_length) {
-                ptr = mac_payload_ie_terimate(ptr);
+                ptr = mac_payload_ie_terminate(ptr);
             }
         }
     }
