@@ -2116,17 +2116,17 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
 
     switch (options->option_type) {
         case DHCPV6_OPTION_VENDOR_SPECIFIC_INFO:
-            if (options->option.vendor_spesific.enterprise_number != ARM_ENTERPRISE_NUMBER) {
+            if (options->option.vendor_specific.enterprise_number != ARM_ENTERPRISE_NUMBER) {
                 break;
             }
-            while (options->option.vendor_spesific.data_length) {
+            while (options->option.vendor_specific.data_length) {
                 uint16_t option_type;
                 char *domain;
                 uint8_t *address;
                 uint16_t option_len;
-                option_len = net_dns_option_vendor_option_data_get_next(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &option_type);
+                option_len = net_dns_option_vendor_option_data_get_next(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &option_type);
                 tr_debug("DHCP vendor specific data type:%u length %d", option_type, option_len);
-                //tr_debug("DHCP vendor specific data %s", trace_array(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length));
+                //tr_debug("DHCP vendor specific data %s", trace_array(options->option.vendor_specific.data, options->option.vendor_specific.data_length));
 
                 if (option_len == 0) {
                     // Option fields were corrupted
@@ -2136,7 +2136,7 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                     // Process ARM DNS query result
                     domain = NULL;
                     address = NULL;
-                    if (net_dns_option_vendor_option_data_dns_query_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &address, &domain) > 0 ||
+                    if (net_dns_option_vendor_option_data_dns_query_read(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &address, &domain) > 0 ||
                             domain || address) {
                         // Valid ARM DNS query entry
                         net_dns_query_result_set(interface, address, domain, server_info->life_time);
@@ -2144,7 +2144,7 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                 }
                 if (option_type == ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION) {
                     timezone_info_t time_configuration;
-                    if (net_vendor_option_time_configuration_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &time_configuration.timestamp, &time_configuration.timezone, &time_configuration.deviation, &time_configuration.status)) {
+                    if (net_vendor_option_time_configuration_read(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &time_configuration.timestamp, &time_configuration.timezone, &time_configuration.deviation, &time_configuration.status)) {
                         int ret = ns_time_system_timezone_info_notify(&time_configuration);
                         tr_info("Network Time configuration %s status:%"PRIu16" time stamp: %"PRIu64" deviation: %"PRId16" Time Zone: %"PRId16, ret == 0 ? "notified" : "notify FAILED", time_configuration.status, time_configuration.timestamp, time_configuration.deviation, time_configuration.timezone);
                     }
@@ -2158,7 +2158,7 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                     //     set the time for server time + *.5 RTT
                     int32_t era;
                     uint32_t offset;
-                    if (net_vendor_option_current_time_read(options->option.vendor_spesific.data, options->option.vendor_spesific.data_length, &era, &offset, NULL)) {
+                    if (net_vendor_option_current_time_read(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &era, &offset, NULL)) {
                         uint64_t current_time;
                         uint64_t network_time = (era * (uint64_t)(4294967296)) + offset - 2208988800; //Convert to First day of Unix (1 Jan 1970)
 
@@ -2187,8 +2187,8 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                     }
                 }
 
-                options->option.vendor_spesific.data_length -= option_len;
-                options->option.vendor_spesific.data += option_len;
+                options->option.vendor_specific.data_length -= option_len;
+                options->option.vendor_specific.data += option_len;
             }
             break;
 

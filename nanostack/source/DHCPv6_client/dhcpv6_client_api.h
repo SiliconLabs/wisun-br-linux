@@ -104,7 +104,7 @@ typedef struct dhcp_option_notify_s {
     uint8_t option_type;
     union {
         dhcp_gen_option_t generic;
-        dhcp_vendor_spesific_option_t vendor_spesific;
+        dhcp_vendor_spesific_option_t vendor_specific;
     } option;
 } dhcp_option_notify_t;
 

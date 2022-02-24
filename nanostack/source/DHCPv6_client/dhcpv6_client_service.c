@@ -278,12 +278,12 @@ static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp
         if ((type == DHCPV6_OPTION_VENDOR_SPECIFIC_INFO || type == DHCPV6_OPTION_VENDOR_CLASS) && data_len >= 4) {
             valid_optional_options = true;
             //Parse enterprise number
-            dhcp_option.option.vendor_spesific.enterprise_number = common_read_32_bit(ptr);
+            dhcp_option.option.vendor_specific.enterprise_number = common_read_32_bit(ptr);
             ptr += 4;
             data_len -= 4;
             length -= 4;
-            dhcp_option.option.vendor_spesific.data = ptr;
-            dhcp_option.option.vendor_spesific.data_length = length;
+            dhcp_option.option.vendor_specific.data = ptr;
+            dhcp_option.option.vendor_specific.data_length = length;
 
 
         } else if (type == DHCPV6_OPTION_DNS_SERVERS && (length >= 16 && ((length % 16) == 0))) {
