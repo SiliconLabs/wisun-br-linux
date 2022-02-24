@@ -2434,7 +2434,7 @@ static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entr
 }
 
 
-bool protocol_6lowpan_bootsrap_link_set(protocol_interface_info_entry_t *interface, mlme_pan_descriptor_t *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length)
+bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interface, mlme_pan_descriptor_t *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length)
 {
     mlme_start_t start_req;
     memset(&start_req, 0, sizeof(mlme_start_t));
@@ -2548,7 +2548,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
 
     bool link_start_ok = false;
     if (is_border_router == false) {
-        link_start_ok = protocol_6lowpan_bootsrap_link_set(interface, best->pan_descriptor, best->beacon_payload, best->beacon_length);
+        link_start_ok = protocol_6lowpan_bootstrap_link_set(interface, best->pan_descriptor, best->beacon_payload, best->beacon_length);
     }
 
     mac_helper_free_scan_confirm(&interface->mac_parameters->nwk_scan_params);

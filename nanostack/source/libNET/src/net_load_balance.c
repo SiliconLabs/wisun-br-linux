@@ -92,7 +92,7 @@ static bool net_load_balance_network_switch_req(void *load_balance_user, struct 
         return false;
     }
 
-    if (!protocol_6lowpan_bootsrap_link_set(interface, PANDescriptor, beacon_payload, beacon_payload_length)) {
+    if (!protocol_6lowpan_bootstrap_link_set(interface, PANDescriptor, beacon_payload, beacon_payload_length)) {
         return false;
     }
 
