@@ -250,6 +250,9 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
             } else if (hopping_schdule->channel_plan_id == 2) {
                 hopping_schdule->ch0_freq = 9024;
                 hopping_schdule->channel_spacing = CHANNEL_SPACING_400;
+            } else if (hopping_schdule->channel_plan_id == 4) {
+                hopping_schdule->ch0_freq = 9028;
+                hopping_schdule->channel_spacing = CHANNEL_SPACING_800;
             } else if (hopping_schdule->channel_plan_id == 5) {
                 hopping_schdule->ch0_freq = 9032;
                 hopping_schdule->channel_spacing = CHANNEL_SPACING_1200;
