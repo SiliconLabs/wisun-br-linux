@@ -75,7 +75,7 @@ uint8_t nwk_ready(nwk_interface_id id)
                 ret_val = 1;
             }
         } else {
-            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
                 ret_val =  1;
             }
         }

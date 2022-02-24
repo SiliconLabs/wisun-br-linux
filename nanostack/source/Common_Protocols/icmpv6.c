@@ -1225,7 +1225,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
 #ifdef HAVE_6LOWPAN_ROUTER
         case ICMPV6_TYPE_INFO_DAC:
             if (cur->nwk_id == IF_6LoWPAN) {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY) {
+                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) {
                     buf = nd_dac_handler(buf, cur);
                     break;
                 }

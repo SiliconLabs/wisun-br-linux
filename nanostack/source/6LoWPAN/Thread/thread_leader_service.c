@@ -1235,7 +1235,7 @@ static int thread_leader_service_leader_start(protocol_interface_info_entry_t *c
     cur->thread_info->rfc6775 = false;
     cur->thread_info->leader_private_data->leader_id_seq_timer = ID_SEQUENCE_PERIOD;
 
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     mac_helper_default_security_level_set(cur, SEC_ENC_MIC32);

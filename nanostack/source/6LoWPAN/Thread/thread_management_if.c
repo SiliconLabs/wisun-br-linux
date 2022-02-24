@@ -273,7 +273,7 @@ int8_t thread_node_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootst
     }
 
     cur->configure_flags |= INTERFACE_BOOTSTRAP_DEFINED;
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_MLE;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_MLE;
     rpl_control_remove_domain_from_interface(cur);
     //SET MAC key id mode 2 key and device
     thread_discover_key_descriptor_set(cur->mac_api, thread_discovery_key, THREAD_DISCOVERY_SECURITY_KEY_INDEX, THREAD_DISCOVERY_SECURITY_KEY_SOURCE, buffer.device_decription_table_size - 1);
@@ -903,7 +903,7 @@ int thread_management_node_init(
         cur->thread_info->requestFullNetworkData = true;
     }
 
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     cur->comm_status_ind_cb = thread_comm_status_indication_cb;
     return 0;

@@ -184,7 +184,7 @@ int8_t net_load_balance_create(int8_t interface_id, bool enable_periodic_beacon_
     interface_ptr->lb_api = lb_api;
 
     //Enable if
-    if ((interface_ptr->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+    if ((interface_ptr->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
         net_load_balance_internal_state_activate(interface_ptr, true);
     }
 

@@ -171,7 +171,7 @@ static void lowpan_adaptation_etx_update_cb(protocol_interface_info_entry_t *cur
         case MLME_NO_DATA:
         case MLME_SUCCESS:
             if (buf->link_specific.ieee802_15_4.requestAck) {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
                     bool success = false;
                     if (confirm->status == MLME_SUCCESS) {
                         success = true;
@@ -1687,7 +1687,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 
 static bool mcps_data_indication_neighbor_validate(protocol_interface_info_entry_t *cur, const sockaddr_t *addr)
 {
-    if (thread_info(cur) || ws_info(cur) || (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE)) {
+    if (thread_info(cur) || ws_info(cur) || (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE)) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
         if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
             return true;

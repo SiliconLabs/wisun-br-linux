@@ -198,10 +198,10 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
     // New network scan started old addresses not assumed valid anymore
     ws_bootstrap_ffn_ip_stack_addr_clear(cur);
 
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) != INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) != INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
         // we have sent bootstrap ready event and now
         // restarted discovery so bootstrap down event is sent
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE;
+        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
         ws_bootstrap_network_down(cur);
     }
 

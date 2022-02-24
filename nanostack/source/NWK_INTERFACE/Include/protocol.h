@@ -163,13 +163,13 @@ typedef enum {
     ARM_NWK_SNIFFER_MODE,
 } arm_nwk_interface_mode_e;
 
-#define INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY   1
-#define INTERFACE_NWK_BOOTSRAP_ACTIVE                   2
-#define INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION      4
+#define INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY   1
+#define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
+#define INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION      4
 #define INTERFACE_NWK_ACTIVE                            8
 #define INTERFACE_NWK_ROUTER_DEVICE                     16
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
-#define INTERFACE_NWK_BOOTSRAP_MLE                      128
+#define INTERFACE_NWK_BOOTSTRAP_MLE                      128
 
 struct nd_router;
 struct nd_router_setup;

@@ -352,7 +352,7 @@ static void pana_client_pna_handler(buffer_t *buf, pana_header_t *header, sec_su
             pana_auth_hash_calc(buffer_data_pointer(buf), buffer_data_length(buf), suite->pana_session.pana_auth_key);
             //memcpy(buf->dst_sa.address, buf->src_sa.address, 16);
             //buf->src_sa.addr_type = ADDR_NONE;
-            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
                 pana_set_agend_address(buf, true, suite);
             } else {
                 pana_set_agend_address(buf, false, suite);
@@ -935,7 +935,7 @@ int8_t pana_client_interface_init(int8_t interface_id, net_tls_cipher_e cipher_m
     cur->if_lowpan_security_params->pana_params->nwk_chipher_mode = cipher_mode;
     cur->if_lowpan_security_params->pana_params->psk_key_id = psk_key_id;
     cur->if_lowpan_security_params->pana_params->pana_client = 1;
-    cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
+    cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
 
     return 0;
@@ -1031,7 +1031,7 @@ static uint8_t pana_ping_notify_msg_generate(uint8_t key_req, sec_suite_t *suite
         if (suite->state == PANA_PING_REQ) {
             pana_set_agend_address(buf, false, suite);
         } else {
-            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
                 pana_set_agend_address(buf, true, suite);
             } else {
                 pana_set_agend_address(buf, false, suite);

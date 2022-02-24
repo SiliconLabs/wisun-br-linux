@@ -1309,7 +1309,7 @@ int8_t pana_server_interface_init(int8_t interface_id, net_tls_cipher_e cipher_m
         cur->if_lowpan_security_params->pana_params->nwk_chipher_mode = cipher_mode;
         cur->if_lowpan_security_params->pana_params->psk_key_id = 0;
         cur->if_lowpan_security_params->pana_params->pana_client = 0;
-        cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
+        cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
         cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     }
 
@@ -1643,7 +1643,7 @@ int8_t pana_server_restore_from_nvm(uint8_t *nvm_data, int8_t interface_id)
     cur->if_lowpan_security_params->pana_params->nwk_chipher_mode = cipher_mode;
     cur->if_lowpan_security_params->pana_params->psk_key_id = 0;//TODO?????
     cur->if_lowpan_security_params->pana_params->pana_client = 0;
-    cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
+    cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
 
     return 0;

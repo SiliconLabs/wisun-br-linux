@@ -93,14 +93,14 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         if (!thread_info(cur)) {
             mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 #ifndef NO_MLE
-            if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+            if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
 
                 blacklist_clear();
 
             }
 #endif
         }
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
             pana_reset_values(cur->mac_parameters->pan_id);
         }
 
@@ -127,7 +127,7 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
 
         cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
-        cur->lowpan_info &= ~(INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_ACTIVE);
+        cur->lowpan_info &= ~(INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE);
         cur->interface_mode = INTERFACE_IDLE;
         ret_val = 0;
     }
@@ -142,14 +142,14 @@ static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
         /* Change Idle-> Active */
         icmp_nd_routers_init();
         cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootsrap
-        cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY; //Clear Bind
+        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootsrap
+        cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY; //Clear Bind
         cur->bootstrap_state_machine_cnt = 2;
         //Possible mac_mlme_start_req(call)
         mac_helper_panid_set(cur, 0xffff);
         mac_helper_mac16_address_set(cur, 0xffff);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
             mac_helper_default_security_level_set(cur, SEC_NONE);
         }
         cur->interface_mode = INTERFACE_UP;

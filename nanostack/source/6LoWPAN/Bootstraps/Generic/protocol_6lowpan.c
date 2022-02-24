@@ -473,7 +473,7 @@ static int8_t  mle_set_link_priority(protocol_interface_info_entry_t *cur, const
 
 void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *cur, uint8_t *removed_priority, uint8_t *updated_priority)
 {
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
 #ifndef NO_MLE
         if (removed_priority) {
             mle_set_link_priority(cur, removed_priority, false);

@@ -1215,7 +1215,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
 int8_t arm_6lowpan_mle_service_ready_for_security_init(protocol_interface_info_entry_t *cur)
 {
     //Verify MLE Service
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
         //validate MLE service
         if (!mle_service_interface_registeration_validate(cur->id)) {
             //Register
@@ -1393,7 +1393,7 @@ static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_messa
     //Accept Only Link Reject
     if (mle_msg->message_type == MLE_COMMAND_REJECT) {
 
-        if ((interface->lowpan_info & (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) != (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) {
+        if ((interface->lowpan_info & (INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION)) != (INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION)) {
             return;
         }
 
@@ -1417,7 +1417,7 @@ static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_messa
 
 void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
 {
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
 
         mle_service_security_init(cur->id, cur->if_lowpan_security_params->security_level, cur->if_lowpan_security_params->mle_security_frame_counter,  NULL, protocol_6lowpan_mle_service_security_notify_cb);
         switch (cur->if_lowpan_security_params->nwk_security_mode) {
@@ -1440,14 +1440,14 @@ void arm_6lowpan_security_init_ifup(protocol_interface_info_entry_t *cur)
     switch (cur->if_lowpan_security_params->nwk_security_mode) {
 
         case NET_SEC_MODE_PANA_LINK_SECURITY:
-            cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
+            cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
             break;
 
         case NET_SEC_MODE_PSK_LINK_SECURITY:
             mac_helper_security_default_key_set(cur, cur->if_lowpan_security_params->psk_key_info.security_key, cur->if_lowpan_security_params->psk_key_info.key_id, MAC_KEY_ID_MODE_IDX);
         /* fall through */
         default:
-            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
             break;
     }
 }
@@ -1462,7 +1462,7 @@ static int8_t arm_6lowpan_bootstrap_up(protocol_interface_info_entry_t *cur)
     } else {
 
         //Verify MLE Service
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
             //validate MLE service
             if (!mle_service_interface_registeration_validate(cur->id)) {
                 //Register
@@ -1505,8 +1505,8 @@ void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
 {
     //Init 6lowpan Bootsrap
     icmp_nd_routers_init();
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE;
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
     bootstrap_next_state_kick(ER_SCAN, cur);
     mac_helper_mac16_address_set(cur, 0xffff);
 }
@@ -1570,7 +1570,7 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
         cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
         cur->interface_mode = INTERFACE_UP;
         cur->nwk_mode = ARM_NWK_RAW_PHY_MODE;
-        cur->lowpan_info |= (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY);
+        cur->lowpan_info |= (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY);
         cur->bootstrap_state_machine_cnt = 0;
         nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
 
@@ -1794,9 +1794,9 @@ bootstrap_finish_check:
 #endif
         cur->configure_flags |= INTERFACE_BOOTSTRAP_DEFINED;
         if (enable_mle_protocol) {
-            cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_MLE;
+            cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_MLE;
         } else {
-            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_MLE;
+            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_MLE;
         }
     }
 
@@ -1846,10 +1846,10 @@ void nwk_6lowpan_router_scan_state(protocol_interface_info_entry_t *cur)
 
 void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
         uint8_t bootstrap_ready = 0;
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
 
             if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
                 if (pana_ping_notify_msg_tx(cur->mac_parameters->pan_id) == 0) {
@@ -1859,7 +1859,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
                 }
 
             } else {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
 #ifndef NO_MLE
                     tr_debug("MLE Parent Advertisment");
                     if (protocol_6lowpan_mle_neigh_advertise(cur) == 0) {
@@ -1892,7 +1892,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
 
 void protocol_6lowpan_link_advertise_handle(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t tick)
 {
-    if ((cur_interface->lowpan_info & (INTERFACE_NWK_BOOTSRAP_MLE  | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_BOOTSRAP_MLE  | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+    if ((cur_interface->lowpan_info & (INTERFACE_NWK_BOOTSTRAP_MLE  | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_BOOTSTRAP_MLE  | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
 #ifndef NO_MLE
         if (cur->mle_advert_timer) {
             if (cur->mle_advert_timer > tick) {
@@ -1951,17 +1951,17 @@ void protocol_6lowpan_link_advertise_handle(nd_router_t *cur, protocol_interface
 
 static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
 {
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
+    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
         tr_debug("ND BS ready");
         bootstrap_next_state_kick(ER_BIND_COMP, cur);
         clear_power_state(ICMP_ACTIVE);
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
+        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
     } else {
         tr_debug("RE ND ready");
         clear_power_state(ICMP_ACTIVE);
         mac_data_poll_protocol_poll_mode_disable(cur);
         //TRIG MLE Challenge for Normal Host
-        if ((cur->lowpan_info & (INTERFACE_NWK_ROUTER_DEVICE | INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE | INTERFACE_NWK_BOOTSRAP_MLE)) == INTERFACE_NWK_BOOTSRAP_MLE) {
+        if ((cur->lowpan_info & (INTERFACE_NWK_ROUTER_DEVICE | INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE | INTERFACE_NWK_BOOTSTRAP_MLE)) == INTERFACE_NWK_BOOTSTRAP_MLE) {
             //TRIG Only Normal Host
 #ifndef NO_MLE
             //GET Cordinator MLE Entry
@@ -2010,7 +2010,7 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
             mle_timer = 155;
         }
     }
-    if (cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+    if (cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
         if (cur->mle_advert_timer == 0) {
             cur->mle_advert_timer = mle_timer;
             cur->mle_purge_timer = MLE_NEIGHBOR_PURGE_TIMER_TIMEOUT;
@@ -2051,7 +2051,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
     }
     switch (event) {
         case RPL_EVENT_DAO_DONE:
-            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
+            if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
                 bootstrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
                 clear_power_state(ICMP_ACTIVE);
             } else if (cur->nwk_bootstrap_state == ER_RPL_LOCAL_REPAIR) {
@@ -2064,7 +2064,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
             break;
 
         case RPL_EVENT_LOCAL_REPAIR_START:
-            if (!(cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
+            if (!(cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
                 tr_error("RPL Local repair started");
                 lowpan_bootstrap_pan_control(cur, false);
                 cur->bootstrap_state_machine_cnt = 0;
@@ -2393,10 +2393,10 @@ static void nwk_protocol_network_key_init_from_pana(protocol_interface_info_entr
 
 static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entry_t *cur)
 {
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
         mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
             nwk_protocol_network_key_init_from_pana(cur);
         } else {
             tr_debug("SET NO security");
@@ -2491,7 +2491,7 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
     }
 
     //Check first pana and then MLE and else start RS scan pahse
-    if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+    if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
 #ifdef PANA
         nwk_6lowpan_bootstrap_pana_authentication_start(interface);
         tr_debug("Pana auth");
@@ -2499,7 +2499,7 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
         bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
         return false;
 #endif
-    } else if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+    } else if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
         if (protocol_6lowpan_parent_link_req(interface) != 0) {
             bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
             return false;

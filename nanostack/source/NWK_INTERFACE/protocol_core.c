@@ -848,7 +848,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void
 uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = 0;
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) == 0) {
+    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) == 0) {
         if (cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
             ret_val = 1;
         }
@@ -1101,7 +1101,7 @@ static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur)
 {
     //Clear Bootsrap Active Bit allways
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ACTIVE;
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->bootstrap_state_machine_cnt = 0;
     nwk_net_event_post(posted_event, cur->net_start_tasklet, cur->id);
 

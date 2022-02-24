@@ -605,7 +605,7 @@ int thread_test_security_material_set(int8_t interface_id, bool enableSecurity, 
                 cur->thread_info->masterSecretMaterial.valid_Info = false;
             }
             if (ret_val == 0) {
-                cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+                cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
                 cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
             }
         }

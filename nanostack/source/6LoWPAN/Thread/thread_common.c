@@ -1029,7 +1029,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
     thread_lowpower_timer(cur, ticks);
     thread_nvm_store_seconds_timer(ticks);
 
-    if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+    if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
         nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
     }
 }

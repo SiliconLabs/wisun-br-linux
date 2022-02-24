@@ -290,7 +290,7 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
-        if ((cur->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+        if ((cur->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
             uint8_t *adr_ptr = protocol_6lowpan_nd_border_router_address_get(cur->nwk_id);
             if (adr_ptr) {
                 ret_val = 0;
@@ -947,7 +947,7 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
         cur->mac_parameters->mac_configured_sec_level = 0;
         cur->if_lowpan_security_params->security_level = 0;
         cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
-        cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+        cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
     } else {
         if (sec_level == 0 || sec_level > 7) {
             return -2;
@@ -962,7 +962,7 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
             }
             //SET PSK KEY
             cur->if_lowpan_security_params->psk_key_info = *psk_key_info;
-            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+            cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
             cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
         } else {
             if (!cur->if_lowpan_security_params->pana_params) {
@@ -972,7 +972,7 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
             if (!cur->if_lowpan_security_params->pana_params) {
                 return -2;
             }
-            cur->lowpan_info |= (INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION);
+            cur->lowpan_info |= (INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION);
         }
     }
     return 0;

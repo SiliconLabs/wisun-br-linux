@@ -634,7 +634,7 @@ int thread_configuration_mac_activate(protocol_interface_info_entry_t *cur, uint
 int thread_configuration_6lowpan_activate(protocol_interface_info_entry_t *cur)
 {
     tr_debug("6lowpan configure");
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION;
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION;
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     return 0;
 }
@@ -1165,7 +1165,7 @@ int thread_proxy_validate(int8_t interface_id, uint8_t *addrerss)
 void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
         cur->ip_multicast_as_mac_unicast_to_parent = false;
@@ -1542,8 +1542,8 @@ int thread_bootstrap_reset(protocol_interface_info_entry_t *cur)
 
     //Prepare start Again
 
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE; //Set Active Bootsrap
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY; //Clear Bind
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE; //Set Active Bootsrap
+    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY; //Clear Bind
     protocol_6lowpan_interface_common_init(cur);
     addr_interface_set_ll64(cur, NULL);
     thread_interface_up(cur);
@@ -1683,7 +1683,7 @@ void thread_bootstrap_routing_activate(protocol_interface_info_entry_t *cur)
 void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur)
 {
     cur->nwk_bootstrap_state = ER_MLE_ATTACH_READY;
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
     cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
     cur->bootstrap_state_machine_cnt = 10;
     cur->thread_info->routerIdRequested = false;
@@ -2078,7 +2078,7 @@ void thread_discover_native_commissioner_response(protocol_interface_info_entry_
     tr_debug("Native commissioning interface ready");
     interface->thread_info->thread_attached_state = THREAD_STATE_CONNECTED;
     interface->nwk_bootstrap_state = ER_MLE_ATTACH_READY;
-    interface->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
+    interface->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
     interface->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
 
     interface->thread_info->routerIdRequested = false;

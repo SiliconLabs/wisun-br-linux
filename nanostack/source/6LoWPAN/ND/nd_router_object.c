@@ -320,7 +320,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
                 memcpy(cur_interface->if_6lowpan_dad_process.address, address_entry->address, 16);
             }
 
-            if ((cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) && cur_interface->nwk_bootstrap_state == ER_SCAN) {
+            if ((cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) && cur_interface->nwk_bootstrap_state == ER_SCAN) {
                 cur_interface->nwk_bootstrap_state = ER_ADDRESS_REQ;
                 cur_interface->bootstrap_state_machine_cnt = 0;
             }
@@ -350,7 +350,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                 interface->if_6lowpan_dad_process.active = false;
                 interface->global_address_available = true;
                 //Check If GP16 Address Add LL16 Address
-                if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+                if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
                     if (g16_address) {
                         //Register also GP64 if NET_6LOWPAN_MULTI_GP_ADDRESS mode is enabled
                         if (interface->lowpan_address_mode == NET_6LOWPAN_MULTI_GP_ADDRESS) {
@@ -1306,7 +1306,7 @@ void nd_ra_process_lowpan_context_option(protocol_interface_info_entry_t *cur, c
 #ifdef HAVE_6LOWPAN_ROUTER
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface)
 {
-    if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
+    if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
         return;
     }
 
@@ -1681,7 +1681,7 @@ int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_inf
     uint8_t compare_len = 8;
 
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY)) {
+        if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
             continue;
         }
 

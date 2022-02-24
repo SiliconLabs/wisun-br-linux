@@ -687,7 +687,7 @@ int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur)
     cur->if_llao_parse = ethernet_llao_parse;
     cur->ipv6_neighbour_cache.max_ll_len = 6;
     cur->ipv6_neighbour_cache.link_mtu = cur->max_link_mtu = 1500;
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
 
     // Always want fe80::/64 to be an on-link prefix.
@@ -1016,7 +1016,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                 case IPV6_GP_CONFIG:
                     if (addr_interface_all_address_ready(interface)) {
                         interface->global_address_available = true;
-                        if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+                        if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
                             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             /* We will need proxy both mode currently future static mode should not need proxy */
                             nd_proxy_upstream_interface_register(interface->id, ipv6_interface_route_validate);
@@ -1059,7 +1059,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                     break;
 
                 case IPV6_GP_CONFIG:
-                    if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
+                    if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
 
                     }
                     break;

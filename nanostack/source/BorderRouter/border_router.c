@@ -512,12 +512,12 @@ void border_router_start(protocol_interface_info_entry_t *cur, bool warm_link_re
 
     cur->border_router_setup->initActive = true;
 
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
     addr_interface_set_ll64(cur, NULL);
     cur->interface_mode = INTERFACE_UP;
     cur->nwk_mode = ARM_NWK_GP_IP_MODE;
     if (nd_nwk) {
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
             protocol_6lowpan_router_synch_to_new_router(cur, NULL, 0, true);
             cur->bootstrap_state_machine_cnt = 30;
         } else {
@@ -592,7 +592,7 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
         //set 6lowpan default
         mac_helper_mac_mlme_max_retry_set(cur->id, LOWPAN_MAX_FRAME_RETRIES);
 
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_PANA_AUTHENTICATION) {
             if (pana_server_key_material_load(cur->id) != 0) {
                 tr_warn("Border router security load fail");
                 return -3;
@@ -658,7 +658,7 @@ void arm_border_router_ready(protocol_interface_info_entry_t *cur)
             addr_add_group(cur, ADDR_REALM_LOCAL_ALL_ROUTERS);
             icmpv6_radv_enable(cur);
 
-            if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+            if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_MLE) {
                 nd_nwk->mle_advert_timer = 50;
             }
 
