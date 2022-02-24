@@ -522,7 +522,7 @@ extern void protocol_6lowpan_release_short_link_address_from_neighcache(protocol
 extern void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64);
 extern void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix);
 
-extern void nwk_bootsrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
+extern void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
 void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len);

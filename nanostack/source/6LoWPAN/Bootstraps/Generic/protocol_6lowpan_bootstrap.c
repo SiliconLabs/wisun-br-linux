@@ -1572,7 +1572,7 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
         cur->nwk_mode = ARM_NWK_RAW_PHY_MODE;
         cur->lowpan_info |= (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY);
         cur->bootstrap_state_machine_cnt = 0;
-        nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
+        nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
 
         ret_val = 0;
     }
@@ -1820,7 +1820,7 @@ void nwk_6lowpan_router_scan_state(protocol_interface_info_entry_t *cur)
             arm_border_router_ready(cur);
         } else {
             tr_warn("No ND Router");
-            nwk_bootsrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
+            nwk_bootstrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
         }
 
     } else {
@@ -1882,7 +1882,7 @@ void nwk_6lowpan_bootstrap_ready(protocol_interface_info_entry_t *cur)
                 beacon_join_priority_update(cur->id);
                 lowpan_bootstrap_pan_control(cur, true);
             }
-            nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
+            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
         } else {
             cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
             cur->bootstrap_state_machine_cnt = 2;
@@ -2033,7 +2033,7 @@ void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_in
         //Here we need to verify address mode
         tr_debug("Synch MAC16 with parent");
         if (protocol_6lowpan_parent_address_synch(cur_interface, true) != 0) {
-            nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur_interface);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur_interface);
         }
     }
 
@@ -2074,7 +2074,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
 
         case RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS:
             tr_error("RPL Local repair fail-->interface to idle");
-            nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
             break;
         default:
             break;
@@ -2130,7 +2130,7 @@ static void nwk_rpl_dio_scan(protocol_interface_info_entry_t *cur)
         }
     } else {
         //GivE Up Bootsrap
-        nwk_bootsrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
+        nwk_bootstrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
     }
 }
 
@@ -2177,7 +2177,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
     if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
         if (protocol_6lowpan_router_multicast_synch(cur) != 0) {
             tr_debug("Router link request start fail");
-            nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
         }
 #ifdef HAVE_RPL
         if (protocol_6lowpan_rpl_domain) {
@@ -2200,7 +2200,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
                 mac_data_poll_init_protocol_poll(cur);
             }
             if (protocol_6lowpan_parent_address_synch(cur, false) != 0) {
-                nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
+                nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
             }
         } else {
             cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
@@ -2334,7 +2334,7 @@ static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entr
     //Black List coordinator
     coordinator_black_list(cur);
 
-    nwk_bootsrap_state_update(ARM_NWK_AUHTENTICATION_FAIL, cur);
+    nwk_bootstrap_state_update(ARM_NWK_AUHTENTICATION_FAIL, cur);
 }
 
 
@@ -2652,25 +2652,25 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
 
         case ER_PARENT_SYNCH_LOST:
             tr_debug("-->Parent synch Lose");
-            nwk_bootsrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
             break;
 
         case ER_BOOTSTRAP_CONNECTION_DOWN:
-            nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
             break;
 
         case ER_BOOTSTRAP_IP_ADDRESS_ALLOC_FAIL:
-            nwk_bootsrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
+            nwk_bootstrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
             tr_info("-->idle");
             break;
 
         case ER_BOOTSTRAP_DAD_FAIL:
-            nwk_bootsrap_state_update(ARM_NWK_DUPLICATE_ADDRESS_DETECTED, cur);
+            nwk_bootstrap_state_update(ARM_NWK_DUPLICATE_ADDRESS_DETECTED, cur);
             break;
 
         case ER_BOOTSTRAP_SCAN_FAIL:
             tr_debug("Network Bootsrap Start Fail");
-            nwk_bootsrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
             break;
 #ifdef PANA
         case ER_PANA_PING:

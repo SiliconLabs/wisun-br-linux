@@ -252,7 +252,7 @@ void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void
             protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
             if (info_entry) {
                 if (dat->LossReason == BEACON_LOST) {
-                    nwk_bootsrap_state_update(ARM_NWK_NWK_SCAN_FAIL, info_entry);
+                    nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, info_entry);
                 }
             }
             break;

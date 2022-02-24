@@ -2313,7 +2313,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             break;
         case ER_BOOTSTRAP_SCAN_FAIL:
             tr_debug("Thread SM:Scan Failed");
-            nwk_bootsrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
+            nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
             break;
 
         case ER_BOOTSTRAP_LEADER_UP:

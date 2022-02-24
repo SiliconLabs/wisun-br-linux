@@ -1098,7 +1098,7 @@ static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int
     }
 }
 
-void nwk_bootsrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur)
+void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur)
 {
     //Clear Bootsrap Active Bit allways
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ACTIVE;

@@ -1608,7 +1608,7 @@ void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool
     return;
 
 failure_exit:
-    nwk_bootsrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
+    nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
 }
 
 int thread_leader_service_thread_partitition_restart(int8_t interface_id, mle_tlv_info_t *routing)

@@ -531,7 +531,7 @@ void border_router_start(protocol_interface_info_entry_t *cur, bool warm_link_re
     } else {
         thread_interface_up(cur);
         rpl_control_remove_domain_from_interface(cur);
-        nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
+        nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
     }
 }
 
@@ -682,7 +682,7 @@ void arm_border_router_ready(protocol_interface_info_entry_t *cur)
         cur->bootstrap_state_machine_cnt = 0;
         cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
         net_load_balance_internal_state_activate(cur, true);
-        nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
+        nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
         nd_proxy_downstream_interface_register(cur->id, arm_border_router_proxy_validate, arm_border_router_proxy_state_update);
     }
 }

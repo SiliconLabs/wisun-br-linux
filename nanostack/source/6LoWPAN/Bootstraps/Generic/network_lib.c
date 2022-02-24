@@ -95,7 +95,7 @@ void nwk_parent_poll_fail_cb(int8_t id)
         //Initialize Bootsrap
         thread_bootstrap_connection_error(cur->id, CON_ERROR_POLL, NULL);
     } else {
-        nwk_bootsrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
+        nwk_bootstrap_state_update(ARM_NWK_NWK_PARENT_POLL_FAIL, cur);
     }
 
 }

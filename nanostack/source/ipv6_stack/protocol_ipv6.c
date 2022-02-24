@@ -1017,7 +1017,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                     if (addr_interface_all_address_ready(interface)) {
                         interface->global_address_available = true;
                         if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
-                            nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
+                            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             /* We will need proxy both mode currently future static mode should not need proxy */
                             nd_proxy_upstream_interface_register(interface->id, ipv6_interface_route_validate);
                         }
@@ -1039,7 +1039,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                     /* No special action for subsequent addresses after initial bootstrap */
                     if (interface->global_address_available && interface->ipv6_configure->temporaryUlaAddressState) {
                         if (addr_ipv6_scope(addr->address, interface) == IPV6_SCOPE_GLOBAL) {
-                            nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
+                            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             tr_debug("Learn Real Global Scope");
                             interface->ipv6_configure->temporaryUlaAddressState = false;
                             /* We will need proxy both mode currently future static mode should not need proxy */
@@ -1055,7 +1055,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
             switch (interface->ipv6_configure->IPv6_ND_state) {
                 case IPV6_LL_CONFIG:
                     tr_warn("No Valid LLaddress..Turn OFF Interface and Push DAD Event");
-                    nwk_bootsrap_state_update(ARM_NWK_DUPLICATE_ADDRESS_DETECTED, interface);
+                    nwk_bootstrap_state_update(ARM_NWK_DUPLICATE_ADDRESS_DETECTED, interface);
                     break;
 
                 case IPV6_GP_CONFIG:
