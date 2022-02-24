@@ -141,7 +141,7 @@ typedef struct ws_hopping_schedule_s {
     uint8_t channel_spacing;            /**< derived from regulatory domain. 0:200k, 1:400k, 2:600k, 3:100k */
     uint8_t number_of_channels;         /**< derived from regulatory domain */
     uint8_t clock_drift;
-    uint8_t timing_accurancy;
+    uint8_t timing_accuracy;
     uint16_t uc_fixed_channel;
     uint16_t bc_fixed_channel;
     uint16_t fhss_bsi;
@@ -182,7 +182,7 @@ typedef struct ws_lbt_ie {
 typedef struct ws_nr_ie {
     unsigned node_role: 3;
     uint8_t clock_drift;
-    uint8_t timing_accurancy;
+    uint8_t timing_accuracy;
     uint_fast24_t listen_interval_min;
     uint_fast24_t listen_interval_max;
 } ws_nr_ie_t;
@@ -388,7 +388,7 @@ typedef struct ws_generic_channel_info {
 typedef struct ws_us_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
-    uint8_t timing_accurancy;
+    uint8_t timing_accuracy;
     unsigned channel_plan: 3;
     unsigned channel_function: 3;
     unsigned excluded_channel_ctrl: 2;
@@ -415,7 +415,7 @@ typedef struct ws_bs_ie {
     uint16_t broadcast_schedule_identifier;
     uint8_t dwell_interval;
     uint8_t clock_drift;
-    uint8_t timing_accurancy;
+    uint8_t timing_accuracy;
     unsigned channel_plan: 3;
     unsigned channel_function: 3;
     unsigned excluded_channel_ctrl: 2;

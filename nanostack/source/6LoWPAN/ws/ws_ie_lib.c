@@ -300,7 +300,7 @@ uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ptr)
     ptr = ws_wh_header_base_write(ptr, ws_wh_nr_length(nr_ptr), WH_IE_NR_TYPE);
     *ptr++ = nr_ptr->node_role;
     *ptr++ = nr_ptr->clock_drift;
-    *ptr++ = nr_ptr->timing_accurancy;
+    *ptr++ = nr_ptr->timing_accuracy;
     if (nr_ptr->node_role == WS_NR_ROLE_LFN) {
         ptr = common_write_24_bit_inverse(nr_ptr->listen_interval_min, ptr);
         ptr = common_write_24_bit_inverse(nr_ptr->listen_interval_max, ptr);
@@ -476,7 +476,7 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
     }
 
     *ptr++ =  hopping_schedule->clock_drift;
-    *ptr++ =  hopping_schedule->timing_accurancy;
+    *ptr++ =  hopping_schedule->timing_accuracy;
 
     // Write a generic part of shedule
     *ptr++ = ws_wp_channel_info_base_get(&generic_channel_info);
@@ -890,7 +890,7 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
     data = nr_ie_data.content_ptr;
     nr_ptr->node_role = *data++ & 7;
     nr_ptr->clock_drift = *data++;
-    nr_ptr->timing_accurancy = *data++;
+    nr_ptr->timing_accuracy = *data++;
     switch (nr_ptr->node_role) {
         case WS_NR_ROLE_BR:
             break;
@@ -1009,7 +1009,7 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
     data = nested_payload_ie.content_ptr;
     us_ie->dwell_interval = *data++;
     us_ie->clock_drift = *data++;
-    us_ie->timing_accurancy = *data++;
+    us_ie->timing_accuracy = *data++;
     us_ie->channel_plan = (*data & 3);
     us_ie->channel_function = (*data & 0x38) >> 3;
     us_ie->excluded_channel_ctrl = (*data & 0xc0) >> 6;
@@ -1116,7 +1116,7 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
     data += 6;
     bs_ie->dwell_interval = *data++;
     bs_ie->clock_drift = *data++;
-    bs_ie->timing_accurancy = *data++;
+    bs_ie->timing_accuracy = *data++;
 
     bs_ie->channel_plan = (*data & 3);
     bs_ie->channel_function = (*data & 0x38) >> 3;

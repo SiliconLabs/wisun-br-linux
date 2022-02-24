@@ -622,7 +622,7 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
     // Clock drift value 255 indicates that information is not provided
     cur->ws_info->hopping_schedule.clock_drift = 255;
     // Timing accuracy is given from 0 to 2.55msec with 10usec resolution
-    cur->ws_info->hopping_schedule.timing_accurancy = 100;
+    cur->ws_info->hopping_schedule.timing_accuracy = 100;
     ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule);
     cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
 
