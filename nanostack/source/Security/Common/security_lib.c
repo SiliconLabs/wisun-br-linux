@@ -277,7 +277,7 @@ static int tls_check_client_change_chiphersuite(uint8_t *verfify, sec_suite_t *s
         if (memcmp(verfify, ptr, 12) == 0) {
             //tr_debug("Client verify OK");
             ret_val = 0;
-            tls_finnish_copy(ptr, tls_heap);
+            tls_finish_copy(ptr, tls_heap);
             tls_hanshake_hash_cal(tls_heap);
             sec_lib_state_machine_lock(suite, PRF_CALC2);
             tls_verify_calc(tls_heap->verify, 1, tls_heap, suite->tls_session->master_secret);

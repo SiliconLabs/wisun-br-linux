@@ -164,7 +164,7 @@ static tls_psk_key_t *tls_get_key(uint16_t key_id)
 
 
 
-void tls_finnish_copy(uint8_t *ptr, tls_heap_t *heap_ptr)
+void tls_finish_copy(uint8_t *ptr, tls_heap_t *heap_ptr)
 {
     tls_msg_t *tmp_msg = tls_msg_ptr_get();
     tmp_msg->len = 12;
@@ -383,7 +383,7 @@ void tls_prepare_change_chipher_spec(sec_suite_t *tls_suite)
     if ((tls_suite->setups & TLS_SERVER_MODE) == 0) {
         server = false;
         if ((tls_suite->setups & TLS_HANSHAKE_HASH) == 0) {
-            tls_finnish_copy(theap->hash_buf + 4, theap);
+            tls_finish_copy(theap->hash_buf + 4, theap);
             tls_suite->setups |= TLS_HANSHAKE_HASH;
         }
 
