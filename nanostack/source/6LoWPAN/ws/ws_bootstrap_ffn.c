@@ -281,7 +281,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct protocol_in
      * that of the receiving node, and PAN-IE / Routing Cost better than (smaller than) that of the receiving node.
      *
      */
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //Border router never set consistent that will guarantee that BR will send advertisment
         return;
     }
@@ -358,7 +358,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
     ws_bootstrap_ffn_pan_advertisement_analyse_active(cur, &pan_information);
 
     // Learn latest network information
-    if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && neighbor_info.neighbor) {
+    if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && neighbor_info.neighbor) {
         uint8_t ll_address[16];
         ws_common_create_ll_address(ll_address, neighbor_info.neighbor->mac64);
 
@@ -399,7 +399,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
         tr_info("Making parent selection in %u s", (cur->bootsrap_state_machine_cnt / 10));
     }
 
-    if (ws_bootstrap_state_active(cur) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
         if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             ws_bootstrap_parent_confirm(cur, NULL);
@@ -409,7 +409,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
 #ifdef HAVE_WS_VERSION_1_1
 static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_info_entry *cur, const struct mcps_data_ie_list *ie_ext)
 {
-    if (!ws_version_1_1(cur) || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (!ws_version_1_1(cur) || cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
     }
 
@@ -520,7 +520,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     bool neighbour_pointer_valid;
 
     //Validate BSI
-    if (cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
 
         if (cur->ws_info->ws_bsi_block.block_time && cur->ws_info->ws_bsi_block.old_bsi == ws_bs_ie.broadcast_schedule_identifier) {
             tr_debug("Do not accept a old BSI: %u in time %"PRIu32, cur->ws_info->ws_bsi_block.old_bsi, cur->ws_info->ws_bsi_block.block_time);
@@ -545,7 +545,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     }
 
 
-    if (cur->ws_info->configuration_learned || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->ws_info->configuration_learned || cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //If we are border router or learned configuration we only update already learned neighbours.
         neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false);
 
@@ -596,7 +596,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
         }
     }
 
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //Border router does not learn network information
         return;
     }
@@ -657,7 +657,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interfac
         ws_neighbor_class_neighbor_unicast_schedule_set(neighbor_info.ws_neighbor, ws_us, &cur->ws_info->hopping_schedule, data->SrcAddr);
     }
 
-    if (ws_bootstrap_state_active(cur) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
         if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             ws_bootstrap_parent_confirm(cur, NULL);
@@ -917,7 +917,7 @@ void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
         ws_bootstrap_event_routing_ready(cur);
     } else if (!rpl_control_have_dodag(cur->rpl_domain)) {
         // RPL not ready send DIS message if possible
-        if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
+        if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
             // TODO Multicast DIS should be sent only if no DIO heard for some time
             rpl_control_transmit_dis(cur->rpl_domain, cur, 0, 0, NULL, 0, ADDR_LINK_LOCAL_ALL_RPL_NODES);
         }

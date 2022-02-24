@@ -450,10 +450,10 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     entry->nwk_id = nwk_id;
     switch (nwk_id) {
         case IF_IPV6:
-            entry->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
+            entry->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
             break;
         default:
-            entry->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
+            entry->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
             break;
     }
     entry->bootStrapId = -1;
@@ -1107,7 +1107,7 @@ void nwk_bootsrap_state_update(arm_nwk_interface_status_type_e posted_event, pro
 
     if (posted_event == ARM_NWK_BOOTSTRAP_READY) {
 
-        switch (cur->bootsrap_mode) {
+        switch (cur->bootstrap_mode) {
 
             case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT:
             case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER:

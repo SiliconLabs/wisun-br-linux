@@ -1215,7 +1215,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
         case ICMPV6_TYPE_INFO_DAR:
 
             if (cur->nwk_id == IF_6LoWPAN) {
-                if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+                if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                     buf = nd_dar_parse(buf, cur);
                     break;
                 }

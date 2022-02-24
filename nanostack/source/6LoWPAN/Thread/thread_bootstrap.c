@@ -942,15 +942,15 @@ static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t 
     thread_routing_reset(&cur->thread_info->routing);
     mac_helper_mac16_address_set(cur, 0xffff);
 
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
         tr_debug("Set ASPIRING Router Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_ROUTER;
         cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
-    } else if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST &&
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST &&
                cur->thread_info->end_device_link_synch) {
         tr_debug("Set FED Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_FULL_END_DEVICE;
-    } else if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
         tr_debug("Set ASPIRING Sleepy Host Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_SLEEPY_END_DEVICE;
         //SET Sleepy Host To RX on Idle mode for bootsrap
@@ -2874,8 +2874,8 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
             if (curBorderRouter->P_dhcp) {
                 /* All end device types perform BR RLOC16 -> ALOC16
                    replacement if stable network data was requested. */
-                if ((cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST ||
-                        cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) &&
+                if ((cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST ||
+                        cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) &&
                         cur->thread_info->requestFullNetworkData == false) {
                     ns_list_foreach(thread_network_data_context_entry_t, curRoute, &curPrefix->contextList) {
                         curBorderRouter->routerID = 0xfc00;
@@ -2895,8 +2895,8 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
             } else {
                 /* All end device types perform RLOC16 -> 0xfffe
                    replacement if stable network data was requested. */
-                if ((cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST ||
-                        cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) &&
+                if ((cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST ||
+                        cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) &&
                         cur->thread_info->requestFullNetworkData == false) {
                     tr_debug("Invalidate router ID: %04x", curBorderRouter->routerID);
                     curBorderRouter->routerID = 0xfffe;

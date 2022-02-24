@@ -1110,7 +1110,7 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
             memcpy(cur->ipv6_configure->static_prefix64, ipv6_prefix_pointer, 8);
         /* fall through */
         case NET_IPV6_BOOTSTRAP_AUTONOMOUS:
-            cur->bootsrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
+            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
             cur->ipv6_configure->ipv6_stack_mode = bootstrap_mode;
             break;
         default:

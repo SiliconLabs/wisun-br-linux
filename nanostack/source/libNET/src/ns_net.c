@@ -380,7 +380,7 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
     if (!cur) {
         return -1;
     }
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return -2;
     }
     if (!(cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED)) {
@@ -820,11 +820,11 @@ int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_l
         ret_val = -2;
     } else if (link_setup && (link_setup->beacon_payload_tlv_length && link_setup->beacon_payload_tlv_ptr == NULL)) {
         ret_val = -4;
-    } else if (link_setup && (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT || cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER)) {
+    } else if (link_setup && (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT || cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER)) {
 
         ret_val = 0;
 
-        if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT) {
+        if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT) {
             //Configure setup
             uint8_t *beaon_payload = mac_helper_beacon_payload_reallocate(cur, 18);
             if (beaon_payload) {
@@ -875,7 +875,7 @@ int8_t arm_nwk_interface_up(int8_t interface_id)
         return -1;
     }
 
-    if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) && cur->bootsrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) && cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return -4;
     }
 
@@ -1241,7 +1241,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
         return -4;
     }
 
-    if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         if (!cur->border_router_setup) {
             return -2;
         }

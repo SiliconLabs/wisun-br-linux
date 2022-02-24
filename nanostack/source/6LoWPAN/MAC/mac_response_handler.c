@@ -139,7 +139,7 @@ void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
 
 static void stop_bootstrap_timer(protocol_interface_info_entry_t *info_entry)
 {
-    if (info_entry->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (info_entry->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         protocol_timer_stop(PROTOCOL_TIMER_BOOTSTRAP_TIM);
     }
 }

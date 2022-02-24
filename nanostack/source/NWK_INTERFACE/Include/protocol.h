@@ -357,7 +357,7 @@ struct protocol_interface_info_entry {
     int8_t net_start_tasklet;
     const char *interface_name;
     ns_list_link_t link;
-    arm_nwk_bootsrap_mode_e bootsrap_mode;
+    arm_nwk_bootsrap_mode_e bootstrap_mode;
     net_6lowpan_gp_address_mode_e lowpan_address_mode;
     arm_nwk_interface_mode_e nwk_mode;
     uint8_t configure_flags;
