@@ -2242,7 +2242,7 @@ void nwk_6lowpan_bootstrap_pana_authentication_cb(bool processSuccesfully, proto
     }
 }
 
-static void nwk_6lowpan_bootsrap_pana_authentication_start(protocol_interface_info_entry_t *cur)
+static void nwk_6lowpan_bootstrap_pana_authentication_start(protocol_interface_info_entry_t *cur)
 {
     uint8_t temp_coordinator_address[16];
     pana_tls_setup_s setup;
@@ -2493,7 +2493,7 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
     //Check first pana and then MLE and else start RS scan pahse
     if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
 #ifdef PANA
-        nwk_6lowpan_bootsrap_pana_authentication_start(interface);
+        nwk_6lowpan_bootstrap_pana_authentication_start(interface);
         tr_debug("Pana auth");
 #else
         bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
