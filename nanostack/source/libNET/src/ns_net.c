@@ -1165,7 +1165,7 @@ int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_
     return ipv6_interface_accept_ra(interface_id, accept_ra);
 }
 
-int8_t arm_6lowpan_bootsrap_set_for_selected_interface(int8_t interface_id)
+int8_t arm_6lowpan_bootstrap_set_for_selected_interface(int8_t interface_id)
 {
     protocol_interface_info_entry_t *cur;
 
@@ -1206,7 +1206,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 {
     int8_t ret_val;
     (void)bootstrap_mode;
-    ret_val = arm_6lowpan_bootsrap_set_for_selected_interface(interface_id);
+    ret_val = arm_6lowpan_bootstrap_set_for_selected_interface(interface_id);
 
     if (ret_val == 0) {
 
