@@ -102,7 +102,7 @@ static bool mac_data_counter_too_small(uint32_t current_counter, uint32_t packet
     return false;
 }
 
-static bool mac_data_request_confirmation_finnish(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
+static bool mac_data_request_confirmation_finish(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
     if (!buffer->asynch_request) {
         return true;
@@ -1215,7 +1215,7 @@ static void mac_pd_data_confirm_handle(protocol_interface_rf_mac_setup_s *rf_mac
 {
     if (rf_mac_setup->active_pd_data_request) {
         mac_pre_build_frame_t *buffer = rf_mac_setup->active_pd_data_request;
-        if (mac_data_request_confirmation_finnish(rf_mac_setup, buffer)) {
+        if (mac_data_request_confirmation_finish(rf_mac_setup, buffer)) {
             rf_mac_setup->active_pd_data_request = NULL;
             mac_mcps_asynch_finish(rf_mac_setup, buffer);
             mcps_data_confirm_handle(rf_mac_setup, buffer, NULL);
