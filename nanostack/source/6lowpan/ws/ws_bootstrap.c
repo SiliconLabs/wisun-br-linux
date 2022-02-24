@@ -47,7 +47,7 @@
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
-#include "service_libs/Trickle/trickle.h"
+#include "service_libs/trickle/trickle.h"
 #include "service_libs/fhss/channel_list.h"
 #include "service_libs/utils/ns_time.h"
 #include "6lowpan/ws/ws_common_defines.h"

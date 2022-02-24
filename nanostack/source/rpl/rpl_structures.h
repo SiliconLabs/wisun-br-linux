@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "service_libs/Trickle/trickle.h"
+#include "service_libs/trickle/trickle.h"
 
 struct rpl_objective;
 

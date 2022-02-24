@@ -31,7 +31,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "service_libs/Trickle/trickle.h"
+#include "service_libs/trickle/trickle.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"

@@ -168,7 +168,7 @@ SRCS += \
 	source/service_libs/load_balance/load_balance.c \
 	source/service_libs/sha256/shalib.c \
 	source/service_libs/sha256/ns_sha256.c \
-	source/service_libs/Trickle/trickle.c \
+	source/service_libs/trickle/trickle.c \
 	source/service_libs/whiteboard/whiteboard.c \
 	source/service_libs/pan_blacklist/pan_blacklist.c \
 	source/service_libs/random_early_detection/random_early_detection.c \

@@ -43,7 +43,7 @@
 #include "net_interface.h"
 #include "multicast_api.h"
 #include "service_libs/Neighbor_cache/neighbor_table_definition.h"
-#include "service_libs/Trickle/trickle.h"
+#include "service_libs/trickle/trickle.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "net_polling_api.h"

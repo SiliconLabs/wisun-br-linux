@@ -25,7 +25,7 @@
 
 #include "ns_trace.h"
 
-#include "service_libs/Trickle/trickle.h"
+#include "service_libs/trickle/trickle.h"
 
 #define TRACE_GROUP "tric"
 
