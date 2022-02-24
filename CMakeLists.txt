@@ -162,7 +162,7 @@ add_executable(wsbrd
     # Excluded nanostack/source/mac/virtual_rf
     nanostack/source/mle/mle.c
     nanostack/source/mle/mle_tlv.c
-    nanostack/source/MPL/mpl.c
+    nanostack/source/mpl/mpl.c
     nanostack/source/nwk_interface/protocol_core.c
     nanostack/source/nwk_interface/protocol_core_sleep.c
     nanostack/source/nwk_interface/protocol_stats.c
@@ -404,7 +404,7 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded nanostack/source/mac/virtual_rf
         nanostack/source/mle/mle.c
         nanostack/source/mle/mle_tlv.c
-        nanostack/source/MPL/mpl.c
+        nanostack/source/mpl/mpl.c
         nanostack/source/nwk_interface/protocol_core.c
         nanostack/source/nwk_interface/protocol_core_sleep.c
         nanostack/source/nwk_interface/protocol_stats.c

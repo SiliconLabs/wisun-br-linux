@@ -19,7 +19,7 @@
 #include <string.h>
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6_constants.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #include "multicast_api.h"
 
 #ifdef MULTICAST_FORWARDING

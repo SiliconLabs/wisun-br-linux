@@ -26,7 +26,7 @@
 #endif
 #include "RPL/rpl_protocol.h"
 #ifdef HAVE_MPL
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #endif
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"

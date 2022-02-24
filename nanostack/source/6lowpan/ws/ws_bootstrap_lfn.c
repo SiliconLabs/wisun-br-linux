@@ -38,7 +38,7 @@
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/MAC/mpx_api.h"
 #include "6lowpan/MAC/mac_ie_lib.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #include "RPL/rpl_protocol.h"
 #include "RPL/rpl_control.h"
 #include "RPL/rpl_data.h"

@@ -82,7 +82,7 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #include "mle/mle.h"
 #include "mle/mle_tlv.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"

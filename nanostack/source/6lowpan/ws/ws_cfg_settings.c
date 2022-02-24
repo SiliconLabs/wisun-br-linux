@@ -30,7 +30,7 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "ws_management_api.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 
 #define TRACE_GROUP "cstr"
 

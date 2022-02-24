@@ -34,7 +34,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 
 #define TRACE_GROUP "mpl"
 

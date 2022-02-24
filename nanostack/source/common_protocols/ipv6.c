@@ -37,7 +37,7 @@
 #include "common_protocols/ipv6_flow.h"
 #include "RPL/rpl_data.h"
 #ifdef HAVE_MPL
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #endif
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "common_functions.h"

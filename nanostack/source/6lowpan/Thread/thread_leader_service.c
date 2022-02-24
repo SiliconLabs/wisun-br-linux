@@ -57,7 +57,7 @@
 #include "service_libs/mle_service/mle_service_api.h"
 #include "6lowpan/Thread/thread_host_bootstrap.h"
 #include "6lowpan/Thread/thread_border_router_api_internal.h"
-#include "MPL/mpl.h"
+#include "mpl/mpl.h"
 #include "mle/mle.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mac_api.h"

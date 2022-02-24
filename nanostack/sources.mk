@@ -94,7 +94,7 @@ SRCS += \
 	source/mac/virtual_rf/virtual_rf_driver.c \
 	source/mle/mle.c \
 	source/mle/mle_tlv.c \
-	source/MPL/mpl.c \
+	source/mpl/mpl.c \
 	source/nwk_interface/protocol_core.c \
 	source/nwk_interface/protocol_core_sleep.c \
 	source/nwk_interface/protocol_stats.c \
