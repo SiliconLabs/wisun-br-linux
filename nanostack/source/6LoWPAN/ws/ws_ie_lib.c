@@ -497,22 +497,22 @@ uint8_t *ws_wp_nested_vp_write(uint8_t *ptr, uint8_t *vendor_payload, uint16_t v
     return ptr;
 }
 
-uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information_s *pan_congiguration)
+uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information_s *pan_configuration)
 {
-    if (!pan_congiguration) {
+    if (!pan_configuration) {
         return mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 0);
     }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 5);
-    ptr = common_write_16_bit_inverse(pan_congiguration->pan_size, ptr);
-    ptr = common_write_16_bit_inverse(pan_congiguration->routing_cost, ptr);
+    ptr = common_write_16_bit_inverse(pan_configuration->pan_size, ptr);
+    ptr = common_write_16_bit_inverse(pan_configuration->routing_cost, ptr);
     uint8_t temp8 = 0;
-    temp8 |= (pan_congiguration->use_parent_bs << 0);
-    temp8 |= (pan_congiguration->rpl_routing_method << 1);
+    temp8 |= (pan_configuration->use_parent_bs << 0);
+    temp8 |= (pan_configuration->rpl_routing_method << 1);
     /* FAN 1.1 specific write */
-    if (pan_congiguration->version > WS_FAN_VERSION_1_0) {
-        temp8 |= (pan_congiguration->lfn_window_style << 2);
+    if (pan_configuration->version > WS_FAN_VERSION_1_0) {
+        temp8 |= (pan_configuration->lfn_window_style << 2);
     }
-    temp8 |= pan_congiguration->version << 5;
+    temp8 |= pan_configuration->version << 5;
 
     *ptr++ = temp8;
     return ptr;
@@ -529,13 +529,13 @@ uint8_t *ws_wp_nested_netname_write(uint8_t *ptr, uint8_t *network_name, uint8_t
     return ptr;
 }
 
-uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *pan_congiguration)
+uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *pan_configuration)
 {
-    if (!pan_congiguration) {
+    if (!pan_configuration) {
         return ptr;
     }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_VER_TYPE, 2);
-    return common_write_16_bit_inverse(pan_congiguration->pan_version, ptr);
+    return common_write_16_bit_inverse(pan_configuration->pan_version, ptr);
 }
 
 uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkhash_length)
@@ -1178,7 +1178,7 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
     return true;
 }
 
-bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information_s *pan_congiguration)
+bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information_s *pan_configuration)
 {
     mac_nested_payload_IE_t nested_payload_ie;
     nested_payload_ie.id = WP_PAYLOAD_IE_PAN_TYPE;
@@ -1187,16 +1187,16 @@ bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_informa
         return false;
     }
 
-    pan_congiguration->pan_size = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
-    pan_congiguration->routing_cost = common_read_16_bit_inverse(nested_payload_ie.content_ptr + 2);
-    pan_congiguration->use_parent_bs = (nested_payload_ie.content_ptr[4] & 0x01) == 0x01;
-    pan_congiguration->rpl_routing_method = (nested_payload_ie.content_ptr[4] & 0x02) == 0x02;
-    pan_congiguration->version = (nested_payload_ie.content_ptr[4] & 0xe0) >> 5;
-    if (pan_congiguration->version > WS_FAN_VERSION_1_0) {
+    pan_configuration->pan_size = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
+    pan_configuration->routing_cost = common_read_16_bit_inverse(nested_payload_ie.content_ptr + 2);
+    pan_configuration->use_parent_bs = (nested_payload_ie.content_ptr[4] & 0x01) == 0x01;
+    pan_configuration->rpl_routing_method = (nested_payload_ie.content_ptr[4] & 0x02) == 0x02;
+    pan_configuration->version = (nested_payload_ie.content_ptr[4] & 0xe0) >> 5;
+    if (pan_configuration->version > WS_FAN_VERSION_1_0) {
         /* FAN 1.1 specific read */
-        pan_congiguration->lfn_window_style = (nested_payload_ie.content_ptr[4] & 0x04) == 0x04;
+        pan_configuration->lfn_window_style = (nested_payload_ie.content_ptr[4] & 0x04) == 0x04;
     } else {
-        pan_congiguration->lfn_window_style = false; //Set false for FAN 1.0
+        pan_configuration->lfn_window_style = false; //Set false for FAN 1.0
     }
 
     return true;

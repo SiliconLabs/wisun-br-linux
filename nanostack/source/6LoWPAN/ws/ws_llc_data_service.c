@@ -73,7 +73,7 @@ typedef struct {
     uint16_t                vendor_payload_length;  /**< Vendor spesific payload length */
     uint8_t                 vendor_header_length;   /**< Vendor spesific header length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
-    ws_pan_information_t    *pan_congiguration;     /**< Pan configururation */
+    ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     struct ws_hopping_schedule_s *hopping_schedule;/**< Channel hopping schedule */
     uint8_t                 *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
@@ -403,7 +403,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     if (requested_list.pan_ie) {
         //Static 5 bytes allways
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
-        if (params->pan_congiguration) {
+        if (params->pan_configuration) {
             length += 5;
         }
     }
@@ -411,7 +411,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     if (requested_list.pan_version_ie) {
         //Static 2 bytes allways
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
-        if (params->pan_congiguration) {
+        if (params->pan_configuration) {
             length += 2;
         }
     }
@@ -1930,7 +1930,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
 
         if (request->wp_requested_nested_ie_list.pan_ie) {
             //Write Pan information
-            ptr = ws_wp_nested_pan_info_write(ptr, base->ie_params.pan_congiguration);
+            ptr = ws_wp_nested_pan_info_write(ptr, base->ie_params.pan_configuration);
         }
 
         if (request->wp_requested_nested_ie_list.net_name_ie) {
@@ -1940,7 +1940,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
 
         if (request->wp_requested_nested_ie_list.pan_version_ie) {
             //Write pan version
-            ptr = ws_wp_nested_pan_ver_write(ptr, base->ie_params.pan_congiguration);
+            ptr = ws_wp_nested_pan_ver_write(ptr, base->ie_params.pan_configuration);
         }
 
         if (request->wp_requested_nested_ie_list.gtkhash_ie) {
@@ -2046,7 +2046,7 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
         return;
     }
 
-    base->ie_params.pan_congiguration = pan_information_pointer;
+    base->ie_params.pan_configuration = pan_information_pointer;
 }
 
 void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule)
