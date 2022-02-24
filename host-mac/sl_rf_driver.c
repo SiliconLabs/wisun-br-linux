@@ -29,14 +29,14 @@
 #include "mlme.h"
 #include "net_interface.h"
 #include "serial_mac_api.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 #include "mac_api.h"
 #include "host-common/log.h"
 #include "host-common/utils.h"
 #include "sl_wsrcp.h"
 #include "sl_rf_driver.h"
 
-#include "nanostack/source/MAC/virtual_rf/virtual_rf_defines.h"
+#include "nanostack/source/mac/virtual_rf/virtual_rf_defines.h"
 
 #define TRACE_GROUP "vrf"
 

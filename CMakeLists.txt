@@ -155,11 +155,11 @@ add_executable(wsbrd
     nanostack/source/libNET/src/net_ipv6.c
     # Excluded nanostack/source/libNET/src/net_mle.c
     nanostack/source/libNET/src/net_load_balance.c
-    nanostack/source/MAC/rf_driver_storage.c
-    nanostack/source/MAC/ethernet/ethernet_mac_api.c
-    # Excluded nanostack/source/MAC/serial
-    # Excluded nanostack/source/MAC/IEEE802_15_4
-    # Excluded nanostack/source/MAC/virtual_rf
+    nanostack/source/mac/rf_driver_storage.c
+    nanostack/source/mac/ethernet/ethernet_mac_api.c
+    # Excluded nanostack/source/mac/serial
+    # Excluded nanostack/source/mac/IEEE802_15_4
+    # Excluded nanostack/source/mac/virtual_rf
     nanostack/source/MLE/mle.c
     nanostack/source/MLE/mle_tlv.c
     nanostack/source/MPL/mpl.c
@@ -397,11 +397,11 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/libNET/src/net_ipv6.c
         # Excluded nanostack/source/libNET/src/net_mle.c
         nanostack/source/libNET/src/net_load_balance.c
-        nanostack/source/MAC/rf_driver_storage.c
-        nanostack/source/MAC/ethernet/ethernet_mac_api.c
-        # Excluded nanostack/source/MAC/serial
-        # Excluded nanostack/source/MAC/IEEE802_15_4
-        # Excluded nanostack/source/MAC/virtual_rf
+        nanostack/source/mac/rf_driver_storage.c
+        nanostack/source/mac/ethernet/ethernet_mac_api.c
+        # Excluded nanostack/source/mac/serial
+        # Excluded nanostack/source/mac/IEEE802_15_4
+        # Excluded nanostack/source/mac/virtual_rf
         nanostack/source/MLE/mle.c
         nanostack/source/MLE/mle_tlv.c
         nanostack/source/MPL/mpl.c
@@ -541,19 +541,19 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        nanostack/source/MAC/IEEE802_15_4/mac_cca_threshold.c
-        nanostack/source/MAC/IEEE802_15_4/mac_fhss_callbacks.c
-        nanostack/source/MAC/IEEE802_15_4/mac_filter.c
-        nanostack/source/MAC/IEEE802_15_4/mac_header_helper_functions.c
-        nanostack/source/MAC/IEEE802_15_4/mac_indirect_data.c
-        nanostack/source/MAC/IEEE802_15_4/mac_mcps_sap.c
-        nanostack/source/MAC/IEEE802_15_4/mac_mlme.c
-        nanostack/source/MAC/IEEE802_15_4/mac_mode_switch.c
-        nanostack/source/MAC/IEEE802_15_4/mac_pd_sap.c
-        nanostack/source/MAC/IEEE802_15_4/mac_security_mib.c
-        nanostack/source/MAC/IEEE802_15_4/mac_timer.c
-        nanostack/source/MAC/IEEE802_15_4/sw_mac.c
-        nanostack/source/MAC/rf_driver_storage.c
+        nanostack/source/mac/IEEE802_15_4/mac_cca_threshold.c
+        nanostack/source/mac/IEEE802_15_4/mac_fhss_callbacks.c
+        nanostack/source/mac/IEEE802_15_4/mac_filter.c
+        nanostack/source/mac/IEEE802_15_4/mac_header_helper_functions.c
+        nanostack/source/mac/IEEE802_15_4/mac_indirect_data.c
+        nanostack/source/mac/IEEE802_15_4/mac_mcps_sap.c
+        nanostack/source/mac/IEEE802_15_4/mac_mlme.c
+        nanostack/source/mac/IEEE802_15_4/mac_mode_switch.c
+        nanostack/source/mac/IEEE802_15_4/mac_pd_sap.c
+        nanostack/source/mac/IEEE802_15_4/mac_security_mib.c
+        nanostack/source/mac/IEEE802_15_4/mac_timer.c
+        nanostack/source/mac/IEEE802_15_4/sw_mac.c
+        nanostack/source/mac/rf_driver_storage.c
         nanostack/source/service_libs/CCM_lib/ccm_security.c
         nanostack/source/service_libs/CCM_lib/mbedOS/aes_mbedtls_adapter.c
         nanostack/source/service_libs/fhss/channel_functions.c

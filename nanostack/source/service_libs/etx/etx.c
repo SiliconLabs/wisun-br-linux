@@ -33,7 +33,7 @@
 #include "service_libs/utils/isqrt.h"
 
 //TODO: Refactor this away!
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 
 #define TRACE_GROUP "etx"
 

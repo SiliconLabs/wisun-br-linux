@@ -20,7 +20,7 @@
 #include "eventOS_event.h"
 #include "core/include/ns_monitor.h"
 #include "mac_api.h"    // for mcps_packet_ingress_rate_limit_by_memory
-#include "MAC/IEEE802_15_4/mac_mcps_sap.h" // for mcps_packet_ingress_rate_limit_by_memory
+#include "mac/IEEE802_15_4/mac_mcps_sap.h" // for mcps_packet_ingress_rate_limit_by_memory
 
 int ns_conf_gc_threshold_set(uint8_t percentage_high, uint8_t percentage_critical)
 {

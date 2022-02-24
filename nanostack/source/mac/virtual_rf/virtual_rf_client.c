@@ -23,7 +23,7 @@
 #include "ns_trace.h"
 #include "platform/arm_hal_phy.h"
 #include "net_interface.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 #include "virtual_rf_defines.h"
 
 

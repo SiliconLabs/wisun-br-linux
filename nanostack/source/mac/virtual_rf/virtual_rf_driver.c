@@ -26,7 +26,7 @@
 #include "net_interface.h"
 #include "serial_mac_api.h"
 #include "virtual_rf_defines.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 #include "mac_api.h"
 
 

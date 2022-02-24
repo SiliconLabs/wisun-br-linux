@@ -19,8 +19,8 @@
 #include "ns_types.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "MAC/IEEE802_15_4/mac_defines.h"
-#include "MAC/IEEE802_15_4/mac_cca_threshold.h"
+#include "mac/IEEE802_15_4/mac_defines.h"
+#include "mac/IEEE802_15_4/mac_cca_threshold.h"
 
 #define TRACE_GROUP "mcth"
 

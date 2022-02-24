@@ -20,12 +20,12 @@
 #include "ns_types.h"
 #include "mac_api.h"
 #include "fhss_api.h"
-#include "MAC/IEEE802_15_4/mac_fhss_callbacks.h"
-#include "MAC/IEEE802_15_4/mac_defines.h"
-#include "MAC/IEEE802_15_4/sw_mac_internal.h"
-#include "MAC/IEEE802_15_4/mac_mlme.h"
-#include "MAC/IEEE802_15_4/mac_mcps_sap.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/IEEE802_15_4/mac_fhss_callbacks.h"
+#include "mac/IEEE802_15_4/mac_defines.h"
+#include "mac/IEEE802_15_4/sw_mac_internal.h"
+#include "mac/IEEE802_15_4/mac_mlme.h"
+#include "mac/IEEE802_15_4/mac_mcps_sap.h"
+#include "mac/rf_driver_storage.h"
 #include "common_functions.h"
 
 

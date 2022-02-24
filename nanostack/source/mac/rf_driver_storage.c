@@ -20,7 +20,7 @@
 #include "ns_types.h"
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 
 static arm_device_driver_list_s *dev_driver_dynamically_allocate(void);
 static int8_t dev_driver_get_free_id(void);

@@ -21,7 +21,7 @@
 #include "eventOS_event.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/rf_driver_storage.h"
 #include "core/include/ns_monitor.h"
 
 typedef struct eth_mac_internal_s {

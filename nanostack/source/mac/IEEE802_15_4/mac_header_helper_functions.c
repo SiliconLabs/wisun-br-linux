@@ -23,10 +23,10 @@
 #include "fhss_api.h"
 #include "common_functions.h"
 #include "mac_common_defines.h"
-#include "MAC/IEEE802_15_4/mac_defines.h"
-#include "MAC/IEEE802_15_4/mac_mcps_sap.h"
-#include "MAC/IEEE802_15_4/mac_header_helper_functions.h"
-#include "MAC/rf_driver_storage.h"
+#include "mac/IEEE802_15_4/mac_defines.h"
+#include "mac/IEEE802_15_4/mac_mcps_sap.h"
+#include "mac/IEEE802_15_4/mac_header_helper_functions.h"
+#include "mac/rf_driver_storage.h"
 
 static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_frame_t *buffer);
 static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);

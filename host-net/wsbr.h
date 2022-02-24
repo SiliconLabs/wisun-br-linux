@@ -21,7 +21,7 @@ typedef struct sd_bus sd_bus;
 #include "nanostack/mac_api.h"
 #include "nanostack/fhss_config.h"
 #include "nanostack/net_interface.h"
-#include "nanostack/source/MAC/rf_driver_storage.h"
+#include "nanostack/source/mac/rf_driver_storage.h"
 
 struct phy_device_driver_s;
 struct eth_mac_api_s;

@@ -75,23 +75,23 @@ SRCS += \
 	source/libNET/src/ns_net.c \
 	source/libNET/src/socket_api.c \
 	source/libNET/src/multicast_api.c \
-	source/MAC/rf_driver_storage.c \
-	source/MAC/IEEE802_15_4/mac_header_helper_functions.c \
-	source/MAC/IEEE802_15_4/mac_indirect_data.c \
-	source/MAC/IEEE802_15_4/mac_mcps_sap.c \
-	source/MAC/IEEE802_15_4/mac_mlme.c \
-	source/MAC/IEEE802_15_4/mac_filter.c \
-	source/MAC/IEEE802_15_4/mac_pd_sap.c \
-	source/MAC/IEEE802_15_4/mac_security_mib.c \
-	source/MAC/IEEE802_15_4/mac_timer.c \
-	source/MAC/IEEE802_15_4/sw_mac.c \
-	source/MAC/IEEE802_15_4/mac_fhss_callbacks.c \
-	source/MAC/IEEE802_15_4/mac_cca_threshold.c \
-	source/MAC/IEEE802_15_4/mac_mode_switch.c \
-	source/MAC/ethernet/ethernet_mac_api.c \
-	source/MAC/serial/serial_mac_api.c \
-	source/MAC/virtual_rf/virtual_rf_client.c \
-	source/MAC/virtual_rf/virtual_rf_driver.c \
+	source/mac/rf_driver_storage.c \
+	source/mac/IEEE802_15_4/mac_header_helper_functions.c \
+	source/mac/IEEE802_15_4/mac_indirect_data.c \
+	source/mac/IEEE802_15_4/mac_mcps_sap.c \
+	source/mac/IEEE802_15_4/mac_mlme.c \
+	source/mac/IEEE802_15_4/mac_filter.c \
+	source/mac/IEEE802_15_4/mac_pd_sap.c \
+	source/mac/IEEE802_15_4/mac_security_mib.c \
+	source/mac/IEEE802_15_4/mac_timer.c \
+	source/mac/IEEE802_15_4/sw_mac.c \
+	source/mac/IEEE802_15_4/mac_fhss_callbacks.c \
+	source/mac/IEEE802_15_4/mac_cca_threshold.c \
+	source/mac/IEEE802_15_4/mac_mode_switch.c \
+	source/mac/ethernet/ethernet_mac_api.c \
+	source/mac/serial/serial_mac_api.c \
+	source/mac/virtual_rf/virtual_rf_client.c \
+	source/mac/virtual_rf/virtual_rf_driver.c \
 	source/MLE/mle.c \
 	source/MLE/mle_tlv.c \
 	source/MPL/mpl.c \

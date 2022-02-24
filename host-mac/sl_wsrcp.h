@@ -14,7 +14,7 @@
 
 #include "host-common/slist.h"
 #include "nanostack/fhss_ws_extension.h"
-#include "nanostack/source/MAC/rf_driver_storage.h"
+#include "nanostack/source/mac/rf_driver_storage.h"
 
 struct os_ctxt;
 struct mac_api_s;
