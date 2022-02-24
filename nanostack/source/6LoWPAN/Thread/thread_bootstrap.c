@@ -1350,9 +1350,9 @@ static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_en
         thread_bootstrap_attach_start(cur->id, THREAD_ANY_ATTACH);
     } else {
         if (cur->thread_info->thread_attached_state == THREAD_STATE_NETWORK_DISCOVER) {
-            bootsrap_next_state_kick(ER_BOOTSTRAP_LEADER_UP, cur);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_LEADER_UP, cur);
         } else {
-            bootsrap_next_state_kick(ER_BOOTSTRAP_NEW_FRAGMENT_START, cur);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_NEW_FRAGMENT_START, cur);
         }
     }
 }
@@ -2282,7 +2282,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             if (thread_mle_service_register(cur, thread_joiner_application_random_mac_get(cur->id)) != 0 ||
                     thread_link_configuration_activate(cur, linkConfiguration) != 0) {
                 tr_error("Network Bootsrap Start Fail");
-                bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, cur);
+                bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, cur);
                 return;
             }
             if (thread_bootstrap_sync_after_reset_start(cur)) {

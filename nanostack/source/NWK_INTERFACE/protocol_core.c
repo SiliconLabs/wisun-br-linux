@@ -419,7 +419,7 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
     }
 }
 
-void bootsrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur)
+void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur)
 {
     cur->bootsrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;
@@ -432,7 +432,7 @@ void bootsrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_en
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
     if (eventOS_event_send(&event) != 0) {
-        tr_error("bootsrap_next_state_kick(): event send failed");
+        tr_error("bootstrap_next_state_kick(): event send failed");
     }
 }
 

@@ -175,7 +175,7 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
         // Coordinating parent has been lost during bootstrap
         if (!cur_interface->global_address_available) {
             tr_debug("bootstrap coordinator down");
-            bootsrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur_interface);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur_interface);
         }
     } else {
         //Call Priority parent loose
@@ -190,7 +190,7 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
         if (nd_parent_loose_indcate(mac64, cur_interface) != 0) {
             //ND Router synch lost
             tr_debug("ND Router Synch Loose");
-            bootsrap_next_state_kick(ER_PARENT_SYNCH_LOST, cur_interface);
+            bootstrap_next_state_kick(ER_PARENT_SYNCH_LOST, cur_interface);
         }
     }
 }
@@ -757,7 +757,7 @@ static bool mle_child_update_cb(int8_t interface_id, uint16_t msgId, bool usedAl
     if (usedAllRetries) {
         tr_debug("Link Update fail-->Reset bootstrap");
         mac_data_poll_protocol_poll_mode_decrement(cur);
-        bootsrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur);
+        bootstrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur);
 
         return false;
     }
@@ -792,7 +792,7 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
     if (mle_service_check_msg_response(msgId)) {
         if (cur->nwk_bootstrap_state == ER_MLE_LINK_REQ) {
             //Enter ND scan
-            bootsrap_next_state_kick(ER_SCAN, cur);
+            bootstrap_next_state_kick(ER_SCAN, cur);
             pan_coordinator_blacklist_free(&cur->pan_cordinator_black_list);
         }
 #ifdef HAVE_RPL
@@ -804,7 +804,7 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
 #endif
         else if (cur->nwk_bootstrap_state == ER_MLE_LINK_ADDRESS_SYNCH) {
             mac_data_poll_protocol_poll_mode_disable(cur);
-            bootsrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
+            bootstrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
 
         } else if (cur->nwk_bootstrap_state == ER_MLE_LINK_SHORT_SYNCH) {
             tr_debug("MAC16 address synch ready");
@@ -826,11 +826,11 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
                     coordinator_black_list(cur);
                 }
                 tr_debug("Link synch fail %u", cur->nwk_bootstrap_state);
-                bootsrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur);
+                bootstrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur);
                 break;
 #ifdef HAVE_RPL
             case ER_ROUTER_SYNCH:
-                bootsrap_next_state_kick(ER_RPL_MC, cur);
+                bootstrap_next_state_kick(ER_RPL_MC, cur);
                 break;
 #endif // HAVE_RPL
             default:
@@ -1408,7 +1408,7 @@ static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_messa
         //Stop Pana and call ECC
         tr_debug("MLE Link reject from cordinator");
         pana_reset_client_session();
-        bootsrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
+        bootstrap_next_state_kick(ER_PANA_AUTH_ERROR, interface);
     }
 #else
     (void)mle_msg;
@@ -1507,7 +1507,7 @@ void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
     icmp_nd_routers_init();
     cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ACTIVE;
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
-    bootsrap_next_state_kick(ER_SCAN, cur);
+    bootstrap_next_state_kick(ER_SCAN, cur);
     mac_helper_mac16_address_set(cur, 0xffff);
 }
 
@@ -1953,7 +1953,7 @@ static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
 {
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
         tr_debug("ND BS ready");
-        bootsrap_next_state_kick(ER_BIND_COMP, cur);
+        bootstrap_next_state_kick(ER_BIND_COMP, cur);
         clear_power_state(ICMP_ACTIVE);
         cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
     } else {
@@ -2052,7 +2052,7 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
     switch (event) {
         case RPL_EVENT_DAO_DONE:
             if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE)) {
-                bootsrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
+                bootstrap_next_state_kick(ER_BOOTSRAP_DONE, cur);
                 clear_power_state(ICMP_ACTIVE);
             } else if (cur->nwk_bootstrap_state == ER_RPL_LOCAL_REPAIR) {
                 // Updates beacon
@@ -2235,9 +2235,9 @@ void nwk_6lowpan_pana_key_pull(protocol_interface_info_entry_t *cur)
 void nwk_6lowpan_bootsrap_pana_authentication_cb(bool processSuccesfully, protocol_interface_info_entry_t *cur)
 {
     if (processSuccesfully) {
-        bootsrap_next_state_kick(ER_PANA_AUTH_DONE, cur);
+        bootstrap_next_state_kick(ER_PANA_AUTH_DONE, cur);
     } else {
-        bootsrap_next_state_kick(ER_PANA_AUTH_ERROR, cur);
+        bootstrap_next_state_kick(ER_PANA_AUTH_ERROR, cur);
 
     }
 }
@@ -2459,7 +2459,7 @@ bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interf
     uint8_t *b_ptr = mac_helper_beacon_payload_reallocate(interface, beacon_length);
     if (!b_ptr) {
         tr_error("Beacon Payload allocate Fail");
-        bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
+        bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
         return false;
     }
     memcpy(b_ptr, beacon_payload, beacon_length);
@@ -2496,16 +2496,16 @@ bool protocol_6lowpan_bootstrap_start(protocol_interface_info_entry_t *interface
         nwk_6lowpan_bootsrap_pana_authentication_start(interface);
         tr_debug("Pana auth");
 #else
-        bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
+        bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
         return false;
 #endif
     } else if (interface->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
         if (protocol_6lowpan_parent_link_req(interface) != 0) {
-            bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
             return false;
         }
     } else {
-        bootsrap_next_state_kick(ER_SCAN, interface);
+        bootstrap_next_state_kick(ER_SCAN, interface);
     }
     return true;
 }
@@ -2537,7 +2537,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
     if (!result || !conf->ResultListSize) {
         tr_debug("Mac scan confirm:No Beacons");
         if (is_border_router == false) {
-            bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
             return;
         }
     }
@@ -2578,7 +2578,7 @@ void bootstrap_timer_handle(uint16_t ticks)
         if (cur->nwk_id == IF_6LoWPAN) {
             if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN || cur->nwk_bootstrap_state == ER_WARM_ACTIVE_SCAN) {
                 // Retransmit Scan request
-                bootsrap_next_state_kick(cur->nwk_bootstrap_state, cur);
+                bootstrap_next_state_kick(cur->nwk_bootstrap_state, cur);
                 tr_error("Restart active scan");
             } else {
                 // Retransmit Start request
@@ -2692,7 +2692,7 @@ void protocol_6lowpan_nd_borderrouter_connection_down(protocol_interface_info_en
         mac_helper_mac16_address_set(interface, 0xffff);
 
         //TRIG Event for ND connection Down
-        bootsrap_next_state_kick(ER_BOOTSTRAP_IP_ADDRESS_ALLOC_FAIL, interface);
+        bootstrap_next_state_kick(ER_BOOTSTRAP_IP_ADDRESS_ALLOC_FAIL, interface);
     }
 }
 

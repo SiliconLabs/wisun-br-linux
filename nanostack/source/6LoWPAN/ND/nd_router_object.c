@@ -453,7 +453,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     }
                 }
             }
-            bootsrap_next_state_kick(ER_BOOTSTRAP_DAD_FAIL, interface);
+            bootstrap_next_state_kick(ER_BOOTSTRAP_DAD_FAIL, interface);
 
             break;
 

@@ -608,9 +608,9 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
      */
     if (number_of_channels > 1) {
         if (warm_restart) {
-            bootsrap_next_state_kick(ER_WARM_ACTIVE_SCAN, cur);
+            bootstrap_next_state_kick(ER_WARM_ACTIVE_SCAN, cur);
         } else {
-            bootsrap_next_state_kick(ER_ACTIVE_SCAN, cur);
+            bootstrap_next_state_kick(ER_ACTIVE_SCAN, cur);
         }
     } else {
         border_router_start(cur, warm_restart);
