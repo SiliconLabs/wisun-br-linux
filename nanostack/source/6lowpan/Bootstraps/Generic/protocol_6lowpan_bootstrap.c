@@ -40,7 +40,7 @@
 #include "mac_api.h"
 #include "net_pana_parameters_api.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 #endif
 #ifndef NO_MLE
 #include "mle/mle.h"

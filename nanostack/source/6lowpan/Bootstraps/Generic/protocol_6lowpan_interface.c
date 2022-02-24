@@ -41,7 +41,7 @@
 #include "mac_api.h"
 
 #ifdef HAVE_RPL
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 #endif
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #ifndef NO_MLE

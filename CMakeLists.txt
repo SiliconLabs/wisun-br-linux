@@ -167,14 +167,14 @@ add_executable(wsbrd
     nanostack/source/nwk_interface/protocol_core_sleep.c
     nanostack/source/nwk_interface/protocol_stats.c
     nanostack/source/nwk_interface/protocol_timer.c
-    nanostack/source/RPL/rpl_control.c
-    nanostack/source/RPL/rpl_mrhof.c
-    nanostack/source/RPL/rpl_downward.c
-    nanostack/source/RPL/rpl_data.c
-    nanostack/source/RPL/rpl_objective.c
-    nanostack/source/RPL/rpl_of0.c
-    nanostack/source/RPL/rpl_policy.c
-    nanostack/source/RPL/rpl_upward.c
+    nanostack/source/rpl/rpl_control.c
+    nanostack/source/rpl/rpl_mrhof.c
+    nanostack/source/rpl/rpl_downward.c
+    nanostack/source/rpl/rpl_data.c
+    nanostack/source/rpl/rpl_objective.c
+    nanostack/source/rpl/rpl_of0.c
+    nanostack/source/rpl/rpl_policy.c
+    nanostack/source/rpl/rpl_upward.c
     nanostack/source/security/eapol/eapol_helper.c
     nanostack/source/security/eapol/kde_helper.c
     nanostack/source/security/kmp/kmp_addr.c
@@ -409,14 +409,14 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/nwk_interface/protocol_core_sleep.c
         nanostack/source/nwk_interface/protocol_stats.c
         nanostack/source/nwk_interface/protocol_timer.c
-        nanostack/source/RPL/rpl_control.c
-        nanostack/source/RPL/rpl_mrhof.c
-        nanostack/source/RPL/rpl_downward.c
-        nanostack/source/RPL/rpl_data.c
-        nanostack/source/RPL/rpl_objective.c
-        nanostack/source/RPL/rpl_of0.c
-        nanostack/source/RPL/rpl_policy.c
-        nanostack/source/RPL/rpl_upward.c
+        nanostack/source/rpl/rpl_control.c
+        nanostack/source/rpl/rpl_mrhof.c
+        nanostack/source/rpl/rpl_downward.c
+        nanostack/source/rpl/rpl_data.c
+        nanostack/source/rpl/rpl_objective.c
+        nanostack/source/rpl/rpl_of0.c
+        nanostack/source/rpl/rpl_policy.c
+        nanostack/source/rpl/rpl_upward.c
         nanostack/source/security/eapol/eapol_helper.c
         nanostack/source/security/eapol/kde_helper.c
         nanostack/source/security/kmp/kmp_addr.c

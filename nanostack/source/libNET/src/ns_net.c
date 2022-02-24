@@ -30,10 +30,10 @@
 #include "nwk_interface/Include/protocol.h"
 #include "core/include/ns_socket.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_of0.h"
-#include "RPL/rpl_mrhof.h"
-#include "RPL/rpl_control.h"
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_of0.h"
+#include "rpl/rpl_mrhof.h"
+#include "rpl/rpl_control.h"
+#include "rpl/rpl_data.h"
 #endif
 #include "ccmLIB.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

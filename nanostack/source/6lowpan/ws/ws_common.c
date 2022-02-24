@@ -45,8 +45,8 @@
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
-#include "RPL/rpl_protocol.h"
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_control.h"
 #include "ws_management_api.h"
 #include "mac_api.h"
 

@@ -26,8 +26,8 @@
 #include "common_protocols/icmpv6_radv.h"
 #include "randLIB.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_control.h"
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_control.h"
+#include "rpl/rpl_data.h"
 #endif
 #include "mle/mle.h"
 #include "6lowpan/IPHC_Decode/cipv6.h"

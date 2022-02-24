@@ -28,13 +28,13 @@
 #include "common_protocols/ipv6_resolution.h"
 #include "service_libs/etx/etx.h"
 
-#include "RPL/rpl_protocol.h"
-#include "RPL/rpl_objective.h"
-#include "RPL/rpl_upward.h"
-#include "RPL/rpl_downward.h"
-#include "RPL/rpl_policy.h"
-#include "RPL/rpl_structures.h"
-#include "RPL/rpl_mrhof.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_objective.h"
+#include "rpl/rpl_upward.h"
+#include "rpl/rpl_downward.h"
+#include "rpl/rpl_policy.h"
+#include "rpl/rpl_structures.h"
+#include "rpl/rpl_mrhof.h"
 
 #define TRACE_GROUP "rplm"
 

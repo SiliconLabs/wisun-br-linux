@@ -99,14 +99,14 @@ SRCS += \
 	source/nwk_interface/protocol_core_sleep.c \
 	source/nwk_interface/protocol_stats.c \
 	source/nwk_interface/protocol_timer.c \
-	source/RPL/rpl_control.c \
-	source/RPL/rpl_data.c \
-	source/RPL/rpl_upward.c \
-	source/RPL/rpl_downward.c \
-	source/RPL/rpl_objective.c \
-	source/RPL/rpl_of0.c \
-	source/RPL/rpl_mrhof.c \
-	source/RPL/rpl_policy.c \
+	source/rpl/rpl_control.c \
+	source/rpl/rpl_data.c \
+	source/rpl/rpl_upward.c \
+	source/rpl/rpl_downward.c \
+	source/rpl/rpl_objective.c \
+	source/rpl/rpl_of0.c \
+	source/rpl/rpl_mrhof.c \
+	source/rpl/rpl_policy.c \
 	source/security/Common/security_lib.c \
 	source/security/eapol/eapol_helper.c \
 	source/security/eapol/kde_helper.c \

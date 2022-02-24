@@ -75,7 +75,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/Thread/thread_mle_message_handler.h"
 #include "mac_api.h"
-#include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
+#include "rpl/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "thread_management_if.h"
 #include "thread_border_router_api.h"
 #include "thread_tmfcop_lib.h"

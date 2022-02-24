@@ -59,7 +59,7 @@
 #include "common_protocols/udp.h"
 #include "6lowpan/ND/nd_router_object.h"
 #include "mpl/mpl.h"
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_bootstrap.h"

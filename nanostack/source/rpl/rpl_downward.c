@@ -94,13 +94,13 @@
 #include "common_protocols/ip.h"
 
 #include "net_rpl.h"
-#include "RPL/rpl_protocol.h"
-#include "RPL/rpl_policy.h"
-#include "RPL/rpl_upward.h"
-#include "RPL/rpl_downward.h"
-#include "RPL/rpl_control.h"
-#include "RPL/rpl_data.h"
-#include "RPL/rpl_structures.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_policy.h"
+#include "rpl/rpl_upward.h"
+#include "rpl/rpl_downward.h"
+#include "rpl/rpl_control.h"
+#include "rpl/rpl_data.h"
+#include "rpl/rpl_structures.h"
 
 #define TRACE_GROUP "RPLd"
 

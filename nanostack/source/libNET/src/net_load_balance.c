@@ -45,7 +45,7 @@
 #endif
 #include "6lowpan/ND/nd_router_object.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 #endif
 
 #define TRACE_GROUP "6lb"

@@ -36,7 +36,7 @@
 #include "6lowpan/Thread/thread_common.h"
 #include "common_functions.h"
 
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 
 #define TRACE_GROUP "addr"
 

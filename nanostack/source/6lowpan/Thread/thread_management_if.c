@@ -64,7 +64,7 @@
 #include "6lowpan/Thread/thread_bbr_api_internal.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "service_libs/mle_service/mle_service_security.h"
-#include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
+#include "rpl/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "mle/mle.h"
 #include "mle/mle_tlv.h"
 #include "thread_meshcop_lib.h"

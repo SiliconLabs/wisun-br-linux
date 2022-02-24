@@ -31,9 +31,9 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/ND/nd_router_object.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_control.h"
-#include "RPL/rpl_data.h"
-#include "RPL/rpl_protocol.h"
+#include "rpl/rpl_control.h"
+#include "rpl/rpl_data.h"
+#include "rpl/rpl_protocol.h"
 #endif
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "6lowpan/ND/nd_router_object.h"

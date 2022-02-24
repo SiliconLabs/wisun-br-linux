@@ -48,13 +48,13 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "common_protocols/ipv6_resolution.h"
 
-#include "RPL/rpl_protocol.h"
-#include "RPL/rpl_policy.h"
-#include "RPL/rpl_control.h"
-#include "RPL/rpl_objective.h"
-#include "RPL/rpl_upward.h"
-#include "RPL/rpl_downward.h"
-#include "RPL/rpl_structures.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_policy.h"
+#include "rpl/rpl_control.h"
+#include "rpl/rpl_objective.h"
+#include "rpl/rpl_upward.h"
+#include "rpl/rpl_downward.h"
+#include "rpl/rpl_structures.h"
 
 #include "net_rpl.h"
 

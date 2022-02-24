@@ -44,7 +44,7 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_data.h"
 #endif
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/Thread/thread_common.h"

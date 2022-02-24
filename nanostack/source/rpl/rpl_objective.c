@@ -20,7 +20,7 @@
 #ifdef HAVE_RPL
 
 #include "ns_list.h"
-#include "RPL/rpl_objective.h"
+#include "rpl/rpl_objective.h"
 
 static NS_LIST_DEFINE(rpl_objectives, rpl_objective_t, link);
 

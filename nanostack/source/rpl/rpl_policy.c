@@ -29,8 +29,8 @@
 #include "common_protocols/ipv6_resolution.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
-#include "RPL/rpl_objective.h"
-#include "RPL/rpl_policy.h"
+#include "rpl/rpl_objective.h"
+#include "rpl/rpl_policy.h"
 
 #define TRACE_GROUP "RPLy"
 

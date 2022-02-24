@@ -20,11 +20,11 @@
 #include "ns_trace.h"
 #include "randLIB.h"
 #include "nwk_interface/Include/protocol.h"
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_control.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_data.h"
 #endif
-#include "RPL/rpl_protocol.h"
+#include "rpl/rpl_protocol.h"
 #ifdef HAVE_MPL
 #include "mpl/mpl.h"
 #endif

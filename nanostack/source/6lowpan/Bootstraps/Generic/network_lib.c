@@ -46,7 +46,7 @@
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #ifdef HAVE_RPL
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_data.h"
 #endif
 
 #include "platform/arm_hal_interrupt.h"

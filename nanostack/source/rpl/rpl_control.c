@@ -50,11 +50,11 @@
 #include "service_libs/etx/etx.h" /* slight ick */
 
 #include "net_rpl.h"
-#include "RPL/rpl_protocol.h"
-#include "RPL/rpl_upward.h"
-#include "RPL/rpl_downward.h"
-#include "RPL/rpl_policy.h"
-#include "RPL/rpl_control.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_upward.h"
+#include "rpl/rpl_downward.h"
+#include "rpl/rpl_policy.h"
+#include "rpl/rpl_control.h"
 #include "6lowpan/ws/ws_common.h"
 
 #define TRACE_GROUP "rplc"

@@ -35,7 +35,7 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/ipv6_flow.h"
-#include "RPL/rpl_data.h"
+#include "rpl/rpl_data.h"
 #ifdef HAVE_MPL
 #include "mpl/mpl.h"
 #endif
@@ -1421,7 +1421,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             case IPV6_NH_IPV6:
                 /* Tunnel support is only used for RPL or MPL. Only permit tunnel exit if there was
                   * a RPL or MPL HbH option header, or RPL SRH header. Gives security, as
-                  * long as border router doesn't forward such packets into RPL/MPL domain.
+                  * long as border router doesn't forward such packets into rpl/MPL domain.
                   */
                 if (!(buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL | IPEXT_HBH_MPL))) {
                     goto bad_nh;
