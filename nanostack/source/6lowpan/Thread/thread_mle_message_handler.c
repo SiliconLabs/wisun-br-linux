@@ -54,7 +54,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "common_protocols/ipv6.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "mac_api.h"
 #define TRACE_GROUP "thmh"
 static int8_t thread_link_request_start(protocol_interface_info_entry_t *cur, uint8_t *router_ll64);

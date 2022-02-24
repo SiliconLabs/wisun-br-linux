@@ -41,7 +41,7 @@
 #include "thread_leader_service.h"
 #include "thread_router_bootstrap.h"
 #include "6lowpan/Thread/thread_neighbor_class.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "6lowpan/Thread/thread_router_bootstrap.h"
 #include "thread_config.h"
 #include "thread_network_data_storage.h"

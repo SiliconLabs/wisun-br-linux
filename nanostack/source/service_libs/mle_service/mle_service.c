@@ -36,8 +36,8 @@
 #include "service_libs/mle_service/mle_service_buffer.h"
 #include "service_libs/mle_service/mle_service_interface.h"
 #include "service_libs/mle_service/mle_service_frame_counter_table.h"
-#include "MLE/mle.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle.h"
+#include "mle/mle_tlv.h"
 #include "mac_common_defines.h"
 #include "6lowpan/MAC/mac_helper.h"
 

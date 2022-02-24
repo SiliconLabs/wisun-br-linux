@@ -43,8 +43,8 @@
 #include "RPL/rpl_control.h"
 #endif
 #ifndef NO_MLE
-#include "MLE/mle.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle.h"
+#include "mle/mle_tlv.h"
 #endif
 #ifdef ECC
 #include "libX509_V3.h"

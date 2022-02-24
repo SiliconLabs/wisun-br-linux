@@ -66,7 +66,7 @@
 #include "thread_management_if.h"
 #include "common_protocols/ipv6.h"
 #include "MPL/mpl.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle_tlv.h"
 #include "thread_config.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/blacklist/blacklist.h"

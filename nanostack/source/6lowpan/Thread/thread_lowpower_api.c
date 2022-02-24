@@ -41,7 +41,7 @@
 #include "thread_common.h"
 #include "thread_config.h"
 #include "eventOS_event_timer.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "nwk_interface/Include/protocol.h"
 #include "thread_lowpower_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"

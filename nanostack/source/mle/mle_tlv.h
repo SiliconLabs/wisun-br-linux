@@ -18,7 +18,7 @@
 #ifndef MLE_TLV_H_
 #define MLE_TLV_H_
 
-#include "MLE/mle.h"
+#include "mle/mle.h"
 
 /**
  * TLV message Info structure will be used for Catching proper TLV and save info to current structure

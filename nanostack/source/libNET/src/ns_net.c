@@ -44,7 +44,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/beacon_handler.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"

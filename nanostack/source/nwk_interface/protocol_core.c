@@ -29,7 +29,7 @@
 #include "nwk_interface/Include/protocol_timer.h"
 #include "platform/arm_hal_interrupt.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"

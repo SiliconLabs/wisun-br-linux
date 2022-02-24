@@ -30,7 +30,7 @@
 #include "nsdynmemLIB.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_buffer.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "mac_common_defines.h"
 #include "service_libs/mle_service/mle_service_security.h"
 

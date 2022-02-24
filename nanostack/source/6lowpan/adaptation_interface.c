@@ -39,7 +39,7 @@
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/IPHC_Decode/iphc_decompress.h"
 #include "lowpan_adaptation_interface.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"

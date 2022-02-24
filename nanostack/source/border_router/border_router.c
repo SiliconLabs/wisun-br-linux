@@ -25,7 +25,7 @@
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "mac_api.h"
 

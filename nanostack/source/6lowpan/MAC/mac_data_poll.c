@@ -41,7 +41,7 @@
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_bootstrap.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mac_data_poll.h"

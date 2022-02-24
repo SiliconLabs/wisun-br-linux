@@ -160,8 +160,8 @@ add_executable(wsbrd
     # Excluded nanostack/source/mac/serial
     # Excluded nanostack/source/mac/IEEE802_15_4
     # Excluded nanostack/source/mac/virtual_rf
-    nanostack/source/MLE/mle.c
-    nanostack/source/MLE/mle_tlv.c
+    nanostack/source/mle/mle.c
+    nanostack/source/mle/mle_tlv.c
     nanostack/source/MPL/mpl.c
     nanostack/source/nwk_interface/protocol_core.c
     nanostack/source/nwk_interface/protocol_core_sleep.c
@@ -402,8 +402,8 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded nanostack/source/mac/serial
         # Excluded nanostack/source/mac/IEEE802_15_4
         # Excluded nanostack/source/mac/virtual_rf
-        nanostack/source/MLE/mle.c
-        nanostack/source/MLE/mle_tlv.c
+        nanostack/source/mle/mle.c
+        nanostack/source/mle/mle_tlv.c
         nanostack/source/MPL/mpl.c
         nanostack/source/nwk_interface/protocol_core.c
         nanostack/source/nwk_interface/protocol_core_sleep.c

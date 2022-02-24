@@ -27,7 +27,7 @@
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/Thread/thread_management_internal.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "mac_mcps.h"
 #include "6lowpan/MAC/mac_data_poll.h"
 #include "6lowpan/MAC/mac_response_handler.h"

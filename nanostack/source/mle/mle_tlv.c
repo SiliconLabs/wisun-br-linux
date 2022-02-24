@@ -17,8 +17,8 @@
 #include "nsconfig.h"
 #include "ns_trace.h"
 #include "string.h"
-#include "MLE/mle.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle.h"
+#include "mle/mle_tlv.h"
 #include "common_functions.h"
 #include "service_libs/mle_service/mle_service_api.h"
 

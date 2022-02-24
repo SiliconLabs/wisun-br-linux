@@ -52,7 +52,7 @@
 #include "6lowpan/Thread/thread_mdns.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "thread_meshcop_lib.h"
 #include "thread_network_data_lib.h"
 #include "coap_service_api.h"

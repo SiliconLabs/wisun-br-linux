@@ -40,7 +40,7 @@
 #define _THREAD_LEADER_SERVICE_H_
 #ifdef HAVE_THREAD_LEADER_SERVICE
 
-#include "MLE/mle_tlv.h"
+#include "mle/mle_tlv.h"
 
 /** Initialize Thread Leader Service
  *

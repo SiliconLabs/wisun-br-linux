@@ -51,7 +51,7 @@
 #include "6lowpan/Thread/thread_neighbor_class.h"
 #include "6lowpan/Thread/thread_bbr_commercial.h"
 #include "6lowpan/Thread/thread_ccm.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "thread_meshcop_lib.h"
 #include "thread_diagcop_lib.h"
 #include "coap_service_api.h"

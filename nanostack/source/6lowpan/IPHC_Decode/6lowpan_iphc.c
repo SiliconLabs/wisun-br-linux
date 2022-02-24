@@ -32,7 +32,7 @@
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/MAC/mac_helper.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"
 #include "nwk_stats_api.h"

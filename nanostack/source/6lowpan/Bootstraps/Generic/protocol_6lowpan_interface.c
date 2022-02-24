@@ -45,7 +45,7 @@
 #endif
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"

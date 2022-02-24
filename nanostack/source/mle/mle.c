@@ -16,7 +16,7 @@
  */
 
 #include "nsconfig.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 
 
 #include "ns_types.h"
@@ -36,7 +36,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include "platform/topo_trace.h"
 #include "common_functions.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle_tlv.h"
 #include "nwk_interface/Include/protocol_timer.h"
 #include "common_protocols/ipv6_constants.h"
 #include "service_libs/mle_service/mle_service_api.h"

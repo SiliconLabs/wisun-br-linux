@@ -38,7 +38,7 @@
 #include "thread_commissioning_api.h"
 #include "thread_border_router_api.h"
 #include "eventOS_event_timer.h"
-#include "MLE/mle_tlv.h"
+#include "mle/mle_tlv.h"
 
 struct mac_neighbor_table_entry;
 

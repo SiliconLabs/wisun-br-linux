@@ -61,7 +61,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "common_protocols/icmpv6.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "dhcp_service_api.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 

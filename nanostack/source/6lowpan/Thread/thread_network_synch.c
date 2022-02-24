@@ -62,7 +62,7 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/MAC/mac_helper.h"

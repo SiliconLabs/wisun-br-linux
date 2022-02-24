@@ -24,7 +24,7 @@
 #include "net_interface.h"
 
 #include "core/include/ns_address_internal.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "nwk_interface/Include/protocol_abstract.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_stats.h"

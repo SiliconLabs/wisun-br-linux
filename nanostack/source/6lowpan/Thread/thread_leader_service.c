@@ -58,7 +58,7 @@
 #include "6lowpan/Thread/thread_host_bootstrap.h"
 #include "6lowpan/Thread/thread_border_router_api_internal.h"
 #include "MPL/mpl.h"
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_data_poll.h"

@@ -38,7 +38,7 @@
 #include "6lowpan/IPHC_Decode/cipv6.h"
 #include "6lowpan/ND/nd_router_object.h"
 #ifndef NO_MLE
-#include "MLE/mle.h"
+#include "mle/mle.h"
 #endif
 #include "6lowpan/Mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"
