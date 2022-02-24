@@ -218,7 +218,7 @@ add_executable(wsbrd
     nanostack/source/service_libs/mle_service/mle_service_interface.c
     nanostack/source/service_libs/mle_service/mle_service_security.c
     nanostack/source/service_libs/nd_proxy/nd_proxy.c
-    nanostack/source/service_libs/Neighbor_cache/neighbor_cache.c
+    nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
     nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
     nanostack/source/service_libs/random_early_detection/random_early_detection.c
@@ -460,7 +460,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/mle_service/mle_service_interface.c
         nanostack/source/service_libs/mle_service/mle_service_security.c
         nanostack/source/service_libs/nd_proxy/nd_proxy.c
-        nanostack/source/service_libs/Neighbor_cache/neighbor_cache.c
+        nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
         nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         nanostack/source/service_libs/pan_blacklist/pan_blacklist.c
         nanostack/source/service_libs/random_early_detection/random_early_detection.c

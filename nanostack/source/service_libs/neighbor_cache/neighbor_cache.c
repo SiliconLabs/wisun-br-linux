@@ -20,7 +20,7 @@
 #include "ns_trace.h"
 #include "string.h"
 #include "nsdynmemLIB.h"
-#include "service_libs/Neighbor_cache/neighbor_table_definition.h"
+#include "service_libs/neighbor_cache/neighbor_table_definition.h"
 
 #ifdef HAVE_NEIGHBOR_CACHE
 

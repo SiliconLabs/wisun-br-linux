@@ -163,7 +163,7 @@ SRCS += \
 	source/service_libs/mle_service/mle_service_security.c \
 	source/service_libs/blacklist/blacklist.c \
 	source/service_libs/etx/etx.c \
-	source/service_libs/Neighbor_cache/neighbor_cache.c \
+	source/service_libs/neighbor_cache/neighbor_cache.c \
 	source/service_libs/nd_proxy/nd_proxy.c \
 	source/service_libs/load_balance/load_balance.c \
 	source/service_libs/sha256/shalib.c \
