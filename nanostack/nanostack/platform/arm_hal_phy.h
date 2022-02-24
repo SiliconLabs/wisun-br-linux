@@ -72,7 +72,7 @@ typedef enum {
     PHY_EXTENSION_ACCEPT_ANY_BEACON, /**< Set boolean true or false for accept beacon from other Pan-ID than configured. Default value should be false */
     PHY_EXTENSION_SET_TX_TIME,  /**< Net library sets transmission time based on global time stamp. Max. 65ms from setting to TX. If TX time is set to zero, it should be ignored.*/
     PHY_EXTENSION_READ_RX_TIME, /**< Read the time of last reception based on global micro seconds time stamp. */
-    PHY_EXTENSION_READ_TX_FINNISH_TIME, /**< Read the time of last finished TX micro seconds based on global time stamp. */
+    PHY_EXTENSION_READ_TX_FINISH_TIME, /**< Read the time of last finished TX micro seconds based on global time stamp. */
     PHY_EXTENSION_DYNAMIC_RF_SUPPORTED, /**< Read status for support Radio driver support for set TX time, CCA and Timestamp read. Also PHY_LINK_CCA_PREPARE tx status must be supported also*/
     PHY_EXTENSION_GET_TIMESTAMP, /**<  Read 32-bit constant monotonic time stamp in us */
     PHY_EXTENSION_SET_CSMA_PARAMETERS, /**< CSMA parameter's are given by phy_csma_params_t structure remember type cast uint8_t pointer to structure type*/
