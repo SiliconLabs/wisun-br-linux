@@ -188,7 +188,7 @@ void protocol_root_tasklet(arm_event_t *event)
             break;
         }
         case ARM_IN_INTERFACE_BOOTSTRAP_CB:
-            net_bootsrap_cb_run(event->event_id);
+            net_bootstrap_cb_run(event->event_id);
             break;
         case ARM_IN_INTERFACE_CORE_TIMER_CB:
             /* This event is delivered as "user-allocated", so finish reading
@@ -1148,7 +1148,7 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
     }
 }
 
-void net_bootsrap_cb_run(uint8_t event)
+void net_bootstrap_cb_run(uint8_t event)
 {
     int8_t nwk_id = (int8_t) event;
     protocol_interface_info_entry_t *cur = 0;

@@ -137,8 +137,8 @@ typedef enum arm_internal_event_type {
     ARM_IN_NWK_INTERFACE_EVENT = 1, /**< Interface Bootstrap  or state update event */
     ARM_IN_PROTOCOL_TIMER_EVENT = 2, /*!*< System Timer event */
     ARM_IN_SOCKET_EVENT = 5,    /**< Interface Bootstrap  or state update event */
-    ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootsrap_cb_run */
-    ARM_IN_INTERFACE_CORE_TIMER_CB, /** call net_bootsrap_cb_run */
+    ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootstrap_cb_run */
+    ARM_IN_INTERFACE_CORE_TIMER_CB, /** call net_bootstrap_cb_run */
     ARM_IN_INTERFACE_PROTOCOL_HANDLE, /** protocol_buffer_poll */
     ARM_IN_SECURITY_ECC_CALLER
 } arm_internal_event_type_e;
@@ -511,7 +511,7 @@ extern protocol_interface_info_entry_t *protocol_stack_interface_generate_ethern
 extern protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api_s *api);
 extern protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api_s *api);
 extern uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
-extern void net_bootsrap_cb_run(uint8_t event);
+extern void net_bootstrap_cb_run(uint8_t event);
 
 extern void protocol_core_security_tick_update(uint16_t tick_update);
 
