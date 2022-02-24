@@ -22,7 +22,7 @@
 
 /**
  *
- * \file ccmLIB.h
+ * \file ccm.h
  * \brief CCM Library API.
  *
  *  \section ccm-api CCM Library API:

@@ -24,7 +24,7 @@
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "shalib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"

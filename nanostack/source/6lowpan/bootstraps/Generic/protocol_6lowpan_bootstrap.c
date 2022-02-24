@@ -51,7 +51,7 @@
 #include "ecc.h"
 #endif
 
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "shalib.h"
 #include "net_nvm_api.h"
 #include "common_functions.h"

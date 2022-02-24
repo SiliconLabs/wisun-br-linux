@@ -35,7 +35,7 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #endif
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

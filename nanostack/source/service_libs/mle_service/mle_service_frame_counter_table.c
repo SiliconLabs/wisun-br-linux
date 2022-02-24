@@ -20,7 +20,7 @@
 #include <ns_types.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_buffer.h"

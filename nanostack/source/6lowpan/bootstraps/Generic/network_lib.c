@@ -38,7 +38,7 @@
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
 #include "security/pana/pana.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #endif
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/iphc_decode/cipv6.h"

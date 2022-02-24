@@ -40,7 +40,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "platform/arm_hal_aes.h"
 
 static void ccm_generate_A0(uint8_t *ptr, ccm_globals_t *ccm_pramters);

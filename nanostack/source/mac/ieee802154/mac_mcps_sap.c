@@ -28,7 +28,7 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "mlme.h"
 #include "mac_api.h"
 #include "fhss_api.h"

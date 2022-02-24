@@ -20,7 +20,7 @@
 
 #include <ns_types.h>
 #include "ns_list.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 
 #define MLE_STANDARD_RESPONSE_DELAY 10
 #define MLE_HALF_SECOND_MAX_DELAY 5

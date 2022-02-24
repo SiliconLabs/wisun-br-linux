@@ -20,7 +20,7 @@
 #include "string.h"
 #include "nsdynmemLIB.h"
 #include "randLIB.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "common_functions.h"
 #include "platform/arm_hal_interrupt.h"
 #include "mac_api.h"

@@ -27,7 +27,7 @@
 #include "common_functions.h"
 #include "mac_common_defines.h"
 #include "sw_mac.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "core/include/ns_monitor.h"
 #include "nwk_interface/Include/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

@@ -19,7 +19,7 @@
 #ifdef PANA
 #include "ns_trace.h"
 #include "string.h"
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "ns_trace.h"
 #include "common_functions.h"
 

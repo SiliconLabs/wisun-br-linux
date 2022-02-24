@@ -54,7 +54,7 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "ccmLIB.h"
+#include "ccm.h"
 #include "shalib.h"
 #include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
