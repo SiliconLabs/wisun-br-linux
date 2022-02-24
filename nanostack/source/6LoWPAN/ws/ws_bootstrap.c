@@ -588,7 +588,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
 
     for (uint8_t i = 0; i < number_of_channels; i++) {
         if (!(global_channel_mask[i / 32] & (1U << (i % 32)))) {
-            //Global exluded channel
+            //Global excluded channel
             if (active_range) {
                 //Mark range stop here
                 active_range = false;
@@ -638,7 +638,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
         excluded_data->excuded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
         channel_plan = 1;
     }
-    tr_debug("Excluded ctrl %u, exluded channel count %u, total domain channels %u", excluded_data->excuded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
+    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u", excluded_data->excuded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
     return channel_plan;
 }
 
@@ -651,7 +651,7 @@ void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *
     for (uint8_t n = 0; n < 8; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
     }
-    //Update Exluded channels
+    //Update Excluded channels
     cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
 }
 

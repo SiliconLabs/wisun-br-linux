@@ -78,7 +78,7 @@
 #define WS_FT_LPCS              12          /**< LFN PAN Config Solicit */
 
 
-/* WS exluded channel Control */
+/* WS excluded channel Control */
 #define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
 #define WS_EXC_CHAN_CTRL_RANGE 1            /**< Excluded channels are in 1 or multiple channel range */
 #define WS_EXC_CHAN_CTRL_BITMASK 2          /**< Excluded channels are marked to bitmask which length based on configured channels */
