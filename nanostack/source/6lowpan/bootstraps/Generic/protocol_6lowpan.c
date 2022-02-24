@@ -27,8 +27,8 @@
 #include "common_protocols/udp.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/ND/nd_router_object.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"

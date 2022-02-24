@@ -28,7 +28,7 @@
 #include "service_libs/mle_service/mle_service_api.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "mlme.h"
 #include "mac_api.h"
 #include "sw_mac.h"

@@ -26,7 +26,7 @@
 #endif
 #include "randLIB.h"
 #include "core/include/ns_socket.h"
-//#include "6lowpan/Bootstraps/network_lib.h"
+//#include "6lowpan/bootstraps/network_lib.h"
 #include "shalib.h"
 #include "security/tls/tls_lib.h"
 #include "security/tls/tls_ccm_crypt.h"

@@ -43,7 +43,7 @@
 #include "nwk_interface/Include/protocol_stats.h"
 #include "common_functions.h"
 #include "6lowpan/ND/nd_router_object.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "net_lib/src/net_dns_internal.h"

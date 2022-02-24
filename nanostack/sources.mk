@@ -1,9 +1,9 @@
 SRCS += \
 	source/6lowpan/adaptation_interface.c \
-	source/6lowpan/Bootstraps/Generic/network_lib.c \
-	source/6lowpan/Bootstraps/Generic/protocol_6lowpan.c \
-	source/6lowpan/Bootstraps/Generic/protocol_6lowpan_bootstrap.c \
-	source/6lowpan/Bootstraps/Generic/protocol_6lowpan_interface.c \
+	source/6lowpan/bootstraps/Generic/network_lib.c \
+	source/6lowpan/bootstraps/Generic/protocol_6lowpan.c \
+	source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c \
+	source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c \
 	source/6lowpan/Fragmentation/cipv6_fragmenter.c \
 	source/6lowpan/iphc_decode/6lowpan_iphc.c \
 	source/6lowpan/iphc_decode/iphc_compress.c \

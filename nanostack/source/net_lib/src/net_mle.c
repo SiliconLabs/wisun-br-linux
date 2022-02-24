@@ -30,7 +30,7 @@
 #include "mle/mle.h"
 #include "nwk_interface/Include/protocol.h"
 #include "service_libs/mle_service/mle_service_api.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 
 /** Set parameter.
 

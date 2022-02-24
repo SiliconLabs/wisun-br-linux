@@ -45,7 +45,7 @@
 #include "core/include/ns_socket.h"
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "net_thread_test.h"
 #include "ns_trace.h"
 #include "6lowpan/thread/thread_common.h"

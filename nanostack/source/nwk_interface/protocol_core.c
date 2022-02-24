@@ -31,9 +31,9 @@
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
-#include "6lowpan/Bootstraps/network_lib.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/bootstraps/network_lib.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "nwk_interface/Include/protocol_timer.h"
 #include "common_functions.h"

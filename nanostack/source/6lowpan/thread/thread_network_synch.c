@@ -45,7 +45,7 @@
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
 #include "ns_trace.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/thread/thread_common.h"
 #include "6lowpan/thread/thread_routing.h"
 #include "6lowpan/thread/thread_nd.h"

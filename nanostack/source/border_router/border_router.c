@@ -22,8 +22,8 @@
 #include "nsdynmemLIB.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nwk_interface/Include/protocol_timer.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan_bootstrap.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif

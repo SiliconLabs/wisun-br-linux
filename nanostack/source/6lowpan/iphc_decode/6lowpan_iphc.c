@@ -34,7 +34,7 @@
 #include "6lowpan/MAC/mac_helper.h"
 #include "mle/mle.h"
 
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "common_functions.h"

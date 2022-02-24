@@ -24,7 +24,7 @@
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
-#include "6lowpan/Bootstraps/network_lib.h"
+#include "6lowpan/bootstraps/network_lib.h"
 #include "mle/mle.h"
 #include "shalib.h"
 #include "common_protocols/ipv6_constants.h"

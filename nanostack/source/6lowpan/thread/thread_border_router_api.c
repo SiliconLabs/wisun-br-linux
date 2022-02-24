@@ -50,7 +50,7 @@
 #include "6lowpan/thread/thread_border_router_api_internal.h"
 #include "6lowpan/thread/thread_bbr_commercial.h"
 #include "6lowpan/thread/thread_mdns.h"
-#include "6lowpan/Bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mle/mle.h"
 #include "thread_meshcop_lib.h"
