@@ -24,8 +24,8 @@
 #include "sw_mac.h"
 #include "mac_common_defines.h"
 #include "common_functions.h"
-#include "mac/IEEE802_15_4/mac_defines.h"
-#include "mac/IEEE802_15_4/mac_security_mib.h"
+#include "mac/ieee802154/mac_defines.h"
+#include "mac/ieee802154/mac_security_mib.h"
 
 #define TRACE_GROUP "mMIB"
 /**

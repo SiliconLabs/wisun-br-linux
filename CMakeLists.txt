@@ -158,7 +158,7 @@ add_executable(wsbrd
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/mac/serial
-    # Excluded nanostack/source/mac/IEEE802_15_4
+    # Excluded nanostack/source/mac/ieee802154
     # Excluded nanostack/source/mac/virtual_rf
     nanostack/source/mle/mle.c
     nanostack/source/mle/mle_tlv.c
@@ -400,7 +400,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded nanostack/source/mac/serial
-        # Excluded nanostack/source/mac/IEEE802_15_4
+        # Excluded nanostack/source/mac/ieee802154
         # Excluded nanostack/source/mac/virtual_rf
         nanostack/source/mle/mle.c
         nanostack/source/mle/mle_tlv.c
@@ -541,18 +541,18 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        nanostack/source/mac/IEEE802_15_4/mac_cca_threshold.c
-        nanostack/source/mac/IEEE802_15_4/mac_fhss_callbacks.c
-        nanostack/source/mac/IEEE802_15_4/mac_filter.c
-        nanostack/source/mac/IEEE802_15_4/mac_header_helper_functions.c
-        nanostack/source/mac/IEEE802_15_4/mac_indirect_data.c
-        nanostack/source/mac/IEEE802_15_4/mac_mcps_sap.c
-        nanostack/source/mac/IEEE802_15_4/mac_mlme.c
-        nanostack/source/mac/IEEE802_15_4/mac_mode_switch.c
-        nanostack/source/mac/IEEE802_15_4/mac_pd_sap.c
-        nanostack/source/mac/IEEE802_15_4/mac_security_mib.c
-        nanostack/source/mac/IEEE802_15_4/mac_timer.c
-        nanostack/source/mac/IEEE802_15_4/sw_mac.c
+        nanostack/source/mac/ieee802154/mac_cca_threshold.c
+        nanostack/source/mac/ieee802154/mac_fhss_callbacks.c
+        nanostack/source/mac/ieee802154/mac_filter.c
+        nanostack/source/mac/ieee802154/mac_header_helper_functions.c
+        nanostack/source/mac/ieee802154/mac_indirect_data.c
+        nanostack/source/mac/ieee802154/mac_mcps_sap.c
+        nanostack/source/mac/ieee802154/mac_mlme.c
+        nanostack/source/mac/ieee802154/mac_mode_switch.c
+        nanostack/source/mac/ieee802154/mac_pd_sap.c
+        nanostack/source/mac/ieee802154/mac_security_mib.c
+        nanostack/source/mac/ieee802154/mac_timer.c
+        nanostack/source/mac/ieee802154/sw_mac.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/service_libs/ccm/ccm_security.c
         nanostack/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c

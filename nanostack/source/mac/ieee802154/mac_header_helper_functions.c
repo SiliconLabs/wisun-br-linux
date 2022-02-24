@@ -23,9 +23,9 @@
 #include "fhss_api.h"
 #include "common_functions.h"
 #include "mac_common_defines.h"
-#include "mac/IEEE802_15_4/mac_defines.h"
-#include "mac/IEEE802_15_4/mac_mcps_sap.h"
-#include "mac/IEEE802_15_4/mac_header_helper_functions.h"
+#include "mac/ieee802154/mac_defines.h"
+#include "mac/ieee802154/mac_mcps_sap.h"
+#include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/rf_driver_storage.h"
 
 static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_frame_t *buffer);

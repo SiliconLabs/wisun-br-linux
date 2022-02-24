@@ -27,8 +27,8 @@
 #include "mac_common_defines.h"
 #include "mac_defines.h"
 #include "mac_mcps.h"
-#include "mac/IEEE802_15_4/mac_mcps_sap.h"
-#include "mac/IEEE802_15_4/mac_header_helper_functions.h"
+#include "mac/ieee802154/mac_mcps_sap.h"
+#include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/rf_driver_storage.h"
 
 #define TRACE_GROUP "mFil"
