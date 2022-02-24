@@ -397,7 +397,7 @@ extern int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface
  *
  * \return >=0 Configuration set OK.
  * \return -1 Unknown network ID.
- * \return -2 Interface is active, bootsrap mode not selected or is not NET_6LOWPAN_NETWORK_DRIVER or NET_6LOWPAN_SNIFFER.
+ * \return -2 Interface is active, bootstrap mode not selected or is not NET_6LOWPAN_NETWORK_DRIVER or NET_6LOWPAN_SNIFFER.
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */

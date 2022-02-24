@@ -406,7 +406,7 @@ int8_t mac_data_poll_host_mode_set(struct protocol_interface_info_entry *cur, ne
     }
     int8_t ret_val = 0;
     nwk_rfd_poll_setups_s *rf_ptr = cur->rfd_poll_info;
-    //Check IF Bootsrap Ready and type is Host
+    //Check IF Bootstrap Ready and type is Host
     if (!rf_ptr) {
         return -1;
     }

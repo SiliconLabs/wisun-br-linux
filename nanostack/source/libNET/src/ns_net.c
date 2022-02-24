@@ -370,7 +370,7 @@ Border Router Device will not check that part.
  * \return >=0 Bootstrap mode set OK.
  * \return -1 Unknown network ID.
  * \return -2 Illegal for Border Router
- * \return -3 Bootsrap not defined yet.
+ * \return -3 Bootstrap not defined yet.
  */
 int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD)
 {
@@ -793,7 +793,7 @@ static int arm_net_channel_bit_mask_to_number(const uint32_t *channel_mask)
 
  * \return >=0 Config set OK.
  * \return -1 Unknown network ID or tun driver.
- * \return -2 Interface is active, Bootsrap mode not selected or is not NET_6LOWPAN_NETWORK_DRIVER or NET_6LOWPAN_SNIFFER.
+ * \return -2 Interface is active, Bootstrap mode not selected or is not NET_6LOWPAN_NETWORK_DRIVER or NET_6LOWPAN_SNIFFER.
  * \return -3 No Memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter
  * \return -5 Channel list empty
@@ -1404,7 +1404,7 @@ static int8_t mac_data_poll_host_polling_state_change_check(protocol_interface_i
         tr_warn("Host Control not accepted for Router");
         ret_val = -1;
     } else if (nwk_bootstrap_ready(cur) == 0) {
-        tr_debug("Bootsrap Active");
+        tr_debug("Bootstrap Active");
         ret_val = -2;
     }
     return ret_val;

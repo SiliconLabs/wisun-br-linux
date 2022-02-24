@@ -142,7 +142,7 @@ static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
         /* Change Idle-> Active */
         icmp_nd_routers_init();
         cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootsrap
+        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
         cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY; //Clear Bind
         cur->bootstrap_state_machine_cnt = 2;
         //Possible mac_mlme_start_req(call)

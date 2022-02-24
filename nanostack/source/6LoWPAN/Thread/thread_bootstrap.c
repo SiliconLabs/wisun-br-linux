@@ -519,7 +519,7 @@ void thread_end_device_mode_set(protocol_interface_info_entry_t *cur, bool sleep
 int8_t nwk_thread_host_control(protocol_interface_info_entry_t *cur, net_host_mode_t mode, uint32_t delay)
 {
     int8_t ret_val = 0;
-    //Check IF Bootsrap Ready and type is Host
+    //Check IF Bootstrap Ready and type is Host
 
     if (cur == NULL || cur->rfd_poll_info == NULL) {
         return -1;
@@ -953,7 +953,7 @@ static void thread_interface_bootstrap_mode_init(protocol_interface_info_entry_t
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST) {
         tr_debug("Set ASPIRING Sleepy Host Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_SLEEPY_END_DEVICE;
-        //SET Sleepy Host To RX on Idle mode for bootsrap
+        //SET Sleepy Host To RX on Idle mode for bootstrap
         nwk_thread_host_control(cur, NET_HOST_RX_ON_IDLE, 0);
         cur->thread_info->childUpdateReqTimer = 8 * cur->thread_info->host_link_timeout / 10;
     } else {
@@ -1039,7 +1039,7 @@ void thread_tasklet(arm_event_s *event)
             if (thread_bootstrap_reset(cur) == 0) {
                 tr_debug("Thread Attached");
             } else {
-                tr_debug("Stop Bootsrap and send event");
+                tr_debug("Stop Bootstrap and send event");
             }
             break;
 
@@ -1542,7 +1542,7 @@ int thread_bootstrap_reset(protocol_interface_info_entry_t *cur)
 
     //Prepare start Again
 
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE; //Set Active Bootsrap
+    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE; //Set Active Bootstrap
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY; //Clear Bind
     protocol_6lowpan_interface_common_init(cur);
     addr_interface_set_ll64(cur, NULL);
@@ -1837,7 +1837,7 @@ void thread_bootstrap_joiner_application_commission_done_cb(int8_t interface_id)
     if (!interface) {
         return;
     }
-    tr_debug("Commission Ready trig bootsrap to starting from init again");
+    tr_debug("Commission Ready trig bootstrap to starting from init again");
     interface->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     interface->bootstrap_state_machine_cnt = randLIB_get_random_in_range(1, 4);
 }
@@ -2281,7 +2281,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             tr_info("thread network attach start");
             if (thread_mle_service_register(cur, thread_joiner_application_random_mac_get(cur->id)) != 0 ||
                     thread_link_configuration_activate(cur, linkConfiguration) != 0) {
-                tr_error("Network Bootsrap Start Fail");
+                tr_error("Network Bootstrap Start Fail");
                 bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, cur);
                 return;
             }

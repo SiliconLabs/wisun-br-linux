@@ -1503,7 +1503,7 @@ static int8_t arm_6lowpan_bootstrap_up(protocol_interface_info_entry_t *cur)
 
 void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
 {
-    //Init 6lowpan Bootsrap
+    //Init 6lowpan Bootstrap
     icmp_nd_routers_init();
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
@@ -2129,7 +2129,7 @@ static void nwk_rpl_dio_scan(protocol_interface_info_entry_t *cur)
             cur->bootstrap_state_machine_cnt = 3;
         }
     } else {
-        //GivE Up Bootsrap
+        //GivE Up Bootstrap
         nwk_bootstrap_state_update(ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL, cur);
     }
 }
@@ -2247,7 +2247,7 @@ static void nwk_6lowpan_bootstrap_pana_authentication_start(protocol_interface_i
     uint8_t temp_coordinator_address[16];
     pana_tls_setup_s setup;
     sec_suite_t *suite = 0;
-    tr_debug("Wake Pana by Bootsrap");
+    tr_debug("Wake Pana by Bootstrap");
     protocol_6lowpan_interface_get_link_local_cordinator_address(cur, temp_coordinator_address);
     //Release old before copy new
     if (cur->pana_sec_info_temp == 0) {
@@ -2669,7 +2669,7 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
             break;
 
         case ER_BOOTSTRAP_SCAN_FAIL:
-            tr_debug("Network Bootsrap Start Fail");
+            tr_debug("Network Bootstrap Start Fail");
             nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, cur);
             break;
 #ifdef PANA
@@ -2700,7 +2700,7 @@ void protocol_6lowpan_bootstrap_re_start(protocol_interface_info_entry_t *interf
 {
     mac_helper_mac16_address_set(interface, 0xffff);
     arm_6lowpan_bootstrap_init(interface);
-    tr_info("-->Bootsrap");
+    tr_info("-->Bootstrap");
 }
 
 uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id)

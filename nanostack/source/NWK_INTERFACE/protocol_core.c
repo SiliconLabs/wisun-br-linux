@@ -1100,7 +1100,7 @@ static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int
 
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur)
 {
-    //Clear Bootsrap Active Bit allways
+    //Clear Bootstrap Active Bit allways
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->bootstrap_state_machine_cnt = 0;
     nwk_net_event_post(posted_event, cur->net_start_tasklet, cur->id);
@@ -1164,7 +1164,7 @@ void net_bootstrap_cb_run(uint8_t event)
                 protocol_6lowpan_bootstrap(cur);
             }
         } else if (cur->nwk_id == IF_IPV6) {
-            //IPV6 Bootsrap Run
+            //IPV6 Bootstrap Run
         }
     }
 }
