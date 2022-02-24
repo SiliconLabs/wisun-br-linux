@@ -44,27 +44,27 @@ static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_en
         return;
     }
 
-    mlme_device_descriptor_t *descpription = (mlme_device_descriptor_t *)confirmation->value_pointer;
+    mlme_device_descriptor_t *description = (mlme_device_descriptor_t *)confirmation->value_pointer;
 
     tr_debug("Dev stable get confirmation %x", confirmation->status);
 
     if (confirmation->status == MLME_SUCCESS) {
         //GET ME table by extended mac64 address
-        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(info_entry), descpription->ExtAddress, ADDR_802_15_4_LONG);
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(info_entry), description->ExtAddress, ADDR_802_15_4_LONG);
 
         if (!entry) {
             return;
         }
 
-        if (entry->mac16 != descpription->ShortAddress) {
+        if (entry->mac16 != description->ShortAddress) {
             //Refresh Short ADDRESS
             mlme_set_t set_request;
-            descpription->ShortAddress = entry->mac16;
+            description->ShortAddress = entry->mac16;
 
             //CALL MLME-SET
             set_request.attr = macDeviceTable;
             set_request.attr_index = confirmation->attr_index;
-            set_request.value_pointer = descpription;
+            set_request.value_pointer = description;
             set_request.value_size = confirmation->value_size;
             info_entry->mac_api->mlme_req(info_entry->mac_api, MLME_SET, &set_request);
         }
