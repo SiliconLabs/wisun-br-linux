@@ -41,8 +41,8 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/beacon_handler.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/beacon_handler.h"
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif
@@ -73,7 +73,7 @@
 #endif
 #include "border_router/border_router.h"
 #include "service_libs/mle_service/mle_service_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "sw_mac.h"
 #include "mac_api.h"
 #include "ethernet_mac_api.h"

@@ -43,7 +43,7 @@
 #include "6lowpan/thread/thread_discovery.h"
 #include "6lowpan/thread/thread_bbr_api_internal.h"
 #include "6lowpan/thread/thread_border_router_api_internal.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "TMFs"
 
@@ -67,7 +67,7 @@
 #include "thread_ccm.h"
 #include "thread_nvm_store.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "common_protocols/ipv6_constants.h"
 #include "core/include/ns_address_internal.h"
 #include "mlme.h"

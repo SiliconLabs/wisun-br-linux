@@ -60,7 +60,7 @@
 #include "thread_joiner_application.h"
 #include "6lowpan/thread/thread_ccm.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "thread_nvm_store.h"
 #include "thread_management_internal.h"
 

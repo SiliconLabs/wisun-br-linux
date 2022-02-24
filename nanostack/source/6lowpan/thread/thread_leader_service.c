@@ -59,9 +59,9 @@
 #include "6lowpan/thread/thread_border_router_api_internal.h"
 #include "mpl/mpl.h"
 #include "mle/mle.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "coap_service_api.h"
 
 #define TRACE_GROUP "tLdr"

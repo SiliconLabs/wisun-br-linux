@@ -859,7 +859,7 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
-// Copy-paste from nanostack/source/6lowpan/MAC/mac_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/mac/mac_ie_lib.c
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK     0x7f80
 
@@ -882,7 +882,7 @@ static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
     return dbm_heard + 174;
 }
 
-// Copy-paste from nanostack/source/6lowpan/MAC/mac_ie_lib.c
+// Copy-paste from nanostack/source/6lowpan/mac/mac_ie_lib.c
 static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
 {
     uint16_t ie_dummy = 0; //Header Type

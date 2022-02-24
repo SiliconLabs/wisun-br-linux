@@ -59,7 +59,7 @@
 #include "6lowpan/thread/thread_bbr_api_internal.h"
 #include "6lowpan/thread/thread_bbr_commercial.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "common_protocols/icmpv6.h"
 #include "mle/mle.h"
 #include "dhcp_service_api.h"

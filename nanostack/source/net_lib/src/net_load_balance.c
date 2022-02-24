@@ -32,8 +32,8 @@
 #include "mlme.h"
 #include "mac_api.h"
 #include "sw_mac.h"
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "net_lib/src/net_load_balance_internal.h"
 #ifdef ECC
 #include "libX509_V3.h"

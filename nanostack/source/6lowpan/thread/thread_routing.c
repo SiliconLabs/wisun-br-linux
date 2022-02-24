@@ -51,7 +51,7 @@
 #include "6lowpan/thread/thread_nd.h"
 #include "6lowpan/thread/thread_routing.h"
 #include "6lowpan/thread/thread_leader_service.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "trou"

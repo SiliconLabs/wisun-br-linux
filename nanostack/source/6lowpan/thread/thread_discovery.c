@@ -52,9 +52,9 @@
 #include "mle/mle_tlv.h"
 #include "thread_tmfcop_lib.h"
 #include "thread_meshcop_lib.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 
 typedef enum {
     THREAD_DISCOVER_INIT = 0,

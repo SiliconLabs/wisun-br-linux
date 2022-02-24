@@ -43,7 +43,7 @@
 #include "6lowpan/mesh/mesh.h"
 #include "6lowpan/thread/thread_common.h"
 #include "6lowpan/thread/thread_nd.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #ifdef ECC
 #include "libX509_V3.h"
@@ -68,8 +68,8 @@
 #endif
 #endif
 #include "sw_mac.h"
-#include "6lowpan/MAC/mac_data_poll.h"
-#include "6lowpan/MAC/mpx_api.h"
+#include "6lowpan/mac/mac_data_poll.h"
+#include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "service_libs/etx/etx.h"

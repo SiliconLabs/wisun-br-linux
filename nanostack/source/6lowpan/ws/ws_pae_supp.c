@@ -52,7 +52,7 @@
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "6lowpan/ws/ws_pae_nvm_data.h"
-#include "6lowpan/MAC/mpx_api.h"
+#include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "security/kmp/kmp_eapol_pdu_if.h"
 

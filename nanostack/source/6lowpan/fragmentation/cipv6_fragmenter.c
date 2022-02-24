@@ -36,7 +36,7 @@
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "common_functions.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "6frg"
 

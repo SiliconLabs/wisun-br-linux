@@ -41,9 +41,9 @@
 #include "common_protocols/ipv6_constants.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/etx/etx.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 
 #define TRACE_GROUP "mle"

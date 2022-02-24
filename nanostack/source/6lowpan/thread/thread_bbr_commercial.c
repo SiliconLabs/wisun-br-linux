@@ -52,7 +52,7 @@
 #include "6lowpan/thread/thread_resolution_client.h"
 #include "6lowpan/thread/thread_bbr_commercial.h"
 #include "6lowpan/thread/thread_ccm.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "nwk_interface/Include/protocol.h"
 #include "common_protocols/ipv6.h"
 

@@ -47,8 +47,8 @@
 #include "net_interface.h" // TODO remove when fixing properly
 #include "thread_commissioning_if.h"
 #include "thread_management_if.h"
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/mac_pairwise_key.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/mac_pairwise_key.h"
 
 #define TRACE_GROUP "thrC"
 

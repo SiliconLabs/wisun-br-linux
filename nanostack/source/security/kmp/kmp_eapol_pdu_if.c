@@ -27,7 +27,7 @@
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_eapol_pdu_if.h"
-#include "6lowpan/MAC/mpx_api.h"
+#include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
 
 #ifdef HAVE_WS

@@ -43,8 +43,8 @@
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "mPol"

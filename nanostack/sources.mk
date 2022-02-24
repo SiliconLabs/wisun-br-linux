@@ -9,12 +9,12 @@ SRCS += \
 	source/6lowpan/iphc_decode/iphc_compress.c \
 	source/6lowpan/iphc_decode/iphc_decompress.c \
 	source/6lowpan/iphc_decode/lowpan_context.c \
-	source/6lowpan/MAC/beacon_handler.c \
-	source/6lowpan/MAC/mac_helper.c \
-	source/6lowpan/MAC/mac_ie_lib.c \
-	source/6lowpan/MAC/mac_response_handler.c \
-	source/6lowpan/MAC/mac_data_poll.c \
-	source/6lowpan/MAC/mac_pairwise_key.c \
+	source/6lowpan/mac/beacon_handler.c \
+	source/6lowpan/mac/mac_helper.c \
+	source/6lowpan/mac/mac_ie_lib.c \
+	source/6lowpan/mac/mac_response_handler.c \
+	source/6lowpan/mac/mac_data_poll.c \
+	source/6lowpan/mac/mac_pairwise_key.c \
 	source/6lowpan/mesh/mesh.c \
 	source/6lowpan/nd/nd_router_object.c \
 	source/6lowpan/nvm/nwk_nvm.c \

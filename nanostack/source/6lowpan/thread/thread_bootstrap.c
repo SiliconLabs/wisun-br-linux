@@ -72,7 +72,7 @@
 #include "6lowpan/thread/thread_beacon.h"
 #include "6lowpan/thread/thread_nvm_store.h"
 #include "6lowpan/thread/thread_ccm.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/thread/thread_mle_message_handler.h"
 #include "mac_api.h"
 #include "rpl/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
@@ -94,7 +94,7 @@
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/mle_service/mle_service_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "platform/topo_trace.h"

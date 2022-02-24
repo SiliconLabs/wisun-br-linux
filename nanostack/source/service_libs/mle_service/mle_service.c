@@ -39,7 +39,7 @@
 #include "mle/mle.h"
 #include "mle/mle_tlv.h"
 #include "mac_common_defines.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "mleS"
 

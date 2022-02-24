@@ -65,7 +65,7 @@
 #include "mle/mle.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "tsyn"
 

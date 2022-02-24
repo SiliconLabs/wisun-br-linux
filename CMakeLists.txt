@@ -82,12 +82,12 @@ add_executable(wsbrd
     nanostack/source/6lowpan/iphc_decode/iphc_compress.c
     nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
     nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-    nanostack/source/6lowpan/MAC/beacon_handler.c
-    nanostack/source/6lowpan/MAC/mac_data_poll.c
-    nanostack/source/6lowpan/MAC/mac_helper.c
-    nanostack/source/6lowpan/MAC/mac_ie_lib.c
-    nanostack/source/6lowpan/MAC/mac_pairwise_key.c
-    nanostack/source/6lowpan/MAC/mac_response_handler.c
+    nanostack/source/6lowpan/mac/beacon_handler.c
+    nanostack/source/6lowpan/mac/mac_data_poll.c
+    nanostack/source/6lowpan/mac/mac_helper.c
+    nanostack/source/6lowpan/mac/mac_ie_lib.c
+    nanostack/source/6lowpan/mac/mac_pairwise_key.c
+    nanostack/source/6lowpan/mac/mac_response_handler.c
     # Excluded nanostack/source/6lowpan/Mesh
     nanostack/source/6lowpan/nd/nd_router_object.c
     # Excluded nanostack/source/6lowpan/NVM
@@ -325,12 +325,12 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/iphc_decode/iphc_compress.c
         nanostack/source/6lowpan/iphc_decode/iphc_decompress.c
         nanostack/source/6lowpan/iphc_decode/lowpan_context.c
-        nanostack/source/6lowpan/MAC/beacon_handler.c
-        nanostack/source/6lowpan/MAC/mac_data_poll.c
-        nanostack/source/6lowpan/MAC/mac_helper.c
-        nanostack/source/6lowpan/MAC/mac_ie_lib.c
-        nanostack/source/6lowpan/MAC/mac_pairwise_key.c
-        nanostack/source/6lowpan/MAC/mac_response_handler.c
+        nanostack/source/6lowpan/mac/beacon_handler.c
+        nanostack/source/6lowpan/mac/mac_data_poll.c
+        nanostack/source/6lowpan/mac/mac_helper.c
+        nanostack/source/6lowpan/mac/mac_ie_lib.c
+        nanostack/source/6lowpan/mac/mac_pairwise_key.c
+        nanostack/source/6lowpan/mac/mac_response_handler.c
         # Excluded nanostack/source/6lowpan/Mesh
         nanostack/source/6lowpan/nd/nd_router_object.c
         # Excluded nanostack/source/6lowpan/NVM

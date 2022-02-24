@@ -58,7 +58,7 @@
 #include "6lowpan/thread/thread_router_bootstrap.h"
 #include "6lowpan/thread/thread_border_router_api_internal.h"
 #include "6lowpan/thread/thread_mdns.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "coap_service_api.h"
 #include "thread_management_server.h"
 #include "socket_api.h"

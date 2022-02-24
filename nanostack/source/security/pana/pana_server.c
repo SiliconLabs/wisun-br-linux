@@ -37,8 +37,8 @@
 #include "net_nvm_api.h"
 #include "security/pana/pana.h"
 #include "security/pana/pana_internal_api.h"
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "common_protocols/udp.h"
 

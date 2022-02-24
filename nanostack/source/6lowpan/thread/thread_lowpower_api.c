@@ -44,7 +44,7 @@
 #include "mle/mle.h"
 #include "nwk_interface/Include/protocol.h"
 #include "thread_lowpower_api.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "6lowpan/thread/thread_bootstrap.h"
 #include "6lowpan/thread/thread_management_client.h"
 #include "6lowpan/thread/thread_tmfcop_lib.h"

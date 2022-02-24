@@ -25,7 +25,7 @@
 #include "net_address_extension.h"
 #include "nwk_interface/Include/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 static uint16_t net_ext_short_address = 0xfffe;
 static uint8_t net_ext_gen_new = 1;

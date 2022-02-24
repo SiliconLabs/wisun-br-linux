@@ -70,8 +70,8 @@
 #include "thread_config.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/blacklist/blacklist.h"
-#include "6lowpan/MAC/mac_helper.h"
-#include "6lowpan/MAC/mac_data_poll.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/mac/mac_data_poll.h"
 #include "core/include/ns_address_internal.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

@@ -36,7 +36,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "service_libs/blacklist/blacklist.h"
-#include "6lowpan/MAC/mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_api.h"
 
@@ -67,7 +67,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "mac_api.h"
-#include "6lowpan/MAC/mpx_api.h"
+#include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "net_lib/src/net_load_balance_internal.h"
