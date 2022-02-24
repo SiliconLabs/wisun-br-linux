@@ -825,7 +825,7 @@ static void thread_discovery_class_free(thread_discovery_class_t *class_ptr)
     ns_dyn_mem_free(class_ptr);
 }
 
-bool thread_discovery_tlv_spesific_data_discover(const uint8_t *ptr, uint16_t length, const mescop_tlv_t *compare_tlv)
+bool thread_discovery_tlv_specific_data_discover(const uint8_t *ptr, uint16_t length, const mescop_tlv_t *compare_tlv)
 {
     const uint8_t *p;
     if (!ptr || length < 2 || !compare_tlv || !compare_tlv->data || !compare_tlv->length) {
@@ -888,7 +888,7 @@ static bool thread_discovery_request_filter_validate(link_configuration_s *linkC
 
     common_write_16_bit(linkConfiguration->panId, compare_tlv.data);
 
-    if (thread_discovery_tlv_spesific_data_discover(data_ptr, length, &compare_tlv)) {
+    if (thread_discovery_tlv_specific_data_discover(data_ptr, length, &compare_tlv)) {
         return false;
     }
 
@@ -896,7 +896,7 @@ static bool thread_discovery_request_filter_validate(link_configuration_s *linkC
     compare_tlv.length = 8;
     compare_tlv.type = MESHCOP_TLV_XPANID;
 
-    if (thread_discovery_tlv_spesific_data_discover(data_ptr, length, &compare_tlv)) {
+    if (thread_discovery_tlv_specific_data_discover(data_ptr, length, &compare_tlv)) {
         return false;
     }
 
