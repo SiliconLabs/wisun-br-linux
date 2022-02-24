@@ -270,7 +270,7 @@ static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
     ns_list_remove(&llc_base->llc_message_list, message);
     ns_dyn_mem_free(message);
     llc_base->llc_message_list_size--;
-    random_early_detetction_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
+    random_early_detection_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
 }
 
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user)
@@ -595,7 +595,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                 //Start A pending EAPOL
                 ns_list_remove(&base->temp_entries->llc_eap_pending_list, message);
                 base->temp_entries->llc_eap_pending_list_size--;
-                random_early_detetction_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries->llc_eap_pending_list_size);
+                random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries->llc_eap_pending_list_size);
                 ws_llc_mpx_eapol_send(base, message);
             }
         } else {
@@ -1108,7 +1108,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
     message->priority = priority;
-    random_early_detetction_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
 
     mcps_data_req_t data_req;
@@ -1230,7 +1230,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     //Allocate message ID
     llc_message_id_allocate(message, base, true);
     base->llc_message_list_size++;
-    random_early_detetction_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries->active_eapol_session = true;
@@ -1325,7 +1325,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
         //Move to pending list
         ns_list_add_to_end(&base->temp_entries->llc_eap_pending_list, message);
         base->temp_entries->llc_eap_pending_list_size++;
-        random_early_detetction_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries->llc_eap_pending_list_size);
+        random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries->llc_eap_pending_list_size);
     } else {
         ws_llc_mpx_eapol_send(base, message);
     }
@@ -1875,7 +1875,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     //Add To active list
     llc_message_id_allocate(message, base, false);
     base->llc_message_list_size++;
-    random_early_detetction_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
+    random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
     message->messsage_type = request->message_type;
 

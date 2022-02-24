@@ -2879,9 +2879,9 @@ static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *c
     }
 
     // Read the values for adaptation and LLC queues
-    adaptation_average = random_early_detetction_aq_read(cur->random_early_detection);
-    llc_average = random_early_detetction_aq_read(cur->llc_random_early_detection);
-    llc_eapol_average  = random_early_detetction_aq_read(cur->llc_eapol_random_early_detection);
+    adaptation_average = random_early_detection_aq_read(cur->random_early_detection);
+    llc_average = random_early_detection_aq_read(cur->llc_random_early_detection);
+    llc_eapol_average  = random_early_detection_aq_read(cur->llc_eapol_random_early_detection);
     // Calculate combined average
     average_sum = adaptation_average + llc_average + llc_eapol_average;
 
@@ -2907,7 +2907,7 @@ static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *c
     }
 
     // Check drop probability
-    average_sum = random_early_detetction_aq_calc(red_info, average_sum);
+    average_sum = random_early_detection_aq_calc(red_info, average_sum);
     return_value = random_early_detection_congestion_check(red_info);
 
 congestion_get_end:

@@ -62,7 +62,7 @@ void random_early_detection_free(struct red_info_s *red_info)
 }
 
 //calculate average and return averaged value back
-uint16_t random_early_detetction_aq_calc(red_info_t *red_info, uint16_t sampleLen)
+uint16_t random_early_detection_aq_calc(red_info_t *red_info, uint16_t sampleLen)
 {
     if (!red_info) {
         return 0;
@@ -92,7 +92,7 @@ uint16_t random_early_detetction_aq_calc(red_info_t *red_info, uint16_t sampleLe
 
 }
 
-uint16_t random_early_detetction_aq_read(red_info_t *red_info)
+uint16_t random_early_detection_aq_read(red_info_t *red_info)
 {
     if (!red_info) {
         return 0;

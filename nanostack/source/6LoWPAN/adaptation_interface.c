@@ -229,7 +229,7 @@ static struct protocol_interface_info_entry *lowpan_adaptation_network_interface
 
 static void lowpan_adaptation_tx_queue_level_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
 {
-    random_early_detetction_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
+    random_early_detection_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
     protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
 
     if (interface_ptr->directTxQueue_size == interface_ptr->directTxQueue_level + ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE ||

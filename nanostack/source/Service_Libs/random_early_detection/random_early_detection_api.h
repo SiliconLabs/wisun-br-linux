@@ -108,7 +108,7 @@ bool random_early_detection_congestion_check(struct red_info_s *red_info);
  *
  * \return New average
  */
-uint16_t random_early_detetction_aq_calc(struct red_info_s *red_info, uint16_t sampleLen);
+uint16_t random_early_detection_aq_calc(struct red_info_s *red_info, uint16_t sampleLen);
 
 /**
  * \brief Read Random early detection Average queue size
@@ -119,7 +119,7 @@ uint16_t random_early_detetction_aq_calc(struct red_info_s *red_info, uint16_t s
  *
  * \return Current average
  */
-uint16_t random_early_detetction_aq_read(struct red_info_s *red_info);
+uint16_t random_early_detection_aq_read(struct red_info_s *red_info);
 
 #ifdef __cplusplus
 }
