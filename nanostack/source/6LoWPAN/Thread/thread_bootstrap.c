@@ -113,11 +113,11 @@ static void thread_bootstrap_orphan_scan_start(struct protocol_interface_info_en
 static int thread_configuration_security_activate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration);
 static void thread_interface_bootstrap_mode_init(protocol_interface_info_entry_t *cur);
 static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_entry_t *cur);
-static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_state_type_e state);
-static void thread_bootsrap_network_discovery_failure(int8_t interface_id);
+static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootstrap_state_type_e state);
+static void thread_bootstrap_network_discovery_failure(int8_t interface_id);
 
 static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
-static void thread_bootsrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info);
+static void thread_bootstrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info);
 
 #ifdef HAVE_THREAD_V2
 
@@ -811,7 +811,7 @@ static void thread_announce_ntf_cb(void *arg)
     }
     protocol_interface_info_entry_t *cur = arg;
     cur->thread_info->announcement_info->timer = NULL;
-    thread_bootsrap_event_trig(THREAD_ANNOUNCE_ACTIVE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ANNOUNCE_ACTIVE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 static void thread_announce_success_cb(void *arg)
@@ -844,7 +844,7 @@ void thread_bootstrap_announcement_start(protocol_interface_info_entry_t *cur, u
     cur->thread_info->announcement_info->timer = NULL;
     cur->thread_info->announcement_info->announce_success = false;
     cur->thread_info->announcement_info->timestamp = 0;
-    thread_bootsrap_event_trig(THREAD_ANNOUNCE_ACTIVE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ANNOUNCE_ACTIVE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 void thread_bootstrap_temporary_attach(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint16_t panid, uint64_t timestamp)
 {
@@ -988,7 +988,7 @@ static void thread_interface_bootstrap_mode_init(protocol_interface_info_entry_t
     cur->thread_info->thread_attached_state = THREAD_STATE_NETWORK_DISCOVER;
 }
 
-int8_t thread_bootsrap_event_trig(thread_bootsrap_event_type_e event_type, int8_t Id, arm_library_event_priority_e priority)
+int8_t thread_bootstrap_event_trig(thread_bootstrap_event_type_e event_type, int8_t Id, arm_library_event_priority_e priority)
 {
     arm_event_s event = {
         .receiver = Id,
@@ -1012,15 +1012,15 @@ void thread_bootstrap_reset_restart(int8_t interface)
     thread_nd_service_disable(interface);
     thread_routing_deactivate(&cur->thread_info->routing);
     //TODO: clear CoAP resending queue
-    thread_bootsrap_event_trig(THREAD_BOOTSTRAP_RESET, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_BOOTSTRAP_RESET, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_tasklet(arm_event_s *event)
 {
 
     protocol_interface_info_entry_t *cur = 0;
-    thread_bootsrap_event_type_e event_type;
-    event_type = (thread_bootsrap_event_type_e)event->event_type;
+    thread_bootstrap_event_type_e event_type;
+    event_type = (thread_bootstrap_event_type_e)event->event_type;
     cur = protocol_stack_interface_info_get_by_bootstrap_id(event->receiver);
     if (!cur) {
         tr_debug("Thread task unknown");
@@ -1265,7 +1265,7 @@ void thread_clean_old_16_bit_address_based_addresses(protocol_interface_info_ent
 
 }
 
-static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_state_type_e state)
+static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootstrap_state_type_e state)
 {
 
     protocol_interface_info_entry_t *cur;
@@ -1322,7 +1322,7 @@ static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_st
     return 0;
 }
 
-static void thread_bootsrap_network_discovery_failure(int8_t interface_id)
+static void thread_bootstrap_network_discovery_failure(int8_t interface_id)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->thread_info) {
@@ -1494,7 +1494,7 @@ void thread_bootstrap_connection_error(int8_t interface_id, nwk_connect_error_ty
             break;
 
         case CON_ERROR_NO_THREAD_NETWORK_AVAILABLE:
-            thread_bootsrap_network_discovery_failure(interface_id);
+            thread_bootstrap_network_discovery_failure(interface_id);
             break;
         case CON_ERROR_PARTITION_MERGE:
             thread_bootstrap_attach_start(interface_id, THREAD_PARTITION_MERGE);
@@ -1634,37 +1634,37 @@ static void thread_meshlocal_route_set(protocol_interface_info_entry_t *cur)
 
 void thread_bootstrap_attached_ready(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_READY, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_READY, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_attached_downgrade_router(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_DOWNGRADE_ROUTER, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_DOWNGRADE_ROUTER, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_attched_upgrade_reed(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_UPGRADE_REED, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_UPGRADE_REED, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_attached_active_router(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_ACTIVE_ROUTER, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_ACTIVE_ROUTER, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_router_id_release_ready(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_ROUTER_ID_RELEASED, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_ROUTER_ID_RELEASED, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_router_id_get_fail(protocol_interface_info_entry_t *cur)
 {
-    thread_bootsrap_event_trig(THREAD_ATTACH_ROUTER_ID_GET_FAIL, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    thread_bootstrap_event_trig(THREAD_ATTACH_ROUTER_ID_GET_FAIL, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 int8_t thread_bootstrap_child_id_request(protocol_interface_info_entry_t *cur)
 {
-    return thread_bootsrap_event_trig(THREAD_CHILD_ID_REQUEST, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+    return thread_bootstrap_event_trig(THREAD_CHILD_ID_REQUEST, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
 }
 
 void thread_bootstrap_routing_activate(protocol_interface_info_entry_t *cur)
@@ -1944,7 +1944,7 @@ static void thread_network_select(struct protocol_interface_info_entry *interfac
     }
 }
 
-void thread_bootsrap_discovery_ready_cb(struct protocol_interface_info_entry *cur_interface, thread_nwk_discovery_response_list_t *discover_response)
+void thread_bootstrap_discovery_ready_cb(struct protocol_interface_info_entry *cur_interface, thread_nwk_discovery_response_list_t *discover_response)
 {
     device_configuration_s *device_configuration_ptr = thread_joiner_application_get_device_config(cur_interface->id);
     if (!device_configuration_ptr) {
@@ -2099,7 +2099,7 @@ exit_failure:
 
 
 
-static void thread_bootsrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info)
+static void thread_bootstrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info)
 {
     device_configuration_s *device_configuration_ptr = thread_joiner_application_get_device_config(cur_interface->id);
 
@@ -2139,7 +2139,7 @@ static void thread_bootsrap_network_join_start(struct protocol_interface_info_en
 
 }
 
-void thread_bootsrap_device_synch_fail(protocol_interface_info_entry_t *cur)
+void thread_bootstrap_device_synch_fail(protocol_interface_info_entry_t *cur)
 {
     tr_debug("Link Synch Fail -->Parent Scan Start");
     thread_bootstrap_clear_neighbor_entries(cur);
@@ -2157,7 +2157,7 @@ bool thread_device_synch_timeout(int8_t interface_id, uint16_t msgId, bool usedA
     }
 
     if (usedAllRetries) {
-        thread_bootsrap_device_synch_fail(interface);
+        thread_bootstrap_device_synch_fail(interface);
         return false;
     }
 
@@ -2234,7 +2234,7 @@ void thread_bootstrap_start_network_discovery(protocol_interface_info_entry_t *c
     } else {
         discovery_response_list_t *thread_network = thread_discovery_network_description_get(cur->id);
         if (thread_network) {
-            thread_bootsrap_network_join_start(cur, thread_network);
+            thread_bootstrap_network_join_start(cur, thread_network);
             return;
         }
 
@@ -2252,7 +2252,7 @@ void thread_bootstrap_start_network_discovery(protocol_interface_info_entry_t *c
         scan_request.native_commisioner = false;
         scan_request.joiner_flag = true;
 
-        discover_ready = thread_bootsrap_discovery_ready_cb;
+        discover_ready = thread_bootstrap_discovery_ready_cb;
     }
 
     scan_request.channel_mask = cur->mac_parameters->nwk_scan_params.stack_chan_list.channel_mask[0];
@@ -2352,7 +2352,7 @@ void thread_bootstrap_stop(protocol_interface_info_entry_t *cur)
 void thread_bootstrap_child_update_trig(protocol_interface_info_entry_t *cur)
 {
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED && cur->thread_info->thread_endnode_parent) {
-        thread_bootsrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+        thread_bootstrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
     }
 }
 static void thread_border_router_locator_copy(protocol_interface_info_entry_t *cur, thread_commissioner_t *registered_commissioner, uint8_t *data)

@@ -899,7 +899,7 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     cur->thread_info->thread_endnode_parent->childUpdateProcessActive = false;
     if (cur->thread_info->thread_endnode_parent->childUpdatePending) {
         tr_debug("Child Update Pending");
-        thread_bootsrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+        thread_bootstrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
         return;
     }
 

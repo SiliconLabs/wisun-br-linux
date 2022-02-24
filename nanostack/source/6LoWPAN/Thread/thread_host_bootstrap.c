@@ -436,7 +436,7 @@ static void thread_child_synch_receive_cb(int8_t interface_id, mle_message_t *ml
             if (thread_end_device_synch_response_validate(cur, mle_msg->data_ptr, mle_msg->data_length, linkMargin, mle_msg->packet_src_address, security_headers) != 0) {
                 tr_warn("End device synch failed");
                 mle_service_msg_free(messageId);
-                thread_bootsrap_device_synch_fail(cur);
+                thread_bootstrap_device_synch_fail(cur);
                 return;
             }
             mle_tlv_info_t networkDataTlv;

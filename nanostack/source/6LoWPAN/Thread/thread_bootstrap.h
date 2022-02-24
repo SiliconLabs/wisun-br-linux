@@ -81,7 +81,7 @@ typedef enum {
     THREAD_CHILD_ID_REQUEST,
     THREAD_ANNOUNCE_ACTIVE
 
-} thread_bootsrap_event_type_e;
+} thread_bootstrap_event_type_e;
 
 typedef enum {
     THREAD_NORMAL_ATTACH = 0,
@@ -89,7 +89,7 @@ typedef enum {
     THREAD_REATTACH_REED,
     THREAD_PARTITION_MERGE,
     THREAD_ANY_ATTACH
-} thread_bootsrap_state_type_e;
+} thread_bootstrap_state_type_e;
 
 #ifdef HAVE_THREAD
 
@@ -112,7 +112,7 @@ void thread_reed_fed_neighbour_links_clean(struct protocol_interface_info_entry 
 bool thread_bootstrap_request_network_data(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, uint16_t short_address);
 bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mac_neighbor_table_entry *entry_temp);
 void thread_clean_old_16_bit_address_based_addresses(struct protocol_interface_info_entry *cur);
-int8_t thread_bootsrap_event_trig(thread_bootsrap_event_type_e event_type, int8_t Id, arm_library_event_priority_e priority);
+int8_t thread_bootstrap_event_trig(thread_bootstrap_event_type_e event_type, int8_t Id, arm_library_event_priority_e priority);
 void thread_interface_init(struct protocol_interface_info_entry *cur);
 
 /*
@@ -141,7 +141,7 @@ int thread_bootstrap_tasklet_init(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_stop(struct protocol_interface_info_entry *cur);
 void thread_interface_up(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_state_machine(struct protocol_interface_info_entry *cur);
-void thread_bootsrap_device_synch_fail(struct protocol_interface_info_entry *cur);
+void thread_bootstrap_device_synch_fail(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_attached_downgrade_router(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_attched_upgrade_reed(struct protocol_interface_info_entry *cur);
 void thread_bootstrap_attached_ready(struct protocol_interface_info_entry *cur);
