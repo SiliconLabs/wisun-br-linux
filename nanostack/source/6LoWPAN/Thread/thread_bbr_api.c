@@ -43,7 +43,7 @@
 #include "net_ipv6_api.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "thread_management_if.h"
 #include "6LoWPAN/Thread/thread_config.h"

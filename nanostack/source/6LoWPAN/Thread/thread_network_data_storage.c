@@ -52,7 +52,7 @@
 #include "thread_management_if.h"
 #include "thread_meshcop_lib.h"
 #include "libDHCPv6/libDHCPv6_server.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 
 #define TRACE_GROUP "thrd"
 

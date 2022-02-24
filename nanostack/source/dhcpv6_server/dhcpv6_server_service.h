@@ -16,7 +16,7 @@
  */
 
 /*
- * \file DHCPv6_server_service.h
+ * \file dhcpv6_server_service.h
  * \brief Add short description about this file!!!
  *
  */

@@ -46,7 +46,7 @@
 #include "6LoWPAN/ws/ws_bbr_api_internal.h"
 #include "6LoWPAN/ws/ws_pae_controller.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "libDHCPv6/libDHCPv6_vendordata.h"
 #include "libNET/src/net_dns_internal.h"

@@ -137,7 +137,7 @@ add_executable(wsbrd
     nanostack/source/Core/ns_socket.c
     nanostack/source/Core/sockbuf.c
     nanostack/source/dhcpv6_client/dhcpv6_client_service.c
-    nanostack/source/DHCPv6_Server/DHCPv6_Server_service.c
+    nanostack/source/dhcpv6_server/dhcpv6_server_service.c
     nanostack/source/ipv6_stack/ipv6_routing_table.c
     nanostack/source/ipv6_stack/protocol_ipv6.c
     nanostack/source/libDHCPv6/dhcp_service_api.c
@@ -379,7 +379,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/Core/ns_socket.c
         nanostack/source/Core/sockbuf.c
         nanostack/source/dhcpv6_client/dhcpv6_client_service.c
-        nanostack/source/DHCPv6_Server/DHCPv6_Server_service.c
+        nanostack/source/dhcpv6_server/dhcpv6_server_service.c
         nanostack/source/ipv6_stack/ipv6_routing_table.c
         nanostack/source/ipv6_stack/protocol_ipv6.c
         nanostack/source/libDHCPv6/dhcp_service_api.c

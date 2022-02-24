@@ -16,7 +16,7 @@
  */
 
 /*
- * \file DHCPv6_Server_service.c
+ * \file dhcpv6_server_service.c
  * \brief Add short description about this file!!!
  *
  */
@@ -31,7 +31,7 @@
 #include <nsdynmemLIB.h>
 #include "libDHCPv6/libDHCPv6.h"
 #include "libDHCPv6/libDHCPv6_server.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "common_functions.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/icmpv6.h"

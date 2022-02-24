@@ -208,7 +208,7 @@ SRCS += \
 	source/6LoWPAN/Thread/thread_lowpower_private_api.c \
 	source/6LoWPAN/Thread/thread_nvm_store.c \
 	source/6LoWPAN/Thread/thread_ccm.c \
-	source/DHCPv6_Server/DHCPv6_Server_service.c \
+	source/dhcpv6_server/dhcpv6_server_service.c \
 	source/dhcpv6_client/dhcpv6_client_service.c \
 	source/libDHCPv6/dhcp_service_api.c \
 	source/libDHCPv6/libDHCPv6.c \

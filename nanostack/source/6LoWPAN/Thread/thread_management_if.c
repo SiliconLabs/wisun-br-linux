@@ -71,7 +71,7 @@
 #include "thread_commissioning_if.h"
 #include "shalib.h"
 #include "Common_Protocols/icmpv6.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"

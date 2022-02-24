@@ -40,7 +40,7 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/ipv6.h"
-#include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 
 #define TRACE_GROUP "thds"
