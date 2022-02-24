@@ -32,7 +32,7 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
-#include "security/PANA/pana_eap_header.h"
+#include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"

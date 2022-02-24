@@ -39,7 +39,7 @@
 #include "6lowpan/ws/ws_mpx_header.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "security/PANA/pana_eap_header.h"
+#include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
 #include "service_libs/etx/etx.h"
 #include "fhss_ws_extension.h"

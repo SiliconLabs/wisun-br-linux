@@ -24,7 +24,7 @@
 #include "ns_trace.h"
 #include "string.h"
 #include "common_functions.h"
-#include "security/PANA/pana_eap_header.h"
+#include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
 
 #ifdef HAVE_WS

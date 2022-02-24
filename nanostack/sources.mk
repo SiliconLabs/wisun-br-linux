@@ -131,13 +131,13 @@ SRCS += \
 	source/security/protocols/msg_sec_prot/msg_sec_prot.c \
 	source/security/protocols/tls_sec_prot/tls_sec_prot.c \
 	source/security/protocols/tls_sec_prot/tls_sec_prot_lib.c \
-	source/security/PANA/eap_protocol.c \
-	source/security/PANA/pana.c \
-	source/security/PANA/pana_avp.c \
-	source/security/PANA/pana_client.c \
-	source/security/PANA/pana_eap_header.c \
-	source/security/PANA/pana_header.c \
-	source/security/PANA/pana_server.c \
+	source/security/pana/eap_protocol.c \
+	source/security/pana/pana.c \
+	source/security/pana/pana_avp.c \
+	source/security/pana/pana_client.c \
+	source/security/pana/pana_eap_header.c \
+	source/security/pana/pana_header.c \
+	source/security/pana/pana_server.c \
 	source/security/tls/tls_lib.c \
 	source/security/tls/tls_ccm_crypt.c \
 	source/service_libs/ccm/ccm_security.c \

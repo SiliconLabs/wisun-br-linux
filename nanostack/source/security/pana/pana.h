@@ -18,7 +18,7 @@
 #ifndef PANA_H_
 #define PANA_H_
 #include "security/common/sec_lib_definitions.h"
-#include "security/PANA/pana_header.h"
+#include "security/pana/pana_header.h"
 #include "net_pana_parameters_api.h"
 #ifdef PANA
 

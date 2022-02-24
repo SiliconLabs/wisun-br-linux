@@ -40,8 +40,8 @@
 #include "ecc.h"
 #endif
 #ifdef PANA
-#include "security/PANA/pana.h"
-#include "security/PANA/pana_internal_api.h"
+#include "security/pana/pana.h"
+#include "security/pana/pana_internal_api.h"
 #endif
 #include "6lowpan/ND/nd_router_object.h"
 #ifdef HAVE_RPL

@@ -59,8 +59,8 @@
 #include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "security/PANA/pana.h"
-#include "security/PANA/pana_internal_api.h"
+#include "security/pana/pana.h"
+#include "security/pana/pana_internal_api.h"
 #include "common_protocols/tcp.h"
 
 #include "6lowpan/ND/nd_router_object.h"

@@ -18,7 +18,7 @@
 #include "ns_types.h"
 #include "string.h"
 #include "common_functions.h"
-#include "security/PANA/pana_eap_header.h"
+#include "security/pana/pana_eap_header.h"
 #if defined(PANA) || defined(HAVE_WS)
 
 bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)

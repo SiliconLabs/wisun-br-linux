@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include "common_functions.h"
-#include "security/PANA/pana_header.h"
+#include "security/pana/pana_header.h"
 
 #ifdef PANA
 #define PANA_HEADER_START 0x0000

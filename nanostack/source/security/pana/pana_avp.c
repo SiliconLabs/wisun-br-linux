@@ -19,7 +19,7 @@
 #include "ns_types.h"
 #include "string.h"
 #include "common_functions.h"
-#include "security/PANA/pana_avp.h"
+#include "security/pana/pana_avp.h"
 #ifdef PANA
 
 uint8_t *pana_avp_base_write(uint8_t avp_type, uint16_t length, uint8_t *dptr, uint16_t flags, uint32_t vendor_id)

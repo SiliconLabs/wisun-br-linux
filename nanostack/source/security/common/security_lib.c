@@ -32,10 +32,10 @@
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "security/PANA/pana_nvm.h"
-#include "security/PANA/pana.h"
-#include "security/PANA/eap_protocol.h"
-#include "security/PANA/pana_internal_api.h"
+#include "security/pana/pana_nvm.h"
+#include "security/pana/pana.h"
+#include "security/pana/eap_protocol.h"
+#include "security/pana/pana_internal_api.h"
 #include "common_functions.h"
 
 #ifdef PANA
@@ -346,7 +346,7 @@ uint8_t tls_certificate_build(sec_suite_t *suite)
     if (temp) {
 
         len = tls_certificate_len(temp);
-        len += 50; //tls/EAP/PANA/TCP /IP
+        len += 50; //tls/EAP/pana/TCP /IP
 
         //Client Key Exchange 70, Certiverify max 80, Finnish 43
         len += (70 + 80 + 43);

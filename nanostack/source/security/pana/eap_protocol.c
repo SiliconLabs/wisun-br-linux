@@ -32,10 +32,10 @@
 #endif
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "security/PANA/pana.h"
+#include "security/pana/pana.h"
 
 #include "common_functions.h"
-#include "security/PANA/pana_eap_header.h"
+#include "security/pana/pana_eap_header.h"
 #ifdef PANA
 
 #define TRACE_GROUP "eap"

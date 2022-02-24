@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include "string.h"
-#include "security/PANA/pana_relay_table.h"
+#include "security/pana/pana_relay_table.h"
 #include "nsdynmemLIB.h"
 
 #ifdef PANA

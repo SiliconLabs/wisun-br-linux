@@ -54,8 +54,8 @@
 #include "libX509_V3.h"
 #include "ecc.h"
 #endif
-#include "security/PANA/pana.h"
-#include "security/PANA/pana_internal_api.h"
+#include "security/pana/pana.h"
+#include "security/pana/pana_internal_api.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"
 #include "security/common/sec_lib_definitions.h"
