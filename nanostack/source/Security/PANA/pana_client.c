@@ -514,7 +514,7 @@ static void pana_client_state_machine_func(sec_suite_t *suite)
                         start = 1;
                     }
                     if (start) {
-                        tls_server_finnish_handle_start(suite);
+                        tls_server_finish_handle_start(suite);
                     } else {
                         tr_debug("Start Certi Check");
                         tls_certificate_signature_verify(suite);

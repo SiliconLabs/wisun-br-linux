@@ -75,7 +75,7 @@ extern void tls_read_certi_signature(tls_heap_t *theap, uint8_t certificate);
 extern void tls_ecc_server_key_signature_hash(tls_heap_t *heap_ptr);
 extern uint16_t tls_certificate_len(certificate_chain_internal_t   *temp);
 extern void tls_ecc_verfify_start(sec_suite_t *tls_suite);
-extern void tls_server_finnish_handle_start(sec_suite_t *tls_suite);
+extern void tls_server_finish_handle_start(sec_suite_t *tls_suite);
 extern void tls_parse_subject_get_pub_key_from_chain(tls_heap_t *theap, uint8_t rd_ptr);
 extern void tls_certificate_signature_verify(sec_suite_t *tls_suite);
 #endif

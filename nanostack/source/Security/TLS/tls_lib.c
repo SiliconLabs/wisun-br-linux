@@ -952,7 +952,7 @@ void tls_certificate_signature_verify(sec_suite_t *tls_suite)
     }
 }
 
-void tls_server_finnish_handle_start(sec_suite_t *tls_suite)
+void tls_server_finish_handle_start(sec_suite_t *tls_suite)
 {
     if (ecc_state_idle_check() == ECC_STATUS_OK) {
         tls_heap_t *tls_heap = tls_suite->tls_session->tls_heap;
