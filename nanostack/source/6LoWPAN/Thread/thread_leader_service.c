@@ -41,7 +41,7 @@
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"

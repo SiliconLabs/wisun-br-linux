@@ -47,7 +47,7 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "thread_management_if.h"
 #include "thread_meshcop_lib.h"

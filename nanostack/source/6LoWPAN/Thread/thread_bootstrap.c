@@ -85,7 +85,7 @@
 #include "MPL/mpl.h"
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "thread_config.h"
 #include "thread_meshcop_lib.h"
 #include "multicast_api.h"

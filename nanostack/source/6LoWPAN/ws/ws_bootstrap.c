@@ -75,7 +75,7 @@
 #include "dhcp_service_api.h"
 #include "libDHCPv6/libDHCPv6.h"
 #include "libDHCPv6/libDHCPv6_vendordata.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "ws_management_api.h"
 #include "net_rpl.h"
 #include "mac_api.h"

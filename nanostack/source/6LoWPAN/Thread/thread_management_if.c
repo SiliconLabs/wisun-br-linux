@@ -50,7 +50,7 @@
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "thread_diagnostic.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"

@@ -48,7 +48,7 @@
 #include "6LoWPAN/Thread/thread_bbr_commercial.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_routing.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"

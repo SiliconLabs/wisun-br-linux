@@ -77,7 +77,7 @@
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"
-#include "DHCPv6_client/dhcpv6_client_api.h"
+#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
