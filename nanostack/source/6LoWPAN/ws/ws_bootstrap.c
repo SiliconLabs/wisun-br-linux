@@ -612,9 +612,9 @@ static uint8_t ws_bootstrap_generate_exluded_channel_list_from_active_channels(w
                     excluded_data->excluded_range_length++;
                     active_range = true;
                     //Set start channel
-                    excluded_data->exluded_range[excluded_data->excluded_range_length - 1].range_start = i;
+                    excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_start = i;
                 } else {
-                    excluded_data->exluded_range[excluded_data->excluded_range_length - 1].range_end = i;
+                    excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_end = i;
                 }
             }
         }

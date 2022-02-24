@@ -91,7 +91,7 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_s
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->excluded_channels.excuded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->excluded_channels.excluded_range_length;
-            generic_channel_info->excluded_channels.range.exluded_range = hopping_schedule->excluded_channels.exluded_range;
+            generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->excluded_channels.excluded_range;
         } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
             generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline = hopping_schedule->excluded_channels.channel_mask_bytes_inline;
             generic_channel_info->excluded_channels.mask.excluded_channel_count = hopping_schedule->excluded_channels.excluded_channel_count;
@@ -413,7 +413,7 @@ static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_cha
 {
     if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
         uint8_t range_length = generic_channel_info->excluded_channels.range.excluded_range_length;
-        ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range.exluded_range;
+        ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range.excluded_range;
         *ptr++ = range_length;
         while (range_length) {
             ptr = common_write_16_bit_inverse(range_ptr->range_start, ptr);
