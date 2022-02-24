@@ -349,9 +349,9 @@ void pana_session_init_by_session_ptr(sec_suite_t *suite, auth_info_t *auth_ptr)
 void pana_authentication_ready(uint8_t status, protocol_interface_info_entry_t *cur_interface)
 {
     if (status) {
-        nwk_6lowpan_bootsrap_pana_authentication_cb(true, cur_interface);
+        nwk_6lowpan_bootstrap_pana_authentication_cb(true, cur_interface);
     } else {
-        nwk_6lowpan_bootsrap_pana_authentication_cb(false, cur_interface);
+        nwk_6lowpan_bootstrap_pana_authentication_cb(false, cur_interface);
     }
 }
 

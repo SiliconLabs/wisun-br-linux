@@ -66,7 +66,7 @@ typedef struct mle_6lowpan_data {
 } mle_6lowpan_data_t;
 
 #ifdef PANA
-extern void nwk_6lowpan_bootsrap_pana_authentication_cb(bool processSuccesfully, struct protocol_interface_info_entry *cur);
+extern void nwk_6lowpan_bootstrap_pana_authentication_cb(bool processSuccesfully, struct protocol_interface_info_entry *cur);
 #endif
 #ifdef HAVE_6LOWPAN_ND
 uint8_t *protocol_6lowpan_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId);

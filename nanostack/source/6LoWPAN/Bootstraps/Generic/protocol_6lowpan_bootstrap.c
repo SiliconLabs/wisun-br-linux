@@ -2232,7 +2232,7 @@ void nwk_6lowpan_pana_key_pull(protocol_interface_info_entry_t *cur)
 #ifndef NO_MLE
 
 #ifdef PANA
-void nwk_6lowpan_bootsrap_pana_authentication_cb(bool processSuccesfully, protocol_interface_info_entry_t *cur)
+void nwk_6lowpan_bootstrap_pana_authentication_cb(bool processSuccesfully, protocol_interface_info_entry_t *cur)
 {
     if (processSuccesfully) {
         bootstrap_next_state_kick(ER_PANA_AUTH_DONE, cur);
