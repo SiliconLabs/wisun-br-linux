@@ -47,8 +47,8 @@
 #include "thread_commissioning_api.h"
 #include "thread_beacon.h"
 /*Private includes*/
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_management_internal.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_management_internal.h"
 #include "6lowpan/Bootstraps/protocol_6lowpan.h"// Get coordinator address
 
 #define TRACE_GROUP TRACE_GROUP_THREAD_COMMISSIONING_API

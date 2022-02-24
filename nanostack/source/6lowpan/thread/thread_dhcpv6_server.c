@@ -41,7 +41,7 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
-#include "6lowpan/Thread/thread_bbr_api_internal.h"
+#include "6lowpan/thread/thread_bbr_api_internal.h"
 
 #define TRACE_GROUP "thds"
 

@@ -39,14 +39,14 @@
 #include "coap_service_api.h"
 #include "thread_meshcop_lib.h"
 #include "randLIB.h"
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_bootstrap.h"
-#include "6lowpan/Thread/thread_joiner_application.h"
-#include "6lowpan/Thread/thread_discovery.h"
-#include "6lowpan/Thread/thread_constants.h"
-#include "6lowpan/Thread/thread_management_server.h"
-#include "6lowpan/Thread/thread_nvm_store.h"
-#include "6lowpan/Thread/thread_ccm.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_bootstrap.h"
+#include "6lowpan/thread/thread_joiner_application.h"
+#include "6lowpan/thread/thread_discovery.h"
+#include "6lowpan/thread/thread_constants.h"
+#include "6lowpan/thread/thread_management_server.h"
+#include "6lowpan/thread/thread_nvm_store.h"
+#include "6lowpan/thread/thread_ccm.h"
 
 
 /*

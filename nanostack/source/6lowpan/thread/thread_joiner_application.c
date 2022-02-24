@@ -58,7 +58,7 @@
 #include "thread_network_synch.h"
 #include "thread_network_data_lib.h"
 #include "thread_joiner_application.h"
-#include "6lowpan/Thread/thread_ccm.h"
+#include "6lowpan/thread/thread_ccm.h"
 #include "mac_api.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "thread_nvm_store.h"

@@ -40,12 +40,12 @@
 #include "common_functions.h"
 #include "ns_trace.h"
 #include "nwk_interface/Include/protocol.h"
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_joiner_application.h"
-#include "6lowpan/Thread/thread_network_data_lib.h"
-#include "6lowpan/Thread/thread_management_internal.h"
-#include "6lowpan/Thread/thread_management_client.h"
-#include "6lowpan/Thread/thread_bootstrap.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_joiner_application.h"
+#include "6lowpan/thread/thread_network_data_lib.h"
+#include "6lowpan/thread/thread_management_internal.h"
+#include "6lowpan/thread/thread_management_client.h"
+#include "6lowpan/thread/thread_bootstrap.h"
 
 #define TRACE_GROUP "tndl"
 

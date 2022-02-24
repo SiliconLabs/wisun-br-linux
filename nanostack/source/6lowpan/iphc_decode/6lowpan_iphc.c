@@ -30,7 +30,7 @@
 #include "6lowpan/iphc_decode/iphc_compress.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "6lowpan/mesh/mesh.h"
-#include "6lowpan/Thread/thread_common.h"
+#include "6lowpan/thread/thread_common.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mle/mle.h"
 

@@ -36,7 +36,7 @@
 #include <ns_trace.h>
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "6lowpan/Thread/thread_resolution_server.h"
+#include "6lowpan/thread/thread_resolution_server.h"
 
 #define TRACE_GROUP "TRsS"
 

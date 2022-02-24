@@ -36,9 +36,9 @@
 #include <nsdynmemLIB.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "6lowpan/Thread/thread_config.h"
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_joiner_application.h"
+#include "6lowpan/thread/thread_config.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_joiner_application.h"
 #include "ns_sha256.h"
 #include "ns_mdns_api.h"
 #include "service_libs/utils/ns_crc.h"

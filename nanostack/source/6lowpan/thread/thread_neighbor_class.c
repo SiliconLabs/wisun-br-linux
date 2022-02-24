@@ -33,9 +33,9 @@
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
 #include "nwk_interface/Include/protocol.h"
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_routing.h"
-#include "6lowpan/Thread/thread_neighbor_class.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_routing.h"
+#include "6lowpan/thread/thread_neighbor_class.h"
 
 
 static thread_neigh_table_entry_t *thread_neighbor_class_table_entry_get(thread_neighbor_class_t *class_ptr, uint8_t attribute_index)

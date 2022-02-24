@@ -62,7 +62,7 @@
 #include "security/pana/pana_internal_api.h"
 #include "6lowpan/ND/nd_router_object.h"
 #include "border_router/border_router.h"
-#include "6lowpan/Thread/thread_common.h"
+#include "6lowpan/thread/thread_common.h"
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/etx/etx.h"
 #include "6lowpan/MAC/beacon_handler.h"

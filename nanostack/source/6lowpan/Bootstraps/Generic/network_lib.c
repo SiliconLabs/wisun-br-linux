@@ -51,8 +51,8 @@
 
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "6lowpan/Thread/thread_common.h"
-#include "6lowpan/Thread/thread_bootstrap.h"
+#include "6lowpan/thread/thread_common.h"
+#include "6lowpan/thread/thread_bootstrap.h"
 
 #define MAC_MLME_SACN_PERIO_PARAM 5
 

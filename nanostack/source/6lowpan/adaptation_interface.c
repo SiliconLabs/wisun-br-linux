@@ -47,7 +47,7 @@
 #include "rpl/rpl_data.h"
 #endif
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "6lowpan/Thread/thread_common.h"
+#include "6lowpan/thread/thread_common.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #define TRACE_GROUP "6lAd"
