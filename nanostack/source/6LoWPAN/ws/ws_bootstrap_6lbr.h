@@ -26,7 +26,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
 void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
-#define wisun_mode_border_router(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER)
+#define wisun_mode_border_router(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER)
 
 #else
 

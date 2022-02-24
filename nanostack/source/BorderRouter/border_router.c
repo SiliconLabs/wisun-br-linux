@@ -99,7 +99,7 @@ void nd_border_router_setup_refresh(nwk_interface_id id, bool fresh_abro)
     cur_interface = protocol_stack_interface_info_get(id);
     if (!cur_interface) {
         return;
-    } else if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    } else if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
     } else if (cur_interface->border_router_setup == 0) {
         return;
@@ -192,7 +192,7 @@ int8_t arm_nwk_6lowpan_border_router_context_update(int8_t interface_id, uint8_t
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         ret_val = 0;
-        if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             ret_val = -4;
         } else if (cur->border_router_setup == 0) {
             ret_val = -3;
@@ -228,7 +228,7 @@ int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         ret_val = 0;
-        if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             ret_val = -4;
         } else if (cur->border_router_setup == 0) {
             ret_val = -3;
@@ -267,7 +267,7 @@ int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id)
     cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur_interface) {
         ret_val = 0;
-        if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             ret_val = -4;
         } else if (cur_interface->border_router_setup == 0) {
             ret_val = -3;
@@ -295,7 +295,7 @@ int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interface_id, u
         return -1;
     }
 
-    if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return -4;
     }
 
@@ -323,7 +323,7 @@ int8_t arm_nwk_6lowpan_border_router_context_parameter_update(int8_t interface_i
         return -1;
     }
 
-    if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur_interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return -4;
     }
 
@@ -352,7 +352,7 @@ int8_t arm_nwk_6lowpan_border_router_init(int8_t interface_id, const border_rout
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         ret_val = 0;
-        if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             ret_val = -4;
         } else if (cur->border_router_setup == 0) {
             ret_val = -3;
@@ -578,7 +578,7 @@ static int8_t arm_border_router_interface_up(protocol_interface_info_entry_t *cu
         if (nd_nwk) {
             nd_border_router_setup_refresh(nd_nwk->nwk_id, false);
         }
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
         icmpv6_recv_ra_routes(cur, false);
         protocol_6lowpan_interface_common_init(cur);
 
@@ -769,7 +769,7 @@ int8_t arm_nwk_6lowpan_borderrouter_init(protocol_interface_info_entry_t *cur)
         }
     }
     whiteboard_init(cur->id);
-    cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER;
+    cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     cur->if_up = arm_border_router_interface_up;

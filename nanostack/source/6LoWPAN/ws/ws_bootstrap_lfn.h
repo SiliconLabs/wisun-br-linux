@@ -26,7 +26,7 @@ void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
 void ws_bootstrap_lfn_state_machine(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_lfn_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
-#define wisun_mode_host(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST)
+#define wisun_mode_host(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST)
 
 #else
 

@@ -450,10 +450,10 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     entry->nwk_id = nwk_id;
     switch (nwk_id) {
         case IF_IPV6:
-            entry->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER;
+            entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER;
             break;
         default:
-            entry->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
+            entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
             break;
     }
     entry->bootStrapId = -1;
@@ -1109,11 +1109,11 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
 
         switch (cur->bootstrap_mode) {
 
-            case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT:
-            case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER:
-            case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER:
-            case ARM_NWK_BOOTSRAP_MODE_ETHERNET_HOST:
-            case ARM_NWK_BOOTSRAP_MODE_ETHERNET_ROUTER:
+            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT:
+            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER:
+            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
+            case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST:
+            case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER:
 #ifdef HAVE_ETHERNET
                 if (cur->ipv6_configure) {
                     cur->ipv6_configure->IPv6_ND_state = IPV6_READY;

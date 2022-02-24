@@ -356,9 +356,9 @@ static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t
 void protocol_6lowpan_host_init(protocol_interface_info_entry_t *cur, bool sleepy_host)
 {
     if (sleepy_host) {
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST;
     } else {
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
     }
     //Clear always INTERFACE_NWK_ROUTER_DEVICE, INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE
     cur->lowpan_info &= ~(INTERFACE_NWK_ROUTER_DEVICE | INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE);
@@ -369,7 +369,7 @@ void protocol_6lowpan_host_init(protocol_interface_info_entry_t *cur, bool sleep
 
 void protocol_6lowpan_router_init(protocol_interface_info_entry_t *cur)
 {
-    cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
+    cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
     cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     mac_data_poll_init(cur);
@@ -403,8 +403,8 @@ void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur)
     cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
     cur->if_map_link_addr_to_ip = protocol_6lowpan_map_link_addr_to_ip;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER ||
-            cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER ||
+            cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         cur->ipv6_neighbour_cache.recv_addr_reg = true;
         cur->ipv6_neighbour_cache.recv_ns_aro = true;
     }

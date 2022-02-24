@@ -765,7 +765,7 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
     }
 
     //Verify that we have Selected Parent
-    if (interface->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && !rpl_control_parent_candidate_list_size(interface, true)) {
+    if (interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && !rpl_control_parent_candidate_list_size(interface, true)) {
         tr_info("Do not accept new ARO child: no selected parent");
         return ARO_TOPOLOGICALLY_INCORRECT;
     }
@@ -894,7 +894,7 @@ void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interfac
 
 void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface)
 {
-    if (interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
     }
 

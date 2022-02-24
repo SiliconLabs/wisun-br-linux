@@ -986,8 +986,8 @@ bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uin
         nd_update_registration(cur_interface, neigh, aro_out);
         return true;
     }
-    if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || nd_params.multihop_dad == false) {
-        if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || nd_params.multihop_dad == false) {
+        if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             whiteboard_entry_t *wb;
             wb = whiteboard_table_update(src_addr, aro_out->eui64, &aro_out->status);
             if (wb) {

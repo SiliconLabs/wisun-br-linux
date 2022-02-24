@@ -165,7 +165,7 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
 {
     if (cur->link_role != PRIORITY_PARENT_NEIGHBOUR ||
             !(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE) ||
-            cur_interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+            cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
     }
 
@@ -1490,7 +1490,7 @@ static int8_t arm_6lowpan_bootstrap_up(protocol_interface_info_entry_t *cur)
         mac_helper_mac_mlme_max_retry_set(cur->id, LOWPAN_MAX_FRAME_RETRIES);
 
         addr_interface_set_ll64(cur, NULL);
-        if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER) {
+        if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
             cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
             //rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
             icmpv6_radv_enable(cur);
@@ -1555,12 +1555,12 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
         mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
         mac_helper_default_security_level_set(cur, SEC_NONE);
 
-        if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER) {
+        if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER) {
             mac_helper_pib_boolean_set(cur, macAssociationPermit, false);
             mac_helper_pib_boolean_set(cur, macPromiscuousMode, true);
             lowpan_bootstrap_pan_control(cur, false);
 
-        } else if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT) {
+        } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT) {
             // Updates beacon
             beacon_join_priority_update(cur->id);
             mac_helper_pib_boolean_set(cur, macAssociationPermit, true);
@@ -1705,10 +1705,10 @@ int8_t arm_6lowpan_bootstrap_bootstrap_set(int8_t interface_id, net_6lowpan_mode
         enable_mle_protocol = false;
         cur->if_up = arm_network_processor_up;
         if (bootstrap_mode == NET_6LOWPAN_NETWORK_DRIVER) {
-            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_ACCESPOINT;
+            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_ACCESPOINT;
             cur->mac_parameters->beacon_ind = NULL; //Drop beacons
         } else {
-            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER;
+            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_RF_SNIFFER;
         }
         cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
         cur->lowpan_info |= INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
@@ -2191,8 +2191,8 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
 #endif /* HAVE_RPL */
     } else {
         //No point to update link
-        if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST || cur->lowpan_address_mode != NET_6LOWPAN_GP64_ADDRESS) {
-            if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
+        if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST || cur->lowpan_address_mode != NET_6LOWPAN_GP64_ADDRESS) {
+            if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST) {
                 cur->lowpan_info |= INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
                 tr_debug("Enable Poll state");
                 mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, false);
@@ -2527,7 +2527,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t *con
         return;
     }
     bool is_border_router = false;
-    if (interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         is_border_router = true;
     }
 
@@ -2612,7 +2612,7 @@ void protocol_6lowpan_bootstrap(protocol_interface_info_entry_t *cur)
             if (cur->mac_api) {
                 cur->scan_cb = protocol_6lowpan_mac_scan_confirm;
                 cur->mac_parameters->nwk_scan_params.active_scan_active = true;
-                if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+                if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                     protocol_timer_start(PROTOCOL_TIMER_BOOTSTRAP_TIM, bootstrap_timer_handle, BOOTSTRAP_SCAN_TIMEOUT);
                 }
                 cur->mac_api->mlme_req(cur->mac_api, MLME_SCAN, &req);

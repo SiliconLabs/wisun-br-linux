@@ -816,7 +816,7 @@ int thread_management_node_init(
         return -1;
     }
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->border_router_setup) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->border_router_setup) {
         return -1;
     }
 
@@ -897,7 +897,7 @@ int thread_management_node_init(
                                                 THREAD_INDIRECT_BIG_PACKETS_TOTAL,
                                                 THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD);
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST) {
         cur->thread_info->requestFullNetworkData = false;
     } else {
         cur->thread_info->requestFullNetworkData = true;
@@ -927,16 +927,16 @@ int thread_management_device_type_set(int8_t interface_id, thread_device_type_e 
     }
     if (device_type == THREAD_DEVICE_REED) {
         // Change mode to router
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
     } else if (device_type == THREAD_DEVICE_FED) {
         //FED devices makes links and makes address resolutions
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = true;
     } else if (device_type == THREAD_DEVICE_MED) {
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
         cur->thread_info->end_device_link_synch = false;
     } else if (device_type == THREAD_DEVICE_SED) {
-        cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST;
+        cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST;
         cur->thread_info->end_device_link_synch = false;
     }
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {

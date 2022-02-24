@@ -227,7 +227,7 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
     }
 
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
-    if (interface->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER &&
+    if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER &&
             interface->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
         if (interface->bootstrap_state_machine_cnt == 0) {
             interface->bootstrap_state_machine_cnt = 10; //Re trigger state check
@@ -769,7 +769,7 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
 
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, llc_neighbour_req_t *neighbor_info)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_shedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_shedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
         return;
     }
 
@@ -926,7 +926,7 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
         tr_error("fhss initialization failed");
         return -3;
     }
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //BBR init like NVM read
         ws_bbr_init(cur);
     }
@@ -1036,11 +1036,11 @@ void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
 
     switch (cur->bootstrap_mode) {
         //        case NET_6LOWPAN_SLEEPY_HOST:
-        case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST:
+        case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST:
             break;
 
-        case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER:
-        case ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER:
+        case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER:
+        case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
             cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
             break;
 
@@ -1708,13 +1708,13 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     switch (bootstrap_mode) {
         //        case NET_6LOWPAN_SLEEPY_HOST:
         case NET_6LOWPAN_HOST:
-            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_HOST;
+            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
             break;
         case NET_6LOWPAN_ROUTER:
-            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_ROUTER;
+            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
             break;
         case NET_6LOWPAN_BORDER_ROUTER:
-            cur->bootstrap_mode = ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER;
+            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
             break;
         default:
             return -3;
@@ -2360,7 +2360,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
             // Network key is valid, indicate border router IID to controller
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
             //Update here Suplikant target by validated Primary Parent
-            if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+            if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
                 if (mac_neighbor) {
                     ws_pae_controller_set_target(cur, cur->ws_info->network_pan_id, mac_neighbor->mac64);
@@ -2409,7 +2409,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
 
 bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSRAP_DONE) {
         return true;
     }
 
@@ -2673,7 +2673,7 @@ void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur)
     rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
     rpl_control_set_mrhof_parent_set_size(WS_MAX_PARENT_SET_COUNT);
     rpl_control_set_force_tunnel(true);
-    if (cur->bootstrap_mode != ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         rpl_control_set_memory_limits(WS_NODE_RPL_SOFT_MEM_LIMIT, WS_NODE_RPL_HARD_MEM_LIMIT);
     }
     // Set RPL Link ETX Validation Threshold to 2.5 - 33.0
@@ -2737,7 +2737,7 @@ static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index)
 {
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         if (cur->mac_parameters->mac_default_key_index != 0 && cur->mac_parameters->mac_default_key_index  != index + 1) {
             tr_info("New Pending key Request %u", index + 1);
             cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
@@ -2766,7 +2766,7 @@ static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, u
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
      */
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Get network name
         ws_gen_cfg_t gen_cfg;
         if (ws_cfg_gen_get(&gen_cfg) < 0) {
@@ -3025,7 +3025,7 @@ static void ws_bootstrap_pan_advert(protocol_interface_info_entry_t *cur)
     ws_bootstrap_set_asynch_channel_list(cur, &async_req);
     async_req.security.SecurityLevel = 0;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Border routers write the NW size
         cur->ws_info->pan_information.pan_size = ws_bbr_pan_size(cur);
         cur->ws_info->pan_information.routing_cost = 0;
@@ -3060,7 +3060,7 @@ static void ws_bootstrap_pan_config(protocol_interface_info_entry_t *cur)
 
     async_req.security.SecurityLevel = mac_helper_default_security_level_get(cur);
     async_req.security.KeyIdMode = mac_helper_default_security_key_id_mode_get(cur);
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
         async_req.security.KeyIndex =  cur->ws_info->pending_key_index_info.index + 1;
         cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
@@ -3491,7 +3491,7 @@ void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur)
 
     uint16_t min_th, max_th;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_BR_MIN_QUEUE_SIZE, WS_CONGESTION_BR_MAX_QUEUE_SIZE);
     } else {
         max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_NODE_MIN_QUEUE_SIZE, WS_CONGESTION_NODE_MAX_QUEUE_SIZE);
@@ -3531,7 +3531,7 @@ int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws
         case PROCEDURE_PCS:
         case PROCEDURE_EAPOL:
         case PROCEDURE_RPL:
-            if (cur->bootstrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+            if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 tr_info("Not allowed on Border Router");
                 return -1;
             }
