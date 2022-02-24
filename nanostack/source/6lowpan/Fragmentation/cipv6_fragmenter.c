@@ -31,7 +31,7 @@
 #include "6lowpan/Fragmentation/cipv6_fragmenter.h"
 #include "nwk_interface/Include/protocol.h"
 #include "nsdynmemLIB.h"
-#include "6lowpan/Mesh/mesh.h"
+#include "6lowpan/mesh/mesh.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/Include/protocol_stats.h"

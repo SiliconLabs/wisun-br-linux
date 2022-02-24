@@ -36,7 +36,7 @@
 #include "service_libs/etx/etx.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "6lowpan/MAC/mpx_api.h"
-#include "6lowpan/Mesh/mesh.h"
+#include "6lowpan/mesh/mesh.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "lowpan_adaptation_interface.h"
 #include "mle/mle.h"

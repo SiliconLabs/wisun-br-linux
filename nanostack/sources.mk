@@ -15,7 +15,7 @@ SRCS += \
 	source/6lowpan/MAC/mac_response_handler.c \
 	source/6lowpan/MAC/mac_data_poll.c \
 	source/6lowpan/MAC/mac_pairwise_key.c \
-	source/6lowpan/Mesh/mesh.c \
+	source/6lowpan/mesh/mesh.c \
 	source/6lowpan/ND/nd_router_object.c \
 	source/6lowpan/NVM/nwk_nvm.c \
 	source/6lowpan/ws/ws_ie_lib.c \

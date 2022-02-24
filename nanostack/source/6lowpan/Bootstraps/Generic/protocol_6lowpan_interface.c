@@ -47,7 +47,7 @@
 #ifndef NO_MLE
 #include "mle/mle.h"
 #endif
-#include "6lowpan/Mesh/mesh.h"
+#include "6lowpan/mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"
 
 #ifdef ECC

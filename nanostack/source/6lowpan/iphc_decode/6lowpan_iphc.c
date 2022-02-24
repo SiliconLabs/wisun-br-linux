@@ -29,7 +29,7 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "6lowpan/iphc_decode/iphc_compress.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "6lowpan/Mesh/mesh.h"
+#include "6lowpan/mesh/mesh.h"
 #include "6lowpan/Thread/thread_common.h"
 #include "6lowpan/MAC/mac_helper.h"
 #include "mle/mle.h"
@@ -231,7 +231,7 @@ buffer_t *lowpan_up(buffer_t *buf)
         goto drop;
     }
 
-    /* Divert to new routing system - in final system, MAC/Mesh/Frag should send to IPV6_TXRX layer */
+    /* Divert to new routing system - in final system, MAC/mesh/Frag should send to IPV6_TXRX layer */
     buf->ip_routed_up = true;
     buf = iphc_decompress(&cur->lowpan_contexts, buf);
     if (buf) {
