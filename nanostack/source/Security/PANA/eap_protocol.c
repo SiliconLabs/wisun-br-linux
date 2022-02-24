@@ -138,7 +138,7 @@ void pana_eap_tls_start_build(buffer_t *buf, sec_suite_t *suite)
 }
 
 
-void pana_eap_tls_finnish_build(buffer_t *buf, sec_suite_t *suite)
+void pana_eap_tls_finish_build(buffer_t *buf, sec_suite_t *suite)
 {
     buffer_data_clear(buf);
     uint8_t eap_code;

@@ -608,7 +608,7 @@ static void pana_client_state_machine_func(sec_suite_t *suite)
                     case TLS_FINISH:
                     case TLS_ALERT:
                         eap_fragmentation_init(suite);
-                        pana_eap_tls_finnish_build(buf, suite);
+                        pana_eap_tls_finish_build(buf, suite);
                         break;
 
 

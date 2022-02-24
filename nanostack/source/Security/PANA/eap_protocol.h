@@ -22,7 +22,7 @@ struct buffer;
 struct sec_suite_t;
 void pana_eap_identity_build(struct buffer *buf, struct sec_suite_t *suite);
 void pana_eap_tls_start_build(struct buffer *buf, struct sec_suite_t *suite);
-void pana_eap_tls_finnish_build(struct buffer *buf, struct sec_suite_t *suite);
+void pana_eap_tls_finish_build(struct buffer *buf, struct sec_suite_t *suite);
 bool pana_eap_frag_re_tx(struct sec_suite_t *suite);
 struct buffer *eap_down(struct buffer *buf, struct sec_suite_t *suite);
 struct buffer *eap_up(struct buffer *buf, struct sec_suite_t *suite);
