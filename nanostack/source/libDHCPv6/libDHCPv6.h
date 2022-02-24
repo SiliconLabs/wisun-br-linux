@@ -274,7 +274,7 @@ int libdhcpv6_message_option_discover(uint8_t *ptr, uint16_t data_len, uint16_t 
 #define libdhcpv6_ia_address_option_size() 28
 #define libdhcpv6_elapsed_time_option_size() 6
 #define libdhcpv6_rapid_commit_option_size() 4
-#define libdhcvp6_thread_vendor_spesific_option_size() 21
+#define libdhcvp6_thread_vendor_specific_option_size() 21
 #define libdhcpv6_status_option_size() 6
 #define libdhcpv6_client_last_transaction_time_option_size() 8
 
