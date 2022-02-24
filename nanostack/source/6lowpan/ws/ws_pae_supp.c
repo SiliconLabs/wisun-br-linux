@@ -29,7 +29,7 @@
 #include "eventOS_event_timer.h"
 #include "ns_address.h"
 #include "service_libs/utils/ns_file.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"

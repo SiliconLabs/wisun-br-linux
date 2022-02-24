@@ -41,7 +41,7 @@
 #include "thread_border_router_api.h"
 #include "thread_bbr_api.h"
 #include "net_ipv6_api.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "6lowpan/thread/thread_dhcpv6_server.h"

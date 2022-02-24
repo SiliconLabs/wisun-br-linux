@@ -41,8 +41,8 @@
 #include "nsdynmemLIB.h"
 
 #include "core/include/ns_buffer.h"
-#include "nwk_interface/Include/protocol.h"
-#include "nwk_interface/Include/protocol_stats.h"
+#include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_stats.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"

@@ -28,7 +28,7 @@
 #include "dhcp_service_api.h"
 #include "dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "DHP"
 

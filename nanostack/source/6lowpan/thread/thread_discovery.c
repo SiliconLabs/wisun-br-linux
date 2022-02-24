@@ -40,7 +40,7 @@
 #include "randLIB.h"
 #include <nsdynmemLIB.h>
 #include "thread_discovery.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/thread/thread_common.h"
 #include "6lowpan/thread/thread_management_server.h"
 #include "6lowpan/thread/thread_joiner_application.h"

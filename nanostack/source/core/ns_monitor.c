@@ -32,10 +32,10 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "mntr"
 

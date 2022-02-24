@@ -23,7 +23,7 @@
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
 #include "fhss_config.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "security/pana/pana_eap_header.h"

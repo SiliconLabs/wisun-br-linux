@@ -21,7 +21,7 @@
 #include "core/include/ns_socket.h"
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/network_lib.h"
@@ -44,7 +44,7 @@
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "net_nwk_scan.h"
 #include "nwk_stats_api.h"
-#include "nwk_interface/Include/protocol_stats.h"
+#include "nwk_interface/protocol_stats.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_data.h"
 #endif

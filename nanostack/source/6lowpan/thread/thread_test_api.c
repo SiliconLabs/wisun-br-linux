@@ -36,8 +36,8 @@
 
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "nwk_interface/Include/protocol.h"
-#include "nwk_interface/Include/protocol_abstract.h"
+#include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_abstract.h"
 #include "6lowpan/thread/thread_config.h"
 #include "6lowpan/thread/thread_common.h"
 #include "6lowpan/thread/thread_routing.h"

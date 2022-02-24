@@ -23,7 +23,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include "net_address_extension.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/mac/mac_helper.h"
 

@@ -39,7 +39,7 @@
 #include "randLIB.h"
 #include "thread_border_router_api.h"
 #include "thread_management_if.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/thread/thread_config.h"
 #include "6lowpan/thread/thread_common.h"
 #include "6lowpan/thread/thread_network_data_lib.h"

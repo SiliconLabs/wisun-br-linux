@@ -25,7 +25,7 @@
 #include "core/include/ns_socket.h"
 #include "ns_trace.h"
 #include "platform/arm_hal_interrupt.h"
-#include "nwk_interface/Include/protocol_stats.h"
+#include "nwk_interface/protocol_stats.h"
 #include "ip_fsc.h"
 #include "net_interface.h"
 

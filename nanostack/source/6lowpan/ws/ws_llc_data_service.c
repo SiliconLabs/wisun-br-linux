@@ -25,7 +25,7 @@
 #include "mac_api.h"
 #include "mac_mcps.h"
 #include "common_functions.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_ie_lib.h"

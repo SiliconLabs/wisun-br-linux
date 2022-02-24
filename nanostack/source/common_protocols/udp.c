@@ -19,8 +19,8 @@
 #include "string.h"
 #include "ns_trace.h"
 #include "ip_fsc.h"
-#include "nwk_interface/Include/protocol.h"
-#include "nwk_interface/Include/protocol_stats.h"
+#include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_stats.h"
 #include "6lowpan/bootstraps/network_lib.h" // for nwk_udp_rx_security_check
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"

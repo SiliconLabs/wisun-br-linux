@@ -43,7 +43,7 @@
 #include "common_functions.h"
 #include "socket_api.h"
 #include "core/include/ns_socket.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "net_thread_test.h"

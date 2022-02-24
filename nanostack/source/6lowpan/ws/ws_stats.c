@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include "ns_trace.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_common.h"
 #include "ws_management_api.h"

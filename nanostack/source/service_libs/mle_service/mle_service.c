@@ -30,7 +30,7 @@
 #include "net_interface.h"
 #include "common_functions.h"
 #include "common_protocols/ipv6_constants.h"
-#include "nwk_interface/Include/protocol.h" // just for protocol_core_monotonic_time
+#include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
 #include "service_libs/mle_service/mle_service_api.h"
 #include "service_libs/mle_service/mle_service_security.h"
 #include "service_libs/mle_service/mle_service_buffer.h"

@@ -33,7 +33,7 @@
 #include "libdhcpv6/libdhcpv6_server.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "common_functions.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "dhcp_service_api.h"
 

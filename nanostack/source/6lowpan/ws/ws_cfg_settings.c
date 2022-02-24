@@ -23,7 +23,7 @@
 #include "nsdynmemLIB.h"
 #include "net_interface.h"
 #include "eventOS_event.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"

@@ -21,7 +21,7 @@
 #include "eventOS_event.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "shalib.h"
 #include "randLIB.h"
 #ifdef ECC

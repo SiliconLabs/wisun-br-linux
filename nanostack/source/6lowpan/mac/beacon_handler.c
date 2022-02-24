@@ -23,7 +23,7 @@
 #include "mac_helper.h"
 #include "service_libs/load_balance/load_balance_api.h"
 #include "service_libs/pan_blacklist/pan_blacklist_api.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "ns_trace.h"
 #include "common_functions.h"
 

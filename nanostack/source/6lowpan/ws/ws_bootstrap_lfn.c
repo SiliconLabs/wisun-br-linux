@@ -29,7 +29,7 @@
 #include "sw_mac.h"
 #include "ccm.h"
 #include "core/include/ns_monitor.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "ipv6_stack/protocol_ipv6.h"

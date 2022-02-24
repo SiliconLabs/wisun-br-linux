@@ -23,7 +23,7 @@
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "ccm.h"
 #include "shalib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

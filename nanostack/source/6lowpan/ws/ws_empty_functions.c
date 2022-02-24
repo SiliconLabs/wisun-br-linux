@@ -21,7 +21,7 @@
 #include "ns_trace.h"
 #include <ns_list.h>
 #include <nsdynmemLIB.h>
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 
 #include "ws_management_api.h"

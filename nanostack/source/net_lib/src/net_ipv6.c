@@ -24,7 +24,7 @@
 #include "core/include/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/ipv6_fragmentation.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 
 #include "net_ipv6_api.h"

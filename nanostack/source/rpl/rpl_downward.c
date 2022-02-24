@@ -89,7 +89,7 @@
 #include "ip6string.h"
 
 #include "common_protocols/icmpv6.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "common_protocols/ip.h"
 

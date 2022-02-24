@@ -50,7 +50,7 @@
 #include "6lowpan/thread/thread_network_data_lib.h"
 #include "6lowpan/thread/thread_bootstrap.h"
 #include "6lowpan/thread/thread_management_client.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP TRACE_GROUP_THREAD_MANAGEMENT_CLIENT
 

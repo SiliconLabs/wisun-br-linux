@@ -45,7 +45,7 @@
 #include "6lowpan/thread/thread_router_bootstrap.h"
 #include "thread_config.h"
 #include "thread_network_data_storage.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "thread_diagcop_lib.h"
 #include "common_functions.h"
 #include "6lowpan/mac/mac_helper.h"

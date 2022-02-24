@@ -21,7 +21,7 @@
 #include "eventOS_scheduler.h"
 #include "nsdynmemLIB.h"
 #include "randLIB.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "service_libs/blacklist/blacklist.h"
 
 #define TRACE_GROUP "bl"

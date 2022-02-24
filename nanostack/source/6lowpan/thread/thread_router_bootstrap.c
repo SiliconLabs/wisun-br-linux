@@ -42,7 +42,7 @@
 #include "randLIB.h"
 #include "shalib.h"
 #include "common_functions.h"
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "net_thread_test.h"
 #include "ns_trace.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

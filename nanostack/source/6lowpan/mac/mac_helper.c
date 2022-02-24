@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "nwk_interface/Include/protocol.h"
+#include "nwk_interface/protocol.h"
 #include "mlme.h"
 #include "mac_helper.h"
 #include "mac_common_defines.h"

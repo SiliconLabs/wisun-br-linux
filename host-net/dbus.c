@@ -10,7 +10,7 @@
 #include "nanostack/source/6lowpan/ws/ws_common.h"
 #include "nanostack/source/6lowpan/ws/ws_pae_controller.h"
 #include "nanostack/source/6lowpan/ws/ws_cfg_settings.h"
-#include "nanostack/source/nwk_interface/Include/protocol.h"
+#include "nanostack/source/nwk_interface/protocol.h"
 #include "nanostack/source/security/protocols/sec_prot_keys.h"
 #include "nanostack/source/common_protocols/icmpv6.h"
 
