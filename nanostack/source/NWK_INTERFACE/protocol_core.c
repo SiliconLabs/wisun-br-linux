@@ -845,7 +845,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void
     return NULL;
 }
 
-uint8_t nwk_bootsrap_ready(protocol_interface_info_entry_t *cur)
+uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val = 0;
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) == 0) {

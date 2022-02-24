@@ -503,7 +503,7 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry);
 extern void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
 
 protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void);
-extern uint8_t nwk_bootsrap_ready(protocol_interface_info_entry_t *cur);
+extern uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
 extern protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id);
 extern bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);

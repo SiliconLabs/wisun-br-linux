@@ -1403,7 +1403,7 @@ static int8_t mac_data_poll_host_polling_state_change_check(protocol_interface_i
     if (cur->lowpan_info  & INTERFACE_NWK_ROUTER_DEVICE) {
         tr_warn("Host Control not accepted for Router");
         ret_val = -1;
-    } else if (nwk_bootsrap_ready(cur) == 0) {
+    } else if (nwk_bootstrap_ready(cur) == 0) {
         tr_debug("Bootsrap Active");
         ret_val = -2;
     }
