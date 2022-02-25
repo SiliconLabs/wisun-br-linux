@@ -760,7 +760,7 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
     spinel_push_u8(tx_buf,   data->cca_retries);
     spinel_push_u8(tx_buf,   data->tx_retries);
     spinel_push_data(tx_buf, conf_data->headerIeList, conf_data->headerIeListLength);
-    spinel_push_data(tx_buf, conf_data->payloadIeList, conf_data->headerIeListLength);
+    spinel_push_data(tx_buf, conf_data->payloadIeList, conf_data->payloadIeListLength);
     spinel_push_data(tx_buf, conf_data->payloadPtr, conf_data->payloadLength);
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 
