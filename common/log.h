@@ -172,14 +172,19 @@ char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char 
             fprintf(stderr, MSG "\n", ##__VA_ARGS__);                \
     } while(0)
 
-#define __PRINT_WITH_LINE(COLOR, MSG, ...) \
-    __PRINT(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
-
 #define __PRINT_WITH_TIME(COLOR, MSG, ...) \
     do {                                                             \
         struct timespec tp;                                          \
         clock_gettime(CLOCK_REALTIME, &tp);                          \
-        __PRINT(COLOR, "%ju.%06ju: " MSG, (uintmax_t)tp.tv_sec, (uintmax_t)tp.tv_nsec / 1000, ##__VA_ARGS__); \
+        __PRINT(COLOR, "%ju.%06ju: " MSG,                            \
+                (uintmax_t)tp.tv_sec, (uintmax_t)tp.tv_nsec / 1000,  \
+                ##__VA_ARGS__);                                      \
     } while (0)
+
+#define __PRINT_WITH_LINE(COLOR, MSG, ...) \
+    __PRINT(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
+
+#define __PRINT_WITH_TIME_LINE(COLOR, MSG, ...) \
+    __PRINT_WITH_TIME(COLOR, "%s():%d: " MSG, __func__, __LINE__, ##__VA_ARGS__)
 
 #endif
