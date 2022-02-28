@@ -44,7 +44,6 @@
 #include "rpl/rpl_control.h"
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/mesh/mesh.h"
 
 #ifdef ECC
 #include "libX509_V3.h"

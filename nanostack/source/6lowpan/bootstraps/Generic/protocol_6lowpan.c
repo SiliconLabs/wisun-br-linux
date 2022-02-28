@@ -37,7 +37,6 @@
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/mesh/mesh.h"
 #include "6lowpan/mac/mac_helper.h"
 
 #ifdef ECC
