@@ -631,12 +631,6 @@ static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_ent
     frag_entry->unfrag_len = 0;
     ptr = buffer_data_pointer(buf);
 
-    if ((ptr[0] & LOWPAN_MESH_MASK) == LOWPAN_MESH) {
-        uint_fast8_t size = mesh_header_len_from_type_byte(ptr[0]);
-        ptr += size;
-        buf->buf_ptr += size;
-    }
-
     if (ptr[0] == LOWPAN_DISPATCH_BC0) {
         ptr += 2;
         buf->buf_ptr += 2;
