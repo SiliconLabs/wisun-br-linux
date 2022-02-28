@@ -3,8 +3,8 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef BACKTRACE_H
-#define BACKTRACE_H
+#ifndef BACKTRACE_SHOW_H
+#define BACKTRACE_SHOW_H
 
 #ifdef HAVE_BACKTRACE
 

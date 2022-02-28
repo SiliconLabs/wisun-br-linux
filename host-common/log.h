@@ -13,7 +13,7 @@
 #include <signal.h>
 #include <time.h>
 
-#include "backtrace.h"
+#include "backtrace_show.h"
 
 /*
  * Use BUG() and BUG_ON() in the same ways than assert(). Consider this
