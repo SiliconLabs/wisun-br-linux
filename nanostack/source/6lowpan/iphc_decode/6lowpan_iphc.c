@@ -106,42 +106,20 @@ buffer_t *lowpan_down(buffer_t *buf)
         return buffer_free(buf);
     }
 
-    uint_fast8_t mesh_size;
-    /* Allow the link-layer destination addresses passed from upper layers
-     * to be remapped - used to implement Thread anycast.
-     *
-     * Mapping function can change address and type - if it returns false,
-     * packet is dropped.
-     *
-     * Note that this mapping has to be done before IPHC compression, which
-     * is why it moved from mesh.c.
-     */
-    if (!mesh_address_map(cur, &buf->dst_sa.addr_type, buf->dst_sa.address)) {
-        tr_debug("mesh_address_map fail");
-        return buffer_free(buf);
-    }
-
-    /* After mapping, compute final mesh header size (which depends on
-     * the final address).
-     */
-    mesh_size = mesh_header_size(buf);
-
-    if (mesh_size == 0) {
-        if (buf->dst_sa.addr_type == ADDR_BROADCAST) {
-            /* Thread says multicasts other than MLE are sent to our parent, if we're an end device */
-            if (cur->ip_multicast_as_mac_unicast_to_parent && !buf->options.ll_broadcast_tx) {
-                if (protocol_6lowpan_interface_get_mac_coordinator_address(cur, &buf->dst_sa) < 0) {
-                    tr_warn("IP: No parent for multicast as unicast");
-                    return buffer_free(buf);
-                }
-            } else {
-                /*
-                 * Not using a mesh header, so have to "purify" RFC 4944 multicast - we
-                 * set a 100xxxxxxxxxxxxx RFC 4944 multicast address above, but
-                 * IEEE 802.15.4 only supports broadcast in the real MAC header.
-                 */
-                common_write_16_bit(0xFFFF, buf->dst_sa.address + 2);
+    if (buf->dst_sa.addr_type == ADDR_BROADCAST) {
+        /* Thread says multicasts other than MLE are sent to our parent, if we're an end device */
+        if (cur->ip_multicast_as_mac_unicast_to_parent && !buf->options.ll_broadcast_tx) {
+            if (protocol_6lowpan_interface_get_mac_coordinator_address(cur, &buf->dst_sa) < 0) {
+                tr_warn("IP: No parent for multicast as unicast");
+                return buffer_free(buf);
             }
+        } else {
+            /*
+             * Not using a mesh header, so have to "purify" RFC 4944 multicast - we
+             * set a 100xxxxxxxxxxxxx RFC 4944 multicast address above, but
+             * IEEE 802.15.4 only supports broadcast in the real MAC header.
+             */
+            common_write_16_bit(0xFFFF, buf->dst_sa.address + 2);
         }
     }
 
@@ -149,16 +127,11 @@ buffer_t *lowpan_down(buffer_t *buf)
      * This check is slightly conservative - always allow 4 for first-fragment header
      */
     uint_fast16_t overhead = mac_helper_frame_overhead(cur, buf);
-    uint_fast16_t max_iphc_size = mac_helper_max_payload_size(cur, overhead) - mesh_size - 4;
+    uint_fast16_t max_iphc_size = mac_helper_max_payload_size(cur, overhead) - 4;
 
     buf = iphc_compress(&cur->lowpan_contexts, buf, max_iphc_size, stable_only);
     if (!buf) {
         return NULL;
-    }
-
-    if (mesh_size != 0) {
-        buf->info = (buffer_info_t)(B_FROM_IPV6_TXRX | B_TO_MESH_ROUTING | B_DIR_DOWN);
-        return buf;
     }
 
     buf->info = (buffer_info_t)(B_FROM_IPV6_TXRX | B_TO_MAC | B_DIR_DOWN);
