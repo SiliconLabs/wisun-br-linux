@@ -93,12 +93,6 @@ int8_t arm_net_energy_scan(int8_t interface_id, channel_list_s *scan_list, void 
     (void)passed_fptr;
     (void)energy_tresshold;
     int8_t ret_val = -3;
-#ifdef HAVE_RF_TUNNEL
-    (void)interface_id;
-    (void)scan_list;
-    (void)passed_fptr;
-    (void)energy_tresshold;
-#else
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
@@ -122,7 +116,6 @@ int8_t arm_net_energy_scan(int8_t interface_id, channel_list_s *scan_list, void 
             }
         }
     }
-#endif
     return ret_val;
 
 }
@@ -134,12 +127,6 @@ int8_t arm_net_nwk_scan(int8_t interface_id, channel_list_s *scan_list, void (*p
     (void)passed_fptr;
     (void)scan_level;
     int8_t ret_val = -3;
-#ifdef HAVE_RF_TUNNEL
-    (void)interface_id;
-    (void)scan_list;
-    (void)passed_fptr;
-    (void)scan_level;
-#else
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
@@ -172,7 +159,6 @@ int8_t arm_net_nwk_scan(int8_t interface_id, channel_list_s *scan_list, void (*p
             }
         }
     }
-#endif
     return ret_val;
 }
 
