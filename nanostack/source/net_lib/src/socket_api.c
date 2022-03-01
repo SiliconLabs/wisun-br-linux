@@ -358,10 +358,6 @@ int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags)
     //Read Data to Buffer
     int16_t len = socket_copy_queue_to_user(&socket_ptr->rcvq, msg, flags, socket_ptr->type == SOCKET_TYPE_STREAM);
 
-    if (len > 0 && !(flags & NS_MSG_PEEK) && socket_is_ipv6(socket_ptr) && tcp_info(socket_ptr->inet_pcb)) {
-        tcp_session_data_received(tcp_info(socket_ptr->inet_pcb));
-    }
-
     return len;
 }
 
@@ -928,14 +924,6 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
                  * a sensible number for the caller; we can't just say -1.
                  */
                 opt_temp.s16 = UNICAST_HOP_LIMIT_DEFAULT;
-
-                /* Try to look at interface for connected sockets */
-                if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-                    tcp_session_t *info = tcp_info(socket_ptr->inet_pcb);
-                    if (info) {
-                        opt_temp.s16 = info->interface->cur_hop_limit;
-                    }
-                }
             }
             *value = &opt_temp.s16;
             *len = sizeof(int16_t);

@@ -293,34 +293,16 @@ void socket_release(socket_t *socket)
     socket->flags |= SOCKET_FLAG_CLOSED | SOCKET_FLAG_SHUT_WR | SOCKET_FLAG_CANT_RECV_MORE;
 
     if (socket_is_ipv6(socket)) {
-        // Do TCP cleanup first, while we have one reference count of our own,
-        // so it can't make socket vanish.
-        // Take care never to put tcp_info in local variable - these calls can delete it
-        if (tcp_info(socket->inet_pcb)) {
-            /* This may trigger a reset if pending data. Do it first so you
-             * get just the reset, rather than a FIN. */
-            tcp_error sock_status = tcp_session_shutdown_read(tcp_info(socket->inet_pcb));
-            /* This can also cause TCP deletion */
-            if (tcp_info(socket->inet_pcb)) {
-                sock_status = tcp_session_close(tcp_info(socket->inet_pcb));
-            }
-            if (tcp_info(socket->inet_pcb)) {
-                tcp_socket_released(tcp_info(socket->inet_pcb));
-            }
-            // prevent warning "statement with no effect" when TCP is disabled
-            (void) sock_status;
-        } else {
-            /* Unbind the internet control block - ensures users are not prevented
-             * from binding a new socket to the same port if the socket lingers
-             * on due to pending events/buffers. (And also means the new socket
-             * gets any such packets, with this getting none).
-             */
-            memcpy(socket->inet_pcb->local_address, ns_in6addr_any, 16);
-            memcpy(socket->inet_pcb->remote_address, ns_in6addr_any, 16);
-            socket->inet_pcb->local_port = 0;
-            socket->inet_pcb->remote_port = 0;
-            socket->inet_pcb->protocol = 0;
-        }
+        /* Unbind the internet control block - ensures users are not prevented
+         * from binding a new socket to the same port if the socket lingers
+         * on due to pending events/buffers. (And also means the new socket
+         * gets any such packets, with this getting none).
+         */
+        memcpy(socket->inet_pcb->local_address, ns_in6addr_any, 16);
+        memcpy(socket->inet_pcb->remote_address, ns_in6addr_any, 16);
+        socket->inet_pcb->local_port = 0;
+        socket->inet_pcb->remote_port = 0;
+        socket->inet_pcb->protocol = 0;
         sockbuf_flush(&socket->rcvq);
     }
 
@@ -781,9 +763,7 @@ static void socket_print(const socket_t *socket, int lwidth, int rwidth, route_p
 
     const char *state = "";
     if (pcb->protocol == IPV6_NH_TCP) {
-        if (tcp_info(pcb)) {
-            state = tcp_state_name(tcp_info(pcb));
-        } else if (socket->flags & SOCKET_LISTEN_STATE) {
+        if (socket->flags & SOCKET_LISTEN_STATE) {
             state = "LISTEN";
         } else {
             state = "CLOSED";
