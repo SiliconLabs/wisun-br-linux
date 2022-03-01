@@ -16,7 +16,6 @@
  */
 
 #include "base/cfg_ethernet.h"
-#include "base/cfg_local_socket.h"
 #include "base/cfg_ws_border_router.h"
 
 #define FEA_TRACE_SUPPORT
