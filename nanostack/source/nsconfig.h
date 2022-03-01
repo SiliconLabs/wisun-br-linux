@@ -33,7 +33,7 @@
 #endif
 
 #ifndef NSCONFIG
-#define NSCONFIG nanostack_full
+#error "NSCONFIG is not set"
 #endif
 
 #include ns_cfg_header(NSCONFIG)
