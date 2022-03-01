@@ -1,5 +1,0 @@
-test/*
-unittest/*
-release/*
-source/service_libs/ccm/mbedOS/aes_mbedtls.c
-output/*
