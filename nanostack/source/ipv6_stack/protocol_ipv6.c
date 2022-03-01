@@ -735,7 +735,6 @@ static uint8_t ipv6_nd_rs(protocol_interface_info_entry_t *cur)
     return 0;
 }
 
-#ifdef RADV_TX
 void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest)
 {
     /* 12 base size, plus allow 8 for MTU and 16 for SLLA */
@@ -880,7 +879,6 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
         arm_net_protocol_packet_handler(buf, cur);
     }
 }
-#endif
 
 static void ipv6_stack(buffer_t *b)
 {

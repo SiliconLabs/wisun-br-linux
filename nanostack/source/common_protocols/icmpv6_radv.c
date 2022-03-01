@@ -50,7 +50,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 
-#ifdef RADV_TX
 
 #define TRACE_GROUP "RAdv"
 
@@ -390,4 +389,3 @@ void icmpv6_radv_timer(uint16_t ticks)
     }
 }
 
-#endif /* RADV_TX */

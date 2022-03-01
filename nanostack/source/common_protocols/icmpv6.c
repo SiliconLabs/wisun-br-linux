@@ -762,7 +762,6 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             if (!uptodate) {
                 goto drop;
             }
-#ifndef NO_RADV_TX
             if (hoplimit != 0) {
                 cur->adv_cur_hop_limit = hoplimit;
             }
@@ -775,7 +774,6 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             if (mtu != 0) {
                 cur->adv_link_mtu = mtu;
             }
-#endif
         }
     }
     if (cur->recv_ra_routes) {

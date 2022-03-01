@@ -373,7 +373,6 @@ struct protocol_interface_info_entry {
     /* RFC 4861 Router Variables */
     bool ip_forwarding : 1;
     bool ip_multicast_forwarding : 1;
-#ifndef NO_RADV_TX
     bool adv_send_advertisements : 1;
     bool rtr_adv_unicast_to_rs : 1;
     bool adv_copy_heard_flags : 1;
@@ -389,7 +388,6 @@ struct protocol_interface_info_entry {
     uint16_t min_rtr_adv_interval;      // 100ms ticks
     uint16_t max_rtr_adv_interval;      // 100ms ticks
     ipv6_ra_timing_t ra_timing;
-#endif
     /* RFC 4862 Node Configuration */
     uint8_t dup_addr_detect_transmits;
     uint16_t pmtu_lifetime;             // s

@@ -1664,7 +1664,6 @@ nd_router_t *nd_get_pana_address(void)
 
 void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface)
 {
-#ifndef NO_RADV_TX
     cur_interface->max_ra_delay_time = 20;
     cur_interface->min_delay_between_ras = 100;
     cur_interface->rtr_adv_unicast_to_rs = true;
@@ -1674,9 +1673,6 @@ void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface)
     cur_interface->adv_retrans_timer = nd_params.ra_retrans_timer;
     cur_interface->max_initial_rtr_adv_interval = nd_params.ra_interval_min;
     cur_interface->max_initial_rtr_advertisements = nd_params.ra_transmits;
-#else
-    (void) cur_interface;
-#endif
 }
 #endif // HAVE_6LOWPAN_ND
 
