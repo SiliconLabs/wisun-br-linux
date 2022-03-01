@@ -231,7 +231,7 @@ target_include_directories(wsbrd PRIVATE
     nanostack/nanostack/
     nanostack/source/
 )
-target_compile_definitions(wsbrd PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
+target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
 target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_compile_definitions(wsbrd PRIVATE STANDARD_MALLOC)
@@ -446,7 +446,7 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/nanostack/
         nanostack/source/
     )
-    target_compile_definitions(wsnode PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_router)
+    target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
     target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
     target_compile_definitions(wsnode PRIVATE STANDARD_MALLOC)

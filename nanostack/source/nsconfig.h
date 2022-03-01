@@ -28,10 +28,6 @@
 #define _ns_cfg_header(x) __ns_cfg_header(configs/cfg_##x.h)
 #define ns_cfg_header(x) _ns_cfg_header(x)
 
-#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
-#define NSCONFIG MBED_CONF_NANOSTACK_CONFIGURATION
-#endif
-
 #ifndef NSCONFIG
 #error "NSCONFIG is not set"
 #endif
