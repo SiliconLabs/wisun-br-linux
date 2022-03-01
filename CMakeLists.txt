@@ -121,7 +121,6 @@ add_executable(wsbrd
     nanostack/source/common_protocols/ipv6_fragmentation.c
     nanostack/source/common_protocols/ipv6_resolution.c
     nanostack/source/common_protocols/mld.c
-    nanostack/source/common_protocols/tcp.c
     nanostack/source/common_protocols/udp.c
     nanostack/source/core/buffer_dyn.c
     nanostack/source/core/ns_address_internal.c
@@ -140,7 +139,6 @@ add_executable(wsbrd
     nanostack/source/net_lib/src/net_dns.c
     nanostack/source/net_lib/src/multicast_api.c
     nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
-    # nanostack/source/net_lib/src/net_test.c
     nanostack/source/net_lib/src/net_rpl.c
     nanostack/source/net_lib/src/ns_net.c
     nanostack/source/net_lib/src/socket_api.c
@@ -338,7 +336,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/common_protocols/ipv6_fragmentation.c
         nanostack/source/common_protocols/ipv6_resolution.c
         nanostack/source/common_protocols/mld.c
-        nanostack/source/common_protocols/tcp.c
         nanostack/source/common_protocols/udp.c
         nanostack/source/core/buffer_dyn.c
         nanostack/source/core/ns_address_internal.c
@@ -357,7 +354,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/net_lib/src/net_dns.c
         nanostack/source/net_lib/src/multicast_api.c
         nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
-        # nanostack/source/net_lib/src/net_test.c
         nanostack/source/net_lib/src/net_rpl.c
         nanostack/source/net_lib/src/ns_net.c
         nanostack/source/net_lib/src/socket_api.c

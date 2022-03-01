@@ -49,7 +49,6 @@
 #include "shalib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "common_protocols/tcp.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 #include "platform/arm_hal_interrupt.h"

@@ -32,7 +32,6 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
-#include "common_protocols/tcp.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
 #include "platform/arm_hal_interrupt.h"

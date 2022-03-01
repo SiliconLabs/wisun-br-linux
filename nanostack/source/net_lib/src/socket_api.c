@@ -37,7 +37,6 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
-#include "common_protocols/tcp.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "common_functions.h"

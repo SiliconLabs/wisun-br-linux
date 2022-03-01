@@ -32,7 +32,6 @@
 #include "core/include/ns_socket.h"
 #include "socket_api.h"
 #include "nwk_interface/protocol.h"
-#include "common_protocols/tcp.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "ip6string.h"
@@ -260,9 +259,6 @@ void socket_tasklet_event_handler(arm_event_s *event)
             break;
         }
         case ARM_SOCKET_TCP_TIMER_CB:
-            tcp_handle_time_event((uint16_t)event->event_data);
-            break;
-
         default:
             break;
     }

@@ -43,7 +43,6 @@
 #include "shalib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "common_protocols/tcp.h"
 #include "randLIB.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "common_functions.h"
@@ -197,8 +196,6 @@ void protocol_6lowpan_stack(buffer_t *b)
                     b = lowpan_up(b);
                     break;
                 case B_TO_TCP:
-                    b = tcp_up(b);
-                    break;
                 default:
                     tr_debug("LLL");
                     b = buffer_free(b);

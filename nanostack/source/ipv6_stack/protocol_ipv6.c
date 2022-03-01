@@ -31,7 +31,6 @@
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "common_protocols/tcp.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "platform/arm_hal_interrupt.h"
@@ -972,10 +971,6 @@ static void ipv6_stack(buffer_t *b)
                     break;
 
                 case B_TO_TCP:
-                    //tr_debug("--> TCP_up()");
-                    b = tcp_up(b);
-                    break;
-
                 default:
                     tr_debug("LLL");
                     b = buffer_free(b);
