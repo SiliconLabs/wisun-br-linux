@@ -865,7 +865,7 @@ int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *ch
 {
     int8_t ret = -2;
 
-#if !defined(PANA) && !defined(HAVE_WS)
+#if !defined(HAVE_WS)
     (void)chain_info;
 #endif
 

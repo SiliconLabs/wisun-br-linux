@@ -170,7 +170,6 @@ add_executable(wsbrd
     nanostack/source/security/kmp/kmp_api.c
     nanostack/source/security/kmp/kmp_eapol_pdu_if.c
     nanostack/source/security/kmp/kmp_socket_if.c
-    # Excluded nanostack/source/security/PANA
     nanostack/source/security/pana/pana_eap_header.c
     nanostack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
     nanostack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
@@ -388,7 +387,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/security/kmp/kmp_api.c
         nanostack/source/security/kmp/kmp_eapol_pdu_if.c
         nanostack/source/security/kmp/kmp_socket_if.c
-        # Excluded nanostack/source/security/PANA
         nanostack/source/security/pana/pana_eap_header.c
         nanostack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
         nanostack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
