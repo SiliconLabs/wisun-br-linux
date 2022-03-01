@@ -36,7 +36,7 @@
 #include "sl_wsrcp.h"
 #include "sl_rf_driver.h"
 
-#include "nanostack/source/mac/virtual_rf/virtual_rf_defines.h"
+#include "mac/virtual_rf/virtual_rf_defines.h"
 
 #define TRACE_GROUP "vrf"
 
