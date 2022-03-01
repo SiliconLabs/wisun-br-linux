@@ -126,26 +126,8 @@ typedef struct {
 
 #define TLS_NAMED_CURVE_SECP256R1           23
 
-#ifdef ECC
-#include "GMPNlib.h"
-#include "GELAlib.h"
-#include "ecdsa.h"
-#include "libX509_V3.h"
 
 typedef struct {
-    EllipticPoint cert_pub_key;     // 80 bytes
-    uint8_t client_public_key[64];  // Pk Client: client_public_key[0-31] X point, client_public_key[32-63] y point remember change byte order
-    uint8_t server_public_key[64];  // Pk server server_public_key[0-31] X point, server_public_key[32-63] y point remember change byte order
-    uint8_t pre_secret_mat[32];     // Client Pk server * k*curve and server Pk client*k*curve only x point
-    ECDSASignature *sgnt;
-    MPint private_key;
-} tls_ecc_heap_t;
-#endif
-
-typedef struct {
-#ifdef ECC
-    tls_ecc_heap_t *ecc_heap;
-#endif
     uint8_t temp_buf[64];               // len 64 bytes
     uint8_t verify[16];             // len 16 bytes
     uint8_t tls_hello_random[64];
@@ -155,10 +137,6 @@ typedef struct {
     uint8_t *client_verify_buf;
     tls_chipher_mode_t tls_chipher_mode;
     ns_sha256_context sha256_ctx;
-#ifdef ECC
-    certificate_chain_t rx_ceri_chain;
-    bool client_knows_standard_ecc_ciphersuite;
-#endif /*ECC*/
     uint8_t pointer_types;
     void *cert_temp_buf;
     void *signature_temp_buf;

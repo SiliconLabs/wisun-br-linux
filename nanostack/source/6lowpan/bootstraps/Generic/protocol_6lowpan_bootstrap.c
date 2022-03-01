@@ -41,10 +41,6 @@
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
 
 #include "ccm.h"
 #include "shalib.h"

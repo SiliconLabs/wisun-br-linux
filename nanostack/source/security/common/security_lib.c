@@ -24,10 +24,6 @@
 #include "nwk_interface/protocol.h"
 #include "shalib.h"
 #include "randLIB.h"
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
 #include "security/tls/tls_lib.h"
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"

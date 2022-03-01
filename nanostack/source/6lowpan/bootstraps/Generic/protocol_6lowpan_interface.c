@@ -45,10 +45,6 @@
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
 
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
 #include "ccm.h"
 #include "shalib.h"
 #include "security/common/sec_lib.h"

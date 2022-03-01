@@ -45,10 +45,6 @@
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
 #include "nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
 #include "security/common/sec_lib_definitions.h"

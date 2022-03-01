@@ -39,10 +39,6 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
 
-#ifdef ECC
-#include "libX509_V3.h"
-#include "ecc.h"
-#endif
 #include "ccm.h"
 #include "shalib.h"
 #include "security/common/sec_lib.h"
