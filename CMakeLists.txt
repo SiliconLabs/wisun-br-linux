@@ -65,8 +65,6 @@ add_custom_target(check_git
     COMMENT "Checking the git repository for changes..."
     COMMAND ${CMAKE_SOURCE_DIR}/version.sh ${CMAKE_SOURCE_DIR} version.c)
 
-# add_compile_definitions(MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
-# add_compile_definitions(MBEDTLS_TEST_NULL_ENTROPY)
 add_executable(wsbrd
     version.c
     app_wsbrd/wsbr.c
