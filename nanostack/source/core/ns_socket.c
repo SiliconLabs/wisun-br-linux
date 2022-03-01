@@ -401,9 +401,6 @@ inet_pcb_t *socket_inet_pcb_allocate(void)
     }
 
     memset(inet_pcb, 0, sizeof(inet_pcb_t));
-#ifndef NO_TCP
-    inet_pcb->session = NULL;
-#endif
     inet_pcb->unicast_hop_limit = -1;
     inet_pcb->multicast_hop_limit = 1;
     inet_pcb->multicast_if = 0;
@@ -437,9 +434,6 @@ inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig)
     }
     *inet_pcb = *orig;
     inet_pcb->socket = NULL;
-#ifndef NO_TCP
-    inet_pcb->session = NULL;
-#endif
     return inet_pcb;
 }
 
@@ -1048,52 +1042,6 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
         }
     }
 
-#ifndef NO_TCP
-    /* Special handling for stream - basically no advanced features of sendmsg operate.
-     * Can't set address, can't set ancilliary data.
-     * Don't want to fill in other sticky options into buffer - TCP must handle this itself,
-     * as it must do it for all packets, not just those coming from sendmsg.
-     */
-    if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-        /* Stream sockets must be connected and not shutdown for write */
-        if ((socket_ptr->flags & (SOCKET_FLAG_CONNECTED | SOCKET_FLAG_SHUT_WR)) != SOCKET_FLAG_CONNECTED) {
-            ret_val = -5;
-            goto fail;
-        }
-
-        /* Stream sockets cannot have address specified (POSIX "EISCONN") */
-        if (msg && msg->msg_name && msg->msg_namelen) {
-            ret_val = -5;
-            goto fail;
-        }
-
-        if (payload_length == 0) {
-            goto success; // Sending nothing is a no-op
-        }
-
-        // Figure out how much we can actually take, and reduce
-        // payload_length if necessary (but if fed a buffer, we always just
-        // accept the whole thing).
-        if (!buf) {
-            int32_t space = sockbuf_space(&socket_ptr->sndq);
-            if (space < payload_length) {
-                if (space < (int32_t) socket_ptr->sndq.low_water_mark) {
-                    ret_val = NS_EWOULDBLOCK;
-                    goto fail;
-                }
-                if (flags & NS_MSG_LEGACY0) {
-                    // Can't do a partial write, as we can't actually
-                    // indicate that we've done so. For compatibility,
-                    // accept a write of any size if there is some buffer
-                    // space available. This could make us massively go
-                    // over the buffer size limit.
-                } else {
-                    payload_length = space;
-                }
-            }
-        }
-    }
-#endif // NO_TCP
 
     // Now copy (some of) the data into a buffer
     if (!buf) {
@@ -1117,28 +1065,6 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
 
     buf->payload_length = payload_length;
 
-#ifndef NO_TCP
-    if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-        tcp_session_t *tcp_info = inet_pcb->session;
-        if (!tcp_info) {
-            tr_warn("No TCP session for cur Socket");
-            ret_val = -3;
-            goto fail;
-        }
-
-        switch (tcp_session_send(tcp_info, buf)) {
-            case TCP_ERROR_NO_ERROR:
-                break;
-            case TCP_ERROR_WRONG_STATE:
-            default:
-                ret_val = -3;
-                goto fail;
-        }
-        goto success;
-    }
-    // TCP system has taken ownership of buffer, or we've failed
-    // Everything below this point is non-TCP
-#endif //NO_TCP
 
     if (socket_reference_limit(socket_ptr)) {
         tr_error("Socket reference limit drop TX %u", socket_ptr->refcount);
@@ -1400,10 +1326,6 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
 
     protocol_push(buf);
 
-#ifndef NO_TCP
-    /* TCP jumps back to here */
-success:
-#endif
     if (flags & NS_MSG_LEGACY0) {
         return 0;
     } else {

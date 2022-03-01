@@ -1409,11 +1409,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buf->options.type = IPV6_NH_UDP;
                 buf->offset = ptr - buffer_data_pointer(buf);
                 return buf;
-#ifndef NO_TCP
-            case IPV6_NH_TCP:
-                buf->info = (buffer_info_t)(B_DIR_UP | B_TO_TCP | B_FROM_IPV6_FWD);
-                goto upper_layer;
-#endif
             case IPV6_NH_ICMPV6:
                 buf->info = (buffer_info_t)(B_DIR_UP | B_TO_ICMP | B_FROM_IPV6_FWD);
                 goto upper_layer;

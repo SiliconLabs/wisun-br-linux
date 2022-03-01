@@ -110,9 +110,7 @@ typedef struct tcp_session_t {
     int16_t    srttvar4;
 } tcp_session_t;
 
-#ifdef NO_TCP
 NS_DUMMY_DEFINITIONS_OK
-#undef TCP_TEST
 #define tcp_info(pcb) ((struct tcp_session_t *)NULL)
 #define tcp_buf_save(buf) (buf)
 #define tcp_up(buf) buffer_free(buf)
@@ -123,35 +121,9 @@ NS_DUMMY_DEFINITIONS_OK
 #define tcp_session_data_received(tcp_info)  ((void) 0)
 #define tcp_session_close(tcp_info) TCP_ERROR_SOCKET_NOT_FOUND
 #define tcp_session_shutdown_read(tcp_info) TCP_ERROR_SOCKET_NOT_FOUND
-#else
-#define tcp_info(pcb) ((struct tcp_session_t *)((pcb)->session))
-extern tcp_error tcp_session_open(tcp_session_t *tcp_session);
-extern tcp_error tcp_session_close(tcp_session_t *tcp_session);
-extern tcp_error tcp_session_shutdown_read(tcp_session_t *tcp_session);
-extern tcp_error tcp_session_abort(tcp_session_t *tcp_session);
-extern tcp_error tcp_session_send(tcp_session_t *tcp_info, buffer_t *buf);
-extern void tcp_session_data_received(tcp_session_t *tcp_info);
-extern buffer_t *tcp_up(buffer_t *buf);
-extern tcp_session_t *tcp_session_ptr_allocate(struct inet_pcb_s *inet_pcb, tcp_session_t *from_time_wait);
-extern tcp_session_t *tcp_session_ptr_free(tcp_session_t *tcp_info);
-extern void tcp_socket_released(tcp_session_t *tcp_info);
-const char *tcp_state_name(const tcp_session_t *tcp_info);
 
-/**
- * \brief Function used for handling time events.
- */
-
-extern void tcp_handle_time_event(uint16_t tickUpdate);
-#endif // NO_TCP
-
-#ifdef TCP_TEST
-extern int8_t tcp_test_drop_tx(int state, uint8_t count);
-extern int8_t tcp_test_drop_rx(int state, uint8_t count);
-extern void tcp_test_drop_reset(void);
-#else
 #define tcp_test_drop_tx(state, count) ((int8_t) -1)
 #define tcp_test_drop_rx(state, codunt) ((int8_t) -1)
 #define tcp_test_drop_reset() ((void) 0)
-#endif
 
 #endif /* TCP_H_ */

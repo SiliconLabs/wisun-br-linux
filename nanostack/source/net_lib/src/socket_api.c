@@ -66,13 +66,6 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
             type = SOCKET_TYPE_DGRAM;
             protocol = IPV6_NH_UDP;
             break;
-#ifndef NO_TCP
-        case SOCKET_TCP:
-            family = SOCKET_FAMILY_IPV6;
-            type = SOCKET_TYPE_STREAM;
-            protocol = IPV6_NH_TCP;
-            break;
-#endif /* NO_TCP */
         case SOCKET_RAW:
             if (identifier > 0xff) {
                 return -1;
@@ -111,160 +104,24 @@ int8_t socket_close(int8_t sid)
 
 int8_t socket_listen(int8_t socket, uint8_t backlog)
 {
-#ifdef NO_TCP
     (void) socket;
     (void) backlog;
     return -1;
-#else
-    socket_t *socket_ptr = socket_pointer_get(socket);
-    if (!socket_ptr || !socket_is_ipv6(socket_ptr) || socket_ptr->inet_pcb->local_port == 0) {
-        return -1;
-    }
-
-    switch (socket_ptr->type) {
-        case SOCKET_TYPE_STREAM:
-            break;
-        default:
-            return -1;
-    }
-
-    if (socket_ptr->u.live.fptr == NULL) {
-        return -2;
-    }
-
-    socket_ptr->flags |= SOCKET_LISTEN_STATE;
-    if (backlog < 1) {
-        backlog = 1;
-    } else if (backlog > SOCKET_LISTEN_BACKLOG_MAX) {
-        backlog = SOCKET_LISTEN_BACKLOG_MAX;
-    }
-    socket_ptr->listen_backlog = backlog;
-
-    return 0;
-#endif
 }
 
 int8_t socket_accept(int8_t listen_socket_id, ns_address_t *addr, void (*passed_fptr)(void *))
 {
-#ifdef NO_TCP
     (void) listen_socket_id;
     (void) addr;
     (void) passed_fptr;
     return -1;
-#else
-    socket_t *socket_ptr = socket_pointer_get(listen_socket_id);
-    if (!socket_ptr || !socket_is_ipv6(socket_ptr) || !(socket_ptr->flags & SOCKET_LISTEN_STATE) || passed_fptr == NULL) {
-        return -1;
-    }
-
-    /* Queue contains both partial and complete connections - find a complete one */
-    socket_t *pending_socket = NULL;
-    ns_list_foreach(socket_t, so, &socket_ptr->u.live.queue) {
-        if (so->flags & SOCKET_FLAG_CONNECTED) {
-            pending_socket = so;
-            break;
-        }
-    }
-    if (!pending_socket) {
-        tr_warn("No pending complete connection for socket %d", listen_socket_id);
-        return NS_EWOULDBLOCK;
-    }
-
-    int8_t new_sid = socket_id_assign_and_attach(pending_socket);
-    if (new_sid == -1) {
-        tr_error("Socket id allocation failed, s=%d", listen_socket_id);
-        return -1;
-    }
-
-    // This takes it off the pending queue, and releases one reference count,
-    // but the ID assignment above took one, so it stays live.
-    socket_leave_pending_state(pending_socket, passed_fptr);
-
-    // Make a data-received event if anything already pending - some may expect this
-    if (pending_socket->rcvq.data_bytes != 0) {
-        socket_data_queued_event_push(pending_socket);
-    }
-
-    if (addr) {
-        addr->type = ADDRESS_IPV6;
-        memcpy(addr->address, pending_socket->inet_pcb->remote_address, 16);
-        addr->identifier = pending_socket->inet_pcb->remote_port;
-    }
-
-    return new_sid;
-#endif
 }
 
 int8_t socket_shutdown(int8_t socket, uint8_t how)
 {
-#ifdef NO_TCP
     (void) socket;
     (void) how;
     return -1;
-#else
-    socket_t *socket_ptr = socket_pointer_get(socket);
-    if (!socket_ptr || !socket_is_ipv6(socket_ptr)) {
-        return -1;
-    }
-
-    if (socket_ptr->type != SOCKET_TYPE_STREAM) {
-        return -1;
-    }
-
-    if (!(socket_ptr->flags & SOCKET_FLAG_CONNECTED)) {
-        return -2;
-    }
-
-    uint8_t flags;
-
-    switch (how) {
-        case SOCKET_SHUT_WR:
-            flags = SOCKET_FLAG_SHUT_WR;
-            break;
-        case SOCKET_SHUT_RD:
-            flags = SOCKET_FLAG_CANT_RECV_MORE;
-            break;
-        case SOCKET_SHUT_RDWR:
-            flags = SOCKET_FLAG_CANT_RECV_MORE | SOCKET_FLAG_SHUT_WR;
-            break;
-        default:
-            return -1;
-    }
-
-    socket_ptr->flags |= flags;
-
-    // Take care never to put tcp_info in local variable - these calls can delete it
-    int8_t ret = 0;
-
-    // If we've shutdown writing, signal close to TCP if it exists
-    if (tcp_info(socket_ptr->inet_pcb) && (flags & SOCKET_FLAG_SHUT_WR)) {
-        switch (tcp_session_close(tcp_info(socket_ptr->inet_pcb))) {
-            case TCP_ERROR_NO_ERROR:
-                break;
-            default:
-                ret = -1;
-                break;
-        }
-    }
-
-    // Likewise for the read shutdown
-    if (flags & SOCKET_FLAG_CANT_RECV_MORE) {
-        if (tcp_info(socket_ptr->inet_pcb)) {
-            switch (tcp_session_shutdown_read(tcp_info(socket_ptr->inet_pcb))) {
-                case TCP_ERROR_NO_ERROR:
-                    break;
-                default:
-                    ret = -1;
-                    break;
-            }
-        }
-        // Note sockbuf flush after tcp shutdown - this allows TCP to see
-        // that we are binning unread data, and send a RESET to indicate.
-        sockbuf_flush(&socket_ptr->rcvq);
-    }
-
-    return ret;
-#endif
 }
 
 int8_t socket_getsockname(int8_t socket, ns_address_t *address)
@@ -597,30 +454,6 @@ int8_t socket_connect(int8_t socket, ns_address_t *address, uint8_t randomly_tak
     inet_pcb->remote_port = address->identifier;
     status = 0;
 
-#ifndef NO_TCP
-    if (socket_ptr->type == SOCKET_TYPE_STREAM) {
-        if (tcp_info(socket_ptr->inet_pcb)) {
-            status = -4; // shouldn't happen - flags should cover it
-            goto exit;
-        }
-
-        //Allocate session here
-        tcp_session_t *tcp_session = tcp_session_ptr_allocate(socket_ptr->inet_pcb, NULL);
-        if (!tcp_session) {
-            status = -2;
-            goto exit;
-        }
-
-        if (tcp_session_open(tcp_session) != TCP_ERROR_NO_ERROR) {
-            tcp_session_ptr_free(tcp_session);
-            status = -2;
-            goto exit;
-        }
-
-        socket_ptr->flags |= SOCKET_FLAG_CONNECTING;
-    }
-exit:
-#endif
     if (status != 0) {
         memcpy(inet_pcb->remote_address, ns_in6addr_any, 16);
         inet_pcb->remote_port = 0;

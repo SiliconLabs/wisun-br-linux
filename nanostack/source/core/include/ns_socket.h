@@ -157,9 +157,6 @@ typedef struct inet_group {
 /** Internet protocol control block */
 typedef struct inet_pcb_s {
     socket_t    *socket;
-#ifndef NO_TCP
-    void        *session;           /*!< Session for transport protocol - only used by TCP at present */
-#endif
     uint8_t     local_address[16];  /*!< Local address */
     uint8_t     remote_address[16];    /*!< Destination address */
     uint16_t    local_port;         /*!< Local port */
