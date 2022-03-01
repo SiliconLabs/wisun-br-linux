@@ -227,7 +227,7 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
     const char *val;
 
     val = (char *)buf->frame + buf->cnt;
-    buf->cnt += strlen(val) + 1;
+    buf->cnt += strnlen(val, buf->len - buf->cnt) + 1;
     BUG_ON(buf->cnt > buf->len);
     return val;
 }
