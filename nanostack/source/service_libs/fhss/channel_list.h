@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 /**
  * Count the amount of channels enabled in a list.
  *
