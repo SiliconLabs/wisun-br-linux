@@ -520,7 +520,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-randlib/mbed-client-randlib/
         nanostack-event-loop/nanostack-event-loop/
         nanostack/nanostack/
-        nanostack/source/
         nanostack-mac/source/
     )
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_NANOSTACK_CONFIGURATION=ws_border_router)
