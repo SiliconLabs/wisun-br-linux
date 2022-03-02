@@ -726,26 +726,6 @@ int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
     return cur->id;
 }
 
-static int arm_net_channel_bit_mask_to_number(const uint32_t *channel_mask)
-{
-    int i, j;
-
-    for (j = 0; j < 8; j++) {
-        for (i = 0; i < 32; i++) {
-            if (channel_mask[j] & (1U << i)) {
-                break;
-            }
-        }
-        if (i < 32) {
-            break;
-        }
-    }
-    if (j > 7) {
-        return -1;
-    }
-    return i + (j * 32);
-}
-
 /**
  * \brief Set network interface link layer parameters.
  *
@@ -1059,18 +1039,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
     }
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (!cur->border_router_setup) {
-            return -2;
-        }
-
-        const int channel_number = arm_net_channel_bit_mask_to_number(nwk_channel_list->channel_mask);
-        if (channel_number < 0) {
-            return -3;
-        }
-        cur->mac_parameters->mac_channel_list = *nwk_channel_list;
-        cur->mac_parameters->mac_channel = channel_number;
-        cur->border_router_setup->chanlist = &cur->mac_parameters->mac_channel_list;
-        ret_val = 0;
+        return -2;
     } else {
         // copy the channel information and store one internal pointer to it
         cur->mac_parameters->mac_channel_list = *nwk_channel_list;

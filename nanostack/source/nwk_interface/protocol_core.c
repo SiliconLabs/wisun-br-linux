@@ -487,7 +487,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_link_init(entry, link);
     entry->if_stack_buffer_handler = NULL;
     entry->interface_name = 0;
-    entry->border_router_setup = NULL;
     entry->mesh_callbacks = NULL;
     entry->ip_addresses_max_slaac_entries = 0;
     ns_list_init(&entry->lowpan_contexts);

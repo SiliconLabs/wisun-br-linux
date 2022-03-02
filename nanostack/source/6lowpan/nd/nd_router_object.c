@@ -445,7 +445,6 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
 int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface)
 {
     slaac_src_e slaac_src;
-    bool borRouterDevice;
     prefix_entry_t *new_entry = 0;
     uint8_t prefix_len = *dptr++;
     uint8_t pre_setups = *dptr++;
@@ -458,11 +457,6 @@ int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object
     } else {
         slaac_src = SLAAC_IID_DEFAULT;
     }
-    if (cur_interface->border_router_setup) {
-        borRouterDevice = true;
-    } else {
-        borRouterDevice = false;
-    }
 
     //Read Lifetimes + skip resertved 4 bytes
     dptr += 12;
@@ -472,7 +466,7 @@ int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object
             new_entry->options = pre_setups;
             if (new_entry->options & PIO_A) {
                 if (icmpv6_slaac_prefix_update(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime) != 0) {
-                    icmp_nd_slaac_prefix_address_gen(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime, borRouterDevice, slaac_src);
+                    icmp_nd_slaac_prefix_address_gen(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime, false, slaac_src);
                 }
             }
         } else {
@@ -1084,26 +1078,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
 
     dptr += 4;
     //If Border Router boot is state
-
-    if (cur->border_router_setup) {
-        if (memcmp(dptr, cur->border_router_setup->border_router_gp_adr, 16) == 0) {
-            if (cur->border_router_setup->initActive) {
-                //save New Context
-                if (common_serial_number_greater_32(abro_ver_num, cur->border_router_setup->nd_border_router_configure->abro_version_num)) {
-                    cur->border_router_setup->initActive = false;
-                    cur->border_router_setup->nd_border_router_configure->abro_version_num = (abro_ver_num + 0x00010000);
-                    cur->border_router_setup->nd_nwk->abro_version_num = (abro_ver_num + 0x00010000);
-                } else if (abro_ver_num == cur->border_router_setup->nd_border_router_configure->abro_version_num) {
-
-                    cur->border_router_setup->initActive = false;
-                    cur->border_router_setup->nd_border_router_configure->abro_version_num = (abro_ver_num + 0x00010000);
-                    cur->border_router_setup->nd_nwk->abro_version_num = (abro_ver_num + 0x00010000);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
 
     router = icmp_nd_router_object_get(dptr, buf->interface->nwk_id);
     if (!router) {

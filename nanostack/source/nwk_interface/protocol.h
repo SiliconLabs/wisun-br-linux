@@ -168,19 +168,6 @@ typedef enum {
 struct nd_router;
 struct nd_router_setup;
 
-typedef struct {
-    channel_list_s      *chanlist;
-    uint8_t             channel;
-    int8_t              radio_tx_power;
-    uint32_t            channel_list;
-    uint16_t            mac_short_adr;
-    uint16_t            mac_panid;
-    uint8_t             border_router_gp_adr[16];
-    bool                initActive;
-    struct nd_router    *nd_nwk;
-    struct nd_router_setup *nd_border_router_configure;
-} br_info_t;
-
 typedef struct nwk_scan_params {
     uint8_t energy_treshold;
     uint8_t nwk_scan_res_size;
@@ -413,7 +400,6 @@ struct protocol_interface_info_entry {
     interface_mode_t interface_mode;
     ipv6_interface_info_t *ipv6_configure;
     struct auth_info *pana_sec_info_temp;
-    br_info_t *border_router_setup;
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;
