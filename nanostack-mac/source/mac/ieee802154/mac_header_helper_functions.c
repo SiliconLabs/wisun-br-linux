@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nsconfig.h"
 #include "ns_types.h"
 #include "string.h"
 #include "ns_trace.h"

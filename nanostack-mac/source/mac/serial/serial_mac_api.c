@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include "serial_mac_api.h"
 #include "eventOS_event.h"

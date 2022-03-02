@@ -23,7 +23,6 @@
  *
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include "ns_types.h"
 #include "eventOS_event.h"

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nsconfig.h"
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>

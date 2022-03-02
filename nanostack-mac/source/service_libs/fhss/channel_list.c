@@ -16,7 +16,6 @@
  */
 
 
-#include "nsconfig.h"
 #include "service_libs/fhss/channel_list.h"
 
 #include "common_functions.h"

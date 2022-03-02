@@ -16,7 +16,6 @@
  */
 
 #include <string.h>
-#include "nsconfig.h"
 #include "ns_types.h"
 #include "mac_api.h"
 #include "fhss_api.h"
