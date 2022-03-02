@@ -22,7 +22,7 @@
 #ifndef MAC_MCPS_H
 #define MAC_MCPS_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "mac_common_defines.h"
 
 

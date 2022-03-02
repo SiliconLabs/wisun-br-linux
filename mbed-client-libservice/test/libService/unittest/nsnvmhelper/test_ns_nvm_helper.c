@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "test_ns_nvm_helper.h"
 #include "ns_nvm_helper.h"
 #include "nsdynmemLIB_stub.h"

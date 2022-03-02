@@ -15,6 +15,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include "common_functions.h"
 #include "ip6string.h"
 

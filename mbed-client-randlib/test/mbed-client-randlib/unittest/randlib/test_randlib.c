@@ -2,8 +2,8 @@
  * Copyright (c) 2016 ARM Limited. All rights reserved.
  */
 #include "test_randlib.h"
+#include <stdint.h>
 #include <string.h>
-#include <inttypes.h>
 #include "randLIB.h"
 
 bool test_randLIB_seed_random()

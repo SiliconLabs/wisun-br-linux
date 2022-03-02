@@ -24,7 +24,7 @@
 #ifndef MAC_API_H
 #define MAC_API_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include "mlme.h"
 #include "mac_mcps.h"
 
