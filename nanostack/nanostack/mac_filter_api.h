@@ -50,7 +50,7 @@
 #ifndef MAC_FILTER_API_H_
 #define MAC_FILTER_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

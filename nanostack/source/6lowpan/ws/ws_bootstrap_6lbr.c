@@ -18,7 +18,7 @@
 #include <string.h>
 #include "nsconfig.h"
 #if defined(HAVE_WS) && defined(HAVE_WS_BORDER_ROUTER)
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "net_interface.h"

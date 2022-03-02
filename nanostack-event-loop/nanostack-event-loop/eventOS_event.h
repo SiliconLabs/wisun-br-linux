@@ -189,7 +189,7 @@ extern "C" {
  * \brief Nanostack's event loop.
  */
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 
 /**

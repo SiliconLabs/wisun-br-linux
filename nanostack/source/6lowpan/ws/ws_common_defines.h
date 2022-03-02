@@ -18,6 +18,8 @@
 #ifndef WS_COMMON_DEFINES_H_
 #define WS_COMMON_DEFINES_H_
 
+#include "ns_types.h"
+
 #define WH_IE_ELEMENT_HEADER_LENGTH 3
 
 /* Header IE Sub elements */

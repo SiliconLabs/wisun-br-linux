@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_stats.h"

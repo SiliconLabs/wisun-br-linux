@@ -26,7 +26,7 @@
 #ifndef NS_TIME_API_H_
 #define NS_TIME_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * Time zone information structure.

@@ -27,7 +27,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #define HAVE_DEBUG
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"

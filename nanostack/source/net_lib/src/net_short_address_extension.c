@@ -21,7 +21,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "net_address_extension.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

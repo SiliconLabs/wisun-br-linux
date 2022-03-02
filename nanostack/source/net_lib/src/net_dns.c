@@ -16,7 +16,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include <string.h>
 #include "net_dns_internal.h"

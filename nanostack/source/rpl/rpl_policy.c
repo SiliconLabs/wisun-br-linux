@@ -19,7 +19,7 @@
 
 #ifdef HAVE_RPL
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "randLIB.h"
 #include "net_interface.h"

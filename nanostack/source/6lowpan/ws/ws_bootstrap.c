@@ -18,7 +18,7 @@
 #include <string.h>
 #include "nsconfig.h"
 #ifdef HAVE_WS
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "net_interface.h"

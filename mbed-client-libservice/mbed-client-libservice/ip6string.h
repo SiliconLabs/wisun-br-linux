@@ -19,7 +19,9 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #define MAX_IPV6_STRING_LEN_WITH_TRAILING_NULL 40
 

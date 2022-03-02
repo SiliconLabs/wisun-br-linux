@@ -18,7 +18,7 @@
 #ifndef MAC_NEIGHBOR_TABLE_H_
 #define MAC_NEIGHBOR_TABLE_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 
 #include "nwk_interface/protocol.h"

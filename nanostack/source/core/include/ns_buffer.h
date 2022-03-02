@@ -31,7 +31,7 @@
 #error "Why haven't you included config.h before all other headers?"
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "core/include/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "ns_list.h"

@@ -26,7 +26,7 @@ extern "C" {
  */
 
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "eventOS_event.h"
 
 struct arm_event_s;

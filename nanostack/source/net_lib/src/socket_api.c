@@ -22,7 +22,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "eventOS_scheduler.h"
 #include "platform/arm_hal_phy.h"
 #ifndef BUILD_LIBRARY

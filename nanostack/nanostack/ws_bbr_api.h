@@ -28,7 +28,7 @@
 #ifndef WS_BBR_API_H_
 #define WS_BBR_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * \brief Struct ws_statistics Border router dynamic information.

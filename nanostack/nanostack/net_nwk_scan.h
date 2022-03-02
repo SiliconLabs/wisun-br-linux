@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "net_interface.h" /* needed for channel_list_s */
 #include "mlme.h"
 

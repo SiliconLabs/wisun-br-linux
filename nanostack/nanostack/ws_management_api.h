@@ -28,7 +28,7 @@
 #ifndef WS_MANAGEMENT_API_H_
 #define WS_MANAGEMENT_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "net_interface.h" /* Declaration for channel_list_s. */
 #include "fhss_config.h"
 

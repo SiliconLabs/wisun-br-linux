@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "isqrt.h"
 
 /**

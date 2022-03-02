@@ -17,7 +17,7 @@
 #ifndef _NS_RPL_H
 #define _NS_RPL_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -175,6 +175,7 @@ extern "C" {
  *
  */
 
+#include "ns_types.h"
 #include "ns_address.h"
 
 /** \name Protocol IDs used with sockets. */

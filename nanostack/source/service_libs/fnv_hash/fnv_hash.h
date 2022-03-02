@@ -18,7 +18,7 @@
 #ifndef FNV_HASH_H_
 #define FNV_HASH_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #if 0 /* Not currently needed */
 uint32_t fnv_hash_1a_32_block(const uint8_t *data, uint16_t len);

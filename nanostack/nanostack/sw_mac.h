@@ -22,7 +22,7 @@
 #ifndef NS_SW_MAC_H
 #define NS_SW_MAC_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

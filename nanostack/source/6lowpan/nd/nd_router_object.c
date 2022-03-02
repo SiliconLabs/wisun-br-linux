@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #ifdef HAVE_6LOWPAN_ND
-#include "ns_types.h"
+#include <stdint.h>
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"

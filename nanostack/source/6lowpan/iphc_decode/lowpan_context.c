@@ -22,7 +22,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"

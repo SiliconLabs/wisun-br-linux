@@ -19,7 +19,7 @@
 #define WS_COMMON_H_
 
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "fhss_api.h"
 #include "fhss_config.h"

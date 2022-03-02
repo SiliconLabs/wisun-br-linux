@@ -19,7 +19,7 @@
 #define HAVE_CIPV6
 
 #ifdef HAVE_CIPV6
-#include "ns_types.h"
+#include <stdint.h>
 #include <string.h>
 #include "ns_trace.h"
 #include "common_protocols/ipv6.h"

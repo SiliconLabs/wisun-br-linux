@@ -22,7 +22,7 @@
  * check, manipulate etc. addresses.
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ip6string.h"
 #include "ns_trace.h"
 #include "randLIB.h"

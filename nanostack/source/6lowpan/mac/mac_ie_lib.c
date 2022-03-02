@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include <string.h>
 #include "common_functions.h"
 #include "mac_common_defines.h"

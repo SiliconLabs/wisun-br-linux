@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #ifdef HAVE_ND_PROXY
-#include "ns_types.h"
+#include <stdint.h>
 #include "common_functions.h"
 #include "ns_trace.h"
 #include <string.h>

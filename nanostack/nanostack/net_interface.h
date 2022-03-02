@@ -18,7 +18,7 @@
 #ifndef NET_INTERFACE_H_
 #define NET_INTERFACE_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "platform/arm_hal_phy.h"
 
 #ifdef __cplusplus

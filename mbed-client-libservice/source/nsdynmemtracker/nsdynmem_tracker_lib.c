@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "nsdynmem_tracker_lib.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nsdynmemLIB.h"

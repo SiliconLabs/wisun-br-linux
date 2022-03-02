@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "eventOS_event.h"
 #include "eventOS_callback_timer.h"

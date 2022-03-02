@@ -31,7 +31,7 @@
  *
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "common_functions.h"
 #include "ip6string.h"
 #include "randLIB.h"

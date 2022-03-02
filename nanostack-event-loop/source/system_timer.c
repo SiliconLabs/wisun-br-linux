@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "timer_sys.h"
 #include "platform/arm_hal_interrupt.h"

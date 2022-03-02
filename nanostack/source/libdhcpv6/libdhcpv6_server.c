@@ -22,7 +22,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include <ns_types.h>
+#include <stdint.h>
 #include <nsdynmemLIB.h>
 #include "libdhcpv6/libdhcpv6_server.h"
 #include "libdhcpv6/libdhcpv6.h"

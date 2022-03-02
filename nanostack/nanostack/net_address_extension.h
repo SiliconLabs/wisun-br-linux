@@ -17,7 +17,7 @@
 #ifndef _NET_ADDRESS_EXTENSION_H
 #define _NET_ADDRESS_EXTENSION_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

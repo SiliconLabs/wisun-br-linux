@@ -24,7 +24,7 @@
  */
 
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_callback_timer.h"

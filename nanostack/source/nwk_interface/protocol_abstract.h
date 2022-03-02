@@ -18,7 +18,7 @@
 #ifndef NWK_INTERFACE_INCLUDE_PROTOCOL_ABSTRACT_H_
 #define NWK_INTERFACE_INCLUDE_PROTOCOL_ABSTRACT_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 struct rpl_domain;
 struct fhss_api;

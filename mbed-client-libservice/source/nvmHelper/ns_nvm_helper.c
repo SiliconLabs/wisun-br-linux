@@ -15,7 +15,7 @@
  */
 
 #include <string.h>
-#include <ns_types.h>
+#include <stdint.h>
 #include <nsdynmemLIB.h>
 #include "ns_list.h"
 #include "platform/arm_hal_nvm.h"

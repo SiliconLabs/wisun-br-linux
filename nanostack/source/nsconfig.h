@@ -22,7 +22,7 @@
 #ifndef _NANOSTACK_SOURCE_CONFIG_H
 #define _NANOSTACK_SOURCE_CONFIG_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #define __ns_cfg_header(x) #x
 #define _ns_cfg_header(x) __ns_cfg_header(configs/cfg_##x.h)

@@ -38,7 +38,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "randLIB.h"
 #include <string.h>

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "eventOS_callback_timer.h"
 #include "platform/arm_hal_interrupt.h"

@@ -20,7 +20,7 @@
  * Implement a generic RFC 6206 Trickle Algorithm
  */
 #include "nsconfig.h"
-#include <ns_types.h>
+#include <stdint.h>
 #include <randLIB.h>
 
 #include "ns_trace.h"

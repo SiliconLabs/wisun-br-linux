@@ -23,7 +23,7 @@
 #ifndef TRICKLE_H_
 #define TRICKLE_H_
 
-#include <ns_types.h>
+#include <stdint.h>
 
 /* Trickle time is in arbitrary ticks - users can choose appropriate size
  * per algorithm implementation

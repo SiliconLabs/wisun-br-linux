@@ -20,7 +20,7 @@
 
 #ifdef _HAVE_IPV6
 
-#include "ns_types.h"
+#include <stdint.h>
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"

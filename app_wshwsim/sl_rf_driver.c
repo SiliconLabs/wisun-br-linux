@@ -22,7 +22,7 @@
 #  include <pcap/pcap.h>
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "platform/arm_hal_phy.h"
 #include "mlme.h"

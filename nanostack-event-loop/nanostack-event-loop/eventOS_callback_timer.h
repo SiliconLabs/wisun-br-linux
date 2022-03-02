@@ -18,7 +18,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "ns_types.h"
+#include <stdint.h>
 
 extern int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
 extern int eventOS_callback_timer_unregister(int ns_timer_id);

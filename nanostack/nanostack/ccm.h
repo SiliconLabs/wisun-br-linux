@@ -17,7 +17,7 @@
 #ifndef CCMLIB_H_
 #define CCMLIB_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "platform/arm_hal_aes.h"
 
 /**

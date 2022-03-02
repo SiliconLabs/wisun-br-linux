@@ -21,9 +21,10 @@
  *
  */
 #include "nsconfig.h"
+#include <stdint.h>
+#include <stdbool.h>
 #ifdef HAVE_DHCPV6_SERVER
 #include <string.h>
-#include <ns_types.h>
 #include <ns_trace.h>
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"

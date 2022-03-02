@@ -17,7 +17,7 @@
 #ifndef TOPO_TRACE_H
 #define TOPO_TRACE_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

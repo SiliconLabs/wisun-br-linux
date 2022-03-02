@@ -16,7 +16,7 @@
  */
 
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "mac_api.h"
 #include "fhss_api.h"
 #include "mac/ieee802154/mac_fhss_callbacks.h"

@@ -25,7 +25,8 @@ extern "C" {
  * \brief Event scheduler's control functions.
  */
 
-#include "ns_types.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /* Compatibility with older ns_types.h */
 #ifndef NS_NORETURN

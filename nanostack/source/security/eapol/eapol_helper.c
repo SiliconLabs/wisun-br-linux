@@ -19,7 +19,7 @@
 
 #include "nsconfig.h"
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "eventOS_event.h"
 #include "ns_trace.h"
 #include <string.h>

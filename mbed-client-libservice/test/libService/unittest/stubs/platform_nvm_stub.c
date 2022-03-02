@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "platform/arm_hal_nvm.h"
 
 typedef struct {

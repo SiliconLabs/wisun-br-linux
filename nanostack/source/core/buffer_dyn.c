@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <limits.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "nsdynmemLIB.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_buffer.h"

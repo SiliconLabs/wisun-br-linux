@@ -37,7 +37,7 @@
  *
  */
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

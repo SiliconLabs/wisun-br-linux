@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "net_fhss.h"

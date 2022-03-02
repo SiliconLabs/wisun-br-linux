@@ -23,7 +23,7 @@
 
 #ifndef NET_FHSS_H_
 #define NET_FHSS_H_
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

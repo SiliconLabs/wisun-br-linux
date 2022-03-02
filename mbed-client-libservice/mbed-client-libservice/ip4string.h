@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * Print binary IPv4 address to a string.

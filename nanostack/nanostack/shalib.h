@@ -36,7 +36,7 @@
 #ifndef SHALIB_H_
 #define SHALIB_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 
 #ifdef __cplusplus

@@ -17,7 +17,7 @@
 #ifndef OS_WHITEBOARD_H
 #define OS_WHITEBOARD_H
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * \file os_whiteboard.h

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-#include "ns_types.h"
 #include "ns_time_api.h" //ns_time_api_system_time_callback
 
 static ns_time_api_system_time_callback *system_time_read_callback = NULL;

@@ -23,7 +23,8 @@
 #ifndef ARM_HAL_PHY_H_
 #define ARM_HAL_PHY_H_
 
-#include "ns_types.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {

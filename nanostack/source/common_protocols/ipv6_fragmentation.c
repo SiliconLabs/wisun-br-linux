@@ -29,7 +29,7 @@
  * RFC 8201   Path MTU Discovery for IP version 6
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "common_functions.h"

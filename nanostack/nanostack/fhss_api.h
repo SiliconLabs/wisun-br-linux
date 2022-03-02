@@ -28,6 +28,9 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef struct fhss_api fhss_api_t;
 typedef struct fhss_callback fhss_callback_t;
 

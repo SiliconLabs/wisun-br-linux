@@ -22,7 +22,8 @@
 #ifndef ETHERNET_MAC_API_H
 #define ETHERNET_MAC_API_H
 
-#include <inttypes.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include "platform/arm_hal_phy.h"
 
 #ifdef __cplusplus

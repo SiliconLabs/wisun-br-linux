@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /* Test procedure triggers
  *

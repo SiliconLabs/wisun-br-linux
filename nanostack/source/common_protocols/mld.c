@@ -29,7 +29,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "common_functions.h"
 #include "randLIB.h"
 #include <string.h>

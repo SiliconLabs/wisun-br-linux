@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "mac/ieee802154/mac_defines.h"

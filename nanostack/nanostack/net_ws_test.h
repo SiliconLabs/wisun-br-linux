@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * \brief Set Wi-SUN version number

@@ -23,7 +23,7 @@
 #ifndef NET_TEST_API_H_
 #define NET_TEST_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * \brief Makes TCP protocol drop given number of packets from a particular state (TX side).

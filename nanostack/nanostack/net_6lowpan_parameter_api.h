@@ -19,7 +19,7 @@
 #ifndef NET_6LOWPAN_PARAMETER_API_H_
 #define NET_6LOWPAN_PARAMETER_API_H_
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -27,7 +27,7 @@
 #include "nsconfig.h"
 
 #ifdef HAVE_RPL
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "common_functions.h"

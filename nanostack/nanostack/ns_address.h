@@ -21,7 +21,7 @@
  * \brief 6LowPAN library address format description.
  *
  */
-#include "ns_types.h"
+#include <stdint.h>
 
 /**
  * /enum address_type_t

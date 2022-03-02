@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 
 // Added to maintain backward compatibility with older implementation of ns_dyn_mem APIs
 #define NSDYNMEMLIB_API_VERSION 3

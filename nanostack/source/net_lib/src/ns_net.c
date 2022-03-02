@@ -21,7 +21,7 @@
  * The network API functions for library model
  */
 #include "nsconfig.h"
-#include "ns_types.h"
+#include <stdint.h>
 #include "eventOS_scheduler.h"
 #include <string.h>
 #include "ns_trace.h"

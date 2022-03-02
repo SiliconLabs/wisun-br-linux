@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <randLIB.h>
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"

@@ -49,7 +49,7 @@
 extern "C" {
 #endif
 
-#include "ns_types.h"
+#include <stdint.h>
 
 #define thread_test_router_upgrade(iface) thread_test_router_id_request_send(iface, 2) // THREAD_COAP_STATUS_TLV_TOO_FEW_ROUTERS
 /**

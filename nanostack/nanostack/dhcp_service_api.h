@@ -18,7 +18,7 @@
 #ifndef DHCP_SERVICE_API_H_
 #define DHCP_SERVICE_API_H_
 
-#include <ns_types.h>
+#include <stdint.h>
 /**
  * \file dhcp_service_api.h
  * \brief DHCP server connection interfaces

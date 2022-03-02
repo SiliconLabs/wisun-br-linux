@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ns_types.h"
+#include <stdint.h>
 #include "ns_trace.h"
 #include "platform/arm_hal_phy.h"
 #include "net_interface.h"
