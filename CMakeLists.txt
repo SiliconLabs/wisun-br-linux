@@ -9,6 +9,7 @@ check_c_compiler_flag(-Wall                  CC_HAVE_WALL)
 check_c_compiler_flag(-Wno-stringop-overread CC_HAVE_WNO_STRINGOP_OVERREAD)
 check_c_compiler_flag(-Wno-stringop-overflow CC_HAVE_WNO_STRINGOP_OVERFLOW)
 check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
+check_c_compiler_flag(-rdynamic              CC_HAVE_RDYNAMIC)
 
 include(CheckIncludeFile)
 check_include_file(backtrace.h BACKTRACE_FOUND)
@@ -50,6 +51,12 @@ endif()
 # of the  binary file, but can be stripped.
 if(CC_HAVE_UNWIND_TABLES)
     add_compile_options(-funwind-tables)
+endif()
+
+# -rdynamic improves backtraces when debugs symbols are not available. Slightly
+# increase size of the binary file (can be stripped?).
+if(CC_HAVE_RDYNAMIC AND LIBDL_FOUND)
+    add_link_options(-rdynamic)
 endif()
 
 add_custom_target(check_git
