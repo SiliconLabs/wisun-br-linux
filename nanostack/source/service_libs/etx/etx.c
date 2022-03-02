@@ -18,7 +18,7 @@
 #include "ns_types.h"
 #include "common_functions.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "platform/arm_hal_phy.h"
 #include "net_interface.h"

@@ -19,7 +19,7 @@
 #include "ns_types.h"
 #include "eventOS_event.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "common_functions.h"
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 

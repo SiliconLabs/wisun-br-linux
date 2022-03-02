@@ -23,7 +23,7 @@
 #include "nsconfig.h"
 #include "ns_types.h"
 #include "eventOS_scheduler.h"
-#include "string.h"
+#include <string.h>
 #include "ns_trace.h"
 #include "socket_api.h"
 #include "nsdynmemLIB.h"

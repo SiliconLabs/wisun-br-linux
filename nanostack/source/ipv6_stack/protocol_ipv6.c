@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "string.h"
+#include <string.h>
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"

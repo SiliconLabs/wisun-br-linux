@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include "ns_types.h"
-#include "string.h"
+#include <string.h>
 #include "nwk_interface/protocol.h"
 #include "net_6lowpan_parameter_api.h"
 #include "6lowpan/nd/nd_router_object.h"

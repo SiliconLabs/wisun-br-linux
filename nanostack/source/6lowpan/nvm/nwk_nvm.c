@@ -19,7 +19,7 @@
 #include "ns_types.h"
 #include "eventOS_event.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "randLIB.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"

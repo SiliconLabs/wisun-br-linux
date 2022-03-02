@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "common_protocols/icmpv6.h"

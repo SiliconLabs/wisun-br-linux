@@ -22,7 +22,7 @@
 #include "ns_types.h"
 #include "eventOS_event.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "common_functions.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"

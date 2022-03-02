@@ -26,7 +26,7 @@
 #include "ip6string.h"
 #include "ns_trace.h"
 #include "randLIB.h"
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_sha256.h"
 #include "socket_api.h"

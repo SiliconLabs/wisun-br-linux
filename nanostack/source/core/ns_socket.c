@@ -23,7 +23,7 @@
 #include "nsconfig.h"
 #include "ns_trace.h"
 #include <stdio.h>
-#include "string.h"
+#include <string.h>
 #include "ns_types.h"
 #include "randLIB.h"
 #include "eventOS_event.h"

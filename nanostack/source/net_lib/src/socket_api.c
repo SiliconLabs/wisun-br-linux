@@ -31,7 +31,7 @@
 #include "ns_address.h"
 #include "socket_api.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"

@@ -20,7 +20,7 @@
 #include "ns_types.h"
 #include "common_functions.h"
 #include "ns_trace.h"
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "service_libs/nd_proxy/nd_proxy.h"

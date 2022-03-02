@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "ns_types.h"
-#include "string.h"
+#include <string.h>
 #include "ns_trace.h"
 #include "mlme.h"
 #include "mac_api.h"

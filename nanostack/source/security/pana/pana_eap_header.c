@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #include "ns_types.h"
-#include "string.h"
+#include <string.h>
 #include "common_functions.h"
 #include "security/pana/pana_eap_header.h"
 #if defined(HAVE_WS)

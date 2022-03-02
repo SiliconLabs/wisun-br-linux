@@ -16,7 +16,7 @@
  */
 #include "ns_types.h"
 #include "eventOS_event.h"
-#include "string.h"
+#include <string.h>
 #include "nsdynmemLIB.h"
 #include "randLIB.h"
 #include "ccm.h"

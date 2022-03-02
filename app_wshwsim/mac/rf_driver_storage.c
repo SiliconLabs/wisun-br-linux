@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "string.h"
-#include "ns_types.h"
+#include <string.h>
+#include <stdint.h>
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
 #include "mac/rf_driver_storage.h"
