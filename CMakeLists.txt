@@ -464,7 +464,6 @@ if(COMPILE_SIMULATION_TOOLS)
         host-mac/sl_wsrcp.c
         host-mac/sl_wsrcp_mac.c
         host-mac/sl_rf_driver.c
-        host-mac/ns_monitor.c
         host-mac/hal_fhss_timer.c
         host-mac/hal_random.c
         host-common/bus_uart.c

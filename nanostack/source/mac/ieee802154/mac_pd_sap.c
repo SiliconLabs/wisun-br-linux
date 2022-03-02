@@ -37,7 +37,6 @@
 #include "mac/ieee802154/mac_cca_threshold.h"
 #include "mac/ieee802154/mac_mode_switch.h"
 #include "mac/rf_driver_storage.h"
-#include "core/include/ns_monitor.h"
 #include "ns_trace.h"
 
 #define TRACE_GROUP "mPDs"
@@ -962,14 +961,6 @@ static mac_pre_parsed_frame_t *mac_pd_sap_allocate_receive_buffer(protocol_inter
     // Unless receiving Ack, check that system has enough space to handle the new packet
     mac_pre_parsed_frame_t *buffer = NULL;
     if (fcf_read->frametype != FC_ACK_FRAME || rf_ptr->macProminousMode) {
-        if (!rf_ptr->macProminousMode && !ns_monitor_packet_allocation_allowed()) {
-            // stack can not handle new packets for routing
-#ifdef __linux__
-            tr_debug("Packet ingress drop buffer allocation");
-#endif
-            return NULL;
-        }
-
         buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
         if (!buffer) {
 #ifdef __linux__
