@@ -46,7 +46,7 @@ over USB. The `/dev/ACMx` device should appear when you plug the mainboard.
 
 If it is not yet done, start by cloning his repository:
 
-    git clone git@github.com:SiliconLabs/wisun-br-linux.git
+    git clone https://github.com/SiliconLabs/wisun-br-linux.git
 
 ## Compiling
 
