@@ -483,7 +483,7 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        nanostack/source/mac/rf_driver_storage.c
+        nanostack-mac/source/mac/rf_driver_storage.c
         nanostack-mac/source/mac/ieee802154/mac_cca_threshold.c
         nanostack-mac/source/mac/ieee802154/mac_fhss_callbacks.c
         nanostack-mac/source/mac/ieee802154/mac_filter.c
