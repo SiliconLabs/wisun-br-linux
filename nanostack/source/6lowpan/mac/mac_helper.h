@@ -108,4 +108,6 @@ int8_t mac_helper_mac_mlme_filter_add_long(int8_t interface_id, uint8_t mac64[8]
 
 int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id);
 
+int8_t mac_helper_set_regional_regulation(const struct protocol_interface_info_entry *cur, uint32_t regulation);
+
 #endif // MAC_HELPER_H
