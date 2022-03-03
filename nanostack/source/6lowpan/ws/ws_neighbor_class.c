@@ -22,14 +22,14 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "nanostack/mac_mcps.h"
-#include "fhss_config.h"
+#include "nanostack/mac/mac_mcps.h"
+#include "nanostack/mac/fhss_config.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "ws_management_api.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 #ifdef HAVE_WS
 

@@ -37,12 +37,11 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif
 
-#include "ccm.h"
 #include "shalib.h"
 #include "net_nvm_api.h"
 #include "common_functions.h"
@@ -50,7 +49,7 @@
 #include "security/common/sec_lib.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "service_libs/etx/etx.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 #include "net_lib/src/net_load_balance_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/nvm/nwk_nvm.h"

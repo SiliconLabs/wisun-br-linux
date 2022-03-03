@@ -18,14 +18,14 @@
 #include "nsconfig.h"
 #include <string.h>
 #include "nwk_interface/protocol.h"
-#include "mlme.h"
+#include "nanostack/mac/mlme.h"
 #include "mac_helper.h"
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 #include "nsdynmemLIB.h"
 #include "net_nwk_scan.h"
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 #define TRACE_GROUP "MACh"
 

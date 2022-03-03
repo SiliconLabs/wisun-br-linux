@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common_functions.h"
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 #include "mac_ie_lib.h"
 
 

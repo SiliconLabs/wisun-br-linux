@@ -549,7 +549,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/mbed-client-libservice/
         mbed-client-randlib/mbed-client-randlib/
         nanostack-event-loop/nanostack-event-loop/
-        nanostack/nanostack/
         app_wshwsim/
     )
     target_compile_definitions(wshwsim PRIVATE HAVE_WS)

@@ -24,7 +24,7 @@
 #include <ns_list.h>
 #include <nsdynmemLIB.h>
 #include "common_protocols/icmpv6.h"
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 #include "net_interface.h"
 #include "eventOS_event.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -48,7 +48,7 @@
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
 #include "ws_management_api.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 #ifdef HAVE_WS
 #define TRACE_GROUP "wscm"

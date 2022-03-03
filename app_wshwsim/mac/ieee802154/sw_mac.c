@@ -16,9 +16,9 @@
  */
 #include <string.h>
 #include "nsdynmemLIB.h"
-#include "mac_api.h"
-#include "fhss_api.h"
-#include "sw_mac.h"
+#include "nanostack/mac/mac_api.h"
+#include "nanostack/mac/fhss_api.h"
+#include "nanostack/mac/sw_mac.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_mlme.h"
 #include "mac/ieee802154/mac_defines.h"

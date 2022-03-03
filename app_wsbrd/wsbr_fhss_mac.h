@@ -6,7 +6,7 @@
 #ifndef WSBR_FHSS_MAC_H
 #define WSBR_FHSS_MAC_H
 
-#include "nanostack/sw_mac.h"
+#include "nanostack/mac/sw_mac.h"
 
 #endif
 

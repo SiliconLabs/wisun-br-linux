@@ -18,7 +18,7 @@
 #ifndef MAC_HELPER_H
 #define MAC_HELPER_H
 
-#include "mlme.h"
+#include "nanostack/mac/mlme.h"
 #include "core/include/ns_address_internal.h"
 
 struct channel_list_s;

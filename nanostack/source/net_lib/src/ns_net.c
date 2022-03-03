@@ -35,7 +35,6 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #endif
-#include "ccm.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -56,8 +55,8 @@
 #ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"
 #endif
-#include "sw_mac.h"
-#include "mac_api.h"
+#include "nanostack/mac/sw_mac.h"
+#include "nanostack/mac/mac_api.h"
 #include "ethernet_mac_api.h"
 #include <stdarg.h>
 

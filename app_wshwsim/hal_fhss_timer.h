@@ -8,7 +8,7 @@
 #ifndef HAL_FHSS_TIMER_H
 #define HAL_FHSS_TIMER_H
 
-#include "nanostack/fhss_config.h"
+#include "nanostack/mac/fhss_config.h"
 
 #include "host-common/slist.h"
 

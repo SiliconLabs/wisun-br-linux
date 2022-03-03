@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "nanostack/mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"

@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 #include "ws_mpx_header.h"
 
 bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg)

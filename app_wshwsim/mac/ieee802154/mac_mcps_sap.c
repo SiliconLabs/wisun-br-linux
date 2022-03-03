@@ -27,10 +27,10 @@
 #include <string.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "ccm.h"
-#include "mlme.h"
-#include "mac_api.h"
-#include "fhss_api.h"
+#include "nanostack/mac/ccm.h"
+#include "nanostack/mac/mlme.h"
+#include "nanostack/mac/mac_api.h"
+#include "nanostack/mac/fhss_api.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "randLIB.h"
@@ -49,7 +49,7 @@
 #include "mac/ieee802154/mac_mode_switch.h"
 #include "mac/rf_driver_storage.h"
 
-#include "sw_mac.h"
+#include "nanostack/mac/sw_mac.h"
 
 #define TRACE_GROUP "mMCp"
 

@@ -38,14 +38,13 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 #ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #endif
 #include "6lowpan/iphc_decode/cipv6.h"
 
-#include "ccm.h"
 #include "shalib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
@@ -53,7 +52,7 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

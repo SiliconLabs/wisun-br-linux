@@ -6,7 +6,7 @@
 #ifndef WSBR_MAC_H
 #define WSBR_MAC_H
 
-#include "nanostack/mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 struct wsbr_ctxt;
 struct spinel_buffer;

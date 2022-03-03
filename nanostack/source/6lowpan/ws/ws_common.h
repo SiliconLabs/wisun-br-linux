@@ -21,9 +21,8 @@
 
 #include <stdint.h>
 #include "ns_list.h"
-#include "fhss_api.h"
-#include "fhss_config.h"
-#include "net_fhss.h"
+#include "nanostack/mac/fhss_config.h"
+#include "nanostack/mac/net_fhss.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"

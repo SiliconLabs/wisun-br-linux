@@ -39,7 +39,6 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
 
-#include "ccm.h"
 #include "shalib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
@@ -52,7 +51,7 @@
 #include "nwk_interface/protocol_stats.h"
 #endif
 #endif
-#include "sw_mac.h"
+#include "nanostack/mac/sw_mac.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

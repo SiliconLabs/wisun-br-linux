@@ -18,7 +18,7 @@
 #ifndef MAC_SECURITY_MIB_H_
 #define MAC_SECURITY_MIB_H_
 
-#include "mlme.h"
+#include "nanostack/mac/mlme.h"
 
 struct protocol_interface_rf_mac_setup;
 struct mac_description_storage_size_s;

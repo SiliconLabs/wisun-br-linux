@@ -23,8 +23,8 @@
 #define MLME_H_
 
 #include <stdbool.h>
-#include "mac_common_defines.h"
-#include "net_interface.h"
+#include "nanostack/mac/mac_common_defines.h"
+#include "nanostack/mac/channel_list.h"
 
 /**
  * @brief struct mlme_pan_descriptor_t PAN descriptor

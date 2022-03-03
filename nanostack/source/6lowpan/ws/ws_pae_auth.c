@@ -22,7 +22,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "fhss_config.h"
+#include "nanostack/mac/fhss_config.h"
 #include "ws_management_api.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"

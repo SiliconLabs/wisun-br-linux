@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "fhss_api.h"
-#include "fhss_config.h"
+#include "nanostack/mac/fhss_api.h"
+#include "nanostack/mac/fhss_config.h"
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_statistics.h"

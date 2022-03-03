@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_mode_switch.h"

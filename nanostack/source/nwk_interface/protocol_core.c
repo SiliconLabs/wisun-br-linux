@@ -35,7 +35,7 @@
 #include "nwk_interface/protocol_timer.h"
 #include "common_functions.h"
 #include "randLIB.h"
-#include "platform/arm_hal_phy.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
 #include "platform/arm_hal_interrupt.h"
 #include "shalib.h"
 #include "security/common/sec_lib.h"
@@ -65,7 +65,7 @@
 #include "service_libs/etx/etx.h"
 #include "net_lib/src/net_dns_internal.h"
 
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 #include "ethernet_mac_api.h"
 
 #define TRACE_GROUP_CORE "core"

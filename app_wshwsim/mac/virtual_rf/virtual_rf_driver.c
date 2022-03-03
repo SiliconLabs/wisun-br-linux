@@ -21,13 +21,12 @@
 
 #include <stdint.h>
 #include "ns_trace.h"
-#include "platform/arm_hal_phy.h"
-#include "mlme.h"
-#include "net_interface.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
+#include "nanostack/mac/mlme.h"
+#include "nanostack/mac/mac_api.h"
 #include "serial_mac_api.h"
 #include "virtual_rf_defines.h"
 #include "mac/rf_driver_storage.h"
-#include "mac_api.h"
 
 
 

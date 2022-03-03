@@ -20,7 +20,7 @@
 #include "ns_trace.h"
 #include <string.h>
 #include "nsdynmemLIB.h"
-#include "platform/arm_hal_phy.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
 #include "net_interface.h"
 
 #include "core/include/ns_address_internal.h"

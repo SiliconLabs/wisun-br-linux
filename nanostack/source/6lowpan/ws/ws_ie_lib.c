@@ -21,7 +21,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_ie_lib.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_ie_lib.h"

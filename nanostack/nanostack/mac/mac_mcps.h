@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "mac_common_defines.h"
+#include "nanostack/mac/mac_common_defines.h"
 
 
 /**

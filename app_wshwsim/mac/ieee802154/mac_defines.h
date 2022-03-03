@@ -19,7 +19,7 @@
 #define MAC_DEFINES_H_
 
 #include "eventOS_event.h"
-#include "mlme.h"
+#include "nanostack/mac/mlme.h"
 #include "mac_data_buffer.h"
 #include "ns_list.h"
 

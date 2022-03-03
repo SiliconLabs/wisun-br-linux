@@ -1,4 +1,4 @@
-#include <platform/os_whiteboard.h>
+#include <nanostack/mac/platform/os_whiteboard.h>
 #include <mbed-client-libservice/ip6string.h>
 
 #include "host-common/log.h"

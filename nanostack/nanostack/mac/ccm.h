@@ -18,7 +18,7 @@
 #define CCMLIB_H_
 
 #include <stdint.h>
-#include "platform/arm_hal_aes.h"
+#include "nanostack/mac/platform/arm_hal_aes.h"
 
 /**
  *

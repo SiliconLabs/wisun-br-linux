@@ -16,9 +16,9 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "fhss_api.h"
-#include "fhss_config.h"
-#include "net_fhss.h"
+#include "nanostack/mac/fhss_api.h"
+#include "nanostack/mac/fhss_config.h"
+#include "nanostack/mac/net_fhss.h"
 #include "nsdynmemLIB.h"
 #include "fhss.h"
 #include "fhss_common.h"

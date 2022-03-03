@@ -25,7 +25,7 @@
 #include "randLIB.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
-#include "fhss_config.h"
+#include "nanostack/mac/fhss_config.h"
 #include "service_libs/trickle/trickle.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"

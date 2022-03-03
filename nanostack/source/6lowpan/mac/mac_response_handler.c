@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include "mlme.h"
+#include "nanostack/mac/mlme.h"
 #include "common_functions.h"
 #include "ns_trace.h"
 #include "nwk_interface/protocol_abstract.h"
@@ -24,7 +24,7 @@
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_socket.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "mac_mcps.h"
+#include "nanostack/mac/mac_mcps.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

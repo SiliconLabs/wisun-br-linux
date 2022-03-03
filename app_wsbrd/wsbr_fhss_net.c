@@ -11,8 +11,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "nanostack/fhss_config.h"
-#include "nanostack/fhss_api.h"
+#include "nanostack/mac/fhss_config.h"
+#include "nanostack/mac/fhss_api.h"
 
 #include "host-common/spinel_defs.h"
 #include "host-common/spinel_buffer.h"

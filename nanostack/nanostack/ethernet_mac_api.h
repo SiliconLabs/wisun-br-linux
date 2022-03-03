@@ -23,7 +23,7 @@
 #define ETHERNET_MAC_API_H
 #include <stdbool.h>
 #include <stdint.h>
-#include "platform/arm_hal_phy.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
 
 #define ETHERTYPE_IPV4              0x0800  /**< ethernet type for IPv4 */
 #define ETHERTYPE_ARP               0x0806  /**< ethernet type for ARP */

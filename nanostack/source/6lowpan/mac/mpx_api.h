@@ -17,7 +17,8 @@
 
 #ifndef MPX_API_H_
 #define MPX_API_H_
-#include "mac_mcps.h"
+#include "nanostack/mac/mac_mcps.h"
+
 struct mcps_data_req_s;
 struct mcps_data_conf_s;
 struct mcps_data_ind_s;

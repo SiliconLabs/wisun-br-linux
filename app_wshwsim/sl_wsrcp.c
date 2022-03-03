@@ -22,7 +22,7 @@
 
 #include "mbed-trace/mbed_trace.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack/sw_mac.h"
+#include "nanostack/mac/sw_mac.h"
 
 #include "host-common/hal_interrupt.h"
 #include "host-common/bus_uart.h"

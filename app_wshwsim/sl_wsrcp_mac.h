@@ -6,7 +6,7 @@
 #ifndef SL_WSRCP_MAC_H
 #define SL_WSRCP_MAC_H
 
-#include "nanostack/mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 struct mcps_ack_data_payload;
 struct wsmac_ctxt;

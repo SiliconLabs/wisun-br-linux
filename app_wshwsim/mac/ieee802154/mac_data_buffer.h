@@ -18,7 +18,7 @@
 #ifndef MAC_DATA_BUFFER_H_
 #define MAC_DATA_BUFFER_H_
 
-#include "mac_mcps.h"
+#include "nanostack/mac/mac_mcps.h"
 
 /**
  * @brief struct mac_aux_security_header_t MAC auxiliarity security header structure

@@ -50,7 +50,7 @@
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "net_lib/src/net_dns_internal.h"
-#include "platform/os_whiteboard.h"
+#include "nanostack/mac/platform/os_whiteboard.h"
 
 #include "ws_bbr_api.h"
 

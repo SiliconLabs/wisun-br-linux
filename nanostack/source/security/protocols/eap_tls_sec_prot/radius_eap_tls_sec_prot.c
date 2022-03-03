@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
-#include "fhss_config.h"
+#include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

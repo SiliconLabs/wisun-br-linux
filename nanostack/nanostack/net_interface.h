@@ -17,7 +17,7 @@
 #ifndef NET_INTERFACE_H_
 #define NET_INTERFACE_H_
 #include <stdint.h>
-#include "platform/arm_hal_phy.h"
+#include "mac/channel_list.h"
 
 struct mac_api_s;
 struct eth_mac_api_s;
@@ -98,6 +98,8 @@ typedef enum arm_library_event_type_e {
 #define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL      /**< Backward compatibility */
 #define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
 /** @} */
+
+
 
 /** Network security levels. */
 typedef enum net_security_t {
@@ -255,12 +257,6 @@ typedef struct {
     uint16_t ra_life_time;          /**< Define ND router lifetime in seconds, recommend value 180+. */
     uint32_t abro_version_num;      /**< ND ABRO version number (0 when starting a new ND setup). */
 } border_router_setup_s;
-
-/** Channel list */
-typedef struct channel_list_s {
-    channel_page_e channel_page;    /**< Channel page */
-    uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
-} channel_list_s;
 
 /** 6LoWPAN radio interface setup. */
 typedef struct {

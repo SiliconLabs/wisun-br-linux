@@ -18,7 +18,7 @@
 #ifndef MAC_RESPONSE_HANDLER_H
 #define MAC_RESPONSE_HANDLER_H
 
-#include "mac_api.h"
+#include "nanostack/mac/mac_api.h"
 
 struct mcps_data_ind_s;
 struct mcps_data_conf_t;

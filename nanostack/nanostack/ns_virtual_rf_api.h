@@ -21,7 +21,7 @@
 #ifndef NS_VIRTUAL_RF_API_H_
 #define NS_VIRTUAL_RF_API_H_
 
-#include "platform/arm_hal_phy.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
 
 
 /**

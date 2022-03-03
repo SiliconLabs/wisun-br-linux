@@ -3,12 +3,12 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#include "nanostack/mlme.h"
-#include "nanostack/mac_mcps.h"
-#include "nanostack/sw_mac.h"
-#include "nanostack/fhss_api.h"
-#include "nanostack/fhss_config.h"
-#include "nanostack/net_fhss.h"
+#include "nanostack/mac/mlme.h"
+#include "nanostack/mac/mac_mcps.h"
+#include "nanostack/mac/sw_mac.h"
+#include "nanostack/mac/fhss_api.h"
+#include "nanostack/mac/fhss_config.h"
+#include "nanostack/mac/net_fhss.h"
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 
 #include "version.h"
