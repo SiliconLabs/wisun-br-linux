@@ -21,8 +21,6 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "net_interface.h" /* needed for channel_list_s */
-#include "mlme.h"
 
 /**
  * \file net_nwk_scan.h
@@ -51,6 +49,11 @@ extern "C" {
  *   * The network list needs to be read by net_get_scanned_nwk_list().
  *
  */
+
+typedef struct channel_list_s channel_list_s;
+typedef struct mlme_pan_descriptor_s mlme_pan_descriptor_t;
+typedef struct mlme_scan_conf_s mlme_scan_conf_t;
+typedef struct mlme_comm_status_s mlme_comm_status_t;
 
 /** Network energy detection scan type  */
 #define NET_NWK_ENERGY_SCAN 0
