@@ -13,6 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_TRACE_H_
+#define MBED_TRACE_H_
+// include sys/types.h before inttypes.h to workaround "PRIi64 not available"
+// with some newlib versions
+#include <sys/types.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdarg.h>
 
 /**
  * \file mbed_trace.h
@@ -41,21 +51,6 @@
  * Limit the size of flash by setting MBED_TRACE_MAX_LEVEL value. Default is TRACE_LEVEL_DEBUG (all included)
  *
  */
-#ifndef MBED_TRACE_H_
-#define MBED_TRACE_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// include sys/types.h before inttypes.h to workaround "PRIi64 not available"
-// with some newlib versions
-#include <sys/types.h>
-#include <inttypes.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdarg.h>
 
 #ifndef YOTTA_CFG_MBED_TRACE
 #define YOTTA_CFG_MBED_TRACE 0
@@ -369,10 +364,6 @@ char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len);
  * which indicate that buffer is too small for array.
  */
 char *mbed_trace_array(const uint8_t *buf, uint16_t len);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MBED_TRACE_H_ */
 

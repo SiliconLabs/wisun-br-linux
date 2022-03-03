@@ -16,12 +16,7 @@
  */
 #ifndef _NS_RPL_H
 #define _NS_RPL_H
-
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \file net_rpl.h
@@ -323,7 +318,4 @@ extern uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance
   */
 extern int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preference);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /*_NS_RPL_H*/

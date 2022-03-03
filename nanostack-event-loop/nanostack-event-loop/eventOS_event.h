@@ -15,9 +15,6 @@
  */
 #ifndef EVENTOS_EVENT_H_
 #define EVENTOS_EVENT_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \defgroup nanostack-eventloop Nanostack's event system.
@@ -333,7 +330,4 @@ extern int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t 
  */
 extern void eventOS_cancel(arm_event_storage_t *event);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* EVENTOS_EVENT_H_ */

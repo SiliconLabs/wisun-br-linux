@@ -15,12 +15,7 @@
  */
 #ifndef COMMON_FUNCTIONS_H_
 #define COMMON_FUNCTIONS_H_
-
 #include "ns_types.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
  * Common write 64-bit variable to 8-bit pointer.
@@ -626,7 +621,4 @@ COMMON_FUNCTIONS_FN void bit_clear(uint8_t *bitset, uint_fast8_t bit)
 
 #endif /* defined NS_ALLOW_INLINING || defined COMMON_FUNCTIONS_FN */
 
-#ifdef __cplusplus
-}
-#endif
 #endif /*__COMMON_FUNCTIONS_H_*/

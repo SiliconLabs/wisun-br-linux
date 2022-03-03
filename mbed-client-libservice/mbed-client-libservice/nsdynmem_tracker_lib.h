@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifndef NSDYNMEM_TRACKER_LIB_H_
+#define NSDYNMEM_TRACKER_LIB_H_
 
 /**
  * \file nsdynmem_tracker_lib.h
  * \brief Dynamical Memory Tracker library API
  * Provides tracking and tracing of dynamic memory blocks
  */
-
-#ifndef NSDYNMEM_TRACKER_LIB_H_
-#define NSDYNMEM_TRACKER_LIB_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #if NSDYNMEM_TRACKER_ENABLED==1
 
@@ -96,9 +91,6 @@ void ns_dyn_mem_tracker_lib_max_snap_shot_update(ns_dyn_mem_tracker_lib_conf_t *
 
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* NSDYNMEM_TRACKER_LIB_H_ */
 
 

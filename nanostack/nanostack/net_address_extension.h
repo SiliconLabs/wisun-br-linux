@@ -16,12 +16,7 @@
  */
 #ifndef _NET_ADDRESS_EXTENSION_H
 #define _NET_ADDRESS_EXTENSION_H
-
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
   * \file net_address_extension.h
@@ -59,7 +54,5 @@ extern void net_ext_reset_short_address_from_app(void);
   * \return 0xfffe or 0xffff if stack is not using any short address.
   */
 extern uint16_t net_ext_get_short_address(void);
-#ifdef __cplusplus
-}
-#endif
+
 #endif

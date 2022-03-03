@@ -43,9 +43,7 @@
  *      -< 0 MIC fail or parameter fail
  *
  */
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #define AES_NO_SECURITY                 0x00    /**< No security */
 #define AES_SECURITY_LEVEL_MIC32        0x01    /**< MIC32 */
 #define AES_SECURITY_LEVEL_MIC64        0x02    /**< MIC64 */
@@ -110,9 +108,5 @@ extern int8_t ccm_process_run(ccm_globals_t *ccm_params);
  *
  */
 extern void ccm_free(ccm_globals_t *ccm_params);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* CCMLIB_H_ */

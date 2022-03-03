@@ -18,10 +18,6 @@
 #ifndef SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
 #define SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct red_info_s;
 
 #define RED_AVERAGE_WEIGHT_DISABLED 256     /*< Average is disabled */
@@ -120,9 +116,5 @@ uint16_t random_early_detection_aq_calc(struct red_info_s *red_info, uint16_t sa
  * \return Current average
  */
 uint16_t random_early_detection_aq_read(struct red_info_s *red_info);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_ */

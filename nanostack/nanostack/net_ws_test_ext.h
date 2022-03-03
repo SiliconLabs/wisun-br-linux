@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NET_WS_TEST_EXT_H_
 #define NET_WS_TEST_EXT_H_
+#include <stdint.h>
 
 /**
  * \file net_ws_test_ext.h
  * \brief Wi-SUN Library External Test API.
  *
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
 
 /* Test procedure triggers
  *
@@ -111,9 +105,5 @@ typedef enum {
  * \return <0                       Failure
  */
 int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, void *parameters);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NET_WS_TEST_EXT_H_ */

@@ -16,10 +16,6 @@
  */
 #ifndef _NS_NWK_SCAN_H
 #define _NS_NWK_SCAN_H
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 /**
@@ -134,7 +130,5 @@ extern int8_t arm_net_nwk_scan(int8_t interface_id, channel_list_s *scan_list, v
  *
  */
 extern nwk_pan_descriptor_t *arm_net_get_scanned_nwk_list(int8_t interface_id);
-#ifdef __cplusplus
-}
-#endif
+
 #endif /*_NS_NWK_SCAN_H*/

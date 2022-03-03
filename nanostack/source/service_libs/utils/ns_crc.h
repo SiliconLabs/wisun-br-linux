@@ -16,12 +16,7 @@
  */
 #ifndef _NS_CRC_H_
 #define _NS_CRC_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
-
 
 /// @todo documentation
 
@@ -37,7 +32,4 @@ uint16_t crc16_ccitt(uint8_t *message, int nBytes);
  */
 uint16_t crc16_calc(uint8_t *data, uint16_t data_length, uint16_t polynomial);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* _NS_CRC_H_ */

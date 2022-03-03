@@ -15,18 +15,14 @@
  */
 #ifndef EVENTOS_SCHEDULER_H_
 #define EVENTOS_SCHEDULER_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include <stdbool.h>
 
 /**
  * \file eventOS_scheduler.h
  * \ingroup nanostack-eventloop
  * \brief Event scheduler's control functions.
  */
-
-#include <stdint.h>
-#include <stdbool.h>
 
 /* Compatibility with older ns_types.h */
 #ifndef NS_NORETURN
@@ -109,7 +105,6 @@ extern void eventOS_scheduler_wait(void);
  * \brief This function will be called when stack receives an event.
  */
 extern void eventOS_scheduler_signal(void);
-
 /**
  * \brief This function will be called when stack can enter deep sleep state in detected time.
  *
@@ -164,9 +159,5 @@ extern void eventOS_scheduler_mutex_release(void);
  * \return true if the current thread owns the mutex
  */
 extern bool eventOS_scheduler_mutex_am_owner(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* EVENTOS_SCHEDULER_H_ */

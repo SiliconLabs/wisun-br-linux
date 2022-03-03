@@ -14,16 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NET_INTERFACE_H_
 #define NET_INTERFACE_H_
-
 #include <stdint.h>
 #include "platform/arm_hal_phy.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct mac_api_s;
 struct eth_mac_api_s;
@@ -1090,9 +1084,5 @@ extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
  */
 extern const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif /* NET_INTERFACE_H_ */
 

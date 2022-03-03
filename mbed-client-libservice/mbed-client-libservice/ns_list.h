@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NS_LIST_H_
 #define NS_LIST_H_
-
 #include "ns_types.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /** \defgroup ns_list Linked list support library.
  *
@@ -765,10 +759,6 @@ NS_LIST_FN uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t 
     return count;
 }
 #endif /* defined NS_ALLOW_INLINING || defined NS_LIST_FN */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NS_LIST_H_ */
 

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef WHITEBOARD_API_H_
 #define WHITEBOARD_API_H_
 #include "ns_types.h"
@@ -23,10 +22,6 @@
  * \file whiteboard_api.h
  * \brief An API for DAD, intercepting messages from backhaul network and keeping track of routes inside the PAN.
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \struct whiteboard_entry_t
@@ -54,7 +49,4 @@ extern whiteboard_entry_t *whiteboard_get(whiteboard_entry_t *cur);
  */
 extern void whiteboard_set_device_hard_limit(uint16_t limit);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* WHITEBOARD_API_H_ */

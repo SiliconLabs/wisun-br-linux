@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef _NS_FILE_SYSTEM_H_
 #define _NS_FILE_SYSTEM_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \file ns_file_system.h
@@ -152,9 +147,5 @@ typedef int (*ns_file_size)(NS_FILE *handle, size_t *size);
  *
  */
 void ns_file_system_callbacks_set(ns_file_open open, ns_file_close close, ns_file_remove remove, ns_file_write write, ns_file_read read, ns_file_size size);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _NS_FILE_SYSTEM_H_ */

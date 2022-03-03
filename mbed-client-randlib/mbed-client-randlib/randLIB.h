@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef RANDLIB_H_
+#define RANDLIB_H_
+#include <stdint.h>
 
 /**
  * \file randLIB.h
@@ -26,15 +29,6 @@
  *  - randLIB_get_n_bytes_random(), Generate n-bytes random numbers
  *
  */
-
-#ifndef RANDLIB_H_
-#define RANDLIB_H_
-
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * This library is made for getting random numbers for Timing needs in protocols.
@@ -129,8 +123,4 @@ uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max
 void randLIB_reset(void);
 #endif
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif /* RANDLIB_H_ */

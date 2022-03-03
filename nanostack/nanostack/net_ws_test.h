@@ -17,6 +17,7 @@
 
 #ifndef NET_WS_TEST_H_
 #define NET_WS_TEST_H_
+#include <stdint.h>
 
 /* Prevent this file being inserted in public Doxygen generated file
  * this is not part of our external API. */
@@ -32,12 +33,6 @@
  *
  */
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
 
 /**
  * \brief Set Wi-SUN version number
@@ -233,10 +228,6 @@ int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dro
  * \return <0                       Failure
  */
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* DOXYGEN */
 #endif /* NET_THREAD_TEST_H_ */

@@ -16,10 +16,9 @@
  */
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
+#include "ns_types.h"
+#include "ns_address.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /**
  * \file socket_api.h
  * \brief 6LoWPAN Library Socket API
@@ -174,9 +173,6 @@ extern "C" {
  * socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &traffic_class, sizeof traffic_class);
  *
  */
-
-#include "ns_types.h"
-#include "ns_address.h"
 
 /** \name Protocol IDs used with sockets. */
 ///@{
@@ -878,7 +874,4 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
  */
 int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /*_NS_SOCKET_H*/

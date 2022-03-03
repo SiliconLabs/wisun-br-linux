@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifndef NSDYNMEMLIB_H_
+#define NSDYNMEMLIB_H_
+#include <stdint.h>
 
 /**
  * \file nsdynmemLIB.h
@@ -22,14 +24,6 @@
  * ns_dyn_mem_alloc/free always access the default heap initialised by ns_dyn_mem_init.
  * ns_mem_alloc/free access a user heap initialised by ns_mem_init. User heaps are identified by a book-keeping pointer.
  */
-
-#ifndef NSDYNMEMLIB_H_
-#define NSDYNMEMLIB_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
 
 // Added to maintain backward compatibility with older implementation of ns_dyn_mem APIs
 #define NSDYNMEMLIB_API_VERSION 3
@@ -252,9 +246,4 @@ extern const mem_stat_t *ns_mem_get_mem_stat(ns_mem_book_t *book);
   */
 extern int ns_mem_set_temporary_alloc_free_heap_threshold(ns_mem_book_t *book, uint8_t free_heap_percentage, ns_mem_heap_size_t free_heap_amount);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* NSDYNMEMLIB_H_ */
-
-

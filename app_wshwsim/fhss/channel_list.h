@@ -14,14 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef __CHANNEL_LIST_H__
 #define __CHANNEL_LIST_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 /**
@@ -32,8 +26,4 @@ extern "C" {
  */
 int channel_list_count_channels(const uint32_t *list);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif // !__CHANNEL_LIST_H__

@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef NSDYNMEM_TRACKER_H_
+#define NSDYNMEM_TRACKER_H_
 
 /**
  * \file nsdynmem_tracker.h
  * \brief Dynamical Memory Tracker definitions to override the default NS dynamic memory functionality
  * Provides tracking and tracing of dynamic memory blocks
  */
-
-#ifndef NSDYNMEM_TRACKER_H_
-#define NSDYNMEM_TRACKER_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #if NSDYNMEM_TRACKER_ENABLED==1
 
@@ -38,9 +34,4 @@ void ns_dyn_mem_tracker_dyn_mem_free(void *block, const char *function, uint32_t
 
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* NSDYNMEM_TRACKER_H_ */
-
-

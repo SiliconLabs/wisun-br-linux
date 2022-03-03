@@ -15,19 +15,14 @@
  */
 #ifndef EVENTOS_EVENT_TIMER_H_
 #define EVENTOS_EVENT_TIMER_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include "eventOS_event.h"
 
 /**
  * \file eventOS_event_timer.h
  * \ingroup nanostack-eventloop
  * \brief Functions for sending delayed events.
  */
-
-
-#include <stdint.h>
-#include "eventOS_event.h"
 
 struct arm_event_s;
 typedef struct sys_timer_struct_s sys_timer_struct_t;
@@ -222,7 +217,6 @@ extern int8_t eventOS_event_timer_cancel(uint8_t event_id, int8_t tasklet_id);
  * */
 extern uint32_t eventOS_event_timer_shortest_active_timer(void);
 
-
 /** Timeout structure. Not to be modified by user */
 typedef struct timeout_entry_t timeout_t;
 
@@ -255,8 +249,5 @@ timeout_t *eventOS_timeout_every_ms(void (*callback)(void *), uint32_t every, vo
 void eventOS_timeout_cancel(timeout_t *t);
 
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* EVENTOS_EVENT_TIMER_H_ */

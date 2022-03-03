@@ -15,10 +15,6 @@
  */
 #ifndef IP4STRING_H
 #define IP4STRING_H
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 /**
@@ -42,7 +38,4 @@ uint_fast8_t ip4tos(const void *ip4addr, char *p);
  */
 bool stoip4(const char *ip4addr, size_t len, void *dest);
 
-#ifdef __cplusplus
-}
-#endif
 #endif

@@ -15,12 +15,7 @@
  */
 #ifndef __NSDYNMEMLIB_STUB_H__
 #define __NSDYNMEMLIB_STUB_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "stdint.h"
+#include <stdint.h>
 
 typedef struct {
     uint8_t returnCounter;
@@ -28,9 +23,5 @@ typedef struct {
 } nsdynmemlib_stub_data_t;
 
 extern nsdynmemlib_stub_data_t nsdynmemlib_stub;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

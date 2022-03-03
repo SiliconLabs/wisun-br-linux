@@ -24,17 +24,11 @@
  * behaviour. When you are done with the configurations, you need to call interface up to enable a Wi-SUN node.
  *
  */
-
 #ifndef WS_MANAGEMENT_API_H_
 #define WS_MANAGEMENT_API_H_
-
 #include <stdint.h>
 
 typedef struct fhss_timer fhss_timer_t;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Regulatory domain values*/
 #define REG_DOMAIN_WW   0x00 /**< World wide */
@@ -927,7 +921,4 @@ int ws_management_phy_capability_set(
     int8_t interface_id,
     ws_management_pcap_info_t *pcap_list);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* WS_MANAGEMENT_API_H_ */

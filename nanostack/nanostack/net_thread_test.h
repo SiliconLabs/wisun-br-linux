@@ -29,6 +29,7 @@
 
 #ifndef NET_THREAD_TEST_H_
 #define NET_THREAD_TEST_H_
+#include <stdint.h>
 
 /* Prevent this file being inserted in public Doxygen generated file
  * this is not part of our external API. */
@@ -43,13 +44,6 @@
  * \warning This file is not part of the version number control and can change any time.
  *
  */
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
 
 #define thread_test_router_upgrade(iface) thread_test_router_id_request_send(iface, 2) // THREAD_COAP_STATUS_TLV_TOO_FEW_ROUTERS
 /**
@@ -566,10 +560,6 @@ int8_t thread_test_mcast_address_per_message_set(uint8_t value);
  * \return <0 Set Fail.
  */
 int thread_test_parent_priority_set(int8_t interface_id, uint8_t parent_priority);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* DOXYGEN */
 #endif /* NET_THREAD_TEST_H_ */

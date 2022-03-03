@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef ARM_HAL_API_H_
 #define ARM_HAL_API_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdint.h>
 
 /**
@@ -47,9 +43,5 @@ extern void platform_interrupts_disabled(void);
  * \brief This function decrements the disable IRQ counter.
  */
 extern void platform_interrupts_enabling(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* ARM_HAL_API_H_ */

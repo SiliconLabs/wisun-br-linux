@@ -32,16 +32,9 @@
  *  3. shalib_prf_calc(), Calc PRF256 HASH
  *
  */
-
 #ifndef SHALIB_H_
 #define SHALIB_H_
-
 #include <stdint.h>
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*!
  * \struct prf_sec_param_t
@@ -98,7 +91,5 @@ prf_sec_param_t *shalib_prf_param_get(void);  // GET PRF structure
  * \brief Finish PRF256 operation and save result in given buffer.
  */
 void shalib_prf_calc(void *output, uint_fast16_t nwords);// GET 256 PRF
-#ifdef __cplusplus
-}
-#endif
+
 #endif /* SHALIB_H_ */

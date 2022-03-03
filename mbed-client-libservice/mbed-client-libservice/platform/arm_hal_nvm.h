@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef _PLATFORM_NVM_H_
+#define _PLATFORM_NVM_H_
 
 /*
  * Nanostack NVM API.
@@ -30,13 +32,6 @@
  * be started until the previous operation has completed.
  *
  */
-
-#ifndef _PLATFORM_NVM_H_
-#define _PLATFORM_NVM_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Enumeration for nvm API function return values */
 typedef enum {
@@ -137,8 +132,5 @@ platform_nvm_status platform_nvm_read(nvm_callback *callback, const char *key_na
  */
 platform_nvm_status platform_nvm_flush(nvm_callback *callback, void *context);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* _PLATFORM_NVM_H_ */
 

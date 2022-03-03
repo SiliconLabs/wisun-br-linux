@@ -16,19 +16,10 @@
 #ifndef NS_EVENT_H_
 #define NS_EVENT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 bool event_tasklet_handler_id_valid(uint8_t tasklet_id);
 void eventOS_event_send_timer_allocated(arm_event_storage_t *event);
 
 // This requires lock to be held
 arm_event_storage_t *eventOS_event_find_by_id_critical(uint8_t tasklet_id, uint8_t event_id);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /*NS_EVENT_H_*/

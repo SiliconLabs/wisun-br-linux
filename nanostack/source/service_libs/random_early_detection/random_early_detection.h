@@ -18,10 +18,6 @@
 #ifndef SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_H_
 #define SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 //This value cant be bigger than 655
 #define PROB_SCALE 512
 #define PROB_SCALE_MAX PROB_SCALE * 100
@@ -39,9 +35,5 @@ typedef struct red_info_s {
     uint32_t averageQ;          /*< Average queue size Scaled by 256 1.0 is 256 */
     uint16_t count;             /*< Missed Packet drop's. This value is incremented when average queue is over min threshoild and packet is noot dropped */
 } red_info_t;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_H_ */

@@ -25,9 +25,6 @@
 
 typedef struct fhss_api fhss_api_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief ws_channel_mask_t WS neighbour supported channel mask
@@ -154,9 +151,5 @@ typedef enum {
  * @return 0 on success, -1 on fail.
  */
 extern int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // FHSS_WS_EXT_H

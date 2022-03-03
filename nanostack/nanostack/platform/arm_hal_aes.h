@@ -19,9 +19,9 @@
  * \file arm_hal_aes.h
  * \brief AES Platform API
  */
-
 #ifndef ARM_HAL_AES_H_
 #define ARM_HAL_AES_H_
+#include "ns_types.h"
 
 /* The network library requires a simple AES implementation for its
  * IEEE 802.15.4 security. The expectation is that 802.15.4 devices will have
@@ -33,13 +33,6 @@
  * To simplify porting, the API is used single-threaded, so that no special care
  * is needed to maintain global context or state in the hardware accelerator.
  */
-
-#include "ns_types.h"
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* This API must be able to provide this many simultaneous contexts */
 #if 1 /* config option for 802.15.4-2015? */
@@ -90,7 +83,4 @@ extern void arm_aes_encrypt(
  */
 void arm_aes_finish(arm_aes_context_t *aes_context);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* ARM_HAL_AES_H_ */

@@ -16,6 +16,8 @@
  */
 #ifndef NWK_STATS_API_H
 #define NWK_STATS_API_H
+#include <stdint.h>
+
 /**
  * \file nwk_stats_api.h
  * \brief 6LowPAN library network stats API
@@ -26,12 +28,6 @@
  *
  *
  */
-
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * /struct nwk_stats_t
@@ -94,7 +90,5 @@ extern void protocol_stats_stop(void);
   *
   */
 extern void protocol_stats_reset(void);
-#ifdef __cplusplus
-}
-#endif
+
 #endif

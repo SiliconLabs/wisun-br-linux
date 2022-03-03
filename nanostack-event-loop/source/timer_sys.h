@@ -15,11 +15,6 @@
  */
 #ifndef _PL_NANO_TIMER_SYS_H_
 #define _PL_NANO_TIMER_SYS_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "eventOS_event.h"
 
 /* We borrow base event storage, including its list link, and add a time field */
@@ -52,9 +47,5 @@ void timer_sys_event_cancel_critical(struct arm_event_storage *event);
  *
  * */
 void system_timer_tick_update(uint32_t ticks);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /*_PL_NANO_TIMER_SYS_H_*/

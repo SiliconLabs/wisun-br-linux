@@ -24,10 +24,6 @@
  */
 
 typedef struct fhss_api fhss_api_t;
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /**
  * @brief WS channel functions.
@@ -183,9 +179,5 @@ typedef enum fhss_channel_mode_e {
     SINGLE_CHANNEL,     //< Single channel
     FHSS,               //< Frequency hopping mode
 } fhss_channel_mode_e;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // FHSS_CONFIG_H

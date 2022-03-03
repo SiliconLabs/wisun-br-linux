@@ -15,10 +15,6 @@
  */
 #ifndef IP6STRING_H
 #define IP6STRING_H
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -85,7 +81,4 @@ unsigned char sipv6_prefixlength(const char *ip6addr);
   */
 int stoip6_prefix(const char *ip6addr, void *dest, int_fast16_t *prefix_len_out);
 
-#ifdef __cplusplus
-}
-#endif
 #endif

@@ -18,15 +18,9 @@
 /** \file sw_mac.h
  * \brief Software MAC API.
  */
-
 #ifndef NS_SW_MAC_H
 #define NS_SW_MAC_H
-
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct protocol_interface_rf_mac_setup;
 struct mac_api_s;
@@ -111,9 +105,5 @@ extern uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api);
  * @return 0 on success, -1 on fail.
  */
 extern int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api, bool enable_feature);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // NS_SW_MAC_H

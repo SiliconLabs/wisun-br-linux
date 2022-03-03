@@ -18,12 +18,8 @@
 /** \file ns_virtual_rf_api.h
  * \brief Virtual RF interface API.
  */
-
 #ifndef NS_VIRTUAL_RF_API_H_
 #define NS_VIRTUAL_RF_API_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "platform/arm_hal_phy.h"
 
@@ -46,8 +42,4 @@ int8_t virtual_rf_device_register(phy_link_type_e link_type, uint16_t mtu_size);
  */
 int8_t virtual_rf_client_register(void);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif /* NS_VIRTUAL_RF_API_H_ */

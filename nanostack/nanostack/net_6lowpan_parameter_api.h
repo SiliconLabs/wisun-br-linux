@@ -14,16 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 #ifndef NET_6LOWPAN_PARAMETER_API_H_
 #define NET_6LOWPAN_PARAMETER_API_H_
-
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \file net_6lowpan_parameter_api.h
@@ -116,9 +109,5 @@ extern int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms);
  *
  */
 extern void net_6lowpan_nd_parameter_read(nd_parameters_s *parameter_ptr);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NET_6LOWPAN_DEFAULT_PARAMETER_API_H_ */

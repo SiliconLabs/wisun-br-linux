@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef SW_MAC_INTERNAL_H
 #define SW_MAC_INTERNAL_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef enum {
     STAT_MAC_TX_QUEUE,
@@ -57,9 +52,5 @@ struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_fhss_api(const struct 
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_timer(int id, enum arm_nwk_timer_id type);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_driver_id(int8_t id);
 void sw_mac_stats_update(struct protocol_interface_rf_mac_setup *setup, mac_stats_type_t type, uint32_t update_val);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // SW_MAC_INTERNAL_H

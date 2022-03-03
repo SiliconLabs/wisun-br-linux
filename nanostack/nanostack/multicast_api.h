@@ -16,6 +16,8 @@
  */
 #ifndef MULTICAST_API_H_
 #define MULTICAST_API_H_
+#include <stdint.h>
+
 /**
  * \file multicast_api.h
  * \brief Multicast Trickle Forwarding API.
@@ -36,12 +38,6 @@
  * | window_expiration | 75    |
  *
  */
-
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \brief Set new parameters for trickle multicast.
@@ -349,7 +345,4 @@ int8_t multicast_fwd_full_for_scope(int8_t interface_id, uint_fast8_t min_scope)
  */
 int8_t multicast_fwd_set_proxy_upstream(int8_t interface_id);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* MULTICAST_API_H_ */

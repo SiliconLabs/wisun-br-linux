@@ -22,12 +22,6 @@
 
 #ifndef FHSS_API_H
 #define FHSS_API_H
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -308,9 +302,5 @@ struct fhss_callback {
     mac_read_coordinator_mac_address *read_coord_mac_address;   /**< Read coordinator MAC address. */
     mac_read_synch_info *read_synch_info;                       /**< Read information element for a specific MAC address. */
 };
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // FHSS_API_H

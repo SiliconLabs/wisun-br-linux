@@ -21,14 +21,9 @@
 
 #ifndef ETHERNET_MAC_API_H
 #define ETHERNET_MAC_API_H
-
 #include <stdbool.h>
 #include <stdint.h>
 #include "platform/arm_hal_phy.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define ETHERTYPE_IPV4              0x0800  /**< ethernet type for IPv4 */
 #define ETHERTYPE_ARP               0x0806  /**< ethernet type for ARP */
@@ -171,9 +166,4 @@ struct eth_mac_api_s {
     bool                        address_resolution_needed;      /**< Normal ethernet should set this true for tunnel or false for slip */
 };
 
-#ifdef __cplusplus
-}
-#endif
-
 #endif // ETHERNET_MAC_API_H
-

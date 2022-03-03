@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef PANA_NVM_API_H_
+#define PANA_NVM_API_H_
+#include <stdint.h>
+
 /**
  * \file net_nvm_api.h
  * \brief Library PANA NVM API for Client and Server.
@@ -31,15 +35,6 @@
  * - pana_client_nvm_callback_set(), Initialize PANA session NVM.
  *
  */
-#ifndef PANA_NVM_API_H_
-#define PANA_NVM_API_H_
-
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /**
  * \brief Pana client and common data structure for get / Update callback's
@@ -268,8 +263,4 @@ extern int8_t net_nvm_wpan_params_storage_reset(int8_t interface_id);
  */
 extern int8_t net_nvm_wpan_params_storage_disable(int8_t interface_id);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif /* PANA_NVM_API_H_ */

@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MAC_FILTER_API_H_
+#define MAC_FILTER_API_H_
+#include <stdint.h>
 
 /**
  * \file mac_filter_api.h
@@ -45,16 +48,6 @@
  * - mac_filter_add_long(interface_id, mac64, MAC_FILTER_ALLOWED)
  * - mac_filter_add_long(interface_id, mac64, MAC_FILTER_FIXED(0x7f, -60))
  */
-
-
-#ifndef MAC_FILTER_API_H_
-#define MAC_FILTER_API_H_
-
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \brief Start MAC level filter.
@@ -197,9 +190,5 @@ int_fast8_t mac_filter_add_short(int8_t interface_id, uint16_t mac16, int16_t lq
  * \return <0 Not OK.
  */
 int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MAC_FILTER_API_H_ */

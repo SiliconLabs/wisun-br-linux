@@ -15,9 +15,6 @@
  */
 #ifndef EVENTOS_CALLBACK_TIMER_H_
 #define EVENTOS_CALLBACK_TIMER_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdint.h>
 
 extern int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
@@ -25,8 +22,5 @@ extern int eventOS_callback_timer_unregister(int ns_timer_id);
 
 extern int eventOS_callback_timer_stop(int ns_timer_id);
 extern int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots);
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* EVENTOS_CALLBACK_TIMER_H_ */

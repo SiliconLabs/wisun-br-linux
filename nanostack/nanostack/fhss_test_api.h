@@ -24,10 +24,6 @@
 #define FHSS_TEST_API_H
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
   * \brief Set optimal packet length
   *
@@ -49,9 +45,5 @@ int8_t fhss_set_optimal_packet_length(const fhss_api_t *fhss_api, uint16_t packe
   * \return -1 Failure
   */
 int8_t fhss_set_number_of_channel_retries(const fhss_api_t *fhss_api, uint8_t number_of_channel_retries);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // FHSS_TEST_API_H

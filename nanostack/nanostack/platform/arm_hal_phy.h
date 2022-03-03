@@ -19,16 +19,10 @@
  * \file arm_hal_phy.h
  * \brief PHY device driver API.
  */
-
 #ifndef ARM_HAL_PHY_H_
 #define ARM_HAL_PHY_H_
-
 #include <stdint.h>
 #include <stdbool.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /** PHY_LINK_CCA_PREPARE status definitions */
 #define PHY_TX_NOT_ALLOWED  -1      /**< TX not allowed. Do not continue to CCA process. */
@@ -402,7 +396,4 @@ extern uint16_t arm_net_phy_mtu_size(int8_t id);
  */
 extern void arm_net_phy_unregister(int8_t driver_id);
 
-#ifdef __cplusplus
-}
-#endif
 #endif /* ARM_HAL_PHY_H_ */

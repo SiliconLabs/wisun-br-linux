@@ -24,9 +24,6 @@
  * Vendor must implement a function which fills supported callback functions which Upper layer will use.
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 struct channel_list_s;
 typedef struct mac_api_s                mac_api_t;
 typedef struct mcps_purge_s             mcps_purge_t;
@@ -356,9 +353,5 @@ typedef struct mac_statistics_s {
     uint32_t mac_failed_cca_count;      /**< MAC failed CCA count. */
     uint32_t mac_tx_latency_max;        /**< MAC data request max latency. */
 } mac_statistics_t;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // MAC_API_H

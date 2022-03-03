@@ -15,12 +15,7 @@
  */
 #ifndef ARM_HAL_TIMER_H_
 #define ARM_HAL_TIMER_H_
-
 #include "eventloop_config.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef NS_EXCLUDE_HIGHRES_TIMER
 /**
@@ -87,9 +82,5 @@ extern int8_t platform_tick_timer_start(uint32_t period_ms);
 extern int8_t platform_tick_timer_stop(void);
 
 #endif // NS_EVENTLOOP_USE_TICK_TIMER
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* ARM_HAL_TIMER_H_ */

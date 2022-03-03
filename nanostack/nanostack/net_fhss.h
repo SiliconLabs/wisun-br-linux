@@ -20,14 +20,10 @@
  * \brief FHSS API
  *
  */
-
 #ifndef NET_FHSS_H_
 #define NET_FHSS_H_
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct fhss_ws_configuration fhss_ws_configuration_t;
 typedef struct fhss_timer fhss_timer_t;
@@ -62,9 +58,5 @@ extern int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_w
  * @return 0 on success, -1 on fail.
  */
 extern int ns_fhss_delete(fhss_api_t *fhss_api);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* NET_FHSS_H_ */

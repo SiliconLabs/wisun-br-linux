@@ -16,12 +16,7 @@
  */
 #ifndef TOPO_TRACE_H
 #define TOPO_TRACE_H
-
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * \file topo_trace.h
@@ -58,10 +53,6 @@ enum topo_update {
  */
 void topo_trace(enum topo_type type, const uint8_t address[static 8], enum topo_update update_type);
 
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* TOPO_TRACE_H */

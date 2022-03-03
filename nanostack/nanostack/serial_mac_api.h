@@ -18,18 +18,11 @@
 /** \file serial_mac_api.h
  * \brief Serial MAC API.
  */
-
 #ifndef SERIAL_MAC_API_H_
 #define SERIAL_MAC_API_H_
-
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct virtual_data_req_s;
-
 typedef struct serial_mac_api_s serial_mac_api_t;
 
 /**
@@ -82,9 +75,5 @@ struct serial_mac_api_s {
     data_request                *data_request_cb;           /**< Data request callback */
     data_indication             *data_ind_cb;               /**< Data indication callback */
 };
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* SERIAL_MAC_API_H_ */
