@@ -19,6 +19,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "ns_trace.h"
+#include "nanostack/net_interface.h"
 #include "ws_management_api.h"
 
 #ifdef HAVE_WS

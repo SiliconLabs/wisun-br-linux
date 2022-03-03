@@ -29,8 +29,8 @@
 #define WS_MANAGEMENT_API_H_
 
 #include <stdint.h>
-#include "net_interface.h" /* Declaration for channel_list_s. */
-#include "fhss_config.h"
+
+typedef struct fhss_timer fhss_timer_t;
 
 #ifdef __cplusplus
 extern "C" {
