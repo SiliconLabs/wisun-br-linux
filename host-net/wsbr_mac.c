@@ -614,6 +614,7 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         { MLME_SYNC,          NULL },
         { MLME_GTS,           NULL },
         // These ones only make sense with mlme_ind_cb()
+        { MLME_BEACON_NOTIFY, NULL },
         { MLME_ORPHAN,        NULL },
         { MLME_COMM_STATUS,   NULL },
         { MLME_SYNC_LOSS,     NULL },
