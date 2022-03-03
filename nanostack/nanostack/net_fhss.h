@@ -29,6 +29,10 @@
 extern "C" {
 #endif
 
+typedef struct fhss_ws_configuration fhss_ws_configuration_t;
+typedef struct fhss_timer fhss_timer_t;
+typedef struct fhss_api fhss_api_t;
+
 /**
  * @brief Creates FHSS WS API instance which will be registered to software MAC.
  * @param fhss_configuration Basic FHSS configuration.
