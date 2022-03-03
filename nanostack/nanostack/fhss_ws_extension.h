@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef FHSS_WS_EXT_H
+#define FHSS_WS_EXT_H
+#include "ns_types.h"
 
 /**
  * \file fhss_ws_extension.h
  * \brief
  */
 
-#ifndef FHSS_WS_EXT_H
-#define FHSS_WS_EXT_H
-
-#include "ns_types.h"
-#include "fhss_api.h"
+typedef struct fhss_api fhss_api_t;
 
 #ifdef __cplusplus
 extern "C" {

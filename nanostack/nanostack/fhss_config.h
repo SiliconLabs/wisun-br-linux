@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef FHSS_CONFIG_H
+#define FHSS_CONFIG_H
+#include <stdint.h>
 
 /**
  * \file fhss_config.h
  * \brief
  */
 
-#ifndef FHSS_CONFIG_H
-#define FHSS_CONFIG_H
-
-
+typedef struct fhss_api fhss_api_t;
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "fhss_ws_extension.h"
 
 /**
  * @brief WS channel functions.
