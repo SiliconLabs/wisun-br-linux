@@ -230,6 +230,11 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macGlobalTxDuration = 0xe8,     /*< Global transmission duration. */
+    macRegionalRegulation = 0xe9,   /*< Regional regulation. */
+    macRxSensitivity = 0xea,        /*< Receiver sensitivity of the configured phy. */
+    macDeviceStatisticsClear = 0xeb,/*< Clear device statistics. */
+    macDeviceStatistics = 0xec,     /*< Get device statistics. */
     macFilterStop = 0xed,           /*< Stops MAC level filter. */
     macFilterAddLong = 0xee,        /*< Adds a filter using EUI-64. */
     macFilterClear = 0xef,          /*< Deletes all filters. */
