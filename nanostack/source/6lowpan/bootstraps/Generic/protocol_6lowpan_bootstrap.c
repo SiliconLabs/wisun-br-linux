@@ -51,7 +51,6 @@
 #include "net_nvm_api.h"
 #include "common_functions.h"
 #include "net_interface.h"
-#include "security/tls/tls_lib.h"
 #include "security/common/sec_lib.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "service_libs/etx/etx.h"
