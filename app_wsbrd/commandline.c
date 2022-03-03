@@ -368,6 +368,8 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (parse_byte_array(str_arg, ctxt->ws_denied_mac_addresses[ctxt->ws_denied_mac_address_count], 8))
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_denied_mac_address_count++;
+    } else if (sscanf(line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
+        ctxt->ws_regional_regulation = str_to_val(str_arg, valid_ws_regional_regulations);
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
     }
@@ -437,6 +439,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
     ctxt->ws_allowed_mac_address_count = 0;
     ctxt->ws_denied_mac_address_count = 0;
+    ctxt->ws_regional_regulation = 0,
     ns_file_system_set_root_path("/var/lib/wsbrd/");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

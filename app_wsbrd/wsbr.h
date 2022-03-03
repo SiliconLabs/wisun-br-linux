@@ -93,6 +93,7 @@ struct wsbr_ctxt {
     uint8_t ws_allowed_mac_address_count;
     uint8_t ws_denied_mac_addresses[10][8];
     uint8_t ws_denied_mac_address_count;
+    int ws_regional_regulation;
 
     // For DebugPing dbus interface
     int ping_socket_fd;

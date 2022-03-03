@@ -18,6 +18,7 @@
 #include "nanostack/ws_management_api.h"
 #include "nanostack/source/6lowpan/mac/mac_helper.h"
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
+#include "nanostack/source/6lowpan/ws/ws_regulation.h"
 #include "nanostack/source/core/ns_address_internal.h"
 
 #include "common/hal_interrupt.h"
@@ -182,6 +183,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     ret = ws_enable_mac_filtering(ctxt);
+    WARN_ON(ret);
+
+    ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->ws_regional_regulation);
     WARN_ON(ret);
 }
 

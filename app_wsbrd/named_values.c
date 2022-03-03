@@ -65,6 +65,12 @@ const struct name_value valid_booleans[] = {
     { NULL },
 };
 
+const struct name_value valid_ws_regional_regulations[] = {
+    { "none", 0 },
+    { "arib", 1 },
+    { NULL },
+};
+
 const char *val_to_str(int val, const struct name_value table[])
 {
     int i;

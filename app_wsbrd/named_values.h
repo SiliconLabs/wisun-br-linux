@@ -15,6 +15,7 @@ extern const struct name_value valid_ws_domains[];
 extern const struct name_value valid_ws_size[];
 extern const struct name_value valid_traces[];
 extern const struct name_value valid_booleans[];
+extern const struct name_value valid_ws_regional_regulations[];
 
 const char *val_to_str(int val, const struct name_value table[]);
 int str_to_val(const char *str, const struct name_value table[]);
