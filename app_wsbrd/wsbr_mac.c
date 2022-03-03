@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "nanostack/mac_mcps.h"
 #include "nanostack/mac_api.h"
 
 #include "wsbr.h"

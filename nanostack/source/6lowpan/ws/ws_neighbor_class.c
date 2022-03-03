@@ -22,6 +22,7 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
+#include "nanostack/mac_mcps.h"
 #include "fhss_config.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"

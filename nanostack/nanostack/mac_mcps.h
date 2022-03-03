@@ -23,6 +23,7 @@
 #define MAC_MCPS_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "mac_common_defines.h"
 
 

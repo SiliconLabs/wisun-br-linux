@@ -14,6 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MAC_API_H
+#define MAC_API_H
+#include <stdint.h>
 
 /**
  * \file mac_api.h
@@ -21,20 +24,23 @@
  * Vendor must implement a function which fills supported callback functions which Upper layer will use.
  */
 
-#ifndef MAC_API_H
-#define MAC_API_H
-
-#include <stdint.h>
-#include "mlme.h"
-#include "mac_mcps.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 struct channel_list_s;
-
-typedef struct mac_api_s mac_api_t;
+typedef struct mac_api_s                mac_api_t;
+typedef struct mcps_purge_s             mcps_purge_t;
+typedef struct mcps_purge_conf_s        mcps_purge_conf_t;
+typedef struct mcps_data_ind_s          mcps_data_ind_t;
+typedef struct mcps_data_req_s          mcps_data_req_t;
+typedef struct mcps_data_req_ie_list    mcps_data_req_ie_list_t;
+typedef struct mcps_data_conf_s         mcps_data_conf_t;
+typedef struct mcps_data_conf_payload_s mcps_data_conf_payload_t;
+typedef struct mcps_ack_data_payload    mcps_ack_data_payload_t;
+typedef struct mcps_edfe_response_s     mcps_edfe_response_t;
+typedef struct mcps_data_ie_list        mcps_data_ie_list_t;
+typedef struct phy_rf_channel_configuration_s phy_rf_channel_configuration_s;
+typedef enum mac_data_priority_e        mac_data_priority_t;
 
 /**
  * Every MAC adapting to Upper layer must implement a function which creates mac_api_t pointer, e.g 'mac_api_t* create_mac_api();'

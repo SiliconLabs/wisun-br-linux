@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include "nanostack/mlme.h"
+#include "nanostack/mac_mcps.h"
 #include "nanostack/sw_mac.h"
 #include "nanostack/fhss_api.h"
 #include "nanostack/fhss_config.h"
