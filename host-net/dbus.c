@@ -260,6 +260,17 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
+int dbus_get_hw_address(sd_bus *bus, const char *path, const char *interface,
+                        const char *property, sd_bus_message *reply,
+                        void *userdata, sd_bus_error *ret_error)
+{
+    uint8_t *hw_addr = userdata;
+    int ret;
+
+    ret = sd_bus_message_append_array(reply, 'y', hw_addr, 8);
+    WARN_ON(ret < 0, "%s", strerror(-ret));
+    return 0;
+}
 
 int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
@@ -343,6 +354,9 @@ static const sd_bus_vtable dbus_vtable[] = {
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
+                        0),
+        SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
+                        offsetof(struct wsbr_ctxt, hw_mac),
                         0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, ws_name),
