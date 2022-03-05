@@ -6,11 +6,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #define min(x, y) ({ \
     typeof(x) _x = (x); \
     typeof(y) _y = (y); \
