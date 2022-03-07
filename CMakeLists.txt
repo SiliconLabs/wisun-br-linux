@@ -65,12 +65,8 @@ add_custom_target(check_git
     COMMENT "Checking the git repository for changes..."
     COMMAND ${CMAKE_SOURCE_DIR}/version.sh ${CMAKE_SOURCE_DIR} version.c)
 
-# Uncomment these to get fake random numbers (note: since Wi-SUN also relies on
-# timers, uncommenting that is not sufficient to get reproducible run)
-# add_compile_definitions(RANDLIB_PRNG)
 # add_compile_definitions(MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES)
 # add_compile_definitions(MBEDTLS_TEST_NULL_ENTROPY)
-
 add_executable(wsbrd
     version.c
     app_wsbrd/wsbr.c
@@ -504,7 +500,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wshwsim/sl_wsrcp_mac.c
         app_wshwsim/sl_rf_driver.c
         app_wshwsim/hal_fhss_timer.c
-        app_wshwsim/hal_random.c
         app_wshwsim/mac/rf_driver_storage.c
         app_wshwsim/mac/ieee802154/mac_cca_threshold.c
         app_wshwsim/mac/ieee802154/mac_fhss_callbacks.c

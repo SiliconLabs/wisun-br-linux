@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <limits.h>
 #include "randLIB.h"
-#include "platform/arm_hal_random.h"
 
 /**
  * This library is made for getting random numbers for timing needs in
@@ -38,62 +37,16 @@
  * do try to keep the operations narrow.
  */
 
-/* On some platforms, read from a system RNG, rather than use our own */
-/* RANDLIB_PRNG disables this and forces use of the PRNG (useful for test only?) */
-#ifndef RANDLIB_PRNG
-#ifdef __linux
 #define RANDOM_DEVICE "/dev/urandom"
-#endif
-#endif // RANDLIB_PRNG
 
 /* RAM usage - 16 bytes of state (or a FILE * pointer and underlying FILE, which
  * will include a buffer) */
-#ifdef RANDOM_DEVICE
 #include <stdio.h>
 static FILE *random_file;
-#else
-static uint64_t state[2];
-#endif
-
-#ifdef RANDLIB_PRNG
-void randLIB_reset(void)
-{
-    state[0] = 0;
-    state[1] = 0;
-}
-#endif
-
-#ifndef RANDOM_DEVICE
-static inline uint64_t rol(uint64_t n, int bits)
-{
-    return (n << bits) | (n >> (64 - bits));
-}
-
-/* Lower-quality generator used only for initial seeding, if platform
- * isn't returning multiple seeds itself. Multiplies are rather heavy
- * for lower-end platforms, but this is initialisation only.
- */
-static uint64_t splitmix64(uint64_t *seed)
-{
-    uint64_t z = (*seed += UINT64_C(0x9E3779B97F4A7C15));
-    z = (z ^ (z >> 30)) * UINT64_C(0xBF58476D1CE4E5B9);
-    z = (z ^ (z >> 27)) * UINT64_C(0x94D049BB133111EB);
-    return z ^ (z >> 31);
-}
-#endif // RANDOM_DEVICE
 
 void randLIB_add_seed(uint64_t seed)
 {
-#ifndef RANDOM_DEVICE
-    state[0] ^= splitmix64(&seed);
-    state[1] ^= splitmix64(&seed);
-    /* This is absolutely necessary, but I challenge you to add it to line coverage */
-    if (state[1] == 0 && state[0] == 0) {
-        state[0] = 1;
-    }
-#else
     (void)seed;
-#endif
 }
 
 uint8_t randLIB_get_8bit(void)
@@ -117,7 +70,6 @@ uint32_t randLIB_get_32bit(void)
 
 uint64_t randLIB_get_64bit(void)
 {
-#ifdef RANDOM_DEVICE
     if (!random_file) {
         random_file = fopen(RANDOM_DEVICE, "r");
     }
@@ -126,17 +78,6 @@ uint64_t randLIB_get_64bit(void)
         result = 0;
     }
     return result;
-#else
-    const uint64_t s0 = state[0];
-    uint64_t s1 = state[1];
-    const uint64_t result = s0 + s1;
-
-    s1 ^= s0;
-    state[0] = rol(s0, 55) ^ s1 ^ (s1 << 14);
-    state[1] = rol(s1, 36);
-
-    return result;
-#endif
 }
 
 void *randLIB_get_n_bytes_random(void *ptr, uint8_t count)

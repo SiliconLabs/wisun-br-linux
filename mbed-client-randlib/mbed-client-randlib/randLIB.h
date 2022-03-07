@@ -118,9 +118,4 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
   */
 uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor);
 
-#ifdef RANDLIB_PRNG
-/* \internal Reset the PRNG state to zero (invalid) */
-void randLIB_reset(void);
-#endif
-
 #endif /* RANDLIB_H_ */
