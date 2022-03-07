@@ -175,6 +175,10 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         /* empty */
     } else if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
         prop = spinel_pop_uint(buf);
+        if (!ctxt->hw_addr_done && prop != SPINEL_PROP_HWADDR) {
+            WARN("unexpected boot-up sequence (expected SPINEL_PROP_HWADDR)");
+            return;
+        }
         wsbr_spinel_is(ctxt, prop, buf);
     } else if (cmd == SPINEL_CMD_RESET) {
         const char *version_fw_str;
