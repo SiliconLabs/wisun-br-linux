@@ -483,29 +483,29 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        nanostack-mac/source/mac/rf_driver_storage.c
-        nanostack-mac/source/mac/ieee802154/mac_cca_threshold.c
-        nanostack-mac/source/mac/ieee802154/mac_fhss_callbacks.c
-        nanostack-mac/source/mac/ieee802154/mac_filter.c
-        nanostack-mac/source/mac/ieee802154/mac_header_helper_functions.c
-        nanostack-mac/source/mac/ieee802154/mac_indirect_data.c
-        nanostack-mac/source/mac/ieee802154/mac_mcps_sap.c
-        nanostack-mac/source/mac/ieee802154/mac_mlme.c
-        nanostack-mac/source/mac/ieee802154/mac_mode_switch.c
-        nanostack-mac/source/mac/ieee802154/mac_pd_sap.c
-        nanostack-mac/source/mac/ieee802154/mac_security_mib.c
-        nanostack-mac/source/mac/ieee802154/mac_timer.c
-        nanostack-mac/source/mac/ieee802154/sw_mac.c
-        nanostack-mac/source/service_libs/ccm/ccm_security.c
-        nanostack-mac/source/service_libs/ccm/mbedOS/aes_mbedtls_adapter.c
-        nanostack-mac/source/service_libs/fhss/channel_functions.c
-        nanostack-mac/source/service_libs/fhss/channel_list.c
-        nanostack-mac/source/service_libs/fhss/fhss_common.c
-        nanostack-mac/source/service_libs/fhss/fhss_configuration_interface.c
-        nanostack-mac/source/service_libs/fhss/fhss_statistics.c
-        nanostack-mac/source/service_libs/fhss/fhss_ws.c
-        # Excluded nanostack-mac/source/service_libs/fhss/fhss_test_api.c
-        # Excluded nanostack-mac/source/service_libs/fhss/fhss_ws_empty_functions.c
+        wshwsim/mac/rf_driver_storage.c
+        wshwsim/mac/ieee802154/mac_cca_threshold.c
+        wshwsim/mac/ieee802154/mac_fhss_callbacks.c
+        wshwsim/mac/ieee802154/mac_filter.c
+        wshwsim/mac/ieee802154/mac_header_helper_functions.c
+        wshwsim/mac/ieee802154/mac_indirect_data.c
+        wshwsim/mac/ieee802154/mac_mcps_sap.c
+        wshwsim/mac/ieee802154/mac_mlme.c
+        wshwsim/mac/ieee802154/mac_mode_switch.c
+        wshwsim/mac/ieee802154/mac_pd_sap.c
+        wshwsim/mac/ieee802154/mac_security_mib.c
+        wshwsim/mac/ieee802154/mac_timer.c
+        wshwsim/mac/ieee802154/sw_mac.c
+        wshwsim/ccm/ccm_security.c
+        wshwsim/ccm/mbedOS/aes_mbedtls_adapter.c
+        wshwsim/fhss/channel_functions.c
+        wshwsim/fhss/channel_list.c
+        wshwsim/fhss/fhss_common.c
+        wshwsim/fhss/fhss_configuration_interface.c
+        wshwsim/fhss/fhss_statistics.c
+        wshwsim/fhss/fhss_ws.c
+        # Excluded wshwsim/fhss/fhss_test_api.c
+        # Excluded wshwsim/fhss/fhss_ws_empty_functions.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -520,7 +520,7 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-randlib/mbed-client-randlib/
         nanostack-event-loop/nanostack-event-loop/
         nanostack/nanostack/
-        nanostack-mac/source/
+        wshwsim/
     )
     target_compile_definitions(wshwsim PRIVATE HAVE_WS)
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)

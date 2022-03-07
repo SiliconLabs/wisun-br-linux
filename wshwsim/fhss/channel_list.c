@@ -16,7 +16,7 @@
  */
 
 
-#include "service_libs/fhss/channel_list.h"
+#include "channel_list.h"
 
 #include "common_functions.h"
 #include "ns_trace.h"
