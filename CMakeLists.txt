@@ -461,11 +461,6 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wshwsim
         version.c
-        host-mac/sl_wsrcp.c
-        host-mac/sl_wsrcp_mac.c
-        host-mac/sl_rf_driver.c
-        host-mac/hal_fhss_timer.c
-        host-mac/hal_random.c
         host-common/bus_uart.c
         host-common/hal_interrupt.c
         host-common/os_scheduler.c
@@ -483,29 +478,34 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        wshwsim/mac/rf_driver_storage.c
-        wshwsim/mac/ieee802154/mac_cca_threshold.c
-        wshwsim/mac/ieee802154/mac_fhss_callbacks.c
-        wshwsim/mac/ieee802154/mac_filter.c
-        wshwsim/mac/ieee802154/mac_header_helper_functions.c
-        wshwsim/mac/ieee802154/mac_indirect_data.c
-        wshwsim/mac/ieee802154/mac_mcps_sap.c
-        wshwsim/mac/ieee802154/mac_mlme.c
-        wshwsim/mac/ieee802154/mac_mode_switch.c
-        wshwsim/mac/ieee802154/mac_pd_sap.c
-        wshwsim/mac/ieee802154/mac_security_mib.c
-        wshwsim/mac/ieee802154/mac_timer.c
-        wshwsim/mac/ieee802154/sw_mac.c
-        wshwsim/ccm/ccm_security.c
-        wshwsim/ccm/mbedOS/aes_mbedtls_adapter.c
-        wshwsim/fhss/channel_functions.c
-        wshwsim/fhss/channel_list.c
-        wshwsim/fhss/fhss_common.c
-        wshwsim/fhss/fhss_configuration_interface.c
-        wshwsim/fhss/fhss_statistics.c
-        wshwsim/fhss/fhss_ws.c
-        # Excluded wshwsim/fhss/fhss_test_api.c
-        # Excluded wshwsim/fhss/fhss_ws_empty_functions.c
+        app_wshwsim/sl_wsrcp.c
+        app_wshwsim/sl_wsrcp_mac.c
+        app_wshwsim/sl_rf_driver.c
+        app_wshwsim/hal_fhss_timer.c
+        app_wshwsim/hal_random.c
+        app_wshwsim/mac/rf_driver_storage.c
+        app_wshwsim/mac/ieee802154/mac_cca_threshold.c
+        app_wshwsim/mac/ieee802154/mac_fhss_callbacks.c
+        app_wshwsim/mac/ieee802154/mac_filter.c
+        app_wshwsim/mac/ieee802154/mac_header_helper_functions.c
+        app_wshwsim/mac/ieee802154/mac_indirect_data.c
+        app_wshwsim/mac/ieee802154/mac_mcps_sap.c
+        app_wshwsim/mac/ieee802154/mac_mlme.c
+        app_wshwsim/mac/ieee802154/mac_mode_switch.c
+        app_wshwsim/mac/ieee802154/mac_pd_sap.c
+        app_wshwsim/mac/ieee802154/mac_security_mib.c
+        app_wshwsim/mac/ieee802154/mac_timer.c
+        app_wshwsim/mac/ieee802154/sw_mac.c
+        app_wshwsim/ccm/ccm_security.c
+        app_wshwsim/ccm/mbedOS/aes_mbedtls_adapter.c
+        app_wshwsim/fhss/channel_functions.c
+        app_wshwsim/fhss/channel_list.c
+        app_wshwsim/fhss/fhss_common.c
+        app_wshwsim/fhss/fhss_configuration_interface.c
+        app_wshwsim/fhss/fhss_statistics.c
+        app_wshwsim/fhss/fhss_ws.c
+        # Excluded app_wshwsim/fhss/fhss_test_api.c
+        # Excluded app_wshwsim/fhss/fhss_ws_empty_functions.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -520,7 +520,7 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-randlib/mbed-client-randlib/
         nanostack-event-loop/nanostack-event-loop/
         nanostack/nanostack/
-        wshwsim/
+        app_wshwsim/
     )
     target_compile_definitions(wshwsim PRIVATE HAVE_WS)
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
@@ -543,7 +543,7 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wssimserver
         host-common/log.c
-        host-mac/wssimserver.c)
+        app_wssimserver/wssimserver.c)
     target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         host-common/)
