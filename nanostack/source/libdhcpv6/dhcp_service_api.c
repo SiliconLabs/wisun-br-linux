@@ -25,7 +25,7 @@
 #include "eventOS_event_timer.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "socket_api.h"
 #include "net_interface.h"
 #include "common_functions.h"

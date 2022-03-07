@@ -31,7 +31,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common_functions.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include <string.h>
 
 #include "nwk_interface/protocol.h"

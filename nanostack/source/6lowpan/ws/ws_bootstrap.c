@@ -22,7 +22,7 @@
 #include "nsdynmemLIB.h"
 #include "net_interface.h"
 #include "eventOS_event.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/sw_mac.h"

@@ -18,7 +18,7 @@
 #include "eventOS_event.h"
 #include <string.h>
 #include "nsdynmemLIB.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "common_functions.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/mac/ccm.h"

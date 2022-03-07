@@ -23,7 +23,7 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "6lowpan/iphc_decode/cipv6.h"

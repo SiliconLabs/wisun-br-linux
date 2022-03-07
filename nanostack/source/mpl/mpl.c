@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include <string.h>
 #include "core/include/ns_buffer.h"
 #include "nwk_interface/protocol.h"

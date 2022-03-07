@@ -20,7 +20,7 @@
 #include <string.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 

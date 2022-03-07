@@ -83,6 +83,7 @@ add_executable(wsbrd
     host-common/os_timer.c
     host-common/os_scheduler.c
     host-common/log.c
+    host-common/rand.c
     host-common/slist.c
     host-common/spinel_buffer.c
     nanostack/source/6lowpan/adaptation_interface.c
@@ -227,19 +228,16 @@ add_executable(wsbrd
     mbed-client-libservice/source/libList/ns_list.c
     mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
     # Excluded mbed-client-libservice/source/nvmHelper
-    mbed-client-randlib/source/randLIB.c
     mbed-trace/source/mbed_trace.c
 )
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     mbed-trace/
-    mbed-client-randlib/
     mbed-client-libservice/
     nanostack-event-loop/
     nanostack/
 )
 target_include_directories(wsbrd PRIVATE
-    mbed-client-randlib/mbed-client-randlib/
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/nanostack/
@@ -299,6 +297,7 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/os_timer.c
         host-common/os_scheduler.c
         host-common/log.c
+        host-common/rand.c
         host-common/slist.c
         host-common/spinel_buffer.c
         nanostack/source/6lowpan/adaptation_interface.c
@@ -442,19 +441,16 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libList/ns_list.c
         mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
         # Excluded mbed-client-libservice/source/nvmHelper
-        mbed-client-randlib/source/randLIB.c
         mbed-trace/source/mbed_trace.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
-        mbed-client-randlib/
         mbed-client-libservice
         nanostack-event-loop/
         nanostack/
     )
     target_include_directories(wsnode PRIVATE
-        mbed-client-randlib/mbed-client-randlib/
         mbed-client-libservice/mbed-client-libservice/
         nanostack-event-loop/nanostack-event-loop/
         nanostack/nanostack/
@@ -484,6 +480,7 @@ if(COMPILE_SIMULATION_TOOLS)
         host-common/os_scheduler.c
         host-common/os_timer.c
         host-common/log.c
+        host-common/rand.c
         host-common/slist.c
         host-common/spinel_buffer.c
         mbed-client-libservice/source/libBits/common_functions.c
@@ -492,7 +489,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libip6string/stoip6.c
         mbed-client-libservice/source/libList/ns_list.c
         mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
-        mbed-client-randlib/source/randLIB.c
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
@@ -527,13 +523,11 @@ if(COMPILE_SIMULATION_TOOLS)
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
         mbed-client-libservice
-        mbed-client-randlib/
         nanostack-event-loop/
         nanostack/
     )
     target_include_directories(wshwsim PRIVATE
         mbed-client-libservice/mbed-client-libservice/
-        mbed-client-randlib/mbed-client-randlib/
         nanostack-event-loop/nanostack-event-loop/
         app_wshwsim/
     )

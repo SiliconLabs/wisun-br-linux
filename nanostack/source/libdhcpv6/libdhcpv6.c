@@ -26,7 +26,7 @@
 #include "ns_trace.h"
 #include "common_functions.h"
 #include "libdhcpv6/libdhcpv6.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "nsdynmemLIB.h"
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP "dhcp"

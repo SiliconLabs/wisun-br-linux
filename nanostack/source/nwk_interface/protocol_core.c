@@ -34,7 +34,7 @@
 #include "nwk_interface/protocol_stats.h"
 #include "nwk_interface/protocol_timer.h"
 #include "common_functions.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "platform/arm_hal_interrupt.h"
 #include "shalib.h"

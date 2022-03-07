@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <limits.h>
-#include "randLIB.h"
+#include "host-common/rand.h"
 
 static FILE *random_file;
 

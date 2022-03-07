@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "common_functions.h"
 #include "net_interface.h"
 #include "socket_api.h"

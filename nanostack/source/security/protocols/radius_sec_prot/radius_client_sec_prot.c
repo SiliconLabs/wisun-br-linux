@@ -22,7 +22,7 @@
 #include "ns_trace.h"
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "nanostack/mac/fhss_config.h"

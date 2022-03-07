@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ns_trace.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"

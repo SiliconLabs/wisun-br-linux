@@ -23,7 +23,7 @@
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "shalib.h"
-#include "randLIB.h"
+#include "host-common/rand.h"
 #include "security/tls/tls_lib.h"
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
