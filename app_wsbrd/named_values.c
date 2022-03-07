@@ -5,7 +5,7 @@
  */
 #include "nanostack/ws_management_api.h"
 
-#include "host-common/log.h"
+#include "common/log.h"
 #include "named_values.h"
 
 const struct name_value valid_ws_domains[] = {

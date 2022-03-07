@@ -17,7 +17,7 @@
 typedef struct sd_bus sd_bus;
 #endif
 
-#include "host-common/utils.h"
+#include "common/utils.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/net_interface.h"

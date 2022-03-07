@@ -33,7 +33,7 @@
 #include "nanostack/mac/fhss_api.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"

@@ -84,7 +84,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "ip6string.h"
 
 #include "common_protocols/icmpv6.h"

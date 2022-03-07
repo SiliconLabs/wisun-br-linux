@@ -24,13 +24,13 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/sw_mac.h"
 
-#include "host-common/hal_interrupt.h"
-#include "host-common/bus_uart.h"
-#include "host-common/os_scheduler.h"
-#include "host-common/os_types.h"
-#include "host-common/os_timer.h"
-#include "host-common/slist.h"
-#include "host-common/log.h"
+#include "common/hal_interrupt.h"
+#include "common/bus_uart.h"
+#include "common/os_scheduler.h"
+#include "common/os_types.h"
+#include "common/os_timer.h"
+#include "common/slist.h"
+#include "common/log.h"
 #include "hal_fhss_timer.h"
 #include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
@@ -41,7 +41,7 @@
 
 // See warning in wsmac.h
 struct wsmac_ctxt g_ctxt = { };
-// See warning in host-common/os_types.h
+// See warning in common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 // FIXME: should be const
 mac_description_storage_size_t g_storage_sizes = {

@@ -34,7 +34,7 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bootstrap.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 
 #include "ns_trace.h"
 #include "common_functions.h"

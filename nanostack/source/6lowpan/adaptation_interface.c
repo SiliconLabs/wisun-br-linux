@@ -21,7 +21,7 @@
 #include <string.h>
 #include "ns_trace.h"
 #include "ns_list.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_socket.h"

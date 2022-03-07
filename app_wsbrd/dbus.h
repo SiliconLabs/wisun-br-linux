@@ -17,7 +17,7 @@ int dbus_process(struct wsbr_ctxt *ctxt);
 
 #else
 
-#include "host-common/log.h"
+#include "common/log.h"
 
 static inline void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {

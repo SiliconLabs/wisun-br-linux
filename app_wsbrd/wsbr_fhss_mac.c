@@ -17,10 +17,10 @@
 #include "wsbr_mac.h"
 #include "wsbr_fhss_mac.h"
 #include "wsbr_fhss_net.h"
-#include "host-common/utils.h"
-#include "host-common/spinel_defs.h"
-#include "host-common/spinel_buffer.h"
-#include "host-common/log.h"
+#include "common/utils.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
+#include "common/log.h"
 
 int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
 {

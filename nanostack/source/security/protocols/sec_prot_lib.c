@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"

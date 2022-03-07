@@ -14,13 +14,13 @@
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/fhss_api.h"
 
-#include "host-common/spinel_defs.h"
-#include "host-common/spinel_buffer.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "wsbr_fhss_net.h"
 
-#include "host-common/log.h"
+#include "common/log.h"
 
 struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                    const fhss_timer_t *fhss_timer)

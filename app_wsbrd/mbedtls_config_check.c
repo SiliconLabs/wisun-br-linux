@@ -7,8 +7,8 @@
 #include <mbedtls/version.h>
 #include <mbedtls/ssl.h>
 
-#include "host-common/log.h"
-#include "host-common/utils.h"
+#include "common/log.h"
+#include "common/utils.h"
 
 #include "mbedtls_config_check.h"
 

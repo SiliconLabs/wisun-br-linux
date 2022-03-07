@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <limits.h>
-#include "host-common/rand.h"
-#include "host-common/log.h"
+#include "common/rand.h"
+#include "common/log.h"
 
 uint8_t rand_get_8bit(void)
 {

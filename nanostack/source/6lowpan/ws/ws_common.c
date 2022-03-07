@@ -19,7 +19,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "ns_trace.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "common_functions.h"
 #include <ns_list.h>
 #include <nsdynmemLIB.h>

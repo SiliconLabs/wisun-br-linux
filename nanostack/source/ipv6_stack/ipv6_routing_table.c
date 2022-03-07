@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include "common_functions.h"
 #include "ip6string.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "ns_trace.h"
 #include <string.h>
 #include "core/include/ns_address_internal.h"

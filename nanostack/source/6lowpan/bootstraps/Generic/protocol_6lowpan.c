@@ -40,7 +40,7 @@
 #include "shalib.h"
 #include "security/common/sec_lib.h"
 #include "net_nvm_api.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "common_functions.h"
 #include "net_rpl.h"

@@ -10,7 +10,7 @@
 
 #include "nanostack/mac/fhss_config.h"
 
-#include "host-common/slist.h"
+#include "common/slist.h"
 
 struct fhss_timer_entry {
     int fd;

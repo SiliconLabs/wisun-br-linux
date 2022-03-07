@@ -25,13 +25,13 @@
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/source/core/include/ns_address_internal.h"
 
-#include "host-common/hal_interrupt.h"
-#include "host-common/bus_uart.h"
-#include "host-common/os_scheduler.h"
-#include "host-common/os_types.h"
-#include "host-common/os_timer.h"
-#include "host-common/slist.h"
-#include "host-common/log.h"
+#include "common/hal_interrupt.h"
+#include "common/bus_uart.h"
+#include "common/os_scheduler.h"
+#include "common/os_types.h"
+#include "common/os_timer.h"
+#include "common/slist.h"
+#include "common/log.h"
 #include "commandline.h"
 #include "version.h"
 #include "wsbr.h"
@@ -56,7 +56,7 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.phyMTU = 2043,
 };
 
-// See warning in host-common/os_types.h
+// See warning in common/os_types.h
 struct os_ctxt g_os_ctxt = { };
 
 static int get_fixed_channel(uint32_t bitmask[static 8])

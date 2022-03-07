@@ -6,8 +6,8 @@
 #include <getopt.h>
 #include <sys/socket.h>
 #include <sys/resource.h>
-#include "host-common/log.h"
-#include "host-common/utils.h"
+#include "common/log.h"
+#include "common/utils.h"
 
 #define MAX_NODES 4096
 

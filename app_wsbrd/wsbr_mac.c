@@ -14,10 +14,10 @@
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "dbus.h"
-#include "host-common/utils.h"
-#include "host-common/spinel_defs.h"
-#include "host-common/spinel_buffer.h"
-#include "host-common/log.h"
+#include "common/utils.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
+#include "common/log.h"
 
 static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
 {

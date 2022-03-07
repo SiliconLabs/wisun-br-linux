@@ -78,14 +78,14 @@ add_executable(wsbrd
     app_wsbrd/commandline.c
     app_wsbrd/os_whiteboard.c
     app_wsbrd/mbedtls_config_check.c
-    host-common/bus_uart.c
-    host-common/hal_interrupt.c
-    host-common/os_timer.c
-    host-common/os_scheduler.c
-    host-common/log.c
-    host-common/rand.c
-    host-common/slist.c
-    host-common/spinel_buffer.c
+    common/bus_uart.c
+    common/hal_interrupt.c
+    common/os_timer.c
+    common/os_scheduler.c
+    common/log.c
+    common/rand.c
+    common/slist.c
+    common/spinel_buffer.c
     nanostack/source/6lowpan/adaptation_interface.c
     nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
     nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
@@ -255,7 +255,7 @@ if(LIBSYSTEMD_FOUND)
 endif()
 if(BACKTRACE_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
-    target_sources(wsbrd PRIVATE host-common/backtrace_show.c)
+    target_sources(wsbrd PRIVATE common/backtrace_show.c)
     target_link_libraries(wsbrd PRIVATE backtrace)
 endif()
 if(LIBDL_FOUND)
@@ -290,14 +290,14 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/wsbr_fhss_net.c
         app_wsbrd/commandline.c
         app_wsbrd/named_values.c
-        host-common/bus_uart.c
-        host-common/hal_interrupt.c
-        host-common/os_timer.c
-        host-common/os_scheduler.c
-        host-common/log.c
-        host-common/rand.c
-        host-common/slist.c
-        host-common/spinel_buffer.c
+        common/bus_uart.c
+        common/hal_interrupt.c
+        common/os_timer.c
+        common/os_scheduler.c
+        common/log.c
+        common/rand.c
+        common/slist.c
+        common/spinel_buffer.c
         nanostack/source/6lowpan/adaptation_interface.c
         nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
         nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
@@ -460,7 +460,7 @@ if(COMPILE_SIMULATION_TOOLS)
     target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
     if(BACKTRACE_FOUND)
         target_compile_definitions(wsnode PRIVATE HAVE_BACKTRACE)
-        target_sources(wsnode PRIVATE host-common/backtrace_show.c)
+        target_sources(wsnode PRIVATE common/backtrace_show.c)
         target_link_libraries(wsnode PRIVATE backtrace)
     endif()
     if(LIBDL_FOUND)
@@ -471,14 +471,14 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wshwsim
         version.c
-        host-common/bus_uart.c
-        host-common/hal_interrupt.c
-        host-common/os_scheduler.c
-        host-common/os_timer.c
-        host-common/log.c
-        host-common/rand.c
-        host-common/slist.c
-        host-common/spinel_buffer.c
+        common/bus_uart.c
+        common/hal_interrupt.c
+        common/os_scheduler.c
+        common/os_timer.c
+        common/log.c
+        common/rand.c
+        common/slist.c
+        common/spinel_buffer.c
         mbed-client-libservice/source/libBits/common_functions.c
         # Excluded mbed-client-libservice/source/libip4string
         mbed-client-libservice/source/libip6string/ip6tos.c
@@ -539,7 +539,7 @@ if(COMPILE_SIMULATION_TOOLS)
     endif()
     if(BACKTRACE_FOUND)
         target_compile_definitions(wshwsim PRIVATE HAVE_BACKTRACE)
-        target_sources(wshwsim PRIVATE host-common/backtrace_show.c)
+        target_sources(wshwsim PRIVATE common/backtrace_show.c)
         target_link_libraries(wshwsim PRIVATE backtrace)
     endif()
     if(LIBDL_FOUND)
@@ -549,11 +549,11 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     add_executable(wssimserver
-        host-common/log.c
+        common/log.c
         app_wssimserver/wssimserver.c)
     target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        host-common/)
+        common/)
     install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()

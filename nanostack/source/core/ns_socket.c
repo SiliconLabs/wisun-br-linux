@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "nsdynmemLIB.h"

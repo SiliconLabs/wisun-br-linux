@@ -25,7 +25,7 @@
 #include "nsdynmemLIB.h"
 #include "common_functions.h"
 #include "eventOS_callback_timer.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include <string.h>
 
 

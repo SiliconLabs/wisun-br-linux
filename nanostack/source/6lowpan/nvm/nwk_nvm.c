@@ -20,7 +20,7 @@
 #include "eventOS_event.h"
 #include "ns_trace.h"
 #include <string.h>
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"

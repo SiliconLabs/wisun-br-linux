@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ns_trace.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "core/include/ns_socket.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

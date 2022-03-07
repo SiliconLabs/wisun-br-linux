@@ -15,11 +15,11 @@
 #include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
 #include "hal_fhss_timer.h"
-#include "host-common/bus_uart.h"
-#include "host-common/spinel_defs.h"
-#include "host-common/spinel_buffer.h"
-#include "host-common/utils.h"
-#include "host-common/log.h"
+#include "common/bus_uart.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
+#include "common/utils.h"
+#include "common/log.h"
 
 static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
 {

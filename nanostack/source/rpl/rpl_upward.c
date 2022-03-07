@@ -30,7 +30,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "nsdynmemLIB.h"
 #include <string.h>
 #include "ip6string.h"

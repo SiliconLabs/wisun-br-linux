@@ -40,7 +40,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "ns_list.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "ns_trace.h"

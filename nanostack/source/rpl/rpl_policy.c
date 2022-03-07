@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 #include "ns_trace.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "net_interface.h"
 
 #include "core/include/ns_address_internal.h"

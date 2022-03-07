@@ -18,8 +18,8 @@
 #include "nanostack/socket_api.h"
 #include "mbed-client-libservice/ip6string.h"
 
-#include "host-common/utils.h"
-#include "host-common/log.h"
+#include "common/utils.h"
+#include "common/log.h"
 #include "named_values.h"
 #include "dbus.h"
 #include "wsbr.h"

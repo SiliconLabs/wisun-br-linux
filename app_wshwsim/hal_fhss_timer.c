@@ -7,9 +7,9 @@
 #include <sys/timerfd.h>
 
 #include "hal_fhss_timer.h"
-#include "host-common/os_types.h"
-#include "host-common/slist.h"
-#include "host-common/log.h"
+#include "common/os_types.h"
+#include "common/slist.h"
+#include "common/log.h"
 
 static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {

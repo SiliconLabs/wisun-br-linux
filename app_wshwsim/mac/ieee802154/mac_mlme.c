@@ -29,7 +29,7 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_callback_timer.h"
 #include "ns_trace.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "nsdynmemLIB.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"

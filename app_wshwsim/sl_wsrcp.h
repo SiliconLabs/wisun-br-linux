@@ -12,7 +12,7 @@
 #  include <pcap/pcap.h>
 #endif
 
-#include "host-common/slist.h"
+#include "common/slist.h"
 #include "nanostack/mac/fhss_ws_extension.h"
 #include "mac/rf_driver_storage.h"
 

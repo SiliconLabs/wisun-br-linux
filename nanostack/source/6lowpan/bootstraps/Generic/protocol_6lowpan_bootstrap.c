@@ -25,7 +25,7 @@
 #include "ns_trace.h"
 #include "eventOS_scheduler.h"
 #include "nsdynmemLIB.h"
-#include "host-common/rand.h"
+#include "common/rand.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "common_protocols/icmpv6.h"
