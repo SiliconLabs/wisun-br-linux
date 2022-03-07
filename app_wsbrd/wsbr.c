@@ -285,6 +285,7 @@ void kill_handler(int signal)
 
 int main(int argc, char *argv[])
 {
+    static const int timeout_values[] = { 1, 60, 600, 3600 }; // seconds
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct callback_timer *timer;
     fd_set rfds, efds;
@@ -313,6 +314,20 @@ int main(int argc, char *argv[])
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);
+
+    for (int i = 0; i < ARRAY_SIZE(timeout_values); i++) {
+        FD_ZERO(&rfds);
+        FD_SET(ctxt->os_ctxt->data_fd, &rfds);
+        ts.tv_sec = timeout_values[i];
+        ret = pselect(ctxt->os_ctxt->data_fd + 1, &rfds, NULL, NULL, &ts, NULL);
+        if (ret == 1)
+            break;
+        if (ret < 0)
+            FATAL(2, "pselect: %m");
+        else
+            WARN("Still waiting for RCP");
+    }
+
     while (!ctxt->hw_addr_done)
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
