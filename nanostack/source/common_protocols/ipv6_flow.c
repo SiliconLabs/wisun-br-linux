@@ -84,7 +84,7 @@ uint_fast24_t ipv6_flow_2tuple_flow(const uint8_t src_addr[static 16],
 /* Compute a random flow label. To be used on a connected socket. */
 uint_fast24_t ipv6_flow_random(void)
 {
-    uint32_t rand32 = randLIB_get_32bit();
+    uint32_t rand32 = rand_get_32bit();
 
     return fold_32_to_flow(rand32);
 }

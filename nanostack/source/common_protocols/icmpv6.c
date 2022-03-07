@@ -385,7 +385,7 @@ static void icmpv6_na_aro_handler(protocol_interface_info_entry_t *cur_interface
             if (addr_entry->cb) {
                 /* Lifetime is in minutes, state_timer in 1/10 s: a factor of 600 */
                 /* Set renewal to 75-85% of full lifetime by multiplying by [450..510] */
-                addr_entry->state_timer = life_time * randLIB_get_random_in_range(450, 510);
+                addr_entry->state_timer = life_time * rand_get_random_in_range(450, 510);
             }
 
             break;

@@ -405,7 +405,7 @@ void rpl_instance_publish_dao_target(rpl_instance_t *instance, const uint8_t *pr
 void rpl_instance_dao_trigger(rpl_instance_t *instance, uint16_t delay)
 {
     if (delay == 0) {
-        delay = randLIB_randomise_base(DEFAULT_DAO_DELAY, 0x4000, 0xC000);
+        delay = rand_randomise_base(DEFAULT_DAO_DELAY, 0x4000, 0xC000);
     }
     if (instance->delay_dao_timer == 0 || instance->delay_dao_timer > delay) {
         instance->delay_dao_timer = delay;
@@ -899,7 +899,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
         }
 
         // 0.5 - 1.5 *t randomized base delay
-        delay = randLIB_randomise_base(delay, 0x4000, 0xC000);
+        delay = rand_randomise_base(delay, 0x4000, 0xC000);
 
         instance->dao_retry_timer = delay;
     } else {
@@ -1640,13 +1640,13 @@ void rpl_instance_dao_acked(rpl_instance_t *instance, const uint8_t src[16], int
                 if (conf && target->info.non_root.path_lifetime != 0xFF) {
                     t = (uint32_t) target->info.non_root.path_lifetime * conf->lifetime_unit;
                     /* Refresh between 1/2 and 3/4 of lifetime */
-                    t = randLIB_randomise_base(t, 0x4000, 0x6000);
+                    t = rand_randomise_base(t, 0x4000, 0x6000);
                 } else {
                     t = 0xFFFFFFFF;
                 }
                 if (rpl_policy_minimum_dao_target_refresh() && t > rpl_policy_minimum_dao_target_refresh()) {
                     // set the minimum target refresh time ranging from 25% to 10% below the value
-                    t = randLIB_randomise_base(rpl_policy_minimum_dao_target_refresh(), 0x6000, 0x7333);
+                    t = rand_randomise_base(rpl_policy_minimum_dao_target_refresh(), 0x6000, 0x7333);
                 }
                 target->info.non_root.refresh_timer = t;
                 tr_debug("set rfr to %"PRIu32, t);
@@ -1697,7 +1697,7 @@ void rpl_instance_dao_timeout(struct rpl_instance *instance, uint16_t seconds)
             continue;
         }
         // Shorten the timeout
-        target->info.non_root.refresh_timer = randLIB_get_random_in_range(1, seconds);
+        target->info.non_root.refresh_timer = rand_get_random_in_range(1, seconds);
     }
 }
 
@@ -2018,7 +2018,7 @@ bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     /* State_timer is 1/10 s. Set renewal to 75-85% of lifetime */
     if_address_entry_t *address = rpl_interface_addr_get(interface, dao_target->prefix);
     if (address && address->source != ADDR_SOURCE_DHCP) {
-        address->state_timer = (address->preferred_lifetime * randLIB_get_random_in_range(75, 85) / 10);
+        address->state_timer = (address->preferred_lifetime * rand_get_random_in_range(75, 85) / 10);
     }
     neighbour->addr_reg_failures = 0;
     neighbour->confirmed = true;

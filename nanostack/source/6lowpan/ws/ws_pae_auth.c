@@ -995,7 +995,7 @@ static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
         sec_prot_keys_gtk_set(pae_auth->next_gtks, next_gtk_index, gtk_value, 0);
     } else {
         do {
-            randLIB_get_n_bytes_random(gtk_value, GTK_LEN);
+            rand_get_n_bytes_random(gtk_value, GTK_LEN);
         } while (sec_prot_keys_gtk_valid_check(gtk_value) < 0);
     }
 

@@ -34,7 +34,7 @@ void trickle_begin_interval(trickle_t *t)
 {
     t->c = 0;
     if (t->I > 2) { //Take random only when t->I is bigger than 2 otherwise result will be 1
-        t->t = randLIB_get_random_in_range(t->I / 2, t->I - 1);
+        t->t = rand_get_random_in_range(t->I / 2, t->I - 1);
     } else {
         t->t = 1;
     }
@@ -45,7 +45,7 @@ void trickle_begin_interval(trickle_t *t)
 void trickle_start(trickle_t *t, const trickle_params_t *params)
 {
     t->e = 0;
-    t->I = randLIB_get_random_in_range(params->Imin, params->Imax);
+    t->I = rand_get_random_in_range(params->Imin, params->Imax);
     trickle_begin_interval(t);
 }
 

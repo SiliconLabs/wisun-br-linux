@@ -144,7 +144,7 @@ bool random_early_detection_congestion_check(red_info_t *red_info)
 
     //Calculate only when count * tempP is smaller than scaler
     Prob = (tempP * PROB_SCALE_MAX) / (PROB_SCALE_MAX - Prob);
-    if (Prob > randLIB_get_random_in_range(0, PROX_MAX_RANDOM)) {
+    if (Prob > rand_get_random_in_range(0, PROX_MAX_RANDOM)) {
         //Drop packet
         red_info->count = 0;
         return true;

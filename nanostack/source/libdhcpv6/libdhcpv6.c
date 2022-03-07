@@ -64,7 +64,7 @@ static uint32_t libdhcpv6_IAID_generate(void)
     bool notUnique = true;
     while (notUnique) {
         notUnique = false;
-        iaId = randLIB_get_32bit();
+        iaId = rand_get_32bit();
         if (libdhcpv6_nonTemporal_entry_get_by_iaid(iaId)) {
             notUnique = true;
         }
@@ -89,7 +89,7 @@ static uint32_t libdhcpv6_Tx_timer_generate(uint32_t lifetime, bool T1_get)
 
 uint32_t libdhcpv6_txid_get(void)
 {
-    uint32_t transaction_id = randLIB_get_32bit();
+    uint32_t transaction_id = rand_get_32bit();
     transaction_id &= 0x00ffffff;
     return transaction_id;
 }

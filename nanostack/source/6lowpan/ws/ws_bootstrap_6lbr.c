@@ -302,7 +302,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             if (!ws_bbr_ready_to_start(cur)) {
                 // Wi-SUN not started yet we wait for Border router permission
                 ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
-                cur->nwk_nd_re_scan_count = randLIB_get_random_in_range(40, 100);
+                cur->nwk_nd_re_scan_count = rand_get_random_in_range(40, 100);
                 return;
             }
             // Clear Old information from stack
@@ -318,11 +318,11 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
                 cur->ws_info->network_pan_id = pan_id;
             } else {
                 if (cur->ws_info->network_pan_id == 0xffff) {
-                    cur->ws_info->network_pan_id = randLIB_get_random_in_range(0, 0xfffd);
+                    cur->ws_info->network_pan_id = rand_get_random_in_range(0, 0xfffd);
                 }
             }
             if (!cur->ws_info->pan_information.pan_version_set) {
-                cur->ws_info->pan_information.pan_version = randLIB_get_random_in_range(0, 0xffff);
+                cur->ws_info->pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
                 cur->ws_info->pan_information.pan_version_set = true;
             }
             cur->ws_info->pan_information.pan_size = 0;
@@ -336,7 +336,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
 #ifdef HAVE_WS_VERSION_1_1
                 if (!cur->ws_info->lfngtk.lfn_version_learned) {
                     //Randomize LFN version
-                    cur->ws_info->lfngtk.lfn_version = randLIB_get_random_in_range(0, 0xffff);
+                    cur->ws_info->lfngtk.lfn_version = rand_get_random_in_range(0, 0xffff);
                     cur->ws_info->lfngtk.lfn_version_learned = true;
                 }
 #endif

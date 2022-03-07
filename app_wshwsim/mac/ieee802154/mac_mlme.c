@@ -865,8 +865,8 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->mac_auto_request.SecurityLevel = 6;
     entry->mac_auto_request.KeyIndex = 0xff;
     mac_pd_sap_rf_low_level_function_set(entry, entry->dev_driver);
-    entry->mac_sequence = randLIB_get_8bit();
-    entry->mac_bea_sequence = randLIB_get_8bit();
+    entry->mac_sequence = rand_get_8bit();
+    entry->mac_bea_sequence = rand_get_8bit();
     entry->fhss_api = NULL;
     entry->macMinBE = 3;
     entry->macMaxBE = 5;

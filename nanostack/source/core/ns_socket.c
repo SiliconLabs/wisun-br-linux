@@ -81,7 +81,7 @@ uint16_t socket_generate_random_port(uint8_t protocol)
     uint16_t count = RANDOM_PORT_NUMBER_COUNT;
 
     do {
-        port_counter += randLIB_get_random_in_range(1, RANDOM_PORT_NUMBER_MAX_STEP);
+        port_counter += rand_get_random_in_range(1, RANDOM_PORT_NUMBER_MAX_STEP);
         while (port_counter >= RANDOM_PORT_NUMBER_COUNT) {
             port_counter -= RANDOM_PORT_NUMBER_COUNT;
         }
@@ -272,7 +272,7 @@ void socket_init(void)
         socket_event_handler = eventOS_event_handler_create(&socket_tasklet_event_handler, ARM_SOCKET_INIT);
     }
 
-    port_counter = randLIB_get_random_in_range(0, RANDOM_PORT_NUMBER_COUNT - 1);
+    port_counter = rand_get_random_in_range(0, RANDOM_PORT_NUMBER_COUNT - 1);
 }
 
 /**

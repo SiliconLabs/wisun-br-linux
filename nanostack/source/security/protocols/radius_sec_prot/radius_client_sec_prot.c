@@ -674,7 +674,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     *radius_msg_ptr++ = data->radius_identifier;                              // identifier
     radius_msg_ptr = common_write_16_bit(radius_msg_length, radius_msg_ptr);  // length
 
-    randLIB_get_n_bytes_random(data->request_authenticator, 16);
+    rand_get_n_bytes_random(data->request_authenticator, 16);
     memcpy(radius_msg_ptr, data->request_authenticator, 16);                  // request authenticator
     radius_msg_ptr += 16;
 
@@ -774,7 +774,7 @@ static int8_t radius_client_sec_prot_eui_64_hash_generate(uint8_t *eui_64, uint8
     int8_t ret_val = 0;
 
     if (!shared_data->hash_random_set) {
-        randLIB_get_n_bytes_random(shared_data->hash_random, 16);
+        rand_get_n_bytes_random(shared_data->hash_random, 16);
     }
 
     uint8_t hashed_string[24];

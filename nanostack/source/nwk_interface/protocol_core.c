@@ -401,7 +401,7 @@ uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_ent
     cur->base_reachable_time = base_reachable_time;
     cur->reachable_time_ttl = REACHABLE_TIME_UPDATE_SECONDS;
 
-    return cur->ipv6_neighbour_cache.reachable_time = randLIB_randomise_base(base_reachable_time, 0x4000, 0xBFFF);
+    return cur->ipv6_neighbour_cache.reachable_time = rand_randomise_base(base_reachable_time, 0x4000, 0xBFFF);
 }
 
 

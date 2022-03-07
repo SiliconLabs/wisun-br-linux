@@ -70,7 +70,7 @@ static void mac_csma_BE_update(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 // 8-bit because maxBE is maximum 8 (according to 802.15.4)
 static uint8_t mac_csma_random_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    return randLIB_get_random_in_range(0, (1 << rf_mac_setup->macCurrentBE) - 1);
+    return rand_get_random_in_range(0, (1 << rf_mac_setup->macCurrentBE) - 1);
 }
 
 static uint16_t mac_csma_backoff_period_convert_to50us(uint8_t random, uint8_t backoff_period_in_10us)
@@ -320,7 +320,7 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
                                                                          rf_mac_setup->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
                 // When FHSS TX handle returns -1, transmission of the packet is currently not allowed -> restart CCA timer
                 if (tx_handle_retval == -1) {
-                    timer_mac_start(rf_mac_setup, MAC_TIMER_CCA, randLIB_get_random_in_range(20, 400) + 1);
+                    timer_mac_start(rf_mac_setup, MAC_TIMER_CCA, rand_get_random_in_range(20, 400) + 1);
                     return;
                 }
                 // When FHSS TX handle returns -3, we are trying to transmit broadcast packet on unicast channel -> push back

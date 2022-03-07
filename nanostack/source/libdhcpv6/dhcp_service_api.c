@@ -193,7 +193,7 @@ msg_tr_t *dhcp_tr_create(void)
     msg_ptr->msg_ptr = NULL;
     msg_ptr->recv_resp_cb = NULL;
 
-    tr_id = randLIB_get_32bit() & 0xffffff;// 24 bits for random
+    tr_id = rand_get_32bit() & 0xffffff;// 24 bits for random
     // Ensure a unique non-zero transaction id for each transaction
     while (tr_id == 0 || dhcp_tr_find(tr_id) != NULL) {
         tr_id = (tr_id + 1) & 0xffffff;
@@ -235,7 +235,7 @@ void dhcp_tr_set_retry_timers(msg_tr_t *msg_ptr, uint8_t msg_type)
         }
 
         // Convert from seconds to 1/10s ticks, with initial randomisation factor
-        msg_ptr->timeout_init = randLIB_randomise_base(msg_ptr->timeout_init * 10, RAND1_LOW, RAND1_HIGH);
+        msg_ptr->timeout_init = rand_randomise_base(msg_ptr->timeout_init * 10, RAND1_LOW, RAND1_HIGH);
         msg_ptr->timeout_max *= 10;
 
         msg_ptr->timeout = msg_ptr->timeout_init;
@@ -810,7 +810,7 @@ void dhcp_service_set_retry_timers(uint32_t msg_tr_id, uint16_t timeout_init, ui
     msg_tr_ptr = dhcp_tr_find(msg_tr_id);
 
     if (msg_tr_ptr != NULL) {
-        msg_tr_ptr->timeout_init = randLIB_randomise_base(timeout_init * 10, RAND1_LOW, RAND1_HIGH);
+        msg_tr_ptr->timeout_init = rand_randomise_base(timeout_init * 10, RAND1_LOW, RAND1_HIGH);
         msg_tr_ptr->timeout = msg_tr_ptr->timeout_init;
         msg_tr_ptr->timeout_max = timeout_max * 10;
         msg_tr_ptr->retrans_max = retrans_max;
@@ -986,14 +986,14 @@ bool dhcp_service_timer_tick(uint16_t ticks)
             //     RT = 2*RTprev + RAND*RTprev,
             // We calculate this as
             //     RT = RTprev + (1+RAND)*RTprev
-            cur_ptr->timeout = cur_ptr->timeout_init + randLIB_randomise_base(cur_ptr->timeout_init, RAND1_LOW, RAND1_HIGH);
+            cur_ptr->timeout = cur_ptr->timeout_init + rand_randomise_base(cur_ptr->timeout_init, RAND1_LOW, RAND1_HIGH);
             // Catch 16-bit integer overflow
             if (cur_ptr->timeout < cur_ptr->timeout_init) {
                 cur_ptr->timeout = 0xFFFF;
             }
             // Check against MRT
             if (cur_ptr->timeout_max != 0 && cur_ptr->timeout > cur_ptr->timeout_max) {
-                cur_ptr->timeout = randLIB_randomise_base(cur_ptr->timeout_max, RAND1_LOW, RAND1_HIGH);
+                cur_ptr->timeout = rand_randomise_base(cur_ptr->timeout_max, RAND1_LOW, RAND1_HIGH);
             }
             cur_ptr->timeout_init = cur_ptr->timeout;
         } else {

@@ -117,7 +117,7 @@ static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retr
         }
     }
 
-    return randLIB_randomise_base(t, 0x4000, 0xBFFF);
+    return rand_randomise_base(t, 0x4000, 0xBFFF);
 }
 
 int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache)
@@ -964,7 +964,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         entry->pmtu_lifetime = 0;
 #endif
 #ifndef NO_IP_FRAGMENT_TX
-        entry->fragment_id = randLIB_get_32bit();
+        entry->fragment_id = rand_get_32bit();
 #endif
         if (interface_specific) {
             entry->interface_id = interface_id;

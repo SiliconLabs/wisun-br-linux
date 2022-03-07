@@ -389,7 +389,7 @@ static ws_nud_table_entry_t *ws_nud_entry_get_free(protocol_interface_info_entry
         entry->wait_response = false;
         entry->retry_count = 0;
         entry->nud_process = false;
-        entry->timer = randLIB_get_random_in_range(1, 900);
+        entry->timer = rand_get_random_in_range(1, 900);
         entry->neighbor_info = NULL;
         ns_list_remove(&cur->ws_info->free_nud_entries, entry);
         ns_list_add_to_end(&cur->ws_info->active_nud_process, entry);
@@ -507,7 +507,7 @@ void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
                 if (entry->nud_process) {
                     tr_debug("NUD NA timeout");
                     if (entry->retry_count < 2) {
-                        entry->timer = randLIB_get_random_in_range(1, 900);
+                        entry->timer = rand_get_random_in_range(1, 900);
                         entry->wait_response = false;
                     } else {
                         //Clear entry from active list
@@ -524,7 +524,7 @@ void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
                 entry->wait_response = ws_nud_message_build(cur, entry->neighbor_info, entry->nud_process);
                 if (!entry->wait_response) {
                     if (entry->nud_process && entry->retry_count < 2) {
-                        entry->timer = randLIB_get_random_in_range(1, 900);
+                        entry->timer = rand_get_random_in_range(1, 900);
                     } else {
                         //Clear entry from active list
                         //Remove and try again later on
@@ -701,9 +701,9 @@ static bool ws_bootstrap_channel_allowed(uint8_t channel, uint32_t *channel_mask
 uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint32_t *channel_mask)
 {
     if (configured_fixed_channel == 0xFFFF) {
-        uint16_t random_channel = randLIB_get_random_in_range(0, number_of_channels - 1);
+        uint16_t random_channel = rand_get_random_in_range(0, number_of_channels - 1);
         while (ws_bootstrap_channel_allowed(random_channel, channel_mask) == false) {
-            random_channel = randLIB_get_random_in_range(0, number_of_channels - 1);
+            random_channel = rand_get_random_in_range(0, number_of_channels - 1);
         }
         return random_channel;
     } else {
@@ -798,7 +798,7 @@ static void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entr
 
     if (memcmp(mac64, ADDR_UNSPECIFIED, 8) == 0) {
         // Generate random mac because it was not available
-        randLIB_get_n_bytes_random(mac64, 8);
+        rand_get_n_bytes_random(mac64, 8);
         mac64[0] |= 2; //Set Local Bit
         mac64[0] &= ~1; //Clear multicast bit
 
@@ -1596,7 +1596,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT * 1.5) {
             activate_nud = true;
         } else {
-            uint16_t switch_prob = randLIB_get_random_in_range(0, WS_NUD_RANDOM_SAMPLE_LENGTH - 1);
+            uint16_t switch_prob = rand_get_random_in_range(0, WS_NUD_RANDOM_SAMPLE_LENGTH - 1);
             //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
             if (switch_prob < WS_NUD_RANDOM_COMPARE) {
                 activate_nud = true;
@@ -1626,7 +1626,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
             //tr_debug("Link Probe test %u Sample trig", etx_entry->etx_samples);
             activate_nud = true;
         } else if (time_from_start > time_block) {
-            uint16_t switch_prob = randLIB_get_random_in_range(0, probe_period - 1);
+            uint16_t switch_prob = rand_get_random_in_range(0, probe_period - 1);
             //Take Random from time WS_NEIGHBOR_NUD_TIMEOUT - WS_NEIGHBOR_NUD_TIMEOUT*1.5
             if (switch_prob < 2) {
                 //tr_debug("Link Probe test with jitter %"PRIu32", sample %u", time_from_start, etx_entry->etx_samples);
@@ -2642,7 +2642,7 @@ void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur)
     //For Large network and medium should do passive scan
     if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
         // Set timeout for check to 30 - 60 seconds
-        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
+        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(WS_RPL_DIS_INITIAL_TIMEOUT / 2, WS_RPL_DIS_INITIAL_TIMEOUT);
     }
 }
 
@@ -2805,7 +2805,7 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
         trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
 
         // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
-        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
+        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
         tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     } else {
         tr_debug("authentication failed");

@@ -652,7 +652,7 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     }
     memset(c, 0, len);
     for (uint16_t i = 0; i < len; i++) {
-        *(c + i) = (char)randLIB_get_8bit();
+        *(c + i) = (char)rand_get_8bit();
     }
     memmove(output, c, len);
     *olen = len;

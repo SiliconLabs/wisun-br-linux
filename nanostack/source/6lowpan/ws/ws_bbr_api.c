@@ -986,7 +986,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface)
     //Read From NVM
     if (ws_bbr_nvm_info_read(&ws_bbr_fhss_bsi, &ws_bbr_pan_id) < 0) {
         //NVM value not available Randomize Value Here by first time
-        ws_bbr_fhss_bsi = randLIB_get_16bit();
+        ws_bbr_fhss_bsi = rand_get_16bit();
         tr_debug("Randomized init value BSI %u", ws_bbr_fhss_bsi);
     } else {
         tr_debug("Read BSI %u from NVM", ws_bbr_fhss_bsi);

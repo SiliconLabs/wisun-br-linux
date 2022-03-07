@@ -369,7 +369,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
             uint32_t bc_dwell_us = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
             uint16_t bc_min_random = (bc_dwell_us / 50) / 50;
             uint16_t bc_max_random = (bc_dwell_us - (bc_dwell_us / 4)) / 50;
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(bc_min_random, bc_max_random));
+            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(bc_min_random, bc_max_random));
         }
     } else {
         fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
@@ -401,7 +401,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
                 uc_min_random += (txrx_slot_length_us) / 50;
                 uc_max_random += (txrx_slot_length_us) / 50;
             }
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(uc_min_random, uc_max_random));
+            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(uc_min_random, uc_max_random));
         }
 
 #ifdef FHSS_CHANNEL_DEBUG
@@ -1004,11 +1004,11 @@ static uint32_t fhss_ws_get_retry_period_callback(const fhss_api_t *api, uint8_t
     }
     // We don't know the broadcast schedule, use randomised large backoff with MAC retries
     if (fhss_structure->ws->broadcast_timer_running == false) {
-        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
+        return (uint32_t) rand_get_random_in_range(20000, 45000);
     }
     // We don't know the TX/RX slots, use randomised large backoff with MAC retries
     if (fhss_structure->own_hop == 0xff) {
-        return (uint32_t) randLIB_get_random_in_range(20000, 45000);
+        return (uint32_t) rand_get_random_in_range(20000, 45000);
     }
     if (fhss_structure->ws->is_on_bc_channel == true) {
         return return_value;

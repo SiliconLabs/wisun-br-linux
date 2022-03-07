@@ -1307,7 +1307,7 @@ static void mcps_set_packet_blacklist(protocol_interface_rf_mac_setup_s *rf_ptr,
     if (blacklist_max_ms > rf_ptr->blacklist_max_ms) {
         blacklist_max_ms = rf_ptr->blacklist_max_ms;
     }
-    buffer->blacklist_period_ms = randLIB_get_random_in_range(blacklist_min_ms, blacklist_max_ms);
+    buffer->blacklist_period_ms = rand_get_random_in_range(blacklist_min_ms, blacklist_max_ms);
     if (!buffer->blacklist_period_ms) {
         buffer->blacklist_period_ms++;
     }

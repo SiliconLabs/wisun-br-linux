@@ -23,10 +23,10 @@
  *
  *
  * \section net-boot Network Bootstrap Control API:
- *  - randLIB_get_8bit(), Generate 8-bit random number
- *  - randLIB_get_16bit(),Generate 16-bit random number
- *  - randLIB_get_32bit(),Generate 32-bit random number
- *  - randLIB_get_n_bytes_random(), Generate n-bytes random numbers
+ *  - rand_get_8bit(), Generate 8-bit random number
+ *  - rand_get_16bit(),Generate 16-bit random number
+ *  - rand_get_32bit(),Generate 32-bit random number
+ *  - rand_get_n_bytes_random(), Generate n-bytes random numbers
  *
  */
 
@@ -44,7 +44,7 @@
  * sequence.
  * \param seed 64 bits of data to add to the seed.
  */
-extern void randLIB_add_seed(uint64_t seed);
+extern void rand_add_seed(uint64_t seed);
 
 /**
   * \brief Generate 8-bit random number.
@@ -53,7 +53,7 @@ extern void randLIB_add_seed(uint64_t seed);
   * \return 8-bit random number
   *
   */
-extern uint8_t randLIB_get_8bit(void);
+extern uint8_t rand_get_8bit(void);
 
 /**
   * \brief Generate 16-bit random number.
@@ -62,7 +62,7 @@ extern uint8_t randLIB_get_8bit(void);
   * \return 16-bit random number
   *
   */
-extern uint16_t randLIB_get_16bit(void);
+extern uint16_t rand_get_16bit(void);
 
 /**
   * \brief Generate 32-bit random number.
@@ -71,7 +71,7 @@ extern uint16_t randLIB_get_16bit(void);
   * \return 32-bit random number
   *
   */
-extern uint32_t randLIB_get_32bit(void);
+extern uint32_t rand_get_32bit(void);
 
 /**
   * \brief Generate 64-bit random number.
@@ -80,7 +80,7 @@ extern uint32_t randLIB_get_32bit(void);
   * \return 64-bit random number
   *
   */
-extern uint64_t randLIB_get_64bit(void);
+extern uint64_t rand_get_64bit(void);
 
 /**
   * \brief Generate n-bytes random numbers.
@@ -90,7 +90,7 @@ extern uint64_t randLIB_get_64bit(void);
   *
   * \return data_ptr
   */
-extern void *randLIB_get_n_bytes_random(void *data_ptr, uint8_t count);
+extern void *rand_get_n_bytes_random(void *data_ptr, uint8_t count);
 
 /**
   * \brief Generate a random number within a range.
@@ -100,7 +100,7 @@ extern void *randLIB_get_n_bytes_random(void *data_ptr, uint8_t count);
   * \param min minimum value that can be generated
   * \param max maximum value that can be generated
   */
-uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
+uint16_t rand_get_random_in_range(uint16_t min, uint16_t max);
 
 /**
   * \brief Randomise a base 32-bit number by a jitter factor
@@ -116,6 +116,6 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
   * \param min_factor The minimum value for the random factor
   * \param max_factor The maximum value for the random factor
   */
-uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor);
+uint32_t rand_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor);
 
 #endif /* RANDLIB_H_ */

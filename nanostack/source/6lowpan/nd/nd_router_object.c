@@ -293,7 +293,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
         if (borRouterDevice) {
             address_entry->state_timer = 0;
         } else {
-            address_entry->state_timer = 45 + randLIB_get_random_in_range(1, nd_params.timer_random_max);
+            address_entry->state_timer = 45 + rand_get_random_in_range(1, nd_params.timer_random_max);
             //Allocate Addres registration state
             if (cur_interface->if_6lowpan_dad_process.active == false) {
                 cur_interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
@@ -375,7 +375,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     nd_ns_build(cur, interface, addr->address);
                     addr->state_timer = nd_params.ns_retry_interval_min;
                     addr->state_timer += nd_params.ns_retry_linear_backoff * (nd_params.ns_retry_max - interface->if_6lowpan_dad_process.count);
-                    addr->state_timer += (randLIB_get_16bit() & nd_params.timer_random_max);
+                    addr->state_timer += (rand_get_16bit() & nd_params.timer_random_max);
                     tr_debug("NS Configured");
                     interface->if_6lowpan_dad_process.count--;
                 } else {
@@ -1493,7 +1493,7 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
             if (cur->ns_retry) {
                 if (nd_rs_build(cur->nd_state == ND_RS_UNCAST ? cur : NULL, cur_interface)) {
                     cur->nd_timer = nd_params.rs_retry_interval_min;
-                    cur->nd_timer += randLIB_get_16bit() & nd_params.timer_random_max;
+                    cur->nd_timer += rand_get_16bit() & nd_params.timer_random_max;
                     cur->ns_retry--;
                     tr_debug(cur->nd_state == ND_RS_UNCAST ? "RS" : "RS+");
                 } else {

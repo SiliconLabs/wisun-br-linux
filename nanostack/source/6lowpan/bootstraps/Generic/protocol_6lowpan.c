@@ -489,7 +489,7 @@ int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, ui
 void protocol_6lowpan_allocate_mac16(protocol_interface_info_entry_t *cur)
 {
     if (cur) {
-        cur->lowpan_desired_short_address = (randLIB_get_16bit() & 0x7fff);
+        cur->lowpan_desired_short_address = (rand_get_16bit() & 0x7fff);
     }
 }
 
@@ -676,7 +676,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
     }
 
     // Randomize stagger value
-    *stagger_rand = randLIB_get_random_in_range(*stagger_min, *stagger_max);
+    *stagger_rand = rand_get_random_in_range(*stagger_min, *stagger_max);
 
     return true;
 }

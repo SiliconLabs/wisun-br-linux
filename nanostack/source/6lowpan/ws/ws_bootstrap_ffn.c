@@ -219,7 +219,7 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
              cur->ws_info->trickle_params_pan_discovery.Imin, cur->ws_info->trickle_params_pan_discovery.Imax, cur->ws_info->trickle_params_pan_discovery.TimerExpirations, cur->ws_info->trickle_params_pan_discovery.k,
              cur->ws_info->trickle_pan_advertisement_solicit.I, cur->ws_info->trickle_pan_advertisement_solicit.t, cur->ws_info->trickle_pan_advertisement_solicit.now, cur->ws_info->trickle_pan_advertisement_solicit.c);
 
-    time_to_solicit += cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+    time_to_solicit += cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
 
     if (time_to_solicit > 0xffff) {
         time_to_solicit = 0xffff;
@@ -391,7 +391,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
     if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
             cur->bootstrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
 
-        cur->bootstrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+        cur->bootstrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
 
         tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     }
@@ -624,7 +624,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
         tr_info("learn network configuration");
         cur->ws_info->configuration_learned = true;
         // return to state machine after 1-2 s
-        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(10, 20);
+        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, 20);
         // enable frequency hopping for unicast channel and start listening first neighbour
         ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_HARD_SYNCH);
         // set neighbor as priority parent clear if there is others
@@ -874,7 +874,7 @@ select_best_candidate:
         // randomize new channel and start MAC
         ws_bootstrap_fhss_activate(cur);
         // Next check will be after one trickle
-        uint32_t random_start = cur->ws_info->trickle_params_pan_discovery.Imin + randLIB_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+        uint32_t random_start = cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
         if (random_start > 0xffff) {
             random_start = 0xffff;
         }
@@ -919,7 +919,7 @@ void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
             rpl_control_transmit_dis(cur->rpl_domain, cur, 0, 0, NULL, 0, ADDR_LINK_LOCAL_ALL_RPL_NODES);
         }
         // set timer for next DIS
-        cur->bootstrap_state_machine_cnt = randLIB_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
+        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
     }
     return;
 }

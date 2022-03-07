@@ -222,7 +222,7 @@ static void mld_query_entry(if_group_entry_t *entry, uint16_t mrd)
     /* "Query received" event */
     /* Timer starts/resets if it's not running, or it's set to greater than MRD */
     if (entry->mld_timer == 0 || mrd < entry->mld_timer) {
-        entry->mld_timer = randLIB_get_random_in_range(1, mrd);
+        entry->mld_timer = rand_get_random_in_range(1, mrd);
     }
 }
 
@@ -315,7 +315,7 @@ void mld_start_listening(protocol_interface_info_entry_t *interface, if_group_en
 {
     /* "Send MLD" flag only controls sending unsolicited reports when we join. We will still always respond if queried */
     if (interface->send_mld && addr_ipv6_multicast_scope(entry->group) >= IPV6_SCOPE_LINK_LOCAL) {
-        entry->mld_timer = randLIB_get_random_in_range(1, MLD_UNSOLICITED_REPORT_INTERVAL);
+        entry->mld_timer = rand_get_random_in_range(1, MLD_UNSOLICITED_REPORT_INTERVAL);
         entry->mld_last_reporter = true;
         protocol_push(mld_build(interface, ICMPV6_TYPE_INFO_MCAST_LIST_REPORT, 0, entry->group));
     } else {

@@ -509,7 +509,7 @@ dhcp_address_get:
 
     uint16_t delay_tx = 0;
     if (dhcp_client->sol_max_delay) {
-        delay_tx = randLIB_get_random_in_range(0, dhcp_client->sol_max_delay);
+        delay_tx = rand_get_random_in_range(0, dhcp_client->sol_max_delay);
     }
     // send solicit
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb, delay_tx);

@@ -910,7 +910,7 @@ static void ws_pae_key_storage_fast_timer_start(void)
 static void ws_pae_key_storage_fast_timer_ticks_set(void)
 {
     // (0.625 - 1,375) * 3 seconds
-    key_storage_params.scatter_timer = randLIB_randomise_base(KEY_STORAGE_SCATTER_TIMER_BASE_VALUE, 0x5000, 0xB000);
+    key_storage_params.scatter_timer = rand_randomise_base(KEY_STORAGE_SCATTER_TIMER_BASE_VALUE, 0x5000, 0xB000);
     tr_info("KeyS scatter timer %"PRIi32, key_storage_params.scatter_timer);
 }
 

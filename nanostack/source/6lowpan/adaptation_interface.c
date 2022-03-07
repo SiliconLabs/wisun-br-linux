@@ -382,8 +382,8 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
     interface_ptr->interface_id = interface_id;
     interface_ptr->fragment_indirect_tx_buffer = NULL;
     interface_ptr->mtu_size = 0;
-    interface_ptr->msduHandle = randLIB_get_8bit();
-    interface_ptr->local_frag_tag = randLIB_get_16bit();
+    interface_ptr->msduHandle = rand_get_8bit();
+    interface_ptr->local_frag_tag = rand_get_16bit();
 
     ns_list_init(&interface_ptr->indirect_tx_queue);
     ns_list_init(&interface_ptr->directTxQueue);

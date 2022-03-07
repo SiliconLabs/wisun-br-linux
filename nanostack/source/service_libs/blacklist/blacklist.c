@@ -142,7 +142,7 @@ void blacklist_update(const uint8_t *ll64_address, bool success)
                 blacklist_entry->interval = blacklist_data->blacklist_timer_max_timeout;
             }
             /* TTL is blacklist entry lifetime + from 1.0 to 1.5 * interval */
-            blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + randLIB_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
+            blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + rand_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
         } else {
             tr_info("Blacklist add");
             blacklist_entry_add(ll64_address + 8);
@@ -181,7 +181,7 @@ void blacklist_ttl_update(uint16_t ticks)
         blacklist_data->blacklist_purge_ttl -= ticks;
     } else {
         /* 0.5 to 1.5 times timeout */
-        blacklist_data->blacklist_purge_ttl = randLIB_randomise_base(blacklist_data->blacklist_purge_timer_timeout, 0x4000, 0xC000);
+        blacklist_data->blacklist_purge_ttl = rand_randomise_base(blacklist_data->blacklist_purge_timer_timeout, 0x4000, 0xC000);
 
         if (blacklist_entries_count() >= blacklist_data->blacklist_entry_max_nbr - blacklist_data->blacklist_purge_nbr) {
             uint8_t count = 0;
@@ -258,7 +258,7 @@ static void blacklist_entry_add(const uint8_t *eui64)
     blacklist_entry->interval = blacklist_data->blacklist_timer_timeout;
 
     /* TTL is blacklist entry lifetime + from 1.0 to 1.5 * interval */
-    blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + randLIB_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
+    blacklist_entry->ttl = blacklist_data->blacklist_entry_lifetime + rand_randomise_base(blacklist_entry->interval, 0x8000, 0xC000);
 
     memcpy(blacklist_entry->eui64, eui64, 8);
     tr_debug("Blacklist add, ttl=%"PRIu16, blacklist_entry->ttl);

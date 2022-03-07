@@ -181,7 +181,7 @@ void sec_prot_default_timeout_set(sec_prot_common_t *data)
 void sec_prot_lib_nonce_generate(uint8_t *nonce)
 {
     // Use randlib
-    randLIB_get_n_bytes_random(nonce, EAPOL_KEY_NONCE_LEN);
+    rand_get_n_bytes_random(nonce, EAPOL_KEY_NONCE_LEN);
 }
 
 /*
@@ -193,7 +193,7 @@ void sec_prot_lib_nonce_init(uint8_t *nonce, uint8_t *eui64, uint64_t time)
 {
     // For now, use randlib
     uint8_t random[EAPOL_KEY_NONCE_LEN];
-    randLIB_get_n_bytes_random(random, EAPOL_KEY_NONCE_LEN);
+    rand_get_n_bytes_random(random, EAPOL_KEY_NONCE_LEN);
 
     const uint8_t a_string_val[] = {"Init Counter"};
     const uint8_t a_string_val_len = sizeof(a_string_val) - 1;

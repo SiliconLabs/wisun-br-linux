@@ -218,7 +218,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     pae_supp->auth_requested = true;
 
     // Randomizes the sending of initial EAPOL-Key message
-    pae_supp->initial_key_timer = randLIB_get_random_in_range(INITIAL_KEY_TIMER_MIN, INITIAL_KEY_TIMER_MAX);
+    pae_supp->initial_key_timer = rand_get_random_in_range(INITIAL_KEY_TIMER_MIN, INITIAL_KEY_TIMER_MAX);
 
     // Starts supplicant timer
     ws_pae_supp_timer_start(pae_supp);
@@ -855,7 +855,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                     if (pae_supp->initial_key_retry_max_value > pae_supp->sec_cfg->prot_cfg.initial_key_retry_max_limit) {
                         pae_supp->initial_key_retry_max_value = pae_supp->sec_cfg->prot_cfg.initial_key_retry_max_limit;
                     }
-                    pae_supp->initial_key_retry_timer = randLIB_get_random_in_range(
+                    pae_supp->initial_key_retry_timer = rand_get_random_in_range(
                                                             pae_supp->sec_cfg->prot_cfg.initial_key_retry_min,
                                                             pae_supp->initial_key_retry_max_value);
 
@@ -866,7 +866,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 } else if (pae_supp->initial_key_retry_cnt > 0) {
                     pae_supp->initial_key_retry_cnt = 0;
                     // Starts wait time for the authenticator to answer
-                    pae_supp->initial_key_retry_timer = randLIB_get_random_in_range(
+                    pae_supp->initial_key_retry_timer = rand_get_random_in_range(
                                                             LAST_INTERVAL_MIN_SECS, LAST_INTERVAL_MAX_SECS);
                     tr_info("Initial EAPOL-Key wait for last re-transmit answer %i seconds (range [120,240] seconds)",
                             pae_supp->initial_key_retry_timer);
@@ -896,7 +896,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
                 }
                 // Starts initial EAPOL-key retry exponential backoff timer
                 pae_supp->initial_key_retry_max_value = pae_supp->sec_cfg->prot_cfg.initial_key_retry_max;
-                pae_supp->initial_key_retry_timer = randLIB_get_random_in_range(
+                pae_supp->initial_key_retry_timer = rand_get_random_in_range(
                                                         pae_supp->sec_cfg->prot_cfg.initial_key_retry_min,
                                                         pae_supp->initial_key_retry_max_value);
 

@@ -159,7 +159,7 @@ void icmpv6_trigger_ra_from_rs(protocol_interface_info_entry_t *cur, const uint8
     /* Delay "0" means next tick, ie somewhere between 0 and 100ms, so "(0, 4)"
      * gives us [0ms..500ms).
      */
-    uint16_t delay = randLIB_get_random_in_range(0, cur->max_ra_delay_time - 1);
+    uint16_t delay = rand_get_random_in_range(0, cur->max_ra_delay_time - 1);
     if (ra) {
         /* If we've already handled an RS for this destination, or we'd be
          * delaying an already-scheduled RA, ignore this RS.
@@ -281,7 +281,7 @@ void icmpv6_restart_router_advertisements(protocol_interface_info_entry_t *cur, 
          * but starting immediately.
          */
         if (cur->max_initial_rtr_advertisements == 0) {
-            ra->ticks = randLIB_get_random_in_range(0, cur->max_rtr_adv_interval - cur->min_rtr_adv_interval);
+            ra->ticks = rand_get_random_in_range(0, cur->max_rtr_adv_interval - cur->min_rtr_adv_interval);
         }
     }
 
@@ -289,7 +289,7 @@ void icmpv6_restart_router_advertisements(protocol_interface_info_entry_t *cur, 
      * we're doing it in response to a multicast update.
      */
     if (cur->max_initial_rtr_advertisements != 0) {
-        ra->ticks = randLIB_get_random_in_range(0, cur->max_initial_rtr_adv_interval);
+        ra->ticks = rand_get_random_in_range(0, cur->max_initial_rtr_adv_interval);
     }
 
     t->initial_rtr_adv_count = cur->max_initial_rtr_advertisements;
@@ -365,7 +365,7 @@ void icmpv6_radv_timer(uint16_t ticks)
             /* Multicast adverts get automatically rescheduled */
             if (addr_is_ipv6_multicast(ra->addr) && ra->interface->adv_send_advertisements) {
                 /* reschedule - for safe list handling, stash and reinsert after the main loop */
-                ra->ticks = randLIB_get_random_in_range(ra->interface->min_rtr_adv_interval, ra->interface->max_rtr_adv_interval);
+                ra->ticks = rand_get_random_in_range(ra->interface->min_rtr_adv_interval, ra->interface->max_rtr_adv_interval);
                 if (t->initial_rtr_adv_count && --t->initial_rtr_adv_count) {
                     uint16_t max = ra->interface->max_initial_rtr_adv_interval;
                     if (ra->ticks > max) {

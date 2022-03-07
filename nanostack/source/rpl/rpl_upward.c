@@ -370,7 +370,7 @@ void rpl_instance_trigger_parent_selection(rpl_instance_t *instance, uint16_t de
         }
     }
     if (instance->parent_selection_timer == 0 || instance->parent_selection_timer > delay) {
-        instance->parent_selection_timer = randLIB_randomise_base(delay, 0x8000, 0xc000) /* Random between delay * 1.0-1.5 */;
+        instance->parent_selection_timer = rand_randomise_base(delay, 0x8000, 0xc000) /* Random between delay * 1.0-1.5 */;
         tr_debug("Timed parent triggered %u", instance->parent_selection_timer);
     }
 }

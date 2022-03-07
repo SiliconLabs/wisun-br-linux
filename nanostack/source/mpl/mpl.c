@@ -230,7 +230,7 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
     }
     memcpy(domain->address, address, 16);
     domain->interface = cur;
-    domain->sequence = randLIB_get_8bit();
+    domain->sequence = rand_get_8bit();
     domain->colour = false;
     ns_list_init(&domain->seeds);
     domain->proactive_forwarding = proactive_forwarding >= 0 ? proactive_forwarding

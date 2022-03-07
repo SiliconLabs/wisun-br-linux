@@ -20,22 +20,22 @@
 
 static FILE *random_file;
 
-uint8_t randLIB_get_8bit(void)
+uint8_t rand_get_8bit(void)
 {
-    return randLIB_get_64bit();
+    return rand_get_64bit();
 }
 
-uint16_t randLIB_get_16bit(void)
+uint16_t rand_get_16bit(void)
 {
-    return randLIB_get_64bit();
+    return rand_get_64bit();
 }
 
-uint32_t randLIB_get_32bit(void)
+uint32_t rand_get_32bit(void)
 {
-    return randLIB_get_64bit();
+    return rand_get_64bit();
 }
 
-uint64_t randLIB_get_64bit(void)
+uint64_t rand_get_64bit(void)
 {
     uint64_t result;
 
@@ -46,7 +46,7 @@ uint64_t randLIB_get_64bit(void)
     return result;
 }
 
-void *randLIB_get_n_bytes_random(void *ptr, uint8_t count)
+void *rand_get_n_bytes_random(void *ptr, uint8_t count)
 {
     uint8_t *data_ptr = ptr;
     uint64_t r = 0;
@@ -54,7 +54,7 @@ void *randLIB_get_n_bytes_random(void *ptr, uint8_t count)
 
     for (i = 0; i < count; i++) {
         if (i % 8 == 0)
-            r = randLIB_get_64bit();
+            r = rand_get_64bit();
         else
             r >>= 8;
         data_ptr[i] = (uint8_t)r;
@@ -62,7 +62,7 @@ void *randLIB_get_n_bytes_random(void *ptr, uint8_t count)
     return data_ptr;
 }
 
-uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)
+uint16_t rand_get_random_in_range(uint16_t min, uint16_t max)
 {
     /* We get rand_max values from rand16 or 32() in the range [0..rand_max-1], and
      * need to divvy them up into the number of values we need. And reroll any
@@ -104,15 +104,15 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)
         return min;
 
     do {
-        result = randLIB_get_32bit();
+        result = rand_get_32bit();
     } while (result >= top_of_bands);
 
     return min + (uint16_t)(result / band_size);
 }
 
-uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor)
+uint32_t rand_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor)
 {
-    uint16_t random_factor = randLIB_get_random_in_range(min_factor, max_factor);
+    uint16_t random_factor = rand_get_random_in_range(min_factor, max_factor);
     /* 32x16-bit long multiplication, to get 48-bit result */
     uint32_t hi = (base >> 16) * random_factor;
     uint32_t lo = (base & 0xFFFF) * random_factor;

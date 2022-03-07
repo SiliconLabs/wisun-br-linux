@@ -204,7 +204,7 @@ static rpl_forward_policy_t rpl_policy_link_forward_policy(uint16_t link_etx)
     // The multiplication could overflow 16-bit, even though the final result will be 16-bit
     uint16_t drop_prob = (uint32_t) MAX_DROP_COMPARE * (link_etx - rpl_policy_etx_full_forward) / (rpl_policy_etx_full_drop - rpl_policy_etx_full_forward);
 
-    if (randLIB_get_random_in_range(0, 25599) < drop_prob) {
+    if (rand_get_random_in_range(0, 25599) < drop_prob) {
         return RPL_POLICY_DROP;
     }
 

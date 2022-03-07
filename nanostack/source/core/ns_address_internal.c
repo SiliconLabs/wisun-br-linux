@@ -974,7 +974,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
         entry->tentative = true;
         // Initial timer is for the multicast join delay
         entry->count = 0;
-        entry->state_timer = randLIB_get_random_in_range(1, 10); // MAX_RTR_SOLICITATION_DELAY (1s) in ticks
+        entry->state_timer = rand_get_random_in_range(1, 10); // MAX_RTR_SOLICITATION_DELAY (1s) in ticks
     }
 
     tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, trace_ipv6(address));
