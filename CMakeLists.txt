@@ -51,15 +51,15 @@ add_custom_target(check_git
 
 add_executable(wsbrd
     version.c
-    host-net/wsbr.c
-    host-net/wsbr_mac.c
-    host-net/wsbr_fhss_mac.c
-    host-net/wsbr_fhss_net.c
-    host-net/tun.c
-    host-net/named_values.c
-    host-net/commandline.c
-    host-net/os_whiteboard.c
-    host-net/mbedtls_config_check.c
+    app_wsbrd/wsbr.c
+    app_wsbrd/wsbr_mac.c
+    app_wsbrd/wsbr_fhss_mac.c
+    app_wsbrd/wsbr_fhss_net.c
+    app_wsbrd/tun.c
+    app_wsbrd/named_values.c
+    app_wsbrd/commandline.c
+    app_wsbrd/os_whiteboard.c
+    app_wsbrd/mbedtls_config_check.c
     host-common/bus_uart.c
     host-common/hal_interrupt.c
     host-common/os_timer.c
@@ -240,7 +240,7 @@ target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(wsbrd PRIVATE host-net/dbus.c)
+    target_sources(wsbrd PRIVATE app_wsbrd/dbus.c)
     target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)
@@ -270,12 +270,12 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wsnode
         version.c
-        host-net/wsrouter.c
-        host-net/wsbr_mac.c
-        host-net/wsbr_fhss_mac.c
-        host-net/wsbr_fhss_net.c
-        host-net/commandline.c
-        host-net/named_values.c
+        app_wsbrd/wsrouter.c
+        app_wsbrd/wsbr_mac.c
+        app_wsbrd/wsbr_fhss_mac.c
+        app_wsbrd/wsbr_fhss_net.c
+        app_wsbrd/commandline.c
+        app_wsbrd/named_values.c
         host-common/bus_uart.c
         host-common/hal_interrupt.c
         host-common/os_timer.c
