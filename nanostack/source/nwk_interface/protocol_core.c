@@ -665,8 +665,6 @@ static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_
     }
     //By default use this EUI-64-based IID for SLAAC
     memcpy(cur->iid_slaac, cur->iid_eui64, 8);
-    //And why not feed it into the random seed too?
-    randLIB_add_seed(common_read_64_bit(cur->mac));
 }
 
 protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void)

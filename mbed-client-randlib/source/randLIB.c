@@ -14,69 +14,35 @@
  * limitations under the License.
  */
 #include <stdint.h>
+#include <stdio.h>
 #include <limits.h>
 #include "randLIB.h"
 
-/**
- * This library is made for getting random numbers for timing needs in
- * protocols, plus to generate dynamic ports, random IDs etc.
- *
- * **not safe to use for security or cryptographic operations.**
- *
- * Base implementation is a pseudo-RNG, but may also use a system RNG.
- * Replay of sequence by reseeding is not possible.
- *
- * Base pseudo-RNG is the xoroshiro128+ generator by Marsaglia, Blackman and
- * Vigna:
- *
- * http://xoroshiro.di.unimi.it/
- *
- * Certainly not the fastest for 32-bit or smaller platforms, but speed
- * is not critical. None of the long operations in the core are actually hard,
- * unlike the divisions and multiplies in the utility functions below, where we
- * do try to keep the operations narrow.
- */
-
-#define RANDOM_DEVICE "/dev/urandom"
-
-/* RAM usage - 16 bytes of state (or a FILE * pointer and underlying FILE, which
- * will include a buffer) */
-#include <stdio.h>
 static FILE *random_file;
-
-void randLIB_add_seed(uint64_t seed)
-{
-    (void)seed;
-}
 
 uint8_t randLIB_get_8bit(void)
 {
-    uint64_t r = randLIB_get_64bit();
-    return (uint8_t)(r >> 56);
+    return randLIB_get_64bit();
 }
 
 uint16_t randLIB_get_16bit(void)
 {
-    uint64_t r = randLIB_get_64bit();
-    return (uint16_t)(r >> 48);
+    return randLIB_get_64bit();
 }
 
 uint32_t randLIB_get_32bit(void)
 {
-    uint64_t r = randLIB_get_64bit();
-    return (uint32_t)(r >> 32);
+    return randLIB_get_64bit();
 }
-
 
 uint64_t randLIB_get_64bit(void)
 {
-    if (!random_file) {
-        random_file = fopen(RANDOM_DEVICE, "r");
-    }
     uint64_t result;
-    if (fread(&result, sizeof result, 1, random_file) != 1) {
+
+    if (!random_file)
+        random_file = fopen("/dev/urandom", "r");
+    if (fread(&result, sizeof(result), 1, random_file) != 1)
         result = 0;
-    }
     return result;
 }
 
@@ -84,37 +50,20 @@ void *randLIB_get_n_bytes_random(void *ptr, uint8_t count)
 {
     uint8_t *data_ptr = ptr;
     uint64_t r = 0;
-    for (uint_fast8_t i = 0; i < count; i++) {
-        /* Take 8 bytes at a time */
-        if (i % 8 == 0) {
+    int i;
+
+    for (i = 0; i < count; i++) {
+        if (i % 8 == 0)
             r = randLIB_get_64bit();
-        } else {
+        else
             r >>= 8;
-        }
-        data_ptr[i] = (uint8_t) r;
+        data_ptr[i] = (uint8_t)r;
     }
     return data_ptr;
 }
 
 uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)
 {
-    /* This special case is potentially common, particularly in this routine's
-     * first user (Trickle), so worth catching immediately */
-    if (min == max) {
-        return min;
-    }
-
-#if UINT_MAX >= 0xFFFFFFFF
-    const unsigned int rand_max = 0xFFFFFFFFu; // will use rand32
-#else
-    const unsigned int rand_max = 0xFFFFu; // will use rand16
-
-    /* 16-bit arithmetic below fails in this extreme case; we can optimise it */
-    if (max - min == 0xFFFF) {
-        return randLIB_get_16bit();
-    }
-#endif
-
     /* We get rand_max values from rand16 or 32() in the range [0..rand_max-1], and
      * need to divvy them up into the number of values we need. And reroll any
      * odd values off the end as we insist every value having equal chance.
@@ -144,15 +93,18 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)
     const unsigned int values_needed = max + 1 - min;
     /* Avoid the need for long division, at the expense of fractionally
      * increasing reroll chance. */
+    const unsigned int rand_max = 0xFFFFFFFFu;
     const unsigned int band_size = rand_max / values_needed;
     const unsigned int top_of_bands = band_size * values_needed;
     unsigned int result;
+
+    /* This special case is potentially common, particularly in this routine's
+     * first user (Trickle), so worth catching immediately */
+    if (min == max)
+        return min;
+
     do {
-#if UINT_MAX > 0xFFFF
         result = randLIB_get_32bit();
-#else
-        result = randLIB_get_16bit();
-#endif
     } while (result >= top_of_bands);
 
     return min + (uint16_t)(result / band_size);
@@ -161,7 +113,6 @@ uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max)
 uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor)
 {
     uint16_t random_factor = randLIB_get_random_in_range(min_factor, max_factor);
-
     /* 32x16-bit long multiplication, to get 48-bit result */
     uint32_t hi = (base >> 16) * random_factor;
     uint32_t lo = (base & 0xFFFF) * random_factor;
@@ -169,11 +120,10 @@ uint32_t randLIB_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max
     uint32_t res = hi + (lo >> 16);
 
     /* Randomisation factor is *2^15, so need to shift up 1 more bit, avoiding overflow */
-    if (res & 0x80000000) {
+    if (res & 0x80000000)
         res = 0xFFFFFFFF;
-    } else {
+    else
         res = (res << 1) | ((lo >> 15) & 1);
-    }
 
     return res;
 }
