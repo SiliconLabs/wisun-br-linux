@@ -24,9 +24,6 @@
 #ifndef MAC_MLME_H_
 #define MAC_MLME_H_
 
-//TODO: Check if these are in correct place
-#include "net_interface.h"
-
 struct nwk_scan_params;
 struct nwk_filter_params;
 struct protocol_interface_rf_mac_setup;
