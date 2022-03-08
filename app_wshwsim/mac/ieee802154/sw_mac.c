@@ -152,23 +152,6 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api_s, bool 
     return mac_sec_mib_frame_counter_per_key_set(mac_store.setup, enable_feature);
 }
 
-int8_t ns_sw_mac_virtual_client_register(mac_api_t *api, int8_t virtual_driver_id)
-{
-    if (!api || api != mac_store.mac_api) {
-        return -1;
-    }
-    arm_device_driver_list_s *virtual_driver = arm_net_phy_driver_pointer(virtual_driver_id);
-    if (!virtual_driver) {
-        return -1;
-    }
-    mac_store.virtual_driver = virtual_driver;
-    mac_store.setup->tun_extension_rf_driver = virtual_driver;
-    //Driver setup
-    virtual_driver->phy_sap_identifier = mac_store.setup;
-    virtual_driver->phy_sap_upper_cb = mac_virtual_sap_data_cb;
-    return 0;
-}
-
 int8_t ns_sw_mac_virtual_client_unregister(mac_api_t *api)
 {
     if (!api || api != mac_store.mac_api) {

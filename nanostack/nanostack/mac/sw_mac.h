@@ -38,15 +38,6 @@ struct phy_rf_statistics_s;
 extern struct mac_api_s *ns_sw_mac_create(int8_t rf_driver_id, struct mac_description_storage_size_s *storage_sizes);
 
 /**
- * @brief ns_sw_mac_virtual_client_register registers virtual driver to be used with 802.15.4 MAC.
- * This is always used with serial_mac_api
- * @param api API to start using virtual driver
- * @param virtual_driver_id
- * @return 0 if success, -1 if api or driver is invalid
- */
-extern int8_t ns_sw_mac_virtual_client_register(struct mac_api_s *api, int8_t virtual_driver_id);
-
-/**
  * @brief ns_sw_mac_virtual_client_unregister Unregisters virtual driver from 802.15.4 MAC
  * @param api API from which to unregister virtual driver
  * @return 0 if success, -1 if api is invalid
