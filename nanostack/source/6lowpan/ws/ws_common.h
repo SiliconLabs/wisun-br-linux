@@ -27,6 +27,7 @@
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_regulation.h"
 
 extern uint16_t test_max_child_count_override;
 
@@ -150,6 +151,7 @@ typedef struct ws_info_s {
     struct ws_neighbor_class_s neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     struct fhss_api *fhss_api;
+    ws_regulation_t regulation_ctxt;  /**< Regional regulation context. */
 } ws_info_t;
 
 

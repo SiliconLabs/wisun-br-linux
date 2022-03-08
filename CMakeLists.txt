@@ -128,6 +128,9 @@ add_executable(wsbrd
     nanostack/source/6lowpan/ws/ws_pae_time.c
     nanostack/source/6lowpan/ws/ws_pae_timers.c
     nanostack/source/6lowpan/ws/ws_phy.c
+    nanostack/source/6lowpan/ws/ws_regulation_arib.c
+    nanostack/source/6lowpan/ws/ws_regulation_none.c
+    nanostack/source/6lowpan/ws/ws_regulation.c
     nanostack/source/6lowpan/ws/ws_stats.c
     nanostack/source/6lowpan/ws/ws_test_api.c
     nanostack/source/common_protocols/icmpv6.c
@@ -327,6 +330,9 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/ws/ws_pae_time.c
         nanostack/source/6lowpan/ws/ws_pae_timers.c
         nanostack/source/6lowpan/ws/ws_phy.c
+        nanostack/source/6lowpan/ws/ws_regulation_arib.c
+        nanostack/source/6lowpan/ws/ws_regulation_none.c
+        nanostack/source/6lowpan/ws/ws_regulation.c
         nanostack/source/6lowpan/ws/ws_stats.c
         nanostack/source/6lowpan/ws/ws_test_api.c
         nanostack/source/common_protocols/icmpv6.c
