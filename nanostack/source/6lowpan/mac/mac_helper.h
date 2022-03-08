@@ -22,8 +22,6 @@
 #include "core/include/ns_address_internal.h"
 
 struct channel_list_s;
-struct nwk_scan_params;
-struct nwk_filter_params;
 struct nwk_pan_descriptor_t;
 struct protocol_interface_info_entry;
 struct ns_sockaddr;
@@ -32,17 +30,9 @@ struct mac_api_s;
 
 extern uint16_t test_6lowpan_fragmentation_mtu_size_override;
 
-void mac_create_scan_request(mac_scan_type_t type, struct channel_list_s *chanlist, uint8_t scan_duration, struct mlme_scan_s *request);
-
 struct nwk_pan_descriptor_t *mac_helper_select_best_lqi(struct nwk_pan_descriptor_t *list);
 
-void mac_helper_drop_selected_from_the_scanresult(struct nwk_scan_params *scanParams, struct nwk_pan_descriptor_t *selected);
-
-void mac_helper_free_scan_confirm(struct nwk_scan_params *params);
-
 struct nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(struct nwk_pan_descriptor_t *nwk_cur_active);
-
-int8_t mac_helper_nwk_id_filter_set(const uint8_t *nw_id, struct nwk_filter_params *filter);
 
 void mac_helper_panid_set(struct protocol_interface_info_entry *interface, uint16_t panId);
 

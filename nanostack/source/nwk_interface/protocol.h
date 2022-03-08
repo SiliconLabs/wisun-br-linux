@@ -47,8 +47,6 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;
-struct mlme_scan_s;
-struct mlme_scan_conf_s;
 struct mac_api_s;
 struct eth_mac_api_s;
 struct arm_device_driver_list;
@@ -168,23 +166,6 @@ typedef enum {
 struct nd_router;
 struct nd_router_setup;
 
-typedef struct nwk_scan_params {
-    uint8_t energy_treshold;
-    uint8_t nwk_scan_res_size;
-    channel_list_s stack_chan_list;
-    uint8_t scan_duration;
-    nwk_pan_descriptor_t *nwk_response_info;
-    nwk_pan_descriptor_t *nwk_cur_active;
-    bool active_scan_active;
-} nwk_scan_params_t;
-
-typedef struct nwk_filter_params {
-    uint8_t nwk_active_scan_level;
-    uint8_t beacon_protocol_id_filter;
-    uint16_t net_pan_id_filter;
-    uint8_t   *beacon_nwk_id_filter;
-} nwk_filter_params_s;
-
 typedef struct mac_cordinator {
     unsigned cord_adr_mode: 2;
     uint8_t mac_mlme_coord_address[8];
@@ -226,8 +207,6 @@ typedef struct arm_15_4_mac_parameters_t {
     /* MAC Beacon info */
     uint8_t *mac_beacon_payload;
     uint8_t mac_beacon_payload_size;
-    nwk_scan_params_t nwk_scan_params;
-    nwk_filter_params_s nwk_filter_params;
     uint16_t mac_in_direct_entry_timeout;
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
@@ -298,12 +277,10 @@ typedef struct ipv6_ra_timing {
  * @param if_id Protocol interface id
  * @param conf MLME-SCAN confirm object (ownership not passed)
  */
-typedef void scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t *conf);
 typedef void comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status);
 
 
 struct protocol_interface_info_entry {
-    scan_confirm_cb *scan_cb;
     comm_status_indication_cb *comm_status_ind_cb;
     nwk_interface_id nwk_id;
     int8_t id;

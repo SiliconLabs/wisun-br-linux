@@ -83,114 +83,6 @@ static int arm_channel_list_validation(const channel_list_s *scan_list)
     return -1;
 }
 
-
-/* Energy & Active Scan API */
-int8_t arm_net_energy_scan(int8_t interface_id, channel_list_s *scan_list, void (*passed_fptr)(int8_t if_id, const mlme_scan_conf_t *conf), uint8_t energy_tresshold)
-{
-    (void)interface_id;
-    (void)scan_list;
-    (void)passed_fptr;
-    (void)energy_tresshold;
-    int8_t ret_val = -3;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            ret_val = -1;
-        } else {
-
-            nwk_scan_params_t *scan_params = 0;
-            if (cur->mac_parameters) {
-                scan_params = &cur->mac_parameters->nwk_scan_params;
-                scan_params->stack_chan_list = *scan_list;
-                scan_params->energy_treshold = energy_tresshold;
-
-                mlme_scan_t req;
-                mac_create_scan_request(MAC_ED_SCAN_TYPE, &cur->mac_parameters->nwk_scan_params.stack_chan_list, 5, &req);
-                if (cur->mac_api) {
-                    cur->scan_cb = passed_fptr;
-                    cur->mac_api->mlme_req(cur->mac_api, MLME_SCAN, &req);
-                    ret_val = 0;
-                }
-            }
-        }
-    }
-    return ret_val;
-
-}
-
-int8_t arm_net_nwk_scan(int8_t interface_id, channel_list_s *scan_list, void (*passed_fptr)(int8_t if_id, const mlme_scan_conf_t *conf), uint8_t scan_level)
-{
-    (void)interface_id;
-    (void)scan_list;
-    (void)passed_fptr;
-    (void)scan_level;
-    int8_t ret_val = -3;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (cur) {
-        cur->scan_cb = passed_fptr;
-        if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-            if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                ret_val = -1;
-            } else if (arm_channel_list_validation(scan_list)) {
-                tr_debug("Given channel mask is empty!");
-                ret_val = -2;
-            } else {
-                nwk_scan_params_t *scan_params = &cur->mac_parameters->nwk_scan_params;
-                scan_params->stack_chan_list = *scan_list;
-
-                mlme_scan_t req;
-                mac_create_scan_request(MAC_ACTIVE_SCAN, &scan_params->stack_chan_list, 5, &req);
-                if (cur->mac_api) {
-                    cur->scan_cb = passed_fptr;
-                    scan_params->active_scan_active = true;
-                    cur->mac_api->mlme_req(cur->mac_api, MLME_SCAN, &req);
-                }
-                filter->nwk_active_scan_level = scan_level;
-                mac_helper_nwk_id_filter_set(0, filter);
-                mac_helper_mac16_address_set(cur, 0xffff);
-                protocol_6lowpan_register_handlers(cur);
-                ret_val = 0;
-
-            }
-        }
-    }
-    return ret_val;
-}
-
-nwk_pan_descriptor_t *arm_net_get_scanned_nwk_list(int8_t interface_id)
-{
-    nwk_pan_descriptor_t *ret_val = 0;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if (cur->mac_parameters) {
-            ret_val = cur->mac_parameters->nwk_scan_params.nwk_response_info;
-        }
-    }
-    return ret_val;
-}
-
-/**
- * \brief A function to read pan ID filter.
- * \return 16-bit value indicating a pan ID filter.
- */
-uint16_t arm_net_get_nwk_pan_id_filter(int8_t interface_id)
-{
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-            return filter->net_pan_id_filter;
-        }
-    }
-    return 0;
-}
-
 /**
  * \brief A function to read network layer configurations.
  * \param network_params is a pointer to the structure to where the network layer configs are written to.
@@ -1029,83 +921,6 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
     return ret_val;
 }
 
-int8_t arm_nwk_6lowpan_link_scan_parameter_set(int8_t interface_id, uint8_t scan_time)
-{
-    int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            return -4;
-        }
-
-        if (cur->mac_parameters) {
-            if (scan_time > 14) {
-                ret_val = -5;
-            } else {
-                nwk_scan_params_t *scan_params = 0;
-                scan_params = &cur->mac_parameters->nwk_scan_params;
-                scan_params->scan_duration = scan_time;
-                ret_val = 0;
-            }
-        }
-    }
-    return ret_val;
-}
-
-int8_t arm_nwk_6lowpan_link_panid_filter_for_nwk_scan(int8_t interface_id, uint16_t pan_id_filter)
-{
-    int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            ret_val =  -2;
-        } else if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-            filter->net_pan_id_filter = pan_id_filter;
-            ret_val = 0;
-        }
-    }
-    return ret_val;
-}
-
-int8_t arm_nwk_6lowpan_link_nwk_id_filter_for_nwk_scan(int8_t interface_id, const uint8_t *nwk_id_filter)
-{
-    int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-
-        if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            ret_val =  -2;
-        } else if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-            ret_val = mac_helper_nwk_id_filter_set(nwk_id_filter, filter);
-        }
-    }
-    return ret_val;
-}
-
-int8_t arm_nwk_6lowpan_link_protocol_id_filter_for_nwk_scan(int8_t interface_id, uint8_t protocol_ID)
-{
-    int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-
-        if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-            ret_val =  -4;
-        } else if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-            filter->beacon_protocol_id_filter = protocol_ID;
-            ret_val = 0;
-        }
-    }
-    return ret_val;
-}
-
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */
@@ -1159,10 +974,7 @@ int8_t net_nvm_data_clean(int8_t interface_id)
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if (cur->mac_parameters) {
-            nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-
             if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
-                mac_helper_nwk_id_filter_set(0, filter);
                 mac_helper_panid_set(cur, 0xffff);
                 mac_helper_mac16_address_set(cur, 0xffff);
                 ret_val = 0;

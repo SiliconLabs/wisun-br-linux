@@ -192,18 +192,6 @@ typedef struct mlme_key_descriptor_entry_s {
 #define MLME_DATA_POLL_NOTIFICATION     0xff /**< Thread requirement feature COMM status status for indicate for successfully data poll event to refresh neighbour data */
 
 /**
- * @brief enum mac_scan_type_t MAC scan type
- *
- * See IEEE standard 802.15.4-2006 (table 67) for more details
- */
-typedef enum {
-    MAC_ED_SCAN_TYPE = 0,  /**< Energy detection scan operation */
-    MAC_ACTIVE_SCAN = 1,   /**< Active scan operation */
-    MAC_PASSIVE_SCAN = 2,   /**< Passive scan operation */
-    MAC_ORPHAN_SCAN = 3     /**< Orphan scan operation (Not supported) */
-} mac_scan_type_t;
-
-/**
  * @brief enum mlme_attr_t MLME attributes used with GET and SET primitives
  *
  * See IEEE standard 802.15.4-2006 (table 86) for more details
@@ -294,19 +282,6 @@ typedef struct mlme_beacon_gts_spec_s {
 } mlme_beacon_gts_spec_t;
 
 /**
- * @brief struct mlme_scan_t Scan request structure
- *
- * See IEEE standard 802.15.4-2006 (table 67) for more details
- */
-typedef struct mlme_scan_s {
-    mac_scan_type_t     ScanType;   /**< ED=0, active=1, passive=2, orphan=3*/
-    channel_list_s  ScanChannels;   /**<bit field, low 27 bits used*/
-    uint8_t     ScanDuration;       /**<0-14, scan duration/channel*/
-    uint8_t     ChannelPage;        /**<0-31*/
-    mlme_security_t Key;            /**< Security parameters for active scan process */
-} mlme_scan_t;
-
-/**
  * @brief struct mlme_set_t Set request structure
  *
  * See IEEE standard 802.15.4-2006 (table 70) for more details
@@ -354,21 +329,6 @@ typedef struct mlme_set_conf_s {
 
 
 #define MLME_MAC_RES_SIZE_MAX 16 /**< Mac scan response max supported list size */
-
-/**
- * @brief struct mlme_scan_conf_t Scan confirm structure
- *
- * See IEEE standard 802.15.4-2006 (table 68) for more details
- */
-typedef struct mlme_scan_conf_s {
-    uint8_t status;                                             /**< status of operation*/
-    unsigned ScanType: 2;                                       /**< Finished Scan type*/
-    uint8_t ChannelPage;                                        /**< Operated Channel Page*/
-    channel_list_s UnscannedChannels;                           /**< Channel mask for unscanned channels*/
-    uint8_t ResultListSize;                                     /**< Result list size*/
-    uint8_t *ED_values;                                         /**< Energy scan result types Check only when scan type is 0*/
-    mlme_pan_descriptor_t *PAN_values[MLME_MAC_RES_SIZE_MAX];   /**< List of scanned Pan description's*/
-} mlme_scan_conf_t;
 
 /**
  * @brief struct mlme_reset_t Reset request structure

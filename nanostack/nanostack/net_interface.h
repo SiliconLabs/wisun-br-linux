@@ -423,32 +423,6 @@ extern int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_g
 extern int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_channel_list);
 
 /**
- * \brief Set the link scan time used on network interface.
- *
- * \param interface_id Network interface ID.
- * \param scan_time Value 0-14, scan duration/channel.
- *
- * \return >=0 Scan configuration OK.
- * \return -1 Unknown network interface ID.
- * \return -4 If network interface is already active and cannot be re-configured.
- * \return -5 Invalid scan time.
- */
-extern int8_t arm_nwk_6lowpan_link_scan_parameter_set(int8_t interface_id, uint8_t scan_time);
-
-/**
- * \brief A function to set the PAN ID filter.
- *
- * \param interface_id Network interface ID.
- * \param pan_id_filter Enable filter for specific PAN ID. 0xffff disables the filter.
- *
- * \return 0 Filter set OK.
- * \return -1 Unknown Network interface ID.
- * \return -2 Interface is active.
- *
- */
-extern int8_t arm_nwk_6lowpan_link_panid_filter_for_nwk_scan(int8_t interface_id, uint16_t pan_id_filter);
-
-/**
   * \brief Get current used channel.
   *
   * \param interface_id Network interface ID.
@@ -466,30 +440,6 @@ extern int16_t arm_net_get_current_channel(int8_t interface_id);
  * \return 16-bit value indicating a PAN ID filter.
  */
 extern uint16_t arm_net_get_nwk_pan_id_filter(int8_t interface_id);
-
-/**
-  * \brief Enable/Disable network ID filter.
-  *
-  * \param interface_id Network interface ID.
-  * \param nwk_id_filter A pointer to a new network ID filter, NULL disable filter.
-  *
-  * \return 0 On success.
-  * \return -1 Unknown network ID.
-  * \return -2 Interface active.
-  */
-extern int8_t arm_nwk_6lowpan_link_nwk_id_filter_for_nwk_scan(int8_t interface_id, const uint8_t *nwk_id_filter);
-
-/**
-  * \brief Enable/Disable network protocol ID filter.
-  *
-  * \param interface_id Network interface ID.
-  * \param protocol_ID A value that filters only supported network protocols (0= Zigbee1.x, 2= ZigBeeIP).
-  *
-  * \return 0 On success.
-  * \return -1 Unknown network ID.
-  * \return -2 Interface active.
-  */
-extern int8_t arm_nwk_6lowpan_link_protocol_id_filter_for_nwk_scan(int8_t interface_id, uint8_t protocol_ID);
 
 /**
   * \brief Beacon join priority transmit callback.

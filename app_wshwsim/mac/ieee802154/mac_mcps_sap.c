@@ -118,7 +118,7 @@ static bool mac_data_request_confirmation_finish(protocol_interface_rf_mac_setup
 
 static void mac_data_poll_radio_disable_check(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    if (rf_mac_setup->macCapRxOnIdle || rf_mac_setup->macWaitingData || rf_mac_setup->scan_active) {
+    if (rf_mac_setup->macCapRxOnIdle || rf_mac_setup->macWaitingData) {
         return;
     }
 
@@ -256,7 +256,7 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
         goto verify_status;
     }
 
-    if (!rf_mac_setup->macUpState || rf_mac_setup->scan_active) {
+    if (!rf_mac_setup->macUpState) {
         status = MLME_TRX_OFF;
         goto verify_status;
     }
@@ -761,22 +761,6 @@ static void mac_lib_res_no_data_to_req(mac_pre_parsed_frame_t *buffer, protocol_
     mcps_sap_pd_req_queue_write(rf_mac_setup, buf);
 }
 
-static int8_t mac_beacon_request_handler(mac_pre_parsed_frame_t *buffer, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-
-    if (buffer->fcf_dsn.SrcAddrMode != MAC_ADDR_MODE_NONE || buffer->fcf_dsn.DstAddrMode != MAC_ADDR_MODE_16_BIT) {
-        return -1;
-    }
-    // Note FHSS from received beacon request
-    if (rf_mac_setup->fhss_api) {
-        rf_mac_setup->fhss_api->receive_frame(rf_mac_setup->fhss_api, 0, NULL, 0, NULL, FHSS_SYNCH_REQUEST_FRAME);
-    }
-    // mac_data_interface_build_beacon() uses the same buffer to build the response
-    // and it is then feed to protocol buffer. Buffer should be freed only if it returns zero.
-    return mac_mlme_beacon_tx(rf_mac_setup);
-
-}
-
 static int8_t mac_command_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_interface_rf_mac_setup_s *rf_mac_setup,  mac_api_t *mac)
 {
     int8_t retval = -1;
@@ -813,10 +797,6 @@ static int8_t mac_command_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_i
             }
             retval = 0;
             break;
-        case MAC_BEACON_REQ:
-            retval = mac_beacon_request_handler(buf, rf_mac_setup);
-            break;
-
         default:
             break;
     }
@@ -839,7 +819,7 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
         return;
     }
     mac_api_t *mac = get_sw_mac_api(rf_mac_setup);
-    if (!mac || (rf_mac_setup->mac_mlme_scan_resp && buf->fcf_dsn.frametype != MAC_FRAME_BEACON)) {
+    if (!mac) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);
         return;
     }
@@ -1071,9 +1051,6 @@ static void mac_mcps_sap_data_tasklet(arm_event_s *event)
             mac_indirect_data_ttl_handle((protocol_interface_rf_mac_setup_s *)event->data_ptr, (uint16_t)event->event_data);
             break;
 
-        case MAC_MLME_SCAN_CONFIRM_HANDLER:
-            mac_mlme_scan_confirmation_handle((protocol_interface_rf_mac_setup_s *) event->data_ptr);
-            break;
         case MAC_CCA_THR_UPDATE:
             mac_cca_threshold_update((protocol_interface_rf_mac_setup_s *) event->data_ptr, event->event_data >> 8, (int8_t) event->event_data);
             break;
@@ -1278,10 +1255,6 @@ static void mac_data_interface_internal_tx_confirm_handle(protocol_interface_rf_
                 }
 
             }
-            break;
-
-        case MAC_BEACON_REQ:
-            mac_mlme_active_scan_response_timer_start(rf_mac_setup);
             break;
 
         default:

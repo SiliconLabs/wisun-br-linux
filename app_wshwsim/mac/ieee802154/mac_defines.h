@@ -137,13 +137,6 @@ typedef struct dev_driver_tx_buffer {
 #define MAC_DEF_MAX_BE 5
 #define MAC_PRIORITY_EF_BACKOFF_MULTIPLIER  2
 
-typedef struct mac_active_scan {
-    uint8_t pan_id[2];
-    uint8_t address[8];
-    uint8_t lqi;
-    uint8_t beacon_scan_ok;
-} mac_active_scan;
-
 #define MAC_EXT_ADDLIST_SIZE 8
 typedef struct mac_extented_address_table_t {
     uint8_t short_addr[2];
@@ -216,7 +209,6 @@ typedef struct protocol_interface_rf_mac_setup {
     /* Radio State flags */
     bool macRfRadioOn: 1;
     bool macRfRadioTxActive: 1;
-    bool scan_active: 1;
     bool rf_csma_extension_supported: 1;
     bool rf_pd_ack_buffer_is_in_use: 1;
     uint16_t mac_short_address;
@@ -234,8 +226,6 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_frame_filters;
     /* MAC channel parameters */
     channel_list_s mac_channel_list;
-    uint8_t scan_duration; //Needed???
-    mac_scan_type_t scan_type;
 
     uint8_t mac_channel;
     uint8_t mac_tx_start_channel;
@@ -293,8 +283,6 @@ typedef struct protocol_interface_rf_mac_setup {
     uint32_t symbol_rate;
     uint32_t symbol_time_ns;
     uint32_t datarate;
-    uint8_t max_ED;
-    uint16_t mlme_ED_counter;
     mac_tx_status_t mac_tx_status;
     mac_mcps_data_conf_fail_t mac_mcps_data_conf_fail;
     struct cca_structure_s *cca_structure;
@@ -319,7 +307,6 @@ typedef struct protocol_interface_rf_mac_setup {
     struct arm_device_driver_list *dev_driver;
     dev_driver_tx_buffer_s dev_driver_tx_buffer;
     /* End of API Control */
-    struct mlme_scan_conf_s *mac_mlme_scan_resp;
     struct mac_cca_threshold *cca_threshold;
     struct mac_statistics_s *mac_statistics;
     mac_mcps_edfe_frame_info_t *mac_edfe_info;

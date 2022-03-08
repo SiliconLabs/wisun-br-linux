@@ -24,26 +24,16 @@
 #ifndef MAC_MLME_H_
 #define MAC_MLME_H_
 
-struct nwk_scan_params;
-struct nwk_filter_params;
 struct protocol_interface_rf_mac_setup;
 struct arm_event_s;
 struct arm_device_driver_list;
 struct mlme_poll_s;
 struct mlme_reset_s;
-struct mlme_scan_s;
 struct mlme_start_s;
 struct mlme_get_conf_s;
 struct mlme_set_s;
 struct channel_list_s;
 
-void mac_mlme_scan_confirmation_handle(struct protocol_interface_rf_mac_setup *rf_ptr);
-
-/**
- * MLME Scan Request
- *
- */
-void mac_mlme_scan_request(const struct mlme_scan_s *msg, struct protocol_interface_rf_mac_setup *rf_mac_setup);
 /**
  * MLME Start Request
  *
@@ -88,8 +78,6 @@ void mac_mlme_mac_radio_enable(struct protocol_interface_rf_mac_setup *rf_mac_se
  */
 int8_t mac_mlme_rf_channel_change(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t new_channel);
 
-void mac_mlme_active_scan_response_timer_start(void *interface);
-
 void mac_mlme_event_cb(void *mac_ptr);
 
 void mac_mlme_set_active_state(struct protocol_interface_rf_mac_setup *entry, bool new_state);
@@ -105,7 +93,6 @@ uint16_t mac_mlme_get_panid(struct protocol_interface_rf_mac_setup *rf_setup);
 void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *addressPtr);
 
 int8_t mac_mlme_beacon_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
-uint8_t mac_mlme_beacon_req_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 
 uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
 

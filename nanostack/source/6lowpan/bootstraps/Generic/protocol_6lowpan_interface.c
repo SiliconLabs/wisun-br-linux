@@ -97,7 +97,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         }
         /* Init RPL Timers */
         cur->bootstrap_state_machine_cnt = 0;
-        mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
 
         cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
         cur->lowpan_info &= ~(INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE);
@@ -138,8 +137,6 @@ int8_t nwk_6lowpan_up(protocol_interface_info_entry_t *cur)
         protocol_6lowpan_interface_common_init(cur);
 
         cur->nwk_mode = ARM_NWK_GP_IP_MODE;
-        nwk_filter_params_s *filter = &(cur->mac_parameters->nwk_filter_params);
-        filter->nwk_active_scan_level = 2;
     }
 
     return ret_val;

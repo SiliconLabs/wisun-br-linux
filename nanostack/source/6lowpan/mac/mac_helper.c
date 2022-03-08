@@ -65,20 +65,6 @@ static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface
     return 0;
 }
 
-void mac_create_scan_request(mac_scan_type_t type, channel_list_s *chanlist, uint8_t scan_duration, mlme_scan_t *request)
-{
-    if (!chanlist || !request) {
-        return;
-    }
-
-    memset(request, 0, sizeof(mlme_scan_t));
-
-    request->ScanType = type;
-    request->ScanChannels = *chanlist;
-
-    request->ScanDuration = scan_duration;
-}
-
 nwk_pan_descriptor_t *mac_helper_select_best_lqi(nwk_pan_descriptor_t *list)
 {
     nwk_pan_descriptor_t *best = list;
@@ -93,57 +79,6 @@ nwk_pan_descriptor_t *mac_helper_select_best_lqi(nwk_pan_descriptor_t *list)
     return best;
 }
 
-void mac_helper_drop_selected_from_the_scanresult(nwk_scan_params_t *scanParams, nwk_pan_descriptor_t *selected)
-{
-    if (!scanParams || !selected) {
-        return;
-    }
-    nwk_pan_descriptor_t *cur;
-    nwk_pan_descriptor_t *prev = 0;
-    cur = scanParams->nwk_response_info;
-
-    while (cur) {
-        if (cur == selected) {
-            tr_debug("Clean Selected out from the list");
-            if (prev) {
-                prev->next = cur->next;
-            } else {
-                scanParams->nwk_response_info = cur->next;
-
-            }
-            scanParams->nwk_scan_res_size--;
-            cur = 0;
-
-        }
-        if (cur) {
-            prev = cur;
-            cur = cur->next;
-        }
-    }
-}
-
-void mac_helper_free_scan_confirm(nwk_scan_params_t *params)
-{
-    if (!params) {
-        return;
-    }
-    if (params->nwk_scan_res_size) {
-        nwk_pan_descriptor_t *cur = params->nwk_response_info;
-        nwk_pan_descriptor_t *tmp;
-        tr_debug("Scanned Results");
-        while (cur) {
-            tmp = cur;
-            cur = cur->next;
-            tr_debug("Free NWK Structure");
-            mac_helper_free_pan_descriptions(tmp);
-        }
-
-        params->nwk_response_info = 0;
-        params->nwk_scan_res_size = 0;
-    }
-    params->nwk_cur_active = mac_helper_free_pan_descriptions(params->nwk_cur_active);
-}
-
 nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(nwk_pan_descriptor_t *nwk_cur_active)
 {
     if (nwk_cur_active) {
@@ -152,28 +87,6 @@ nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(nwk_pan_descriptor_t *nwk
         ns_dyn_mem_free(nwk_cur_active);
     }
     return NULL;
-}
-
-int8_t mac_helper_nwk_id_filter_set(const uint8_t *nw_id, nwk_filter_params_s *filter)
-{
-    if (!filter) {
-        return -1;
-    }
-    int8_t ret_val = 0;
-    if (nw_id) {
-        if (filter->beacon_nwk_id_filter == 0) {
-            filter->beacon_nwk_id_filter = ns_dyn_mem_alloc(16);
-        }
-        if (filter->beacon_nwk_id_filter) {
-            memcpy(filter->beacon_nwk_id_filter, nw_id, 16);
-        } else {
-            ret_val = -1;
-        }
-    } else {
-        ns_dyn_mem_free(filter->beacon_nwk_id_filter);
-        filter->beacon_nwk_id_filter = 0;
-    }
-    return ret_val;
 }
 
 void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t panId)

@@ -562,8 +562,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
     entry->mac_parameters->MacUnsusecured_2003_cab = mac_unsecured_2003_compatibility;
     entry->mac_parameters->mac_short_address = 0xffff;
     entry->mac_parameters->pan_id = 0xffff;
-    entry->mac_parameters->nwk_filter_params.beacon_protocol_id_filter = 0xff;
-    entry->mac_parameters->nwk_filter_params.net_pan_id_filter = 0xffff;
     entry->mac_parameters->mac_in_direct_entry_timeout = 7000; //default timeout
 
     entry->mac_parameters->mac_prev_key_attribute_id = 0;

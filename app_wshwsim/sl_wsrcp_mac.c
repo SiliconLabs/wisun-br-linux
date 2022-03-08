@@ -710,13 +710,6 @@ void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
-void wsmac_mlme_scan(struct wsmac_ctxt *ctxt, const void *data)
-{
-    //const mlme_scan_conf_t *req = data;
-
-    WARN("not implemented");
-}
-
 void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -726,7 +719,6 @@ void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void 
     } table[] = {
         { MLME_GET,   wsmac_mlme_get },
         { MLME_START, wsmac_mlme_start },
-        { MLME_SCAN,  wsmac_mlme_scan },
         { -1,         NULL },
     };
     int i;

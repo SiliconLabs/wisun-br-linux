@@ -61,31 +61,13 @@ static int8_t mac_mlme_rf_receiver_enable(struct protocol_interface_rf_mac_setup
 static void mac_mlme_write_mac16(protocol_interface_rf_mac_setup_s *rf_setup, uint8_t *addrPtr);
 static void mac_mlme_write_mac64(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t *addrPtr);
 static void mac_mlme_timers_disable(protocol_interface_rf_mac_setup_s *rf_ptr);
-static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s *rf_mac_setup);
 static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t pan_id);
 static int8_t mac_mlme_set_mac16(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t mac16);
 static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t new_channel);
 static void mac_mlme_timer_cb(int timer_id, uint16_t slots);
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf);
-static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf);
 static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size);
-
-static void mac_mlme_energy_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t channel)
-{
-    phy_device_driver_s *dev_driver = rf_mac_setup->dev_driver->phy_driver;
-    rf_mac_setup->mac_channel = channel;
-    if (rf_mac_setup->macRfRadioOn) {
-        if (dev_driver->state_control) {
-            dev_driver->state_control(PHY_INTERFACE_DOWN, 0);
-        }
-    }
-    if (dev_driver->state_control) {
-        dev_driver->state_control(PHY_INTERFACE_RX_ENERGY_STATE, channel);
-    }
-    rf_mac_setup->macRfRadioOn = true;
-    rf_mac_setup->macRfRadioTxActive = false;
-}
 
 uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list, bool clear_channel)
 {
@@ -113,87 +95,6 @@ uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list, bool c
     return 0xffff;
 }
 
-static uint32_t mac_mlme_channel_symbol_rate(uint8_t channel_page, uint8_t channel)
-{
-
-    uint32_t symbol_rate;
-
-    // Gets symbol rate for channel
-    switch (channel_page) {
-        case CHANNEL_PAGE_0:
-            // 868 Mhz BPSK
-            if (channel == 0) {
-                symbol_rate = 20000;
-                // 915 Mhz BPSK
-            } else if (channel >= 1 && channel <= 10) {
-                symbol_rate = 40000;
-                // 2450 Mhz O-QPSK
-            } else {
-                symbol_rate = 62500;
-            }
-            break;
-        case CHANNEL_PAGE_1:
-            // 868 MHz ASK
-            if (channel == 0) {
-                symbol_rate = 12500;
-                // 915 MHz ASK
-            } else {
-                symbol_rate = 50000;
-            }
-            break;
-        case CHANNEL_PAGE_2:
-            // 868 MHz O-QPSK
-            if (channel == 0) {
-                symbol_rate = 25000;
-                // 915 MHz O-QPSK
-            } else {
-                symbol_rate = 62500;
-            }
-            break;
-        case CHANNEL_PAGE_3:
-            // 2450 CSS
-            symbol_rate = 167000;
-            break;
-        case CHANNEL_PAGE_6:
-            // 950 MHz BPSK
-            if (channel <= 9) {
-                symbol_rate = 20000;
-                // 950 MHz GFSK
-            } else {
-                symbol_rate = 100000;
-            }
-            break;
-        default:
-            symbol_rate = 62500;
-            break;
-    }
-
-    return symbol_rate;
-}
-
-static void mac_mlme_calc_scan_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t channel)
-{
-    rf_mac_setup->mlme_ED_counter = 1;
-
-    if (rf_mac_setup->scan_duration) {
-        rf_mac_setup->mlme_ED_counter <<= rf_mac_setup->scan_duration;
-    }
-
-    rf_mac_setup->mlme_ED_counter++;
-
-    if (rf_mac_setup->scan_type == MAC_ED_SCAN_TYPE) {
-        // Gets symbol rate for channel that is scanned
-        uint32_t symbol_rate = mac_mlme_channel_symbol_rate(
-                                   rf_mac_setup->mac_channel_list.channel_page, channel);
-
-        // Energy scan duration is aBaseSuperframeDuration * (2^n + 1)
-        // aBaseSuperframeDuration is 960 symbols e.g for 2.4Ghz O-QPSK with 62.5 ksymbols/s -> 15,36ms.
-        // ED scan timer timeout is 4.8ms
-        uint16_t frame_duration = (uint32_t) 960 * 100000 / symbol_rate;
-        rf_mac_setup->mlme_ED_counter = (uint32_t) rf_mac_setup->mlme_ED_counter * frame_duration / 480;
-    }
-}
-
 static void mac_mlme_start_request(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     mac_pre_build_frame_t *buf;
@@ -211,185 +112,6 @@ static void mac_mlme_start_request(protocol_interface_rf_mac_setup_s *rf_mac_set
         mcps_sap_pd_req_queue_write(rf_mac_setup, buf);
     }
     platform_exit_critical();
-}
-
-uint8_t mac_mlme_beacon_req_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
-{
-
-    mac_pre_build_frame_t *buf = mcps_sap_prebuild_frame_buffer_get(0);
-
-    if (buf) {
-        buf->fcf_dsn.DstAddrMode = MAC_ADDR_MODE_16_BIT;
-        buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_NONE;
-        buf->fcf_dsn.frametype = FC_CMD_FRAME;
-        buf->DstPANId = 0xffff;
-        buf->DstAddr[0] = 0xff;
-        buf->DstAddr[1] = 0xff;
-        buf->mac_command_id = MAC_BEACON_REQ;
-        buf->mac_header_length_with_security = 7;
-        buf->mac_payload = &buf->mac_command_id;
-        buf->mac_payload_length = 1;
-        buf->priority = MAC_PD_DATA_MEDIUM_PRIORITY;
-        buf->fcf_dsn.DstPanPresents = true;
-        buf->fcf_dsn.SrcPanPresents = false;
-
-        mcps_sap_pd_req_queue_write(rf_ptr, buf);
-        return 1;
-    }
-    return 0;
-}
-
-static void mac_mlme_scan_init(uint8_t channel, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    mac_mlme_calc_scan_duration(rf_mac_setup, channel);
-
-    switch (rf_mac_setup->scan_type) {
-        /* ED Scan */
-        case MAC_ED_SCAN_TYPE:
-            //tr_debug("Energy Scan");
-            rf_mac_setup->max_ED = 0;
-            mac_mlme_energy_scan_start(rf_mac_setup, channel);
-            rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_ED_ANALYZE;
-            eventOS_callback_timer_start(rf_mac_setup->mlme_timer_id, 96);
-            break;
-        case MAC_PASSIVE_SCAN:
-        case MAC_ACTIVE_SCAN:   /*Active*/
-            tr_debug("Scan channel %u", channel);
-            rf_mac_setup->mac_channel = channel;
-            rf_mac_setup->macCapRxOnIdle = true;
-            mac_mlme_start_request(rf_mac_setup);
-            if (rf_mac_setup->scan_type == MAC_ACTIVE_SCAN) {
-                mac_pre_build_frame_t *active_buf = rf_mac_setup->active_pd_data_request;
-                /* If there is active data request, it must be Beacon request which were failed to send on previous channel.
-                 * Do not push new Beacon request to queue as the MAC will try to send the current active data request anyway.
-                 */
-                if (!active_buf || (active_buf && active_buf->fcf_dsn.frametype != FC_CMD_FRAME)) {
-                    mac_mlme_beacon_req_tx(rf_mac_setup);
-                }
-            }
-            rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_SCAN;
-            rf_mac_setup->mlme_tick_count = rf_mac_setup->mlme_ED_counter;
-            //tr_debug("mlme_tick_count: %x", rf_mac_setup->mlme_tick_count);
-            eventOS_callback_timer_start(rf_mac_setup->mlme_timer_id, 300);
-            break;
-        case MAC_ORPHAN_SCAN:   /*Orphan*/
-            break;
-    }
-}
-
-static void mac_mlme_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    uint8_t channel;
-
-    channel = (uint8_t) mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list, true);
-    mac_mlme_scan_init(channel, rf_mac_setup);
-}
-
-static bool mac_channel_list_validate(const channel_list_s *list, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    if (rf_mac_setup->dev_driver->phy_driver->link_type == PHY_LINK_15_4_2_4GHZ_TYPE &&
-            list->channel_page == 0) {
-        //Accept only Channels channels 11-26
-        if (list->channel_mask[0] & 0x7fff800) {
-            return true;
-        }
-        return false;
-    } else if (rf_mac_setup->dev_driver->phy_driver->link_type == PHY_LINK_15_4_SUBGHZ_TYPE &&
-               (list->channel_page == 0 || list->channel_page == 1 || list->channel_page == 2)) {
-        if (list->channel_mask[0] & 0x000007ff) {
-            return true;
-        }
-
-        return false;
-    } else {
-        for (int i = 0; i < 8; i++) {
-            if (list->channel_mask[i]) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-static int mac_mlme_generate_scan_confirmation(mlme_scan_conf_t *conf, const mlme_scan_t *msg, uint8_t status)
-{
-    memset(conf, 0, sizeof(mlme_scan_conf_t));
-    conf->status = status;
-    if (!msg) {
-        return -1;
-    }
-    conf->ScanType = msg->ScanType;
-    conf->ChannelPage = msg->ChannelPage;
-    if (msg->ScanType == MAC_ACTIVE_SCAN) {
-        /*If the scan is successful, this value will be modified properly in mlme_analyze_next_channel()
-        and assigned in mlme_scan_operation()*/
-        conf->UnscannedChannels.channel_mask[0] = msg->ScanChannels.channel_mask[0];
-    } else if (msg->ScanType == MAC_ED_SCAN_TYPE) {
-        conf->ED_values = ns_dyn_mem_temporary_alloc(MLME_MAC_RES_SIZE_MAX);
-        if (!conf->ED_values) {
-            tr_debug("Could not allocate memory for ED values");
-            conf->status = MLME_SUCCESS;
-            return -2;
-        }
-        memset(conf->ED_values, 0, MLME_MAC_RES_SIZE_MAX);
-    }
-    return 0;
-}
-
-void mac_mlme_scan_request(const mlme_scan_t *msg, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    if (rf_mac_setup->mac_mlme_scan_resp) {
-        mlme_scan_conf_t conf;
-        mac_mlme_generate_scan_confirmation(&conf, msg, MLME_SCAN_IN_PROGRESS);
-        mac_mlme_scan_confirm_handler(rf_mac_setup, &conf);
-        ns_dyn_mem_free(conf.ED_values);
-        return;
-    }
-
-    mlme_scan_conf_t *resp = ns_dyn_mem_temporary_alloc(sizeof(mlme_scan_conf_t));
-    if (!resp) {
-        mlme_scan_conf_t conf;
-        tr_error("Mac Scan request fail, no memory");
-        mac_mlme_generate_scan_confirmation(&conf, NULL, MLME_SUCCESS);
-        mac_mlme_scan_confirm_handler(rf_mac_setup, &conf);
-        ns_dyn_mem_free(conf.ED_values);
-        return;
-    }
-
-    rf_mac_setup->mac_mlme_scan_resp = resp;
-    //Validate channel list
-    tr_debug("chan page %u, mask %"PRIx32, msg->ScanChannels.channel_page, msg->ScanChannels.channel_mask[0]);
-    if (!mac_channel_list_validate(&msg->ScanChannels, rf_mac_setup)) {
-        tr_debug("Unsupported channel list");
-        mac_mlme_generate_scan_confirmation(resp, msg, MLME_INVALID_PARAMETER);
-        mac_generic_event_trig(MAC_MLME_SCAN_CONFIRM_HANDLER, rf_mac_setup, false);
-        return;
-    }
-
-    if (mac_mlme_generate_scan_confirmation(resp, msg, MLME_SUCCESS) != 0) {
-        return;
-    }
-
-    tr_debug("MAC: Start MLME scan");
-
-    if (mac_mlme_rf_disable(rf_mac_setup) == 0) {
-        rf_mac_setup->macCapRxOnIdle = false;
-        if (msg->ScanType == MAC_ACTIVE_SCAN) {
-            rf_mac_setup->macUpState = true;
-        }
-    } else {
-        tr_error("Failed to disable RF");
-        mac_generic_event_trig(MAC_MLME_SCAN_CONFIRM_HANDLER, rf_mac_setup, false);
-        return;
-    }
-
-    rf_mac_setup->scan_type = msg->ScanType;
-    rf_mac_setup->scan_duration = msg->ScanDuration;
-    rf_mac_setup->mac_channel_list = msg->ScanChannels;
-    rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_SCAN;
-    rf_mac_setup->scan_active = true;
-    mac_mlme_scan_start(rf_mac_setup);
 }
 
 int8_t mac_mlme_start_req(const mlme_start_t *s, struct protocol_interface_rf_mac_setup *rf_mac_setup)
@@ -442,7 +164,6 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
     mac_mlme_timers_disable(rf_mac_setup);
     mac_mlme_mac_radio_disabled(rf_mac_setup);
     mac_mlme_set_active_state(rf_mac_setup, false);
-    mac_mlme_free_scan_temporary_data(rf_mac_setup);
     mac_mcps_buffer_queue_free(rf_mac_setup);
     rf_mac_setup->macProminousMode = false;
     rf_mac_setup->macWaitingData = false;
@@ -932,36 +653,6 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
     return 0;
 }
 
-static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    uint16_t channel;
-    mlme_scan_conf_t *resp = rf_mac_setup->mac_mlme_scan_resp;
-
-    if (rf_mac_setup->scan_type == MAC_ED_SCAN_TYPE) {
-        resp->ED_values[resp->ResultListSize] = rf_mac_setup->max_ED;
-        resp->ResultListSize++;
-    }
-
-    channel = mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list, true);
-    if (channel > 0xff || rf_mac_setup->mac_mlme_scan_resp->ResultListSize == MLME_MAC_RES_SIZE_MAX) {
-        resp->status = MLME_SUCCESS;
-        platform_enter_critical();
-        mac_mlme_mac_radio_disabled(rf_mac_setup);
-        if (resp->ResultListSize == 0 && rf_mac_setup->scan_type == MAC_ACTIVE_SCAN) {
-            resp->status = MLME_NO_BEACON;
-        } else if (resp->ResultListSize == MLME_MAC_RES_SIZE_MAX) {
-            resp->status = MLME_LIMIT_REACHED;
-        }
-        resp->UnscannedChannels.channel_mask[0] = rf_mac_setup->mac_channel_list.channel_mask[0];
-        platform_exit_critical();
-        //Scan Confirmation
-        mac_generic_event_trig(MAC_MLME_SCAN_CONFIRM_HANDLER, rf_mac_setup, false);
-        rf_mac_setup->scan_active = false;
-    } else {
-        mac_mlme_scan_init((uint8_t) channel, rf_mac_setup);
-    }
-}
-
 void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t *addressPtr)
 {
     if (!rf_ptr) {
@@ -971,22 +662,6 @@ void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, protocol_inte
         mac_mlme_write_mac16(rf_ptr, addressPtr);
     } else if (SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
         mac_mlme_write_mac64(rf_ptr, addressPtr);
-    }
-}
-
-void mac_mlme_active_scan_response_timer_start(void *interface)
-{
-    if (interface) {
-        protocol_interface_rf_mac_setup_s *rf_mac_setup = (protocol_interface_rf_mac_setup_s *)interface;
-        if (rf_mac_setup) {
-            if (rf_mac_setup->mac_mlme_event == ARM_NWK_MAC_MLME_SCAN) {
-                eventOS_callback_timer_stop(rf_mac_setup->mlme_timer_id);
-                rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_SCAN;
-                rf_mac_setup->mlme_tick_count = rf_mac_setup->mlme_ED_counter;
-
-                eventOS_callback_timer_start(rf_mac_setup->mlme_timer_id, 300);
-            }
-        }
     }
 }
 
@@ -1011,10 +686,6 @@ void mac_mlme_event_cb(void *mac_ptr)
     event_type = rf_mac_setup->mac_mlme_event;
     rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_IDLE;
     switch (event_type) {
-        case ARM_NWK_MAC_MLME_SCAN:
-            mlme_scan_operation(rf_mac_setup);
-            break;
-
         case ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL:
             tr_debug("Data poll data wait TO");
             mac_mlme_poll_process_confirm(rf_mac_setup, MLME_NO_DATA);
@@ -1050,56 +721,11 @@ static void mac_mlme_timer_cb(int timer_id, uint16_t slots)
     }
 
     if (rf_ptr->mlme_tick_count == 0) {
-        if (rf_ptr->mac_mlme_event != ARM_NWK_MAC_MLME_IDLE) {
-            if (rf_ptr->mac_mlme_event == ARM_NWK_MAC_MLME_ED_ANALYZE) {
-                if (rf_ptr->mlme_ED_counter > 1) {
-                    uint8_t ed = 0;
-                    phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
-                    rf_ptr->mlme_ED_counter--;
-                    if (dev_driver->extension) {
-                        dev_driver->extension(PHY_EXTENSION_READ_CHANNEL_ENERGY, &ed);
-                    }
-                    if (ed > rf_ptr->max_ED) {
-                        rf_ptr->max_ED = ed;
-                    }
-
-                    /*96 * 50us = 4.8ms*/
-                    rf_ptr->mlme_tick_count = 0;
-                    rf_ptr->mac_mlme_event = ARM_NWK_MAC_MLME_ED_ANALYZE;
-                    eventOS_callback_timer_start(timer_id, slots);
-                } else {
-                    mac_mlme_rf_disable(rf_ptr);
-                    rf_ptr->mac_mlme_event = ARM_NWK_MAC_MLME_SCAN;
-                    mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, false);
-                }
-            } else {
-                mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, true);
-            }
-        }
+        if (rf_ptr->mac_mlme_event != ARM_NWK_MAC_MLME_IDLE)
+            mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, true);
     } else {
         rf_ptr->mlme_tick_count--;
         eventOS_callback_timer_start(timer_id, slots);
-    }
-}
-
-static void mac_mlme_free_scan_temporary_data(protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    rf_mac_setup->scan_active = false;
-    if (rf_mac_setup->mac_mlme_scan_resp) {
-        mlme_scan_conf_t *r = rf_mac_setup->mac_mlme_scan_resp;
-        if (r->ED_values) {
-            ns_dyn_mem_free(r->ED_values);
-            r->ED_values = NULL;
-        }
-        uint8_t i = 0;
-        while (i < r->ResultListSize) {
-            if (r->PAN_values[i]) {
-                ns_dyn_mem_free(r->PAN_values[i]);
-            }
-            i++;
-        }
-        ns_dyn_mem_free(rf_mac_setup->mac_mlme_scan_resp);
-        rf_mac_setup->mac_mlme_scan_resp = NULL;
     }
 }
 
@@ -1365,28 +991,6 @@ static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf
             get_sw_mac_api(rf_ptr)->mlme_conf_cb(get_sw_mac_api(rf_ptr), MLME_START, conf);
         }
     }
-}
-
-static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf)
-{
-    if (get_sw_mac_api(rf_ptr)) {
-        if (get_sw_mac_api(rf_ptr)->mlme_conf_cb) {
-            get_sw_mac_api(rf_ptr)->mlme_conf_cb(get_sw_mac_api(rf_ptr), MLME_SCAN, conf);
-        }
-    }
-}
-
-void mac_mlme_scan_confirmation_handle(protocol_interface_rf_mac_setup_s *rf_ptr)
-{
-    if (!rf_ptr) {
-        return;
-    }
-    mlme_scan_conf_t *r = rf_ptr->mac_mlme_scan_resp;
-
-    if (r) {
-        mac_mlme_scan_confirm_handler(rf_ptr, r);
-    }
-    mac_mlme_free_scan_temporary_data(rf_ptr);
 }
 
 void mac_mlme_mac_radio_disabled(protocol_interface_rf_mac_setup_s *rf_mac_setup)

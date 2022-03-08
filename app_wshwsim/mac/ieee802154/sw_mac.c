@@ -437,8 +437,6 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
             break;
         }
         case MLME_SCAN: {
-            const mlme_scan_t *dat = (const mlme_scan_t *)data;
-            mac_mlme_scan_request(dat, mac_store.setup);
             break;
         }
         case MLME_SET: {

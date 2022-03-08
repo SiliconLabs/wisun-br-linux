@@ -558,11 +558,6 @@ static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
-static void wsbr_mlme_scan(const struct mac_api_s *api, const void *data)
-{
-    WARN("%s: not implemented", __func__);
-}
-
 static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -604,10 +599,10 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
     } table[] = {
         { MLME_GET,           wsbr_mlme_get },
         { MLME_SET,           wsbr_mlme_set },
-        { MLME_SCAN,          wsbr_mlme_scan },
         { MLME_START,         wsbr_mlme_start },
         { MLME_RESET,         wsbr_mlme_reset },
         // Never used
+        { MLME_SCAN,          NULL },
         { MLME_POLL,          NULL }, // Only used with Thread?
         { MLME_ASSOCIATE,     NULL },
         { MLME_DISASSOCIATE,  NULL },
