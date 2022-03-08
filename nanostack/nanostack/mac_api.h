@@ -82,7 +82,7 @@ typedef enum {
  * \brief Container for MAC storage sizes.
  */
 typedef struct mac_description_storage_size_s {
-    uint8_t device_decription_table_size;   /**< MAC Device description list size */
+    uint8_t device_description_table_size;   /**< MAC Device description list size */
     uint8_t key_description_table_size;     /**< MAC Key description list size */
     uint8_t key_lookup_size;                /**< Key description key lookup list size */
     uint8_t key_usage_size;                 /**< Key description key usage list size */
@@ -245,7 +245,7 @@ typedef int8_t mac_ext_mac64_address_get(const mac_api_t *api, mac_extended_addr
  * @param api API to handle the request
  * @param buffer Pointer where supported sizes can be written
  */
-typedef int8_t mac_storage_decription_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
+typedef int8_t mac_storage_description_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
 
 /**
  * @brief mac_api_initialize Initialises MAC layer into use, callbacks must be non-NULL.
@@ -322,7 +322,7 @@ struct mac_api_s {
     mlme_indication                     *mlme_ind_cb;                   /**< MAC MLME indication callback function */
     mac_ext_mac64_address_set           *mac64_set;                     /**< MAC extension function to set mac64 address */
     mac_ext_mac64_address_get           *mac64_get;                     /**< MAC extension function to get mac64 address */
-    mac_storage_decription_sizes_get    *mac_storage_sizes_get;         /**< Getter function to query data storage sizes from MAC */
+    mac_storage_description_sizes_get    *mac_storage_sizes_get;         /**< Getter function to query data storage sizes from MAC */
 
     int8_t                              parent_id;                      /**< Upper layer id */
     uint16_t                            phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/

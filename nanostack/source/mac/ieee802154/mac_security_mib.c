@@ -230,11 +230,11 @@ static int8_t  mac_sec_mib_device_description_table_init(protocol_interface_rf_m
     return 0;
 }
 
-static int8_t mac_sec_mib_key_description_table_init(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t table_size, uint8_t device_decription_size, uint8_t key_lookup_size, uint8_t key_usage_size)
+static int8_t mac_sec_mib_key_description_table_init(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t table_size, uint8_t device_description_size, uint8_t key_lookup_size, uint8_t key_usage_size)
 {
 
     rf_mac_setup->key_description_table = mac_sec_mib_key_description_table_allocate(table_size);
-    rf_mac_setup->key_device_desc_buffer = mac_sec_mib_key_device_description_table_allocate(device_decription_size * table_size);
+    rf_mac_setup->key_device_desc_buffer = mac_sec_mib_key_device_description_table_allocate(device_description_size * table_size);
     rf_mac_setup->key_usage_list_buffer = mac_sec_mib_key_usage_table_allocate(key_usage_size * table_size);
     rf_mac_setup->key_lookup_buffer = mac_sec_mib_key_lookup_table_allocate(key_lookup_size * table_size);
 
@@ -249,7 +249,7 @@ static int8_t mac_sec_mib_key_description_table_init(protocol_interface_rf_mac_s
     rf_mac_setup->key_usage_list_size = key_usage_size;
 
     mlme_key_descriptor_t *key_descriptor_list = rf_mac_setup->key_description_table;
-    mlme_key_device_descriptor_t *key_device_decription = rf_mac_setup->key_device_desc_buffer;
+    mlme_key_device_descriptor_t *key_device_description = rf_mac_setup->key_device_desc_buffer;
     mlme_key_usage_descriptor_t *key_usage_ptr = rf_mac_setup->key_usage_list_buffer;
     mlme_key_id_lookup_descriptor_t *key_lookup = rf_mac_setup->key_lookup_buffer;
 
@@ -258,13 +258,13 @@ static int8_t mac_sec_mib_key_description_table_init(protocol_interface_rf_mac_s
 
         //Update Pointer values after first init
         if (i) {
-            key_device_decription += device_decription_size;
+            key_device_description += device_description_size;
             key_usage_ptr += key_usage_size;
             key_lookup += key_lookup_size;
             key_descriptor_list++;
         }
-        key_descriptor_list->KeyDeviceListSize = device_decription_size;
-        key_descriptor_list->KeyDeviceList = key_device_decription;
+        key_descriptor_list->KeyDeviceListSize = device_description_size;
+        key_descriptor_list->KeyDeviceList = key_device_description;
         key_descriptor_list->KeyUsageList = key_usage_ptr;
         key_descriptor_list->KeyIdLookupList = key_lookup;
     }
@@ -507,11 +507,11 @@ int8_t mac_sec_mib_init(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_des
     }
 
     mac_sec_mib_deinit(rf_mac_setup);
-    if (mac_sec_mib_device_description_table_init(rf_mac_setup, storage_sizes->device_decription_table_size) != 0) {
+    if (mac_sec_mib_device_description_table_init(rf_mac_setup, storage_sizes->device_description_table_size) != 0) {
         return -1;
     }
 
-    if (mac_sec_mib_key_description_table_init(rf_mac_setup, storage_sizes->key_description_table_size, storage_sizes->device_decription_table_size, storage_sizes->key_lookup_size, storage_sizes->key_usage_size)) {
+    if (mac_sec_mib_key_description_table_init(rf_mac_setup, storage_sizes->key_description_table_size, storage_sizes->device_description_table_size, storage_sizes->key_lookup_size, storage_sizes->key_usage_size)) {
         mac_sec_mib_deinit(rf_mac_setup);
         return -1;
     }

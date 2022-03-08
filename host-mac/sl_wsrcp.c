@@ -45,7 +45,7 @@ struct wsmac_ctxt g_ctxt = { };
 struct os_ctxt g_os_ctxt = { };
 // FIXME: should be const
 mac_description_storage_size_t g_storage_sizes = {
-    .device_decription_table_size = ARRAY_SIZE(g_ctxt.neighbor_timings),
+    .device_description_table_size = ARRAY_SIZE(g_ctxt.neighbor_timings),
     .key_description_table_size = 4,
     .key_lookup_size = 1,
     .key_usage_size = 3,

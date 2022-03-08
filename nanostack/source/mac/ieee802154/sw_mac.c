@@ -67,16 +67,16 @@ static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_addres
 static int8_t sw_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id);
 static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
 static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data, uint16_t length);
-static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
+static int8_t sw_mac_storage_description_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
 
 
-static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer)
+static int8_t sw_mac_storage_description_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer)
 {
     if (!api || !buffer || api != mac_store.mac_api) {
         return -1;
     }
 
-    buffer->device_decription_table_size = mac_store.setup->device_description_table_size;
+    buffer->device_description_table_size = mac_store.setup->device_description_table_size;
     buffer->key_description_table_size = mac_store.setup->key_description_table_size;
     buffer->key_lookup_size = mac_store.setup->key_lookup_list_size;
     buffer->key_usage_size = mac_store.setup->key_usage_list_size;
@@ -86,7 +86,7 @@ static int8_t sw_mac_storage_decription_sizes_get(const mac_api_t *api, mac_desc
 mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t *storage_sizes)
 {
     //TODO: Refactor this away, Drivers should be stored in MAC layer in future
-    if (!storage_sizes || !storage_sizes->device_decription_table_size || !storage_sizes->key_description_table_size || !storage_sizes->key_lookup_size || !storage_sizes->key_usage_size) {
+    if (!storage_sizes || !storage_sizes->device_description_table_size || !storage_sizes->key_description_table_size || !storage_sizes->key_lookup_size || !storage_sizes->key_usage_size) {
         return NULL;
     }
 
@@ -138,7 +138,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     this->mcps_purge_req = &purge_req;
     this->mac64_get = &macext_mac64_address_get;
     this->mac64_set = &macext_mac64_address_set;
-    this->mac_storage_sizes_get = &sw_mac_storage_decription_sizes_get;
+    this->mac_storage_sizes_get = &sw_mac_storage_description_sizes_get;
 
     mac_store.mac_api = this;
     mac_store.virtual_driver = NULL;

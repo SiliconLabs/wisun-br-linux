@@ -960,7 +960,7 @@ void wsmac_reset_ind(struct wsmac_ctxt *ctxt, bool hw)
     spinel_push_u32(tx_buf, version_fw);
     spinel_push_str(tx_buf, version_fw_str);
     spinel_push_bool(tx_buf, hw);
-    spinel_push_u8(tx_buf, g_storage_sizes.device_decription_table_size);
+    spinel_push_u8(tx_buf, g_storage_sizes.device_description_table_size);
     spinel_push_u8(tx_buf, g_storage_sizes.key_description_table_size);
     spinel_push_u8(tx_buf, g_storage_sizes.key_lookup_size);
     spinel_push_u8(tx_buf, g_storage_sizes.key_usage_size);

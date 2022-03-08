@@ -186,7 +186,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         ctxt->rcp_version_fw = spinel_pop_u32(buf);
         version_fw_str = spinel_pop_str(buf);
         spinel_pop_bool(buf); // is_hw_reset is no more used
-        ctxt->storage_sizes.device_decription_table_size = spinel_pop_u8(buf);
+        ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
