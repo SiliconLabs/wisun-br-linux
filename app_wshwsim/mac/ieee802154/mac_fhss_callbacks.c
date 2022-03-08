@@ -99,22 +99,6 @@ int mac_set_channel(const fhss_api_t *fhss_api, uint8_t channel_number)
     return mac_mlme_rf_channel_change(mac_setup, channel_number);
 }
 
-int mac_synch_lost(const fhss_api_t *fhss_api)
-{
-    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_fhss_api(fhss_api);
-    if (!mac_setup) {
-        return -1;
-    }
-    mac_api_t *mac_api = get_sw_mac_api(mac_setup);
-    if (!mac_api) {
-        return -1;
-    }
-    mlme_sync_loss_t sync_loss;
-    sync_loss.LossReason = BEACON_LOST;
-    mac_api->mlme_ind_cb(mac_api, MLME_SYNC_LOSS, &sync_loss);
-    return 0;
-}
-
 int mac_poll_tx_queue(const fhss_api_t *fhss_api)
 {
     protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_fhss_api(fhss_api);

@@ -231,14 +231,6 @@ typedef uint32_t mac_read_timestamp(const fhss_api_t *fhss_api);
 typedef int mac_change_channel(const fhss_api_t *fhss_api, uint8_t channel_number);
 
 /**
- * @brief Send notification when FHSS synchronization is lost.
- * @param fhss_api FHSS instance.
- * @return  0 Success.
- * @return -1 Invalid parameters.
- */
-typedef int mac_synch_lost_notification(const fhss_api_t *fhss_api);
-
-/**
  * @brief Poll TX queue.
  * @param fhss_api FHSS instance.
  * @return  0 Success.
@@ -286,7 +278,6 @@ struct fhss_callback {
     mac_read_datarate *read_datarate;                           /**< Read PHY datarate. */
     mac_read_timestamp *read_timestamp;                         /**< Read timestamp. */
     mac_change_channel *change_channel;                         /**< Change channel. */
-    mac_synch_lost_notification *synch_lost_notification;       /**< Send notification when FHSS synchronization is lost. */
     mac_tx_poll *tx_poll;                                       /**< Poll TX queue. */
     mac_broadcast_notify *broadcast_notify;                     /**< Broadcast channel notification from FHSS. */
     mac_read_coordinator_mac_address *read_coord_mac_address;   /**< Read coordinator MAC address. */
