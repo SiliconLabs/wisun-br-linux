@@ -252,7 +252,7 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, ws_hopping_schedule_t *own_shedule, const uint8_t address[8])
+void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, ws_hopping_schedule_t *own_shedule, const uint8_t address[8])
 {
     ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->channel_function;
     if (ws_us->channel_function == WS_FIXED_CHANNEL) {
