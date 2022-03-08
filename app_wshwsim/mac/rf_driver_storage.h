@@ -114,6 +114,5 @@ arm_device_driver_list_s *arm_net_phy_driver_pointer(int8_t id);
 uint32_t dev_get_phy_datarate(phy_device_driver_s *phy_driver, channel_page_e channel_page);
 int8_t arm_net_phy_init(phy_device_driver_s *phy_driver, arm_net_phy_rx_fn *rx_cb, arm_net_phy_tx_done_fn *done_cb);
 void arm_net_observer_cb_set(int8_t id, internal_mib_observer *observer_cb);
-void arm_net_virtual_config_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_config_rx_fn *virtual_config_rx);
 void arm_net_virtual_confirmation_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx);
 #endif // RF_DRIVER_STORAGE_H

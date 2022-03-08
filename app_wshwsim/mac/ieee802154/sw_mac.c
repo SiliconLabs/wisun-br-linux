@@ -65,7 +65,6 @@ static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_addres
 
 static int8_t sw_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id);
 static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
-static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data, uint16_t length);
 static int8_t sw_mac_storage_description_sizes_get(const mac_api_t *api, mac_description_storage_size_t *buffer);
 
 
@@ -124,7 +123,6 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     tr_debug("Set MAC mode to %s, MTU size: %u", "IEEE 802.15.4-2011", mac_store.setup->phy_mtu_size);
 
     arm_net_phy_init(driver->phy_driver, &sw_mac_net_phy_rx, &sw_mac_net_phy_tx_done);
-    arm_net_virtual_config_rx_cb_set(driver->phy_driver, &sw_mac_net_phy_config_parser);
     arm_net_virtual_confirmation_rx_cb_set(driver->phy_driver, &mac_mlme_virtual_confirmation_handle);
 
     this->mac_initialize = &ns_sw_mac_initialize;
@@ -596,49 +594,6 @@ static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_li
 
     return mac_pd_sap_data_cb(driver->phy_sap_identifier, &phy_msg);
 }
-
-static void bc_enable_timer_cb(int timer_id, uint16_t slots)
-{
-    (void)slots;
-    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_timer(timer_id, ARM_NWK_BC_TIMER);
-    if (mac_setup) {
-        mac_setup->macBroadcastDisabled = true;
-    }
-}
-
-static int8_t sw_mac_net_phy_config_parser(int8_t driver_id, const uint8_t *data, uint16_t length)
-{
-    (void)length;
-    arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(driver_id);
-    if (!driver) {
-        return -1;
-    }
-    protocol_interface_rf_mac_setup_s *mac_setup = (protocol_interface_rf_mac_setup_s *)driver->phy_sap_identifier;
-    if (!mac_setup) {
-        return -2;
-    }
-    uint8_t config_type = *data++;
-    switch (config_type) {
-        case MAC_BROADCAST_EVENT:
-            // If timer is not registered do it here
-            if (mac_setup->bc_timer_id == -1) {
-                mac_setup->bc_timer_id = eventOS_callback_timer_register(bc_enable_timer_cb);
-            }
-            if (mac_setup->bc_timer_id != -1) {
-                uint32_t broadcast_time = common_read_32_bit(data);
-                // Time is given as 50us slots
-                eventOS_callback_timer_start(mac_setup->bc_timer_id, broadcast_time / 50);
-                mac_setup->macBroadcastDisabled = false;
-                // Trig TX queue poll to send queued broadcast frames
-                mcps_sap_trig_tx(mac_setup);
-            }
-            break;
-        default:
-            break;
-    }
-    return 0;
-}
-
 
 void sw_mac_stats_update(protocol_interface_rf_mac_setup_s *setup, mac_stats_type_t type, uint32_t update_val)
 {

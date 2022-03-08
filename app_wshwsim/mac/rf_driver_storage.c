@@ -167,14 +167,6 @@ void arm_net_observer_cb_set(int8_t id, internal_mib_observer *observer_cb)
     driver->mlme_observer_cb = observer_cb;
 }
 
-void arm_net_virtual_config_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_config_rx_fn *virtual_config_rx)
-{
-    if (!phy_driver) {
-        return;
-    }
-    phy_driver->virtual_config_rx_cb = virtual_config_rx;
-}
-
 void arm_net_virtual_confirmation_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx)
 {
     if (!phy_driver) {
