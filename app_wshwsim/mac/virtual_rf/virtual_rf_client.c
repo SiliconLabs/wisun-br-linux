@@ -62,56 +62,10 @@ static int8_t phy_rf_virtual_config_send(int8_t driver_id, const uint8_t *data, 
     return -1;
 }
 
-static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8_t driver_id)
-{
-    if (rf_driver_id != driver_id || !data_ptr) {
-        return -1;
-    }
-
-    arm_device_driver_list_s *driver = arm_net_phy_driver_pointer(driver_id);
-    if (!driver || !driver->phy_sap_identifier || !driver->phy_sap_upper_cb) {
-        return -1;
-    }
-
-    uint8_t data_type = *data_ptr++;
-    arm_phy_sap_msg_t phy_msg;
-
-    switch (data_type) {
-        case NAP_DATA_PHY_RAW_REQUEST:
-            if (data_len <= 5) {
-                return -1;
-            }
-            phy_msg.id = MACTUN_PD_SAP_NAP_IND;
-            phy_msg.message.generic_data_ind.data_len = data_len - 1;
-            phy_msg.message.generic_data_ind.data_ptr = data_ptr;
-            phy_msg.message.generic_data_ind.dbm = 0;
-            phy_msg.message.generic_data_ind.link_quality = 0;
-            break;
-
-        case NAP_MLME_REQUEST:
-            if (data_len < 3) {
-                return -1;
-            }
-            phy_msg.id = MACTUN_MLME_NAP_EXTENSION;
-            phy_msg.message.mlme_request.primitive = (mlme_primitive) * data_ptr++;
-            phy_msg.message.mlme_request.mlme_ptr = data_ptr;
-            phy_msg.message.mlme_request.ptr_length = (data_len - 2);
-
-            break;
-
-        default:
-            return -1;
-    }
-
-
-    return driver->phy_sap_upper_cb(driver->phy_sap_identifier, &phy_msg);
-}
-
 int8_t virtual_rf_client_register(void)
 {
     if (rf_driver_id < 0) {
         memset(&device_driver, 0, sizeof(phy_device_driver_s));
-        device_driver.arm_net_virtual_rx_cb = &phy_rf_virtual_rx;
         device_driver.phy_rx_cb = &phy_rf_rx;
         device_driver.phy_tx_done_cb = &phy_rf_tx_done;
         device_driver.virtual_config_tx_cb = phy_rf_virtual_config_send;

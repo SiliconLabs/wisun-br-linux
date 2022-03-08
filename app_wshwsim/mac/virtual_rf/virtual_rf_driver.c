@@ -68,54 +68,6 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
 static int8_t phy_rf_address_write(phy_address_type_e address_type, uint8_t *address_ptr);
 static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *data_ptr);
 
-
-static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8_t driver_id)
-{
-    if (rf_driver_id != driver_id || !data_ptr) {
-        return -1;
-    }
-
-    uint8_t data_type = *data_ptr++;
-
-    switch (data_type) {
-        case NAP_DATA_PHY_RAW_INDICATION: {
-            if (data_len < 4 || !device_driver.phy_rx_cb) {
-                return -1;
-            }
-            int8_t dbm;
-            uint8_t link_quality = *data_ptr++;
-            dbm = *data_ptr++;
-            return device_driver.phy_rx_cb(data_ptr, data_len - 3, link_quality, dbm, driver_id);
-        }
-        case NAP_DATA_PHY_RAW_RESPONSE: {
-            if (data_len != 4 || !device_driver.phy_tx_done_cb) {
-                return -1;
-            }
-            uint8_t tx_retry, cca_retry;
-            phy_link_tx_status_e status;
-            status = (phy_link_tx_status_e) * data_ptr++;
-            cca_retry = *data_ptr++;
-            tx_retry = *data_ptr;
-            return  device_driver.phy_tx_done_cb(driver_id, 1, status, cca_retry, tx_retry);
-        }
-        case NAP_CONFIG_INTERNAL: {
-            if (!device_driver.virtual_config_rx_cb) {
-                return -1;
-            }
-            return  device_driver.virtual_config_rx_cb(driver_id, data_ptr, data_len - 1);
-        }
-        case NAP_MLME_CONFIRM: {
-            if (!device_driver.virtual_confirmation_rx_cb) {
-                return -1;
-            }
-            return device_driver.virtual_confirmation_rx_cb(driver_id, data_ptr, data_len - 1);
-        }
-        default:
-            break;
-    }
-    return -1;
-}
-
 /**
  * \brief This function is used by the network stack library to set the interface state:
  *
@@ -322,7 +274,6 @@ int8_t virtual_rf_device_register(phy_link_type_e link_type, uint16_t mtu_size)
         memset(&device_driver, 0, sizeof(phy_device_driver_s));
         /*Set pointer to MAC address*/
         device_driver.PHY_MAC = rf_mac_address;
-        device_driver.arm_net_virtual_rx_cb = &phy_rf_virtual_rx;
         device_driver.driver_description = "VSND";
 
         device_driver.link_type = link_type;
