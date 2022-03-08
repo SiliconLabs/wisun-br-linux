@@ -71,7 +71,7 @@ static int8_t ws_disable_channels_in_range(uint32_t *channel_mask, uint16_t numb
     return 0;
 }
 
-int8_t ws_common_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
+int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
 {
     // Clear channel mask
     for (uint8_t i = 0; i < 8; i++) {

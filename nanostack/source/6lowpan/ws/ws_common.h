@@ -153,7 +153,7 @@ typedef struct ws_info_s {
 } ws_info_t;
 
 
-int8_t ws_common_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
+int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
 uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
