@@ -117,6 +117,7 @@ int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entr
             ws_disable_channels_in_range(channel_mask, number_of_channels, 30, 33);
         }
     }
+    ws_regulation_update_channel_mask(cur, channel_mask);
     return 0;
 }
 
