@@ -64,17 +64,6 @@ typedef enum {
 } mlme_command_type_t;
 
 /**
- * @brief enum mlme_loss_reason_t loss reason enumeration
- *
- * See IEEE standard 802.15.4-2006 (table 75) for more details
- */
-typedef enum {
-    PAN_ID_CONFLICT,    /**<Pan id conflict (Not supported)*/
-    REALIGNMENT,        /**<Cordinator Realignment(Not supported)*/
-    BEACON_LOST         /**<FHSS indicate by this when it loose synch to coordinator*/
-} mlme_loss_reason_t;
-
-/**
  * @brief struct mlme_key_usage_descriptor_t Key usage descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 90) for more details
@@ -461,21 +450,6 @@ typedef struct mlme_start_s {
 typedef struct mlme_start_conf_s {
     uint8_t status;                 /**< Status for start confirmation */
 } mlme_start_conf_t;
-
-
-/**
- * @brief struct mlme_sync_loss_s Synch loss indication
- *
- * Stack will trig this with FHSS enabled mac when synch to parent is lost
- * See IEEE standard 802.15.4-2006 (table 73) for more details
- */
-typedef struct mlme_sync_loss_s {
-    mlme_loss_reason_t LossReason; /**< Loss reason, BEACON_LOST with FHSS */
-    uint16_t PANId;                 /**< Pan-id */
-    uint8_t LogicalChannel;         /**< Logical channel */
-    uint8_t ChannelPage;            /**< Logical channel page */
-    mlme_security_t Key;            /**< Security parameters */
-} mlme_sync_loss_t;
 
 /**
  * @brief struct mlme_poll_t Poll request structure

@@ -229,16 +229,7 @@ void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void
 
             break;
         }
-        case MLME_SYNC_LOSS: {
-            mlme_sync_loss_t *dat = (mlme_sync_loss_t *)data;
-            protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-            if (info_entry) {
-                if (dat->LossReason == BEACON_LOST) {
-                    nwk_bootstrap_state_update(ARM_NWK_NWK_SCAN_FAIL, info_entry);
-                }
-            }
-            break;
-        }
+        case MLME_SYNC_LOSS:
         case MLME_GET:
         case MLME_RESET:
         case MLME_RX_ENABLE:

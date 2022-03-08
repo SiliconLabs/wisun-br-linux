@@ -843,8 +843,8 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
             break;
         }
         case MLME_SYNC_LOSS: {
-            DEBUG("dataInd MLME_SYNC_LOSS");
-            data_len = sizeof(mlme_sync_loss_t);
+            DEBUG("dataInd MLME_SYNC_LOSS ignored");
+            data_len = 0;
             break;
         }
         default: {
