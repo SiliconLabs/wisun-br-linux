@@ -216,7 +216,6 @@ typedef struct protocol_interface_rf_mac_setup {
     /* Radio State flags */
     bool macRfRadioOn: 1;
     bool macRfRadioTxActive: 1;
-    bool macBroadcastDisabled: 1;
     bool scan_active: 1;
     bool rf_csma_extension_supported: 1;
     bool rf_pd_ack_buffer_is_in_use: 1;

@@ -2111,11 +2111,6 @@ void mcps_sap_pd_req_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup
         return;
     }
     if (!rf_mac_setup->active_pd_data_request) {
-        // Push broadcast buffers to queue when broadcast disabled flag is set
-        if ((rf_mac_setup->macBroadcastDisabled == true) && !mac_is_ack_request_set(buffer)) {
-            goto push_to_queue;
-        }
-
         if (buffer->ExtendedFrameExchange) {
             //Update here state and store peer
             memcpy(rf_mac_setup->mac_edfe_info->PeerAddr, buffer->DstAddr, 8);
@@ -2245,19 +2240,6 @@ static mac_pre_build_frame_t *mcps_sap_pd_req_queue_read(protocol_interface_rf_m
             prev = buffer;
             buffer = buffer->next;
         }
-    }
-    // This check is here to prevent (Linux) border router from pushing broadcast frames to RF interface on unicast channel.
-    while (buffer) {
-        /* Allow returning buffer when:
-         * - Flush is enabled
-         * - Broadcast not disabled
-         * - Broadcast is disabled and buffer has unicast destination
-         */
-        if ((flush == true) || (rf_mac_setup->macBroadcastDisabled == false) || ((rf_mac_setup->macBroadcastDisabled == true) && mac_is_ack_request_set(buffer))) {
-            break;
-        }
-        prev = buffer;
-        buffer = buffer->next;
     }
     if (!buffer) {
         return NULL;
