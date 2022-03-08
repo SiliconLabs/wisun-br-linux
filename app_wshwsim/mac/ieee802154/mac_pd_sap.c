@@ -1239,6 +1239,5 @@ void mac_pd_sap_rf_low_level_function_set(void *mac_ptr, void *driver)
 {
     arm_device_driver_list_s *driver_ptr = (arm_device_driver_list_s *)driver;
     driver_ptr->phy_sap_identifier = (protocol_interface_rf_mac_setup_s *)mac_ptr;
-    driver_ptr->phy_sap_upper_cb = mac_pd_sap_data_cb;
 }
 

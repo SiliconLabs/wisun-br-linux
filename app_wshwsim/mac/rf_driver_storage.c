@@ -43,7 +43,6 @@ static arm_device_driver_list_s *dev_driver_dynamically_allocate(void)
     event = ns_dyn_mem_alloc(sizeof(arm_device_driver_list_s));
     if (event) {
         event->phy_sap_identifier = NULL;
-        event->phy_sap_upper_cb = NULL;
         event->mlme_observer_cb = NULL;
         ns_list_link_init(event, link);
     }

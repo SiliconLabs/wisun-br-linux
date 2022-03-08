@@ -92,19 +92,11 @@ typedef struct arm_phy_sap_msg_s {
     } message;
 } arm_phy_sap_msg_t;
 
-/**
- * @brief struct mac_ps_data_cb Typedef for upper layer callback function
- * @param identifier Upper layer identifier (set by upper layer)
- * @param message PD-SAP confirm or indication message
- */
-typedef int8_t mac_ps_data_cb(void *identifier, arm_phy_sap_msg_t *message);
-
 typedef void internal_mib_observer(const mlme_set_t *set_req);
 
 typedef struct arm_device_driver_list {
     int8_t id; /**< Event handler Tasklet ID */
     phy_device_driver_s *phy_driver;
-    mac_ps_data_cb *phy_sap_upper_cb;
     void *phy_sap_identifier;
     internal_mib_observer *mlme_observer_cb;
     ns_list_link_t link;

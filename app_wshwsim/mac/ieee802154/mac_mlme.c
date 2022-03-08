@@ -1116,7 +1116,6 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
     if (rf_mac) {
         if (rf_mac->dev_driver) {
             rf_mac->dev_driver->phy_sap_identifier = NULL;
-            rf_mac->dev_driver->phy_sap_upper_cb = NULL;
         }
 
         eventOS_callback_timer_unregister(rf_mac->mlme_timer_id);
