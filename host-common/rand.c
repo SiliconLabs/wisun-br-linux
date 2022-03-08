@@ -17,49 +17,50 @@
 #include <stdio.h>
 #include <limits.h>
 #include "host-common/rand.h"
-
-static FILE *random_file;
+#include "host-common/log.h"
 
 uint8_t rand_get_8bit(void)
 {
-    return rand_get_64bit();
+    uint8_t result;
+
+    rand_get_n_bytes_random(&result, sizeof(result));
+    return result;
 }
 
 uint16_t rand_get_16bit(void)
 {
-    return rand_get_64bit();
+    uint16_t result;
+
+    rand_get_n_bytes_random(&result, sizeof(result));
+    return result;
 }
 
 uint32_t rand_get_32bit(void)
 {
-    return rand_get_64bit();
+    uint32_t result;
+
+    rand_get_n_bytes_random(&result, sizeof(result));
+    return result;
 }
 
 uint64_t rand_get_64bit(void)
 {
     uint64_t result;
 
-    if (!random_file)
-        random_file = fopen("/dev/urandom", "r");
-    if (fread(&result, sizeof(result), 1, random_file) != 1)
-        result = 0;
+    rand_get_n_bytes_random(&result, sizeof(result));
     return result;
 }
 
 void *rand_get_n_bytes_random(void *ptr, uint8_t count)
 {
-    uint8_t *data_ptr = ptr;
-    uint64_t r = 0;
-    int i;
+    static FILE *dev_urandom;
+    int ret;
 
-    for (i = 0; i < count; i++) {
-        if (i % 8 == 0)
-            r = rand_get_64bit();
-        else
-            r >>= 8;
-        data_ptr[i] = (uint8_t)r;
-    }
-    return data_ptr;
+    if (!dev_urandom)
+        dev_urandom = fopen("/dev/urandom", "r");
+    ret = fread(ptr, 1, count, dev_urandom);
+    FATAL_ON(ret != count, 2, );
+    return ptr;
 }
 
 uint16_t rand_get_random_in_range(uint16_t min, uint16_t max)
@@ -91,15 +92,11 @@ uint16_t rand_get_random_in_range(uint16_t min, uint16_t max)
      * range increases).
      */
     const unsigned int values_needed = max + 1 - min;
-    /* Avoid the need for long division, at the expense of fractionally
-     * increasing reroll chance. */
-    const unsigned int rand_max = 0xFFFFFFFFu;
-    const unsigned int band_size = rand_max / values_needed;
+    const unsigned int band_size = UINT32_MAX / values_needed;
     const unsigned int top_of_bands = band_size * values_needed;
     unsigned int result;
 
-    /* This special case is potentially common, particularly in this routine's
-     * first user (Trickle), so worth catching immediately */
+    /* Obvious special case */
     if (min == max)
         return min;
 
