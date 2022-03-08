@@ -99,26 +99,6 @@ int mac_set_channel(const fhss_api_t *fhss_api, uint8_t channel_number)
     return mac_mlme_rf_channel_change(mac_setup, channel_number);
 }
 
-int mac_fhss_frame_tx(const fhss_api_t *fhss_api, int frame_type)
-{
-    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_fhss_api(fhss_api);
-    if (!mac_setup) {
-        return -1;
-    }
-    if (FHSS_SYNCH_REQUEST_FRAME == frame_type) {
-        if (mac_mlme_beacon_req_tx(mac_setup) != 1) {
-            return -1;
-        }
-    } else if (FHSS_SYNCH_FRAME == frame_type) {
-        if (mac_mlme_beacon_tx(mac_setup) != 0) {
-            return -1;
-        }
-    } else {
-        return -1;
-    }
-    return 0;
-}
-
 int mac_synch_lost(const fhss_api_t *fhss_api)
 {
     protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_fhss_api(fhss_api);

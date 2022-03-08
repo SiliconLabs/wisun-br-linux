@@ -186,7 +186,6 @@ int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
     callbacks.read_timestamp = &mac_read_phy_timestamp;
     callbacks.read_mac_address = &mac_read_64bit_mac_address;
     callbacks.change_channel = &mac_set_channel;
-    callbacks.send_fhss_frame = &mac_fhss_frame_tx;
     callbacks.synch_lost_notification = &mac_synch_lost;
     callbacks.tx_poll = &mac_poll_tx_queue;
     callbacks.broadcast_notify = &mac_broadcast_notification;
