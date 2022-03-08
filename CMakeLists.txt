@@ -167,7 +167,6 @@ add_executable(wsbrd
     nanostack/source/net_lib/src/net_ipv6.c
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
-    # Excluded nanostack/source/mac/serial
     # Excluded nanostack/source/mac/ieee802154
     # Excluded nanostack/source/mac/virtual_rf
     nanostack/source/mpl/mpl.c
@@ -386,7 +385,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/net_lib/src/net_ipv6.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
-        # Excluded nanostack/source/mac/serial
         # Excluded nanostack/source/mac/ieee802154
         # Excluded nanostack/source/mac/virtual_rf
         nanostack/source/mpl/mpl.c
