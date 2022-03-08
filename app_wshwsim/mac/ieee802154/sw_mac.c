@@ -26,7 +26,6 @@
 #include "mac/ieee802154/mac_pd_sap.h"
 #include "mac/ieee802154/mac_security_mib.h"
 #include "mac/rf_driver_storage.h"
-#include "mac/virtual_rf/virtual_rf_defines.h"
 #include "mac_fhss_callbacks.h"
 #include "eventOS_callback_timer.h"
 #include "common_functions.h"

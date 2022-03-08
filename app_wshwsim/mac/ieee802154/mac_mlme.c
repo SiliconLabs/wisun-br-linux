@@ -49,7 +49,6 @@
 #include "mac/ieee802154/mac_pd_sap.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
-#include "mac/virtual_rf/virtual_rf_defines.h"
 #include "mac/rf_driver_storage.h"
 
 #define TRACE_GROUP "mlme"

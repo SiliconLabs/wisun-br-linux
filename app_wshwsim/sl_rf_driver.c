@@ -33,8 +33,6 @@
 #include "sl_wsrcp.h"
 #include "sl_rf_driver.h"
 
-#include "mac/virtual_rf/virtual_rf_defines.h"
-
 #define TRACE_GROUP "vrf"
 
 static phy_device_driver_s device_driver;
