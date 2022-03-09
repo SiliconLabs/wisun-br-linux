@@ -537,7 +537,7 @@ static int16_t tls_sec_prot_tls_send(void *handle, const void *buf, size_t len)
     /* If send buffer is too small for the TLS payload, re-allocates */
     uint16_t new_len = prot->header_size + data->tls_send.handled_len + len;
     if (new_len > data->tls_send.total_len) {
-        tr_error("TLS send buffer size too small: %i < %i, allocating new: %i", data->tls_send.total_len, new_len, data->tls_send.total_len + TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT);
+        tr_debug("TLS send buffer size too small: %i < %i, allocating new: %i", data->tls_send.total_len, new_len, data->tls_send.total_len + TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT);
         if (eap_tls_sec_prot_lib_message_realloc(&data->tls_send, prot->header_size,
                                                  data->tls_send.total_len + TLS_SEC_PROT_SEND_BUFFER_SIZE_INCREMENT) < 0) {
             return -1;
