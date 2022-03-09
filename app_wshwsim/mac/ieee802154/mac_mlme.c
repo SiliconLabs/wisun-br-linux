@@ -1383,24 +1383,7 @@ int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *dat
 
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf)
 {
-    if (rf_ptr->tun_extension_rf_driver) {
-        virtual_data_req_t start_conf;
-        uint8_t buf_temp[2];
-        uint8_t payload_buf[2];
-        // Add some random data as empty payload is not allowed
-        payload_buf[0] = 0;
-        payload_buf[1] = 0;
-
-        memset(&start_conf, 0, sizeof(virtual_data_req_t));
-        buf_temp[0] = NAP_MLME_CONFIRM;
-        buf_temp[1] = MLME_START;
-        start_conf.parameters = buf_temp;
-        start_conf.parameter_length = sizeof(buf_temp);
-        start_conf.msdu = payload_buf;
-        start_conf.msduLength = sizeof(payload_buf);
-
-        rf_ptr->tun_extension_rf_driver->phy_driver->arm_net_virtual_tx_cb(&start_conf, rf_ptr->tun_extension_rf_driver->id);
-    } else if (get_sw_mac_api(rf_ptr)) {
+    if (get_sw_mac_api(rf_ptr)) {
         if (get_sw_mac_api(rf_ptr)->mlme_conf_cb) {
             get_sw_mac_api(rf_ptr)->mlme_conf_cb(get_sw_mac_api(rf_ptr), MLME_START, conf);
         }
@@ -1409,24 +1392,7 @@ static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf
 
 static void mac_mlme_scan_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_scan_conf_t *conf)
 {
-    if (rf_ptr->tun_extension_rf_driver) {
-        virtual_data_req_t scan_conf;
-        uint8_t buf_temp[2];
-        uint8_t payload_buf[2];
-        // Add some random data as empty payload is not allowed
-        payload_buf[0] = 0;
-        payload_buf[1] = 0;
-
-        memset(&scan_conf, 0, sizeof(virtual_data_req_t));
-        buf_temp[0] = NAP_MLME_CONFIRM;
-        buf_temp[1] = MLME_SCAN;
-        scan_conf.parameters = buf_temp;
-        scan_conf.parameter_length = sizeof(buf_temp);
-        scan_conf.msdu = payload_buf;
-        scan_conf.msduLength = sizeof(payload_buf);
-
-        rf_ptr->tun_extension_rf_driver->phy_driver->arm_net_virtual_tx_cb(&scan_conf, rf_ptr->tun_extension_rf_driver->id);
-    } else if (get_sw_mac_api(rf_ptr)) {
+    if (get_sw_mac_api(rf_ptr)) {
         if (get_sw_mac_api(rf_ptr)->mlme_conf_cb) {
             get_sw_mac_api(rf_ptr)->mlme_conf_cb(get_sw_mac_api(rf_ptr), MLME_SCAN, conf);
         }

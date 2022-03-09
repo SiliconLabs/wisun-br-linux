@@ -159,7 +159,6 @@ int8_t ns_sw_mac_virtual_client_unregister(mac_api_t *api)
     }
 
     if (mac_store.virtual_driver) {
-        mac_store.setup->tun_extension_rf_driver = NULL;
         mac_store.virtual_driver->phy_sap_identifier = NULL;
         mac_store.virtual_driver->phy_sap_upper_cb = NULL;
         mac_store.virtual_driver = NULL;

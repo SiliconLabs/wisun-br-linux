@@ -407,126 +407,6 @@ verify_status:
     }
 }
 
-static int8_t mac_virtual_data_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, const uint8_t *data_ptr, uint16_t data_length)
-{
-
-    if (!rf_mac_setup->macUpState || data_length > rf_mac_setup->phy_mtu_size) {
-        return -1;
-    }
-
-    //protocol_interface_rf_mac_setup_s *rf_mac_setup = (protocol_interface_rf_mac_setup_s*)api;
-    mac_pre_build_frame_t *buffer = mcps_sap_prebuild_frame_buffer_get(data_length);
-    //tr_debug("Data Req");
-    if (!buffer) {
-        //Make Confirm Here
-        return -1;
-    }
-
-    mac_header_parse_fcf_dsn(&buffer->fcf_dsn, data_ptr);
-    // Use MAC sequence as handle
-    buffer->msduHandle = buffer->fcf_dsn.DSN;
-    memcpy(buffer->mac_payload, data_ptr,  data_length);
-    buffer->mac_payload_length = data_length;
-
-    // Read destination MAC address from MAC header
-    mac_header_get_dst_address(&buffer->fcf_dsn, data_ptr, buffer->DstAddr);
-
-    mcps_sap_pd_req_queue_write(rf_mac_setup, buffer);
-
-    if (!buffer->fcf_dsn.ackRequested) {
-        phy_device_driver_s *driver = rf_mac_setup->tun_extension_rf_driver->phy_driver;
-        driver->phy_tx_done_cb(rf_mac_setup->tun_extension_rf_driver->id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
-    }
-    return 0;
-}
-
-static int8_t mac_virtual_mlme_nap_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, const arm_mlme_req_t *mlme_req)
-{
-    const uint8_t *ptr = mlme_req->mlme_ptr;
-    switch (mlme_req->primitive) {
-        case MLME_SCAN: {
-            if (mlme_req->ptr_length != 47) {
-                return -1;
-            }
-
-            mlme_scan_t mlme_scan_req;
-            mlme_scan_req.ScanType = (mac_scan_type_t) * ptr++;
-            mlme_scan_req.ScanChannels.channel_page = (channel_page_e) * ptr++;
-            memcpy(mlme_scan_req.ScanChannels.channel_mask, ptr, 32);
-            ptr += 32;
-            mlme_scan_req.ScanDuration = *ptr++;
-            mlme_scan_req.ChannelPage = *ptr++;
-            mlme_scan_req.Key.SecurityLevel = *ptr++;
-            mlme_scan_req.Key.KeyIdMode = *ptr++;
-            mlme_scan_req.Key.KeyIndex = *ptr++;
-            memcpy(mlme_scan_req.Key.Keysource, ptr, 8);
-            mac_mlme_scan_request(&mlme_scan_req, rf_mac_setup);
-            return 0;
-        }
-        case MLME_SET: {
-            if (mlme_req->ptr_length < 3) {
-                return -1;
-            }
-            mlme_set_t mlme_set_req;
-            mlme_set_req.attr = (mlme_attr_t) * ptr++;
-            mlme_set_req.attr_index = *ptr++;
-            mlme_set_req.value_pointer = ptr;
-            mlme_set_req.value_size = mlme_req->ptr_length - 2;
-
-            return mac_mlme_set_req(rf_mac_setup, &mlme_set_req);
-        }
-        case MLME_START: {
-            mlme_start_t mlme_start_req;
-            if (mlme_req->ptr_length != 34) {
-                return -1;
-            }
-            mlme_start_req.PANId = common_read_16_bit(ptr);
-            ptr += 2;
-            mlme_start_req.LogicalChannel = *ptr++;
-            mlme_start_req.StartTime = common_read_32_bit(ptr);
-            ptr += 4;
-            mlme_start_req.BeaconOrder = *ptr++;
-            mlme_start_req.SuperframeOrder = *ptr++;
-            mlme_start_req.PANCoordinator = *ptr++;
-            mlme_start_req.BatteryLifeExtension = *ptr++;
-            mlme_start_req.CoordRealignment = *ptr++;
-            mlme_start_req.CoordRealignKey.SecurityLevel = *ptr++;
-            mlme_start_req.CoordRealignKey.KeyIdMode = *ptr++;
-            mlme_start_req.CoordRealignKey.KeyIndex = *ptr++;
-            memcpy(mlme_start_req.CoordRealignKey.Keysource, ptr, 8);
-            ptr += 8;
-            mlme_start_req.BeaconRealignKey.SecurityLevel = *ptr++;
-            mlme_start_req.BeaconRealignKey.KeyIdMode = *ptr++;
-            mlme_start_req.BeaconRealignKey.KeyIndex = *ptr++;
-            memcpy(mlme_start_req.BeaconRealignKey.Keysource, ptr, 8);
-            ptr += 8;
-            return mac_mlme_start_req(&mlme_start_req, rf_mac_setup);
-        }
-        default:
-            break;
-    }
-    return -1;
-}
-
-
-int8_t mac_virtual_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
-{
-    if (!identifier || !message) {
-        return -1;
-    }
-
-    if (message->id == MACTUN_PD_SAP_NAP_IND) {
-        return mac_virtual_data_req_handler(identifier, message->message.generic_data_ind.data_ptr,  message->message.generic_data_ind.data_len);
-    }
-
-    if (message->id == MACTUN_MLME_NAP_EXTENSION) {
-        return mac_virtual_mlme_nap_req_handler(identifier, &message->message.mlme_request);
-    }
-    return -1;
-}
-
-
-
 //static void mac_data_interface_minium_security_level_get(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_security_level_descriptor_t *security_level_compare) {
 //    //TODO get securily level table and verify current packet
 //    (void)rf_mac_setup;
@@ -946,15 +826,6 @@ DROP_PACKET:
     return retval;
 }
 
-static void mac_nap_tun_data_handler(mac_pre_parsed_frame_t *buf, protocol_interface_rf_mac_setup_s *rf_mac_setup)
-{
-    phy_device_driver_s *driver = rf_mac_setup->tun_extension_rf_driver->phy_driver;
-    if (driver->phy_rx_cb) {
-        driver->phy_rx_cb(buf->buf, buf->frameLength, buf->LQI, buf->dbm, rf_mac_setup->tun_extension_rf_driver->id);
-    }
-    mcps_sap_pre_parsed_frame_buffer_free(buf);
-}
-
 static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
 {
     protocol_interface_rf_mac_setup_s *rf_mac_setup = buf->mac_class_ptr;
@@ -964,7 +835,7 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
     }
     /* push data to stack if sniffer mode is enabled */
     if (rf_mac_setup->macProminousMode) {
-        mac_nap_tun_data_handler(buf, rf_mac_setup);
+        tr_error("not supported");
         return;
     }
     mac_api_t *mac = get_sw_mac_api(rf_mac_setup);
@@ -978,20 +849,9 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
     sw_mac_stats_update(rf_mac_setup, STAT_MAC_RX_COUNT, 0);
     switch (buf->fcf_dsn.frametype) {
         case MAC_FRAME_DATA:
-            if (rf_mac_setup->tun_extension_rf_driver) {
-                mac_nap_tun_data_handler(buf, rf_mac_setup);
-                return;
-            }
             mac_data_sap_rx_handler(buf, rf_mac_setup, mac);
             break;
         case MAC_FRAME_CMD:
-            if (rf_mac_setup->tun_extension_rf_driver) {
-                if (mcps_mac_command_frame_id_get(buf) != MAC_BEACON_REQ) {
-                    mac_nap_tun_data_handler(buf, rf_mac_setup);
-                    return;
-                }
-            }
-
             //Handle Command Frame
             mac_command_sap_rx_handler(buf, rf_mac_setup, mac);
             break;
@@ -1429,12 +1289,6 @@ static void mac_data_interface_internal_tx_confirm_handle(protocol_interface_rf_
             break;
 
         default:
-            if (rf_mac_setup->tun_extension_rf_driver) {
-                if (buf->fcf_dsn.ackRequested) {
-                    phy_device_driver_s *driver = rf_mac_setup->tun_extension_rf_driver->phy_driver;
-                    driver->phy_tx_done_cb(rf_mac_setup->tun_extension_rf_driver->id, 1, (phy_link_tx_status_e)buf->status, rf_mac_setup->mac_tx_status.cca_cnt, rf_mac_setup->mac_tx_status.retry);
-                }
-            }
             break;
     }
 

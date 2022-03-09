@@ -319,7 +319,6 @@ typedef struct protocol_interface_rf_mac_setup {
     //Device driver and buffer
     struct arm_device_driver_list *dev_driver;
     dev_driver_tx_buffer_s dev_driver_tx_buffer;
-    struct arm_device_driver_list *tun_extension_rf_driver;
     /* End of API Control */
     struct mlme_scan_conf_s *mac_mlme_scan_resp;
     struct mac_cca_threshold *cca_threshold;

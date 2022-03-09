@@ -151,12 +151,6 @@ int mac_broadcast_notification(const fhss_api_t *fhss_api, uint32_t broadcast_ti
     if (!mac_setup) {
         return -1;
     }
-    if (mac_setup->tun_extension_rf_driver && mac_setup->tun_extension_rf_driver->phy_driver->virtual_config_tx_cb) {
-        uint8_t data_buffer[5];
-        data_buffer[0] = MAC_BROADCAST_EVENT;
-        common_write_32_bit(broadcast_time, &data_buffer[1]);
-        mac_setup->tun_extension_rf_driver->phy_driver->virtual_config_tx_cb(mac_setup->tun_extension_rf_driver->id, data_buffer, 5);
-    }
     return 0;
 }
 
