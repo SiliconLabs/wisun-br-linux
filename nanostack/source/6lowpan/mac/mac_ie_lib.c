@@ -193,7 +193,8 @@ uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_
 {
     mac_header_IE_t ie_element;
     uint8_t *sub_id_ptr;
-    while (length > 2) {
+    int32_t remaining_length = length;
+    while (remaining_length > 2) {
         mac_ie_header_parse(&ie_element, header_ptr);
         sub_id_ptr = ie_element.content_ptr;
         if (ie_element.length && header_ie->id == ie_element.id && *sub_id_ptr == sub_id) {
@@ -204,7 +205,7 @@ uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_
             return ie_element.length;
         }
 
-        length -= ie_element.length + 2;
+        remaining_length -= ie_element.length + 2;
 
         header_ptr += ie_element.length + 2;
     }
