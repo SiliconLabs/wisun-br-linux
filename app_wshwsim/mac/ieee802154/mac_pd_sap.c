@@ -175,15 +175,6 @@ int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     phy_device_driver_s *dev_driver = rf_mac_setup->dev_driver->phy_driver;
 
     rf_mac_setup->macRfRadioTxActive = true;
-    if (dev_driver->arm_net_virtual_tx_cb) {
-        if (dev_driver->tx(tx_buf->buf, tx_buf->len, 1, PHY_LAYER_PAYLOAD) == 0) {
-            timer_mac_start(rf_mac_setup, MAC_TX_TIMEOUT, NWKTX_TIMEOUT_PERIOD);  /*Start Timeout timer for virtual packet loss*/
-        } else {
-            rf_mac_setup->macRfRadioTxActive = false;
-            mac_data_interface_tx_to_cb(rf_mac_setup);
-        }
-        return 0;
-    }
 
     uint8_t *buffer;
     uint16_t length;

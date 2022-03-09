@@ -419,51 +419,6 @@ protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_driver_id(int8_t id)
     return NULL;
 }
 
-static int8_t build_virtual_scan_request(const mlme_scan_t *scan_request, uint8_t *scan_req_ptr)
-{
-    if (scan_request && scan_req_ptr) {
-        *scan_req_ptr++ = scan_request->ScanType;
-        *scan_req_ptr++ = scan_request->ScanChannels.channel_page;
-        memcpy(scan_req_ptr, scan_request->ScanChannels.channel_mask, 32);
-        scan_req_ptr += 32;
-        *scan_req_ptr++ = scan_request->ScanDuration;
-        *scan_req_ptr++ = scan_request->ChannelPage;
-        *scan_req_ptr++ = scan_request->Key.SecurityLevel;
-        *scan_req_ptr++ = scan_request->Key.KeyIdMode;
-        *scan_req_ptr++ = scan_request->Key.KeyIndex;
-        memcpy(scan_req_ptr, scan_request->Key.Keysource, 8);
-        scan_req_ptr += 8;
-        return 0;
-    }
-    return -1;
-}
-
-static int8_t build_virtual_start_request(const mlme_start_t *start_request, uint8_t *start_req_ptr)
-{
-    if (start_request && start_req_ptr) {
-        start_req_ptr = common_write_16_bit(start_request->PANId, start_req_ptr);
-        *start_req_ptr++ = start_request->LogicalChannel;
-        start_req_ptr = common_write_32_bit(start_request->StartTime, start_req_ptr);
-        *start_req_ptr++ = start_request->BeaconOrder;
-        *start_req_ptr++ = start_request->SuperframeOrder;
-        *start_req_ptr++ = start_request->PANCoordinator;
-        *start_req_ptr++ = start_request->BatteryLifeExtension;
-        *start_req_ptr++ = start_request->CoordRealignment;
-        *start_req_ptr++ = start_request->CoordRealignKey.SecurityLevel;
-        *start_req_ptr++ = start_request->CoordRealignKey.KeyIdMode;
-        *start_req_ptr++ = start_request->CoordRealignKey.KeyIndex;
-        memcpy(start_req_ptr, start_request->CoordRealignKey.Keysource, 8);
-        start_req_ptr += 8;
-        *start_req_ptr++ = start_request->BeaconRealignKey.SecurityLevel;
-        *start_req_ptr++ = start_request->BeaconRealignKey.KeyIdMode;
-        *start_req_ptr++ = start_request->BeaconRealignKey.KeyIndex;
-        memcpy(start_req_ptr, start_request->BeaconRealignKey.Keysource, 8);
-        start_req_ptr += 8;
-        return 0;
-    }
-    return -1;
-}
-
 void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
 {
     if (mac_store.mac_api != api) {
@@ -505,23 +460,7 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
         }
         case MLME_SCAN: {
             const mlme_scan_t *dat = (const mlme_scan_t *)data;
-            if (mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb) {
-                virtual_data_req_t scan_req;
-                uint8_t buf_temp[2];
-                uint8_t scan_req_temp[47];
-
-                build_virtual_scan_request(dat, scan_req_temp);
-                memset(&scan_req, 0, sizeof(virtual_data_req_t));
-                buf_temp[0] = NAP_MLME_REQUEST;
-                buf_temp[1] = MLME_SCAN;
-                scan_req.parameters = buf_temp;
-                scan_req.parameter_length = sizeof(buf_temp);
-                scan_req.msdu = scan_req_temp;
-                scan_req.msduLength = sizeof(scan_req_temp);
-                mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb(&scan_req, mac_store.dev_driver->id);
-            } else {
-                mac_mlme_scan_request(dat, mac_store.setup);
-            }
+            mac_mlme_scan_request(dat, mac_store.setup);
             break;
         }
         case MLME_SET: {
@@ -541,21 +480,6 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
             const mlme_start_t *dat = (mlme_start_t *)data;
             //TODO: Populate linked list when present
             mac_mlme_start_req(dat, mac_store.setup);
-            if (mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb) {
-                virtual_data_req_t start_req;
-                uint8_t buf_temp[2];
-                uint8_t start_req_temp[34];
-
-                build_virtual_start_request(dat, start_req_temp);
-                memset(&start_req, 0, sizeof(virtual_data_req_t));
-                buf_temp[0] = NAP_MLME_REQUEST;
-                buf_temp[1] = MLME_START;
-                start_req.parameters = buf_temp;
-                start_req.parameter_length = sizeof(buf_temp);
-                start_req.msdu = start_req_temp;
-                start_req.msduLength = sizeof(start_req_temp);
-                mac_store.dev_driver->phy_driver->arm_net_virtual_tx_cb(&start_req, mac_store.dev_driver->id);
-            }
             break;
         }
         case MLME_SYNC: {

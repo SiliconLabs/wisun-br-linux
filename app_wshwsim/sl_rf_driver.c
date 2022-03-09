@@ -185,42 +185,12 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
 {
     switch (set_req->attr) {
-
         case macBeaconPayload:
         case macLoadBalancingBeaconTx:
-            break;
+            BUG("Not implemented");
         default:
             return;
-
     }
-
-    virtual_data_req_t data_req;
-    uint8_t msg_aram[4];
-    uint8_t temp = 0;
-
-    BUG("Not implemented");
-    msg_aram[0] = NAP_MLME_REQUEST;
-    msg_aram[1] = MLME_SET;
-    msg_aram[2] = set_req->attr;
-    msg_aram[3] = set_req->attr_index;
-    //Push TO LMAC
-    data_req.parameter_length = 4;
-    data_req.parameters = msg_aram;
-    if (set_req->value_pointer) {
-        data_req.msdu = (uint8_t *) set_req->value_pointer;
-        data_req.msduLength = set_req->value_size;
-    } else {
-        data_req.msdu = &temp;
-        data_req.msduLength = 1;
-    }
-
-    //Push To LMAC
-    if (!device_driver.arm_net_virtual_tx_cb) {
-        tr_debug("Virtual Init not configured");
-        return;
-    }
-    device_driver.arm_net_virtual_tx_cb(&data_req, rf_driver_id);
-
 }
 
 /**

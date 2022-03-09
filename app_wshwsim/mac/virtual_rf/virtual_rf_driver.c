@@ -173,12 +173,8 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     *data_ptr = NAP_DATA_PHY_RAW_REQUEST;
 
     //Push To LMAC
-    if (!device_driver.arm_net_virtual_tx_cb) {
-        tr_debug("Virtual Init not configured");
-        return -1;
-    }
-    return device_driver.arm_net_virtual_tx_cb(&data_req, rf_driver_id);
-
+    tr_debug("Virtual Init not configured");
+    return -1;
 }
 
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
@@ -212,12 +208,8 @@ static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
     }
 
     //Push To LMAC
-    if (!device_driver.arm_net_virtual_tx_cb) {
-        tr_debug("Virtual Init not configured");
-        return;
-    }
-    device_driver.arm_net_virtual_tx_cb(&data_req, rf_driver_id);
-
+    tr_debug("Virtual Init not configured");
+    return;
 }
 
 /**

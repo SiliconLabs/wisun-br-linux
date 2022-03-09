@@ -875,10 +875,6 @@ static void mac_mcps_asynch_finish(protocol_interface_rf_mac_setup_s *rf_mac_set
 
 static bool mcps_sap_check_buffer_timeout(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buffer)
 {
-    // Timestamp is not implemented by virtual RF driver. Do not check buffer age.
-    if (rf_mac_setup->dev_driver->phy_driver->arm_net_virtual_tx_cb) {
-        return false;
-    }
     // Convert from 1us slots to seconds
     uint32_t buffer_age_s = (mac_mcps_sap_get_phy_timestamp(rf_mac_setup) - buffer->request_start_time_us) / 1000000;
     // Do not timeout broadcast frames. Broadcast interval could be very long.

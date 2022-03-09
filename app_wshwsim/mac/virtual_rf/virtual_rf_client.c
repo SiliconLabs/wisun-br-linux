@@ -35,25 +35,7 @@ static const phy_device_channel_page_s phy_channel_pages = { CHANNEL_PAGE_0, &ph
 
 static int8_t phy_rf_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id)
 {
-    if (rf_driver_id == -1 || rf_driver_id != driver_id || !device_driver.arm_net_virtual_tx_cb) {
-        return -1;
-    }
-
-    virtual_data_req_t data_req;
-    uint8_t buf_temp[3];
-    uint8_t *ptr = buf_temp;
-    memset(&data_req, 0, sizeof(virtual_data_req_t));
-
-    *ptr++ = NAP_DATA_PHY_RAW_INDICATION;
-    *ptr++ = link_quality;
-    *ptr = dbm;
-
-    data_req.parameters = buf_temp;
-    data_req.parameter_length = 3;
-    data_req.msdu = data_ptr;
-    data_req.msduLength = data_len;
-
-    return device_driver.arm_net_virtual_tx_cb(&data_req, driver_id);
+    return -1;
 }
 
 static uint8_t mac_mlme_status_2_phy_status(uint8_t status)
@@ -72,38 +54,12 @@ static uint8_t mac_mlme_status_2_phy_status(uint8_t status)
 
 static int8_t phy_rf_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry)
 {
-    if (rf_driver_id == -1 || rf_driver_id != driver_id || !device_driver.arm_net_virtual_tx_cb) {
-        return -1;
-    }
-    (void) tx_handle;
-    virtual_data_req_t data_req;
-    memset(&data_req, 0, sizeof(virtual_data_req_t));
-    uint8_t buf_temp[4];
-    uint8_t *ptr = buf_temp;
-    *ptr++ = NAP_DATA_PHY_RAW_RESPONSE;
-    *ptr++ = mac_mlme_status_2_phy_status(status);
-    *ptr++ = cca_retry;
-    *ptr = tx_retry;
-    data_req.msdu = buf_temp;
-    data_req.msduLength = 4;
-
-    return device_driver.arm_net_virtual_tx_cb(&data_req, driver_id);
+    return -1;
 }
 
 static int8_t phy_rf_virtual_config_send(int8_t driver_id, const uint8_t *data, uint16_t length)
 {
-    if (rf_driver_id != driver_id || !device_driver.arm_net_virtual_tx_cb) {
-        return -1;
-    }
-    virtual_data_req_t data_req;
-    memset(&data_req, 0, sizeof(virtual_data_req_t));
-    uint8_t buf_temp[length + 1];
-    uint8_t *ptr = buf_temp;
-    *ptr++ = NAP_CONFIG_INTERNAL;
-    memcpy(ptr, data, length);
-    data_req.msdu = buf_temp;
-    data_req.msduLength = length + 1;
-    return device_driver.arm_net_virtual_tx_cb(&data_req, driver_id);
+    return -1;
 }
 
 static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len, int8_t driver_id)
