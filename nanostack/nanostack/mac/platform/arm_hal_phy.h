@@ -323,8 +323,6 @@ typedef struct phy_device_driver_s {
     arm_net_phy_rx_fn *phy_rx_cb;                                   /**< PHY RX callback. Initialized by \ref arm_net_phy_register(). */
     arm_net_phy_tx_done_fn *phy_tx_done_cb;                         /**< Transmission done callback. Initialized by \ref arm_net_phy_register(). */
     //Virtual upper data rx
-    arm_net_virtual_config_tx_fn *virtual_config_tx_cb;             /**< Virtual config send callback. Initialized by \ref arm_net_phy_register(). */
-    arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx_cb; /**< Virtual confirmation receive callback. Initialized by \ref arm_net_phy_register(). */
     uint16_t tunnel_type; /**< Tun driver type. */
     phy_rf_statistics_s *phy_rf_statistics;                         /**< PHY statistics. */
 } phy_device_driver_s;

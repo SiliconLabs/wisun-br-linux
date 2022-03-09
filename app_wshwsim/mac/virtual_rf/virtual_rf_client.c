@@ -57,18 +57,12 @@ static int8_t phy_rf_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_st
     return -1;
 }
 
-static int8_t phy_rf_virtual_config_send(int8_t driver_id, const uint8_t *data, uint16_t length)
-{
-    return -1;
-}
-
 int8_t virtual_rf_client_register(void)
 {
     if (rf_driver_id < 0) {
         memset(&device_driver, 0, sizeof(phy_device_driver_s));
         device_driver.phy_rx_cb = &phy_rf_rx;
         device_driver.phy_tx_done_cb = &phy_rf_tx_done;
-        device_driver.virtual_config_tx_cb = phy_rf_virtual_config_send;
         device_driver.driver_description = "VSND_Client";
         device_driver.link_type = PHY_LINK_15_4_2_4GHZ_TYPE;
         device_driver.phy_channel_pages = &phy_channel_pages;

@@ -1360,27 +1360,6 @@ uint16_t mac_mlme_get_panid(protocol_interface_rf_mac_setup_s *rf_setup)
     return panId;
 }
 
-int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *data_ptr, uint16_t length)
-{
-    (void) length;
-    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_driver_id(driver_id);
-    if (!mac_setup) {
-        return -1;
-    }
-    mlme_primitive primitive = (mlme_primitive) * data_ptr;
-    if (primitive == MLME_SCAN) {
-        mlme_scan_conf_t *resp = ns_dyn_mem_temporary_alloc(sizeof(mlme_scan_conf_t));
-        if (!resp) {
-            return -1;
-        }
-        memset(resp, 0, sizeof(mlme_scan_conf_t));
-        resp->ScanType = MAC_ACTIVE_SCAN;
-        mac_setup->mac_mlme_scan_resp = resp;
-        mac_mlme_scan_confirmation_handle(mac_setup);
-    }
-    return 0;
-}
-
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf)
 {
     if (get_sw_mac_api(rf_ptr)) {

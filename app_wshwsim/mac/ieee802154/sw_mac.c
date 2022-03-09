@@ -123,7 +123,6 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     tr_debug("Set MAC mode to %s, MTU size: %u", "IEEE 802.15.4-2011", mac_store.setup->phy_mtu_size);
 
     arm_net_phy_init(driver->phy_driver, &sw_mac_net_phy_rx, &sw_mac_net_phy_tx_done);
-    arm_net_virtual_confirmation_rx_cb_set(driver->phy_driver, &mac_mlme_virtual_confirmation_handle);
 
     this->mac_initialize = &ns_sw_mac_initialize;
     this->mac_mcps_extension_enable = &ns_sw_mac_api_enable_mcps_ext;

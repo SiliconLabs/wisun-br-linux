@@ -167,14 +167,6 @@ void arm_net_observer_cb_set(int8_t id, internal_mib_observer *observer_cb)
     driver->mlme_observer_cb = observer_cb;
 }
 
-void arm_net_virtual_confirmation_rx_cb_set(phy_device_driver_s *phy_driver, arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx)
-{
-    if (!phy_driver) {
-        return;
-    }
-    phy_driver->virtual_confirmation_rx_cb = virtual_confirmation_rx;
-}
-
 uint32_t dev_get_phy_datarate(phy_device_driver_s *phy_driver, channel_page_e channel_page)
 {
     uint32_t retval = 0;
