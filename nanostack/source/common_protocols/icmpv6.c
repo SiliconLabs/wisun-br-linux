@@ -1208,7 +1208,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
             }
             goto drop;
 #endif
-#ifdef HAVE_6LOWPAN_ROUTER
         case ICMPV6_TYPE_INFO_DAC:
             if (cur->nwk_id == IF_6LoWPAN) {
                 if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) {
@@ -1217,7 +1216,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 }
             }
             goto drop;
-#endif
 
     }
 
@@ -1578,7 +1576,6 @@ void icmpv6_build_echo_req(protocol_interface_info_entry_t *cur, const uint8_t t
     protocol_push(buf);
 }
 
-#ifdef HAVE_6LOWPAN_ROUTER
 buffer_t *icmpv6_build_dad(protocol_interface_info_entry_t *cur, buffer_t *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime)
 {
     if (!cur) {
@@ -1622,7 +1619,6 @@ buffer_t *icmpv6_build_dad(protocol_interface_info_entry_t *cur, buffer_t *buf, 
 
     return buf;
 }
-#endif // HAVE_6LOWPAN_ROUTER
 
 #ifdef HAVE_IPV6_ND
 /*

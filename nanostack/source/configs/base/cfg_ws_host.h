@@ -19,4 +19,3 @@
 #define HAVE_WS_VERSION_1_1
 #define HAVE_DHCPV6
 #define HAVE_IPV6_ND
-#define HAVE_6LOWPAN_ROUTER

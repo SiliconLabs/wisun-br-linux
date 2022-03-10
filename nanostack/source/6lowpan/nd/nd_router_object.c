@@ -720,7 +720,6 @@ void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interfac
  * (and 8.2.1 implies this is can be followed by options, although
  * none are defined).
  */
-#ifdef HAVE_6LOWPAN_ROUTER
 static bool nd_dar_dac_valid(buffer_t *buf)
 {
     const uint8_t *dptr = buffer_data_pointer(buf);
@@ -744,7 +743,6 @@ static bool nd_dar_dac_valid(buffer_t *buf)
 
     return true;
 }
-#endif
 
 buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface)
 {
@@ -798,7 +796,6 @@ drop:
     return buffer_free(buf);
 }
 
-#ifdef HAVE_6LOWPAN_ROUTER
 static void nd_update_registration(protocol_interface_info_entry_t *cur_interface, ipv6_neighbour_t *neigh, const aro_t *aro)
 {
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
@@ -1043,7 +1040,6 @@ buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
 
     return na_buf;
 }
-#endif // HAVE_6LOWPAN_ROUTER
 
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
@@ -1220,7 +1216,6 @@ void nd_ra_process_lowpan_context_option(protocol_interface_info_entry_t *cur, c
 
     lowpan_context_update(&cur->lowpan_contexts, cid_flags, lifetime, opt + 8, ctx_len, true);
 }
-#ifdef HAVE_6LOWPAN_ROUTER
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface)
 {
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
@@ -1388,7 +1383,6 @@ static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr, nwk_inte
     return NULL;
 }
 
-#endif
 
 void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16])
 {
