@@ -18,24 +18,16 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <mbedtls/version.h>
+#include <mbedtls/nist_kw.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-
-#include "mbedtls/version.h"
-
-#if defined(MBEDTLS_NIST_KW_C)
-#include "mbedtls/nist_kw.h"
-#endif
-
-#include "service_libs/nist_aes_kw/nist_aes_kw.h"
-
+#include "nist_aes_kw.h"
 
 #define TRACE_GROUP "naes"
 
 int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, const uint8_t *input, size_t input_len, uint8_t *output, size_t *output_len)
 {
-#if defined(MBEDTLS_NIST_KW_C)
-
     int8_t ret_val = 0;
     mbedtls_nist_kw_context ctx;
 
@@ -104,15 +96,5 @@ error:
     mbedtls_nist_kw_free(&ctx);
 
     return ret_val;
-#else
-    (void) is_wrap;
-    (void) key;
-    (void) key_bits;
-    (void) input;
-    (void) input_len;
-    (void) output;
-    (void) output_len;
-    return 0;
-#endif
 }
 
