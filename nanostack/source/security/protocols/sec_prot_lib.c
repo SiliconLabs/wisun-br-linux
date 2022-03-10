@@ -19,6 +19,7 @@
 #include <string.h>
 #include "common/rand.h"
 #include <stdint.h>
+#include <mbedtls/sha256.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
@@ -39,7 +40,6 @@
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
-#include "mbedtls/sha256.h"
 
 
 #define TRACE_GROUP "secl"

@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <mbedtls/sha256.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
@@ -41,7 +42,6 @@
 #include "6lowpan/ws/ws_pae_nvm_data.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
-#include "mbedtls/sha256.h"
 
 
 #define TRACE_GROUP "wspc"

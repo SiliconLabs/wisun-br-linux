@@ -18,7 +18,7 @@
 #define NS_SHA256_H_
 
 #include <string.h>
-#include "mbedtls/sha256.h"
+#include <mbedtls/sha256.h>
 
 typedef mbedtls_sha256_context ns_sha256_context;
 

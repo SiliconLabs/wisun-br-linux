@@ -18,13 +18,13 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <mbedtls/sha256.h>
+#include <mbedtls/md5.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
-#include "mbedtls/sha256.h"
-#include "mbedtls/md5.h"
 #include "nanostack/mac/fhss_config.h"
 #include "service_libs/trickle/trickle.h"
 #include "nwk_interface/protocol.h"
