@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-#include "base/cfg_ethernet.h"
 #include "base/cfg_ws_border_router.h"
 
-#define FEA_TRACE_SUPPORT
+#define HAVE_ETHERNET
 #define HAVE_DHCPV6_SERVER
+#define FEA_TRACE_SUPPORT
 #define EXTRA_CONSISTENCY_CHECKS
 
