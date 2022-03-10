@@ -14,34 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Implementation of platform/arm_hal_aes.h using mbed TLS.
- *
- * Possible scenarios:
- *
- * 1) Platform with no hardware AES assist, mbed TLS not in use:
- *     Use this source file, and let it pull in the minimal mbed TLS code
- *     contained in aes_mbedtls.c to implement software AES.
- *
- * 2) Platform with hardware AES assist, mbed TLS not in use:
- *     Do not use this source file - implement arm_hal_aes.h yourself using
- *     your AES hardware. Note that you must be able to provide
- *     ARM_AES_MBEDTLS_CONTEXT_MIN contexts. This may or may not be 1, depending
- *     on Nanostack config.
- *
- * 3) Platform without hardware assist, already using (or wanting to use) mbed TLS:
- *     Use this source file, and define NS_USE_EXTERNAL_MBED_TLS so that
- *     it uses the external mbed TLS library. That library must be built with
- *     MBEDTLS_AES_C enabled, and it must be on the include path.
- *
- * 4) Platform with context-capable hardware assist, already using mbed TLS:
- *     Use this source file, and define NS_USE_EXTERNAL_MBED_TLS so that
- *     it uses the external mbed TLS library. That library must be built with
- *     MBEDTLS_AES_C enabled. Attach your hardware-accelerated AES to mbed TLS
- *     by defining MBEDTLS_AES_ALT; it will then be used both by users
- *     of arm_hal_aes.h, and other users of mbed TLS.
- */
-
 /* Get the API we are implementing from libService */
 #include "nanostack/mac/platform/arm_hal_aes.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
@@ -49,11 +21,7 @@
 /* Either pull in the external mbed TLS header for its AES functions, or
  * pull in our own local cut-down copy of the mbed TLS code.
  */
-#ifdef NS_USE_EXTERNAL_MBED_TLS
 #include "mbedtls/aes.h"
-#else
-#include "aes_mbedtls.c"
-#endif /* NS_USE_EXTERNAL_MBED_TLS */
 
 struct arm_aes_context {
     mbedtls_aes_context ctx;
