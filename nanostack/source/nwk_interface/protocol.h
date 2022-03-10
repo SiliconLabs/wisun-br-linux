@@ -299,7 +299,6 @@ struct protocol_interface_info_entry {
     if_group_fwd_list_t ip_groups_fwd;
     uint8_t ip_mcast_fwd_for_scope;
 #endif
-#ifdef HAVE_MPL
     bool mpl_proactive_forwarding;
     multicast_mpl_seed_id_mode_e mpl_seed_id_mode;
     trickle_params_t mpl_data_trickle_params;
@@ -307,7 +306,6 @@ struct protocol_interface_info_entry {
     uint16_t mpl_seed_set_entry_lifetime;
     uint8_t mpl_seed_id[16];
     struct mpl_domain *mpl_domain;
-#endif
     if_6lowpan_dad_entry_t if_6lowpan_dad_process;
     lowpan_context_list_t lowpan_contexts;
     uint16_t lowpan_desired_short_address;
@@ -337,11 +335,9 @@ struct protocol_interface_info_entry {
     bool recv_ra_prefixes: 1;
 #endif
     bool send_mld: 1;
-#ifdef HAVE_MPL
     bool mpl_seed: 1;
     bool mpl_treat_realm_domains_as_one: 1;
     bool mpl_auto_domain_on_group_join: 1;
-#endif
     bool send_na : 1;
     /* RFC 4861 Router Variables */
     bool ip_forwarding : 1;

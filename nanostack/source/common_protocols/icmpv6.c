@@ -23,9 +23,7 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_protocol.h"
-#ifdef HAVE_MPL
 #include "mpl/mpl.h"
-#endif
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
@@ -1195,11 +1193,9 @@ buffer_t *icmpv6_up(buffer_t *buf)
             buf = rpl_control_handler(buf);
             break;
 
-#ifdef HAVE_MPL
         case ICMPV6_TYPE_INFO_MPL_CONTROL:
             buf = mpl_control_handler(buf, cur);
             break;
-#endif
 
 #ifdef HAVE_6LOWPAN_BORDER_ROUTER
         case ICMPV6_TYPE_INFO_DAR:

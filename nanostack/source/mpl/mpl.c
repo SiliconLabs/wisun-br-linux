@@ -16,7 +16,6 @@
  */
 #include "nsconfig.h"
 
-#ifdef HAVE_MPL
 
 #include <stdint.h>
 #include "ns_list.h"
@@ -1143,5 +1142,4 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
     }
 }
 
-#endif /* HAVE_MPL */
 

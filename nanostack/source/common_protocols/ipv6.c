@@ -36,9 +36,7 @@
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/ipv6_flow.h"
 #include "rpl/rpl_data.h"
-#ifdef HAVE_MPL
 #include "mpl/mpl.h"
-#endif
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "common_functions.h"
 
@@ -190,7 +188,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;      // Shouldn't happen - internal error
     }
 
-#ifdef HAVE_MPL
     if (outgoing_if->mpl_seed && buf->options.mpl_permitted &&
             addr_is_ipv6_multicast(buf->dst_sa.address) &&
             addr_ipv6_multicast_scope(buf->dst_sa.address) >= IPV6_SCOPE_REALM_LOCAL) {
@@ -203,7 +200,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
          */
         route->route_info.source = ROUTE_MPL;
     }
-#endif
 
 #ifndef NO_IPV6_PMTUD
     /* Update PMTU with first-hop link MTU (for initialisation, and may need to
@@ -823,7 +819,6 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entr
                     goto drop;
                 }
                 break;
-#ifdef HAVE_MPL
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
                     goto len_err;
@@ -832,7 +827,6 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entr
                     goto drop;
                 }
                 break;
-#endif
             default:
                 opt_type &= IPV6_OPTION_ACTION_MASK;
                 if (opt_type == IPV6_OPTION_ACTION_SKIP) {
@@ -1090,12 +1084,10 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protoc
         cur->if_special_multicast_forwarding(cur, buf);
     }
 
-#ifdef HAVE_MPL
     /* MPL does its own thing - we do not perform any "native" forwarding */
     if (buf->options.ip_extflags & IPEXT_HBH_MPL) {
         goto no_forward;
     }
-#endif
 
 #ifdef MULTICAST_FORWARDING
     uint_fast8_t group_scope = addr_ipv6_multicast_scope(buf->dst_sa.address);
@@ -1319,7 +1311,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         intercept = true;
     }
 
-#ifdef HAVE_MPL
     /* We don't reprocess if this is a reassembly - each fragment is its own MPL
      * Data Message, and we already processed them.
      */
@@ -1329,7 +1320,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             return buffer_free(buf);
         }
     }
-#endif
 
     bool for_us = intercept || ipv6_packet_is_for_us(buf);
 

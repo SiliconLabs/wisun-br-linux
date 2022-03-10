@@ -130,7 +130,6 @@ int8_t multicast_fwd_set_proxy_upstream(int8_t interface_id)
 }
 #endif // MULTICAST_FORWARDING
 
-#ifdef HAVE_MPL
 
 int8_t multicast_mpl_domain_subscribe(int8_t interface_id,
                                       const uint8_t address[16],
@@ -289,107 +288,6 @@ void multicast_set_parameters(uint8_t i_min, uint8_t i_doublings, uint8_t k, uin
     mpl_domain_change_timing(domain, &cur->mpl_data_trickle_params, cur->mpl_seed_set_entry_lifetime);
 }
 
-#else // HAVE_MPL
-
-int8_t multicast_mpl_domain_subscribe(int8_t interface_id,
-                                      const uint8_t address[16],
-                                      multicast_mpl_seed_id_mode_e seed_id_mode,
-                                      const void *seed_id)
-{
-    (void) interface_id;
-    (void) address;
-    (void) seed_id_mode;
-    (void) seed_id;
-    return -1;
-}
-
-int8_t multicast_mpl_domain_subscribe_with_parameters
-(int8_t interface_id,
- const uint8_t address[16],
- multicast_mpl_seed_id_mode_e seed_id_mode,
- const void *seed_id,
- bool proactive_forwarding,
- uint16_t seed_set_entry_lifetime,
- uint32_t data_message_imin,
- uint32_t data_message_imax,
- uint8_t data_message_k,
- uint8_t data_message_timer_expirations,
- uint32_t control_message_imin,
- uint32_t control_message_imax,
- uint8_t control_message_k,
- uint8_t control_message_timer_expirations)
-{
-    (void) interface_id;
-    (void) address;
-    (void) seed_id_mode;
-    (void) seed_id;
-    (void) proactive_forwarding;
-    (void) seed_set_entry_lifetime;
-    (void) data_message_imin;
-    (void) data_message_imax;
-    (void) data_message_k;
-    (void) data_message_timer_expirations;
-    (void) control_message_imin;
-    (void) control_message_imax;
-    (void) control_message_k;
-    (void) control_message_timer_expirations;
-    return -1;
-}
-
-int_fast8_t multicast_mpl_set_default_parameters(int8_t interface_id,
-                                                 bool proactive_forwarding,
-                                                 uint16_t seed_set_entry_lifetime,
-                                                 uint32_t data_message_imin,
-                                                 uint32_t data_message_imax,
-                                                 uint8_t data_message_k,
-                                                 uint8_t data_message_timer_expirations,
-                                                 uint32_t control_message_imin,
-                                                 uint32_t control_message_imax,
-                                                 uint8_t control_message_k,
-                                                 uint8_t control_message_timer_expirations)
-{
-    (void) interface_id;
-    (void) proactive_forwarding;
-    (void) seed_set_entry_lifetime;
-    (void) data_message_imin;
-    (void) data_message_imax;
-    (void) data_message_k;
-    (void) data_message_timer_expirations;
-    (void) control_message_imin;
-    (void) control_message_imax;
-    (void) control_message_k;
-    (void) control_message_timer_expirations;
-    return -1;
-}
-
-int_fast8_t multicast_mpl_set_default_seed_id(int8_t interface_id,
-                                              multicast_mpl_seed_id_mode_e seed_id_mode,
-                                              const void *seed_id)
-{
-    (void) interface_id;
-    (void) seed_id_mode;
-    (void) seed_id;
-    return -1;
-}
-
-int8_t multicast_mpl_domain_unsubscribe(int8_t interface_id,
-                                        const uint8_t address[16])
-{
-    (void) interface_id;
-    (void) address;
-    return -1;
-}
-
-void multicast_set_parameters(uint8_t i_min, uint8_t i_doublings, uint8_t k, uint8_t timer_expirations, uint16_t window_expiration)
-{
-    (void) i_min;
-    (void) i_doublings;
-    (void) k;
-    (void) timer_expirations;
-    (void) window_expiration;
-}
-
-#endif // HAVE_MPL
 
 uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MAYBE_UNUSED)
 {
@@ -421,7 +319,6 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MA
     }
 
     if (lowpan) {
-#ifdef HAVE_MPL
         if (use_trickle && !lowpan->mpl_seed) {
             mpl_domain_create(lowpan, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL, NULL);
         }
@@ -429,7 +326,6 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MA
         if (use_trickle && scope == IPV6_SCOPE_REALM_LOCAL && !lowpan->mpl_treat_realm_domains_as_one) {
             ret_val = multicast_mpl_domain_subscribe(lowpan->id, address_ptr, MULTICAST_MPL_SEED_ID_DEFAULT, NULL);
         } else
-#endif
         {
             addr_add_group(lowpan, address_ptr);
         }
@@ -447,10 +343,8 @@ uint8_t multicast_free_address(const uint8_t *address_ptr)
     // Hacky hack
     protocol_interface_info_entry_t *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
     if (lowpan) {
-#ifdef HAVE_MPL
         /* First try to delete from MPL - if that fails, delete as plain group */
         if (multicast_mpl_domain_unsubscribe(lowpan->id, address_ptr) < 0)
-#endif
         {
             addr_remove_group(lowpan, address_ptr);
         }
