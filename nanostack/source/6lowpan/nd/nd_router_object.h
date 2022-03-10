@@ -30,7 +30,6 @@
 #ifndef ADV_CUR_HOP_LIMIT
 #define ADV_CUR_HOP_LIMIT 64
 #endif
-#ifdef HAVE_6LOWPAN_ND
 extern uint8_t nd_base_tick;
 extern nd_parameters_s nd_params;
 struct aro;
@@ -103,23 +102,4 @@ extern uint32_t nd_object_time_to_next_nd_reg(void);
 extern void icmp_nd_router_object_reset(nd_router_t *router_object);
 extern void icmp_nd_border_router_release(nd_router_t *router_object);
 void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface);
-#else
-#define icmp_nd_routers_init() ((void)0)
-#define nd_ns_aro_handler(cur_interface, aro_opt, slaa_opt, target, aro_out) false
-#define nd_ra_build_by_abro(abro, dest, cur_interface) ((void)0)
-#define nd_trigger_ras_from_rs(unicast_adr, cur_interface) ((void)0)
-#define nd_ra_timing(abro) NULL
-#define nd_prefix_dst_check(x) 0
-#define nd_get_object_by_nwk_id(x) NULL
-#define nd_ra_process_abro(x,y,z,a,b) false
-#define nd_ra_process_lowpan_context_option(x,y) ((void)0)
-#define nd_get_pana_address() NULL
-#define nd_object_timer(x, ticks_update) ((void)0)
-#define nd_object_time_to_next_nd_reg() 0
-#define nd_object_active() false
-#define gp_address_list_free(list) ((void)0)
-#define gp_address_add_to_end(list, address) ((void)0)
-#define nd_6lowpan_set_radv_params(cur) ((void)0)
-#define nd_remove_registration(cur_interface, l_type, ll_address) ((void)0)
-#endif
 #endif /* ND_ROUTER_OBJECT_H_ */

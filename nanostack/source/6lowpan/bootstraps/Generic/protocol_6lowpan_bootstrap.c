@@ -77,7 +77,6 @@ void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
     mac_helper_mac16_address_set(cur, 0xffff);
 }
 
-#ifdef HAVE_6LOWPAN_ND
 
 void protocol_6lowpan_link_advertise_handle(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t tick)
 {
@@ -243,4 +242,3 @@ bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_
     return return_value;
 }
 
-#endif

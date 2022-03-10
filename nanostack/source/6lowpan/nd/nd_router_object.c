@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#ifdef HAVE_6LOWPAN_ND
 #include <stdint.h>
 #include <string.h>
 #include "nsdynmemLIB.h"
@@ -1661,5 +1660,4 @@ void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface)
     cur_interface->max_initial_rtr_adv_interval = nd_params.ra_interval_min;
     cur_interface->max_initial_rtr_advertisements = nd_params.ra_transmits;
 }
-#endif // HAVE_6LOWPAN_ND
 

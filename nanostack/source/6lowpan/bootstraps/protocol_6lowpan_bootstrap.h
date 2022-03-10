@@ -64,7 +64,6 @@ typedef struct mle_6lowpan_data {
     uint8_t link_req_token_bucket;          // Token bucket for MLE link request with non-valid security counter
 } mle_6lowpan_data_t;
 
-#ifdef HAVE_6LOWPAN_ND
 void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);
 uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id);
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
@@ -74,10 +73,6 @@ void protocol_6lowpan_bootstrap_nd_ready(struct protocol_interface_info_entry *c
 void protocol_6lowpan_nd_borderrouter_connection_down(struct protocol_interface_info_entry *interface);
 int protocol_6lowpan_del_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address);
-#else
-#define protocol_6lowpan_nd_border_router_address_get(nwk_id) NULL
-#define protocol_6lowpan_del_ll16(cur, mac_short_address) -1
-#endif
 void bootstrap_timer_handle(uint16_t ticks);
 
 #endif /* PROTOCOL_6LOWPAN_BOOTSTRAP_H_ */

@@ -141,7 +141,6 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
     (void)interface_id;
     (void)nd_addr_info;
     int8_t ret_val = -2;
-#ifdef HAVE_6LOWPAN_ND
     protocol_interface_info_entry_t *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
@@ -154,10 +153,6 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
             }
         }
     }
-#else
-    (void)interface_id;
-    (void)nd_addr_info;
-#endif
     return ret_val;
 }
 
@@ -211,7 +206,6 @@ Border Router Device will not check that part.
  */
 int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD)
 {
-#ifdef HAVE_6LOWPAN_ND
     protocol_interface_info_entry_t *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -233,13 +227,6 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
     cur->lowpan_address_mode = mode;
 
     return 0;
-#else
-    (void) interface_id;
-    (void) mode;
-    (void) short_address_base;
-    (void) define_new_short_address_at_DAD;
-    return -2;
-#endif
 }
 
 /**
@@ -690,12 +677,6 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
         return -1;
     }
 
-#ifndef HAVE_6LOWPAN_ND
-    (void) mode;
-    (void) sec_level;
-    (void) psk_key_info;
-    return -1;
-#else
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
         return -4;
     }
@@ -727,7 +708,6 @@ int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_la
         }
     }
     return 0;
-#endif
 }
 
 int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info)

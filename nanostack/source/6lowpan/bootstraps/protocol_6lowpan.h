@@ -42,14 +42,10 @@ typedef enum {
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
-#ifdef HAVE_6LOWPAN_ND
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority priority);
 
-#else
-#define protocol_6lowpan_child_update(cur) (-1)
-#endif
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);
 int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t type);

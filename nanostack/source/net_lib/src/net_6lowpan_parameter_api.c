@@ -41,7 +41,6 @@
  */
 int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *p)
 {
-#ifdef HAVE_6LOWPAN_ND
     if (protocol_stack_interface_info_get(IF_6LoWPAN)) {
         return -2;
     }
@@ -64,10 +63,6 @@ int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *p)
     nd_params = *p;
 
     return 0;
-#else
-    (void) p;
-    return -2;
-#endif
 }
 
 /**
@@ -84,15 +79,11 @@ int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *p)
  */
 int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms)
 {
-#ifdef HAVE_6LOWPAN_ND
     if (base_tick_x_100ms < 1 || base_tick_x_100ms > 10) {
         return -1;
     }
 
     nd_base_tick = base_tick_x_100ms;
-#else
-    (void) base_tick_x_100ms;
-#endif
     return 0;
 }
 
@@ -104,9 +95,5 @@ int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms)
  */
 void net_6lowpan_nd_parameter_read(nd_parameters_s *p)
 {
-#ifdef HAVE_6LOWPAN_ND
     *p = nd_params;
-#else
-    (void) p;
-#endif
 }

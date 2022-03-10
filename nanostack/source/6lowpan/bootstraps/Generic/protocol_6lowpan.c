@@ -306,17 +306,13 @@ void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
     cur->dup_addr_detect_transmits = 0;
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
-#ifdef HAVE_6LOWPAN_ND
     cur->ipv6_neighbour_cache.send_nud_probes = nd_params.send_nud_probes;
     cur->ipv6_neighbour_cache.probe_avoided_routers = nd_params.send_nud_probes;
     cur->iids_map_to_mac = nd_params.iids_map_to_mac;
-#endif
     cur->ip_multicast_as_mac_unicast_to_parent = false;
     cur->max_link_mtu = LOWPAN_MAX_MTU;
     cur->send_mld = false;
-#ifdef HAVE_6LOWPAN_ND
     nd_6lowpan_set_radv_params(cur);
-#endif
 }
 
 void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur)
@@ -360,7 +356,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
                                       ADDR_802_15_4_LONG, temp_ll);
     nd_remove_registration(cur, ADDR_802_15_4_LONG, temp_ll);
 }
-#ifdef HAVE_6LOWPAN_ND
 
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)
@@ -458,7 +453,6 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 }
 
 
-#endif
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_entry_t *cur, const uint8_t eui64[8], const uint8_t iid[8])
 {
