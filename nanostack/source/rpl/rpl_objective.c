@@ -17,7 +17,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include "ns_list.h"
 #include "rpl/rpl_objective.h"
@@ -39,4 +38,3 @@ rpl_objective_t *rpl_objective_lookup(uint16_t ocp)
     return NULL;
 }
 
-#endif /* HAVE_RPL */

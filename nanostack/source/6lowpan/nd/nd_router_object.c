@@ -25,10 +25,8 @@
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "randLIB.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
-#endif
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/network_lib.h"
@@ -45,17 +43,10 @@
 void icmp_nd_router_object_release(nd_router_t *router_object);
 uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface, uint16_t seconds);
 static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t ticks);
-#ifdef HAVE_RPL
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id nwk_id);
-#else
-#define nd_ra_build(cur, address, cur_interface) ((void)0)
-#define nd_ns_forward_timer_reset(root_adr) ((void)0)
-#define nd_router_forward_timer(root_adr, ticks_update) ((void)0)
-#define nd_router_object_scan_by_prefix(prefix, nwk_id) NULL
-#endif
 
 static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason);
 uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface);
@@ -666,12 +657,10 @@ uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_inter
     return 0;
 }
 
-#ifdef HAVE_RPL
 static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
 {
     return valid && rpl_data_is_rpl_parent_route(route->source);
 }
-#endif
 
 /* Neighbor Solicitation (RFC4861) with Address Registration Option (RFC6775)
  * and Source Link-Layer Address Option (RFC4861)
@@ -682,7 +671,6 @@ void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interfac
     aro_t aro;
     buffer_t *buf;
 
-#ifdef HAVE_RPL
     /* If we're a host, we will just send to our ND parent. But as a router,
      * we don't really maintain our ND parent - send NA instead to the RPL
      * parent we would use to talk to the border router.
@@ -695,7 +683,6 @@ void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interfac
         }
         memcpy(router, route->info.next_hop_addr, 16);
     } else
-#endif
     {
         icmp_nd_set_nd_def_router_address(router, cur);
     }

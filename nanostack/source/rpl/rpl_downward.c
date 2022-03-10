@@ -77,7 +77,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include <string.h>
 #include "common_functions.h"
@@ -2027,4 +2026,3 @@ bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
     return false;
 }
 
-#endif /* HAVE_RPL */

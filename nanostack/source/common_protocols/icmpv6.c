@@ -21,9 +21,7 @@
 #include "randLIB.h"
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_control.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_data.h"
-#endif
 #include "rpl/rpl_protocol.h"
 #ifdef HAVE_MPL
 #include "mpl/mpl.h"
@@ -211,7 +209,6 @@ static bool icmpv6_identify_final_destination(buffer_t *buf, uint8_t *dest)
 
     /* Start with destination in IP header */
     memcpy(dest, ptr + 24, 16);
-#ifdef HAVE_RPL
     /* Have to look for routing header */
     uint8_t nh = ptr[6];
     uint16_t hlen = 40;
@@ -263,9 +260,6 @@ static bool icmpv6_identify_final_destination(buffer_t *buf, uint8_t *dest)
                 return false;
         }
     }
-#else
-    return true;
-#endif
 }
 
 buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
@@ -1197,11 +1191,9 @@ buffer_t *icmpv6_up(buffer_t *buf)
             break;
 #endif
 
-#ifdef HAVE_RPL
         case ICMPV6_TYPE_INFO_RPL_CONTROL:
             buf = rpl_control_handler(buf);
             break;
-#endif
 
 #ifdef HAVE_MPL
         case ICMPV6_TYPE_INFO_MPL_CONTROL:

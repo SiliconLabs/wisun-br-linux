@@ -40,9 +40,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nanostack/mac/mac_api.h"
 
-#ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
-#endif
 #include "6lowpan/iphc_decode/cipv6.h"
 
 #include "shalib.h"

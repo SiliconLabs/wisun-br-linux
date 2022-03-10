@@ -17,7 +17,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include <stdint.h>
 #include "ns_trace.h"
@@ -466,4 +465,3 @@ void rpl_policy_set_address_registration_timeout(uint16_t timeout_in_minutes)
 #error "rpl_structures.h should not be included by rpl_policy.c"
 #endif
 
-#endif /* HAVE_RPL */

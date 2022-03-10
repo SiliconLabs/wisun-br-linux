@@ -18,7 +18,6 @@
 #ifndef RPL_CONTROL_H_
 #define RPL_CONTROL_H_
 
-#ifdef HAVE_RPL
 
 #include "ns_list.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -213,17 +212,5 @@ uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 void rpl_control_instant_poison(struct protocol_interface_info_entry *cur, rpl_domain_t *domain);
 
-#else /* HAVE_RPL */
-
-#define rpl_control_fast_timer(ticks) ((void) 0)
-#define rpl_control_slow_timer(seconds) ((void) 0)
-#define rpl_control_remove_domain_from_interface(cur) ((void) 0)
-#define rpl_control_free_domain_instances_from_interface(cur) ((void) 0)
-#define rpl_control_register_address(interface, addr) ((void) 0)
-#define rpl_control_address_register_done(interface, ll_addr, status) (false)
-#define rpl_policy_mrhof_parent_set_size_get(domain) (0)
-#define rpl_control_set_mrhof_parent_set_size(parent_set_size)
-#define rpl_control_instant_poison(cur, domain) ((void) 0)
-#endif /* HAVE_RPL */
 
 #endif /* RPL_CONTROL_H_ */

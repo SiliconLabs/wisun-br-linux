@@ -30,11 +30,9 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_protocol.h"
-#endif
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -46,10 +44,8 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "common_functions.h"
 #include "net_rpl.h"
-#ifdef HAVE_RPL
 #ifndef NO_MLE
 #include "nwk_interface/protocol_stats.h"
-#endif
 #endif
 #include "nanostack/mac/sw_mac.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -69,11 +65,9 @@
 /* Time after network is considered stable and smaller stagger values can be given*/
 #define STAGGER_STABLE_NETWORK_TIME 3600*4
 
-#ifdef HAVE_RPL
 rpl_domain_t *protocol_6lowpan_rpl_domain;
 /* Having to sidestep old rpl_dodag_t type for the moment */
 struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
-#endif
 
 static uint8_t protocol_buffer_valid(buffer_t *b, protocol_interface_info_entry_t *cur)
 {
@@ -100,9 +94,7 @@ static uint8_t protocol_buffer_valid(buffer_t *b, protocol_interface_info_entry_
 void protocol_init(void)
 {
     tr_debug("P.Init");
-#ifdef HAVE_RPL
     protocol_6lowpan_rpl_domain = rpl_control_create_domain();
-#endif
     ws_cfg_settings_init();
 }
 
@@ -370,7 +362,6 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 }
 #ifdef HAVE_6LOWPAN_ND
 
-#ifdef HAVE_RPL
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)
 {
@@ -466,7 +457,6 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
     }
 }
 
-#endif
 
 #endif
 
@@ -555,7 +545,6 @@ int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void)
 {
-#ifdef HAVE_RPL
     uint8_t instance_id_list[10];
     uint8_t rpl_instance_count;
     uint8_t instance_id = RPL_INSTANCE_LOCAL;
@@ -598,9 +587,6 @@ int16_t protocol_6lowpan_rpl_global_priority_get(void)
     priority += 3 * (rpl_dodag_info.curent_rank / rpl_dodag_info.dag_min_hop_rank_inc - 1);
 
     return priority;
-#else
-    return 255;
-#endif
 }
 
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)

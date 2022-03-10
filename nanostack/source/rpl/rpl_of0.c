@@ -16,7 +16,6 @@
  */
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include <stdint.h>
 #include "ns_trace.h"
@@ -460,4 +459,3 @@ finish_up:
     rpl_downward_convert_dodag_preferences_to_dao_path_control(dodag);
 }
 
-#endif /* HAVE_RPL */

@@ -65,20 +65,12 @@ void nd_router_base_init(nd_router_t *new_entry);
 
 void icmp_nd_routers_init(void);
 
-#ifdef HAVE_RPL
 ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16]);
 void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_interface_info_entry_t *cur_interface);
 void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface);
 /** 6LoWPAN specific ICMP message Handler */
 bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address);
-#else
-#define nd_ra_timing(abro) NULL
-#define nd_ra_build_by_abro(abro, dest, cur_interface) ((void)0)
-#define nd_trigger_ras_from_rs(unicast_adr, cur_interface) ((void)0)
-#define nd_ns_aro_handler(cur_interface, aro_opt, slaa_opt, target, aro_out) false
-#define nd_remove_registration(cur_interface, l_type, ll_address) ((void)0)
-#endif
 
 nd_router_t *nd_get_pana_address(void);
 /* This processes the 6CO for the interface itself - separate from the ABRO

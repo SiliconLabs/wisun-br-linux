@@ -29,12 +29,10 @@
 #include "nsdynmemLIB.h"
 #include "nwk_interface/protocol.h"
 #include "core/include/ns_socket.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_of0.h"
 #include "rpl/rpl_mrhof.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
-#endif
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -916,12 +914,10 @@ int8_t net_init_core(void)
     /* Reset Protocol_stats */
     protocol_stats_init();
     protocol_core_init();
-#ifdef HAVE_RPL
     rpl_data_init();
     // XXX application should call these!
     rpl_of0_init();
     rpl_mrhof_init();
-#endif
     network_library_init();
     addr_notification_register(net_automatic_loopback_route_update);
     return 0;
@@ -963,9 +959,7 @@ void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...))
 {
     ipv6_destination_cache_print(print_fn);
     ipv6_route_table_print(print_fn);
-#ifdef HAVE_RPL
     rpl_control_print(print_fn);
-#endif
 }
 
 void arm_print_neigh_cache(void)

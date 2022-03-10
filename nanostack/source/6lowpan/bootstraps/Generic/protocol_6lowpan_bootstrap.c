@@ -38,9 +38,7 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "nanostack/mac/mac_api.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_control.h"
-#endif
 
 #include "shalib.h"
 #include "net_nvm_api.h"

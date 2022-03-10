@@ -162,7 +162,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     } else { /* unicast, normal */
         ipv6_route_predicate_fn_t *predicate = NULL;
 
-#ifdef HAVE_RPL
         if (buf->rpl_instance_known) {
             if (!cur) {
                 goto no_route;
@@ -170,7 +169,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
             /* Limit the route search so we don't match other RPL instances */
             predicate = rpl_data_get_route_predicate(cur->rpl_domain, buf);
         }
-#endif
 
         ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1, predicate);
         if (!ip_route) {
@@ -676,7 +674,6 @@ drop:
     return NULL;
 }
 
-#if defined HAVE_RPL || defined HAVE_MPL
 /* Tunnel exit is only needed (and allowed!) for RPL and MPL */
 #define IP_ECN__DROP -1
 
@@ -781,14 +778,10 @@ drop:
     protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }
-#endif /* HAVE_MPL || HAVE_RPL */
 
 static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint8_t nh, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
 {
     (void) nh;
-#ifndef HAVE_RPL
-    (void) ll_src;
-#endif
     if (payload_length < 2) {
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_HDR_ERR, 4);
     }
@@ -819,7 +812,6 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entr
             goto len_err;
         }
         switch (opt_type) {
-#ifdef HAVE_RPL
             case IPV6_OPTION_RPL:
                 if (!cur->rpl_domain) {
                     goto drop;
@@ -831,7 +823,6 @@ static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entr
                     goto drop;
                 }
                 break;
-#endif
 #ifdef HAVE_MPL
             case IPV6_OPTION_MPL:
                 if (!mpl_hbh_len_check(opt, optlen)) {
@@ -869,9 +860,6 @@ len_err:
 
 static buffer_t *ipv6_handle_routing_header(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, bool *forward_out, bool pre_fragment)
 {
-#ifndef HAVE_RPL
-    (void) forward_out;
-#endif
     if (buf->options.ll_security_bypass_rx) {
         tr_warn("Routing header: Security check fail");
         protocol_stats_update(STATS_IP_RX_DROP, 1);
@@ -895,10 +883,8 @@ static buffer_t *ipv6_handle_routing_header(buffer_t *buf, protocol_interface_in
     uint8_t type = ptr[2];
     uint8_t segs_left = ptr[3];
     switch (type) {
-#ifdef HAVE_RPL
         case IPV6_ROUTING_TYPE_RPL:
             return rpl_data_process_routing_header(buf, cur, ptr, hdrlen_out, forward_out);
-#endif
         default:
             /* Unknown type: if segments left is 0, we ignore the header, else return an error */
             if (segs_left == 0) {
@@ -953,26 +939,22 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
 
     if (!routing) {
         protocol_stats_update(STATS_IP_NO_ROUTE, 1);
-#ifdef HAVE_RPL
         if (rpl_data_forwarding_error(buf)) {
             buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
             return buf;
         }
-#endif
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
     }
 
     protocol_interface_info_entry_t *out_interface;
     out_interface = buf->interface;
 
-#ifdef HAVE_RPL
     /* We must not let RPL-bearing packets out of or into a RPL domain */
     if (buf->options.ip_extflags & (IPEXT_HBH_RPL | IPEXT_SRH_RPL)) {
         if (out_interface->rpl_domain != cur->rpl_domain || !rpl_data_is_rpl_route(routing->route_info.source)) {
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_ADM_PROHIB, 0);
         }
     }
-#endif
     /* If heading out a different interface, some extra scope checks for
      * crossing a zone boundary (see RFC 4007).
      */
@@ -1412,7 +1394,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             case IPV6_NH_ICMPV6:
                 buf->info = (buffer_info_t)(B_DIR_UP | B_TO_ICMP | B_FROM_IPV6_FWD);
                 goto upper_layer;
-#if defined HAVE_RPL || defined HAVE_MPL
             case IPV6_NH_IPV6:
                 /* Tunnel support is only used for RPL or MPL. Only permit tunnel exit if there was
                   * a RPL or MPL HbH option header, or RPL SRH header. Gives security, as
@@ -1424,7 +1405,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buffer_note_predecessor(buf, &ll_src);
                 buf->options.type = *nh_ptr;
                 return ipv6_tunnel_exit(buf, ptr);
-#endif
             default: {
                 if (buf->options.ll_security_bypass_rx) {
                     tr_warn("Drop: unsecured by BAD Next header %u", *nh_ptr);

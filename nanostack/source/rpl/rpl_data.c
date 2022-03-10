@@ -26,7 +26,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include "common_functions.h"
 #include "nsdynmemLIB.h"
@@ -1234,4 +1233,3 @@ void rpl_data_init_root(void)
 }
 #endif
 
-#endif /* HAVE_RPL */

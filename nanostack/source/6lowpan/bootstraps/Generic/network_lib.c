@@ -33,9 +33,7 @@
 #include "net_nwk_scan.h"
 #include "nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_data.h"
-#endif
 
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"

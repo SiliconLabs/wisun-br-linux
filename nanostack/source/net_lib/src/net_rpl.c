@@ -28,7 +28,6 @@
 
 #include "net_rpl.h"
 
-#ifdef HAVE_RPL
 
 /**
  * \file net_rpl.c
@@ -255,86 +254,3 @@ uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id)
 }
 
 
-#else /* HAVE_RPL */
-
-int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t *dodag_id, const dodag_config_t *config, uint8_t instance_id, uint8_t flags)
-{
-    (void)interface_id;
-    (void)dodag_id;
-    (void)config;
-    (void)instance_id;
-    (void)flags;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id)
-{
-    (void)interface_id;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_start(int8_t interface_id)
-{
-    (void)interface_id;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_prefix_update(int8_t interface_id, uint8_t *prefix_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime)
-{
-    (void)interface_id;
-    (void)prefix_ptr;
-    (void)prefix_len;
-    (void)flags;
-    (void)lifetime;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_route_update(int8_t interface_id, uint8_t *route_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime)
-{
-    (void)interface_id;
-    (void)route_ptr;
-    (void)prefix_len;
-    (void)flags;
-    (void)lifetime;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id)
-{
-    (void)interface_id;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id)
-{
-    (void)interface_id;
-    return -1;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id)
-{
-    (void)interface_id;
-    return -1;
-}
-
-uint8_t rpl_instance_list_read(uint8_t *cache_ptr, uint8_t cache_size)
-{
-    (void)cache_ptr;
-    (void)cache_size;
-    return 0;
-}
-
-uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id)
-{
-    (void)dodag_ptr;
-    (void)instance_id;
-    return 0;
-}
-
-int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preference)
-{
-    (void) interface_id;
-    (void) preference;
-    return 0;
-}
-#endif /* HAVE_RPL */

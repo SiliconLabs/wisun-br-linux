@@ -33,7 +33,6 @@
  */
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 
 #include <string.h>
 #include "ns_trace.h"
@@ -1997,4 +1996,3 @@ uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain)
 #error "rpl_structures.h should not be included by rpl_control.c"
 #endif
 
-#endif /* HAVE_RPL */

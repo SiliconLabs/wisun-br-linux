@@ -26,7 +26,6 @@ struct ns_sockaddr;
 /* Internal API */
 void rpl_data_sr_invalidate(void);
 
-#ifdef HAVE_RPL
 /* Public API */
 void rpl_data_init(void);
 #ifdef HAVE_RPL_ROOT
@@ -41,8 +40,5 @@ bool rpl_data_forwarding_error(buffer_t *buf);
 buffer_t *rpl_data_process_routing_header(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t *hdrlen_out, bool *forward_out);
 buffer_t *rpl_data_source_route_error_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
 bool rpl_data_get_srh_last_address(const uint8_t *srh, uint8_t *addr_out);
-#else
-#define rpl_data_remember_outer(buf) true
-#endif
 
 #endif /* RPL_DATA_H_ */

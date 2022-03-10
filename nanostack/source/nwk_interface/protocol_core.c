@@ -374,10 +374,8 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
             addr_multicast_fwd_remove(entry, group->group);
         }
 #endif
-#ifdef HAVE_RPL
         /* This is done after address deletion, so RPL can act on them */
         rpl_control_remove_domain_from_interface(entry);
-#endif
     }
 }
 

@@ -40,9 +40,7 @@
 #include "lowpan_adaptation_interface.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
-#ifdef HAVE_RPL
 #include "rpl/rpl_data.h"
-#endif
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
@@ -1585,13 +1583,11 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
             tr_info("Dest addr: %s", trace_array(buf->dst_sa.address + 2, 8));
         }
 
-#ifdef HAVE_RPL
         if (confirm->status == MLME_TX_NO_ACK || confirm->status == MLME_UNAVAILABLE_KEY) {
             if (buf->route && rpl_data_is_rpl_parent_route(buf->route->route_info.source)) {
                 protocol_stats_update(STATS_RPL_PARENT_TX_FAIL, 1);
             }
         }
-#endif
         if (tx_ptr->fragmented_data) {
             tx_ptr->buf->buf_ptr = tx_ptr->buf->buf_end;
             tx_ptr->buf->buf_ptr -= tx_ptr->orig_size;

@@ -26,7 +26,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_RPL
 #include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"
@@ -2122,4 +2121,3 @@ bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_ne
     return false;
 }
 
-#endif /* HAVE_RPL */

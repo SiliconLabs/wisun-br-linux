@@ -34,22 +34,18 @@ struct mlme_pan_descriptor_s;
 extern struct rpl_domain *protocol_6lowpan_rpl_domain;
 extern struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
-#ifdef HAVE_RPL
 typedef enum {
     PRIORITY_1ST,
     PRIORITY_2ND,
 } neighbor_priority;
-#endif
 
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
 #ifdef HAVE_6LOWPAN_ND
-#ifdef HAVE_RPL
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority priority);
-#endif
 
 #else
 #define protocol_6lowpan_child_update(cur) (-1)
