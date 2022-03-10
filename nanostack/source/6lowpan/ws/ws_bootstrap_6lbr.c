@@ -17,7 +17,7 @@
 
 #include <string.h>
 #include "nsconfig.h"
-#if defined(HAVE_WS) && defined(HAVE_WS_BORDER_ROUTER)
+#ifdef HAVE_WS_BORDER_ROUTER
 #include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
@@ -473,4 +473,4 @@ void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint3
 }
 
 
-#endif //HAVE_WS_BORDER_ROUTER && HAVE_WS
+#endif

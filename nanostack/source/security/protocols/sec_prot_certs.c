@@ -28,7 +28,6 @@
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "spce"
 
@@ -281,4 +280,3 @@ void sec_prot_certs_revocat_lists_delete(cert_revocat_lists_t *cert_revocat_list
     }
 }
 
-#endif /* HAVE_WS */

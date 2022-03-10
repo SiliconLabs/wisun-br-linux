@@ -30,7 +30,6 @@
 
 #define TRACE_GROUP "wsmg"
 
-#ifdef HAVE_WS
 
 int ws_management_node_init(
     int8_t interface_id,
@@ -1001,4 +1000,3 @@ int ws_management_phy_capability_set(
 }
 
 
-#endif // HAVE_WS

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#define HAVE_WS
 #define HAVE_WS_HOST
 #define HAVE_WS_VERSION_1_1
 #define HAVE_RPL

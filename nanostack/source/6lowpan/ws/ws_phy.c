@@ -23,7 +23,6 @@
 #include "nanostack/net_interface.h"
 #include "ws_management_api.h"
 
-#ifdef HAVE_WS
 #define TRACE_GROUP "wsph"
 
 uint32_t ws_phy_decode_channel_spacing(uint8_t channel_spacing)
@@ -352,4 +351,3 @@ phy_modulation_index_e ws_phy_get_modulation_index_using_operating_mode(uint8_t 
 }
 
 
-#endif //HAVE_WS

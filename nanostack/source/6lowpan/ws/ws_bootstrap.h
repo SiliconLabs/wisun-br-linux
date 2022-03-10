@@ -60,7 +60,6 @@ typedef enum {
     WS_EAPOL_PARENT_SYNCH,  /**< Broadcast synch with EAPOL parent*/
 } ws_parent_synch_e;
 
-#ifdef HAVE_WS
 
 //#include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_common_defines.h"
@@ -198,21 +197,5 @@ void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur);
-#else
-
-#define ws_bootstrap_init(interface_id, bootstrap_mode) (-1)
-#define ws_bootstrap_state_machine(cur)
-#define ws_bootstrap_restart(cur)
-#define ws_bootstrap_neighbor_remove(cur, ll_address)
-#define ws_bootstrap_aro_failure(cur, ll_address)
-#define ws_bootstrap_neighbor_set_stable(interface, src64)
-#define ws_bootstrap_primary_parent_update(interface, neighbor)
-#define ws_bootstrap_secondary_parent_update(interface)
-#define ws_bootstrap_stack_info_get(cur, info_ptr)
-#define ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count)
-#define ws_bootstrap_test_procedure_trigger(cur, procedure);
-
-
-#endif //HAVE_WS
 
 #endif /* WS_BOOTSTRAP_H_ */

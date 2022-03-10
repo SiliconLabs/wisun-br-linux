@@ -33,7 +33,6 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "security/protocols/sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "kmap"
 
@@ -720,5 +719,4 @@ int8_t kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_i
     return 0;
 }
 
-#endif /* HAVE_WS */
 

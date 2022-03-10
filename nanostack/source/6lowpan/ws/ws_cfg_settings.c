@@ -34,7 +34,6 @@
 
 #define TRACE_GROUP "cstr"
 
-#ifdef HAVE_WS
 
 #define CFG_SETTINGS_OK                       0
 #define CFG_SETTINGS_CHANGED                  1
@@ -1283,4 +1282,3 @@ void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime)
     }
 }
 
-#endif //HAVE_WS

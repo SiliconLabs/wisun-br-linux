@@ -51,9 +51,7 @@
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "6lowpan/ws/ws_common.h"
-#ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"
-#endif
 #include "ipv6_stack/protocol_ipv6.h"
 #include "service_libs/whiteboard/whiteboard.h"
 
@@ -278,9 +276,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         cipv6_frag_timer(seconds);
         net_dns_timer_seconds(seconds);
 
-#ifdef HAVE_WS
         ws_pae_controller_slow_timer(seconds);
-#endif
         ns_monitor_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
@@ -315,9 +311,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
     rpl_control_fast_timer(ticksUpdate);
     icmpv6_radv_timer(ticksUpdate);
     protocol_core_security_tick_update(ticksUpdate);
-#ifdef HAVE_WS
     ws_pae_controller_fast_timer(ticksUpdate);
-#endif
     platform_enter_critical();
     protocol_core_timer_info.core_timer_event = false;
     platform_exit_critical();
@@ -751,27 +745,21 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain
 
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api)
 {
-#ifdef HAVE_WS
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
         if (cur->ws_info && (cur->ws_info->fhss_api == fhss_api)) {
             return cur;
         }
     }
-#else
-    (void)fhss_api;
-#endif //HAVE_WS
     return NULL;
 }
 
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(void)
 {
-#ifdef HAVE_WS
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
         if (cur->ws_info) {
             return cur;
         }
     }
-#endif //HAVE_WS
     return NULL;
 }
 

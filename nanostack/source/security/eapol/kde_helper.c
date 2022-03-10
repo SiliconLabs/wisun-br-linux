@@ -23,7 +23,6 @@
 #include "common_functions.h"
 #include "security/eapol/kde_helper.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "kdeh"
 
@@ -240,5 +239,4 @@ int8_t kde_gtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *gtkl)
     return 0;
 }
 
-#endif
 

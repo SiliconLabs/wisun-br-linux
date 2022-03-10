@@ -379,9 +379,7 @@ struct protocol_interface_info_entry {
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;
     neigh_cache_s neigh_cache;
-#ifdef HAVE_WS
     struct ws_info_s *ws_info;
-#endif
     struct rpl_domain *rpl_domain;
     struct mesh_callbacks_s *mesh_callbacks;
     if_6lowpan_security_info_t *if_lowpan_security_params; //Security Parameters

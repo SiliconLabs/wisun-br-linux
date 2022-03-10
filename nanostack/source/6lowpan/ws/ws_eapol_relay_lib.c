@@ -24,7 +24,6 @@
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wsrl"
 
@@ -49,5 +48,4 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
     return 0;
 }
 
-#endif /* HAVE_WS */
 

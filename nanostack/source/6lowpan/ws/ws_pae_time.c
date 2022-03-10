@@ -27,7 +27,6 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "service_libs/utils/ns_time.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wst"
 
@@ -221,5 +220,4 @@ int8_t ws_pae_current_time_check_and_set(uint64_t current_time)
     return 0;
 }
 
-#endif /* HAVE_WS */
 

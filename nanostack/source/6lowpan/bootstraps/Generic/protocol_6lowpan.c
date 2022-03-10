@@ -58,9 +58,7 @@
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6lowpan/ws/ws_common.h"
-#ifdef HAVE_WS
 #include "6lowpan/ws/ws_cfg_settings.h"
-#endif
 
 #define TRACE_GROUP_LOWPAN "6lo"
 #define TRACE_GROUP "6lo"
@@ -105,9 +103,7 @@ void protocol_init(void)
 #ifdef HAVE_RPL
     protocol_6lowpan_rpl_domain = rpl_control_create_domain();
 #endif
-#ifdef HAVE_WS
     ws_cfg_settings_init();
-#endif
 }
 
 void protocol_6lowpan_stack(buffer_t *b)

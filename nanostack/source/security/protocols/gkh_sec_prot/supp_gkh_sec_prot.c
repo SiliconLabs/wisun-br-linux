@@ -35,7 +35,6 @@
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/gkh_sec_prot/supp_gkh_sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "sgkh"
 
@@ -319,5 +318,4 @@ static int8_t supp_gkh_kde_handle(sec_prot_t *prot)
     return ret;
 }
 
-#endif /* HAVE_WS */
 

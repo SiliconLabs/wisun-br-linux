@@ -19,7 +19,6 @@
 #include <string.h>
 #include "common_functions.h"
 #include "security/pana/pana_eap_header.h"
-#if defined(HAVE_WS)
 
 bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)
 {
@@ -126,4 +125,3 @@ uint8_t *eap_tls_header_build(uint8_t *ptr, uint16_t eap_tls_flags, uint16_t fra
 
     return ptr;
 }
-#endif

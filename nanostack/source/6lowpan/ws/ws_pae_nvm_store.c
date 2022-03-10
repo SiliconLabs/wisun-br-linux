@@ -30,7 +30,6 @@
 #include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "ns_file_system.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wsnv"
 
@@ -198,5 +197,4 @@ static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_t *tlv)
     return PAE_NVM_FILE_SUCCESS;
 }
 
-#endif /* HAVE_WS */
 

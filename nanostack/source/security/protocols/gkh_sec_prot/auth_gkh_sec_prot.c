@@ -37,7 +37,6 @@
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/gkh_sec_prot/auth_gkh_sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "agkh"
 
@@ -360,5 +359,4 @@ static int8_t auth_gkh_sec_prot_mic_validate(sec_prot_t *prot)
     return sec_prot_lib_mic_validate(prot->sec_keys->ptk, data->recv_eapol_pdu.msg.key.key_mic, data->recv_pdu, data->recv_size);
 }
 
-#endif /* HAVE_WS */
 

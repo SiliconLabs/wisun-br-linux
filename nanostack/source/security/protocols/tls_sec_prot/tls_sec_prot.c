@@ -38,7 +38,6 @@
 #include "security/protocols/tls_sec_prot/tls_sec_prot.h"
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "tlsp"
 
@@ -737,4 +736,3 @@ static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot)
     return TLS_SEC_PROT_SEND_BUFFER_SIZE + sec_prot_certs_own_cert_chain_len_get(prot->sec_keys->certs);
 }
 
-#endif /* HAVE_WS */

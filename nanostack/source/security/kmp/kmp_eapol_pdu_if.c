@@ -30,7 +30,6 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "kmep"
 
@@ -196,5 +195,4 @@ static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interf
 }
 
 
-#endif /* HAVE_WS */
 

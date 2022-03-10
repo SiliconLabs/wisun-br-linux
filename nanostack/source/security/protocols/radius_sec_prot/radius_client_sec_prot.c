@@ -44,7 +44,6 @@
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"
 #include "service_libs/hmac/hmac_md.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "radp"
 
@@ -1250,4 +1249,3 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
     }
 }
 
-#endif /* HAVE_WS */

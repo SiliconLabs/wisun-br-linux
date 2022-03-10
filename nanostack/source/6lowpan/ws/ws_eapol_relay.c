@@ -35,7 +35,6 @@
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 #include "6lowpan/ws/ws_eapol_relay.h"
 
-#ifdef HAVE_WS
 #ifdef HAVE_EAPOL_RELAY
 
 #define TRACE_GROUP "wser"
@@ -203,5 +202,4 @@ static void ws_eapol_relay_socket_cb(void *cb)
 }
 
 #endif /* HAVE_EAPOL_RELAY */
-#endif /* HAVE_WS */
 

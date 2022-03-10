@@ -52,9 +52,7 @@
 #include "net_lib/src/net_dns_internal.h"
 #include "net_thread_test.h"
 #include "6lowpan/ws/ws_common.h"
-#ifdef HAVE_WS
 #include "6lowpan/ws/ws_pae_controller.h"
-#endif
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mac_api.h"
 #include "ethernet_mac_api.h"
@@ -738,13 +736,8 @@ int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *ch
 {
     int8_t ret = -2;
 
-#if !defined(HAVE_WS)
-    (void)chain_info;
-#endif
 
-#ifdef HAVE_WS
     ret = ws_pae_controller_certificate_chain_set(chain_info);
-#endif
 
 
     return ret;
@@ -752,70 +745,37 @@ int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *ch
 
 int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_trusted_certificate_add(cert);
-#else
-    (void) cert;
-    return -1;
-#endif
 }
 
 int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_trusted_certificate_remove(cert);
-#else
-    (void) cert;
-    return -1;
-#endif
 }
 
 int8_t arm_network_trusted_certificates_remove(void)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_trusted_certificates_remove();
-#else
-    return -1;
-#endif
 }
 
 int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_own_certificate_add(cert);
-#else
-    (void) cert;
-    return -1;
-#endif
 }
 
 extern int8_t arm_network_own_certificates_remove(void)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_own_certificates_remove();
-#else
-    return -1;
-#endif
 }
 
 int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_certificate_revocation_list_add(crl);
-#else
-    (void) crl;
-    return -1;
-#endif
 }
 
 int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl)
 {
-#ifdef HAVE_WS
     return ws_pae_controller_certificate_revocation_list_remove(crl);
-#else
-    (void) crl;
-    return -1;
-#endif
 }
 
 int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)

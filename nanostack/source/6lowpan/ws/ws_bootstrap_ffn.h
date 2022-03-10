@@ -18,7 +18,7 @@
 #ifndef WS_BOOTSTRAP_FFN_H_
 #define WS_BOOTSTRAP_FFN_H_
 
-#if defined(HAVE_WS) && defined(HAVE_WS_ROUTER)
+#ifdef HAVE_WS_ROUTER
 
 void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message);
@@ -38,6 +38,6 @@ void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
 
 #define wisun_mode_router(cur) (false)
 
-#endif //HAVE_WS
+#endif
 
 #endif /* WS_BOOTSTRAP_H_ */

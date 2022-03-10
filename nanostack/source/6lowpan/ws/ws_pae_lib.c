@@ -35,7 +35,6 @@
 #include "6lowpan/ws/ws_pae_lib.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wspl"
 
@@ -498,4 +497,3 @@ int8_t ws_pae_lib_shared_comp_list_timeout(shared_comp_list_t *comp_list, uint16
     return 0;
 }
 
-#endif /* HAVE_WS */

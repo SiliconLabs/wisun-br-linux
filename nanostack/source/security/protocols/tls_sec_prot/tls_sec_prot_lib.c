@@ -17,7 +17,6 @@
 
 #include "nsconfig.h"
 
-#ifdef HAVE_WS
 
 #include "mbedtls/version.h"
 #if defined(MBEDTLS_SSL_TLS_C) && defined(MBEDTLS_X509_CRT_PARSE_C) && defined(MBEDTLS_SSL_EXPORT_KEYS) /* EXPORT_KEYS not supported by mbedtls baremetal yet */
@@ -735,4 +734,3 @@ uint16_t tls_sec_prot_lib_size(void)
     return 0;
 }
 #endif /* WS_MBEDTLS_SECURITY_ENABLED */
-#endif /* HAVE_WS */

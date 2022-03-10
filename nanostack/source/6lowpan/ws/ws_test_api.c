@@ -41,7 +41,6 @@
 
 #define TRACE_GROUP "wste"
 
-#ifdef HAVE_WS
 
 int ws_test_version_set(int8_t interface_id, uint8_t version)
 {
@@ -221,4 +220,3 @@ int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, voi
     return ws_bootstrap_test_procedure_trigger(cur, procedure);
 }
 
-#endif // HAVE_WS

@@ -29,7 +29,6 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wspt"
 
@@ -171,4 +170,3 @@ uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_cfg_t *sec_cfg)
     return sec_cfg->timer_cfg.gtk_expire_offset / sec_cfg->timer_cfg.revocat_lifetime_reduct;
 }
 
-#endif /* HAVE_WS */

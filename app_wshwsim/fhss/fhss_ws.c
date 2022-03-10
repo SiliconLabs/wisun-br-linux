@@ -69,7 +69,6 @@ void (*fhss_bc_switch)(void) = NULL;
 #define WH_SUB_ID_UTT   1
 #define WH_SUB_ID_BT    2
 
-#ifdef HAVE_WS
 
 struct ws_ie_t {
     uint8_t *content_ptr;
@@ -1265,4 +1264,3 @@ int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_
     return 0;
 }
 
-#endif // HAVE_WS

@@ -23,13 +23,12 @@
 
 #include "mbedtls/version.h"
 
-#if defined(MBEDTLS_NIST_KW_C) && defined(HAVE_WS) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
+#if defined(MBEDTLS_NIST_KW_C) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
 #include "mbedtls/nist_kw.h"
 #endif
 
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "naes"
 
@@ -117,4 +116,3 @@ error:
 #endif
 }
 
-#endif

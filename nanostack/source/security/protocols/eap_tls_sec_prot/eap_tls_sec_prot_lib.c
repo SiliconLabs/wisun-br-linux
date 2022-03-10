@@ -36,7 +36,6 @@
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "eapl"
 
@@ -256,5 +255,4 @@ static uint8_t *eap_tls_sec_prot_lib_fragment_write(uint8_t *data, uint16_t tota
     return data_begin;
 }
 
-#endif /* HAVE_WS */
 

@@ -18,7 +18,6 @@
 #ifndef WS_STATS_H_
 #define WS_STATS_H_
 
-#ifdef HAVE_WS
 
 typedef enum {
     STATS_WS_ASYNCH_TX,
@@ -44,6 +43,5 @@ typedef enum {
 
 void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val);
 
-#endif // HAVE_WS
 
 #endif // WS_STATS_H_

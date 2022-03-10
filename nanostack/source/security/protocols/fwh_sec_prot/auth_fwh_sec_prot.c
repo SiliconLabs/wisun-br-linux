@@ -39,7 +39,6 @@
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "afwh"
 
@@ -477,5 +476,4 @@ static int8_t auth_fwh_sec_prot_mic_validate(sec_prot_t *prot)
     return sec_prot_lib_mic_validate(data->new_ptk, data->recv_eapol_pdu.msg.key.key_mic, data->recv_pdu, data->recv_size);
 }
 
-#endif /* HAVE_WS */
 

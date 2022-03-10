@@ -37,7 +37,6 @@
 #include "security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.h"
 #include "security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "eapa"
 
@@ -577,5 +576,4 @@ static void auth_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot)
     data->eap_id_seq++;
 }
 
-#endif /* HAVE_WS */
 

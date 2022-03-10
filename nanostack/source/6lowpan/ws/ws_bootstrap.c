@@ -17,7 +17,6 @@
 
 #include <string.h>
 #include "nsconfig.h"
-#ifdef HAVE_WS
 #include <stdint.h>
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
@@ -1731,17 +1730,17 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     if (wisun_mode_host(cur)) {
         // Configure for LFN device
-#if defined(HAVE_WS) && defined(HAVE_WS_HOST)
+#ifdef HAVE_WS_HOST
         ws_llc_create(cur, &ws_bootstrap_lfn_asynch_ind, &ws_bootstrap_lfn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
 #endif
     } else if (wisun_mode_router(cur)) {
         // Configure FFN device
-#if defined(HAVE_WS) && defined(HAVE_WS_ROUTER)
+#ifdef HAVE_WS_ROUTER
         ws_llc_create(cur, &ws_bootstrap_ffn_asynch_ind, &ws_bootstrap_ffn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
 #endif
     } else if (wisun_mode_border_router(cur)) {
         // Configure as Border router
-#if defined(HAVE_WS) && defined(HAVE_WS_BORDER_ROUTER)
+#ifdef HAVE_WS_BORDER_ROUTER
         ws_llc_create(cur, &ws_bootstrap_6lbr_asynch_ind, &ws_bootstrap_6lbr_asynch_confirm, &ws_bootstrap_neighbor_info_request);
 #endif
     }
@@ -3724,4 +3723,3 @@ static void ws_bootstrap_test_procedure_trigger_timer(protocol_interface_info_en
     }
 }
 
-#endif //HAVE_WS

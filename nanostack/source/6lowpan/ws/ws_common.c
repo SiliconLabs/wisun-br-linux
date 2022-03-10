@@ -50,7 +50,6 @@
 #include "ws_management_api.h"
 #include "nanostack/mac/mac_api.h"
 
-#ifdef HAVE_WS
 #define TRACE_GROUP "wscm"
 
 // estimated sensitivity -93 dbm converted to Wi-SUN RSL range
@@ -914,4 +913,3 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interf
     return fhss_configuration;
 }
 
-#endif // HAVE_WS

@@ -43,7 +43,6 @@
 #include "6lowpan/ws/ws_pae_key_storage.h"
 #include "mbedtls/sha256.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wspc"
 
@@ -1892,5 +1891,4 @@ sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)
     return &controller->gtks;
 }
 
-#endif /* HAVE_WS */
 

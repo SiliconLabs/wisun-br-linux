@@ -154,7 +154,6 @@ typedef struct ws_info_s {
     struct fhss_api *fhss_api;
 } ws_info_t;
 
-#ifdef HAVE_WS
 
 int8_t ws_common_generate_channel_list(uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
@@ -227,34 +226,4 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interf
 #define ws_neighbour_cap_pointer(neighbour) NULL
 #endif
 #define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
-#else
-#define ws_info(cur) ((ws_info_t *) NULL)
-#define ws_version_1_1(cur) (false)
-#define ws_version_1_0(cur) (false)
-#define ws_lfn_version_learned(cur) (false)
-#define ws_neighbour_cap_pointer(neighbour) NULL
-#define ws_test_proc_auto_trg(cur) (false)
-#define ws_common_seconds_timer(cur, seconds)
-#define ws_common_neighbor_update(cur, ll_address) ((void) 0)
-#define ws_common_black_list_neighbour(ll_address, nd_status) ((void) 0)
-#define ws_common_aro_failure(cur, ll_address)
-#define ws_common_neighbor_remove(cur, ll_address)
-#define ws_common_fast_timer(cur, ticks) ((void) 0)
-#define ws_common_allow_child_registration(cur, eui64, aro_timeout) (2)
-#define ws_common_negative_aro_mark(interface, eui64)(false)
-#define ws_common_latency_estimate_get(cur) 0
-#define ws_common_datarate_get_from_phy_mode(phy_mode_id, operating_mode) 0
-#define ws_common_datarate_get(cur) 0
-#define ws_common_usable_application_datarate_get(cur) 0
-#define ws_common_network_size_estimate_get(cur) 0
-#define ws_common_connected_time_get(cur) 0
-#define ws_common_authentication_time_get(cur) 0
-#define ws_common_primary_parent_update(interface, neighbor)
-#define ws_common_secondary_parent_update(interface)
-#define ws_common_border_router_alive_update(interface) ((void) 0)
-#define ws_common_init(interface_id, bootstrap_mode) 0
-#define ws_common_state_machine(cur)
-
-
-#endif //HAVE_WS
 #endif //WS_COMMON_H_

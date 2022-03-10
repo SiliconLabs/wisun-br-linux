@@ -29,7 +29,6 @@
 #include "6lowpan/ws/ws_config.h"
 #include "security/kmp/kmp_addr.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "kmar"
 
@@ -91,5 +90,4 @@ int8_t kmp_address_copy(kmp_addr_t *to_addr, const kmp_addr_t *from_addr)
     return 0;
 }
 
-#endif /* HAVE_WS */
 

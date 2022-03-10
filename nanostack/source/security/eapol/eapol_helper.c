@@ -27,7 +27,6 @@
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
 
-#ifdef HAVE_WS
 
 #define KEY_INFO_VERSION_BIT_MASK   0x0007
 #define KEY_INFO_VERSION_BIT_SHIFT  0
@@ -294,5 +293,4 @@ uint8_t eapol_pdu_key_mask_get(eapol_pdu_t *eapol_pdu)
     return key_mask;
 }
 
-#endif
 

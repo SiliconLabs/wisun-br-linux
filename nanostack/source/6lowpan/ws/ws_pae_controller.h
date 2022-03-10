@@ -24,7 +24,6 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "nwk_interface/protocol_abstract.h"
 
-#ifdef HAVE_WS
 
 typedef enum {
     AUTH_RESULT_OK = 0,                    // Successful
@@ -706,33 +705,5 @@ int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_
 
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);
 
-#else
-
-#define ws_pae_controller_set_target(interface_ptr, target_pan_id, target_dest_eui_64)
-#define ws_pae_controller_authenticate(interface_ptr)
-
-#define ws_pae_controller_authenticator_start(interface_ptr, local_port, remote_address, remote_port)
-
-#define ws_pae_controller_border_router_addr_write(interface_ptr, eui_64) -1
-#define ws_pae_controller_border_router_addr_read(interface_ptr, eui_64) -1
-
-#define ws_pae_controller_gtk_set(interface_id, gtk) -1
-#define ws_pae_controller_next_gtks_update(interface_id, gtk) -1
-
-#define ws_pae_controller_init(interface_ptr) 1
-#define ws_pae_controller_supp_init(interface_ptr) 1
-#define ws_pae_controller_auth_init(interface_ptr) 1
-
-#define ws_pae_controller_stop(interface_ptr)
-#define ws_pae_controller_delete(interface_ptr)
-#define ws_pae_controller_cb_register(interface_ptr, completed, nw_key_set, nw_key_clear, nw_send_key_index_set, pan_ver_increment, congestion_get) 1
-#define ws_pae_controller_nvm_tlv_get(interface_ptr) NULL
-
-#define ws_pae_controller_forced_gc NULL
-
-#define ws_pae_controller_gak_from_gtk -1
-#define ws_pae_controller_get_gtks NULL
-
-#endif
 
 #endif /* WS_PAE_CONTROLLER_H_ */

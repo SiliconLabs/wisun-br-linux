@@ -36,7 +36,6 @@
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
 #include "common_functions.h"
 
-#ifdef HAVE_WS
 #ifdef HAVE_PAE_AUTH
 
 #define TRACE_GROUP "wsar"
@@ -212,4 +211,3 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
 }
 
 #endif /* HAVE_PAE_AUTH */
-#endif /* HAVE_WS */

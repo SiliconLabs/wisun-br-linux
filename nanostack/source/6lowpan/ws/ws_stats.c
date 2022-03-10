@@ -24,7 +24,6 @@
 
 #define TRACE_GROUP "wsst"
 
-#ifdef HAVE_WS
 
 int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
 {
@@ -116,4 +115,3 @@ void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type,
             break;
     }
 }
-#endif // HAVE_WS

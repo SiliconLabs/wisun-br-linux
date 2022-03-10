@@ -36,7 +36,6 @@
 #include "security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.h"
 #include "security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "eaps"
 
@@ -551,5 +550,4 @@ static bool supp_eap_tls_sec_prot_seq_id_update(sec_prot_t *prot)
     return new_seq_id;
 }
 
-#endif /* HAVE_WS */
 

@@ -36,7 +36,6 @@
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "msep"
 
@@ -144,5 +143,4 @@ static void msg_sec_prot_state_machine(sec_prot_t *prot)
     }
 }
 
-#endif /* HAVE_WS */
 

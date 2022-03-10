@@ -35,7 +35,6 @@
 #include "security/kmp/kmp_socket_if.h"
 #include "common_functions.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "kmsi"
 
@@ -287,5 +286,4 @@ static void kmp_socket_if_socket_cb(void *ptr)
     ns_dyn_mem_free(pdu);
 }
 
-#endif /* HAVE_WS */
 

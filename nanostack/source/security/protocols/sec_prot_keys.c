@@ -35,7 +35,6 @@
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "spke"
 
@@ -1010,4 +1009,3 @@ bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_ke
     return false;
 }
 
-#endif /* HAVE_WS */

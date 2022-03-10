@@ -53,7 +53,6 @@
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
-#ifdef HAVE_WS
 #ifdef HAVE_PAE_AUTH
 
 #define TRACE_GROUP "wspa"
@@ -1562,5 +1561,4 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth_ptr)
 }
 
 #endif /* HAVE_PAE_AUTH */
-#endif /* HAVE_WS */
 

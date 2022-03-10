@@ -38,7 +38,6 @@
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "sfwh"
 
@@ -595,4 +594,3 @@ error:
     return -1;
 }
 
-#endif /* HAVE_WS */

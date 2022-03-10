@@ -23,7 +23,6 @@
 #include "common_functions.h"
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "avp"
 
@@ -255,5 +254,4 @@ uint8_t *avp_vsa_ms_mppe_recv_key_read(uint8_t *ptr, uint16_t len, uint8_t *recv
     return ptr;
 }
 
-#endif
 

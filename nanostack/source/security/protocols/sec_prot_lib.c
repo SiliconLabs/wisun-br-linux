@@ -41,7 +41,6 @@
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "mbedtls/sha256.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "secl"
 
@@ -563,4 +562,3 @@ uint8_t *sec_prot_remote_eui_64_addr_get(sec_prot_t *prot)
     }
 }
 
-#endif /* HAVE_WS */

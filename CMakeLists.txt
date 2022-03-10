@@ -117,7 +117,6 @@ add_executable(wsbrd
     nanostack/source/6lowpan/ws/ws_eapol_pdu.c
     nanostack/source/6lowpan/ws/ws_eapol_relay.c
     nanostack/source/6lowpan/ws/ws_eapol_relay_lib.c
-    # Excluded nanostack/source/6lowpan/ws/ws_empty_functions.c
     nanostack/source/6lowpan/ws/ws_ie_lib.c
     nanostack/source/6lowpan/ws/ws_llc_data_service.c
     nanostack/source/6lowpan/ws/ws_management_api.c
@@ -334,7 +333,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/ws/ws_eapol_pdu.c
         nanostack/source/6lowpan/ws/ws_eapol_relay.c
         nanostack/source/6lowpan/ws/ws_eapol_relay_lib.c
-        # Excluded nanostack/source/6lowpan/ws/ws_empty_functions.c
         nanostack/source/6lowpan/ws/ws_ie_lib.c
         nanostack/source/6lowpan/ws/ws_llc_data_service.c
         nanostack/source/6lowpan/ws/ws_management_api.c
@@ -531,7 +529,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wshwsim/fhss/fhss_statistics.c
         app_wshwsim/fhss/fhss_ws.c
         # Excluded app_wshwsim/fhss/fhss_test_api.c
-        # Excluded app_wshwsim/fhss/fhss_ws_empty_functions.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -547,7 +544,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack-event-loop/nanostack-event-loop/
         app_wshwsim/
     )
-    target_compile_definitions(wshwsim PRIVATE HAVE_WS)
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
     # target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)

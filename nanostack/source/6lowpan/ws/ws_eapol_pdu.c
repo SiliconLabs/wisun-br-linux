@@ -33,7 +33,6 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_llc.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wsep"
 
@@ -350,5 +349,4 @@ static eapol_pdu_data_t *ws_eapol_pdu_data_get(protocol_interface_info_entry_t *
     return eapol_pdu_data;
 }
 
-#endif /* HAVE_WS */
 

@@ -31,7 +31,6 @@
 #include "ws_management_api.h"
 #include "nanostack/mac/mac_api.h"
 
-#ifdef HAVE_WS
 
 
 #define TRACE_GROUP "wsne"
@@ -417,5 +416,4 @@ void ws_neighbor_class_pcap_ie_store(struct ws_neighbor_class_entry *ws_neighbor
 #endif
 
 
-#endif /* HAVE_WS */
 

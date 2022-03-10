@@ -46,7 +46,6 @@
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "ws_management_api.h"
 
-#ifdef HAVE_WS
 
 #define TRACE_GROUP "wllc"
 
@@ -2146,4 +2145,3 @@ bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *int
 }
 
 
-#endif
