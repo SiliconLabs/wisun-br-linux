@@ -23,7 +23,6 @@
 
 #ifndef DHCPV6_SERVER_SERVICE_H_
 #define DHCPV6_SERVER_SERVICE_H_
-#ifdef HAVE_DHCPV6_SERVER
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
 
@@ -102,7 +101,4 @@ int dhcpv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[st
 
 int dhcpv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb);
 
-#else
-#define dhcpv6_server_service_delete(interface, guaPrefix, delete_gua_addresses)
-#endif
 #endif /* DHCPV6_SERVER_SERVICE_H_ */

@@ -23,7 +23,6 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <stdbool.h>
-#ifdef HAVE_DHCPV6_SERVER
 #include <string.h>
 #include <ns_trace.h>
 #include "eventOS_event.h"
@@ -512,51 +511,3 @@ int dhcpv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t gua
     vendor_data_entry->vendor_data_cb = vendor_data_cb;
     return 0;
 }
-#else
-
-int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
-{
-    (void) interface;
-    (void) guaPrefix;
-    (void) serverDUID;
-    (void) serverDUIDType;
-
-    return -1;
-}
-void dhcpv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8], bool delete_gua_addresses)
-{
-    (void) interface;
-    (void) guaPrefix;
-    (void) delete_gua_addresses;
-}
-void dhcpv6_server_service_timeout_cb(uint32_t timeUpdateInSeconds)
-{
-    (void) timeUpdateInSeconds;
-}
-int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool autonomous_skip_list)
-{
-    (void) interface;
-    (void) guaPrefix;
-    (void) mode;
-    (void) autonomous_skip_list;
-
-    return -1;
-}
-int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
-{
-    (void) interface;
-    (void) guaPrefix;
-    (void) maxClientCount;
-
-    return -1;
-}
-int dhcpv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
-{
-    (void) interface;
-    (void) guaPrefix;
-    (void) validLifeTimne;
-
-    return -1;
-}
-
-#endif

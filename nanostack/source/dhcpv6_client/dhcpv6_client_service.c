@@ -23,12 +23,12 @@
 #include "common/rand.h"
 #include "ns_list.h"
 #include "common_functions.h"
-
-#ifdef HAVE_DHCPV6
 #include "dhcp_service_api.h"
 #include "dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h"
+
+#ifdef HAVE_DHCPV6
 
 #define TRACE_GROUP "DHP"
 

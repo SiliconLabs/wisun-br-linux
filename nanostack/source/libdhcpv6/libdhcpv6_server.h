@@ -23,10 +23,13 @@
 
 #ifndef LIBDHCPV6_SERVER_H_
 #define LIBDHCPV6_SERVER_H_
-#ifdef HAVE_DHCPV6_SERVER
 #include "ns_list.h"
 
 #include "libdhcpv6/libdhcpv6.h"
+
+#ifndef HAVE_DHCPV6_SERVER
+#error "DHCPv6 server is not enabled"
+#endif
 
 #define MAX_SUPPORTED_ADDRESS_LIST_SIZE 0x0000fffd
 #define DHCP_ADDRESS_ID_START 2
@@ -126,25 +129,5 @@ uint16_t libdhcpv6_dns_server_message_sizes(dhcpv6_gua_server_entry_s *serverInf
 uint16_t libdhcpv6_vendor_data_message_sizes(dhcpv6_gua_server_entry_s *serverInfo);
 uint8_t *libdhcpv6_dns_server_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr);
 uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverInfo, uint8_t *ptr);
-#else
-#define libdhcpv6_gua_server_list_empty() true
-#define libdhcpv6_gua_server_allocate(prefix, interfaceId, serverDUID, serverDUIDType) NULL
-#define libdhcpv6_server_duid_set(server_info, duid_ptr, duid_type, duid_length)
-#define libdhcpv6_gua_server_free_by_prefix_and_interfaceid(prefix, interfaceId)
-#define libdhcpv6_gua_servers_time_update(timeUpdateInSeconds)
-#define libdhcpv6_allocated_address_write(ptr, address, serverInfo)
-#define libdhcpv6_address_delete(serverInfo, address)
-#define libdhcpv6_server_data_get_by_prefix_and_interfaceid(interfaceId, prefixPtr) NULL
-#define libdhcpv6_server_data_get_by_prefix_and_socketinstance(socketInstance,prefixPtr) NULL
-#define libdhcpv6_address_allocate(serverInfo, euid64, linkType, iaID, T0,  T1, allocateNew) NULL
-#define libdhcpv6_dns_server_discover(serverInfo, address) NULL
-#define libdhcpv6_dns_server_allocate(serverInfo, address) NULL
-#define libdhcpv6_vendor_data_discover(serverInfo, enterprise_number) NULL
-#define libdhcpv6_vendor_data_allocate(serverInfo, enterprise_number) NULL
-#define libdhcpv6_dns_server_message_sizes(serverInfo) 0
-#define libdhcpv6_vendor_data_message_sizes(serverInfo) 0
-#define libdhcpv6_dns_server_message_writes(serverInfo, ptr) NULL
-#define libdhcpv6_vendor_data_message_writes(serverInfo, ptr) NULL
-#endif
 
 #endif /* LIBDHCPV6_SERVER_H_ */
