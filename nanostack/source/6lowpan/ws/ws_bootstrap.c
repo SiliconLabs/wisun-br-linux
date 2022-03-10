@@ -2918,9 +2918,11 @@ static void ws_bootstrap_set_asynch_channel_list(protocol_interface_info_entry_t
     if (cur->ws_info->cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
         //SET 1 Channel only
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
+        async_req->channel_list.next_channel_number = channel_number;
         async_req->channel_list.channel_mask[channel_number / 32] = 1U << (channel_number % 32);
     } else {
         ws_common_generate_channel_list(async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+        async_req->channel_list.next_channel_number = 0;
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;

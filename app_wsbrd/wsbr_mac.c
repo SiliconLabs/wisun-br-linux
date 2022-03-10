@@ -671,6 +671,8 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     for (i = 0; i < ie_ext->headerIovLength; i++)
         spinel_push_raw(buf, ie_ext->headerIeVectorList[i].ieBase,
                         ie_ext->headerIeVectorList[i].iovLen);
+    if (!fw_api_older_than(ctxt, 0, 7, 0))
+        spinel_push_u16(buf, async_channel_list->next_channel_number);
     // FIXME: also push phy_id
 
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
