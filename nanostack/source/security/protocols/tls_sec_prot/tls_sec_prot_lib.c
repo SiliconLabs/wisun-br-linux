@@ -16,16 +16,19 @@
  */
 
 #include "nsconfig.h"
-
-
-#include "mbedtls/version.h"
-#if defined(MBEDTLS_SSL_TLS_C) && defined(MBEDTLS_X509_CRT_PARSE_C) && defined(MBEDTLS_SSL_EXPORT_KEYS) /* EXPORT_KEYS not supported by mbedtls baremetal yet */
-#define WS_MBEDTLS_SECURITY_ENABLED
-#endif
-
-#include <string.h>
-#include "common/rand.h"
 #include <stdint.h>
+#include <string.h>
+#include <mbedtls/version.h>
+#include <mbedtls/sha256.h>
+#include <mbedtls/error.h>
+#include <mbedtls/platform.h>
+#include <mbedtls/ssl_cookie.h>
+#include <mbedtls/entropy.h>
+#include <mbedtls/ctr_drbg.h>
+#include <mbedtls/ssl_ciphersuites.h>
+#include <mbedtls/debug.h>
+#include <mbedtls/oid.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
@@ -34,20 +37,6 @@
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"
-
-#if defined(MBEDTLS_SSL_TLS_C) && defined(MBEDTLS_X509_CRT_PARSE_C) && defined(MBEDTLS_SSL_EXPORT_KEYS) /* EXPORT_KEYS not supported by mbedtls baremetal yet */
-#ifdef WS_MBEDTLS_SECURITY_ENABLED
-#endif
-
-#include "mbedtls/sha256.h"
-#include "mbedtls/error.h"
-#include "mbedtls/platform.h"
-#include "mbedtls/ssl_cookie.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/ssl_ciphersuites.h"
-#include "mbedtls/debug.h"
-#include "mbedtls/oid.h"
 
 #define TRACE_GROUP "tlsl"
 
@@ -678,50 +667,3 @@ static void tls_sec_prot_lib_mem_free(void *ptr)
     ns_dyn_mem_free(ptr);
 }
 #endif
-
-#else /* WS_MBEDTLS_SECURITY_ENABLED */
-
-int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_prot_certs_t *certs)
-{
-    (void)sec;
-    (void)is_server;
-    (void)certs;
-    return 0;
-}
-
-void tls_sec_prot_lib_free(tls_security_t *sec)
-{
-    (void)sec;
-}
-
-int8_t tls_sec_prot_lib_init(tls_security_t *sec)
-{
-    (void)sec;
-    return 0;
-}
-
-int8_t tls_sec_prot_lib_process(tls_security_t *sec)
-{
-    (void)sec;
-    return 0;
-}
-
-void tls_sec_prot_lib_set_cb_register(tls_security_t *sec, void *handle,
-                                      tls_sec_prot_lib_send *send, tls_sec_prot_lib_receive *receive,
-                                      tls_sec_prot_lib_export_keys *export_keys, tls_sec_prot_lib_set_timer *set_timer,
-                                      tls_sec_prot_lib_get_timer *get_timer)
-{
-    (void)sec;
-    (void)handle;
-    (void)send;
-    (void)receive;
-    (void)export_keys;
-    (void)set_timer;
-    (void)get_timer;
-}
-
-uint16_t tls_sec_prot_lib_size(void)
-{
-    return 0;
-}
-#endif /* WS_MBEDTLS_SECURITY_ENABLED */
