@@ -42,7 +42,6 @@
 #include "net_nwk_scan.h"
 #include "net_interface.h"
 #include "multicast_api.h"
-#include "service_libs/neighbor_cache/neighbor_table_definition.h"
 #include "service_libs/trickle/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
@@ -368,7 +367,6 @@ struct protocol_interface_info_entry {
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;
-    neigh_cache_s neigh_cache;
     struct ws_info_s *ws_info;
     struct rpl_domain *rpl_domain;
     struct mesh_callbacks_s *mesh_callbacks;

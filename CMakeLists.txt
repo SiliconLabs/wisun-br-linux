@@ -210,7 +210,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
     nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     nanostack/source/service_libs/nd_proxy/nd_proxy.c
-    nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
     nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     nanostack/source/service_libs/random_early_detection/random_early_detection.c
     nanostack/source/service_libs/sha256/ns_sha256.c
@@ -426,7 +425,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/ieee_802_11/ieee_802_11.c
         nanostack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
         nanostack/source/service_libs/nd_proxy/nd_proxy.c
-        nanostack/source/service_libs/neighbor_cache/neighbor_cache.c
         nanostack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         nanostack/source/service_libs/random_early_detection/random_early_detection.c
         nanostack/source/service_libs/sha256/ns_sha256.c

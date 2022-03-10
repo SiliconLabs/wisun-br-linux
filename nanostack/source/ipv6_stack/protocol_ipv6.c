@@ -710,7 +710,6 @@ int8_t ipv6_interface_down(protocol_interface_info_entry_t *cur)
     ipv6_prefix_online_list_free();
     ipv6_rote_advert_list_free();
     ipv6_stack_route_advert_dns_server_delete(NULL);
-    neighbor_cache_flush(&cur->neigh_cache);
     ipv6_route_table_remove_interface(cur->id);
     protocol_core_interface_info_reset(cur);
     cur->ipv6_configure->wb_table_ttl = 0;

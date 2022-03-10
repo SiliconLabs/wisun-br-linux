@@ -811,7 +811,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_
         return NULL;
     }
 
-    neighbor_cache_init(&(new_entry->neigh_cache));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t mac[6];
@@ -848,7 +847,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_a
         return NULL;
     }
 
-    neighbor_cache_init(&(new_entry->neigh_cache));
     ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
     addr_max_slaac_entries_set(new_entry, 16);
     uint8_t iid64[8];
@@ -885,7 +883,6 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
     protocol_interface_info_entry_t *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(api);
 
     if (new_entry) {
-        neighbor_cache_init(&(new_entry->neigh_cache));
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
 
         uint8_t mac[8];

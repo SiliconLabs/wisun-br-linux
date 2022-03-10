@@ -143,7 +143,6 @@ int8_t nwk_6lowpan_up(protocol_interface_info_entry_t *cur)
 int8_t nwk_6lowpan_down(protocol_interface_info_entry_t *cur)
 {
     int8_t ret_val;
-    neighbor_cache_flush(&cur->neigh_cache);
     ret_val = set_6lowpan_nwk_down(cur);
     protocol_core_interface_info_reset(cur);
     return ret_val;
