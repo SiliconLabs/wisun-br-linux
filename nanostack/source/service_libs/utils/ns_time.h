@@ -22,7 +22,7 @@
  * \file ns_time.h
  * \brief Nanostack internal time handling API.
  */
-#include "ns_time_api.h"
+#include "nanostack/ns_time_api.h"
 
 /**
  * Write new time as a platform time

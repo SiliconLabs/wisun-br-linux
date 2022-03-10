@@ -35,7 +35,7 @@
 #include "common_functions.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
-#include "dhcp_service_api.h"
+#include "nanostack/dhcp_service_api.h"
 
 #define TRACE_GROUP "dhcp"
 

@@ -32,7 +32,7 @@
 #include "6lowpan/mac/mac_helper.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "nwk_stats_api.h"
+#include "nanostack/nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_functions.h"
 

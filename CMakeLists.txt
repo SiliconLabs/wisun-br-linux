@@ -239,7 +239,6 @@ target_include_directories(wsbrd PRIVATE
 target_include_directories(wsbrd PRIVATE
     mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
-    nanostack/nanostack/
     nanostack/source/
 )
 target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
@@ -447,7 +446,6 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wsnode PRIVATE
         mbed-client-libservice/mbed-client-libservice/
         nanostack-event-loop/nanostack-event-loop/
-        nanostack/nanostack/
         nanostack/source/
     )
     target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)

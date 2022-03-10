@@ -17,7 +17,7 @@
 
 #ifndef NWK_NVM_H_
 #define NWK_NVM_H_
-#include "net_nvm_api.h"
+#include "nanostack/net_nvm_api.h"
 
 
 /**

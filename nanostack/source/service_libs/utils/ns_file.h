@@ -23,7 +23,7 @@
  * \brief Nanostack file handling API.
  */
 
-#include "ns_file_system.h"
+#include "nanostack/ns_file_system.h"
 
 /**
  * File open

@@ -23,7 +23,7 @@
 #include "nsdynmemLIB.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
-#include "socket_api.h"
+#include "nanostack/socket_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"

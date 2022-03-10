@@ -18,7 +18,7 @@
 #ifndef RPL_PROTOCOL_H_
 #define RPL_PROTOCOL_H_
 
-#include "net_rpl.h" // for RPL_INSTANCE_LOCAL
+#include "nanostack/net_rpl.h" // for RPL_INSTANCE_LOCAL
 
 /* RPL messages are defined as ICMPv6 Codes in common_protocols/icmpv6.h */
 

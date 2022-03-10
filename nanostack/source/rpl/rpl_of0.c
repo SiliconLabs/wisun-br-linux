@@ -21,8 +21,8 @@
 #include "ns_trace.h"
 #include "common_functions.h"
 
-#include "net_rpl.h"
-#include "net_interface.h"
+#include "nanostack/net_rpl.h"
+#include "nanostack/net_interface.h"
 
 #include "nwk_interface/protocol_abstract.h"
 #include "common_protocols/ipv6_resolution.h"

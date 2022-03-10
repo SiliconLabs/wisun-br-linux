@@ -22,7 +22,7 @@
 #include "mac_helper.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nsdynmemLIB.h"
-#include "net_nwk_scan.h"
+#include "nanostack/net_nwk_scan.h"
 #include "ns_trace.h"
 #include "common_functions.h"
 #include "nanostack/mac/mac_api.h"

@@ -26,7 +26,7 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 
-#include "net_rpl.h"
+#include "nanostack/net_rpl.h"
 
 
 /**

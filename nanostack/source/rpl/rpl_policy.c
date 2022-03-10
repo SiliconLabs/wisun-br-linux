@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include "ns_trace.h"
 #include "common/rand.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 
 #include "core/include/ns_address_internal.h"
 #include "service_libs/etx/etx.h"

@@ -40,10 +40,10 @@
 #include "nanostack/mac/mac_api.h"
 #include "rpl/rpl_control.h"
 
-#include "shalib.h"
-#include "net_nvm_api.h"
+#include "nanostack/shalib.h"
+#include "nanostack/net_nvm_api.h"
 #include "common_functions.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 #include "security/common/sec_lib.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "service_libs/etx/etx.h"

@@ -26,14 +26,14 @@
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
 #include "common/rand.h"
-#include "socket_api.h"
-#include "net_interface.h"
+#include "nanostack/socket_api.h"
+#include "nanostack/net_interface.h"
 #include "common_functions.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
 #include "common_protocols/ip.h"
-#include "dhcp_service_api.h"
+#include "nanostack/dhcp_service_api.h"
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP    "dhcp"
 

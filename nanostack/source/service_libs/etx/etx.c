@@ -21,7 +21,7 @@
 #include <string.h>
 #include "nsdynmemLIB.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 
 #include "core/include/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"

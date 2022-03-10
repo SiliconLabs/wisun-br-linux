@@ -25,13 +25,13 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/network_lib.h"
-#include "shalib.h"
+#include "nanostack/shalib.h"
 #include "common_protocols/ipv6_constants.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "net_nwk_scan.h"
-#include "nwk_stats_api.h"
+#include "nanostack/net_nwk_scan.h"
+#include "nanostack/nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
 #include "rpl/rpl_data.h"
 

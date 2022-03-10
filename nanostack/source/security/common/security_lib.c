@@ -22,12 +22,12 @@
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
-#include "shalib.h"
+#include "nanostack/shalib.h"
 #include "common/rand.h"
 #include "security/tls/tls_lib.h"
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
-#include "net_nvm_api.h"
+#include "nanostack/net_nvm_api.h"
 #include "common_functions.h"
 
 

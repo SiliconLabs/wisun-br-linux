@@ -26,7 +26,7 @@
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_mcps.h"
 #include "common_protocols/ipv6_constants.h"
-#include "socket_api.h"
+#include "nanostack/socket_api.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"

@@ -22,8 +22,8 @@
 #include "nsdynmemLIB.h"
 #include "common/rand.h"
 #include "common_functions.h"
-#include "net_interface.h"
-#include "socket_api.h"
+#include "nanostack/net_interface.h"
+#include "nanostack/socket_api.h"
 #include "eventOS_event.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -39,8 +39,8 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ip.h"
-#include "ws_management_api.h"
-#include "net_rpl.h"
+#include "nanostack/ws_management_api.h"
+#include "nanostack/net_rpl.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/utils/ns_time.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
@@ -52,7 +52,7 @@
 #include "net_lib/src/net_dns_internal.h"
 #include "nanostack/mac/platform/os_whiteboard.h"
 
-#include "ws_bbr_api.h"
+#include "nanostack/ws_bbr_api.h"
 
 #define TRACE_GROUP "BBRw"
 

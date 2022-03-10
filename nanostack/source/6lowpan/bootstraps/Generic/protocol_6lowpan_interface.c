@@ -43,9 +43,9 @@
 #include "rpl/rpl_control.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 
-#include "shalib.h"
+#include "nanostack/shalib.h"
 #include "security/common/sec_lib.h"
-#include "net_nvm_api.h"
+#include "nanostack/net_nvm_api.h"
 
 #include "6lowpan/nd/nd_router_object.h"
 #include "platform/arm_hal_interrupt.h"

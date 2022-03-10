@@ -19,8 +19,8 @@
 #include "common_functions.h"
 #include <stdint.h>
 #include <string.h>
-#include "shalib.h"
-#include "ns_sha256.h"
+#include "nanostack/shalib.h"
+#include "nanostack/ns_sha256.h"
 
 #define SHALIB_OPAD 0x5c
 #define SHALIB_IPAD 0x36

@@ -30,7 +30,7 @@
 #include "eventOS_scheduler.h"
 #include "nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
-#include "socket_api.h"
+#include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"

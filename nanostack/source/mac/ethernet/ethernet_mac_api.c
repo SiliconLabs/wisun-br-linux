@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "ethernet_mac_api.h"
+#include "nanostack/ethernet_mac_api.h"
 #include "eventOS_event.h"
 #include "nsdynmemLIB.h"
 #include "common_functions.h"

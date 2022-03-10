@@ -37,13 +37,13 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
 
-#include "shalib.h"
+#include "nanostack/shalib.h"
 #include "security/common/sec_lib.h"
-#include "net_nvm_api.h"
+#include "nanostack/net_nvm_api.h"
 #include "common/rand.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "common_functions.h"
-#include "net_rpl.h"
+#include "nanostack/net_rpl.h"
 #ifndef NO_MLE
 #include "nwk_interface/protocol_stats.h"
 #endif

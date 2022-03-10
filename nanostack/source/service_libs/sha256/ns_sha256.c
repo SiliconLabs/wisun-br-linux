@@ -26,7 +26,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_sha256.h"
+#include "nanostack/ns_sha256.h"
 
 #ifndef NS_USE_EXTERNAL_MBED_TLS
 

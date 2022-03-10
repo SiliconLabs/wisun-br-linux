@@ -28,8 +28,8 @@
 #ifndef BUILD_LIBRARY
 #define BUILD_LIBRARY
 #endif
-#include "ns_address.h"
-#include "socket_api.h"
+#include "nanostack/ns_address.h"
+#include "nanostack/socket_api.h"
 #include "ns_trace.h"
 #include <string.h>
 #include "nsdynmemLIB.h"

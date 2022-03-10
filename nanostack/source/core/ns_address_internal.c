@@ -28,8 +28,8 @@
 #include "common/rand.h"
 #include <string.h>
 #include "nsdynmemLIB.h"
-#include "ns_sha256.h"
-#include "socket_api.h"
+#include "nanostack/ns_sha256.h"
+#include "nanostack/socket_api.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"

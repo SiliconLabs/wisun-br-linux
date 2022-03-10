@@ -18,7 +18,7 @@
 #ifndef SEC_LIB_DEFINITIONS_H_
 #define SEC_LIB_DEFINITIONS_H_
 
-#include "ns_sha256.h"
+#include "nanostack/ns_sha256.h"
 
 #define SEC_CIPHERSUITE_PSK 1
 #define SEC_CIPHERSUITE_ECC 2

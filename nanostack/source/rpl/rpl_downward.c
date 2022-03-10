@@ -92,7 +92,7 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "common_protocols/ip.h"
 
-#include "net_rpl.h"
+#include "nanostack/net_rpl.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_policy.h"
 #include "rpl/rpl_upward.h"

@@ -44,7 +44,7 @@
 #include "service_libs/etx/etx.h"
 #include "nanostack/mac/fhss_ws_extension.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 
 
 #define TRACE_GROUP "wllc"

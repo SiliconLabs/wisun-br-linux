@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "nwk_interface/protocol.h"
-#include "net_6lowpan_parameter_api.h"
+#include "nanostack/net_6lowpan_parameter_api.h"
 #include "6lowpan/nd/nd_router_object.h"
 
 /**

@@ -20,7 +20,7 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "mpl/mpl.h"
-#include "multicast_api.h"
+#include "nanostack/multicast_api.h"
 
 #ifdef MULTICAST_FORWARDING
 int8_t multicast_fwd_add(int8_t interface_id, const uint8_t group[16], uint32_t lifetime)

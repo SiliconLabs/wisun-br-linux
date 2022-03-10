@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-#include "ns_time_api.h" //ns_time_api_system_time_callback
+#include "nanostack/ns_time_api.h" //ns_time_api_system_time_callback
 
 static ns_time_api_system_time_callback *system_time_read_callback = NULL;
 static ns_time_api_system_time_write_callback *system_time_write_callback = NULL;

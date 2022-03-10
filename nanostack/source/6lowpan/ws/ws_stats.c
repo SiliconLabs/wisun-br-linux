@@ -20,7 +20,7 @@
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_common.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 
 #define TRACE_GROUP "wsst"
 

@@ -19,7 +19,7 @@
 #define WS_PAE_CONTROLLER_H_
 
 #include "nsconfig.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 
 #include "security/protocols/sec_prot_keys.h"
 #include "nwk_interface/protocol_abstract.h"

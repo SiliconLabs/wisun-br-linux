@@ -22,7 +22,7 @@
 
 #ifndef PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #define PROTOCOL_6LOWPAN_BOOTSTRAP_H_
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 
 struct protocol_interface_info_entry;
 struct nd_router;

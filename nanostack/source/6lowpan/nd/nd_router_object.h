@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include "6lowpan/nd/nd_defines.h"
-#include "net_6lowpan_parameter_api.h"
+#include "nanostack/net_6lowpan_parameter_api.h"
 
 #ifndef ND_ROUTER_OBJECT_H_
 #define ND_ROUTER_OBJECT_H_

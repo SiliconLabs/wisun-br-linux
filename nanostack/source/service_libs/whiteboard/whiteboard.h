@@ -18,7 +18,7 @@
 #ifndef WHITEBOARD_H_
 #define WHITEBOARD_H_
 
-#include "whiteboard_api.h"
+#include "nanostack/whiteboard_api.h"
 #ifdef WHITEBOARD
 extern void whiteboard_init(int8_t id);
 extern void whiteboard_init_by_prefix(int8_t id, const uint8_t address[static 8]);

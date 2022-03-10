@@ -20,10 +20,10 @@
 #include <string.h>
 #include "ns_list.h"
 #include "nsdynmemLIB.h"
-#include "net_ws_test.h"
-#include "net_ws_test_ext.h"
+#include "nanostack/net_ws_test.h"
+#include "nanostack/net_ws_test_ext.h"
 #include "nanostack/mac/fhss_config.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 #include "nanostack/mac/mac_api.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "nwk_interface/protocol.h"

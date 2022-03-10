@@ -25,7 +25,7 @@
 #include <nsdynmemLIB.h>
 #include "common_protocols/icmpv6.h"
 #include "nanostack/mac/mac_common_defines.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 #include "eventOS_event.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
@@ -47,7 +47,7 @@
 #include "service_libs/blacklist/blacklist.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 #include "nanostack/mac/mac_api.h"
 
 #define TRACE_GROUP "wscm"

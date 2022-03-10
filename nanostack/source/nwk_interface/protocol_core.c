@@ -37,9 +37,9 @@
 #include "common/rand.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "platform/arm_hal_interrupt.h"
-#include "shalib.h"
+#include "nanostack/shalib.h"
 #include "security/common/sec_lib.h"
-#include "net_nvm_api.h"
+#include "nanostack/net_nvm_api.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "common_protocols/icmpv6_radv.h"
@@ -64,7 +64,7 @@
 #include "net_lib/src/net_dns_internal.h"
 
 #include "nanostack/mac/mac_api.h"
-#include "ethernet_mac_api.h"
+#include "nanostack/ethernet_mac_api.h"
 
 #define TRACE_GROUP_CORE "core"
 

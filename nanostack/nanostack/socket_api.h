@@ -17,7 +17,7 @@
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
 #include "ns_types.h"
-#include "ns_address.h"
+#include "nanostack/ns_address.h"
 
 /**
  * \file socket_api.h

@@ -35,7 +35,7 @@
 #include <string.h>
 #include "ip6string.h"
 
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 
 #include "core/include/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
@@ -55,7 +55,7 @@
 #include "rpl/rpl_downward.h"
 #include "rpl/rpl_structures.h"
 
-#include "net_rpl.h"
+#include "nanostack/net_rpl.h"
 
 #define TRACE_GROUP "rplu"
 

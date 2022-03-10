@@ -21,7 +21,7 @@
 #include "ns_list.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
-#include "net_interface.h"
+#include "nanostack/net_interface.h"
 #include "eventOS_event.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
@@ -29,7 +29,7 @@
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 #include "mpl/mpl.h"
 
 #define TRACE_GROUP "cstr"

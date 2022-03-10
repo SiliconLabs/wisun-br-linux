@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "ns_list.h"
 #include "ns_trace.h"
-#include "ns_time_api.h"
+#include "nanostack/ns_time_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "security/protocols/sec_prot_certs.h"

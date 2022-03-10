@@ -21,7 +21,7 @@
 #include "nanostack/net_interface.h"
 #include "ns_trace.h"
 #include "nanostack/net_interface.h"
-#include "ws_management_api.h"
+#include "nanostack/ws_management_api.h"
 
 #define TRACE_GROUP "wsph"
 

@@ -48,7 +48,7 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "service_libs/etx/etx.h" /* slight ick */
 
-#include "net_rpl.h"
+#include "nanostack/net_rpl.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_upward.h"
 #include "rpl/rpl_downward.h"

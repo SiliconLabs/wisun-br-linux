@@ -35,7 +35,7 @@
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
-#include "ethernet_mac_api.h"
+#include "nanostack/ethernet_mac_api.h"
 
 #ifdef HAVE_ETHERNET
 
