@@ -50,7 +50,6 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
-#include "security/common/sec_lib.h"
 
 /* Fixed-point randomisation limits for randlib_randomise_base() - RFC 3315
  * says RAND is uniformly distributed between -0.1 and +0.1

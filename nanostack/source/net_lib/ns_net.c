@@ -52,7 +52,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "security/common/sec_lib_definitions.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "net_lib/net_dns_internal.h"

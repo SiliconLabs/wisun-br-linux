@@ -56,7 +56,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
 #include "common_protocols/udp.h"
-#include "security/common/sec_lib.h"
 
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
@@ -178,8 +177,6 @@ void protocol_root_tasklet(arm_event_t *event)
             break;
         }
         case ARM_IN_SECURITY_ECC_CALLER:
-            sec_ecc_sceduler();
-            break;
         default:
             break;
     }
@@ -187,7 +184,6 @@ void protocol_root_tasklet(arm_event_t *event)
 void protocol_core_security_tick_update(uint16_t tick_update)
 {
     if (protocol_core_timer_info.core_security_ticks_counter <= tick_update) {
-        sec_timer_handle();
         protocol_core_timer_info.core_security_ticks_counter = SEC_LIB_X_100MS_COUNTER;
     }
 }
