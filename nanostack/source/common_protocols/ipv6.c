@@ -119,12 +119,10 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         goto no_route;
     }
 
-#ifdef HAVE_IPV6_ND
     if (!next_hop && dest_entry->redirected) {
         next_hop = dest_entry->redirect_addr;
         next_if = protocol_stack_interface_info_get_by_id(dest_entry->interface_id);
     }
-#endif
 
     if (next_hop && next_if) {
         if (interface_specific && next_if != buf->interface) {

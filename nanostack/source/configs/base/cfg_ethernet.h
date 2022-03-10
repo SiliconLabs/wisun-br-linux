@@ -18,5 +18,3 @@
 /* Config Flags for Ethernet Bootstrap */
 
 #define HAVE_ETHERNET
-
-#define HAVE_IPV6_ND

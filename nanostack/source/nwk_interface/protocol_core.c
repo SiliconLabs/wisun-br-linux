@@ -451,10 +451,8 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->send_na = true; /* Default to on for now... */
     entry->ip_forwarding = true; /* Default to on for now... */
     entry->ip_multicast_forwarding = true; /* Default to on for now... */
-#ifdef HAVE_IPV6_ND
     entry->recv_ra_routes = true;
     entry->recv_ra_prefixes = true;
-#endif
     entry->send_mld = true;
     entry->mpl_seed = false;
     entry->mpl_control_trickle_params = rfc7731_default_control_message_trickle_params;

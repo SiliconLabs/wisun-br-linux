@@ -55,7 +55,6 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
         }
     }
 
-#ifdef HAVE_IPV6_ND
     tr_debug("Sending %s NS for: %s",
              (unicast ? "unicast" : "multicast"), trace_ipv6(entry->ip_address));
 
@@ -64,9 +63,6 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
                                     prompting_packet ? prompting_packet->src_sa.address : NULL,
                                     unicast, false, NULL);
     protocol_push(buf);
-#else
-    tr_error("No NS handler for interface %d", cur_interface->id);
-#endif
 }
 
 /* Entry has already been removed from cache, and is about to be freed. Hence entry->queue can't change while we process it */

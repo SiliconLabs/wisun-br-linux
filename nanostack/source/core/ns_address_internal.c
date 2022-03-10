@@ -840,7 +840,6 @@ void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
                     addr->group_added = true;
                 }
             }
-#ifdef HAVE_IPV6_ND
             if (addr->count >= cur->dup_addr_detect_transmits) {
                 /* Finished - if we've not been nerfed already, we can transition
                  * to non-tentative.
@@ -855,7 +854,6 @@ void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
                 addr->state_timer = (cur->ipv6_neighbour_cache.retrans_timer + 50) / 100; // ms -> ticks
                 addr->count++;
             }
-#endif
         } else {
             addr_cb(cur, addr, ADDR_CALLBACK_TIMER);
         }
@@ -964,9 +962,6 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
     entry->valid_lifetime = valid_lifetime;
     entry->preferred_lifetime = preferred_lifetime;
     entry->group_added = false;
-#ifndef HAVE_IPV6_ND
-    skip_dad = true;
-#endif
     if (skip_dad || cur->dup_addr_detect_transmits == 0) {
         entry->tentative = false;
         if (addr_add_solicited_node_group(cur, entry->address)) {

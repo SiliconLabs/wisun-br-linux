@@ -330,10 +330,8 @@ struct protocol_interface_info_entry {
     uint8_t cur_hop_limit;
     uint16_t reachable_time_ttl;        // s
     uint32_t base_reachable_time;       // ms
-#ifdef HAVE_IPV6_ND
     bool recv_ra_routes : 1;
     bool recv_ra_prefixes: 1;
-#endif
     bool send_mld: 1;
     bool mpl_seed: 1;
     bool mpl_treat_realm_domains_as_one: 1;

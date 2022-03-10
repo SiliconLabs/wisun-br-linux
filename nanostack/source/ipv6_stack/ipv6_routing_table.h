@@ -192,10 +192,8 @@ typedef struct ipv6_route_info {
 typedef struct ipv6_destination {
     /* Destination/path information */
     uint8_t                         destination[16];
-#ifdef HAVE_IPV6_ND
     uint8_t                         redirect_addr[16];
     bool                            redirected;         // we have a redirect in force
-#endif
     int8_t                          interface_id;       // fixed if link-local destination, else variable and gets set from redirect interface and/or last_neighbour interface
     uint16_t                        refcount;
     uint16_t                        lifetime;           // Life in GC calls, so 20s units
@@ -220,9 +218,7 @@ void ipv6_destination_cache_print(route_print_fn_t *print_fn);
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);
 ipv6_destination_t *ipv6_destination_lookup_or_create_with_route(const uint8_t *address, int8_t interface_id, ipv6_route_info_t *route_out);
 void ipv6_destination_cache_timer(uint8_t ticks);
-#ifdef HAVE_IPV6_ND
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address);
-#endif
 void ipv6_destination_cache_forced_gc(bool full_gc);
 void ipv6_destination_cache_clean(int8_t interface_id);
 

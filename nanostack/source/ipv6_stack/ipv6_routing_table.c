@@ -874,11 +874,9 @@ void ipv6_destination_cache_print(route_print_fn_t *print_fn)
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
         ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
         print_fn(" %s (%d id) (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->interface_id, entry->lifetime);
-#ifdef HAVE_IPV6_ND
         if (entry->redirected) {
             print_fn("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
         }
-#endif
 #ifndef NO_IPV6_PMTUD
         print_fn("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
 #endif
@@ -959,9 +957,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         }
         memcpy(entry->destination, address, 16);
         entry->refcount = 1;
-#ifdef HAVE_IPV6_ND
         entry->redirected = false;
-#endif
         entry->last_neighbour = NULL;
 #ifndef NO_IPV6_PMTUD
         entry->pmtu = 0xffff;
@@ -1003,11 +999,9 @@ static void ipv6_destination_cache_forget_router(ipv6_neighbour_cache_t *ncache,
         if (entry->last_neighbour && entry->interface_id == ncache->interface_id && entry->last_neighbour == neighbour) {
             entry->last_neighbour = NULL;
         }
-#ifdef HAVE_IPV6_ND
         if (entry->redirected && entry->interface_id == ncache->interface_id && addr_ipv6_equal(entry->redirect_addr, neighbour_addr)) {
             entry->redirected = false;
         }
-#endif
     }
 }
 
@@ -1020,7 +1014,6 @@ static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neig
     }
 }
 
-#ifdef HAVE_IPV6_ND
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address)
 {
     ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(dest_addr, interface_id);
@@ -1079,7 +1072,6 @@ void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_a
     tr_debug("Old next hop: %s", trace_ipv6(sender_addr));
     tr_debug("New next hop: %s", trace_ipv6(redirect_addr));
 }
-#endif
 
 void ipv6_destination_cache_forced_gc(bool full_gc)
 {

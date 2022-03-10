@@ -332,7 +332,6 @@ static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
     return buffer_turnaround(buf);
 }
 
-#ifdef HAVE_IPV6_ND
 
 static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
 {
@@ -582,7 +581,6 @@ void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur
         }
     }
 }
-#endif // HAVE_IPV6_ND
 
 if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src)
 {
@@ -631,7 +629,6 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
     return address_entry;
 }
 
-#ifdef HAVE_IPV6_ND
 
 static uint8_t icmpv6_dns_search_list_remove_pad(uint8_t *data_ptr, uint8_t length)
 {
@@ -1075,7 +1072,6 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
 drop:
     return buffer_free(buf);
 }
-#endif // HAVE_IPV6_ND
 
 buffer_t *icmpv6_up(buffer_t *buf)
 {
@@ -1125,7 +1121,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
     }
 
     switch (buf->options.type) {
-#ifdef HAVE_IPV6_ND
         case ICMPV6_TYPE_INFO_RS:
             buf = icmpv6_rs_handler(buf, cur);
             break;
@@ -1145,7 +1140,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
         case ICMPV6_TYPE_INFO_REDIRECT:
             buf = icmpv6_redirect_handler(buf, cur);
             break;
-#endif
 
         case ICMPV6_TYPE_INFO_ECHO_REQUEST:
             tr_debug("ICMP echo request from: %s", trace_ipv6(buf->src_sa.address));
@@ -1256,7 +1250,6 @@ buffer_t *icmpv6_down(buffer_t *buf)
     return (buf);
 }
 
-#ifdef HAVE_IPV6_ND
 buffer_t *icmpv6_build_rs(protocol_interface_info_entry_t *cur, const uint8_t *dest)
 {
 
@@ -1540,7 +1533,6 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
 
     return buf;
 }
-#endif // HAVE_IPV6_ND
 
 void icmpv6_build_echo_req(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16])
 {
@@ -1620,7 +1612,6 @@ buffer_t *icmpv6_build_dad(protocol_interface_info_entry_t *cur, buffer_t *buf, 
     return buf;
 }
 
-#ifdef HAVE_IPV6_ND
 /*
  * Neighbor Advertisement Message Format
  *
@@ -1769,9 +1760,7 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     return (buf);
 }
 
-#endif // HAVE_IPV6_ND
 
-#ifdef HAVE_IPV6_ND
 /* Check whether the options section of an ICMPv6 message is well-formed */
 bool icmpv6_options_well_formed(const uint8_t *dptr, uint_fast16_t dlen)
 {
@@ -1829,4 +1818,3 @@ const uint8_t *icmpv6_find_option_in_buffer(const buffer_t *buf, uint_fast16_t o
     return icmpv6_find_option(buffer_data_pointer(buf) + offset,
                               buffer_data_length(buf) - offset, option, optlen);
 }
-#endif // HAVE_IPV6_ND

@@ -18,4 +18,3 @@
 #define HAVE_WS_HOST
 #define HAVE_WS_VERSION_1_1
 #define HAVE_DHCPV6
-#define HAVE_IPV6_ND
