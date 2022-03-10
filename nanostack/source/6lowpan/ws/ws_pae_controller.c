@@ -163,7 +163,6 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
         return -1;
     }
 
-#ifdef HAVE_PAE_SUPP
     // In case test keys are set uses those and does not initiate authentication
     if (controller->gtks_set) {
         if (sec_prot_keys_gtks_are_updated(&controller->gtks)) {
@@ -178,7 +177,6 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     if (ws_pae_supp_authenticate(controller->interface_ptr, controller->target_pan_id, controller->target_eui_64, controller->sec_keys_nw_info.network_name) < 0) {
         controller->auth_completed(interface_ptr, AUTH_RESULT_ERR_UNSPEC, controller->target_eui_64);
     }
-#endif
 
     return 0;
 }
@@ -190,14 +188,12 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
         return -1;
     }
 
-#ifdef HAVE_PAE_SUPP
     // RPL parent is known, remove EAPOL target that what was set using the authenticate call */
     ws_pae_supp_eapol_target_remove(interface_ptr);
 
     /* Trigger GTK hash update to supplicant, so it can check whether keys have been updated
        during bootstrap. Does nothing if GTKs are up to date. */
     ws_pae_supp_gtk_hash_update(interface_ptr, controller->gtkhash, false);
-#endif
 
     return 0;
 }
@@ -546,7 +542,6 @@ static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key)
 
 int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
 {
-#if defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH)
     uint8_t network_name_len = strlen(network_name);
     if (network_name_len == 0) {
         return -1;
@@ -597,11 +592,6 @@ error:
     mbedtls_sha256_free(&ctx);
 
     return ret_val;
-#else
-    (void) network_name;
-    memcpy(gak, gtk, 16);
-    return 0;
-#endif
 }
 
 int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)

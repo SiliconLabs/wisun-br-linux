@@ -56,7 +56,6 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "security/kmp/kmp_eapol_pdu_if.h"
 
-#ifdef HAVE_PAE_SUPP
 
 #define TRACE_GROUP "wsps"
 
@@ -1281,5 +1280,4 @@ static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t 
     return kmp;
 }
 
-#endif /* HAVE_PAE_SUPP */
 

@@ -20,5 +20,4 @@
 #define HAVE_DHCPV6
 #define HAVE_6LOWPAN_ND
 #define HAVE_IPV6_ND
-#define HAVE_PAE_SUPP
 #define HAVE_6LOWPAN_ROUTER

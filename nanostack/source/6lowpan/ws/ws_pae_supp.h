@@ -20,7 +20,6 @@
 
 #define PAE_SUPP_NOT_ENABLED 5
 
-#ifdef HAVE_PAE_SUPP
 
 /*
  * Supplicant port access entity controls key security protocols using KMP API.
@@ -260,23 +259,5 @@ typedef void ws_pae_supp_nw_info_updated(protocol_interface_info_entry_t *interf
  */
 void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_auth_next_target *auth_next_target, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated);
 
-#else
-
-#define ws_pae_supp_init(interface_ptr, certs, sec_timer_cfg, sec_prot_cfg) 1
-#define ws_pae_supp_delete NULL
-#define ws_pae_supp_timing_adjust(timing) 1
-#define ws_pae_supp_cb_register(interface_ptr, completed, nw_key_insert, nw_key_index_set)
-#define ws_pae_supp_nw_key_valid(interface_ptr) -1
-#define ws_pae_supp_fast_timer NULL
-#define ws_pae_supp_slow_timer NULL
-#define ws_pae_supp_authenticate(interface_ptr, dest_pan_id, dest_eui_64) PAE_SUPP_NOT_ENABLED
-#define ws_pae_supp_border_router_addr_write NULL
-#define ws_pae_supp_border_router_addr_read NULL
-#define ws_pae_supp_gtk_hash_update NULL
-#define ws_pae_supp_nw_key_index_update NULL
-#define ws_pae_supp_gtks_set(interface_ptr, gtks)
-#define ws_pae_supp_eapol_target_remove(interface_ptr)
-
-#endif
 
 #endif /* WS_PAE_SUPP_H_ */

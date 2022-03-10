@@ -108,9 +108,7 @@ static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt
 #ifdef HAVE_PAE_AUTH
 static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 #endif
-#ifdef HAVE_PAE_SUPP
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
-#endif
 #endif
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
 static void tls_sec_prot_lib_debug(void *ctx, int level, const char *file, int line, const char *string);
@@ -124,13 +122,10 @@ static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
 static void tls_sec_prot_lib_mem_free(void *ptr);
 #endif
 
-#if defined(HAVE_PAE_AUTH) && defined(HAVE_PAE_SUPP)
+#if defined(HAVE_PAE_AUTH)
 #define is_server_is_set (is_server == true)
 #define is_server_is_not_set (is_server == false)
-#elif defined(HAVE_PAE_AUTH)
-#define is_server_is_set true
-#define is_server_is_not_set false
-#elif defined(HAVE_PAE_SUPP)
+#else
 #define is_server_is_set false
 #define is_server_is_not_set true
 #endif
@@ -313,7 +308,7 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
 
 int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_prot_certs_t *certs)
 {
-#if !defined(HAVE_PAE_SUPP) || !defined(HAVE_PAE_AUTH)
+#if !defined(HAVE_PAE_AUTH)
     (void) is_server;
 #endif
 
@@ -322,11 +317,9 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     }
 
 #if (MBEDTLS_VERSION_MAJOR < 3)
-#ifdef HAVE_PAE_SUPP
     if (is_server_is_not_set) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_server_verify;
     }
-#endif
 #ifdef HAVE_PAE_AUTH
     if (is_server_is_set) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_idevid_ldevid_verify;
@@ -627,7 +620,6 @@ static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, m
 }
 #endif
 
-#ifdef HAVE_PAE_SUPP
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags)
 {
     int8_t sane_res = tls_sec_prot_lib_subject_alternative_name_validate(crt);
@@ -647,7 +639,6 @@ static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_
 
     return 0;
 }
-#endif
 #endif
 
 static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len, size_t *olen)

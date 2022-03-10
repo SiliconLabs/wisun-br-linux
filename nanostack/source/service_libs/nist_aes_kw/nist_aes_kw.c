@@ -23,7 +23,7 @@
 
 #include "mbedtls/version.h"
 
-#if defined(MBEDTLS_NIST_KW_C) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
+#if defined(MBEDTLS_NIST_KW_C)
 #include "mbedtls/nist_kw.h"
 #endif
 
@@ -34,7 +34,7 @@
 
 int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, const uint8_t *input, size_t input_len, uint8_t *output, size_t *output_len)
 {
-#if defined(MBEDTLS_NIST_KW_C) && (defined(HAVE_PAE_SUPP) || defined(HAVE_PAE_AUTH))
+#if defined(MBEDTLS_NIST_KW_C)
 
     int8_t ret_val = 0;
     mbedtls_nist_kw_context ctx;
