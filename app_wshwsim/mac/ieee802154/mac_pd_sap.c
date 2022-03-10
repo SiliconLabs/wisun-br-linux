@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"

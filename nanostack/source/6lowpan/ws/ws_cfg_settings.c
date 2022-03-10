@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/net_interface.h"
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

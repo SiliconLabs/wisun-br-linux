@@ -24,7 +24,7 @@
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/socket_api.h"
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"

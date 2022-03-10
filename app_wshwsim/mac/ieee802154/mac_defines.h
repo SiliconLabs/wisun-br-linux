@@ -18,7 +18,7 @@
 #ifndef MAC_DEFINES_H_
 #define MAC_DEFINES_H_
 
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack/mac/mlme.h"
 #include "mac_data_buffer.h"
 #include "mbed-client-libservice/ns_list.h"

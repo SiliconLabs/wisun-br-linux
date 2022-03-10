@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"

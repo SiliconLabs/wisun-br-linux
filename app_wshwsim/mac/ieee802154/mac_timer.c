@@ -16,7 +16,7 @@
  */
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_pd_sap.h"

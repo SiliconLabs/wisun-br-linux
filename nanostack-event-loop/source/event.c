@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 #include "timer_sys.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "event.h"

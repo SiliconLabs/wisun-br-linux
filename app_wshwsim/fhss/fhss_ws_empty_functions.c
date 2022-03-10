@@ -24,7 +24,7 @@
 #include "fhss_ws.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "common/rand.h"
 #include <string.h>
 

@@ -15,7 +15,7 @@
  */
 #ifndef _PL_NANO_TIMER_SYS_H_
 #define _PL_NANO_TIMER_SYS_H_
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 
 /* We borrow base event storage, including its list link, and add a time field */
 typedef struct sys_timer_struct_s {

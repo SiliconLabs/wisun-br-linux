@@ -25,8 +25,8 @@
 #include "fhss_channel.h"
 #include "channel_list.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "eventOS_event.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include <string.h>
 
 #define TRACE_GROUP "fhssc"

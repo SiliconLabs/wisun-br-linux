@@ -25,7 +25,7 @@
 #include "fhss_ws.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"

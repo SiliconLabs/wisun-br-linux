@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"

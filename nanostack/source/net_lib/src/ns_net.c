@@ -22,7 +22,7 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/socket_api.h"

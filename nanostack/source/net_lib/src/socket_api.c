@@ -23,7 +23,7 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #ifndef BUILD_LIBRARY
 #define BUILD_LIBRARY

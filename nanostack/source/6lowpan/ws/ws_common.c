@@ -26,7 +26,7 @@
 #include "common_protocols/icmpv6.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/net_interface.h"
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"

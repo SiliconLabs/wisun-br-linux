@@ -17,12 +17,12 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "timer_sys.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
-#include "platform/arm_hal_timer.h"
+#include "nanostack-event-loop/platform/arm_hal_timer.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "eventOS_event.h"
-#include "eventOS_event_timer.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event_timer.h"
 #include "event.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 
 #ifndef ST_MAX
 #define ST_MAX 6

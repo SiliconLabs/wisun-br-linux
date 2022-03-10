@@ -21,9 +21,9 @@
  *
  */
 #include <stdint.h>
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
-#include "eventOS_callback_timer.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_callback_timer.h"
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"

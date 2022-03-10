@@ -26,8 +26,8 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nanostack/socket_api.h"

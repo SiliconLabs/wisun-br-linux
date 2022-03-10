@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "mbed-client-libservice/common_functions.h"

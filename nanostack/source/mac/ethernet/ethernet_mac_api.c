@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include "nanostack/ethernet_mac_api.h"
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mac/rf_driver_storage.h"

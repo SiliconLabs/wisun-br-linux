@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/net_interface.h"
-#include "eventOS_event.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "common/rand.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"

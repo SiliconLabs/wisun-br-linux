@@ -20,9 +20,9 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "eventOS_event.h"
-#include "eventOS_scheduler.h"
-#include "eventOS_event_timer.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack-event-loop/eventOS_event_timer.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "common/rand.h"

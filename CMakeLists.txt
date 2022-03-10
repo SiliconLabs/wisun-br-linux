@@ -237,7 +237,6 @@ target_include_directories(wsbrd PRIVATE
     nanostack/
 )
 target_include_directories(wsbrd PRIVATE
-    nanostack-event-loop/nanostack-event-loop/
     nanostack/source/
 )
 target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
@@ -443,7 +442,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/
     )
     target_include_directories(wsnode PRIVATE
-        nanostack-event-loop/nanostack-event-loop/
         nanostack/source/
     )
     target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
@@ -516,7 +514,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/
     )
     target_include_directories(wshwsim PRIVATE
-        nanostack-event-loop/nanostack-event-loop/
         app_wshwsim/
     )
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
