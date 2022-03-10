@@ -17,18 +17,16 @@
 
 #ifndef WS_COMMON_H_
 #define WS_COMMON_H_
-
-
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/net_fhss.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-
 
 extern uint16_t test_max_child_count_override;
 

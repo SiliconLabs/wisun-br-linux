@@ -23,6 +23,7 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"

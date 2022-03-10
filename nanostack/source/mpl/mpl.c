@@ -15,21 +15,20 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-
-
 #include <stdint.h>
+#include <string.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "common/rand.h"
-#include <string.h>
+#include "service_libs/trickle/trickle.h"
+
 #include "core/include/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "service_libs/trickle/trickle.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
 #include "mpl/mpl.h"

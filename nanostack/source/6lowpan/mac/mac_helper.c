@@ -17,15 +17,17 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "nwk_interface/protocol.h"
-#include "nanostack/mac/mlme.h"
-#include "mac_helper.h"
-#include "nanostack/mac/mac_common_defines.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "nanostack/net_nwk_scan.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_api.h"
+#include "nanostack/mac/mac_common_defines.h"
+#include "nanostack/mac/mlme.h"
+#include "nanostack/net_nwk_scan.h"
+
+#include "nwk_interface/protocol.h"
+
+#include "mac_helper.h"
 
 #define TRACE_GROUP "MACh"
 

@@ -28,14 +28,14 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#define HAVE_DEBUG
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "nwk_interface/protocol.h"
+
+#define HAVE_DEBUG
 
 #define TRACE_GROUP "mntr"
 

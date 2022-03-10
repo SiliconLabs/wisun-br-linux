@@ -30,9 +30,9 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "mbed-client-libservice/common_functions.h"
-#include "common/rand.h"
 #include <string.h>
+#include "common/rand.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ip.h"

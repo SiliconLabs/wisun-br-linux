@@ -16,25 +16,23 @@
  */
 
 #include "nsconfig.h"
-#define HAVE_CIPV6
-
-#ifdef HAVE_CIPV6
 #include <stdint.h>
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "nanostack/nwk_stats_api.h"
+
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
-#include "6lowpan/iphc_decode/cipv6.h"
 #include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_stats.h"
 #include "ipv6_stack/protocol_ipv6.h"
+#include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
+
+#include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/iphc_decode/iphc_compress.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "6lowpan/mac/mac_helper.h"
-
-#include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "nanostack/nwk_stats_api.h"
-#include "nwk_interface/protocol_stats.h"
-#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP  "iphc"
 
@@ -199,6 +197,3 @@ drop:
     protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }
-
-#endif /* HAVE_CIPV6 */
-

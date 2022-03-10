@@ -23,22 +23,24 @@
 #include <stdint.h>
 #include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "core/include/ns_socket.h"
 #include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "service_libs/nd_proxy/nd_proxy.h"
+
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "common_protocols/ipv6.h"
-#include "common_protocols/ipv6_fragmentation.h"
+#include "core/include/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "rpl/rpl_data.h"
+#include "mpl/mpl.h"
+
+#include "common_protocols/ipv6.h"
+#include "common_protocols/ipv6_fragmentation.h"
 #include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/ipv6_flow.h"
-#include "rpl/rpl_data.h"
-#include "mpl/mpl.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
-#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "ipv6"
 

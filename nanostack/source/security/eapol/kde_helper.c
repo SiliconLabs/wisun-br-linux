@@ -17,10 +17,10 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_event.h"
-#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
+#include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "security/eapol/kde_helper.h"
 
 

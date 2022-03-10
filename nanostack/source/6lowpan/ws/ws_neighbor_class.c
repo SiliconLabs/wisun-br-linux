@@ -24,14 +24,13 @@
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/fhss_config.h"
+#include "nanostack/ws_management_api.h"
+#include "nanostack/mac/mac_api.h"
+
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "nanostack/ws_management_api.h"
-#include "nanostack/mac/mac_api.h"
-
-
 
 #define TRACE_GROUP "wsne"
 

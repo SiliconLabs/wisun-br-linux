@@ -23,6 +23,7 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
+
 #include "ws_mpx_header.h"
 
 bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg)

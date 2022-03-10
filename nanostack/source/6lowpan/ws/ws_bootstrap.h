@@ -18,6 +18,7 @@
 #ifndef WS_BOOTSTRAP_H_
 #define WS_BOOTSTRAP_H_
 
+#include "6lowpan/ws/ws_common.h"
 
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/

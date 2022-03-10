@@ -17,7 +17,7 @@
 
 #ifndef SEC_PROT_CERTS_H_
 #define SEC_PROT_CERTS_H_
-
+#include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 
 /*

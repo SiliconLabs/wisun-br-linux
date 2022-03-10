@@ -17,9 +17,9 @@
 
 #ifndef ND_DEFINES_H_
 #define ND_DEFINES_H_
+#include "mbed-client-libservice/ns_list.h"
 
 #include "core/include/ns_address_internal.h"
-#include "mbed-client-libservice/ns_list.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "common_protocols/icmpv6_prefix.h"
 

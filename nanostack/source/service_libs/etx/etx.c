@@ -16,20 +16,19 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
+#include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "service_libs/etx/etx.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/utils/isqrt.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/net_interface.h"
-
 #include "core/include/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "service_libs/etx/etx.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/utils/isqrt.h"
 
 //TODO: Refactor this away!
 #include "mac/rf_driver_storage.h"

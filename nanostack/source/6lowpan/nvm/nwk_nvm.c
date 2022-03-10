@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_event.h"
-#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "common/rand.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "nanostack-event-loop/eventOS_event.h"
+
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
+
 #include "6lowpan/nvm/nwk_nvm.h"
 
 #define TRACE_GROUP "nNVM"

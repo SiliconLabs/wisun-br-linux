@@ -23,11 +23,12 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "security/protocols/sec_prot_cfg.h"
 #include "6lowpan/ws/ws_pae_timers.h"
+#include "security/protocols/sec_prot_cfg.h"
 
 
 #define TRACE_GROUP "wspt"

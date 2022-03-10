@@ -21,10 +21,15 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "service_libs/random_early_detection/random_early_detection_api.h"
+#include "service_libs/etx/etx.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_mcps.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "nanostack/mac/fhss_ws_extension.h"
+#include "nanostack/ws_management_api.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -41,10 +46,6 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
-#include "service_libs/etx/etx.h"
-#include "nanostack/mac/fhss_ws_extension.h"
-#include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "nanostack/ws_management_api.h"
 
 
 #define TRACE_GROUP "wllc"

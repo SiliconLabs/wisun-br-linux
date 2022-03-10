@@ -25,17 +25,18 @@
 #include <stdbool.h>
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack-event-loop/eventOS_event_timer.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "nanostack/dhcp_service_api.h"
+
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
-#include "mbed-client-libservice/common_functions.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
-#include "nanostack/dhcp_service_api.h"
 
 #define TRACE_GROUP "dhcp"
 

@@ -23,9 +23,9 @@
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "core/include/ns_address_internal.h"
 #include "nanostack/mac/platform/topo_trace.h"
 #include "nanostack/mac/fhss_ws_extension.h"
+#include "core/include/ns_address_internal.h"
 
 mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)
 {

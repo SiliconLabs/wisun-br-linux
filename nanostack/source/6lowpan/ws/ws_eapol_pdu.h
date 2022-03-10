@@ -17,6 +17,10 @@
 
 #ifndef WS_EAPOL_PDU_H_
 #define WS_EAPOL_PDU_H_
+#include <stdint.h>
+
+#include "nwk_interface/protocol_abstract.h"
+#include "6lowpan/mac/mpx_api.h"
 
 /*
  * EAPOL PDU module transfers EAPOL PDUs to/from MPX. Several users

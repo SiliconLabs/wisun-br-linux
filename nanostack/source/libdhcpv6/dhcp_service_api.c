@@ -16,24 +16,24 @@
  */
 
 #include "nsconfig.h"
-
 #include <string.h>
 #include <stdint.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack-event-loop/eventOS_event_timer.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
-#include "mbed-client-libservice/ns_list.h"
-#include "common/rand.h"
 #include "nanostack/socket_api.h"
 #include "nanostack/net_interface.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "nanostack/dhcp_service_api.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
 #include "common_protocols/ip.h"
-#include "nanostack/dhcp_service_api.h"
+
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP    "dhcp"
 

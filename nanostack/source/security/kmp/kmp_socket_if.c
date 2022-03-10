@@ -20,20 +20,20 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "nanostack/ns_address.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack-event-loop/eventOS_event_timer.h"
+#include "nanostack/ns_address.h"
+#include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
-#include "nanostack/socket_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_socket_if.h"
-#include "mbed-client-libservice/common_functions.h"
 
 
 #define TRACE_GROUP "kmsi"

@@ -16,19 +16,21 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include "nanostack/mac/mlme.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "nanostack/mac/mlme.h"
+#include "nanostack/mac/mac_mcps.h"
+
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol_timer.h"
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_socket.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
+
 #include "6lowpan/mac/mac_helper.h"
-#include "nanostack/mac/mac_mcps.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/lowpan_adaptation_interface.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "MRsH"
 

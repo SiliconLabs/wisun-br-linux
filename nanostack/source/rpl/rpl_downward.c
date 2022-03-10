@@ -76,30 +76,27 @@
  */
 
 #include "nsconfig.h"
-
-
 #include <string.h>
-#include "mbed-client-libservice/common_functions.h"
 #include <stdint.h>
+#include "common/rand.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "common/rand.h"
 #include "mbed-client-libservice/ip6string.h"
-
+#include "nanostack/net_rpl.h"
+#include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "common_protocols/ip.h"
 
-#include "nanostack/net_rpl.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_policy.h"
-#include "rpl/rpl_upward.h"
-#include "rpl/rpl_downward.h"
-#include "rpl/rpl_control.h"
-#include "rpl/rpl_data.h"
-#include "rpl/rpl_structures.h"
+#include "rpl_protocol.h"
+#include "rpl_policy.h"
+#include "rpl_upward.h"
+#include "rpl_downward.h"
+#include "rpl_control.h"
+#include "rpl_data.h"
+#include "rpl_structures.h"
 
 #define TRACE_GROUP "RPLd"
 

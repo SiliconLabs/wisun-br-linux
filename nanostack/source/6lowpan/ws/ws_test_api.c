@@ -18,13 +18,17 @@
 #include "nsconfig.h"
 
 #include <string.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_ws_test.h"
 #include "nanostack/net_ws_test_ext.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/mac/mac_api.h"
+
 #include "6lowpan/mac/mac_helper.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
@@ -34,13 +38,8 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bootstrap.h"
-#include "common/rand.h"
-
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "wste"
-
 
 int ws_test_version_set(int8_t interface_id, uint8_t version)
 {

@@ -24,12 +24,11 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "libdhcpv6/libdhcpv6_server.h"
-#include "libdhcpv6/libdhcpv6.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
 
-#ifdef HAVE_DHCPV6_SERVER
+#include "libdhcpv6/libdhcpv6_server.h"
+#include "libdhcpv6/libdhcpv6.h"
 
 #define TRACE_GROUP "dhcp"
 
@@ -540,7 +539,3 @@ uint8_t *libdhcpv6_vendor_data_message_writes(dhcpv6_gua_server_entry_s *serverI
     }
     return ptr;
 }
-
-
-#endif
-

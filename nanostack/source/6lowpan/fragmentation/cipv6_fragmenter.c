@@ -24,18 +24,20 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "nanostack/nwk_stats_api.h"
+
+#include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_stats.h"
 #include "core/include/ns_socket.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "nwk_interface/protocol.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
-#include "6lowpan/iphc_decode/iphc_decompress.h"
-#include "nanostack/nwk_stats_api.h"
-#include "nwk_interface/protocol_stats.h"
-#include "mbed-client-libservice/common_functions.h"
 #include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/iphc_decode/iphc_decompress.h"
+
+#include "6lowpan/fragmentation/cipv6_fragmenter.h"
 
 #define TRACE_GROUP "6frg"
 

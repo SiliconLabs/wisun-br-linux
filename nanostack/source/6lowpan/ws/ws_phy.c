@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-#include <string.h>
 #include "nsconfig.h"
+#include <string.h>
 #include <stdint.h>
-#include "nanostack/net_interface.h"
 #include "mbed-client-libservice/ns_trace.h"
+#include "nanostack/net_interface.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/ws_management_api.h"
 

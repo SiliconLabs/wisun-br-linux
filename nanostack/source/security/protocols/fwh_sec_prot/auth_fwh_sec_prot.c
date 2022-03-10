@@ -21,6 +21,8 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "service_libs/hmac/hmac_md.h"
+#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -36,8 +38,6 @@
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/fwh_sec_prot/auth_fwh_sec_prot.h"
-#include "service_libs/hmac/hmac_md.h"
-#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
 
 #define TRACE_GROUP "afwh"

@@ -17,7 +17,11 @@
 
 #ifndef WS_PAE_LIB_H_
 #define WS_PAE_LIB_H_
+#include "mbed-client-libservice/ns_list.h"
 
+#include "security/kmp/kmp_api.h"
+#include "security/kmp/kmp_addr.h"
+#include "security/protocols/sec_prot_keys.h"
 /*
  * Port access entity library functions.
  *

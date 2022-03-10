@@ -21,21 +21,22 @@
  * The socket API functions
  */
 #include "nsconfig.h"
-#include "mbed-client-libservice/ns_trace.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ip6string.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
-#include "core/include/ns_socket.h"
 #include "nanostack/socket_api.h"
+
+#include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "mbed-client-libservice/ip6string.h"
-#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "sck"
 

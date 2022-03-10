@@ -25,27 +25,25 @@
  */
 
 #include "nsconfig.h"
-
-
+#include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include <string.h>
 
 #include "core/include/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
+#include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/icmpv6.h"
 
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_upward.h"
-#include "rpl/rpl_downward.h"
-#include "rpl/rpl_structures.h"
-#include "rpl/rpl_policy.h"
-#include "rpl/rpl_data.h"
-#include "6lowpan/ws/ws_common.h"
+#include "rpl_protocol.h"
+#include "rpl_upward.h"
+#include "rpl_downward.h"
+#include "rpl_structures.h"
+#include "rpl_policy.h"
+#include "rpl_data.h"
 
 #define TRACE_GROUP "RPLa"
 

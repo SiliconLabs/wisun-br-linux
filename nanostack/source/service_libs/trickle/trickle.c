@@ -22,9 +22,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
-
 #include "mbed-client-libservice/ns_trace.h"
-
 #include "service_libs/trickle/trickle.h"
 
 #define TRACE_GROUP "tric"

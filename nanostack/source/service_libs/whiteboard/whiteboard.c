@@ -19,8 +19,8 @@
 #include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_list.h"
-#include "common_protocols/icmpv6.h"
 #include "service_libs/whiteboard/whiteboard.h"
+#include "common_protocols/icmpv6.h"
 #include "platform/os_whiteboard.h"
 
 #ifdef WHITEBOARD

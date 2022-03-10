@@ -22,12 +22,23 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_scheduler.h"
 #include <string.h>
+#include <stdarg.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "nanostack/socket_api.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "service_libs/whiteboard/whiteboard.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack/nwk_stats_api.h"
+#include "nanostack/socket_api.h"
+#include "nanostack/net_thread_test.h"
+#include "nanostack/mac/sw_mac.h"
+#include "nanostack/mac/mac_api.h"
+#include "nanostack/ethernet_mac_api.h"
+
 #include "nwk_interface/protocol.h"
+#include "nwk_interface/protocol_stats.h"
 #include "core/include/ns_socket.h"
 #include "rpl/rpl_of0.h"
 #include "rpl/rpl_mrhof.h"
@@ -39,22 +50,12 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
-#include "service_libs/whiteboard/whiteboard.h"
-#include "nanostack/nwk_stats_api.h"
-#include "nwk_interface/protocol_stats.h"
+#include "6lowpan/ws/ws_common.h"
+#include "6lowpan/ws/ws_pae_controller.h"
 #include "security/common/sec_lib_definitions.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "net_lib/src/net_dns_internal.h"
-#include "nanostack/net_thread_test.h"
-#include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_pae_controller.h"
-#include "nanostack/mac/sw_mac.h"
-#include "nanostack/mac/mac_api.h"
-#include "nanostack/ethernet_mac_api.h"
-#include <stdarg.h>
 
 
 #define TRACE_GROUP "lNet"

@@ -22,10 +22,11 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
+#include "nanostack/ws_management_api.h"
+
 #include "6lowpan/mac/mac_ie_lib.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "nanostack/ws_management_api.h"
 
 static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t type)
 {

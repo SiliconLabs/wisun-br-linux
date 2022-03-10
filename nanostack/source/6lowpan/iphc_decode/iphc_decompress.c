@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
+#include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include <string.h>
+
 #include "nwk_interface/protocol.h"
-#include "6lowpan/iphc_decode/cipv6.h"
 #include "common_protocols/ipv6_constants.h"
+#include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 
 #define TRACE_GROUP "iphc"

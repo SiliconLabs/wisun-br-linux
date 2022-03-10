@@ -21,15 +21,16 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "nanostack/net_interface.h"
 #include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack/net_interface.h"
+#include "nanostack/ws_management_api.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "nanostack/ws_management_api.h"
 #include "mpl/mpl.h"
 
 #define TRACE_GROUP "cstr"

@@ -22,13 +22,13 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "6lowpan/ws/ws_config.h"
-#include "nanostack/ns_file_system.h"
 #include "service_libs/utils/ns_file.h"
+#include "nanostack/ns_file_system.h"
+
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
+#include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_pae_nvm_store.h"
-#include "nanostack/ns_file_system.h"
 
 
 #define TRACE_GROUP "wsnv"

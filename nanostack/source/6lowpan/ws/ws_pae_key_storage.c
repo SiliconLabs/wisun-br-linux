@@ -18,19 +18,20 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "common/rand.h"
 #include "nanostack/mac/fhss_config.h"
+
 #include "nwk_interface/protocol.h"
-#include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_socket_if.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
+#include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"

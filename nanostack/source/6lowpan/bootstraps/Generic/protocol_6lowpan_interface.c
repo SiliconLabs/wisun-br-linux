@@ -23,38 +23,35 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "service_libs/blacklist/blacklist.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack/mac/mac_api.h"
+#include "nanostack/shalib.h"
+#include "nanostack/net_nvm_api.h"
+
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
-#include "6lowpan/bootstraps/network_lib.h"
-#include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
-#include "service_libs/blacklist/blacklist.h"
-#include "6lowpan/mac/mac_helper.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "nanostack/mac/mac_api.h"
-
 #include "rpl/rpl_control.h"
+#include "net_lib/src/net_load_balance_internal.h"
+#include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-
-#include "nanostack/shalib.h"
 #include "security/common/sec_lib.h"
-#include "nanostack/net_nvm_api.h"
-
 #include "6lowpan/nd/nd_router_object.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
-#include "nanostack/mac/mac_api.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "net_lib/src/net_load_balance_internal.h"
+#include "6lowpan/bootstraps/network_lib.h"
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 
 void protocol_mac_reset(protocol_interface_info_entry_t *cur)
 {

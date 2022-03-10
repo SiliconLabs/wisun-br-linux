@@ -32,20 +32,21 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ip6string.h"
-#include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include <string.h>
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "service_libs/etx/etx.h"
+
 #include "core/include/ns_address_internal.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
-#include "service_libs/etx/etx.h"
 #include "common_protocols/ipv6_resolution.h"
-#include <stdarg.h>
-#include <stdio.h>
 
 #define TRACE_GROUP "rout"
 

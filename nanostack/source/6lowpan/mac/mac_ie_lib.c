@@ -19,8 +19,8 @@
 #include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
-#include "mac_ie_lib.h"
 
+#include "mac_ie_lib.h"
 
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK 0x7f80

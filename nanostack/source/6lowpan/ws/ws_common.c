@@ -18,15 +18,21 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "common_protocols/icmpv6.h"
+#include "service_libs/etx/etx.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/blacklist/blacklist.h"
+#include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/net_interface.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "nanostack/ws_management_api.h"
+#include "nanostack/mac/mac_api.h"
+
+#include "common_protocols/icmpv6.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
@@ -42,13 +48,8 @@
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_phy.h"
-#include "service_libs/etx/etx.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/blacklist/blacklist.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
-#include "nanostack/ws_management_api.h"
-#include "nanostack/mac/mac_api.h"
 
 #define TRACE_GROUP "wscm"
 

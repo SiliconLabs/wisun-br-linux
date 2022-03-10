@@ -20,14 +20,15 @@
 #include <limits.h>
 #include <stdint.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/ip_fsc.h"
+#include "nanostack/net_interface.h"
+
 #include "core/include/ns_address_internal.h"
 #include "core/include/ns_buffer.h"
 #include "core/include/ns_socket.h"
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "nwk_interface/protocol_stats.h"
-#include "mbed-client-libservice/ip_fsc.h"
-#include "nanostack/net_interface.h"
 
 #define TRACE_GROUP "buff"
 

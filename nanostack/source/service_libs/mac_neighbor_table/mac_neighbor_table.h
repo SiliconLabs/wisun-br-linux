@@ -20,7 +20,6 @@
 
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
-
 #include "nwk_interface/protocol.h"
 
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240

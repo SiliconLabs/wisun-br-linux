@@ -16,8 +16,9 @@
  */
 
 #include "nsconfig.h"
-#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
+#include "mbed-client-libservice/ns_trace.h"
+
 #include "core/include/sockbuf.h"
 
 #define TRACE_GROUP "sbuf"

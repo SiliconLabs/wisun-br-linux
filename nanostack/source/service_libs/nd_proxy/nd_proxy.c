@@ -16,16 +16,17 @@
  */
 
 #include "nsconfig.h"
-#ifdef HAVE_ND_PROXY
 #include <stdint.h>
+#include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 
 #define TRACE_GROUP "prox"
+
+#ifdef HAVE_ND_PROXY
 
 /**
  * Downstream Interface list

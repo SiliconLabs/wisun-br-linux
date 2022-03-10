@@ -23,23 +23,21 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack/mac/platform/arm_hal_phy.h"
-#ifndef BUILD_LIBRARY
-#define BUILD_LIBRARY
-#endif
-#include "nanostack/ns_address.h"
-#include "nanostack/socket_api.h"
-#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "nanostack/mac/platform/arm_hal_phy.h"
+#include "nanostack/ns_address.h"
+#include "nanostack/socket_api.h"
+
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "sckA"
 

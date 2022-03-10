@@ -16,20 +16,17 @@
  */
 
 #include "nsconfig.h"
-
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "nanostack/net_ipv6_api.h"
 
 #include "core/include/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
-
-#include "nanostack/net_ipv6_api.h"
-
-#include "mbed-client-libservice/ns_trace.h"
 
 #define TRACE_GROUP "nip6"
 

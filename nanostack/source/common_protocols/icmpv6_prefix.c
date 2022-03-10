@@ -21,8 +21,9 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_list.h"
-#include "common_protocols/icmpv6_prefix.h"
 #include "mbed-client-libservice/common_functions.h"
+
+#include "common_protocols/icmpv6_prefix.h"
 
 /*
  * \file icmpv6_prefix.c

@@ -25,27 +25,25 @@
  */
 
 #include "nsconfig.h"
-
 #include <stdint.h>
+#include <string.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "common/rand.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include <string.h>
 #include "mbed-client-libservice/ip6string.h"
-
+#include "service_libs/trickle/trickle.h"
 #include "nanostack/net_interface.h"
-
+#include "nanostack/net_rpl.h"
 #include "core/include/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
+#include "common_protocols/ipv6_resolution.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol_stats.h"
-#include "service_libs/trickle/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "common_protocols/ipv6_resolution.h"
 
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_policy.h"
@@ -54,8 +52,6 @@
 #include "rpl/rpl_upward.h"
 #include "rpl/rpl_downward.h"
 #include "rpl/rpl_structures.h"
-
-#include "nanostack/net_rpl.h"
 
 #define TRACE_GROUP "rplu"
 

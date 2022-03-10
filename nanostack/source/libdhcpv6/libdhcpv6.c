@@ -23,14 +23,15 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "libdhcpv6/libdhcpv6.h"
-#include "common/rand.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+
+#include "libdhcpv6/libdhcpv6.h"
+
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP "dhcp"
-
 
 static NS_LARGE NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_server_data_t, link);
 

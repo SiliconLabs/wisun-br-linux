@@ -20,13 +20,14 @@
 #include <stdint.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/md5.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
-#include "common/rand.h"
-#include "nanostack/mac/fhss_config.h"
+#include "service_libs/hmac/hmac_md.h"
 #include "service_libs/trickle/trickle.h"
+#include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
@@ -42,7 +43,6 @@
 #include "security/protocols/radius_sec_prot/radius_client_sec_prot.h"
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"
-#include "service_libs/hmac/hmac_md.h"
 
 
 #define TRACE_GROUP "radp"

@@ -15,18 +15,14 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-
-
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-
+#include "service_libs/etx/etx.h"
 #include "nanostack/net_rpl.h"
 #include "nanostack/net_interface.h"
-
 #include "nwk_interface/protocol_abstract.h"
 #include "common_protocols/ipv6_resolution.h"
-#include "service_libs/etx/etx.h"
 
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_objective.h"

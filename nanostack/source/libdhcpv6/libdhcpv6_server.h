@@ -37,7 +37,6 @@
 typedef void (dhcp_address_prefer_remove_cb)(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info);
 typedef uint8_t *(dhcp_vendor_data_cb)(int8_t interfaceId, uint8_t *ptr, uint16_t *dhcp_vendor_data_len);
 
-
 typedef struct dhcpv6_allocated_address_entry_s {
     uint8_t             linkId[8];  /*!< Services UL64 */
     uint32_t            iaID;

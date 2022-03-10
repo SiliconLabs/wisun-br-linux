@@ -32,29 +32,27 @@
  * domain) state machine.
  */
 #include "nsconfig.h"
-
-
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
+#include "service_libs/etx/etx.h" /* slight ick */
+#include "nanostack/net_rpl.h"
 
 #include "core/include/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
+#include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "service_libs/etx/etx.h" /* slight ick */
 
-#include "nanostack/net_rpl.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_upward.h"
-#include "rpl/rpl_downward.h"
-#include "rpl/rpl_policy.h"
-#include "rpl/rpl_control.h"
-#include "6lowpan/ws/ws_common.h"
+#include "rpl_protocol.h"
+#include "rpl_upward.h"
+#include "rpl_downward.h"
+#include "rpl_policy.h"
+#include "rpl_control.h"
 
 #define TRACE_GROUP "rplc"
 

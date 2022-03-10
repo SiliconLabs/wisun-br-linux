@@ -39,17 +39,18 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "common/rand.h"
 #include <string.h>
+#include "common/rand.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_trace.h"
+
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "6lowpan/nd/nd_router_object.h" // for nd_ra_timing()
+
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
-
 
 #define TRACE_GROUP "RAdv"
 

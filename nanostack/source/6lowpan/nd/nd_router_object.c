@@ -17,25 +17,27 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include "common/rand.h"
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "service_libs/whiteboard/whiteboard.h"
+
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
-#include "common/rand.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "service_libs/whiteboard/whiteboard.h"
-#include "mbed-client-libservice/common_functions.h"
 #include "6lowpan/ws/ws_common.h"
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+
+#include "6lowpan/nd/nd_router_object.h"
 
 #define TRACE_GROUP "loND"
 
