@@ -231,13 +231,11 @@ add_executable(wsbrd
 )
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    nanostack/source/
     mbed-trace/
     mbed-client-libservice/
     nanostack-event-loop/
     nanostack/
-)
-target_include_directories(wsbrd PRIVATE
-    nanostack/source/
 )
 target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
 target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
@@ -436,13 +434,11 @@ if(COMPILE_SIMULATION_TOOLS)
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        nanostack/source/
         mbed-trace/
         mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
-    )
-    target_include_directories(wsnode PRIVATE
-        nanostack/source/
     )
     target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
     target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
@@ -508,13 +504,11 @@ if(COMPILE_SIMULATION_TOOLS)
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        app_wshwsim/
         mbed-trace/
         mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
-    )
-    target_include_directories(wshwsim PRIVATE
-        app_wshwsim/
     )
     target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
@@ -542,7 +536,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wssimserver/wssimserver.c)
     target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        common/)
+    )
     install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
