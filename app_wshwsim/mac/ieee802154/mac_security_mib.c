@@ -16,13 +16,13 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mac_common_defines.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_security_mib.h"
 

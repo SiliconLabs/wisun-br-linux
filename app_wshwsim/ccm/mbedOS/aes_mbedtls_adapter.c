@@ -44,7 +44,7 @@
 
 /* Get the API we are implementing from libService */
 #include "nanostack/mac/platform/arm_hal_aes.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 
 /* Either pull in the external mbed TLS header for its AES functions, or
  * pull in our own local cut-down copy of the mbed TLS code.

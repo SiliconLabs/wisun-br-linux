@@ -18,7 +18,7 @@
 #ifndef IPV6_FLOW_H_
 #define IPV6_FLOW_H_
 
-#include "ns_types.h"
+#include "mbed-client-libservice/ns_types.h"
 
 extern bool ipv6_flow_auto_label;
 

@@ -27,13 +27,13 @@
 #include "nsconfig.h"
 
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "common/rand.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include <string.h>
-#include "ip6string.h"
+#include "mbed-client-libservice/ip6string.h"
 
 #include "nanostack/net_interface.h"
 

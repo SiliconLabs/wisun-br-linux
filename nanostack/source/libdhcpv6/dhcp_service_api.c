@@ -19,16 +19,16 @@
 
 #include <string.h>
 #include <stdint.h>
-#include <ns_trace.h>
+#include "mbed-client-libservice/ns_trace.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
-#include "nsdynmemLIB.h"
-#include "ns_list.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "common/rand.h"
 #include "nanostack/socket_api.h"
 #include "nanostack/net_interface.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time

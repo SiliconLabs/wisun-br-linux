@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_control.h"
@@ -33,11 +33,11 @@
 #include "core/include/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "ip_fsc.h"
+#include "mbed-client-libservice/ip_fsc.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "nwk_interface/protocol_stats.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/ws/ws_common_defines.h"

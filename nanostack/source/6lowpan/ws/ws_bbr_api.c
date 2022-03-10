@@ -18,10 +18,10 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/socket_api.h"
 #include "eventOS_event.h"

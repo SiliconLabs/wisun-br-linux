@@ -24,9 +24,9 @@
 #include <stdint.h>
 #include "eventOS_scheduler.h"
 #include <string.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/socket_api.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nwk_interface/protocol.h"
 #include "core/include/ns_socket.h"
 #include "rpl/rpl_of0.h"
@@ -39,8 +39,8 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "platform/arm_hal_interrupt.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "nanostack/nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"

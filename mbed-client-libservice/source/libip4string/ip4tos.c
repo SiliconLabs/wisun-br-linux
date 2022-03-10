@@ -15,8 +15,8 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include "common_functions.h"
-#include "ip4string.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ip4string.h"
 
 static void ipv4_itoa(char *string, uint8_t byte);
 

@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "common_functions.h"
-#include "ip6string.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ip6string.h"
 
 static uint16_t hex(const char *p);
 static bool is_hex(char c);

@@ -30,7 +30,7 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "common/rand.h"
 #include <string.h>
 

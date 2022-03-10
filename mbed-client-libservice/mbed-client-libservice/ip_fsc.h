@@ -16,7 +16,7 @@
 #ifndef _NS_FSC_H
 #define _NS_FSC_H
 
-#include "ns_types.h"
+#include "mbed-client-libservice/ns_types.h"
 
 #define NEXT_HEADER_TCP     0x06
 #define NEXT_HEADER_UDP     0x11

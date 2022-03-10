@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define rot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 

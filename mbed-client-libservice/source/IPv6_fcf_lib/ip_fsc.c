@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "stdint.h"
-#include "ip_fsc.h"
+#include "mbed-client-libservice/ip_fsc.h"
 
 /** \brief Compute IP checksum for arbitary data
  *

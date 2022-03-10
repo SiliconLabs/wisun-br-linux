@@ -17,10 +17,10 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "common_functions.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/mac_filter_api.h"
 #include "mac_filter.h"
 #include "nanostack/mac/mac_common_defines.h"

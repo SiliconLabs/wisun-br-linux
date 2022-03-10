@@ -19,12 +19,12 @@
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/net_fhss.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_ws.h"
 #include "fhss_statistics.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 
 #define TRACE_GROUP "fhss"
 

@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 
 #include <string.h>
-#include "ns_list.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/net_ws_test.h"
 #include "nanostack/net_ws_test_ext.h"
 #include "nanostack/mac/fhss_config.h"
@@ -36,8 +36,8 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "common/rand.h"
 
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "wste"
 

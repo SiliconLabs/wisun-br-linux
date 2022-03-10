@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
@@ -42,7 +42,7 @@
 #include "nanostack/net_nvm_api.h"
 #include "common/rand.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_rpl.h"
 #ifndef NO_MLE
 #include "nwk_interface/protocol_stats.h"

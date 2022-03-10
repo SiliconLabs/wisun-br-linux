@@ -20,7 +20,7 @@
  */
 #define COMMON_FUNCTIONS_FN extern
 
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #include <string.h>
 

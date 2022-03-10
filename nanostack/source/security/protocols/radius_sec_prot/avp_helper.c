@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "eventOS_event.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 
 

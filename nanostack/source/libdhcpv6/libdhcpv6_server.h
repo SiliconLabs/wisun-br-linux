@@ -23,7 +23,7 @@
 
 #ifndef LIBDHCPV6_SERVER_H_
 #define LIBDHCPV6_SERVER_H_
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 

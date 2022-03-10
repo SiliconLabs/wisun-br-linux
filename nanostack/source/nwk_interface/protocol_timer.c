@@ -16,12 +16,12 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "eventOS_event.h"
 #include "eventOS_callback_timer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 
 #define TRACE_GROUP "ctim"
 

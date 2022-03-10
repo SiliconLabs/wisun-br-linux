@@ -16,7 +16,7 @@
  */
 
 #include "nsconfig.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "core/include/sockbuf.h"
 

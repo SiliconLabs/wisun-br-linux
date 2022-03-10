@@ -23,17 +23,17 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ip6string.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ip6string.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
 #include <string.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/ns_sha256.h"
 #include "nanostack/socket_api.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #include "rpl/rpl_control.h"
 #include "nwk_interface/protocol.h"

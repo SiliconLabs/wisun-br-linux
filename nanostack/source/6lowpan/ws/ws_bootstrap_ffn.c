@@ -19,12 +19,12 @@
 #include "nsconfig.h"
 #ifdef HAVE_WS_ROUTER
 #include <stdint.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/net_interface.h"
 #include "eventOS_event.h"
 #include "common/rand.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/sw_mac.h"
 #include "core/include/ns_monitor.h"

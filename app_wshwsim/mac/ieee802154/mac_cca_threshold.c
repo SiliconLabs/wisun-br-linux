@@ -16,8 +16,8 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
 

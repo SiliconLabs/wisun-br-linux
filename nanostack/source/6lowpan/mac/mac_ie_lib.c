@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "mac_ie_lib.h"
 

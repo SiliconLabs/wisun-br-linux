@@ -23,7 +23,7 @@
 #endif
 
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"

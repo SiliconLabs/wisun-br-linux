@@ -15,7 +15,7 @@
  */
 
 #include <stdint.h>
-#include "platform/arm_hal_nvm.h"
+#include "mbed-client-libservice/platform/arm_hal_nvm.h"
 
 typedef struct {
     platform_nvm_status status;

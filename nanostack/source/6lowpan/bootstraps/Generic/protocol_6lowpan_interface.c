@@ -25,8 +25,8 @@
 #include <stdint.h>
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
 #include "common_protocols/ipv6_constants.h"
@@ -48,8 +48,8 @@
 #include "nanostack/net_nvm_api.h"
 
 #include "6lowpan/nd/nd_router_object.h"
-#include "platform/arm_hal_interrupt.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_api.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

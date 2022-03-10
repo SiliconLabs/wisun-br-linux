@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 
 #include "core/include/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
@@ -29,7 +29,7 @@
 
 #include "nanostack/net_ipv6_api.h"
 
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 
 #define TRACE_GROUP "nip6"
 

@@ -23,11 +23,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "common/rand.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP "dhcp"
 

@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "nanostack/mac/mac_api.h"
@@ -34,7 +34,7 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #ifdef HAVE_PAE_AUTH
 

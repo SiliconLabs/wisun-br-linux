@@ -16,7 +16,7 @@
  */
 #ifndef WHITEBOARD_API_H_
 #define WHITEBOARD_API_H_
-#include "ns_types.h"
+#include "mbed-client-libservice/ns_types.h"
 
 /**
  * \file whiteboard_api.h

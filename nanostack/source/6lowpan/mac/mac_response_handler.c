@@ -17,8 +17,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include "nanostack/mac/mlme.h"
-#include "common_functions.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol_timer.h"
 #include "core/include/ns_address_internal.h"

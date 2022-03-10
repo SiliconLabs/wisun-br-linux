@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "security/pana/pana_eap_header.h"
 
 bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)

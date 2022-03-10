@@ -16,7 +16,7 @@
  */
 #ifndef FHSS_WS_EXT_H
 #define FHSS_WS_EXT_H
-#include "ns_types.h"
+#include "mbed-client-libservice/ns_types.h"
 
 /**
  * \file fhss_ws_extension.h

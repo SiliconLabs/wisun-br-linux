@@ -18,8 +18,8 @@
 
 #include "channel_list.h"
 
-#include "common_functions.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
 
 #include <stdint.h>
 #include <string.h>

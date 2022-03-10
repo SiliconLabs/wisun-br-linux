@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_common.h"

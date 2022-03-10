@@ -17,9 +17,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "eventOS_scheduler.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
 #include "nwk_interface/protocol.h"
 #include "service_libs/blacklist/blacklist.h"

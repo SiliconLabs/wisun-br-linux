@@ -15,7 +15,7 @@
  */
 #ifndef COMMON_FUNCTIONS_H_
 #define COMMON_FUNCTIONS_H_
-#include "ns_types.h"
+#include "mbed-client-libservice/ns_types.h"
 
 /*
  * Common write 64-bit variable to 8-bit pointer.

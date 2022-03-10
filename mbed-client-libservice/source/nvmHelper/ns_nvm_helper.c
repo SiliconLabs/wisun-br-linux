@@ -16,10 +16,10 @@
 
 #include <string.h>
 #include <stdint.h>
-#include <nsdynmemLIB.h>
-#include "ns_list.h"
-#include "platform/arm_hal_nvm.h"
-#include "ns_nvm_helper.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/platform/arm_hal_nvm.h"
+#include "mbed-client-libservice/ns_nvm_helper.h"
 
 #define TRACE_GROUP "nnvm"
 

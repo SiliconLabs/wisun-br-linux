@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "common_functions.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"

@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "common_functions.h"
-#include "ip6string.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ip6string.h"
 
 /**
  * Print binary IPv6 address to a string.

@@ -30,16 +30,16 @@
 #endif
 #include "nanostack/ns_address.h"
 #include "nanostack/socket_api.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "sckA"
 

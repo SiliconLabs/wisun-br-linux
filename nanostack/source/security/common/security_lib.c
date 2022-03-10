@@ -16,10 +16,10 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "eventOS_event.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nanostack/shalib.h"
@@ -28,7 +28,7 @@
 #include "security/tls/tls_ccm_crypt.h"
 #include "security/common/sec_lib.h"
 #include "nanostack/net_nvm_api.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 
 

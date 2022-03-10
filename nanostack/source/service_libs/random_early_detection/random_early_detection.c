@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"

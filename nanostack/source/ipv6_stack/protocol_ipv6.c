@@ -17,9 +17,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
@@ -33,8 +33,8 @@
 #include "ipv6_stack/protocol_ipv6.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
-#include "platform/arm_hal_interrupt.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/ethernet_mac_api.h"
 
 #ifdef HAVE_ETHERNET

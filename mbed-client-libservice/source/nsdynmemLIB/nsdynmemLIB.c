@@ -15,10 +15,10 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "nsdynmemLIB.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include <stdlib.h>
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 typedef int ns_mem_word_size_t; // internal signed heap block size type

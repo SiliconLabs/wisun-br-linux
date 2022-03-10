@@ -17,8 +17,8 @@
 #include "nsdynmemLIB_stub.h"
 #include <stdint.h>
 #include <string.h>
-#include <nsdynmemLIB.h>
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include <stdlib.h>
 
 nsdynmemlib_stub_data_t nsdynmemlib_stub;

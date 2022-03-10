@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 //TODO: create uint8 value to return
 

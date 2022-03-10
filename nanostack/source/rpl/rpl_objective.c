@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 
 
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "rpl/rpl_objective.h"
 
 static NS_LIST_DEFINE(rpl_objectives, rpl_objective_t, link);

@@ -17,13 +17,13 @@
 
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "net_dns_internal.h"
 #include "nanostack/net_interface.h"
 #include "nwk_interface/protocol.h"
-#include "nsdynmemLIB.h"
-#include "ns_list.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "net_lib/src/net_dns_internal.h"
 #define TRACE_GROUP "Ndns"
 

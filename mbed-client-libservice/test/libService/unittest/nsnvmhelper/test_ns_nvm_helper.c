@@ -17,9 +17,9 @@
 
 #include <stdint.h>
 #include "test_ns_nvm_helper.h"
-#include "ns_nvm_helper.h"
+#include "mbed-client-libservice/ns_nvm_helper.h"
 #include "nsdynmemLIB_stub.h"
-#include "platform/arm_hal_nvm.h"
+#include "mbed-client-libservice/platform/arm_hal_nvm.h"
 
 #define TEST_NS_NVM_HELPER_CONTEXT1 0x01
 #define TEST_NS_NVM_HELPER_CONTEXT2 0x02

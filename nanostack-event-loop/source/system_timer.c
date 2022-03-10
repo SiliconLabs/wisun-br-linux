@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "timer_sys.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "platform/arm_hal_timer.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "eventOS_event.h"
 #include "eventOS_event_timer.h"
 #include "event.h"

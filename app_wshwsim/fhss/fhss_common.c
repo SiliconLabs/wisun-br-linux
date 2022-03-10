@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/fhss_config.h"
 #include "fhss.h"
@@ -24,7 +24,7 @@
 #include "fhss_statistics.h"
 #include "fhss_channel.h"
 #include "channel_list.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "eventOS_event.h"
 #include "eventOS_callback_timer.h"
 #include <string.h>

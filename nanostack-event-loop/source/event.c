@@ -15,13 +15,13 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "timer_sys.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "event.h"
-#include "platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 
 
 typedef struct arm_core_tasklet {

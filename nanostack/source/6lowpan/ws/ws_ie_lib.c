@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "6lowpan/mac/mac_ie_lib.h"
 #include "6lowpan/ws/ws_common_defines.h"

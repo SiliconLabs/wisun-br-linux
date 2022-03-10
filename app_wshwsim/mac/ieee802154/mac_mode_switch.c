@@ -17,8 +17,8 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_api.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"

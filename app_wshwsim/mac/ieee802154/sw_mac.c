@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/sw_mac.h"
@@ -28,8 +28,8 @@
 #include "mac/rf_driver_storage.h"
 #include "mac_fhss_callbacks.h"
 #include "eventOS_callback_timer.h"
-#include "common_functions.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
 
 #define TRACE_GROUP "swm"
 

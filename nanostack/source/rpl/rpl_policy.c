@@ -19,7 +19,7 @@
 
 
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
 #include "nanostack/net_interface.h"
 

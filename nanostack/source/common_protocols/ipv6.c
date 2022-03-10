@@ -22,9 +22,9 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/ipv6.h"
@@ -38,7 +38,7 @@
 #include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "ipv6"
 

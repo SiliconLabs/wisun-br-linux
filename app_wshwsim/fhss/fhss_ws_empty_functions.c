@@ -22,8 +22,8 @@
 #include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
-#include "nsdynmemLIB.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "eventOS_callback_timer.h"
 #include "common/rand.h"
 #include <string.h>

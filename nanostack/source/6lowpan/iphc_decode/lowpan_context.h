@@ -28,7 +28,7 @@
 
 #ifndef LOWPAN_CONTEXT_DEFINE_H_
 #define LOWPAN_CONTEXT_DEFINE_H_
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 /* Flags for decode or encode to context's information to 8-bit data from message or to message (cid_flags)*/
 #define LOWPAN_CONTEXT_C        0x10        // Compression

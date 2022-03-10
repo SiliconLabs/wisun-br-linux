@@ -19,7 +19,7 @@
 #define MAC_NEIGHBOR_TABLE_H_
 
 #include <stdint.h>
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 #include "nwk_interface/protocol.h"
 

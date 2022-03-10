@@ -17,8 +17,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "nsdynmemLIB.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
@@ -33,7 +33,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "service_libs/whiteboard/whiteboard.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "6lowpan/ws/ws_common.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

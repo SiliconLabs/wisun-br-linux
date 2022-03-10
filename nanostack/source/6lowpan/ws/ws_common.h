@@ -20,7 +20,7 @@
 
 
 #include <stdint.h>
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/net_fhss.h"
 #include "nwk_interface/protocol.h"

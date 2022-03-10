@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 #include "nsconfig.h"
-#include "ns_list.h"
-#include "common_functions.h"
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include <string.h>
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

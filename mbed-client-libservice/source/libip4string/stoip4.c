@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "common_functions.h"
-#include "ip4string.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ip4string.h"
 
 /**
  * Convert numeric IPv4 address string to a binary.

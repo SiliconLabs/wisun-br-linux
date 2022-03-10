@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/socket_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_relay_lib.h"

@@ -237,7 +237,6 @@ target_include_directories(wsbrd PRIVATE
     nanostack/
 )
 target_include_directories(wsbrd PRIVATE
-    mbed-client-libservice/mbed-client-libservice/
     nanostack-event-loop/nanostack-event-loop/
     nanostack/source/
 )
@@ -439,12 +438,11 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
-        mbed-client-libservice
+        mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
     )
     target_include_directories(wsnode PRIVATE
-        mbed-client-libservice/mbed-client-libservice/
         nanostack-event-loop/nanostack-event-loop/
         nanostack/source/
     )
@@ -513,12 +511,11 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         mbed-trace/
-        mbed-client-libservice
+        mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
     )
     target_include_directories(wshwsim PRIVATE
-        mbed-client-libservice/mbed-client-libservice/
         nanostack-event-loop/nanostack-event-loop/
         app_wshwsim/
     )

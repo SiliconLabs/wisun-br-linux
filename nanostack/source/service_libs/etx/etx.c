@@ -16,10 +16,10 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "common_functions.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/net_interface.h"
 

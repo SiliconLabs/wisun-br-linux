@@ -25,14 +25,14 @@
 #include "eventOS_scheduler.h"
 #include "eventOS_callback_timer.h"
 #include <string.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/mac/ccm.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"
-#include "platform/arm_hal_interrupt.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "common/rand.h"
 
 #include "mac/ieee802154/sw_mac_internal.h"

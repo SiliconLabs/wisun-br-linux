@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/ns_file_system.h"
 #include "ns_file.h"
 

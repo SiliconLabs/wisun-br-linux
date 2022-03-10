@@ -19,7 +19,7 @@
 #define RPL_CONTROL_H_
 
 
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct rpl_instance;

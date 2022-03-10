@@ -19,7 +19,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "nanostack/net_interface.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/ws_management_api.h"
 

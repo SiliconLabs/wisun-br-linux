@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/ns_time_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_pae_time.h"

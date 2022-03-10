@@ -21,7 +21,7 @@
 #include "eventOS_event.h"
 #include "nanostack/mac/mlme.h"
 #include "mac_data_buffer.h"
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_list.h"
 
 struct cca_structure_s;
 struct buffer;

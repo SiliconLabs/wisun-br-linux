@@ -17,8 +17,8 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "common_functions.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mac/rf_driver_storage.h"
 
 static arm_device_driver_list_s *dev_driver_dynamically_allocate(void);

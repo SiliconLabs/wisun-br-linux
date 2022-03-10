@@ -22,9 +22,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "eventOS_scheduler.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common/rand.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
@@ -42,7 +42,7 @@
 
 #include "nanostack/shalib.h"
 #include "nanostack/net_nvm_api.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_interface.h"
 #include "security/common/sec_lib.h"
 #include "6lowpan/nd/nd_router_object.h"

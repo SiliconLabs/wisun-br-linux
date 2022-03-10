@@ -23,11 +23,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_trace.h"
-#include "nsdynmemLIB.h"
-#include "ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_list.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define TRACE_GROUP "lCon"
 

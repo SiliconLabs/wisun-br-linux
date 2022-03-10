@@ -16,11 +16,11 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_mcps_sap.h"

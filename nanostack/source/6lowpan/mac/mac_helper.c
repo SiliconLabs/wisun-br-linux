@@ -21,10 +21,10 @@
 #include "nanostack/mac/mlme.h"
 #include "mac_helper.h"
 #include "nanostack/mac/mac_common_defines.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack/net_nwk_scan.h"
-#include "ns_trace.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/ns_trace.h"
+#include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_api.h"
 
 #define TRACE_GROUP "MACh"

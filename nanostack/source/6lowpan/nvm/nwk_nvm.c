@@ -18,10 +18,10 @@
 
 #include <stdint.h>
 #include "eventOS_event.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include <string.h>
 #include "common/rand.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "core/include/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"

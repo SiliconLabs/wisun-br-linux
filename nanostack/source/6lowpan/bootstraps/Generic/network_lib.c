@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "core/include/ns_socket.h"
-#include "nsdynmemLIB.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
@@ -35,8 +35,8 @@
 #include "nwk_interface/protocol_stats.h"
 #include "rpl/rpl_data.h"
 
-#include "platform/arm_hal_interrupt.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "mbed-client-libservice/common_functions.h"
 
 #define MAC_MLME_SACN_PERIO_PARAM 5
 

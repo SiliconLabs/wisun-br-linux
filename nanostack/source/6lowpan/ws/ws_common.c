@@ -18,11 +18,11 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
-#include "common_functions.h"
-#include <ns_list.h>
-#include <nsdynmemLIB.h>
+#include "mbed-client-libservice/common_functions.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "common_protocols/icmpv6.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/net_interface.h"

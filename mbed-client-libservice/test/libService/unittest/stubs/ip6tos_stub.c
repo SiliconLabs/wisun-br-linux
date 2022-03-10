@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ip6string.h"
+#include "mbed-client-libservice/ip6string.h"
 #include "ip6tos_stub.h"
 
 ip6tos_def ip6tos_stub;

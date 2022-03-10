@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "ns_list.h"
-#include "ns_trace.h"
+#include "mbed-client-libservice/ns_list.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/ns_address.h"
-#include "nsdynmemLIB.h"
+#include "mbed-client-libservice/nsdynmemLIB.h"
 #include "eventOS_event.h"
 #include "eventOS_scheduler.h"
 #include "eventOS_event_timer.h"
@@ -33,7 +33,7 @@
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_socket_if.h"
-#include "common_functions.h"
+#include "mbed-client-libservice/common_functions.h"
 
 
 #define TRACE_GROUP "kmsi"
