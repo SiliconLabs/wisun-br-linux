@@ -25,9 +25,9 @@
 #include "mbed-client-libservice/ip_fsc.h"
 #include "nanostack/net_interface.h"
 
-#include "core/include/ns_address_internal.h"
-#include "core/include/ns_buffer.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_address_internal.h"
+#include "core/ns_buffer.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol_stats.h"
 
 #define TRACE_GROUP "buff"

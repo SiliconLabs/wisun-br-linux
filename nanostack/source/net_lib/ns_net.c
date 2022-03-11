@@ -39,7 +39,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "rpl/rpl_of0.h"
 #include "rpl/rpl_mrhof.h"
 #include "rpl/rpl_control.h"

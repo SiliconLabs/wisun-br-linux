@@ -31,7 +31,7 @@
 #include "nanostack/net_rpl.h"
 #include "nanostack/mac/sw_mac.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/udp.h"

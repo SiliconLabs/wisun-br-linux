@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "nanostack-event-loop/eventOS_event.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/mac/mac_helper.h"
 

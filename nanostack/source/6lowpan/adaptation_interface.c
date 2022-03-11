@@ -31,8 +31,8 @@
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/mac_common_defines.h"
 
-#include "core/include/ns_address_internal.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_address_internal.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "nwk_interface/protocol_timer.h"

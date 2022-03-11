@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/net_ipv6_api.h"
 
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "nwk_interface/protocol.h"

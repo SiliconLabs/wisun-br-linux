@@ -39,7 +39,7 @@
 #include "service_libs/etx/etx.h" /* slight ick */
 #include "nanostack/net_rpl.h"
 
-#include "core/include/ns_buffer.h"
+#include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "6lowpan/ws/ws_common.h"

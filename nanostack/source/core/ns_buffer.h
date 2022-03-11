@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 

@@ -18,7 +18,7 @@
 #ifndef SOCKBUF_H_
 #define SOCKBUF_H_
 
-#include "core/include/ns_buffer.h"
+#include "core/ns_buffer.h"
 
 typedef struct sockbuf {
     uint32_t   data_bytes;

@@ -24,8 +24,8 @@
 
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol_timer.h"
-#include "core/include/ns_address_internal.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_address_internal.h"
+#include "core/ns_socket.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 
 #include "6lowpan/mac/mac_helper.h"

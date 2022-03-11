@@ -34,8 +34,8 @@
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/ethernet_mac_api.h"
 
-#include "core/include/ns_socket.h"
-#include "core/include/ns_monitor.h"
+#include "core/ns_socket.h"
+#include "core/ns_monitor.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "nwk_interface/protocol_stats.h"

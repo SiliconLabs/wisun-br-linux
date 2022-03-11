@@ -24,7 +24,7 @@
 #ifndef ETX_H_
 #define ETX_H_
 #include <stdint.h>
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
 
 /* Fraction that is used when calculating moving average

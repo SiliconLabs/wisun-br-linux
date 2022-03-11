@@ -32,7 +32,7 @@
 #include "nanostack/ns_address.h"
 #include "nanostack/socket_api.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"

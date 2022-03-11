@@ -33,7 +33,7 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/socket_api.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"

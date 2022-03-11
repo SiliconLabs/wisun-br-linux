@@ -23,7 +23,7 @@
 #include "nanostack-event-loop/eventOS_event.h"
 
 #include "mac/rf_driver_storage.h"
-#include "core/include/ns_monitor.h"
+#include "core/ns_monitor.h"
 
 typedef struct eth_mac_internal_s {
     eth_mac_api_t *mac_api;

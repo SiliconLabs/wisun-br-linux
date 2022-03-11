@@ -24,7 +24,7 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "service_libs/trickle/trickle.h"
 
-#include "core/include/ns_buffer.h"
+#include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "common_protocols/ipv6.h"

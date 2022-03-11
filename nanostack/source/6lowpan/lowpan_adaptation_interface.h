@@ -17,7 +17,7 @@
 
 #ifndef LOWPAN_ADAPTATION_INTERFACE_H_
 #define LOWPAN_ADAPTATION_INTERFACE_H_
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 
 struct protocol_interface_info_entry;
 struct mcps_data_conf_s;

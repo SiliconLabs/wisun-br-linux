@@ -37,7 +37,7 @@
 #include "mbed-client-libservice/nsdynmemLIB.h"
 #include "mbed-client-libservice/ns_trace.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 

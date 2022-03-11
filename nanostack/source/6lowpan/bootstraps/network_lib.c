@@ -26,7 +26,7 @@
 #include "nanostack/net_nwk_scan.h"
 #include "nanostack/nwk_stats_api.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/icmpv6.h"

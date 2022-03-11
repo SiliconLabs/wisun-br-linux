@@ -27,7 +27,7 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 
 #define TRACE_GROUP "udp"
 

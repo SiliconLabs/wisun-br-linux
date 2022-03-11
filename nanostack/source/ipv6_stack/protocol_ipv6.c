@@ -26,7 +26,7 @@
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "nanostack/ethernet_mac_api.h"
 
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"

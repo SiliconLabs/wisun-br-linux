@@ -19,7 +19,7 @@
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 
-#include "core/include/sockbuf.h"
+#include "core/sockbuf.h"
 
 #define TRACE_GROUP "sbuf"
 

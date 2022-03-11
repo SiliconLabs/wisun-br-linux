@@ -23,7 +23,7 @@
 #include "nanostack/net_ws_test.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
-#include "nanostack/source/core/include/ns_address_internal.h"
+#include "nanostack/source/core/ns_address_internal.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"

@@ -25,7 +25,7 @@
 #include "service_libs/utils/isqrt.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/net_interface.h"
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

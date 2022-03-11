@@ -29,7 +29,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "core/include/ns_socket.h"
+#include "core/ns_socket.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "rpl/rpl_data.h"

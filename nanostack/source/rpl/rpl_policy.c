@@ -22,7 +22,7 @@
 #include "service_libs/etx/etx.h"
 #include "nanostack/net_interface.h"
 
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 

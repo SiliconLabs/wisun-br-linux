@@ -19,7 +19,7 @@
 #ifndef IPV6_RESOLUTION_H_
 #define IPV6_RESOLUTION_H_
 
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 
 struct ipv6_neighbour;
 struct ipv6_neighbour_cache;

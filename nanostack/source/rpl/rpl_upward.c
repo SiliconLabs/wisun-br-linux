@@ -36,7 +36,7 @@
 #include "service_libs/trickle/trickle.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/net_rpl.h"
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/ipv6_resolution.h"

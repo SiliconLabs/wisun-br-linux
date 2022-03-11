@@ -19,7 +19,7 @@
 #define MAC_HELPER_H
 
 #include "nanostack/mac/mlme.h"
-#include "core/include/ns_address_internal.h"
+#include "core/ns_address_internal.h"
 
 struct channel_list_s;
 struct nwk_pan_descriptor_t;
