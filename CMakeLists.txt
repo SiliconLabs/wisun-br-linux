@@ -87,10 +87,10 @@ add_executable(wsbrd
     common/slist.c
     common/spinel_buffer.c
     nanostack/source/6lowpan/adaptation_interface.c
-    nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
-    nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
-    nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c
-    nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c
+    nanostack/source/6lowpan/bootstraps/network_lib.c
+    nanostack/source/6lowpan/bootstraps/protocol_6lowpan.c
+    nanostack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
+    nanostack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c
     nanostack/source/6lowpan/fragmentation/cipv6_fragmenter.c
     nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
     nanostack/source/6lowpan/iphc_decode/iphc_compress.c
@@ -294,10 +294,10 @@ if(COMPILE_SIMULATION_TOOLS)
         common/slist.c
         common/spinel_buffer.c
         nanostack/source/6lowpan/adaptation_interface.c
-        nanostack/source/6lowpan/bootstraps/Generic/network_lib.c
-        nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan.c
-        nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_bootstrap.c
-        nanostack/source/6lowpan/bootstraps/Generic/protocol_6lowpan_interface.c
+        nanostack/source/6lowpan/bootstraps/network_lib.c
+        nanostack/source/6lowpan/bootstraps/protocol_6lowpan.c
+        nanostack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
+        nanostack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c
         nanostack/source/6lowpan/fragmentation/cipv6_fragmenter.c
         nanostack/source/6lowpan/iphc_decode/6lowpan_iphc.c
         nanostack/source/6lowpan/iphc_decode/iphc_compress.c
