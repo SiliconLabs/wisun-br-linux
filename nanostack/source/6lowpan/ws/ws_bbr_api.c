@@ -41,7 +41,7 @@
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6_vendordata.h"
-#include "net_lib/src/net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

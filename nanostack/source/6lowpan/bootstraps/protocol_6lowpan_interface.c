@@ -41,7 +41,7 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "rpl/rpl_control.h"
-#include "net_lib/src/net_load_balance_internal.h"
+#include "net_lib/net_load_balance_internal.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "security/common/sec_lib.h"

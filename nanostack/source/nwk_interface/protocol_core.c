@@ -62,7 +62,7 @@
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "net_lib/src/net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 
 #define TRACE_GROUP_CORE "core"
 

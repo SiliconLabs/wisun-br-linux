@@ -55,7 +55,7 @@
 #include "security/common/sec_lib_definitions.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "net_lib/src/net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 
 
 #define TRACE_GROUP "lNet"

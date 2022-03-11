@@ -37,7 +37,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
-#include "net_lib/src/net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"

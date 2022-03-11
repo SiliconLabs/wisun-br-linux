@@ -24,7 +24,7 @@
 #include "nanostack/net_interface.h"
 
 #include "nwk_interface/protocol.h"
-#include "net_lib/src/net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 
 #include "net_dns_internal.h"
 

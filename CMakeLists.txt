@@ -153,14 +153,14 @@ add_executable(wsbrd
     nanostack/source/libdhcpv6/libdhcpv6.c
     nanostack/source/libdhcpv6/libdhcpv6_server.c
     nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
-    nanostack/source/net_lib/src/net_short_address_extension.c
-    nanostack/source/net_lib/src/net_dns.c
-    nanostack/source/net_lib/src/multicast_api.c
-    nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
-    nanostack/source/net_lib/src/net_rpl.c
-    nanostack/source/net_lib/src/ns_net.c
-    nanostack/source/net_lib/src/socket_api.c
-    nanostack/source/net_lib/src/net_ipv6.c
+    nanostack/source/net_lib/net_short_address_extension.c
+    nanostack/source/net_lib/net_dns.c
+    nanostack/source/net_lib/multicast_api.c
+    nanostack/source/net_lib/net_6lowpan_parameter_api.c
+    nanostack/source/net_lib/net_rpl.c
+    nanostack/source/net_lib/ns_net.c
+    nanostack/source/net_lib/socket_api.c
+    nanostack/source/net_lib/net_ipv6.c
     nanostack/source/mac/rf_driver_storage.c
     nanostack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded nanostack/source/mac/ieee802154
@@ -356,14 +356,14 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/libdhcpv6/dhcp_service_api.c
         nanostack/source/libdhcpv6/libdhcpv6.c
         nanostack/source/libdhcpv6/libdhcpv6_vendordata.c
-        nanostack/source/net_lib/src/net_short_address_extension.c
-        nanostack/source/net_lib/src/net_dns.c
-        nanostack/source/net_lib/src/multicast_api.c
-        nanostack/source/net_lib/src/net_6lowpan_parameter_api.c
-        nanostack/source/net_lib/src/net_rpl.c
-        nanostack/source/net_lib/src/ns_net.c
-        nanostack/source/net_lib/src/socket_api.c
-        nanostack/source/net_lib/src/net_ipv6.c
+        nanostack/source/net_lib/net_short_address_extension.c
+        nanostack/source/net_lib/net_dns.c
+        nanostack/source/net_lib/multicast_api.c
+        nanostack/source/net_lib/net_6lowpan_parameter_api.c
+        nanostack/source/net_lib/net_rpl.c
+        nanostack/source/net_lib/ns_net.c
+        nanostack/source/net_lib/socket_api.c
+        nanostack/source/net_lib/net_ipv6.c
         nanostack/source/mac/rf_driver_storage.c
         nanostack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded nanostack/source/mac/ieee802154
