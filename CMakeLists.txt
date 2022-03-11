@@ -5,8 +5,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
 include(CheckCCompilerFlag)
-check_c_compiler_flag(-Wall           CC_HAVE_WALL)
-check_c_compiler_flag(-funwind-tables CC_HAVE_UNWIND_TABLES)
+check_c_compiler_flag(-Wall                  CC_HAVE_WALL)
+check_c_compiler_flag(-Wno-stringop-overread CC_HAVE_WNO_STRINGOP_OVERREAD)
+check_c_compiler_flag(-Wno-stringop-overflow CC_HAVE_WNO_STRINGOP_OVERFLOW)
+check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
 
 include(CheckIncludeFile)
 check_include_file(backtrace.h BACKTRACE_FOUND)
@@ -29,6 +31,14 @@ pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
 # Greatly improve warning messages. There is no reason to not enable that.
 if(CC_HAVE_WALL)
     add_compile_options(-Wall)
+endif()
+
+# ... but it generate two irrelevant warnings
+if(CC_HAVE_WNO_STRINGOP_OVERREAD)
+    add_compile_options(-Wno-stringop-overread)
+endif()
+if(CC_HAVE_WNO_STRINGOP_OVERFLOW)
+    add_compile_options(-Wno-stringop-overflow)
 endif()
 
 # In come case, backtraces are not available without that flags. Increase size
