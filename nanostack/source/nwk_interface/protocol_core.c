@@ -29,7 +29,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "nanostack/shalib.h"
-#include "nanostack/net_nvm_api.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/ethernet_mac_api.h"
@@ -46,7 +45,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/nd/nd_router_object.h"
-#include "6lowpan/nvm/nwk_nvm.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "common_protocols/ipv6.h"
@@ -229,9 +227,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                         mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
                     }
 
-                    if (cur->nwk_wpan_nvm_api) {
-                        cur->nwk_wpan_nvm_api->nvm_params_update_cb(cur->nwk_wpan_nvm_api, false);
-                    }
                     etx_cache_timer(cur->id, seconds);
                     lowpan_adaptation_interface_slow_timer(cur);
                 }

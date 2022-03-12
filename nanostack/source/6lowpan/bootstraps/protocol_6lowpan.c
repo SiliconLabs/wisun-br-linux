@@ -27,7 +27,6 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/shalib.h"
-#include "nanostack/net_nvm_api.h"
 #include "nanostack/net_rpl.h"
 #include "nanostack/mac/sw_mac.h"
 

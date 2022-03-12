@@ -51,7 +51,6 @@ struct eth_mac_api_s;
 struct arm_device_driver_list;
 struct mlme_security_s;
 struct load_balance_api;
-struct nwk_wpan_nvm_api;
 struct red_info_s;
 
 #define SLEEP_MODE_REQ      0x80
@@ -375,7 +374,6 @@ struct protocol_interface_info_entry {
 
     struct eth_mac_api_s *eth_mac_api;
 
-    struct nwk_wpan_nvm_api *nwk_wpan_nvm_api;
     struct arm_device_driver_list *dev_driver;
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
     int8_t (*if_up)(struct protocol_interface_info_entry *cur);

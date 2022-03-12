@@ -32,7 +32,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/shalib.h"
-#include "nanostack/net_nvm_api.h"
 #include "nanostack/net_interface.h"
 
 #include "nwk_interface/protocol.h"
@@ -43,7 +42,6 @@
 #include "net_lib/net_load_balance_internal.h"
 #include "rpl/rpl_control.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/nvm/nwk_nvm.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/bootstraps/network_lib.h"
@@ -143,11 +141,6 @@ bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interf
 
     interface->mac_parameters->mac_channel = pan_descriptor->LogicalChannel;
     interface->mac_parameters->pan_id = pan_descriptor->CoordPANId;
-    if (interface->nwk_wpan_nvm_api) {
-        wpan_nvm_params_t *params = interface->nwk_wpan_nvm_api->nvm_params_get_cb(interface->nwk_wpan_nvm_api, pan_descriptor->CoordPANId);
-        interface->if_lowpan_security_params->mle_security_frame_counter = params->mle_securit_counter;
-        mac_helper_link_frame_counter_set(interface->id, params->mac_security_frame_counter);
-    }
 
     start_req.PANId = pan_descriptor->CoordPANId;
     start_req.LogicalChannel = pan_descriptor->LogicalChannel;

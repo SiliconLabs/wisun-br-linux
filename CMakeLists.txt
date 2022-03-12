@@ -101,7 +101,6 @@ add_executable(wsbrd
     nanostack/source/6lowpan/mac/mac_response_handler.c
     # Excluded nanostack/source/6lowpan/Mesh
     nanostack/source/6lowpan/nd/nd_router_object.c
-    # Excluded nanostack/source/6lowpan/NVM
     # Excluded nanostack/source/6lowpan/Thread
     nanostack/source/6lowpan/ws/ws_bbr_api.c
     nanostack/source/6lowpan/ws/ws_bootstrap.c
@@ -307,7 +306,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/6lowpan/mac/mac_response_handler.c
         # Excluded nanostack/source/6lowpan/Mesh
         nanostack/source/6lowpan/nd/nd_router_object.c
-        # Excluded nanostack/source/6lowpan/NVM
         # Excluded nanostack/source/6lowpan/Thread
         nanostack/source/6lowpan/ws/ws_bootstrap.c
         nanostack/source/6lowpan/ws/ws_bootstrap_ffn.c

@@ -33,7 +33,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/shalib.h"
-#include "nanostack/net_nvm_api.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
