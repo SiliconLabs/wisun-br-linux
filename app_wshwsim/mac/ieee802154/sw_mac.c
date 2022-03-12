@@ -441,13 +441,9 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
         }
         case MLME_SET: {
             const mlme_set_t *dat = (const mlme_set_t *)data;
-            if (dat->attr == macLoadBalancingBeaconTx && mac_store.dev_driver->mlme_observer_cb) {
-                mac_store.dev_driver->mlme_observer_cb(dat);
-            } else {
-                if (mac_mlme_set_req(mac_store.setup, dat) == 0) {
-                    if (mac_store.dev_driver->mlme_observer_cb) {
-                        mac_store.dev_driver->mlme_observer_cb(dat);
-                    }
+            if (mac_mlme_set_req(mac_store.setup, dat) == 0) {
+                if (mac_store.dev_driver->mlme_observer_cb) {
+                    mac_store.dev_driver->mlme_observer_cb(dat);
                 }
             }
             break;

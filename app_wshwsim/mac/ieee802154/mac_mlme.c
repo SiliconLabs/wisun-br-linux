@@ -522,8 +522,6 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             return mac_mlme_default_key_source_set(rf_mac_setup, set_req);
         case macBeaconPayload:
             return mac_mlme_beacon_payload_set(rf_mac_setup, set_req);
-        case macLoadBalancingBeaconTx:
-            return mac_mlme_beacon_tx(rf_mac_setup);
         case macCoordExtendedAddress:
             if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
@@ -1223,94 +1221,5 @@ void mac_mlme_poll_req(protocol_interface_rf_mac_setup_s *cur, const mlme_poll_t
     buf->mac_header_length_with_security += mac_header_address_length(&buf->fcf_dsn);
     buf->priority = MAC_PD_DATA_MEDIUM_PRIORITY;
     mcps_sap_pd_req_queue_write(cur, buf);
-}
-
-static bool mac_mlme_beacon_at_queue(protocol_interface_rf_mac_setup_s *rf_ptr)
-{
-    mac_pre_build_frame_t *buf = rf_ptr->active_pd_data_request;
-    if (buf && buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
-        return true;
-    }
-
-    buf = rf_ptr->pd_data_request_queue_to_go;
-
-    while (buf) {
-        if (buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
-            return true;
-        }
-        buf = buf->next;
-    }
-    return false;
-}
-
-int8_t mac_mlme_beacon_tx(protocol_interface_rf_mac_setup_s *rf_ptr)
-{
-    if (!rf_ptr || !rf_ptr->macCapCordinator) {
-        return -1;
-    }
-
-    //Verify if beacon is already generated to queue
-    if (mac_mlme_beacon_at_queue(rf_ptr)) {
-        return -2;
-    }
-
-    uint16_t length = 4;
-    length += rf_ptr->mac_beacon_payload_size;
-    // Add more space for FHSS synchronization info
-    if (rf_ptr->fhss_api) {
-        length += FHSS_SYNCH_INFO_LENGTH;
-    }
-
-    mac_pre_build_frame_t *buf = mcps_sap_prebuild_frame_buffer_get(length);
-    if (!buf) {
-        return -1;
-    }
-    uint8_t sf_2 = 0x0f;
-
-    buf->fcf_dsn.frametype = FC_BEACON_FRAME;
-    buf->fcf_dsn.DstAddrMode = MAC_ADDR_MODE_NONE;
-
-    if (rf_ptr->beaconSrcAddressModeLong) {
-        buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
-        buf->mac_header_length_with_security = 13;
-    } else {
-        if (rf_ptr->shortAdressValid) {
-            buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_16_BIT;
-            buf->mac_header_length_with_security = 7;
-        } else {
-            buf->fcf_dsn.SrcAddrMode = MAC_ADDR_MODE_64_BIT;
-            buf->mac_header_length_with_security = 13;
-        }
-    }
-    buf->SrcPANId = mac_mlme_get_panid(rf_ptr);
-    mac_frame_src_address_set_from_interface(buf->fcf_dsn.SrcAddrMode, rf_ptr, buf->SrcAddr);
-    buf->fcf_dsn.DstPanPresents = false;
-    buf->fcf_dsn.SrcPanPresents = true;
-
-    uint8_t *ptr = buf->mac_payload;
-
-    *ptr++ = 0xff;//Superframe disabled
-
-    if (rf_ptr->macCapCordinator) {
-        sf_2 |= 0x40; //Cord
-    }
-
-    if (rf_ptr->macCapBatteryPowered) {
-        sf_2 |= 0x10; //Battery
-    }
-
-    if (rf_ptr->macCapAssocationPermit) {
-        sf_2 |= 0x80; //Permit
-    }
-    *ptr++ = sf_2; //Superframe desc MSB
-    ptr = common_write_16_bit(0, ptr); //NO GTS Support
-
-    if (rf_ptr->mac_beacon_payload_size) {
-        memcpy(ptr, rf_ptr->mac_beacon_payload, rf_ptr->mac_beacon_payload_size);
-    }
-    buf->priority = MAC_PD_DATA_HIGH_PRIORITY;
-    mcps_sap_pd_req_queue_write(rf_ptr, buf);
-    sw_mac_stats_update(rf_ptr, STAT_MAC_BEA_TX_COUNT, 0);
-    return 0;
 }
 

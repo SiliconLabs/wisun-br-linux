@@ -92,8 +92,6 @@ uint16_t mac_mlme_get_panid(struct protocol_interface_rf_mac_setup *rf_setup);
 
 void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *addressPtr);
 
-int8_t mac_mlme_beacon_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
-
 uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
 
 #endif /* MAC_MLME_H_ */
