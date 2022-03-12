@@ -254,7 +254,6 @@ typedef struct {
 
 struct thread_info_s;
 struct ws_info_s;
-struct mesh_callbacks_s;
 struct auth_info;
 struct rpl_domain;
 
@@ -369,7 +368,6 @@ struct protocol_interface_info_entry {
     struct red_info_s *llc_eapol_random_early_detection;
     struct ws_info_s *ws_info;
     struct rpl_domain *rpl_domain;
-    struct mesh_callbacks_s *mesh_callbacks;
     if_6lowpan_security_info_t *if_lowpan_security_params; //Security Parameters
 
     struct mac_api_s *mac_api;
