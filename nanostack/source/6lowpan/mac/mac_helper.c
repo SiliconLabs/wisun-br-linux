@@ -843,22 +843,6 @@ int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_re
     return 0;
 }
 
-int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id)
-{
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->mac_api) {
-        return -1;
-    }
-    mlme_set_t set_req;
-    set_req.attr = macDeviceDescriptionPanIDUpdate;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &pan_id;
-    set_req.value_size = sizeof(pan_id);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-    return 0;
-}
-
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit)
 {
     protocol_interface_info_entry_t *cur;

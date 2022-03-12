@@ -116,8 +116,6 @@ int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t m
 
 int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_request_restart_config_t *request_restart_config);
 
-int8_t mac_helper_mac_device_description_pan_id_update(int8_t interface_id, uint16_t pan_id);
-
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit);
 
 int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
