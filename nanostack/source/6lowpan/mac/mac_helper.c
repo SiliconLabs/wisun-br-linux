@@ -37,7 +37,6 @@ uint16_t test_6lowpan_fragmentation_mtu_size_override = 0;
 
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
-static void mac_helper_keytable_pairwise_descriptor_set(struct mac_api_s *api, const uint8_t *key, const uint8_t *mac64, uint8_t attribute_id);
 
 static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface, mlme_attr_t attribute, uint8_t value)
 {
@@ -219,32 +218,6 @@ static void mac_helper_keytable_descriptor_set(struct mac_api_s *api, const uint
     api->mlme_req(api, MLME_SET, &set_req);
 }
 
-static void mac_helper_keytable_pairwise_descriptor_set(struct mac_api_s *api, const uint8_t *key, const uint8_t *mac64, uint8_t attribute_id)
-{
-    mlme_set_t set_req;
-    mlme_key_id_lookup_descriptor_t lookup_description;
-    mlme_key_descriptor_entry_t key_description;
-    if (key) {
-        memcpy(lookup_description.LookupData, mac64, 8);
-        lookup_description.LookupData[8] = 0;
-        lookup_description.LookupDataSize = 1;
-        tr_debug("Key add %u index %s", attribute_id, trace_array(lookup_description.LookupData, 9));
-        memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-        memcpy(key_description.Key, key, 16);
-        key_description.KeyIdLookupList = &lookup_description;
-        key_description.KeyIdLookupListEntries = 1;
-    } else {
-        memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-    }
-    set_req.attr = macKeyTable;
-    set_req.attr_index = attribute_id;
-    set_req.value_pointer = &key_description;
-    set_req.value_size = sizeof(mlme_key_descriptor_entry_t);
-
-    api->mlme_req(api, MLME_SET, &set_req);
-}
-
-
 int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
 {
     if (id == 0 || keyid_mode > 3) {
@@ -273,17 +246,6 @@ int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_en
     }
     interface->mac_parameters->mac_default_key_attribute_id = key_attibute_index;
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
-    return 0;
-}
-
-
-int8_t mac_helper_security_pairwisekey_set(protocol_interface_info_entry_t *interface, const uint8_t *key, const uint8_t *mac_64, uint8_t key_attribute)
-{
-    if (key && !mac_64) {
-        return -1;
-    }
-
-    mac_helper_keytable_pairwise_descriptor_set(interface->mac_api, key, mac_64, key_attribute);
     return 0;
 }
 

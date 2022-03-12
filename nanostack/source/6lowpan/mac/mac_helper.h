@@ -72,8 +72,6 @@ int8_t mac_helper_security_key_descriptor_clear(struct protocol_interface_info_e
 
 void mac_helper_security_key_swap_next_to_default(struct protocol_interface_info_entry *interface);
 
-int8_t mac_helper_security_pairwisekey_set(struct protocol_interface_info_entry *interface, const uint8_t *key, const uint8_t *mac_64, uint8_t key_attribute);
-
 void mac_helper_security_key_clean(struct protocol_interface_info_entry *interface);
 
 void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, addrtype_t adr_type, uint8_t *adr_ptr);
