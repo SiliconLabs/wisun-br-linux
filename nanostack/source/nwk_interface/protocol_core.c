@@ -35,7 +35,6 @@
 #include "nanostack/ethernet_mac_api.h"
 
 #include "core/ns_socket.h"
-#include "core/ns_monitor.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 #include "nwk_interface/protocol_stats.h"
@@ -152,7 +151,6 @@ void protocol_root_tasklet(arm_event_t *event)
     switch (event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
             tr_debug("NS Root task Init");
-            ns_monitor_init();
             break;
 
         case ARM_IN_PROTOCOL_TIMER_EVENT: {
@@ -271,7 +269,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         net_dns_timer_seconds(seconds);
 
         ws_pae_controller_slow_timer(seconds);
-        ns_monitor_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
     }

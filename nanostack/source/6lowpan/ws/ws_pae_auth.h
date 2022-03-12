@@ -173,14 +173,6 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr, uint16_t limit);
 
 /**
- * ws_pae_auth_forced_gc garbage cleanup call
- *
- * \param interface_ptr interface
- *
- */
-void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr);
-
-/**
  * ws_pae_auth_nw_info_set set network information
  *
  * \param interface_ptr interface
@@ -303,7 +295,6 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 #define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
 #define ws_pae_auth_node_access_revoke_start(interface_ptr) -1
 #define ws_pae_auth_node_limit_set(interface_ptr, limit)
-#define ws_pae_auth_forced_gc(interface_ptr)
 #define ws_pae_auth_fast_timer NULL
 #define ws_pae_auth_slow_timer NULL
 #define ws_pae_auth_radius_address_set(interface_ptr, remote_addr) -1

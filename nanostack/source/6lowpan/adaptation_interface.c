@@ -110,14 +110,6 @@ typedef struct {
 #define LOWPAN_ACTIVE_UNICAST_ONGOING_MAX 10
 #define LOWPAN_HIGH_PRIORITY_STATE_LENGTH 50 //5 seconds 100us ticks
 
-/* Minimum buffer amount and memory size to ensure operation even in out of memory situation
- */
-#define LOWPAN_MEM_LIMIT_MIN_QUEUE 10
-#define LOWPAN_MEM_LIMIT_MIN_MEMORY 10000
-#define LOWPAN_MEM_LIMIT_REMOVE_NORMAL 3000 // Remove when approaching memory limit
-#define LOWPAN_MEM_LIMIT_REMOVE_MAX 10000 // Remove when at memory limit
-#define LOWPAN_MEM_LIMIT_REMOVE_EF_MODE 20000 // Remove when out of memory and we are in EF mode
-
 #define LOWPAN_TX_BUFFER_AGE_LIMIT_LOW_PRIORITY     30 // Remove low priority packets older than limit (seconds)
 #define LOWPAN_TX_BUFFER_AGE_LIMIT_HIGH_PRIORITY    60 // Remove high priority packets older than limit (seconds)
 #define LOWPAN_TX_BUFFER_AGE_LIMIT_EF_PRIORITY      120 // Remove expedited forwarding packets older than limit (seconds)
@@ -492,32 +484,6 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
     return 0;
 }
 
-void lowpan_adaptation_free_heap(bool full_gc)
-{
-    ns_list_foreach(fragmenter_interface_t, interface_ptr, &fragmenter_interface_list) {
-        // Go through all interfaces and free small amount of memory
-        // This is not very radical, but gives time to recover without causing too harsh changes
-        buffer_priority_t priority = QOS_NORMAL;
-        uint32_t amount = LOWPAN_MEM_LIMIT_REMOVE_NORMAL;
-
-        if (full_gc && interface_ptr->last_rx_high_priority) {
-            // We have encountered out of memory in EF state We handle this as Critical state
-            // Large amount of memory is freed and packets lower than EF priority can be dropped
-            priority = QOS_NETWORK_CTRL;
-            amount = LOWPAN_MEM_LIMIT_REMOVE_EF_MODE;
-        } else if (interface_ptr->last_rx_high_priority) {
-            // We are running out of memory and we are in EF state. We handle this as severe state
-            // Some amount of memory is freed and also lower than EF priority packets are dropped
-            priority = QOS_NETWORK_CTRL;
-            amount = LOWPAN_MEM_LIMIT_REMOVE_MAX;
-        } else if (full_gc) {
-            // We have encountered out of memory. we need to remove more packets, but we only remove normal priority packets
-            amount = LOWPAN_MEM_LIMIT_REMOVE_MAX;
-        }
-
-        lowpan_adaptation_free_low_priority_packets(interface_ptr->interface_id, priority, amount);
-    }
-}
 buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_ptr, buffer_priority_t priority)
 {
     ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
@@ -528,71 +494,6 @@ buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_
     }
     return NULL;
 
-}
-
-int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, buffer_priority_t max_priority, uint32_t requested_amount)
-{
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!interface_ptr || !cur) {
-        return -1;
-    }
-    uint32_t adaptation_memory = 0;
-    uint16_t adaptation_packets = 0;
-    uint32_t memory_freed = 0;
-    uint16_t packets_freed = 0;
-
-    ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
-        adaptation_memory += sizeof(buffer_t) + entry->size;
-        adaptation_packets++;
-    }
-
-    if (interface_ptr->directTxQueue_size < LOWPAN_MEM_LIMIT_MIN_QUEUE) {
-        // Minimum reserved for operations
-        return 0;
-    }
-    if (adaptation_memory < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
-        // Minimum reserved for operations
-        return 0;
-    }
-    if (adaptation_memory - requested_amount < LOWPAN_MEM_LIMIT_MIN_MEMORY) {
-        // only reduse to minimum
-        requested_amount = adaptation_memory - LOWPAN_MEM_LIMIT_MIN_MEMORY;
-    }
-
-    /* Order of packets is
-     * priority 4 oldest to newest
-     * priority 3 oldest to newest
-     * priority 2 oldest to newest
-     * priority 1 oldest to newest
-     * priority 0 oldest to newest
-     * So we search oldest for lowest priority and delete that until that priority is empty
-     * and then start deleting one higher priority packets from oldest first
-     */
-
-    buffer_priority_t priority = QOS_NORMAL;
-    do {
-        buffer_t *entry = lowpan_adaptation_get_oldest_packet(interface_ptr, priority);
-        if (!entry) {
-            if (priority < max_priority) {
-                priority++;
-                continue;
-            }
-            // No more packets available
-            break;
-        }
-        // This packet can be deleted
-        memory_freed += sizeof(buffer_t) + entry->size;
-        packets_freed++;
-        ns_list_remove(&interface_ptr->directTxQueue, entry);
-        interface_ptr->directTxQueue_size--;
-        lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
-        socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
-    } while (memory_freed < requested_amount);
-
-    tr_info("Adaptation Free low priority packets memory: %" PRIi32 " queue: %d deallocated %" PRIi32 " bytes, %d packets, %" PRIi32 " requested", adaptation_memory, adaptation_packets, memory_freed, packets_freed, requested_amount);
-    return 0;
 }
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)

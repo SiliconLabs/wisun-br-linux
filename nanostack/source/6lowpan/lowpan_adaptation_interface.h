@@ -35,10 +35,6 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api_s *mpx_api, uint16_t mpx_user_id);
 
-void lowpan_adaptation_free_heap(bool full_gc);
-
-int8_t lowpan_adaptation_free_low_priority_packets(int8_t interface_id, enum buffer_priority max_priority, uint32_t requested_amount);
-
 int lowpan_adaptation_queue_size(int8_t interface_id);
 
 /**

@@ -1074,23 +1074,6 @@ void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_a
     tr_debug("New next hop: %s", trace_ipv6(redirect_addr));
 }
 
-void ipv6_destination_cache_forced_gc(bool full_gc)
-{
-    int gc_count = ns_list_count(&ipv6_destination_cache);
-
-    /* Minimize size of destination cache:
-     * - keep absolutely minimum number of entries if not full gc
-     * - clear all entries in case of full gc
-     **/
-    ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->lifetime == 0 || gc_count > destination_cache_config.long_term_entries || full_gc) {
-            if (ipv6_destination_release(entry)) {
-                gc_count--;
-            }
-        }
-    }
-}
-
 void ipv6_destination_cache_clean(int8_t interface_id)
 {
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {

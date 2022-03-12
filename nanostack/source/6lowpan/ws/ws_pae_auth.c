@@ -541,23 +541,6 @@ int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr
     return 0;
 }
 
-void ws_pae_auth_forced_gc(protocol_interface_info_entry_t *interface_ptr)
-{
-    if (!interface_ptr) {
-        return;
-    }
-
-    pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
-    if (!pae_auth) {
-        return;
-    }
-
-    /* Purge in maximum five entries from supplicant list (starting from oldest one)
-       per call to the function (called by nanostack monitor) */
-    ws_pae_lib_supp_list_purge(pae_auth, &pae_auth->active_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE, NULL);
-    ws_pae_lib_supp_list_purge(pae_auth, &pae_auth->waiting_supp_list, 0, SUPPLICANT_NUMBER_TO_PURGE, ws_pae_auth_waiting_supp_deleted);
-}
-
 int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
     (void) updated;

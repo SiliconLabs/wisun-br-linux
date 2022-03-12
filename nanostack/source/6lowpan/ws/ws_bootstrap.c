@@ -39,7 +39,6 @@
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/ccm.h"
 
-#include "core/ns_monitor.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -881,30 +880,6 @@ bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neig
     // True means we skip the message sending
     return true;
 }
-static void ws_bootstrap_memory_configuration()
-{
-    /* Configure memory limits for garbage collection based on total memory size
-     * Starting from these values
-     *      5% for High mark
-     *      2% for critical mark
-     *      1% for Routing limit
-     * Memory     High               Critical            Drop routing
-     * 32K RAM    3200 bytes         1280 Bytes          1024 bytes
-     * 64K RAM    3200 bytes         1280 Bytes          1024 bytes
-     * 128K RAM   6400 bytes         2560 Bytes          1280 bytes
-     * 320K RAM   16000 byte         6400 Bytes          3200 bytes
-     * 640K RAM   32000 byte         12800 Bytes         6400 bytes
-     * 1000K RAM  50000 bytes        20000 Bytes         10000 bytes
-     * 4000K RAM  120000 bytes       40000 Bytes         10000 bytes
-     * */
-    // In small memory devices there needs to lower limit so that there some change to be usable
-    // and there is no use for having very large values on high memory devices
-    ns_monitor_packet_ingress_rate_limit_by_memory(1024, 10000, 1);
-
-    ns_monitor_heap_gc_threshold_set(3200, 120000, 95, 1280, 40000, 98);
-    return;
-}
-
 
 static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
 {
@@ -962,8 +937,6 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC, WS_DHCP_SOLICIT_MAX_DELAY);
     dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
 
-    // Configure memory limits and garbage collection values;
-    ws_bootstrap_memory_configuration();
     ws_nud_table_reset(cur);
 
     ws_bootstrap_candidate_table_reset(cur);

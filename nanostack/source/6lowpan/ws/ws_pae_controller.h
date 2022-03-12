@@ -693,14 +693,6 @@ void ws_pae_controller_slow_timer(uint16_t seconds);
 
 struct nvm_tlv *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *interface_ptr);
 
-/**
- * ws_pae_controller_forced_gc PAE controller garbage cleanup callback
- *
- * \param full_gc Full cleanup (true for critical garbage cleanup)
- *
- */
-void ws_pae_controller_forced_gc(bool full_gc);
-
 int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name);
 
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);

@@ -1630,20 +1630,6 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
 #endif
 }
 
-void ws_pae_controller_forced_gc(bool full_gc)
-{
-    /* Purge only when on critical limit since node limit should handle limiting
-       of entries in normal case */
-    if (!full_gc) {
-        return;
-    }
-
-    // Purge authenticators for each interface
-    ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
-        ws_pae_auth_forced_gc(entry->interface_ptr);
-    }
-}
-
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
