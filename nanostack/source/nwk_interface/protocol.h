@@ -181,13 +181,6 @@ typedef struct arm_15_4_mac_parameters_t {
     /* MAC PIB boolean */
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
-    bool PromiscuousMode: 1;
-    bool GTSPermit: 1;
-    bool AssociationPermit: 1;
-    bool AssociatedPANCoord: 1;
-    bool TimestampSupported: 1;
-    bool BattLifeExt: 1;
-    bool AutoRequest: 1;
     bool MacUnsusecured_2003_cab: 1;
     /* MAC PIB boolean */
     channel_list_s mac_channel_list;

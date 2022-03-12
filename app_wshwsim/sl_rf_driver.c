@@ -182,13 +182,7 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
 
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
 {
-    switch (set_req->attr) {
-        case macBeaconPayload:
-        case macLoadBalancingBeaconTx:
-            BUG("Not implemented");
-        default:
-            return;
-    }
+    return;
 }
 
 /**

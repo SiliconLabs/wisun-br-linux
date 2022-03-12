@@ -370,22 +370,6 @@ mlme_device_descriptor_t *mac_sec_mib_device_description_get_attribute_index(pro
     return rf_mac_setup->device_description_table + attribute_index;
 }
 
-void mac_sec_mib_device_description_pan_update(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t pan_id)
-{
-    mlme_device_descriptor_t *device_table = rf_mac_setup->device_description_table;
-    if (!device_table) {
-        return;
-    }
-
-    for (int i = 0; i < rf_mac_setup->device_description_table_size; i++) {
-
-        device_table->PANId = pan_id;
-        device_table++;
-    }
-
-}
-
-
 mlme_device_descriptor_t *mac_sec_mib_device_description_get(protocol_interface_rf_mac_setup_s *rf_mac_setup, const uint8_t *address, uint8_t type, uint16_t pan_id)
 {
     if (rf_mac_setup) {

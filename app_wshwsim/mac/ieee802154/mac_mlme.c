@@ -196,40 +196,6 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
             rf_mac_setup->macCapRxOnIdle = value;
             break;
 
-        case macGTSPermit:
-            rf_mac_setup->macGTSPermit = value;
-            break;
-
-        case macAssociationPermit:
-            rf_mac_setup->macCapAssocationPermit = value;
-            break;
-        case macThreadForceLongAddressForBeacon:
-            rf_mac_setup->beaconSrcAddressModeLong = value;
-            break;
-
-        case macAssociatedPANCoord:
-
-            break;
-
-        case macTimestampSupported:
-
-            break;
-
-        case macBattLifeExt:
-
-            break;
-
-        case macAutoRequest:
-
-            break;
-
-        case macLoadBalancingAcceptAnyBeacon:
-            rf_mac_setup->macAcceptAnyBeacon = value;
-            if (rf_mac_setup->dev_driver->phy_driver->extension) {
-                rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_ACCEPT_ANY_BEACON, (uint8_t *)&value);
-            }
-            break;
-
         case macEdfeForceStop:
             return mac_data_edfe_force_stop(rf_mac_setup);
 
@@ -249,24 +215,13 @@ static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup
         case macCoordShortAddress:
             rf_mac_setup->coord_short_address = value;
             break;
+
         case macPANId:
             mac_mlme_set_panid(rf_mac_setup, value);
             break;
 
         case macShortAddress:
             mac_mlme_set_mac16(rf_mac_setup, value);
-            break;
-
-        case macSyncSymbolOffset:
-            //TODO: change this to return real error
-            //This is read only
-            break;
-
-        case macTransactionPersistenceTime:
-            //TODO: check this also
-            break;
-        case macDeviceDescriptionPanIDUpdate:
-            mac_sec_mib_device_description_pan_update(rf_mac_setup, value);
             break;
 
         default:
@@ -280,13 +235,6 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
     switch (attribute) {
         case phyCurrentChannel:
             mac_mlme_rf_channel_set(rf_mac_setup, value);
-            break;
-        case macBeaconPayloadLength:
-            if (rf_mac_setup->max_beacon_payload_length < value) {
-                return -1;
-            }
-
-            rf_mac_setup->mac_beacon_payload_size = value;
             break;
         case macAutoRequestKeyIndex:
             rf_mac_setup->mac_auto_request.KeyIndex = value;
@@ -421,18 +369,6 @@ static int8_t mac_mlme_default_key_source_set(protocol_interface_rf_mac_setup_s 
     return 0;
 }
 
-static int8_t mac_mlme_beacon_payload_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
-{
-    if (set_req->value_size > rf_mac_setup->max_beacon_payload_length) {
-        return -1;
-    }
-
-    memcpy(rf_mac_setup->mac_beacon_payload, set_req->value_pointer, set_req->value_size);
-    memset(rf_mac_setup->mac_beacon_payload + set_req->value_size, 0, rf_mac_setup->max_beacon_payload_length - set_req->value_size);
-
-    return 0;
-}
-
 static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     if (set_req->value_size == 1) {
@@ -515,8 +451,6 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
         case macDefaultKeySource:
         case macAutoRequestKeySource:
             return mac_mlme_default_key_source_set(rf_mac_setup, set_req);
-        case macBeaconPayload:
-            return mac_mlme_beacon_payload_set(rf_mac_setup, set_req);
         case macCoordExtendedAddress:
             if (set_req->value_size == 8) {
                 memcpy(rf_mac_setup->coord_long_address, set_req->value_pointer, 8);
@@ -742,7 +676,6 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
 
         ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.buf);
         ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.enhanced_ack_buf);
-        ns_dyn_mem_free(rf_mac->mac_beacon_payload);
 
         mac_sec_mib_deinit(rf_mac);
         mac_cca_thr_deinit(rf_mac);
@@ -781,19 +714,12 @@ static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_se
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size)
 {
     ns_dyn_mem_free(rf_mac_setup->dev_driver_tx_buffer.buf);
-    ns_dyn_mem_free(rf_mac_setup->mac_beacon_payload);
     uint16_t total_length = 0;
     //Allocate tx buffer by given MTU + header + tail
     total_length = mtu_size;
     total_length += (dev_driver->phy_driver->phy_header_length + dev_driver->phy_driver->phy_tail_length);
     rf_mac_setup->dev_driver_tx_buffer.buf = ns_dyn_mem_alloc(total_length);
     if (!rf_mac_setup->dev_driver_tx_buffer.buf) {
-        return -1;
-    }
-    //allocate Beacon Payload buffer
-    rf_mac_setup->max_beacon_payload_length = mtu_size - MAC_IEEE_802_15_4_MAX_BEACON_OVERHEAD;
-    rf_mac_setup->mac_beacon_payload = ns_dyn_mem_alloc(rf_mac_setup->max_beacon_payload_length);
-    if (!rf_mac_setup->mac_beacon_payload) {
         return -1;
     }
     return 0;
@@ -861,7 +787,6 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->mac_mlme_retry_max = MAC_DEFAULT_MAX_FRAME_RETRIES;
     memset(entry->mac_default_key_source, 0xff, 8);
     memset(entry->mac_auto_request.Keysource, 0xff, 8);
-    memset(entry->mac_beacon_payload, 0, entry->max_beacon_payload_length);
     entry->mac_auto_request.SecurityLevel = 6;
     entry->mac_auto_request.KeyIndex = 0xff;
     mac_pd_sap_rf_low_level_function_set(entry, entry->dev_driver);

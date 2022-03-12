@@ -199,35 +199,24 @@ typedef struct mlme_key_descriptor_entry_s {
 typedef enum {
     phyCurrentChannel = 0x00,       /*<Current RF channel*/
     macAckWaitDuration = 0x40,      /*<Integer, n. of symbols*/
-    macAssociatedPANCoord = 0x56,   /*<Boolean, associated to PAN coordinator*/
-    macAssociationPermit = 0x41,    /*<Boolean, if association is allowed (in coordinator)*/
     macAutoRequest = 0x42,          /*<Boolean, if device automatically sends data request on beacon*/
-    macBattLifeExt = 0x43,          /*<Boolean, if BLE is enabled*/
-    macBattLifeExtPeriods = 0x44,   /*<Integer 6-41, BLE back off periods */
-    macBeaconPayload = 0x45,        /*<Set of bytes, beacon payload*/
-    macBeaconPayloadLength = 0x46,  /*<Integer 0-MaxPayLoadLen*/
     macBeaconOrder = 0x47,          /*<Integer 0–15, Beacon tx period, 15 = no periodic beacon*/
     macBeaconTxTime = 0x48,         /*<Integer 0x000000–0xffffff, symbols, when last beacon was transmitted*/
     macBSN = 0x49,                  /*<Integer 0x00–0xff, Beacon sequence number*/
     macCoordExtendedAddress = 0x4a, /*<64-bit IEEE of coordinator*/
     macCoordShortAddress = 0x4b,    /*<16-bit addr of coordinator*/
     macDSN = 0x4c,                  /*<Integer 0x00–0xff, Data frame sequence number*/
-    macGTSPermit = 0x4d,            /*<Boolean, GTS allowed?*/
     macMaxBE = 0x57,                /*<Integer 3–8, max value of back off exponent*/
     macMaxCSMABackoffs = 0x4e,      /*<Integer 0–5*/
     macMaxFrameTotalWaitTime = 0x58,/*<Integer, max of CAP symbols while waiting for data requested by DREQ or PEND*/
     macMaxFrameRetries = 0x59,      /*<Integer 0–7*/
     macMinBE = 0x4f,                /*<Integer 0–macMaxBE*/
     macPANId = 0x50,                /*<PAN ID, 16 bits*/
-    macPromiscuousMode = 0x51,      /*<Boolean*/
     macResponseWaitTime = 0x5a,     /*<Integer 2–64  The maximum time in SuperFrameDurations to wait for responses*/
     macRxOnWhenIdle = 0x52,         /*<Boolean*/
     macSecurityEnabled = 0x5d,      /*<Boolean*/
     macShortAddress = 0x53,         /*<Short address, 16 bits*/
     macSuperframeOrder = 0x54,      /*<Integer 0–15, The length of the active portion of the outgoing super frame, 15 = none*/
-    macSyncSymbolOffset = 0x5b,     /*<Integer 0x000–0x100 (symbols) time stamp offset*/
-    macTimestampSupported = 0x5c,   /*<Boolean*/
-    macTransactionPersistenceTime = 0x55, /*<Integer 0x0000–0xffff (unit periods)*/
     macKeyTable = 0x71,             /*<A table of KeyDescriptor entries, each containing keys and related information required for secured communications.*/
     macKeyTableEntries = 0x72,      /*<The number of entries in macKeyTable.*/
     macDeviceTable = 0x73,          /*<List of Descriptor entries, each indicating a remote device*/
@@ -250,15 +239,11 @@ typedef enum {
     macSetDataWhitening = 0xf3,     /*< Enable or disable data whitening, boolean true for enable, false for disable */
     macCCAThresholdStart = 0xf4,    /*< Start automatic CCA threshold */
     mac802_15_4Mode = 0xf6,         /*<IEEE 802.15.4 mode*/
-    macDeviceDescriptionPanIDUpdate = 0xf7, /*<Thread pending link update case this will update device descrioton list pan-id to new one*/
     macTXPower = 0xf8,              /*<TX output power*/
     macCCAThreshold = 0xf9,         /*<CCA threshold*/
     macMultiCSMAParameters = 0xfa,  /*<Multi CSMA parameters*/
     macRfConfiguration = 0xfb,      /*<RF channel configuration parameters*/
     macAcceptByPassUnknowDevice = 0xfc,  /*< Accept data trough MAC if packet is data can be authenticated by group key nad MIC. Security enforsment point must be handled carefully these packets */
-    macLoadBalancingBeaconTx = 0xfd,  /*< Trig Beacon from load balance module periodic */
-    macLoadBalancingAcceptAnyBeacon = 0xfe, /*<Beacon accept state control from other network. Value size bool, data true=Enable, false=disable .*/
-    macThreadForceLongAddressForBeacon = 0xff /*<Thread standard force beacon source address for extended 64-bit*/
 } mlme_attr_t;
 
 /**

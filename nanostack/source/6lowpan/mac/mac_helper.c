@@ -406,35 +406,6 @@ int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, ml
             interface->mac_parameters->RxOnWhenIdle = value;
             break;
 
-        case macPromiscuousMode:
-            interface->mac_parameters->PromiscuousMode = value;
-            break;
-
-        case macGTSPermit:
-            interface->mac_parameters->GTSPermit = value;
-            break;
-
-        case macAssociationPermit:
-            interface->mac_parameters->AssociationPermit = value;
-            break;
-
-        case macAssociatedPANCoord:
-            interface->mac_parameters->AssociatedPANCoord = value;
-            break;
-
-        case macTimestampSupported:
-            interface->mac_parameters->TimestampSupported = value;
-            break;
-
-        case macBattLifeExt:
-            interface->mac_parameters->BattLifeExt = value;
-            break;
-
-        case macAutoRequest:
-            interface->mac_parameters->AutoRequest = value;
-            break;
-        case macThreadForceLongAddressForBeacon:
-            break;
         default:
             return -1;
     }

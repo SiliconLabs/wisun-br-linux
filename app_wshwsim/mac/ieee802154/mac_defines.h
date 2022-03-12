@@ -189,10 +189,8 @@ typedef struct protocol_interface_rf_mac_setup {
     /* MAC Capability Information */
     bool macCapRxOnIdle: 1;
     bool macCapCordinator: 1;
-    bool macCapAssocationPermit: 1;
     bool macCapBatteryPowered: 1;
     bool macCapSecrutityCapability: 1;
-    bool macGTSPermit: 1;
     bool mac_security_enabled: 1;
     /* Let trough packet which is secured properly (MIC authenticated group key)  and src address is 64-bit*/
     bool mac_security_bypass_unknow_device: 1;
@@ -242,9 +240,6 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_pre_parsed_frame_s *pd_rx_ack_buffer;
     /* MAC Beacon info */
     uint16_t allocated_ack_buffer_length;
-    uint16_t max_beacon_payload_length;
-    uint8_t *mac_beacon_payload;
-    uint8_t mac_beacon_payload_size;
     uint8_t mac_bea_sequence;
     uint8_t mac_sequence;
     uint8_t mac_tx_retry;
