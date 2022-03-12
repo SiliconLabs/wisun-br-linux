@@ -902,17 +902,6 @@ uint8_t mac_mlme_set_new_sqn(protocol_interface_rf_mac_setup_s *rf_setup)
     return ret_val;
 }
 
-uint8_t mac_mlme_set_new_beacon_sqn(protocol_interface_rf_mac_setup_s *rf_setup)
-{
-    uint8_t ret_val = 0;
-
-    if (rf_setup) {
-        rf_setup->mac_bea_sequence++;
-        ret_val = rf_setup->mac_bea_sequence;
-    }
-    return ret_val;
-}
-
 static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t pan_id)
 {
     phy_device_driver_s *dev_driver = rf_setup->dev_driver->phy_driver;

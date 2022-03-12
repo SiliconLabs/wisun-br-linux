@@ -86,7 +86,6 @@ struct protocol_interface_rf_mac_setup *mac_mlme_data_base_allocate(uint8_t *mac
 void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_mac);
 
 uint8_t mac_mlme_set_new_sqn(struct protocol_interface_rf_mac_setup *rf_setup);
-uint8_t mac_mlme_set_new_beacon_sqn(struct protocol_interface_rf_mac_setup *rf_setup);
 
 uint16_t mac_mlme_get_panid(struct protocol_interface_rf_mac_setup *rf_setup);
 

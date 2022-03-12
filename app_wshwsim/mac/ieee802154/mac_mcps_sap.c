@@ -1434,7 +1434,7 @@ static void mcps_generic_sequence_number_allocate(protocol_interface_rf_mac_setu
                 }
                 break;
             case MAC_FRAME_BEACON:
-                buffer->fcf_dsn.DSN = mac_mlme_set_new_beacon_sqn(rf_ptr);
+                 tr_error("Beacons are not supported");
                 break;
             default:
                 break;
