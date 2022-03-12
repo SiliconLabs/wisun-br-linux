@@ -126,36 +126,6 @@ void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_in
 
 }
 
-bool protocol_6lowpan_bootstrap_link_set(protocol_interface_info_entry_t *interface, mlme_pan_descriptor_t *pan_descriptor, const uint8_t *beacon_payload, uint8_t beacon_length)
-{
-    mlme_start_t start_req;
-    memset(&start_req, 0, sizeof(mlme_start_t));
-    mac_helper_coordinator_address_set(interface, (addrtype_t)pan_descriptor->CoordAddrMode, pan_descriptor->CoordAddress);
-
-    interface->mac_parameters->mac_channel = pan_descriptor->LogicalChannel;
-    interface->mac_parameters->pan_id = pan_descriptor->CoordPANId;
-
-    start_req.PANId = pan_descriptor->CoordPANId;
-    start_req.LogicalChannel = pan_descriptor->LogicalChannel;
-    start_req.ChannelPage = 0;
-    start_req.BeaconOrder = pan_descriptor->SuperframeSpec[0] >> 4;
-    start_req.SuperframeOrder = pan_descriptor->SuperframeSpec[0] & 0x0f;
-    //SET Beacon Payload
-    uint8_t *b_ptr = mac_helper_beacon_payload_reallocate(interface, beacon_length);
-    if (!b_ptr) {
-        tr_error("Beacon Payload allocate Fail");
-        bootstrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, interface);
-        return false;
-    }
-    memcpy(b_ptr, beacon_payload, beacon_length);
-    mac_helper_beacon_payload_register(interface);
-    //Start and set pan-id
-    interface->mac_api->mlme_req(interface->mac_api, MLME_START, &start_req);
-    mac_helper_panid_set(interface, pan_descriptor->CoordPANId);
-
-    return true;
-}
-
 void protocol_6lowpan_nd_borderrouter_connection_down(protocol_interface_info_entry_t *interface)
 {
     /*if (rpl_object_poisons() == 0) ??? */ {

@@ -80,16 +80,6 @@ void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *in
 
 addrtype_t mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
 
-/* Beacon Payload API */
-uint8_t *mac_helper_beacon_payload_reallocate(struct protocol_interface_info_entry *interface, uint8_t len);
-
-int8_t mac_helper_beacon_payload_register(struct protocol_interface_info_entry *interface);
-
-uint8_t *mac_helper_beacon_payload_pointer_get(struct protocol_interface_info_entry *interface);
-
-uint8_t mac_helper_beacon_payload_length_get(struct protocol_interface_info_entry *interface);
-/* Beacon Payload API end*/
-
 int8_t mac_helper_pib_boolean_set(struct protocol_interface_info_entry *interface, mlme_attr_t attribute, bool value);
 
 int8_t mac_helper_mac_channel_set(struct protocol_interface_info_entry *interface, uint8_t new_channel);

@@ -198,9 +198,6 @@ typedef struct arm_15_4_mac_parameters_t {
     mac_cordinator_s mac_cordinator_info;
     cca_threshold_table_s cca_thr_table;
     uint8_t number_of_fhss_channel_retries;
-    /* MAC Beacon info */
-    uint8_t *mac_beacon_payload;
-    uint8_t mac_beacon_payload_size;
     uint16_t mac_in_direct_entry_timeout;
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
