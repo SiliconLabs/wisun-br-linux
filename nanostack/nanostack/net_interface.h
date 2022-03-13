@@ -209,12 +209,6 @@ typedef struct net_tls_psk_info_s {
     uint8_t key[16];    /**< 128-bit PSK Key. */
 } net_tls_psk_info_s;
 
-/** NETWORK PSK link key structure. */
-typedef struct {
-    uint8_t key_id;             /**< Link layer PSK Key ID, can be 0x01-0xff. */
-    uint8_t security_key[16];   /**< Link layer 128-bit PSK Key. */
-} net_link_layer_psk_security_info_s;
-
 /** Certificate chain structure. */
 typedef struct {
     uint8_t chain_length;           /**< Certificate chain length, indicates the chain length. */
@@ -466,22 +460,6 @@ typedef uint8_t beacon_join_priority_tx_cb(int8_t interface_id);
   * \return Connect to preference. 0 to 255. 255 is highest connect to preference.
   */
 typedef uint8_t beacon_compare_rx_cb(int8_t interface_id, uint8_t join_priority, uint8_t link_quality);
-
-/**
-  * \brief Initialize and configure the interface security mode.
-  *
-  * \param interface_id Network interface ID.
-  * \param mode Defines link layer security mode.
-  *  NET_SEC_MODE_NO_LINK_SECURITY, No security.
-  *  NET_SEC_MODE_PSK_LINK_SECURITY, Predefined PSK link layer key and ID.
-  *
-  * \param sec_level Defined security level is checked only when the mode is not NET_SEC_MODE_NO_LINK_SECURITY.
-  * \param psk_key_info Pointer for PSK link layer keys. Checked only when the mode is NET_SEC_MODE_PSK_LINK_SECURITY.
-  *
-  * \return 0 on success.
-  */
-
-extern int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info);
 
 /**
  * \brief Start network interface bootstrap.

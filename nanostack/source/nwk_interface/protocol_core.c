@@ -392,7 +392,6 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     entry->bootStrapId = -1;
     entry->lowpan_address_mode = NET_6LOWPAN_GP64_ADDRESS;
     entry->ipv6_configure = NULL;
-    entry->if_lowpan_security_params = NULL;
     entry->if_ns_transmit = NULL;
     entry->if_common_forwarding_out_cb = NULL;
     entry->if_special_forwarding = NULL;
@@ -452,28 +451,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_init(&entry->ipv6_neighbour_cache.list);
 }
 
-
-
-static int lowpan_security_parameters_allocate(protocol_interface_info_entry_t *entry)
-{
-    entry->if_lowpan_security_params = ns_dyn_mem_alloc(sizeof(if_6lowpan_security_info_t));
-    if (!entry->if_lowpan_security_params) {
-        return -1;
-    }
-
-    entry->if_lowpan_security_params->security_level = 0;
-    entry->if_lowpan_security_params->mle_security_frame_counter = 0;
-    entry->if_lowpan_security_params->nwk_security_mode = NET_SEC_MODE_NO_LINK_SECURITY;
-    return 0;
-}
-
-static void lowpan_security_parameters_deallocate(protocol_interface_info_entry_t *entry)
-{
-    ns_dyn_mem_free(entry->if_lowpan_security_params);
-    entry->if_lowpan_security_params = NULL;
-
-}
-
 static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_interface_id nwk_id)
 {
     protocol_interface_info_entry_t *entry = ns_dyn_mem_alloc(sizeof(protocol_interface_info_entry_t));
@@ -505,10 +482,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
     }
 
     if (reassembly_interface_init(entry->id, 8, 5) != 0) {
-        goto interface_failure;
-    }
-
-    if (lowpan_security_parameters_allocate(entry) != 0) {
         goto interface_failure;
     }
 
@@ -545,7 +518,6 @@ interface_failure:
     lowpan_adaptation_interface_free(entry->id);
     reassembly_interface_free(entry->id);
     ns_dyn_mem_free(entry->mac_parameters);
-    lowpan_security_parameters_deallocate(entry);
     ns_dyn_mem_free(entry);
     entry = NULL;
     return NULL;

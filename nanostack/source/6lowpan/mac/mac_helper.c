@@ -632,17 +632,6 @@ int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr
     return mac_helper_key_link_frame_counter_read(interface_id, seq_ptr, cur->mac_parameters->mac_default_key_attribute_id);
 }
 
-int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !cur->mac_api) {
-        return -1;
-    }
-
-    return mac_helper_key_link_frame_counter_set(interface_id, seq_ptr, cur->mac_parameters->mac_default_key_attribute_id);
-}
-
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);

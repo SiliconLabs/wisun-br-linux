@@ -167,7 +167,6 @@ typedef struct mac_cordinator {
 
 typedef struct arm_15_4_mac_parameters_t {
     /* Security API USE */
-    unsigned mac_configured_sec_level: 3;
     unsigned mac_security_level: 3;
     unsigned mac_key_id_mode: 2;
     uint8_t mac_prev_key_index;
@@ -217,13 +216,6 @@ typedef struct if_6lowpan_dad_entry {
     uint8_t count;              // general count field - used by DAD, then can be used by protocol
     bool active;                // RFC 4941 temporary address
 } if_6lowpan_dad_entry_t;
-
-typedef struct if_6lowpan_security_info {
-    net_link_layer_psk_security_info_s psk_key_info;
-    uint32_t mle_security_frame_counter;
-    net_6lowpan_link_layer_sec_mode_e nwk_security_mode;
-    uint8_t security_level;
-} if_6lowpan_security_info_t;
 
 typedef enum {
     IPV6_LL_CONFIG,
@@ -347,7 +339,6 @@ struct protocol_interface_info_entry {
     struct red_info_s *llc_eapol_random_early_detection;
     struct ws_info_s *ws_info;
     struct rpl_domain *rpl_domain;
-    if_6lowpan_security_info_t *if_lowpan_security_params; //Security Parameters
 
     struct mac_api_s *mac_api;
     arm_15_4_mac_parameters_t *mac_parameters;

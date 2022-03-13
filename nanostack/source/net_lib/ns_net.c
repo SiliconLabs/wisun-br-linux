@@ -670,46 +670,6 @@ int8_t arm_nwk_interface_down(int8_t interface_id)
     return ret_val;
 }
 
-int8_t arm_nwk_link_layer_security_mode(int8_t interface_id, net_6lowpan_link_layer_sec_mode_e mode, uint8_t sec_level, const net_link_layer_psk_security_info_s *psk_key_info)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->mac_parameters || (cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED) == 0) {
-        return -1;
-    }
-
-    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        return -4;
-    }
-
-    cur->if_lowpan_security_params->nwk_security_mode = mode;
-    mac_helper_link_frame_counter_set(cur->id, 0); //This is maybe mistake
-
-    if (mode == NET_SEC_MODE_NO_LINK_SECURITY) {
-        cur->mac_parameters->mac_configured_sec_level = 0;
-        cur->if_lowpan_security_params->security_level = 0;
-        cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
-    } else {
-        if (sec_level == 0 || sec_level > 7) {
-            return -2;
-        }
-
-        cur->mac_parameters->mac_configured_sec_level = sec_level;
-        cur->if_lowpan_security_params->security_level = sec_level;
-
-        if (mode == NET_SEC_MODE_PSK_LINK_SECURITY) {
-            if (!psk_key_info) {
-                return -2;
-            }
-            //SET PSK KEY
-            cur->if_lowpan_security_params->psk_key_info = *psk_key_info;
-            cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
-        } else {
-            return -2;
-        }
-    }
-    return 0;
-}
-
 int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info)
 {
     int8_t ret = -2;

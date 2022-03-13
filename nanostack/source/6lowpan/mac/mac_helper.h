@@ -92,8 +92,6 @@ uint_fast8_t mac_helper_frame_overhead(struct protocol_interface_info_entry *cur
 
 int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr);
 
-int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr);
-
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor);
 
 int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor);
