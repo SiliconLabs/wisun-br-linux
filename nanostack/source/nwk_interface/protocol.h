@@ -80,40 +80,16 @@ extern void protocol_core_init(void);
 #define INTERFACE_SETUP_BORDER_ROUTER_MASK          11
 #define INTERFACE_SETUP_BORDER_ROUTER_READY         11
 typedef enum icmp_state {
-    ER_ACTIVE_SCAN  = 0,
-    ER_WARM_ACTIVE_SCAN  = 1,
-    ER_SCAN = 2,
-    ER_ADDRESS_REQ = 3,
-    ER_BIND_COMP = 4,
-    ER_RPL_MC       = 5,
-    ER_RPL_SCAN     = 6,
-    ER_RPL_UNICAST  = 7,
-    ER_DAO_TX       = 8,
-    ER_PANA_AUTH    = 9,
-    ER_PANA_AUTH_DONE   = 10,
-    ER_PANA_AUTH_ERROR  = 11,
-    ER_BIND_FAIL = 12,
-    ER_MLE_LINK_REQ = 13,
-    ER_MLE_LINK_SHORT_SYNCH = 14,
-    ER_MLE_LINK_ADDRESS_SYNCH = 15,
-    ER_ROUTER_SYNCH = 17,
-    ER_PANA_PING = 18,
-    ER_PARENT_SYNCH_LOST = 19,
-    ER_MLE_SCAN = 20,
-    ER_MLE_SYNCH = 21,
-    ER_MLE_ATTACH_READY = 22,
-    ER_DHCP_ROUTER_ID_REQ = 23,
-    ER_DHCP_ROUTER_ID_RELEASE = 24,
-    ER_CHILD_ID_REQ,
-    ER_BOOTSTRAP_DONE,
-    ER_BOOTSTRAP_CONNECTION_DOWN,
+    ER_ACTIVE_SCAN  = 0,    // State 1 Wi-SUN
+    ER_SCAN         = 2,    // State 3 Wi-SUN
+    ER_ADDRESS_REQ  = 3,
+    ER_BIND_COMP    = 4,
+    ER_RPL_SCAN     = 6,    // State 4 Wi-SUN
+    ER_PANA_AUTH    = 9,    // State 2 Wi-SUN
+    ER_BOOTSTRAP_DONE,      // State 5 Wi-SUN
     ER_BOOTSTRAP_IP_ADDRESS_ALLOC_FAIL,
     ER_BOOTSTRAP_DAD_FAIL,
-    ER_BOOTSTRAP_SCAN_FAIL,
-    ER_BOOTSTRAP_LEADER_UP,
-    ER_BOOTSTRAP_NEW_FRAGMENT_START,
     ER_WAIT_RESTART,
-    ER_RPL_LOCAL_REPAIR,
     ER_RPL_NETWORK_LEAVING,
 } icmp_state_t;
 
