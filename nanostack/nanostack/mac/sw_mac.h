@@ -38,13 +38,6 @@ struct phy_rf_statistics_s;
 extern struct mac_api_s *ns_sw_mac_create(int8_t rf_driver_id, struct mac_description_storage_size_s *storage_sizes);
 
 /**
- * @brief ns_sw_mac_virtual_client_unregister Unregisters virtual driver from 802.15.4 MAC
- * @param api API from which to unregister virtual driver
- * @return 0 if success, -1 if api is invalid
- */
-extern int8_t ns_sw_mac_virtual_client_unregister(struct mac_api_s *api);
-
-/**
  * @brief Registers created FHSS API instance to given software MAC instance.
  * @param mac_api MAC instance.
  * @param fhss_api FHSS instance.

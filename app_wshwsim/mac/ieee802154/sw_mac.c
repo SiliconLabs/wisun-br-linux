@@ -38,7 +38,6 @@
 typedef struct mac_internal_s {
     mac_api_t *mac_api;
     arm_device_driver_list_s *dev_driver;
-    arm_device_driver_list_s *virtual_driver;
     //Move define inside MAC (now in protocol_abstract.h)
     struct protocol_interface_rf_mac_setup *setup;
     uint8_t device_table_size;
@@ -136,7 +135,6 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     this->mac_storage_sizes_get = &sw_mac_storage_description_sizes_get;
 
     mac_store.mac_api = this;
-    mac_store.virtual_driver = NULL;
     return this;
 }
 
@@ -146,19 +144,6 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api_s, bool 
         return -1;
     }
     return mac_sec_mib_frame_counter_per_key_set(mac_store.setup, enable_feature);
-}
-
-int8_t ns_sw_mac_virtual_client_unregister(mac_api_t *api)
-{
-    if (!api || api != mac_store.mac_api) {
-        return -1;
-    }
-
-    if (mac_store.virtual_driver) {
-        mac_store.virtual_driver->phy_sap_identifier = NULL;
-        mac_store.virtual_driver = NULL;
-    }
-    return 0;
 }
 
 int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
