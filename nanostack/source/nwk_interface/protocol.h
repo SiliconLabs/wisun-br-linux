@@ -301,7 +301,7 @@ struct protocol_interface_info_entry {
     uint8_t mac[8]; // MAC address (EUI-64 for LoWPAN, EUI-48 for Ethernet)
 
     interface_mode_t interface_mode;
-    ipv6_interface_info_t *ipv6_configure;
+    ipv6_interface_info_t ipv6_configure;
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;

@@ -167,8 +167,8 @@ int ipv6_generate_static_gp_setup(protocol_interface_info_entry_t *cur, bool tem
 #ifdef WHITEBOARD
                 whiteboard_interface_register(static_address, cur->id);
 #endif
-                if (cur->ipv6_configure->IPv6_ND_state != IPV6_GP_CONFIG) {
-                    cur->ipv6_configure->IPv6_ND_state = IPV6_GP_CONFIG;
+                if (cur->ipv6_configure.IPv6_ND_state != IPV6_GP_CONFIG) {
+                    cur->ipv6_configure.IPv6_ND_state = IPV6_GP_CONFIG;
                     cur->global_address_available = true;
                 }
                 ret_val = 0;
@@ -315,29 +315,29 @@ static buffer_t *ethernet_up(buffer_t *buf)
 
 static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
 {
-    switch (cur->ipv6_configure->IPv6_ND_state) {
+    switch (cur->ipv6_configure.IPv6_ND_state) {
         case IPV6_LL_CONFIG:
             if (addr_interface_set_ll64(cur, ipv6_interface_address_cb) != 0) {
-                cur->ipv6_configure->ND_TIMER = 1;
+                cur->ipv6_configure.ND_TIMER = 1;
             }
             break;
 
         case IPV6_ROUTER_SOLICATION:
             if (ipv6_nd_rs(cur)) {
                 tr_debug("Waiting for ICMPv6 Router Advertisement");
-                if (cur->ipv6_configure->routerSolicationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
-                    cur->ipv6_configure->routerSolicationRetryCounter++;
+                if (cur->ipv6_configure.routerSolicationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
+                    cur->ipv6_configure.routerSolicationRetryCounter++;
                 }
             }
-            if (cur->ipv6_configure->routerSolicationRetryCounter == 0) {
-                cur->ipv6_configure->routerSolicationRetryCounter++;
+            if (cur->ipv6_configure.routerSolicationRetryCounter == 0) {
+                cur->ipv6_configure.routerSolicationRetryCounter++;
             }
-            cur->ipv6_configure->ND_TIMER = (cur->ipv6_configure->routerSolicationRetryCounter * 25);
+            cur->ipv6_configure.ND_TIMER = (cur->ipv6_configure.routerSolicationRetryCounter * 25);
             break;
 
         case IPV6_GP_GEN:
             if (ipv6_generate_static_gp_setup(cur, false) != 0) {
-                cur->ipv6_configure->ND_TIMER = 1;
+                cur->ipv6_configure.ND_TIMER = 1;
             }
             break;
         case IPV6_GP_CONFIG:
@@ -346,11 +346,11 @@ static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
         case IPV6_DHCPV6_SOLICATION:
 //              if(dhcpv6_non_temporal_address_solication(cur) == 0)
 //              {
-//                  cur->ipv6_configure->ND_TIMER = 0;
+//                  cur->ipv6_configure.ND_TIMER = 0;
 //              }
 //              else
 //              {
-//                  cur->ipv6_configure->ND_TIMER = 1;
+//                  cur->ipv6_configure.ND_TIMER = 1;
 //              }
             break;
 
@@ -410,7 +410,7 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
     if (!cur) {
         return;
     }
-    if (cur->ipv6_configure->ipv6_stack_mode != NET_IPV6_BOOTSTRAP_STATIC) {
+    if (cur->ipv6_configure.ipv6_stack_mode != NET_IPV6_BOOTSTRAP_STATIC) {
         return;
     }
 
@@ -511,7 +511,7 @@ void ipv6_prefix_on_link_update(uint8_t *address)
     protocol_interface_info_entry_t *cur = nwk_interface_get_ipv6_ptr();
     if (cur) {
         //Call IPv6 Onlink Update
-        if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+        if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
             ipv6_stack_prefix_on_link_update(cur, address);
         }
     }
@@ -532,7 +532,7 @@ void ipv6_prefix_on_link_remove(uint8_t *address)
 {
     protocol_interface_info_entry_t *cur = nwk_interface_get_ipv6_ptr();
     if (cur) {
-        if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+        if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
             ipv6_stack_prefix_on_link_remove(cur, address);
         }
     }
@@ -544,7 +544,7 @@ void ipv6_stack_route_advert_remove(uint8_t *address, uint8_t prefixLength)
     if (!cur) {
         return;
     }
-    if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+    if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
             if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
                 cur_prefix->prefix_valid_ttl = 0;
@@ -573,22 +573,20 @@ void ipv6_rote_advert_list_free(void)
 
 void ipv6_core_slow_timer_event_handle(struct protocol_interface_info_entry *cur)
 {
-    if (cur->ipv6_configure) {
-        protocol_interface_info_entry_t *curRegisteredInterface;
-        if (cur->ipv6_configure->wb_table_ttl-- == 1) {
-            //tr_debug("WB Table TTL");
-            whiteboard_ttl_update(WB_UPDATE_PERIOD_SECONDS);
-            cur->ipv6_configure->wb_table_ttl   = WB_UPDATE_PERIOD_SECONDS;
-        }
+    protocol_interface_info_entry_t *curRegisteredInterface;
+    if (cur->ipv6_configure.wb_table_ttl-- == 1) {
+        //tr_debug("WB Table TTL");
+        whiteboard_ttl_update(WB_UPDATE_PERIOD_SECONDS);
+        cur->ipv6_configure.wb_table_ttl   = WB_UPDATE_PERIOD_SECONDS;
+    }
 
-        if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+    if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
 
-            if (cur->global_address_available) {
-                curRegisteredInterface = protocol_stack_interface_info_get(IF_6LoWPAN);
-                if (curRegisteredInterface) {
+        if (cur->global_address_available) {
+            curRegisteredInterface = protocol_stack_interface_info_get(IF_6LoWPAN);
+            if (curRegisteredInterface) {
 
-                    ipv6_prefix_on_link_list_add_by_interface_address_list(cur, curRegisteredInterface);
-                }
+                ipv6_prefix_on_link_list_add_by_interface_address_list(cur, curRegisteredInterface);
             }
         }
     }
@@ -597,8 +595,8 @@ void ipv6_core_slow_timer_event_handle(struct protocol_interface_info_entry *cur
 void ipv6_core_timer_event_handle(protocol_interface_info_entry_t *cur, const uint8_t event)
 {
     (void)event;
-    if (cur->ipv6_configure->ND_TIMER) {
-        if (cur->ipv6_configure->ND_TIMER-- == 1) {
+    if (cur->ipv6_configure.ND_TIMER) {
+        if (cur->ipv6_configure.ND_TIMER-- == 1) {
             //Call ND State Machine
             ipv6_nd_bootstrap(cur);
         }
@@ -621,9 +619,7 @@ int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address)
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return -1;
-    } else if (!cur->ipv6_configure) {
-        return -1;
-    } else if (cur->ipv6_configure->IPv6_ND_state != IPV6_READY) {
+    } else if (cur->ipv6_configure.IPv6_ND_state != IPV6_READY) {
         return -1;
     }
 
@@ -648,10 +644,10 @@ int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur)
         return -1;
     }
 
-    if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+    if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         uint32_t lifeTime, prefLifetime;
         uint8_t pre_options;
-        memcpy(&ipv6_interface_adr[0], cur->ipv6_configure->static_prefix64, 8);
+        memcpy(&ipv6_interface_adr[0], cur->ipv6_configure.static_prefix64, 8);
         memcpy(&ipv6_interface_adr[8], cur->iid_eui64, 8);
         prefix_entry_t *new_entry = 0;
         // Treat the prefix like a "route", so 3 * advert interval, not 30 days
@@ -674,11 +670,11 @@ int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur)
         icmpv6_recv_ra_prefixes(cur, false);
     }
 
-    cur->ipv6_configure->IPv6_ND_state = IPV6_LL_CONFIG;
-    cur->ipv6_configure->ND_TIMER = 1;
+    cur->ipv6_configure.IPv6_ND_state = IPV6_LL_CONFIG;
+    cur->ipv6_configure.ND_TIMER = 1;
 
-    cur->ipv6_configure->routerSolicationRetryCounter = 0;
-    cur->ipv6_configure->wb_table_ttl       = WB_UPDATE_PERIOD_SECONDS;
+    cur->ipv6_configure.routerSolicationRetryCounter = 0;
+    cur->ipv6_configure.wb_table_ttl       = WB_UPDATE_PERIOD_SECONDS;
     icmpv6_radv_disable(cur);
 
     tr_debug("IPV6 interface Base Ready");
@@ -713,7 +709,7 @@ int8_t ipv6_interface_down(protocol_interface_info_entry_t *cur)
     ipv6_stack_route_advert_dns_server_delete(NULL);
     ipv6_route_table_remove_interface(cur->id);
     protocol_core_interface_info_reset(cur);
-    cur->ipv6_configure->wb_table_ttl = 0;
+    cur->ipv6_configure.wb_table_ttl = 0;
     cur->lowpan_info &= ~INTERFACE_NWK_ACTIVE;
     cur->global_address_available = false;
     //Clear all generated proxies
@@ -995,15 +991,15 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
     switch (reason) {
         case ADDR_CALLBACK_DAD_COMPLETE:
             tr_debug("DAD OK");
-            switch (interface->ipv6_configure->IPv6_ND_state) {
+            switch (interface->ipv6_configure.IPv6_ND_state) {
                 case IPV6_LL_CONFIG:
-                    if (interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-                        interface->ipv6_configure->IPv6_ND_state = IPV6_GP_GEN;
+                    if (interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+                        interface->ipv6_configure.IPv6_ND_state = IPV6_GP_GEN;
                     } else {
-                        interface->ipv6_configure->IPv6_ND_state = IPV6_ROUTER_SOLICATION;
+                        interface->ipv6_configure.IPv6_ND_state = IPV6_ROUTER_SOLICATION;
                     }
 
-                    interface->ipv6_configure->ND_TIMER = 1;
+                    interface->ipv6_configure.ND_TIMER = 1;
                     break;
 
                 case IPV6_GP_CONFIG:
@@ -1017,8 +1013,8 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                     }
 
                     // Enable RA route and prefix processing for static configuration mode if RA accept always is enabled
-                    if (interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC &&
-                            interface->ipv6_configure->accept_ra == NET_IPV6_RA_ACCEPT_ALWAYS) {
+                    if (interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC &&
+                            interface->ipv6_configure.accept_ra == NET_IPV6_RA_ACCEPT_ALWAYS) {
                         icmpv6_recv_ra_routes(interface, true);
                         icmpv6_recv_ra_prefixes(interface, true);
                     }
@@ -1030,11 +1026,11 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
 
                 default:
                     /* No special action for subsequent addresses after initial bootstrap */
-                    if (interface->global_address_available && interface->ipv6_configure->temporaryUlaAddressState) {
+                    if (interface->global_address_available && interface->ipv6_configure.temporaryUlaAddressState) {
                         if (addr_ipv6_scope(addr->address, interface) == IPV6_SCOPE_GLOBAL) {
                             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             tr_debug("Learn Real Global Scope");
-                            interface->ipv6_configure->temporaryUlaAddressState = false;
+                            interface->ipv6_configure.temporaryUlaAddressState = false;
                             /* We will need proxy both mode currently future static mode should not need proxy */
                             nd_proxy_upstream_interface_register(interface->id, ipv6_interface_route_validate);
                         }
@@ -1045,7 +1041,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
 
         case ADDR_CALLBACK_PARENT_FULL:
         case ADDR_CALLBACK_DAD_FAILED:
-            switch (interface->ipv6_configure->IPv6_ND_state) {
+            switch (interface->ipv6_configure.IPv6_ND_state) {
                 case IPV6_LL_CONFIG:
                     tr_warn("No Valid LLaddress..Turn OFF Interface and Push DAD Event");
                     nwk_bootstrap_state_update(ARM_NWK_DUPLICATE_ADDRESS_DETECTED, interface);
@@ -1073,11 +1069,11 @@ void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, const ui
     if_address_entry_t *address_entry = icmpv6_slaac_address_add(cur, slaacPrefix, prefixLen, validLifeTime, preferredLifeTime, false, SLAAC_IID_DEFAULT);
     if (address_entry) {
         address_entry->cb = ipv6_interface_address_cb;
-        if (cur->ipv6_configure && cur->ipv6_configure->IPv6_ND_state == IPV6_ROUTER_SOLICATION) {
-            cur->ipv6_configure->IPv6_ND_state = IPV6_GP_CONFIG;
+        if (cur->ipv6_configure.IPv6_ND_state == IPV6_ROUTER_SOLICATION) {
+            cur->ipv6_configure.IPv6_ND_state = IPV6_GP_CONFIG;
         }
         // If DAD not enabled address is valid right away
-        if (cur->ipv6_configure && cur->dup_addr_detect_transmits == 0) {
+        if (cur->dup_addr_detect_transmits == 0) {
             address_entry->cb(cur, address_entry, ADDR_CALLBACK_DAD_COMPLETE);
         }
     }
@@ -1100,11 +1096,11 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
 
     switch (bootstrap_mode) {
         case NET_IPV6_BOOTSTRAP_STATIC:
-            memcpy(cur->ipv6_configure->static_prefix64, ipv6_prefix_pointer, 8);
+            memcpy(cur->ipv6_configure.static_prefix64, ipv6_prefix_pointer, 8);
         /* fall through */
         case NET_IPV6_BOOTSTRAP_AUTONOMOUS:
             cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER;
-            cur->ipv6_configure->ipv6_stack_mode = bootstrap_mode;
+            cur->ipv6_configure.ipv6_stack_mode = bootstrap_mode;
             break;
         default:
             break;
@@ -1115,11 +1111,11 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
 int8_t ipv6_interface_accept_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ipv6_configure) {
+    if (!cur) {
         return -1;
     }
 
-    cur->ipv6_configure->accept_ra = accept_ra;
+    cur->ipv6_configure.accept_ra = accept_ra;
 
     return 0;
 }

@@ -400,12 +400,12 @@ static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
 
     protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
 
-    if (bb_interface && bb_interface->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+    if (bb_interface && bb_interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
-            if (bitsequal(addr->address, bb_interface->ipv6_configure->static_prefix64, 64)) {
+            if (bitsequal(addr->address, bb_interface->ipv6_configure.static_prefix64, 64)) {
                 // static address available in interface copy the prefix and return the address
                 if (dodag_id_ptr) {
-                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure->static_prefix64, 8);
+                    memcpy(dodag_id_ptr, bb_interface->ipv6_configure.static_prefix64, 8);
                 }
                 return addr->address;
             }

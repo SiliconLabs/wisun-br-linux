@@ -392,7 +392,6 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     }
     entry->bootStrapId = -1;
     entry->lowpan_address_mode = NET_6LOWPAN_GP64_ADDRESS;
-    entry->ipv6_configure = NULL;
     entry->if_ns_transmit = NULL;
     entry->if_common_forwarding_out_cb = NULL;
     entry->if_special_forwarding = NULL;
@@ -529,14 +528,10 @@ static void protocol_6lowpan_mac_set(protocol_interface_info_entry_t *cur, const
 #ifdef HAVE_ETHERNET
 static bool protocol_ipv6_setup_allocate(protocol_interface_info_entry_t *entry)
 {
-    entry->ipv6_configure = ns_dyn_mem_alloc(sizeof(ipv6_interface_info_t));
-    if (entry->ipv6_configure) {
-        entry->lowpan_info = INTERFACE_NWK_ROUTER_DEVICE;
-        memset(entry->ipv6_configure, 0, sizeof(ipv6_interface_info_t));
-        entry->ipv6_configure->temporaryUlaAddressState = false;
-        return true;
-    }
-    return false;
+    entry->lowpan_info = INTERFACE_NWK_ROUTER_DEVICE;
+    memset(&entry->ipv6_configure, 0, sizeof(ipv6_interface_info_t));
+    entry->ipv6_configure.temporaryUlaAddressState = false;
+    return true;
 }
 
 static protocol_interface_info_entry_t *protocol_core_interface_ethernet_entry_get(eth_mac_api_t *api)
@@ -946,16 +941,14 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST:
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER:
 #ifdef HAVE_ETHERNET
-                if (cur->ipv6_configure) {
-                    cur->ipv6_configure->IPv6_ND_state = IPV6_READY;
-                    if (cur->ipv6_configure->ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-                        addr_add_router_groups(cur);
-                        icmpv6_radv_enable(cur);//Activate RA send only with static enviroment
-                        icmpv6_restart_router_advertisements(cur, ADDR_UNSPECIFIED);
-                        if (cur->ipv6_configure->accept_ra != NET_IPV6_RA_ACCEPT_ALWAYS) {
-                            icmpv6_recv_ra_routes(cur, false); // removes all existing RADV routes
-                            icmpv6_recv_ra_prefixes(cur, false);
-                        }
+                cur->ipv6_configure.IPv6_ND_state = IPV6_READY;
+                if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
+                    addr_add_router_groups(cur);
+                    icmpv6_radv_enable(cur);//Activate RA send only with static enviroment
+                    icmpv6_restart_router_advertisements(cur, ADDR_UNSPECIFIED);
+                    if (cur->ipv6_configure.accept_ra != NET_IPV6_RA_ACCEPT_ALWAYS) {
+                        icmpv6_recv_ra_routes(cur, false); // removes all existing RADV routes
+                        icmpv6_recv_ra_prefixes(cur, false);
                     }
                 }
 #endif
