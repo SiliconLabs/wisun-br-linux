@@ -361,7 +361,6 @@ struct protocol_interface_info_entry {
 
     interface_mode_t interface_mode;
     ipv6_interface_info_t *ipv6_configure;
-    struct auth_info *pana_sec_info_temp;
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
     struct red_info_s *llc_eapol_random_early_detection;

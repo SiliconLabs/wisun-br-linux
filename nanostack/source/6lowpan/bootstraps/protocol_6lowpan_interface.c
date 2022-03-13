@@ -84,10 +84,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
 
         icmp_nd_routers_init();
 
-        if (cur->pana_sec_info_temp) {
-            ns_dyn_mem_free(cur->pana_sec_info_temp);
-            cur->pana_sec_info_temp = 0;
-        }
         /* Init RPL Timers */
         cur->bootstrap_state_machine_cnt = 0;
 

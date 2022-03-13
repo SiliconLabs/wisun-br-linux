@@ -425,7 +425,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
 {
     entry->configure_flags = 0;
     entry->bootstrap_state_machine_cnt = 0;
-    entry->pana_sec_info_temp = NULL;
     entry->global_address_available = false;
     entry->reallocate_short_address_if_duplicate = true;
     entry->iids_map_to_mac = false;
