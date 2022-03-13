@@ -30,10 +30,6 @@ struct mac_api_s;
 
 extern uint16_t test_6lowpan_fragmentation_mtu_size_override;
 
-struct nwk_pan_descriptor_t *mac_helper_select_best_lqi(struct nwk_pan_descriptor_t *list);
-
-struct nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(struct nwk_pan_descriptor_t *nwk_cur_active);
-
 void mac_helper_panid_set(struct protocol_interface_info_entry *interface, uint16_t panId);
 
 void mac_helper_mac16_address_set(struct protocol_interface_info_entry *interface, uint16_t mac16);
@@ -58,21 +54,11 @@ uint8_t mac_helper_default_key_index_get(struct protocol_interface_info_entry *i
 
 int8_t mac_helper_security_default_key_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode);
 
-int8_t mac_helper_security_default_recv_key_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode);
-
 int8_t mac_helper_security_auto_request_key_index_set(struct protocol_interface_info_entry *interface, uint8_t key_attibute_index, uint8_t id);
-
-int8_t mac_helper_security_next_key_set(struct protocol_interface_info_entry *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode);
-
-int8_t mac_helper_security_prev_key_set(struct protocol_interface_info_entry *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode);
 
 int8_t mac_helper_security_key_to_descriptor_set(struct protocol_interface_info_entry *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
 
 int8_t mac_helper_security_key_descriptor_clear(struct protocol_interface_info_entry *interface, uint8_t descriptor);
-
-void mac_helper_security_key_swap_next_to_default(struct protocol_interface_info_entry *interface);
-
-void mac_helper_security_key_clean(struct protocol_interface_info_entry *interface);
 
 void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, addrtype_t adr_type, uint8_t *adr_ptr);
 

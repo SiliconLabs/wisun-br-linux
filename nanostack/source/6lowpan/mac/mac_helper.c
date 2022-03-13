@@ -66,30 +66,6 @@ static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface
     return 0;
 }
 
-nwk_pan_descriptor_t *mac_helper_select_best_lqi(nwk_pan_descriptor_t *list)
-{
-    nwk_pan_descriptor_t *best = list;
-    //Analyze Best Result
-    while (list) {
-        tr_debug("LinkQuality: %i, LogicalCh: %i", list->pan_descriptor->LinkQuality, list->pan_descriptor->LogicalChannel);
-        if (best->pan_descriptor->LinkQuality < list->pan_descriptor->LinkQuality) {
-            best = list;
-        }
-        list = list->next;
-    }
-    return best;
-}
-
-nwk_pan_descriptor_t *mac_helper_free_pan_descriptions(nwk_pan_descriptor_t *nwk_cur_active)
-{
-    if (nwk_cur_active) {
-        ns_dyn_mem_free(nwk_cur_active->pan_descriptor);
-        ns_dyn_mem_free(nwk_cur_active->beacon_payload);
-        ns_dyn_mem_free(nwk_cur_active);
-    }
-    return NULL;
-}
-
 void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t panId)
 {
     interface->mac_parameters->pan_id = panId;
@@ -229,16 +205,6 @@ int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *inte
     return 0;
 }
 
-int8_t mac_helper_security_default_recv_key_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
-{
-    if (id == 0 || keyid_mode > 3) {
-        return -1;
-    }
-
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters->mac_default_key_attribute_id);
-    return 0;
-}
-
 int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t key_attibute_index, uint8_t id)
 {
     if (id == 0) {
@@ -247,30 +213,6 @@ int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_en
     interface->mac_parameters->mac_default_key_attribute_id = key_attibute_index;
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
     return 0;
-}
-
-int8_t mac_helper_security_next_key_set(protocol_interface_info_entry_t *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode)
-{
-    if (id == 0 || keyid_mode > 3) {
-        return -1;
-    }
-
-    interface->mac_parameters->mac_next_key_index = id;
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters->mac_next_key_attribute_id);
-    return 0;
-
-}
-
-int8_t mac_helper_security_prev_key_set(protocol_interface_info_entry_t *interface, uint8_t *key, uint8_t id, uint8_t keyid_mode)
-{
-    if (id == 0 || keyid_mode > 3) {
-        return -1;
-    }
-
-    interface->mac_parameters->mac_prev_key_index = id;
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters->mac_prev_key_attribute_id);
-    return 0;
-
 }
 
 int8_t mac_helper_security_key_to_descriptor_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
@@ -299,56 +241,6 @@ int8_t mac_helper_security_key_descriptor_clear(protocol_interface_info_entry_t 
     set_req.attr_index = descriptor;
     interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
     return 0;
-}
-
-void mac_helper_security_key_swap_next_to_default(protocol_interface_info_entry_t *interface)
-{
-    //Free old prev key
-    /*
-     * Update key setup next way
-     *
-     * Current Key -> Prev key
-     * Next Key -> Current key
-     * Prev Key ->Overwrite by for next Purpose
-     */
-
-
-    //Free current prev
-    mac_helper_keytable_descriptor_set(interface->mac_api, NULL, 0, interface->mac_parameters->mac_prev_key_attribute_id);
-
-    uint8_t prev_attribute = interface->mac_parameters->mac_prev_key_attribute_id; //save current pre for next purpose
-
-    interface->mac_parameters->mac_prev_key_index = interface->mac_parameters->mac_default_key_index;
-    interface->mac_parameters->mac_prev_key_attribute_id = interface->mac_parameters->mac_default_key_attribute_id;
-
-    mac_helper_security_auto_request_key_index_set(interface, interface->mac_parameters->mac_next_key_attribute_id, interface->mac_parameters->mac_next_key_index);
-
-    interface->mac_parameters->mac_next_key_index = 0;
-    interface->mac_parameters->mac_next_key_attribute_id = prev_attribute;
-
-}
-
-void mac_helper_security_key_clean(protocol_interface_info_entry_t *interface)
-{
-    if (interface->mac_api) {
-        mlme_set_t set_req;
-        mlme_key_descriptor_entry_t key_description;
-        memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-
-        set_req.attr = macKeyTable;
-
-        set_req.value_pointer = &key_description;
-        set_req.value_size = sizeof(mlme_key_descriptor_entry_t);
-        set_req.attr_index = interface->mac_parameters->mac_prev_key_attribute_id;
-        interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-        set_req.attr_index = interface->mac_parameters->mac_default_key_attribute_id;
-        interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-        set_req.attr_index = interface->mac_parameters->mac_next_key_attribute_id;
-        interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-    }
-    interface->mac_parameters->mac_prev_key_index = 0;
-    interface->mac_parameters->mac_default_key_index = 0;
-    interface->mac_parameters->mac_next_key_index = 0;
 }
 
 void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interface, addrtype_t adr_type, uint8_t *adr_ptr)
