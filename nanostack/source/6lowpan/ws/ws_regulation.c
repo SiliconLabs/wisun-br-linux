@@ -21,6 +21,7 @@
 #include "ws_regulation.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "nwk_interface/protocol.h"
+#include "common/utils.h"
 
 /** Represent API for one regional regulation. */
 typedef struct ws_regulation_entry_s {
@@ -56,7 +57,7 @@ int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {
   protocol_interface_info_entry_t *cur;
   cur = protocol_stack_interface_info_get_by_id(interface_id);
-  if (!cur || !ws_info(cur)) {
+  if (!cur || !ws_info(cur) || regulation >= ARRAY_SIZE(ws_regulations)) {
     return -1;
   }
   cur->ws_info->regulation_ctxt.regulation = regulation;
