@@ -845,7 +845,7 @@ static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setu
     return dev_driver->address_write(PHY_MAC_PANID, temp_8);
 }
 
-static void mac_mle_write_mac16_to_phy(phy_device_driver_s *dev_driver, uint16_t mac16)
+static void mac_mlme_write_mac16_to_phy(phy_device_driver_s *dev_driver, uint16_t mac16)
 {
     uint8_t temp[2];
     common_write_16_bit(mac16, temp);
@@ -866,7 +866,7 @@ static int8_t mac_mlme_set_mac16(struct protocol_interface_rf_mac_setup *rf_setu
         } else {
             rf_setup->shortAdressValid = true;
         }
-        mac_mle_write_mac16_to_phy(rf_setup->dev_driver->phy_driver, mac16);
+        mac_mlme_write_mac16_to_phy(rf_setup->dev_driver->phy_driver, mac16);
         ret_val = 0;
     }
     return ret_val;
