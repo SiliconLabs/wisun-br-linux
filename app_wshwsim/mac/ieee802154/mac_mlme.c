@@ -165,7 +165,6 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
     mac_mlme_mac_radio_disabled(rf_mac_setup);
     mac_mlme_set_active_state(rf_mac_setup, false);
     mac_mcps_buffer_queue_free(rf_mac_setup);
-    rf_mac_setup->macProminousMode = false;
     rf_mac_setup->macWaitingData = false;
     rf_mac_setup->macDataPollReq = false;
     rf_mac_setup->macRxDataAtPoll = false;
@@ -195,10 +194,6 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
 
         case macRxOnWhenIdle:
             rf_mac_setup->macCapRxOnIdle = value;
-            break;
-
-        case macPromiscuousMode:
-            rf_mac_setup->macProminousMode = value;
             break;
 
         case macGTSPermit:
@@ -1050,12 +1045,7 @@ static int8_t mac_mlme_rf_receiver_enable(struct protocol_interface_rf_mac_setup
         return 0;
     }
 
-    if (rf_mac_setup->macProminousMode) {
-        tr_debug("Sniffer mode");
-        retval = dev_driver->state_control(PHY_INTERFACE_SNIFFER_STATE, rf_mac_setup->mac_channel);
-    } else {
-        retval = dev_driver->state_control(PHY_INTERFACE_UP, rf_mac_setup->mac_channel);
-    }
+    retval = dev_driver->state_control(PHY_INTERFACE_UP, rf_mac_setup->mac_channel);
     rf_mac_setup->macRfRadioOn = true;
     //tr_debug("Enable radio with channel %u", rf_mac_setup->mac_channel);
     return retval;

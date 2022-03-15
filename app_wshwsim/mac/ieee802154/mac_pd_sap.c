@@ -950,7 +950,7 @@ static mac_pre_parsed_frame_t *mac_pd_sap_allocate_receive_buffer(protocol_inter
 {
     // Unless receiving Ack, check that system has enough space to handle the new packet
     mac_pre_parsed_frame_t *buffer = NULL;
-    if (fcf_read->frametype != FC_ACK_FRAME || rf_ptr->macProminousMode) {
+    if (fcf_read->frametype != FC_ACK_FRAME) {
         buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
         if (!buffer) {
 #ifdef __linux__
@@ -1095,120 +1095,115 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
             goto ERROR_HANDLER;
         }
 
-        if (!rf_ptr->macProminousMode) {
-            //Pre validate things before allocate buffer
-            if (mac_pd_sap_validate_fcf(rf_ptr, &fcf_read, pd_data_ind)) {
-                goto ERROR_HANDLER;
-            }
-            if (!mac_pd_sap_rx_filter(pd_data_ind->data_ptr, &fcf_read, rf_ptr->mac_frame_filters, rf_ptr->mac64, rf_ptr->mac_short_address, rf_ptr->pan_id)) {
-                pd_data_ind->data_len = 0; // Do not update RX drop in that case
-                goto ERROR_HANDLER;
-            }
-            //Ack can be send even buffer allocate fail
-            if (mac_pd_sap_generate_ack(rf_ptr, &fcf_read, pd_data_ind)) {
-#ifdef __linux__
-                tr_debug("Drop a Data by ignored ACK generation");
-#endif
-                goto ERROR_HANDLER;
-            }
-            if (fcf_read.frametype == FC_ACK_FRAME && mac_data_interface_waiting_ack(rf_ptr, &fcf_read)) {
-#ifdef __linux__
-                tr_debug("Drop a ACK not a proper DSN");
-#endif
-                goto ERROR_HANDLER;
-            }
-
+        //Pre validate things before allocate buffer
+        if (mac_pd_sap_validate_fcf(rf_ptr, &fcf_read, pd_data_ind)) {
+            goto ERROR_HANDLER;
         }
+        if (!mac_pd_sap_rx_filter(pd_data_ind->data_ptr, &fcf_read, rf_ptr->mac_frame_filters, rf_ptr->mac64, rf_ptr->mac_short_address, rf_ptr->pan_id)) {
+            pd_data_ind->data_len = 0; // Do not update RX drop in that case
+            goto ERROR_HANDLER;
+        }
+        //Ack can be send even buffer allocate fail
+        if (mac_pd_sap_generate_ack(rf_ptr, &fcf_read, pd_data_ind)) {
+#ifdef __linux__
+            tr_debug("Drop a Data by ignored ACK generation");
+#endif
+            goto ERROR_HANDLER;
+        }
+        if (fcf_read.frametype == FC_ACK_FRAME && mac_data_interface_waiting_ack(rf_ptr, &fcf_read)) {
+#ifdef __linux__
+            tr_debug("Drop a ACK not a proper DSN");
+#endif
+            goto ERROR_HANDLER;
+        }
+
         //Allocate Buffer
         buffer = mac_pd_sap_allocate_receive_buffer(rf_ptr, &fcf_read, pd_data_ind);
 
-        if (!rf_ptr->macProminousMode) {
-
-            if (buffer) {
-                if (mac_pd_sap_parse_length_fields(buffer, pd_data_ind, ptr)) {
-                    goto ERROR_HANDLER;
+        if (buffer) {
+            if (mac_pd_sap_parse_length_fields(buffer, pd_data_ind, ptr)) {
+                goto ERROR_HANDLER;
+            }
+            if (!mac_header_information_elements_parse(buffer)) {
+                goto ERROR_HANDLER;
+            }
+            if (buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
+                if (mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
+                    mcps_sap_pre_parsed_frame_buffer_free(buffer);
                 }
-                if (!mac_header_information_elements_parse(buffer)) {
-                    goto ERROR_HANDLER;
+                return 0;
+            }
+            if (rf_ptr->mac_edfe_enabled && !fcf_read.ackRequested && fcf_read.frameVersion == MAC_FRAME_VERSION_2015 && buffer->fcf_dsn.frametype == FC_DATA_FRAME) {
+                mcps_edfe_response_t response;
+                mac_api_t *mac_api = get_sw_mac_api(rf_ptr);
+                response.ie_elements.payloadIeList = buffer->payloadsIePtr;
+                response.ie_elements.payloadIeListLength = buffer->payloadsIeLength;
+                response.ie_elements.headerIeList = buffer->headerIePtr;
+                response.ie_elements.headerIeListLength = buffer->headerIeLength;
+                response.DstAddrMode = buffer->fcf_dsn.DstAddrMode;
+                response.SrcAddrMode = buffer->fcf_dsn.SrcAddrMode;
+                response.rssi = pd_data_ind->dbm;
+                if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+                    mac_header_get_src_address(&fcf_read, pd_data_ind->data_ptr, response.Address);
+                } else {
+                    memcpy(response.Address, rf_ptr->mac_edfe_info->PeerAddr, 8);
                 }
-                if (buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
-                    if (mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
-                        mcps_sap_pre_parsed_frame_buffer_free(buffer);
-                    }
-                    return 0;
+                if (rf_ptr->mac_edfe_info->state == MAC_EDFE_FRAME_CONNECTING && rf_ptr->active_pd_data_request) {
+                    response.message_handle = rf_ptr->active_pd_data_request->msduHandle;
+                    response.use_message_handle_to_discover = true;
+                } else {
+                    response.use_message_handle_to_discover = false;
                 }
-                if (rf_ptr->mac_edfe_enabled && !fcf_read.ackRequested && fcf_read.frameVersion == MAC_FRAME_VERSION_2015 && buffer->fcf_dsn.frametype == FC_DATA_FRAME) {
-                    mcps_edfe_response_t response;
-                    mac_api_t *mac_api = get_sw_mac_api(rf_ptr);
-                    response.ie_elements.payloadIeList = buffer->payloadsIePtr;
-                    response.ie_elements.payloadIeListLength = buffer->payloadsIeLength;
-                    response.ie_elements.headerIeList = buffer->headerIePtr;
-                    response.ie_elements.headerIeListLength = buffer->headerIeLength;
-                    response.DstAddrMode = buffer->fcf_dsn.DstAddrMode;
-                    response.SrcAddrMode = buffer->fcf_dsn.SrcAddrMode;
-                    response.rssi = pd_data_ind->dbm;
-                    if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
-                        mac_header_get_src_address(&fcf_read, pd_data_ind->data_ptr, response.Address);
-                    } else {
-                        memcpy(response.Address, rf_ptr->mac_edfe_info->PeerAddr, 8);
-                    }
-                    if (rf_ptr->mac_edfe_info->state == MAC_EDFE_FRAME_CONNECTING && rf_ptr->active_pd_data_request) {
-                        response.message_handle = rf_ptr->active_pd_data_request->msduHandle;
-                        response.use_message_handle_to_discover = true;
-                    } else {
-                        response.use_message_handle_to_discover = false;
-                    }
 
-                    mac_api->edfe_ind_cb(mac_api, &response);
+                mac_api->edfe_ind_cb(mac_api, &response);
 
-                    response.DstAddrMode = MAC_ADDR_MODE_64_BIT;
-                    switch (response.edfe_message_status) {
+                response.DstAddrMode = MAC_ADDR_MODE_64_BIT;
+                switch (response.edfe_message_status) {
 
-                        case MCPS_EDFE_RESPONSE_FRAME:
-                            if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
-                                memcpy(rf_ptr->mac_edfe_info->PeerAddr, response.Address, 8);
-                            }
-                            rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_WAIT_DATA;
-                            if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
-                                goto ERROR_HANDLER;
-                            }
-                            break;
-
-                        case MCPS_EDFE_TX_FRAME:
-                            rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTED;
-                            if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
-                                goto ERROR_HANDLER;
-                            }
-                            break;
-
-                        case MCPS_EDFE_FINAL_FRAME_TX:
-                            if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
-                                goto ERROR_HANDLER;
-                            }
-                            rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_TX_FINAL_FRAME;
-                            break;
-
-                        case MCPS_EDFE_FINAL_FRAME_RX:
-                            //Mark session closed
-                            rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
-                            rf_ptr->mac_edfe_tx_active = false;
-                            if (mac_data_interface_waiting_ack(rf_ptr, &buffer->fcf_dsn) || mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
-                                mcps_sap_pre_parsed_frame_buffer_free(buffer);
-                            }
-                            return 0;
-
-                        case MCPS_EDFE_MALFORMED_FRAME:
+                    case MCPS_EDFE_RESPONSE_FRAME:
+                        if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+                            memcpy(rf_ptr->mac_edfe_info->PeerAddr, response.Address, 8);
+                        }
+                        rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_WAIT_DATA;
+                        if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
                             goto ERROR_HANDLER;
+                        }
+                        break;
 
-                        case MCPS_EDFE_NORMAL_FRAME:
-                        default:
-                            break;
-                    }
+                    case MCPS_EDFE_TX_FRAME:
+                        rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_CONNECTED;
+                        if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
+                            goto ERROR_HANDLER;
+                        }
+                        break;
 
+                    case MCPS_EDFE_FINAL_FRAME_TX:
+                        if (mac_pd_sap_generate_edfe_response(rf_ptr, &fcf_read, pd_data_ind, &response)) {
+                            goto ERROR_HANDLER;
+                        }
+                        rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_TX_FINAL_FRAME;
+                        break;
+
+                    case MCPS_EDFE_FINAL_FRAME_RX:
+                        //Mark session closed
+                        rf_ptr->mac_edfe_info->state = MAC_EDFE_FRAME_IDLE;
+                        rf_ptr->mac_edfe_tx_active = false;
+                        if (mac_data_interface_waiting_ack(rf_ptr, &buffer->fcf_dsn) || mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
+                            mcps_sap_pre_parsed_frame_buffer_free(buffer);
+                        }
+                        return 0;
+
+                    case MCPS_EDFE_MALFORMED_FRAME:
+                        goto ERROR_HANDLER;
+
+                    case MCPS_EDFE_NORMAL_FRAME:
+                    default:
+                        break;
                 }
-
 
             }
+
+
         }
         if (!buffer) {
             sw_mac_stats_update(rf_ptr, STAT_MAC_RX_DROP, 0);

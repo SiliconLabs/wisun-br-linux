@@ -813,11 +813,6 @@ static void mac_data_interface_frame_handler(mac_pre_parsed_frame_t *buf)
         mcps_sap_pre_parsed_frame_buffer_free(buf);
         return;
     }
-    /* push data to stack if sniffer mode is enabled */
-    if (rf_mac_setup->macProminousMode) {
-        tr_error("not supported");
-        return;
-    }
     mac_api_t *mac = get_sw_mac_api(rf_mac_setup);
     if (!mac) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);

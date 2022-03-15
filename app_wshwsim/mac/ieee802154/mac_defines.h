@@ -192,7 +192,6 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macCapAssocationPermit: 1;
     bool macCapBatteryPowered: 1;
     bool macCapSecrutityCapability: 1;
-    bool macProminousMode: 1;
     bool macGTSPermit: 1;
     bool mac_security_enabled: 1;
     /* Let trough packet which is secured properly (MIC authenticated group key)  and src address is 64-bit*/
