@@ -25,7 +25,7 @@
 #define MBED_CONF_MBED_TRACE_FEA_IPV6 1
 #endif
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #if MBED_CONF_MBED_TRACE_FEA_IPV6 == 1
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/common_functions.h"

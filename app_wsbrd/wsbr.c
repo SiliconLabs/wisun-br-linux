@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <sys/select.h>
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/fhss_api.h"

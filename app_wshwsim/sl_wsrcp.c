@@ -20,7 +20,7 @@
 #  include <pcap/pcap.h>
 #endif
 
-#include "mbed-trace/mbed_trace.h"
+#include "mbed-client-libservice/ns_trace.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/sw_mac.h"
 

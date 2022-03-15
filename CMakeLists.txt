@@ -222,8 +222,8 @@ add_executable(wsbrd
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
+    mbed-client-libservice/source/libtrace/ns_trace.c
     # Excluded mbed-client-libservice/source/nvmHelper
-    mbed-trace/source/mbed_trace.c
 )
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -421,8 +421,8 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libip6string/ip6tos.c
         mbed-client-libservice/source/libip6string/stoip6.c
         mbed-client-libservice/source/libList/ns_list.c
+        mbed-client-libservice/source/libtrace/ns_trace.c
         # Excluded mbed-client-libservice/source/nvmHelper
-        mbed-trace/source/mbed_trace.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -463,7 +463,7 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libip6string/ip6tos.c
         mbed-client-libservice/source/libip6string/stoip6.c
         mbed-client-libservice/source/libList/ns_list.c
-        mbed-trace/source/mbed_trace.c
+        mbed-client-libservice/source/libtrace/ns_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
         app_wshwsim/sl_wsrcp.c
