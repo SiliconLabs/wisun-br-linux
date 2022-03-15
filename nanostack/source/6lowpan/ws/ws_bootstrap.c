@@ -1896,12 +1896,6 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     set_request.value_pointer = &ack_wait_symbols;
     set_request.value_size = sizeof(ack_wait_symbols);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
-    // Set multi CSMA-CA configuration
-    mlme_multi_csma_ca_param_t multi_csma_params = {WS_NUMBER_OF_CSMA_PERIODS, WS_CSMA_MULTI_CCA_INTERVAL};
-    set_request.attr = macMultiCSMAParameters;
-    set_request.value_pointer = &multi_csma_params;
-    set_request.value_size = sizeof(mlme_multi_csma_ca_param_t);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Start automatic CCA threshold
     mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     // Enable MAC mode switch when base PHY mode ID could be found, otherwise disable the feature

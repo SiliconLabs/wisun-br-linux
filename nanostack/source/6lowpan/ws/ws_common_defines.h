@@ -571,11 +571,6 @@ typedef struct ws_bs_ie {
  */
 #define WS_CONFIG_CONSISTENT_FILTER_PERIOD 100
 
-// With FHSS we need to check CCA twice on TX channel
-#define WS_NUMBER_OF_CSMA_PERIODS  2
-// Interval between two CCA checks
-#define WS_CSMA_MULTI_CCA_INTERVAL 2000
-
 /* Default FHSS timing information
  *
  */

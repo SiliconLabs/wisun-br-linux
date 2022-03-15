@@ -285,19 +285,6 @@ static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
-static void wsbr_spinel_set_multi_csma_parameters(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1 + 2);
-    const struct mlme_multi_csma_ca_s *req = data;
-
-    BUG_ON(prop != SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS);
-    BUG_ON(data_len != sizeof(struct mlme_multi_csma_ca_s));
-    spinel_push_hdr_set_prop(ctxt, buf, prop);
-    spinel_push_u8(buf,  req->number_of_csma_ca_periods);
-    spinel_push_u16(buf, req->multi_cca_interval);
-    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
-}
-
 static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 27);
@@ -481,7 +468,6 @@ static const struct {
     { macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
-    { macMultiCSMAParameters,          wsbr_spinel_set_multi_csma_parameters, SPINEL_PROP_WS_MULTI_CSMA_PARAMETERS,            },
     { macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
     { macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
     { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
