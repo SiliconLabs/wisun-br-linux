@@ -81,7 +81,6 @@ void icmpv6_radv_init(protocol_interface_info_entry_t *cur)
     cur->adv_retrans_timer = 0;
     cur->rtr_adv_unicast_to_rs = false;
     cur->rtr_adv_flags = 0;
-    cur->adv_copy_heard_flags = false;
 
     /* Initialise timing info for local RAs */
     cur->ra_timing.rtr_adv_last_send_time = protocol_core_monotonic_time - 0x10000;

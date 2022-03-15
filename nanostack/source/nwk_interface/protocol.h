@@ -328,7 +328,6 @@ struct protocol_interface_info_entry {
     bool ip_multicast_forwarding : 1;
     bool adv_send_advertisements : 1;
     bool rtr_adv_unicast_to_rs : 1;
-    bool adv_copy_heard_flags : 1;
     uint8_t rtr_adv_flags;
     uint8_t max_ra_delay_time;          // 100ms ticks
     uint8_t min_delay_between_ras;      // 100ms ticks
