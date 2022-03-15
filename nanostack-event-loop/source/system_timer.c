@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "timer_sys.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 #include "nanostack-event-loop/platform/arm_hal_timer.h"
 #include <stdlib.h>
 #include "nanostack-event-loop/eventOS_event.h"

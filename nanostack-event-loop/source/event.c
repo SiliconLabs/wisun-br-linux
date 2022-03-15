@@ -21,7 +21,7 @@
 #include "timer_sys.h"
 #include <stdlib.h>
 #include "event.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 
 
 typedef struct arm_core_tasklet {

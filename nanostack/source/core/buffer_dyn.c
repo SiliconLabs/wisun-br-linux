@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 #include "mbed-client-libservice/ip_fsc.h"
 #include "nanostack/net_interface.h"
 

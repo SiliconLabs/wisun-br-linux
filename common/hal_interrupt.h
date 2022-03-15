@@ -6,8 +6,8 @@
 #ifndef HAL_INTERRUPT_H
 #define HAL_INTERRUPT_H
 
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
-
 void platform_critical_init(void);
+void platform_enter_critical(void);
+void platform_exit_critical(void);
 
 #endif

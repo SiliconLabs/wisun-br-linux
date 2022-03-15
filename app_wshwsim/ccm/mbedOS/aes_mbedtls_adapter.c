@@ -16,7 +16,7 @@
  */
 #include <mbedtls/aes.h>
 #include "nanostack/mac/platform/arm_hal_aes.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 
 struct arm_aes_context {
     mbedtls_aes_context ctx;

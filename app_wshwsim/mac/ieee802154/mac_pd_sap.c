@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 #include "nanostack/mac/ccm.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"

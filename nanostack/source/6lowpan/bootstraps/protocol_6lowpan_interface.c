@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

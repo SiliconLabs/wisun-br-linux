@@ -31,7 +31,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/platform/arm_hal_interrupt.h"
+#include "common/hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mlme.h"
