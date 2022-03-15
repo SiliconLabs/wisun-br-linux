@@ -34,21 +34,6 @@ struct nd_router;
 // Waiting Start confirm from MAC (ms)
 #define BOOTSTRAP_START_TIMEOUT  10000
 
-typedef struct mle_6lowpan_data {
-    uint16_t router_lifetime;               // default lifetime for router neighbor
-    uint16_t host_lifetime;                 // default lifetime for host neighbor
-
-    uint16_t nbr_of_neigh_lower_threshold;  // start to limit addition of neighbors to neighbor list
-    uint16_t nbr_of_neigh_upper_threshold;  // only priority neighbors are added to neighbor list
-    uint16_t nbr_of_neigh_max;              // maximum number of neighbors in neighbor list
-
-    uint8_t token_bucket_size;              // MLE token bucket size
-    uint8_t token_bucket_rate;              // Rate in which tokens are added to bucket (0.1 seconds * rate)
-    uint8_t token_bucket_count;             // Count of tokens added to bucket at a time
-
-    uint8_t link_req_token_bucket;          // Token bucket for MLE link request with non-valid security counter
-} mle_6lowpan_data_t;
-
 void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);
 uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id);
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
