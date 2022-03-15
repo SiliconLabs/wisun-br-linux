@@ -220,12 +220,8 @@ void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void
             break;
         }
         case MLME_COMM_STATUS: {
-            mlme_comm_status_t *dat = (mlme_comm_status_t *)data;
-            protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-            if (info_entry && info_entry->comm_status_ind_cb) {
-                info_entry->comm_status_ind_cb(api->parent_id, dat);
-            }
-
+            //Unsupported
+            // mlme_comm_status_t *dat = (mlme_comm_status_t *)data;
             break;
         }
         case MLME_SYNC_LOSS:

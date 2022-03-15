@@ -265,16 +265,7 @@ typedef struct ipv6_ra_timing {
     uint8_t initial_rtr_adv_count;
 } ipv6_ra_timing_t;
 
-/**
- * @brief scan_confirm_cb Callback function for scanning results
- * @param if_id Protocol interface id
- * @param conf MLME-SCAN confirm object (ownership not passed)
- */
-typedef void comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t *status);
-
-
 struct protocol_interface_info_entry {
-    comm_status_indication_cb *comm_status_ind_cb;
     nwk_interface_id nwk_id;
     int8_t id;
     int8_t bootStrapId;
