@@ -20,7 +20,6 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/ip_fsc.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 
 #include "nwk_interface/protocol.h"
