@@ -27,21 +27,6 @@
 struct protocol_interface_info_entry;
 struct nd_router;
 
-#define MLE_NEIGHBOR_PURGE_NBR                3
-#define MLE_NEIGHBOR_PURGE_TIMER_TIMEOUT      4       // Times advertisement timeout
-
-#define MLE_ROUTER_DEFAULT_LIFETIME           128
-#define MLE_ROUTER_HOST_LIFETIME              400
-
-#define MLE_NBR_OF_NEIGHBOR_MAX_LIMIT         0
-#define MLE_NBR_OF_NEIGHBOR_LOWER_THRESHOLD   0
-#define MLE_NBR_OF_NEIGHBOR_UPPER_THRESHOLD   0
-#define MLE_TOKEN_BUCKET_SIZE                 0
-#define MLE_TOKEN_BUCKET_RATE                 0
-#define MLE_TOKEN_BUCKET_COUNT                0
-
-#define MLE_LINK_REQ_TOKEN_BUCKET_SIZE        3
-
 #define LOWPAN_MAX_FRAME_RETRIES 4
 
 // Waiting Scan confirm from MAC (ms)
