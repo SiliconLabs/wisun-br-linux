@@ -15,7 +15,6 @@
  */
 #include <stdint.h>
 #include <string.h>
-#undef NSDYNMEM_TRACKER_ENABLED
 #include "nsdynmemLIB.h"
 #include "platform/arm_hal_interrupt.h"
 #include <stdlib.h>
