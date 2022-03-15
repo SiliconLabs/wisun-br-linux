@@ -54,30 +54,6 @@
  *
  */
 
-#ifndef YOTTA_CFG_MBED_TRACE
-#define YOTTA_CFG_MBED_TRACE 0
-#endif
-
-#ifndef YOTTA_CFG_MBED_TRACE_FEA_IPV6
-#define YOTTA_CFG_MBED_TRACE_FEA_IPV6 1
-#else
-#warning YOTTA_CFG_MBED_TRACE_FEA_IPV6 is deprecated and will be removed in the future! Use MBED_CONF_MBED_TRACE_FEA_IPV6 instead.
-#define MBED_CONF_MBED_TRACE_FEA_IPV6 YOTTA_CFG_MBED_TRACE_FEA_IPV6
-#endif
-
-#ifndef MBED_CONF_MBED_TRACE_ENABLE
-#define MBED_CONF_MBED_TRACE_ENABLE 0
-#endif
-
-#ifndef MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT
-/* if libservice presence is not configured, enable it by default */
-#define MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT 1
-#endif
-
-#if !defined(MBED_CONF_MBED_TRACE_FEA_IPV6) && MBED_CONF_NANOSTACK_LIBSERVICE_PRESENT
-#define MBED_CONF_MBED_TRACE_FEA_IPV6 1
-#endif
-
 /** 3 upper bits are trace modes related,
     and 5 lower bits are trace level configuration */
 
@@ -329,7 +305,6 @@ void mbed_vtracef(uint8_t dlevel, const char *grp, const char *fmt, va_list ap);
  *  Get last trace from buffer
  */
 const char *mbed_trace_last(void);
-#if MBED_CONF_MBED_TRACE_FEA_IPV6 == 1
 /**
  * mbed_tracef helping function for convert ipv6
  * table to human readable string.
@@ -352,7 +327,6 @@ char *mbed_trace_ipv6(const void *addr_ptr);
  * @return temporary buffer where ipv6 is in string format
  */
 char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len);
-#endif
 /**
  * mbed_tracef helping function for convert hex-array to string.
  * usage e.g.

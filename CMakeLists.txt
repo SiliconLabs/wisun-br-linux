@@ -234,7 +234,6 @@ target_include_directories(wsbrd PRIVATE
     nanostack/
 )
 target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
-target_compile_definitions(wsbrd PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
 # target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_libraries(wsbrd PRIVATE Threads::Threads)
 target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
@@ -433,7 +432,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/
     )
     target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
-    target_compile_definitions(wsnode PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
     target_link_libraries(wsnode PRIVATE Threads::Threads)
     target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
@@ -501,7 +499,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack-event-loop/
         nanostack/
     )
-    target_compile_definitions(wshwsim PRIVATE MBED_CONF_MBED_TRACE_ENABLE)
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
     # target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
     # target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
