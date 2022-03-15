@@ -68,7 +68,6 @@ void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);
 uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id);
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
 void protocol_6lowpan_bootstrap_re_start(struct protocol_interface_info_entry *interface);
-void protocol_6lowpan_link_advertise_handle(struct nd_router *cur, struct protocol_interface_info_entry *cur_interface, uint16_t tick);
 void protocol_6lowpan_bootstrap_nd_ready(struct protocol_interface_info_entry *cur_interface);
 void protocol_6lowpan_nd_borderrouter_connection_down(struct protocol_interface_info_entry *interface);
 int protocol_6lowpan_del_ll16(struct protocol_interface_info_entry *cur, uint16_t mac_short_address);

@@ -150,7 +150,6 @@ void nd_router_base_init(nd_router_t *new_entry)
     new_entry->nd_timer = 0;
     new_entry->nd_bootstrap_tick = 0;
     new_entry->nd_re_validate = 0;
-    new_entry->mle_advert_timer = 0;
     new_entry->mle_purge_timer = 0;
     new_entry->default_hop.addrtype = ADDR_NONE;
     ns_list_init(&new_entry->prefix_list);
@@ -1531,8 +1530,6 @@ void nd_object_timer(protocol_interface_info_entry_t *cur_interface, uint16_t ti
     ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {
         /* This may nd_router_remove(cur), so need to use safe loop */
         if (cur_interface->nwk_id == cur->nwk_id) {
-
-            protocol_6lowpan_link_advertise_handle(cur, cur_interface, ticks_update);
 
             nd_router_forward_timer(cur, ticks_update);
 

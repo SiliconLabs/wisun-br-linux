@@ -72,12 +72,6 @@ void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
     mac_helper_mac16_address_set(cur, 0xffff);
 }
 
-
-void protocol_6lowpan_link_advertise_handle(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t tick)
-{
-    cur->mle_advert_timer = 0;
-}
-
 static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
 {
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
@@ -112,7 +106,6 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
         /* Stop the ND revalidate timer - this means we don't do RS again */
         cur->nd_re_validate = 0;
     }
-    cur->mle_advert_timer = 0;
 }
 
 void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_interface)
