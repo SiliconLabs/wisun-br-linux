@@ -117,10 +117,6 @@ uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         if (backoff_in_us < MIN_FHSS_CSMA_PERIOD_US) {
             backoff_in_us += MIN_FHSS_CSMA_PERIOD_US;
         }
-        // Backoff must be long enough to make multiple CCA checks
-        if (backoff_in_us < (uint32_t)(rf_mac_setup->multi_cca_interval * (rf_mac_setup->number_of_csma_ca_periods - 1))) {
-            backoff_in_us += ((rf_mac_setup->multi_cca_interval * (rf_mac_setup->number_of_csma_ca_periods - 1)) - backoff_in_us);
-        }
         if (rf_mac_setup->mac_tx_retry) {
             backoff_in_us += rf_mac_setup->fhss_api->get_retry_period(rf_mac_setup->fhss_api, rf_mac_setup->active_pd_data_request->DstAddr, rf_mac_setup->phy_mtu_size);
         }
@@ -519,15 +515,6 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
             int8_t channel_cca_threshold = mac_cca_thr_get_dbm(rf_ptr, rf_ptr->mac_channel);
             if (CCA_FAILED_DBM != channel_cca_threshold) {
                 rf_ptr->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD, (uint8_t *)&channel_cca_threshold);
-            }
-            if (active_buf->csma_periods_left > 0) {
-                active_buf->csma_periods_left--;
-                active_buf->tx_time += rf_ptr->multi_cca_interval;
-                mac_pd_sap_set_phy_tx_time(rf_ptr, active_buf->tx_time, true, false);
-#ifdef TIMING_TOOL_TRACES
-                tr_info("%u CSMA_start", mac_mcps_sap_get_phy_timestamp(rf_ptr));
-#endif
-                return PHY_RESTART_CSMA;
             }
         }
 VALIDATE_TX_TIME:

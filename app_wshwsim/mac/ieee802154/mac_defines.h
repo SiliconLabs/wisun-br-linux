@@ -251,8 +251,6 @@ typedef struct protocol_interface_rf_mac_setup {
     uint16_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;
-    uint8_t number_of_csma_ca_periods;  /**< Number of CSMA-CA periods */
-    uint16_t multi_cca_interval;        /**< Length of the additional CSMA-CA period(s) in microseconds */
     uint16_t phy_mtu_size;
     phy_802_15_4_mode_t current_mac_mode;
     /* Indirect queue parameters */

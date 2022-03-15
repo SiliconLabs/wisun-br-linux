@@ -1948,13 +1948,6 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
             }
 
         }
-        // Use double CCA check with FHSS for data packets only
-        if (rf_ptr->fhss_api && !rf_ptr->mac_ack_tx_active && !rf_ptr->mac_edfe_tx_active && !rf_ptr->active_pd_data_request->asynch_request && !rf_ptr->mac_mode_switch_phr_tx_active) {
-            if ((buffer->tx_time - (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1))) > mac_mcps_sap_get_phy_timestamp(rf_ptr)) {
-                buffer->csma_periods_left = rf_ptr->number_of_csma_ca_periods - 1;
-                buffer->tx_time -= (rf_ptr->multi_cca_interval * (rf_ptr->number_of_csma_ca_periods - 1));
-            }
-        }
         mac_pd_sap_set_phy_tx_time(rf_ptr, buffer->tx_time, cca_enabled, rf_ptr->mac_mode_switch_phr_tx_active);
         if (mac_plme_cca_req(rf_ptr) != 0) {
             if (buffer->fcf_dsn.frametype == MAC_FRAME_ACK || (buffer->ExtendedFrameExchange && rf_ptr->mac_edfe_response_tx_active)) {

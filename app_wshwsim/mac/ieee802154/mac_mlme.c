@@ -394,16 +394,6 @@ static int8_t mac_mlme_handle_set_values(protocol_interface_rf_mac_setup_s *rf_m
     return -1;
 }
 
-static int8_t mac_mlme_set_multi_csma_parameters(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
-{
-    mlme_multi_csma_ca_param_t multi_csma_params;
-    memcpy(&multi_csma_params, set_req->value_pointer, sizeof(mlme_multi_csma_ca_param_t));
-    rf_mac_setup->multi_cca_interval = multi_csma_params.multi_cca_interval;
-    rf_mac_setup->number_of_csma_ca_periods = multi_csma_params.number_of_csma_ca_periods;
-    tr_debug("Multi CSMA-CA, interval: %u, periods %u", rf_mac_setup->multi_cca_interval, rf_mac_setup->number_of_csma_ca_periods);
-    return 0;
-}
-
 static int8_t mac_mlme_set_data_request_restart_config(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
     mlme_request_restart_config_t request_restart_config;
@@ -503,7 +493,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             tr_info("Set CCA threshold to %u%%", *pu8);
             return 0;
         case macMultiCSMAParameters:
-            return mac_mlme_set_multi_csma_parameters(rf_mac_setup, set_req);
+            return 0;
         case macRequestRestart:
             return mac_mlme_set_data_request_restart_config(rf_mac_setup, set_req);
         case macFilterStart:
@@ -750,8 +740,6 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     entry->mac_interface_id = -1;
     entry->dev_driver = dev_driver;
     entry->aUnitBackoffPeriod = 20; //This can be different in some Platform 20 comes from 12-symbol turnaround and 8 symbol CCA read
-    entry->number_of_csma_ca_periods = MAC_DEFAULT_NUMBER_OF_CSMA_PERIODS;
-    entry->multi_cca_interval = MAC_DEFAULT_CSMA_MULTI_CCA_INTERVAL;
     entry->mac_channel_list.channel_page = CHANNEL_PAGE_UNDEFINED;
 
     if (mac_sec_mib_init(entry, storage_sizes) != 0) {
