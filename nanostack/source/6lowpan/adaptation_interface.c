@@ -126,7 +126,7 @@ static void lowpan_adaptation_tx_queue_write(protocol_interface_info_entry_t *cu
 static buffer_t *lowpan_adaptation_tx_queue_read(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr);
 
 /* Data direction and message length validation */
-static bool lowpan_adaptation_indirect_data_request(mac_neighbor_table_entry_t *mle_entry);
+static bool lowpan_adaptation_indirect_data_request(mac_neighbor_table_entry_t *entry_ptr);
 static bool lowpan_adaptation_request_longer_than_mtu(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr);
 
 /* Common data tx request process functions */
