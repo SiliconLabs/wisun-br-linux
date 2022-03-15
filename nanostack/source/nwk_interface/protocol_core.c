@@ -90,7 +90,6 @@ protocol_interface_info_entry_t *protocol_core_multicast_upstream;
 typedef struct {
     uint8_t core_timer_ticks;
     bool core_timer_event;
-    uint16_t core_security_ticks_counter;
 } lowpan_core_timer_structures_s;
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
@@ -175,12 +174,6 @@ void protocol_root_tasklet(arm_event_t *event)
         case ARM_IN_SECURITY_ECC_CALLER:
         default:
             break;
-    }
-}
-void protocol_core_security_tick_update(uint16_t tick_update)
-{
-    if (protocol_core_timer_info.core_security_ticks_counter <= tick_update) {
-        protocol_core_timer_info.core_security_ticks_counter = SEC_LIB_X_100MS_COUNTER;
     }
 }
 
@@ -292,7 +285,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
 
     rpl_control_fast_timer(ticksUpdate);
     icmpv6_radv_timer(ticksUpdate);
-    protocol_core_security_tick_update(ticksUpdate);
     ws_pae_controller_fast_timer(ticksUpdate);
     platform_enter_critical();
     protocol_core_timer_info.core_timer_event = false;
@@ -332,7 +324,6 @@ void protocol_core_init(void)
     protocol_core_monotonic_time = 0;
     protocol_core_timer_info.core_timer_event = false;
     protocol_core_timer_info.core_timer_ticks = 0;
-    protocol_core_timer_info.core_security_ticks_counter = SEC_LIB_X_100MS_COUNTER;
 
     protocol_timer_start(PROTOCOL_TIMER_STACK_TIM, protocol_core_cb, 100);
 }

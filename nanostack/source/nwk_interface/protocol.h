@@ -405,8 +405,6 @@ extern protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan
 extern uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
 extern void net_bootstrap_cb_run(uint8_t event);
 
-extern void protocol_core_security_tick_update(uint16_t tick_update);
-
 extern int8_t protocol_read_tasklet_id(void);
 extern void protocol_6lowpan_stack(buffer_t *b);
 extern void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur);
