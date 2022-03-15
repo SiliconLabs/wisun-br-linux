@@ -554,9 +554,9 @@ typedef struct ws_bs_ie {
 // Total CCA attempts: 1 + WS_MAX_CSMA_BACKOFFS
 #define WS_MAX_CSMA_BACKOFFS    0
 
-// Use minimum possible CSMA-CA backoffs
-#define WS_MAC_MIN_BE   1
-#define WS_MAC_MAX_BE   1
+// Default 802.15.4 values
+#define WS_MAC_MIN_BE   3
+#define WS_MAC_MAX_BE   5
 
 /*
  * Automatic CCA threshold: default threshold and range in dBm.
