@@ -366,32 +366,3 @@ char *mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len);
 char *mbed_trace_array(const uint8_t *buf, uint16_t len);
 
 #endif /* MBED_TRACE_H_ */
-
-/* These macros are outside the inclusion guard so they will be re-evaluated for every inclusion of the header.
- * If tracing is disabled, the dummies will hide the real functions. The real functions can still be reached by
- * surrounding the name of the function with brackets, e.g. "(mbed_tracef)(dlevel, grp, "like so");"
- * */
-// undefine dummies, revealing the real functions
-#undef MBED_TRACE_DUMMIES_DEFINED
-#undef mbed_trace_init
-#undef mbed_trace_free
-#undef mbed_trace_buffer_sizes
-#undef mbed_trace_config_set
-#undef mbed_trace_config_get
-#undef mbed_trace_prefix_function_set
-#undef mbed_trace_suffix_function_set
-#undef mbed_trace_print_function_set
-#undef mbed_trace_cmdprint_function_set
-#undef mbed_trace_mutex_wait_function_set
-#undef mbed_trace_mutex_release_function_set
-#undef mbed_trace_exclude_filters_set
-#undef mbed_trace_exclude_filters_get
-#undef mbed_trace_include_filters_set
-#undef mbed_trace_include_filters_get
-#undef mbed_tracef
-#undef mbed_vtracef
-#undef mbed_trace_last
-#undef mbed_trace_ipv6
-#undef mbed_trace_ipv6_prefix
-#undef mbed_trace_array
-
