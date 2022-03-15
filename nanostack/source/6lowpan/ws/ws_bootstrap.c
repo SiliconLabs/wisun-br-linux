@@ -907,7 +907,6 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     ws_bootstrap_ll_address_validate(cur);
 
     addr_interface_set_ll64(cur, NULL);
-    cur->nwk_nd_re_scan_count = 0;
     // Trigger discovery for bootstrap
     ret_val = nwk_6lowpan_up(cur);
     if (ret_val) {

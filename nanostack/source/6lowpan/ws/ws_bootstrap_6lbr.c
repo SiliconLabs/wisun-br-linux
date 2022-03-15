@@ -302,7 +302,6 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             if (!ws_bbr_ready_to_start(cur)) {
                 // Wi-SUN not started yet we wait for Border router permission
                 ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
-                cur->nwk_nd_re_scan_count = rand_get_random_in_range(40, 100);
                 return;
             }
             // Clear Old information from stack

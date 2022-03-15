@@ -305,7 +305,6 @@ struct protocol_interface_info_entry {
     uint8_t dad_failures;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
     uint8_t nwk_rpl_scan_counter;
-    uint8_t nwk_nd_re_scan_count;
 
     int8_t nwk_timer_id;
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */

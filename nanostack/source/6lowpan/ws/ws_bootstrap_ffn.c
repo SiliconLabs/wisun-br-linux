@@ -177,7 +177,6 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
     // Remove network keys from MAC
     ws_pae_controller_nw_keys_remove(cur);
     ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
-    cur->nwk_nd_re_scan_count = 0;
     cur->ws_info->configuration_learned = false;
     cur->ws_info->pan_timeout_timer = 0;
     cur->ws_info->weakest_received_rssi = 0;
