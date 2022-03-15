@@ -141,7 +141,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
 // Wisun configuration storage
 ws_cfg_t ws_cfg;
 
-#ifdef FEA_TRACE_SUPPORT
 static void ws_cfg_trace(ws_cfgs_t *cfg, ws_cfgs_t *new_cfg, uint8_t size, char *name)
 {
     uint8_t *start = 0;
@@ -171,9 +170,6 @@ static void ws_cfg_trace(ws_cfgs_t *cfg, ws_cfgs_t *new_cfg, uint8_t size, char 
         tr_debug("i: %p v: %s ", (void *)(start - ((uint8_t *) new_cfg)), trace_array(start, end - start + 1));
     }
 }
-#else
-#define ws_cfg_trace(cfg, new_cfg, size, name)
-#endif
 
 static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg)
 {

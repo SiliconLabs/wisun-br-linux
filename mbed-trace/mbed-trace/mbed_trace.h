@@ -371,11 +371,6 @@ char *mbed_trace_array(const uint8_t *buf, uint16_t len);
  * If tracing is disabled, the dummies will hide the real functions. The real functions can still be reached by
  * surrounding the name of the function with brackets, e.g. "(mbed_tracef)(dlevel, grp, "like so");"
  * */
-#if defined(FEA_TRACE_SUPPORT) || MBED_CONF_MBED_TRACE_ENABLE || YOTTA_CFG_MBED_TRACE || (defined(YOTTA_CFG) && !defined(NDEBUG))
-// Make sure FEA_TRACE_SUPPORT is always set whenever traces are enabled.
-#ifndef FEA_TRACE_SUPPORT
-#define FEA_TRACE_SUPPORT
-#endif
 // undefine dummies, revealing the real functions
 #undef MBED_TRACE_DUMMIES_DEFINED
 #undef mbed_trace_init
@@ -400,33 +395,3 @@ char *mbed_trace_array(const uint8_t *buf, uint16_t len);
 #undef mbed_trace_ipv6_prefix
 #undef mbed_trace_array
 
-#elif !defined(MBED_TRACE_DUMMIES_DEFINED)
-// define dummies, hiding the real functions
-#define MBED_TRACE_DUMMIES_DEFINED
-#define mbed_trace_init(...)                        ((int) 0)
-#define mbed_trace_free(...)                        ((void) 0)
-#define mbed_trace_buffer_sizes(...)                ((void) 0)
-#define mbed_trace_config_set(...)                  ((void) 0)
-#define mbed_trace_config_get(...)                  ((uint8_t) 0)
-#define mbed_trace_prefix_function_set(...)         ((void) 0)
-#define mbed_trace_suffix_function_set(...)         ((void) 0)
-#define mbed_trace_print_function_set(...)          ((void) 0)
-#define mbed_trace_cmdprint_function_set(...)       ((void) 0)
-#define mbed_trace_mutex_wait_function_set(...)     ((void) 0)
-#define mbed_trace_mutex_release_function_set(...)  ((void) 0)
-#define mbed_trace_exclude_filters_set(...)         ((void) 0)
-#define mbed_trace_exclude_filters_get(...)         ((const char *) 0)
-#define mbed_trace_include_filters_set(...)         ((void) 0)
-#define mbed_trace_include_filters_get(...)         ((const char *) 0)
-#define mbed_trace_last(...)                        ((const char *) 0)
-#define mbed_tracef(...)                            ((void) 0)
-#define mbed_vtracef(...)                           ((void) 0)
-/**
- * These helper functions accumulate strings in a buffer that is only flushed by actual trace calls. Using these
- * functions outside trace calls could cause the buffer to overflow.
- */
-#define mbed_trace_ipv6(...)                dont_use_trace_helpers_outside_trace_calls
-#define mbed_trace_ipv6_prefix(...)         dont_use_trace_helpers_outside_trace_calls
-#define mbed_trace_array(...)               dont_use_trace_helpers_outside_trace_calls
-
-#endif /* FEA_TRACE_SUPPORT */

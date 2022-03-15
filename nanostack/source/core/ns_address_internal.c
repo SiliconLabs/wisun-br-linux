@@ -1430,10 +1430,6 @@ void addr_policy_remove_by_label(uint8_t label)
 }
 
 // This last function must always be compiled with tracing enabled
-#ifndef FEA_TRACE_SUPPORT
-#define FEA_TRACE_SUPPORT 1
-#include "mbed-trace/mbed_trace.h"
-#endif
 char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix)
 {
     uint8_t length = addr_len_from_type(addr->addr_type);

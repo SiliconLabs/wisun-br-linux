@@ -18,6 +18,5 @@
 
 #include "base/cfg_ws_router.h"
 
-#define FEA_TRACE_SUPPORT
 #define EXTRA_CONSISTENCY_CHECKS
 

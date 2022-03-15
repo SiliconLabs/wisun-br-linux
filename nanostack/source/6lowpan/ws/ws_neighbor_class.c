@@ -90,7 +90,6 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
     }
 }
 
-#ifdef FEA_TRACE_SUPPORT
 static int own_ceil(float value)
 {
     int ivalue = (int)value;
@@ -144,17 +143,12 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
         }
     }
 }
-#endif
 
 void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8])
 {
     struct unicast_timing_info *info = &ws_neighbor->fhss_data.uc_timing_info;
 
-#ifdef FEA_TRACE_SUPPORT
     ws_neighbor_calculate_ufsi_drift(ws_neighbor, ws_utt, timestamp, address);
-#else
-    (void) address;
-#endif
     if (info->utt_rx_timestamp != timestamp ||
         info->ufsi != ws_utt->ufsi) {
         info->utt_rx_timestamp = timestamp;

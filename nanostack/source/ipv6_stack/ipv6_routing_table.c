@@ -1264,7 +1264,6 @@ static uint16_t total_metric(const ipv6_route_t *route)
     return metric;
 }
 
-#ifdef FEA_TRACE_SUPPORT
 void trace_debug_print(const char *fmt, ...)
 {
     va_list ap;
@@ -1272,14 +1271,11 @@ void trace_debug_print(const char *fmt, ...)
     vtracef(TRACE_LEVEL_DEBUG, TRACE_GROUP, fmt, ap);
     va_end(ap);
 }
-#endif
 
 static void ipv6_route_entry_remove(ipv6_route_t *route)
 {
     tr_debug("Deleted route:");
-#ifdef FEA_TRACE_SUPPORT
     ipv6_route_print(route, trace_debug_print);
-#endif
     if (route->info_autofree) {
         free(route->info.info);
     }
@@ -1673,9 +1669,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
 
     if (changed_info != UNCHANGED) {
         tr_debug("%s route:", changed_info == NEW ? "Added" : "Updated");
-#ifdef FEA_TRACE_SUPPORT
         ipv6_route_print(route, trace_debug_print);
-#endif
     }
 
     return route;

@@ -24,9 +24,6 @@
 #ifndef NS_TRACE_H_
 #define NS_TRACE_H_
 
-#if defined(HAVE_DEBUG) && !defined(FEA_TRACE_SUPPORT)
-#define FEA_TRACE_SUPPORT
-#endif
 
 #include "mbed-trace/mbed_trace.h"
 
