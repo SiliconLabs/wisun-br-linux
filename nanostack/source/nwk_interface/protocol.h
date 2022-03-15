@@ -310,7 +310,6 @@ struct protocol_interface_info_entry {
     int8_t nwk_timer_id;
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
     uint16_t icmp_ra_tokens; /* Token bucket for RA receive rate limiting */
-    uint16_t mle_link_reject_tokens; /* Token bucket for Report wrong working device */
     uint8_t iid_eui64[8]; // IID based on EUI-64 - used for link-local address
     uint8_t iid_slaac[8]; // IID to use for SLAAC addresses - may or may not be same as iid_eui64
     uint16_t max_link_mtu;

@@ -249,10 +249,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                 cur->icmp_ra_tokens = 3;
             }
 
-            cur->mle_link_reject_tokens += seconds;
-            if (cur->mle_link_reject_tokens > 2) {
-                cur->mle_link_reject_tokens = 2;
-            }
         }
 
         mpl_slow_timer(seconds);
@@ -432,7 +428,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->ip_multicast_as_mac_unicast_to_parent = false;
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;
-    entry->mle_link_reject_tokens = 2;
     entry->send_na = true; /* Default to on for now... */
     entry->ip_forwarding = true; /* Default to on for now... */
     entry->ip_multicast_forwarding = true; /* Default to on for now... */
