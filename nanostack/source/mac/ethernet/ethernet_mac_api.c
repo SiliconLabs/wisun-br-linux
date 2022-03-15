@@ -17,7 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/ethernet_mac_api.h"
 #include "nanostack-event-loop/eventOS_event.h"
@@ -67,10 +67,10 @@ int8_t ethernet_mac_destroy(eth_mac_api_t *mac_api)
     }
 
     mac_store.active_data_request = false;
-    ns_dyn_mem_free(mac_store.mac_api);
+    free(mac_store.mac_api);
     mac_store.mac_api = NULL;
     mac_store.dev_driver = NULL;
-    ns_dyn_mem_free(mac_store.mtu_ptr);
+    free(mac_store.mtu_ptr);
     mac_store.mtu_ptr = NULL;
     mac_store.mtu_size = 0;
     return 0;
@@ -123,15 +123,15 @@ eth_mac_api_t *ethernet_mac_create(int8_t driver_id)
             return NULL;
     }
     if (buffer_length) {
-        buffer_ptr = ns_dyn_mem_alloc(buffer_length);
+        buffer_ptr = malloc(buffer_length);
         if (!buffer_ptr) {
             return NULL;
         }
     }
 
-    eth_mac_api_t *this = ns_dyn_mem_alloc(sizeof(eth_mac_api_t));
+    eth_mac_api_t *this = malloc(sizeof(eth_mac_api_t));
     if (!this) {
-        ns_dyn_mem_free(buffer_ptr);
+        free(buffer_ptr);
         return NULL;
     }
     memset(this, 0, sizeof(eth_mac_api_t));
@@ -176,14 +176,14 @@ static void ethernet_mac_tasklet(arm_event_s *event)
         case ETH_DATA_IND_EVENT: {
             eth_data_ind_t *data_ind = event->data_ptr;
             mac_store.mac_api->data_ind_cb(mac_store.mac_api, data_ind);
-            ns_dyn_mem_free(((eth_data_ind_t *)event->data_ptr)->msdu);
-            ns_dyn_mem_free(event->data_ptr);
+            free(((eth_data_ind_t *)event->data_ptr)->msdu);
+            free(event->data_ptr);
             break;
         }
         case ETH_DATA_CNF_EVENT: {
             eth_data_conf_t *data_conf = event->data_ptr;
             mac_store.mac_api->data_conf_cb(mac_store.mac_api, data_conf);
-            ns_dyn_mem_free(event->data_ptr);
+            free(event->data_ptr);
             mac_store.active_data_request = false;
             break;
         }
@@ -270,7 +270,7 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
         return -1;
     }
 
-    eth_data_ind_t *data_ind = ns_dyn_mem_temporary_alloc(sizeof(eth_data_ind_t));
+    eth_data_ind_t *data_ind = malloc(sizeof(eth_data_ind_t));
     if (!data_ind) {
         return -1;
     }
@@ -278,7 +278,7 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
 
     if (driver->phy_driver->link_type == PHY_LINK_ETHERNET_TYPE) {
         if (data_len < ETHERNET_HDRLEN + 1) {
-            ns_dyn_mem_free(data_ind);
+            free(data_ind);
             return -1;
         }
 
@@ -292,7 +292,7 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
 
     } else if (driver->phy_driver->link_type == PHY_LINK_TUN) {
         if (data_len < 5) {
-            ns_dyn_mem_free(data_ind);
+            free(data_ind);
             return -1;
         }
         /* TUN header
@@ -307,9 +307,9 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
         data_ind->etehernet_type = ETHERTYPE_IPV6;
     }
 
-    data_ind->msdu = ns_dyn_mem_temporary_alloc(data_len);
+    data_ind->msdu = malloc(data_len);
     if (!data_ind->msdu) {
-        ns_dyn_mem_free(data_ind);
+        free(data_ind);
         return -1;
     }
     memcpy(data_ind->msdu, data_ptr, data_len);
@@ -327,8 +327,8 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
     };
 
     if (eventOS_event_send(&event)) {
-        ns_dyn_mem_free(data_ind->msdu);
-        ns_dyn_mem_free(data_ind);
+        free(data_ind->msdu);
+        free(data_ind);
         return -1;
     }
 
@@ -347,7 +347,7 @@ static int8_t eth_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_l
 
     if (mac_store.active_data_request) {
         mac_store.active_data_request = false;
-        eth_data_conf_t *data_conf = ns_dyn_mem_temporary_alloc(sizeof(eth_data_conf_t));
+        eth_data_conf_t *data_conf = malloc(sizeof(eth_data_conf_t));
         if (!data_conf) {
             return -1;
         }

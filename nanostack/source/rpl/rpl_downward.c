@@ -82,7 +82,7 @@
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ip6string.h"
 #include "nanostack/net_rpl.h"
 #include "common_protocols/ip.h"
@@ -767,7 +767,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
      */
 
 
-    uint8_t *opts = ns_dyn_mem_temporary_alloc(1280);
+    uint8_t *opts = malloc(1280);
     if (!opts) {
         rpl_instance_dao_trigger(instance, 0);
         return;
@@ -850,7 +850,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
 
     if (ptr == opts) {
         /* Had nothing... */
-        ns_dyn_mem_free(opts);
+        free(opts);
         return;
     }
 
@@ -874,7 +874,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     }
 
     bool need_ack = rpl_control_transmit_dao(instance->domain, cur, instance, instance->id, instance->dao_sequence, dodag->id, opts, ptr - opts, dst);
-    ns_dyn_mem_free(opts);
+    free(opts);
 
     instance->dao_sequence_in_transit = instance->dao_sequence;
     instance->dao_sequence = rpl_seq_inc(instance->dao_sequence);

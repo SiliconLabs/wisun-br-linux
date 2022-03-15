@@ -35,7 +35,7 @@
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/etx/etx.h" /* slight ick */
 #include "nanostack/net_rpl.h"
 
@@ -93,7 +93,7 @@ void *rpl_realloc(void *p, uint16_t old_size, uint16_t new_size)
             return NULL;
         }
     }
-    void *n = ns_dyn_mem_alloc(new_size);
+    void *n = malloc(new_size);
     if (n) {
         /* rpl_free() below will subtract (old_size + RPL_ALLOC_OVERHEAD) if reallocing */
         rpl_alloc_total += (size_t) new_size + RPL_ALLOC_OVERHEAD;
@@ -119,7 +119,7 @@ void rpl_free(void *p, uint16_t size)
         rpl_alloc_total -= (size_t) size + RPL_ALLOC_OVERHEAD;
         protocol_stats_update(STATS_RPL_MEMORY_FREE, size);
     }
-    ns_dyn_mem_free(p);
+    free(p);
 }
 
 void rpl_control_event(struct rpl_domain *domain, rpl_event_t event)

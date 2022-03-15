@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -141,7 +141,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_i
         return 0;
     }
 
-    kmp_api_t *kmp = ns_dyn_mem_temporary_alloc(sizeof(kmp_api_t) + sec_size);
+    kmp_api_t *kmp = malloc(sizeof(kmp_api_t) + sec_size);
     if (!kmp) {
         return 0;
     }
@@ -182,7 +182,7 @@ kmp_api_t *kmp_api_create(kmp_service_t *service, kmp_type_e type, uint8_t msg_i
     kmp->sec_prot.msg_if_instance_id = msg_if_instance_id;
 
     if (sec_prot->init(&kmp->sec_prot) < 0) {
-        ns_dyn_mem_free(kmp);
+        free(kmp);
         return 0;
     }
 
@@ -274,7 +274,7 @@ static int8_t kmp_sec_prot_conn_send(sec_prot_t *prot, void *pdu, uint16_t size,
     }
 
     if (result < 0) {
-        ns_dyn_mem_free(pdu);
+        free(pdu);
     }
 
     return result;
@@ -389,7 +389,7 @@ void kmp_api_delete(kmp_api_t *kmp)
     if (kmp->sec_prot.delete) {
         kmp->sec_prot.delete(&kmp->sec_prot);
     }
-    ns_dyn_mem_free(kmp);
+    free(kmp);
 }
 
 void kmp_api_cb_register(kmp_api_t *kmp, kmp_api_create_confirm *create_conf, kmp_api_create_indication *create_ind, kmp_api_finished_indication *finished_ind, kmp_api_finished *finished)
@@ -471,7 +471,7 @@ void kmp_api_sec_keys_set(kmp_api_t *kmp, kmp_sec_keys_t *sec_keys)
 
 kmp_service_t *kmp_service_create(void)
 {
-    kmp_service_t *service = ns_dyn_mem_alloc(sizeof(kmp_service_t));
+    kmp_service_t *service = malloc(sizeof(kmp_service_t));
     if (!service) {
         return NULL;
     }
@@ -500,14 +500,14 @@ int8_t kmp_service_delete(kmp_service_t *service)
         if (list_entry == service) {
             ns_list_foreach_safe(kmp_sec_prot_entry_t, sec_list_entry, &list_entry->sec_prot_list) {
                 ns_list_remove(&list_entry->sec_prot_list, sec_list_entry);
-                ns_dyn_mem_free(sec_list_entry);
+                free(sec_list_entry);
             }
             ns_list_foreach_safe(kmp_msg_if_entry_t, msg_if_list_entry, &list_entry->msg_if_list) {
                 ns_list_remove(&list_entry->msg_if_list, msg_if_list_entry);
-                ns_dyn_mem_free(msg_if_list_entry);
+                free(msg_if_list_entry);
             }
             ns_list_remove(&kmp_service_list, list_entry);
-            ns_dyn_mem_free(list_entry);
+            free(list_entry);
             return 0;
         }
     }
@@ -556,14 +556,14 @@ int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, 
     if (send == NULL) {
         if (entry != NULL) {
             ns_list_remove(&service->msg_if_list, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
         }
         return 0;
     }
 
     // Allocate new entry if does not exists
     if (entry == NULL) {
-        entry = ns_dyn_mem_temporary_alloc(sizeof(kmp_msg_if_entry_t));
+        entry = malloc(sizeof(kmp_msg_if_entry_t));
         if (entry == NULL) {
             return -1;
         }
@@ -647,7 +647,7 @@ int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type
         }
     }
 
-    kmp_sec_prot_entry_t *sec_prot = ns_dyn_mem_temporary_alloc(sizeof(kmp_sec_prot_entry_t));
+    kmp_sec_prot_entry_t *sec_prot = malloc(sizeof(kmp_sec_prot_entry_t));
     if (!sec_prot) {
         return -1;
     }
@@ -666,7 +666,7 @@ int8_t kmp_service_sec_protocol_unregister(kmp_service_t *service, kmp_type_e ty
     ns_list_foreach(kmp_sec_prot_entry_t, list_entry, &service->sec_prot_list) {
         if (list_entry->type == type) {
             ns_list_remove(&service->sec_prot_list, list_entry);
-            ns_dyn_mem_free(list_entry);
+            free(list_entry);
             return 0;
         }
     }

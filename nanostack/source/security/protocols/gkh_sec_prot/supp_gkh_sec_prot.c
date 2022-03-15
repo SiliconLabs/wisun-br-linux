@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -313,7 +313,7 @@ static int8_t supp_gkh_kde_handle(sec_prot_t *prot)
     // If a valid new GTK value present, insert it
     int8_t ret = sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys);
 
-    ns_dyn_mem_free(kde);
+    free(kde);
 
     return ret;
 }

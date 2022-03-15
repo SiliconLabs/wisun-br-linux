@@ -26,7 +26,7 @@
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/ccm.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"
@@ -638,7 +638,7 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     uint8_t status;
 
     //allocate Data ind primitiv and parse packet to that
-    mcps_data_ind_t *data_ind = ns_dyn_mem_temporary_alloc(sizeof(mcps_data_ind_t));
+    mcps_data_ind_t *data_ind = malloc(sizeof(mcps_data_ind_t));
 
     if (!data_ind) {
         goto DROP_PACKET;
@@ -715,7 +715,7 @@ static int8_t mac_data_sap_rx_handler(mac_pre_parsed_frame_t *buf, protocol_inte
     }
 
 DROP_PACKET:
-    ns_dyn_mem_free(data_ind);
+    free(data_ind);
     mcps_sap_pre_parsed_frame_buffer_free(buf);
     return retval;
 }
@@ -1069,7 +1069,7 @@ int8_t mac_mcps_sap_tasklet_init(void)
 
 mac_pre_build_frame_t *mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size)
 {
-    mac_pre_build_frame_t *buffer = ns_dyn_mem_temporary_alloc(sizeof(mac_pre_build_frame_t));
+    mac_pre_build_frame_t *buffer = malloc(sizeof(mac_pre_build_frame_t));
     if (!buffer) {
         return NULL;
     }
@@ -1079,9 +1079,9 @@ mac_pre_build_frame_t *mcps_sap_prebuild_frame_buffer_get(uint16_t payload_size)
     buffer->DSN_allocated = false;
     if (payload_size) {
         //Mac interlnal payload allocate
-        buffer->mac_payload = ns_dyn_mem_temporary_alloc(payload_size);
+        buffer->mac_payload = malloc(payload_size);
         if (!buffer->mac_payload) {
-            ns_dyn_mem_free(buffer);
+            free(buffer);
             return NULL;
         }
         buffer->mac_allocated_payload_ptr = true;
@@ -1100,10 +1100,10 @@ void mcps_sap_prebuild_frame_buffer_free(mac_pre_build_frame_t *buffer)
     }
 
     if (buffer->mac_allocated_payload_ptr) {
-        ns_dyn_mem_free(buffer->mac_payload);
+        free(buffer->mac_payload);
     }
     //Free Buffer frame
-    ns_dyn_mem_free(buffer);
+    free(buffer);
 
 }
 
@@ -2250,12 +2250,12 @@ void mcps_sap_pre_parsed_frame_buffer_free(mac_pre_parsed_frame_t *buf)
         }
     }
 
-    ns_dyn_mem_free(buf);
+    free(buf);
 }
 
 mac_pre_parsed_frame_t *mcps_sap_pre_parsed_frame_buffer_get(const uint8_t *data_ptr, uint16_t frame_length)
 {
-    mac_pre_parsed_frame_t *buffer = ns_dyn_mem_temporary_alloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
+    mac_pre_parsed_frame_t *buffer = malloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
 
     if (buffer) {
         memset(buffer, 0, sizeof(mac_pre_parsed_frame_t) + frame_length);
@@ -2279,10 +2279,10 @@ mac_pre_parsed_frame_t *mcps_sap_pre_parsed_ack_buffer_get(protocol_interface_rf
     if (frame_length > rf_ptr->allocated_ack_buffer_length) {
         //Free Current
         if (rf_ptr->pd_rx_ack_buffer) {
-            ns_dyn_mem_free(rf_ptr->pd_rx_ack_buffer);
+            free(rf_ptr->pd_rx_ack_buffer);
             rf_ptr->allocated_ack_buffer_length = 0;
         }
-        rf_ptr->pd_rx_ack_buffer = ns_dyn_mem_alloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
+        rf_ptr->pd_rx_ack_buffer = malloc(sizeof(mac_pre_parsed_frame_t) + frame_length);
         if (!rf_ptr->pd_rx_ack_buffer) {
             return NULL;
         }
@@ -2496,7 +2496,7 @@ void mac_mcps_buffer_queue_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
             eventOS_cancel(&rf_mac_setup->mac_ack_event);
             rf_mac_setup->rf_pd_ack_buffer_is_in_use = false;
         }
-        ns_dyn_mem_free(rf_mac_setup->pd_rx_ack_buffer);
+        free(rf_mac_setup->pd_rx_ack_buffer);
         rf_mac_setup->pd_rx_ack_buffer = NULL;
         rf_mac_setup->allocated_ack_buffer_length = 0;
     }

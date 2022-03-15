@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/ns_file_system.h"
 #include "ns_file.h"
 
@@ -37,18 +37,18 @@ int ns_file_system_set_root_path(const char *root_path)
 
     if (root_path == NULL) {
         // File system usage disabled
-        ns_dyn_mem_free(file_system_root);
+        free(file_system_root);
         file_system_root = NULL;
         return 0;
     }
 
-    new_root_path = ns_dyn_mem_alloc(strlen(root_path) + 1);
+    new_root_path = malloc(strlen(root_path) + 1);
     if (!new_root_path) {
         // mem alloc failed
         return -2;
     }
 
-    ns_dyn_mem_free(file_system_root);
+    free(file_system_root);
     file_system_root = new_root_path;
     strcpy(file_system_root, root_path);
 

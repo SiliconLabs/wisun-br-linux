@@ -19,7 +19,7 @@
 #include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/utils/isqrt.h"
@@ -616,8 +616,8 @@ uint8_t etx_value_change_callback_register(nwk_interface_id nwk_id, int8_t inter
 bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size)
 {
     if (!etx_storage_size) {
-        ns_dyn_mem_free(etx_info.etx_storage_list);
-        ns_dyn_mem_free(etx_info.etx_cache_storage_list);
+        free(etx_info.etx_storage_list);
+        free(etx_info.etx_cache_storage_list);
         etx_info.etx_cache_storage_list = NULL;
         etx_info.cache_sample_requested = false;
         etx_info.etx_storage_list = NULL;
@@ -629,13 +629,13 @@ bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size)
         return true;
     }
 
-    ns_dyn_mem_free(etx_info.etx_storage_list);
+    free(etx_info.etx_storage_list);
     etx_info.cache_sample_requested = false;
     etx_info.ext_storage_list_size = 0;
-    etx_info.etx_storage_list = ns_dyn_mem_alloc(sizeof(etx_storage_t) * etx_storage_size);
+    etx_info.etx_storage_list = malloc(sizeof(etx_storage_t) * etx_storage_size);
 
     if (!etx_info.etx_storage_list) {
-        ns_dyn_mem_free(etx_info.etx_storage_list);
+        free(etx_info.etx_storage_list);
         etx_info.etx_storage_list = NULL;
         etx_info.ext_storage_list_size = 0;
         return false;
@@ -668,7 +668,7 @@ bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_attempt
 
         if (!etx_info.etx_cache_storage_list) {
             //allocate
-            etx_info.etx_cache_storage_list = ns_dyn_mem_alloc(sizeof(etx_sample_storage_t) * etx_info.ext_storage_list_size);
+            etx_info.etx_cache_storage_list = malloc(sizeof(etx_sample_storage_t) * etx_info.ext_storage_list_size);
 
             if (!etx_info.etx_cache_storage_list) {
                 return false;
@@ -684,7 +684,7 @@ bool etx_cached_etx_parameter_set(uint8_t min_wait_time, uint8_t etx_min_attempt
     } else {
         //Free Cache table we not need that anymore
         etx_info.cache_sample_requested = false;
-        ns_dyn_mem_free(etx_info.etx_cache_storage_list);
+        free(etx_info.etx_cache_storage_list);
         etx_info.etx_cache_storage_list = NULL;
     }
 

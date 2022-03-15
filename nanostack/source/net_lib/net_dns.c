@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "nanostack/net_interface.h"
 
@@ -69,7 +69,7 @@ static dns_server_info_t *dns_server_info_find(int8_t interface_id, const uint8_
 
 static dns_server_info_t *dns_server_info_create(int8_t interface_id, const uint8_t address[16])
 {
-    dns_server_info_t *this = ns_dyn_mem_alloc(sizeof(dns_server_info_t));
+    dns_server_info_t *this = malloc(sizeof(dns_server_info_t));
 
     if (!this) {
         return NULL;
@@ -92,8 +92,8 @@ static void dns_server_info_delete(dns_server_info_t *this)
 
     tr_debug("delete DNS entry for %s", trace_ipv6(this->address));
     ns_list_remove(&dns_server_list, this);
-    ns_dyn_mem_free(this->dns_search_list_ptr);
-    ns_dyn_mem_free(this);
+    free(this->dns_search_list_ptr);
+    free(this);
 }
 
 
@@ -134,7 +134,7 @@ int8_t net_dns_server_search_list_set(int8_t interface_id, const uint8_t address
     if (info_ptr && (!dns_search_list_ptr || lifetime == 0)) {
         // remove search list information
         tr_debug("DNS Search List clear");
-        ns_dyn_mem_free(info_ptr->dns_search_list_ptr);
+        free(info_ptr->dns_search_list_ptr);
         info_ptr->dns_search_list_ptr = NULL;
         info_ptr->dns_search_list_len = 0;
         return 0;
@@ -149,14 +149,14 @@ int8_t net_dns_server_search_list_set(int8_t interface_id, const uint8_t address
     }
 
     if (info_ptr->dns_search_list_ptr && info_ptr->dns_search_list_len != dns_search_list_len) {
-        ns_dyn_mem_free(info_ptr->dns_search_list_ptr);
+        free(info_ptr->dns_search_list_ptr);
         info_ptr->dns_search_list_ptr = NULL;
         info_ptr->dns_search_list_len = 0;
     }
 
     if (dns_search_list_len) {
         if (!info_ptr->dns_search_list_ptr) {
-            info_ptr->dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+            info_ptr->dns_search_list_ptr = malloc(dns_search_list_len);
 
             tr_info("DNS Search List: %s Lifetime: %lu", trace_array(dns_search_list_ptr, dns_search_list_len), (unsigned long) info_ptr->lifetime);
         }
@@ -226,15 +226,15 @@ static dns_query_t *dns_query_result_create(int8_t interface_id, const char *dom
     if (!domain_str) {
         return NULL;
     }
-    this = ns_dyn_mem_alloc(sizeof(dns_query_t));
+    this = malloc(sizeof(dns_query_t));
     if (!this) {
         return NULL;
     }
     memset(this, 0, sizeof(dns_query_t));
 
-    this->domain_str = ns_dyn_mem_alloc(strlen(domain_str) + 1);
+    this->domain_str = malloc(strlen(domain_str) + 1);
     if (!this->domain_str) {
-        ns_dyn_mem_free(this);
+        free(this);
         return NULL;
     }
     this->interface_id = interface_id;
@@ -252,8 +252,8 @@ static void dns_query_result_delete(dns_query_t *this)
 
     tr_debug("Delete DNS query entry for %s", this->domain_str);
     ns_list_remove(&dns_query_list, this);
-    ns_dyn_mem_free(this->domain_str);
-    ns_dyn_mem_free(this);
+    free(this->domain_str);
+    free(this);
 }
 
 int8_t net_dns_query_result_set(int8_t interface_id, const uint8_t address[16], const char *domain_name_ptr, uint32_t lifetime)

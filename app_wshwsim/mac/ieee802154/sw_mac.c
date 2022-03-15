@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/sw_mac.h"
@@ -91,7 +91,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     if (!driver || !driver->phy_driver) {
         return NULL;
     }
-    mac_api_t *this = ns_dyn_mem_alloc(sizeof(mac_api_t));
+    mac_api_t *this = malloc(sizeof(mac_api_t));
     if (!this) {
         return NULL;
     }
@@ -109,7 +109,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes, this->phyMTU);
 
     if (!mac_store.setup) {
-        ns_dyn_mem_free(this);
+        free(this);
         return NULL;
     }
 
@@ -256,7 +256,7 @@ static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication
     cur->enhanced_ack_data_req_cb = ack_data_req_cb;
     if (data_cnf_cb && data_ind_cb && ack_data_req_cb) {
         arm_device_driver_list_s *dev_driver = mac_store.setup->dev_driver;
-        ns_dyn_mem_free(mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf);
+        free(mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf);
 
         uint16_t total_length;
         if (ENHANCED_ACK_MAX_LENGTH > mac_store.setup->phy_mtu_size) {
@@ -266,7 +266,7 @@ static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication
         }
 
         total_length += (dev_driver->phy_driver->phy_header_length + dev_driver->phy_driver->phy_tail_length);
-        mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf = ns_dyn_mem_alloc(total_length);
+        mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf = malloc(total_length);
         if (!mac_store.setup->dev_driver_tx_buffer.enhanced_ack_buf) {
             return -2;
         }
@@ -292,8 +292,8 @@ static int8_t ns_sw_mac_api_enable_edfe_ext(mac_api_t *api, mcps_edfe_handler *e
     }
     cur->edfe_ind_cb = edfe_ind_cb;
     if (edfe_ind_cb) {
-        ns_dyn_mem_free(mac_store.setup->mac_edfe_info);
-        mac_store.setup->mac_edfe_info = ns_dyn_mem_alloc(sizeof(mac_mcps_edfe_frame_info_t));
+        free(mac_store.setup->mac_edfe_info);
+        mac_store.setup->mac_edfe_info = malloc(sizeof(mac_mcps_edfe_frame_info_t));
         if (!mac_store.setup->mac_edfe_info) {
             return -2;
         }

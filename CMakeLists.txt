@@ -223,7 +223,6 @@ add_executable(wsbrd
     mbed-client-libservice/source/libip6string/ip6tos.c
     mbed-client-libservice/source/libip6string/stoip6.c
     mbed-client-libservice/source/libList/ns_list.c
-    mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
     # Excluded mbed-client-libservice/source/nvmHelper
     mbed-trace/source/mbed_trace.c
 )
@@ -424,7 +423,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libip6string/ip6tos.c
         mbed-client-libservice/source/libip6string/stoip6.c
         mbed-client-libservice/source/libList/ns_list.c
-        mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
         # Excluded mbed-client-libservice/source/nvmHelper
         mbed-trace/source/mbed_trace.c
     )
@@ -467,7 +465,6 @@ if(COMPILE_SIMULATION_TOOLS)
         mbed-client-libservice/source/libip6string/ip6tos.c
         mbed-client-libservice/source/libip6string/stoip6.c
         mbed-client-libservice/source/libList/ns_list.c
-        mbed-client-libservice/source/nsdynmemLIB/nsdynmemLIB.c
         mbed-trace/source/mbed_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c

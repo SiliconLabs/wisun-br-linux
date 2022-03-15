@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -107,7 +107,7 @@ static int8_t msg_sec_prot_auth_rejected_send(sec_prot_t *prot, sec_prot_keys_t 
 {
     (void) sec_keys;
 
-    uint8_t *eapol_pdu_frame = ns_dyn_mem_temporary_alloc(prot->header_size);
+    uint8_t *eapol_pdu_frame = malloc(prot->header_size);
 
     // Send zero length message to relay which requests LLC to remove EAPOL temporary entry based on EUI-64
     if (prot->send(prot, eapol_pdu_frame, prot->header_size) < 0) {

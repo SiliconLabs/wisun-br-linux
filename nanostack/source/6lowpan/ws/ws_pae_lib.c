@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
 
@@ -52,7 +52,7 @@ kmp_entry_t *ws_pae_lib_kmp_list_add(kmp_list_t *kmp_list, kmp_api_t *kmp)
         return entry;
     }
 
-    entry = ns_dyn_mem_alloc(sizeof(kmp_entry_t));
+    entry = malloc(sizeof(kmp_entry_t));
     if (!entry) {
         return NULL;
     }
@@ -71,7 +71,7 @@ int8_t ws_pae_lib_kmp_list_delete(kmp_list_t *kmp_list, kmp_api_t *kmp)
     if (entry) {
         ns_list_remove(kmp_list, entry);
         kmp_api_delete(entry->kmp);
-        ns_dyn_mem_free(entry);
+        free(entry);
         return 0;
     }
 
@@ -112,7 +112,7 @@ void ws_pae_lib_kmp_list_free(kmp_list_t *kmp_list)
 {
     ns_list_foreach_safe(kmp_entry_t, cur, kmp_list) {
         kmp_api_delete(cur->kmp);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }
 
@@ -182,7 +182,7 @@ void ws_pae_lib_supp_list_init(supp_list_t *supp_list)
 
 supp_entry_t *ws_pae_lib_supp_list_add(supp_list_t *supp_list, const kmp_addr_t *addr)
 {
-    supp_entry_t *entry = ns_dyn_mem_temporary_alloc(sizeof(supp_entry_t));
+    supp_entry_t *entry = malloc(sizeof(supp_entry_t));
 
     if (!entry) {
         return NULL;
@@ -204,7 +204,7 @@ int8_t ws_pae_lib_supp_list_remove(void *instance, supp_list_t *supp_list, supp_
 
     ws_pae_lib_supp_delete(supp);
 
-    ns_dyn_mem_free(supp);
+    free(supp);
 
     if (supp_deleted != NULL) {
         supp_deleted(instance);
@@ -451,7 +451,7 @@ int8_t ws_pae_lib_shared_comp_list_free(shared_comp_list_t *comp_list)
             entry->data->delete ();
         }
         ns_list_remove(comp_list, entry);
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
     return 0;
 }
@@ -464,7 +464,7 @@ int8_t ws_pae_lib_shared_comp_list_add(shared_comp_list_t *comp_list, kmp_shared
         }
     }
 
-    shared_comp_entry_t *entry = ns_dyn_mem_alloc(sizeof(shared_comp_entry_t));
+    shared_comp_entry_t *entry = malloc(sizeof(shared_comp_entry_t));
     if (!entry) {
         return -1;
     }
@@ -479,7 +479,7 @@ int8_t ws_pae_lib_shared_comp_list_remove(shared_comp_list_t *comp_list, kmp_sha
     ns_list_foreach(shared_comp_entry_t, entry, comp_list) {
         if (entry->data == data) {
             ns_list_remove(comp_list, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
             return 0;
         }
     }

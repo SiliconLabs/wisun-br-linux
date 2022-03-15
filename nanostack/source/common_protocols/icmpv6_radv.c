@@ -42,7 +42,7 @@
 #include <string.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 
 #include "nwk_interface/protocol.h"
@@ -170,7 +170,7 @@ void icmpv6_trigger_ra_from_rs(protocol_interface_info_entry_t *cur, const uint8
         /* Unqueue, and we'll requeue for an earlier time */
         icmpv6_unqueue_ra(ra);
     } else {
-        ra = ns_dyn_mem_alloc(sizeof(icmp_queued_ra_t));
+        ra = malloc(sizeof(icmp_queued_ra_t));
         if (!ra) {
             return;
         }
@@ -266,7 +266,7 @@ void icmpv6_restart_router_advertisements(protocol_interface_info_entry_t *cur, 
     if (ra) {
         icmpv6_unqueue_ra(ra);
     } else {
-        ra = ns_dyn_mem_alloc(sizeof(icmp_queued_ra_t));
+        ra = malloc(sizeof(icmp_queued_ra_t));
         if (!ra) {
             return;
         }
@@ -314,7 +314,7 @@ void icmpv6_stop_router_advertisements(protocol_interface_info_entry_t *cur, con
             }
 
             icmpv6_unqueue_ra(ra);
-            ns_dyn_mem_free(ra);
+            free(ra);
         }
     }
 }
@@ -354,7 +354,7 @@ void icmpv6_radv_timer(uint16_t ticks)
 
         ipv6_ra_timing_t *t = icmpv6_ra_timing_lookup(ra->interface, ra->abro);
         if (!t) {
-            ns_dyn_mem_free(ra);
+            free(ra);
         } else {
             /* Safety check - make sure we shut down okay if this gets flipped off */
             if (ra->interface->adv_send_advertisements) {
@@ -375,7 +375,7 @@ void icmpv6_radv_timer(uint16_t ticks)
                 ra->rs_triggered = false;
                 ns_list_add_to_end(&to_requeue, ra);
             } else {
-                ns_dyn_mem_free(ra);
+                free(ra);
             }
         }
     }

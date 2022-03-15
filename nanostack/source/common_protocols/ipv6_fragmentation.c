@@ -34,7 +34,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 
 #include "core/ns_socket.h"
@@ -117,7 +117,7 @@ static void free_datagram(ip_fragmented_datagram_t *dgram)
     if (dgram->buf) {
         buffer_free(dgram->buf);
     }
-    ns_dyn_mem_free(dgram);
+    free(dgram);
 }
 
 /* We would be in trouble if last fragment is < 8 bytes, and we didn't have
@@ -198,7 +198,7 @@ static ip_fragmented_datagram_t *ip_frag_dgram_lookup(buffer_t *buf, uint32_t id
         free_datagram(ns_list_get_last(&frag_list));
     }
 
-    ip_fragmented_datagram_t *new_dgram = ns_dyn_mem_temporary_alloc(sizeof(ip_fragmented_datagram_t));
+    ip_fragmented_datagram_t *new_dgram = malloc(sizeof(ip_fragmented_datagram_t));
     if (!new_dgram) {
         return NULL;
     }
@@ -230,7 +230,7 @@ static ip_fragmented_datagram_t *ip_frag_dgram_lookup(buffer_t *buf, uint32_t id
      */
     new_dgram->buf = buffer_get(unfrag_len + ipv6_frag_mru - 40);
     if (!new_dgram->buf) {
-        ns_dyn_mem_free(new_dgram);
+        free(new_dgram);
         return NULL;
     }
 

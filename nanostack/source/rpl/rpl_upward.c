@@ -31,7 +31,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ip6string.h"
 #include "service_libs/trickle/trickle.h"
 #include "nanostack/net_interface.h"
@@ -1054,7 +1054,7 @@ void rpl_dodag_delete_dio_prefix(rpl_dodag_t *dodag, prefix_entry_t *prefix)
     }
 
     ns_list_remove(&dodag->prefixes, prefix);
-    ns_dyn_mem_free(prefix);
+    free(prefix);
 }
 
 static void rpl_dodag_age_prefixes(rpl_dodag_t *dodag, uint16_t seconds)

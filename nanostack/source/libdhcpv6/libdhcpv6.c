@@ -26,7 +26,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 
 #include "libdhcpv6/libdhcpv6.h"
 
@@ -38,11 +38,11 @@ static NS_LARGE NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_ser
 //Allocate
 static dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_entry_allocate(void)
 {
-    dhcpv6_client_server_data_t *newEntry = ns_dyn_mem_alloc(sizeof(dhcpv6_client_server_data_t));
-    uint8_t *temporary_duid = ns_dyn_mem_alloc(16); //Support DUID-LL, DUID-LLP and DUID-UUID  by default
+    dhcpv6_client_server_data_t *newEntry = malloc(sizeof(dhcpv6_client_server_data_t));
+    uint8_t *temporary_duid = malloc(16); //Support DUID-LL, DUID-LLP and DUID-UUID  by default
     if (!newEntry || !temporary_duid) {
-        ns_dyn_mem_free(newEntry);
-        ns_dyn_mem_free(temporary_duid);
+        free(newEntry);
+        free(temporary_duid);
         return NULL;
     }
 
@@ -167,8 +167,8 @@ void libdhcvp6_nontemporalAddress_server_data_free(dhcpv6_client_server_data_t *
 {
     if (removedEntry) {
         ns_list_remove(&dhcpv6_client_nonTemporal_list, removedEntry);
-        ns_dyn_mem_free(removedEntry->serverDynamic_DUID);
-        ns_dyn_mem_free(removedEntry);
+        free(removedEntry->serverDynamic_DUID);
+        free(removedEntry);
     }
 }
 

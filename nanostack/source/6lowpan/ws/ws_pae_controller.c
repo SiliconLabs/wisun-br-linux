@@ -21,7 +21,7 @@
 #include <mbedtls/sha256.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
 #include "service_libs/utils/ns_time.h"
 #include "nanostack/mac/fhss_config.h"
@@ -701,10 +701,10 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
         return 0;
     }
 
-    pae_controller_t *controller = ns_dyn_mem_alloc(sizeof(pae_controller_t));
+    pae_controller_t *controller = malloc(sizeof(pae_controller_t));
 
     if (!controller) {
-        ns_dyn_mem_free(controller);
+        free(controller);
         return -1;
     }
 
@@ -1068,7 +1068,7 @@ int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr)
     }
 
     ns_list_remove(&pae_controller_list, controller);
-    ns_dyn_mem_free(controller);
+    free(controller);
 
     return 0;
 }
@@ -1256,7 +1256,7 @@ sec_radius_cfg_t *ws_pae_controller_radius_config_get(void)
         return pae_controller_config.radius_cfg;
     }
 
-    pae_controller_config.radius_cfg = ns_dyn_mem_alloc(sizeof(sec_radius_cfg_t));
+    pae_controller_config.radius_cfg = malloc(sizeof(sec_radius_cfg_t));
     if (pae_controller_config.radius_cfg == NULL) {
         return NULL;
     }

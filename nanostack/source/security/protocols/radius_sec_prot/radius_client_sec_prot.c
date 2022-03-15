@@ -24,7 +24,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/trickle/trickle.h"
 #include "nanostack/mac/fhss_config.h"
@@ -207,7 +207,7 @@ static int8_t radius_client_sec_prot_shared_data_delete(void)
     if (shared_data == NULL) {
         return -1;
     }
-    ns_dyn_mem_free(shared_data);
+    free(shared_data);
     shared_data = NULL;
     return 0;
 }
@@ -250,7 +250,7 @@ static int8_t radius_client_sec_prot_init(sec_prot_t *prot)
     data->radius_id_range_set = false;
 
     if (!shared_data) {
-        shared_data = ns_dyn_mem_alloc(sizeof(radius_client_sec_prot_shared_t));
+        shared_data = malloc(sizeof(radius_client_sec_prot_shared_t));
         if (!shared_data) {
             return -1;
         }
@@ -272,16 +272,16 @@ static void radius_client_sec_prot_delete(sec_prot_t *prot)
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
     if (data->recv_eap_msg != NULL) {
-        ns_dyn_mem_free(data->recv_eap_msg);
+        free(data->recv_eap_msg);
     }
     if (data->send_radius_msg != NULL) {
-        ns_dyn_mem_free(data->send_radius_msg);
+        free(data->send_radius_msg);
     }
     if (data->identity != NULL) {
-        ns_dyn_mem_free(data->identity);
+        free(data->identity);
     }
     if (data->state != NULL) {
-        ns_dyn_mem_free(data->state);
+        free(data->state);
     }
 }
 
@@ -467,7 +467,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     }
 
     // Allocate memory for continuous EAP buffer
-    data->recv_eap_msg = ns_dyn_mem_temporary_alloc(data->recv_eap_msg_len + data->radius_eap_tls_header_size);
+    data->recv_eap_msg = malloc(data->recv_eap_msg_len + data->radius_eap_tls_header_size);
     if (data->recv_eap_msg == NULL) {
         tr_error("Cannot allocate eap msg");
         return -1;
@@ -476,7 +476,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     // Copy EAP AVPs to continuous buffer
     uint16_t copy_eap_len = radius_client_sec_prot_eap_avps_handle(avp_length, radius_msg_ptr, data->recv_eap_msg + data->radius_eap_tls_header_size);
     if (copy_eap_len != data->recv_eap_msg_len) {
-        ns_dyn_mem_free(data->recv_eap_msg);
+        free(data->recv_eap_msg);
         return -1;
     }
 
@@ -486,15 +486,15 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     if (state) {
         state_len -= AVP_FIXED_LEN;
         if (data->state && data->state_len != state_len) {
-            ns_dyn_mem_free(data->state);
+            free(data->state);
             data->state = NULL;
         }
         if (!data->state) {
-            data->state = ns_dyn_mem_temporary_alloc(state_len);
+            data->state = malloc(state_len);
         }
         if (!data->state) {
             tr_error("Cannot allocate state");
-            ns_dyn_mem_free(data->recv_eap_msg);
+            free(data->recv_eap_msg);
             data->recv_eap_msg = NULL;
             return -1;
         }
@@ -502,7 +502,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
         data->state_len = state_len;
     } else {
         if (data->state) {
-            ns_dyn_mem_free(data->state);
+            free(data->state);
             data->state = NULL;
             data->state_len = 0;
         }
@@ -623,7 +623,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
         if (id_len > AVP_VALUE_MAX_LEN) {
             id_len = AVP_VALUE_MAX_LEN;
         }
-        data->identity = ns_dyn_mem_temporary_alloc(id_len);
+        data->identity = malloc(id_len);
         if (!data->identity) {
             return;
         }
@@ -658,10 +658,10 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     radius_msg_length += AVP_TYPE_MESSAGE_AUTHENTICATOR_LEN;
     radius_msg_length += AVP_TYPE_NAS_IPV6_ADDRESS_LEN;
 
-    uint8_t *radius_msg_ptr = ns_dyn_mem_temporary_alloc(radius_msg_length);
+    uint8_t *radius_msg_ptr = malloc(radius_msg_length);
     if (radius_msg_ptr == NULL) {
         if (data->send_radius_msg != NULL) {
-            ns_dyn_mem_free(data->send_radius_msg);
+            free(data->send_radius_msg);
         }
         data->send_radius_msg = NULL;
         data->send_radius_msg_len = 0;
@@ -728,7 +728,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     radius_msg_ptr = avp_message_authenticator_write(radius_msg_ptr, message_auth);
     // Calculate message authenticator
     if (radius_client_sec_prot_message_authenticator_calc(prot, radius_msg_length, radius_msg_start_ptr, message_auth) < 0) {
-        ns_dyn_mem_free(radius_msg_start_ptr);
+        free(radius_msg_start_ptr);
         return;
     }
     // Write message authenticator
@@ -736,7 +736,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
 
     // Store message for sending
     if (data->send_radius_msg != NULL) {
-        ns_dyn_mem_free(data->send_radius_msg);
+        free(data->send_radius_msg);
     }
     data->send_radius_msg = radius_msg_start_ptr;
     data->send_radius_msg_len = radius_msg_length;
@@ -762,7 +762,7 @@ static void radius_client_sec_prot_radius_msg_free(sec_prot_t *prot)
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
     if (data->send_radius_msg != NULL) {
-        ns_dyn_mem_free(data->send_radius_msg);
+        free(data->send_radius_msg);
     }
 
     data->send_radius_msg = NULL;
@@ -1154,7 +1154,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
                 data->radius_eap_tls_send(data->radius_eap_tls_prot, (void *) data->recv_eap_msg, data->recv_eap_msg_len);
             } else {
                 if (data->recv_eap_msg) {
-                    ns_dyn_mem_free(data->recv_eap_msg);
+                    free(data->recv_eap_msg);
                 }
             }
             data->recv_eap_msg = NULL;
@@ -1189,7 +1189,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             if (data->radius_code != RADIUS_MESSAGE_NONE) {
                 // Received retry for already handled message from RADIUS server, ignore
                 if (data->recv_eap_msg) {
-                    ns_dyn_mem_free(data->recv_eap_msg);
+                    free(data->recv_eap_msg);
                 }
                 data->recv_eap_msg = NULL;
                 data->recv_eap_msg_len = 0;

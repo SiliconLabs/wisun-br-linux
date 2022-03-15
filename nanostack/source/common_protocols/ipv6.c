@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
@@ -100,7 +100,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         return buf->route;
     }
 
-    buf->route = route = ns_dyn_mem_temporary_alloc(sizeof(buffer_routing_info_t));
+    buf->route = route = malloc(sizeof(buffer_routing_info_t));
     if (!route) {
         return NULL;
     }
@@ -245,7 +245,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     return route;
 
 no_route:
-    ns_dyn_mem_free(buf->route);
+    free(buf->route);
     return buf->route = NULL;
 }
 

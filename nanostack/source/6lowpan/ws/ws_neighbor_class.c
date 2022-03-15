@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/fhss_config.h"
@@ -38,7 +38,7 @@
 bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
 {
 
-    class_data->neigh_info_list = ns_dyn_mem_alloc(sizeof(ws_neighbor_class_entry_t) * list_size);
+    class_data->neigh_info_list = malloc(sizeof(ws_neighbor_class_entry_t) * list_size);
     if (!class_data->neigh_info_list) {
         return false;
     }
@@ -57,7 +57,7 @@ bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
 
 void ws_neighbor_class_dealloc(ws_neighbor_class_t *class_data)
 {
-    ns_dyn_mem_free(class_data->neigh_info_list);
+    free(class_data->neigh_info_list);
     class_data->neigh_info_list = NULL;
     class_data->list_size = 0;
 }

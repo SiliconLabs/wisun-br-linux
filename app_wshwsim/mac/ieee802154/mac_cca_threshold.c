@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
 
@@ -38,13 +38,13 @@ int8_t mac_cca_thr_init(protocol_interface_rf_mac_setup_s *rf_ptr, uint8_t numbe
         return -1;
     }
     mac_cca_thr_deinit(rf_ptr);
-    rf_ptr->cca_threshold = ns_dyn_mem_alloc(sizeof(mac_cca_threshold_s));
+    rf_ptr->cca_threshold = malloc(sizeof(mac_cca_threshold_s));
     if (!rf_ptr->cca_threshold) {
         return -1;
     }
-    rf_ptr->cca_threshold->ch_thresholds = ns_dyn_mem_alloc(number_of_channels);
+    rf_ptr->cca_threshold->ch_thresholds = malloc(number_of_channels);
     if (!rf_ptr->cca_threshold->ch_thresholds) {
-        ns_dyn_mem_free(rf_ptr->cca_threshold);
+        free(rf_ptr->cca_threshold);
         rf_ptr->cca_threshold = 0;
         return -1;
     }
@@ -62,8 +62,8 @@ int8_t mac_cca_thr_deinit(protocol_interface_rf_mac_setup_s *rf_ptr)
     if (!rf_ptr->cca_threshold) {
         return -1;
     }
-    ns_dyn_mem_free(rf_ptr->cca_threshold->ch_thresholds);
-    ns_dyn_mem_free(rf_ptr->cca_threshold);
+    free(rf_ptr->cca_threshold->ch_thresholds);
+    free(rf_ptr->cca_threshold);
     rf_ptr->cca_threshold = 0;
     return 0;
 }

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_mcps.h"
@@ -86,7 +86,7 @@ int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr)
         return 0;
     }
 
-    eapol_pdu_data_t *eapol_pdu_data = ns_dyn_mem_alloc(sizeof(eapol_pdu_data_t));
+    eapol_pdu_data_t *eapol_pdu_data = malloc(sizeof(eapol_pdu_data_t));
     if (!eapol_pdu_data) {
         return -1;
     }
@@ -115,16 +115,16 @@ int8_t ws_eapol_pdu_delete(protocol_interface_info_entry_t *interface_ptr)
 
     ns_list_foreach_safe(eapol_pdu_recv_cb_t, cb_entry, &eapol_pdu_data->recv_cb_list) {
         ns_list_remove(&eapol_pdu_data->recv_cb_list, cb_entry);
-        ns_dyn_mem_free(cb_entry);
+        free(cb_entry);
     }
 
     ns_list_foreach_safe(eapol_pdu_msdu_t, msdu_entry, &eapol_pdu_data->msdu_list) {
         ns_list_remove(&eapol_pdu_data->msdu_list, msdu_entry);
-        ns_dyn_mem_free(msdu_entry);
+        free(msdu_entry);
     }
 
     ns_list_remove(&eapol_pdu_data_list, eapol_pdu_data);
-    ns_dyn_mem_free(eapol_pdu_data);
+    free(eapol_pdu_data);
 
     return 0;
 }
@@ -141,7 +141,7 @@ int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, 
         return -1;
     }
 
-    eapol_pdu_recv_cb_t *new_cb = ns_dyn_mem_alloc(sizeof(eapol_pdu_recv_cb_t));
+    eapol_pdu_recv_cb_t *new_cb = malloc(sizeof(eapol_pdu_recv_cb_t));
     if (!new_cb) {
         return -1;
     }
@@ -177,7 +177,7 @@ int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr
     ns_list_foreach_safe(eapol_pdu_recv_cb_t, entry, &eapol_pdu_data->recv_cb_list) {
         if (entry->receive == cb_data->receive) {
             ns_list_remove(&eapol_pdu_data->recv_cb_list, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
             return 0;
         }
     }
@@ -196,7 +196,7 @@ int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, 
     mcps_data_req_t data_request;
     ws_eapol_pdu_data_request_primitiv_set(&data_request, eapol_pdu_data->interface_ptr);
 
-    eapol_pdu_msdu_t *msdu_entry = ns_dyn_mem_temporary_alloc(sizeof(eapol_pdu_msdu_t));
+    eapol_pdu_msdu_t *msdu_entry = malloc(sizeof(eapol_pdu_msdu_t));
     if (!msdu_entry) {
         return -1;
     }
@@ -296,9 +296,9 @@ static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcp
                 }
                 msdu->tx_status(eapol_pdu_data->interface_ptr, status, msdu->tx_identifier);
             }
-            ns_dyn_mem_free(msdu->buffer);
+            free(msdu->buffer);
             ns_list_remove(&eapol_pdu_data->msdu_list, msdu);
-            ns_dyn_mem_free(msdu);
+            free(msdu);
             return;
         }
     }

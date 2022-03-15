@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/mac_api.h"
@@ -65,7 +65,7 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
         return 0;
     }
 
-    eapol_auth_relay_t *eapol_auth_relay = ns_dyn_mem_alloc(sizeof(eapol_auth_relay_t));
+    eapol_auth_relay_t *eapol_auth_relay = malloc(sizeof(eapol_auth_relay_t));
     if (!eapol_auth_relay) {
         return -1;
     }
@@ -78,7 +78,7 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
 
     eapol_auth_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_auth_relay_socket_cb);
     if (eapol_auth_relay->socket_id < 0) {
-        ns_dyn_mem_free(eapol_auth_relay);
+        free(eapol_auth_relay);
         return -1;
     }
     int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
@@ -103,7 +103,7 @@ int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr
     socket_close(eapol_auth_relay->socket_id);
 
     ns_list_remove(&eapol_auth_relay_list, eapol_auth_relay);
-    ns_dyn_mem_free(eapol_auth_relay);
+    free(eapol_auth_relay);
 
     return 0;
 }
@@ -140,7 +140,7 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
         return;
     }
 
-    uint8_t *socket_pdu = ns_dyn_mem_temporary_alloc(cb_data->d_len);
+    uint8_t *socket_pdu = malloc(cb_data->d_len);
     if (!socket_pdu) {
         return;
     }
@@ -148,7 +148,7 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
     ns_address_t src_addr;
 
     if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
         return;
     }
 
@@ -169,18 +169,18 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
          * i.e. is purge message and is not going to authenticator local relay then ignores message
          */
         if (data_len == 1 && !addr_ipv6_equal(relay_ip_addr.address, eapol_auth_relay->relay_addr.address)) {
-            ns_dyn_mem_free(socket_pdu);
+            free(socket_pdu);
             return;
         }
         ws_eapol_relay_lib_send_to_relay(eapol_auth_relay->socket_id, eui_64, &relay_ip_addr,
                                          ptr, data_len);
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
         // Other source port (either 10253 or node relay source port) -> to KMP service
     } else {
         uint8_t *ptr = socket_pdu;
         ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay, ptr, src_addr.address, src_addr.identifier,
                                         ptr + 8, cb_data->d_len - 8);
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
     }
 }
 

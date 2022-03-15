@@ -19,7 +19,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mbed-client-libservice/ip_fsc.h"
@@ -92,7 +92,7 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
     if (total_size <= BUFFER_MAX_SIZE) {
         // Note - as well as this alloc+init, buffers can also be "realloced"
         // in buffer_headroom()
-        buf = ns_dyn_mem_temporary_alloc(sizeof(buffer_t) + total_size);
+        buf = malloc(sizeof(buffer_t) + total_size);
     }
 
     if (buf) {
@@ -143,7 +143,7 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         // TODO - should we be giving them extra? probably
         uint32_t new_total = (curr_len + size + 3) & ~ 3;
         if (new_total <= BUFFER_MAX_SIZE) {
-            new_buf = ns_dyn_mem_temporary_alloc(sizeof(buffer_t) + new_total);
+            new_buf = malloc(sizeof(buffer_t) + new_total);
         }
 
         if (new_buf) {
@@ -156,7 +156,7 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
             // Copy the current data
             memcpy(buffer_data_pointer(new_buf), buffer_data_pointer(buf), curr_len);
             protocol_stats_update(STATS_BUFFER_HEADROOM_REALLOC, 1);
-            ns_dyn_mem_free(buf);
+            free(buf);
             buf = new_buf;
         } else {
             tr_error("HeadRoom Fail");
@@ -183,7 +183,7 @@ buffer_t *buffer_free_route(buffer_t *buf)
 {
     if (buf->route) {
         if (--buf->route->ref_count == 0) {
-            ns_dyn_mem_free(buf->route);
+            free(buf->route);
         }
         buf->route = NULL;
     }
@@ -210,9 +210,9 @@ buffer_t *buffer_free(buffer_t *buf)
 
         buf = buffer_free_route(buf);
         socket_dereference(buf->socket);
-        ns_dyn_mem_free(buf->predecessor);
-        ns_dyn_mem_free(buf->rpl_option);
-        ns_dyn_mem_free(buf);
+        free(buf->predecessor);
+        free(buf->rpl_option);
+        free(buf);
 
     } else {
         tr_error("nullp F");
@@ -235,12 +235,12 @@ void buffer_free_list(buffer_list_t *list)
 buffer_t *buffer_turnaround(buffer_t *buf)
 {
     if (buf->predecessor) {
-        ns_dyn_mem_free(buf->predecessor);
+        free(buf->predecessor);
         buf->predecessor = NULL;
     }
 
     if (buf->rpl_option) {
-        ns_dyn_mem_free(buf->rpl_option);
+        free(buf->rpl_option);
         buf->rpl_option = NULL;
     }
     buf->options.tunnelled = false;
@@ -260,7 +260,7 @@ buffer_t *buffer_turnaround(buffer_t *buf)
 void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr)
 {
     if (buf->options.need_predecessor && !buf->predecessor) {
-        buf->predecessor = ns_dyn_mem_temporary_alloc(sizeof * buf->predecessor);
+        buf->predecessor = malloc(sizeof * buf->predecessor);
         if (buf->predecessor) {
             memcpy(buf->predecessor, addr, sizeof * buf->predecessor);
         }

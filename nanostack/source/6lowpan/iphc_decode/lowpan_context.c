@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
@@ -76,13 +76,13 @@ int_fast8_t lowpan_context_update(lowpan_context_list_t *list, uint8_t cid_flags
     if (lifetime == 0) {
         /* This is a removal request: delete any existing entry, then exit */
         if (ctx) {
-            ns_dyn_mem_free(ctx);
+            free(ctx);
         }
         return 0;
     }
 
     if (!ctx) {
-        ctx = ns_dyn_mem_alloc(sizeof(lowpan_context_t));
+        ctx = malloc(sizeof(lowpan_context_t));
     }
 
     if (!ctx) {
@@ -120,7 +120,7 @@ void lowpan_context_list_free(lowpan_context_list_t *list)
 {
     ns_list_foreach_safe(lowpan_context_t, cur, list) {
         ns_list_remove(list, cur);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }
 
@@ -143,7 +143,7 @@ void lowpan_context_timer(lowpan_context_list_t *list, uint_fast16_t ticks)
         } else {
             /* 1-hour expiration timer set above has run out */
             ns_list_remove(list, ctx);
-            ns_dyn_mem_free(ctx);
+            free(ctx);
             tr_debug("Delete Expired context");
         }
     }

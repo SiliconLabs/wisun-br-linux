@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -42,7 +42,7 @@ static const uint8_t empty_hash[GTK_HASH_LEN] = {0};
 
 sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
 {
-    sec_prot_keys_t *sec_keys = ns_dyn_mem_alloc(sizeof(sec_prot_keys_t));
+    sec_prot_keys_t *sec_keys = malloc(sizeof(sec_prot_keys_t));
     if (!sec_keys) {
         return NULL;
     }
@@ -74,12 +74,12 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, co
 
 void sec_prot_keys_delete(sec_prot_keys_t *sec_keys)
 {
-    ns_dyn_mem_free(sec_keys);
+    free(sec_keys);
 }
 
 sec_prot_gtk_keys_t *sec_prot_keys_gtks_create(void)
 {
-    sec_prot_gtk_keys_t *gtks = ns_dyn_mem_alloc(sizeof(sec_prot_gtk_keys_t));
+    sec_prot_gtk_keys_t *gtks = malloc(sizeof(sec_prot_gtk_keys_t));
     if (!gtks) {
         return NULL;
     }
@@ -107,7 +107,7 @@ void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks)
 
 void sec_prot_keys_gtks_delete(sec_prot_gtk_keys_t *gtks)
 {
-    ns_dyn_mem_free(gtks);
+    free(gtks);
 }
 
 void sec_prot_keys_pmk_write(sec_prot_keys_t *sec_keys, uint8_t *pmk, uint32_t pmk_lifetime)

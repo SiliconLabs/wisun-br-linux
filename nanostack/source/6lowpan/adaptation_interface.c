@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -342,8 +342,8 @@ static void lowpan_list_entry_free(fragmenter_tx_list_t *list, fragmenter_tx_ent
     if (entry->buf) {
         buffer_free(entry->buf);
     }
-    ns_dyn_mem_free(entry->fragmenter_buf);
-    ns_dyn_mem_free(entry);
+    free(entry->fragmenter_buf);
+    free(entry);
 }
 
 static void lowpan_list_free(fragmenter_tx_list_t *list, bool fragment_buf_free)
@@ -368,7 +368,7 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
     lowpan_adaptation_interface_free(interface_id);
 
     //Allocate new
-    fragmenter_interface_t *interface_ptr = ns_dyn_mem_alloc(sizeof(fragmenter_interface_t));
+    fragmenter_interface_t *interface_ptr = malloc(sizeof(fragmenter_interface_t));
     if (!interface_ptr) {
         return -1;
     }
@@ -413,8 +413,8 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id)
     interface_ptr->directTxQueue_size = 0;
     interface_ptr->directTxQueue_level = 0;
     //Free Dynamic allocated entries
-    ns_dyn_mem_free(interface_ptr->fragment_indirect_tx_buffer);
-    ns_dyn_mem_free(interface_ptr);
+    free(interface_ptr->fragment_indirect_tx_buffer);
+    free(interface_ptr);
 
     return 0;
 }
@@ -498,15 +498,15 @@ buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_
 
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size)
 {
-    fragmenter_tx_entry_t *indirec_entry = ns_dyn_mem_temporary_alloc(sizeof(fragmenter_tx_entry_t));
+    fragmenter_tx_entry_t *indirec_entry = malloc(sizeof(fragmenter_tx_entry_t));
     if (!indirec_entry) {
         return NULL;
     }
 
     if (fragment_buffer_size) {
-        indirec_entry->fragmenter_buf = ns_dyn_mem_temporary_alloc(fragment_buffer_size);
+        indirec_entry->fragmenter_buf = malloc(fragment_buffer_size);
         if (!indirec_entry->fragmenter_buf) {
-            ns_dyn_mem_free(indirec_entry);
+            free(indirec_entry);
             return NULL;
         }
     } else {
@@ -1069,7 +1069,7 @@ static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info
                     buffer_t *buf = entry->buf;
                     ns_list_remove(&interface_ptr->activeUnicastList, entry);
                     interface_ptr->activeTxList_size--;
-                    ns_dyn_mem_free(entry);
+                    free(entry);
                     //Add message to tx queue front based on priority. Now same priority at buf is prioritised at order
                     lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
                 }
@@ -1199,7 +1199,7 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
     if (fragmented_needed) {
         // If fragmentation TX buffer not allocated, do it now.
         if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
-            interface_ptr->fragment_indirect_tx_buffer = ns_dyn_mem_alloc(cur->mac_api->phyMTU);
+            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_api->phyMTU);
             if (interface_ptr->fragment_indirect_tx_buffer) {
                 interface_ptr->mtu_size = cur->mac_api->phyMTU;
             } else {
@@ -1247,8 +1247,8 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
         if (lowpan_message_fragmentation_init(buf, tx_ptr, cur, interface_ptr)) {
             tr_error("Fragment init fail");
             if (indirect) {
-                ns_dyn_mem_free(tx_ptr->fragmenter_buf);
-                ns_dyn_mem_free(tx_ptr);
+                free(tx_ptr->fragmenter_buf);
+                free(tx_ptr);
             } else {
                 tx_ptr->buf = NULL;
             }
@@ -1290,9 +1290,9 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
             ns_list_add_to_end(&interface_ptr->indirect_tx_queue, tx_ptr);
         } else {
             if (tx_ptr->fragmenter_buf) {
-                ns_dyn_mem_free(tx_ptr->fragmenter_buf);
+                free(tx_ptr->fragmenter_buf);
             }
-            ns_dyn_mem_free(tx_ptr);
+            free(tx_ptr);
             goto tx_error_handler;
         }
 
@@ -1378,7 +1378,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
         lowpan_list_entry_free(&interface_ptr->indirect_tx_queue, tx_ptr);
     } else if (buf->link_specific.ieee802_15_4.requestAck) {
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
-        ns_dyn_mem_free(tx_ptr);
+        free(tx_ptr);
         interface_ptr->activeTxList_size--;
     }
 
@@ -1471,7 +1471,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
     } else if ((buf->link_specific.ieee802_15_4.requestAck) && (confirm->status == MLME_TRANSACTION_EXPIRED)) {
         lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
-        ns_dyn_mem_free(tx_ptr);
+        free(tx_ptr);
         interface_ptr->activeTxList_size--;
     } else {
 

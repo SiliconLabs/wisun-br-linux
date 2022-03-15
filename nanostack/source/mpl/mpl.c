@@ -21,7 +21,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/trickle/trickle.h"
 
 #include "core/ns_buffer.h"
@@ -214,7 +214,7 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
         seed_id_len = 0;
     }
 
-    mpl_domain_t *domain = ns_dyn_mem_alloc(sizeof * domain + seed_id_len);
+    mpl_domain_t *domain = malloc(sizeof * domain + seed_id_len);
     if (!domain) {
         return NULL;
     }
@@ -285,7 +285,7 @@ bool mpl_domain_delete(protocol_interface_info_entry_t *cur, const uint8_t addre
         addr_delete_group(cur, ll_scope);
     }
     ns_list_remove(&mpl_domains, domain);
-    ns_dyn_mem_free(domain);
+    free(domain);
     return true;
 }
 
@@ -314,7 +314,7 @@ static mpl_seed_t *mpl_seed_lookup(const mpl_domain_t *domain, uint8_t id_len, c
 
 static mpl_seed_t *mpl_seed_create(mpl_domain_t *domain, uint8_t id_len, const uint8_t *seed_id, uint8_t sequence)
 {
-    mpl_seed_t *seed = ns_dyn_mem_alloc(sizeof(mpl_seed_t) + id_len);
+    mpl_seed_t *seed = malloc(sizeof(mpl_seed_t) + id_len);
     if (!seed) {
         return NULL;
     }
@@ -335,7 +335,7 @@ static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed)
         mpl_buffer_delete(seed, message);
     }
     ns_list_remove(&domain->seeds, seed);
-    ns_dyn_mem_free(seed);
+    free(seed);
 }
 
 static void mpl_seed_advance_min_sequence(mpl_seed_t *seed, uint8_t min_sequence)
@@ -414,7 +414,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
         return NULL;
     }
 
-    mpl_buffered_message_t *message = ns_dyn_mem_alloc(sizeof(mpl_buffered_message_t) + ip_len);
+    mpl_buffered_message_t *message = malloc(sizeof(mpl_buffered_message_t) + ip_len);
     if (!message) {
         tr_debug("No heap for new MPL message");
         return NULL;
@@ -457,7 +457,7 @@ static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message)
 {
     mpl_total_buffered -= mpl_buffer_size(message);
     ns_list_remove(&seed->messages, message);
-    ns_dyn_mem_free(message);
+    free(message);
 }
 
 static void mpl_buffer_transmit(mpl_domain_t *domain, mpl_buffered_message_t *message, bool newest)

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/ws_management_api.h"

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
@@ -73,7 +73,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     }
 
     if (!socket_if) {
-        socket_if = ns_dyn_mem_alloc(sizeof(kmp_socket_if_t));
+        socket_if = malloc(sizeof(kmp_socket_if_t));
         if (!socket_if) {
             return -1;
         }
@@ -116,7 +116,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
                 }
                 socket_if->socket_id[socket_num] = socket_open(IPV6_NH_UDP, local_port, &kmp_socket_if_socket_cb);
                 if (socket_if->socket_id[socket_num] < 0) {
-                    ns_dyn_mem_free(socket_if);
+                    free(socket_if);
                     return -1;
                 }
             }
@@ -134,7 +134,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
                 socket_close(socket_if->socket_id[socket_num]);
             }
         }
-        ns_dyn_mem_free(socket_if);
+        free(socket_if);
         return -1;
     }
 
@@ -160,7 +160,7 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
                 }
             }
             kmp_service_msg_if_register(service, entry->instance_id, NULL, 0, 0);
-            ns_dyn_mem_free(entry);
+            free(entry);
         }
     }
     return 0;
@@ -222,7 +222,7 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         return 0;
     }
 
-    ns_dyn_mem_free(pdu);
+    free(pdu);
 
     return 0;
 }
@@ -252,10 +252,10 @@ static void kmp_socket_if_socket_cb(void *ptr)
         return;
     }
 
-    uint8_t *pdu = ns_dyn_mem_temporary_alloc(cb_data->d_len);
+    uint8_t *pdu = malloc(cb_data->d_len);
 
     if (socket_recvfrom(cb_data->socket_id, pdu, cb_data->d_len, 0, 0) != cb_data->d_len) {
-        ns_dyn_mem_free(pdu);
+        free(pdu);
         return;
     }
 
@@ -275,7 +275,7 @@ static void kmp_socket_if_socket_cb(void *ptr)
 
         type = kmp_api_type_from_id_get(*data_ptr++);
         if (type == KMP_TYPE_NONE) {
-            ns_dyn_mem_free(pdu);
+            free(pdu);
             return;
         }
         cb_data->d_len -= SOCKET_IF_HEADER_SIZE;
@@ -283,7 +283,7 @@ static void kmp_socket_if_socket_cb(void *ptr)
 
     kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, cb_data->d_len, connection_num);
 
-    ns_dyn_mem_free(pdu);
+    free(pdu);
 }
 
 

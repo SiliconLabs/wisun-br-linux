@@ -39,7 +39,7 @@
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/etx/etx.h"
 
 #include "core/ns_address_internal.h"
@@ -297,7 +297,7 @@ void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t
             break;
     }
     ipv6_destination_cache_forget_neighbour(entry);
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache, const uint8_t *address/*, bool tentative*/)
@@ -331,7 +331,7 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
     // plus another 8 for the EUI-64 of registration (RFC 6775). Note that in
     // the protocols, the link-layer address and EUI-64 are distinct. The
     // neighbour may be using a short link-layer address, not its EUI-64.
-    entry = ns_dyn_mem_alloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + (cache->recv_addr_reg ? 8 : 0));
+    entry = malloc(sizeof(ipv6_neighbour_t) + cache->max_ll_len + (cache->recv_addr_reg ? 8 : 0));
     if (!entry) {
         tr_warn("No mem!");
         return NULL;
@@ -952,7 +952,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         }
 
         /* If no entry, make one */
-        entry = ns_dyn_mem_alloc(sizeof(ipv6_destination_t));
+        entry = malloc(sizeof(ipv6_destination_t));
         if (!entry) {
             return NULL;
         }
@@ -1088,7 +1088,7 @@ static bool ipv6_destination_release(ipv6_destination_t *dest)
     if (--dest->refcount == 0) {
         ns_list_remove(&ipv6_destination_cache, dest);
         tr_debug("Destination cache remove: %s", trace_ipv6(dest->destination));
-        ns_dyn_mem_free(dest);
+        free(dest);
         return true;
     }
     return false;
@@ -1281,14 +1281,14 @@ static void ipv6_route_entry_remove(ipv6_route_t *route)
     ipv6_route_print(route, trace_debug_print);
 #endif
     if (route->info_autofree) {
-        ns_dyn_mem_free(route->info.info);
+        free(route->info.info);
     }
     if (protocol_core_buffers_in_event_queue > 0) {
         // Alert any buffers in the queue already routed by this source
         ipv6_route_source_invalidated[route->info.source] = true;
     }
     ns_list_remove(&ipv6_routing_table, route);
-    ns_dyn_mem_free(route);
+    free(route);
 }
 
 static bool ipv6_route_same_router(const ipv6_route_t *a, const ipv6_route_t *b)
@@ -1619,7 +1619,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
 
     if (!route) { /* new route */
         uint_fast8_t prefix_bytes = (prefix_len + 7u) / 8u;
-        route = ns_dyn_mem_alloc(sizeof(ipv6_route_t) + prefix_bytes);
+        route = malloc(sizeof(ipv6_route_t) + prefix_bytes);
         if (!route) {
             return NULL;
         }

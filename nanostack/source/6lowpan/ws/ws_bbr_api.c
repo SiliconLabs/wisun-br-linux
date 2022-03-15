@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/utils/ns_time.h"
@@ -564,7 +564,7 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
     }
 
     if (vendor_data_len) {
-        dhcp_vendor_data_ptr = ns_dyn_mem_temporary_alloc(vendor_data_len);
+        dhcp_vendor_data_ptr = malloc(vendor_data_len);
         if (!dhcp_vendor_data_ptr) {
             tr_warn("Vendor info set fail");
             return;
@@ -585,7 +585,7 @@ static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *
     dhcpv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
 
     dhcpv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
-    ns_dyn_mem_free(dhcp_vendor_data_ptr);
+    free(dhcp_vendor_data_ptr);
 }
 
 static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
@@ -1498,7 +1498,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             // Delete all entries
             memset(pre_resolved_dns_queries[n].address, 0, 16);
-            ns_dyn_mem_free(pre_resolved_dns_queries[n].domain_name);
+            free(pre_resolved_dns_queries[n].domain_name);
             pre_resolved_dns_queries[n].domain_name = NULL;
         }
         goto update_information;
@@ -1516,7 +1516,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
             } else {
                 // delete entry
                 memset(pre_resolved_dns_queries[n].address, 0, 16);
-                ns_dyn_mem_free(pre_resolved_dns_queries[n].domain_name);
+                free(pre_resolved_dns_queries[n].domain_name);
                 pre_resolved_dns_queries[n].domain_name = NULL;
             }
             goto update_information;
@@ -1528,7 +1528,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
         for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
             if (pre_resolved_dns_queries[n].domain_name == NULL) {
                 // Free entry found
-                pre_resolved_dns_queries[n].domain_name  = ns_dyn_mem_alloc(strlen(domain_name_ptr) + 1);
+                pre_resolved_dns_queries[n].domain_name  = malloc(strlen(domain_name_ptr) + 1);
                 if (!pre_resolved_dns_queries[n].domain_name) {
                     // Out of memory
                     return -2;
@@ -1566,13 +1566,13 @@ int ws_bbr_timezone_configuration_set(int8_t interface_id, bbr_timezone_configur
 
     if (!daylight_saving_time_ptr) {
         // Delete configuration
-        ns_dyn_mem_free(bbr_time_config);
+        free(bbr_time_config);
         bbr_time_config = NULL;
         return 0;
     }
 
     if (!bbr_time_config) {
-        bbr_time_config = ns_dyn_mem_alloc(sizeof(bbr_timezone_configuration_t));
+        bbr_time_config = malloc(sizeof(bbr_timezone_configuration_t));
     }
 
     if (!bbr_time_config) {

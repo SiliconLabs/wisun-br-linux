@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/trickle/trickle.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
@@ -689,7 +689,7 @@ static bool tls_sec_prot_queue_check(sec_prot_t *prot)
     // Adds entry to queue if not there already
     if (queue_add) {
         tr_debug("TLS QUEUE add index: %i, eui-64: %s", entry_index, trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
-        tls_sec_prot_queue_t *entry = ns_dyn_mem_temporary_alloc(sizeof(tls_sec_prot_queue_t));
+        tls_sec_prot_queue_t *entry = malloc(sizeof(tls_sec_prot_queue_t));
         if (entry) {
             entry->prot = prot;
             ns_list_add_to_end(&tls_sec_prot_queue, entry);
@@ -724,7 +724,7 @@ static void tls_sec_prot_queue_remove(sec_prot_t *prot)
     ns_list_foreach_safe(tls_sec_prot_queue_t, entry, &tls_sec_prot_queue) {
         if (entry->prot == prot) {
             ns_list_remove(&tls_sec_prot_queue, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
             tr_debug("TLS QUEUE remove%s, eui-64: %s", ns_list_is_empty(&tls_sec_prot_queue) ? " last" : "", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
         }
     }

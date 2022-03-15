@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -594,7 +594,7 @@ int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
 {
 
     if (!cur->ws_info) {
-        cur->ws_info = ns_dyn_mem_alloc(sizeof(ws_info_t));
+        cur->ws_info = malloc(sizeof(ws_info_t));
     }
     if (!cur->ws_info) {
         return -1;

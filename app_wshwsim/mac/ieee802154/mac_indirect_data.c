@@ -26,7 +26,7 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack-event-loop/eventOS_callback_timer.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mac_api.h"

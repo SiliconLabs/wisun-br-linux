@@ -18,7 +18,7 @@
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -545,7 +545,7 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
     }
 
     /* Copy compressed header into temporary buffer */
-    iphc = ns_dyn_mem_temporary_alloc(hc_size);
+    iphc = malloc(hc_size);
     if (!iphc) {
         tr_warn("IPHC header alloc fail %d", hc_size);
         goto decomp_error;
@@ -604,11 +604,11 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
         }
     }
 
-    ns_dyn_mem_free(iphc);
+    free(iphc);
     return buf;
 
 decomp_error:
     tr_warn("IPHC decompression error");
-    ns_dyn_mem_free(iphc);
+    free(iphc);
     return buffer_free(buf);
 }

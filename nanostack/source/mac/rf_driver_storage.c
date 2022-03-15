@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 
 #include "mac/rf_driver_storage.h"
 
@@ -41,7 +41,7 @@ arm_device_driver_list_s *arm_net_phy_driver_pointer(int8_t id)
 static arm_device_driver_list_s *dev_driver_dynamically_allocate(void)
 {
     arm_device_driver_list_s *event = 0;
-    event = ns_dyn_mem_alloc(sizeof(arm_device_driver_list_s));
+    event = malloc(sizeof(arm_device_driver_list_s));
     if (event) {
         event->phy_sap_identifier = NULL;
         event->mlme_observer_cb = NULL;
@@ -142,7 +142,7 @@ void arm_net_phy_unregister(int8_t driver_id)
     ns_list_foreach_safe(arm_device_driver_list_s, cur, &arm_device_driver_list) {
         if (cur->id == driver_id) {
             ns_list_remove(&arm_device_driver_list, cur);
-            ns_dyn_mem_free(cur);
+            free(cur);
             cur = NULL;
         }
     }

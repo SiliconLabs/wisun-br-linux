@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include <stdint.h>
 
 heap_fail_t current_heap_error;

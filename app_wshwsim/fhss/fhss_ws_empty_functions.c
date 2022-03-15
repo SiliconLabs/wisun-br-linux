@@ -22,7 +22,7 @@
 #include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "common/rand.h"

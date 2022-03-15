@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_mcps.h"
@@ -74,7 +74,7 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
         return 0;
     }
 
-    eapol_relay = ns_dyn_mem_alloc(sizeof(eapol_relay_t));
+    eapol_relay = malloc(sizeof(eapol_relay_t));
     if (!eapol_relay) {
         return -1;
     }
@@ -87,14 +87,14 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
 
     eapol_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_relay_socket_cb);
     if (eapol_relay->socket_id < 0) {
-        ns_dyn_mem_free(eapol_relay);
+        free(eapol_relay);
         return -1;
     }
     int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     socket_setsockopt(eapol_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
 
     if (ws_eapol_pdu_cb_register(interface_ptr, &eapol_pdu_recv_cb_data) < 0) {
-        ns_dyn_mem_free(eapol_relay);
+        free(eapol_relay);
         return -1;
     }
 
@@ -119,7 +119,7 @@ int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
     ws_eapol_pdu_cb_unregister(interface_ptr, &eapol_pdu_recv_cb_data);
 
     ns_list_remove(&eapol_relay_list, eapol_relay);
-    ns_dyn_mem_free(eapol_relay);
+    free(eapol_relay);
 
     return 0;
 }
@@ -177,7 +177,7 @@ static void ws_eapol_relay_socket_cb(void *cb)
         return;
     }
 
-    uint8_t *socket_pdu = ns_dyn_mem_temporary_alloc(cb_data->d_len);
+    uint8_t *socket_pdu = malloc(cb_data->d_len);
     if (!socket_pdu) {
         return;
     }
@@ -185,20 +185,20 @@ static void ws_eapol_relay_socket_cb(void *cb)
     ns_address_t src_addr;
 
     if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
         return;
     }
 
     // EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
     if (cb_data->d_len == 9) {
         ws_eapol_pdu_mpx_eui64_purge(eapol_relay->interface_ptr, socket_pdu);
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
         return;
     }
 
     //First 8 byte is EUID64 and rsr payload
     if (ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, cb_data->d_len - 8, socket_pdu, NULL, 0) < 0) {
-        ns_dyn_mem_free(socket_pdu);
+        free(socket_pdu);
     }
 }
 

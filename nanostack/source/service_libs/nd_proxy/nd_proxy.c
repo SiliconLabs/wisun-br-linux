@@ -20,7 +20,7 @@
 #include <string.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 
@@ -92,7 +92,7 @@ static nd_proxy_downstream_list_s *proxy_cache_downstream_interface_allocate(int
             return e;
         }
     }
-    nd_proxy_downstream_list_s *entry = ns_dyn_mem_alloc(sizeof(nd_proxy_downstream_list_s));
+    nd_proxy_downstream_list_s *entry = malloc(sizeof(nd_proxy_downstream_list_s));
     if (entry) {
         entry->id = interface;
         ns_list_add_to_start(list, entry);
@@ -112,7 +112,7 @@ static nd_proxy_upstream_list_s *proxy_cache_upstream_interface_allocate(int8_t 
             return e;
         }
     }
-    nd_proxy_upstream_list_s *entry = ns_dyn_mem_alloc(sizeof(nd_proxy_upstream_list_s));
+    nd_proxy_upstream_list_s *entry = malloc(sizeof(nd_proxy_upstream_list_s));
     if (entry) {
         entry->id = interface;
         ns_list_add_to_start(list, entry);
@@ -175,7 +175,7 @@ static nd_proxy_connected_list_s *proxy_upstream_connection_allocate(int8_t inte
         }
     }
 
-    nd_proxy_connected_list_s *entry = ns_dyn_mem_alloc(sizeof(nd_proxy_connected_list_s));
+    nd_proxy_connected_list_s *entry = malloc(sizeof(nd_proxy_connected_list_s));
     if (entry) {
         entry->id = interface_id;
         ns_list_init(&entry->connected_downstream_list);
@@ -196,7 +196,7 @@ static bool proxy_downstream_conection_allocate(int8_t interface_id, proxy_conne
         }
     }
 
-    nd_proxy_downstream_interfaces_list_s *entry = ns_dyn_mem_alloc(sizeof(nd_proxy_downstream_interfaces_list_s));
+    nd_proxy_downstream_interfaces_list_s *entry = malloc(sizeof(nd_proxy_downstream_interfaces_list_s));
     if (entry) {
         entry->id = interface_id;
         ns_list_add_to_start(list, entry);
@@ -218,7 +218,7 @@ static bool proxy_cache_untie_connection_by_downstream(int8_t downstream_id)
             if (downstream->id == downstream_id) {
                 //Remove from the list and free
                 ns_list_remove(&e->connected_downstream_list, downstream);
-                ns_dyn_mem_free(downstream);
+                free(downstream);
                 ret_val = true;
             }
         }
@@ -227,7 +227,7 @@ static bool proxy_cache_untie_connection_by_downstream(int8_t downstream_id)
         if (ns_list_is_empty(&e->connected_downstream_list)) {
             //Remove connection from list and free memory
             ns_list_remove(&paired_interface_list, e);
-            ns_dyn_mem_free(e);
+            free(e);
         }
 
     }
@@ -261,12 +261,12 @@ static bool proxy_cache_untie_connection_by_upstream(int8_t upstream_id)
             }
 
             ns_list_remove(&e->connected_downstream_list, downstream);
-            ns_dyn_mem_free(downstream);
+            free(downstream);
         }
 
         //Remove connection from list and free memory
         ns_list_remove(&paired_interface_list, e);
-        ns_dyn_mem_free(e);
+        free(e);
         return true;
 
     }
@@ -321,7 +321,7 @@ static int proxy_cache_interface_enable_proxy(int8_t upstream_id, int8_t downstr
         if (ns_list_is_empty(&proxy->connected_downstream_list)) {
             //Remove connection from list and free memory
             ns_list_remove(&paired_interface_list, proxy);
-            ns_dyn_mem_free(proxy);
+            free(proxy);
         }
         return -1;
     }
@@ -365,7 +365,7 @@ int nd_proxy_downstream_interface_unregister(int8_t interface_id)
     ns_list_foreach(nd_proxy_downstream_list_s, e, &downstream_interface_list) {
         if (e->id == interface_id) {
             ns_list_remove(&downstream_interface_list, e);
-            ns_dyn_mem_free(e);
+            free(e);
             return 0;
         }
     }
@@ -405,7 +405,7 @@ int nd_proxy_upstream_interface_unregister(int8_t interface_id)
     ns_list_foreach(nd_proxy_upstream_list_s, e, &upstream_interface_list) {
         if (e->id == interface_id) {
             ns_list_remove(&upstream_interface_list, e);
-            ns_dyn_mem_free(e);
+            free(e);
             return 0;
         }
     }

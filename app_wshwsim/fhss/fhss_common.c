@@ -24,7 +24,7 @@
 #include "fhss_statistics.h"
 #include "fhss_channel.h"
 #include "channel_list.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include <string.h>
@@ -38,7 +38,7 @@ fhss_structure_t *fhss_allocate_instance(fhss_api_t *fhss_api, const fhss_timer_
     if (fhss_struct || !fhss_api || !fhss_timer) {
         return NULL;
     }
-    fhss_struct = ns_dyn_mem_alloc(sizeof(fhss_structure_t));
+    fhss_struct = malloc(sizeof(fhss_structure_t));
     if (!fhss_struct) {
         return NULL;
     }
@@ -56,7 +56,7 @@ int8_t fhss_free_instance(fhss_api_t *fhss_api)
     if (!fhss_struct || fhss_struct->fhss_api != fhss_api) {
         return -1;
     }
-    ns_dyn_mem_free(fhss_struct);
+    free(fhss_struct);
     fhss_struct = NULL;
     return 0;
 }
@@ -89,11 +89,11 @@ int8_t fhss_disable(fhss_structure_t *fhss_structure)
         return -1;
     }
     fhss_structure->fhss_api->synch_state_set(fhss_structure->fhss_api, FHSS_UNSYNCHRONIZED, 0);
-    ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
-    ns_dyn_mem_free(fhss_structure->ws->tr51_output_table);
-    ns_dyn_mem_free(fhss_structure->ws);
+    free(fhss_structure->ws->tr51_channel_table);
+    free(fhss_structure->ws->tr51_output_table);
+    free(fhss_structure->ws);
     fhss_failed_list_free(fhss_structure);
-    ns_dyn_mem_free(fhss_structure);
+    free(fhss_structure);
     fhss_struct = 0;
     return 0;
 }
@@ -139,7 +139,7 @@ fhss_failed_tx_t *fhss_failed_handle_find(fhss_structure_t *fhss_structure, uint
 
 int fhss_failed_handle_add(fhss_structure_t *fhss_structure, uint8_t handle, uint8_t bad_channel)
 {
-    fhss_failed_tx_t *failed_tx = ns_dyn_mem_alloc(sizeof(fhss_failed_tx_t));
+    fhss_failed_tx_t *failed_tx = malloc(sizeof(fhss_failed_tx_t));
     if (!failed_tx) {
         return -1;
     }
@@ -157,7 +157,7 @@ int fhss_failed_handle_remove(fhss_structure_t *fhss_structure, uint8_t handle)
         return -1;
     }
     ns_list_remove(&fhss_structure->fhss_failed_tx_list, failed_tx);
-    ns_dyn_mem_free(failed_tx); // Free entry
+    free(failed_tx); // Free entry
     return 0;
 }
 

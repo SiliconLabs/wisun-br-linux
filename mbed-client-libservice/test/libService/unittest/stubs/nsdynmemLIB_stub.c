@@ -17,7 +17,7 @@
 #include "nsdynmemLIB_stub.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include <stdlib.h>
 
@@ -27,7 +27,7 @@ void ns_dyn_mem_init(void *heap, ns_mem_heap_size_t h_size, void (*passed_fptr)(
 {
 }
 
-void *ns_dyn_mem_alloc(ns_mem_block_size_t alloc_size)
+void *malloc(ns_mem_block_size_t alloc_size)
 {
     if (nsdynmemlib_stub.returnCounter > 0) {
         nsdynmemlib_stub.returnCounter--;
@@ -37,7 +37,7 @@ void *ns_dyn_mem_alloc(ns_mem_block_size_t alloc_size)
     }
 }
 
-void *ns_dyn_mem_temporary_alloc(ns_mem_block_size_t alloc_size)
+void *malloc(ns_mem_block_size_t alloc_size)
 {
     if (nsdynmemlib_stub.returnCounter > 0) {
         nsdynmemlib_stub.returnCounter--;
@@ -47,7 +47,7 @@ void *ns_dyn_mem_temporary_alloc(ns_mem_block_size_t alloc_size)
     }
 }
 
-void ns_dyn_mem_free(void *block)
+void free(void *block)
 {
     free(block);
 }

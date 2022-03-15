@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "nanostack/net_ipv6_api.h"
 

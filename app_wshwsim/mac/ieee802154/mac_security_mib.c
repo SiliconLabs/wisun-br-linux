@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/sw_mac.h"
@@ -32,7 +32,7 @@
  */
 static mlme_device_descriptor_t *mac_sec_mib_device_description_table_allocate(uint8_t table_size)
 {
-    mlme_device_descriptor_t *table_ptr = ns_dyn_mem_alloc(sizeof(mlme_device_descriptor_t) * table_size);
+    mlme_device_descriptor_t *table_ptr = malloc(sizeof(mlme_device_descriptor_t) * table_size);
     if (table_ptr) {
         memset(table_ptr, 0xff, (sizeof(mlme_device_descriptor_t) * table_size));
     }
@@ -41,7 +41,7 @@ static mlme_device_descriptor_t *mac_sec_mib_device_description_table_allocate(u
 
 static mlme_key_descriptor_t *mac_sec_mib_key_description_table_allocate(uint8_t table_size)
 {
-    mlme_key_descriptor_t *table_ptr = ns_dyn_mem_alloc(sizeof(mlme_key_descriptor_t) * table_size);
+    mlme_key_descriptor_t *table_ptr = malloc(sizeof(mlme_key_descriptor_t) * table_size);
     if (table_ptr) {
         memset(table_ptr, 0, (sizeof(mlme_key_descriptor_t) * table_size));
     }
@@ -50,7 +50,7 @@ static mlme_key_descriptor_t *mac_sec_mib_key_description_table_allocate(uint8_t
 
 static mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_table_allocate(uint16_t list_size)
 {
-    mlme_key_device_descriptor_t *table_ptr = ns_dyn_mem_alloc(sizeof(mlme_key_device_descriptor_t) * list_size);
+    mlme_key_device_descriptor_t *table_ptr = malloc(sizeof(mlme_key_device_descriptor_t) * list_size);
     if (table_ptr) {
         memset(table_ptr, 0, (sizeof(mlme_key_device_descriptor_t) * list_size));
     }
@@ -60,7 +60,7 @@ static mlme_key_device_descriptor_t *mac_sec_mib_key_device_description_table_al
 static mlme_key_usage_descriptor_t *mac_sec_mib_key_usage_table_allocate(uint16_t list_size)
 {
 
-    mlme_key_usage_descriptor_t *table_ptr = ns_dyn_mem_alloc(sizeof(mlme_key_usage_descriptor_t) * list_size);
+    mlme_key_usage_descriptor_t *table_ptr = malloc(sizeof(mlme_key_usage_descriptor_t) * list_size);
     if (table_ptr) {
         memset(table_ptr, 0, (sizeof(mlme_key_usage_descriptor_t) * list_size));
     }
@@ -71,7 +71,7 @@ static mlme_key_usage_descriptor_t *mac_sec_mib_key_usage_table_allocate(uint16_
 static mlme_key_id_lookup_descriptor_t *mac_sec_mib_key_lookup_table_allocate(uint16_t list_size)
 {
 
-    mlme_key_id_lookup_descriptor_t *table_ptr = ns_dyn_mem_alloc(sizeof(mlme_key_id_lookup_descriptor_t) * list_size);
+    mlme_key_id_lookup_descriptor_t *table_ptr = malloc(sizeof(mlme_key_id_lookup_descriptor_t) * list_size);
     if (table_ptr) {
         memset(table_ptr, 0, (sizeof(mlme_key_id_lookup_descriptor_t) * list_size));
     }
@@ -80,7 +80,7 @@ static mlme_key_id_lookup_descriptor_t *mac_sec_mib_key_lookup_table_allocate(ui
 
 static int mac_sec_mib_frame_counter_key_buffer_allocate(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint16_t list_size, uint16_t device_count)
 {
-    rf_mac_setup->key_device_frame_counter_list_buffer = ns_dyn_mem_alloc(sizeof(uint32_t) * list_size * device_count);
+    rf_mac_setup->key_device_frame_counter_list_buffer = malloc(sizeof(uint32_t) * list_size * device_count);
     if (!rf_mac_setup->key_device_frame_counter_list_buffer) {
         return -1;
     }
@@ -109,7 +109,7 @@ static void mac_sec_mib_frame_counter_key_buffer_free(protocol_interface_rf_mac_
         //Update Pointers
         key_descriptor_list++;
     }
-    ns_dyn_mem_free(rf_mac_setup->key_device_frame_counter_list_buffer);
+    free(rf_mac_setup->key_device_frame_counter_list_buffer);
     rf_mac_setup->key_device_frame_counter_list_buffer = NULL;
     rf_mac_setup->secFrameCounterPerKey = false;
 }
@@ -190,7 +190,7 @@ static void mac_sec_mib_device_description_remove(protocol_interface_rf_mac_setu
 
 static int8_t  mac_sec_mib_device_description_table_deinit(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    ns_dyn_mem_free(rf_mac_setup->device_description_table);
+    free(rf_mac_setup->device_description_table);
     rf_mac_setup->device_description_table = NULL;
     rf_mac_setup->device_description_table_size = 0;
     return 0;
@@ -198,10 +198,10 @@ static int8_t  mac_sec_mib_device_description_table_deinit(protocol_interface_rf
 
 static void mac_sec_mib_security_material_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    ns_dyn_mem_free(rf_mac_setup->key_description_table);
-    ns_dyn_mem_free(rf_mac_setup->key_device_desc_buffer);
-    ns_dyn_mem_free(rf_mac_setup->key_usage_list_buffer);
-    ns_dyn_mem_free(rf_mac_setup->key_lookup_buffer);
+    free(rf_mac_setup->key_description_table);
+    free(rf_mac_setup->key_device_desc_buffer);
+    free(rf_mac_setup->key_usage_list_buffer);
+    free(rf_mac_setup->key_lookup_buffer);
     rf_mac_setup->key_usage_list_buffer = NULL;
     rf_mac_setup->key_description_table = NULL;
     rf_mac_setup->key_lookup_buffer = NULL;

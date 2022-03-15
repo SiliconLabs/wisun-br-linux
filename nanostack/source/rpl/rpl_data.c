@@ -27,7 +27,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 
 #include "core/ns_buffer.h"
@@ -268,7 +268,7 @@ bool rpl_data_remember_outer(buffer_t *buf)
         /* For local instances, also need to extract the DODAG ID from src/dst */
         bool local = rpl_instance_id_is_local(instance_id);
         /* Copy the length byte and the option data (and optionally DODAG ID) */
-        buf->rpl_option = ns_dyn_mem_temporary_alloc(hbh[1] + 1 + (local ? 16 : 0));
+        buf->rpl_option = malloc(hbh[1] + 1 + (local ? 16 : 0));
         if (buf->rpl_option) {
             memcpy(buf->rpl_option, hbh + 1, hbh[1] + 1);
             if (local) {
@@ -389,7 +389,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
             if (buf->rpl_option) {
                 /* Get back the RPL option we stripped off an outer IP header */
                 memcpy(opt + 1, buf->rpl_option, 1 + buf->rpl_option[0]);
-                ns_dyn_mem_free(buf->rpl_option);
+                free(buf->rpl_option);
                 buf->rpl_option = NULL;
             } else {
                 opt[1] = 4; // option length

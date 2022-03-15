@@ -20,7 +20,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/mac_filter_api.h"
 #include "mac_filter.h"
 #include "nanostack/mac/mac_common_defines.h"
@@ -116,7 +116,7 @@ static filter_instance_t *mac_filter_create(int8_t interface_id)
 {
     filter_instance_t *this;
     tr_debug_extra("mac_filter_create");
-    this = ns_dyn_mem_alloc(sizeof(filter_instance_t));
+    this = malloc(sizeof(filter_instance_t));
     if (!this) {
         return NULL;
     }
@@ -133,7 +133,7 @@ static void mac_filter_delete(filter_instance_t *this)
 {
     tr_debug_extra("mac_filter_delete");
     ns_list_remove(&instance_list, this);
-    ns_dyn_mem_free(this);
+    free(this);
     return;
 }
 
@@ -207,11 +207,11 @@ int_fast8_t mac_filter_clear(int8_t interface_id)
 
     ns_list_foreach_safe(filter_t, cur_ptr, &this->long_filter_list) {
         ns_list_remove(&this->long_filter_list, cur_ptr);
-        ns_dyn_mem_free(cur_ptr);
+        free(cur_ptr);
     }
     ns_list_foreach_safe(filter_t, cur_ptr, &this->short_filter_list) {
         ns_list_remove(&this->short_filter_list, cur_ptr);
-        ns_dyn_mem_free(cur_ptr);
+        free(cur_ptr);
     }
     return 0;
 }
@@ -226,7 +226,7 @@ int_fast8_t mac_filter_delete_short(int8_t interface_id, uint16_t mac16)
     filter_ptr = filter_find_short(this, mac16);
     if (filter_ptr) {
         ns_list_remove(&this->short_filter_list, filter_ptr);
-        ns_dyn_mem_free(filter_ptr);
+        free(filter_ptr);
     }
     return 0;
 }
@@ -241,7 +241,7 @@ int_fast8_t mac_filter_delete_long(int8_t interface_id, uint8_t mac64[8])
     filter_ptr = filter_find_long(this, mac64);
     if (filter_ptr) {
         ns_list_remove(&this->short_filter_list, filter_ptr);
-        ns_dyn_mem_free(filter_ptr);
+        free(filter_ptr);
     }
     return 0;
 }
@@ -253,7 +253,7 @@ int_fast8_t mac_filter_add_short(int8_t interface_id, uint16_t mac16, int16_t lq
     if (!this) {
         return -1;
     }
-    filter_ptr = ns_dyn_mem_alloc(sizeof(filter_t));
+    filter_ptr = malloc(sizeof(filter_t));
     if (!filter_ptr) {
         return -2;
     }
@@ -276,7 +276,7 @@ int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t l
     if (!this || !mac64) {
         return -1;
     }
-    filter_ptr = ns_dyn_mem_alloc(sizeof(filter_t));
+    filter_ptr = malloc(sizeof(filter_t));
     if (!filter_ptr) {
         return -2;
     }

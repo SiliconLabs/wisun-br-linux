@@ -23,7 +23,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
 
@@ -41,11 +41,11 @@ bool libdhcpv6_gua_server_list_empty(void)
 
 static dhcpv6_gua_server_entry_s *libdhcpv6_server_entry_allocate(void)
 {
-    dhcpv6_gua_server_entry_s *entry = ns_dyn_mem_alloc(sizeof(dhcpv6_gua_server_entry_s));
-    uint8_t *server_duid_ptr = ns_dyn_mem_alloc(16);// Allocate 128-bit DUID-UUID by default it cover DUID-LL and DUID-LLTP also
+    dhcpv6_gua_server_entry_s *entry = malloc(sizeof(dhcpv6_gua_server_entry_s));
+    uint8_t *server_duid_ptr = malloc(16);// Allocate 128-bit DUID-UUID by default it cover DUID-LL and DUID-LLTP also
     if (!entry || !server_duid_ptr) {
-        ns_dyn_mem_free(entry);
-        ns_dyn_mem_free(server_duid_ptr);
+        free(entry);
+        free(server_duid_ptr);
         return NULL;
     }
     entry->serverDynamic_DUID = server_duid_ptr;
@@ -114,7 +114,7 @@ static void libdhcpv6_gen_suffics_from_allocated_id(uint8_t *ptr, uint8_t *serve
 static void libdhcpv6_address_list_entry_free(dhcpv6_gua_server_entry_s *server_info, dhcpv6_allocated_address_entry_t *entry)
 {
     ns_list_remove(&server_info->allocatedAddressList, entry);
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds)
@@ -177,12 +177,12 @@ int libdhcpv6_server_duid_set(dhcpv6_gua_server_entry_s *server_info, uint8_t *d
     //Allocate dynamically new Server DUID if needed
     if (duid_length > server_info->serverDynamic_DUID_length) {
         //Allocate dynamic new bigger
-        uint8_t *new_ptr = ns_dyn_mem_alloc(duid_length);
+        uint8_t *new_ptr = malloc(duid_length);
         if (!new_ptr) {
             return -1;
         }
         server_info->serverDynamic_DUID_length = duid_length;
-        ns_dyn_mem_free(server_info->serverDynamic_DUID);
+        free(server_info->serverDynamic_DUID);
         server_info->serverDynamic_DUID = new_ptr;
     }
     //SET DUID
@@ -224,8 +224,8 @@ dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(uint8_t *prefix, int8_t
 
         //SET DUID
         if (libdhcpv6_server_duid_set(entry, duid_ll, DHCPV6_DUID_LINK_LAYER_TYPE, duid_length) != 0) {
-            ns_dyn_mem_free(entry->serverDynamic_DUID);
-            ns_dyn_mem_free(entry);
+            free(entry->serverDynamic_DUID);
+            free(entry);
             return NULL;
         }
 
@@ -249,19 +249,19 @@ void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t
             ns_list_foreach_safe(dhcpv6_dns_server_data_t, cur, &serverInfo->dnsServerList) {
                 //DNS Server Info Remove
                 ns_list_remove(&serverInfo->dnsServerList, cur);
-                ns_dyn_mem_free(cur->search_list);
-                ns_dyn_mem_free(cur);
+                free(cur->search_list);
+                free(cur);
             }
 
             ns_list_foreach_safe(dhcpv6_vendor_data_t, cur, &serverInfo->vendorDataList) {
                 ns_list_remove(&serverInfo->vendorDataList, cur);
-                ns_dyn_mem_free(cur->vendor_data);
-                ns_dyn_mem_free(cur);
+                free(cur->vendor_data);
+                free(cur);
             }
 
             ns_list_remove(&dhcpv6_gua_server_list, serverInfo);
-            ns_dyn_mem_free(serverInfo->serverDynamic_DUID);
-            ns_dyn_mem_free(serverInfo);
+            free(serverInfo->serverDynamic_DUID);
+            free(serverInfo);
         }
     }
 }
@@ -345,7 +345,7 @@ static dhcpv6_allocated_address_entry_t *libdhcpv6_address_list_entry_create(dhc
 {
     dhcpv6_allocated_address_entry_t *entry;
 
-    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_allocated_address_entry_t));
+    entry = malloc(sizeof(dhcpv6_allocated_address_entry_t));
 
     if (!entry) {
         return NULL;
@@ -425,7 +425,7 @@ dhcpv6_dns_server_data_t *libdhcpv6_dns_server_allocate(dhcpv6_gua_server_entry_
         return entry;
     }
 
-    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_dns_server_data_t));
+    entry = malloc(sizeof(dhcpv6_dns_server_data_t));
     if (!entry) {
         return NULL;
     }
@@ -454,7 +454,7 @@ dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(dhcpv6_gua_server_entry_s *
         return entry;
     }
 
-    entry = ns_dyn_mem_alloc(sizeof(dhcpv6_vendor_data_t));
+    entry = malloc(sizeof(dhcpv6_vendor_data_t));
     if (!entry) {
         return NULL;
     }

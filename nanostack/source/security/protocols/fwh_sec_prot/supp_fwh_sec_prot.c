@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "nanostack/mac/fhss_config.h"
@@ -585,12 +585,12 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
             break;
     }
 
-    ns_dyn_mem_free(kde);
+    free(kde);
     return 0;
 
 error:
     tr_error("Invalid KDEs");
-    ns_dyn_mem_free(kde);
+    free(kde);
     return -1;
 }
 

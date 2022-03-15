@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
@@ -268,7 +268,7 @@ static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t 
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
 {
     ns_list_remove(&llc_base->llc_message_list, message);
-    ns_dyn_mem_free(message);
+    free(message);
     llc_base->llc_message_list_size--;
     random_early_detection_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
 }
@@ -306,7 +306,7 @@ static llc_message_t *llc_message_allocate(uint16_t ie_buffer_size, llc_data_bas
         return NULL;
     }
 
-    llc_message_t *message = ns_dyn_mem_temporary_alloc(sizeof(llc_message_t) + ie_buffer_size);
+    llc_message_t *message = malloc(sizeof(llc_message_t) + ie_buffer_size);
     if (!message) {
         return NULL;
     }
@@ -458,11 +458,11 @@ static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t use
 
 static llc_data_base_t *ws_llc_base_allocate(void)
 {
-    llc_data_base_t *base = ns_dyn_mem_alloc(sizeof(llc_data_base_t));
-    temp_entriest_t *temp_entries = ns_dyn_mem_alloc(sizeof(temp_entriest_t));
+    llc_data_base_t *base = malloc(sizeof(llc_data_base_t));
+    temp_entriest_t *temp_entries = malloc(sizeof(temp_entriest_t));
     if (!base || !temp_entries) {
-        ns_dyn_mem_free(base);
-        ns_dyn_mem_free(temp_entries);
+        free(base);
+        free(temp_entries);
         return NULL;
     }
     memset(base, 0, sizeof(llc_data_base_t));
@@ -1461,7 +1461,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 
     ns_list_foreach_safe(llc_message_t, message, &base->temp_entries->llc_eap_pending_list) {
         ns_list_remove(&base->temp_entries->llc_eap_pending_list, message);
-        ns_dyn_mem_free(message);
+        free(message);
     }
     base->temp_entries->llc_eap_pending_list_size = 0;
     base->temp_entries->active_eapol_session = false;
@@ -1478,7 +1478,7 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE - 1]) {
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     } else {
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
 }
 
@@ -1597,7 +1597,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
         //Allocate Dynamic entry
         //validate Can we allocate more
         if (ns_list_count(&base->active_eapol_temp_neigh) < base->dynamic_alloc_max) {
-            entry = ns_dyn_mem_temporary_alloc(sizeof(ws_neighbor_temp_class_t));
+            entry = malloc(sizeof(ws_neighbor_temp_class_t));
         }
     }
 
@@ -1758,8 +1758,8 @@ int8_t ws_llc_delete(struct protocol_interface_info_entry *interface)
     ns_list_remove(&llc_data_base_list, base);
     //Disable Mac extension
     base->interface_ptr->mac_api->mac_mcps_extension_enable(base->interface_ptr->mac_api, NULL, NULL, NULL);
-    ns_dyn_mem_free(base->temp_entries);
-    ns_dyn_mem_free(base);
+    free(base->temp_entries);
+    free(base);
     return 0;
 }
 

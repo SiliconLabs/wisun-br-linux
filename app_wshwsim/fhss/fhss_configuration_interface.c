@@ -19,7 +19,7 @@
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/net_fhss.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_ws.h"
@@ -30,7 +30,7 @@
 
 fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer)
 {
-    fhss_api_t *this = ns_dyn_mem_alloc(sizeof(fhss_api_t));
+    fhss_api_t *this = malloc(sizeof(fhss_api_t));
     if (!this) {
         return NULL;
     }
@@ -38,7 +38,7 @@ fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration,
     fhss_structure_t *fhss_struct = fhss_ws_enable(this, fhss_configuration, fhss_timer);
     if (!fhss_struct) {
         tr_err("Failed to enable FHSS");
-        ns_dyn_mem_free(this);
+        free(this);
         return NULL;
     }
     fhss_ws_set_callbacks(fhss_struct);
@@ -83,7 +83,7 @@ int ns_fhss_delete(fhss_api_t *fhss_api)
     if (fhss_disable(fhss_structure)) {
         return -1;
     }
-    ns_dyn_mem_free(fhss_api);
+    free(fhss_api);
     return 0;
 }
 

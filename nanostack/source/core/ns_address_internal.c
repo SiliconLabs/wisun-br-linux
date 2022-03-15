@@ -27,7 +27,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/ns_sha256.h"
 #include "nanostack/socket_api.h"
@@ -279,7 +279,7 @@ bool addr_multicast_fwd_add(protocol_interface_info_entry_t *interface, const ui
         }
         return true;
     }
-    entry = ns_dyn_mem_alloc(sizeof * entry);
+    entry = malloc(sizeof * entry);
     if (!entry) {
         return false;
     }
@@ -295,7 +295,7 @@ static void addr_multicast_fwd_delete_entry(protocol_interface_info_entry_t *int
 {
     addr_multicast_fwd_adjust_upstream(interface, protocol_core_multicast_upstream, entry->group, false);
     ns_list_remove(&interface->ip_groups_fwd, entry);
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 bool addr_multicast_fwd_remove(protocol_interface_info_entry_t *interface, const uint8_t group[16])
@@ -314,7 +314,7 @@ bool addr_multicast_fwd_remove(protocol_interface_info_entry_t *interface, const
 
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label)
 {
-    addr_policy_table_entry_t *entry = ns_dyn_mem_alloc(sizeof(addr_policy_table_entry_t));
+    addr_policy_table_entry_t *entry = malloc(sizeof(addr_policy_table_entry_t));
     if (!entry) {
         return -1;
     }
@@ -330,7 +330,7 @@ int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint
             continue;
         }
         if (before->prefix_len == len && bitsequal(before->prefix, prefix, len)) {
-            ns_dyn_mem_free(entry);
+            free(entry);
             return -2;
         }
         ns_list_add_before(&addr_policy_table, before, entry);
@@ -350,7 +350,7 @@ int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len)
     ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
         if (entry->prefix_len == len && bitsequal(entry->prefix, prefix, len)) {
             ns_list_remove(&addr_policy_table, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
             return 0;
         }
     }
@@ -371,7 +371,7 @@ static void addr_policy_table_reset(void)
 {
     ns_list_foreach_safe(addr_policy_table_entry_t, entry, &addr_policy_table) {
         ns_list_remove(&addr_policy_table, entry);
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
 
     /* Default policy table from RFC 6724 */
@@ -473,7 +473,7 @@ if_group_entry_t *addr_add_group(protocol_interface_info_entry_t *interface, con
         return NULL;
     }
 
-    entry = ns_dyn_mem_alloc(sizeof(if_group_entry_t));
+    entry = malloc(sizeof(if_group_entry_t));
     if (!entry) {
         return NULL;
     }
@@ -504,7 +504,7 @@ void addr_delete_group_entry(protocol_interface_info_entry_t *interface, if_grou
 {
     mld_stop_listening(interface, entry);
     ns_list_remove(&interface->ip_groups, entry);
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 void addr_delete_group(protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
@@ -801,7 +801,7 @@ void addr_delete_entry(protocol_interface_info_entry_t *cur, if_address_entry_t 
     }
     ns_list_remove(&cur->ip_addresses, addr);
     addr_cb(cur, addr, ADDR_CALLBACK_DELETED);
-    ns_dyn_mem_free(addr);
+    free(addr);
 }
 
 /* ticks is in 1/10s */
@@ -950,7 +950,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
 
     addr_max_entries_check(cur, source);
 
-    if_address_entry_t *entry = ns_dyn_mem_alloc(sizeof(if_address_entry_t));
+    if_address_entry_t *entry = malloc(sizeof(if_address_entry_t));
     if (!entry) {
         return NULL;
     }
@@ -1057,7 +1057,7 @@ void addr_notification_register(if_address_notification_fn *fn)
         }
     }
 
-    addr_notification_t *n = ns_dyn_mem_alloc(sizeof(addr_notification_t));
+    addr_notification_t *n = malloc(sizeof(addr_notification_t));
     if (!n) {
         tr_error("addr_notification_register mem");
         return;
@@ -1184,7 +1184,7 @@ int_fast8_t addr_opaque_iid_key_set(const void *secret_key, uint8_t key_len)
 {
     /* Delete existing info */
     if (addr_iid_secret_key) {
-        ns_dyn_mem_free((void *) addr_iid_secret_key);
+        free((void *) addr_iid_secret_key);
         addr_iid_secret_key = NULL;
         addr_iid_secret_key_len = 0;
     }
@@ -1194,7 +1194,7 @@ int_fast8_t addr_opaque_iid_key_set(const void *secret_key, uint8_t key_len)
         return 0;
     }
     /* Attempt to copy new info */
-    uint8_t *copy = ns_dyn_mem_alloc(key_len);
+    uint8_t *copy = malloc(key_len);
     if (!copy) {
         return -1;
     }
@@ -1207,14 +1207,14 @@ int_fast8_t addr_opaque_initial_iid_set(const void *iid)
 {
     /* Delete existing info */
     if (addr_initial_iid) {
-        ns_dyn_mem_free((void *) addr_initial_iid);
+        free((void *) addr_initial_iid);
         addr_initial_iid = NULL;
     }
     if (!iid) {
         return 0;
     }
     /* Attempt to copy new info */
-    uint8_t *copy = ns_dyn_mem_alloc(8);
+    uint8_t *copy = malloc(8);
     if (!copy) {
         return -1;
     }
@@ -1423,7 +1423,7 @@ void addr_policy_remove_by_label(uint8_t label)
              */
             if (!protocol_interface_any_address_match(entry->prefix, entry->prefix_len)) {
                 ns_list_remove(&addr_policy_table, entry);
-                ns_dyn_mem_free(entry);
+                free(entry);
             }
         }
     }

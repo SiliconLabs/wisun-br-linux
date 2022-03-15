@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/dhcp_service_api.h"
@@ -60,11 +60,11 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
 
 static dhcp_client_class_t *dhcpv6_client_entry_allocate(int8_t interface, uint8_t duid_length)
 {
-    dhcp_client_class_t *entry = ns_dyn_mem_alloc(sizeof(dhcp_client_class_t));
-    uint8_t *duid  = ns_dyn_mem_alloc(duid_length);
+    dhcp_client_class_t *entry = malloc(sizeof(dhcp_client_class_t));
+    uint8_t *duid  = malloc(duid_length);
     if (!entry || !duid) {
-        ns_dyn_mem_free(entry);
-        ns_dyn_mem_free(duid);
+        free(entry);
+        free(duid);
         return NULL;
 
     }
@@ -367,8 +367,8 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     if (!srv_data_ptr->serverDynamic_DUID || serverId.duid_length > srv_data_ptr->dyn_server_duid_length) {
         //Allocate dynamic new bigger
         srv_data_ptr->dyn_server_duid_length = 0;
-        ns_dyn_mem_free(srv_data_ptr->serverDynamic_DUID);
-        srv_data_ptr->serverDynamic_DUID = ns_dyn_mem_alloc(serverId.duid_length);
+        free(srv_data_ptr->serverDynamic_DUID);
+        srv_data_ptr->serverDynamic_DUID = malloc(serverId.duid_length);
         if (!srv_data_ptr->serverDynamic_DUID) {
             tr_error("Dynamic DUID alloc fail");
             goto error_exit;
@@ -484,7 +484,7 @@ dhcp_address_get:
     payload_len = libdhcpv6_solication_message_length(srv_data_ptr->clientDUID.duid_length, add_prefix, 0);
 
 
-    payload_ptr = ns_dyn_mem_temporary_alloc(payload_len);
+    payload_ptr = malloc(payload_len);
     if (!payload_ptr) {
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
         tr_error("OOM payload_ptr");
@@ -515,7 +515,7 @@ dhcp_address_get:
     // send solicit
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb, delay_tx);
     if (srv_data_ptr->transActionId == 0) {
-        ns_dyn_mem_free(payload_ptr);
+        free(payload_ptr);
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
         return -1;
     }
@@ -629,7 +629,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
     }
 
     payload_len = libdhcpv6_address_request_message_len(srv_data_ptr->clientDUID.duid_length, srv_data_ptr->serverDUID.duid_length, 0, !dhcp_client->no_address_hint);
-    payload_ptr = ns_dyn_mem_temporary_alloc(payload_len);
+    payload_ptr = malloc(payload_len);
     if (payload_ptr == NULL) {
         if (addr) {
             addr->state_timer = 200; //Retry after 20 seconds
@@ -673,7 +673,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
 
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, server_address, payload_ptr, payload_len, dhcp_solicit_resp_cb, 0);
     if (srv_data_ptr->transActionId == 0) {
-        ns_dyn_mem_free(payload_ptr);
+        free(payload_ptr);
         if (addr) {
             addr->state_timer = 200; //Retry after 20 seconds
         }

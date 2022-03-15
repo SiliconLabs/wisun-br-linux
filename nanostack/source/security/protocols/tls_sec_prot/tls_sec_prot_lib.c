@@ -31,7 +31,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/trickle/trickle.h"
 #include "security/protocols/sec_prot_cfg.h"
@@ -181,7 +181,7 @@ void tls_sec_prot_lib_free(tls_security_t *sec)
     mbedtls_x509_crt_free(&sec->cacert);
     if (sec->crl) {
         mbedtls_x509_crl_free(sec->crl);
-        ns_dyn_mem_free(sec->crl);
+        free(sec->crl);
     }
     mbedtls_x509_crt_free(&sec->owncert);
     mbedtls_pk_free(&sec->pkey);
@@ -269,7 +269,7 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
             break;
         }
         if (!sec->crl) {
-            sec->crl = ns_dyn_mem_temporary_alloc(sizeof(mbedtls_x509_crl));
+            sec->crl = malloc(sizeof(mbedtls_x509_crl));
             if (!sec->crl) {
                 tr_error("No memory for CRL");
                 return -1;
@@ -634,7 +634,7 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
 {
     (void)ctx;
 
-    char *c = (char *)ns_dyn_mem_temporary_alloc(len);
+    char *c = (char *)malloc(len);
     if (!c) {
         tr_error("entropy alloca fail");
         return MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
@@ -646,14 +646,14 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
     memmove(output, c, len);
     *olen = len;
 
-    ns_dyn_mem_free(c);
+    free(c);
     return (0);
 }
 
 #ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
 static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size)
 {
-    void *mem_ptr = ns_dyn_mem_temporary_alloc(count * size);
+    void *mem_ptr = malloc(count * size);
 
     if (mem_ptr) {
         // Calloc should initialize with zero
@@ -664,6 +664,6 @@ static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size)
 
 static void tls_sec_prot_lib_mem_free(void *ptr)
 {
-    ns_dyn_mem_free(ptr);
+    free(ptr);
 }
 #endif

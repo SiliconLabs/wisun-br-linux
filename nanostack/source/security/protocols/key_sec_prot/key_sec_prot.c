@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -187,7 +187,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
         }
     }
 
-    uint8_t *kde_start = ns_dyn_mem_temporary_alloc(kde_len);
+    uint8_t *kde_start = malloc(kde_len);
     if (!kde_start) {
         return -1;
     }
@@ -211,7 +211,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
 
     uint16_t eapol_pdu_size = eapol_pdu_key_frame_init(&eapol_pdu, kde_len, kde_start);
 
-    uint8_t *eapol_decoded_data = ns_dyn_mem_temporary_alloc(eapol_pdu_size + prot->header_size); // In future fill with data that defines eapol message
+    uint8_t *eapol_decoded_data = malloc(eapol_pdu_size + prot->header_size); // In future fill with data that defines eapol message
     if (!eapol_decoded_data) {
         result = -1;
         goto initial_key_exit;
@@ -231,7 +231,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
     }
 
 initial_key_exit:
-    ns_dyn_mem_free(kde_start);
+    free(kde_start);
 
     return result;
 }
@@ -298,7 +298,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
 
         tr_info("PMK %s PTK %s GTKL %x", prot->sec_keys->pmk_mismatch ? "not live" : "live", prot->sec_keys->ptk_mismatch ? "not live" : "live", gtkl);
 
-        ns_dyn_mem_free(kde);
+        free(kde);
     } else {
         tr_error("Invalid");
         result = SEC_RESULT_ERROR;

@@ -18,7 +18,7 @@
 #include "timer_sys.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "nanostack-event-loop/platform/arm_hal_timer.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_event_timer.h"
 #include "event.h"
@@ -106,7 +106,7 @@ static void timer_sys_interrupt(void)
 
 static sys_timer_struct_s *sys_timer_dynamically_allocate(void)
 {
-    return ns_dyn_mem_alloc(sizeof(sys_timer_struct_s));
+    return malloc(sizeof(sys_timer_struct_s));
 }
 
 static sys_timer_struct_s *timer_struct_get(void)

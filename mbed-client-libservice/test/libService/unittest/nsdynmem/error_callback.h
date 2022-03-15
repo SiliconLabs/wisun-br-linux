@@ -16,7 +16,7 @@
 #ifndef ERROR_CALLBACK_H
 #define ERROR_CALLBACK_H
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 
 extern heap_fail_t current_heap_error;
 

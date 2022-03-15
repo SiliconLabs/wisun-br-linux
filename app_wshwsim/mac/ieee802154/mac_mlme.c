@@ -30,7 +30,7 @@
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/sw_mac.h"
@@ -674,12 +674,12 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
         eventOS_callback_timer_unregister(rf_mac->mac_timer_id);
         eventOS_callback_timer_unregister(rf_mac->mac_mcps_timer);
 
-        ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.buf);
-        ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.enhanced_ack_buf);
+        free(rf_mac->dev_driver_tx_buffer.buf);
+        free(rf_mac->dev_driver_tx_buffer.enhanced_ack_buf);
 
         mac_sec_mib_deinit(rf_mac);
         mac_cca_thr_deinit(rf_mac);
-        ns_dyn_mem_free(rf_mac);
+        free(rf_mac);
     }
 }
 
@@ -713,12 +713,12 @@ static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_se
 
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size)
 {
-    ns_dyn_mem_free(rf_mac_setup->dev_driver_tx_buffer.buf);
+    free(rf_mac_setup->dev_driver_tx_buffer.buf);
     uint16_t total_length = 0;
     //Allocate tx buffer by given MTU + header + tail
     total_length = mtu_size;
     total_length += (dev_driver->phy_driver->phy_header_length + dev_driver->phy_driver->phy_tail_length);
-    rf_mac_setup->dev_driver_tx_buffer.buf = ns_dyn_mem_alloc(total_length);
+    rf_mac_setup->dev_driver_tx_buffer.buf = malloc(total_length);
     if (!rf_mac_setup->dev_driver_tx_buffer.buf) {
         return -1;
     }
@@ -732,7 +732,7 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
         return NULL;
     }
 
-    protocol_interface_rf_mac_setup_s *entry = ns_dyn_mem_alloc(sizeof(protocol_interface_rf_mac_setup_s));
+    protocol_interface_rf_mac_setup_s *entry = malloc(sizeof(protocol_interface_rf_mac_setup_s));
     if (!entry) {
         return NULL;
     }

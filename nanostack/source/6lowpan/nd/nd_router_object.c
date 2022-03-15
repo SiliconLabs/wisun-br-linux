@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -192,7 +192,7 @@ nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interfa
         return NULL;
     }
 
-    new_entry = ns_dyn_mem_alloc(sizeof(nd_router_t));
+    new_entry = malloc(sizeof(nd_router_t));
     if (!new_entry) {
         tr_error("No heap for New Border Router");
         return NULL;
@@ -215,7 +215,7 @@ void icmp_nd_router_object_reset(nd_router_t *router_object)
     lowpan_context_list_free(&router_object->context_list);
 
     if (router_object->secondaty_hop) {
-        ns_dyn_mem_free(router_object->secondaty_hop);
+        free(router_object->secondaty_hop);
         router_object->secondaty_hop = 0;
     }
 }
@@ -387,7 +387,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                     if (cur->secondaty_hop) {
                         tr_warn("Try Secondary Route");
                         memcpy(&cur->default_hop, cur->secondaty_hop, sizeof(nd_router_next_hop));
-                        ns_dyn_mem_free(cur->secondaty_hop);
+                        free(cur->secondaty_hop);
                         cur->secondaty_hop = 0;
                         interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
                         addr->state_timer = 1;
@@ -485,7 +485,7 @@ void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t s
              * interface context handling.
              */
             ns_list_remove(&nd_router_object->context_list, cur);
-            ns_dyn_mem_free(cur);
+            free(cur);
         } else {
             cur->lifetime -= (uint32_t)seconds * 10;
         }
@@ -496,7 +496,7 @@ void icmp_nd_router_object_release(nd_router_t *router_object)
 {
     if (router_object) {
         icmp_nd_router_object_reset(router_object);
-        ns_dyn_mem_free(router_object);
+        free(router_object);
     }
 }
 
@@ -517,7 +517,7 @@ void gp_address_list_free(gp_ipv6_address_list_t *list)
 {
     ns_list_foreach_safe(gp_ipv6_address_entry_t, cur, list) {
         ns_list_remove(list, cur);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }
 
@@ -1115,7 +1115,7 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
             /* XXX another zero-hysteresis parent swap */
             if (new_router) {
                 if (router->secondaty_hop == 0) {
-                    router->secondaty_hop = ns_dyn_mem_alloc(sizeof(nd_router_next_hop));
+                    router->secondaty_hop = malloc(sizeof(nd_router_next_hop));
                 } else {
                     nd_router_next_hop *hop = router->secondaty_hop;
                     if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
@@ -1135,7 +1135,7 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
             router->default_hop.LQI = buf->options.lqi;
         } else if (new_router) {
             if (!router->secondaty_hop) {
-                router->secondaty_hop = ns_dyn_mem_alloc(sizeof(nd_router_next_hop));
+                router->secondaty_hop = malloc(sizeof(nd_router_next_hop));
                 if (router->secondaty_hop) {
                     router->secondaty_hop->LQI = 0;
                 }
@@ -1394,7 +1394,7 @@ void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[s
         }
     }
 
-    new_entry = ns_dyn_mem_alloc(sizeof(gp_ipv6_address_entry_t));
+    new_entry = malloc(sizeof(gp_ipv6_address_entry_t));
     if (!new_entry) {
         tr_warn("No heap for New Address");
         return;
@@ -1604,7 +1604,7 @@ int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_inf
                             nd_ns_trig(cur, cur_interface);
                         }
                     }
-                    ns_dyn_mem_free(cur->secondaty_hop);
+                    free(cur->secondaty_hop);
                     cur->secondaty_hop = 0;
                 }
                 return ret_val;
@@ -1614,7 +1614,7 @@ int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_inf
             if (hop->addrtype == adr_type) {
                 if (memcmp(hop->address, adr_ptr, compare_len) == 0) {
                     tr_debug("ND Secondary Parent Lost");
-                    ns_dyn_mem_free(cur->secondaty_hop);
+                    free(cur->secondaty_hop);
                     cur->secondaty_hop = 0;
                     return 0;
                 }

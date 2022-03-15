@@ -17,7 +17,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "common_protocols/icmpv6.h"
@@ -41,7 +41,7 @@ static void whiteboard_remove_entry(whiteboard_entry_int_t *entry);
 static void whiteboard_remove_entry(whiteboard_entry_int_t *entry)
 {
     ns_list_remove(&whiteboard_info, entry);
-    ns_dyn_mem_free(entry);
+    free(entry);
     whiteboard_size--;
 }
 
@@ -150,7 +150,7 @@ int8_t whiteboard_interface_register(const uint8_t address[static 16], int8_t nw
         }
     }
 
-    whiteboard_entry_int_t *new = ns_dyn_mem_alloc(sizeof(whiteboard_entry_int_t));
+    whiteboard_entry_int_t *new = malloc(sizeof(whiteboard_entry_int_t));
     if (!new) {
         return -1;
     }
@@ -222,7 +222,7 @@ whiteboard_entry_t *whiteboard_table_update(const uint8_t address[static 16], co
             return 0;
         }
 
-        whiteboard_entry_int_t *new = ns_dyn_mem_alloc(sizeof(whiteboard_entry_int_t));
+        whiteboard_entry_int_t *new = malloc(sizeof(whiteboard_entry_int_t));
         if (new) {
             ns_list_add_to_start(&whiteboard_info, new);
             ret_val = &new->entry;

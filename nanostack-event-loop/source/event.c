@@ -19,7 +19,7 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "timer_sys.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "event.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 
@@ -95,7 +95,7 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uin
 
     event_tmp = event_core_get();
     if (!event_tmp) {
-        ns_dyn_mem_free(new);
+        free(new);
         return -2;
     }
 
@@ -147,7 +147,7 @@ void eventOS_event_cancel_critical(arm_event_storage_t *event)
 
 static arm_event_storage_t *event_dynamically_allocate(void)
 {
-    arm_event_storage_t *event = ns_dyn_mem_temporary_alloc(sizeof(arm_event_storage_t));
+    arm_event_storage_t *event = malloc(sizeof(arm_event_storage_t));
     if (event) {
         event->allocator = ARM_LIB_EVENT_DYNAMIC;
     }
@@ -156,7 +156,7 @@ static arm_event_storage_t *event_dynamically_allocate(void)
 
 static arm_core_tasklet_t *tasklet_dynamically_allocate(void)
 {
-    return ns_dyn_mem_alloc(sizeof(arm_core_tasklet_t));
+    return malloc(sizeof(arm_core_tasklet_t));
 }
 
 arm_event_storage_t *event_core_get(void)
@@ -177,24 +177,24 @@ arm_event_storage_t *event_core_get(void)
     return event;
 }
 
-void event_core_free_push(arm_event_storage_t *free)
+void event_core_free_push(arm_event_storage_t *storage)
 {
-    switch (free->allocator) {
+    switch (storage->allocator) {
         case ARM_LIB_EVENT_STARTUP_POOL:
-            free->state = ARM_LIB_EVENT_UNQUEUED;
+            storage->state = ARM_LIB_EVENT_UNQUEUED;
             platform_enter_critical();
-            ns_list_add_to_start(&free_event_entry, free);
+            ns_list_add_to_start(&free_event_entry, storage);
             platform_exit_critical();
             break;
         case ARM_LIB_EVENT_DYNAMIC:
-            // Free all dynamically allocated events.
+            // storage all dynamically allocated events.
             // No need to set state to UNQUEUED - it's being freed.
-            ns_dyn_mem_free(free);
+            free(storage);
             break;
         case ARM_LIB_EVENT_TIMER:
             // Hand it back to the timer system
-            free->state = ARM_LIB_EVENT_UNQUEUED;
-            timer_sys_event_free(free);
+            storage->state = ARM_LIB_EVENT_UNQUEUED;
+            timer_sys_event_free(storage);
             break;
         case ARM_LIB_EVENT_USER:
             // *INDENT-OFF*

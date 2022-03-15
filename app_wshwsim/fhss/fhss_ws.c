@@ -23,7 +23,7 @@
 #include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_callback_timer.h"
 #include "common/rand.h"
@@ -139,14 +139,14 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
     if (!fhss_struct) {
         return NULL;
     }
-    fhss_struct->ws = ns_dyn_mem_alloc(sizeof(fhss_ws_t));
+    fhss_struct->ws = malloc(sizeof(fhss_ws_t));
     if (!fhss_struct->ws) {
         fhss_free_instance(fhss_api);
         return NULL;
     }
     memset(fhss_struct->ws, 0, sizeof(fhss_ws_t));
     if (fhss_ws_manage_channel_table_allocation(fhss_struct, uc_channel_count > bc_channel_count ? uc_channel_count : bc_channel_count)) {
-        ns_dyn_mem_free(fhss_struct->ws);
+        free(fhss_struct->ws);
         fhss_free_instance(fhss_api);
         tr_error("Failed to allocate channel tables");
         return NULL;
@@ -181,13 +181,13 @@ static int fhss_ws_manage_channel_table_allocation(fhss_structure_t *fhss_struct
 {
     // Must allocate channel table for TR51
     if (!fhss_structure->ws->tr51_channel_table && !fhss_structure->ws->tr51_output_table) {
-        fhss_structure->ws->tr51_channel_table = ns_dyn_mem_alloc(sizeof(int16_t) * tr51_calc_nearest_prime_number(channel_count));
+        fhss_structure->ws->tr51_channel_table = malloc(sizeof(int16_t) * tr51_calc_nearest_prime_number(channel_count));
         if (!fhss_structure->ws->tr51_channel_table) {
             return -1;
         }
-        fhss_structure->ws->tr51_output_table = ns_dyn_mem_alloc(sizeof(int16_t) * channel_count);
+        fhss_structure->ws->tr51_output_table = malloc(sizeof(int16_t) * channel_count);
         if (!fhss_structure->ws->tr51_output_table) {
-            ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
+            free(fhss_structure->ws->tr51_channel_table);
             return -1;
         }
         tr51_init_channel_table(fhss_structure->ws->tr51_channel_table, channel_count);
@@ -1191,9 +1191,9 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
     if (fhss_structure->number_of_bc_channels < channel_count_bc ||
             (channel_count_uc && fhss_structure->number_of_uc_channels < channel_count_uc)) {
         // Channel amount changed to largeneed to reallocate channel table
-        ns_dyn_mem_free(fhss_structure->ws->tr51_channel_table);
+        free(fhss_structure->ws->tr51_channel_table);
         fhss_structure->ws->tr51_channel_table = NULL;
-        ns_dyn_mem_free(fhss_structure->ws->tr51_output_table);
+        free(fhss_structure->ws->tr51_output_table);
         fhss_structure->ws->tr51_output_table = NULL;
 
         if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_uc > channel_count_bc ? channel_count_uc : channel_count_bc)) {

@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -390,7 +390,7 @@ static void ipv6_stack_prefix_on_link_update(protocol_interface_info_entry_t *cu
             }
         }
 
-        new_entry = ns_dyn_mem_alloc(sizeof(ipv6_interface_prefix_on_link_t));
+        new_entry = malloc(sizeof(ipv6_interface_prefix_on_link_t));
         if (new_entry) {
             memset(new_entry->prefix, 0, 16);
             memcpy(new_entry->prefix, address, 8);
@@ -425,7 +425,7 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
         }
     }
 
-    ipv6_interface_route_on_link_t *new_entry = ns_dyn_mem_alloc(sizeof(ipv6_interface_route_on_link_t));
+    ipv6_interface_route_on_link_t *new_entry = malloc(sizeof(ipv6_interface_route_on_link_t));
     if (new_entry) {
         memset(new_entry->prefix, 0, 16);
         memcpy(new_entry->prefix, address, 16);
@@ -460,7 +460,7 @@ int8_t ipv6_stack_route_advert_dns_server_add(uint8_t *address)
             return 0;
         }
     }
-    ipv6_interface_dns_server_on_link_t *new_entry = ns_dyn_mem_alloc(sizeof(ipv6_interface_dns_server_on_link_t));
+    ipv6_interface_dns_server_on_link_t *new_entry = malloc(sizeof(ipv6_interface_dns_server_on_link_t));
     if (!new_entry) {
         return -1;
     }
@@ -476,7 +476,7 @@ void ipv6_stack_route_advert_dns_server_delete(uint8_t *address)
     ns_list_foreach_safe(ipv6_interface_dns_server_on_link_t, cur_server, &dns_server_list) {
         if (!address || memcmp(cur_server->addr, address, 16) == 0) {
             ns_list_remove(&dns_server_list, cur_server);
-            ns_dyn_mem_free(cur_server);
+            free(cur_server);
         }
     }
 }
@@ -485,7 +485,7 @@ int8_t ipv6_stack_route_advert_dns_search_list_add(uint8_t *data, uint16_t data_
 {
 
     if (dns_search_list_ptr) {
-        ns_dyn_mem_free(dns_search_list_ptr);
+        free(dns_search_list_ptr);
         dns_search_list_ptr = NULL;
         dns_search_list_len = 0;
     }
@@ -496,7 +496,7 @@ int8_t ipv6_stack_route_advert_dns_search_list_add(uint8_t *data, uint16_t data_
     }
 
     dns_search_list_len = ((data_len / 8) + 1) * 8; //Should have padding to 8 bytes
-    dns_search_list_ptr = ns_dyn_mem_alloc(dns_search_list_len);
+    dns_search_list_ptr = malloc(dns_search_list_len);
     if (!dns_search_list_ptr) {
         return -1;
     }
@@ -559,7 +559,7 @@ void ipv6_prefix_online_list_free(void)
 {
     ns_list_foreach_safe(ipv6_interface_prefix_on_link_t, cur, &prefix_on_link) {
         ns_list_remove(&prefix_on_link, cur);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }
 
@@ -567,7 +567,7 @@ void ipv6_rote_advert_list_free(void)
 {
     ns_list_foreach_safe(ipv6_interface_route_on_link_t, cur, &route_on_link) {
         ns_list_remove(&route_on_link, cur);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }
 
@@ -804,7 +804,7 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
             ptr += 16;
             if (pfx->prefix_valid_ttl == 0) {
                 ns_list_remove(&prefix_on_link, pfx);
-                ns_dyn_mem_free(pfx);
+                free(pfx);
             }
         }
 
@@ -826,7 +826,7 @@ void ipv6_nd_ra_advert(protocol_interface_info_entry_t *cur, const uint8_t *dest
 
             if (tmp_route->prefix_valid_ttl == 0) {
                 ns_list_remove(&route_on_link, tmp_route);
-                ns_dyn_mem_free(tmp_route);
+                free(tmp_route);
             }
         }
 

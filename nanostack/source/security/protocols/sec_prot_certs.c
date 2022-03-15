@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -84,7 +84,7 @@ uint16_t sec_prot_certs_own_cert_chain_len_get(const sec_prot_certs_t *certs)
 
 cert_chain_entry_t *sec_prot_certs_chain_entry_create(void)
 {
-    cert_chain_entry_t *entry = ns_dyn_mem_alloc(sizeof(cert_chain_entry_t));
+    cert_chain_entry_t *entry = malloc(sizeof(cert_chain_entry_t));
     if (!entry) {
         return NULL;
     }
@@ -99,7 +99,7 @@ void sec_prot_certs_chain_entry_init(cert_chain_entry_t *entry)
 
 void sec_prot_certs_chain_entry_delete(cert_chain_entry_t *entry)
 {
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 int8_t sec_prot_certs_cert_set(cert_chain_entry_t *entry, uint8_t index, uint8_t *cert, uint16_t cert_len)
@@ -176,7 +176,7 @@ void sec_prot_certs_chain_list_delete(cert_chain_list_t *chain_list)
 {
     ns_list_foreach_safe(cert_chain_entry_t, entry, chain_list) {
         ns_list_remove(chain_list, entry);
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
 }
 
@@ -209,7 +209,7 @@ cert_chain_entry_t *sec_prot_certs_chain_list_entry_find(cert_chain_list_t *chai
 
 cert_revocat_list_entry_t *sec_prot_certs_revocat_list_entry_create(void)
 {
-    cert_revocat_list_entry_t *entry = ns_dyn_mem_alloc(sizeof(cert_revocat_list_entry_t));
+    cert_revocat_list_entry_t *entry = malloc(sizeof(cert_revocat_list_entry_t));
     if (!entry) {
         return NULL;
     }
@@ -224,7 +224,7 @@ void sec_prot_certs_revocat_list_entry_init(cert_revocat_list_entry_t *entry)
 
 void sec_prot_certs_revocat_list_entry_delete(cert_revocat_list_entry_t *entry)
 {
-    ns_dyn_mem_free(entry);
+    free(entry);
 }
 
 int8_t sec_prot_certs_revocat_list_set(cert_revocat_list_entry_t *entry, const uint8_t *crl, uint16_t crl_len)
@@ -276,7 +276,7 @@ void sec_prot_certs_revocat_lists_delete(cert_revocat_lists_t *cert_revocat_list
 {
     ns_list_foreach_safe(cert_revocat_list_entry_t, entry, cert_revocat_lists) {
         ns_list_remove(cert_revocat_lists, entry);
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
 }
 

@@ -16,7 +16,7 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/platform/arm_hal_nvm.h"
 #include "mbed-client-libservice/ns_nvm_helper.h"
@@ -70,7 +70,7 @@ void ns_nvm_callback_func(platform_nvm_status status, void *args)
     switch (ns_nvm_request_ptr->operation) {
         case NS_NVM_INIT:
             ns_nvm_operation_continue(ns_nvm_request_ptr->original_request, true);
-            ns_dyn_mem_free(ns_nvm_request_ptr);
+            free(ns_nvm_request_ptr);
             break;
         case NS_NVM_FLUSH:
         case NS_NVM_KEY_READ:
@@ -144,15 +144,15 @@ static int ns_nvm_operation_start(ns_nvm_request_t *nvm_request)
     } else {
         ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(NULL, NULL, NULL, NULL, NULL, NS_NVM_INIT);
         if (!ns_nvm_request_ptr) {
-            ns_dyn_mem_free(nvm_request);
-            ns_dyn_mem_free(ns_nvm_request_ptr);
+            free(nvm_request);
+            free(ns_nvm_request_ptr);
             return NS_NVM_MEMORY;
         }
         ns_nvm_request_ptr->original_request = nvm_request;
         pnvm_status = platform_nvm_init(ns_nvm_callback_func, ns_nvm_request_ptr);
         if (pnvm_status != PLATFORM_NVM_OK) {
-            ns_dyn_mem_free(nvm_request);
-            ns_dyn_mem_free(ns_nvm_request_ptr);
+            free(nvm_request);
+            free(ns_nvm_request_ptr);
             return NS_NVM_ERROR;
         }
         ns_list_init(&ns_nvm_request_list);
@@ -164,7 +164,7 @@ static int ns_nvm_operation_start(ns_nvm_request_t *nvm_request)
 
 static ns_nvm_request_t *ns_nvm_create_request(ns_nvm_callback *callback, void *context, const char *key_name, uint8_t *buf, uint16_t *buf_len, uint8_t operation)
 {
-    ns_nvm_request_t *ns_nvm_request_ptr = ns_dyn_mem_temporary_alloc(sizeof(ns_nvm_request_t));
+    ns_nvm_request_t *ns_nvm_request_ptr = malloc(sizeof(ns_nvm_request_t));
     if (!ns_nvm_request_ptr) {
         return NULL;
     }
@@ -199,7 +199,7 @@ static int ns_nvm_operation_continue(ns_nvm_request_t *request, bool free_reques
     if (ret != PLATFORM_NVM_OK) {
         if (free_request == true) {
             // free request if requested
-            ns_dyn_mem_free(request);
+            free(request);
         }
         ns_nvm_operation_in_progress = false;
         return NS_NVM_ERROR;
@@ -211,7 +211,7 @@ static int ns_nvm_operation_continue(ns_nvm_request_t *request, bool free_reques
 static void ns_nvm_operation_end(ns_nvm_request_t *ns_nvm_request_ptr, int client_retval)
 {
     ns_nvm_request_ptr->callback(client_retval, ns_nvm_request_ptr->client_context);
-    ns_dyn_mem_free(ns_nvm_request_ptr);
+    free(ns_nvm_request_ptr);
     ns_nvm_operation_in_progress = false;
 
     ns_list_foreach_safe(ns_nvm_request_t, pending_req, &ns_nvm_request_list) {

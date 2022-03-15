@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "nanostack/mac/fhss_config.h"
@@ -223,7 +223,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
             break;
     }
 
-    uint8_t *kde_start = ns_dyn_mem_temporary_alloc(kde_len);
+    uint8_t *kde_start = malloc(kde_len);
 
     if (!kde_start) {
         return -1;
@@ -235,7 +235,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         case FWH_MESSAGE_1: {
             uint8_t pmkid[PMKID_LEN];
             if (sec_prot_lib_pmkid_generate(prot, pmkid, true, false, NULL) < 0) {
-                ns_dyn_mem_free(kde_start);
+                free(kde_start);
                 return -1;
             }
             kde_end = kde_pmkid_write(kde_end, pmkid);
@@ -267,7 +267,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
     switch (msg) {
         case FWH_MESSAGE_1:
             if (!sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys)) {
-                ns_dyn_mem_free(kde_start);
+                free(kde_start);
                 return 1;
             }
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
@@ -277,7 +277,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
             break;
         case FWH_MESSAGE_3:
             if (!sec_prot_keys_pmk_replay_cnt_increment(prot->sec_keys)) {
-                ns_dyn_mem_free(kde_start);
+                free(kde_start);
                 return -1;
             }
             eapol_pdu.msg.key.replay_counter = sec_prot_keys_pmk_replay_cnt_get(prot->sec_keys);
@@ -295,7 +295,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 
     uint8_t *eapol_pdu_frame = sec_prot_lib_message_build(data->new_ptk, kde_start, kde_len, &eapol_pdu, eapol_pdu_size, prot->header_size);
 
-    ns_dyn_mem_free(kde_start);
+    free(kde_start);
 
     if (eapol_pdu_frame == NULL) {
         return -1;
@@ -314,7 +314,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 
 static int8_t auth_fwh_sec_prot_auth_completed_send(sec_prot_t *prot)
 {
-    uint8_t *eapol_pdu_frame = ns_dyn_mem_temporary_alloc(prot->header_size);
+    uint8_t *eapol_pdu_frame = malloc(prot->header_size);
 
     // Send zero length message to relay which requests LLC to remove EAPOL temporary entry based on EUI-64
     if (prot->send(prot, eapol_pdu_frame, prot->header_size) < 0) {

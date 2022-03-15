@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nwk_interface/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
@@ -62,7 +62,7 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info
         }
     }
 
-    kmp_eapol_pdu_if_t *eapol_pdu_if = ns_dyn_mem_alloc(sizeof(kmp_eapol_pdu_if_t));
+    kmp_eapol_pdu_if_t *eapol_pdu_if = malloc(sizeof(kmp_eapol_pdu_if_t));
     if (!eapol_pdu_if) {
         return -1;
     }
@@ -71,7 +71,7 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info
     eapol_pdu_if->interface_ptr = interface_ptr;
 
     if (kmp_service_msg_if_register(service, 0, kmp_eapol_pdu_if_send, EAPOL_PDU_IF_HEADER_SIZE, 0) < 0) {
-        ns_dyn_mem_free(eapol_pdu_if);
+        free(eapol_pdu_if);
         return -1;
     }
 
@@ -89,7 +89,7 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service)
     ns_list_foreach_safe(kmp_eapol_pdu_if_t, entry, &kmp_eapol_pdu_if_list) {
         if (entry->kmp_service == service) {
             ns_list_remove(&kmp_eapol_pdu_if_list, entry);
-            ns_dyn_mem_free(entry);
+            free(entry);
             kmp_service_msg_if_register(service, 0, NULL, 0, 0);
         }
     }

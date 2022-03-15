@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
@@ -178,15 +178,15 @@ void ws_pae_key_storage_delete(void)
 
 static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_storage_size, void *new_storage_array)
 {
-    key_storage_array_t *key_storage_array = ns_dyn_mem_alloc(sizeof(key_storage_array_t));
+    key_storage_array_t *key_storage_array = malloc(sizeof(key_storage_array_t));
     if (!key_storage_array) {
         return -1;
     }
 
     if (new_storage_array == NULL) {
-        key_storage_array->storage_array_handle = ns_dyn_mem_alloc(key_storage_size);
+        key_storage_array->storage_array_handle = malloc(key_storage_size);
         if (!key_storage_array->storage_array_handle) {
-            ns_dyn_mem_free(key_storage_array);
+            free(key_storage_array);
             return -1;
         }
         key_storage_array->allocated = true;
@@ -232,10 +232,10 @@ static void ws_pae_key_storage_list_all_free(void)
 {
     ns_list_foreach_safe(key_storage_array_t, entry, &key_storage_array_list) {
         if (entry->allocated) {
-            ns_dyn_mem_free(entry->storage_array_handle);
+            free(entry->storage_array_handle);
         }
         ns_list_remove(&key_storage_array_list, entry);
-        ns_dyn_mem_free(entry);
+        free(entry);
     }
 }
 
@@ -563,7 +563,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
         field_set |= 1 << PTKLTIME_SET;
     }
 
-    supp_entry_t *pae_supp = ns_dyn_mem_temporary_alloc(sizeof(supp_entry_t));
+    supp_entry_t *pae_supp = malloc(sizeof(supp_entry_t));
     if (!pae_supp) {
         return NULL;
     }

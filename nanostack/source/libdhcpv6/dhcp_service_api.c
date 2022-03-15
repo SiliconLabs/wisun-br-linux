@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
@@ -144,7 +144,7 @@ bool dhcp_service_allocate(void)
 {
     bool retVal = false;
     if (dhcp_service == NULL) {
-        dhcp_service = ns_dyn_mem_alloc(sizeof(dhcp_service_class_t));
+        dhcp_service = malloc(sizeof(dhcp_service_class_t));
         if (dhcp_service) {
             ns_list_init(&dhcp_service->srv_list);
             ns_list_init(&dhcp_service->relay_list);
@@ -155,7 +155,7 @@ bool dhcp_service_allocate(void)
             dhcp_service->dhcp_relay_socket = -1;
             dhcp_service->dhcpv6_socket_service_tasklet = eventOS_event_handler_create(dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_SERVICE_TASKLET_INIT);
             if (dhcp_service->dhcpv6_socket_service_tasklet < 0) {
-                ns_dyn_mem_free(dhcp_service);
+                free(dhcp_service);
                 dhcp_service = NULL;
             } else {
                 retVal = true;
@@ -184,7 +184,7 @@ msg_tr_t *dhcp_tr_create(void)
 {
     uint32_t tr_id;
     msg_tr_t *msg_ptr = NULL;
-    msg_ptr = ns_dyn_mem_temporary_alloc(sizeof(msg_tr_t));
+    msg_ptr = malloc(sizeof(msg_tr_t));
     if (msg_ptr == NULL) {
         return NULL;
     }
@@ -207,8 +207,8 @@ void dhcp_tr_delete(msg_tr_t *msg_ptr)
 {
     if (msg_ptr != NULL) {
         ns_list_remove(&dhcp_service->tr_list, msg_ptr);
-        ns_dyn_mem_free(msg_ptr->msg_ptr);
-        ns_dyn_mem_free(msg_ptr);
+        free(msg_ptr->msg_ptr);
+        free(msg_ptr);
     }
     return;
 }
@@ -323,7 +323,7 @@ void recv_dhcp_server_msg(void *cb_res)
 
     tr_debug("dhcp Server recv request");
     msg_tr_ptr = dhcp_tr_create();
-    msg_ptr = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
+    msg_ptr = malloc(sckt_data->d_len);
     allocated_ptr = msg_ptr;
     if (msg_ptr == NULL || msg_tr_ptr == NULL) {
         // read actual message
@@ -386,7 +386,7 @@ void recv_dhcp_server_msg(void *cb_res)
 
 cleanup:
     dhcp_tr_delete(msg_tr_ptr);
-    ns_dyn_mem_free(allocated_ptr);
+    free(allocated_ptr);
     if (srv_ptr == NULL) {
         //no owner found
         tr_warn("No handler for this message found");
@@ -419,7 +419,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     uint8_t relay_frame[DHCPV6_RELAY_LENGTH + 4 + 5];
 
 
-    uint8_t *socket_data = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
+    uint8_t *socket_data = malloc(sckt_data->d_len);
 
     if (socket_data == NULL) {
         // read actual message
@@ -521,7 +521,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     socket_setsockopt(sckt_data->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
     socket_sendmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
 cleanup:
-    ns_dyn_mem_free(socket_data);
+    free(socket_data);
 
     return;
 }
@@ -543,7 +543,7 @@ void recv_dhcp_client_msg(void *cb_res)
     }
     tr_debug("dhcp recv response message");
     // read actual message
-    msg_ptr = ns_dyn_mem_temporary_alloc(sckt_data->d_len);
+    msg_ptr = malloc(sckt_data->d_len);
 
     if (msg_ptr == NULL) {
         tr_error("Out of memory");
@@ -574,7 +574,7 @@ void recv_dhcp_client_msg(void *cb_res)
     }
 
 cleanup:
-    ns_dyn_mem_free(msg_ptr);
+    free(msg_ptr);
     if (retVal != RET_MSG_WAIT_ANOTHER) {
         //Transaction is not killed yet
         dhcp_tr_delete(dhcp_tr_find(tr_id));
@@ -633,19 +633,19 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
             break;
         }
     }
-    srv_ptr = ns_dyn_mem_alloc(sizeof(server_instance_t));
+    srv_ptr = malloc(sizeof(server_instance_t));
     if (id == MAX_SERVERS || srv_ptr == NULL) {
         tr_error("Out of server instances");
-        ns_dyn_mem_free(srv_ptr);
+        free(srv_ptr);
         return 0;
     }
 
     if (instance_type == DHCP_INTANCE_RELAY_AGENT) {
         //Allocate Realay Agent
-        relay_instance_t *relay_srv = ns_dyn_mem_alloc(sizeof(relay_instance_t));
+        relay_instance_t *relay_srv = malloc(sizeof(relay_instance_t));
         if (!relay_srv) {
             tr_error("Out of realy instances");
-            ns_dyn_mem_free(srv_ptr);
+            free(srv_ptr);
             return 0;
         }
         ns_list_add_to_start(&dhcp_service->relay_list, relay_srv);
@@ -706,10 +706,10 @@ void dhcp_service_delete(uint16_t instance)
             relay_instance_t *relay = dhcp_service_relay_find(instance);
             if (relay) {
                 ns_list_remove(&dhcp_service->relay_list, relay);
-                ns_dyn_mem_free(relay);
+                free(relay);
             }
         }
-        ns_dyn_mem_free(srv_ptr);
+        free(srv_ptr);
 
     }
     ns_list_foreach_safe(msg_tr_t, cur_ptr, &dhcp_service->tr_list) {
@@ -757,7 +757,7 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
         tr_error("Srv Instance not found");
         return -1;
     }
-    ns_dyn_mem_free(msg_tr_ptr->msg_ptr);
+    free(msg_tr_ptr->msg_ptr);
 
     msg_tr_ptr->msg_ptr = msg_ptr;
     msg_tr_ptr->msg_len = msg_len;
@@ -1017,7 +1017,7 @@ int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_
     }
 
 
-    notify_srv = ns_dyn_mem_alloc(sizeof(relay_notify_t));
+    notify_srv = malloc(sizeof(relay_notify_t));
     if (!notify_srv) {
         return -1;
     }

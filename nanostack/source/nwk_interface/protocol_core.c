@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -1000,7 +1000,7 @@ void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry
             ipv6_stack_route_advert_remove(e->address, 128);
 
             ns_list_remove(&cur->ip_addresses, e);
-            ns_dyn_mem_free(e);
+            free(e);
             tr_debug("Delete DHCPv6 Allocated Address");
             break;
         }

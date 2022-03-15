@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/blacklist/blacklist.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nwk_interface/protocol.h"
@@ -39,7 +39,7 @@ uint8_t blacklist_init(void)
         return 0;
     }
 
-    blacklist_data = ns_dyn_mem_alloc(sizeof(blacklist_data_t));
+    blacklist_data = malloc(sizeof(blacklist_data_t));
 
     if (!blacklist_data) {
         return 1;
@@ -167,7 +167,7 @@ void blacklist_free(void)
         return;
     }
 
-    ns_dyn_mem_free(blacklist_data);
+    free(blacklist_data);
     blacklist_data = NULL;
 }
 
@@ -249,7 +249,7 @@ static void blacklist_entry_add(const uint8_t *eui64)
         return;
     }
 
-    blacklist_entry = ns_dyn_mem_alloc(sizeof(blacklist_entry_t));
+    blacklist_entry = malloc(sizeof(blacklist_entry_t));
 
     if (!blacklist_entry) {
         return;
@@ -276,7 +276,7 @@ static int8_t blacklist_entry_free(blacklist_entry_t *blacklist_entry)
     }
 
     ns_list_remove(&blacklist_data->blacklist, blacklist_entry); //Remove from the list
-    ns_dyn_mem_free(blacklist_entry); // Free entry
+    free(blacklist_entry); // Free entry
     return 0;
 }
 

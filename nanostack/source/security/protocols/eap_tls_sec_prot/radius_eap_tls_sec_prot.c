@@ -21,7 +21,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
@@ -157,7 +157,7 @@ static void radius_eap_tls_sec_prot_delete(sec_prot_t *prot)
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
 
     if (data->recv_eap_msg != NULL) {
-        ns_dyn_mem_free(data->recv_eap_msg);
+        free(data->recv_eap_msg);
     }
 }
 
@@ -365,7 +365,7 @@ static int8_t radius_eap_tls_sec_prot_radius_client_receive(sec_prot_t *radius_c
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
 
     if (data->recv_eap_msg != NULL) {
-        ns_dyn_mem_free(data->recv_eap_msg);
+        free(data->recv_eap_msg);
     }
 
     data->recv_eap_msg_len = size;
@@ -381,7 +381,7 @@ static void radius_eap_tls_sec_prot_eap_tls_msg_free(sec_prot_t *prot)
     radius_eap_tls_sec_prot_int_t *data = eap_tls_sec_prot_get(prot);
 
     if (data->recv_eap_msg != NULL) {
-        ns_dyn_mem_free(data->recv_eap_msg);
+        free(data->recv_eap_msg);
     }
 
     data->recv_eap_msg = NULL;

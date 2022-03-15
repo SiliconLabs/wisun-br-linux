@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
@@ -47,9 +47,9 @@ const uint8_t eap_msg_trace[4][10] = {"REQ", "RESPONSE", "SUCCESS", "FAILURE"};
 
 int8_t eap_tls_sec_prot_lib_message_allocate(tls_data_t *data, uint8_t head_len, uint16_t len)
 {
-    ns_dyn_mem_free(data->data);
+    free(data->data);
 
-    data->data = ns_dyn_mem_temporary_alloc(head_len + len);
+    data->data = malloc(head_len + len);
     if (!data->data) {
         return -1;
     }
@@ -78,7 +78,7 @@ int8_t eap_tls_sec_prot_lib_message_realloc(tls_data_t *data, uint8_t head_len, 
 
 void eap_tls_sec_prot_lib_message_free(tls_data_t *data)
 {
-    ns_dyn_mem_free(data->data);
+    free(data->data);
     data->handled_len = 0;
     data->data = 0;
     data->total_len = 0;
@@ -184,7 +184,7 @@ uint8_t *eap_tls_sec_prot_lib_message_build(uint8_t eap_code, uint8_t eap_type, 
 
     *length = eapol_pdu_eap_frame_init(&eapol_pdu, eap_code, eap_id_seq, eap_type, eap_len, data_ptr);
 
-    uint8_t *eapol_decoded_data = ns_dyn_mem_temporary_alloc(*length + header_size);
+    uint8_t *eapol_decoded_data = malloc(*length + header_size);
     if (!eapol_decoded_data) {
         return NULL;
     }

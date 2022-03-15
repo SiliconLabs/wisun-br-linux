@@ -20,7 +20,7 @@
 #include <string.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 
@@ -42,7 +42,7 @@ red_info_t *random_early_detection_create(uint16_t threshold_min, uint16_t thres
         return NULL;
     }
 
-    red_info_t *red_info = ns_dyn_mem_alloc(sizeof(red_info_t));
+    red_info_t *red_info = malloc(sizeof(red_info_t));
     if (red_info) {
         red_info->count = 0;
         red_info->averageQ = 0;
@@ -58,7 +58,7 @@ red_info_t *random_early_detection_create(uint16_t threshold_min, uint16_t thres
 
 void random_early_detection_free(struct red_info_s *red_info)
 {
-    ns_dyn_mem_free(red_info);
+    free(red_info);
 }
 
 //calculate average and return averaged value back

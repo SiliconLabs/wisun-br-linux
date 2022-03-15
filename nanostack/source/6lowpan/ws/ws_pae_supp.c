@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
@@ -562,7 +562,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
         return 0;
     }
 
-    pae_supp_t *pae_supp = ns_dyn_mem_alloc(sizeof(pae_supp_t));
+    pae_supp_t *pae_supp = malloc(sizeof(pae_supp_t));
     if (!pae_supp) {
         return -1;
     }
@@ -694,7 +694,7 @@ static void ws_pae_supp_free(pae_supp_t *pae_supp)
     kmp_service_delete(pae_supp->kmp_service);
 
     ns_list_remove(&pae_supp_list, pae_supp);
-    ns_dyn_mem_free(pae_supp);
+    free(pae_supp);
 }
 
 static pae_supp_t *ws_pae_supp_get(protocol_interface_info_entry_t *interface_ptr)

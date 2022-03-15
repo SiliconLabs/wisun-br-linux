@@ -26,7 +26,7 @@
 #include <string.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/nwk_stats_api.h"
 
@@ -484,8 +484,8 @@ int8_t reassembly_interface_free(int8_t interface_id)
     ns_list_remove(&reassembly_interface_list, interface_ptr);
 
     //Free Dynamic allocated entry buffer
-    ns_dyn_mem_free(interface_ptr->entry_pointer_buffer);
-    ns_dyn_mem_free(interface_ptr);
+    free(interface_ptr->entry_pointer_buffer);
+    free(interface_ptr);
 
     return 0;
 }
@@ -502,11 +502,11 @@ int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session
     reassembly_interface_free(interface_id);
 
     //Allocate new
-    reassembly_interface_t *interface_ptr = ns_dyn_mem_alloc(sizeof(reassembly_interface_t));
-    reassembly_entry_t *reassemply_ptr = ns_dyn_mem_alloc(sizeof(reassembly_entry_t) * reassembly_session_limit);
+    reassembly_interface_t *interface_ptr = malloc(sizeof(reassembly_interface_t));
+    reassembly_entry_t *reassemply_ptr = malloc(sizeof(reassembly_entry_t) * reassembly_session_limit);
     if (!interface_ptr || !reassemply_ptr) {
-        ns_dyn_mem_free(interface_ptr);
-        ns_dyn_mem_free(reassemply_ptr);
+        free(interface_ptr);
+        free(reassemply_ptr);
         return -1;
     }
 

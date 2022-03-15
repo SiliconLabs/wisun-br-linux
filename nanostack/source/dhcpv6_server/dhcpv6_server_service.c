@@ -25,7 +25,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
@@ -116,7 +116,7 @@ int dhcpv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
         response->responseLength += libdhcpv6_vendor_data_message_sizes(serverBase);
     }
 
-    response->responsePtr = ns_dyn_mem_temporary_alloc(response->responseLength);
+    response->responsePtr = malloc(response->responseLength);
     if (response->responsePtr) {
         uint8_t *ptr = response->responsePtr;
         //Write Generic data at beginning
@@ -171,7 +171,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                     if (dhcpv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, true) == 0) {
                         //Respond
                         dhcp_service_send_resp(msg_tr_id, TX_OPT_NONE, responseBuf.responsePtr, responseBuf.responseLength);
-                        ns_dyn_mem_free(responseBuf.responsePtr);
+                        free(responseBuf.responsePtr);
                         retVal = RET_MSG_ACCEPTED;
                     }
 
@@ -198,7 +198,7 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
                         if (dhcpv6_server_respond_client(serverBase, &replyPacket, &dhcp_ia_non_temporal_params, &responseBuf, false) == 0) {
                             //Respond
                             dhcp_service_send_resp(msg_tr_id, TX_OPT_NONE, responseBuf.responsePtr, responseBuf.responseLength);
-                            ns_dyn_mem_free(responseBuf.responsePtr);
+                            free(responseBuf.responsePtr);
                             retVal = RET_MSG_ACCEPTED;
                         }
                     }
@@ -446,11 +446,11 @@ int dhcpv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[sta
     }
 
     if (dns_entry->search_list_length != dns_search_list_len) {
-        ns_dyn_mem_free(dns_entry->search_list);
+        free(dns_entry->search_list);
         dns_entry->search_list = NULL;
         dns_entry->search_list_length = 0;
         if (dns_search_list_len) {
-            dns_entry->search_list = ns_dyn_mem_alloc(dns_search_list_len);
+            dns_entry->search_list = malloc(dns_search_list_len);
             if (dns_entry->search_list) {
                 dns_entry->search_list_length = dns_search_list_len;
             }
@@ -479,11 +479,11 @@ int dhcpv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[st
     }
 
     if (vendor_data_entry->vendor_data_length != dhcp_vendor_data_len) {
-        ns_dyn_mem_free(vendor_data_entry->vendor_data);
+        free(vendor_data_entry->vendor_data);
         vendor_data_entry->vendor_data = NULL;
         vendor_data_entry->vendor_data_length = 0;
         if (dhcp_vendor_data_len) {
-            vendor_data_entry->vendor_data = ns_dyn_mem_alloc(dhcp_vendor_data_len);
+            vendor_data_entry->vendor_data = malloc(dhcp_vendor_data_len);
             if (vendor_data_entry->vendor_data) {
                 vendor_data_entry->vendor_data_length = dhcp_vendor_data_len;
             }

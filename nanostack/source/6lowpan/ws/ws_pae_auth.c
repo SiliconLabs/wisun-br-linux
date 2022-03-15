@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
@@ -172,7 +172,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
         return 0;
     }
 
-    pae_auth_t *pae_auth = ns_dyn_mem_alloc(sizeof(pae_auth_t));
+    pae_auth_t *pae_auth = malloc(sizeof(pae_auth_t));
     if (!pae_auth) {
         return -1;
     }
@@ -646,7 +646,7 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth)
     kmp_service_delete(pae_auth->kmp_service);
 
     ns_list_remove(&pae_auth_list, pae_auth);
-    ns_dyn_mem_free(pae_auth);
+    free(pae_auth);
 }
 
 static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_ptr)

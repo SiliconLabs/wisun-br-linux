@@ -19,7 +19,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -567,7 +567,7 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
     /* TODO: Could actually do it in-place with more care, working backwards
      * in each header.
      */
-    uint8_t *hc_out = ns_dyn_mem_temporary_alloc(hc_space);
+    uint8_t *hc_out = malloc(hc_space);
     if (!hc_out) {
         tr_debug("No mem");
         return buffer_free(buf);
@@ -575,7 +575,7 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
 
     if (!addr_iid_from_outer(src_iid, &buf->src_sa) || !addr_iid_from_outer(dst_iid, &buf->dst_sa)) {
         tr_debug("Bad outer addr");
-        ns_dyn_mem_free(hc_out);
+        free(hc_out);
         return buffer_free(buf);
     }
 
@@ -600,7 +600,7 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
             ptr = buffer_data_reserve_header(buf, 1);
             *ptr = LOWPAN_DISPATCH_IPV6;
         }
-        ns_dyn_mem_free(hc_out);
+        free(hc_out);
         return buf;
     }
 
@@ -608,7 +608,7 @@ buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf
     buffer_data_reserve_header(buf, cs.produced);
     /* XXX see note above - should be able to improve this to avoid the temp buffer */
     memcpy(buffer_data_pointer(buf), hc_out, cs.produced);
-    ns_dyn_mem_free(hc_out);
+    free(hc_out);
     return buf;
 
 }

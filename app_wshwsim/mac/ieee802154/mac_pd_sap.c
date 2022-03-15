@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include "nanostack-event-loop/eventOS_event.h"
 #include <string.h>
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"

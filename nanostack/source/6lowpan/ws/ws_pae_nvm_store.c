@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/utils/ns_file.h"
 #include "nanostack/ns_file_system.h"
@@ -50,7 +50,7 @@ void ws_pae_nvm_store_generic_tlv_create(nvm_tlv_t *tlv_entry, uint16_t tag, uin
 
 nvm_tlv_t *ws_pae_nvm_store_generic_tlv_allocate_and_create(uint16_t tag, uint16_t length)
 {
-    nvm_tlv_t *tlv_entry = ns_dyn_mem_alloc(length + sizeof(nvm_tlv_t));
+    nvm_tlv_t *tlv_entry = malloc(length + sizeof(nvm_tlv_t));
     if (!tlv_entry) {
         return NULL;
     }
@@ -66,7 +66,7 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry)
         return;
     }
 
-    ns_dyn_mem_free(tlv_entry);
+    free(tlv_entry);
 }
 
 int8_t ws_pae_nvm_store_tlv_file_write(const char *file, nvm_tlv_t *tlv)

@@ -22,7 +22,7 @@
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "service_libs/trickle/trickle.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
@@ -330,7 +330,7 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
 
 uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len, eapol_pdu_t *eapol_pdu, uint16_t eapol_pdu_size, uint8_t header_size)
 {
-    uint8_t *eapol_pdu_frame = ns_dyn_mem_temporary_alloc(header_size + eapol_pdu_size);
+    uint8_t *eapol_pdu_frame = malloc(header_size + eapol_pdu_size);
 
     if (!eapol_pdu_frame) {
         return NULL;
@@ -342,7 +342,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
         if (eapol_pdu->msg.key.key_information.encrypted_key_data) {
             size_t output_len = kde_len;
             if (nist_aes_key_wrap(1, &ptk[KEK_INDEX], 128, kde, kde_len - 8, eapol_kde, &output_len) < 0 || output_len != kde_len) {
-                ns_dyn_mem_free(eapol_pdu_frame);
+                free(eapol_pdu_frame);
                 return NULL;
             }
         } else {
@@ -353,7 +353,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
     if (eapol_pdu->msg.key.key_information.key_mic) {
         uint8_t mic[EAPOL_KEY_MIC_LEN];
         if (hmac_md_calc(ALG_HMAC_SHA1_160, ptk, KCK_LEN, eapol_pdu_frame + header_size, eapol_pdu_size, mic, EAPOL_KEY_MIC_LEN) < 0) {
-            ns_dyn_mem_free(eapol_pdu_frame);
+            free(eapol_pdu_frame);
             return NULL;
         }
         eapol_write_key_packet_mic(eapol_pdu_frame + header_size, mic);
@@ -371,7 +371,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
     uint8_t *key_data = eapol_pdu->msg.key.key_data;
     uint16_t key_data_len = eapol_pdu->msg.key.key_data_length;
 
-    uint8_t *kde = ns_dyn_mem_temporary_alloc(key_data_len);
+    uint8_t *kde = malloc(key_data_len);
     *kde_len = key_data_len;
 
     if (kde) {
@@ -379,7 +379,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
             size_t output_len = eapol_pdu->msg.key.key_data_length;
             if (nist_aes_key_wrap(0, &ptk[KEK_INDEX], 128, key_data, key_data_len, kde, &output_len) < 0 || output_len != (size_t) key_data_len - 8) {
                 tr_error("Decrypt failed");
-                ns_dyn_mem_free(kde);
+                free(kde);
                 return NULL;
             }
             *kde_len = output_len;

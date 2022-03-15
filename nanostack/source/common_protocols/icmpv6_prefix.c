@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/common_functions.h"
 
@@ -44,7 +44,7 @@ prefix_entry_t *icmpv6_prefix_add(prefix_list_t *list, const uint8_t *prefixPtr,
         return entry;
     }
 
-    entry = ns_dyn_mem_alloc(sizeof(prefix_entry_t));
+    entry = malloc(sizeof(prefix_entry_t));
     if (entry) {
         entry->prefix_len = prefix_len;
         entry->options = 0xff;
@@ -72,6 +72,6 @@ void icmpv6_prefix_list_free(prefix_list_t *list)
 {
     ns_list_foreach_safe(prefix_entry_t, cur, list) {
         ns_list_remove(list, cur);
-        ns_dyn_mem_free(cur);
+        free(cur);
     }
 }

@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/nsdynmemLIB.h"
+#include <stdlib.h>
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
@@ -217,7 +217,7 @@ void socket_tasklet_event_handler(arm_event_s *event)
             socket_cb_event_t *cb_event_ptr = event->data_ptr;
             socket_cb_event_run(cb_event_ptr);
             socket_dereference(cb_event_ptr->socket);
-            ns_dyn_mem_free(cb_event_ptr);
+            free(cb_event_ptr);
             break;
         }
         case ARM_SOCKET_DATA_CB: {
@@ -330,7 +330,7 @@ static void socket_free(socket_t *socket)
     sockbuf_flush(&socket->sndq);
 
     socket_inet_pcb_free(socket->inet_pcb);
-    ns_dyn_mem_free(socket);
+    free(socket);
 }
 
 socket_error_t socket_port_validate(uint16_t port, uint8_t protocol)
@@ -374,7 +374,7 @@ void socket_id_detach(int8_t sid)
 
 inet_pcb_t *socket_inet_pcb_allocate(void)
 {
-    inet_pcb_t *inet_pcb = ns_dyn_mem_alloc(sizeof(inet_pcb_t));
+    inet_pcb_t *inet_pcb = malloc(sizeof(inet_pcb_t));
     if (!inet_pcb) {
         return NULL;
     }
@@ -407,7 +407,7 @@ inet_pcb_t *socket_inet_pcb_allocate(void)
 
 inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig)
 {
-    inet_pcb_t *inet_pcb = ns_dyn_mem_alloc(sizeof(inet_pcb_t));
+    inet_pcb_t *inet_pcb = malloc(sizeof(inet_pcb_t));
     if (!inet_pcb) {
         return NULL;
     }
@@ -419,7 +419,7 @@ inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig)
 
 socket_t *socket_allocate(socket_type_t type)
 {
-    socket_t *socket = ns_dyn_mem_alloc(sizeof(socket_t));
+    socket_t *socket = malloc(sizeof(socket_t));
     if (!socket) {
         return NULL;
     }
@@ -897,7 +897,7 @@ void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id
         return;
     }
 
-    socket_cb_event_t *cb_event = ns_dyn_mem_temporary_alloc(sizeof(socket_cb_event_t));
+    socket_cb_event_t *cb_event = malloc(sizeof(socket_cb_event_t));
     if (cb_event) {
         cb_event->socket = socket_reference(socket);
         cb_event->socket_event = sock_event;
@@ -913,7 +913,7 @@ void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id
         };
         if (eventOS_event_send(&event) != 0) {
             socket_dereference(socket);
-            ns_dyn_mem_free(cb_event);
+            free(cb_event);
         }
     }
 }
@@ -1358,7 +1358,7 @@ static void mc_group_free(inet_pcb_t *inet_pcb, inet_group_t *mc)
     }
 
     ns_list_remove(&inet_pcb->mc_groups, mc);
-    ns_dyn_mem_free(mc);
+    free(mc);
 }
 
 /*
@@ -1382,7 +1382,7 @@ inet_pcb_t *socket_inet_pcb_free(inet_pcb_t *inet_pcb)
         ns_list_foreach_safe(inet_group_t, mc, &inet_pcb->mc_groups) {
             mc_group_free(inet_pcb, mc);
         }
-        ns_dyn_mem_free(inet_pcb);
+        free(inet_pcb);
     }
     return NULL;
 }
@@ -1405,7 +1405,7 @@ int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, con
     if (!cur_interface) {
         return -3;
     }
-    inet_group_t *mc = ns_dyn_mem_alloc(sizeof * mc);
+    inet_group_t *mc = malloc(sizeof * mc);
     if (!mc) {
         return -3;
     }
@@ -1414,7 +1414,7 @@ int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, con
     if (!addr_add_group(cur_interface, group)) {
         /* This could also happen due to being an implicit group member, eg ff02::1 */
         /* In that case, doesn't seem unreasonable to return the same error as "already a member on this socket" */
-        ns_dyn_mem_free(mc);
+        free(mc);
         return -3;
     }
 
