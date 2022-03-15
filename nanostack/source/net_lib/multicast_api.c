@@ -323,7 +323,7 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MA
             mpl_domain_create(lowpan, ADDR_ALL_MPL_FORWARDERS, NULL, MULTICAST_MPL_SEED_ID_DEFAULT, -1, 0, NULL, NULL);
         }
 
-        if (use_trickle && scope == IPV6_SCOPE_REALM_LOCAL && !lowpan->mpl_treat_realm_domains_as_one) {
+        if (use_trickle && scope == IPV6_SCOPE_REALM_LOCAL) {
             ret_val = multicast_mpl_domain_subscribe(lowpan->id, address_ptr, MULTICAST_MPL_SEED_ID_DEFAULT, NULL);
         } else
         {

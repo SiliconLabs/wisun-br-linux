@@ -320,7 +320,6 @@ struct protocol_interface_info_entry {
     bool recv_ra_prefixes: 1;
     bool send_mld: 1;
     bool mpl_seed: 1;
-    bool mpl_treat_realm_domains_as_one: 1;
     bool mpl_auto_domain_on_group_join: 1;
     bool send_na : 1;
     /* RFC 4861 Router Variables */

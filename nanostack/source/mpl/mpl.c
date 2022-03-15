@@ -152,10 +152,6 @@ mpl_domain_t *mpl_domain_lookup_with_realm_check(protocol_interface_info_entry_t
         return NULL;
     }
 
-    if (addr_ipv6_multicast_scope(address) == IPV6_SCOPE_REALM_LOCAL && cur->mpl_treat_realm_domains_as_one) {
-        address = ADDR_ALL_MPL_FORWARDERS;
-    }
-
     return mpl_domain_lookup(cur, address);
 }
 
@@ -192,11 +188,6 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
                                 const trickle_params_t *control_trickle_params)
 {
     if (!addr_is_ipv6_multicast(address) || addr_ipv6_multicast_scope(address) < IPV6_SCOPE_REALM_LOCAL) {
-        return NULL;
-    }
-
-    if (addr_ipv6_multicast_scope(address) == IPV6_SCOPE_REALM_LOCAL && cur->mpl_treat_realm_domains_as_one &&
-            !addr_ipv6_equal(address, ADDR_ALL_MPL_FORWARDERS)) {
         return NULL;
     }
 
