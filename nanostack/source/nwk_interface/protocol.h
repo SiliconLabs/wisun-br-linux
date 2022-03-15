@@ -39,7 +39,6 @@
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
-#include "nanostack/net_nwk_scan.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/multicast_api.h"
 #include "service_libs/trickle/trickle.h"

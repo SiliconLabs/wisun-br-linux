@@ -23,7 +23,6 @@
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/mlme.h"
-#include "nanostack/net_nwk_scan.h"
 
 #include "nwk_interface/protocol.h"
 

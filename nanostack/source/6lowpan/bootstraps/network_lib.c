@@ -23,7 +23,6 @@
 #include "mbed-client-libservice/platform/arm_hal_interrupt.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/shalib.h"
-#include "nanostack/net_nwk_scan.h"
 #include "nanostack/nwk_stats_api.h"
 
 #include "core/ns_socket.h"
