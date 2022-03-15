@@ -211,7 +211,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/sha256/shalib.c
     nanostack/source/service_libs/trickle/trickle.c
     nanostack/source/service_libs/utils/isqrt.c
-    nanostack/source/service_libs/utils/ns_crc.c
     nanostack/source/service_libs/utils/ns_file_system.c
     nanostack/source/service_libs/utils/ns_time.c
     # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
@@ -409,7 +408,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/sha256/shalib.c
         nanostack/source/service_libs/trickle/trickle.c
         nanostack/source/service_libs/utils/isqrt.c
-        nanostack/source/service_libs/utils/ns_crc.c
         nanostack/source/service_libs/utils/ns_file_system.c
         nanostack/source/service_libs/utils/ns_time.c
         # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
