@@ -150,7 +150,6 @@ void nd_router_base_init(nd_router_t *new_entry)
     new_entry->nd_timer = 0;
     new_entry->nd_bootstrap_tick = 0;
     new_entry->nd_re_validate = 0;
-    new_entry->mle_purge_timer = 0;
     new_entry->default_hop.addrtype = ADDR_NONE;
     ns_list_init(&new_entry->prefix_list);
     ns_list_init(&new_entry->context_list);

@@ -65,7 +65,6 @@ typedef struct nd_router {
     nd_obj_state nd_state;
     uint16_t ns_forward_timer;
     uint16_t nd_timer;
-    uint8_t mle_purge_timer;
     uint8_t nd_bootstrap_tick;
     uint8_t ns_retry;
     uint32_t abro_version_num;
