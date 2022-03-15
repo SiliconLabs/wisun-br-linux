@@ -2818,15 +2818,7 @@ static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *c
     uint16_t llc_eapol_average = 0;
     uint16_t average_sum = 0;
     uint8_t active_max = 0;
-
-    //TODO implement API for HEAP info request
-    uint32_t heap_size;
-    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
-    if (mem_stats) {
-        heap_size = mem_stats->heap_sector_size;
-    } else {
-        heap_size = UINT32_MAX;
-    }
+    uint32_t heap_size = UINT32_MAX;
 
     /*
       * For different memory sizes the max simultaneous authentications will be
@@ -3441,14 +3433,7 @@ void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur)
     random_early_detection_free(cur->random_early_detection);
     cur->random_early_detection = NULL;
 
-    //TODO implement API for HEAP info request
-    uint32_t heap_size;
-    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
-    if (mem_stats) {
-        heap_size = mem_stats->heap_sector_size;
-    } else {
-        heap_size = UINT32_MAX;
-    }
+    uint32_t heap_size = UINT32_MAX;
 
     uint16_t packet_per_seconds = ws_bootstrap_packet_per_seconds(cur, WS_CONGESTION_PACKET_SIZE);
 

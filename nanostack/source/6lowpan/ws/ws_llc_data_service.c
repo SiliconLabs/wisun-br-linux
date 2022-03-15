@@ -1717,41 +1717,12 @@ static void ws_llc_mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t 
     }
 }
 
-
-static uint16_t ws_llc_calculate_dynamic_entries_max(uint16_t min_entry, uint16_t max_entry, uint8_t dynamic_heap_percent)
-{
-    const mem_stat_t *mem_stats = ns_dyn_mem_get_mem_stat();
-    if (!mem_stats) {
-        return max_entry;
-    }
-
-    uint32_t total_heap_size = mem_stats->heap_sector_size;
-    total_heap_size = (total_heap_size / 100) * dynamic_heap_percent;
-
-    uint16_t sizeof_entry = sizeof(ws_neighbor_temp_class_t) + 2 * sizeof(int);
-
-    if (total_heap_size > (sizeof_entry * max_entry)) {
-        //Use given MAX entry size
-        return max_entry;
-    }
-
-    if (total_heap_size < (sizeof_entry * min_entry)) {
-        //Use given Min entry size
-        return min_entry;
-    }
-
-    uint16_t max_entry_possible = (uint16_t)total_heap_size / sizeof_entry;
-    tr_debug("Dynamic EAPOL entry max %d", max_entry_possible);
-    return max_entry_possible;
-}
-
-
 int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
         ws_llc_clean(base);
-        base->temp_entries->dynamic_alloc_max = ws_llc_calculate_dynamic_entries_max(WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN, WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX, WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT);
+        base->temp_entries->dynamic_alloc_max = WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX;
         return 0;
     }
 
@@ -1771,7 +1742,7 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(base->temp_entries);
-    base->temp_entries->dynamic_alloc_max = ws_llc_calculate_dynamic_entries_max(WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN, WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX, WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT);
+    base->temp_entries->dynamic_alloc_max = WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX;
     return 0;
 }
 
