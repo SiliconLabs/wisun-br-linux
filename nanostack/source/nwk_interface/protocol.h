@@ -304,9 +304,7 @@ struct protocol_interface_info_entry {
     bool ip_multicast_as_mac_unicast_to_parent : 1;
     uint8_t dad_failures;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
-    uint8_t nwk_rpl_scan_counter;
 
-    int8_t nwk_timer_id;
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
     uint16_t icmp_ra_tokens; /* Token bucket for RA receive rate limiting */
     uint8_t iid_eui64[8]; // IID based on EUI-64 - used for link-local address
@@ -320,7 +318,6 @@ struct protocol_interface_info_entry {
     bool recv_ra_prefixes: 1;
     bool send_mld: 1;
     bool mpl_seed: 1;
-    bool mpl_auto_domain_on_group_join: 1;
     bool send_na : 1;
     /* RFC 4861 Router Variables */
     bool ip_forwarding : 1;
