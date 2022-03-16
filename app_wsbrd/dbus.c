@@ -226,6 +226,11 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     len = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
     if (len < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
+    // Dirty hack to retrive the MAC from the EUI64
+    for (i = 0; i < len; i++) {
+        table[i].parent[0] ^= 0x02;
+        table[i].target[0] ^= 0x02;
+    }
     qsort(table, len, sizeof(table[0]), route_info_compare);
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
