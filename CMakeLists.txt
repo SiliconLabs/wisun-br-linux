@@ -84,6 +84,7 @@ add_executable(wsbrd
     common/rand.c
     common/slist.c
     common/spinel_buffer.c
+    common/trickle.c
     nanostack/source/6lowpan/adaptation_interface.c
     nanostack/source/6lowpan/bootstraps/network_lib.c
     nanostack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -210,7 +211,6 @@ add_executable(wsbrd
     nanostack/source/service_libs/random_early_detection/random_early_detection.c
     nanostack/source/service_libs/sha256/ns_sha256.c
     nanostack/source/service_libs/sha256/shalib.c
-    nanostack/source/service_libs/trickle/trickle.c
     nanostack/source/service_libs/utils/isqrt.c
     nanostack/source/service_libs/utils/ns_file_system.c
     nanostack/source/service_libs/utils/ns_time.c
@@ -287,6 +287,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/rand.c
         common/slist.c
         common/spinel_buffer.c
+        common/trickle.c
         nanostack/source/6lowpan/adaptation_interface.c
         nanostack/source/6lowpan/bootstraps/network_lib.c
         nanostack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -409,7 +410,6 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/random_early_detection/random_early_detection.c
         nanostack/source/service_libs/sha256/ns_sha256.c
         nanostack/source/service_libs/sha256/shalib.c
-        nanostack/source/service_libs/trickle/trickle.c
         nanostack/source/service_libs/utils/isqrt.c
         nanostack/source/service_libs/utils/ns_file_system.c
         nanostack/source/service_libs/utils/ns_time.c

@@ -23,7 +23,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"

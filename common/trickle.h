@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 /* Trickle time is in arbitrary ticks - users can choose appropriate size
- * per algorithm implementation
+ * per algorithm implementation.
  */
 typedef uint16_t trickle_time_t;
 
@@ -34,14 +34,17 @@ typedef uint16_t trickle_time_t;
 
 #define TRICKLE_EXPIRATIONS_INFINITE UINT8_MAX
 
+/* We consider that all the time values are in seconds but the algorithm work
+ * with any unit as soon as the caller is consistent
+ */
+
 /* Public structure - fill in with your Trickle algorithm parameters */
 typedef struct trickle_params {
     trickle_time_t Imin;    /* minimum interval */
     trickle_time_t Imax;    /* maximum interval */
     uint8_t k;              /* redundancy constant (0 = infinity) */
     uint8_t TimerExpirations; /* MPL: expirations before terminating (0 = don't run, 0xFF = infinity) */
-}
-trickle_params_t;
+} trickle_params_t;
 
 /* This structure is read-only for users. Initialised by trickle_start() */
 typedef struct trickle {
@@ -51,33 +54,29 @@ typedef struct trickle {
     trickle_time_t I;       /* current interval */
     trickle_time_t t;       /* potential transmission time */
     trickle_time_t now;     /* time counter */
-}
-trickle_t;
+} trickle_t;
 
-/* RFC 6206 Rule 1 */
+/* Initialize */
 void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t *params);
 
-/* RFC 6206 Rule 3 */
-void trickle_consistent_heard(trickle_t *t);
-
-/* RFC 6206 Rule 6 */
-void trickle_inconsistent_heard(trickle_t *t, const trickle_params_t *params);
-
-/* Call to say some time has passed.
- *
- * Returns true if you should transmit now
- */
-bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks);
+/* Stop the timer (by setting e to infinite) */
+void trickle_stop(trickle_t *t);
 
 /* Indicate whether the timer is running (e < TimerExpirations) */
 bool trickle_running(const trickle_t *t, const trickle_params_t *params);
 
-/* Stop the timer (by setting e to infinite) */
-void trickle_stop(trickle_t *t);
-/*
- * Call return max time after n count expiration period 0 return 1 Imin - 1 period
- *
+/* Call when you have a received an up-to-date information */
+void trickle_consistent_heard(trickle_t *t);
+
+/* Call when you have a received an out-of-date information */
+void trickle_inconsistent_heard(trickle_t *t, const trickle_params_t *params);
+
+/* Call regulary with the number of tick since trickle_start(). If return true,
+ * you should transmit information now
  */
+bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks);
+
+/* Return max time after n count expiration period 0 return 1 Imin - 1 period */
 uint32_t trickle_timer_max(const trickle_params_t *params, uint8_t trickle_timer_expiration);
 
-#endif /* TRICKLE_H_ */
+#endif

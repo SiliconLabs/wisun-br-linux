@@ -33,7 +33,7 @@
 #include "mbed-client-libservice/common_functions.h"
 #include <stdlib.h>
 #include "mbed-client-libservice/ip6string.h"
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/net_rpl.h"
 #include "core/ns_address_internal.h"

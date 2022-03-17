@@ -22,7 +22,8 @@
 #include <stdint.h>
 #include "common/rand.h"
 #include "common/log.h"
-#include "service_libs/trickle/trickle.h"
+
+#include "trickle.h"
 
 /* RFC 6206 Rule 2 */
 void trickle_begin_interval(trickle_t *t, const trickle_params_t *params)

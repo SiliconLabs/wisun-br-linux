@@ -21,7 +21,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "service_libs/utils/ns_time.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

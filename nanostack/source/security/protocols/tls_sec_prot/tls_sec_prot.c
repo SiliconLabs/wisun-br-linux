@@ -21,7 +21,7 @@
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"

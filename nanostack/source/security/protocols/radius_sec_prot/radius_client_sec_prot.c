@@ -26,7 +26,7 @@
 #include "mbed-client-libservice/common_functions.h"
 #include <stdlib.h>
 #include "service_libs/hmac/hmac_md.h"
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"

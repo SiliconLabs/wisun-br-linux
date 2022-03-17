@@ -33,7 +33,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/tls_sec_prot/tls_sec_prot_lib.h"

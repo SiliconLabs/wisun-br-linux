@@ -22,7 +22,7 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include <stdlib.h>
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"

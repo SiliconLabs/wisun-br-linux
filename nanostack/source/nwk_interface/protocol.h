@@ -41,7 +41,7 @@
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/multicast_api.h"
-#include "service_libs/trickle/trickle.h"
+#include "common/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;
