@@ -44,7 +44,7 @@
  * sequence.
  * \param seed 64 bits of data to add to the seed.
  */
-extern void rand_add_seed(uint64_t seed);
+void rand_add_seed(uint64_t seed);
 
 /**
   * \brief Generate 8-bit random number.
@@ -53,7 +53,7 @@ extern void rand_add_seed(uint64_t seed);
   * \return 8-bit random number
   *
   */
-extern uint8_t rand_get_8bit(void);
+uint8_t rand_get_8bit(void);
 
 /**
   * \brief Generate 16-bit random number.
@@ -62,7 +62,7 @@ extern uint8_t rand_get_8bit(void);
   * \return 16-bit random number
   *
   */
-extern uint16_t rand_get_16bit(void);
+uint16_t rand_get_16bit(void);
 
 /**
   * \brief Generate 32-bit random number.
@@ -71,7 +71,7 @@ extern uint16_t rand_get_16bit(void);
   * \return 32-bit random number
   *
   */
-extern uint32_t rand_get_32bit(void);
+uint32_t rand_get_32bit(void);
 
 /**
   * \brief Generate 64-bit random number.
@@ -80,7 +80,7 @@ extern uint32_t rand_get_32bit(void);
   * \return 64-bit random number
   *
   */
-extern uint64_t rand_get_64bit(void);
+uint64_t rand_get_64bit(void);
 
 /**
   * \brief Generate n-bytes random numbers.
@@ -90,7 +90,7 @@ extern uint64_t rand_get_64bit(void);
   *
   * \return data_ptr
   */
-extern void *rand_get_n_bytes_random(void *data_ptr, uint8_t count);
+void *rand_get_n_bytes_random(void *data_ptr, uint8_t count);
 
 /**
   * \brief Generate a random number within a range.

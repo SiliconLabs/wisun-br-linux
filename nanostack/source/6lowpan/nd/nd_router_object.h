@@ -41,23 +41,23 @@ int8_t nd_set_br(nd_router_t *br);
 #define icmp_nd_router_prefix_proxy_update(dptr, nd_router_object) -1
 #define nd_set_br(br) -1
 #endif
-extern void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
-extern int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
-extern void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16]);
-extern void gp_address_list_free(gp_ipv6_address_list_t *list);
-extern uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
-extern bool nd_object_active(void);
-extern void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
-extern nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id nwk_id);
-extern void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
+void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
+int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
+void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16]);
+void gp_address_list_free(gp_ipv6_address_list_t *list);
+uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
+bool nd_object_active(void);
+void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
+nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id nwk_id);
+void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 
 
 
 /** 6LoWPAN specific ICMP message Handler */
-extern buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
-extern buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
-extern void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint8_t *address_ptr);
-extern int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_info_entry_t *cur_interface);
+buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
+buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
+void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint8_t *address_ptr);
+int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_info_entry_t *cur_interface);
 
 void nd_router_base_init(nd_router_t *new_entry);
 
@@ -95,11 +95,11 @@ uint8_t nd_prefix_dst_check(uint8_t *ptr);
 nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id nwk_id);
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
-extern bool nd_ra_process_abro(struct protocol_interface_info_entry *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
-extern void nd_object_timer(struct protocol_interface_info_entry *cur_interface, uint16_t ticks_update);
-extern uint32_t nd_object_time_to_next_nd_reg(void);
+bool nd_ra_process_abro(struct protocol_interface_info_entry *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
+void nd_object_timer(struct protocol_interface_info_entry *cur_interface, uint16_t ticks_update);
+uint32_t nd_object_time_to_next_nd_reg(void);
 
-extern void icmp_nd_router_object_reset(nd_router_t *router_object);
-extern void icmp_nd_border_router_release(nd_router_t *router_object);
+void icmp_nd_router_object_reset(nd_router_t *router_object);
+void icmp_nd_border_router_release(nd_router_t *router_object);
 void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface);
 #endif /* ND_ROUTER_OBJECT_H_ */

@@ -56,14 +56,14 @@ struct red_info_s;
 #define SLEEP_PERIOD_ACTIVE 0x40
 #define ICMP_ACTIVE         0x08
 
-extern void set_power_state(uint8_t mode);
-extern void clear_power_state(uint8_t mode);
-extern uint8_t check_power_state(uint8_t mode);
+void set_power_state(uint8_t mode);
+void clear_power_state(uint8_t mode);
+uint8_t check_power_state(uint8_t mode);
 
 #define BUFFER_DATA_FIXED_SIZE 0
-extern void protocol_push(buffer_t *buf);
-extern void protocol_init(void);
-extern void protocol_core_init(void);
+void protocol_push(buffer_t *buf);
+void protocol_init(void);
+void protocol_core_init(void);
 
 #define INTERFACE_BOOTSTRAP_DEFINED     1
 #define INTERFACE_SECURITY_DEFINED      2
@@ -335,34 +335,34 @@ typedef NS_LIST_HEAD(protocol_interface_info_entry_t, link) protocol_interface_l
 
 extern protocol_interface_list_t protocol_interface_info_list;
 
-extern protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void);
-extern void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn);
-extern void nwk_interface_flush_neigh_cache(void);
+protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void);
+void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn);
+void nwk_interface_flush_neigh_cache(void);
 
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry);
 
-extern void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
+void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
 
-extern uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
+uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
-extern protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id);
-extern bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
-extern protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api_s *api);
-extern protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api_s *api);
-extern protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api_s *api);
-extern uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
-extern void net_bootstrap_cb_run(uint8_t event);
+protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id);
+bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api_s *api);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api_s *api);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api_s *api);
+uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
+void net_bootstrap_cb_run(uint8_t event);
 
-extern int8_t protocol_read_tasklet_id(void);
-extern void protocol_6lowpan_stack(buffer_t *b);
-extern void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur);
-extern void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint16_t shortAddress);
-extern void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64);
-extern void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix);
+int8_t protocol_read_tasklet_id(void);
+void protocol_6lowpan_stack(buffer_t *b);
+void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur);
+void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint16_t shortAddress);
+void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64);
+void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix);
 
-extern void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
+void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
 void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len);

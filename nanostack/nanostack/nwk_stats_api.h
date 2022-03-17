@@ -79,16 +79,16 @@ typedef struct nwk_stats_t {
   * \param stats_ptr A static pointer to stack update.
   *
   */
-extern void protocol_stats_start(nwk_stats_t *stats_ptr);
+void protocol_stats_start(nwk_stats_t *stats_ptr);
 /**
   *  \brief Disable stats collection.
   *
   */
-extern void protocol_stats_stop(void);
+void protocol_stats_stop(void);
 /**
   *  \brief Reset stats info fiels.
   *
   */
-extern void protocol_stats_reset(void);
+void protocol_stats_reset(void);
 
 #endif

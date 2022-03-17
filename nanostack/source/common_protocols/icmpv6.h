@@ -121,30 +121,30 @@ typedef enum slaac_src {
 #define ARO_FULL        2
 #define ARO_TOPOLOGICALLY_INCORRECT 8
 
-extern void icmpv6_init(void);
-extern struct buffer *icmpv6_down(struct buffer *buf);
-extern struct buffer *icmpv6_up(struct buffer *buf);
-extern struct buffer *icmpv6_error(struct buffer *buf, struct protocol_interface_info_entry *cur, uint8_t type, uint8_t code, uint32_t aux);
+void icmpv6_init(void);
+struct buffer *icmpv6_down(struct buffer *buf);
+struct buffer *icmpv6_up(struct buffer *buf);
+struct buffer *icmpv6_error(struct buffer *buf, struct protocol_interface_info_entry *cur, uint8_t type, uint8_t code, uint32_t aux);
 
-extern bool icmpv6_options_well_formed(const uint8_t *dptr, uint_fast16_t dlen);
-extern bool icmpv6_options_well_formed_in_buffer(const struct buffer *buf, uint16_t offset);
-extern const uint8_t *icmpv6_find_option(const uint8_t *dptr, uint_fast16_t dlen, uint8_t option, uint8_t optlen);
-extern const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast16_t offset, uint8_t option, uint8_t optlen);
+bool icmpv6_options_well_formed(const uint8_t *dptr, uint_fast16_t dlen);
+bool icmpv6_options_well_formed_in_buffer(const struct buffer *buf, uint16_t offset);
+const uint8_t *icmpv6_find_option(const uint8_t *dptr, uint_fast16_t dlen, uint8_t option, uint8_t optlen);
+const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast16_t offset, uint8_t option, uint8_t optlen);
 
 struct protocol_interface_info_entry;
 
-extern struct buffer *icmpv6_build_rs(struct protocol_interface_info_entry *cur, const uint8_t *dest_addr);
-extern struct buffer *icmpv6_build_ns(struct protocol_interface_info_entry *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const struct aro *aro);
-extern struct buffer *icmpv6_build_na(struct protocol_interface_info_entry *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16]);
-extern struct buffer *icmpv6_build_dad(struct protocol_interface_info_entry *cur, struct buffer *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime);
-extern void icmpv6_build_echo_req(struct protocol_interface_info_entry *cur, const uint8_t target_addr[16]);
+struct buffer *icmpv6_build_rs(struct protocol_interface_info_entry *cur, const uint8_t *dest_addr);
+struct buffer *icmpv6_build_ns(struct protocol_interface_info_entry *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const struct aro *aro);
+struct buffer *icmpv6_build_na(struct protocol_interface_info_entry *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16]);
+struct buffer *icmpv6_build_dad(struct protocol_interface_info_entry *cur, struct buffer *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime);
+void icmpv6_build_echo_req(struct protocol_interface_info_entry *cur, const uint8_t target_addr[16]);
 
-extern void icmpv6_recv_ra_routes(struct protocol_interface_info_entry *cur, bool enable);
-extern void icmpv6_recv_ra_prefixes(struct protocol_interface_info_entry *cur, bool enable);
+void icmpv6_recv_ra_routes(struct protocol_interface_info_entry *cur, bool enable);
+void icmpv6_recv_ra_prefixes(struct protocol_interface_info_entry *cur, bool enable);
 
-extern void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len);
-extern int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
-extern struct if_address_entry *icmpv6_slaac_address_add(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
+void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len);
+int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
+struct if_address_entry *icmpv6_slaac_address_add(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
 
 
 /*

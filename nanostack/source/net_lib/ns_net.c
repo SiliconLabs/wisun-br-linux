@@ -539,7 +539,7 @@ int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface
 #endif
 }
 
-extern int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr)
+int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr)
 {
 #ifdef HAVE_ETHERNET
     if (!api) {
@@ -696,7 +696,7 @@ int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert)
     return ws_pae_controller_own_certificate_add(cert);
 }
 
-extern int8_t arm_network_own_certificates_remove(void)
+int8_t arm_network_own_certificates_remove(void)
 {
     return ws_pae_controller_own_certificates_remove();
 }

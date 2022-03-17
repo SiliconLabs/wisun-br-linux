@@ -17,10 +17,10 @@
 #define EVENTOS_CALLBACK_TIMER_H_
 #include <stdint.h>
 
-extern int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
-extern int eventOS_callback_timer_unregister(int ns_timer_id);
+int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
+int eventOS_callback_timer_unregister(int ns_timer_id);
 
-extern int eventOS_callback_timer_stop(int ns_timer_id);
-extern int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots);
+int eventOS_callback_timer_stop(int ns_timer_id);
+int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots);
 
 #endif /* EVENTOS_CALLBACK_TIMER_H_ */

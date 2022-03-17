@@ -273,7 +273,7 @@ typedef struct {
   *
   * \return 0, Init OK.
   */
-extern int8_t net_init_core(void);
+int8_t net_init_core(void);
 
 /**
  * \brief Create network interface base to IDLE state.
@@ -287,7 +287,7 @@ extern int8_t net_init_core(void);
  * \return -2 Ethernet is not supported at this build.
  * \return -3 No memory for the interface.
  */
-extern int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
+int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
 
 /**
  * \brief Create network interface base to IDLE state.
@@ -300,7 +300,7 @@ extern int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const c
  * \return -1 api was NULL.
  * \return -3 No memory for the interface.
  */
-extern int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interface_name_ptr);
+int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interface_name_ptr);
 
 /**
  * \brief Create network interface base to IDLE state.
@@ -314,7 +314,7 @@ extern int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interfa
  * \return -2 PPP is not supported at this build.
  * \return -3 No memory for the interface.
  */
-extern int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
+int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
 
 /**
  * \brief Set IPv6 interface setup.
@@ -327,7 +327,7 @@ extern int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *
  * \return >=0 Bootstrap mode set OK.
  * \return -1 Unknown network ID.
  */
-extern int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer);
+int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer);
 
 /**
  * \brief Accept Router Advertisements setting.
@@ -340,7 +340,7 @@ extern int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id
  * \return 0 Setting done.
  * \return <0 Failed (for example an invalid interface ID).
  */
-extern int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra);
+int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra);
 
 /**
  * \brief Set network interface bootstrap setup.
@@ -362,7 +362,7 @@ extern int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_acc
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */
-extern int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension);
+int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension);
 
 /**
  * \brief Set network interface link layer parameters.
@@ -377,7 +377,7 @@ extern int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */
-extern int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup);
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup);
 
 /**
  * \brief Set configured network interface global address mode (border router bootstrap mode cannot set this).
@@ -401,7 +401,7 @@ extern int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const ch
  * \return -2 Illegal for border router.
  * \return -3 No memory for 6LoWPAN stack.
  */
-extern int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD);
+int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD);
 
 /**
  * \brief Set the channel list configuration to be used on the network interface.
@@ -414,7 +414,7 @@ extern int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_g
  * \return -2 Empty channel list, no channels enabled.
  * \return -4 If network interface is already active and cannot be re-configured.
  */
-extern int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_channel_list);
+int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_channel_list);
 
 /**
   * \brief Get current used channel.
@@ -424,7 +424,7 @@ extern int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s
   * \return Active channel.
   * \return -1 = Radio is closed.
   */
-extern int16_t arm_net_get_current_channel(int8_t interface_id);
+int16_t arm_net_get_current_channel(int8_t interface_id);
 
 /**
  * \brief A function to read the PAN ID filter.
@@ -433,7 +433,7 @@ extern int16_t arm_net_get_current_channel(int8_t interface_id);
  *
  * \return 16-bit value indicating a PAN ID filter.
  */
-extern uint16_t arm_net_get_nwk_pan_id_filter(int8_t interface_id);
+uint16_t arm_net_get_nwk_pan_id_filter(int8_t interface_id);
 
 /**
   * \brief Beacon join priority transmit callback.
@@ -472,7 +472,7 @@ typedef uint8_t beacon_compare_rx_cb(int8_t interface_id, uint8_t join_priority,
  * \return -2 Not configured.
  * \return -3 Active.
  */
-extern int8_t arm_nwk_interface_up(int8_t interface_id);
+int8_t arm_nwk_interface_up(int8_t interface_id);
 
 /**
  * \brief Stop and set interface to idle.
@@ -483,7 +483,7 @@ extern int8_t arm_nwk_interface_up(int8_t interface_id);
  * \return -1 Unknown network ID.
  * \return -3 Not Active.
  */
-extern int8_t arm_nwk_interface_down(int8_t interface_id);
+int8_t arm_nwk_interface_down(int8_t interface_id);
 
 /**
  * \brief Add context at 6LoWPAN interface configure state.
@@ -500,7 +500,7 @@ extern int8_t arm_nwk_interface_down(int8_t interface_id);
  * \return -3 Given parameter fails (c_id_flags > 0x1f or contex_len < 64).
  * \
  */
-extern int8_t arm_nwk_6lowpan_border_router_context_update(int8_t interface_id, uint8_t c_id_flags, uint8_t context_len, uint16_t ttl, const uint8_t *context_ptr);
+int8_t arm_nwk_6lowpan_border_router_context_update(int8_t interface_id, uint8_t c_id_flags, uint8_t context_len, uint16_t ttl, const uint8_t *context_ptr);
 
 /**
  * \brief Update runtime configured context.
@@ -517,7 +517,7 @@ extern int8_t arm_nwk_6lowpan_border_router_context_update(int8_t interface_id, 
  * \return -1 Update fail by router state.
  *
  */
-extern int8_t arm_nwk_6lowpan_border_router_context_parameter_update(int8_t interface_id, uint8_t c_id, uint8_t compress_mode, uint16_t ttl);
+int8_t arm_nwk_6lowpan_border_router_context_parameter_update(int8_t interface_id, uint8_t c_id, uint8_t compress_mode, uint16_t ttl);
 
 /**
  * \brief Delete allocated context by ID.
@@ -528,7 +528,7 @@ extern int8_t arm_nwk_6lowpan_border_router_context_parameter_update(int8_t inte
  * \return 0 Context delete OK.
  * \return -1 Delete process fails.
  */
-extern int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interface_id, uint8_t c_id);
+int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interface_id, uint8_t c_id);
 
 /**
  * \brief Update ND ABRO version number.
@@ -538,7 +538,7 @@ extern int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interfac
  * \return 0 ABRO version update OK.
  * \return -1 ABRO update fails (Interface is not up yet or the border router base is not allocated).
  */
-extern int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id);
+int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id);
 
 /**
  * Set timeout for default prefix on cache.
@@ -547,7 +547,7 @@ extern int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id);
  * \param time seconds
  * \return 0 on success, negative value on failure.
  */
-extern int8_t arm_nwk_6lowpan_border_route_nd_default_prefix_timeout_set(int8_t interface_id, uint32_t time);
+int8_t arm_nwk_6lowpan_border_route_nd_default_prefix_timeout_set(int8_t interface_id, uint32_t time);
 
 /**
  * \brief A function to read network layer configurations.
@@ -584,7 +584,7 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
  * \param address A pointer to a structure where the address information is written.
  * \return 0 On success, -1 on failure.
  */
-extern int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, uint8_t *address);
+int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, uint8_t *address);
 
 /**
  * \brief A function to read networking addresses one by one.
@@ -594,7 +594,7 @@ extern int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, ui
  * \return 0 On success.
  * \return -1 No more addresses available.
  */
-extern int8_t arm_net_address_list_get_next(int8_t interface_id, int *n, uint8_t address_buffer[16]);
+int8_t arm_net_address_list_get_next(int8_t interface_id, int *n, uint8_t address_buffer[16]);
 
 /**
  * \brief A function to read network interface address count.
@@ -603,7 +603,7 @@ extern int8_t arm_net_address_list_get_next(int8_t interface_id, int *n, uint8_t
  *
  * \return 0 On success, -1 on errors.
  */
-extern int8_t arm_net_interface_address_list_size(int8_t interface_id, uint16_t *address_count);
+int8_t arm_net_interface_address_list_size(int8_t interface_id, uint16_t *address_count);
 
 /**
  * \brief A function to set interface metric.
@@ -612,7 +612,7 @@ extern int8_t arm_net_interface_address_list_size(int8_t interface_id, uint16_t 
  *
  * \return 0 On success, -1 on errors.
  */
-extern int8_t arm_net_interface_set_metric(int8_t interface_id, uint16_t metric);
+int8_t arm_net_interface_set_metric(int8_t interface_id, uint16_t metric);
 
 /**
  * \brief A function to read the interface metric value on an interface.
@@ -621,7 +621,7 @@ extern int8_t arm_net_interface_set_metric(int8_t interface_id, uint16_t metric)
  *
  * \return 0 On success, -1 on errors.
  */
-extern int8_t arm_net_interface_get_metric(int8_t interface_id, uint16_t *metric);
+int8_t arm_net_interface_get_metric(int8_t interface_id, uint16_t *metric);
 
 /**
  * \brief A function to read the network interface.
@@ -632,7 +632,7 @@ extern int8_t arm_net_interface_get_metric(int8_t interface_id, uint16_t *metric
  *
  * \return 0 on success, -1 on errors.
  */
-extern int8_t arm_net_address_list_get(int8_t interface_id, uint8_t address_buf_size, uint8_t *address_buffer, int *writed_address_count);
+int8_t arm_net_address_list_get(int8_t interface_id, uint8_t address_buf_size, uint8_t *address_buffer, int *writed_address_count);
 
 /**
  * \brief A function to add an address to an interface.
@@ -643,7 +643,7 @@ extern int8_t arm_net_address_list_get(int8_t interface_id, uint8_t address_buf_
  * \param preferred_lifetime The time in seconds until the address becomes deprecated. Value 0xffffffff represents infinity. The preferred lifetime should not be longer than a valid lifetime.
  * \return 0 on success, -1 on errors.
  */
-extern int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_t address[16], uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
+int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_t address[16], uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
 
 /**
  * \brief A function to remove an address from an interface.
@@ -652,7 +652,7 @@ extern int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_
  *
  * \return 0 on success, -1 on errors.
  */
-extern int8_t arm_net_address_delete_from_interface(int8_t interface_id, const uint8_t address[16]);
+int8_t arm_net_address_delete_from_interface(int8_t interface_id, const uint8_t address[16]);
 
 /**
  * \brief A function to Get DNS server address learned by the interface setup
@@ -681,7 +681,7 @@ extern int8_t arm_net_address_delete_from_interface(int8_t interface_id, const u
  *
  * \return 0 on success, -1 on errors.
  */
-extern int8_t arm_net_dns_server_get(int8_t interface_id, uint8_t address[16], uint8_t **dns_search_list_ptr, uint8_t *dns_search_list_len, uint8_t index);
+int8_t arm_net_dns_server_get(int8_t interface_id, uint8_t address[16], uint8_t **dns_search_list_ptr, uint8_t *dns_search_list_len, uint8_t index);
 
 /**
  * \brief A function to store cached DNS Query results
@@ -701,7 +701,7 @@ extern int8_t arm_net_dns_server_get(int8_t interface_id, uint8_t address[16], u
  *
  * \return 0 on success, < 0 on errors.
  */
-extern int8_t arm_net_dns_query_result_set(int8_t interface_id, const uint8_t address[16], const char *domain_name_ptr, uint32_t lifetime);
+int8_t arm_net_dns_query_result_set(int8_t interface_id, const uint8_t address[16], const char *domain_name_ptr, uint32_t lifetime);
 
 /**
  * \brief A function to Get cached DNS Query results
@@ -720,7 +720,7 @@ extern int8_t arm_net_dns_query_result_set(int8_t interface_id, const uint8_t ad
  *
  * \return 0 on success, -1 on errors.
  */
-extern int8_t arm_net_dns_query_result_get(int8_t interface_id, uint8_t address[16], char *domain_name_ptr);
+int8_t arm_net_dns_query_result_get(int8_t interface_id, uint8_t address[16], char *domain_name_ptr);
 
 /**
  * \brief A function to add a route to the routing table.
@@ -732,7 +732,7 @@ extern int8_t arm_net_dns_query_result_get(int8_t interface_id, uint8_t address[
  * \param interface_id Network interface ID.
  * \return 0 on success, -1 on add failure, -2 on invalid function parameters.
  */
-extern int8_t arm_net_route_add(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, uint32_t lifetime, uint8_t metric, int8_t interface_id);
+int8_t arm_net_route_add(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, uint32_t lifetime, uint8_t metric, int8_t interface_id);
 
 /**
  * \brief A function to remove a route from the routing table.
@@ -742,7 +742,7 @@ extern int8_t arm_net_route_add(const uint8_t *prefix, uint8_t prefix_len, const
  * \param interface_id Network interface ID.
  * \return 0 on success, -1 on delete failure, -2 on invalid function parameters.
  */
-extern int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, int8_t interface_id);
+int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, int8_t interface_id);
 
 /** Border Router ND NVM update types. */
 /** ND context update, 20 bytes data behind pointer. */
@@ -765,7 +765,7 @@ extern int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, co
  * \return 0 Context reload OK.
  * \return <0 Load fail.
  */
-extern int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_t *contex_data);  //NVM
+int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_t *contex_data);  //NVM
 
 /**
  * Set certificate chain
@@ -773,7 +773,7 @@ extern int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id,
  * \param chain_info Certificate chain.
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info);
+int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info);
 
 /**
  * Add trusted certificate
@@ -785,7 +785,7 @@ extern int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entr
  * \param cert Certificate.
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert);
+int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert);
 
 /**
  * Remove trusted certificate
@@ -795,7 +795,7 @@ extern int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s 
  * \param cert Certificate.
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert);
+int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert);
 
 /**
  * Remove trusted certificates
@@ -804,7 +804,7 @@ extern int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry
  *
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_trusted_certificates_remove(void);
+int8_t arm_network_trusted_certificates_remove(void);
 
 /**
  * Add own certificate
@@ -817,7 +817,7 @@ extern int8_t arm_network_trusted_certificates_remove(void);
  * \param cert Certificate.
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert);
+int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert);
 
 /**
  * Remove own certificates
@@ -826,7 +826,7 @@ extern int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cer
  *
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_own_certificates_remove(void);
+int8_t arm_network_own_certificates_remove(void);
 
 /**
  * Add Certificate Revocation List
@@ -837,7 +837,7 @@ extern int8_t arm_network_own_certificates_remove(void);
  * \param crl Certificate revocation list
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl);
+int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_list_entry_s *crl);
 
 /**
  * Remove Certificate Revocation List
@@ -847,7 +847,7 @@ extern int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocat
  * \param crl Certificate revocation list
  * \return 0 on success, negative on failure.
  */
-extern int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl);
+int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl);
 
 /**
  * \brief Add PSK key to TLS library.
@@ -858,7 +858,7 @@ extern int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revo
  * \return 0 = success
  * \return -1 = failure
  */
-extern int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id);
+int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id);
 
 /**
  * \brief Remove PSK key from TLS library.
@@ -868,7 +868,7 @@ extern int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id);
  * \return 0 = success
  * \return -1 = failure
  */
-extern int8_t arm_tls_remove_psk_key(uint16_t key_id);
+int8_t arm_tls_remove_psk_key(uint16_t key_id);
 
 /**
  * \brief Check if PSK key ID exists.
@@ -878,7 +878,7 @@ extern int8_t arm_tls_remove_psk_key(uint16_t key_id);
  * \return 0 = success
  * \return -1 = failure
  */
-extern int8_t arm_tls_check_key(uint16_t key_id);
+int8_t arm_tls_check_key(uint16_t key_id);
 
 /**
  * \brief Print routing table
@@ -949,7 +949,7 @@ void arm_print_protocols2(void (*print_fn)(const char *fmt, ...), char sep);
   *  | 1 byte        |  1 byte | 4 bytes  |
   *
   */
-extern void net_get_version_information(uint8_t *ptr);
+void net_get_version_information(uint8_t *ptr);
 
 /**
  * \brief Set buffer size for sleepy device parent.
@@ -965,7 +965,7 @@ extern void net_get_version_information(uint8_t *ptr);
  * \return 0 on success, <0 on errors.
  */
 
-extern int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
+int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
 
 /**
  * \brief Set CCA threshold.
@@ -979,7 +979,7 @@ extern int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uin
  * \param cca_threshold CCA threshold (%).
  * \return 0 on success, <0 on errors.
  */
-extern int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold);
+int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold);
 
 /**
  * \brief Set TX output power.
@@ -992,7 +992,7 @@ extern int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_thresho
  * \param tx_power TX output power (dBm).
  * \return 0 on success, <0 on errors.
  */
-extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
+int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
 
 /**
  * \brief Get CCA threshold table.
@@ -1006,7 +1006,7 @@ extern int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
  * \param interface_id Network interface ID.
  * \return NULL if automatic CCA threshold feature is not enabled, otherwise pointer to CCA threshold structure.
  */
-extern const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id);
+const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id);
 
 #endif /* NET_INTERFACE_H_ */
 

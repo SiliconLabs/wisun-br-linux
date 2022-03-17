@@ -88,7 +88,7 @@ typedef fhss_ws_neighbor_timing_info_t *fhss_get_neighbor_info(const fhss_api_t 
  * @param force_synch If false, synchronization is done only if minimum (internal) synchronization interval is exceed.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
+int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
 
 /**
  * @brief Remove parent which was set by ns_fhss_ws_set_parent function.
@@ -96,7 +96,7 @@ extern int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64
  * @param eui64 EUI-64 address of parent.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8]);
+int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8]);
 
 /* @brief Update the MAC layer with the new timing information about a neighbor.
  *     This function is not called by the original nanostack. It is used to push
@@ -104,7 +104,7 @@ extern int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eu
  * @param eui64 MAC adress of the remote host
  * @param fhss_data Pointer to timing information
  */
-extern void ns_fhss_ws_update_neighbor(const uint8_t eui64[8], fhss_ws_neighbor_timing_info_t *fhss_data);
+void ns_fhss_ws_update_neighbor(const uint8_t eui64[8], fhss_ws_neighbor_timing_info_t *fhss_data);
 
 
 /**
@@ -113,7 +113,7 @@ extern void ns_fhss_ws_update_neighbor(const uint8_t eui64[8], fhss_ws_neighbor_
  *     relevant information to the host in the case of a splited stack.
  * @param eui64 MAC adress of the remote host
  */
-extern void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8]);
+void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8]);
 
 /**
  * @brief Set neighbor timing/hopping schedule request function.
@@ -121,7 +121,7 @@ extern void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8]);
  * @param get_neighbor_info Neighbor info function pointer.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_neighbor_info *get_neighbor_info);
+int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_neighbor_info *get_neighbor_info);
 
 /**
  * @brief Set node hop count. Hop count is used to specify TX/RX slot. When hop count is set to 0xFF, TX/RX slots are ignored.
@@ -129,7 +129,7 @@ extern int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_nei
  * @param hop_count Hop count to be set.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count);
+int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count);
 
 /**
  * @brief WS TX allowance levels.
@@ -150,6 +150,6 @@ typedef enum {
  * @param ef_level Level of TX allowance in expedited forwarding mode.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
+int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
 
 #endif // FHSS_WS_EXT_H

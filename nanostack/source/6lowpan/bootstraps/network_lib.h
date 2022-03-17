@@ -18,9 +18,9 @@
 #ifndef NETWORK_LIB_H_
 #define NETWORK_LIB_H_
 
-extern uint8_t nwk_ready(nwk_interface_id id);
-extern void network_library_init(void);
-extern buffer_t *nwk_udp_rx_security_check(buffer_t *buf);
+uint8_t nwk_ready(nwk_interface_id id);
+void network_library_init(void);
+buffer_t *nwk_udp_rx_security_check(buffer_t *buf);
 
 
 #endif /* NETWORK_LIB_H_ */

@@ -33,7 +33,7 @@
  * \brief Initialise event scheduler.
  *
  */
-extern void eventOS_scheduler_init(void);
+void eventOS_scheduler_init(void);
 
 /**
  * Process one event from event queue.
@@ -46,7 +46,7 @@ bool eventOS_scheduler_dispatch_event(void);
 /**
  * \brief Process events until no more events to process.
  */
-extern void eventOS_scheduler_run_until_idle(void);
+void eventOS_scheduler_run_until_idle(void);
 
 /**
  * \brief Read current active Tasklet ID
@@ -56,7 +56,7 @@ extern void eventOS_scheduler_run_until_idle(void);
  * \return curret active tasklet id
  *
  * */
-extern int8_t eventOS_scheduler_get_active_tasklet(void);
+int8_t eventOS_scheduler_get_active_tasklet(void);
 
 /**
  * \brief Set manually Active Tasklet ID
@@ -64,11 +64,11 @@ extern int8_t eventOS_scheduler_get_active_tasklet(void);
  * \param tasklet requested tasklet ID
  *
  * */
-extern  void eventOS_scheduler_set_active_tasklet(int8_t tasklet);
+ void eventOS_scheduler_set_active_tasklet(int8_t tasklet);
 
 /**
  * \brief This function will be called when stack receives an event.
  */
-extern void eventOS_scheduler_signal(void);
+void eventOS_scheduler_signal(void);
 
 #endif /* EVENTOS_SCHEDULER_H_ */

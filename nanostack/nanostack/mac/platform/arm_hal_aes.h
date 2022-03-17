@@ -69,7 +69,7 @@ arm_aes_context_t *arm_aes_start(const uint8_t key[__static 16]);
  * \param src pointer to 128-bit plaintext in
  * \param dst pointer for 128-bit ciphertext out
  */
-extern void arm_aes_encrypt(
+void arm_aes_encrypt(
     arm_aes_context_t *aes_context,
     const uint8_t src[__static 16],
     uint8_t dst[__static 16]);

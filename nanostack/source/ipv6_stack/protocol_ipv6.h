@@ -33,7 +33,7 @@ struct protocol_interface_info_entry;
  * \return -1 Init fail
  *
  */
-extern int8_t ipv6_MAC_init(int8_t ethernet_dev_driver_id);
+int8_t ipv6_MAC_init(int8_t ethernet_dev_driver_id);
 
 void ipv6_interface_phy_sap_register(struct protocol_interface_info_entry *cur);
 
@@ -45,11 +45,11 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
  * \param cur pointer to interface pointer.
  *
  */
-extern int8_t ipv6_interface_up(struct protocol_interface_info_entry *cur);
+int8_t ipv6_interface_up(struct protocol_interface_info_entry *cur);
 /**
  * \brief Disable IPv6 protocol stack
  */
-extern int8_t ipv6_interface_down(struct protocol_interface_info_entry *cur);
+int8_t ipv6_interface_down(struct protocol_interface_info_entry *cur);
 
 struct ipv6_neighbour;
 struct ipv6_neighbour_cache;

@@ -247,7 +247,7 @@ typedef struct arm_event_storage {
  * \return 0 Event push OK
  * \return -1 Memory allocation Fail
  */
-extern int8_t eventOS_event_send(const arm_event_t *event);
+int8_t eventOS_event_send(const arm_event_t *event);
 
 /**
  * \brief Send user-allocated event to event scheduler.
@@ -271,7 +271,7 @@ extern int8_t eventOS_event_send(const arm_event_t *event);
  *
  * It is a program error to send a user-allocated event to a non-existent task.
  */
-extern void eventOS_event_send_user_allocated(arm_event_storage_t *event);
+void eventOS_event_send_user_allocated(arm_event_storage_t *event);
 
 /**
  * \brief Event handler callback register
@@ -285,7 +285,7 @@ extern void eventOS_event_send_user_allocated(arm_event_storage_t *event);
  * \return < 0 Register fail
  *
  * */
-extern int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type);
+int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type);
 
 /**
  * Cancel an event.
@@ -305,6 +305,6 @@ extern int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t 
  *
  * \param event Pointer to event handle or NULL.
  */
-extern void eventOS_cancel(arm_event_storage_t *event);
+void eventOS_cancel(arm_event_storage_t *event);
 
 #endif /* EVENTOS_EVENT_H_ */

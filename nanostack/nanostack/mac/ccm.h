@@ -89,7 +89,7 @@ typedef struct {
  * \return true when AES context allocation is OK and given parameters.
  * \return false CCM parameters or AES context allocation fail.
  */
-extern bool ccm_sec_init(ccm_globals_t *ccm_context, uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l);
+bool ccm_sec_init(ccm_globals_t *ccm_context, uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l);
 
 /**
  * \brief A function to run the configured CCM process.
@@ -100,13 +100,13 @@ extern bool ccm_sec_init(ccm_globals_t *ccm_context, uint8_t sec_level, const ui
  * \return -1 Init not called or data or adata pointers or lengths are zero.
  * \return -2 Null pointer given to function.
  */
-extern int8_t ccm_process_run(ccm_globals_t *ccm_params);
+int8_t ccm_process_run(ccm_globals_t *ccm_params);
 
 /**
  * \brief A function to free aes context. Call only if ccm_process_run() is not called
  * \param ccm_params CCM parameters
  *
  */
-extern void ccm_free(ccm_globals_t *ccm_params);
+void ccm_free(ccm_globals_t *ccm_params);
 
 #endif /* CCMLIB_H_ */

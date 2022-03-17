@@ -18,9 +18,9 @@
 #ifndef UDP_H_
 #define UDP_H_
 
-extern void udp_checksum_write(buffer_t *buf);
-extern buffer_t *udp_down(buffer_t *buf);
-extern buffer_t *udp_up(buffer_t *buf);
+void udp_checksum_write(buffer_t *buf);
+buffer_t *udp_down(buffer_t *buf);
+buffer_t *udp_up(buffer_t *buf);
 
 /* The network stack has some inbuilt special behaviour for these known ports */
 

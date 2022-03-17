@@ -53,7 +53,7 @@ static inline uint32_t eventOS_event_timer_ms_to_ticks(uint32_t ms)
  *
  * \return tick count.
  */
-extern uint32_t eventOS_event_timer_ticks(void);
+uint32_t eventOS_event_timer_ticks(void);
 
 /* Comparison macros handling wrap efficiently (assuming a conventional compiler
  * which converts 0x80000000 to 0xFFFFFFFF to negative when casting to int32_t).
@@ -86,7 +86,7 @@ extern uint32_t eventOS_event_timer_ticks(void);
  * \return -1 on error (invalid tasklet_id or allocation failure)
  *
  * */
-extern int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t tasklet_id, uint32_t time);
+int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t tasklet_id, uint32_t time);
 
 /**
  * Send an event at specified time
@@ -106,7 +106,7 @@ extern int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, 
  * \return NULL on error (invalid tasklet_id or allocation failure)
  *
  */
-extern arm_event_storage_t *eventOS_event_timer_request_at(const struct arm_event_s *event, uint32_t at);
+arm_event_storage_t *eventOS_event_timer_request_at(const struct arm_event_s *event, uint32_t at);
 
 /**
  * Send an event periodically
@@ -134,7 +134,7 @@ extern arm_event_storage_t *eventOS_event_timer_request_at(const struct arm_even
  * \return NULL on error (invalid tasklet_id or allocation failure)
  *
  */
-extern arm_event_storage_t *eventOS_event_timer_request_every(const struct arm_event_s *event, int32_t period);
+arm_event_storage_t *eventOS_event_timer_request_every(const struct arm_event_s *event, int32_t period);
 
 
 #endif /* EVENTOS_EVENT_TIMER_H_ */

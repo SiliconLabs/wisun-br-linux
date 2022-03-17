@@ -20,16 +20,16 @@
 
 #include "nanostack/whiteboard_api.h"
 #ifdef WHITEBOARD
-extern void whiteboard_init(int8_t id);
-extern void whiteboard_init_by_prefix(int8_t id, const uint8_t address[static 8]);
+void whiteboard_init(int8_t id);
+void whiteboard_init_by_prefix(int8_t id, const uint8_t address[static 8]);
 void whiteboard_rm_entry(int8_t id, const uint8_t address[static 16]);
-extern whiteboard_entry_t *whiteboard_table_update(const uint8_t address[static 16], const uint8_t eui64[static 8], uint8_t *status);
-extern whiteboard_entry_t *whiteboard_table_check_address(const uint8_t address[static 16]);
-extern int8_t whiteboard_interface_unregister_all_address(int8_t nwk_id);
-extern int8_t whiteboard_interface_register(const uint8_t address[static 16], int8_t nwk_id);
-extern void whiteboard_ttl_update(uint16_t ttl_time);
-extern bool whiteboard_interface_address_cmp(const uint8_t address[static 16]);
-extern uint16_t whiteboard_size_get(void);
+whiteboard_entry_t *whiteboard_table_update(const uint8_t address[static 16], const uint8_t eui64[static 8], uint8_t *status);
+whiteboard_entry_t *whiteboard_table_check_address(const uint8_t address[static 16]);
+int8_t whiteboard_interface_unregister_all_address(int8_t nwk_id);
+int8_t whiteboard_interface_register(const uint8_t address[static 16], int8_t nwk_id);
+void whiteboard_ttl_update(uint16_t ttl_time);
+bool whiteboard_interface_address_cmp(const uint8_t address[static 16]);
+uint16_t whiteboard_size_get(void);
 #else
 #define whiteboard_init(id)
 #define whiteboard_init_by_prefix(id, address)

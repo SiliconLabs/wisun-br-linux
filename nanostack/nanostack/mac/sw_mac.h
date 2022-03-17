@@ -35,7 +35,7 @@ struct phy_rf_statistics_s;
  * @param storage_sizes dynamic mac storage sizes DO NOT set any values to zero !!
  * @return New MAC instance if successful, NULL otherwise
  */
-extern struct mac_api_s *ns_sw_mac_create(int8_t rf_driver_id, struct mac_description_storage_size_s *storage_sizes);
+struct mac_api_s *ns_sw_mac_create(int8_t rf_driver_id, struct mac_description_storage_size_s *storage_sizes);
 
 /**
  * @brief Registers created FHSS API instance to given software MAC instance.
@@ -43,21 +43,21 @@ extern struct mac_api_s *ns_sw_mac_create(int8_t rf_driver_id, struct mac_descri
  * @param fhss_api FHSS instance.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api);
+int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api);
 
 /**
  * @brief Unregister FHSS API instance from given software MAC instance.
  * @param mac_api MAC instance.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api);
+int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api);
 
 /**
  * @brief Request registered FHSS API instance from software MAC instance.
  * @param mac_api MAC instance.
  * @return FHSS api.
  */
-extern struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
+struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
 
 /**
  * @brief Start collecting statistics from software MAC.
@@ -65,7 +65,7 @@ extern struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
  * @param mac_statistics Statistics storage.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics);
+int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics);
 
 /**
  * @brief Start collecting statistics from PHY driver.
@@ -73,14 +73,14 @@ extern int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_stat
  * @param phy_statistics Statistics storage.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, struct phy_rf_statistics_s *phy_statistics);
+int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, struct phy_rf_statistics_s *phy_statistics);
 
 /**
  * @brief Read current timestamp.
  * @param mac_api MAC instance.
  * @return Current timestamp in us
  */
-extern uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api);
+uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api);
 
 /**
  * @brief Enable or disable Frame counter per security key. SW MAC must be create before enable this feature!
@@ -88,6 +88,6 @@ extern uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api);
  * @param enable_feature True will allocate frame counter table for devices / key False will clear mode and free counter table.
  * @return 0 on success, -1 on fail.
  */
-extern int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api, bool enable_feature);
+int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api, bool enable_feature);
 
 #endif // NS_SW_MAC_H

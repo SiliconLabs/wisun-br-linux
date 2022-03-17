@@ -188,53 +188,53 @@ extern socket_list_t socket_list;
 
 extern const uint8_t ns_in6addr_any[16];
 
-extern void socket_init(void);
-extern int8_t socket_event_handler_id_get(void);
-extern bool socket_data_queued_event_push(socket_t *socket);
-extern void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id, void *session_ptr, uint16_t length);
-extern socket_error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
-extern socket_t *socket_new_incoming_connection(socket_t *listen_socket);
+void socket_init(void);
+int8_t socket_event_handler_id_get(void);
+bool socket_data_queued_event_push(socket_t *socket);
+void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id, void *session_ptr, uint16_t length);
+socket_error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
+socket_t *socket_new_incoming_connection(socket_t *listen_socket);
 void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t reason);
 void socket_connection_complete(socket_t *socket, int8_t interface_id);
-extern void socket_leave_pending_state(socket_t *socket, void (*fptr)(void *));
+void socket_leave_pending_state(socket_t *socket, void (*fptr)(void *));
 void socket_cant_recv_more(socket_t *socket, int8_t interface_id);
-extern int8_t socket_id_assign_and_attach(socket_t *socket);
-extern void socket_id_detach(int8_t sid);
-extern buffer_t *socket_buffer_read(socket_t *socket);
-extern socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr);
-extern socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards);
-extern socket_error_t socket_port_validate(uint16_t port, uint8_t protocol);
-extern socket_error_t socket_up(buffer_t *buf);
-extern bool socket_message_validate_iov(const struct ns_msghdr *msg, uint16_t *length_out);
-extern int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr *msg, int flags);
-extern socket_t *socket_pointer_get(int8_t socket);
-extern void socket_inet_pcb_set_buffer_hop_limit(const inet_pcb_t *socket, buffer_t *buf, const int16_t *msg_hoplimit);
-extern bool socket_validate_listen_backlog(const socket_t *socket_ptr);
-extern void socket_list_print(route_print_fn_t *print_fn, char sep);
-extern socket_t *socket_reference(socket_t *);
-extern socket_t *socket_dereference(socket_t *);
+int8_t socket_id_assign_and_attach(socket_t *socket);
+void socket_id_detach(int8_t sid);
+buffer_t *socket_buffer_read(socket_t *socket);
+socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr);
+socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards);
+socket_error_t socket_port_validate(uint16_t port, uint8_t protocol);
+socket_error_t socket_up(buffer_t *buf);
+bool socket_message_validate_iov(const struct ns_msghdr *msg, uint16_t *length_out);
+int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr *msg, int flags);
+socket_t *socket_pointer_get(int8_t socket);
+void socket_inet_pcb_set_buffer_hop_limit(const inet_pcb_t *socket, buffer_t *buf, const int16_t *msg_hoplimit);
+bool socket_validate_listen_backlog(const socket_t *socket_ptr);
+void socket_list_print(route_print_fn_t *print_fn, char sep);
+socket_t *socket_reference(socket_t *);
+socket_t *socket_dereference(socket_t *);
 
-extern void socket_release(socket_t *socket);
+void socket_release(socket_t *socket);
 
-extern void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status);
-extern buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status);
+void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status);
+buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status);
 
-extern inet_pcb_t *socket_inet_pcb_allocate(void);
-extern inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig);
+inet_pcb_t *socket_inet_pcb_allocate(void);
+inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig);
 
 /**
  * Free reserved inet_pcb
  */
-extern inet_pcb_t *socket_inet_pcb_free(inet_pcb_t *inet_pcb);
+inet_pcb_t *socket_inet_pcb_free(inet_pcb_t *inet_pcb);
 
-extern int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
-extern int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
+int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
+int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
 
 /**
  * Determine interface based on socket_id and address
  */
-extern struct protocol_interface_info_entry *socket_interface_determine(const socket_t *socket, buffer_t *buf);
+struct protocol_interface_info_entry *socket_interface_determine(const socket_t *socket, buffer_t *buf);
 
-extern uint16_t socket_generate_random_port(uint8_t protocol);
+uint16_t socket_generate_random_port(uint8_t protocol);
 
 #endif /*_NS_SOCKET_H*/

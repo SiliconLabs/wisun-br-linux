@@ -83,7 +83,7 @@ typedef struct nd_parameters_s {
  * \return -2, 6LoWPAN interface already active.
  *
  */
-extern int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *parameter_ptr);
+int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *parameter_ptr);
 
 /**
  * \brief Function to change 6LoWPAN bootstrap base tick 100ms multiplier.
@@ -100,7 +100,7 @@ extern int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *parameter_ptr)
  * \return -1, Invalid value (<1 or >10).
  *
  */
-extern int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms);
+int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms);
 
 /**
  * \brief Function to read 6LoWPAN ND bootstrap parameters.
@@ -108,6 +108,6 @@ extern int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms);
  * \param parameter_ptr Output pointer for ND parameters.
  *
  */
-extern void net_6lowpan_nd_parameter_read(nd_parameters_s *parameter_ptr);
+void net_6lowpan_nd_parameter_read(nd_parameters_s *parameter_ptr);
 
 #endif /* NET_6LOWPAN_DEFAULT_PARAMETER_API_H_ */

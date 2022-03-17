@@ -41,18 +41,18 @@
   * \return 0xfffe or 0xffff when the stack does not use any short address.
   */
 
-extern void net_ext_set_short_address_from_app(uint16_t short_id, uint8_t generate_dynamical_at_DAD);
+void net_ext_set_short_address_from_app(uint16_t short_id, uint8_t generate_dynamical_at_DAD);
 
 /**
   * \brief Clears currently used static or default short address and enables dynamic generation of new short address.
   */
-extern void net_ext_reset_short_address_from_app(void);
+void net_ext_reset_short_address_from_app(void);
 
 /**
   * \brief Get current short address used in the network for this particular interface.
   *
   * \return 0xfffe or 0xffff if stack is not using any short address.
   */
-extern uint16_t net_ext_get_short_address(void);
+uint16_t net_ext_get_short_address(void);
 
 #endif

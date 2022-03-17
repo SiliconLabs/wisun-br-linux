@@ -21,12 +21,12 @@
 #include "core/ns_buffer.h"
 #include "common_protocols/ipv6_constants.h"
 
-extern uint16_t ipv6_header_size_required(buffer_t *buf);
-extern uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit);
-extern uint16_t ipv6_mtu(buffer_t *buf);
+uint16_t ipv6_header_size_required(buffer_t *buf);
+uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit);
+uint16_t ipv6_mtu(buffer_t *buf);
 
-extern buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct protocol_interface_info_entry *next_if);
-extern buffer_routing_info_t *ipv6_buffer_route(buffer_t *buf);
+buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct protocol_interface_info_entry *next_if);
+buffer_routing_info_t *ipv6_buffer_route(buffer_t *buf);
 
 typedef enum ipv6_exthdr_stage {
     IPV6_EXTHDR_SIZE,
@@ -69,9 +69,9 @@ typedef enum ipv6_exthdr_stage {
 typedef buffer_t *ipv6_exthdr_provider_fn_t(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result);
 void ipv6_set_exthdr_provider(ipv6_route_src_t src, ipv6_exthdr_provider_fn_t *fn);
 
-extern buffer_t *ipv6_down(buffer_t *buf);
-extern buffer_t *ipv6_forwarding_down(buffer_t *buf);
-extern buffer_t *ipv6_forwarding_up(buffer_t *buf);
+buffer_t *ipv6_down(buffer_t *buf);
+buffer_t *ipv6_forwarding_down(buffer_t *buf);
+buffer_t *ipv6_forwarding_up(buffer_t *buf);
 
 void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct protocol_interface_info_entry *cur);
 

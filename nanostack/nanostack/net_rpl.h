@@ -175,7 +175,7 @@ typedef struct dodag_config_t {
   * \return -2, DODAG configuration parameter failure.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t *dodag_id, const dodag_config_t *config, uint8_t instace_id, uint8_t flags);
+int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t *dodag_id, const dodag_config_t *config, uint8_t instace_id, uint8_t flags);
 
 /**
   * \brief RPL Global memory size limits.
@@ -188,7 +188,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t 
   * \return -1, Unsupported parameter
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_memory_limit_set(size_t soft_limit, size_t hard_limit);
+int8_t arm_nwk_6lowpan_rpl_memory_limit_set(size_t soft_limit, size_t hard_limit);
 /**
   * \brief RPL DODAG remove by given interface ID.
   *
@@ -198,7 +198,7 @@ extern int8_t arm_nwk_6lowpan_rpl_memory_limit_set(size_t soft_limit, size_t har
   * \return -1, Remove fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id);
+int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id);
 
 /**
   * \brief Activate RPL DODAG by given Interface ID.
@@ -209,7 +209,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id);
   * \return <0, Start fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_start(int8_t interface_id);
+int8_t arm_nwk_6lowpan_rpl_dodag_start(int8_t interface_id);
 
 /**
   * \brief RPL prefix information update.
@@ -225,7 +225,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_start(int8_t interface_id);
   * \return <0, Update fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_prefix_update(int8_t interface_id, uint8_t *prefix_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime);
+int8_t arm_nwk_6lowpan_rpl_dodag_prefix_update(int8_t interface_id, uint8_t *prefix_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime);
 /**
   * \brief RPL route information update.
   *
@@ -240,7 +240,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_prefix_update(int8_t interface_id, uint8
   * \return <0, Update fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_route_update(int8_t interface_id, uint8_t *route_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime);
+int8_t arm_nwk_6lowpan_rpl_dodag_route_update(int8_t interface_id, uint8_t *route_ptr, uint8_t prefix_len, uint8_t flags, uint32_t lifetime);
 
 /**
   * \brief RPL DODAG poison.
@@ -254,7 +254,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_route_update(int8_t interface_id, uint8_
   * \return <0, Poison fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id);
+int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id);
 /**
   * \brief Trigger RPL DODAG DAO by DTSN increment.
   *
@@ -266,7 +266,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id);
   * \return <0, DAO trig Fail
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id);
+int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id);
 /**
   * \brief RPL DODAG version update.
   *
@@ -279,7 +279,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id);
   * \return <0, Version update fail.
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id);
+int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id);
 /**
   * \brief Read RPL instance list of a node.
   *
@@ -292,7 +292,7 @@ extern int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id);
   * \return RPL instance count (not necessarily number of bytes, if local instances).
   *
   */
-extern uint8_t rpl_instance_list_read(uint8_t *buffer_ptr, uint8_t buffer_size);
+uint8_t rpl_instance_list_read(uint8_t *buffer_ptr, uint8_t buffer_size);
 /**
   * \brief Read DODAG information by given RPL instance ID.
   *
@@ -305,7 +305,7 @@ extern uint8_t rpl_instance_list_read(uint8_t *buffer_ptr, uint8_t buffer_size);
   * \return 0, Read fail.
   *
   */
-extern uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id);
+uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id);
 /**
   * \brief RPL DODAG preference set.
   *
@@ -316,6 +316,6 @@ extern uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance
   * \return <0, Update Fail
   *
   */
-extern int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preference);
+int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preference);
 
 #endif /*_NS_RPL_H*/

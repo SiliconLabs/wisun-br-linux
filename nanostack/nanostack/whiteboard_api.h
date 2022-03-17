@@ -39,7 +39,7 @@ typedef struct whiteboard_entry_t {
  * \param cur NULL to read first entry, or get next entry after cur.
  * \return A pointer to whiteboard_entry_t structure.
  */
-extern whiteboard_entry_t *whiteboard_get(whiteboard_entry_t *cur);
+whiteboard_entry_t *whiteboard_get(whiteboard_entry_t *cur);
 
 /**
  * @brief Whiteboard_set_device_hard_limit Sets the absolut limit of child devices this device can handle.
@@ -47,6 +47,6 @@ extern whiteboard_entry_t *whiteboard_get(whiteboard_entry_t *cur);
  *        to join other GW networks. This might cause other GWs to run out of memory.
  * @param limit Absolute maximum amount of devices allowed to join. Default value=0 means unlimited (as long as there is memory)
  */
-extern void whiteboard_set_device_hard_limit(uint16_t limit);
+void whiteboard_set_device_hard_limit(uint16_t limit);
 
 #endif /* WHITEBOARD_API_H_ */

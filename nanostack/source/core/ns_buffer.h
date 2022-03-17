@@ -255,22 +255,22 @@ NS_STATIC_ASSERT(offsetof(buffer_t, link) == 0, "Some use NS_LIST_HEAD_INCOMPLET
 
 
 /** Allocate memory for a buffer_t from the heap */
-extern buffer_t *buffer_get(uint16_t size);
+buffer_t *buffer_get(uint16_t size);
 
 /** Allocate memory for a buffer_t from the heap, with more detailed sizing */
-extern buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspace);
+buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspace);
 
 /** Allocate memory for a minimal buffer (no headroom or extra space) */
-extern buffer_t *buffer_get_minimal(uint16_t size);
+buffer_t *buffer_get_minimal(uint16_t size);
 
 /** Free a buffer from the heap, and return NULL */
-extern buffer_t *buffer_free(buffer_t *buf);
+buffer_t *buffer_free(buffer_t *buf);
 
 /** Free a linked buffer list from the heap */
 void buffer_free_list(buffer_list_t *list);
 
 /** Free any routing info in the buffer, returning the buffer pointer */
-extern buffer_t *buffer_free_route(buffer_t *buf);
+buffer_t *buffer_free_route(buffer_t *buf);
 
 /** Compute IPv6 checksum for buffer data + IPv6 pseudo-header */
 uint16_t buffer_ipv6_fcf(const buffer_t *buf, uint8_t next_header);
@@ -282,7 +282,7 @@ uint8_t *buffer_corrupt_check(buffer_t *buf);
 #define buffer_corrupt_check(b) ((void)0)
 #endif
 /** Allocate header space in buffer */
-extern buffer_t *buffer_headroom(buffer_t *buf, uint16_t size);
+buffer_t *buffer_headroom(buffer_t *buf, uint16_t size);
 
 /** Add buffer at the end of current buffer.
  * Modifies all pointer and indexes correctly.

@@ -337,7 +337,7 @@ typedef struct phy_device_driver_s {
  * \return < 0 Means register fail.
  *
  */
-extern int8_t arm_net_phy_register(phy_device_driver_s *phy_driver);
+int8_t arm_net_phy_register(phy_device_driver_s *phy_driver);
 
 
 /**
@@ -350,7 +350,7 @@ extern int8_t arm_net_phy_register(phy_device_driver_s *phy_driver);
  * \return < 0 Means register fail.
  *
  */
-extern int8_t arm_net_phy_mac64_set(uint8_t *MAC, int8_t id);
+int8_t arm_net_phy_mac64_set(uint8_t *MAC, int8_t id);
 
 /**
  * \brief Get driver mac64 address.
@@ -361,7 +361,7 @@ extern int8_t arm_net_phy_mac64_set(uint8_t *MAC, int8_t id);
  * \return NULL.
  *
  */
-extern uint8_t *arm_net_phy_mac64_get(int8_t id);
+uint8_t *arm_net_phy_mac64_get(int8_t id);
 
 /**
  * \brief Get driver link type.
@@ -371,7 +371,7 @@ extern uint8_t *arm_net_phy_mac64_get(int8_t id);
  * \return driver link type.
  *
  */
-extern int arm_net_phy_rf_type(int8_t id);
+int arm_net_phy_rf_type(int8_t id);
 
 /**
  * \brief Get driver link type MTU size.
@@ -381,7 +381,7 @@ extern int arm_net_phy_rf_type(int8_t id);
  * \return size of MTU.
  *
  */
-extern uint16_t arm_net_phy_mtu_size(int8_t id);
+uint16_t arm_net_phy_mtu_size(int8_t id);
 
 /**
  * \brief Unregister the driver from storage.
@@ -389,6 +389,6 @@ extern uint16_t arm_net_phy_mtu_size(int8_t id);
  * \param driver_id driver id
  *
  */
-extern void arm_net_phy_unregister(int8_t driver_id);
+void arm_net_phy_unregister(int8_t driver_id);
 
 #endif /* ARM_HAL_PHY_H_ */

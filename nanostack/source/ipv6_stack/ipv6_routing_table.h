@@ -146,35 +146,35 @@ typedef struct ipv6_neighbour_cache {
 /* Callback type for route print */
 typedef void (route_print_fn_t)(const char *fmt, ...);
 
-extern void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id);
-extern void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache);
-extern ipv6_neighbour_t *ipv6_neighbour_update(ipv6_neighbour_cache_t *cache, const uint8_t *address, bool solicited);
-extern void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state);
-extern ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-extern ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uint8_t *address);
-extern ipv6_neighbour_t *ipv6_neighbour_lookup_by_interface_id(int8_t interface_id, const uint8_t *address);
-extern ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache, const uint8_t *address);
-extern ipv6_neighbour_t *ipv6_neighbour_lookup_or_create_by_interface_id(int8_t interface_id, const uint8_t *address);
-extern void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-extern bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *n);
-extern bool ipv6_neighbour_addr_is_probably_reachable(ipv6_neighbour_cache_t *cache, const uint8_t *address);
-extern bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_t ll_type, const uint8_t *ll_address);
-extern void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_t ll_type, const uint8_t *ll_address);
-extern void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
-extern bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
-extern ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
-extern void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_t type, const uint8_t *ll_address/*, bool tentative*/);
-extern ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_t ll_type, const uint8_t *ll_address);
-extern void ipv6_neighbour_reachability_confirmation(const uint8_t ip_address[__static 16], int8_t interface_id);
-extern void ipv6_neighbour_reachability_problem(const uint8_t ip_address[__static 16], int8_t interface_id);
-extern void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_t ll_type, const uint8_t *ll_address);
-extern void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint16_t ticks);
-extern void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seconds);
-extern void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print_fn_t *print_fn);
-extern void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-extern int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache);
-extern int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
-extern int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
+void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id);
+void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache);
+ipv6_neighbour_t *ipv6_neighbour_update(ipv6_neighbour_cache_t *cache, const uint8_t *address, bool solicited);
+void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state);
+ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
+ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uint8_t *address);
+ipv6_neighbour_t *ipv6_neighbour_lookup_by_interface_id(int8_t interface_id, const uint8_t *address);
+ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache, const uint8_t *address);
+ipv6_neighbour_t *ipv6_neighbour_lookup_or_create_by_interface_id(int8_t interface_id, const uint8_t *address);
+void ipv6_neighbour_entry_remove(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
+bool ipv6_neighbour_is_probably_reachable(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *n);
+bool ipv6_neighbour_addr_is_probably_reachable(ipv6_neighbour_cache_t *cache, const uint8_t *address);
+bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_t ll_type, const uint8_t *ll_address);
+void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_t ll_type, const uint8_t *ll_address);
+void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
+bool ipv6_neighbour_has_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
+ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64);
+void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_t type, const uint8_t *ll_address/*, bool tentative*/);
+ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_t ll_type, const uint8_t *ll_address);
+void ipv6_neighbour_reachability_confirmation(const uint8_t ip_address[__static 16], int8_t interface_id);
+void ipv6_neighbour_reachability_problem(const uint8_t ip_address[__static 16], int8_t interface_id);
+void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_t ll_type, const uint8_t *ll_address);
+void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint16_t ticks);
+void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seconds);
+void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print_fn_t *print_fn);
+void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
+int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache);
+int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
+int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
 
 /* Backwards compatibility with test app */
 #define ROUTE_RPL_UP ROUTE_RPL_DIO

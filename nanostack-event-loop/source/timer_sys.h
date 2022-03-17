@@ -28,7 +28,7 @@ typedef struct sys_timer_struct_s {
 /**
  * Initialize system timer
  * */
-extern void timer_sys_init(void);
+void timer_sys_init(void);
 
 void timer_sys_event_free(struct arm_event_storage *event);
 

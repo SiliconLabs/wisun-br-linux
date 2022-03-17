@@ -20,9 +20,9 @@
 
 #include "mac/ieee802154/mac_defines.h"
 
-extern void timer_mac_start(struct protocol_interface_rf_mac_setup *rf_ptr, mac_event_t event, uint16_t slots);
+void timer_mac_start(struct protocol_interface_rf_mac_setup *rf_ptr, mac_event_t event, uint16_t slots);
 
-extern void timer_mac_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
+void timer_mac_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
 
 void timer_mac_interrupt(int timer_id, uint16_t slots);
 

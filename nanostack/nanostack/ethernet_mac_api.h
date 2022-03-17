@@ -70,7 +70,7 @@ typedef struct eth_data_ind_s {
  * @param driver_id Ethernet driver id. Must be valid
  * @return New MAC instance if successful, NULL otherwise
  */
-extern eth_mac_api_t *ethernet_mac_create(int8_t driver_id);
+eth_mac_api_t *ethernet_mac_create(int8_t driver_id);
 
 /**
  * @brief Destroy ethernet MAC API instance
@@ -80,7 +80,7 @@ extern eth_mac_api_t *ethernet_mac_create(int8_t driver_id);
  * @return -1 Unknow MAC
  * @return 0 Mac class is removed
  */
-extern int8_t ethernet_mac_destroy(eth_mac_api_t *mac_api);
+int8_t ethernet_mac_destroy(eth_mac_api_t *mac_api);
 
 /**
  * @brief data_request data request call

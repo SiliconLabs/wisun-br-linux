@@ -51,7 +51,7 @@ typedef enum {
 } nwk_stats_type_t;
 
 
-extern void protocol_stats_init(void);
-extern void protocol_stats_update(nwk_stats_type_t type, uint16_t update_val);
+void protocol_stats_init(void);
+void protocol_stats_update(nwk_stats_type_t type, uint16_t update_val);
 
 #endif

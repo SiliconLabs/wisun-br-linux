@@ -35,14 +35,14 @@ typedef struct fhss_api fhss_api_t;
  * @param fhss_timer FHSS platform timer interface and configuration.
  * @return New FHSS instance if successful, NULL otherwise.
  */
-extern fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer);
+fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer);
 
 /**
  * @brief Get WS configuration.
  * @param fhss_api FHSS instance.
  * @return WS configuration.
  */
-extern const fhss_ws_configuration_t *ns_fhss_ws_configuration_get(const fhss_api_t *fhss_api);
+const fhss_ws_configuration_t *ns_fhss_ws_configuration_get(const fhss_api_t *fhss_api);
 
 /**
  * @brief Set WS configuration.
@@ -50,13 +50,13 @@ extern const fhss_ws_configuration_t *ns_fhss_ws_configuration_get(const fhss_ap
  * @param fhss_configuration Basic FHSS configuration.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration);
+int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration);
 
 /**
  * @brief Deletes a FHSS API instance and removes it from software MAC.
  * @param fhss_api FHSS instance.
  * @return 0 on success, -1 on fail.
  */
-extern int ns_fhss_delete(fhss_api_t *fhss_api);
+int ns_fhss_delete(fhss_api_t *fhss_api);
 
 #endif /* NET_FHSS_H_ */
