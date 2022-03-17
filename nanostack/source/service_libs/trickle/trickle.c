@@ -34,13 +34,14 @@ void trickle_begin_interval(trickle_t *t, const trickle_params_t *params)
         t->t = 1;
     }
     t->now = 0;
-    TRACE(TR_TRICKLE, "tkl %p reset: t=%ds I[%d,%d]=%ds k=%d",
-          t, t->t, params->Imin, params->Imax, t->I, params->k);
+    TRACE(TR_TRICKLE, "tkl %-8s reset: t=%ds I[%d,%d]=%ds k=%d",
+          t->debug_name, t->t, params->Imin, params->Imax, t->I, params->k);
 }
 
 /* RFC 6206 Rule 1 */
-void trickle_start(trickle_t *t, const trickle_params_t *params)
+void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t *params)
 {
+    t->debug_name = debug_name;
     t->e = 0;
     t->I = rand_get_random_in_range(params->Imin, params->Imax);
     trickle_begin_interval(t, params);
@@ -123,8 +124,8 @@ bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
         } else {
             status = "inhib";
         }
-        TRACE(TR_TRICKLE, "tkl %p %s: t=%ds I[%d,%d]=%ds k=%d c=%d",
-              t, status, t->t, params->Imin, params->Imax, t->I, params->k, t->c);
+        TRACE(TR_TRICKLE, "tkl %-8s %s: t=%ds I[%d,%d]=%ds k=%d c=%d",
+              t->debug_name, status, t->t, params->Imin, params->Imax, t->I, params->k, t->c);
     }
 
     /* RFC 6206 Rule 5 */

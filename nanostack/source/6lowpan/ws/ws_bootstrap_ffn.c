@@ -205,7 +205,7 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
     cur->ws_info->trickle_pas_running = true;
     if (cur->ws_info->trickle_pan_advertisement_solicit.I != cur->ws_info->trickle_params_pan_discovery.Imin) {
         // Trickle not reseted so starting a new interval
-        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, "ADV SOL", &cur->ws_info->trickle_params_pan_discovery);
     }
 
     // Discovery statemachine is checkked after we have sent the Solicit
@@ -244,7 +244,7 @@ static void ws_bootstrap_ffn_start_configuration_learn(protocol_interface_info_e
     cur->ws_info->pan_config_sol_max_timeout = trickle_timer_max(&cur->ws_info->trickle_params_pan_discovery, PCS_MAX);
     // Reset advertisement solicit trickle to start discovering network
     cur->ws_info->trickle_pcs_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_start(&cur->ws_info->trickle_pan_config_solicit, "CFG SOL", &cur->ws_info->trickle_params_pan_discovery);
     trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery);
 }
 

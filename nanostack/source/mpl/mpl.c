@@ -231,7 +231,7 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
                                   : cur->mpl_data_trickle_params;
     domain->control_trickle_params = control_trickle_params ? *control_trickle_params
                                      : cur->mpl_control_trickle_params;
-    trickle_start(&domain->trickle, &domain->control_trickle_params);
+    trickle_start(&domain->trickle, "MPL DOM", &domain->control_trickle_params);
     trickle_stop(&domain->trickle);
     domain->seed_id_mode = seed_id_mode;
     memcpy(domain->seed_id, seed_id, seed_id_len);
@@ -425,7 +425,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->colour = seed->colour;
     message->timestamp = protocol_core_monotonic_time;
     /* Make sure trickle structure is initialised */
-    trickle_start(&message->trickle, &domain->data_trickle_params);
+    trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
     if (domain->proactive_forwarding) {
         mpl_schedule_timer();
     } else {
@@ -562,7 +562,7 @@ static void mpl_control_reset_or_start(mpl_domain_t *domain)
     if (trickle_running(&domain->trickle, &domain->control_trickle_params)) {
         trickle_inconsistent_heard(&domain->trickle, &domain->control_trickle_params);
     } else {
-        trickle_start(&domain->trickle, &domain->control_trickle_params);
+        trickle_start(&domain->trickle, "MPL DOM", &domain->control_trickle_params);
     }
     mpl_schedule_timer();
 }

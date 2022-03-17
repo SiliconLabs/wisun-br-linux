@@ -231,7 +231,7 @@ void rpl_instance_set_dodag_version(rpl_instance_t *instance, rpl_dodag_version_
 
         /* Need to call trickle_start somewhere (to avoid uninitialised variables) - this is it */
         if (!old_version || old_version->dodag != version->dodag) {
-            trickle_start(&instance->dio_timer, &version->dodag->dio_timer_params);
+            trickle_start(&instance->dio_timer, "RPL DIO", &version->dodag->dio_timer_params);
         }
     }
 
@@ -687,7 +687,7 @@ rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, 
     dodag->dio_timer_params.Imin = RPL_DEFAULT_IMIN_TICKS;
     dodag->dio_timer_params.Imax = (trickle_time_t)(RPL_DEFAULT_IMAX_TICKS < TRICKLE_TIME_MAX ? RPL_DEFAULT_IMAX_TICKS : TRICKLE_TIME_MAX);
     dodag->dio_timer_params.k = 10;
-    trickle_start(&instance->dio_timer, &dodag->dio_timer_params);
+    trickle_start(&instance->dio_timer, "RPL DIO", &dodag->dio_timer_params);
     ns_list_init(&dodag->versions);
     ns_list_init(&dodag->routes);
     ns_list_init(&dodag->prefixes);
@@ -766,7 +766,7 @@ bool rpl_dodag_update_config(rpl_dodag_t *dodag, const rpl_dodag_conf_t *conf, c
     if (restart_timer && rpl_instance_current_dodag(dodag->instance) == dodag) {
         /* They've changed the timing parameters for our currently-in-use trickle timer! */
         tr_warn("Trickle parameters changed");
-        trickle_start(&dodag->instance->dio_timer, &dodag->dio_timer_params);
+        trickle_start(&dodag->instance->dio_timer, "RPL DIO", &dodag->dio_timer_params);
         dodag->new_config_advertisment_count = 0;
     }
     dodag->instance->of = rpl_objective_lookup(conf->objective_code_point);

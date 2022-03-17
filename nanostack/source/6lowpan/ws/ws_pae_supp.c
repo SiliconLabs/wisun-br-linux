@@ -918,7 +918,7 @@ static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_s
     pae_supp->gtk_req_trickle_params.k = 0;
     pae_supp->gtk_req_trickle_params.TimerExpirations = timer_expirations;
 
-    trickle_start(&pae_supp->gtk_req_trickle_timer, &pae_supp->gtk_req_trickle_params);
+    trickle_start(&pae_supp->gtk_req_trickle_timer, "GTK REQ", &pae_supp->gtk_req_trickle_params);
     tr_info("Initial EAPOL-Key trickle I: [%i,%i] %i, t: %i", pae_supp->gtk_req_trickle_params.Imin, pae_supp->gtk_req_trickle_params.Imax, pae_supp->gtk_req_trickle_timer.I, pae_supp->gtk_req_trickle_timer.t);
     pae_supp->gtk_update_trickle_running = true;
     pae_supp->initial_key_retry_cnt = timer_expirations;

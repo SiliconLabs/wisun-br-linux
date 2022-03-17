@@ -2648,10 +2648,10 @@ void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur)
 void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur)
 {
     cur->ws_info->trickle_pa_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_start(&cur->ws_info->trickle_pan_advertisement, "ADV", &cur->ws_info->trickle_params_pan_discovery);
     cur->ws_info->trickle_pc_running = true;
     cur->ws_info->trickle_pc_consistency_block_period = 0;
-    trickle_start(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_start(&cur->ws_info->trickle_pan_config, "CFG", &cur->ws_info->trickle_params_pan_discovery);
 }
 
 static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur)
@@ -2761,7 +2761,7 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
 
         // Start PAS interval between imin - imax.
         cur->ws_info->trickle_pas_running = true;
-        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, "ADV SOL", &cur->ws_info->trickle_params_pan_discovery);
 
         // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
         cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);

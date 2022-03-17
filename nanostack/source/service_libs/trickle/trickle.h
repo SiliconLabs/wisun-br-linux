@@ -45,6 +45,7 @@ trickle_params_t;
 
 /* This structure is read-only for users. Initialised by trickle_start() */
 typedef struct trickle {
+    const char *debug_name;
     uint8_t c;              /* counter */
     uint8_t e;              /* MPL: expiration events since the Trickle timer was last reset */
     trickle_time_t I;       /* current interval */
@@ -54,7 +55,7 @@ typedef struct trickle {
 trickle_t;
 
 /* RFC 6206 Rule 1 */
-void trickle_start(trickle_t *t, const trickle_params_t *params);
+void trickle_start(trickle_t *t, const char *debug_name, const trickle_params_t *params);
 
 /* RFC 6206 Rule 3 */
 void trickle_consistent_heard(trickle_t *t);
