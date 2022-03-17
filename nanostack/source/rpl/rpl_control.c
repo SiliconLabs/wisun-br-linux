@@ -1365,7 +1365,6 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
     const rpl_dio_route_list_t *routes = rpl_dodag_get_route_list(dodag);
     const prefix_list_t *prefixes = rpl_dodag_get_prefix_list(dodag);
 
-    tr_info("transmit dio, rank: %x", rank);
     protocol_interface_info_entry_t *downstream_if = protocol_stack_interface_info_get_by_id(domain->non_storing_downstream_interface);
     length = 24;
     if (conf) {

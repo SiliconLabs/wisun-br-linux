@@ -331,8 +331,6 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
 
             // Starts supplicant timer
             ws_pae_supp_timer_start(pae_supp);
-
-            tr_info("GTK update start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->sec_cfg->timer_cfg.gtk_request_imin, pae_supp->sec_cfg->timer_cfg.gtk_request_imax, pae_supp->sec_cfg->timer_cfg.gtk_max_mismatch, pae_supp->gtk_req_trickle_timer.t);
         }
     }
 
@@ -919,7 +917,6 @@ static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_s
     pae_supp->gtk_req_trickle_params.TimerExpirations = timer_expirations;
 
     trickle_start(&pae_supp->gtk_req_trickle_timer, "GTK REQ", &pae_supp->gtk_req_trickle_params);
-    tr_info("Initial EAPOL-Key trickle I: [%i,%i] %i, t: %i", pae_supp->gtk_req_trickle_params.Imin, pae_supp->gtk_req_trickle_params.Imax, pae_supp->gtk_req_trickle_timer.I, pae_supp->gtk_req_trickle_timer.t);
     pae_supp->gtk_update_trickle_running = true;
     pae_supp->initial_key_retry_cnt = timer_expirations;
 }
@@ -1245,8 +1242,6 @@ static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
 
             // Starts supplicant timer
             ws_pae_supp_timer_start(pae_supp);
-
-            tr_info("GTK update re-start imin: %i, imax: %i, max mismatch: %i, tr time: %i", pae_supp->sec_cfg->timer_cfg.gtk_request_imin, pae_supp->sec_cfg->timer_cfg.gtk_request_imax, pae_supp->sec_cfg->timer_cfg.gtk_max_mismatch, pae_supp->gtk_req_trickle_timer.t);
         }
 
     }

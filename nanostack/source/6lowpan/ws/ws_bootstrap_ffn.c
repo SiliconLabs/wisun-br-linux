@@ -214,10 +214,6 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
         time_to_solicit = cur->ws_info->trickle_pan_advertisement_solicit.t - cur->ws_info->trickle_pan_advertisement_solicit.now;
     }
 
-    tr_debug("Disc params imin %u, imax %u, expirations %u, k %u PAS Trickle I %u t %u, now %u, c %u",
-             cur->ws_info->trickle_params_pan_discovery.Imin, cur->ws_info->trickle_params_pan_discovery.Imax, cur->ws_info->trickle_params_pan_discovery.TimerExpirations, cur->ws_info->trickle_params_pan_discovery.k,
-             cur->ws_info->trickle_pan_advertisement_solicit.I, cur->ws_info->trickle_pan_advertisement_solicit.t, cur->ws_info->trickle_pan_advertisement_solicit.now, cur->ws_info->trickle_pan_advertisement_solicit.c);
-
     time_to_solicit += cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
 
     if (time_to_solicit > 0xffff) {

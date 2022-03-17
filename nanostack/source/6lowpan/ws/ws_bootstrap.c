@@ -3155,7 +3155,6 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
     if (cur->ws_info->trickle_pas_running &&
             trickle_timer(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
         // send PAN advertisement solicit
-        tr_info("Send PAN advertisement Solicit");
         ws_bootstrap_pan_advert_solicit(cur);
     }
     if (cur->ws_info->trickle_pcs_running) {
@@ -3171,7 +3170,6 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
         if (trickle_timer(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
             if (cur->ws_info->pas_requests < PCS_MAX) {
                 // send PAN Configuration solicit
-                tr_info("Send PAN configuration Solicit");
                 ws_bootstrap_pan_config_solicit(cur);
             }
             //Update counter every time reason that we detect PCS_MAX higher state
@@ -3190,7 +3188,6 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
     if (cur->ws_info->trickle_pa_running &&
             trickle_timer(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
         // send PAN advertisement
-        tr_info("Send PAN advertisement");
         ws_bootstrap_pan_advert(cur);
     }
     if (cur->ws_info->trickle_pc_running) {
@@ -3205,7 +3202,6 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
 
         if (trickle_timer(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
             // send PAN Configuration
-            tr_info("Send PAN configuration");
             ws_bootstrap_pan_config(cur);
         }
     }
