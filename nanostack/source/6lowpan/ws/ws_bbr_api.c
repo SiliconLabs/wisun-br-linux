@@ -700,7 +700,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
     }
 
     ws_bbr_dodag_get(local_prefix, global_prefix);
-    tr_debug("BBR global %s, local %s", trace_ipv6_prefix(global_prefix, 64), trace_ipv6_prefix(local_prefix, 64));
 
     /*
      * Add default route to RPL
@@ -748,7 +747,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
             prefix_wait_time = 40;
         }
 
-        tr_debug("Check for backup prefix %"PRIu32" / %"PRIu32"", prefix_wait_time, global_prefix_unavailable_timer);
         if (global_prefix_unavailable_timer >= prefix_wait_time) {
             if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
                 tr_info("start using backup prefix %s", trace_ipv6_prefix(local_prefix, 64));
