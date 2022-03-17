@@ -89,7 +89,7 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_s
     generic_channel_info->channel_plan = hopping_schedule->channel_plan;
     if (unicast_schedule) {
         generic_channel_info->channel_function = hopping_schedule->uc_channel_function;
-        generic_channel_info->excluded_channel_ctrl = hopping_schedule->excluded_channels.excuded_channel_ctrl;
+        generic_channel_info->excluded_channel_ctrl = hopping_schedule->excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->excluded_channels.excluded_range_length;
             generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->excluded_channels.excluded_range;

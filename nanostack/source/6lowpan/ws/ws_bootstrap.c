@@ -619,21 +619,21 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
 
     uint8_t channel_plan = 0;
     if (excluded_data->excluded_range_length == 0) {
-        excluded_data->excuded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
+        excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
     } else if (excluded_data->excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
 
         uint8_t range_length = (excluded_data->excluded_range_length * 4) + 3;
         if (range_length <= ((number_of_channels + 7) / 8) + 6) {
-            excluded_data->excuded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
+            excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
         } else {
-            excluded_data->excuded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
+            excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
             channel_plan = 1;
         }
     } else {
-        excluded_data->excuded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
+        excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
         channel_plan = 1;
     }
-    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u", excluded_data->excuded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
+    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u", excluded_data->excluded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
     return channel_plan;
 }
 
