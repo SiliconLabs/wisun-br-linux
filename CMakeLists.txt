@@ -140,8 +140,8 @@ add_executable(wsbrd
     nanostack/source/common_protocols/ipv6_resolution.c
     nanostack/source/common_protocols/mld.c
     nanostack/source/common_protocols/udp.c
-    nanostack/source/core/buffer_dyn.c
     nanostack/source/core/ns_address_internal.c
+    nanostack/source/core/ns_buffer.c
     nanostack/source/core/ns_socket.c
     nanostack/source/core/sockbuf.c
     nanostack/source/dhcpv6_client/dhcpv6_client_service.c
@@ -342,8 +342,8 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/common_protocols/ipv6_resolution.c
         nanostack/source/common_protocols/mld.c
         nanostack/source/common_protocols/udp.c
-        nanostack/source/core/buffer_dyn.c
         nanostack/source/core/ns_address_internal.c
+        nanostack/source/core/ns_buffer.c
         nanostack/source/core/ns_socket.c
         nanostack/source/core/sockbuf.c
         nanostack/source/dhcpv6_client/dhcpv6_client_service.c
