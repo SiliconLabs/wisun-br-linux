@@ -32,7 +32,6 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/nwk_stats_api.h"
 #include "nanostack/socket_api.h"
-#include "nanostack/net_thread_test.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/ethernet_mac_api.h"
