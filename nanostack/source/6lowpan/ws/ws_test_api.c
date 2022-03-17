@@ -24,7 +24,6 @@
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "nanostack/net_ws_test.h"
-#include "nanostack/net_ws_test_ext.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/mac/mac_api.h"

@@ -229,5 +229,87 @@ int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dro
  */
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime);
 
+/* Test procedure triggers
+ *
+ * Example about using the triggers during bootstrap to trigger
+ * messages and state transitions.
+ *
+ * Border Router              Node
+ *
+ *                            Join state 1 (select PAN)
+ *
+ * PROC_PA
+ * ------- PAN Advertisement------------>
+ *
+ *                            PROC_EAPOL
+ *                            Select EAPOL target
+ *                            Join state 2 (authenticate)
+ * <------ EAPOL authentication -------->
+ *                            Join State 3 (acquire PAN configuration)
+ *
+ * PROC_PC
+ * ------- PAN Configuration ----------->
+ *                            Join state 4 (configure routing)
+ *
+ * PROC_DIO
+ * ------- DIO ------------------------->
+ *                            Neighbor discovery (NS probing for ETX)
+ *                            Create RPL candidate parent set
+ *
+ *                            PROC_RPL
+ *                            Select RPL parent
+ * <------ DHCP ------------------------>
+ *
+ *                            PROC_DAO
+ * <------ DAO --------------------------
+ * ------- DAO acknowledge ------------->
+ *
+ *                            Join state 5 (operational)
+ *
+ *
+ * On automatic mode the PROC_PAS, PROC_EAPOL, PROC_PCS, PROC_DIS and PROC_RPL
+ * will be triggered automatically by the node during the bootstrap.
+ *
+ */
+
+/**
+ * @brief Test procedure triggers.
+ */
+typedef enum {
+    PROC_DIS,       /* trigger DODAG information object solicit (node) */
+    PROC_DIO,       /* trigger DODAG information object (BR, node) */
+    PROC_DAO,       /* trigger Destination advertisement object (node) */
+
+    PROC_PAS,       /* trigger PAN Advertisement Solicit (node) */
+    PROC_PA,        /* trigger PAN Advertisement (BR, node) */
+    PROC_PCS,       /* trigger PAN Configuration Solicit (node) */
+    PROC_PC,        /* trigger PAN Configuration (BR, node) */
+
+    PROC_EAPOL,     /* trigger EAPOL target selection (initiates authentication, node) */
+    PROC_RPL,       /* trigger RPL parent selection (node) */
+
+    PROC_AUTO_ON,   /* trigger bootstrap test procedures automatically */
+    PROC_AUTO_OFF,  /* disable automatic bootstrap test procedure triggering */
+
+    MSG_NONE
+} ws_test_proc_t;
+
+/**
+ * Trigger a test procedure
+ *
+ * Can be used to trigger a test procedure, e.g. to send a message (DIS,
+ * DIO, DAO, PAS, PS, PCS and PC) or to trigger bootstrap state change
+ * on node e.g. EAPOL target selection.
+ *
+ * \param interface_id Network Interface ID >= 0 or -1 for Wi-SUN mesh interface
+ *                     Default value is -1
+ * \param procedure Triggered procedure
+ * \param parameters Parameters for future extensions, shall be set to NULL
+ *
+ * \return 0                        Success
+ * \return <0                       Failure
+ */
+int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, void *parameters);
+
 #endif /* DOXYGEN */
-#endif /* NET_THREAD_TEST_H_ */
+#endif
