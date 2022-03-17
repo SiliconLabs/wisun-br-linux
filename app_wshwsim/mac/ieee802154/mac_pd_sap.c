@@ -34,7 +34,6 @@
 #include "mac/ieee802154/mac_filter.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
-#include "mac/ieee802154/mac_mode_switch.h"
 #include "mac/rf_driver_storage.h"
 #include "mbed-client-libservice/ns_trace.h"
 
@@ -337,10 +336,6 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         } else if (rf_mac_setup->mac_tx_result == MAC_TIMER_ACK) {
             mac_data_interface_tx_done_cb(rf_mac_setup, PHY_LINK_TX_FAIL, 0, 0);
         }
-    } else {
-        if (rf_mac_setup->mac_tx_result == MAC_MODE_SWITCH_TIMEOUT) {
-            mac_update_mode_switch_state(rf_mac_setup, MAC_MS_TIMEOUT, rf_mac_setup->base_phy_mode);
-        }
     }
 }
 
@@ -430,7 +425,6 @@ static bool mac_data_asynch_channel_switch(protocol_interface_rf_mac_setup_s *rf
 static void mac_data_ack_tx_finish(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
     rf_ptr->mac_ack_tx_active = false;
-    mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_RECEIVED, rf_ptr->base_phy_mode);
     if (rf_ptr->fhss_api) {
         //SET tx completed false because ack isnot never queued
         rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0xff);
@@ -552,23 +546,6 @@ VALIDATE_TX_TIME:
                 mac_data_ack_tx_finish(rf_ptr);
                 return 0;
             }
-        } else if (rf_ptr->mac_mode_switch_phr_tx_active) {
-#ifdef TIMING_TOOL_TRACES
-            tr_info("%u TX_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
-#endif
-            rf_ptr->mac_mode_switch_phr_tx_active = false;
-            if (rf_ptr->fhss_api) {
-                rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
-            }
-            if (!mac_update_mode_switch_state(rf_ptr, MAC_MS_PHR_SEND_READY, rf_ptr->active_pd_data_request->phy_mode_id)) {
-                mac_pd_sap_set_phy_tx_time(rf_ptr, rf_ptr->active_pd_data_request->tx_time, true, rf_ptr->mac_mode_switch_phr_tx_active);
-                if (mac_plme_cca_req(rf_ptr) != 0) {
-                    mac_sap_no_ack_cb(rf_ptr);
-                }
-                return 0;
-            }
-            // Failed to start data transmission after mode switch PHR was sent
-            status = PHY_LINK_TX_FAIL;
         }
 
         // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
@@ -623,9 +600,6 @@ VALIDATE_TX_TIME:
         } else if (status == PHY_LINK_TX_DONE_PENDING) {
             waiting_ack = false;
             tx_completed = true;
-        }
-        if (waiting_ack == false) {
-            mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_SEND_READY, rf_ptr->base_phy_mode);
         }
         if (rf_ptr->fhss_api) {
             rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_completed, rf_ptr->active_pd_data_request->msduHandle);
@@ -693,7 +667,6 @@ static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_set
     if (mcps_sap_pd_ack(rf_ptr, buf) != 0) {
         mcps_sap_pre_parsed_frame_buffer_free(buf);
     }
-    mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_SEND_READY, rf_ptr->base_phy_mode);
     if (rf_ptr->fhss_api) {
         rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
     }
@@ -1056,11 +1029,6 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         tr_info("%u RX_done", mac_mcps_sap_get_phy_timestamp(rf_ptr));
 #endif
 
-        if (!mac_parse_mode_switch_phr(rf_ptr, pd_data_ind->data_ptr, pd_data_ind->data_len)) {
-            // TODO: mode switch returned 0, needs some logic to wait frame with new mode
-            goto ERROR_HANDLER;
-        }
-
         if (pd_data_ind->data_len < 3) {
             return -1;
         }
@@ -1071,7 +1039,6 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 
         // No need to send Ack - Check if RX channel needs to be updated
         if (fcf_read.ackRequested == false) {
-            mac_update_mode_switch_state(rf_ptr, MAC_MS_DATA_RECEIVED, rf_ptr->base_phy_mode);
             if (rf_ptr->fhss_api) {
                 rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, false, 0);
             }

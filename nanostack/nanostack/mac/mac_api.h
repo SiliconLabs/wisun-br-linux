@@ -195,17 +195,6 @@ typedef void mcps_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t
  */
 typedef void mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t *response_message);
 
-
-/**
- * @brief mode_switch_resolver Callback to resolve configuration behind received PHY mode ID
- * @param api The API which handled the response
- * @param phy_mode_id PHY mode ID to be resolved
- * @param rf_config Resolved configuration
- * @return 0 in case of success, negative otherwise
- */
-typedef int8_t mode_switch_resolver(const mac_api_t *api, uint8_t phy_mode_id, phy_rf_channel_configuration_s *rf_config);
-
-
 /**
  * @brief mcps_purge_confirm MCPS-PURGE confirm is called as a response to MCPS-PURGE request
  * @param api The API which handled the request
@@ -287,16 +276,6 @@ typedef int8_t mac_api_enable_mcps_edfe_ext(mac_api_t *api,
                                             mcps_edfe_handler *edfe_ind_cb);
 
 /**
- * @brief mac_api_mode_switch_resolver_ext Initialises mode switch resolver callback. Upper layer must configure function when mode switch is used.
- * @param api mac_api_t pointer, which is created by application.
- * @param mode_resolver_cb Upper layer function to resolve received PHY mode ID
- * @param base_phy_mode Base PHY mode, device returns to this mode after mode switch transmission or reception
- * @return -1 if error, 0 otherwise
- */
-typedef int8_t mac_api_mode_switch_resolver_ext(mac_api_t *api,
-                                                mode_switch_resolver *mode_resolver_cb, uint8_t base_phy_mode);
-
-/**
  * \brief Struct mac_api_s defines functions for two-way communications between external MAC and Upper layer.
  * Application creates mac_api_t object by calling external MAC's creator function.
  * Then object is passed to Upper layer which then initializes it's own callback functions.
@@ -306,7 +285,6 @@ struct mac_api_s {
     mac_api_initialize                  *mac_initialize;                /**< MAC initialize function to use */
     mac_api_enable_mcps_ext             *mac_mcps_extension_enable;     /**< MAC MCPS IE extension enable function, optional feature */
     mac_api_enable_mcps_edfe_ext        *mac_mcps_edfe_enable;          /**< MAC MCPS MCPS EDFE frame extension enable function, optional feature */
-    mac_api_mode_switch_resolver_ext    *mac_mode_switch_resolver_set;  /**< MAC Mode switch resolver function set, optional feature */
     //External MAC callbacks
     mlme_request                        *mlme_req;                      /**< MAC MLME request function to use */
     mcps_data_request                   *mcps_data_req;                 /**< MAC MCPS data request function to use */
@@ -318,7 +296,6 @@ struct mac_api_s {
     mcps_data_indication                *data_ind_cb;                   /**< MAC MCPS data indication callback function */
     mcps_data_indication_ext            *data_ind_ext_cb;               /**< MAC MCPS data indication with IE extension's callback function */
     mcps_edfe_handler                   *edfe_ind_cb;                   /**< MAC MCPS EDFE detection extension's callback function */
-    mode_switch_resolver                *mode_resolver_cb;              /**< MAC Mode switch resolver callback function */
     mcps_ack_data_req_ext               *enhanced_ack_data_req_cb;      /**< Enhanced ACK IE element and payload request from MAC user */
     mcps_purge_confirm                  *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
     mlme_confirm                        *mlme_conf_cb;                  /**< MAC MLME confirm callback function */

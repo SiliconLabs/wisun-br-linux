@@ -46,7 +46,6 @@
 #include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/ieee802154/mac_indirect_data.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
-#include "mac/ieee802154/mac_mode_switch.h"
 #include "mac/rf_driver_storage.h"
 
 #include "nanostack/mac/sw_mac.h"
@@ -1564,12 +1563,6 @@ static int8_t mcps_generic_packet_build(protocol_interface_rf_mac_setup_s *rf_pt
         mac_security_data_params_set(&ccm_ptr, (mhr_start + (buffer->mac_header_length_with_security + open_payload)), (mac_payload_length - open_payload));
         mac_security_authentication_data_params_set(&ccm_ptr, mhr_start, (buffer->mac_header_length_with_security + open_payload));
         ccm_process_run(&ccm_ptr);
-    }
-    // Packet is sent using mode switch. Build mode switch PHR
-    if (buffer->phy_mode_id) {
-        if (mac_build_mode_switch_phr(rf_ptr, tx_buf->mode_switch_phr_buf, buffer->phy_mode_id)) {
-            return -1;
-        }
     }
 
     return 0;

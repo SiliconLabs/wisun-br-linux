@@ -44,7 +44,6 @@ typedef enum mac_event_t {
     MAC_UNKNOWN_DESTINATION,
     MAC_TX_PRECOND_FAIL,
     MAC_RETURN_TO_QUEUE,
-    MAC_MODE_SWITCH_TIMEOUT
 } mac_event_t;
 
 typedef enum mac_tx_status_type_t {
@@ -95,15 +94,6 @@ typedef enum arm_nwk_mlme_event_type {
     ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL = 4,
     ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL_AFTER_DATA = 5,
 } arm_nwk_mlme_event_type_e;
-
-typedef enum  mac_mode_switch_states {
-    MAC_MS_IDLE = 0,
-    MAC_MS_PHR_SEND_READY,
-    MAC_MS_DATA_SEND_READY,
-    MAC_MS_PHR_RECEIVED,
-    MAC_MS_DATA_RECEIVED,
-    MAC_MS_TIMEOUT
-} mac_mode_switch_states_e;
 
 #define ENHANCED_ACK_MAX_LENGTH 255
 
@@ -226,8 +216,6 @@ typedef struct protocol_interface_rf_mac_setup {
 
     uint8_t mac_channel;
     uint8_t mac_tx_start_channel;
-    uint8_t base_phy_mode;
-    mac_mode_switch_states_e mode_switch_state;
     //uint8_t cca_failure;
 
     /* MAC TX Queue */

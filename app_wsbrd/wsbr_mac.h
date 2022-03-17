@@ -47,7 +47,4 @@ int8_t wsbr_mac_init(struct mac_api_s *api,
                      mlme_confirm *mlme_conf_cb,
                      mlme_indication *mlme_ind_cb,
                      int8_t parent_id);
-int8_t wsbr_mac_mode_switch_resolver_set(mac_api_t *api,
-                                         mode_switch_resolver *mode_resolver_cb,
-                                         uint8_t base_phy_mode);
 #endif

@@ -475,7 +475,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wshwsim/mac/ieee802154/mac_indirect_data.c
         app_wshwsim/mac/ieee802154/mac_mcps_sap.c
         app_wshwsim/mac/ieee802154/mac_mlme.c
-        app_wshwsim/mac/ieee802154/mac_mode_switch.c
         app_wshwsim/mac/ieee802154/mac_pd_sap.c
         app_wshwsim/mac/ieee802154/mac_security_mib.c
         app_wshwsim/mac/ieee802154/mac_timer.c

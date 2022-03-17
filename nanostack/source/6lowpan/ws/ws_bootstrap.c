@@ -1898,16 +1898,6 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Start automatic CCA threshold
     mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
-    // Enable MAC mode switch when base PHY mode ID could be found, otherwise disable the feature
-    uint8_t phy_mode_id = cur->ws_info->hopping_schedule.phy_mode_id;
-    if (phy_mode_id == 255) {
-        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schedule.operating_mode);
-    }
-    if (!phy_mode_id) {
-        cur->mac_api->mac_mode_switch_resolver_set(cur->mac_api, NULL, phy_mode_id);
-    } else {
-        cur->mac_api->mac_mode_switch_resolver_set(cur->mac_api, &ws_bootstrap_phy_mode_resolver, phy_mode_id);
-    }
     return 0;
 }
 
