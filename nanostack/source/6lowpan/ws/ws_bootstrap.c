@@ -1875,6 +1875,8 @@ static int8_t ws_bootstrap_phy_mode_resolver(const mac_api_t *api, uint8_t phy_m
 static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs)
 {
     mlme_set_t set_request;
+    mlme_get_t get_request;
+
     // Set MAC mode
     phy_802_15_4_mode_t mac_mode = IEEE_802_15_4G_2012;
     set_request.attr = mac802_15_4Mode;
@@ -1896,6 +1898,9 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     set_request.value_pointer = &ack_wait_symbols;
     set_request.value_size = sizeof(ack_wait_symbols);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
+    // Retrieve sensibility
+    get_request.attr = macRxSensitivity;
+    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_request);
     // Start automatic CCA threshold
     mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     return 0;

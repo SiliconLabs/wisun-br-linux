@@ -10,6 +10,7 @@
 
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/mac_api.h"
+#include "nanostack/ws_management_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
@@ -147,6 +148,13 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
         BUG_ON(spinel_remaining_size(buf));
         ctxt->hw_addr_done = true;
+        break;
+    }
+    case SPINEL_PROP_WS_RX_SENSITIVITY: {
+        int val = spinel_pop_i16(buf);
+        BUG_ON(spinel_remaining_size(buf));
+        // from -174dBm to + 80dBm, so add + 174 to real sensitivity
+        ws_device_min_sens_set(ctxt->rcp_if_id, val + 174);
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
@@ -479,6 +487,7 @@ static const struct {
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
     { macFilterStop,                   wsbr_spinel_set_mac_filter_stop,       SPINEL_PROP_WS_MAC_FILTER_STOP,                  },
+    { macRxSensitivity,                NULL /* get only */,                   SPINEL_PROP_WS_RX_SENSITIVITY                    },
     { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
     { macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },
