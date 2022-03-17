@@ -53,9 +53,6 @@ typedef struct trickle {
 }
 trickle_t;
 
-/* RFC 6206 Rule 2 */
-void trickle_begin_interval(trickle_t *t);
-
 /* RFC 6206 Rule 1 */
 void trickle_start(trickle_t *t, const trickle_params_t *params);
 

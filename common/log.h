@@ -57,6 +57,7 @@ enum {
     TR_BUS  = 0x04,
     TR_HDLC = 0x08,
     TR_HIF  = 0x10,
+    TR_TRICKLE = 0x20,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)

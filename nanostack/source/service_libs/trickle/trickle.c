@@ -19,16 +19,13 @@
  *
  * Implement a generic RFC 6206 Trickle Algorithm
  */
-#include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "common/log.h"
 #include "service_libs/trickle/trickle.h"
 
-#define TRACE_GROUP "tric"
-
 /* RFC 6206 Rule 2 */
-void trickle_begin_interval(trickle_t *t)
+void trickle_begin_interval(trickle_t *t, const trickle_params_t *params)
 {
     t->c = 0;
     if (t->I > 2) { //Take random only when t->I is bigger than 2 otherwise result will be 1
@@ -37,6 +34,8 @@ void trickle_begin_interval(trickle_t *t)
         t->t = 1;
     }
     t->now = 0;
+    TRACE(TR_TRICKLE, "tkl %p reset: t=%ds I[%d,%d]=%ds k=%d",
+          t, t->t, params->Imin, params->Imax, t->I, params->k);
 }
 
 /* RFC 6206 Rule 1 */
@@ -44,7 +43,7 @@ void trickle_start(trickle_t *t, const trickle_params_t *params)
 {
     t->e = 0;
     t->I = rand_get_random_in_range(params->Imin, params->Imax);
-    trickle_begin_interval(t);
+    trickle_begin_interval(t, params);
 }
 
 uint32_t trickle_timer_max(const trickle_params_t *params, uint8_t trickle_timer_expiration)
@@ -74,9 +73,7 @@ static void trickle_reset_timer(trickle_t *t, const trickle_params_t *params)
 {
     t->e = 0;
     t->I = params->Imin;
-    trickle_begin_interval(t);
-
-    tr_debug("trickle reset timer");
+    trickle_begin_interval(t, params);
 }
 
 /* RFC 6206 Rule 3 */
@@ -104,6 +101,7 @@ bool trickle_running(const trickle_t *t, const trickle_params_t *params)
 /* Returns true if you should transmit now */
 bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
 {
+    const char *status;
     if (!trickle_running(t, params)) {
         return false;
     }
@@ -121,7 +119,12 @@ bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
         /* Treat k == 0 as "infinity", as per RFC 6206 6.5 */
         if (t->c < params->k || params->k == 0) {
             transmit = true;
+            status = "fire ";
+        } else {
+            status = "inhib";
         }
+        TRACE(TR_TRICKLE, "tkl %p %s: t=%ds I[%d,%d]=%ds k=%d c=%d",
+              t, status, t->t, params->Imin, params->Imax, t->I, params->k, t->c);
     }
 
     /* RFC 6206 Rule 5 */
@@ -140,7 +143,7 @@ bool trickle_timer(trickle_t *t, const trickle_params_t *params, uint16_t ticks)
         if (t->e < TRICKLE_EXPIRATIONS_INFINITE - 1) {
             t->e++;
         }
-        trickle_begin_interval(t);
+        trickle_begin_interval(t, params);
     }
 
     return transmit;
