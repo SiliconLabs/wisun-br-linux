@@ -509,16 +509,16 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             mac_mlme_set_symbol_rate(rf_mac_setup);
             phy_rf_channel_configuration_s *config_params = (phy_rf_channel_configuration_s *)set_req->value_pointer;
             rf_mac_setup->datarate = config_params->datarate;
-            tr_info("RF config update:");
-            tr_info("Frequency(ch0): %"PRIu32"Hz", config_params->channel_0_center_frequency);
-            tr_info("Channel spacing: %"PRIu32"Hz", config_params->channel_spacing);
-            tr_info("Datarate: %"PRIu32"bps", config_params->datarate);
-            tr_info("Number of channels: %u", config_params->number_of_channels);
-            tr_info("Modulation: %u", config_params->modulation);
-            tr_info("Modulation index: %u", config_params->modulation_index);
-            tr_info("FEC: %u", config_params->fec);
-            tr_info("OFDM MCS: %u", config_params->ofdm_mcs);
-            tr_info("OFDM option: %u", config_params->ofdm_option);
+            tr_info("New RF config:");
+            tr_info("  Frequency(ch0): %"PRIu32"Hz", config_params->channel_0_center_frequency);
+            tr_info("  Channel spacing: %"PRIu32"Hz", config_params->channel_spacing);
+            tr_info("  Datarate: %"PRIu32"bps", config_params->datarate);
+            tr_info("  Number of channels: %u", config_params->number_of_channels);
+            tr_info("  Modulation: %u", config_params->modulation);
+            tr_info("  Modulation index: %u", config_params->modulation_index);
+            tr_info("  FEC: %u", config_params->fec);
+            tr_info("  OFDM MCS: %u", config_params->ofdm_mcs);
+            tr_info("  OFDM option: %u", config_params->ofdm_option);
             return 0;
         default:
             return mac_mlme_handle_set_values(rf_mac_setup, set_req);
