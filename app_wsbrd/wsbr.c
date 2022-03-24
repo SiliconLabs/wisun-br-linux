@@ -185,8 +185,12 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_enable_mac_filtering(ctxt);
     WARN_ON(ret);
 
-    ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->ws_regional_regulation);
-    WARN_ON(ret);
+    if (ctxt->ws_regional_regulation) {
+        FATAL_ON(fw_api_older_than(ctxt, 0, 6, 0), 2,
+                 "this device does not support regional regulation");
+        ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->ws_regional_regulation);
+        WARN_ON(ret);
+    }
 }
 
 static void wsbr_tasklet(struct arm_event_s *event)
