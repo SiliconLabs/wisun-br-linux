@@ -84,7 +84,7 @@ typedef struct {
 typedef struct {
     uint8_t dst_address[8];             /**< Destination address */
     uint16_t pan_id;                    /**< Destination Pan-Id */
-    unsigned        messsage_type: 3;   /**< Frame type to UTT */
+    unsigned        message_type: 3;   /**< Frame type to UTT */
     unsigned        mpx_id: 5;          /**< MPX sequence */
     bool            ack_requested: 1;   /**< ACK requested */
     bool            eapol_temporary: 1; /**< EAPOL TX entry index used */
@@ -236,7 +236,7 @@ static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_mes
 static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message_list_t *list)
 {
     ns_list_foreach(llc_message_t, message, list) {
-        if ((message->messsage_type == WS_FT_DATA || message->messsage_type == WS_FT_EAPOL) && message->mpx_id == handle) {
+        if ((message->message_type == WS_FT_DATA || message->message_type == WS_FT_EAPOL) && message->mpx_id == handle) {
             return message;
         }
     }
@@ -254,7 +254,7 @@ static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t 
     }
 
     ns_list_foreach(llc_message_t, message, list) {
-        if (message->messsage_type == message_type && message->mpx_user_handle == handle) {
+        if (message->message_type == message_type && message->mpx_user_handle == handle) {
             return message;
         }
     }
@@ -508,7 +508,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
         return;
     }
 
-    uint8_t messsage_type = message->messsage_type;
+    uint8_t message_type = message->message_type;
     uint8_t mpx_user_handle = message->mpx_user_handle;
     if (message->eapol_temporary) {
 
@@ -525,7 +525,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
     llc_neighbour_req_t neighbor_info;
     neighbor_info.ws_neighbor = NULL;
     neighbor_info.neighbor = NULL;
-    if (message->ack_requested && messsage_type == WS_FT_DATA) {
+    if (message->ack_requested && message_type == WS_FT_DATA) {
 
         bool success = false;
 
@@ -571,10 +571,10 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
     //Free message
     llc_message_free(message, base);
 
-    if (messsage_type == WS_FT_DATA || messsage_type == WS_FT_EAPOL) {
+    if (message_type == WS_FT_DATA || message_type == WS_FT_EAPOL) {
         mpx_user_t *user_cb;
         uint16_t mpx_user_id;
-        if (messsage_type == WS_FT_DATA) {
+        if (message_type == WS_FT_DATA) {
             mpx_user_id = MPX_LOWPAN_ENC_USER_ID;
         } else {
             mpx_user_id = MPX_KEY_MANAGEMENT_ENC_USER_ID;
@@ -589,7 +589,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
             user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         }
 
-        if (messsage_type == WS_FT_EAPOL) {
+        if (message_type == WS_FT_EAPOL) {
             message = ns_list_get_first(&base->temp_entries->llc_eap_pending_list);
             if (message) {
                 //Start A pending EAPOL
@@ -609,7 +609,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
         return;
     }
     //Async message Confirmation
-    base->asynch_confirm(base->interface_ptr, messsage_type);
+    base->asynch_confirm(base->interface_ptr, message_type);
 
 }
 
@@ -1139,7 +1139,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     }
 
     uint8_t *ptr = ws_message_buffer_ptr_get(message);
-    message->messsage_type = WS_FT_DATA;
+    message->message_type = WS_FT_DATA;
 
     message->ie_vector_list[0].ieBase = ptr;
     if (ie_header_mask.fc_ie) {
@@ -1151,7 +1151,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     }
     //Write UTT
 
-    ptr = ws_wh_utt_write(ptr, message->messsage_type);
+    ptr = ws_wh_utt_write(ptr, message->message_type);
     if (ie_header_mask.bt_ie) {
         ptr = ws_wh_bt_write(ptr);
     }
@@ -1281,13 +1281,13 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     memcpy(message->dst_address, data->DstAddr, 8);
     message->dst_address_type = data->DstAddrMode;
     message->pan_id = data->DstPANId;
-    message->messsage_type = WS_FT_EAPOL;
+    message->message_type = WS_FT_EAPOL;
 
     uint8_t *ptr = ws_message_buffer_ptr_get(message);
 
     message->ie_vector_list[0].ieBase = ptr;
     //Write UTT
-    ptr = ws_wh_utt_write(ptr, message->messsage_type);
+    ptr = ws_wh_utt_write(ptr, message->message_type);
     if (ie_header_mask.bt_ie) {
         ptr = ws_wh_bt_write(ptr);
     }
@@ -1414,7 +1414,7 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
     purge_req.msduHandle = message->msg_handle;
     purge_status = base->interface_ptr->mac_api->mcps_purge_req(base->interface_ptr->mac_api, &purge_req);
     if (purge_status == 0) {
-        if (message->messsage_type == WS_FT_EAPOL) {
+        if (message->message_type == WS_FT_EAPOL) {
             ws_llc_mac_eapol_clear(base);
         }
         llc_message_free(message, base);
@@ -1451,7 +1451,7 @@ static void ws_llc_clean(llc_data_base_t *base)
     mcps_purge_t purge_req;
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
         purge_req.msduHandle = message->msg_handle;
-        if (message->messsage_type == WS_FT_EAPOL) {
+        if (message->message_type == WS_FT_EAPOL) {
             ws_llc_mac_eapol_clear(base);
         }
         llc_message_free(message, base);
@@ -1848,7 +1848,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     base->llc_message_list_size++;
     random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
-    message->messsage_type = request->message_type;
+    message->message_type = request->message_type;
 
 
     mcps_data_req_t data_req;
@@ -1874,7 +1874,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
 
     //Write UTT
     if (request->wh_requested_ie_list.utt_ie) {
-        ptr = ws_wh_utt_write(ptr, message->messsage_type);
+        ptr = ws_wh_utt_write(ptr, message->message_type);
     }
 
     if (request->wh_requested_ie_list.bt_ie) {
