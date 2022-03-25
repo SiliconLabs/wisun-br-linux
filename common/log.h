@@ -95,6 +95,16 @@ char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MA
 char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
 char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, int opt);
 
+const char *tr_eui48(const uint8_t in[static 6]);
+const char *tr_eui64(const uint8_t in[static 8]);
+const char *tr_ipv4(uint8_t in[static 4]);
+const char *tr_ipv6(const uint8_t in[static 16]);
+const char *tr_ipv4_prefix(uint8_t in[], int prefix_len);
+const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len);
+const char *tr_bytes(const void *in, int len, const void **in_done, int max_out, int opt);
+const char *tr_bytes_ascii(const void *in, int len, int opt);
+void tr_reset();
+
 #define __TRACE(COND, MSG, ...) \
     do {                                                             \
         if (g_enabled_traces & (COND)) {                             \
@@ -186,6 +196,7 @@ char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, 
             fprintf(stderr, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__); \
         else                                                         \
             fprintf(stderr, MSG "\n", ##__VA_ARGS__);                \
+        tr_reset();                                                  \
     } while(0)
 
 #define __PRINT_WITH_TIME(COLOR, MSG, ...) \
