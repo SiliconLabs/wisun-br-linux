@@ -68,7 +68,7 @@ enum {
 #define BUG(...)                  __BUG("" __VA_ARGS__)
 #define BUG_ON(COND, ...)         __BUG_ON(COND, "" __VA_ARGS__)
 
-enum bytes_str_options {
+enum str_bytes_options {
     DELIM_SPACE     = 0x01, // Add space between each bytes
     DELIM_COLON     = 0x02, // Add colon between each bytes
     ELLIPSIS_ABRT   = 0x04, // Assert if output is too small
@@ -77,7 +77,7 @@ enum bytes_str_options {
     UPPER_HEX       = 0x20, // Use upper letters for hexadecimal digits
 };
 
-char *bytes_str(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
+char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
 
 #define __TRACE(COND, MSG, ...) \
     do {                                                             \

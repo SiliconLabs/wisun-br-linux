@@ -121,7 +121,7 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     FATAL_ON(len < 0, 2, "RF socket: %m");
     if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
         TRACE(TR_RF, " rf drop: chan=%2d/%2d %s", -1, channel,
-               bytes_str(hdr, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR));
+               str_bytes(hdr, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR));
         return;
     }
     pkt_len = ((uint16_t *)hdr)[1];
@@ -129,7 +129,7 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
     TRACE(TR_RF, "   rf rx: chan=%2d/%2d %s (%d bytes)", pkt_chan, channel,
-           bytes_str(buf, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), pkt_len);
+           str_bytes(buf, len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), pkt_len);
     write_pcap(ctxt, buf, len);
     ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
 }
@@ -168,7 +168,7 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
     memcpy(hdr + 2, &data_len, 2);
     memcpy(hdr + 4, &channel, 2);
     TRACE(TR_RF, "   rf tx: chan=%2d/%2d %s (%d bytes)", channel, channel,
-           bytes_str(data_ptr, data_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), data_len);
+           str_bytes(data_ptr, data_len, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), data_len);
     write(ctxt->rf_fd, hdr, 6);
     write(ctxt->rf_fd, data_ptr, data_len);
     ctxt->rf_frame_cca_progress = true;

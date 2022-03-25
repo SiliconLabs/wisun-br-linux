@@ -11,7 +11,7 @@
 unsigned int g_enabled_traces = 0;
 bool g_enable_color_traces = true;
 
-char *bytes_str(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt)
+char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt)
 {
     static const char *hex_l = "0123456789abcdef";
     static const char *hex_u = "0123456789ABCDEF";
