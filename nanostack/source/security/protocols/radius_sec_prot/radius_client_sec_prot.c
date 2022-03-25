@@ -416,7 +416,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
 
     // Verify that received and calculated response authenticator matches
     if (memcmp(recv_response_authenticator, calc_response_authenticator, 16) != 0) {
-        tr_error("Invalid response authenticator recv: %s, calc: %s", tr_array(recv_response_authenticator, 16), tr_array(calc_response_authenticator, 16));
+        tr_error("Invalid response authenticator recv: %s, calc: %s", trace_array(recv_response_authenticator, 16), trace_array(calc_response_authenticator, 16));
         return -1;
     }
 
@@ -456,7 +456,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
 
     // Verify that received and calculated message authenticator matches
     if (memcmp(recv_message_authenticator, calc_message_authenticator, 16) != 0) {
-        tr_error("Invalid message authenticator recv: %s, calc: %s", tr_array(recv_message_authenticator, 16), tr_array(calc_message_authenticator, 16));
+        tr_error("Invalid message authenticator recv: %s, calc: %s", trace_array(recv_message_authenticator, 16), trace_array(calc_message_authenticator, 16));
         return -1;
     }
 
@@ -516,7 +516,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
                                                                     recv_key_len - AVP_FIXED_LEN, data->request_authenticator, data->new_pmk) >= 0) {
                 data->new_pmk_set = true;
 #ifdef EXTRA_DEBUG_INFO
-                tr_info("RADIUS PMK: %s %s", tr_array(data->new_pmk, 16), tr_array(data->new_pmk + 16, 16));
+                tr_info("RADIUS PMK: %s %s", trace_array(data->new_pmk, 16), trace_array(data->new_pmk + 16, 16));
 #endif
             }
         }

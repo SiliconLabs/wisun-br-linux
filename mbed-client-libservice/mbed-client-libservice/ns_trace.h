@@ -133,9 +133,6 @@
 //aliases for the most commonly used functions and the helper functions
 #define tracef(dlevel, grp, ...)                mbed_tracef(dlevel, grp, __VA_ARGS__)       //!< Alias for mbed_tracef()
 #define vtracef(dlevel, grp, fmt, ap)           mbed_vtracef(dlevel, grp, fmt, ap)          //!< Alias for mbed_vtracef()
-#define tr_array(buf, len)                      mbed_trace_array(buf, len)                  //!< Alias for mbed_trace_array()
-#define tr_ipv6(addr_ptr)                       mbed_trace_ipv6(addr_ptr)                   //!< Alias for mbed_trace_ipv6()
-#define tr_ipv6_prefix(prefix, prefix_len)      mbed_trace_ipv6_prefix(prefix, prefix_len)  //!< Alias for mbed_trace_ipv6_prefix()
 #define trace_array(buf, len)                   mbed_trace_array(buf, len)                  //!< Alias for mbed_trace_array()
 #define trace_ipv6(addr_ptr)                    mbed_trace_ipv6(addr_ptr)                   //!< Alias for mbed_trace_ipv6()
 #define trace_ipv6_prefix(prefix, prefix_len)   mbed_trace_ipv6_prefix(prefix, prefix_len)  //!< Alias for mbed_trace_ipv6_prefix()

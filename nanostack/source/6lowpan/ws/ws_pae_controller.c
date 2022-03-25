@@ -883,7 +883,7 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_p
         memcpy(gtk_eui64, mac_params.mac_long, 8);
     }
     if (memcmp(nvm_gtk_eui64, gtk_eui64, 8) != 0) {
-        tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", tr_array(gtk_eui64, 8), tr_array(nvm_gtk_eui64, 8));
+        tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", trace_array(gtk_eui64, 8), trace_array(nvm_gtk_eui64, 8));
         sec_prot_keys_gtks_clear(gtks);
     }
 

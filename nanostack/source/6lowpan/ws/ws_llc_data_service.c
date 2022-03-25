@@ -1368,7 +1368,7 @@ static void ws_llc_mpx_eui64_purge_request(const mpx_api_t *api, const uint8_t *
     if (!base) {
         return;
     }
-    tr_info("LLC purge EAPOL temporary entry: %s", tr_array(eui64, 8));
+    tr_info("LLC purge EAPOL temporary entry: %s", trace_array(eui64, 8));
     ws_llc_release_eapol_temp_entry(base->temp_entries, eui64);
 }
 

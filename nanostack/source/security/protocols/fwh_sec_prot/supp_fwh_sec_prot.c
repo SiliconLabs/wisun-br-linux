@@ -560,14 +560,14 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
             }
             // If PMKID is not valid
             if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
-                tr_info("PMKID mismatch, 1st EUI-64: %s", tr_array(data->remote_eui64, 8));
+                tr_info("PMKID mismatch, 1st EUI-64: %s", trace_array(data->remote_eui64, 8));
                 // Try alternate EUI-64 (e.g. received during security handshake)
                 if (sec_prot_lib_pmkid_generate(prot, calc_pmkid, false, true, data->remote_eui64) < 0) {
                     goto error;
                 }
                 // If PMKID is not valid, fail
                 if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
-                    tr_error("PMKID mismatch, 2nd EUI-64: %s", tr_array(data->remote_eui64, 8));
+                    tr_error("PMKID mismatch, 2nd EUI-64: %s", trace_array(data->remote_eui64, 8));
                     goto error;
                 }
             }

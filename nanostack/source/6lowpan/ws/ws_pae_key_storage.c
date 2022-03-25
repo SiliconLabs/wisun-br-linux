@@ -269,7 +269,7 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_get(const void *instance, con
                 *key_storage_array = entry;
                 // If not already reserved for authenticator instance, reserve array for it
                 entry->instance = instance;
-                tr_info("KeyS get array: %p i: %i eui64: %s", (void *) entry->storage_array, index, tr_array(eui64, 8));
+                tr_info("KeyS get array: %p i: %i eui64: %s", (void *) entry->storage_array, index, trace_array(eui64, 8));
                 return &storage_array[index];
             }
         }
@@ -280,7 +280,7 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_get(const void *instance, con
         (*key_storage_array)->instance = instance;
     }
 
-    tr_info("KeyS get array %s: %p i: %i free: %p eui64: %s", *key_storage_array ? "" : "(not alloc)", *key_storage_array ? (void *)(*key_storage_array)->storage_array : NULL, *key_storage_array ? free_index : 0, (void *)free_key_storage, tr_array(eui64, 8));
+    tr_info("KeyS get array %s: %p i: %i free: %p eui64: %s", *key_storage_array ? "" : "(not alloc)", *key_storage_array ? (void *)(*key_storage_array)->storage_array : NULL, *key_storage_array ? free_index : 0, (void *)free_key_storage, trace_array(eui64, 8));
     // If matching entry is not found, returns free entry
     return free_key_storage;
 }
@@ -301,7 +301,7 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
             // Searches for matching entry
             if (memcmp(&storage_array[index].ptk_eui_64, eui64, 8) == 0) {
                 memset(&storage_array[index], 0, sizeof(sec_prot_keys_storage_t));
-                tr_info("KeyS delete array: %p i: %i eui64: %s", (void *) entry->storage_array, index, tr_array(eui64, 8));
+                tr_info("KeyS delete array: %p i: %i eui64: %s", (void *) entry->storage_array, index, trace_array(eui64, 8));
                 entry->modified = true;
                 deleted = true;
             }
@@ -340,7 +340,7 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance,
         storage_array_index = replace_index;
         key_storage_params.replace_index++;
 
-        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) entry->storage_array, replace_index, tr_array(storage_array[replace_index].ptk_eui_64, 8));
+        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) entry->storage_array, replace_index, trace_array(storage_array[replace_index].ptk_eui_64, 8));
         break;
     }
 
@@ -361,7 +361,7 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance,
         storage_array_index = 0;
         key_storage_params.replace_index = 1;
 
-        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) key_storage_array_entry->storage_array, storage_array_index, tr_array(key_storage_array_entry->storage_array[storage_array_index].ptk_eui_64, 8));
+        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) key_storage_array_entry->storage_array, storage_array_index, trace_array(key_storage_array_entry->storage_array[storage_array_index].ptk_eui_64, 8));
     }
 
     // Deletes any previous data
@@ -380,7 +380,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
     if (key_storage == NULL) {
         // Do not allocate new storage if PMK and PTK are not set
         if (!pae_supp->sec_keys.pmk_set && !pae_supp->sec_keys.ptk_set) {
-            tr_info("KeyS PMK and PTK not set, skip storing, eui64: %s", tr_array(eui_64, 8));
+            tr_info("KeyS PMK and PTK not set, skip storing, eui64: %s", trace_array(eui_64, 8));
             return -1;
         }
         // Allocate new empty entry
@@ -416,7 +416,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
 
     // If replay counter is near to exhaust delete PMK and PTK to refresh the counter
     if (sec_keys->pmk_key_replay_cnt_set && (sec_keys->pmk_key_replay_cnt & PMK_KEY_REPLAY_CNT_LIMIT_MASK) >= PMK_KEY_REPLAY_CNT_LIMIT) {
-        tr_error("KeyS write PMK cnt limit eui64: %s", tr_array(eui_64, 8));
+        tr_error("KeyS write PMK cnt limit eui64: %s", trace_array(eui_64, 8));
         sec_prot_keys_ptk_delete(&pae_supp->sec_keys);
         sec_prot_keys_pmk_delete(&pae_supp->sec_keys);
     }
@@ -652,7 +652,7 @@ static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t
             FIELD_IS_SET(PTK_SET) ? "PTK " : "",
             FIELD_IS_SET(EUI64_SET) ? "EUI64 " : "",
             FIELD_IS_SET(PTKEUI64_SET) ? "PTKEUI64 " : "",
-            FIELD_IS_SET(GTKHASH_SET) ? "GTKHASH " : "", tr_array((uint8_t *)key_storage->ins_gtk_hash, 8),
+            FIELD_IS_SET(GTKHASH_SET) ? "GTKHASH " : "", trace_array((uint8_t *)key_storage->ins_gtk_hash, 8),
             FIELD_IS_SET(GTKHASH4WH_SET) ? "GTKHASH4WH " : "",
             FIELD_IS_SET(PMKLTIME_SET) ? "PMKLTIME " : "", STIME_TIME_GET(key_storage->pmk_lifetime), STIME_FORMAT_GET(key_storage->pmk_lifetime),
             FIELD_IS_SET(PTKLTIME_SET) ? "PTKLTIME " : "", STIME_TIME_GET(key_storage->ptk_lifetime), STIME_FORMAT_GET(key_storage->ptk_lifetime)
@@ -930,11 +930,11 @@ static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_differenc
 {
     if (storage_array_entry->pmk_lifetime_set) {
 #ifdef EXTRA_DEBUG_INFO
-        tr_debug("KeyS time update diff: %"PRIi64" PMK OLD t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->pmk_lifetime), STIME_FORMAT_GET(storage_array_entry->pmk_lifetime), tr_array(storage_array_entry->ptk_eui_64, 8));
+        tr_debug("KeyS time update diff: %"PRIi64" PMK OLD t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->pmk_lifetime), STIME_FORMAT_GET(storage_array_entry->pmk_lifetime), trace_array(storage_array_entry->ptk_eui_64, 8));
 #endif
         // Calculate new PMK lifetime
         if (ws_pae_key_storage_array_lifetime_update(time_difference, &storage_array_entry->pmk_lifetime) < 0) {
-            tr_info("KeyS time update PMK expired diff: %"PRIi64" t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->pmk_lifetime),  STIME_FORMAT_GET(storage_array_entry->pmk_lifetime), tr_array(storage_array_entry->ptk_eui_64, 8));
+            tr_info("KeyS time update PMK expired diff: %"PRIi64" t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->pmk_lifetime),  STIME_FORMAT_GET(storage_array_entry->pmk_lifetime), trace_array(storage_array_entry->ptk_eui_64, 8));
             // PMK expired, whole entry is invalid
             ws_pae_key_storage_array_pmk_invalid(storage_array_entry);
             return -1;
@@ -946,11 +946,11 @@ static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_differenc
 
     if (storage_array_entry->ptk_lifetime_set) {
 #ifdef EXTRA_DEBUG_INFO
-        tr_debug("KeyS time update diff: %"PRIi64" PTK OLD t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->ptk_lifetime), STIME_FORMAT_GET(storage_array_entry->ptk_lifetime), tr_array(storage_array_entry->ptk_eui_64, 8));
+        tr_debug("KeyS time update diff: %"PRIi64" PTK OLD t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->ptk_lifetime), STIME_FORMAT_GET(storage_array_entry->ptk_lifetime), trace_array(storage_array_entry->ptk_eui_64, 8));
 #endif
         // Calculate new PTK lifetime
         if (ws_pae_key_storage_array_lifetime_update(time_difference, &storage_array_entry->ptk_lifetime) < 0) {
-            tr_info("KeyS time update PTK expired diff: %"PRIi64" t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->ptk_lifetime), STIME_FORMAT_GET(storage_array_entry->ptk_lifetime), tr_array(storage_array_entry->ptk_eui_64, 8));
+            tr_info("KeyS time update PTK expired diff: %"PRIi64" t: %i %i eui64: %s", time_difference, STIME_TIME_GET(storage_array_entry->ptk_lifetime), STIME_FORMAT_GET(storage_array_entry->ptk_lifetime), trace_array(storage_array_entry->ptk_eui_64, 8));
             // PTK is invalid, invalidate PTK related fields
             ws_pae_key_storage_array_ptk_invalid(storage_array_entry);
             // PMK is still valid

@@ -441,7 +441,7 @@ drop:
     *ptr++ = buf->options.hop_limit;
 
     if (addr_is_ipv6_multicast(buf->src_sa.address)) {
-        tr_err("Illegal source %s", tr_ipv6(ptr));
+        tr_err("Illegal source %s", trace_ipv6(ptr));
         goto drop;
     }
     // Copy the source address (IPv6)
@@ -455,7 +455,7 @@ drop:
     // Last-minute enforcement of a couple of rules on destination from RFC 4291
     if (addr_is_ipv6_unspecified(ptr) ||
             (addr_is_ipv6_multicast(ptr) && addr_ipv6_multicast_scope(ptr) == 0)) {
-        tr_err("Illegal destination %s", tr_ipv6(ptr));
+        tr_err("Illegal destination %s", trace_ipv6(ptr));
         goto drop;
     }
     ptr += 16;

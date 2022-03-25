@@ -850,7 +850,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     if (!domain) {
         domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
         if (!domain) {
-            tr_debug("No domain %s  %s", tr_ipv6(domain->address), tr_array(seed_id, seed_id_len));
+            tr_debug("No domain %s  %s", trace_ipv6(domain->address), trace_array(seed_id, seed_id_len));
             return false;
         }
     }
@@ -860,12 +860,12 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
         seed_id_len = 16;
     }
 
-    tr_debug("seed %s seq %"PRIu8, tr_array(seed_id, seed_id_len), sequence);
+    tr_debug("seed %s seq %"PRIu8, trace_array(seed_id, seed_id_len), sequence);
     mpl_seed_t *seed = mpl_seed_lookup(domain, seed_id_len, seed_id);
     if (!seed) {
         seed = mpl_seed_create(domain, seed_id_len, seed_id, sequence);
         if (!seed) {
-            tr_debug("No seed %s  %s", tr_ipv6(domain->address), tr_array(seed_id, seed_id_len));
+            tr_debug("No seed %s  %s", trace_ipv6(domain->address), trace_array(seed_id, seed_id_len));
             return false;
         }
     }

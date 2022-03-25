@@ -1510,7 +1510,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
             if (address) {
                 // Update address
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
-                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
+                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, trace_ipv6(pre_resolved_dns_queries[n].address));
             } else {
                 // delete entry
                 memset(pre_resolved_dns_queries[n].address, 0, 16);
@@ -1533,7 +1533,7 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
                 }
                 memcpy(pre_resolved_dns_queries[n].address, address, 16);
                 strcpy(pre_resolved_dns_queries[n].domain_name, domain_name_ptr);
-                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, tr_ipv6(pre_resolved_dns_queries[n].address));
+                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, trace_ipv6(pre_resolved_dns_queries[n].address));
                 goto update_information;
             }
         }
