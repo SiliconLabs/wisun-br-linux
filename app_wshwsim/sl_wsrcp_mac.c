@@ -532,6 +532,7 @@ static const struct {
     { 0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
     { 0 /* Special */,                 wsmac_spinel_ws_reset,                  SPINEL_PROP_WS_RESET,                            },
     { 0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
+    { macRxSensitivity,                NULL /* get only */,                    SPINEL_PROP_WS_RX_SENSITIVITY                    },
     { }
 };
 
@@ -662,6 +663,15 @@ void wsmac_mlme_get(struct wsmac_ctxt *ctxt, const void *data)
         uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
         break;
     }
+
+    case macRxSensitivity: {
+        spinel_reset(tx_buf);
+        spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_RX_SENSITIVITY);
+        spinel_push_i16(tx_buf, -93);
+        uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
+        break;
+    }
+
     default:
         WARN("not implemented");
         break;

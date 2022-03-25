@@ -566,6 +566,12 @@ int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, ml
             get_req->value_pointer = cca_thr_table->ch_thresholds;
             break;
 
+        case macRxSensitivity:
+            // Value is hardcoed in sl_wsrcp_mac.c
+            get_req->value_pointer = NULL;
+            get_req->value_size = 0;
+            break;
+
         default:
             get_req->status = MLME_UNSUPPORTED_ATTRIBUTE;
             break;
