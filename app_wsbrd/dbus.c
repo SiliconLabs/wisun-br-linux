@@ -297,7 +297,7 @@ int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
     int *domain = userdata;
     int ret;
 
-    ret = sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains));
+    ret = sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains, NULL));
     WARN_ON(ret < 0, "%s", strerror(-ret));
     return 0;
 }
@@ -309,7 +309,7 @@ int wsbrd_get_ws_size(sd_bus *bus, const char *path, const char *interface,
     int *size = userdata;
     int ret;
 
-    ret = sd_bus_message_append(reply, "s", val_to_str(*size, valid_ws_size));
+    ret = sd_bus_message_append(reply, "s", val_to_str(*size, valid_ws_size, NULL));
     WARN_ON(ret < 0, "%s", strerror(-ret));
     return 0;
 }

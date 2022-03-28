@@ -7,13 +7,16 @@
 #include "common/log.h"
 #include "common/named_values.h"
 
-const char *val_to_str(int val, const struct name_value table[])
+const char *val_to_str(int val, const struct name_value table[], const char *def)
 {
     int i;
 
     for (i = 0; table[i].name; i++)
         if (val == table[i].val)
             return table[i].name;
+
+    if (def)
+        return def;
 
     // This function is called to print values. If val does not exists, it is a
     // bug

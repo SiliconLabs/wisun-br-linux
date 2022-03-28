@@ -11,7 +11,7 @@ struct name_value {
     int val;
 };
 
-const char *val_to_str(int val, const struct name_value table[]);
+const char *val_to_str(int val, const struct name_value table[], const char *def);
 int str_to_val(const char *str, const struct name_value table[]);
 
 #endif
