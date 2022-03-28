@@ -2162,7 +2162,7 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
     (void)prefix;
     (void)interface;
     //TODO add handler for negative status
-    tr_debug("DHCPv6 %s status %u with link %s", trace_ipv6(prefix), register_status, trace_ipv6(dhcp_addr));
+    tr_info("DHCPv6 %s status %u with link %s", trace_ipv6(prefix), register_status, trace_ipv6(dhcp_addr));
     if (register_status) {
         protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
         if (cur) {
