@@ -18,6 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
+#include "common/named_values.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -939,13 +941,75 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
     base->asynch_ind(base->interface_ptr, data, &asynch_ie_list, ws_utt.message_type);
 }
 
+static const struct name_value ws_frames[] = {
+    { "adv",       WS_FT_PAN_ADVERT },
+    { "adv-sol",   WS_FT_PAN_ADVERT_SOL },
+    { "cfg",       WS_FT_PAN_CONF },
+    { "cfg-sol",   WS_FT_PAN_CONF_SOL },
+    { "data",      WS_FT_DATA },
+    { "ack",       WS_FT_ACK },
+    { "eapol",     WS_FT_EAPOL },
+    { "l-adv",     WS_FT_LPA },
+    { "l-adv-sol", WS_FT_LPAS },
+    { "l-cfg",     WS_FT_LPC },
+    { "l-cfg-sol", WS_FT_LPCS },
+    { NULL },
+};
+
+static void ws_trace_llc_mac_req(const mcps_data_req_t *data, const llc_message_t *message)
+{
+    const char *type_str;
+    int trace_domain;
+
+    type_str = val_to_str(message->message_type, ws_frames, "[UNK]");
+    if (message->message_type == WS_FT_DATA ||
+        message->message_type == WS_FT_ACK ||
+        message->message_type == WS_FT_EAPOL)
+        trace_domain = TR_15_4_DATA;
+    else
+        trace_domain = TR_15_4_MNGT;
+    if (data->DstPANId)
+        TRACE(trace_domain, "tx-15.4 %-9s dst:%s panid:%x", type_str, tr_eui64(data->DstAddr), data->DstPANId);
+    else
+        TRACE(trace_domain, "tx-15.4 %-9s dst:%s", type_str, tr_eui64(data->DstAddr));
+}
+
+static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+{
+    const char *type_str;
+    ws_lutt_ie_t ws_lutt;
+    ws_utt_ie_t ws_utt;
+    int message_type;
+    int trace_domain;
+
+    if (ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_utt))
+        message_type = ws_utt.message_type;
+    else if (ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_lutt))
+        message_type = ws_lutt.message_type;
+    else
+        message_type = -1;
+
+    type_str = val_to_str(message_type, ws_frames, "[UNK]");
+    if (message_type == WS_FT_DATA ||
+        message_type == WS_FT_ACK ||
+        message_type == WS_FT_EAPOL)
+        trace_domain = TR_15_4_DATA;
+    else
+        trace_domain = TR_15_4_MNGT;
+    if (data->SrcPANId && data->SrcPANId != 0xFFFF)
+        TRACE(trace_domain, "rx-15.4 %-9s src:%s panid:%x (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->SrcPANId, data->signal_dbm);
+    else
+        TRACE(trace_domain, "rx-15.4 %-9s src:%s (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->signal_dbm);
+}
+
 /** WS LLC MAC data extension indication  */
 static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
+    ws_utt_ie_t ws_utt;
 
+    ws_trace_llc_mac_ind(data, ie_ext);
 
     //Discover Header WH_IE_UTT_TYPE
-    ws_utt_ie_t ws_utt;
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_utt)) {
         // NO UTT header
         return;
@@ -1187,6 +1251,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         message->ie_ext.payloadIovLength = 0; //Set Back 2 at response handler
     }
 
+    ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
 }
 
@@ -1234,6 +1299,8 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries->active_eapol_session = true;
+
+    ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, 0);
 }
 
@@ -1953,6 +2020,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
 
     }
 
+    ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
 
     return 0;

@@ -558,7 +558,6 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     }
 
     if (cur->ws_info->configuration_learned) {
-        tr_info("PAN Config analyse own:%d, heard:%d", cur->ws_info->pan_information.pan_version, pan_version);
         if (cur->ws_info->pan_information.pan_version == pan_version) {
             //Check if Trgigle have been resetted in short time skip this then
             if (cur->ws_info->trickle_pc_consistency_block_period == 0) {
@@ -722,22 +721,18 @@ void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, cons
         case WS_FT_PAN_ADVERT:
             // Analyse Advertisement
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
-            tr_info("received ADVERT Src:%s panid:%x rssi:%d", trace_array(data->SrcAddr, 8), data->SrcPANId, data->signal_dbm);
             ws_bootstrap_ffn_pan_advertisement_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
         case WS_FT_PAN_ADVERT_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
-            tr_info("received ADVERT SOL Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             ws_bootstrap_ffn_pan_advertisement_solicit_analyse(cur, data, &ws_utt, &ws_us);
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
-            tr_info("received CONFIG Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             ws_bootstrap_ffn_pan_config_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
-            tr_info("received CONFIG SOL Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             ws_bootstrap_ffn_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
         default:
             // Unknown message do not process

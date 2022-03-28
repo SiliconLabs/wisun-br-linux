@@ -462,10 +462,7 @@ static bool ws_nud_message_build(protocol_interface_info_entry_t *cur, mac_neigh
     uint8_t *src_address_ptr = NULL;
 
     ws_common_create_ll_address(ll_target, neighbor->mac64);
-    if (nud_process) {
-        tr_info("NUD generate NS %u", neighbor->index);
-    } else {
-        tr_info("Probe generate NS %u", neighbor->index);
+    if (!nud_process) {
         if_address_entry_t *gp_address = ws_probe_aro_address(cur);
         if (gp_address) {
             src_address_ptr = gp_address->address;

@@ -53,12 +53,14 @@ extern unsigned int g_enabled_traces;
 extern bool g_enable_color_traces;
 
 enum {
-    TR_RF   = 0x01,
-    TR_CHAN = 0x02,
-    TR_BUS  = 0x04,
-    TR_HDLC = 0x08,
-    TR_HIF  = 0x10,
-    TR_TRICKLE = 0x20,
+    TR_RF        = 0x0001,
+    TR_CHAN      = 0x0002,
+    TR_BUS       = 0x0004,
+    TR_HDLC      = 0x0008,
+    TR_HIF       = 0x0010,
+    TR_TRICKLE   = 0x0020,
+    TR_15_4_MNGT = 0x0040,
+    TR_15_4_DATA = 0x0080,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)

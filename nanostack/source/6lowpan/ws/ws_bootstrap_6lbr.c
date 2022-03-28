@@ -230,24 +230,20 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
         case WS_FT_PAN_ADVERT:
             // Analyse Advertisement
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
-            tr_info("received ADVERT Src:%s panid:%x rssi:%d", trace_array(data->SrcAddr, 8), data->SrcPANId, data->signal_dbm);
             // Border routers do not do any analysing on the Advertisements heard from others
             // in future if we need PANID conflict detection we could use this
             break;
         case WS_FT_PAN_ADVERT_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
-            tr_info("received ADVERT SOL Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
 
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
-            tr_info("received CONFIG Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             ws_bootstrap_6lbr_pan_config_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
-            tr_info("received CONFIG SOL Src:%s rssi:%d", trace_array(data->SrcAddr, 8), data->signal_dbm);
             trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
             ws_bootstrap_6lbr_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
         default:
