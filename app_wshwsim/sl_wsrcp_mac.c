@@ -899,7 +899,6 @@ void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload
     static ns_ie_iovec_t header_vector;
     static uint8_t ie[20];
 
-    DEBUG("ackDataReq");
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
     data->ie_elements.headerIovLength = 1;
     data->ie_elements.headerIeVectorList = &header_vector;

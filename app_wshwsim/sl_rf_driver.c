@@ -86,7 +86,6 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
  */
 static int8_t phy_rf_state_control(phy_interface_state_e new_state, uint8_t channel)
 {
-    tr_info("%s", __func__);
     (void)new_state;
     (void)channel;
     return 0;
