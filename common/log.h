@@ -64,6 +64,7 @@ enum {
     TR_EAP       = 0x0100,
     TR_ICMP_RF   = 0x0200,
     TR_ICMP_TUN  = 0x0400,
+    TR_DHCP      = 0x0800,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)

@@ -18,7 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "common/rand.h"
+#include "common/named_values.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
 #include "mbed-client-libservice/ns_list.h"
@@ -120,6 +122,20 @@ typedef struct {
 
 dhcp_service_class_t *dhcp_service = NULL;
 static bool dhcpv6_socket_timeout_timer_active = false;
+
+static const struct name_value dhcp_frames[] = {
+    { "sol",        DHCPV6_SOLICATION_TYPE },
+    { "adv",        DHCPV6_ADVERTISMENT_TYPE },
+    { "req",        DHCPV6_REQUEST_TYPE },
+    { "renew",      DHCPV6_RENEW_TYPE },
+    { "rply",       DHCPV6_REPLY_TYPE },
+    { "release",    DHCPV6_RELEASE_TYPE },
+    { "rel-fwd",    DHCPV6_RELAY_FORWARD },
+    { "rel-rply",   DHCPV6_RELAY_REPLY },
+    { "lease-qury", DHCPV6_LEASEQUERY_TYPE },
+    { "lease-rply", DHCPV6_LEASEQUERY_REPLY_TYPE },
+    { NULL },
+};
 
 void dhcp_service_send_message(msg_tr_t *msg_tr_ptr);
 
@@ -321,7 +337,6 @@ void recv_dhcp_server_msg(void *cb_res)
     }
     relay_notify_t *neigh_notify = NULL;
 
-    tr_debug("dhcp Server recv request");
     msg_tr_ptr = dhcp_tr_create();
     msg_ptr = malloc(sckt_data->d_len);
     allocated_ptr = msg_ptr;
@@ -333,6 +348,9 @@ void recv_dhcp_server_msg(void *cb_res)
     msg_len = socket_read(sckt_data->socket_id, &msg_tr_ptr->addr, msg_ptr, sckt_data->d_len);
 
     uint8_t msg_type = *msg_ptr;
+    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
+          val_to_str(msg_type, dhcp_frames, "[UNK]"),
+          tr_ipv6(msg_tr_ptr->addr.address));
     if (msg_type == DHCPV6_RELAY_FORWARD) {
         if (!libdhcpv6_relay_msg_read(msg_ptr, msg_len, &relay_msg)) {
             tr_error("Relay forward not correct");
@@ -442,10 +460,11 @@ void recv_dhcp_relay_msg(void *cb_res)
 
     msg_len = socket_recvmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
 
-    tr_debug("dhcp Relay recv msg");
-
     //Parse type
     uint8_t msg_type = *socket_data;
+    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
+          val_to_str(msg_type, dhcp_frames, "[UNK]"),
+          tr_ipv6(src_address.address));
 
     int16_t tc = 0;
     if (msg_type == DHCPV6_RELAY_FORWARD) {
@@ -471,7 +490,6 @@ void recv_dhcp_relay_msg(void *cb_res)
         msghdr.msg_iovlen = 1;
         msg_data.iov_base = relay_msg.relay_options.msg_ptr;
         msg_data.iov_len = relay_msg.relay_options.len;
-        tr_debug("Forward Original relay msg to client");
 
     } else {
         if (0 != libdhcpv6_message_malformed_check(socket_data, msg_len)) {
@@ -514,10 +532,12 @@ void recv_dhcp_relay_msg(void *cb_res)
         memcpy(src_address.address, relay_srv->server_address, 16);
         src_address.type = ADDRESS_IPV6;
         src_address.identifier = DHCPV6_SERVER_PORT;
-        tr_debug("Forward Client msg to server");
         tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
 
     }
+    TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
+          val_to_str(*(char *)(msghdr.msg_iov[0].iov_base), dhcp_frames, "[UNK]"),
+          tr_ipv6(src_address.address));
     socket_setsockopt(sckt_data->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
     socket_sendmsg(sckt_data->socket_id, &msghdr, NS_MSG_LEGACY0);
 cleanup:
@@ -541,7 +561,6 @@ void recv_dhcp_client_msg(void *cb_res)
     if (sckt_data->event_type != SOCKET_DATA || sckt_data->d_len < 4) {
         return;
     }
-    tr_debug("dhcp recv response message");
     // read actual message
     msg_ptr = malloc(sckt_data->d_len);
 
@@ -553,6 +572,8 @@ void recv_dhcp_client_msg(void *cb_res)
 
     tr_id = common_read_24_bit(&msg_ptr[1]);
     msg_tr_ptr = dhcp_tr_find(tr_id);
+    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
+          val_to_str(*msg_ptr, dhcp_frames, "[UNK]"), tr_ipv6(address.address));
 
     if (msg_tr_ptr == NULL) {
         tr_error("invalid tr id");
@@ -744,7 +765,6 @@ void dhcp_service_delete(uint16_t instance)
 
 int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len)
 {
-    tr_debug("Send DHCPv6 response");
     msg_tr_t *msg_tr_ptr;
     server_instance_t *srv_instance;
     msg_tr_ptr = dhcp_tr_find(msg_tr_id);
@@ -772,7 +792,6 @@ int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr
 }
 uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx)
 {
-    tr_debug("Send DHCPv6 request");
     msg_tr_t *msg_tr_ptr;
     server_instance_t *srv_ptr;
     srv_ptr = dhcp_service_client_find(instance_id);
@@ -929,6 +948,9 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         if (msg_tr_ptr->delayed_tx) {
             retval = 0;
         } else {
+            TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
+                  val_to_str(*(char *)(msghdr.msg_iov[0].iov_base), dhcp_frames, "[UNK]"),
+                  trace_ipv6(msg_tr_ptr->addr.address));
             retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
         }
 
@@ -937,6 +959,9 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
             retval = 0;
         } else {
             int16_t tc = 0;
+            TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
+                  val_to_str(*msg_tr_ptr->msg_ptr, dhcp_frames, "[UNK]"),
+                  tr_ipv6(msg_tr_ptr->addr.address));
             socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
             retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
             msg_tr_ptr->transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
@@ -948,8 +973,6 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     }
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
-    } else {
-        tr_info("dhcp service socket_sendto %s", trace_ipv6(msg_tr_ptr->addr.address));
     }
 }
 bool dhcp_service_timer_tick(uint16_t ticks)
