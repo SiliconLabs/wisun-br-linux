@@ -301,7 +301,7 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
         return -1;
     }
 
-    tr_info("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
+    tr_debug("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
     return 0;
 }
 

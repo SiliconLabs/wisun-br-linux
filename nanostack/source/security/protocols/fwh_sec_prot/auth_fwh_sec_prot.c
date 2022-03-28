@@ -341,14 +341,14 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
     // 4WH authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case FWH_STATE_INIT:
-            tr_info("4WH: init");
+            tr_debug("4WH: init");
             prot->timer_start(prot);
             sec_prot_state_set(prot, &data->common, FWH_STATE_CREATE_REQ);
             break;
 
         // Wait KMP-CREATE.request
         case FWH_STATE_CREATE_REQ:
-            tr_info("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -431,7 +431,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISH:
-            tr_info("4WH: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("4WH: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // KMP-FINISHED.indication,
             if (prot->finished_ind(prot, sec_prot_result_get(&data->common), 0)) {
@@ -443,8 +443,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISHED: {
-            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
-            tr_info("4WH: finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
+            tr_debug("4WH: finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

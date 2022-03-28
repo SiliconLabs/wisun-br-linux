@@ -506,8 +506,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case TLS_STATE_FINISHED: {
-            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
-            tr_debug("TLS: finished, eui-64: %s free %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set", data->library_init ? "T" : "F");
+            tr_debug("TLS: finished, eui-64: %s free %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8), data->library_init ? "T" : "F");
             if (data->library_init) {
                 tls_sec_prot_lib_free((tls_security_t *) &data->tls_sec_inst);
                 data->library_init = false;

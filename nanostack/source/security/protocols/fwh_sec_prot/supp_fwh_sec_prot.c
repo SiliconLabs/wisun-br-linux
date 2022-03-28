@@ -301,7 +301,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
     // 4WH supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case FWH_STATE_INIT:
-            tr_info("4WH: init");
+            tr_debug("4WH: init");
             prot->timer_start(prot);
             sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_1);
             break;
@@ -320,7 +320,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
 
-            tr_info("4WH: start");
+            tr_debug("4WH: start");
 
             // Store authenticator nonce for check when 4WH Message 3 is received
             supp_fwh_sec_prot_anonce_store(prot);
@@ -421,7 +421,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
                 prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_MESSAGE_3_RETRY_WAIT);
             } else {
-                tr_info("4WH: finish");
+                tr_debug("4WH: finish");
                 // KMP-FINISHED.indication
                 prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
                 sec_prot_state_set(prot, &data->common, FWH_STATE_FINISHED);
@@ -462,7 +462,7 @@ static void supp_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISHED:
-            tr_info("4WH: finished");
+            tr_debug("4WH: finished");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

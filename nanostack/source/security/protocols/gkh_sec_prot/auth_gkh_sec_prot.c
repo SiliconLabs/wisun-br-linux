@@ -287,14 +287,14 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
     // GKH authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
         case GKH_STATE_INIT:
-            tr_info("GKH init");
+            tr_debug("GKH init");
             sec_prot_state_set(prot, &data->common, GKH_STATE_CREATE_REQ);
             prot->timer_start(prot);
             break;
 
         // Wait KMP-CREATE.request
         case GKH_STATE_CREATE_REQ:
-            tr_info("GKH start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("GKH start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -332,7 +332,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISH:
-            tr_info("GKH finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("GKH finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // KMP-FINISHED.indication,
             if (prot->finished_ind(prot, sec_prot_result_get(&data->common), 0)) {
@@ -344,8 +344,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISHED: {
-            uint8_t *remote_eui_64 = sec_prot_remote_eui_64_addr_get(prot);
-            tr_info("GKH finished, eui-64: %s", remote_eui_64 ? trace_array(sec_prot_remote_eui_64_addr_get(prot), 8) : "not set");
+            tr_debug("GKH finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

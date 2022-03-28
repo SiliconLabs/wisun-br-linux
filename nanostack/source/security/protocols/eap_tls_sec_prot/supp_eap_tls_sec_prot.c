@@ -394,7 +394,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
     // EAP-TLS supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case EAP_TLS_STATE_INIT:
-            tr_info("EAP-TLS init");
+            tr_debug("EAP-TLS init");
             sec_prot_state_set(prot, &data->common, EAP_TLS_STATE_REQUEST_ID);
             prot->timer_start(prot);
             break;
@@ -413,7 +413,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             // Store sequence ID
             supp_eap_tls_sec_prot_seq_id_update(prot);
 
-            tr_info("EAP-TLS start");
+            tr_debug("EAP-TLS start");
 
             // Send KMP-CREATE.indication
             prot->create_ind(prot);
@@ -522,7 +522,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISH:
-            tr_info("EAP-TLS finish");
+            tr_debug("EAP-TLS finish");
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
@@ -530,7 +530,7 @@ static void supp_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISHED:
-            tr_info("EAP-TLS finished");
+            tr_debug("EAP-TLS finished");
             supp_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);

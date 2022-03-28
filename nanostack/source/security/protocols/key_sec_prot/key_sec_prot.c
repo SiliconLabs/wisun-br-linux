@@ -345,7 +345,7 @@ static void supp_key_sec_prot_state_machine(sec_prot_t *prot)
 
     switch (sec_prot_state_get(&data->common)) {
         case KEY_STATE_INIT:
-            tr_info("Initial-key init");
+            tr_debug("Initial-key init");
             sec_prot_state_set(prot, &data->common, KEY_STATE_CREATE_REQ);
             prot->timer_start(prot);
             break;
@@ -377,7 +377,7 @@ static void supp_key_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case KEY_STATE_FINISHED:
-            tr_info("Initial-key finished");
+            tr_debug("Initial-key finished");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
@@ -393,7 +393,7 @@ static void auth_key_sec_prot_state_machine(sec_prot_t *prot)
 
     switch (sec_prot_state_get(&data->common)) {
         case KEY_STATE_INIT:
-            tr_info("Initial-key init");
+            tr_debug("Initial-key init");
             sec_prot_state_set(prot, &data->common, KEY_STATE_INITIAL_KEY_RECEIVED);
             prot->timer_start(prot);
             break;
@@ -423,7 +423,7 @@ static void auth_key_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case KEY_STATE_FINISHED: {
-            tr_info("Initial-key finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Initial-key finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
             prot->finished(prot);
             break;
         }

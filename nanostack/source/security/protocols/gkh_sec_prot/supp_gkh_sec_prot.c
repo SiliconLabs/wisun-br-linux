@@ -233,7 +233,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
     // GKH supplicant state machine
     switch (sec_prot_state_get(&data->common)) {
         case GKH_STATE_INIT:
-            tr_info("GKH init");
+            tr_debug("GKH init");
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_1);
             prot->timer_start(prot);
             break;
@@ -253,7 +253,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
 
             supp_gkh_sec_prot_security_replay_counter_update(prot);
 
-            tr_info("GKH start");
+            tr_debug("GKH start");
 
             // Send KMP-CREATE.indication
             prot->create_ind(prot);
@@ -273,7 +273,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISH:
-            tr_info("GKH finish");
+            tr_debug("GKH finish");
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
@@ -281,7 +281,7 @@ static void supp_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISHED:
-            tr_info("GKH finished");
+            tr_debug("GKH finished");
             prot->timer_stop(prot);
             prot->finished(prot);
             break;
