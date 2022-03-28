@@ -3,10 +3,11 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include "common/log.h"
+
 #include "nanostack/ws_management_api.h"
 
-#include "common/log.h"
-#include "named_values.h"
+#include "commandline_values.h"
 
 const struct name_value valid_ws_domains[] = {
     { "WW", REG_DOMAIN_WW }, // World wide
@@ -45,10 +46,10 @@ const struct name_value valid_ws_size[] = {
 };
 
 const struct name_value valid_traces[] = {
-    { "bus",  TR_BUS },
-    { "hdlc", TR_HDLC },
-    { "hif",  TR_HIF },
-    { "trickle", TR_TRICKLE },
+    { "bus",       TR_BUS },
+    { "hdlc",      TR_HDLC },
+    { "hif",       TR_HIF },
+    { "trickle",   TR_TRICKLE },
     { NULL },
 };
 
@@ -71,31 +72,3 @@ const struct name_value valid_ws_regional_regulations[] = {
     { "arib", 1 },
     { NULL },
 };
-
-const char *val_to_str(int val, const struct name_value table[])
-{
-    int i;
-
-    for (i = 0; table[i].name; i++)
-        if (val == table[i].val)
-            return table[i].name;
-
-    // This function is called to print values. If val does not exists, it is a
-    // bug
-    BUG("invalid value: %d", val);
-    return NULL;
-}
-
-int str_to_val(const char *str, const struct name_value table[])
-{
-    int i;
-
-    for (i = 0; table[i].name; i++)
-        if (!strcasecmp(table[i].name, str))
-            return table[i].val;
-
-    // This function is called to convert user provided user. So exit with FATAL
-    // in case of error
-    FATAL(1, "invalid value: %s", str);
-    return -1;
-}

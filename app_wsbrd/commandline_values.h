@@ -3,21 +3,15 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-#ifndef WSBR_NAMED_VALUES_H
-#define WSBR_NAMED_VALUES_H
+#ifndef WSBR_COMMANDLINE_VALUES_H
+#define WSBR_COMMANDLINE_VALUES_H
 
-struct name_value {
-    char *name;
-    int val;
-};
+#include "common/named_values.h"
 
 extern const struct name_value valid_ws_domains[];
 extern const struct name_value valid_ws_size[];
 extern const struct name_value valid_traces[];
 extern const struct name_value valid_booleans[];
 extern const struct name_value valid_ws_regional_regulations[];
-
-const char *val_to_str(int val, const struct name_value table[]);
-int str_to_val(const char *str, const struct name_value table[]);
 
 #endif

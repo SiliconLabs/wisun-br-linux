@@ -72,8 +72,8 @@ add_executable(wsbrd
     app_wsbrd/wsbr_fhss_mac.c
     app_wsbrd/wsbr_fhss_net.c
     app_wsbrd/tun.c
-    app_wsbrd/named_values.c
     app_wsbrd/commandline.c
+    app_wsbrd/commandline_values.c
     app_wsbrd/os_whiteboard.c
     app_wsbrd/mbedtls_config_check.c
     common/bus_uart.c
@@ -82,6 +82,7 @@ add_executable(wsbrd
     common/os_scheduler.c
     common/log.c
     common/rand.c
+    common/named_values.c
     common/slist.c
     common/spinel_buffer.c
     common/trickle.c
@@ -278,13 +279,14 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/wsbr_fhss_mac.c
         app_wsbrd/wsbr_fhss_net.c
         app_wsbrd/commandline.c
-        app_wsbrd/named_values.c
+        app_wsbrd/commandline_values.c
         common/bus_uart.c
         common/hal_interrupt.c
         common/os_timer.c
         common/os_scheduler.c
         common/log.c
         common/rand.c
+        common/named_values.c
         common/slist.c
         common/spinel_buffer.c
         common/trickle.c
