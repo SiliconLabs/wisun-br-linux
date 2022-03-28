@@ -17,7 +17,9 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include "common/log.h"
 #include "common/rand.h"
+#include "common/named_values.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
@@ -1074,6 +1076,50 @@ drop:
     return buffer_free(buf);
 }
 
+
+void trace_icmp(buffer_t *buf, bool is_rx)
+{
+    static const struct name_value icmp_frames[] = {
+        { "na",              ICMPV6_TYPE_INFO_NA },
+        { "ns",              ICMPV6_TYPE_INFO_NS },
+        { "ra",              ICMPV6_TYPE_INFO_RA },
+        { "rs",              ICMPV6_TYPE_INFO_RS },
+        { "dac",             ICMPV6_TYPE_INFO_DAC },
+        { "dar",             ICMPV6_TYPE_INFO_DAR },
+        { "rpl",             ICMPV6_TYPE_INFO_RPL_CONTROL },
+        { "mpl",             ICMPV6_TYPE_INFO_MPL_CONTROL },
+        { "ping rpl",        ICMPV6_TYPE_INFO_ECHO_REPLY },
+        { "ping req",        ICMPV6_TYPE_INFO_ECHO_REQUEST },
+        { "mc done",         ICMPV6_TYPE_INFO_MCAST_LIST_DONE },
+        { "mc query",        ICMPV6_TYPE_INFO_MCAST_LIST_QUERY },
+        { "mc reprt",        ICMPV6_TYPE_INFO_MCAST_LIST_REPORT },
+        { "mc reprt v2",     ICMPV6_TYPE_INFO_MCAST_LIST_REPORT_V2 },
+        { "redirect",        ICMPV6_TYPE_INFO_REDIRECT },
+        { "e. dest unreach", ICMPV6_TYPE_ERROR_DESTINATION_UNREACH },
+        { "e. pkt too big",  ICMPV6_TYPE_ERROR_PACKET_TOO_BIG },
+        { "e. timeout",      ICMPV6_TYPE_ERROR_TIME_EXCEEDED },
+        { "e. params",       ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM },
+        { NULL },
+    };
+    char frame_type[32] = "";
+    int trace_domain;
+
+    if (buf->interface->nwk_id == IF_6LoWPAN) {
+        trace_domain = TR_ICMP_RF;
+    } else {
+        strncat(frame_type, "(tun) ", sizeof(frame_type));
+        trace_domain = TR_ICMP_TUN;
+    }
+    strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"), sizeof(frame_type));
+    if (buf->options.type == ICMPV6_TYPE_INFO_NS)
+        if (icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
+            strncat(frame_type, " w/ aro", sizeof(frame_type));
+    if (is_rx)
+        TRACE(trace_domain, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
+    else
+        TRACE(trace_domain, "tx-icmp %-9s dst:%s", frame_type, tr_ipv6(buf->dst_sa.address));
+}
+
 buffer_t *icmpv6_up(buffer_t *buf)
 {
     protocol_interface_info_entry_t *cur = NULL;
@@ -1113,6 +1159,8 @@ buffer_t *icmpv6_up(buffer_t *buf)
     //Skip ICMP Header Static 4 bytes length
     buffer_data_strip_header(buf, 4);
 
+    trace_icmp(buf, true);
+
     if (cur->if_icmp_handler) {
         bool bounce = false;
         buf = cur->if_icmp_handler(cur, buf, &bounce);
@@ -1143,7 +1191,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
             break;
 
         case ICMPV6_TYPE_INFO_ECHO_REQUEST:
-            tr_debug("ICMP echo request from: %s", trace_ipv6(buf->src_sa.address));
             buf = icmpv6_echo_request_handler(buf);
             break;
 
@@ -1224,6 +1271,7 @@ buffer_t *icmpv6_down(buffer_t *buf)
 {
     protocol_interface_info_entry_t *cur = buf->interface;
 
+    trace_icmp(buf, false);
     buf = buffer_headroom(buf, 4);
     if (buf) {
         uint8_t *dptr;
@@ -1286,7 +1334,6 @@ buffer_t *icmpv6_build_rs(protocol_interface_info_entry_t *cur, const uint8_t *d
     buf->buf_end = ptr - buf->buf;
     buf->interface = cur;
     buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-
     return buf;
 }
 
@@ -1751,12 +1798,6 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     buffer_data_end_set(buf, ptr);
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_ICMP | B_TO_ICMP);
     buf->interface = cur;
-
-    if (aro) {
-        tr_info("Build NA ARO");
-    } else {
-        tr_info("Build NA");
-    }
 
     return (buf);
 }
