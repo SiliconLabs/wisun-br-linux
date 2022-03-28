@@ -43,7 +43,7 @@ static int8_t eap_tls_sec_prot_lib_ack_update(tls_data_t *tls);
 static uint8_t *eap_tls_sec_prot_lib_fragment_write(uint8_t *data, uint16_t total_len, uint16_t handled_len, uint16_t *message_len, uint8_t *flags);
 static int8_t eap_tls_sec_prot_lib_fragment_read(tls_data_t *tls, uint8_t *data, uint16_t len);
 
-const uint8_t eap_msg_trace[4][10] = {"REQ", "RESPONSE", "SUCCESS", "FAILURE"};
+const uint8_t eap_msg_trace[4][10] = { "req", "rply", "succ", "fail"};
 
 int8_t eap_tls_sec_prot_lib_message_allocate(tls_data_t *data, uint8_t head_len, uint16_t len)
 {

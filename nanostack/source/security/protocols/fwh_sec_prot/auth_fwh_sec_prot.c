@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -151,7 +152,9 @@ static int8_t auth_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
         // Get message
         data->recv_msg = auth_fwh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys);
         if (data->recv_msg != FWH_MESSAGE_UNKNOWN) {
-            tr_info("4WH: recv %s, eui-64: %s", data->recv_msg == FWH_MESSAGE_2 ? "Message 2" : "Message 4", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            TRACE(TR_EAP, "rx-eap  %-9s src:%s",
+                  (data->recv_msg == FWH_MESSAGE_2) ? "4wh-2" : "4wh-4",
+                  tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Call state machine
             data->recv_pdu = pdu;
@@ -301,9 +304,10 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         return -1;
     }
 
-    tr_info("4WH: %s %s, eui-64: %s", retry ? "retry" : "send",
-            msg == FWH_MESSAGE_1 ? "Message 1" : "Message 3",
-            trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+    TRACE(TR_EAP, "tx-eap  %-9s src:%s%s",
+          (msg == FWH_MESSAGE_1) ? "4wh-1" : "4wh-3",
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)),
+          retry ? " (retry)" : "");
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;

@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "mbed-client-libservice/common_functions.h"
@@ -181,6 +182,10 @@ static int8_t radius_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint1
             data->eap_code = data->recv_eapol_pdu.msg.eap.eap_code;
             data->eap_type = data->recv_eapol_pdu.msg.eap.type;
 
+            TRACE(TR_EAP, "rx-eap  tls%d %-4s src:%s",
+                  data->recv_eapol_pdu.msg.eap.id_seq,
+                  eap_msg_trace[data->eap_code - 1],
+                  tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
             // Call state machine
             prot->state_machine(prot);
         } else if (data->recv_eapol_pdu.packet_type == EAPOL_KEY_TYPE &&
@@ -230,10 +235,6 @@ static int8_t radius_eap_tls_sec_prot_message_handle(sec_prot_t *prot, uint8_t *
         data->eap_id_seq++;
     }
 
-    tr_info("EAP-TLS: recv %s type %s id %i flags %x len %i, eui-64 %s", eap_msg_trace[data->eap_code - 1],
-            data->eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->recv_eapol_pdu.msg.eap.id_seq,
-            *length >= 6 ? data_ptr[0] : 0, *length, trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
-
     if (old_seq_id) {
         return EAP_TLS_MSG_DECODE_ERROR;
     }
@@ -261,9 +262,9 @@ static int8_t radius_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap
         return -1;
     }
 
-    tr_info("EAP-TLS: send %s type %s id %i flags %x len %i, eui-64: %s", eap_msg_trace[eap_code - 1],
-            eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->eap_id_seq, flags, eapol_pdu_size,
-            trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+    TRACE(TR_EAP, "tx-eap  tls%d %-4s src:%s", data->eap_id_seq,
+          eap_msg_trace[eap_code - 1],
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
     if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
         return -1;
@@ -294,7 +295,6 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
 
     uint16_t eap_body_len = eap_len;
     uint8_t eap_type = 0;
-    uint8_t flags = 0;
     uint8_t *tls_ptr = NULL;
 
     if (*eap_code == EAP_REQ || *eap_code == EAP_RESPONSE) {
@@ -302,7 +302,6 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
         eap_body_len--;
         if (eap_type == EAP_TLS && eap_len >= 5) {
             tls_ptr = eap_pdu;
-            flags = *tls_ptr;
         }
     }
 
@@ -314,9 +313,9 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
 
     eapol_write_pdu_frame(data->recv_eap_msg + prot->header_size, &eapol_pdu);
 
-    tr_info("EAP-TLS: send %s type %s id %i flags %x len %i, eui-64: %s", eap_msg_trace[*eap_code - 1],
-            eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->eap_id_seq, flags, eapol_pdu_size,
-            trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+    TRACE(TR_EAP, "tx-eap  tls%d %-4s src:%s (forward)", data->eap_id_seq,
+          eap_msg_trace[*eap_code - 1],
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
     if (prot->conn_send(prot, data->recv_eap_msg, eapol_pdu_size + prot->header_size, 0, SEC_PROT_SEND_FLAG_NO_DEALLOC) < 0) {
         return -1;

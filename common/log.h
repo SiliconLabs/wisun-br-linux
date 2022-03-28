@@ -61,6 +61,7 @@ enum {
     TR_TRICKLE   = 0x0020,
     TR_15_4_MNGT = 0x0040,
     TR_15_4_DATA = 0x0080,
+    TR_EAP       = 0x0100,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)

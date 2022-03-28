@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -134,7 +135,8 @@ static int8_t auth_gkh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
     if (eapol_parse_pdu_header(pdu, size, &data->recv_eapol_pdu)) {
         // Get message
         if (auth_gkh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys) != GKH_MESSAGE_UNKNOWN) {
-            tr_info("GKH: recv Message 2, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            TRACE(TR_EAP, "rx-eap  %-9s src:%s", "2wh-2",
+                  trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
 
             // Call state machine
             data->recv_pdu = pdu;
@@ -249,8 +251,9 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
         return -1;
     }
 
-    tr_info("GKH: %s Message 1, eui-64: %s", retry ? "retry" : "send",
-            trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+    TRACE(TR_EAP, "tx-eap  %-9s dst:%s%s", "2wh-1",
+          trace_array(sec_prot_remote_eui_64_addr_get(prot), 8),
+          retry ? " (retry)" : "");
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;

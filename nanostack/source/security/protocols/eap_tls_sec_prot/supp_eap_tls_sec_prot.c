@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -167,6 +168,11 @@ static int8_t supp_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_
             data->eap_code = data->recv_eapol_pdu.msg.eap.eap_code;
             data->eap_type = data->recv_eapol_pdu.msg.eap.type;
 
+            TRACE(TR_EAP, "rx-eap  tls%d %-4s src:%s",
+                  data->recv_eapol_pdu.msg.eap.id_seq,
+                  eap_msg_trace[data->eap_code - 1],
+                  tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
+
             // Call state machine
             prot->state_machine(prot);
         }
@@ -186,10 +192,6 @@ static int8_t supp_eap_tls_sec_prot_message_handle(sec_prot_t *prot)
 
     uint8_t *data_ptr = data->recv_eapol_pdu.msg.eap.data_ptr;
     uint16_t length = data->recv_eapol_pdu.msg.eap.length;
-
-    tr_info("EAP-TLS recv %s type %s id %i flags %x len %i", eap_msg_trace[data->eap_code - 1],
-            data->eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->recv_eapol_pdu.msg.eap.id_seq,
-            length >= 6 ? data_ptr[0] : 0, length);
 
     uint8_t new_seq_id = false;
     // New sequence identifier received
@@ -257,8 +259,9 @@ static int8_t supp_eap_tls_sec_prot_message_send(sec_prot_t *prot, uint8_t eap_c
         return -1;
     }
 
-    tr_info("EAP-TLS: send %s type %s id %i flags %x len %i", eap_msg_trace[eap_code - 1],
-            eap_type == EAP_IDENTITY ? "IDENTITY" : "TLS", data->eap_id_seq, flags, eapol_pdu_size);
+    TRACE(TR_EAP, "tx-eap  tls%d %-4s src:%s", data->eap_id_seq,
+          eap_msg_trace[eap_code - 1],
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
     if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
         return -1;

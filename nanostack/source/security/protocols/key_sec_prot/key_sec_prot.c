@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/log.h"
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -224,7 +225,9 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
     eapol_pdu.msg.key.key_length = 0;
     eapol_write_pdu_frame(eapol_decoded_data + prot->header_size, &eapol_pdu);
 
-    tr_info("Initial EAPOL-Key send, PMKID %s PTKID %s GTKL %x", pmk ? "set" : "not set", ptk ? "set" : "not set", gtkl);
+    TRACE(TR_EAP, "tx-eap  tls-init  src:%s",
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
+    tr_debug("Initial EAPOL-Key send, PMKID %s PTKID %s GTKL %x", pmk ? "set" : "not set", ptk ? "set" : "not set", gtkl);
 
     if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
         result = -1;
@@ -242,7 +245,8 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
     key_sec_prot_int_t *data = key_sec_prot_get(prot);
     sec_prot_result_e result = SEC_RESULT_OK;
 
-    tr_info("Initial EAPOL-Key recv, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+    TRACE(TR_EAP, "rx-eap  tls-init  src:%s",
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
     // Decoding is successful
     if (eapol_parse_pdu_header(pdu, size, &eapol_pdu)) {
@@ -296,7 +300,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
             return -1;
         }
 
-        tr_info("PMK %s PTK %s GTKL %x", prot->sec_keys->pmk_mismatch ? "not live" : "live", prot->sec_keys->ptk_mismatch ? "not live" : "live", gtkl);
+        tr_debug("PMK %s PTK %s GTKL %x", prot->sec_keys->pmk_mismatch ? "not live" : "live", prot->sec_keys->ptk_mismatch ? "not live" : "live", gtkl);
 
         free(kde);
     } else {
