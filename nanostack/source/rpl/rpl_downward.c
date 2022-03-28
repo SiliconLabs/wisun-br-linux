@@ -1585,9 +1585,7 @@ void rpl_instance_dao_acked(rpl_instance_t *instance, const uint8_t src[16], int
     }
 
     bool retry = false;
-    if (status == 0) {
-        tr_debug("DAO-ACK RX"); /* Some tests rely on this debug */
-    } else {
+    if (status) {
         if (src) {
             tr_warn("DAO rejection from %s: status=%d", trace_ipv6(src), status);
         } else {
@@ -1887,7 +1885,6 @@ static bool rpl_instance_push_address_registration(protocol_interface_info_entry
         return false;
     }
     buf->options.traffic_class = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
-    tr_info("Send ARO %s to %s", trace_ipv6(addr->address), trace_ipv6(neighbour->ll_address));
     protocol_push(buf);
     return true;
 }

@@ -1086,7 +1086,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { "rs",              ICMPV6_TYPE_INFO_RS },
         { "dac",             ICMPV6_TYPE_INFO_DAC },
         { "dar",             ICMPV6_TYPE_INFO_DAR },
-        { "rpl",             ICMPV6_TYPE_INFO_RPL_CONTROL },
+        { "rpl",             ICMPV6_TYPE_INFO_RPL_CONTROL }, // unused
         { "mpl",             ICMPV6_TYPE_INFO_MPL_CONTROL },
         { "ping rpl",        ICMPV6_TYPE_INFO_ECHO_REPLY },
         { "ping req",        ICMPV6_TYPE_INFO_ECHO_REQUEST },
@@ -1101,6 +1101,13 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { "e. params",       ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM },
         { NULL },
     };
+    static const struct name_value rpl_frames[] = {
+        { " dis",   ICMPV6_CODE_RPL_DIS },
+        { " dio",   ICMPV6_CODE_RPL_DIO },
+        { " dao",   ICMPV6_CODE_RPL_DAO },
+        { " ack",   ICMPV6_CODE_RPL_DAO_ACK },
+        { NULL },
+    };
     char frame_type[32] = "";
     int trace_domain;
 
@@ -1111,6 +1118,8 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         trace_domain = TR_ICMP_TUN;
     }
     strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"), sizeof(frame_type));
+    if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL)
+        strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"), sizeof(frame_type));
     if (buf->options.type == ICMPV6_TYPE_INFO_NS)
         if (icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
             strncat(frame_type, " w/ aro", sizeof(frame_type));

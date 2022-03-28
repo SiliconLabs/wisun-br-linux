@@ -1095,7 +1095,6 @@ malformed:
     dtsn = ptr[5];
     dodagid = ptr + 8;
     ptr += 24;
-    tr_info("DIO from %s, rank %x", trace_ipv6(buf->src_sa.address), rank);
     if (addr_is_ipv6_link_local(dodagid) || addr_is_ipv6_multicast(dodagid)) {
         tr_error("DIO DODAGID");
         goto malformed;
@@ -1638,7 +1637,6 @@ static void rpl_control_transmit_dao_ack(rpl_domain_t *domain, protocol_interfac
     }
     buffer_data_end_set(buf, ptr);
     rpl_control_transmit(domain, cur, ICMPV6_CODE_RPL_DAO_ACK, buf, dst);
-    tr_info("Transmit DAO-ACK to: %s", trace_ipv6(dst));
 }
 #endif // HAVE_RPL_DAO_HANDLING
 
@@ -1739,7 +1737,6 @@ format_error:
     uint8_t flags = ptr[1];
     uint8_t dao_sequence = ptr[3];
     const uint8_t *dodagid;
-    tr_info("DAO from %s", trace_ipv6(buf->src_sa.address));
     ptr += 4;
     if (flags & RPL_DAO_FLAG_DODAGID) {
         if (buffer_data_length(buf) < 4 + 16) {
