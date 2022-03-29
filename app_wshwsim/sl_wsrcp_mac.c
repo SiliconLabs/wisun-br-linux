@@ -19,6 +19,7 @@
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/utils.h"
+#include "common/bits.h"
 #include "common/log.h"
 
 static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)

@@ -21,8 +21,4 @@
 #define container_of(ptr, type, member)  (type *)((uintptr_t)(ptr) - ((uintptr_t)(&((type *)0)->member)))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-#define __CLZ(value) __builtin_clz(value)
-#define FIELD_GET(mask, reg) (((reg) & (mask)) >> __CLZ(mask))
-#define FIELD_PREP(mask, val) (((val) << __CLZ(mask)) & (mask))
-
 #endif

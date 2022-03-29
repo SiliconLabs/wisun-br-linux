@@ -17,6 +17,7 @@
 typedef struct sd_bus sd_bus;
 #endif
 
+#include "common/bits.h"
 #include "common/utils.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"

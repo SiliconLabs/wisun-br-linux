@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "bits.h"
 #include "log.h"
 
 unsigned int g_enabled_traces = 0;
@@ -173,21 +174,6 @@ char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6])
     }
     out[j] = '\0';
     return out;
-}
-
-static void bitcpy(void *dst, const void *src, int len)
-{
-    const uint8_t *src8 = src;
-    uint8_t *dst8 = dst;
-    int nb_bytes = len / 8;
-    int nb_bits = len % 8;
-    char mask = 0xFFu >> nb_bits;
-
-    memcpy(dst8, src8, nb_bytes);
-    dst8 += nb_bytes;
-    src8 += nb_bytes;
-    *dst8 &= mask;
-    *dst8 |= *src8 & ~mask;
 }
 
 char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV4_NET])

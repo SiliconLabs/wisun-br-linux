@@ -81,6 +81,7 @@ add_executable(wsbrd
     common/os_timer.c
     common/os_scheduler.c
     common/log.c
+    common/bits.c
     common/rand.c
     common/named_values.c
     common/slist.c
@@ -282,6 +283,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/os_timer.c
         common/os_scheduler.c
         common/log.c
+        common/bits.c
         common/rand.c
         common/named_values.c
         common/slist.c
@@ -448,6 +450,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/os_scheduler.c
         common/os_timer.c
         common/log.c
+        common/bits.c
         common/rand.c
         common/slist.c
         common/spinel_buffer.c
@@ -512,6 +515,7 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wssimserver
         common/log.c
+        common/bits.c
         app_wssimserver/wssimserver.c)
     target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
