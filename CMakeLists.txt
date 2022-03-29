@@ -317,7 +317,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/ws/ws_management_api.c
         stack/source/6lowpan/ws/ws_mpx_header.c
         stack/source/6lowpan/ws/ws_neighbor_class.c
-        stack/source/6lowpan/ws/ws_pae_auth.c
+        # stack/source/6lowpan/ws/ws_pae_auth.c
         stack/source/6lowpan/ws/ws_pae_controller.c
         stack/source/6lowpan/ws/ws_pae_key_storage.c
         stack/source/6lowpan/ws/ws_pae_lib.c
@@ -381,13 +381,13 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/security/kmp/kmp_eapol_pdu_if.c
         stack/source/security/kmp/kmp_socket_if.c
         stack/source/security/pana/pana_eap_header.c
-        stack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
+        # stack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
         stack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
         stack/source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
         stack/source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
-        stack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
+        # stack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
         stack/source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
-        stack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
+        # stack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
         stack/source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
         stack/source/security/protocols/key_sec_prot/key_sec_prot.c
         stack/source/security/protocols/msg_sec_prot/msg_sec_prot.c
