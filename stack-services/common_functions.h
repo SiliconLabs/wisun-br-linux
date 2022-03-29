@@ -300,56 +300,6 @@ NS_INLINE void bit_set(uint8_t *bitset, uint_fast8_t bit);
  */
 NS_INLINE void bit_clear(uint8_t *bitset, uint_fast8_t bit);
 
-/*
- * Compare two bitstrings.
- *
- * Compare two bitstrings of specified length. The bit strings are in
- * big-endian (network) bit order.
- *
- * \param a pointer to first string
- * \param b pointer to second string
- * \param bits number of bits to compare
- *
- * \return true if the strings compare equal
- */
-bool bitsequal(const uint8_t *a, const uint8_t *b, uint_fast8_t bits);
-
-/*
- * Copy a bitstring
- *
- * Copy a bitstring of specified length. The bit string is in big-endian
- * (network) bit order. Bits beyond the bitlength at the destination are not
- * modified.
- *
- * For example, copying 4 bits sets the first 4 bits of dst[0] from src[0],
- * the lower 4 bits of dst[0] are unmodified.
- *
- * \param dst destination pointer
- * \param src source pointer
- * \param bits number of bits to copy
- *
- * \return the value of dst
- */
-uint8_t *bitcopy(uint8_t *restrict dst, const uint8_t *restrict src, uint_fast8_t bits);
-
-/*
- * Copy a bitstring and pad last byte with zeros
- *
- * Copy a bitstring of specified length. The bit string is in big-endian
- * (network) bit order. Bits beyond the bitlength in the last destination byte are
- * zeroed.
- *
- * For example, copying 4 bits sets the first 4 bits of dst[0] from src[0], and
- * the lower 4 bits of dst[0] are set to 0.
- *
- * \param dst destination pointer
- * \param src source pointer
- * \param bits number of bits to copy
- *
- * \return the value of dst
- */
-uint8_t *bitcopy0(uint8_t *restrict dst, const uint8_t *restrict src, uint_fast8_t bits);
-
 /* Provide definitions, either for inlining, or for common_functions.c */
 #if defined NS_ALLOW_INLINING || defined COMMON_FUNCTIONS_FN
 #ifndef COMMON_FUNCTIONS_FN
