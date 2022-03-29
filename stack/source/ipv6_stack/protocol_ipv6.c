@@ -20,6 +20,7 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "common/bits.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -419,7 +420,7 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
     }
 
     ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
-        if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
+        if ((cur_prefix->prefix_len == prefixLength) && !bitcmp(cur_prefix->prefix, address, prefixLength)) {
             cur_prefix->routePrefer = routePrefer;
             return;
         }
@@ -546,7 +547,7 @@ void ipv6_stack_route_advert_remove(uint8_t *address, uint8_t prefixLength)
     }
     if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
-            if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
+            if ((cur_prefix->prefix_len == prefixLength) && !bitcmp(cur_prefix->prefix, address, prefixLength)) {
                 cur_prefix->prefix_valid_ttl = 0;
                 icmpv6_restart_router_advertisements(cur, ADDR_UNSPECIFIED);
                 break;

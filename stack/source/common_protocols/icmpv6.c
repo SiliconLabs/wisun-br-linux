@@ -19,6 +19,7 @@
 #include <string.h>
 #include "common/log.h"
 #include "common/rand.h"
+#include "common/bits.h"
 #include "common/named_values.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
@@ -565,7 +566,7 @@ int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const 
 
     //Validate first current list If prefix is already defined adress
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && bitsequal(e->address, prefix_ptr, prefix_len)) {
+        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && !bitcmp(e->address, prefix_ptr, prefix_len)) {
 
             addr_lifetime_update(cur, e, valid_lifetime, preferred_lifetime, 2 * 60 * 60);
             ret_val = 0;
@@ -579,7 +580,7 @@ void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur
 
     //Validate first current list If prefix is already defined adress
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && bitsequal(e->address, prefix_ptr, prefix_len)) {
+        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && !bitcmp(e->address, prefix_ptr, prefix_len)) {
             e->state_timer = 150;
         }
     }

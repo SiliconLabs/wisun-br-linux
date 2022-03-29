@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
+#include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
@@ -995,7 +996,7 @@ void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry
     ipv6_stack_route_advert_remove(guaPrefix, 64);
     //Delete Address & Routes
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_DHCP && (e->prefix_len == 64) && bitsequal(e->address, guaPrefix, 64)) {
+        if (e->source == ADDR_SOURCE_DHCP && (e->prefix_len == 64) && !bitcmp(e->address, guaPrefix, 64)) {
 
             ipv6_stack_route_advert_remove(e->address, 128);
 
@@ -1023,7 +1024,7 @@ int8_t protocol_interface_address_compare(const uint8_t *addr)
 bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len)
 {
     ns_list_foreach(if_address_entry_t, adr, &cur->ip_addresses) {
-        if (bitsequal(adr->address, prefix, prefix_len)) {
+        if (!bitcmp(adr->address, prefix, prefix_len)) {
             /* Prefix  stil used at list so stop checking */
             return true;
         }

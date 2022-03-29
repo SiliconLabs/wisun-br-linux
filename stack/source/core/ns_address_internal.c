@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"
+#include "common/bits.h"
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
@@ -318,7 +319,7 @@ int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint
     if (!entry) {
         return -1;
     }
-    bitcopy(entry->prefix, prefix, len);
+    bitcpy(entry->prefix, prefix, len);
     entry->prefix_len = len;
     entry->precedence = precedence;
     entry->label = label;
@@ -329,7 +330,7 @@ int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint
         if (before->prefix_len > len) {
             continue;
         }
-        if (before->prefix_len == len && bitsequal(before->prefix, prefix, len)) {
+        if (before->prefix_len == len && !bitcmp(before->prefix, prefix, len)) {
             free(entry);
             return -2;
         }
@@ -348,7 +349,7 @@ int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len)
 {
     ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
-        if (entry->prefix_len == len && bitsequal(entry->prefix, prefix, len)) {
+        if (entry->prefix_len == len && !bitcmp(entry->prefix, prefix, len)) {
             ns_list_remove(&addr_policy_table, entry);
             free(entry);
             return 0;
@@ -400,7 +401,7 @@ static void addr_policy_table_reset(void)
 static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[static 16])
 {
     ns_list_foreach(const addr_policy_table_entry_t, entry, &addr_policy_table) {
-        if (bitsequal(entry->prefix, addr, entry->prefix_len)) {
+        if (!bitcmp(entry->prefix, addr, entry->prefix_len)) {
             return entry;
         }
     }
@@ -717,7 +718,7 @@ const uint8_t *addr_select_with_prefix(protocol_interface_info_entry_t *cur, con
         }
 
         /* Prefix must match */
-        if (!bitsequal(SB->address, prefix, prefix_len)) {
+        if (bitcmp(SB->address, prefix, prefix_len)) {
             continue;
         }
 
@@ -1014,7 +1015,7 @@ void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *p
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if ((source == ADDR_SOURCE_UNKNOWN || e->source == source) &&
-                bitsequal(e->address, prefix, prefix_len)) {
+                !bitcmp(e->address, prefix, prefix_len)) {
             addr_delete_entry(cur, e);
         }
     }

@@ -33,6 +33,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
+#include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include <stdlib.h>
@@ -1458,7 +1459,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
         ptr[2] = route->prefix_len;
         ptr[3] = route->flags;
         common_write_32_bit(route->lifetime, ptr + 4);
-        bitcopy0(ptr + 8, route->prefix, route->prefix_len);
+        bitcpy0(ptr + 8, route->prefix, route->prefix_len);
         ptr += 8 + prefix_bytes;
         /* Transmitting a multicast DIO decrements the hold count for 0 lifetime routes */
         if (dst == NULL && route->lifetime == 0) {

@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
+#include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
@@ -402,7 +403,7 @@ static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
 
     if (bb_interface && bb_interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
-            if (bitsequal(addr->address, bb_interface->ipv6_configure.static_prefix64, 64)) {
+            if (!bitcmp(addr->address, bb_interface->ipv6_configure.static_prefix64, 64)) {
                 // static address available in interface copy the prefix and return the address
                 if (dodag_id_ptr) {
                     memcpy(dodag_id_ptr, bb_interface->ipv6_configure.static_prefix64, 8);

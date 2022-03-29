@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ip6string.h"
 
@@ -110,7 +111,7 @@ uint_fast8_t ip6_prefix_tos(const void *prefix, uint_fast8_t prefix_len, char *p
     }
 
     // Generate prefix part of the string
-    bitcopy(addr, prefix, prefix_len);
+    bitcpy(addr, prefix, prefix_len);
     wptr += ip6tos(addr, wptr);
     // Add the prefix length part of the string
     wptr += sprintf(wptr, "/%"PRIuFAST8, prefix_len);

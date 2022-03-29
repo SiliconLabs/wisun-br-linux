@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "common/bits.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 
 #include "common_protocols/icmpv6_prefix.h"
 
@@ -51,7 +51,7 @@ prefix_entry_t *icmpv6_prefix_add(prefix_list_t *list, const uint8_t *prefixPtr,
         entry->lifetime = lifeTime;
         entry->preftime = prefTime;
         memset(entry->prefix, 0, 16);
-        bitcopy0(entry->prefix, prefixPtr, prefix_len);
+        bitcpy0(entry->prefix, prefixPtr, prefix_len);
         ns_list_add_to_end(list, entry);
     }
     return entry;
@@ -60,7 +60,7 @@ prefix_entry_t *icmpv6_prefix_add(prefix_list_t *list, const uint8_t *prefixPtr,
 prefix_entry_t *icmpv6_prefix_compare(prefix_list_t *list, const uint8_t *addr, uint8_t prefix_len)
 {
     ns_list_foreach(prefix_entry_t, cur, list) {
-        if (cur->prefix_len == prefix_len && bitsequal(cur->prefix, addr, prefix_len)) {
+        if (cur->prefix_len == prefix_len && !bitcmp(cur->prefix, addr, prefix_len)) {
             return cur;
         }
     }

@@ -25,8 +25,8 @@
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "common/bits.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
 
 #define TRACE_GROUP "lCon"
@@ -49,7 +49,7 @@ lowpan_context_t *lowpan_context_get_by_address(const lowpan_context_list_t *lis
      * List is already listed that longest prefix are first at list
      */
     ns_list_foreach(lowpan_context_t, entry, list) {
-        if (bitsequal(entry->prefix, ipv6Address, entry->length)) {
+        if (!bitcmp(entry->prefix, ipv6Address, entry->length)) {
             //Take always longest match prefix
             return entry;
         }
@@ -111,7 +111,7 @@ int_fast8_t lowpan_context_update(lowpan_context_list_t *list, uint8_t cid_flags
 
     // Do our own zero-padding, just in case sender has done something weird
     memset(ctx->prefix, 0, sizeof ctx->prefix);
-    bitcopy(ctx->prefix, prefix, len);
+    bitcpy(ctx->prefix, prefix, len);
 
     return 0;
 }

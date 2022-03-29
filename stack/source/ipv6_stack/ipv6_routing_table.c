@@ -36,7 +36,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "common/rand.h"
-#include "stack-services/common_functions.h"
+#include "common/bits.h"
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
@@ -1216,7 +1216,7 @@ static void ipv6_route_print(const ipv6_route_t *route, route_print_fn_t *print_
 {
     // Route prefix is variable-length, so need to zero pad for ip6tos
     uint8_t addr[16] = { 0 };
-    bitcopy(addr, route->prefix, route->prefix_len);
+    bitcpy(addr, route->prefix, route->prefix_len);
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
     if (route->lifetime != 0xFFFFFFFF) {
         print_fn(" %24s/%-3u if:%u src:'%s' id:%d lifetime:%"PRIu32,
@@ -1362,7 +1362,7 @@ static ipv6_route_t *ipv6_route_find_best(const uint8_t *addr, int8_t interface_
         }
 
         /* Prefix must match */
-        if (!bitsequal(addr, route->prefix, route->prefix_len)) {
+        if (bitcmp(addr, route->prefix, route->prefix_len)) {
             continue;
         }
 
@@ -1516,7 +1516,7 @@ ipv6_route_t *ipv6_route_choose_next_hop(const uint8_t *dest, int8_t interface_i
 ipv6_route_t *ipv6_route_lookup_with_info(const uint8_t *prefix, uint8_t prefix_len, int8_t interface_id, const uint8_t *next_hop, ipv6_route_src_t source, void *info, int_fast16_t src_id)
 {
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        if (interface_id == r->info.interface_id && prefix_len == r->prefix_len && bitsequal(prefix, r->prefix, prefix_len)) {
+        if (interface_id == r->info.interface_id && prefix_len == r->prefix_len && !bitcmp(prefix, r->prefix, prefix_len)) {
             if (source != ROUTE_ANY) {
                 if (source != r->info.source) {
                     continue;
@@ -1620,7 +1620,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
             return NULL;
         }
         memset(route->prefix, 0, prefix_bytes);
-        bitcopy(route->prefix, prefix, prefix_len);
+        bitcpy(route->prefix, prefix, prefix_len);
         route->prefix_len = prefix_len;
         route->search_skip = false;
         route->probe = false;

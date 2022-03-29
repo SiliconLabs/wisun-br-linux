@@ -78,6 +78,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/bits.h"
 #include "common/rand.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
@@ -273,7 +274,7 @@ rpl_dao_target_t *rpl_create_dao_target(rpl_instance_t *instance, const uint8_t 
         return NULL;
     }
     memset(target, 0, sizeof * target);
-    bitcopy0(target->prefix, prefix, prefix_len);
+    bitcpy0(target->prefix, prefix, prefix_len);
     target->instance = instance;
     target->prefix_len = prefix_len;
     target->path_sequence = rpl_seq_init();
@@ -314,7 +315,7 @@ rpl_dao_target_t *rpl_instance_lookup_published_dao_target(rpl_instance_t *insta
 {
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
         if (target->published && target->prefix_len == prefix_len &&
-                bitsequal(target->prefix, prefix, prefix_len)) {
+                !bitcmp(target->prefix, prefix, prefix_len)) {
             return target;
         }
     }
@@ -325,7 +326,7 @@ rpl_dao_target_t *rpl_instance_lookup_dao_target(rpl_instance_t *instance, const
 {
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
         if (target->prefix_len == prefix_len &&
-                bitsequal(target->prefix, prefix, prefix_len)) {
+                !bitcmp(target->prefix, prefix, prefix_len)) {
             return target;
         }
     }
@@ -339,7 +340,7 @@ rpl_dao_target_t *rpl_instance_match_dao_target(rpl_instance_t *instance, const 
 
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
         if (target->prefix_len >= longest_len && target->prefix_len <= prefix_len &&
-                bitsequal(target->prefix, prefix, target->prefix_len)) {
+                !bitcmp(target->prefix, prefix, target->prefix_len)) {
             longest = target;
             longest_len = target->prefix_len;
             if (longest_len == 128) {
@@ -442,7 +443,7 @@ static uint8_t *rpl_downward_write_target(uint8_t *ptr, rpl_dao_target_t *target
     *ptr++ = 2 + byte_len;
     *ptr++ = 0; // flags
     *ptr++ = target->prefix_len;
-    bitcopy0(ptr, target->prefix, target->prefix_len);
+    bitcpy0(ptr, target->prefix, target->prefix_len);
     ptr += byte_len;
 
     if (target->descriptor_present) {
@@ -1015,7 +1016,7 @@ void rpl_downward_transit_error(rpl_instance_t *instance, const uint8_t *target_
         if (!target->root) {
             continue;
         }
-        if (!bitsequal(target_addr, target->prefix, target->prefix_len)) {
+        if (bitcmp(target_addr, target->prefix, target->prefix_len)) {
             continue;
         }
         ns_list_foreach_safe(rpl_dao_root_transit_t, transit, &target->info.root.transits) {

@@ -16,6 +16,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
+#include "common/bits.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
@@ -52,7 +53,7 @@ static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_
 {
     /* Quick test: context always gets priority, so all of context must match */
     /* This handles intrusions into IID space, so don't have to recheck this below */
-    if (!bitsequal(addr, ctx_prefix, ctx_len)) {
+    if (bitcmp(addr, ctx_prefix, ctx_len)) {
         return 16;
     }
 
@@ -68,7 +69,7 @@ static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_
     if (ctx_len < 128) {
         memcpy(template + 8, outer_iid, 8);
     }
-    bitcopy(template, ctx_prefix, ctx_len);
+    bitcpy(template, ctx_prefix, ctx_len);
 
     if (addr_ipv6_equal(template, addr)) {
         return 0;
@@ -81,7 +82,7 @@ static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_
     if (ctx_len < 112) {
         memcpy(template + 8, ADDR_SHORT_ADR_SUFFIC, 6);
         if (ctx_len > 64) {
-            bitcopy(template + 8, ctx_prefix + 8, ctx_len - 64);
+            bitcpy(template + 8, ctx_prefix + 8, ctx_len - 64);
         }
     }
     if (memcmp(template, addr, 14) == 0) {

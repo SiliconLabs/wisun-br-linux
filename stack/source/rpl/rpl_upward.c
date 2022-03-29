@@ -28,9 +28,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"
+#include "common/bits.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "stack-services/common_functions.h"
 #include <stdlib.h>
 #include "stack-services/ip6string.h"
 #include "common/trickle.h"
@@ -924,7 +924,7 @@ rpl_dio_route_t *rpl_dodag_update_dio_route(rpl_dodag_t *dodag, const uint8_t *p
 
     /* First look for matching prefix */
     ns_list_foreach(rpl_dio_route_t, r, &dodag->routes) {
-        if (r->prefix_len == prefix_len && bitsequal(r->prefix, prefix, prefix_len)) {
+        if (r->prefix_len == prefix_len && !bitcmp(r->prefix, prefix, prefix_len)) {
             route = r;
             break;
         }
@@ -939,7 +939,7 @@ rpl_dio_route_t *rpl_dodag_update_dio_route(rpl_dodag_t *dodag, const uint8_t *p
         }
 
         route->prefix_len = prefix_len;
-        bitcopy0(route->prefix, prefix, prefix_len);
+        bitcpy0(route->prefix, prefix, prefix_len);
         ns_list_add_to_end(&dodag->routes, route);
         update = true;
     } else {
@@ -1977,7 +1977,7 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag, route_
                 pref = 2;
                 break;
         }
-        bitcopy(addr, route->prefix, route->prefix_len);
+        bitcpy(addr, route->prefix, route->prefix_len);
         if (route->lifetime == 0xFFFFFFFF) {
             print_fn("%24s/%-3u lifetime:infinite pref:%"PRIdFAST8,
                      ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, pref);
@@ -1990,7 +1990,7 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag, route_
     /* Prefixes */
     ns_list_foreach(prefix_entry_t, prefix, &dodag->prefixes) {
         uint8_t addr[16] = { 0 } ;
-        bitcopy(addr, prefix->prefix, prefix->prefix_len);
+        bitcpy(addr, prefix->prefix, prefix->prefix_len);
         if (prefix->lifetime == 0xFFFFFFFF) {
             print_fn("%24s/%-3u lifetime:infinite flags:%c%c%c",
                      ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len,
@@ -2039,7 +2039,7 @@ uint16_t rpl_upward_read_dao_target_list_size(const rpl_instance_t *instance, co
     if (target_prefix) {
         uint16_t registered_address_count = 0;
         ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
-            if (bitsequal(target->prefix, target_prefix, 64)) {
+            if (!bitcmp(target->prefix, target_prefix, 64)) {
                 registered_address_count++;
             }
         }

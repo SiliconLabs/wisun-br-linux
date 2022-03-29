@@ -16,6 +16,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
+#include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include <stdlib.h>
@@ -321,7 +322,7 @@ static bool decompress_addr(const lowpan_context_list_t *context_list, uint8_t *
          * we rely on the context storage core having zero-padding in
          * the prefix field for short contexts.
          */
-        bitcopy(addr, ctx->prefix, ctx->length < 64 ? 64 : ctx->length);
+        bitcpy(addr, ctx->prefix, ctx->length < 64 ? 64 : ctx->length);
         return true;
     } else {
         memcpy(addr, ADDR_LINK_LOCAL_PREFIX, 8);
