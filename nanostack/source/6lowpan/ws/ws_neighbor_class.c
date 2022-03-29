@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"

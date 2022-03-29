@@ -17,7 +17,7 @@
 
 #ifndef WS_PAE_LIB_H_
 #define WS_PAE_LIB_H_
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_addr.h"

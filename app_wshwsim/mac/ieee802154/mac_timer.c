@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "common/os_timer.h"
 #include "common/hal_interrupt.h"
 #include "mac/ieee802154/sw_mac_internal.h"

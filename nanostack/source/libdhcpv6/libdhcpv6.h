@@ -24,7 +24,7 @@
 #ifndef LIBDHCPV6_H_
 #define LIBDHCPV6_H_
 
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 typedef struct dhcp_duid_options_params {
     uint16_t type;

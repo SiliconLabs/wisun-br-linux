@@ -16,7 +16,7 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include "mbed-client-libservice/ns_types.h"
+#include "stack-services/ns_types.h"
 #include "nanostack/nwk_stats_api.h"
 #include "nwk_interface/protocol_stats.h"
 

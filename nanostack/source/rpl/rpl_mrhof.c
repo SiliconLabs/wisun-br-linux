@@ -16,8 +16,8 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/net_rpl.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "common_protocols/ipv6_resolution.h"

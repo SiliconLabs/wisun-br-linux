@@ -16,8 +16,8 @@
  */
 #include "nsconfig.h"
 #include <string.h>
-#include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/common_functions.h"
+#include "stack-services/ns_trace.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_mcps.h"

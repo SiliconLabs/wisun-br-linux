@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"

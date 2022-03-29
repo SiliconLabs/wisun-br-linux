@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/fhss_api.h"

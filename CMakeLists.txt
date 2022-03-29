@@ -218,17 +218,15 @@ add_executable(wsbrd
     # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
     nanostack-event-loop/source/event.c
     nanostack-event-loop/source/system_timer.c
-    mbed-client-libservice/source/libBits/common_functions.c
-    mbed-client-libservice/source/libip6string/ip6tos.c
-    mbed-client-libservice/source/libList/ns_list.c
-    mbed-client-libservice/source/libtrace/ns_trace.c
-    # Excluded mbed-client-libservice/source/nvmHelper
+    stack-services/common_functions.c
+    stack-services/ip6string.c
+    stack-services/ns_list.c
+    stack-services/ns_trace.c
+    # Excluded stack-services/nvmHelper
 )
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     nanostack/source/
-    mbed-trace/
-    mbed-client-libservice/
     nanostack-event-loop/
     nanostack/
 )
@@ -417,17 +415,14 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
-        mbed-client-libservice/source/libBits/common_functions.c
-        mbed-client-libservice/source/libip6string/ip6tos.c
-        mbed-client-libservice/source/libList/ns_list.c
-        mbed-client-libservice/source/libtrace/ns_trace.c
-        # Excluded mbed-client-libservice/source/nvmHelper
+        stack-services/common_functions.c
+        stack-services/ip6string.c
+        stack-services/ns_list.c
+        stack-services/ns_trace.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         nanostack/source/
-        mbed-trace/
-        mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
     )
@@ -456,10 +451,10 @@ if(COMPILE_SIMULATION_TOOLS)
         common/rand.c
         common/slist.c
         common/spinel_buffer.c
-        mbed-client-libservice/source/libBits/common_functions.c
-        mbed-client-libservice/source/libip6string/ip6tos.c
-        mbed-client-libservice/source/libList/ns_list.c
-        mbed-client-libservice/source/libtrace/ns_trace.c
+        stack-services/common_functions.c
+        stack-services/ip6string.c
+        stack-services/ns_list.c
+        stack-services/ns_trace.c
         nanostack-event-loop/source/event.c
         nanostack-event-loop/source/system_timer.c
         app_wshwsim/sl_wsrcp.c
@@ -491,8 +486,6 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         app_wshwsim/
-        mbed-trace/
-        mbed-client-libservice/
         nanostack-event-loop/
         nanostack/
     )

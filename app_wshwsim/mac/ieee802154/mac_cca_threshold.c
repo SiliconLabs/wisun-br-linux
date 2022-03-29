@@ -16,7 +16,7 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_cca_threshold.h"

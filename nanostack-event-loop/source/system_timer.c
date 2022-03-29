@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include "timer_sys.h"
 #include "common/hal_interrupt.h"
 #include "nanostack-event-loop/platform/arm_hal_timer.h"

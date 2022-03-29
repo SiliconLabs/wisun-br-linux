@@ -29,10 +29,10 @@
 #include <mbedtls/debug.h>
 #include <mbedtls/oid.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "common/trickle.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"

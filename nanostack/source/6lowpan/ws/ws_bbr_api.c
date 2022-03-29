@@ -19,9 +19,9 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/utils/ns_time.h"
 #include "nanostack-event-loop/eventOS_event.h"

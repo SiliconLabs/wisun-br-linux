@@ -41,9 +41,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"

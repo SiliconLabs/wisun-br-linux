@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/fhss_config.h"
 #include "fhss.h"

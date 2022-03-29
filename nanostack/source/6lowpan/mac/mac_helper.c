@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdlib.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/mlme.h"

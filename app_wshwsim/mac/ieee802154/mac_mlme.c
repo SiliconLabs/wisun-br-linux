@@ -28,11 +28,11 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "common/os_timer.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "common/rand.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"

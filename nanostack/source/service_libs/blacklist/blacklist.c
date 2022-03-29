@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "service_libs/blacklist/blacklist.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"

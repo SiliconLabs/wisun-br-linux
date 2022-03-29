@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include "common/log.h"
 #include "common/named_values.h"
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
 #include "nanostack/mac/mac_common_defines.h"

@@ -18,7 +18,7 @@
 #ifndef WS_COMMON_H_
 #define WS_COMMON_H_
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/mac/net_fhss.h"

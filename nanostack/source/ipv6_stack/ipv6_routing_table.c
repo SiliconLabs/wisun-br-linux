@@ -36,9 +36,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/ip6string.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/common_functions.h"
+#include "stack-services/ip6string.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "service_libs/etx/etx.h"
 

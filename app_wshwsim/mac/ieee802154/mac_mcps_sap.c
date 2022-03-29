@@ -25,14 +25,14 @@
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "common/os_timer.h"
 #include <string.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "nanostack/mac/ccm.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/fhss_api.h"
 #include "common/hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "common/rand.h"
 
 #include "mac/ieee802154/sw_mac_internal.h"

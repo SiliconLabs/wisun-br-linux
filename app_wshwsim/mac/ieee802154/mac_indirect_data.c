@@ -22,12 +22,12 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "common/os_timer.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/mac/sw_mac.h"
 #include "nanostack/mac/mac_api.h"
 #include "mac/ieee802154/sw_mac_internal.h"

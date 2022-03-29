@@ -835,7 +835,7 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const vo
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK     0x7f80
 
-// Copy-paste from mbed-client-libservice/mbed-client-libservice/common_functions.h
+// Copy-paste from stack-services/common_functions.h
 static uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2])
 {
     *ptr++ = value;

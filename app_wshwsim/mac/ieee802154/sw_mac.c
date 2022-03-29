@@ -28,8 +28,8 @@
 #include "mac/rf_driver_storage.h"
 #include "mac_fhss_callbacks.h"
 #include "common/os_timer.h"
-#include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/common_functions.h"
+#include "stack-services/ns_trace.h"
 
 #define TRACE_GROUP "swm"
 

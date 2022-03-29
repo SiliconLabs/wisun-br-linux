@@ -20,4 +20,4 @@
  */
 #define NS_LIST_FN extern
 
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"

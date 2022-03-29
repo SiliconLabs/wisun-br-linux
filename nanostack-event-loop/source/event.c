@@ -15,7 +15,7 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "timer_sys.h"

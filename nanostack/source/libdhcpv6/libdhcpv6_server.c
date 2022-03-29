@@ -24,8 +24,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/common_functions.h"
+#include "stack-services/ns_trace.h"
 
 #include "libdhcpv6/libdhcpv6_server.h"
 #include "libdhcpv6/libdhcpv6.h"

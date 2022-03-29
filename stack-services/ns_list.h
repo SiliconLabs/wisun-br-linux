@@ -15,7 +15,7 @@
  */
 #ifndef NS_LIST_H_
 #define NS_LIST_H_
-#include "mbed-client-libservice/ns_types.h"
+#include "stack-services/ns_types.h"
 
 /** \defgroup ns_list Linked list support library.
  *

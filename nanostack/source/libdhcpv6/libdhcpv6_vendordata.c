@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 
 #include "libdhcpv6.h"
 #include "libdhcpv6_vendordata.h"

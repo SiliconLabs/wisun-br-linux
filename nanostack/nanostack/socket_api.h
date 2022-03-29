@@ -16,7 +16,7 @@
  */
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
-#include "mbed-client-libservice/ns_types.h"
+#include "stack-services/ns_types.h"
 #include "nanostack/ns_address.h"
 
 /**

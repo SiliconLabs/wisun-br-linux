@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/shalib.h"
 #include "nanostack/ns_sha256.h"
 

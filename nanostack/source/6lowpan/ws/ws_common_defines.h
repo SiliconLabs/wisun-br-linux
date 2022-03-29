@@ -18,7 +18,7 @@
 #ifndef WS_COMMON_DEFINES_H_
 #define WS_COMMON_DEFINES_H_
 
-#include "mbed-client-libservice/ns_types.h"
+#include "stack-services/ns_types.h"
 
 #define WH_IE_ELEMENT_HEADER_LENGTH 3
 

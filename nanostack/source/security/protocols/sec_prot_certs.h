@@ -18,7 +18,7 @@
 #ifndef SEC_PROT_CERTS_H_
 #define SEC_PROT_CERTS_H_
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 /*
  * Security protocols certificate interface. This is used by security protocols to

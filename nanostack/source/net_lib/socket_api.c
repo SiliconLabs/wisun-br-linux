@@ -25,8 +25,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/ns_address.h"

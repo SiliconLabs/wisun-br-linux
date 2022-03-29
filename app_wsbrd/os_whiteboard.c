@@ -1,5 +1,5 @@
 #include <nanostack/mac/platform/os_whiteboard.h>
-#include <mbed-client-libservice/ip6string.h>
+#include <stack-services/ip6string.h>
 
 #include "common/log.h"
 #include "os_whiteboard.h"

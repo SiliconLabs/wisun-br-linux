@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "common/hal_interrupt.h"
 #include "nanostack/mac/ccm.h"
 #include "nanostack/mac/mac_api.h"
@@ -35,7 +35,7 @@
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
 #include "mac/rf_driver_storage.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 
 #define TRACE_GROUP "mPDs"
 

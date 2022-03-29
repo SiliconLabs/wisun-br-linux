@@ -25,7 +25,7 @@
 #include "mac/ieee802154/mac_mlme.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/rf_driver_storage.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 
 
 uint16_t mac_read_tx_queue_sizes(const fhss_api_t *fhss_api, bool broadcast_queue)

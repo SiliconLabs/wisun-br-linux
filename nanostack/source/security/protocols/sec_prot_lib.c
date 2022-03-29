@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include <mbedtls/sha256.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/trickle.h"
 #include "service_libs/hmac/hmac_md.h"

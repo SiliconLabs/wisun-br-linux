@@ -171,7 +171,7 @@
  */
 
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 /**
  * \enum arm_library_event_priority_e

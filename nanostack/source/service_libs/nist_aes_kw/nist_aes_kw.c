@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include <mbedtls/version.h>
 #include <mbedtls/nist_kw.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include "nist_aes_kw.h"
 
 #define TRACE_GROUP "naes"

@@ -17,7 +17,7 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include <stdlib.h>
 #include "mac/rf_driver_storage.h"
 

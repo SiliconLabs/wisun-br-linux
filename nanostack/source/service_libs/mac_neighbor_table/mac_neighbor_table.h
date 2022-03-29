@@ -19,7 +19,7 @@
 #define MAC_NEIGHBOR_TABLE_H_
 
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include "nwk_interface/protocol.h"
 
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240

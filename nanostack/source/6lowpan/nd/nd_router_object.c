@@ -19,8 +19,8 @@
 #include <string.h>
 #include "common/rand.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
 

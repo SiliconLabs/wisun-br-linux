@@ -17,9 +17,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/ip6string.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/ip6string.h"
+#include "stack-services/common_functions.h"
 
 #if defined(YOTTA_CFG_MBED_TRACE_MEM)
 #define MBED_TRACE_MEM_INCLUDE      YOTTA_CFG_MBED_TRACE_MEM_INCLUDE

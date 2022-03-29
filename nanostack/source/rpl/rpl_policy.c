@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "service_libs/etx/etx.h"
 #include "nanostack/net_interface.h"
 

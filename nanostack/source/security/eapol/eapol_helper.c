@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"

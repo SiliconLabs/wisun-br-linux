@@ -17,7 +17,7 @@
 
 #ifndef RF_DRIVER_STORAGE_H
 #define RF_DRIVER_STORAGE_H
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/mac/mlme.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"

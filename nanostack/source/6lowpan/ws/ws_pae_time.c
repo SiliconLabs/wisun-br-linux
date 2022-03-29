@@ -18,8 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include "service_libs/utils/ns_time.h"
 #include "nanostack/ns_time_api.h"
 

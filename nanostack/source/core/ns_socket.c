@@ -25,10 +25,10 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "mbed-client-libservice/ip6string.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ip6string.h"
+#include "stack-services/common_functions.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/socket_api.h"

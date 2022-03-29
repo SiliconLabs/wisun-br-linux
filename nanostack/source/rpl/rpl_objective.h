@@ -18,7 +18,7 @@
 #ifndef RPL_OBJECTIVE_H_
 #define RPL_OBJECTIVE_H_
 
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 struct rpl_instance;
 struct rpl_neighbour;

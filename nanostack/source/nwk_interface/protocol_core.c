@@ -19,10 +19,10 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
 #include "nanostack-event-loop/eventOS_event.h"

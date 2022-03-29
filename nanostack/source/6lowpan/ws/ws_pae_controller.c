@@ -21,8 +21,8 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <mbedtls/sha256.h>
-#include "mbed-client-libservice/ns_list.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
 #include "service_libs/utils/ns_time.h"

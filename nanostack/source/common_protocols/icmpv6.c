@@ -20,8 +20,8 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/named_values.h"
-#include "mbed-client-libservice/ns_trace.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 
 #include "nwk_interface/protocol.h"

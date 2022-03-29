@@ -24,7 +24,7 @@
 #include "fhss_common.h"
 #include "fhss_ws.h"
 #include "fhss_statistics.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 
 #define TRACE_GROUP "fhss"
 

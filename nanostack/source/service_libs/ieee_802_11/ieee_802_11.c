@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 #include "service_libs/hmac/hmac_md.h"
 

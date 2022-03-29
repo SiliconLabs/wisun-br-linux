@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdlib.h>
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "nanostack/ethernet_mac_api.h"
 #include "nanostack-event-loop/eventOS_event.h"
 

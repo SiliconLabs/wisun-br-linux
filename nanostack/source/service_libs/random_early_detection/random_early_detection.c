@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"

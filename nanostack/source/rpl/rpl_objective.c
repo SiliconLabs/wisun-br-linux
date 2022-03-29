@@ -16,7 +16,7 @@
  */
 
 #include "nsconfig.h"
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 #include "rpl/rpl_objective.h"
 

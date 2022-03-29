@@ -24,10 +24,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "mbed-client-libservice/common_functions.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
 #include "nanostack/nwk_stats_api.h"

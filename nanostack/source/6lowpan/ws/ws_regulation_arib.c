@@ -18,7 +18,7 @@
 #include "nsconfig.h"
 #include <assert.h>
 #include <stdint.h>
-#include "mbed-client-libservice/ns_trace.h"
+#include "stack-services/ns_trace.h"
 #include "nanostack/ws_management_api.h"
 
 #include "6lowpan/ws/ws_common.h"

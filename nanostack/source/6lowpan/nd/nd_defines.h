@@ -17,7 +17,7 @@
 
 #ifndef ND_DEFINES_H_
 #define ND_DEFINES_H_
-#include "mbed-client-libservice/ns_list.h"
+#include "stack-services/ns_list.h"
 
 #include "core/ns_address_internal.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
