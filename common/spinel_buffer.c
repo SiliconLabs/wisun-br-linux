@@ -382,7 +382,6 @@ static const struct {
 
 void spinel_trace(const uint8_t *buf, int len, const char *prefix)
 {
-    static char trace_buffer[128];
     unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
     int cnt = 0;
@@ -414,5 +413,5 @@ void spinel_trace(const uint8_t *buf, int len, const char *prefix)
         if (prop == spinel_props[i].val)
             prop_str = spinel_props[i].str;
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
-           str_bytes(buf + cnt, len - cnt, NULL, trace_buffer, sizeof(trace_buffer), DELIM_SPACE | ELLIPSIS_STAR), len);
+          tr_bytes(buf + cnt, len - cnt, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), len);
 }

@@ -41,14 +41,12 @@ static void print_ping_reply(void *cb)
 {
     socket_callback_t *event = (socket_callback_t *)cb;
     ns_address_t src_addr;
-    char src[48];
     uint8_t data[256];
     int len;
 
     len = socket_recvfrom(event->socket_id, data, sizeof(data), 0, &src_addr);
-    ip6tos(src_addr.address, src);
     DEBUG("if %d, socket %d, event %2X from %s, %d/%d bytes", event->interface_id,
-          event->socket_id, event->event_type, src, event->d_len, len);
+          event->socket_id, event->event_type, tr_ipv6(src_addr.address), event->d_len, len);
 }
 
 static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
