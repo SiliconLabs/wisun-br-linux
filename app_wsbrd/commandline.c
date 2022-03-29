@@ -12,8 +12,8 @@
 #include <getopt.h>
 #include <libgen.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 
-#include "mbed-client-libservice/ip6string.h"
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/ns_file_system.h"
@@ -257,7 +257,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
         if (int_arg != 64)
             FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, int_arg);
-        if (!stoip6(str_arg, strlen(str_arg), ctxt->ipv6_prefix))
+        if (inet_pton(AF_INET6, str_arg, ctxt->ipv6_prefix) != 1)
             FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, str_arg);
     } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))

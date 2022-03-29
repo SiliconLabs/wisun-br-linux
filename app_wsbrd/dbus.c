@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include <errno.h>
+#include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 
 #include "nsconfig.h"
@@ -16,7 +17,6 @@
 
 #include "nanostack/ws_bbr_api.h"
 #include "nanostack/socket_api.h"
-#include "mbed-client-libservice/ip6string.h"
 
 #include "common/named_values.h"
 #include "common/utils.h"
@@ -64,8 +64,8 @@ static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_
     ret = sd_bus_message_read(m, "s", &ipv6str);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-    ret = stoip6(ipv6str, strlen(ipv6str), dest_addr.address);
-    if (!ret)
+    ret = inet_pton(AF_INET6, ipv6str, dest_addr.address);
+    if (ret != 1)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     if (ctxt->ping_socket_fd >= 0)
         socket_close(ctxt->ping_socket_fd);
