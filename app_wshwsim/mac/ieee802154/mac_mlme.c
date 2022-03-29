@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "common/rand.h"
 #include <stdlib.h>

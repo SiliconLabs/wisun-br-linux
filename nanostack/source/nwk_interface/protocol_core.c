@@ -27,7 +27,7 @@
 #include "service_libs/etx/etx.h"
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 #include "nanostack/shalib.h"
 #include "nanostack/mac/platform/arm_hal_phy.h"
 #include "nanostack/mac/mac_api.h"

@@ -22,7 +22,7 @@
 #include "nanostack-event-loop/eventOS_event.h"
 #include "nanostack-event-loop/eventOS_event_timer.h"
 #include "event.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 
 #ifndef ST_MAX
 #define ST_MAX 6

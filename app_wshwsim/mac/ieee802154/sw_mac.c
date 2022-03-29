@@ -27,7 +27,7 @@
 #include "mac/ieee802154/mac_security_mib.h"
 #include "mac/rf_driver_storage.h"
 #include "mac_fhss_callbacks.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 #include "mbed-client-libservice/common_functions.h"
 #include "mbed-client-libservice/ns_trace.h"
 

@@ -26,7 +26,7 @@
 #include "channel_list.h"
 #include <stdlib.h>
 #include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 #include <string.h>
 
 #define TRACE_GROUP "fhssc"

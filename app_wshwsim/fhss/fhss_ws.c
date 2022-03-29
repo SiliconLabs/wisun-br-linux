@@ -25,7 +25,7 @@
 #include "fhss_ws.h"
 #include <stdlib.h>
 #include "mbed-client-libservice/common_functions.h"
-#include "nanostack-event-loop/eventOS_callback_timer.h"
+#include "common/os_timer.h"
 #include "common/rand.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include "common/hal_interrupt.h"
