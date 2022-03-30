@@ -31,7 +31,6 @@
 #include "service_libs/etx/etx.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/mac_api.h"
-#include "stack/shalib.h"
 #include "stack/net_interface.h"
 
 #include "nwk_interface/protocol.h"

@@ -22,7 +22,6 @@
 #include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
-#include "stack/shalib.h"
 #include "stack/nwk_stats_api.h"
 
 #include "core/ns_socket.h"

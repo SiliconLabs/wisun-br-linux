@@ -26,7 +26,6 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "stack/shalib.h"
 #include "stack/net_rpl.h"
 #include "stack/mac/sw_mac.h"
 

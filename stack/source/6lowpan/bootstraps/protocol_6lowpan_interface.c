@@ -32,7 +32,6 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/mac_api.h"
-#include "stack/shalib.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/udp.h"
