@@ -17,10 +17,8 @@
 
 #define HAVE_WS_VERSION_1_1
 #define HAVE_DHCPV6
-#define HAVE_WS_HOST
 
 #define HAVE_EAPOL_RELAY
-#define HAVE_WS_ROUTER
 
 #define HAVE_RPL_ROOT
 #define HAVE_RPL_DAO_HANDLING
