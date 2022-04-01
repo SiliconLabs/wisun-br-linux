@@ -30,9 +30,9 @@ void ws_bootstrap_lfn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
 
 #else
 
-#define ws_bootstrap_ffn_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
-#define ws_bootstrap_ffn_asynch_confirm(interface, asynch_message) ((void) 0)
-#define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
+#define ws_bootstrap_lfn_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
+#define ws_bootstrap_lfn_asynch_confirm(interface, asynch_message) ((void) 0)
+#define ws_bootstrap_lfn_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_lfn_state_machine(cur) ((void) 0)
 #define ws_bootstrap_lfn_seconds_timer(cur, seconds) ((void) 0)
 
