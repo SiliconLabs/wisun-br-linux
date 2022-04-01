@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
+#define HAVE_WS_VERSION_1_1
+#define HAVE_DHCPV6
+#define HAVE_WS_HOST
 
-#include "base/cfg_ws_router.h"
+#define HAVE_EAPOL_RELAY
+#define HAVE_WS_ROUTER
 
 #define EXTRA_CONSISTENCY_CHECKS
-

@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
+#define HAVE_WS_VERSION_1_1
+#define HAVE_DHCPV6
 
-#include "base/cfg_ws_host.h"
+#define HAVE_WS_HOST
 
 #define EXTRA_CONSISTENCY_CHECKS
-

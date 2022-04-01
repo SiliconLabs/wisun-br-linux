@@ -15,9 +15,22 @@
  * limitations under the License.
  */
 
-#include "base/cfg_ws_border_router.h"
+#define HAVE_WS_VERSION_1_1
+#define HAVE_DHCPV6
+#define HAVE_WS_HOST
+
+#define HAVE_EAPOL_RELAY
+#define HAVE_WS_ROUTER
+
+#define HAVE_RPL_ROOT
+#define HAVE_RPL_DAO_HANDLING
+#define HAVE_6LOWPAN_BORDER_ROUTER
+#define HAVE_ND_PROXY
+#define MULTICAST_FORWARDING
+#define HAVE_PAE_AUTH
+
+#define HAVE_WS_BORDER_ROUTER
 
 #define HAVE_ETHERNET
 #define HAVE_DHCPV6_SERVER
 #define EXTRA_CONSISTENCY_CHECKS
-
