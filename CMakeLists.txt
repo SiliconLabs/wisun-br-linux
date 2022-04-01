@@ -106,8 +106,6 @@ add_executable(wsbrd
     stack/source/6lowpan/ws/ws_bbr_api.c
     stack/source/6lowpan/ws/ws_bootstrap.c
     stack/source/6lowpan/ws/ws_bootstrap_6lbr.c
-    stack/source/6lowpan/ws/ws_bootstrap_ffn.c
-    stack/source/6lowpan/ws/ws_bootstrap_lfn.c
     stack/source/6lowpan/ws/ws_cfg_settings.c
     stack/source/6lowpan/ws/ws_common.c
     stack/source/6lowpan/ws/ws_eapol_auth_relay.c
@@ -305,7 +303,6 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded stack/source/6lowpan/Thread
         stack/source/6lowpan/ws/ws_bootstrap.c
         stack/source/6lowpan/ws/ws_bootstrap_ffn.c
-        stack/source/6lowpan/ws/ws_bootstrap_lfn.c
         stack/source/6lowpan/ws/ws_cfg_settings.c
         stack/source/6lowpan/ws/ws_common.c
         stack/source/6lowpan/ws/ws_eapol_auth_relay.c
