@@ -15,6 +15,7 @@
  */
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/random.h>
 #include <limits.h>
 #include "common/rand.h"
 #include "common/log.h"
@@ -53,12 +54,9 @@ uint64_t rand_get_64bit(void)
 
 void *rand_get_n_bytes_random(void *ptr, uint8_t count)
 {
-    static FILE *dev_urandom;
     int ret;
 
-    if (!dev_urandom)
-        dev_urandom = fopen("/dev/urandom", "r");
-    ret = fread(ptr, 1, count, dev_urandom);
+    ret = getrandom(ptr, count, 0);
     FATAL_ON(ret != count, 2, );
     return ptr;
 }
