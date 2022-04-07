@@ -158,8 +158,17 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
+    // SPINEL_PROP_WS_RF_CONFIGURATION should also return a
+    // SPINEL_PROP_LAST_STATUS, but it is not the case.
     case SPINEL_PROP_LAST_STATUS: {
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_START, NULL);
+        break;
+    }
+    case SPINEL_PROP_WS_RF_CONFIGURATION: {
+        int val = spinel_pop_uint(buf);
+        BUG_ON(spinel_remaining_size(buf));
+        if (val)
+            FATAL(2, "RF configuration not supported by the RCP");
         break;
     }
     default:
