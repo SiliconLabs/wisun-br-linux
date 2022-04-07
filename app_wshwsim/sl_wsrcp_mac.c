@@ -22,6 +22,8 @@
 #include "common/bits.h"
 #include "common/log.h"
 
+static void wsmac_rf_status_ind(struct wsmac_ctxt *ctxt, int status);
+
 static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
 {
     uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
@@ -120,6 +122,7 @@ static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_a
 static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
 {
     struct phy_rf_channel_configuration_s data;
+    int ret;
     mlme_set_t req = {
         .attr = attr,
         .value_pointer = &data,
@@ -133,7 +136,8 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
     data.modulation                 = spinel_pop_u8(buf);
     data.modulation_index           = spinel_pop_u8(buf);
     BUG_ON(spinel_remaining_size(buf));
-    ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+    ret = ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
+    wsmac_rf_status_ind(ctxt, ret);
 }
 
 static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
@@ -562,6 +566,14 @@ void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf,
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_uint(buf, SPINEL_CMD_PROP_VALUE_IS);
     spinel_push_uint(buf, prop);
+}
+
+static void wsmac_rf_status_ind(struct wsmac_ctxt *ctxt, int status)
+{
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_RF_CONFIGURATION);
+    spinel_push_uint(tx_buf, status ? SPINEL_STATUS_FAILURE : SPINEL_STATUS_OK);
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 static void wsmac_spinel_get_hw_addr(struct wsmac_ctxt *ctxt)
