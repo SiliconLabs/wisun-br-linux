@@ -30,6 +30,7 @@
 
 enum {
     SPINEL_STATUS_OK                  = 0,
+    SPINEL_STATUS_FAILURE             = 1,
 
     SPINEL_STATUS_RESET__BEGIN        = 0x70,
     SPINEL_STATUS_RESET__END          = 0x80,
