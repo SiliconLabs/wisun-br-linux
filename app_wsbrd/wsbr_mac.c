@@ -577,7 +577,7 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
     wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_RESET, &req->SetDefaultPIB, sizeof(bool));
 }
 
-void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
+int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     static const struct {
@@ -614,6 +614,7 @@ void wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
         WARN("Try to reach unexpected API: id");
     else
         table[i].fn(api, data);
+    return 0;
 }
 
 void wsbr_mcps_req_ext(const struct mac_api_s *api,

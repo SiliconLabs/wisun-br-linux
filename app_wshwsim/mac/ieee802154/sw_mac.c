@@ -53,7 +53,7 @@ static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_
 static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication_ext *data_ind_cb, mcps_data_confirm_ext *data_cnf_cb, mcps_ack_data_req_ext *ack_data_req_cb);
 static int8_t ns_sw_mac_api_enable_edfe_ext(mac_api_t *api, mcps_edfe_handler *edfe_ind_cb);
 
-static void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data);
+static int8_t mlme_req(const mac_api_t *api, mlme_primitive id, const void *data);
 static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data);
 static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list,  mac_data_priority_t priority, uint8_t phy_mode_id);
 static uint8_t purge_req(const mac_api_t *api, const mcps_purge_t *data);
@@ -382,10 +382,12 @@ protocol_interface_rf_mac_setup_s *get_sw_mac_ptr_by_driver_id(int8_t id)
     return NULL;
 }
 
-void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
+int8_t mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
 {
+    int8_t res = 0;
+
     if (mac_store.mac_api != api) {
-        return;
+        return -1;
     }
     //TODO: cast & handle
     switch (id) {
@@ -426,7 +428,8 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
         }
         case MLME_SET: {
             const mlme_set_t *dat = (const mlme_set_t *)data;
-            if (mac_mlme_set_req(mac_store.setup, dat) == 0) {
+            res = mac_mlme_set_req(mac_store.setup, dat);
+            if (!res) {
                 if (mac_store.dev_driver->mlme_observer_cb) {
                     mac_store.dev_driver->mlme_observer_cb(dat);
                 }
@@ -450,6 +453,7 @@ void mlme_req(const mac_api_t *api, mlme_primitive id, const void *data)
         default:
             break;
     }
+    return res;
 }
 
 static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data)
