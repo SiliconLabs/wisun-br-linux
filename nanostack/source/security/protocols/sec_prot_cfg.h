@@ -17,6 +17,7 @@
 
 #ifndef SEC_PROT_CFG_H_
 #define SEC_PROT_CFG_H_
+#include <sys/socket.h>
 
 /* Security protocol configuration settings */
 
@@ -48,7 +49,7 @@ typedef struct sec_timer_cfg_s {
 /* Security radius configuration settings */
 
 typedef struct sec_radius_cfg_s {
-    uint8_t radius_addr[16];                         /**< Radius server IPv6 address */
+    struct sockaddr_storage radius_addr;             /**< Radius server IP address */
     const uint8_t *radius_shared_secret;             /**< Radius shared secret */
     uint16_t radius_shared_secret_len;               /**< Radius shared secret length */
     trickle_params_t radius_retry_trickle_params;    /**< Radius retry trickle params */

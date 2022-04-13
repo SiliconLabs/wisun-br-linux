@@ -18,6 +18,8 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <arpa/inet.h>
+#include <stdio.h>
 #include <mbedtls/sha256.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
@@ -226,7 +228,7 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
             if (controller->sec_cfg.radius_cfg->radius_shared_secret_len == 0) {
                 return -1;
             }
-            if (ws_pae_auth_radius_address_set(interface_ptr, controller->sec_cfg.radius_cfg->radius_addr) < 0) {
+            if (ws_pae_auth_radius_address_set(interface_ptr, &controller->sec_cfg.radius_cfg->radius_addr) < 0) {
                 return -1;
             }
         }
@@ -1273,7 +1275,7 @@ sec_radius_cfg_t *ws_pae_controller_radius_config_get(void)
     return pae_controller_config.radius_cfg;
 }
 
-int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *address)
+int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)
 {
     sec_radius_cfg_t *radius_cfg = ws_pae_controller_radius_config_get();
     if (radius_cfg == NULL) {
@@ -1281,7 +1283,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *
     }
 
     if (address != NULL) {
-        memcpy(radius_cfg->radius_addr, address, 16);
+        memcpy(&radius_cfg->radius_addr, address, sizeof(struct sockaddr_storage));
         radius_cfg->radius_addr_set = true;
     } else {
         radius_cfg->radius_addr_set = false;
@@ -1300,7 +1302,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *
         return 0;
     }
 
-    if (ws_pae_auth_radius_address_set(controller->interface_ptr, radius_cfg->radius_addr) < 0) {
+    if (ws_pae_auth_radius_address_set(controller->interface_ptr, address) < 0) {
         // If not set here since authenticator not created, then set on authenticator initialization
         return 0;
     }
@@ -1308,7 +1310,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *
     return 0;
 }
 
-int8_t ws_pae_controller_radius_address_get(int8_t interface_id, uint8_t *address)
+int8_t ws_pae_controller_radius_address_get(int8_t interface_id, struct sockaddr_storage *address)
 {
     (void) interface_id;
 
@@ -1325,7 +1327,7 @@ int8_t ws_pae_controller_radius_address_get(int8_t interface_id, uint8_t *addres
         return -1;
     }
 
-    memcpy(address, radius_cfg->radius_addr, 16);
+    memcpy(address, &radius_cfg->radius_addr, sizeof(struct sockaddr_storage));
 
     return 0;
 }

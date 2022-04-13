@@ -1397,7 +1397,7 @@ int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_numbe
 #endif
 }
 
-int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address)
+int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)
 {
 #ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_address_set(interface_id, address);
@@ -1408,7 +1408,7 @@ int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address)
 #endif
 }
 
-int ws_bbr_radius_address_get(int8_t interface_id, uint8_t *address)
+int ws_bbr_radius_address_get(int8_t interface_id, struct sockaddr_storage *address)
 {
 #ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_address_get(interface_id, address);

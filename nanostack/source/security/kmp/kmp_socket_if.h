@@ -18,6 +18,10 @@
 #ifndef KMP_SOCKET_IF_H_
 #define KMP_SOCKET_IF_H_
 
+#include <sys/socket.h>
+
+typedef struct kmp_service_s kmp_service_t;
+
 /*
  * Authenticator KMP socket interface to/from EAPOL authenticator relay. EAPOL
  * authenticator relay address and port are provided in register call (remote
@@ -55,5 +59,40 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
  *
  */
 int8_t kmp_socket_if_unregister(kmp_service_t *service);
+
+/**
+ * kmp_socket_if_register_native register native socket interface to KMP service
+ *
+ * \param service KMP service to register to
+ * \param instance_id instance identifier, for new instance set to zero when called
+ * \param relay interface is relay interface
+ * \param local_port local port
+ * \param remote_addr remote native socket address
+ * \param remote_port remote port
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const struct sockaddr_storage *remote_addr, uint16_t remote_port);
+
+/**
+ * kmp_socket_if_get_native_sockfd return the first native socket found in KMP service
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int kmp_socket_if_get_native_sockfd();
+
+/**
+ * kmp_socket_if_data_from_ext_radius transfer data from wsbrd to KMP
+ *
+ * \return < 0 failure (data not sent)
+ * \return >= 0 success the number of bytes transferred
+ *
+ */
+uint8_t kmp_socket_if_data_from_ext_radius();
+
 
 #endif /* KMP_SOCKET_IF_H_ */

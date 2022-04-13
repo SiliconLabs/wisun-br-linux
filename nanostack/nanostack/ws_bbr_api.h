@@ -29,6 +29,7 @@
 #define WS_BBR_API_H_
 
 #include <stdint.h>
+#include <sys/socket.h>
 
 /**
  * \brief Struct ws_statistics Border router dynamic information.
@@ -418,7 +419,7 @@ int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_numbe
  * \return >= 0 success
  *
  */
-int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address);
+int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address);
 
 /**
  * Get RADIUS server IPv6 address
@@ -432,7 +433,7 @@ int ws_bbr_radius_address_set(int8_t interface_id, const uint8_t *address);
  * \return >= 0 success
  *
  */
-int ws_bbr_radius_address_get(int8_t interface_id, uint8_t *address);
+int ws_bbr_radius_address_get(int8_t interface_id, struct sockaddr_storage *address);
 
 /**
  * Set RADIUS shared secret

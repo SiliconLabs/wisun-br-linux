@@ -18,6 +18,7 @@
 #ifndef WS_PAE_CONTROLLER_H_
 #define WS_PAE_CONTROLLER_H_
 
+#include <sys/socket.h>
 #include "nsconfig.h"
 #include "nanostack/net_interface.h"
 
@@ -250,7 +251,7 @@ int8_t ws_pae_controller_certificate_revocation_list_remove(const arm_cert_revoc
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *address);
+int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address);
 
 /**
  * ws_pae_controller_radius_address_set get radius address
@@ -262,7 +263,7 @@ int8_t ws_pae_controller_radius_address_set(int8_t interface_id, const uint8_t *
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_radius_address_get(int8_t interface_id, uint8_t *address);
+int8_t ws_pae_controller_radius_address_get(int8_t interface_id, struct sockaddr_storage *address);
 
 /**
  * ws_pae_controller_radius_shared_secret_set set radius shared secret

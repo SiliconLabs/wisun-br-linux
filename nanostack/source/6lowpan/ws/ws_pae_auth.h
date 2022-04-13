@@ -20,6 +20,8 @@
 
 #ifdef HAVE_PAE_AUTH
 
+#include <sys/socket.h>
+
 /*
  * Authenticator port access entity controls key security protocols using KMP API.
  *
@@ -80,7 +82,7 @@ int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr,
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const uint8_t *remote_addr);
+int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const struct sockaddr_storage *remote_addr);
 
 /**
  * ws_pae_auth_delete deletes PAE authenticator

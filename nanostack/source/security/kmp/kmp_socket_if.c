@@ -18,6 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include "mbed-client-libservice/ns_list.h"
 #include "mbed-client-libservice/ns_trace.h"
 #include <stdlib.h>
@@ -49,6 +52,7 @@ typedef struct {
     int8_t socket_id[INSTANCE_SOCKETS_NUMBER];        /**< Socket ID */
     unsigned socket_id_in_use : 4;                    /**< Socket ID is in use */
     ns_list_link_t link;                              /**< Link */
+    struct sockaddr_storage native_sock_addr;         /**< Native linux socket address */
 } kmp_socket_if_t;
 
 static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags);
@@ -116,6 +120,99 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
                 }
                 socket_if->socket_id[socket_num] = socket_open(IPV6_NH_UDP, local_port, &kmp_socket_if_socket_cb);
                 if (socket_if->socket_id[socket_num] < 0) {
+                    free(socket_if);
+                    return -1;
+                }
+            }
+        }
+    }
+
+    uint8_t header_size = 0;
+    if (relay) {
+        header_size = SOCKET_IF_HEADER_SIZE;
+    }
+
+    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, INSTANCE_SOCKETS_NUMBER) < 0) {
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            if (socket_if->socket_id[socket_num] >= 0) {
+                socket_close(socket_if->socket_id[socket_num]);
+            }
+        }
+        free(socket_if);
+        return -1;
+    }
+
+    if (new_socket_if_allocated) {
+        ns_list_add_to_end(&kmp_socket_if_list, socket_if);
+    }
+
+    return 0;
+}
+
+int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const struct sockaddr_storage *remote_addr, uint16_t remote_port)
+{
+    if (!service || !remote_addr) {
+        return -1;
+    }
+
+    kmp_socket_if_t *socket_if = NULL;
+    bool new_socket_if_allocated = false;
+    struct sockaddr_storage radius_cli_bind = { };
+
+    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
+        if (entry->kmp_service == service && entry->instance_id == *instance_id) {
+            socket_if = entry;
+        }
+    }
+
+    if (!socket_if) {
+        socket_if = malloc(sizeof(kmp_socket_if_t));
+        if (!socket_if) {
+            return -1;
+        }
+        memset(socket_if, 0, sizeof(kmp_socket_if_t));
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            socket_if->socket_id[socket_num] = -1;
+        }
+        socket_if->socket_id_in_use = 1;
+        new_socket_if_allocated = true;
+    }
+
+    socket_if->kmp_service = service;
+
+    if (*instance_id == 0) {
+        socket_if->instance_id = kmp_socket_if_instance_id++;
+        if (socket_if->instance_id == 0) {
+            socket_if->instance_id = kmp_socket_if_instance_id++;
+        }
+        *instance_id = socket_if->instance_id;
+    }
+
+    socket_if->relay = relay;
+
+    socket_if->remote_addr.type = ADDRESS_IPV6;
+
+    for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+        if (socket_if->socket_id_in_use & (1 << socket_num)) {
+
+            if ((socket_if->socket_id[socket_num] < 1)) {
+
+                if (socket_if->socket_id[socket_num] >= 0)
+                    close(socket_if->socket_id[socket_num]);
+
+                memcpy(&socket_if->native_sock_addr, remote_addr, sizeof(struct sockaddr_storage));
+                ((struct sockaddr_in *) &socket_if->native_sock_addr)->sin_port = htons(remote_port);
+                socket_if->socket_id[socket_num] = socket(socket_if->native_sock_addr.ss_family, SOCK_DGRAM, 0);
+
+                if (socket_if->socket_id[socket_num] < 0) {
+                    free(socket_if);
+                    return -1;
+                }
+
+                radius_cli_bind.ss_family = remote_addr->ss_family;
+                if (bind(socket_if->socket_id[socket_num],
+                         (struct sockaddr *)&radius_cli_bind,
+                         sizeof(radius_cli_bind)) < 0) {
                     free(socket_if);
                     return -1;
                 }
@@ -215,7 +312,16 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         socket_if->socket_id_in_use |= (1 << connection_num);
     }
 
-    socket_sendto(socket_id, &socket_if->remote_addr, pdu, size);
+    if (socket_if->native_sock_addr.ss_family != AF_UNSPEC) { // native linux socket
+        int ret = sendto(socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->native_sock_addr, sizeof(socket_if->native_sock_addr));
+        if (ret < 0) {
+            return -1;
+        } else if (ret != size) {
+            return -1;
+        }
+    } else {
+        socket_sendto(socket_id, &socket_if->remote_addr, pdu, size);
+    }
 
     // Deallocate unless flags deny it
     if (flags & MSG_IF_SEND_FLAG_NO_DEALLOC) {
@@ -286,4 +392,50 @@ static void kmp_socket_if_socket_cb(void *ptr)
     free(pdu);
 }
 
+int kmp_socket_if_get_native_sockfd()
+{
+    int native_sockfd = -1;
 
+    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            if (entry->native_sock_addr.ss_family != AF_UNSPEC) {
+                native_sockfd = entry->socket_id[socket_num];
+                break;
+            }
+        }
+    }
+
+    return native_sockfd;
+}
+
+uint8_t kmp_socket_if_data_from_ext_radius()
+{
+    ssize_t size;
+    uint8_t radius_recv_buf[4096];
+    kmp_socket_if_t *socket_if = NULL;
+    uint8_t connection_num = 0;
+    kmp_addr_t addr = { };
+    kmp_type_e type = KMP_TYPE_NONE;
+
+    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
+        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
+            if (entry->native_sock_addr.ss_family != AF_UNSPEC) {
+                socket_if = entry;
+                connection_num = socket_num;
+                break;
+            }
+        }
+    }
+
+    if (!socket_if) {
+        return -1;
+    }
+
+    size = recv(socket_if->socket_id[connection_num], radius_recv_buf, sizeof(radius_recv_buf), 0);
+    if (size < 0)
+        return -1;
+
+    kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, radius_recv_buf, size, connection_num);
+
+    return size;
+}

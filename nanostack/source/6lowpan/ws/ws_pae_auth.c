@@ -309,7 +309,7 @@ int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr,
     return 0;
 }
 
-int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const uint8_t *remote_addr)
+int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const struct sockaddr_storage *remote_addr)
 {
     pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
     if (!pae_auth) {
@@ -319,7 +319,7 @@ int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface
         return -1;
     }
 
-    if (kmp_socket_if_register(pae_auth->kmp_service, &pae_auth->radius_socked_msg_if_instance_id, false, 0, remote_addr, 1812) < 0) {
+    if (kmp_socket_if_register_native(pae_auth->kmp_service, &pae_auth->radius_socked_msg_if_instance_id, false, 0, remote_addr, 1812) < 0) {
         return -1;
     }
 
