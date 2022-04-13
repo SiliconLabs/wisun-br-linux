@@ -13,8 +13,12 @@
 #include <libgen.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
+#include "nanostack/source/core/ns_address_internal.h"
 #include "nanostack/ws_management_api.h"
 #include "nanostack/ns_file_system.h"
 #include "common/named_values.h"
@@ -229,6 +233,19 @@ static int parse_byte_array(const char *in, uint8_t *out, int len)
     return 0;
 }
 
+static void get_ip_addr_from_arg(char *arg, struct sockaddr_storage *addr) {
+    int s;
+    struct addrinfo *results;
+
+    if ((s = getaddrinfo(arg, NULL, NULL, &results)) != 0)
+        FATAL(1, "%s: %s", arg, gai_strerror(s));
+
+    BUG_ON(!results);
+    memcpy(addr, results->ai_addr, results->ai_addrlen);
+
+    freeaddrinfo(results);
+}
+
 static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
                               int line_no, const char *line)
 {
@@ -281,6 +298,11 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (int_arg < 0)
             FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
         ctxt->tls_ca.cert_len = int_arg;
+    } else if (sscanf(line, " radius_server = %s %c", str_arg, &garbage) == 1) {
+        get_ip_addr_from_arg(str_arg, &ctxt->radius_server);
+    } else if (sscanf(line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(ctxt->radius_secret, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
     } else if (sscanf(line, " trace = %s %c", str_arg, &garbage) == 1) {
         g_enabled_traces = 0;
         substr = strtok(str_arg, ",");
@@ -545,16 +567,23 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "Unexpected argument: %s", argv[optind]);
     if (!ctxt->ws_name[0])
         FATAL(1, "You must specify a network name (--network)");
-    if (!ctxt->tls_own.key)
-        FATAL(1, "You must specify a key (--key)");
-    if (!ctxt->tls_own.cert)
-        FATAL(1, "You must specify a certificate (--certificate)");
-    if (!ctxt->tls_ca.cert)
-        FATAL(1, "You must specify a certificate authority (--authority)");
     if (ctxt->ws_domain == -1)
         FATAL(1, "You must specify a regulation domain (--domain)");
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
     if (!ctxt->uart_dev[0])
         FATAL(1, "You must specify a UART device");
+    if (ctxt->radius_server.ss_family == AF_UNSPEC) {
+        if (!ctxt->tls_own.key)
+            FATAL(1, "You must specify a key (--key)");
+        if (!ctxt->tls_own.cert)
+            FATAL(1, "You must specify a certificate (--certificate)");
+        if (!ctxt->tls_ca.cert)
+            FATAL(1, "You must specify a certificate authority (--authority)");
+        if(!ctxt->tls_own.key || !ctxt->tls_own.cert || !ctxt->tls_ca.cert)
+            FATAL(1, "No valid authenticator found. Specify a radius server or a set of key/certificate/CA");
+    } else {
+        if (ctxt->tls_own.cert_len != 0 || ctxt->tls_own.key_len != 0 || ctxt->tls_ca.cert_len != 0)
+            WARN("ignore certificates and key since an external radius server is in use");
+    }
 }

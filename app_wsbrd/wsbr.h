@@ -76,6 +76,8 @@ struct wsbr_ctxt {
     uint8_t ws_gtk[4][16];
     bool ws_gtk_force[4];
     uint8_t ipv6_prefix[16];
+    struct sockaddr_storage radius_server;
+    char radius_secret[256];
     uint32_t ws_allowed_channels[8];
     int ws_pmk_lifetime;
     int ws_ptk_lifetime;

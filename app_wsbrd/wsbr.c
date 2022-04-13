@@ -236,6 +236,12 @@ static void wsbr_tasklet(struct arm_event_s *event)
                  WARN("arm_nwk_interface_up RCP");
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
                  WARN("ws_bbr_start");
+            if (strlen(ctxt->radius_secret) != 0)
+                if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->radius_secret), (uint8_t *)ctxt->radius_secret))
+                    WARN("ws_bbr_radius_shared_secret_set");
+            if (ctxt->radius_server.ss_family != AF_UNSPEC)
+                if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->radius_server))
+                    WARN("ws_bbr_radius_address_set");
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
