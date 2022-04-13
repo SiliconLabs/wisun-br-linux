@@ -1,0 +1,32 @@
+# This file have to be included by radius.conf (generally by the means of
+# /etc/freeradius/mod-enabled/)
+
+eap {
+    default_eap_type = tls
+    # WI-SUN networks are slow thus the increase from 60 seconds
+    timer_expire = 3600
+
+    tls-config tls-common {
+        # Some examples are provided with wsbrd. To use them, you have to copy
+        # them into the places below.
+        private_key_file = /etc/ssl/private/br_key.pem
+        certificate_file = /etc/ssl/certs/br_cert.pem
+        ca_file = /etc/ssl/certs/ca_cert.pem
+
+        # By default, OpenSSL will automatically create certificate chains
+        # The problem is that it sometimes gets the chains right from a
+        # certificate signature view, but wrong from the clients view.
+        auto_chain = no
+
+        # Radius packet should fit into a 15.4 frame
+        fragment_size = 1024
+
+        # Wi-SUN specification enforces these algorithms
+        cipher_list = "ECDHE-ECDSA-AES128-CCM8"
+        ecdh_curve = "prime256v1"
+    }
+
+    tls {
+        tls = tls-common
+    }
+}
