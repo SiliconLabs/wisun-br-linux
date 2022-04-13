@@ -21,6 +21,7 @@
 #include "nanostack/source/6lowpan/ws/ws_common_defines.h"
 #include "nanostack/source/6lowpan/ws/ws_regulation.h"
 #include "nanostack/source/core/ns_address_internal.h"
+#include "nanostack/source/security/kmp/kmp_socket_if.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
@@ -354,6 +355,10 @@ int main(int argc, char *argv[])
             FD_SET(dbus_get_fd(ctxt), &rfds);
             maxfd = max(maxfd, dbus_get_fd(ctxt));
         }
+        if (kmp_socket_if_get_native_sockfd() >= 0) {
+            FD_SET(kmp_socket_if_get_native_sockfd(), &rfds);
+            maxfd = max(maxfd, kmp_socket_if_get_native_sockfd());
+        }
         if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
             FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
         else
@@ -376,6 +381,9 @@ int main(int argc, char *argv[])
             FATAL(2, "pselect: %m");
         if (FD_ISSET(dbus_get_fd(ctxt), &rfds))
             dbus_process(ctxt);
+        if (FD_ISSET(kmp_socket_if_get_native_sockfd(), &rfds)) {
+            kmp_socket_if_data_from_ext_radius();
+        }
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
