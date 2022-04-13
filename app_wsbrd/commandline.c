@@ -191,7 +191,7 @@ static int parse_bitmask(char *str, uint32_t *out, int size)
 
 static int parse_escape_sequences(char *out, char *in)
 {
-    char tmp[3], *end_ptr;
+    char tmp[3], conv, *end_ptr;
     int i, j;
 
     j = 0;
@@ -202,8 +202,9 @@ static int parse_escape_sequences(char *out, char *in)
             tmp[0] = in[i + 2];
             tmp[1] = in[i + 3];
             tmp[2] = '\0';
-            out[j++] = strtol(tmp, &end_ptr, 16);
-            if (*end_ptr)
+            conv = strtol(tmp, &end_ptr, 16);
+            out[j++] = conv;
+            if (*end_ptr || !conv)
                 return -1;
             i += 4;
         } else {
