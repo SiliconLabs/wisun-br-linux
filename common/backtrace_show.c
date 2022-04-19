@@ -30,18 +30,18 @@ static int backtrace_cb(void *data, uintptr_t pc, const char *filename, int line
 
     if (sizeof(void *) > 4) {
         if (!function)
-            printf("  %016lx ??\n", (unsigned long)pc);
+            fprintf(stderr, "  %016lx ??\n", (unsigned long)pc);
         else if (!filename)
-            printf("  %016lx %s() at ??\n", (unsigned long)pc, function);
+            fprintf(stderr, "  %016lx %s() at ??\n", (unsigned long)pc, function);
         else
-            printf("  %016lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
+            fprintf(stderr, "  %016lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
     } else {
         if (!function)
-            printf("  %08lx ??\n", (unsigned long)pc);
+            fprintf(stderr, "  %08lx ??\n", (unsigned long)pc);
         else if (!filename)
-            printf("  %08lx %s() at ??\n", (unsigned long)pc, function);
+            fprintf(stderr, "  %08lx %s() at ??\n", (unsigned long)pc, function);
         else
-            printf("  %08lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
+            fprintf(stderr, "  %08lx %s() at %s:%d\n", (unsigned long)pc, function, filename, lineno);
     }
     return 0;
 }
@@ -50,9 +50,9 @@ void backtrace_show() {
     struct backtrace_state *state = backtrace_create_state(NULL, false, NULL, NULL);
 
     if (state) {
-        printf("Backtrace:\n");
+        fprintf(stderr, "Backtrace:\n");
         backtrace_full(state, 1, backtrace_cb, NULL, NULL);
     } else {
-        printf("Backtrace not available\n");
+        fprintf(stderr, "Backtrace not available\n");
     }
 }
