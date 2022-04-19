@@ -634,20 +634,9 @@ static int tls_sec_lib_entropy_poll(void *ctx, unsigned char *output, size_t len
 {
     (void)ctx;
 
-    char *c = (char *)malloc(len);
-    if (!c) {
-        tr_error("entropy alloca fail");
-        return MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
-    }
-    memset(c, 0, len);
-    for (uint16_t i = 0; i < len; i++) {
-        *(c + i) = (char)rand_get_8bit();
-    }
-    memmove(output, c, len);
+    rand_get_n_bytes_random(output, len);
     *olen = len;
-
-    free(c);
-    return (0);
+    return 0;
 }
 
 #ifdef TLS_SEC_PROT_LIB_USE_MBEDTLS_PLATFORM_MEMORY
