@@ -74,6 +74,9 @@ struct wsbr_ctxt {
     int  ws_domain;
     int  ws_mode;
     int  ws_class;
+    int  ws_chan_base;
+    int  ws_chan_spacing;
+    int  ws_chan_count;
     int  ws_size;
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_pan_id;
