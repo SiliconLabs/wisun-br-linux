@@ -300,7 +300,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             if (valid_ws_classes[i] == ctxt->ws_class)
                 break;
         if (i == ARRAY_SIZE(valid_ws_classes))
-            FATAL(1, "%s:%d: invalid class: %x", filename, line_no, ctxt->ws_class);
+            FATAL(1, "%s:%d: invalid class: %d", filename, line_no, ctxt->ws_class);
     } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
         if (parse_bitmask(str_arg, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
             FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
