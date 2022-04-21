@@ -461,6 +461,14 @@ void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
 
+void wsbr_rcp_get_rf_config_list(struct wsbr_ctxt *ctxt)
+{
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
+
+    spinel_push_hdr_get_prop(ctxt, buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
+}
+
 static const struct {
     mlme_attr_t attr;
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);

@@ -16,6 +16,7 @@ void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf,
 void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop);
 
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt);
+void wsbr_rcp_get_rf_config_list(struct wsbr_ctxt *ctxt);
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt);
 
 void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
