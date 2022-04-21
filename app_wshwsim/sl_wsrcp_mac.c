@@ -23,6 +23,7 @@
 #include "common/log.h"
 
 static void wsmac_rf_status_ind(struct wsmac_ctxt *ctxt, int status);
+static void wsmac_spinel_get_rf_configs(struct wsmac_ctxt *ctxt);
 
 static uint8_t wsbr_get_spinel_hdr(struct wsmac_ctxt *ctxt)
 {
@@ -621,6 +622,9 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
         WARN_ON(index != 0);
         BUG_ON(spinel_remaining_size(rx_buf));
         wsmac_spinel_get_hw_addr(ctxt);
+    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST) {
+        BUG_ON(spinel_remaining_size(rx_buf));
+        wsmac_spinel_get_rf_configs(ctxt);
     } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
         int index = spinel_pop_uint(rx_buf);
         mlme_get_t req = {
@@ -932,6 +936,114 @@ void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload
 void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *response_message)
 {
     WARN("not implemented");
+}
+
+static void wsmac_spinel_get_rf_configs(struct wsmac_ctxt *ctxt)
+{
+    static const struct {
+        uint32_t channel_base;
+        uint32_t channel_spacing;
+        uint32_t channel_nb;
+        uint8_t phy_mode_id;
+    } simulated_rf_configs[] = {
+        {  470200000, 200000, 199,  2 },
+        {  470200000, 200000, 199,  3 },
+        {  470200000, 200000, 199,  5 },
+        {  779200000, 200000,  39,  2 },
+        {  779200000, 200000,  39,  3 },
+        {  779400000, 400000,  19,  5 },
+        {  779400000, 400000,  19,  6 },
+        {  779400000, 400000,  19,  8 },
+        {  863100000, 100000,  69,  1 },
+        {  863100000, 200000,  35,  3 },
+        {  863100000, 200000,  35,  5 },
+        {  863100000, 200000,  35, 80 },
+        {  865100000, 100000,  19,  1 },
+        {  865100000, 200000,  10,  3 },
+        {  865100000, 200000,  10,  5 },
+        {  866100000, 100000,  29,  1 },
+        {  866100000, 200000,  15,  3 },
+        {  866100000, 200000,  15,  5 },
+        {  866300000, 400000,   7,  6 },
+        {  866300000, 400000,   7,  8 },
+        {  870100000, 100000,  55,  1 },
+        {  870200000, 200000,  27,  3 },
+        {  870200000, 200000,  27,  5 },
+        {  870200000, 200000,  27, 80 },
+        {  902200000, 200000,  90,  2 },
+        {  902200000, 200000,  90,  3 },
+        {  902200000, 200000,  90, 80 },
+        {  902200000, 200000, 129,  2 },
+        {  902200000, 200000, 129,  3 },
+        {  902200000, 200000, 129, 80 },
+        {  902400000, 400000,  43,  5 },
+        {  902400000, 400000,  43,  6 },
+        {  902400000, 400000,  43, 64 },
+        {  902400000, 400000,  64,  5 },
+        {  902400000, 400000,  64,  6 },
+        {  902400000, 400000,  64, 64 },
+        {  902400000, 400000,  43,  8 }, // FIXME: check that
+        {  902400000, 400000,  64,  8 }, // FIXME: check that
+        {  902600000, 600000,  42,  8 },
+        {  902600000, 600000,  28,  8 },
+        {  915200000, 200000,  14,  2 },
+        {  915200000, 200000,  64,  2 },
+        {  915200000, 200000,  14,  2 },
+        {  915200000, 200000,  64,  3 },
+        {  915200000, 200000,  14,  3 },
+        {  915200000, 200000,  64,  3 },
+        {  915400000, 400000,  32,  5 },
+        {  915400000, 400000,   7,  5 },
+        {  915400000, 400000,  32,  6 },
+        {  915400000, 400000,   7,  6 },
+        {  915400000, 400000,  32,  8 },
+        {  915400000, 400000,   7,  8 },
+        {  917100000, 200000,  32,  2 },
+        {  917100000, 200000,  32,  3 },
+        {  917300000, 400000,  16,  5 },
+        {  917300000, 400000,  16,  6 },
+        {  917300000, 400000,  16,  8 },
+        {  919200000, 200000,  19,  2 },
+        {  919200000, 200000,  19,  3 },
+        {  919400000, 400000,  10,  5 },
+        {  919400000, 400000,  10,  6 },
+        {  919400000, 400000,  10,  8 },
+        {  920200000, 200000,  24,  2 },
+        {  920200000, 200000,  24,  3 },
+        {  920400000, 400000,  12,  5 },
+        {  920400000, 400000,  12,  6 },
+        {  920400000, 400000,  12,  8 },
+        {  920600000, 200000,  38,  2 },
+        {  920625000, 250000,  16,  2 },
+        {  920625000, 250000,  16,  3 },
+        {  920625000, 250000,  16,  5 },
+        {  920800000, 600000,  12,  7 },
+        {  920800000, 600000,  12,  8 },
+        {  920900000, 400000,  18,  4 },
+        {  920900000, 400000,  18,  5 },
+        { 2400200000, 200000, 416,  2 },
+        { 2400200000, 200000, 416,  3 },
+        { 2400400000, 400000, 207,  5 },
+        { 2400400000, 400000, 207,  6 },
+        { 2400400000, 400000, 207,  8 },
+    };
+    int i;
+
+    spinel_reset(tx_buf);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
+
+    for (i = 0; i < ARRAY_SIZE(simulated_rf_configs); i++) {
+        if (spinel_remaining_size(tx_buf) < 12) {
+            WARN("RF list is too long");
+            break;
+        }
+        spinel_push_u32(tx_buf, simulated_rf_configs[i].channel_base);
+        spinel_push_u32(tx_buf, simulated_rf_configs[i].channel_spacing);
+        spinel_push_u16(tx_buf, simulated_rf_configs[i].channel_nb);
+        spinel_push_u8(tx_buf, simulated_rf_configs[i].phy_mode_id);
+        spinel_push_u8(tx_buf, 0); // reserved for alignement
+    }
+    uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
 void wsmac_reset_ind(struct wsmac_ctxt *ctxt, bool hw)
