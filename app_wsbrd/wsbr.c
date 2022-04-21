@@ -377,7 +377,19 @@ int main(int argc, char *argv[])
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
+    if (ctxt->list_rf_configs) {
+        if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+            wsbr_rcp_get_rf_config_list(ctxt);
+            while (!ctxt->list_rf_configs_done)
+                rcp_rx(ctxt);
+            exit(0);
+        } else {
+            FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
+        }
+    }
+
     wsbr_common_timer_init(ctxt);
+
     if (net_init_core())
         BUG("net_init_core");
 

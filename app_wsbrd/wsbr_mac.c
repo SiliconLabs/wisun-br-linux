@@ -261,7 +261,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_WS_RF_CONFIGURATION_LIST: {
         print_rf_config_list(ctxt, buf);
-        exit(0);
+        ctxt->list_rf_configs_done = true;
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS

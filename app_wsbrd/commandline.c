@@ -50,6 +50,7 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Usage:\n");
     fprintf(stream, "  wsbrd [OPTIONS]\n");
+    fprintf(stream, "  wsbrd [OPTIONS] --list-rf-configs\n");
     fprintf(stream, "\n");
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
@@ -62,6 +63,8 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "                          in the config file\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
+    fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from teh RCP then exit. Most\n");
+    fprintf(stream, "                          of parameters are ignored in this mode\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
     fprintf(stream, "  -m, --mode=VAL        Set operating mode. Valid values: 1a, 1b (default), 2a, 2b, 3, 4a,\n");
@@ -348,6 +351,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
+        { "list-rf-configs", no_argument,   0,  'l' },
         { "tun",         required_argument, 0,  't' },
         { "trace",       required_argument, 0,  'T' },
         { "network",     required_argument, 0,  'n' },
@@ -406,6 +410,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 break;
             case 'o':
                 parse_config_line(ctxt, "command line", 0, optarg);
+                break;
+            case 'l':
+                ctxt->list_rf_configs = true;
                 break;
             case 't':
                 strncpy(ctxt->tun_dev, optarg, sizeof(ctxt->tun_dev) - 1);
