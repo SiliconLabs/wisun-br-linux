@@ -49,6 +49,7 @@ typedef struct fhss_timer fhss_timer_t;
 #define REG_DOMAIN_TH   0x0E /**< Thailand */
 #define REG_DOMAIN_VN   0x0F /**< Vietnam */
 #define REG_DOMAIN_SG_H 0x10 /**< Singapore band 920-925 */
+#define REG_DOMAIN_UNDEF 0xFE
 
 #define OPERATING_MODE_1a 0x1a  /**< 50, 0,5 */
 #define OPERATING_MODE_1b 0x1b  /**< 50, 1.0 */
