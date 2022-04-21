@@ -26,7 +26,7 @@
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/mac/mac_mcps.h"
 #include "nanostack/mac/mac_common_defines.h"

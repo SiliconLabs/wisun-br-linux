@@ -216,8 +216,8 @@ add_executable(wsbrd
     nanostack/source/service_libs/utils/ns_file_system.c
     nanostack/source/service_libs/utils/ns_time.c
     # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
-    nanostack-event-loop/source/event.c
-    nanostack-event-loop/source/system_timer.c
+    stack-scheduler/source/event.c
+    stack-scheduler/source/system_timer.c
     stack-services/common_functions.c
     stack-services/ip6string.c
     stack-services/ns_list.c
@@ -227,7 +227,7 @@ add_executable(wsbrd
 target_include_directories(wsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     nanostack/source/
-    nanostack-event-loop/
+    stack-scheduler/
     nanostack/
 )
 target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
@@ -413,8 +413,8 @@ if(COMPILE_SIMULATION_TOOLS)
         nanostack/source/service_libs/utils/ns_file_system.c
         nanostack/source/service_libs/utils/ns_time.c
         # Excluded nanostack/source/service_libs/whiteboard/whiteboard.c
-        nanostack-event-loop/source/event.c
-        nanostack-event-loop/source/system_timer.c
+        stack-scheduler/source/event.c
+        stack-scheduler/source/system_timer.c
         stack-services/common_functions.c
         stack-services/ip6string.c
         stack-services/ns_list.c
@@ -423,7 +423,7 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         nanostack/source/
-        nanostack-event-loop/
+        stack-scheduler/
         nanostack/
     )
     target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
@@ -455,8 +455,8 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-services/ip6string.c
         stack-services/ns_list.c
         stack-services/ns_trace.c
-        nanostack-event-loop/source/event.c
-        nanostack-event-loop/source/system_timer.c
+        stack-scheduler/source/event.c
+        stack-scheduler/source/system_timer.c
         app_wshwsim/sl_wsrcp.c
         app_wshwsim/sl_wsrcp_mac.c
         app_wshwsim/sl_rf_driver.c
@@ -486,7 +486,7 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         app_wshwsim/
-        nanostack-event-loop/
+        stack-scheduler/
         nanostack/
     )
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)

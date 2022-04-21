@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdint.h>
 #include "stack-services/ns_list.h"
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "timer_sys.h"
 #include <stdlib.h>
 #include "event.h"

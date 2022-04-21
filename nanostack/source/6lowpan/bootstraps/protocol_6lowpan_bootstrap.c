@@ -29,7 +29,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/etx/etx.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/shalib.h"
 #include "nanostack/net_interface.h"

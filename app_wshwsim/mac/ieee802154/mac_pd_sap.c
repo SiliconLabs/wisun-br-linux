@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"

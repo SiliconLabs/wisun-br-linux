@@ -25,9 +25,9 @@
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack-event-loop/eventOS_event_timer.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_event_timer.h"
 #include "nanostack/ns_address.h"
 #include "nanostack/socket_api.h"
 #include "nwk_interface/protocol.h"

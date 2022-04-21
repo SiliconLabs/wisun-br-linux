@@ -14,8 +14,8 @@
 #include <sys/select.h>
 
 #include "stack-services/ns_trace.h"
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "nanostack/mac/fhss_api.h"
 #include "nanostack/mac/mac_api.h"
 #include "nanostack/ns_file_system.h"

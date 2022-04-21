@@ -25,9 +25,9 @@
 #include "service_libs/utils/ns_file.h"
 #include "nanostack/mac/fhss_config.h"
 #include "nanostack/ws_management_api.h"
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
-#include "nanostack-event-loop/eventOS_event_timer.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_event_timer.h"
 #include "nanostack/ns_address.h"
 
 #include "nwk_interface/protocol.h"

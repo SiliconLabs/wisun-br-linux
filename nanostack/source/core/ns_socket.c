@@ -29,8 +29,8 @@
 #include <stdlib.h>
 #include "stack-services/ip6string.h"
 #include "stack-services/common_functions.h"
-#include "nanostack-event-loop/eventOS_event.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "nanostack/socket_api.h"
 
 #include "core/ns_socket.h"

@@ -26,7 +26,7 @@
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "nanostack/mac/mac_common_defines.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/ws_management_api.h"

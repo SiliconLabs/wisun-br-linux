@@ -29,7 +29,7 @@
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "nanostack/nwk_stats_api.h"
 #include "nanostack/socket_api.h"
 #include "nanostack/mac/sw_mac.h"

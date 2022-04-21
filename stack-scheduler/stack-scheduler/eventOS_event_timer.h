@@ -16,7 +16,7 @@
 #ifndef EVENTOS_EVENT_TIMER_H_
 #define EVENTOS_EVENT_TIMER_H_
 #include <stdint.h>
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 
 /**
  * \file eventOS_event_timer.h

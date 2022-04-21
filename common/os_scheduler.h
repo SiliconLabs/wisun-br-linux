@@ -6,7 +6,7 @@
 #ifndef OS_SCHEDULER_H
 #define OS_SCHEDULER_H
 
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 
 struct os_ctxt;
 

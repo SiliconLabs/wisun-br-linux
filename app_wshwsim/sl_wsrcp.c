@@ -21,7 +21,7 @@
 #endif
 
 #include "stack-services/ns_trace.h"
-#include "nanostack-event-loop/eventOS_scheduler.h"
+#include "stack-scheduler/eventOS_scheduler.h"
 #include "nanostack/mac/sw_mac.h"
 
 #include "common/hal_interrupt.h"

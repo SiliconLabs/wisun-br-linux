@@ -29,7 +29,7 @@
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "nanostack/dhcp_service_api.h"
 #include "nanostack/net_interface.h"
 #include "nanostack/ws_management_api.h"

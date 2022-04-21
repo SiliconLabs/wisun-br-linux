@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "nanostack/ethernet_mac_api.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 
 #include "mac/rf_driver_storage.h"
 

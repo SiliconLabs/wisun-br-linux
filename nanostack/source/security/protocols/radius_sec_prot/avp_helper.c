@@ -20,7 +20,7 @@
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "nanostack-event-loop/eventOS_event.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 
 
