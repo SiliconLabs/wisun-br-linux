@@ -486,11 +486,11 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         }
     }
     if (optind != argc)
-        FATAL(1, "Unexpected argument: %s", argv[optind]);
+        FATAL(1, "unexpected argument: %s", argv[optind]);
     if (!ctxt->ws_name[0])
-        FATAL(1, "You must specify a network name (--network)");
+        FATAL(1, "missing \"network_name\" parameter");
     if (ctxt->ws_domain == REG_DOMAIN_UNDEF)
-        FATAL(1, "You must specify a regulation domain (--domain)");
+        FATAL(1, "missing \"domain\" parameter");
     if (!ctxt->ws_class)
         FATAL(1, "missing \"class\" parameter");
     if (!ctxt->ws_mode)
@@ -498,16 +498,14 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
     if (!ctxt->uart_dev[0])
-        FATAL(1, "You must specify a UART device");
+        FATAL(1, "missing \"uart_device\" parameter");
     if (ctxt->radius_server.ss_family == AF_UNSPEC) {
         if (!ctxt->tls_own.key)
-            FATAL(1, "You must specify a key (--key)");
+            FATAL(1, "missing \"key\" (or \"radius_server\") parameter");
         if (!ctxt->tls_own.cert)
-            FATAL(1, "You must specify a certificate (--certificate)");
+            FATAL(1, "missing \"certificate\" (or \"radius_server\") parameter");
         if (!ctxt->tls_ca.cert)
-            FATAL(1, "You must specify a certificate authority (--authority)");
-        if(!ctxt->tls_own.key || !ctxt->tls_own.cert || !ctxt->tls_ca.cert)
-            FATAL(1, "No valid authenticator found. Specify a radius server or a set of key/certificate/CA");
+            FATAL(1, "missing \"authority\" (or \"radius_server\") parameter");
     } else {
         if (ctxt->tls_own.cert_len != 0 || ctxt->tls_own.key_len != 0 || ctxt->tls_ca.cert_len != 0)
             WARN("ignore certificates and key since an external radius server is in use");
