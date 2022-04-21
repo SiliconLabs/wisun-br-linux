@@ -297,7 +297,7 @@ int wsbrd_get_ws_domain(sd_bus *bus, const char *path, const char *interface,
     int *domain = userdata;
     int ret;
 
-    ret = sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains, NULL));
+    ret = sd_bus_message_append(reply, "s", val_to_str(*domain, valid_ws_domains, "[unknown]"));
     WARN_ON(ret < 0, "%s", strerror(-ret));
     return 0;
 }
