@@ -375,9 +375,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
 
     ctxt->uart_baudrate = 115200;
     ctxt->tun_autoconf = true;
-    ctxt->ws_class = 1;
+    ctxt->ws_class = 0;
     ctxt->ws_domain = REG_DOMAIN_UNDEF;
-    ctxt->ws_mode = 0x1b;
+    ctxt->ws_mode = 0;
     ctxt->ws_size = NETWORK_SIZE_SMALL;
     ctxt->ws_pan_id = -1;
     ctxt->tx_power = 20;
@@ -491,6 +491,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "You must specify a network name (--network)");
     if (ctxt->ws_domain == REG_DOMAIN_UNDEF)
         FATAL(1, "You must specify a regulation domain (--domain)");
+    if (!ctxt->ws_class)
+        FATAL(1, "missing \"class\" parameter");
+    if (!ctxt->ws_mode)
+        FATAL(1, "missing \"mode\" parameter");
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
     if (!ctxt->uart_dev[0])
