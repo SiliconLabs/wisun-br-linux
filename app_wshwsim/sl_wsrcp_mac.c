@@ -479,6 +479,8 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         ie_ext.headerIeVectorList->ieBase = malloc(len);
         spinel_pop_raw(buf, ie_ext.headerIeVectorList->ieBase, len, true);
     }
+    if (spinel_remaining_size(buf))
+         async_channel_list.next_channel_number = spinel_pop_u16(buf);
     BUG_ON(spinel_remaining_size(buf));
 
     malloc_info = malloc(sizeof(*malloc_info));
