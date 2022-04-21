@@ -23,11 +23,6 @@
 
 struct protocol_interface_info_entry;
 
-/** Regional regulation context. */
-typedef struct ws_regulation_s {
-  uint32_t regulation;  /**< Current regulation. */
-} ws_regulation_t;
-
 /**************************************************************************//**
  * @brief Initialize the regional regulation context.
  * @param[in] interface_id Wi-SUN interface ID

@@ -16,6 +16,8 @@
  ******************************************************************************/
 
 #include <string.h>
+#include "stack/ws_management_api.h"
+
 #include "nsconfig.h"
 #include "ws_common.h"
 #include "ws_regulation.h"
@@ -38,11 +40,11 @@ int ws_regulation_update_channel_mask_arib(const struct protocol_interface_info_
 
 /** Regional regulation APIs. */
 static const ws_regulation_entry_t ws_regulations[] = {
-  [0] = {
+  [REG_REGIONAL_NONE] = {
     .init = ws_regulation_init_none,
     .update_channel_mask = ws_regulation_update_channel_mask_none
   },
-  [1] = {
+  [REG_REGIONAL_ARIB] = {
     .init = ws_regulation_init_arib,
     .update_channel_mask = ws_regulation_update_channel_mask_arib
   }
@@ -60,12 +62,12 @@ int ws_regulation_set(int8_t interface_id, uint32_t regulation)
   if (!cur || !ws_info(cur) || regulation >= ARRAY_SIZE(ws_regulations)) {
     return -1;
   }
-  cur->ws_info->regulation_ctxt.regulation = regulation;
+  cur->ws_info->regulation = regulation;
   mac_helper_set_regional_regulation(cur, regulation);
-  return ws_regulations[cur->ws_info->regulation_ctxt.regulation].init(cur);
+  return ws_regulations[cur->ws_info->regulation].init(cur);
 }
 
 int ws_regulation_update_channel_mask(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask)
 {
-  return ws_regulations[cur->ws_info->regulation_ctxt.regulation].update_channel_mask(cur, channel_mask);
+  return ws_regulations[cur->ws_info->regulation].update_channel_mask(cur, channel_mask);
 }

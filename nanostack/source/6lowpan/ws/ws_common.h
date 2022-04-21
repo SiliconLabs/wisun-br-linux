@@ -151,7 +151,7 @@ typedef struct ws_info_s {
     struct ws_neighbor_class_s neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     struct fhss_api *fhss_api;
-    ws_regulation_t regulation_ctxt;  /**< Regional regulation context. */
+    int regulation;  /**< Regional regulation context. */
 } ws_info_t;
 
 

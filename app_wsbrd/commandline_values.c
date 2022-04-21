@@ -6,6 +6,7 @@
 #include "common/log.h"
 
 #include "nanostack/ws_management_api.h"
+#include "nanostack/source/6lowpan/ws/ws_regulation.h"
 
 #include "commandline_values.h"
 
@@ -74,7 +75,7 @@ const struct name_value valid_booleans[] = {
 };
 
 const struct name_value valid_ws_regional_regulations[] = {
-    { "none", 0 },
-    { "arib", 1 },
+    { "none", REG_REGIONAL_NONE },
+    { "arib", REG_REGIONAL_ARIB },
     { NULL },
 };

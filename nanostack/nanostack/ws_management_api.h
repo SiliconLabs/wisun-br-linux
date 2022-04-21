@@ -88,6 +88,10 @@ typedef struct fhss_timer fhss_timer_t;
 #define WS_PHY_TYPE_ID_OFDM3 4          /**< OFDM3 phy type */
 #define WS_PHY_TYPE_ID_OFDM4 5          /**< OFDM4 phy type */
 
+#define REG_REGIONAL_NONE 0
+#define REG_REGIONAL_ARIB 1
+// #define REG_REGIONAL_AUTO XX
+
 /*
  *  Network Size definitions are device amount in hundreds of devices.
  *  These definitions are meant to give some estimates of sizes. Any value can be given as parameter
