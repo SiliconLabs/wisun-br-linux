@@ -135,6 +135,11 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
     data.number_of_channels         = spinel_pop_u16(buf);
     data.modulation                 = spinel_pop_u8(buf);
     data.modulation_index           = spinel_pop_u8(buf);
+    if (spinel_remaining_size(buf)) {
+        spinel_pop_bool(buf); // fec
+        spinel_pop_uint(buf); // ofdm_option
+        spinel_pop_uint(buf); // ofdm_mcs
+    }
     BUG_ON(spinel_remaining_size(buf));
     ret = ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_SET, &req);
     wsmac_rf_status_ind(ctxt, ret);
