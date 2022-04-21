@@ -188,7 +188,7 @@ Launch `wsbrd`.
 It is possible to launch `wsbrd` without root privileges. First, ensure you have
 permission to access the UART device:
 
-    sudo usermod -d dialout YOUR_USER
+    sudo usermod -aG dialout YOUR_USER
 
 > You must logout/login after this step
 
