@@ -6,6 +6,7 @@
 #include "common/log.h"
 
 #include "stack/ws_management_api.h"
+#include "stack/mac/channel_list.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 
 #include "commandline_values.h"
@@ -28,6 +29,12 @@ const struct name_value valid_ws_domains[] = {
     { "SG", REG_DOMAIN_SG }, // Singapore
     { "TH", REG_DOMAIN_TH }, //
     { "VN", REG_DOMAIN_VN }, //
+    { NULL },
+};
+
+const struct name_value valid_fsk_modulation_indexes[] = {
+    { "0.5", MODULATION_INDEX_0_5 },
+    { "1.0", MODULATION_INDEX_1_0 },
     { NULL },
 };
 

@@ -7,17 +7,21 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include "common/ws_regdb.h"
 
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
+#include "stack/mac/channel_list.h"
 #include "stack/ws_management_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "dbus.h"
+#include "commandline_values.h"
 #include "common/utils.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
+#include "common/named_values.h"
 #include "common/log.h"
 
 static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
@@ -34,6 +38,104 @@ static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
         ctxt->rcp_time_diff = rcp_time_diff;
     rcp_time_diff = rcp_time_diff * 0.10 + ctxt->rcp_time_diff * 0.9; // smooth adjustement
     ctxt->rcp_time_diff = rcp_time_diff;
+}
+
+static void print_rf_config(struct wsbr_ctxt *ctxt,
+                            const struct phy_params *phy_params, const struct chan_params *chan_params,
+                            uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count, uint8_t phy_mode_id)
+{
+    if (chan_params) {
+        printf(" %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
+        printf("   %d", chan_params->op_class);
+    } else {
+        printf(" ??");
+        printf("  ??");
+    }
+
+    if (phy_params && phy_params->op_mode)
+        printf("   %-2x", phy_params->op_mode);
+    else if (phy_params)
+        printf("   --");
+    else
+        printf("   ??");
+
+    if (phy_params && phy_params->modulation == M_OFDM) {
+        printf("   OFDM");
+        printf("   %1d", phy_params->ofdm_mcs);
+        printf("    %1d", phy_params->ofdm_option);
+        printf("   --");
+    } else if (phy_params && phy_params->modulation == M_2FSK) {
+        printf("    FSK");
+        printf("  --");
+        printf("   --");
+        printf("  %3s", val_to_str(phy_params->fsk_modulation_index, valid_fsk_modulation_indexes, "??"));
+    } else {
+        printf("     ??");
+        printf("  ??");
+        printf("   ??");
+        printf("   ??");
+    }
+
+    if (phy_params)
+        printf(" %4dkbps", phy_params->datarate / 1000);
+    else
+        printf("   ??    ");
+
+    printf(" %4dMHz", chan0_freq / 1000000);
+    printf(" %4dkHz", chan_spacing / 1000);
+    printf("   %3d", chan_count);
+    printf("   %2d", phy_mode_id);
+
+    if (chan_params && chan_params->chan_plan_id != 255)
+        printf("   %3d", chan_params->chan_plan_id);
+    else if (chan_params)
+        printf("    --");
+    else
+        printf("    ??");
+
+    printf("\n");
+}
+
+
+static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
+{
+    uint32_t chan0_freq;
+    uint32_t chan_spacing;
+    uint8_t rail_phy_mode_id;
+    uint16_t chan_count;
+    bool phy_mode_found, chan_plan_found;
+    int i, j;
+
+    printf("dom  cla mode modula mcs ofdm mod    data    chan   chan   #chans phy  chan\n");
+    printf("-ain -ss      -tion      opt. idx    rate    base   space         mode plan\n");
+    while (spinel_remaining_size(buf)) {
+        chan0_freq = spinel_pop_u32(buf);
+        chan_spacing = spinel_pop_u32(buf);
+        chan_count = spinel_pop_u16(buf);
+        rail_phy_mode_id = spinel_pop_u8(buf);
+        spinel_pop_u8(buf); // reserved for alignement
+        // the loops below allow several entries to match
+        phy_mode_found = false;
+        chan_plan_found = false;
+
+        for (i = 0; phy_params_table[i].phy_mode_id; i++) {
+            if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id) {
+                phy_mode_found = true;
+                for (j = 0; chan_params_table[j].chan0_freq; j++) {
+                    if (chan_params_table[j].chan0_freq == chan0_freq &&
+                        chan_params_table[j].chan_spacing == chan_spacing &&
+                        chan_params_table[j].chan_count == chan_count) {
+                        chan_plan_found = true;
+                        print_rf_config(ctxt, &phy_params_table[i], &chan_params_table[j], chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
+                    }
+                }
+                if (!chan_plan_found)
+                    print_rf_config(ctxt, &phy_params_table[i], NULL, chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
+            }
+        }
+        if (!phy_mode_found)
+            print_rf_config(ctxt, NULL, NULL, chan0_freq, chan_spacing, chan_count, rail_phy_mode_id);
+    }
 }
 
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
@@ -155,6 +257,11 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         BUG_ON(spinel_remaining_size(buf));
         // from -174dBm to + 80dBm, so add + 174 to real sensitivity
         ws_device_min_sens_set(ctxt->rcp_if_id, val + 174);
+        break;
+    }
+    case SPINEL_PROP_WS_RF_CONFIGURATION_LIST: {
+        print_rf_config_list(ctxt, buf);
+        exit(0);
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS

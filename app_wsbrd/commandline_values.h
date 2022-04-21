@@ -9,6 +9,7 @@
 #include "common/named_values.h"
 
 extern const struct name_value valid_ws_domains[];
+extern const struct name_value valid_fsk_modulation_indexes[];
 extern const struct name_value valid_ws_size[];
 extern const struct name_value valid_traces[];
 extern const struct name_value valid_booleans[];
