@@ -13,7 +13,7 @@
 #endif
 
 #include "common/slist.h"
-#include "nanostack/mac/fhss_ws_extension.h"
+#include "stack/mac/fhss_ws_extension.h"
 #include "mac/rf_driver_storage.h"
 
 struct os_ctxt;

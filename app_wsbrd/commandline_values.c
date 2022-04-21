@@ -5,8 +5,8 @@
  */
 #include "common/log.h"
 
-#include "nanostack/ws_management_api.h"
-#include "nanostack/source/6lowpan/ws/ws_regulation.h"
+#include "stack/ws_management_api.h"
+#include "stack/source/6lowpan/ws/ws_regulation.h"
 
 #include "commandline_values.h"
 

@@ -17,8 +17,8 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "nanostack/mac/mac_api.h"
-#include "nanostack/mac/fhss_api.h"
+#include "stack/mac/mac_api.h"
+#include "stack/mac/fhss_api.h"
 #include "mac/ieee802154/mac_fhss_callbacks.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/sw_mac_internal.h"

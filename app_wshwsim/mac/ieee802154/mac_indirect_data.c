@@ -28,8 +28,8 @@
 #include "common/os_timer.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
-#include "nanostack/mac/sw_mac.h"
-#include "nanostack/mac/mac_api.h"
+#include "stack/mac/sw_mac.h"
+#include "stack/mac/mac_api.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_indirect_data.h"

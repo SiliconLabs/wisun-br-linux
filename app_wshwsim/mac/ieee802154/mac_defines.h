@@ -19,7 +19,7 @@
 #define MAC_DEFINES_H_
 
 #include "stack-scheduler/eventOS_event.h"
-#include "nanostack/mac/mlme.h"
+#include "stack/mac/mlme.h"
 #include "mac_data_buffer.h"
 #include "stack-services/ns_list.h"
 

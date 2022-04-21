@@ -17,10 +17,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#include "nanostack/source/6lowpan/ws/ws_common_defines.h"
-#include "nanostack/source/core/ns_address_internal.h"
-#include "nanostack/ws_management_api.h"
-#include "nanostack/ns_file_system.h"
+#include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/core/ns_address_internal.h"
+#include "stack/ws_management_api.h"
+#include "stack/ns_file_system.h"
 #include "common/named_values.h"
 #include "common/os_types.h"
 #include "common/utils.h"

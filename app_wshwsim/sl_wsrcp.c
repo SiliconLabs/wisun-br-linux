@@ -22,7 +22,7 @@
 
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "nanostack/mac/sw_mac.h"
+#include "stack/mac/sw_mac.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"

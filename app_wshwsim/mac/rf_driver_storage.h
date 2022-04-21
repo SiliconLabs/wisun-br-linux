@@ -19,10 +19,10 @@
 #define RF_DRIVER_STORAGE_H
 
 #include "stack-services/ns_list.h"
-#include "nanostack/mac/mac_common_defines.h"
-#include "nanostack/mac/mlme.h"
-#include "nanostack/mac/platform/arm_hal_phy.h"
-#include "nanostack/mac/mac_api.h"
+#include "stack/mac/mac_common_defines.h"
+#include "stack/mac/mlme.h"
+#include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/mac/mac_api.h"
 
 struct protocol_interface_rf_mac_setup;
 

@@ -25,8 +25,8 @@
 #ifndef MAC_IEEE802_15_4_MAC_MCPS_SAP_H_
 #define MAC_IEEE802_15_4_MAC_MCPS_SAP_H_
 
-#include "nanostack/mac/mlme.h"
-#include "nanostack/mac/mac_common_defines.h"
+#include "stack/mac/mlme.h"
+#include "stack/mac/mac_common_defines.h"
 #include "mac_data_buffer.h"
 
 struct protocol_interface_rf_mac_setup;

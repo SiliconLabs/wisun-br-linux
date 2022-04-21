@@ -6,7 +6,7 @@
 #ifndef OS_WHITEBOARD_H
 #define OS_WHITEBOARD_H
 
-#include "nanostack/nanostack/platform/os_whiteboard.h"
+#include "stack/stack/platform/os_whiteboard.h"
 
 #endif
 

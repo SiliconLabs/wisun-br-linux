@@ -1,4 +1,4 @@
-#include <nanostack/mac/platform/os_whiteboard.h>
+#include <stack/mac/platform/os_whiteboard.h>
 #include <stack-services/ip6string.h>
 
 #include "common/log.h"

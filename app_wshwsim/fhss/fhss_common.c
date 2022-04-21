@@ -16,8 +16,8 @@
  */
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
-#include "nanostack/mac/fhss_api.h"
-#include "nanostack/mac/fhss_config.h"
+#include "stack/mac/fhss_api.h"
+#include "stack/mac/fhss_config.h"
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_ws.h"

@@ -33,11 +33,11 @@
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
-#include "nanostack/mac/sw_mac.h"
-#include "nanostack/mac/mlme.h"
-#include "nanostack/mac/mac_api.h"
-#include "nanostack/mac/mac_filter_api.h"
-#include "nanostack/mac/fhss_api.h"
+#include "stack/mac/sw_mac.h"
+#include "stack/mac/mlme.h"
+#include "stack/mac/mac_api.h"
+#include "stack/mac/mac_filter_api.h"
+#include "stack/mac/fhss_api.h"
 
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"

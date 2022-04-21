@@ -27,10 +27,10 @@
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "nanostack/mac/ccm.h"
-#include "nanostack/mac/mlme.h"
-#include "nanostack/mac/mac_api.h"
-#include "nanostack/mac/fhss_api.h"
+#include "stack/mac/ccm.h"
+#include "stack/mac/mlme.h"
+#include "stack/mac/mac_api.h"
+#include "stack/mac/fhss_api.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
 #include "common/rand.h"
@@ -48,7 +48,7 @@
 #include "mac/ieee802154/mac_cca_threshold.h"
 #include "mac/rf_driver_storage.h"
 
-#include "nanostack/mac/sw_mac.h"
+#include "stack/mac/sw_mac.h"
 
 #define TRACE_GROUP "mMCp"
 

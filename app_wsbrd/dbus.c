@@ -8,15 +8,15 @@
 #include <systemd/sd-bus.h>
 
 #include "nsconfig.h"
-#include "nanostack/source/6lowpan/ws/ws_common.h"
-#include "nanostack/source/6lowpan/ws/ws_pae_controller.h"
-#include "nanostack/source/6lowpan/ws/ws_cfg_settings.h"
-#include "nanostack/source/nwk_interface/protocol.h"
-#include "nanostack/source/security/protocols/sec_prot_keys.h"
-#include "nanostack/source/common_protocols/icmpv6.h"
+#include "stack/source/6lowpan/ws/ws_common.h"
+#include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
+#include "stack/source/nwk_interface/protocol.h"
+#include "stack/source/security/protocols/sec_prot_keys.h"
+#include "stack/source/common_protocols/icmpv6.h"
 
-#include "nanostack/ws_bbr_api.h"
-#include "nanostack/socket_api.h"
+#include "stack/ws_bbr_api.h"
+#include "stack/socket_api.h"
 
 #include "common/named_values.h"
 #include "common/utils.h"

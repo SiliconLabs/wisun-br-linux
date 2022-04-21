@@ -3,7 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
-/* Interface with nanostack/source/service_libs/fhss that is now relocated to
+/* Interface with stack/source/service_libs/fhss that is now relocated to
  * the device.
  */
 #include <stdio.h>
@@ -11,8 +11,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "nanostack/mac/fhss_config.h"
-#include "nanostack/mac/fhss_api.h"
+#include "stack/mac/fhss_config.h"
+#include "stack/mac/fhss_api.h"
 
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"

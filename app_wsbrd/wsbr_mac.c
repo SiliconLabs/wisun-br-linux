@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "nanostack/mac/mac_mcps.h"
-#include "nanostack/mac/mac_api.h"
-#include "nanostack/ws_management_api.h"
+#include "stack/mac/mac_mcps.h"
+#include "stack/mac/mac_api.h"
+#include "stack/ws_management_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"

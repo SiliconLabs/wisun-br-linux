@@ -16,7 +16,7 @@
  */
 #ifndef FHSS_WS_H_
 #define FHSS_WS_H_
-#include "nanostack/mac/fhss_ws_extension.h"
+#include "stack/mac/fhss_ws_extension.h"
 
 // TX slot length is optimised to this packet length
 #define OPTIMAL_PACKET_LENGTH               500

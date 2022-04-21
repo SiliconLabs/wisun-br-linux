@@ -24,9 +24,9 @@
 
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
-#include "nanostack/mac/platform/arm_hal_phy.h"
-#include "nanostack/mac/mlme.h"
-#include "nanostack/mac/mac_api.h"
+#include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/mac/mlme.h"
+#include "stack/mac/mac_api.h"
 #include "common/log.h"
 #include "common/utils.h"
 #include "mac/rf_driver_storage.h"

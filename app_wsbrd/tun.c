@@ -13,12 +13,12 @@
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 
-#include "nanostack/mac/platform/arm_hal_phy.h"
-#include "nanostack/ethernet_mac_api.h"
-#include "nanostack/net_interface.h"
+#include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/ethernet_mac_api.h"
+#include "stack/net_interface.h"
 
 
-#include "nanostack/source/6lowpan/lowpan_adaptation_interface.h"
+#include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 
 #include "tun.h"
 #include "common/log.h"

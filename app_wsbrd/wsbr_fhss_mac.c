@@ -4,14 +4,14 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 /* Provide FHSS related functions to MAC 802.15.4 interface (located in
- * nanostack/source/mac/ieee802154). This bloc is now relocated to the
+ * stack/source/mac/ieee802154). This bloc is now relocated to the
  * device.
  */
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "nanostack/mac/mac_api.h"
+#include "stack/mac/mac_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"

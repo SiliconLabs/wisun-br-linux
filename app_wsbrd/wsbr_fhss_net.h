@@ -6,8 +6,8 @@
 #ifndef WSBR_FHSS_NET_H
 #define WSBR_FHSS_NET_H
 
-#include "nanostack/mac/fhss_ws_extension.h"
-#include "nanostack/mac/net_fhss.h"
+#include "stack/mac/fhss_ws_extension.h"
+#include "stack/mac/net_fhss.h"
 
 #define FHSS_API_PLACEHOLDER ((struct fhss_api *) 0xbadbeef)
 

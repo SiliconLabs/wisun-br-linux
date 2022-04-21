@@ -40,8 +40,8 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "nanostack/mac/ccm.h"
-#include "nanostack/mac/platform/arm_hal_aes.h"
+#include "stack/mac/ccm.h"
+#include "stack/mac/platform/arm_hal_aes.h"
 
 static void ccm_generate_A0(uint8_t *ptr, ccm_globals_t *ccm_pramters);
 static void ccm_auth_generate_B0(uint8_t *ptr, ccm_globals_t *ccm_params);
