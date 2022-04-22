@@ -252,7 +252,7 @@ install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY DESTINATION /var/lib/wsbrd)
 install(FILES misc/com.silabs.Wisun.BorderRouter.service
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
-install(FILES misc/wisun-borderouter.service
+install(FILES misc/wisun-borderrouter.service
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system)
 # We try to avoid PATH hardcoding, but dbus does not watch
 # /usr/local/share/dbus-1/system.d
