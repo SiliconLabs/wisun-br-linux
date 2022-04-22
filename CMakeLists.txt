@@ -90,6 +90,7 @@ add_executable(wsbrd
     common/slist.c
     common/spinel_buffer.c
     common/trickle.c
+    common/ws_regdb.c
     stack/source/6lowpan/adaptation_interface.c
     stack/source/6lowpan/bootstraps/network_lib.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -313,6 +314,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/slist.c
         common/spinel_buffer.c
         common/trickle.c
+        common/ws_regdb.c
         stack/source/6lowpan/adaptation_interface.c
         stack/source/6lowpan/bootstraps/network_lib.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan.c
