@@ -7,3 +7,6 @@ Documentation=file:///usr/local/share/doc/wsbrd/examples/wsbrd.conf
 BusName=com.silabs.WiSun.BorderRouter
 ExecStart=/usr/local/bin/wsbrd -F /etc/wsbrd.conf
 Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
