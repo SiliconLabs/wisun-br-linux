@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <stddef.h>
 #include "ws_regdb.h"
 
 const struct phy_params phy_params_table[] = {
@@ -105,3 +106,61 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_WW, 2, REG_REGIONAL_NONE,   0, 2400400000,  400000, 207, 207, {  5,  6,  8,                 }, },
     { REG_DOMAIN_UNDEF, 0, REG_REGIONAL_NONE, 0,         0,       0,   0,   0, {                             }, },
 };
+
+const struct phy_params *phy_params_from_mode(int operating_mode)
+{
+    int i;
+
+    for (i = 0; phy_params_table[i].phy_mode_id; i++)
+        if (phy_params_table[i].op_mode == operating_mode)
+            return &phy_params_table[i];
+    return NULL;
+}
+
+const struct phy_params *phy_params_from_id(int phy_mode_id)
+{
+    int i;
+
+    for (i = 0; phy_params_table[i].phy_mode_id; i++)
+        if (phy_params_table[i].phy_mode_id == phy_mode_id)
+            return &phy_params_table[i];
+    return NULL;
+}
+
+const struct chan_params *chan_params_fan1_0(int reg_domain, int operating_class)
+{
+    int i;
+
+    if (!operating_class)
+        return NULL;
+    for (i = 0; chan_params_table[i].chan0_freq; i++)
+        if (chan_params_table[i].reg_domain == reg_domain &&
+            chan_params_table[i].op_class == operating_class)
+            return &chan_params_table[i];
+    return NULL;
+}
+
+const struct chan_params *chan_params_fan1_1(int reg_domain, int chan_plan_id)
+{
+    int i;
+
+    if (!chan_plan_id)
+        return NULL;
+    for (i = 0; chan_params_table[i].chan0_freq; i++)
+        if (chan_params_table[i].reg_domain == reg_domain &&
+            chan_params_table[i].chan_plan_id == chan_plan_id)
+            return &chan_params_table[i];
+    return NULL;
+}
+
+const struct chan_params *chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid)
+{
+    int i;
+
+    for (i = 0; chan_params_table[i].chan0_freq; i++)
+        if (chan_params_table[i].chan0_freq == chan0_freq &&
+            chan_params_table[i].chan_spacing == chan_spacing &&
+            chan_params_table[i].chan_count_valid == chan_count_valid)
+            return &chan_params_table[i];
+    return NULL;
+}
