@@ -45,6 +45,10 @@ static const int valid_ws_classes[] = {
     0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, // ChanPlanIDs EU
 };
 
+static const int valid_ws_chan_spacing[] = {
+    100000, 200000, 400000, 600000, 800000, 1200000,
+};
+
 void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN border router\n");
@@ -242,7 +246,11 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " chan_base = %u %c", &ctxt->ws_chan_base, &garbage) == 1) {
         /* empty */
     } else if (sscanf(line, " chan_spacing = %u %c", &ctxt->ws_chan_spacing, &garbage) == 1) {
-        /* empty */
+        for (i = 0; i < ARRAY_SIZE(valid_ws_chan_spacing); i++)
+            if (valid_ws_chan_spacing[i] == ctxt->ws_chan_spacing)
+                break;
+        if (i == ARRAY_SIZE(valid_ws_chan_spacing))
+            FATAL(1, "%s:%d: invalid channel spacing: %d", filename, line_no, ctxt->ws_chan_spacing);
     } else if (sscanf(line, " chan_count = %u %c", &ctxt->ws_chan_count, &garbage) == 1) {
         /* empty */
     } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
