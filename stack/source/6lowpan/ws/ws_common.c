@@ -19,6 +19,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
+#include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
@@ -465,130 +466,14 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
 
 uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
 {
-    if (regulatory_domain == REG_DOMAIN_KR) {
-        if (operating_class == 1) {
-            return 32;
-        } else if (operating_class == 2) {
-            return 16;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_EU) {
-        if (channel_plan_id == 255) {
-            channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(operating_class, regulatory_domain);
-        }
-        return ws_phy_get_number_of_channels_using_channel_plan_id(channel_plan_id);
-    } else if (regulatory_domain == REG_DOMAIN_IN) {
-        if (operating_class == 1) {
-            return 19;
-        } else if (operating_class == 2) {
-            return 10;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_NA) {
-        if (channel_plan_id == 255) {
-            channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(operating_class, regulatory_domain);
-        }
-        return ws_phy_get_number_of_channels_using_channel_plan_id(channel_plan_id);
-    } else if (regulatory_domain == REG_DOMAIN_JP) {
-        if (channel_plan_id == 255) {
-            if (operating_class == 1) {
-                return 38;
-            } else if (operating_class == 2) {
-                return 18;
-            } else if (operating_class == 3) {
-                return 12;
-            }
-        } else {
-            if (channel_plan_id == 21) {
-                return 38;
-            } else if (channel_plan_id == 22) {
-                return 18;
-            } else if (channel_plan_id == 24) {
-                return 9;
-            }
-        }
-    } else if (regulatory_domain == REG_DOMAIN_BZ) {
-        if (channel_plan_id == 255) {
-            channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(operating_class, regulatory_domain);
-        }
-        return ws_phy_get_number_of_channels_using_channel_plan_id(channel_plan_id);
-    } else if (regulatory_domain == REG_DOMAIN_WW) {
-        if (operating_class == 1) {
-            // TODO we dont support this yet, but it is used as test value
-            return 416;
-        } else if (operating_class == 2) {
-            return 207;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_VN) {
-        if (operating_class == 1) {
-            return 24;
-        } else if (operating_class == 2) {
-            return 12;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_CN) {
-        if (operating_class == 1) {
-            return 199;
-        } else if (operating_class == 2) {
-            return 39;
-        } else if (operating_class == 3) {
-            return 19;
-        } else if (operating_class == 4) {
-            return 16;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_MX) {
-        if (operating_class == 1) {
-            return 129;
-        } else if (operating_class == 2) {
-            return 64;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_AZ) {
-        if (operating_class == 1) {
-            return 64;
-        } else if (operating_class == 2) {
-            return 32;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_NZ) {
-        if (operating_class == 1) {
-            return 64;
-        } else if (operating_class == 2) {
-            return 32;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_PH) {
-        if (operating_class == 1) {
-            return 14;
-        } else if (operating_class == 2) {
-            return 7;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_MY) {
-        if (operating_class == 1) {
-            return 19;
-        } else if (operating_class == 2) {
-            return 10;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_HK) {
-        if (operating_class == 1) {
-            return 24;
-        } else if (operating_class == 2) {
-            return 12;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_SG) {
-        if (operating_class == 1) {
-            return 29;
-        } else if (operating_class == 2) {
-            return 15;
-        } else if (operating_class == 3) {
-            return 7;
-        } else if (operating_class == 4) {
-            return 24;
-        } else if (operating_class == 5) {
-            return 12;
-        }
-    } else if (regulatory_domain == REG_DOMAIN_TH) {
-        if (operating_class == 1) {
-            return 24;
-        } else if (operating_class == 2) {
-            return 12;
-        }
-    }
-    return 0;
+    const struct chan_params *params;
+
+    params = chan_params_fan1_1(regulatory_domain, channel_plan_id);
+    if (!params)
+        params = chan_params_fan1_0(regulatory_domain, operating_class);
+    if (!params)
+        return 0;
+    return params->chan_count;
 }
 
 int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
