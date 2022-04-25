@@ -212,14 +212,8 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
             if (cur->nwk_id == IF_6LoWPAN) {
                 if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                    if (ws_info(cur)) {
-                        ws_common_seconds_timer(cur, seconds);
-                    } else if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
-                        tr_error("unexpected: !ws_info(cur)");
-                    }
-
+                    ws_common_seconds_timer(cur, seconds);
                     mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
-
                     etx_cache_timer(cur->id, seconds);
                     lowpan_adaptation_interface_slow_timer(cur);
                 }
@@ -263,9 +257,7 @@ void core_timer_event_handle(uint16_t ticksUpdate)
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 nwk_bootstrap_timer(cur);
                 nd_object_timer(cur, ticksUpdate);
-                if (ws_info(cur)) {
-                    ws_common_fast_timer(cur, ticksUpdate);
-                }
+                ws_common_fast_timer(cur, ticksUpdate);
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
         } else if (cur->nwk_id == IF_IPV6) {
@@ -970,16 +962,12 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
 void net_bootstrap_cb_run(uint8_t event)
 {
     int8_t nwk_id = (int8_t) event;
-    protocol_interface_info_entry_t *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(nwk_id);
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
+
     if (cur) {
         if (cur->nwk_id == IF_6LoWPAN) {
             //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
-            if (ws_info(cur)) {
-                ws_common_state_machine(cur);
-            } else {
-                tr_error("unexpected: !ws_info(cur)");
-            }
+            ws_common_state_machine(cur);
         } else if (cur->nwk_id == IF_IPV6) {
             //IPV6 Bootstrap Run
         }
