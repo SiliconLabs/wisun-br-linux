@@ -49,7 +49,6 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "6lowpan/ws/ws_phy.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
 

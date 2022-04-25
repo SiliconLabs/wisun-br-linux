@@ -79,7 +79,6 @@
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "6lowpan/ws/ws_phy.h"
 #include "6lowpan/ws/ws_stats.h"
 
 #define TRACE_GROUP "wsbs"
@@ -1832,44 +1831,6 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
     return 0;
 }
 
-static int8_t ws_bootstrap_phy_mode_resolver(const mac_api_t *api, uint8_t phy_mode_id, phy_rf_channel_configuration_s *rf_config)
-{
-    rf_config->modulation = ws_phy_get_modulation_using_phy_mode_id(phy_mode_id);
-    if (rf_config->modulation == M_UNDEFINED) {
-        return -1;
-    }
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(api->parent_id);
-    if (!interface) {
-        return -1;
-    }
-    uint8_t regulatory_domain = interface->ws_info->hopping_schedule.regulatory_domain;
-    uint8_t base_channel_plan_id = interface->ws_info->hopping_schedule.channel_plan_id;
-    if (base_channel_plan_id == 255) {
-        base_channel_plan_id = ws_phy_convert_operating_class_to_channel_plan_id(interface->ws_info->hopping_schedule.operating_class, regulatory_domain);
-    }
-    if (!base_channel_plan_id) {
-        return -1;
-    }
-    // Function returns base channel plan ID, if it matches the PHY mode ID. Otherwise, nearest matching channel plan ID where PHY mode ID is allowed will be returned.
-    uint8_t channel_plan_id = ws_phy_get_channel_plan_id_using_phy_mode_id(phy_mode_id, regulatory_domain, base_channel_plan_id);
-    if (!channel_plan_id) {
-        return -1;
-    }
-
-    rf_config->channel_0_center_frequency = ws_phy_get_channel_0_frequency_using_channel_plan_id(channel_plan_id);
-    rf_config->channel_spacing = ws_phy_get_channel_spacing_using_channel_plan_id(channel_plan_id);
-    rf_config->number_of_channels = ws_phy_get_number_of_channels_using_channel_plan_id(channel_plan_id);
-    rf_config->datarate = ws_phy_get_datarate_using_phy_mode_id(phy_mode_id);
-    if (!rf_config->channel_0_center_frequency || !rf_config->channel_spacing || !rf_config->number_of_channels || !rf_config->datarate) {
-        return -1;
-    }
-    rf_config->ofdm_option = ws_phy_get_ofdm_option_using_phy_mode_id(phy_mode_id);
-    rf_config->ofdm_mcs = ws_phy_get_ofdm_mcs_using_phy_mode_id(phy_mode_id);
-    rf_config->fec = ws_phy_get_fsk_fec_enabled_using_phy_mode_id(phy_mode_id);
-    rf_config->modulation_index = ws_phy_get_modulation_index_using_phy_mode_id(phy_mode_id);
-    return 0;
-}
-
 static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs)
 {
     mlme_set_t set_request;
@@ -1918,19 +1879,6 @@ int ws_bootstrap_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t
 {
     rpl_control_neighbor_delete(cur, ll_address);
     ws_bootstrap_neighbor_remove(cur, ll_address);
-    return 0;
-}
-
-static int ws_bootstrap_operating_mode_resolver(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s *rf_config)
-{
-    memset(rf_config, 0, sizeof(phy_rf_channel_configuration_s));
-    rf_config->fec = false;
-    rf_config->modulation = M_2FSK;
-    rf_config->datarate = ws_phy_get_datarate_using_operating_mode(cur->ws_info->hopping_schedule.operating_mode);
-    rf_config->modulation_index = ws_phy_get_modulation_index_using_operating_mode(cur->ws_info->hopping_schedule.operating_mode);
-    rf_config->channel_0_center_frequency = (uint32_t)cur->ws_info->hopping_schedule.ch0_freq * 100000;
-    rf_config->channel_spacing = ws_phy_decode_channel_spacing(cur->ws_info->hopping_schedule.channel_spacing);
-    rf_config->number_of_channels = cur->ws_info->hopping_schedule.number_of_channels;
     return 0;
 }
 
