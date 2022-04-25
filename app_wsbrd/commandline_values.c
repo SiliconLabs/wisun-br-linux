@@ -19,17 +19,17 @@ const struct name_value valid_ws_domains[] = {
     { "EU", REG_DOMAIN_EU }, // European Union
     { "CN", REG_DOMAIN_CN }, // China
     { "IN", REG_DOMAIN_IN }, // India
-    { "MX", REG_DOMAIN_MX }, //
+    { "MX", REG_DOMAIN_MX }, // Mexico
     { "BZ", REG_DOMAIN_BZ }, // Brazil
     { "AZ", REG_DOMAIN_AZ }, // Australia
-    { "NZ", REG_DOMAIN_NZ }, // New zealand
+    { "NZ", REG_DOMAIN_NZ }, // New Zealand (share its ID with Australia)
     { "KR", REG_DOMAIN_KR }, // Korea
-    { "PH", REG_DOMAIN_PH }, //
-    { "MY", REG_DOMAIN_MY }, //
-    { "HK", REG_DOMAIN_HK }, //
+    { "PH", REG_DOMAIN_PH }, // Philippines
+    { "MY", REG_DOMAIN_MY }, // Malaysia
+    { "HK", REG_DOMAIN_HK }, // Hong Kong
     { "SG", REG_DOMAIN_SG }, // Singapore
-    { "TH", REG_DOMAIN_TH }, //
-    { "VN", REG_DOMAIN_VN }, //
+    { "TH", REG_DOMAIN_TH }, // Thailand
+    { "VN", REG_DOMAIN_VN }, // Vietnam
     { NULL },
 };
 
