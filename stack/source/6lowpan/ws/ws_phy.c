@@ -330,7 +330,7 @@ phy_modulation_e ws_phy_get_modulation_using_phy_mode_id(uint8_t phy_mode_id)
 phy_modulation_index_e ws_phy_get_modulation_index_using_phy_mode_id(uint8_t phy_mode_id)
 {
     if (ws_phy_get_modulation_using_phy_mode_id(phy_mode_id) != M_2FSK) {
-        return MODULATION_INDEX_UNDEFINED;
+        return MODULATION_INDEX_UNDEF;
     }
 
     if ((2 == phy_mode_id) || (18 == phy_mode_id) ||

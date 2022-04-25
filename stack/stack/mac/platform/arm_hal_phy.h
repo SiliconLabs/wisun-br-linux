@@ -169,7 +169,7 @@ typedef enum {
 typedef enum {
     MODULATION_INDEX_0_5 = 0,   ///< Modulation index 0.5
     MODULATION_INDEX_1_0 = 1,   ///< Modulation index 1.0
-    MODULATION_INDEX_UNDEFINED  ///< Modulation index undefined
+    MODULATION_INDEX_UNDEF      ///< Modulation index undefined
 } phy_modulation_index_e;
 
 /** OFDM option */
