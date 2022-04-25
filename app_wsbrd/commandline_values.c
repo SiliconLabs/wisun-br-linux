@@ -25,10 +25,9 @@ const struct name_value valid_ws_domains[] = {
     { "PH", REG_DOMAIN_PH }, //
     { "MY", REG_DOMAIN_MY }, //
     { "HK", REG_DOMAIN_HK }, //
-    { "SG", REG_DOMAIN_SG }, // band 866-869
+    { "SG", REG_DOMAIN_SG }, // Singapore
     { "TH", REG_DOMAIN_TH }, //
     { "VN", REG_DOMAIN_VN }, //
-    { "SG", REG_DOMAIN_SG_H }, // band 920-925
     { NULL },
 };
 
