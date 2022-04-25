@@ -44,6 +44,8 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
                             const struct phy_params *phy_params, const struct chan_params *chan_params,
                             uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count, uint8_t phy_mode_id)
 {
+    int i;
+
     if (chan_params) {
         printf(" %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
         printf("   %d", chan_params->op_class);
@@ -92,6 +94,14 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
         printf("    --");
     else
         printf("    ??");
+
+    if (chan_params) {
+        for (i = 0; chan_params->valid_phy_modes[i]; i++)
+            if (chan_params->valid_phy_modes[i] == phy_mode_id)
+                break;
+        if (!chan_params->valid_phy_modes[i])
+            printf(" (non standard)");
+    }
 
     printf("\n");
 }
