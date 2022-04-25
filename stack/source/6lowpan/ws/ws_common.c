@@ -155,9 +155,8 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     else
         hopping_schedule->ch0_freq = 920625; // Special case!
 
-    hopping_schedule->channel_spacing = chan_spacing_id(chan_params->chan_spacing);
-    BUG_ON(hopping_schedule->channel_spacing < 0);
     hopping_schedule->number_of_channels = chan_params->chan_count;
+    BUG_ON(hopping_schedule->channel_spacing < 0);
 
     return 0;
 }

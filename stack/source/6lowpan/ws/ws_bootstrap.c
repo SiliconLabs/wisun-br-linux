@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
+#include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
@@ -1935,17 +1936,31 @@ static int ws_bootstrap_operating_mode_resolver(protocol_interface_info_entry_t 
 
 int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
 {
-    phy_rf_channel_configuration_s rf_config;
-    memset(&rf_config, 0, sizeof(phy_rf_channel_configuration_s));
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
+    phy_rf_channel_configuration_s rf_config = { };
 
-    uint8_t phy_mode_id = cur->ws_info->hopping_schedule.phy_mode_id;
-    if (phy_mode_id == 255) {
-        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(cur->ws_info->hopping_schedule.operating_mode);
-    }
+    phy_params = phy_params_from_id(hopping_schedule->phy_mode_id);
+    if (!phy_params)
+        phy_params = phy_params_from_mode(hopping_schedule->operating_mode);
 
-    if (!phy_mode_id || ws_bootstrap_phy_mode_resolver(cur->mac_api, phy_mode_id, &rf_config)) {
-        // Cannot resolve RF configuration using PHY mode ID, try with operating mode
-        ws_bootstrap_operating_mode_resolver(cur, &rf_config);
+    chan_params = chan_params_fan1_1(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id);
+    if (!chan_params)
+        chan_params = chan_params_fan1_0(hopping_schedule->regulatory_domain, hopping_schedule->operating_class);
+
+    // We don't worry of the case where phy_params == NULL, the RCP will return
+    // an error anyway.
+    if (check_phy_chan_compat(phy_params, chan_params)) {
+        rf_config.datarate = phy_params->datarate;
+        rf_config.modulation = (phy_modulation_e)phy_params->modulation;
+        rf_config.modulation_index = (phy_modulation_index_e)phy_params->fsk_modulation_index;
+        rf_config.fec = phy_params->fec;
+        rf_config.ofdm_option = (phy_ofdm_option_e)phy_params->ofdm_option;
+        rf_config.ofdm_mcs = (phy_ofdm_mcs_e)phy_params->ofdm_mcs;
+        rf_config.channel_0_center_frequency = chan_params->chan0_freq;
+        rf_config.channel_spacing = chan_params->chan_spacing;
+        rf_config.number_of_channels = chan_params->chan_count_valid;
     }
 
     ws_bootstrap_set_rf_config(cur, rf_config);
