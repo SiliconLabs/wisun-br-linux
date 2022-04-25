@@ -18,6 +18,7 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"
@@ -136,330 +137,27 @@ uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_
 
 int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schedule)
 {
-    (void)cur;
-    if (ws_common_datarate_get_from_phy_mode(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode) == 0) {
-        //Unsupported operation mode
+    const struct chan_params *chan_params;
+
+    // Check if phy_mode_id is valid
+    if (!phy_params_from_id(hopping_schedule->phy_mode_id) && !phy_params_from_mode(hopping_schedule->operating_mode))
         return -1;
-    }
 
-    // Validate PHY mode ID
-    if (hopping_schedule->phy_mode_id != 255) {
-        uint8_t phy_mode_id = hopping_schedule->phy_mode_id;
-        uint8_t phy_type = phy_mode_id >> 4;
-        uint8_t phy_mode = phy_mode_id & 0x0f;
-        // Invalid PHY type
-        if (phy_type > 5) {
-            return -1;
-        }
-        // Invalid OFDM mode
-        if (phy_type >= 2 && phy_mode > 6) {
-            return -1;
-        }
-
-        if (M_OFDM == ws_phy_get_modulation_using_phy_mode_id(phy_mode_id)) {
-            // Validate OFDM configurations
-            if (!ws_phy_get_datarate_using_phy_mode_id(phy_mode_id) ||
-                    !ws_phy_get_ofdm_option_using_phy_mode_id(phy_mode_id) ||
-                    !ws_phy_get_ofdm_mcs_using_phy_mode_id(phy_mode_id)) {
-                //Unsupported PHY mode
-                return -1;
-            }
-        } else if (M_UNDEFINED == ws_phy_get_modulation_using_phy_mode_id(phy_mode_id)) {
-            // Invalid PHY mode ID
-            return -1;
-        }
-    }
     hopping_schedule->channel_plan = 0;
-
-    if (hopping_schedule->regulatory_domain == REG_DOMAIN_KR) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9171;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9173;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_EU) {
-        if (hopping_schedule->channel_plan_id == 255) {
-            if (hopping_schedule->operating_class == 1) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-            } else if (hopping_schedule->operating_class == 2) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->operating_class == 3) {
-                hopping_schedule->ch0_freq = 8701;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-            } else if (hopping_schedule->operating_class == 4) {
-                hopping_schedule->ch0_freq = 8702;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else {
-                return -1;
-            }
-        } else {
-            if (hopping_schedule->channel_plan_id == 32) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-            } else if (hopping_schedule->channel_plan_id == 33) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->channel_plan_id == 34) {
-                hopping_schedule->ch0_freq = 8701;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-            } else if (hopping_schedule->channel_plan_id == 35) {
-                hopping_schedule->ch0_freq = 8702;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->channel_plan_id == 36) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-            } else if (hopping_schedule->channel_plan_id == 37) {
-                hopping_schedule->ch0_freq = 8631;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else {
-                return -1;
-            }
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_IN) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 8651;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 8651;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_NA) {
-        if (hopping_schedule->channel_plan_id == 255) {
-            if (hopping_schedule->operating_class == 1) {
-                hopping_schedule->ch0_freq = 9022;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->operating_class == 2) {
-                hopping_schedule->ch0_freq = 9024;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->operating_class == 3) {
-                hopping_schedule->ch0_freq = 9026;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_600;
-            } else {
-                return -1;
-            }
-        } else {
-            if (hopping_schedule->channel_plan_id == 1) {
-                hopping_schedule->ch0_freq = 9022;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->channel_plan_id == 2) {
-                hopping_schedule->ch0_freq = 9024;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->channel_plan_id == 4) {
-                hopping_schedule->ch0_freq = 9028;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_800;
-            } else if (hopping_schedule->channel_plan_id == 5) {
-                hopping_schedule->ch0_freq = 9032;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_1200;
-            } else {
-                return -1;
-            }
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_BZ) {
-        if (hopping_schedule->channel_plan_id == 255) {
-            if (hopping_schedule->operating_class == 1) {
-                hopping_schedule->ch0_freq = 9022;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->operating_class == 2) {
-                hopping_schedule->ch0_freq = 9024;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->operating_class == 3) {
-                hopping_schedule->ch0_freq = 9026;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_600;
-            } else {
-                return -1;
-            }
-        } else {
-            if (hopping_schedule->channel_plan_id == 1) {
-                hopping_schedule->ch0_freq = 9022;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->channel_plan_id == 2) {
-                hopping_schedule->ch0_freq = 9024;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->channel_plan_id == 5) {
-                hopping_schedule->ch0_freq = 9032;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_1200;
-            } else {
-                return -1;
-            }
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_JP) {
-        if (hopping_schedule->channel_plan_id == 255) {
-            if (hopping_schedule->operating_class == 1) {
-                hopping_schedule->ch0_freq = 9206;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->operating_class == 2) {
-                hopping_schedule->ch0_freq = 9209;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->operating_class == 3) {
-                hopping_schedule->ch0_freq = 9208;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_600;
-            } else {
-                return -1;
-            }
-        } else {
-            if (hopping_schedule->channel_plan_id == 21) {
-                hopping_schedule->ch0_freq = 9206;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-            } else if (hopping_schedule->channel_plan_id == 22) {
-                hopping_schedule->ch0_freq = 9209;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-            } else if (hopping_schedule->channel_plan_id == 24) {
-                hopping_schedule->ch0_freq = 9211;
-                hopping_schedule->channel_spacing = CHANNEL_SPACING_800;
-            } else {
-                return -1;
-            }
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_WW) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 24002;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 24004;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_VN) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9202;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9204;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_CN) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 4702;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 7792;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 3) {
-            hopping_schedule->ch0_freq = 7794;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else if (hopping_schedule->operating_class == 4) {
-            /* This is handled as a special case in the end */
-            hopping_schedule->ch0_freq = 0;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_250;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_MX) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9022;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9024;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_AZ) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9152;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9154;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_NZ) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9152;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9154;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_PH) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9152;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9154;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_MY) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9192;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9194;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_HK) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9202;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9204;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_SG) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 8661;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_100;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 8661;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 3) {
-            hopping_schedule->ch0_freq = 8663;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else if (hopping_schedule->operating_class == 4) {
-            hopping_schedule->ch0_freq = 9202;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 5) {
-            hopping_schedule->ch0_freq = 9204;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else if (hopping_schedule->regulatory_domain == REG_DOMAIN_TH) {
-        if (hopping_schedule->operating_class == 1) {
-            hopping_schedule->ch0_freq = 9202;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_200;
-        } else if (hopping_schedule->operating_class == 2) {
-            hopping_schedule->ch0_freq = 9204;
-            hopping_schedule->channel_spacing = CHANNEL_SPACING_400;
-        } else {
-            return -1;
-        }
-    } else {
+    chan_params = chan_params_fan1_1(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id);
+    if (!chan_params)
+        chan_params = chan_params_fan1_0(hopping_schedule->regulatory_domain, hopping_schedule->operating_class);
+    if (!chan_params)
         return -1;
-    }
-    hopping_schedule->number_of_channels = (uint8_t)ws_common_channel_number_calc(hopping_schedule->regulatory_domain, hopping_schedule->operating_class, hopping_schedule->channel_plan_id);
-    if (!hopping_schedule->number_of_channels) {
-        return -1;
-    }
 
-    if ((hopping_schedule->regulatory_domain == REG_DOMAIN_CN) &&
-        (hopping_schedule->operating_class == 4)) {
-        /**
-         * This band is the only one that requires configuration in kHz units
-         * instead of 100kHz units so it's handled here separately.
-         */
-        hopping_schedule->ch0_freq = 920625;
-    }
+    if (chan_params->chan0_freq != 920625000)
+        hopping_schedule->ch0_freq = chan_params->chan0_freq / 100000;
+    else
+        hopping_schedule->ch0_freq = 920625; // Special case!
+
+    hopping_schedule->channel_spacing = chan_spacing_id(chan_params->chan_spacing);
+    BUG_ON(hopping_schedule->channel_spacing < 0);
+    hopping_schedule->number_of_channels = chan_params->chan_count;
 
     return 0;
 }
