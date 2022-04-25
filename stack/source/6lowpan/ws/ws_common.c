@@ -19,6 +19,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include "common/log.h"
+#include "common/bits.h"
+#include "common/parsers.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"
@@ -62,63 +64,24 @@ uint8_t DEVICE_MIN_SENS = 174 - 93;
 
 uint16_t test_max_child_count_override = 0xffff;
 
-static int8_t ws_disable_channels_in_range(uint32_t *channel_mask, uint16_t number_of_channels, uint16_t range_start, uint16_t range_stop)
+int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur,
+                                       uint32_t *channel_mask,
+                                       uint16_t number_of_channels,
+                                       uint8_t regulatory_domain,
+                                       uint8_t operating_class,
+                                       uint8_t channel_plan_id)
 {
-    for (uint16_t i = 0; i < number_of_channels; i++) {
-        if (i >= range_start && i <= range_stop) {
-            channel_mask[i / 32] &= ~(1U << (i % 32));
-        }
-    }
-    return 0;
-}
+    const struct chan_params *chan_params;
 
-int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id)
-{
-    // Clear channel mask
-    for (uint8_t i = 0; i < 8; i++) {
-        channel_mask[i] = 0;
-    }
-    // Enable all channels
-    for (uint16_t i = 0; i < number_of_channels; i++) {
-        channel_mask[i / 32] |= 1U << (i % 32);
-    }
-    // Disable unsupported channels per regional frequency bands
-    if (regulatory_domain == REG_DOMAIN_BZ) {
-        if (channel_plan_id == 255) {
-            if (operating_class == 1) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 26, 64);
-            } else if (operating_class == 2) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 12, 32);
-            } else if (operating_class == 3) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 7, 21);
-            }
-        } else {
-            if (channel_plan_id == 1) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 26, 64);
-            } else if (channel_plan_id == 2) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 12, 32);
-            } else if (channel_plan_id == 5) {
-                ws_disable_channels_in_range(channel_mask, number_of_channels, 3, 10);
-            }
-        }
-    } else if (regulatory_domain == REG_DOMAIN_EU) {
-        if (channel_plan_id == 32) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 55, 56);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 61, 63);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 65, 66);
-        } else if (channel_plan_id == 33) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 27, 28);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 30, 33);
-        } else if (channel_plan_id == 36) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 55, 56);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 61, 63);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 65, 66);
-        } else if (channel_plan_id == 37) {
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 27, 28);
-            ws_disable_channels_in_range(channel_mask, number_of_channels, 30, 33);
-        }
-    }
-    ws_regulation_update_channel_mask(cur, channel_mask);
+    chan_params = chan_params_fan1_1(regulatory_domain, channel_plan_id);
+    if (!chan_params)
+        chan_params = chan_params_fan1_0(regulatory_domain, operating_class);
+    WARN_ON(chan_params && chan_params->chan_count != number_of_channels);
+
+    if (chan_params && chan_params->chan_allowed)
+        parse_bitmask(channel_mask, 8, chan_params->chan_allowed);
+    else
+        memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
     return 0;
 }
 
