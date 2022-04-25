@@ -603,7 +603,7 @@ int ws_management_channel_mask_validate(
  * \param channel_plan Channel plan must be 1 application defined if deviating from regulatory domain (0).
  * \param uc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
  * \param bc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
- * \param ch0_freq ch0 center frequency.
+ * \param ch0_freq ch0 center frequency in Hz
  * \param channel_spacing Channel spacing value 0:200k, 1:400k, 2:600k, 3:100k.
  * \param number_of_channels FHSS phy operating mode default to "1b".
  *

@@ -303,7 +303,7 @@ typedef struct ws_channel_plan_zero {
  * @brief ws_channel_plan_one_t WS channel plan 1 define ch0, spasing and channel count
  */
 typedef struct ws_channel_plan_one {
-    uint_fast24_t ch0;
+    uint_fast24_t ch0; // kHz
     unsigned channel_spacing: 4;
     uint16_t number_of_channel;
 } ws_channel_plan_one_t;

@@ -114,7 +114,7 @@ static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_in
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
-            generic_channel_info->plan.one.ch0 = hopping_schedule->ch0_freq;
+            generic_channel_info->plan.one.ch0 = hopping_schedule->ch0_freq / 1000;
             generic_channel_info->plan.one.channel_spacing = hopping_schedule->channel_spacing;
             generic_channel_info->plan.one.number_of_channel = hopping_schedule->number_of_channels;
             break;
@@ -365,7 +365,7 @@ static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
-            ptr = common_write_24_bit_inverse(generic_channel_info->plan.one.ch0 * 100, ptr);
+            ptr = common_write_24_bit_inverse(generic_channel_info->plan.one.ch0, ptr);
             *ptr++ = generic_channel_info->plan.one.channel_spacing;
             ptr = common_write_16_bit_inverse(generic_channel_info->plan.one.number_of_channel, ptr);
             break;
@@ -970,7 +970,6 @@ static uint8_t *ws_channel_plan_zero_read(uint8_t *ptr, ws_channel_plan_zero_t *
 static uint8_t *ws_channel_plan_one_read(uint8_t *ptr, ws_channel_plan_one_t *plan)
 {
     plan->ch0 = common_read_24_bit_inverse(ptr);
-    plan->ch0 /= 100;
     ptr += 3;
     plan->channel_spacing = *ptr++;
     plan->number_of_channel = common_read_16_bit_inverse(ptr);
