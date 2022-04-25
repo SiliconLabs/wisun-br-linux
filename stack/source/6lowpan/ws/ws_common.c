@@ -403,10 +403,14 @@ uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
 
 uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode)
 {
-    if (phy_mode_id == 255) {
-        phy_mode_id = ws_phy_convert_operating_mode_to_phy_mode_id(operating_mode);
-    }
-    return ws_phy_get_datarate_using_phy_mode_id(phy_mode_id);
+    const struct phy_params *phy_params;
+
+    phy_params = phy_params_from_id(phy_mode_id);
+    if (!phy_params)
+        phy_params = phy_params_from_mode(operating_mode);
+    if (!phy_params)
+        return 0;
+    return phy_params->datarate;
 }
 
 uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur)
