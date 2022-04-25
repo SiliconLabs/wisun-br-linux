@@ -21,15 +21,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct protocol_interface_info_entry;
-
-/**************************************************************************//**
- * @brief Initialize the regional regulation context.
- * @param[in] interface_id Wi-SUN interface ID
- * @return 0 if successful, an error code otherwise
- *****************************************************************************/
-int ws_regulation_init(int8_t interface_id);
-
 /**************************************************************************//**
  * @brief Set the regional regulation.
  * @param[in] interface_id Wi-SUN interface ID
@@ -37,13 +28,5 @@ int ws_regulation_init(int8_t interface_id);
  * @return 0 if successful, an error code otherwise
  *****************************************************************************/
 int ws_regulation_set(int8_t interface_id, uint32_t regulation);
-
-/**************************************************************************//**
- * @brief Get the regional regulation channel mask.
- * @param[in] cur Pointer to Wi-SUN interface
- * @param[out] channel_mask Pointer to channel mask
- * @return 0 if successful, an error code otherwise
- *****************************************************************************/
-int ws_regulation_update_channel_mask(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask);
 
 #endif  // WS_REGULATION_H

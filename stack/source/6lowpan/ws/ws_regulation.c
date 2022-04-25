@@ -16,58 +16,19 @@
  ******************************************************************************/
 
 #include <string.h>
-#include "stack/ws_management_api.h"
 
 #include "nsconfig.h"
 #include "ws_common.h"
 #include "ws_regulation.h"
 #include "6lowpan/mac/mac_helper.h"
-#include "nwk_interface/protocol.h"
-#include "common/utils.h"
-
-/** Represent API for one regional regulation. */
-typedef struct ws_regulation_entry_s {
-  /** Initialize the memory. */
-  int (*init)(struct protocol_interface_info_entry *cur);
-  /** Get the channel mask. */
-  int (*update_channel_mask)(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask);
-} ws_regulation_entry_t;
-
-int ws_regulation_init_none(struct protocol_interface_info_entry *cur);
-int ws_regulation_init_arib(struct protocol_interface_info_entry *cur);
-int ws_regulation_update_channel_mask_none(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask);
-int ws_regulation_update_channel_mask_arib(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask);
-
-/** Regional regulation APIs. */
-static const ws_regulation_entry_t ws_regulations[] = {
-  [REG_REGIONAL_NONE] = {
-    .init = ws_regulation_init_none,
-    .update_channel_mask = ws_regulation_update_channel_mask_none
-  },
-  [REG_REGIONAL_ARIB] = {
-    .init = ws_regulation_init_arib,
-    .update_channel_mask = ws_regulation_update_channel_mask_arib
-  }
-};
-
-int ws_regulation_init(int8_t interface_id)
-{
-  return ws_regulation_set(interface_id, 0);
-}
 
 int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {
-  protocol_interface_info_entry_t *cur;
-  cur = protocol_stack_interface_info_get_by_id(interface_id);
-  if (!cur || !ws_info(cur) || regulation >= ARRAY_SIZE(ws_regulations)) {
-    return -1;
-  }
-  cur->ws_info->regulation = regulation;
-  mac_helper_set_regional_regulation(cur, regulation);
-  return ws_regulations[cur->ws_info->regulation].init(cur);
-}
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-int ws_regulation_update_channel_mask(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask)
-{
-  return ws_regulations[cur->ws_info->regulation].update_channel_mask(cur, channel_mask);
+    if (!cur || !ws_info(cur))
+        return -1;
+    cur->ws_info->regulation = regulation;
+    mac_helper_set_regional_regulation(cur, regulation);
+    return 0;
 }

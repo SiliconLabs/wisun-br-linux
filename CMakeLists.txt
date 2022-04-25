@@ -130,8 +130,6 @@ add_executable(wsbrd
     stack/source/6lowpan/ws/ws_pae_supp.c
     stack/source/6lowpan/ws/ws_pae_time.c
     stack/source/6lowpan/ws/ws_pae_timers.c
-    stack/source/6lowpan/ws/ws_regulation_arib.c
-    stack/source/6lowpan/ws/ws_regulation_none.c
     stack/source/6lowpan/ws/ws_regulation.c
     stack/source/6lowpan/ws/ws_stats.c
     stack/source/6lowpan/ws/ws_test_api.c
@@ -352,8 +350,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/ws/ws_pae_supp.c
         stack/source/6lowpan/ws/ws_pae_time.c
         stack/source/6lowpan/ws/ws_pae_timers.c
-        stack/source/6lowpan/ws/ws_regulation_arib.c
-        stack/source/6lowpan/ws/ws_regulation_none.c
         stack/source/6lowpan/ws/ws_regulation.c
         stack/source/6lowpan/ws/ws_stats.c
         stack/source/6lowpan/ws/ws_test_api.c
