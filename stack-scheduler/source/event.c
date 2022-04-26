@@ -15,13 +15,14 @@
  */
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "common/hal_interrupt.h"
 #include "stack-services/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+
 #include "timer_sys.h"
-#include <stdlib.h>
 #include "event.h"
-#include "common/hal_interrupt.h"
 
 
 typedef struct arm_core_tasklet {

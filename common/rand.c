@@ -15,10 +15,12 @@
  */
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/random.h>
 #include <limits.h>
-#include "common/rand.h"
-#include "common/log.h"
+#include <sys/random.h>
+
+#include "log.h"
+
+#include "rand.h"
 
 uint8_t rand_get_8bit(void)
 {

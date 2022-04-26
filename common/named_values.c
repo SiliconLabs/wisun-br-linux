@@ -4,8 +4,8 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 
-#include "common/log.h"
-#include "common/named_values.h"
+#include "log.h"
+#include "named_values.h"
 
 const char *val_to_str(int val, const struct name_value table[], const char *def)
 {

@@ -8,10 +8,11 @@
 #include <sys/timerfd.h>
 
 #include "sl_wsrcp.h"
-#include "os_timer.h"
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
+
+#include "os_timer.h"
 
 int os_timer_register(void (*timer_interrupt_handler)(int, uint16_t))
 {

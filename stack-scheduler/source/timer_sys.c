@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "stack-services/ns_list.h"
-#include "timer_sys.h"
-#include "common/hal_interrupt.h"
-#include "common/log.h"
 #include <stdlib.h>
+#include "common/log.h"
+#include "common/hal_interrupt.h"
+#include "stack-services/ns_list.h"
+
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_event_timer.h"
+
+#include "timer_sys.h"
 #include "event.h"
 
 #ifndef ST_MAX

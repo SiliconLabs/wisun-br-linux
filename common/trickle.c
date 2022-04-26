@@ -20,8 +20,9 @@
  * Implement a generic RFC 6206 Trickle Algorithm
  */
 #include <stdint.h>
-#include "common/rand.h"
-#include "common/log.h"
+
+#include "rand.h"
+#include "log.h"
 
 #include "trickle.h"
 
