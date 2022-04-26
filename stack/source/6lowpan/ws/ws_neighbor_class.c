@@ -124,7 +124,11 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
 
         if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_TR51CF) {
             uint32_t full_uc_schedule_ms = ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval * ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
-            uint32_t temp_ms = (time_since_last_ufsi_us / 1000) / full_uc_schedule_ms;
+            uint32_t temp_ms;
+
+            if (!full_uc_schedule_ms)
+                return;
+            temp_ms = (time_since_last_ufsi_us / 1000) / full_uc_schedule_ms;
             if (time_since_seq_start_cur_ms >= time_since_seq_start_prev_ms) {
                 temp_ms--;
             }
