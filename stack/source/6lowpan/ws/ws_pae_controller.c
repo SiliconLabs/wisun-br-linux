@@ -1518,6 +1518,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
 
     // Sets active key
     int8_t index = sec_prot_keys_gtk_install_order_first_index_get(&controller->gtks);
+    sec_prot_keys_gtk_status_all_fresh_set(&controller->gtks);
     sec_prot_keys_gtk_status_active_set(&controller->gtks, index);
 
     // Notifies PAE authenticator that GTKs have been updated */
