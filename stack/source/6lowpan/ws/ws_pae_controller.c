@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <mbedtls/sha256.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
 #include "service_libs/utils/ns_time.h"
 #include "stack/mac/fhss_config.h"
@@ -37,7 +37,6 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_supp.h"
 #include "6lowpan/ws/ws_pae_auth.h"
@@ -46,6 +45,7 @@
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
+#include "6lowpan/ws/ws_pae_controller.h"
 
 #define TRACE_GROUP "wspc"
 

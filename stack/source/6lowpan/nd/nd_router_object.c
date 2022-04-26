@@ -17,8 +17,8 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "common/rand.h"
 #include <stdlib.h>
+#include "common/rand.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

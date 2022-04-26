@@ -19,6 +19,7 @@
 #define WS_NEIGHBOR_CLASS_H_
 
 #include "stack/mac/fhss_ws_extension.h"
+
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct mcps_data_ie_list;

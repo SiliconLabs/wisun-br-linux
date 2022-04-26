@@ -26,7 +26,7 @@
 
 #include "nwk_interface/protocol.h"
 
-#include "mac_helper.h"
+#include "6lowpan/mac/mac_helper.h"
 
 #define TRACE_GROUP "MACh"
 

@@ -20,8 +20,8 @@
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "security/protocols/radius_sec_prot/avp_helper.h"
 
+#include "security/protocols/radius_sec_prot/avp_helper.h"
 
 #define TRACE_GROUP "avp"
 

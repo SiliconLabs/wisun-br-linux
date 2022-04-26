@@ -19,14 +19,14 @@
 #include <string.h>
 #include "common/rand.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
-#include "stack/mac/fhss_config.h"
-#include "stack/ws_management_api.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "stack/mac/fhss_config.h"
+#include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
@@ -48,10 +48,11 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_auth.h"
 #include "6lowpan/ws/ws_pae_lib.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
+
+#include "6lowpan/ws/ws_pae_auth.h"
 
 #ifdef HAVE_PAE_AUTH
 

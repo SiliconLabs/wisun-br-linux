@@ -18,15 +18,14 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "stack-services/ns_trace.h"
 #include "stack-services/ns_list.h"
 #include "stack/net_interface.h"
 
 #include "nwk_interface/protocol.h"
-#include "net_lib/net_dns_internal.h"
 
-#include "net_dns_internal.h"
+#include "net_lib/net_dns_internal.h"
 
 #define TRACE_GROUP "Ndns"
 

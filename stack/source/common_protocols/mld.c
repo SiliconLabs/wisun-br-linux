@@ -35,9 +35,11 @@
 #include "stack-services/common_functions.h"
 
 #include "nwk_interface/protocol.h"
+
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
+
 #include "common_protocols/mld.h"
 
 #define MLD_UNSOLICITED_REPORT_INTERVAL (10 * 10) /* 10 seconds */

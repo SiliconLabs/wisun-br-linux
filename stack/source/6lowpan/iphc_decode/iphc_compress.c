@@ -16,11 +16,11 @@
  */
 #include "nsconfig.h"
 #include <string.h>
+#include <stdlib.h>
 #include "common/bits.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

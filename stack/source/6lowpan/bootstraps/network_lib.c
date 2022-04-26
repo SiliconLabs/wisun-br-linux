@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/nwk_stats_api.h"
 
@@ -33,6 +33,7 @@
 #include "rpl/rpl_data.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/iphc_decode/cipv6.h"
+
 #include "6lowpan/bootstraps/network_lib.h"
 
 #define TRACE_GROUP "nw"

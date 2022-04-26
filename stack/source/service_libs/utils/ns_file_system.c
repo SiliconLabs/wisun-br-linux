@@ -20,7 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "stack/ns_file_system.h"
-#include "ns_file.h"
+
+#include "service_libs/utils/ns_file.h"
 
 static char *file_system_root;
 

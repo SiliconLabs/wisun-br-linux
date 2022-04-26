@@ -18,7 +18,9 @@
 #ifndef KMP_API_H_
 #define KMP_API_H_
 
-#include "kmp_addr.h"
+#include "security/protocols/sec_prot_cfg.h"
+#include "security/kmp/kmp_addr.h"
+
 /*
  * KMP API and KMP service module. KMP API offers key management security
  * protocols interface towards application.

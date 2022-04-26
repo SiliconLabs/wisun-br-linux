@@ -18,16 +18,17 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "stack/dhcp_service_api.h"
 
-#include "dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h"
+
+#include "dhcpv6_client/dhcpv6_client_api.h"
 
 #ifdef HAVE_DHCPV6
 

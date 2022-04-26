@@ -18,6 +18,8 @@
 #ifndef WS_PAE_SUPP_H_
 #define WS_PAE_SUPP_H_
 
+#include "6lowpan/ws/ws_pae_controller.h"
+
 #define PAE_SUPP_NOT_ENABLED 5
 
 

@@ -20,7 +20,7 @@
 #include "common/rand.h"
 #include "service_libs/fnv_hash/fnv_hash.h"
 
-#include "ipv6_flow.h"
+#include "common_protocols/ipv6_flow.h"
 
 bool ipv6_flow_auto_label = true;
 

@@ -16,7 +16,8 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "isqrt.h"
+
+#include "service_libs/utils/isqrt.h"
 
 /**
  * \brief Calculates integer square root

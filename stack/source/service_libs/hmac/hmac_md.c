@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <mbedtls/md.h>
 #include "stack-services/ns_trace.h"
-#include "hmac_md.h"
+#include "service_libs/hmac/hmac_md.h"
 
 #define TRACE_GROUP "hmac"
 

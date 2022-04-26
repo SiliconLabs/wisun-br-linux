@@ -18,13 +18,13 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
 
-#include "ws_mpx_header.h"
+#include "6lowpan/ws/ws_mpx_header.h"
 
 bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg)
 {

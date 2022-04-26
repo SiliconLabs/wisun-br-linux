@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
@@ -37,6 +37,7 @@
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/udp.h"
+
 #include "common_protocols/ipv6_resolution.h"
 
 #define TRACE_GROUP "ip6r"

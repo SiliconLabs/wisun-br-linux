@@ -17,16 +17,16 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "common/rand.h"
 #include <stdint.h>
+#include <stdlib.h>
+#include "common/rand.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "service_libs/utils/ns_file.h"
-#include "stack/mac/fhss_config.h"
-#include "stack/ws_management_api.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "stack/mac/fhss_config.h"
+#include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
@@ -44,18 +44,18 @@
 #include "security/protocols/fwh_sec_prot/supp_fwh_sec_prot.h"
 #include "security/protocols/gkh_sec_prot/supp_gkh_sec_prot.h"
 #include "security/kmp/kmp_eapol_pdu_if.h"
+#include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_supp.h"
 #include "6lowpan/ws/ws_pae_lib.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "6lowpan/ws/ws_pae_nvm_data.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
-#include "6lowpan/mac/mpx_api.h"
 
+#include "6lowpan/ws/ws_pae_supp.h"
 
 #define TRACE_GROUP "wsps"
 

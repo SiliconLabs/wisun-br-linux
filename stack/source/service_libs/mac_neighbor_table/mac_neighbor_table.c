@@ -19,12 +19,13 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/fhss_ws_extension.h"
+
 #include "core/ns_address_internal.h"
 
 mac_neighbor_table_t *mac_neighbor_table_create(uint8_t table_size, neighbor_entry_remove_notify *remove_cb, neighbor_entry_nud_notify *nud_cb, void *user_indentifier)

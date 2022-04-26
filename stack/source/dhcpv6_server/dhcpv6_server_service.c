@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
@@ -34,9 +34,10 @@
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
-#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
+
+#include "dhcpv6_server/dhcpv6_server_service.h"
 
 #define TRACE_GROUP "dhcp"
 

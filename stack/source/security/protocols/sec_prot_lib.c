@@ -18,16 +18,17 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <mbedtls/sha256.h>
 #include "common/rand.h"
+#include "common/trickle.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
-#include "common/trickle.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"
 #include "stack/mac/fhss_config.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
@@ -39,8 +40,8 @@
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "security/protocols/sec_prot.h"
-#include "security/protocols/sec_prot_lib.h"
 
+#include "security/protocols/sec_prot_lib.h"
 
 #define TRACE_GROUP "secl"
 

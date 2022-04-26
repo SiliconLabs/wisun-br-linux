@@ -19,14 +19,16 @@
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
+
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-
 #include "6lowpan/bootstraps/network_lib.h" // for nwk_udp_rx_security_check
+#include "core/ns_socket.h"
+
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
+
 #include "common_protocols/udp.h"
-#include "core/ns_socket.h"
 
 #define TRACE_GROUP "udp"
 

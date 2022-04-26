@@ -18,6 +18,9 @@
 #ifndef SEC_PROT_H_
 #define SEC_PROT_H_
 
+#include "security/protocols/sec_prot_keys.h"
+#include "security/kmp/kmp_api.h"
+
 /*
  * Interface between KMP API and key management security protocols. Interface
  * provides abstraction for different security protocols for KMP API module.

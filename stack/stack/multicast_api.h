@@ -16,7 +16,9 @@
  */
 #ifndef MULTICAST_API_H_
 #define MULTICAST_API_H_
+
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * \file multicast_api.h

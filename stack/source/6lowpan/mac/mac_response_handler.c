@@ -27,13 +27,12 @@
 #include "core/ns_address_internal.h"
 #include "core/ns_socket.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-
 #include "6lowpan/mac/mac_helper.h"
-#include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/mac/mpx_api.h"
 
-#define TRACE_GROUP "MRsH"
+#include "6lowpan/mac/mac_response_handler.h"
 
+#define TRACE_GROUP "MRsH"
 
 static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
 {

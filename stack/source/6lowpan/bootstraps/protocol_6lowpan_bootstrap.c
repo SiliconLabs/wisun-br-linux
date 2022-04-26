@@ -22,9 +22,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -46,6 +46,7 @@
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
+
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 
 /* Fixed-point randomisation limits for randlib_randomise_base() - RFC 3315

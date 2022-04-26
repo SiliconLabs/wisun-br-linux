@@ -18,8 +18,8 @@
 #ifndef WS_PAE_CONTROLLER_H_
 #define WS_PAE_CONTROLLER_H_
 
-#include <sys/socket.h>
 #include "nsconfig.h"
+#include <sys/socket.h>
 #include "stack/net_interface.h"
 
 #include "security/protocols/sec_prot_keys.h"

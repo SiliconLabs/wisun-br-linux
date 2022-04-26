@@ -16,10 +16,12 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
+
 #include "nwk_interface/protocol.h"
+
 #include "nwk_interface/protocol_timer.h"
 
 #define TRACE_GROUP "ctim"

@@ -24,19 +24,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/ip6string.h"
 #include "stack-services/common_functions.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/socket_api.h"
 
-#include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
+
+#include "core/ns_socket.h"
 
 #define TRACE_GROUP "sck"
 

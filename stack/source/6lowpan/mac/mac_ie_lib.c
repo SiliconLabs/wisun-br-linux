@@ -20,7 +20,7 @@
 #include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
 
-#include "mac_ie_lib.h"
+#include "6lowpan/mac/mac_ie_lib.h"
 
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK 0x7f80

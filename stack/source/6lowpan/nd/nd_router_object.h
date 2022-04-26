@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "6lowpan/nd/nd_defines.h"
-#include "stack/net_6lowpan_parameter_api.h"
-
 #ifndef ND_ROUTER_OBJECT_H_
 #define ND_ROUTER_OBJECT_H_
+#include "stack/net_6lowpan_parameter_api.h"
 
+#include "6lowpan/nd/nd_defines.h"
 
 #define ND_OBJECT_MAX 1
 

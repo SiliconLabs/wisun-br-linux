@@ -20,14 +20,15 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
 #include "stack/net_interface.h"
 
-#include "core/ns_address_internal.h"
-#include "core/ns_buffer.h"
-#include "core/ns_socket.h"
 #include "nwk_interface/protocol_stats.h"
+#include "core/ns_address_internal.h"
+#include "core/ns_socket.h"
+
+#include "core/ns_buffer.h"
 
 #define TRACE_GROUP "buff"
 

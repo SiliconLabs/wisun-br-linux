@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include "stack/net_rpl.h"
 
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
@@ -25,9 +26,6 @@
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
-
-#include "stack/net_rpl.h"
-
 
 /**
  * \file net_rpl.c

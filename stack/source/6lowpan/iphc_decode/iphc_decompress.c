@@ -16,14 +16,15 @@
  */
 #include "nsconfig.h"
 #include <string.h>
+#include <stdlib.h>
 #include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "6lowpan/iphc_decode/cipv6.h"
+
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 
 #define TRACE_GROUP "iphc"

@@ -17,8 +17,8 @@
 
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/common_functions.h"
 #include <stdlib.h>
+#include "stack-services/common_functions.h"
 
 #include "mac/rf_driver_storage.h"
 

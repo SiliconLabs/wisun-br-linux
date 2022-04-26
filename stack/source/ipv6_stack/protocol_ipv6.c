@@ -17,11 +17,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/bits.h"
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_list.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
@@ -37,6 +37,7 @@
 #include "common_protocols/udp.h"
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?
 #include "ipv6_stack/ipv6_routing_table.h"
+
 #include "ipv6_stack/protocol_ipv6.h"
 
 #ifdef HAVE_ETHERNET

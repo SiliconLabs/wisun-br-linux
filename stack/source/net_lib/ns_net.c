@@ -24,9 +24,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack-scheduler/eventOS_scheduler.h"

@@ -15,12 +15,13 @@
  *
  ******************************************************************************/
 
+#include "nsconfig.h"
 #include <string.h>
 
-#include "nsconfig.h"
-#include "ws_common.h"
-#include "ws_regulation.h"
 #include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/ws/ws_common.h"
+
+#include "6lowpan/ws/ws_regulation.h"
 
 int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {

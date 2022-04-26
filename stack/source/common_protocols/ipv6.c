@@ -35,12 +35,13 @@
 #include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
 
-#include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/ipv6_flow.h"
+
+#include "common_protocols/ipv6.h"
 
 #define TRACE_GROUP "ipv6"
 

@@ -18,11 +18,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
-#include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
@@ -33,9 +33,6 @@
 #include "stack/ethernet_mac_api.h"
 
 #include "core/ns_socket.h"
-#include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_timer.h"
-#include "nwk_interface/protocol_stats.h"
 #include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -52,12 +49,16 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
 #include "common_protocols/udp.h"
-
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "net_lib/net_dns_internal.h"
+
+#include "nwk_interface/protocol_timer.h"
+#include "nwk_interface/protocol_stats.h"
+
+#include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP_CORE "core"
 

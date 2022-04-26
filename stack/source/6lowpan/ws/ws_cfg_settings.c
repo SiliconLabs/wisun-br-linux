@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-#include <string.h>
 #include "nsconfig.h"
+#include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/ws_regdb.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 
 #include "nwk_interface/protocol.h"
+#include "mpl/mpl.h"
 #include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "mpl/mpl.h"
+
+#include "6lowpan/ws/ws_cfg_settings.h"
 
 #define TRACE_GROUP "cstr"
-
 
 #define CFG_SETTINGS_OK                       0
 #define CFG_SETTINGS_CHANGED                  1

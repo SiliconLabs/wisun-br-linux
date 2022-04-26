@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
@@ -40,8 +40,8 @@
 #include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "6lowpan/ws/ws_pae_nvm_data.h"
 #include "6lowpan/ws/ws_pae_time.h"
-#include "6lowpan/ws/ws_pae_key_storage.h"
 
+#include "6lowpan/ws/ws_pae_key_storage.h"
 
 #define TRACE_GROUP "wsks"
 

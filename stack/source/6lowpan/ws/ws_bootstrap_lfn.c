@@ -18,11 +18,11 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
-#include "common/rand.h"
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
-#include "stack-services/common_functions.h"
+#include "common/rand.h"
 #include "common/trickle.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/utils/ns_time.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -65,8 +65,6 @@
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "6lowpan/ws/ws_common_defines.h"
-#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"

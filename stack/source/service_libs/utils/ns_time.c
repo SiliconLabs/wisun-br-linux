@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+
 #include "stack/ns_time_api.h" //ns_time_api_system_time_callback
 
 static ns_time_api_system_time_callback *system_time_read_callback = NULL;

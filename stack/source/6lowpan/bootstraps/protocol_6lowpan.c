@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -45,8 +45,9 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
+
+#include "6lowpan/bootstraps/protocol_6lowpan.h"
 
 #define TRACE_GROUP_LOWPAN "6lo"
 #define TRACE_GROUP "6lo"

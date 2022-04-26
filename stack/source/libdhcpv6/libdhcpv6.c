@@ -23,10 +23,10 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
 
 #include "libdhcpv6/libdhcpv6.h"
 

@@ -17,10 +17,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "service_libs/blacklist/blacklist.h"
+
 #include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "bl"

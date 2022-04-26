@@ -29,19 +29,18 @@
 #ifndef _NANOSTACK_SOURCE_CONFIG_H
 #error "Why haven't you included config.h before all other headers?"
 #endif
-
-#include "nwk_interface/protocol_abstract.h"
+#include "common/trickle.h"
+#include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/net_interface.h"
+#include "stack/multicast_api.h"
 
 // Users of protocol.h can assume it includes these headers
+#include "nwk_interface/protocol_abstract.h"
 #include "core/ns_address_internal.h"
 #include "core/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
 #include "6lowpan/iphc_decode/lowpan_context.h"
-#include "stack/mac/platform/arm_hal_phy.h"
-#include "stack/net_interface.h"
-#include "stack/multicast_api.h"
-#include "common/trickle.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;

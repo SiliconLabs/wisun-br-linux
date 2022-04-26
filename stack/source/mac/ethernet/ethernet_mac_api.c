@@ -19,8 +19,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
-#include "stack/ethernet_mac_api.h"
 #include "stack-scheduler/eventOS_event.h"
+#include "stack/ethernet_mac_api.h"
 
 #include "mac/rf_driver_storage.h"
 

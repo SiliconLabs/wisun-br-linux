@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
@@ -31,9 +31,9 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_llc.h"
 
+#include "6lowpan/ws/ws_eapol_pdu.h"
 
 #define TRACE_GROUP "wsep"
 

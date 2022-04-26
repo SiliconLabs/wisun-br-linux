@@ -31,10 +31,10 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
 #include "stack-services/ns_trace.h"
 
 #include "core/ns_socket.h"
@@ -44,6 +44,7 @@
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
+
 #include "common_protocols/ipv6_fragmentation.h"
 
 #define TRACE_GROUP "Ifrg"

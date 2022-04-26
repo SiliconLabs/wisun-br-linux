@@ -18,11 +18,11 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/log.h"
 #include "common/named_values.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
@@ -33,6 +33,8 @@
 #include "stack/ws_management_api.h"
 
 #include "nwk_interface/protocol.h"
+#include "security/pana/pana_eap_header.h"
+#include "security/eapol/eapol_helper.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_ie_lib.h"
@@ -40,15 +42,13 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_mpx_header.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
-#include "security/pana/pana_eap_header.h"
-#include "security/eapol/eapol_helper.h"
 
+#include "6lowpan/ws/ws_llc.h"
 
 #define TRACE_GROUP "wllc"
 

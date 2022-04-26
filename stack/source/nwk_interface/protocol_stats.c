@@ -18,6 +18,7 @@
 #include <string.h>
 #include "stack-services/ns_types.h"
 #include "stack/nwk_stats_api.h"
+
 #include "nwk_interface/protocol_stats.h"
 
 nwk_stats_t *NS_LARGE nwk_stats_ptr = 0;

@@ -17,12 +17,12 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include "common/trickle.h"
 #include "common/rand.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
-#include "common/trickle.h"
 
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
@@ -31,6 +31,7 @@
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
+
 #include "mpl/mpl.h"
 
 #define TRACE_GROUP "mpl"

@@ -18,10 +18,10 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/ns_list.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -46,7 +46,7 @@
 #include "6lowpan/iphc_decode/iphc_decompress.h"
 #include "6lowpan/ws/ws_common.h"
 
-#include "lowpan_adaptation_interface.h"
+#include "6lowpan/lowpan_adaptation_interface.h"
 
 #define TRACE_GROUP "6lAd"
 

@@ -24,11 +24,11 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "stack/ns_sha256.h"
 #include "stack/socket_api.h"

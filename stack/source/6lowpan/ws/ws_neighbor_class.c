@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_config.h"
@@ -28,12 +28,12 @@
 #include "stack/mac/mac_api.h"
 
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 
-#define TRACE_GROUP "wsne"
+#include "6lowpan/ws/ws_neighbor_class.h"
 
+#define TRACE_GROUP "wsne"
 
 bool ws_neighbor_class_alloc(ws_neighbor_class_t *class_data, uint8_t list_size)
 {

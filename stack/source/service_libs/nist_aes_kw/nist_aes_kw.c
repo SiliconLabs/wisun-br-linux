@@ -22,7 +22,7 @@
 #include <mbedtls/nist_kw.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "nist_aes_kw.h"
+#include "service_libs/nist_aes_kw/nist_aes_kw.h"
 
 #define TRACE_GROUP "naes"
 

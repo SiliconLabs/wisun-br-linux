@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <string.h>
 #include "nsconfig.h"
+#include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
-#include "stack-services/ns_trace.h"
-#include <stdlib.h>
-#include "stack-services/common_functions.h"
 #include "common/trickle.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "service_libs/utils/ns_time.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -67,7 +67,6 @@
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "6lowpan/ws/ws_bootstrap_ffn.h"
-#include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bootstrap_lfn.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_common_defines.h"
@@ -81,6 +80,8 @@
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_stats.h"
+
+#include "6lowpan/ws/ws_bootstrap.h"
 
 #define TRACE_GROUP "wsbs"
 

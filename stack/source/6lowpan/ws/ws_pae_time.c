@@ -23,11 +23,11 @@
 #include "service_libs/utils/ns_time.h"
 #include "stack/ns_time_api.h"
 
-#include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_pae_time.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
+#include "6lowpan/ws/ws_config.h"
 
+#include "6lowpan/ws/ws_pae_time.h"
 
 #define TRACE_GROUP "wst"
 

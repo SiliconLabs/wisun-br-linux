@@ -35,18 +35,19 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "service_libs/etx/etx.h"
 
 #include "core/ns_address_internal.h"
-#include "ipv6_stack/ipv6_routing_table.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
+
+#include "ipv6_stack/ipv6_routing_table.h"
 
 #define TRACE_GROUP "rout"
 

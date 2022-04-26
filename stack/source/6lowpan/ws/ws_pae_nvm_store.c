@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "service_libs/utils/ns_file.h"
 #include "stack/ns_file_system.h"
@@ -28,8 +28,8 @@
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_config.h"
-#include "6lowpan/ws/ws_pae_nvm_store.h"
 
+#include "6lowpan/ws/ws_pae_nvm_store.h"
 
 #define TRACE_GROUP "wsnv"
 

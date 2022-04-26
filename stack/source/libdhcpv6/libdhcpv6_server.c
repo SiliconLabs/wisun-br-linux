@@ -27,8 +27,9 @@
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
 
-#include "libdhcpv6/libdhcpv6_server.h"
 #include "libdhcpv6/libdhcpv6.h"
+
+#include "libdhcpv6/libdhcpv6_server.h"
 
 #define TRACE_GROUP "dhcp"
 

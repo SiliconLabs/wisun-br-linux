@@ -16,7 +16,7 @@
  */
 
 #include "nsconfig.h"
-#include "fnv_hash.h"
+#include "service_libs/fnv_hash/fnv_hash.h"
 
 #if 0
 uint32_t fnv_hash_1a_32_block(const uint8_t *data, uint16_t len)

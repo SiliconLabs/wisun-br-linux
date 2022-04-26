@@ -18,11 +18,12 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/log.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack/mac/fhss_config.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
@@ -34,6 +35,7 @@
 #include "security/protocols/sec_prot_keys.h"
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
+
 #include "security/protocols/gkh_sec_prot/supp_gkh_sec_prot.h"
 
 

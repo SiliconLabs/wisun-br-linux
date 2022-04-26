@@ -18,12 +18,13 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/log.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
 #include "stack/mac/fhss_config.h"
+
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
@@ -38,8 +39,8 @@
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_lib.h"
 #include "security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.h"
-#include "security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.h"
 
+#include "security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.h"
 
 #define TRACE_GROUP "eapr"
 

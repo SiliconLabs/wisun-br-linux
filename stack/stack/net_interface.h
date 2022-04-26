@@ -17,6 +17,7 @@
 #ifndef NET_INTERFACE_H_
 #define NET_INTERFACE_H_
 #include <stdint.h>
+
 #include "mac/channel_list.h"
 
 struct mac_api_s;

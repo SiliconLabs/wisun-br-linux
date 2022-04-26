@@ -21,8 +21,8 @@
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 
-#include "libdhcpv6.h"
-#include "libdhcpv6_vendordata.h"
+#include "libdhcpv6/libdhcpv6.h"
+#include "libdhcpv6/libdhcpv6_vendordata.h"
 
 #define TRACE_GROUP "vend"
 

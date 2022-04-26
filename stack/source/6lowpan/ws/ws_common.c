@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-#include <string.h>
 #include "nsconfig.h"
+#include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "common/log.h"
 #include "common/bits.h"
 #include "common/parsers.h"
@@ -26,7 +27,6 @@
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
-#include <stdlib.h>
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -37,11 +37,12 @@
 #include "stack/mac/mac_api.h"
 
 #include "common_protocols/icmpv6.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_control.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_llc.h"
-#include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "6lowpan/ws/ws_bootstrap_ffn.h"
@@ -51,8 +52,8 @@
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_stats.h"
 #include "6lowpan/ws/ws_ie_lib.h"
-#include "rpl/rpl_protocol.h"
-#include "rpl/rpl_control.h"
+
+#include "6lowpan/ws/ws_common.h"
 
 #define TRACE_GROUP "wscm"
 

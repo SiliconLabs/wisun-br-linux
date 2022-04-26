@@ -20,7 +20,6 @@
 #include <stdint.h>
 
 #include "security/protocols/sec_prot_cfg.h"
-
 #include "6lowpan/ws/ws_cfg_settings.h"
 
 /**

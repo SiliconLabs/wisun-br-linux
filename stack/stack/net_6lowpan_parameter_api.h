@@ -16,7 +16,9 @@
  */
 #ifndef NET_6LOWPAN_PARAMETER_API_H_
 #define NET_6LOWPAN_PARAMETER_API_H_
+
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * \file net_6lowpan_parameter_api.h

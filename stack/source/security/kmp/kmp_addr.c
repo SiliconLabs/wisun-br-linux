@@ -18,12 +18,14 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
+
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "6lowpan/ws/ws_config.h"
+
 #include "security/kmp/kmp_addr.h"
 
 

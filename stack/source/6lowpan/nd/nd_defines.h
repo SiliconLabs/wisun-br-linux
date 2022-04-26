@@ -19,6 +19,7 @@
 #define ND_DEFINES_H_
 #include "stack-services/ns_list.h"
 
+#include "nwk_interface/protocol.h"
 #include "core/ns_address_internal.h"
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "common_protocols/icmpv6_prefix.h"

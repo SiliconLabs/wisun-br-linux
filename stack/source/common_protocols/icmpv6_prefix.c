@@ -18,9 +18,9 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/bits.h"
+#include "stack-services/ns_trace.h"
 #include "stack-services/ns_list.h"
 
 #include "common_protocols/icmpv6_prefix.h"
