@@ -14,15 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-#include "channel_list.h"
-
+#include <stdint.h>
+#include <string.h>
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
 
-#include <stdint.h>
-#include <string.h>
+#include "channel_list.h"
 
 const int CHANNEL_LIST_SIZE_IN_BITS = 8 * 32;
 

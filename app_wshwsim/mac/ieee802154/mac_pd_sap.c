@@ -17,14 +17,17 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "stack-services/common_functions.h"
-#include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
+
+#include "mac/rf_driver_storage.h"
 #include "mac/ieee802154/sw_mac_internal.h"
-#include "mac/ieee802154/mac_pd_sap.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/ieee802154/mac_timer.h"
@@ -33,8 +36,8 @@
 #include "mac/ieee802154/mac_filter.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
-#include "mac/rf_driver_storage.h"
-#include "stack-services/ns_trace.h"
+
+#include "mac/ieee802154/mac_pd_sap.h"
 
 #define TRACE_GROUP "mPDs"
 

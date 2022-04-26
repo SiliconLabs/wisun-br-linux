@@ -16,12 +16,15 @@
  */
 #include <stdint.h>
 #include "os_timer.h"
-#include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
+#include "stack/mac/sw_mac.h"
+
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_pd_sap.h"
+
 #include "mac/ieee802154/mac_timer.h"
-#include "stack/mac/sw_mac.h"
+
 #define TRACE_GROUP "mTim"
 
 /*-------------------MAC TIMER FUNCTIONS--------------------------*/

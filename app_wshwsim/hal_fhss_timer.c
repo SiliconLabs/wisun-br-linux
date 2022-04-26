@@ -7,10 +7,11 @@
 #include <sys/timerfd.h>
 
 #include "sl_wsrcp.h"
-#include "hal_fhss_timer.h"
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
+
+#include "hal_fhss_timer.h"
 
 static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {

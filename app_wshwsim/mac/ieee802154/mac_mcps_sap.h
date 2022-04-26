@@ -27,7 +27,8 @@
 
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_common_defines.h"
-#include "mac_data_buffer.h"
+
+#include "mac/ieee802154/mac_data_buffer.h"
 
 struct protocol_interface_rf_mac_setup;
 struct mcps_data_req_s;

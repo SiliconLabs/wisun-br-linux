@@ -18,11 +18,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
-
-#include <stdint.h>
 #include "stack-services/ns_trace.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mlme.h"
@@ -30,6 +29,7 @@
 #include "common/ws_regdb.h"
 #include "common/log.h"
 #include "common/utils.h"
+
 #include "mac/rf_driver_storage.h"
 #include "sl_wsrcp.h"
 #include "sl_rf_driver.h"

@@ -16,13 +16,14 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
+#include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_common_defines.h"
-#include "stack-services/common_functions.h"
+
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_security_mib.h"
 

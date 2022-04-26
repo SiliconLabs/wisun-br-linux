@@ -16,15 +16,16 @@
  */
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include "stack-services/ns_trace.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/net_fhss.h"
-#include <stdlib.h>
+
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_ws.h"
 #include "fhss_statistics.h"
-#include "stack-services/ns_trace.h"
 
 #define TRACE_GROUP "fhss"
 

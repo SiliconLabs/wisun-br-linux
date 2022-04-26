@@ -16,9 +16,11 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
 #include <stdlib.h>
+#include "stack-services/ns_trace.h"
+
 #include "mac/ieee802154/mac_defines.h"
+
 #include "mac/ieee802154/mac_cca_threshold.h"
 
 #define TRACE_GROUP "mcth"

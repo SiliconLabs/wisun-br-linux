@@ -18,10 +18,11 @@
 #ifndef MAC_DEFINES_H_
 #define MAC_DEFINES_H_
 
+#include "stack-services/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/mlme.h"
+
 #include "mac_data_buffer.h"
-#include "stack-services/ns_list.h"
 
 struct cca_structure_s;
 struct buffer;

@@ -8,9 +8,8 @@
 #ifndef HAL_FHSS_TIMER_H
 #define HAL_FHSS_TIMER_H
 
-#include "stack/mac/fhss_config.h"
-
 #include "common/slist.h"
+#include "stack/mac/fhss_config.h"
 
 struct fhss_timer_entry {
     int fd;

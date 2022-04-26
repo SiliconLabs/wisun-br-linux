@@ -22,18 +22,20 @@
  */
 #include <string.h>
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
-#include "os_timer.h"
 #include <stdlib.h>
+#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
+
+#include "os_timer.h"
+#include "mac/rf_driver_storage.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"
-#include "mac/ieee802154/mac_indirect_data.h"
 #include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
-#include "mac/rf_driver_storage.h"
+
+#include "mac/ieee802154/mac_indirect_data.h"
 
 #define TRACE_GROUP_MAC_INDIR "mInD"
 #define TRACE_GROUP "mInD"

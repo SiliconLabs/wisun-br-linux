@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
+
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_statistics.h"

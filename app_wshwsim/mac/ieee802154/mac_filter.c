@@ -17,18 +17,20 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include <stdlib.h>
-#include "stack/mac/mac_filter_api.h"
-#include "mac_filter.h"
 #include "stack/mac/mac_common_defines.h"
-#include "mac_defines.h"
+#include "stack/mac/mac_filter_api.h"
 #include "stack/mac/mac_mcps.h"
+
+#include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/rf_driver_storage.h"
+
+#include "mac/ieee802154/mac_filter.h"
 
 #define TRACE_GROUP "mFil"
 

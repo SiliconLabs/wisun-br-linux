@@ -11,8 +11,8 @@
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
-
 #include "common/slist.h"
+
 #include "stack/mac/fhss_ws_extension.h"
 #include "mac/rf_driver_storage.h"
 

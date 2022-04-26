@@ -15,21 +15,23 @@
  * limitations under the License.
  */
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "common/rand.h"
+#include "common/hal_interrupt.h"
+#include "stack-services/common_functions.h"
+#include "stack-services/ns_trace.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
+
+#include "os_timer.h"
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_statistics.h"
 #include "channel_list.h"
 #include "channel_functions.h"
+
 #include "fhss_ws.h"
-#include "os_timer.h"
-#include <stdlib.h>
-#include "stack-services/common_functions.h"
-#include "common/rand.h"
-#include "stack-services/ns_trace.h"
-#include "common/hal_interrupt.h"
-#include <string.h>
 
 #define TRACE_GROUP "fhss"
 

@@ -17,15 +17,17 @@
 #include <stdint.h>
 #include <string.h>
 #include "stack-services/ns_trace.h"
+#include "stack-services/common_functions.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
+
+#include "mac/rf_driver_storage.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
+
 #include "mac/ieee802154/mac_header_helper_functions.h"
-#include "mac/rf_driver_storage.h"
 
 static uint8_t *mcps_mac_security_aux_header_start_pointer_get(const mac_pre_parsed_frame_t *buffer);
 static uint8_t *mac_header_information_elements_write(const mac_pre_build_frame_t *buffer, uint8_t *ptr);

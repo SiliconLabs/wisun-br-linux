@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 #include <mbedtls/aes.h>
-#include "stack/mac/platform/arm_hal_aes.h"
 #include "common/hal_interrupt.h"
+#include "stack/mac/platform/arm_hal_aes.h"
 
 struct arm_aes_context {
     mbedtls_aes_context ctx;

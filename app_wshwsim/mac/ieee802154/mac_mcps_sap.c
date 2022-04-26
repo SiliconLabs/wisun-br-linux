@@ -21,20 +21,22 @@
  *
  */
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+#include "common/hal_interrupt.h"
+#include "common/rand.h"
+#include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "os_timer.h"
-#include <string.h>
-#include "stack-services/ns_trace.h"
-#include <stdlib.h>
+#include "stack-services/common_functions.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
-#include "common/hal_interrupt.h"
-#include "stack-services/common_functions.h"
-#include "common/rand.h"
+#include "stack/mac/sw_mac.h"
 
+#include "os_timer.h"
+#include "mac/rf_driver_storage.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/mac_timer.h"
@@ -42,13 +44,11 @@
 #include "mac/ieee802154/mac_mlme.h"
 #include "mac/ieee802154/mac_filter.h"
 #include "mac/ieee802154/mac_pd_sap.h"
-#include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/ieee802154/mac_header_helper_functions.h"
 #include "mac/ieee802154/mac_indirect_data.h"
 #include "mac/ieee802154/mac_cca_threshold.h"
-#include "mac/rf_driver_storage.h"
 
-#include "stack/mac/sw_mac.h"
+#include "mac/ieee802154/mac_mcps_sap.h"
 
 #define TRACE_GROUP "mMCp"
 

@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "stack-services/ns_trace.h"
+#include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
+
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_ws.h"
@@ -25,8 +29,6 @@
 #include "fhss_channel.h"
 #include "channel_list.h"
 #include "os_timer.h"
-#include <stdlib.h>
-#include <string.h>
 
 #define TRACE_GROUP "fhssc"
 

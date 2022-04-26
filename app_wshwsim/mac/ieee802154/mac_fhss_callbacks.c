@@ -17,16 +17,16 @@
 
 #include <string.h>
 #include <stdint.h>
+#include "stack-services/common_functions.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
+
 #include "mac/ieee802154/mac_fhss_callbacks.h"
 #include "mac/ieee802154/mac_defines.h"
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_mlme.h"
 #include "mac/ieee802154/mac_mcps_sap.h"
 #include "mac/rf_driver_storage.h"
-#include "stack-services/common_functions.h"
-
 
 uint16_t mac_read_tx_queue_sizes(const fhss_api_t *fhss_api, bool broadcast_queue)
 {

@@ -19,23 +19,23 @@
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
-
-#include "stack-services/ns_trace.h"
-#include "stack-scheduler/eventOS_scheduler.h"
-#include "stack/mac/sw_mac.h"
-
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
+#include "stack-services/ns_trace.h"
+#include "stack-scheduler/eventOS_scheduler.h"
+#include "stack/mac/sw_mac.h"
+
 #include "hal_fhss_timer.h"
-#include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
 #include "sl_rf_driver.h"
 #include "os_timer.h"
 #include "version.h"
+
+#include "sl_wsrcp.h"
 
 #define TRACE_GROUP  "main"
 

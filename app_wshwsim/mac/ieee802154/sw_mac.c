@@ -16,9 +16,12 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include "stack-services/common_functions.h"
+#include "stack-services/ns_trace.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/sw_mac.h"
+
 #include "mac/ieee802154/sw_mac_internal.h"
 #include "mac/ieee802154/mac_mlme.h"
 #include "mac/ieee802154/mac_defines.h"
@@ -27,8 +30,6 @@
 #include "mac/ieee802154/mac_security_mib.h"
 #include "mac/rf_driver_storage.h"
 #include "mac_fhss_callbacks.h"
-#include "stack-services/common_functions.h"
-#include "stack-services/ns_trace.h"
 #include "os_timer.h"
 
 #define TRACE_GROUP "swm"
