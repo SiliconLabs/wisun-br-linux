@@ -10,17 +10,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-
+#include "common/log.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/fhss_api.h"
 
-#include "common/spinel_defs.h"
-#include "common/spinel_buffer.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "wsbr_fhss_net.h"
 
-#include "common/log.h"
+#include "wsbr_fhss_net.h"
 
 struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                    const fhss_timer_t *fhss_timer)

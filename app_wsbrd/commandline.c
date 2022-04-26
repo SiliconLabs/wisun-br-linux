@@ -16,19 +16,22 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-
-#include "stack/source/6lowpan/ws/ws_common_defines.h"
-#include "stack/source/core/ns_address_internal.h"
-#include "stack/ws_management_api.h"
-#include "stack/ns_file_system.h"
 #include "common/named_values.h"
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"
+#include "stack/ws_management_api.h"
+#include "stack/ns_file_system.h"
+
+#include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/core/ns_address_internal.h"
+
 #include "commandline_values.h"
 #include "wsbr.h"
+
+#include "commandline.h"
 
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05,

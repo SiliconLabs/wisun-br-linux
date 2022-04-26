@@ -3,11 +3,16 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include "nsconfig.h"
 #include <errno.h>
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
+#include "common/named_values.h"
+#include "common/utils.h"
+#include "common/log.h"
+#include "stack/ws_bbr_api.h"
+#include "stack/socket_api.h"
 
-#include "nsconfig.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
@@ -15,15 +20,10 @@
 #include "stack/source/security/protocols/sec_prot_keys.h"
 #include "stack/source/common_protocols/icmpv6.h"
 
-#include "stack/ws_bbr_api.h"
-#include "stack/socket_api.h"
-
-#include "common/named_values.h"
-#include "common/utils.h"
-#include "common/log.h"
 #include "commandline_values.h"
-#include "dbus.h"
 #include "wsbr.h"
+
+#include "dbus.h"
 
 void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {

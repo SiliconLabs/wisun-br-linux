@@ -6,7 +6,6 @@
 #include <mbedtls/build_info.h>
 #include <mbedtls/version.h>
 #include <mbedtls/ssl.h>
-
 #include "common/log.h"
 #include "common/utils.h"
 

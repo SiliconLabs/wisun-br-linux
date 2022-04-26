@@ -13,27 +13,27 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/timerfd.h>
-
-#include "stack-services/ns_trace.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-scheduler/source/timer_sys.h"
-#include "stack/mac/fhss_api.h"
-#include "stack/mac/mac_api.h"
-#include "stack/ns_file_system.h"
-#include "stack/mac/sw_mac.h"
-#include "stack/net_ws_test.h"
-#include "stack/ws_management_api.h"
-#include "stack/source/6lowpan/ws/ws_common_defines.h"
-#include "stack/source/core/ns_address_internal.h"
-#include "stack/source/nwk_interface/protocol_timer.h"
-
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
+#include "stack-services/ns_trace.h"
+#include "stack-scheduler/eventOS_event.h"
+#include "stack-scheduler/eventOS_scheduler.h"
+#include "stack-scheduler/source/timer_sys.h"
+#include "stack/mac/fhss_api.h"
+#include "stack/mac/mac_api.h"
+#include "stack/mac/sw_mac.h"
+#include "stack/ns_file_system.h"
+#include "stack/net_ws_test.h"
+#include "stack/ws_management_api.h"
+
+#include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/core/ns_address_internal.h"
+#include "stack/source/nwk_interface/protocol_timer.h"
+
 #include "commandline.h"
 #include "version.h"
 #include "wsbr.h"

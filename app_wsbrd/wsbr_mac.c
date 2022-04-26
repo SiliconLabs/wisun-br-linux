@@ -7,8 +7,13 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
-#include "common/ws_regdb.h"
+#include "common/log.h"
+#include "common/named_values.h"
 #include "common/parsers.h"
+#include "common/spinel_defs.h"
+#include "common/spinel_buffer.h"
+#include "common/utils.h"
+#include "common/ws_regdb.h"
 
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
@@ -19,11 +24,6 @@
 #include "wsbr_mac.h"
 #include "dbus.h"
 #include "commandline_values.h"
-#include "common/utils.h"
-#include "common/spinel_defs.h"
-#include "common/spinel_buffer.h"
-#include "common/named_values.h"
-#include "common/log.h"
 
 static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
 {

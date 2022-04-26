@@ -10,17 +10,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "stack/mac/mac_api.h"
-
-#include "wsbr.h"
-#include "wsbr_mac.h"
-#include "wsbr_fhss_mac.h"
-#include "wsbr_fhss_net.h"
 #include "common/utils.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/log.h"
+#include "stack/mac/mac_api.h"
+
+#include "wsbr.h"
+#include "wsbr_mac.h"
+#include "wsbr_fhss_net.h"
+
+#include "wsbr_fhss_mac.h"
 
 int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
 {
