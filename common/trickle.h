@@ -24,6 +24,7 @@
 #define TRICKLE_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Trickle time is in arbitrary ticks - users can choose appropriate size
  * per algorithm implementation.

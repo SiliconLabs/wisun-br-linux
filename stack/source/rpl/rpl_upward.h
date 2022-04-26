@@ -19,13 +19,15 @@
 #define RPL_UPWARD_H_
 
 #include "common_protocols/icmpv6_prefix.h"
-#include "rpl_control.h"
+#include "rpl/rpl_control.h"
 
 /* Structures are abstract for outer control layer */
+struct protocol_interface_info_entry;
 typedef struct rpl_neighbour rpl_neighbour_t;
 typedef struct rpl_dodag_version rpl_dodag_version_t;
 typedef struct rpl_dodag rpl_dodag_t;
 typedef struct rpl_instance rpl_instance_t;
+typedef struct rpl_domain rpl_domain_t;
 
 /* Internal flags used in prefix descriptors - disjoint from real L/A/R flags */
 #define RPL_PIO_PUBLISHED   0x10

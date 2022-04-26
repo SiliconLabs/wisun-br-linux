@@ -18,10 +18,11 @@
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
+#include "service_libs/etx/etx.h"
 #include "stack/net_rpl.h"
+
 #include "nwk_interface/protocol_abstract.h"
 #include "common_protocols/ipv6_resolution.h"
-#include "service_libs/etx/etx.h"
 
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_objective.h"
@@ -29,6 +30,7 @@
 #include "rpl/rpl_downward.h"
 #include "rpl/rpl_policy.h"
 #include "rpl/rpl_structures.h"
+
 #include "rpl/rpl_mrhof.h"
 
 #define TRACE_GROUP "rplm"

@@ -27,15 +27,16 @@
 #include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/trickle.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include <stdlib.h>
 #include "stack-services/ip6string.h"
-#include "common/trickle.h"
 #include "stack/net_interface.h"
 #include "stack/net_rpl.h"
+
 #include "core/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
@@ -49,9 +50,10 @@
 #include "rpl/rpl_policy.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_objective.h"
-#include "rpl/rpl_upward.h"
 #include "rpl/rpl_downward.h"
 #include "rpl/rpl_structures.h"
+
+#include "rpl/rpl_upward.h"
 
 #define TRACE_GROUP "rplu"
 

@@ -18,15 +18,16 @@
 #ifndef RPL_CONTROL_H_
 #define RPL_CONTROL_H_
 #include "stack-services/ns_list.h"
+
 #include "ipv6_stack/ipv6_routing_table.h"
 
+struct protocol_interface_info_entry;
+struct prefix_entry_t;
 struct rpl_instance;
 struct rpl_dodag_conf;
+struct rpl_dodag_info_t;
 struct rpl_dodag;
 struct buffer;
-struct protocol_interface_info_entry;
-struct rpl_dodag_info_t;
-struct prefix_entry_t;
 
 typedef enum rpl_event {
     RPL_EVENT_DAO_DONE,         /* Simplistic trigger for bootstrap advance - a DAO registration completed */

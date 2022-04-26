@@ -26,8 +26,8 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "stack-services/common_functions.h"
 #include <stdlib.h>
+#include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
 
 #include "core/ns_buffer.h"
@@ -37,13 +37,13 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "common_protocols/icmpv6.h"
+#include "rpl/rpl_protocol.h"
+#include "rpl/rpl_upward.h"
+#include "rpl/rpl_downward.h"
+#include "rpl/rpl_structures.h"
+#include "rpl/rpl_policy.h"
 
-#include "rpl_protocol.h"
-#include "rpl_upward.h"
-#include "rpl_downward.h"
-#include "rpl_structures.h"
-#include "rpl_policy.h"
-#include "rpl_data.h"
+#include "rpl/rpl_data.h"
 
 #define TRACE_GROUP "RPLa"
 

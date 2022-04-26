@@ -19,7 +19,9 @@
 #define RPL_POLICY_H_
 
 #include "core/ns_address_internal.h"
-#include "rpl_control.h"
+
+typedef struct rpl_domain rpl_domain_t;
+typedef struct rpl_dodag_conf rpl_dodag_conf_t;
 
 bool rpl_policy_force_tunnel(void);
 void rpl_policy_force_tunnel_set(bool enable);

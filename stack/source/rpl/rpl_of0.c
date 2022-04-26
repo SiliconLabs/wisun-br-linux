@@ -21,15 +21,16 @@
 #include "service_libs/etx/etx.h"
 #include "stack/net_rpl.h"
 #include "stack/net_interface.h"
+
 #include "nwk_interface/protocol_abstract.h"
 #include "common_protocols/ipv6_resolution.h"
-
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_objective.h"
 #include "rpl/rpl_upward.h"
 #include "rpl/rpl_downward.h"
 #include "rpl/rpl_policy.h"
 #include "rpl/rpl_structures.h"
+
 #include "rpl/rpl_of0.h"
 
 #define TRACE_GROUP "rpl0"

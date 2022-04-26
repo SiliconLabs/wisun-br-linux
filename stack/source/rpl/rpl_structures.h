@@ -26,10 +26,17 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "common/trickle.h"
+#include "stack-services/ns_list.h"
 
-struct rpl_objective;
+#include "common_protocols/icmpv6_prefix.h"
+#include "rpl/rpl_control.h"
+
+typedef struct rpl_neighbour rpl_neighbour_t;
+typedef struct rpl_dodag_version rpl_dodag_version_t;
+typedef struct rpl_dodag rpl_dodag_t;
+typedef struct rpl_instance rpl_instance_t;
+typedef struct rpl_objective rpl_objective_t;
 
 /* Descriptor for a RPL neighbour within a DODAG
  *
@@ -202,7 +209,7 @@ struct rpl_instance {
     uint16_t delay_dao_timer;
     uint16_t dao_retry_timer;
     uint8_t dao_attempt;
-    struct rpl_objective *of;                       /* Objective function pointer */
+    rpl_objective_t *of;                            /* Objective function pointer */
 };
 
 /* rpl_control.h uses NS_LIST_HEAD_INCOMPLETE */

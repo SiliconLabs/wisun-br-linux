@@ -18,6 +18,13 @@
 #ifndef RPL_DOWNWARD_H_
 #define RPL_DOWNWARD_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "ipv6_stack/ipv6_routing_table.h"
+
+struct protocol_interface_info_entry;
+struct rpl_route_info;
 struct rpl_instance;
 struct rpl_dodag;
 struct rpl_neighbour;
@@ -27,7 +34,7 @@ struct rpl_dao_root_transit;
 void rpl_downward_dao_slow_timer(struct rpl_instance *instance, uint16_t seconds);
 void rpl_downward_dao_timer(struct rpl_instance *instance, uint16_t ticks);
 void rpl_downward_print_instance(struct rpl_instance *instance, route_print_fn_t *print_fn);
-uint16_t rpl_downward_route_table_get(rpl_instance_t *instance, uint8_t *prefix, rpl_route_info_t *output_table, uint16_t output_table_len);
+uint16_t rpl_downward_route_table_get(struct rpl_instance *instance, uint8_t *prefix, struct rpl_route_info *output_table, uint16_t output_table_len);
 
 void rpl_downward_convert_dodag_preferences_to_dao_path_control(struct rpl_dodag *dodag);
 void rpl_downward_process_dao_parent_changes(struct rpl_instance *instance);
@@ -43,8 +50,8 @@ void rpl_instance_dao_timeout(struct rpl_instance *instance, uint16_t seconds);
 void rpl_instance_dao_trigger(struct rpl_instance *instance, uint16_t delay);
 void rpl_instance_dao_acked(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, uint8_t dao_sequence, uint8_t status);
 void rpl_instance_parent_address_reg_timer_update(struct rpl_instance *instance, uint16_t seconds);
-void rpl_instance_send_address_registration(rpl_instance_t *instance, const uint8_t addr[16]);
-bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, rpl_neighbour_t *neighbour, uint8_t status);
+void rpl_instance_send_address_registration(struct rpl_instance *instance, const uint8_t addr[16]);
+bool rpl_instance_address_registration_done(struct protocol_interface_info_entry *interface, struct rpl_instance *instance, struct rpl_neighbour *neighbour, uint8_t status);
 struct rpl_dao_target *rpl_instance_get_active_target_confirmation(struct rpl_instance *instance);
 bool rpl_instance_parent_selection_ready(struct rpl_instance *instance);
 
@@ -53,9 +60,9 @@ bool rpl_instance_dao_received(struct rpl_instance *instance, const uint8_t src[
 #endif
 
 #ifdef HAVE_RPL_ROOT
-void rpl_downward_transit_error(rpl_instance_t *instance, const uint8_t *target_addr, const uint8_t *transit_addr);
-void rpl_downward_compute_paths(rpl_instance_t *instance);
-void rpl_downward_paths_invalidate(rpl_instance_t *instance);
+void rpl_downward_transit_error(struct rpl_instance *instance, const uint8_t *target_addr, const uint8_t *transit_addr);
+void rpl_downward_compute_paths(struct rpl_instance *instance);
+void rpl_downward_paths_invalidate(struct rpl_instance *instance);
 #else
 #define rpl_downward_compute_paths(instance) ((void) 0)
 #define rpl_downward_paths_invalidate(instance) ((void) 0)
