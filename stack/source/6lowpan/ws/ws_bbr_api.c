@@ -218,6 +218,11 @@ static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
     ws_bbr_rpl_version_timer_start(cur, rpl_control_increment_dodag_version(protocol_6lowpan_rpl_root_dodag));
 }
 
+int ws_bbr_get_backbone_id()
+{
+    return backbone_interface_id;
+}
+
 void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
 {
     if (imin == 0 || doubling == 0) {

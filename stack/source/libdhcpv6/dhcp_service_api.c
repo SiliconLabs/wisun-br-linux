@@ -35,6 +35,7 @@
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
 #include "common_protocols/ip.h"
+#include "6lowpan/ws/ws_bbr_api_internal.h"
 
 #ifdef HAVE_DHCPV6
 #define TRACE_GROUP    "dhcp"
@@ -468,9 +469,20 @@ void recv_dhcp_relay_msg(void *cb_res)
 
     int16_t tc = 0;
     if (msg_type == DHCPV6_RELAY_FORWARD) {
-        tr_error("Drop not supported DHCPv6 forward at Agent");
-        goto cleanup;
-
+        //Parse and validate Relay
+        dhcpv6_relay_msg_t relay_msg;
+        if (!libdhcpv6_relay_msg_read(socket_data, msg_len, &relay_msg)) {
+            tr_error("Not valid relay");
+            goto cleanup;
+        }
+        if (0 != libdhcpv6_message_malformed_check(relay_msg.relay_options.msg_ptr, relay_msg.relay_options.len)) {
+            tr_error("Malformed packet");
+            goto cleanup;
+        }
+        memcpy(src_address.address, relay_srv->server_address, 16);
+        src_address.type = ADDRESS_IPV6;
+        src_address.identifier = DHCPV6_SERVER_PORT;
+        tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     } else if (msg_type == DHCPV6_RELAY_REPLY) {
         //Parse and validate Relay
         dhcpv6_relay_msg_t relay_msg;
@@ -483,14 +495,20 @@ void recv_dhcp_relay_msg(void *cb_res)
             goto cleanup;
         }
         //Copy DST address
-        memcpy(src_address.address, relay_msg.peer_address, 16);
-        src_address.type = ADDRESS_IPV6;
-        src_address.identifier = DHCPV6_CLIENT_PORT;
-        msghdr.msg_iov = &msg_data;
-        msghdr.msg_iovlen = 1;
-        msg_data.iov_base = relay_msg.relay_options.msg_ptr;
-        msg_data.iov_len = relay_msg.relay_options.len;
-
+        if (interface_ptr->id == ws_bbr_get_backbone_id()) {
+            memcpy(src_address.address, relay_msg.link_address, 16);
+            src_address.type = ADDRESS_IPV6;
+            src_address.identifier = DHCPV6_SERVER_PORT;
+            tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+        } else {
+            memcpy(src_address.address, relay_msg.peer_address, 16);
+            src_address.type = ADDRESS_IPV6;
+            src_address.identifier = DHCPV6_CLIENT_PORT;
+            msghdr.msg_iov = &msg_data;
+            msghdr.msg_iovlen = 1;
+            msg_data.iov_base = relay_msg.relay_options.msg_ptr;
+            msg_data.iov_len = relay_msg.relay_options.len;
+        }
     } else {
         if (0 != libdhcpv6_message_malformed_check(socket_data, msg_len)) {
             tr_error("Malformed packet");
