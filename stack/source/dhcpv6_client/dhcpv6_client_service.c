@@ -631,7 +631,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         return;
     }
 
-    payload_len = libdhcpv6_address_request_message_len(srv_data_ptr->clientDUID.duid_length, srv_data_ptr->serverDUID.duid_length, 0, !dhcp_client->no_address_hint);
+    payload_len = libdhcpv6_address_request_message_len(srv_data_ptr->clientDUID.duid_length, 0, 0, !dhcp_client->no_address_hint);
     payload_ptr = malloc(payload_len);
     if (payload_ptr == NULL) {
         if (addr) {
@@ -659,14 +659,14 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
     if (dhcp_client->no_address_hint && dhcp_client->renew_uses_solicit) {
         packetReq.timerT0 = 0;
         packetReq.timerT1 = 0;
-        libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &packetReq, NULL, &srv_data_ptr->serverDUID);
+        libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &packetReq, NULL, NULL);
     } else {
         // Set Address information
         dhcpv6_ia_non_temporal_address_s nonTemporalAddress = {0};
         nonTemporalAddress.requestedAddress = srv_data_ptr->iaNontemporalAddress.addressPrefix;
         nonTemporalAddress.preferredLifeTime = srv_data_ptr->iaNontemporalAddress.preferredTime;
         nonTemporalAddress.validLifeTime = srv_data_ptr->iaNontemporalAddress.validLifetime;
-        libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &packetReq, &nonTemporalAddress, &srv_data_ptr->serverDUID);
+        libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &packetReq, &nonTemporalAddress, NULL);
     }
     // send solicit
     uint8_t *server_address = dhcp_service_relay_global_addres_get(dhcp_client->relay_instance);

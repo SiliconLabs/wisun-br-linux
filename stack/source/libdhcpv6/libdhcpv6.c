@@ -772,7 +772,8 @@ uint16_t libdhcpv6_address_request_message_len(uint16_t clientDUIDLength, uint16
     length += libdhcpv6_header_size();
     length += libdhcpv6_elapsed_time_option_size();
     length += libdhcpv6_duid_option_size(clientDUIDLength);
-    length += libdhcpv6_duid_option_size(serverDUIDLength);
+    if (serverDUIDLength)
+        length += libdhcpv6_duid_option_size(serverDUIDLength);
     length += libdhcvp6_request_option_size(requstOptionCnt);
     length += libdhcpv6_rapid_commit_option_size();
     length += libdhcpv6_non_temporal_address_size(add_address);
