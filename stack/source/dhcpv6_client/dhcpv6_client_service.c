@@ -176,6 +176,9 @@ void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[sta
         return;
     }
 
+    protocol_interface_info_entry_t * rcp_if_entry = protocol_stack_interface_info_get_by_id(interface);
+    rcp_if_entry->is_dhcp_relay_agent_enabled = true;
+
     dhcp_client->relay_instance = dhcp_service_init(interface, DHCP_INTANCE_RELAY_AGENT, NULL);
     dhcp_service_relay_instance_enable(dhcp_client->relay_instance, border_router_address);
 }
@@ -671,7 +674,17 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         server_address = srv_data_ptr->server_address;
     }
 
-    srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, server_address, payload_ptr, payload_len, dhcp_solicit_resp_cb, 0);
+    if (interface->is_dhcp_relay_agent_enabled) {
+        uint8_t ll[16];
+        ns_list_foreach(if_address_entry_t, ll_addr, &interface->ip_addresses) {
+            if (memcmp(ll_addr, ADDR_LINK_LOCAL_PREFIX, 8) == 0)
+                memcpy(ll, ll_addr, 16);
+        }
+        srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, ll,
+                                                            payload_ptr, payload_len, dhcp_solicit_resp_cb, 0);
+    } else
+        srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client->service_instance, 0, srv_data_ptr, server_address,
+                                                            payload_ptr, payload_len, dhcp_solicit_resp_cb, 0);
     if (srv_data_ptr->transActionId == 0) {
         free(payload_ptr);
         if (addr) {

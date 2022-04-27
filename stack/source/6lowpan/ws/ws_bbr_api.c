@@ -299,6 +299,16 @@ bool ws_bbr_backbone_address_get(uint8_t *address)
     return true;
 }
 
+static void ws_bbr_get_matching_addr(protocol_interface_info_entry_t *interface, uint8_t * dst, const uint8_t *pattern, const uint8_t pat_size)
+{
+    ns_list_foreach(if_address_entry_t, addr, &interface->ip_addresses) {
+        if (memcmp(addr, pattern, pat_size) == 0) {
+            memcpy(dst, addr, 16);
+            break;
+        }
+    }
+}
+
 static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t *dodag_id)
 {
     tr_info("RPL root start");
@@ -798,7 +808,13 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
                 prefix_flags |= PIO_A;
                 prefix_lifetime = WS_ULA_LIFETIME;
             }
-            ws_bbr_dhcp_server_start(cur, global_prefix, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
+            if (cur->is_dhcp_relay_agent_enabled) {
+                uint8_t ll[16];
+                ws_bbr_get_matching_addr(cur, ll, ADDR_LINK_LOCAL_PREFIX, 8);
+                ws_dhcp_client_address_request(cur, global_prefix, ll);
+            } else
+                ws_bbr_dhcp_server_start(cur, global_prefix, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
+
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
             // no check for failure should have
 

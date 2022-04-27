@@ -261,6 +261,7 @@ struct protocol_interface_info_entry {
     bool ip_multicast_as_mac_unicast_to_parent : 1;
     uint8_t dad_failures;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;
+    bool is_dhcp_relay_agent_enabled;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
     uint16_t icmp_ra_tokens; /* Token bucket for RA receive rate limiting */
