@@ -398,6 +398,8 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         ctxt->ws_denied_mac_address_count++;
     } else if (sscanf(line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
         ctxt->ws_regional_regulation = str_to_val(str_arg, valid_ws_regional_regulations);
+    } else if (sscanf(line, " use_tap = %s %c", str_arg, &garbage) == 1) {
+        ctxt->tun_use_tap = str_to_val(str_arg, valid_booleans);
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
     }
