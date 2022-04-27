@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
+#include <arpa/inet.h>
 #include <linux/if.h>
 #include <linux/limits.h>
 #ifdef HAVE_LIBSYSTEMD
@@ -82,6 +83,7 @@ struct wsbr_ctxt {
     uint8_t ipv6_prefix[16];
     struct sockaddr_storage radius_server;
     char radius_secret[256];
+    struct sockaddr_in6 dhcpv6_server;
     uint32_t ws_allowed_channels[8];
     int ws_pmk_lifetime;
     int ws_ptk_lifetime;

@@ -25,6 +25,8 @@
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 #include "stack/source/nwk_interface/protocol_timer.h"
+#include "stack/source/dhcpv6_client/dhcpv6_client_api.h"
+#include "stack/source/libdhcpv6/libdhcpv6.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
@@ -224,8 +226,10 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_WS);
             WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
             ret = arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
-                                                               NET_IPV6_BOOTSTRAP_STATIC,
-                                                               ctxt->ipv6_prefix);
+                                                                 NET_IPV6_BOOTSTRAP_STATIC,
+                                                                 (ctxt->dhcpv6_server.sin6_family == AF_INET6) ?
+                                                                 (uint8_t *)&ctxt->dhcpv6_server.sin6_addr :
+                                                                 ctxt->ipv6_prefix);
             WARN_ON(ret, "arm_nwk_interface_configure_ipv6_bootstrap_set: %d", ret);
             get_link_local_addr(ctxt->tun_dev, ipv6);
             arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
@@ -244,6 +248,15 @@ static void wsbr_tasklet(struct arm_event_s *event)
             if (ctxt->radius_server.ss_family != AF_UNSPEC)
                 if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->radius_server))
                     WARN("ws_bbr_radius_address_set");
+            if (ctxt->dhcpv6_server.sin6_family == AF_INET6) {
+                // dhcp relay agent needs a client instance (no other use)
+                dhcp_client_init(ctxt->tun_if_id, DHCPV6_DUID_HARDWARE_EUI48_TYPE);
+                dhcp_client_configure(ctxt->tun_if_id, true, true, true);
+                // for nodes of rank 2 or more
+                dhcp_relay_agent_enable(ctxt->tun_if_id, (uint8_t *)&ctxt->dhcpv6_server.sin6_addr);
+                // for rank 1 nodes
+                dhcp_relay_agent_enable(ctxt->rcp_if_id, (uint8_t *)&ctxt->dhcpv6_server.sin6_addr);
+            }
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->tun_if_id) {
@@ -333,8 +346,13 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
-    if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "You must specify a ipv6_prefix");
+    if (ctxt->dhcpv6_server.sin6_family == AF_INET6) {
+        if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16) != 0)
+            WARN("ipv6_prefix will be ignored because you specified a dhcpv6_server address");
+    } else {
+        if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+            FATAL(1, "You must specify a ipv6_prefix");
+    }
     ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     wsbr_tun_init(ctxt);

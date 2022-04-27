@@ -277,6 +277,8 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, int_arg);
         if (inet_pton(AF_INET6, str_arg, ctxt->ipv6_prefix) != 1)
             FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, str_arg);
+    } else if (sscanf(line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
+        get_ip_addr_from_arg(str_arg, (struct sockaddr_storage *) &ctxt->dhcpv6_server);
     } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
