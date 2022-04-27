@@ -1022,6 +1022,8 @@ bool dhcp_service_timer_tick(uint16_t ticks)
                 dhcp_tr_delete(cur_ptr);
                 continue;
             }
+            if (memcmp(cur_ptr->addr.address, ADDR_LINK_LOCAL_PREFIX, 8) == 0)
+                FATAL(1, "external dhcp server couldn't be reached");
             dhcp_service_send_message(cur_ptr);
             // RFC 3315 says:
             //     RT = 2*RTprev + RAND*RTprev,
