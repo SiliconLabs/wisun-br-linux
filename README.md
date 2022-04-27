@@ -142,6 +142,42 @@ Web site][7] (restricted access).
 
 [7]: https://wi-sun.org/cyber-security-certificates/
 
+# Running your dhcp server on the same host as `wsbrd`
+
+If you choose to run your dhcp server on the same host as `wsbrd` you will have
+to create a tap interface:
+
+    sudo ip tuntap add mode tap tap0
+
+You also have to give this interface an address in the subnet you have
+configured on your dhcp server:
+
+    sudo ip addr add 2001:db8::1 dev tap0
+
+Bring up the interface, this will add a route to the Wi-SUN network:
+
+    sudo ip link set up dev tap0
+
+To keep things clean, we suggest to disable SLAAC on the TAP interface (also
+make sure you have `tun_autoconf` set to `false` in your `wsbrd.conf`):
+
+    sudo sysctl net.ipv6.conf.tap0.accept_ra=0
+
+Copy the example configuration:
+
+    sudo cp examples/dhcpd.conf /etc/dhcp/dhcpd.conf
+
+Start your DHCP server:
+
+    sudo sytemctl start dhcpd6.service
+
+Configure `wsbrd` to use a tap interface named `tap0`:
+
+    tun_device = tun0
+    use_tap = false
+
+Launch `wsbrd`.
+
 # Running `wsbrd` without Root Privileges
 
 It is possible to launch `wsbrd` without root privileges. First, ensure you have
@@ -190,6 +226,22 @@ small details:
   - Multicast link-local frames (typically Router Solicitations and Router
     Advertisements) are not forwarded to the Wi-SUN network. These frames would
     be ignored in the Wi-SUN network anyway.
+
+When no DHCP is server is in use, the IP addresses of the interfaces are
+configured in this order:
+
+    1. The address of the backhaul interface is generated from `ipv6_prefix`.
+       Then wsbrd starts the internal DHCP server and starts to advertise
+       `ipv6_prefix` on the Linux interface
+    2. Thank to advertisements, the Linux interface can use SLAAC to get an IP.
+    3. The RF interface request a IP from the internal DHCP server
+
+When using an external DHCP server:
+
+    1. The IP of the Linux interface is set by the user
+    2. The backhaul interface get its IP from the prefix of the DHCP server
+       address
+    3. The RF interface request a IP from the external DHCP server
 
 ## I cannot connect to DBus interface
 
