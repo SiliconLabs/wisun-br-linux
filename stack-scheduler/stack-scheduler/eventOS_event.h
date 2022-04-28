@@ -104,21 +104,6 @@
  *      }
  * \endcode
  *
- * Where required, event system allows you to delay the event propagation.
- *
- * \code
- *      // Wait 3 seconds before the event
- *      #define MY_DELAY_MS 3000
- *
- *      arm_event_t e = {
- *          .receiver = my_eventhandler_id,
- *          .event_type = MY_EVENT
- *      };
- *
- *      uint32_t delay = eventOS_event_timer_ms_to_ticks(MY_DELAY_MS);
- *      eventOS_event_timer_request_after(e, delay);
- * \endcode
- *
  * \sa eventOS_event.h
  * \sa eventOS_event_send_at
  * \sa eventOS_event_send_in

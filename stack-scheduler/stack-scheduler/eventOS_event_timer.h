@@ -25,35 +25,6 @@
  */
 
 struct arm_event_s;
-typedef struct sys_timer_struct_s sys_timer_struct_t;
-
-/* 100 Hz ticker, so 10 milliseconds per tick */
-#define EVENTOS_EVENT_TIMER_HZ 20
-
-static inline uint32_t eventOS_event_timer_ticks_to_ms(uint32_t ticks)
-{
-    NS_STATIC_ASSERT(1000 % EVENTOS_EVENT_TIMER_HZ == 0, "Assuming whole number of ms per tick")
-    return ticks * (1000 / EVENTOS_EVENT_TIMER_HZ);
-}
-
-/* Convert ms to ticks, rounding up (so 9ms = 1 tick, 10ms = 1 tick, 11ms = 2 ticks) */
-static inline uint32_t eventOS_event_timer_ms_to_ticks(uint32_t ms)
-{
-    NS_STATIC_ASSERT(1000 % EVENTOS_EVENT_TIMER_HZ == 0, "Assuming whole number of ms per tick")
-    return (ms + (1000 / EVENTOS_EVENT_TIMER_HZ) - 1) / (1000 / EVENTOS_EVENT_TIMER_HZ);
-}
-
-/**
- * Read current timer tick count.
- *
- * Can be used as a monotonic time source, and to schedule events with
- * eventOS_event_timer_send.
- *
- * Note that the value will wrap, so take care on comparisons.
- *
- * \return tick count.
- */
-uint32_t eventOS_event_timer_ticks(void);
 
 /* Comparison macros handling wrap efficiently (assuming a conventional compiler
  * which converts 0x80000000 to 0xFFFFFFFF to negative when casting to int32_t).
@@ -74,9 +45,6 @@ uint32_t eventOS_event_timer_ticks(void);
  *    40-49 ms => 5 x 10ms tick
  *    ... etc
  *
- * For improved flexibility on the event, and for more control of time,
- * you should use eventOS_event_timer_request_at().
- *
  * \param event_id event_id for event
  * \param event_type event_type for event
  * \param tasklet_id receiver for event
@@ -87,26 +55,6 @@ uint32_t eventOS_event_timer_ticks(void);
  *
  * */
 int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t tasklet_id, uint32_t time);
-
-/**
- * Send an event at specified time
- *
- * The event will be sent when eventOS_event_timer_ticks() reaches the
- * specified value.
- *
- * If the specified time is in the past (ie "at" is before or at the current
- * tick value), the event will be sent immediately.
- *
- * Can also be invoked using the eventOS_event_send_at() macro in eventOS_event.h
- *
- * \param event event to send
- * \param at absolute tick time to run event at
- *
- * \return pointer to timer structure on success
- * \return NULL on error (invalid tasklet_id or allocation failure)
- *
- */
-arm_event_storage_t *eventOS_event_timer_request_at(const struct arm_event_s *event, uint32_t at);
 
 /**
  * Send an event periodically

@@ -24,11 +24,6 @@
  * \brief Event scheduler's control functions.
  */
 
-/* Compatibility with older ns_types.h */
-#ifndef NS_NORETURN
-#define NS_NORETURN
-#endif
-
 /**
  * \brief Initialise event scheduler.
  *
