@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include "slist.h"
 
+#define TIMER_SLOTS_PER_MS 20
+
 int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t));
 int eventOS_callback_timer_unregister(int ns_timer_id);
 

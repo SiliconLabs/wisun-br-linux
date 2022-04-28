@@ -39,7 +39,7 @@ int eventOS_callback_timer_unregister(int ns_timer_id)
 int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots)
 {
     int ret;
-    int slots_us = slots * 50;
+    int slots_us = 1000 * slots / TIMER_SLOTS_PER_MS;
     struct itimerspec timer = {
         .it_value.tv_sec = slots_us / 1000000,
         .it_value.tv_nsec = slots_us % 1000000 * 1000,

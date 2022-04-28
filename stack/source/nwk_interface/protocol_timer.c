@@ -25,7 +25,7 @@
 
 #define TRACE_GROUP "ctim"
 
-#define PROTOCOL_TIMER_INTERVAL 1000    // 50us units, so we use 50ms
+#define PROTOCOL_TIMER_PERIOD_MS 50
 
 NS_LARGE protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
 int protocol_timer_id = -1;
@@ -40,7 +40,7 @@ int protocol_timer_init(void)
         protocol_timer[i].time_drifts = 0;
     }
     if (protocol_timer_id >= 0) {
-        eventOS_callback_timer_start(protocol_timer_id, PROTOCOL_TIMER_INTERVAL);
+        eventOS_callback_timer_start(protocol_timer_id, TIMER_SLOTS_PER_MS * PROTOCOL_TIMER_PERIOD_MS);
     }
     return protocol_timer_id;
 }
@@ -50,15 +50,12 @@ void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t),
 {
     //Check Overflow
     if (passed_fptr) {
-        if (time > 0x12FFED) {
+        if (time > 0x12FFED)
             time = 0xffff;
-        }
-        if (time >= 100) {
-            time /= (1000 / 20);
-            //time++;
-        } else {
+        if (time >= 2 * PROTOCOL_TIMER_PERIOD_MS)
+            time /= PROTOCOL_TIMER_PERIOD_MS;
+        else
             time = 1;
-        }
         platform_enter_critical();
         protocol_timer[id].ticks = (uint16_t) time;
 
@@ -167,7 +164,7 @@ void protocol_timer_interrupt(int timer_id, uint16_t slots)
 {
     (void)timer_id;
     (void)slots;
-    eventOS_callback_timer_start(protocol_timer_id, PROTOCOL_TIMER_INTERVAL);
+    eventOS_callback_timer_start(protocol_timer_id, TIMER_SLOTS_PER_MS * PROTOCOL_TIMER_PERIOD_MS);
     protocol_tick_update++;
 
     if (!protocol_tick_handle_busy) {
