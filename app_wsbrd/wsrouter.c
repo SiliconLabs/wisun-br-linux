@@ -16,6 +16,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "stack-scheduler/source/timer_sys.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/ns_file_system.h"
@@ -24,6 +25,7 @@
 #include "stack/ws_management_api.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/core/ns_address_internal.h"
+#include "stack/source/nwk_interface/protocol_timer.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
@@ -191,6 +193,23 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
+#define WSBR_COMMON_TIMER_PERIOD_MS 50
+
+static void wsbr_common_timer_cb(struct wsbr_ctxt *ctxt)
+{
+    system_timer_tick_update(1);
+    protocol_timer_interrupt(ctxt->timerfd, 0);
+    eventOS_callback_timer_start(ctxt->timerfd, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+}
+
+static void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
+{
+    ctxt->timerfd = eventOS_callback_timer_register(NULL);
+    timer_sys_init();
+    protocol_timer_init();
+    eventOS_callback_timer_start(ctxt->timerfd, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -199,7 +218,6 @@ void kill_handler(int signal)
 int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct callback_timer *timer;
     fd_set rfds, efds;
     int maxfd, ret;
     uint64_t val;
@@ -227,6 +245,7 @@ int main(int argc, char *argv[])
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
+    wsbr_common_timer_init(ctxt);
     if (net_init_core())
         BUG("net_init_core");
 
@@ -248,10 +267,8 @@ int main(int argc, char *argv[])
         maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
         maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
-            FD_SET(timer->fd, &rfds);
-            maxfd = max(maxfd, timer->fd);
-        }
+        FD_SET(ctxt->timerfd, &rfds);
+        maxfd = max(maxfd, ctxt->timerfd);
         // FIXME: consider poll() usage
         if (ctxt->os_ctxt->uart_next_frame_ready)
             ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
@@ -268,12 +285,10 @@ int main(int argc, char *argv[])
             FD_ISSET(ctxt->os_ctxt->trig_fd, &efds) ||
             ctxt->os_ctxt->uart_next_frame_ready)
             rcp_rx(ctxt);
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
-            if (FD_ISSET(timer->fd, &rfds)) {
-                ret = read(timer->fd, &val, sizeof(val));
-                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
-                timer->fn(timer->fd, 0);
-            }
+        if (FD_ISSET(ctxt->timerfd, &rfds)) {
+            ret = read(ctxt->timerfd, &val, sizeof(val));
+            WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
+            wsbr_common_timer_cb(ctxt);
         }
     }
 
