@@ -25,9 +25,6 @@
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-scheduler/eventOS_event_timer.h"
 #include "stack/ns_address.h"
 #include "stack/socket_api.h"
 #include "nwk_interface/protocol.h"

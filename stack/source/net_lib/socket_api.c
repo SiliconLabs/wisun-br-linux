@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ns_address.h"
 #include "stack/socket_api.h"

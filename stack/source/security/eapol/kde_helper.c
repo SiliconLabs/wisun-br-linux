@@ -20,7 +20,6 @@
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "stack-scheduler/eventOS_event.h"
 #include "security/eapol/kde_helper.h"
 
 

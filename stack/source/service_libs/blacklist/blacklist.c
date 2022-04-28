@@ -21,7 +21,6 @@
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>
 #include "service_libs/blacklist/blacklist.h"
-#include "stack-scheduler/eventOS_scheduler.h"
 #include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "bl"

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "stack-scheduler/eventOS_event.h"
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"

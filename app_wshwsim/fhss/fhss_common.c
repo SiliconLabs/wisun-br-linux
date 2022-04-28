@@ -25,7 +25,6 @@
 #include "fhss_channel.h"
 #include "channel_list.h"
 #include <stdlib.h>
-#include "stack-scheduler/eventOS_event.h"
 #include "common/os_timer.h"
 #include <string.h>
 

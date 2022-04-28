@@ -29,8 +29,6 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/mac_api.h"
 
 #include "nwk_interface/protocol.h"
