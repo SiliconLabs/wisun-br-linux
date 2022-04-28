@@ -10,6 +10,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "stack-scheduler/source/timer_sys.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
 #include "stack/ns_file_system.h"
@@ -22,6 +23,7 @@
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
+#include "stack/source/nwk_interface/protocol_timer.h"
 
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
@@ -287,6 +289,23 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
+#define WSBR_COMMON_TIMER_PERIOD_MS 50
+
+static void wsbr_common_timer_cb(int timer_id, uint16_t slots)
+{
+    system_timer_tick_update(1);
+    protocol_timer_interrupt(timer_id, slots);
+    eventOS_callback_timer_start(timer_id, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+}
+
+static void wsbr_common_timer_init()
+{
+    int timer_id = eventOS_callback_timer_register(wsbr_common_timer_cb);
+    timer_sys_init();
+    protocol_timer_init();
+    eventOS_callback_timer_start(timer_id, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -342,6 +361,7 @@ int main(int argc, char *argv[])
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
+    wsbr_common_timer_init();
     if (net_init_core())
         BUG("net_init_core");
 

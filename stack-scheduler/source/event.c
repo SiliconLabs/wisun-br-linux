@@ -272,8 +272,6 @@ void eventOS_scheduler_init(void)
         ns_list_add_to_start(&free_event_entry, &startup_event_pool[i]);
     }
 
-    /* Init Generic timer module */
-    timer_sys_init();               //initialize timer
     /* Set Tasklett switcher to Idle */
     curr_tasklet = 0;
 

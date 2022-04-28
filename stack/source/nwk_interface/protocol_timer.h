@@ -31,7 +31,7 @@ typedef struct {
     uint16_t time_drifts;
 } protocol_timer_t;
 
-int protocol_timer_init(void);
+void protocol_timer_init(void);
 void protocol_timer_event_lock_free(void);
 void protocol_timer_cb(uint16_t ticks);
 void protocol_timer_interrupt(int timer_id, uint16_t slots);

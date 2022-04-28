@@ -319,9 +319,6 @@ void protocol_core_init(void)
 {
     protocol_root_tasklet_ID = eventOS_event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
     tr_debug("Allocate Root Tasklet");
-    if (protocol_timer_init() == -1) {
-        tr_error("Protocol timer init failed");
-    }
     protocol_core_monotonic_time = 0;
     protocol_core_timer_info.core_timer_event = false;
     protocol_core_timer_info.core_timer_ticks = 0;

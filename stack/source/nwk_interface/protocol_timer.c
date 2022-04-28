@@ -28,21 +28,15 @@
 #define PROTOCOL_TIMER_PERIOD_MS 50
 
 NS_LARGE protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
-int protocol_timer_id = -1;
 bool protocol_tick_handle_busy = false;
 static uint16_t  protocol_tick_update = 0;
-int protocol_timer_init(void)
+void protocol_timer_init(void)
 {
     uint8_t i;
-    protocol_timer_id = eventOS_callback_timer_register(protocol_timer_interrupt);
     for (i = 0; i < PROTOCOL_TIMER_MAX; i++) {
         protocol_timer[i].ticks = 0;
         protocol_timer[i].time_drifts = 0;
     }
-    if (protocol_timer_id >= 0) {
-        eventOS_callback_timer_start(protocol_timer_id, TIMER_SLOTS_PER_MS * PROTOCOL_TIMER_PERIOD_MS);
-    }
-    return protocol_timer_id;
 }
 
 // time is in milliseconds
@@ -164,7 +158,6 @@ void protocol_timer_interrupt(int timer_id, uint16_t slots)
 {
     (void)timer_id;
     (void)slots;
-    eventOS_callback_timer_start(protocol_timer_id, TIMER_SLOTS_PER_MS * PROTOCOL_TIMER_PERIOD_MS);
     protocol_tick_update++;
 
     if (!protocol_tick_handle_busy) {

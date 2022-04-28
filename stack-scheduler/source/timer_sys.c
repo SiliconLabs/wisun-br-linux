@@ -41,66 +41,18 @@ static NS_LIST_DEFINE(system_timer_list, sys_timer_struct_s, event.link);
 
 
 static sys_timer_struct_s *sys_timer_dynamically_allocate(void);
-static void timer_sys_interrupt(void);
 static void timer_sys_add(sys_timer_struct_s *timer);
 
-#ifndef NS_EVENTLOOP_USE_TICK_TIMER
-static int8_t platform_tick_timer_start(uint32_t period_ms);
-/* Implement platform tick timer using eventOS timer */
-// platform tick timer callback function
-static void (*tick_timer_callback)(void);
-static int tick_timer_id = -1;   // eventOS timer id for tick timer
-
-// EventOS timer callback function
-static void tick_timer_eventOS_callback(int timer_id, uint16_t slots)
-{
-    // Not interested in timer id or slots
-    (void)slots;
-    // Call the tick timer callback
-    if (tick_timer_callback != NULL && timer_id == tick_timer_id) {
-        platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
-        tick_timer_callback();
-    }
-}
-
-static int8_t platform_tick_timer_register(void (*tick_timer_cb)(void))
-{
-    tick_timer_callback = tick_timer_cb;
-    tick_timer_id = eventOS_callback_timer_register(tick_timer_eventOS_callback);
-    return tick_timer_id;
-}
-
-static int8_t platform_tick_timer_start(uint32_t period_ms)
-{
-    return eventOS_callback_timer_start(tick_timer_id, TIMER_SLOTS_PER_MS * period_ms);
-}
-#endif // !NS_EVENTLOOP_USE_TICK_TIMER
-
-/*
- * Initializes timers and starts system timer
- */
 void timer_sys_init(void)
 {
     for (uint8_t i = 0; i < ST_MAX; i++) {
         ns_list_add_to_start(&system_timer_free, &startup_sys_timer_pool[i]);
     }
-
-    platform_tick_timer_register(timer_sys_interrupt);
-    platform_tick_timer_start(TIMER_SYS_TICK_PERIOD);
 }
 
 
 
 /*-------------------SYSTEM TIMER FUNCTIONS--------------------------*/
-
-static void timer_sys_interrupt(void)
-{
-    system_timer_tick_update(1);
-}
-
-
-
-/* * * * * * * * * */
 
 static sys_timer_struct_s *sys_timer_dynamically_allocate(void)
 {
