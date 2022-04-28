@@ -286,7 +286,8 @@ int main(int argc, char *argv[])
             rcp_rx(ctxt);
         if (FD_ISSET(ctxt->timerfd, &rfds)) {
             ret = read(ctxt->timerfd, &val, sizeof(val));
-            WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
+            WARN_ON(ret < sizeof(val), "cancelled timer?");
+            WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
             system_timer_tick_update(1);
             protocol_timer_interrupt();
         }

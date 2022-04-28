@@ -358,14 +358,16 @@ int main(int argc, char *argv[])
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 ret = read(timer->fd, &val, sizeof(val));
-                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
+                WARN_ON(ret < sizeof(val), "cancelled timer?");
+                WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
                 timer->fn(timer->fd, 0);
             }
         }
         SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
             if (FD_ISSET(fhss_timer->fd, &rfds)) {
                 ret = read(fhss_timer->fd, &val, sizeof(val));
-                WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
+                WARN_ON(ret < sizeof(val), "cancelled fhss_timer?");
+                WARN_ON(val != 1, "missing fhss_timer: %u", (unsigned int)val - 1);
                 fhss_timer->fn(fhss_timer->arg, 0);
             }
         }
