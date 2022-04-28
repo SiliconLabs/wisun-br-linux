@@ -152,7 +152,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         return NULL;
     }
 
-    fhss_struct->fhss_event_timer = eventOS_callback_timer_register(fhss_event_timer_cb);
+    fhss_struct->fhss_event_timer = os_timer_register(fhss_event_timer_cb);
     fhss_struct->ws->fhss_configuration = *fhss_configuration;
     if (uc_channel_count == 0) {
         //If Unicast channel is empty use Domain mask
@@ -359,7 +359,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         fhss_structure->ws->is_on_bc_channel = true;
         next_channel = fhss_structure->ws->bc_channel = fhss_ws_calc_bc_channel(fhss_structure);
         if (fhss_structure->ws->expedited_forwarding_enabled_us) {
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
+            os_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
         } else {
             /* Start timer with random timeout to trigger broadcast TX queue poll event.
              * Min random is 1/50 of the channel dwell interval.
@@ -369,7 +369,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
             uint32_t bc_dwell_us = MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval);
             uint16_t bc_min_random = (bc_dwell_us / 50) / 50;
             uint16_t bc_max_random = (bc_dwell_us - (bc_dwell_us / 4)) / 50;
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(bc_min_random, bc_max_random));
+            os_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(bc_min_random, bc_max_random));
         }
     } else {
         fhss_structure->ws->unicast_start_time_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
@@ -379,7 +379,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         // Should return to own (unicast) listening channel after broadcast channel
         next_channel = fhss_structure->rx_channel;
         if (fhss_structure->ws->expedited_forwarding_enabled_us) {
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
+            os_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
         } else {
             /* Start timer with random timeout to trigger unicast TX queue poll event.
              * For hops 0,1,4,5,8,9,...
@@ -401,7 +401,7 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
                 uc_min_random += (txrx_slot_length_us) / 50;
                 uc_max_random += (txrx_slot_length_us) / 50;
             }
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(uc_min_random, uc_max_random));
+            os_timer_start(fhss_structure->fhss_event_timer, rand_get_random_in_range(uc_min_random, uc_max_random));
         }
 
 #ifdef FHSS_CHANNEL_DEBUG
@@ -455,7 +455,7 @@ static void fhss_event_timer_cb(int timer_id, uint16_t slots)
         if ((fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->expedited_forwarding_enabled_us) > S_TO_US(EXPEDITED_FORWARDING_PERIOD)) {
             fhss_structure->ws->expedited_forwarding_enabled_us = 0;
         }
-        eventOS_callback_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
+        os_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
         if (fhss_structure->ws->is_on_bc_channel == true) {
             queue_size = fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, true);
         } else {
@@ -463,7 +463,7 @@ static void fhss_event_timer_cb(int timer_id, uint16_t slots)
         }
     } else if ((fhss_structure->ws->unicast_timer_running == false) && (fhss_structure->ws->broadcast_timer_running == false)) {
         // No one would poll TX queue if schedule timers were not started. Start poll timer with default interval.
-        eventOS_callback_timer_start(fhss_structure->fhss_event_timer, DEFAULT_POLL_PERIOD);
+        os_timer_start(fhss_structure->fhss_event_timer, DEFAULT_POLL_PERIOD);
         queue_size = fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, false);
     } else {
         if (fhss_structure->ws->is_on_bc_channel == true) {
@@ -476,7 +476,7 @@ static void fhss_event_timer_cb(int timer_id, uint16_t slots)
                 delay_between_tx_slots_us -= MS_TO_US(fhss_structure->ws->txrx_slot_length_ms - (calc_own_tx_trig_slot(fhss_structure->own_hop) * (fhss_structure->ws->txrx_slot_length_ms / 2)));
             }
             if (delay_between_tx_slots_us < get_remaining_slots_us(fhss_structure, fhss_broadcast_handler, MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_broadcast_interval))) {
-                eventOS_callback_timer_start(fhss_structure->fhss_event_timer, delay_between_tx_slots_us / 50);
+                os_timer_start(fhss_structure->fhss_event_timer, delay_between_tx_slots_us / 50);
             }
             queue_size = fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, false);
         }
@@ -581,7 +581,7 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
     }
     if (fhss_state == FHSS_EXPEDITED_FORWARDING) {
         if (!fhss_structure->ws->expedited_forwarding_enabled_us) {
-            eventOS_callback_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
+            os_timer_start(fhss_structure->fhss_event_timer, EXPEDITED_FORWARDING_POLL_PERIOD);
         }
         fhss_structure->ws->expedited_forwarding_enabled_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api);
         if (!fhss_structure->ws->expedited_forwarding_enabled_us) {
@@ -606,7 +606,7 @@ static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_stat
         }
     } else if (fhss_state == FHSS_UNSYNCHRONIZED) {
         fhss_structure->ws->synchronization_time = 0;
-        eventOS_callback_timer_stop(fhss_structure->fhss_event_timer);
+        os_timer_stop(fhss_structure->fhss_event_timer);
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_stop_timer(fhss_structure, fhss_broadcast_handler);
         fhss_structure->ws->broadcast_timer_running = false;
@@ -1224,7 +1224,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
 
     // No one would poll TX queue if schedule timers were not started. Start poll timer with default interval.
     if ((fhss_structure->ws->unicast_timer_running == false) && (fhss_structure->ws->broadcast_timer_running == false)) {
-        eventOS_callback_timer_start(fhss_structure->fhss_event_timer, DEFAULT_POLL_PERIOD);
+        os_timer_start(fhss_structure->fhss_event_timer, DEFAULT_POLL_PERIOD);
     }
 
     fhss_structure->number_of_channels = fhss_configuration->channel_mask_size;

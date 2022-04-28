@@ -616,15 +616,15 @@ static int8_t mac_data_interface_host_accept_data(mcps_data_ind_t *data_ind, pro
 
     if (data_ind->msduLength) {
         if (!rf_mac_setup->macRxDataAtPoll && rf_mac_setup->macDataPollReq) {
-            eventOS_callback_timer_stop(rf_mac_setup->mlme_timer_id);
+            os_timer_stop(rf_mac_setup->mlme_timer_id);
             rf_mac_setup->macRxDataAtPoll = true;
-            eventOS_callback_timer_start(rf_mac_setup->mlme_timer_id, 400); //20ms
+            os_timer_start(rf_mac_setup->mlme_timer_id, 400); //20ms
             rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL_AFTER_DATA;
             rf_mac_setup->mlme_tick_count = 0;
         }
         return 0;
     } else {
-        eventOS_callback_timer_stop(rf_mac_setup->mlme_timer_id);
+        os_timer_stop(rf_mac_setup->mlme_timer_id);
         mac_mlme_poll_process_confirm(rf_mac_setup, MLME_NO_DATA);
         return -1;
     }
@@ -1211,8 +1211,8 @@ static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_
 
 void mac_data_wait_timer_start(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    eventOS_callback_timer_stop(rf_mac_setup->mlme_timer_id);
-    eventOS_callback_timer_start(rf_mac_setup->mlme_timer_id, 200); //10ms
+    os_timer_stop(rf_mac_setup->mlme_timer_id);
+    os_timer_start(rf_mac_setup->mlme_timer_id, 200); //10ms
     rf_mac_setup->mac_mlme_event = ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL;
     rf_mac_setup->mlme_tick_count = 30; //300ms
 }

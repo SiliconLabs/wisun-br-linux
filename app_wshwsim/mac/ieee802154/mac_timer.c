@@ -40,7 +40,7 @@ void timer_mac_start(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_t even
     /*Save MAC event*/
     if (rf_ptr->mac_timer_id != -1) {
         rf_ptr->timer_mac_event = event;
-        eventOS_callback_timer_start(rf_ptr->mac_timer_id, slots);
+        os_timer_start(rf_ptr->mac_timer_id, slots);
     }
 }
 
@@ -55,7 +55,7 @@ void timer_mac_stop(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
     platform_enter_critical();
     if (rf_ptr->mac_timer_id != -1) {
-        eventOS_callback_timer_stop(rf_ptr->mac_timer_id);
+        os_timer_stop(rf_ptr->mac_timer_id);
         rf_ptr->timer_mac_event = MAC_STATE_IDLE;
     }
     platform_exit_critical();

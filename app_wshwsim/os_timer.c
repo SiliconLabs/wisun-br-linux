@@ -13,7 +13,7 @@
 #include "common/slist.h"
 #include "common/log.h"
 
-int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_t))
+int os_timer_register(void (*timer_interrupt_handler)(int, uint16_t))
 {
     struct callback_timer *item = calloc(1, sizeof(struct callback_timer));
     struct wsmac_ctxt *ctxt = &g_ctxt;
@@ -26,7 +26,7 @@ int eventOS_callback_timer_register(void (*timer_interrupt_handler)(int, uint16_
     return item->fd;
 }
 
-int eventOS_callback_timer_unregister(int ns_timer_id)
+int os_timer_unregister(int ns_timer_id)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
     struct callback_timer *item;
@@ -37,7 +37,7 @@ int eventOS_callback_timer_unregister(int ns_timer_id)
     return item->fd;
 }
 
-int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots)
+int os_timer_start(int ns_timer_id, uint16_t slots)
 {
     int ret;
     int slots_us = 1000 * slots / TIMER_SLOTS_PER_MS;
@@ -51,7 +51,7 @@ int eventOS_callback_timer_start(int ns_timer_id, uint16_t slots)
     return 0;
 }
 
-int eventOS_callback_timer_stop(int ns_timer_id)
+int os_timer_stop(int ns_timer_id)
 {
     int ret;
     struct itimerspec timer = { };

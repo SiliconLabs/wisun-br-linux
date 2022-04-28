@@ -595,7 +595,7 @@ static void mac_mlme_timers_disable(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
     platform_enter_critical();
     if (rf_ptr->mac_mlme_event != ARM_NWK_MAC_MLME_IDLE) {
-        eventOS_callback_timer_stop(rf_ptr->mlme_timer_id);
+        os_timer_stop(rf_ptr->mlme_timer_id);
         rf_ptr->mac_mlme_event = ARM_NWK_MAC_MLME_IDLE;
     }
     timer_mac_stop(rf_ptr);
@@ -651,7 +651,7 @@ static void mac_mlme_timer_cb(int timer_id, uint16_t slots)
             mac_generic_event_trig(MAC_MLME_EVENT_HANDLER, rf_ptr, true);
     } else {
         rf_ptr->mlme_tick_count--;
-        eventOS_callback_timer_start(timer_id, slots);
+        os_timer_start(timer_id, slots);
     }
 }
 
@@ -669,9 +669,9 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
             rf_mac->dev_driver->phy_sap_identifier = NULL;
         }
 
-        eventOS_callback_timer_unregister(rf_mac->mlme_timer_id);
-        eventOS_callback_timer_unregister(rf_mac->mac_timer_id);
-        eventOS_callback_timer_unregister(rf_mac->mac_mcps_timer);
+        os_timer_unregister(rf_mac->mlme_timer_id);
+        os_timer_unregister(rf_mac->mac_timer_id);
+        os_timer_unregister(rf_mac->mac_mcps_timer);
 
         free(rf_mac->dev_driver_tx_buffer.buf);
         free(rf_mac->dev_driver_tx_buffer.enhanced_ack_buf);
@@ -769,9 +769,9 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
         return NULL;
     }
 
-    entry->mlme_timer_id = eventOS_callback_timer_register(mac_mlme_timer_cb);
-    entry->mac_timer_id = eventOS_callback_timer_register(timer_mac_interrupt);
-    entry->mac_mcps_timer = eventOS_callback_timer_register(mac_mcps_timer_cb);
+    entry->mlme_timer_id = os_timer_register(mac_mlme_timer_cb);
+    entry->mac_timer_id = os_timer_register(timer_mac_interrupt);
+    entry->mac_mcps_timer = os_timer_register(mac_mcps_timer_cb);
     if (entry->mlme_timer_id == -1 || entry->mac_timer_id == -1 || entry->mac_mcps_timer == -1) {
         mac_mlme_data_base_deallocate(entry);
         return NULL;

@@ -103,8 +103,8 @@ void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16
         }
     }
 
-    eventOS_callback_timer_stop(cur->mac_mcps_timer);
-    eventOS_callback_timer_start(cur->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
+    os_timer_stop(cur->mac_mcps_timer);
+    os_timer_start(cur->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
 }
 
 uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_interface_rf_mac_setup_s *mac_ptr)
@@ -217,8 +217,8 @@ void mac_indirect_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, m
     if (!rf_mac_setup->indirect_pd_data_request_queue) {
         rf_mac_setup->indirect_pd_data_request_queue = buffer;
         //Trig timer and set pending flag to radio
-        eventOS_callback_timer_stop(rf_mac_setup->mac_mcps_timer);
-        eventOS_callback_timer_start(rf_mac_setup->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
+        os_timer_stop(rf_mac_setup->mac_mcps_timer);
+        os_timer_start(rf_mac_setup->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
         rf_mac_setup->mac_frame_pending = true;
         if (rf_mac_setup->dev_driver->phy_driver->extension) {
             uint8_t value = 1;
