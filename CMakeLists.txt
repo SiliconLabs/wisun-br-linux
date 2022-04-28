@@ -78,7 +78,6 @@ add_executable(wsbrd
     app_wsbrd/mbedtls_config_check.c
     common/bus_uart.c
     common/hal_interrupt.c
-    common/os_timer.c
     common/os_scheduler.c
     common/log.c
     common/bits.c
@@ -277,7 +276,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/commandline_values.c
         common/bus_uart.c
         common/hal_interrupt.c
-        common/os_timer.c
         common/os_scheduler.c
         common/log.c
         common/bits.c

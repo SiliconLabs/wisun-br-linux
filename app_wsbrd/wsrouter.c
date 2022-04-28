@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/select.h>
+#include <sys/timerfd.h>
 
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
@@ -31,7 +32,6 @@
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
-#include "common/os_timer.h"
 #include "common/slist.h"
 #include "common/log.h"
 #include "commandline.h"
@@ -194,20 +194,31 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 }
 
 #define WSBR_COMMON_TIMER_PERIOD_MS 50
+static const struct itimerspec wsbr_common_timer_value = {
+    .it_value.tv_sec = WSBR_COMMON_TIMER_PERIOD_MS / 1000,
+    .it_value.tv_nsec = WSBR_COMMON_TIMER_PERIOD_MS % 1000 * 1000000,
+};
 
 static void wsbr_common_timer_cb(struct wsbr_ctxt *ctxt)
 {
+    int ret;
+
     system_timer_tick_update(1);
     protocol_timer_interrupt();
-    eventOS_callback_timer_start(ctxt->timerfd, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+    ret = timerfd_settime(ctxt->timerfd, 0, &wsbr_common_timer_value, NULL);
+    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
 static void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->timerfd = eventOS_callback_timer_register(NULL);
+    int ret;
+
+    ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+    FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
     timer_sys_init();
     protocol_timer_init();
-    eventOS_callback_timer_start(ctxt->timerfd, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
+    ret = timerfd_settime(ctxt->timerfd, 0, &wsbr_common_timer_value, NULL);
+    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
 void kill_handler(int signal)
