@@ -17,6 +17,7 @@
 #include "stack-services/ns_list.h"
 #include "timer_sys.h"
 #include "common/hal_interrupt.h"
+#include "common/log.h"
 #include <stdlib.h>
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_event_timer.h"
@@ -151,20 +152,19 @@ static arm_event_storage_t *eventOS_event_timer_request_at_(const arm_event_t *e
     return &timer->event;
 }
 
-arm_event_storage_t *eventOS_event_timer_request_every(const arm_event_t *event, int32_t period)
+arm_event_storage_t *eventOS_event_timer_request_every(const arm_event_t *event, int32_t period_ms)
 {
-    if (period <= 0) {
-        return NULL;
-    }
+    arm_event_storage_t *ret;
+
+    BUG_ON(period_ms % TIMER_SYS_TICK_PERIOD);
+    BUG_ON(period_ms < TIMER_SYS_TICK_PERIOD);
+    period_ms /= TIMER_SYS_TICK_PERIOD;
 
     platform_enter_critical();
-
-    arm_event_storage_t *ret = eventOS_event_timer_request_at_(event, timer_sys_ticks + period, period);
-
+    ret = eventOS_event_timer_request_at_(event, timer_sys_ticks + period_ms, period_ms);
     platform_exit_critical();
 
     return ret;
-
 }
 
 int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t tasklet_id, uint32_t time)

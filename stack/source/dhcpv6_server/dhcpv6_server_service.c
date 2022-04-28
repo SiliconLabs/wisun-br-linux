@@ -69,7 +69,7 @@ static bool DHCP_server_service_timer_start(void)
             .priority = ARM_LIB_LOW_PRIORITY_EVENT,
         };
 
-        dhcp_timer_storage  = eventOS_event_timer_request_every(&event, eventOS_event_timer_ms_to_ticks(DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000));
+        dhcp_timer_storage  = eventOS_event_timer_request_every(&event, DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000);
         if (!dhcp_timer_storage) {
             tr_error("Dhcp server timer start fail");
             return false;
