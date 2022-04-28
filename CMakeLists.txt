@@ -214,7 +214,7 @@ add_executable(wsbrd
     stack/source/service_libs/utils/ns_time.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
-    stack-scheduler/source/system_timer.c
+    stack-scheduler/source/timer_sys.c
     stack-services/common_functions.c
     stack-services/ip6string.c
     stack-services/ns_list.c
@@ -410,7 +410,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/utils/ns_time.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
-        stack-scheduler/source/system_timer.c
+        stack-scheduler/source/timer_sys.c
         stack-services/common_functions.c
         stack-services/ip6string.c
         stack-services/ns_list.c
@@ -453,7 +453,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-services/ns_list.c
         stack-services/ns_trace.c
         stack-scheduler/source/event.c
-        stack-scheduler/source/system_timer.c
+        stack-scheduler/source/timer_sys.c
         app_wshwsim/sl_wsrcp.c
         app_wshwsim/sl_wsrcp_mac.c
         app_wshwsim/sl_rf_driver.c
