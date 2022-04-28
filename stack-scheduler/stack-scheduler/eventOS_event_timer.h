@@ -28,7 +28,7 @@ struct arm_event_s;
 typedef struct sys_timer_struct_s sys_timer_struct_t;
 
 /* 100 Hz ticker, so 10 milliseconds per tick */
-#define EVENTOS_EVENT_TIMER_HZ 100
+#define EVENTOS_EVENT_TIMER_HZ 20
 
 static inline uint32_t eventOS_event_timer_ticks_to_ms(uint32_t ticks)
 {
