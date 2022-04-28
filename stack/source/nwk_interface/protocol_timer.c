@@ -154,10 +154,8 @@ void protocol_timer_cb(uint16_t ticks)
     }
 }
 
-void protocol_timer_interrupt(int timer_id, uint16_t slots)
+void protocol_timer_interrupt()
 {
-    (void)timer_id;
-    (void)slots;
     protocol_tick_update++;
 
     if (!protocol_tick_handle_busy) {

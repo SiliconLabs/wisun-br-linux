@@ -198,7 +198,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 static void wsbr_common_timer_cb(struct wsbr_ctxt *ctxt)
 {
     system_timer_tick_update(1);
-    protocol_timer_interrupt(ctxt->timerfd, 0);
+    protocol_timer_interrupt();
     eventOS_callback_timer_start(ctxt->timerfd, TIMER_SLOTS_PER_MS * WSBR_COMMON_TIMER_PERIOD_MS);
 }
 
