@@ -28,7 +28,7 @@ static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t
     // Take care with compiler optimization with pointer arithmetic. This
     // expression is know to work. "!&(item->node)" does not work.
     if (item == container_of(NULL, typeof(*item), node)) {
-        item = calloc(1, sizeof(struct fhss_timer));
+        item = calloc(1, sizeof(struct fhss_timer_entry));
         item->fn = callback;
         item->arg = api;
         item->fd = timerfd_create(CLOCK_MONOTONIC, 0);
