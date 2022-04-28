@@ -193,31 +193,19 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
-#define WSBR_COMMON_TIMER_PERIOD_MS 50
-static const struct itimerspec wsbr_common_timer_value = {
-    .it_value.tv_sec = WSBR_COMMON_TIMER_PERIOD_MS / 1000,
-    .it_value.tv_nsec = WSBR_COMMON_TIMER_PERIOD_MS % 1000 * 1000000,
-};
-
-static void wsbr_common_timer_cb(struct wsbr_ctxt *ctxt)
-{
-    int ret;
-
-    system_timer_tick_update(1);
-    protocol_timer_interrupt();
-    ret = timerfd_settime(ctxt->timerfd, 0, &wsbr_common_timer_value, NULL);
-    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
-}
-
 static void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {
     int ret;
+    struct itimerspec parms = {
+        .it_value.tv_nsec = 50 * 1000 * 1000,
+        .it_interval.tv_nsec = 50 * 1000 * 1000,
+    };
 
-    ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
-    FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
     timer_sys_init();
     protocol_timer_init();
-    ret = timerfd_settime(ctxt->timerfd, 0, &wsbr_common_timer_value, NULL);
+    ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+    FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
+    ret = timerfd_settime(ctxt->timerfd, 0, &parms, NULL);
     FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
 }
 
@@ -299,7 +287,8 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctxt->timerfd, &rfds)) {
             ret = read(ctxt->timerfd, &val, sizeof(val));
             WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
-            wsbr_common_timer_cb(ctxt);
+            system_timer_tick_update(1);
+            protocol_timer_interrupt();
         }
     }
 
