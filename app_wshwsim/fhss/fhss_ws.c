@@ -23,9 +23,9 @@
 #include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
+#include "os_timer.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
-#include "common/os_timer.h"
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"

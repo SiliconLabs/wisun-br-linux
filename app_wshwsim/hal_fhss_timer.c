@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/timerfd.h>
 
+#include "sl_wsrcp.h"
 #include "hal_fhss_timer.h"
 #include "common/os_types.h"
 #include "common/slist.h"
@@ -13,7 +14,7 @@
 
 static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
-    struct os_ctxt *ctxt = &g_os_ctxt;
+    struct wsmac_ctxt *ctxt = &g_ctxt;
     struct fhss_timer_entry *item;
     struct itimerspec timer = {
         .it_value.tv_sec = slots_us / 1000000,
@@ -41,7 +42,7 @@ static int fhss_timer_start(uint32_t slots_us, void (*callback)(const fhss_api_t
 
 static int fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
-    struct os_ctxt *ctxt = &g_os_ctxt;
+    struct wsmac_ctxt *ctxt = &g_ctxt;
     struct fhss_timer_entry *item;
     struct itimerspec timer = { };
     int ret;
@@ -58,7 +59,7 @@ static int fhss_timer_stop(void (*callback)(const fhss_api_t *api, uint16_t), co
 
 static uint32_t fhss_get_remaining_slots(void (*callback)(const fhss_api_t *api, uint16_t), const fhss_api_t *api)
 {
-    struct os_ctxt *ctxt = &g_os_ctxt;
+    struct wsmac_ctxt *ctxt = &g_ctxt;
     struct fhss_timer_entry *item;
     struct itimerspec timer;
     int ret;

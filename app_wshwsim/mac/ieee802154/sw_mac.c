@@ -27,9 +27,9 @@
 #include "mac/ieee802154/mac_security_mib.h"
 #include "mac/rf_driver_storage.h"
 #include "mac_fhss_callbacks.h"
-#include "common/os_timer.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
+#include "os_timer.h"
 
 #define TRACE_GROUP "swm"
 

@@ -24,8 +24,8 @@
 #include "fhss_statistics.h"
 #include "fhss_channel.h"
 #include "channel_list.h"
+#include "os_timer.h"
 #include <stdlib.h>
-#include "common/os_timer.h"
 #include <string.h>
 
 #define TRACE_GROUP "fhssc"

@@ -20,8 +20,6 @@ struct os_ctxt {
     uint8_t uart_rx_buf[2048];
 
     int event_fd[2];
-    struct slist *timers;
-    struct slist *fhss_timers;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

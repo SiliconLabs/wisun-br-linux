@@ -28,13 +28,13 @@
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
-#include "common/os_timer.h"
 #include "common/slist.h"
 #include "common/log.h"
 #include "hal_fhss_timer.h"
 #include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
 #include "sl_rf_driver.h"
+#include "os_timer.h"
 #include "version.h"
 
 #define TRACE_GROUP  "main"
@@ -322,11 +322,11 @@ int main(int argc, char *argv[])
         maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
         maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
             FD_SET(fhss_timer->fd, &rfds);
             maxfd = max(maxfd, fhss_timer->fd);
         }
@@ -355,14 +355,14 @@ int main(int argc, char *argv[])
             if (eventOS_scheduler_dispatch_event())
                 eventOS_scheduler_signal();
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->timers, timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {
                 ret = read(timer->fd, &val, sizeof(val));
                 WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");
                 timer->fn(timer->fd, 0);
             }
         }
-        SLIST_FOR_EACH_ENTRY(ctxt->os_ctxt->fhss_timers, fhss_timer, node) {
+        SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
             if (FD_ISSET(fhss_timer->fd, &rfds)) {
                 ret = read(fhss_timer->fd, &val, sizeof(val));
                 WARN_ON(ret < sizeof(val) || val != 1, "cancelled timer?");

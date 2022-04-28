@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "stack-services/ns_trace.h"
-#include "common/os_timer.h"
+#include "os_timer.h"
 #include <stdlib.h>
 #include "stack-services/common_functions.h"
 #include "stack/mac/sw_mac.h"

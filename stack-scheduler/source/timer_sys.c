@@ -21,7 +21,6 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_event_timer.h"
 #include "event.h"
-#include "common/os_timer.h"
 
 #ifndef ST_MAX
 #define ST_MAX 6

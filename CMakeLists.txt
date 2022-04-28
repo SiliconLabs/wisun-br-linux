@@ -440,7 +440,6 @@ if(COMPILE_SIMULATION_TOOLS)
         common/bus_uart.c
         common/hal_interrupt.c
         common/os_scheduler.c
-        common/os_timer.c
         common/log.c
         common/bits.c
         common/rand.c
@@ -476,6 +475,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wshwsim/fhss/fhss_configuration_interface.c
         app_wshwsim/fhss/fhss_statistics.c
         app_wshwsim/fhss/fhss_ws.c
+        app_wshwsim/os_timer.c
         # Excluded app_wshwsim/fhss/fhss_test_api.c
     )
     target_include_directories(wshwsim PRIVATE

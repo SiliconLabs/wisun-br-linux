@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "stack-scheduler/eventOS_event.h"
-#include "common/os_timer.h"
+#include "os_timer.h"
 #include "stack-services/ns_trace.h"
 #include "common/rand.h"
 #include <stdlib.h>

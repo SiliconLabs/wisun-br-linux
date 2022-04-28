@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "common/os_timer.h"
+#include "os_timer.h"
 #include <string.h>
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>

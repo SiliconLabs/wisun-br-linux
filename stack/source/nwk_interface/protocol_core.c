@@ -28,7 +28,6 @@
 #include "service_libs/etx/etx.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "common/os_timer.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mac_api.h"
 #include "stack/ethernet_mac_api.h"

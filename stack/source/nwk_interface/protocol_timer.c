@@ -19,7 +19,6 @@
 #include "stack-services/ns_trace.h"
 #include "common/hal_interrupt.h"
 #include "stack-scheduler/eventOS_event.h"
-#include "common/os_timer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_timer.h"
 

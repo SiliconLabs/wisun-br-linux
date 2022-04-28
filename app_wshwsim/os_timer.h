@@ -7,7 +7,7 @@
 #define OS_TIMER_H
 
 #include <stdint.h>
-#include "slist.h"
+#include "common/slist.h"
 
 #define TIMER_SLOTS_PER_MS 20
 

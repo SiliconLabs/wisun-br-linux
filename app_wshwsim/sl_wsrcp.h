@@ -58,6 +58,9 @@ struct wsmac_ctxt {
     int spinel_tid;
     int spinel_iid;
 
+    struct slist *timers;
+    struct slist *fhss_timers;
+
 #ifdef HAVE_LIBPCAP
     pcap_t *pcap_ctxt;
     pcap_dumper_t *pcap_dumper;
