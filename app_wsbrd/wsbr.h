@@ -32,6 +32,8 @@ struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
     sd_bus *dbus;
 
+    int timerfd;
+
     char uart_dev[PATH_MAX];
     int  uart_baudrate;
     bool uart_rtscts;
