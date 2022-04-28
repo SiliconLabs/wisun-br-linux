@@ -450,7 +450,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-services/ns_list.c
         stack-services/ns_trace.c
         stack-scheduler/source/event.c
-        stack-scheduler/source/timer_sys.c
+        app_wshwsim/timer_sys_stub.c
         app_wshwsim/sl_wsrcp.c
         app_wshwsim/sl_wsrcp_mac.c
         app_wshwsim/sl_rf_driver.c
