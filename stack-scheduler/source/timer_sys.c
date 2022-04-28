@@ -179,18 +179,9 @@ int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t 
         .priority = ARM_LIB_MED_PRIORITY_EVENT,
     };
 
-    // Legacy time behaviour preserved
-
-    // Note that someone wanting 20ms gets 2 ticks, thanks to this test. 30ms would be 4 ticks.
-    // And why shouldn't they be able to get a 1-tick callback?
-    if (time > 2 * TIMER_SYS_TICK_PERIOD) {
-        time /= TIMER_SYS_TICK_PERIOD;
-        // XXX Why this? Someone wanting 50ms shouldn't get 6 ticks. Round to nearest, maybe?
-        time++;
-    } else {
-        time = 2;
-    }
-
+    BUG_ON(time % TIMER_SYS_TICK_PERIOD);
+    BUG_ON(time < TIMER_SYS_TICK_PERIOD);
+    time /= TIMER_SYS_TICK_PERIOD;
     platform_enter_critical();
     arm_event_storage_t *ret = eventOS_event_timer_request_at_(&event, timer_sys_ticks + time, 0);
     platform_exit_critical();
