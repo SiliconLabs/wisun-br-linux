@@ -17,7 +17,6 @@
 #include "stack-services/ns_list.h"
 #include "timer_sys.h"
 #include "common/hal_interrupt.h"
-#include "stack-scheduler/platform/arm_hal_timer.h"
 #include <stdlib.h>
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_event_timer.h"
