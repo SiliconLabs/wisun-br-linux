@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common/ws_regdb.h"
+#include "common/parsers.h"
 
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
@@ -40,70 +41,69 @@ static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
     ctxt->rcp_time_diff = rcp_time_diff;
 }
 
-static void print_rf_config(struct wsbr_ctxt *ctxt,
+static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
                             const struct phy_params *phy_params, const struct chan_params *chan_params,
                             uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count, uint8_t phy_mode_id)
 {
     int i;
 
     if (chan_params) {
-        printf(" %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
-        printf("   %d", chan_params->op_class);
+        sprintf(out + strlen(out), " %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
+        sprintf(out + strlen(out), "   %d", chan_params->op_class);
     } else {
-        printf(" ??");
-        printf("  ??");
+        sprintf(out + strlen(out), " ??");
+        sprintf(out + strlen(out), "  ??");
     }
 
+    sprintf(out + strlen(out), "   %2d", phy_mode_id);
+
     if (phy_params && phy_params->op_mode)
-        printf("   %-2x", phy_params->op_mode);
+        sprintf(out + strlen(out), "   %-2x", phy_params->op_mode);
     else if (phy_params)
-        printf("   --");
+        sprintf(out + strlen(out), "   --");
     else
-        printf("   ??");
+        sprintf(out + strlen(out), "   ??");
 
     if (phy_params && phy_params->modulation == M_OFDM) {
-        printf("   OFDM");
-        printf("   %1d", phy_params->ofdm_mcs);
-        printf("    %1d", phy_params->ofdm_option);
-        printf("   --");
+        sprintf(out + strlen(out), "   OFDM");
+        sprintf(out + strlen(out), "   %1d", phy_params->ofdm_mcs);
+        sprintf(out + strlen(out), "    %1d", phy_params->ofdm_option);
+        sprintf(out + strlen(out), "   --");
     } else if (phy_params && phy_params->modulation == M_2FSK) {
-        printf("    FSK");
-        printf("  --");
-        printf("   --");
-        printf("  %3s", val_to_str(phy_params->fsk_modulation_index, valid_fsk_modulation_indexes, "??"));
+        sprintf(out + strlen(out), "    FSK");
+        sprintf(out + strlen(out), "  --");
+        sprintf(out + strlen(out), "   --");
+        sprintf(out + strlen(out), "  %3s", val_to_str(phy_params->fsk_modulation_index, valid_fsk_modulation_indexes, "??"));
     } else {
-        printf("     ??");
-        printf("  ??");
-        printf("   ??");
-        printf("   ??");
+        sprintf(out + strlen(out), "     ??");
+        sprintf(out + strlen(out), "  ??");
+        sprintf(out + strlen(out), "   ??");
+        sprintf(out + strlen(out), "   ??");
     }
 
     if (phy_params)
-        printf(" %4dkbps", phy_params->datarate / 1000);
+        sprintf(out + strlen(out), " %4dkbps", phy_params->datarate / 1000);
     else
-        printf("   ??    ");
+        sprintf(out + strlen(out), "   ??    ");
 
-    printf(" %4dMHz", chan0_freq / 1000000);
-    printf(" %4dkHz", chan_spacing / 1000);
-    printf("   %3d", chan_count);
-    printf("   %2d", phy_mode_id);
+    sprintf(out + strlen(out), " %4.1fMHz", (double)chan0_freq / 1000000);
+    sprintf(out + strlen(out), " %4dkHz", chan_spacing / 1000);
+    sprintf(out + strlen(out), "   %3d", chan_count);
 
     if (chan_params && chan_params->chan_plan_id != 255)
-        printf("   %3d", chan_params->chan_plan_id);
+        sprintf(out + strlen(out), "  %3d", chan_params->chan_plan_id);
     else if (chan_params)
-        printf("    --");
+        sprintf(out + strlen(out), "   --");
     else
-        printf("    ??");
+        sprintf(out + strlen(out), "   ??");
 
     if (chan_params) {
         for (i = 0; chan_params->valid_phy_modes[i]; i++)
             if (chan_params->valid_phy_modes[i] == phy_mode_id)
                 break;
         if (!chan_params->valid_phy_modes[i])
-            printf(" (non standard)");
+            sprintf(out + strlen(out), " (non standard)");
     }
-
-    printf("\n");
 }
 
 
@@ -114,11 +114,13 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     uint8_t rail_phy_mode_id;
     uint16_t chan_count;
     bool phy_mode_found, chan_plan_found;
-    int i, j;
+    char tmp_buf[110][100]; // max: 110 lines of 100 characters
+    int i, j, k = 0;
 
-    printf("dom  cla mode modula mcs ofdm mod    data    chan   chan   #chans phy  chan\n");
-    printf("-ain -ss      -tion      opt. idx    rate    base   space         mode plan\n");
+    INFO("dom  cla phy  mode modula mcs ofdm mod    data    chan    chan   #chans chan");
+    INFO("-ain -ss mode      -tion      opt. idx    rate    base    space         plan");
     while (spinel_remaining_size(buf)) {
+        BUG_ON(k >= ARRAY_SIZE(tmp_buf));
         chan0_freq = spinel_pop_u32(buf);
         chan_spacing = spinel_pop_u32(buf);
         chan_count = spinel_pop_u16(buf);
@@ -136,16 +138,19 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
                         chan_params_table[j].chan_spacing == chan_spacing &&
                         chan_params_table[j].chan_count == chan_count) {
                         chan_plan_found = true;
-                        print_rf_config(ctxt, &phy_params_table[i], &chan_params_table[j], chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
+                        print_rf_config(ctxt, tmp_buf[k++], &phy_params_table[i], &chan_params_table[j], chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
                     }
                 }
                 if (!chan_plan_found)
-                    print_rf_config(ctxt, &phy_params_table[i], NULL, chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
+                    print_rf_config(ctxt, tmp_buf[k++], &phy_params_table[i], NULL, chan0_freq, chan_spacing, chan_count, phy_params_table[i].phy_mode_id);
             }
         }
         if (!phy_mode_found)
-            print_rf_config(ctxt, NULL, NULL, chan0_freq, chan_spacing, chan_count, rail_phy_mode_id);
+            print_rf_config(ctxt, tmp_buf[k++], NULL, NULL, chan0_freq, chan_spacing, chan_count, rail_phy_mode_id);
     }
+    qsort(tmp_buf, k, sizeof(tmp_buf[0]), (int (*)(const void *, const void *))strcmp);
+    for (i = 0; i < k; i++)
+        INFO("%s", tmp_buf[i]);
 }
 
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
