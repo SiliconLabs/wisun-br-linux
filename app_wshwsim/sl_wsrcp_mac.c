@@ -496,6 +496,16 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
         ctxt->rcp_mac_api->mcps_data_req_ext(ctxt->rcp_mac_api, &data, &ie_ext, NULL, prio, 0);
 }
 
+static void wsmac_spinel_ws_mcps_drop(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf)
+{
+    struct mcps_purge_s data = { 0 };
+
+    (void)attr;
+    data.msduHandle = spinel_pop_u8(buf);
+    BUG_ON(spinel_remaining_size(buf));
+    ctxt->rcp_mac_api->mcps_purge_req(ctxt->rcp_mac_api, &data);
+}
+
 static const struct {
     mlme_attr_t attr;
     void (*prop_set)(struct wsmac_ctxt *ctxt, mlme_attr_t attr, struct spinel_buffer *buf);
@@ -542,6 +552,7 @@ static const struct {
     { 0 /* Special */,                 wsmac_spinel_fhss_set_tx_allowance_level, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL,    },
     { 0 /* Special */,                 wsmac_spinel_ws_start,                  SPINEL_PROP_WS_START,                            },
     { 0 /* Special */,                 wsmac_spinel_ws_reset,                  SPINEL_PROP_WS_RESET,                            },
+    { 0 /* Special */,                 wsmac_spinel_ws_mcps_drop,              SPINEL_PROP_WS_MCPS_DROP,                        },
     { 0 /* Special */,                 wsmac_spinel_data_req,                  SPINEL_PROP_STREAM_RAW,                          },
     { macRxSensitivity,                NULL /* get only */,                    SPINEL_PROP_WS_RX_SENSITIVITY                    },
     { }
