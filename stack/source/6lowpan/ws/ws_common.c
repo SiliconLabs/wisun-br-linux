@@ -105,6 +105,10 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     if (!phy_params_from_id(hopping_schedule->phy_mode_id) && !phy_params_from_mode(hopping_schedule->operating_mode))
         return -1;
 
+    // Case where channel parameters are provided by the user
+    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
+        return 0;
+
     hopping_schedule->channel_plan = 0;
     chan_params = chan_params_fan1_1(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id);
     if (!chan_params)

@@ -17,6 +17,7 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"
@@ -1899,13 +1900,22 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
 
     // We don't worry of the case where phy_params == NULL, the RCP will return
     // an error anyway.
-    if (check_phy_chan_compat(phy_params, chan_params)) {
+    if (phy_params) {
         rf_config.datarate = phy_params->datarate;
         rf_config.modulation = phy_params->modulation;
         rf_config.modulation_index = phy_params->fsk_modulation_index;
         rf_config.fec = phy_params->fec;
         rf_config.ofdm_option = phy_params->ofdm_option;
         rf_config.ofdm_mcs = phy_params->ofdm_mcs;
+    }
+
+    if (!chan_params) {
+        rf_config.channel_0_center_frequency = hopping_schedule->ch0_freq;
+        rf_config.channel_spacing = chan_spacing_value(hopping_schedule->channel_spacing);
+        rf_config.number_of_channels = hopping_schedule->number_of_channels;
+    } else {
+        WARN_ON(!check_phy_chan_compat(phy_params, chan_params),
+                "non standard RF configuration in use");
         rf_config.channel_0_center_frequency = chan_params->chan0_freq;
         rf_config.channel_spacing = chan_params->chan_spacing;
         rf_config.number_of_channels = chan_params->chan_count_valid;

@@ -32,6 +32,7 @@
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
+#include "common/ws_regdb.h"
 #include "common/slist.h"
 #include "common/log.h"
 #include "mbedtls_config_check.h"
@@ -132,10 +133,20 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                   ctxt->ws_name, (struct fhss_timer *)-1);
     WARN_ON(ret);
 
-    WARN_ON(ctxt->ws_domain == 0xFE, "Not supported");
     ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
                                               ctxt->ws_class, ctxt->ws_mode);
     WARN_ON(ret);
+    if (ctxt->ws_domain == REG_DOMAIN_UNDEF) {
+        ret = ws_management_channel_plan_set(ctxt->rcp_if_id,
+                                             1, // application specific plan (FIXME: really?)
+                                             CHANNEL_FUNCTION_DH1CF,
+                                             CHANNEL_FUNCTION_DH1CF,
+                                             ctxt->ws_chan_base,
+                                             chan_spacing_id(ctxt->ws_chan_spacing),
+                                             ctxt->ws_chan_count);
+    }
+    WARN_ON(ret);
+
 
     // Note that calling ws_management_fhss_timing_configure() is redundant
     // with the two function calls bellow.
