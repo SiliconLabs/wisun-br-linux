@@ -47,4 +47,7 @@ const struct chan_params *chan_params_fan1_0(int domain, int class);
 const struct chan_params *chan_params_fan1_1(int domain, int chan_plan_id);
 const struct chan_params *chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid);
 
+int chan_spacing_id(int val);
+int chan_spacing_value(int id);
+
 #endif

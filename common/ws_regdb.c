@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include <stddef.h>
+#include "utils.h"
 #include "ws_regdb.h"
 
 const struct phy_params phy_params_table[] = {
@@ -163,4 +164,37 @@ const struct chan_params *chan_params_universal(int chan0_freq, int chan_spacing
             chan_params_table[i].chan_count_valid == chan_count_valid)
             return &chan_params_table[i];
     return NULL;
+}
+
+static const struct {
+    int val;
+    int id;
+} chan_spacing_table[] = {
+    {  100000, CHANNEL_SPACING_100  },
+    {  200000, CHANNEL_SPACING_200  },
+    {  250000, CHANNEL_SPACING_250  },
+    {  400000, CHANNEL_SPACING_400  },
+    {  600000, CHANNEL_SPACING_600  },
+    {  800000, CHANNEL_SPACING_800  },
+    { 1200000, CHANNEL_SPACING_1200 },
+};
+
+int chan_spacing_id(int val)
+{
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(chan_spacing_table); i++)
+        if (val == chan_spacing_table[i].val)
+            return chan_spacing_table[i].id;
+    return -1;
+}
+
+int chan_spacing_value(int id)
+{
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(chan_spacing_table); i++)
+        if (id == chan_spacing_table[i].id)
+            return chan_spacing_table[i].val;
+    return 0;
 }
