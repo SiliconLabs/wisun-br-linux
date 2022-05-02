@@ -41,6 +41,7 @@ struct chan_params {
 extern const struct phy_params phy_params_table[];
 extern const struct chan_params chan_params_table[];
 
+bool check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params);
 const struct phy_params *phy_params_from_mode(int operating_mode);
 const struct phy_params *phy_params_from_id(int phy_mode_id);
 const struct chan_params *chan_params_fan1_0(int domain, int class);

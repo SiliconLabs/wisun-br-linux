@@ -108,6 +108,19 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_UNDEF, 0, REG_REGIONAL_NONE, 0,         0,       0,   0,   0, {                             }, },
 };
 
+bool check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params)
+{
+    int i;
+
+    if (!phy_params || !chan_params)
+        return false;
+
+    for (i = 0; chan_params->valid_phy_modes[i]; i++)
+        if (chan_params->valid_phy_modes[i] == phy_params->phy_mode_id)
+            return true;
+    return false;
+}
+
 const struct phy_params *phy_params_from_mode(int operating_mode)
 {
     int i;
