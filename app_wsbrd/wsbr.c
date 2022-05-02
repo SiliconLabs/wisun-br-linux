@@ -336,6 +336,7 @@ int main(int argc, char *argv[])
         else
             WARN("Still waiting for RCP");
     }
+    ts.tv_sec = 0;
 
     while (!ctxt->hw_addr_done)
         rcp_rx(ctxt);
