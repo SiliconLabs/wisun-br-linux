@@ -90,14 +90,14 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_s
     generic_channel_info->channel_plan = hopping_schedule->channel_plan;
     if (unicast_schedule) {
         generic_channel_info->channel_function = hopping_schedule->uc_channel_function;
-        generic_channel_info->excluded_channel_ctrl = hopping_schedule->excluded_channels.excluded_channel_ctrl;
+        generic_channel_info->excluded_channel_ctrl = hopping_schedule->uc_excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->excluded_channels.excluded_range_length;
-            generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->excluded_channels.excluded_range;
+            generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->uc_excluded_channels.excluded_range_length;
+            generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->uc_excluded_channels.excluded_range;
         } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline = hopping_schedule->excluded_channels.channel_mask_bytes_inline;
-            generic_channel_info->excluded_channels.mask.excluded_channel_count = hopping_schedule->excluded_channels.excluded_channel_count;
-            generic_channel_info->excluded_channels.mask.channel_mask = hopping_schedule->excluded_channels.channel_mask;
+            generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline = hopping_schedule->uc_excluded_channels.channel_mask_bytes_inline;
+            generic_channel_info->excluded_channels.mask.excluded_channel_count = hopping_schedule->uc_excluded_channels.excluded_channel_count;
+            generic_channel_info->excluded_channels.mask.channel_mask = hopping_schedule->uc_excluded_channels.channel_mask;
         }
     } else {
         generic_channel_info->channel_function = hopping_schedule->bc_channel_function;

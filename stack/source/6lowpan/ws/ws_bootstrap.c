@@ -646,7 +646,7 @@ void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
     }
     //Update Excluded channels
-    cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
+    cur->ws_info->hopping_schedule.channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.uc_excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
 }
 
 static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
