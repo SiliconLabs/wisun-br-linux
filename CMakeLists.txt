@@ -12,6 +12,8 @@ check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
 check_c_compiler_flag(-rdynamic              CC_HAVE_RDYNAMIC)
 
 include(CheckIncludeFile)
+# Depending of the distribution backtrace.h may be packaged with gcc. Else,
+# the libbacktrace project provides a fully compatible library.
 check_include_file(backtrace.h BACKTRACE_FOUND)
 
 find_package(Rust)
