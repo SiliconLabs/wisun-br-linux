@@ -8,9 +8,9 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
-int parse_bitmask(char *str, uint32_t *out, int size);
-int parse_escape_sequences(char *out, char *in);
-int parse_byte_array(const char *in, uint8_t *out, int len);
-void get_ip_addr_from_arg(char *arg, struct sockaddr_storage *addr);
+int parse_bitmask(uint32_t *out, int size, const char *str);
+int parse_escape_sequences(char *out, const char *in);
+int parse_byte_array(uint8_t *out, int size, const char *str);
+void parse_netaddr(struct sockaddr_storage *out, const char *str);
 
 #endif

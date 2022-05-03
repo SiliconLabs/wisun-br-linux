@@ -3,13 +3,14 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <string.h>
 #include <netdb.h>
 #include "parsers.h"
 #include "log.h"
 
-static int set_bitmask(int shift, uint32_t *out, int size)
+static int set_bitmask(uint32_t *out, int size, int shift)
 {
     int word_nr = shift / 32;
     int bit_nr = shift % 32;
@@ -20,14 +21,15 @@ static int set_bitmask(int shift, uint32_t *out, int size)
     return 0;
 }
 
-int parse_bitmask(char *str, uint32_t *out, int size)
+int parse_bitmask(uint32_t *out, int size, const char *str)
 {
     char *range;
     char *endptr;
     unsigned long cur, end;
+    char *str_mut = strdupa(str);
 
     memset(out, 0, size * sizeof(uint32_t));
-    range = strtok(str, ",");
+    range = strtok(str_mut, ",");
     do {
         cur = strtoul(range, &endptr, 0);
         if (*endptr == '-') {
@@ -41,13 +43,13 @@ int parse_bitmask(char *str, uint32_t *out, int size)
         if (cur > end)
             return -1;
         for (; cur <= end; cur++)
-            if (set_bitmask(cur, out, size) < 0)
+            if (set_bitmask(out, size, cur) < 0)
                 return -1;
     } while ((range = strtok(NULL, ",")));
     return 0;
 }
 
-int parse_escape_sequences(char *out, char *in)
+int parse_escape_sequences(char *out, const char *in)
 {
     char tmp[3], conv, *end_ptr;
     int i, j;
@@ -73,29 +75,30 @@ int parse_escape_sequences(char *out, char *in)
     return 0;
 }
 
-int parse_byte_array(const char *in, uint8_t *out, int len)
+int parse_byte_array(uint8_t *out, int size, const char *str)
 {
-    for (int i = 0; i < len; i++) {
-        if (in[2] != '\0' && in[2] != ':')
+    for (int i = 0; i < size; i++) {
+        if (str[2] != '\0' && str[2] != ':')
             return -1;
-        if (sscanf(in, "%hhx", out + i) != 1)
+        if (sscanf(str, "%hhx", out + i) != 1)
             return -2;
-        in += 3;
+        str += 3;
     }
-    if (in[-1] != '\0')
+    if (str[-1] != '\0')
         return -3;
     return 0;
 }
 
-void get_ip_addr_from_arg(char *arg, struct sockaddr_storage *addr) {
+void parse_netaddr(struct sockaddr_storage *out, const char *str)
+{
     int s;
     struct addrinfo *results;
 
-    if ((s = getaddrinfo(arg, NULL, NULL, &results)) != 0)
-        FATAL(1, "%s: %s", arg, gai_strerror(s));
+    if ((s = getaddrinfo(str, NULL, NULL, &results)) != 0)
+        FATAL(1, "%s: %s", str, gai_strerror(s));
 
     BUG_ON(!results);
-    memcpy(addr, results->ai_addr, results->ai_addrlen);
+    memcpy(out, results->ai_addr, results->ai_addrlen);
 
     freeaddrinfo(results);
 }

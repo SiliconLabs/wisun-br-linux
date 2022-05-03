@@ -188,7 +188,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (inet_pton(AF_INET6, str_arg, ctxt->ipv6_prefix) != 1)
             FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, str_arg);
     } else if (sscanf(line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
-        get_ip_addr_from_arg(str_arg, (struct sockaddr_storage *) &ctxt->dhcpv6_server);
+        parse_netaddr((struct sockaddr_storage *)&ctxt->dhcpv6_server, str_arg);
     } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -211,7 +211,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
         ctxt->tls_ca.cert_len = int_arg;
     } else if (sscanf(line, " radius_server = %s %c", str_arg, &garbage) == 1) {
-        get_ip_addr_from_arg(str_arg, &ctxt->radius_server);
+        parse_netaddr(&ctxt->radius_server, str_arg);
     } else if (sscanf(line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(ctxt->radius_secret, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -236,14 +236,14 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (i == ARRAY_SIZE(valid_ws_classes))
             FATAL(1, "%s:%d: invalid class: %d", filename, line_no, ctxt->ws_class);
     } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
-        if (parse_bitmask(str_arg, ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels)) < 0)
+        if (parse_bitmask(ctxt->ws_allowed_channels, ARRAY_SIZE(ctxt->ws_allowed_channels), str_arg) < 0)
             FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
     } else if (sscanf(line, " pan_id = %u %c", &ctxt->ws_pan_id, &garbage) == 1) {
         /* empty */
     } else if (sscanf(line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
         if (int_arg < 0 || int_arg > 3)
             FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, int_arg);
-        if (parse_byte_array(str_arg, ctxt->ws_gtk[int_arg], 16))
+        if (parse_byte_array(ctxt->ws_gtk[int_arg], 16, str_arg))
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_gtk_force[int_arg] = true;
     } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
@@ -297,7 +297,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
         if (ctxt->ws_allowed_mac_address_count >= ARRAY_SIZE(ctxt->ws_allowed_mac_addresses))
             FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", filename, line_no);
-        if (parse_byte_array(str_arg, ctxt->ws_allowed_mac_addresses[ctxt->ws_allowed_mac_address_count], 8))
+        if (parse_byte_array(ctxt->ws_allowed_mac_addresses[ctxt->ws_allowed_mac_address_count], 8, str_arg))
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_allowed_mac_address_count++;
     } else if (sscanf(line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
@@ -305,7 +305,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
             FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
         if (ctxt->ws_denied_mac_address_count >= ARRAY_SIZE(ctxt->ws_denied_mac_addresses))
             FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", filename, line_no);
-        if (parse_byte_array(str_arg, ctxt->ws_denied_mac_addresses[ctxt->ws_denied_mac_address_count], 8))
+        if (parse_byte_array(ctxt->ws_denied_mac_addresses[ctxt->ws_denied_mac_address_count], 8, str_arg))
             FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
         ctxt->ws_denied_mac_address_count++;
     } else if (sscanf(line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
