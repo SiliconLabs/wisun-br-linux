@@ -342,7 +342,7 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_t attr, 
     config.fhss_bc_dwell_interval  = spinel_pop_u8(buf);
     config.unicast_fixed_channel   = spinel_pop_u8(buf);
     config.broadcast_fixed_channel = spinel_pop_u8(buf);
-    spinel_pop_fixed_u32_array(buf, config.channel_mask, 8);
+    spinel_pop_fixed_u32_array(buf, config.domain_channel_mask, 8);
     spinel_pop_fixed_u32_array(buf, config.unicast_channel_mask, 8);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
@@ -371,7 +371,7 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_t attr
     config.fhss_bc_dwell_interval  = spinel_pop_u8(buf);
     config.unicast_fixed_channel   = spinel_pop_u8(buf);
     config.broadcast_fixed_channel = spinel_pop_u8(buf);
-    spinel_pop_fixed_u32_array(buf, config.channel_mask, 8);
+    spinel_pop_fixed_u32_array(buf, config.domain_channel_mask, 8);
     spinel_pop_fixed_u32_array(buf, config.unicast_channel_mask, 8);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);

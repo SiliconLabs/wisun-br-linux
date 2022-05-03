@@ -130,7 +130,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         tr_err("Invalid FHSS enable configuration");
         return NULL;
     }
-    int bc_channel_count = channel_list_count_channels(fhss_configuration->channel_mask);
+    int bc_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
     int uc_channel_count = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
 
     if (bc_channel_count <= 0) {
@@ -159,7 +159,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
     if (uc_channel_count == 0) {
         //If Unicast channel is empty use Domain mask
         for (uint8_t i = 0; i < 8; i++) {
-            fhss_struct->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->channel_mask[i];
+            fhss_struct->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
         }
         uc_channel_count = bc_channel_count;
     }
@@ -255,14 +255,14 @@ static int32_t fhss_ws_calc_bc_channel(fhss_structure_t *fhss_structure)
 
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         next_channel = tr51_get_bc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels, NULL);
-        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.domain_channel_mask, next_channel, fhss_structure->number_of_channels);
         if (++fhss_structure->ws->bc_slot == fhss_structure->number_of_bc_channels) {
             fhss_structure->ws->bc_slot = 0;
         }
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_DH1CF) {
         fhss_structure->ws->bc_slot++;
         next_channel = dh1cf_get_bc_channel_index(fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels);
-        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.channel_mask, next_channel, fhss_structure->number_of_channels);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.domain_channel_mask, next_channel, fhss_structure->number_of_channels);
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_VENDOR_DEF_CF) {
         if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
             next_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, NULL, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels);
@@ -1184,7 +1184,7 @@ int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[
 
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration)
 {
-    int channel_count_bc = channel_list_count_channels(fhss_configuration->channel_mask);
+    int channel_count_bc = channel_list_count_channels(fhss_configuration->domain_channel_mask);
     int channel_count_uc = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
     if (channel_count_bc <= 0 || fhss_configuration->channel_mask_size == 0) {
         return -1;
@@ -1219,7 +1219,7 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
     if (channel_count_uc == 0) {
         //If Unicast channel is empty use Domain mask
         for (uint8_t i = 0; i < 8; i++) {
-            fhss_structure->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->channel_mask[i];
+            fhss_structure->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
         }
         channel_count_uc = channel_count_bc;
     }
