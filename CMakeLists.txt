@@ -86,6 +86,7 @@ add_executable(wsbrd
     common/bits.c
     common/rand.c
     common/named_values.c
+    common/parsers.c
     common/slist.c
     common/spinel_buffer.c
     common/trickle.c
@@ -308,6 +309,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/bits.c
         common/rand.c
         common/named_values.c
+        common/parsers.c
         common/slist.c
         common/spinel_buffer.c
         common/trickle.c
