@@ -95,6 +95,7 @@ pub trait ComSilabsWisunBorderRouter {
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn gaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn nodes(&self) -> Result<Vec<(Vec<u8>, Vec<u8>)>, dbus::Error>;
+    fn hw_address(&self) -> Result<Vec<u8>, dbus::Error>;
     fn wisun_network_name(&self) -> Result<String, dbus::Error>;
     fn wisun_size(&self) -> Result<String, dbus::Error>;
     fn wisun_domain(&self) -> Result<String, dbus::Error>;
@@ -135,6 +136,10 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn nodes(&self) -> Result<Vec<(Vec<u8>, Vec<u8>)>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Nodes")
+    }
+
+    fn hw_address(&self) -> Result<Vec<u8>, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "HwAddress")
     }
 
     fn wisun_network_name(&self) -> Result<String, dbus::Error> {

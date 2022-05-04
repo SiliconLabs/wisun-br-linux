@@ -13,6 +13,20 @@ fn format_byte_array(input: &Vec<u8>) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
 }
 
+fn print_rpl_tree(links: &Vec<(Vec<u8>, Vec<u8>)>, cur: &Vec<u8>, indent: &str) -> () {
+    // FIXME: detect (and defeat) loops
+    let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| n.1 == *cur).map(|n| &n.0).collect();
+    children.sort();
+    if let Some((last_child, first_childs)) = children.split_last() {
+        for c in first_childs {
+            println!("{}|- {}", indent, format_byte_array(c));
+            print_rpl_tree(links, c, &(indent.to_owned() + "|    "));
+        }
+        println!("{}`- {}", indent, format_byte_array(last_child));
+        print_rpl_tree(links, last_child, &(indent.to_owned() + "     "));
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let c = Connection::new_session()?;
     let p = c.with_proxy("com.silabs.Wisun.BorderRouter", "/com/silabs/Wisun/BorderRouter", Duration::from_millis(500));
@@ -31,9 +45,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (i, g) in gtks.iter().enumerate() {
         println!("GTK[{}]: {}", i, format_byte_array(g));
     }
-    let daos = p.nodes().unwrap();
-    for d in daos {
-        println!("Node: {} -> {}", format_byte_array(&d.0), format_byte_array(&d.1));
-    }
+    let mac_br = p.hw_address().unwrap_or(vec![0; 8]);
+    println!("{}", format_byte_array(&mac_br));
+    let links = p.nodes().unwrap();
+    print_rpl_tree(&links, &mac_br, "  ");
     Ok(())
 }
