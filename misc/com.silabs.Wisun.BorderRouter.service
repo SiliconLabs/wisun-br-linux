@@ -4,4 +4,4 @@
 Name=com.silabs.Wisun.BorderRouter
 Exec=/bin/false
 User=root
-SystemdService=wisun-borderouter.service
+SystemdService=wisun-borderrouter.service
