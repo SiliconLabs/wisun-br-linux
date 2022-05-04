@@ -47,36 +47,45 @@ fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, parents: &Vec<&Vec<u8>>, cur:
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let c = Connection::new_session()?;
-    let p = c.with_proxy("com.silabs.Wisun.BorderRouter", "/com/silabs/Wisun/BorderRouter", Duration::from_millis(500));
+fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
+    let dbus_conn;
+    if dbus_user {
+        dbus_conn = Connection::new_session()?;
+    } else {
+        dbus_conn = Connection::new_system()?;
+    }
+    let dbus_proxy = dbus_conn.with_proxy("com.silabs.Wisun.BorderRouter", "/com/silabs/Wisun/BorderRouter", Duration::from_millis(500));
 
     // Consider that if NetworkName does not exist, the service probably not here.
-    match p.wisun_network_name() {
+    match dbus_proxy.wisun_network_name() {
         Ok(val) => println!("network_name: {}", val),
         Err(e) => return Err(Box::new(e)),
     }
 
-    println!("domain: {}", p.wisun_domain().unwrap_or("[UNKNOWN]".to_string()));
-    println!("mode: {:x}", p.wisun_mode().unwrap_or(0));
-    println!("class: {}", p.wisun_class().unwrap_or(0));
-    println!("panid: {:#04x}", p.wisun_pan_id().unwrap_or(0));
-    println!("size: {}", p.wisun_size().unwrap_or("[UNKNOWN]".to_string()));
+    println!("domain: {}", dbus_proxy.wisun_domain().unwrap_or("[UNKNOWN]".to_string()));
+    println!("mode: {:x}", dbus_proxy.wisun_mode().unwrap_or(0));
+    println!("class: {}", dbus_proxy.wisun_class().unwrap_or(0));
+    println!("panid: {:#04x}", dbus_proxy.wisun_pan_id().unwrap_or(0));
+    println!("size: {}", dbus_proxy.wisun_size().unwrap_or("[UNKNOWN]".to_string()));
 
-    let gaks = p.gaks().unwrap_or(vec![]);
+    let gaks = dbus_proxy.gaks().unwrap_or(vec![]);
     for (i, g) in gaks.iter().enumerate() {
         println!("GAK[{}]: {}", i, format_byte_array(g));
     }
 
-    let gtks = p.gtks().unwrap_or(vec![]);
+    let gtks = dbus_proxy.gtks().unwrap_or(vec![]);
     for (i, g) in gtks.iter().enumerate() {
         println!("GTK[{}]: {}", i, format_byte_array(g));
     }
 
-    let mac_br = p.hw_address().unwrap_or(vec![0; 8]);
+    let mac_br = dbus_proxy.hw_address().unwrap_or(vec![0; 8]);
     println!("{}", format_byte_array(&mac_br));
 
-    let links = p.nodes().unwrap_or(vec![]);
+    let links = dbus_proxy.nodes().unwrap_or(vec![]);
     print_rpl_tree(&links, &vec![], &mac_br, "  ");
     Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    do_status(true)
 }
