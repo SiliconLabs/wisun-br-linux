@@ -11,3 +11,4 @@ path = "wsbrd_cli.rs"
 
 [dependencies]
 dbus = "0.9"
+clap = { version = "3.0", features = ["derive"] }

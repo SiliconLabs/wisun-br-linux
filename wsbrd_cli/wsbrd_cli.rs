@@ -10,6 +10,25 @@ use dbus::blocking::Connection;
 use dbus::arg::PropMap;
 use dbus::arg::prop_cast;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
+use clap::Parser;
+use clap::Subcommand;
+
+/// Get information from wsbrd (the Silicon Labs Wi-SUN Border Router)
+#[derive(Parser)]
+struct Cli {
+    #[clap(subcommand)]
+    command: Commands,
+
+    /// Use user bus instead of system bus
+    #[clap(long = "user")]
+    dbus_user: bool,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Display a brief status of the Wi-SUN network
+    Status,
+}
 
 fn format_byte_array(input: &Vec<u8>) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
@@ -87,5 +106,9 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    do_status(true)
+    let args = Cli::parse();
+
+    match args.command {
+        Commands::Status => do_status(args.dbus_user)
+    }
 }
