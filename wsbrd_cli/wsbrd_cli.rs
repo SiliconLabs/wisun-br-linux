@@ -7,15 +7,26 @@ mod wsbrddbusapi;
 
 use std::time::Duration;
 use dbus::blocking::Connection;
+use dbus::arg::PropMap;
+use dbus::arg::prop_cast;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
 
 fn format_byte_array(input: &Vec<u8>) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
 }
 
-fn print_rpl_tree(links: &Vec<(Vec<u8>, Vec<u8>)>, cur: &Vec<u8>, indent: &str) -> () {
+fn is_parent(node: &(Vec<u8>, PropMap), target: &Vec<u8>) -> bool {
+    let parent: Option<&Vec<u8>> = prop_cast(&node.1, "parent");
+    match parent {
+        Some(x) if x == target => true,
+        Some(_) => false,
+        None => false,
+    }
+}
+
+fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, cur: &Vec<u8>, indent: &str) -> () {
     // FIXME: detect (and defeat) loops
-    let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| n.1 == *cur).map(|n| &n.0).collect();
+    let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
     children.sort();
     if let Some((last_child, first_childs)) = children.split_last() {
         for c in first_childs {

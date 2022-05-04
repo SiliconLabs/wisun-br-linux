@@ -34,21 +34,21 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> OrgFreedes
 }
 
 pub trait OrgFreedesktopDBusProperties {
-    fn get<R0: for<'b> arg::Get<'b> + 'static>(&self, interface: &str, property: &str) -> Result<R0, dbus::Error>;
-    fn get_all(&self, interface: &str) -> Result<arg::PropMap, dbus::Error>;
-    fn set<I2: arg::Arg + arg::Append>(&self, interface: &str, property: &str, value: I2) -> Result<(), dbus::Error>;
+    fn get<R0: for<'b> arg::Get<'b> + 'static>(&self, interface_name: &str, property_name: &str) -> Result<R0, dbus::Error>;
+    fn get_all(&self, interface_name: &str) -> Result<arg::PropMap, dbus::Error>;
+    fn set<I2: arg::Arg + arg::Append>(&self, interface_name: &str, property_name: &str, value: I2) -> Result<(), dbus::Error>;
 }
 
 #[derive(Debug)]
 pub struct OrgFreedesktopDBusPropertiesPropertiesChanged {
-    pub interface: String,
+    pub interface_name: String,
     pub changed_properties: arg::PropMap,
     pub invalidated_properties: Vec<String>,
 }
 
 impl arg::AppendAll for OrgFreedesktopDBusPropertiesPropertiesChanged {
     fn append(&self, i: &mut arg::IterAppend) {
-        arg::RefArg::append(&self.interface, i);
+        arg::RefArg::append(&self.interface_name, i);
         arg::RefArg::append(&self.changed_properties, i);
         arg::RefArg::append(&self.invalidated_properties, i);
     }
@@ -57,7 +57,7 @@ impl arg::AppendAll for OrgFreedesktopDBusPropertiesPropertiesChanged {
 impl arg::ReadAll for OrgFreedesktopDBusPropertiesPropertiesChanged {
     fn read(i: &mut arg::Iter) -> Result<Self, arg::TypeMismatchError> {
         Ok(OrgFreedesktopDBusPropertiesPropertiesChanged {
-            interface: i.read()?,
+            interface_name: i.read()?,
             changed_properties: i.read()?,
             invalidated_properties: i.read()?,
         })
@@ -71,18 +71,18 @@ impl dbus::message::SignalArgs for OrgFreedesktopDBusPropertiesPropertiesChanged
 
 impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> OrgFreedesktopDBusProperties for blocking::Proxy<'a, C> {
 
-    fn get<R0: for<'b> arg::Get<'b> + 'static>(&self, interface: &str, property: &str) -> Result<R0, dbus::Error> {
-        self.method_call("org.freedesktop.DBus.Properties", "Get", (interface, property, ))
+    fn get<R0: for<'b> arg::Get<'b> + 'static>(&self, interface_name: &str, property_name: &str) -> Result<R0, dbus::Error> {
+        self.method_call("org.freedesktop.DBus.Properties", "Get", (interface_name, property_name, ))
             .and_then(|r: (arg::Variant<R0>, )| Ok((r.0).0, ))
     }
 
-    fn get_all(&self, interface: &str) -> Result<arg::PropMap, dbus::Error> {
-        self.method_call("org.freedesktop.DBus.Properties", "GetAll", (interface, ))
+    fn get_all(&self, interface_name: &str) -> Result<arg::PropMap, dbus::Error> {
+        self.method_call("org.freedesktop.DBus.Properties", "GetAll", (interface_name, ))
             .and_then(|r: (arg::PropMap, )| Ok(r.0, ))
     }
 
-    fn set<I2: arg::Arg + arg::Append>(&self, interface: &str, property: &str, value: I2) -> Result<(), dbus::Error> {
-        self.method_call("org.freedesktop.DBus.Properties", "Set", (interface, property, arg::Variant(value), ))
+    fn set<I2: arg::Arg + arg::Append>(&self, interface_name: &str, property_name: &str, value: I2) -> Result<(), dbus::Error> {
+        self.method_call("org.freedesktop.DBus.Properties", "Set", (interface_name, property_name, arg::Variant(value), ))
     }
 }
 
@@ -94,7 +94,7 @@ pub trait ComSilabsWisunBorderRouter {
     fn revoke_apply(&self) -> Result<(), dbus::Error>;
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn gaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
-    fn nodes(&self) -> Result<Vec<(Vec<u8>, Vec<u8>)>, dbus::Error>;
+    fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error>;
     fn hw_address(&self) -> Result<Vec<u8>, dbus::Error>;
     fn wisun_network_name(&self) -> Result<String, dbus::Error>;
     fn wisun_size(&self) -> Result<String, dbus::Error>;
@@ -134,7 +134,7 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Gaks")
     }
 
-    fn nodes(&self) -> Result<Vec<(Vec<u8>, Vec<u8>)>, dbus::Error> {
+    fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Nodes")
     }
 
