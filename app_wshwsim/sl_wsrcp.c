@@ -78,7 +78,7 @@ void configure_pcap_output(struct wsmac_ctxt *ctxt, const char *filename)
     ctxt->pcap_dumper = pcap_dump_open(ctxt->pcap_ctxt, filename);
     FATAL_ON(!ctxt->pcap_dumper, 1, "%s: %s", optarg, pcap_geterr(ctxt->pcap_ctxt));
 #else
-    FATAL(1, "Support for libcpap not compiled");
+    FATAL(1, "Support for libpcap not compiled");
 #endif
 }
 
