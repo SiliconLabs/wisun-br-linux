@@ -24,17 +24,26 @@ fn is_parent(node: &(Vec<u8>, PropMap), target: &Vec<u8>) -> bool {
     }
 }
 
-fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, cur: &Vec<u8>, indent: &str) -> () {
-    // FIXME: detect (and defeat) loops
+fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, parents: &Vec<&Vec<u8>>, cur: &Vec<u8>, indent: &str) -> () {
     let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
     children.sort();
+    let mut new_parents = parents.clone();
+    new_parents.push(cur);
     if let Some((last_child, first_childs)) = children.split_last() {
         for c in first_childs {
-            println!("{}|- {}", indent, format_byte_array(c));
-            print_rpl_tree(links, c, &(indent.to_owned() + "|    "));
+            if new_parents.contains(c) {
+                println!("{}|- {} (loop!)", indent, format_byte_array(c));
+            } else {
+                println!("{}|- {}", indent, format_byte_array(c));
+                print_rpl_tree(links, &new_parents, c, &(indent.to_owned() + "|    "));
+            }
         }
-        println!("{}`- {}", indent, format_byte_array(last_child));
-        print_rpl_tree(links, last_child, &(indent.to_owned() + "     "));
+        if new_parents.contains(last_child) {
+            println!("{}`- {} (loop!)", indent, format_byte_array(last_child));
+        } else {
+            println!("{}`- {}", indent, format_byte_array(last_child));
+            print_rpl_tree(links, &new_parents, last_child, &(indent.to_owned() + "     "));
+        }
     }
 }
 
@@ -59,6 +68,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mac_br = p.hw_address().unwrap_or(vec![0; 8]);
     println!("{}", format_byte_array(&mac_br));
     let links = p.nodes().unwrap();
-    print_rpl_tree(&links, &mac_br, "  ");
+    print_rpl_tree(&links, &vec![], &mac_br, "  ");
     Ok(())
 }
