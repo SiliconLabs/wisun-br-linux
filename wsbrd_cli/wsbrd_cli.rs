@@ -9,6 +9,10 @@ use std::time::Duration;
 use dbus::blocking::Connection;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
 
+fn format_byte_array(input: &Vec<u8>) -> String {
+    input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let c = Connection::new_session()?;
     let p = c.with_proxy("com.silabs.Wisun.BorderRouter", "/com/silabs/Wisun/BorderRouter", Duration::from_millis(500));
@@ -21,19 +25,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("size: {}", p.wisun_size().unwrap());
     let gaks = p.gaks().unwrap();
     for (i, g) in gaks.iter().enumerate() {
-        let tmp = g.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":");
-        println!("GAK[{}]: {}", i, tmp);
+        println!("GAK[{}]: {}", i, format_byte_array(g));
     }
     let gtks = p.gtks().unwrap();
     for (i, g) in gtks.iter().enumerate() {
-        let tmp = g.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":");
-        println!("GTK[{}]: {}", i, tmp);
+        println!("GTK[{}]: {}", i, format_byte_array(g));
     }
     let daos = p.nodes().unwrap();
     for d in daos {
-        let tmp1 = d.0.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":");
-        let tmp2 = d.1.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":");
-        println!("Node: {} -> {}", tmp1, tmp2);
+        println!("Node: {} -> {}", format_byte_array(&d.0), format_byte_array(&d.1));
     }
     Ok(())
 }
