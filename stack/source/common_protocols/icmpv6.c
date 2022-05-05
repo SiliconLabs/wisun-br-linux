@@ -1109,21 +1109,24 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { " ack",   ICMPV6_CODE_RPL_DAO_ACK },
         { NULL },
     };
-    char frame_type[32] = "";
+    char frame_type[40] = "";
     int trace_domain;
 
     if (buf->interface->nwk_id == IF_6LoWPAN) {
         trace_domain = TR_ICMP_RF;
     } else {
-        strncat(frame_type, "(tun) ", sizeof(frame_type));
+        strncat(frame_type, "(tun) ", sizeof(frame_type) - strlen(frame_type) - 1);
         trace_domain = TR_ICMP_TUN;
     }
-    strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"), sizeof(frame_type));
+    strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"),
+            sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL)
-        strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"), sizeof(frame_type));
+        strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"),
+                sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_NS)
         if (icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
-            strncat(frame_type, " w/ aro", sizeof(frame_type));
+            strncat(frame_type, " w/ aro",
+                    sizeof(frame_type) - strlen(frame_type) - 1);
     if (is_rx)
         TRACE(trace_domain, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
     else
