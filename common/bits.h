@@ -8,9 +8,9 @@
 
 #include  <stddef.h>
 
-#define __CLZ(value) __builtin_clz(value)
-#define FIELD_GET(mask, reg) (((reg) & (mask)) >> __CLZ(mask))
-#define FIELD_PREP(mask, val) (((val) << __CLZ(mask)) & (mask))
+#define __CTZ(value) __builtin_ctz(value)
+#define FIELD_GET(mask, reg) (((reg) & (mask)) >> __CTZ(mask))
+#define FIELD_PREP(mask, val) (((val) << __CTZ(mask)) & (mask))
 
 void *bitset(void *dst, int c, size_t len);
 void *bitcpy(void *dst, const void *src, size_t len);
