@@ -1125,7 +1125,8 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"),
                 sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_NS)
-        if (icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
+        if (icmpv6_options_well_formed_in_buffer(buf, 20) &&
+            icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
             strncat(frame_type, " w/ aro",
                     sizeof(frame_type) - strlen(frame_type) - 1);
     if (is_rx)
