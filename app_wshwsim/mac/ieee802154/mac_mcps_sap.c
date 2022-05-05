@@ -2285,17 +2285,17 @@ mac_pre_parsed_frame_t *mcps_sap_pre_parsed_ack_buffer_get(protocol_interface_rf
 
 static void mac_set_active_event(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t event_type)
 {
-    rf_mac_setup->active_mac_events |= (1 << event_type);
+    rf_mac_setup->active_mac_events |= (1u << event_type);
 }
 
 static void mac_clear_active_event(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t event_type)
 {
-    rf_mac_setup->active_mac_events &= ~(1 << event_type);
+    rf_mac_setup->active_mac_events &= ~(1u << event_type);
 }
 
 static bool mac_read_active_event(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint8_t event_type)
 {
-    if (rf_mac_setup->active_mac_events & (1 << event_type)) {
+    if (rf_mac_setup->active_mac_events & (1u << event_type)) {
         return true;
     }
     return false;

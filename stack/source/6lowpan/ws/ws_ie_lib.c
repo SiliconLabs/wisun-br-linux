@@ -609,7 +609,7 @@ ws_pcap_ie_t ws_ie_lib_generate_phy_cap_from_phy_mode_id(uint8_t phy_mode_id)
         phy_mode_id -= 80;
         pcap.phy_type = WS_PHY_TYPE_ID_OFDM4;
     }
-    pcap.operating_mode = 1 << phy_mode_id;
+    pcap.operating_mode = 1u << phy_mode_id;
     return pcap;
 }
 
@@ -621,7 +621,7 @@ uint8_t  ws_ie_lib_phy_mode_id_get_from_phy_cap(ws_pcap_ie_t *phy_cap)
 
     uint8_t phy_mode_id = 0;
     for (uint8_t i = 0; i < 16; i++) {
-        if (phy_cap->operating_mode & (1 << (15 - i))) {
+        if (phy_cap->operating_mode & (1u << (15 - i))) {
             phy_mode_id = 15 - i;
             break;
         }

@@ -583,7 +583,7 @@ static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm)
         // for dBm -90 and LQI 0 ETX will be 2.4
         etx = ((dbm * -1) * (256 - lqi));
         etx >>= 1; // scale result to 12 bits
-        etx += 1 << 12; // add one (perfect link)
+        etx += 1u << 12; // add one (perfect link)
     }
 
     return etx;

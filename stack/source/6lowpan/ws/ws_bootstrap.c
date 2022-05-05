@@ -1607,7 +1607,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
         }
 
         uint32_t probe_period = ws_probe_init_time_get(cur) << etx_entry->etx_samples;
-        uint32_t time_block = 1 << etx_entry->etx_samples;
+        uint32_t time_block = 1u << etx_entry->etx_samples;
 
         if (time_from_start >= probe_period) {
             //tr_debug("Link Probe test %u Sample trig", etx_entry->etx_samples);

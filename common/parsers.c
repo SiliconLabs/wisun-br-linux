@@ -17,7 +17,7 @@ static int set_bitmask(uint32_t *out, int size, int shift)
 
     if (word_nr >= size)
         return -1;
-    out[word_nr] |= 1 << bit_nr;
+    out[word_nr] |= 1u << bit_nr;
     return 0;
 }
 

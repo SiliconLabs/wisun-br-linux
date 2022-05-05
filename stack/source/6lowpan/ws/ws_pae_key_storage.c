@@ -75,8 +75,8 @@ typedef enum {
     PTKLTIME_SET,
 } field_set_t;
 
-#define FIELD_SET(field) (field_set | (1 << field))
-#define FIELD_IS_SET(field) (field_set & (1 << field))
+#define FIELD_SET(field) (field_set | (1u << field))
+#define FIELD_IS_SET(field) (field_set & (1u << field))
 
 typedef struct {
     ns_list_link_t link;                                /**< Link */
@@ -421,7 +421,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         sec_prot_keys_pmk_delete(&pae_supp->sec_keys);
     }
 
-    uint16_t field_set = 1 << WRITE_SET;
+    uint16_t field_set = 1u << WRITE_SET;
 
     if (key_storage->pmk_key_replay_cnt_set != sec_keys->pmk_key_replay_cnt_set ||
             key_storage->pmk_key_replay_cnt != sec_keys->pmk_key_replay_cnt) {
@@ -429,7 +429,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
            Instead counter is increased on re-start. */
         key_storage->pmk_key_replay_cnt = sec_keys->pmk_key_replay_cnt & PMK_KEY_REPLAY_CNT_LIMIT_MASK;
         key_storage->pmk_key_replay_cnt_set = sec_keys->pmk_key_replay_cnt_set;
-        field_set |= 1 << PMK_CNT_SET;
+        field_set |= 1u << PMK_CNT_SET;
     }
 
     if (key_storage->pmk_set != sec_keys->pmk_set ||
@@ -437,7 +437,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         key_storage_array->modified = true;
         key_storage->pmk_set = sec_keys->pmk_set;
         memcpy(key_storage->pmk, sec_keys->pmk, PMK_LEN);
-        field_set |= 1 << PMK_SET;
+        field_set |= 1u << PMK_SET;
     }
 
     if (key_storage->ptk_set != sec_keys->ptk_set ||
@@ -445,7 +445,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         key_storage_array->modified = true;
         key_storage->ptk_set = sec_keys->ptk_set;
         memcpy(key_storage->ptk, sec_keys->ptk, PTK_LEN);
-        field_set |= 1 << PTK_SET;
+        field_set |= 1u << PTK_SET;
     }
 
     if (key_storage->eui_64_set != true ||
@@ -453,13 +453,13 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         key_storage_array->modified = true;
         key_storage->eui_64_set = true;
         memcpy(key_storage->ptk_eui_64, eui_64, 8);
-        field_set |= 1 << EUI64_SET;
+        field_set |= 1u << EUI64_SET;
     }
 
     if (key_storage->ptk_eui_64_set != sec_keys->ptk_eui_64_set) {
         key_storage_array->modified = true;
         key_storage->ptk_eui_64_set = sec_keys->ptk_eui_64_set;
-        field_set |= 1 << PTKEUI64_SET;
+        field_set |= 1u << PTKEUI64_SET;
     }
 
     if (key_storage->ins_gtk_hash_set != sec_keys->ins_gtk_hash_set ||
@@ -467,11 +467,11 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         key_storage_array->modified = true;
         key_storage->ins_gtk_hash_set = sec_keys->ins_gtk_hash_set;
         memcpy(key_storage->ins_gtk_hash, sec_keys->ins_gtk_hash, sizeof(sec_keys->ins_gtk_hash));
-        field_set |= 1 << GTKHASH_SET;
+        field_set |= 1u << GTKHASH_SET;
     }
     if (key_storage->ins_gtk_4wh_hash_set != sec_keys->ins_gtk_hash_set) {
         key_storage->ins_gtk_4wh_hash_set = sec_keys->ins_gtk_hash_set;
-        field_set |= 1 << GTKHASH4WH_SET;
+        field_set |= 1u << GTKHASH4WH_SET;
     }
 
     if (sec_keys->pmk_set) {
@@ -486,12 +486,12 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
             key_storage_array->modified = true;
             key_storage->pmk_lifetime_set = true;
             key_storage->pmk_lifetime = short_time;
-            field_set |= 1 << PMKLTIME_SET;
+            field_set |= 1u << PMKLTIME_SET;
         }
     } else {
         key_storage->pmk_lifetime_set = false;
         key_storage->pmk_lifetime = 0;
-        field_set |= 1 << PMKLTIME_SET;
+        field_set |= 1u << PMKLTIME_SET;
     }
 
     if (sec_keys->ptk_set) {
@@ -505,12 +505,12 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
             key_storage_array->modified = true;
             key_storage->ptk_lifetime_set = true;
             key_storage->ptk_lifetime = short_time;
-            field_set |= 1 << PTKLTIME_SET;
+            field_set |= 1u << PTKLTIME_SET;
         }
     } else {
         key_storage->ptk_lifetime_set = false;
         key_storage->ptk_lifetime = 0;
-        field_set |= 1 << PTKLTIME_SET;
+        field_set |= 1u << PTKLTIME_SET;
     }
 
     ws_pae_key_storage_trace(field_set, key_storage, key_storage_array);
@@ -536,7 +536,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     if (ws_pae_time_diff_calc(ws_pae_current_time_get(), key_storage_array->storage_array_handle->reference_time, &time_difference, false) < 0) {
         tr_error("KeyS read time err");
         pmk_invalid = true;
-        field_set |= 1 << TIME_SET;
+        field_set |= 1u << TIME_SET;
     }
 
     uint32_t pmk_lifetime = 0;
@@ -548,9 +548,9 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
             // PMK expired, all keys are invalid
             pmk_invalid = true;
             ptk_invalid = true;
-            field_set |= 1 << TIME_SET;
+            field_set |= 1u << TIME_SET;
         }
-        field_set |= 1 << PMKLTIME_SET;
+        field_set |= 1u << PMKLTIME_SET;
     }
 
     if (!pmk_invalid) {
@@ -558,9 +558,9 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
         if (ws_pae_key_storage_array_lifetime_get(time_difference, key_storage->ptk_lifetime, &ptk_lifetime) < 0) {
             // PMK expired, invalidate PTK related fields, PMK is still valid
             ptk_invalid = true;
-            field_set |= 1 << TIME_SET;
+            field_set |= 1u << TIME_SET;
         }
-        field_set |= 1 << PTKLTIME_SET;
+        field_set |= 1u << PTKLTIME_SET;
     }
 
     supp_entry_t *pae_supp = malloc(sizeof(supp_entry_t));
@@ -594,7 +594,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
         }
         // MSB 32 bits is the restart count
         sec_keys->pmk_key_replay_cnt |= ((uint64_t) restart_cnt_diff) << 32;
-        field_set |= 1 << PMK_CNT_SET;
+        field_set |= 1u << PMK_CNT_SET;
     } else {
         sec_keys->pmk_key_replay_cnt = 0;
     }
@@ -607,7 +607,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
 
     sec_keys->pmk_lifetime = pmk_lifetime;
 
-    field_set |= 1 << PMKLTIME_SET;
+    field_set |= 1u << PMKLTIME_SET;
 
     // PTK is invalid, do not retrieve any PTK security key data
     if (ptk_invalid) {
@@ -635,7 +635,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
 
     sec_keys->ptk_lifetime = ptk_lifetime;
 
-    field_set |= 1 << PTKLTIME_SET;
+    field_set |= 1u << PTKLTIME_SET;
 
     ws_pae_key_storage_trace(field_set, key_storage, key_storage_array);
 

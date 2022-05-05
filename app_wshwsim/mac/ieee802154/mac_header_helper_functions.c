@@ -721,7 +721,7 @@ static uint8_t *mac_payload_ie_terminate(uint8_t *ptr)
 {
     uint16_t ie_dummy = 0;
     ie_dummy |= (MAC_PAYLOAD_TERMINATION_IE_GROUP_ID << 11);
-    ie_dummy |= (1 << 15);
+    ie_dummy |= (1u << 15);
     return common_write_16_bit_inverse(ie_dummy, ptr);
 }
 

@@ -111,7 +111,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
     socket_if->remote_addr.identifier = remote_port;
 
     for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-        if (socket_if->socket_id_in_use & (1 << socket_num)) {
+        if (socket_if->socket_id_in_use & (1u << socket_num)) {
 
             if ((socket_if->socket_id[socket_num] < 1) || address_changed) {
                 if (socket_if->socket_id[socket_num] >= 0) {
@@ -192,7 +192,7 @@ int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_i
     socket_if->remote_addr.type = ADDRESS_IPV6;
 
     for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-        if (socket_if->socket_id_in_use & (1 << socket_num)) {
+        if (socket_if->socket_id_in_use & (1u << socket_num)) {
 
             if ((socket_if->socket_id[socket_num] < 1)) {
 
@@ -299,7 +299,7 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
     }
 
     int8_t socket_id = -1;
-    if ((socket_if->socket_id_in_use & (1 << connection_num)) && socket_if->socket_id[connection_num] >= 0) {
+    if ((socket_if->socket_id_in_use & (1u << connection_num)) && socket_if->socket_id[connection_num] >= 0) {
         socket_id = socket_if->socket_id[connection_num];
     } else {
         if (socket_if->socket_id[connection_num] < 0) {
@@ -308,7 +308,7 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         if (socket_if->socket_id[connection_num] < 0) {
             return -1;
         }
-        socket_if->socket_id_in_use |= (1 << connection_num);
+        socket_if->socket_id_in_use |= (1u << connection_num);
     }
 
     if (socket_if->native_sock_addr.ss_family != AF_UNSPEC) { // native linux socket

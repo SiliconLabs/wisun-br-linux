@@ -85,7 +85,7 @@ uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list, bool c
     for (j = mac_channel_list->next_channel_number / 32; j < k; j++) {
         channel_mask = &mac_channel_list->channel_mask[j];
         for (i = i_start; i < 32; i++) {
-            mask = 1 << i;
+            mask = 1u << i;
 
             if (*channel_mask & mask) {
                 if (clear_channel) {
@@ -805,7 +805,7 @@ protocol_interface_rf_mac_setup_s *mac_mlme_data_base_allocate(uint8_t *mac64, a
     dev_driver->phy_driver->extension(PHY_EXTENSION_DYNAMIC_RF_SUPPORTED, (uint8_t *)&rf_support);
     entry->rf_csma_extension_supported = rf_support;
     dev_driver->phy_driver->extension(PHY_EXTENSION_FILTERING_SUPPORT, (uint8_t *)&entry->mac_frame_filters);
-    if (entry->mac_frame_filters & (1 << MAC_FRAME_VERSION_2)) {
+    if (entry->mac_frame_filters & (1u << MAC_FRAME_VERSION_2)) {
         tr_debug("PHY supports 802.15.4-2015 frame filtering");
     }
     mac_mlme_set_symbol_rate(entry);

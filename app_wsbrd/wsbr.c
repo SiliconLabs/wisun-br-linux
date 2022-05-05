@@ -74,7 +74,7 @@ static int get_fixed_channel(uint32_t bitmask[static 8])
 
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 32; j++) {
-            if (bitmask[i] & (1 << j)) {
+            if (bitmask[i] & (1u << j)) {
                 if (val >= 0)
                     return 0xFFFF;
                 val = i * 32 + j;

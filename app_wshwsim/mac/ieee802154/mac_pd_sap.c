@@ -71,7 +71,7 @@ static void mac_csma_BE_update(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 // 8-bit because maxBE is maximum 8 (according to 802.15.4)
 static uint8_t mac_csma_random_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
-    return rand_get_random_in_range(0, (1 << rf_mac_setup->macCurrentBE) - 1);
+    return rand_get_random_in_range(0, (1u << rf_mac_setup->macCurrentBE) - 1);
 }
 
 static uint16_t mac_csma_backoff_period_convert_to50us(uint8_t random, uint8_t backoff_period_in_10us)
@@ -847,7 +847,7 @@ static bool mac_pd_sap_rx_filter(const uint8_t *mac_header, const mac_fcf_sequen
 {
     uint8_t version = fcf_read->frameVersion;
 
-    if (version == MAC_FRAME_VERSION_2015 && !(phy_filter_mask & (1 << MAC_FRAME_VERSION_2))) {
+    if (version == MAC_FRAME_VERSION_2015 && !(phy_filter_mask & (1u << MAC_FRAME_VERSION_2))) {
         if (!mac_pd_sap_panid_v2_filter(mac_header, fcf_read, pan_id)) {
             return false;
         }

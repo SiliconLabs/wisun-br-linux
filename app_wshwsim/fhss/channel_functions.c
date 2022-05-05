@@ -114,7 +114,7 @@ static uint8_t tr51_find_excluded(int32_t channel, uint32_t *excluded_channels)
     if (excluded_channels != NULL) {
         uint8_t index = channel / 32;
         channel %= 32;
-        if (excluded_channels[index] & ((uint32_t)1 << channel)) {
+        if (excluded_channels[index] & (1u << channel)) {
             return true;
         }
     }

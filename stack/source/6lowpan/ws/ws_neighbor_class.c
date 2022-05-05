@@ -197,7 +197,7 @@ static uint32_t ws_reserve_order_32_bit(uint32_t value)
 {
     uint32_t ret_val = 0;
     for (uint8_t i = 0; i < 32; i++) {
-        if ((value & (1 << i))) {
+        if ((value & (1u << i))) {
             ret_val |= 1u << ((32 - 1) - i);
         }
     }
@@ -243,7 +243,7 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
         //Compare now 32-bit mask's bits one by one
         for (uint8_t i = 0; i < 32; i++) {
             //Start from MSB
-            compare_mask_bit = 1 << (i);
+            compare_mask_bit = 1u << (i);
             if ((channel_compare_mask & compare_mask_bit) && (channel_info->channel_mask[mask_index] & compare_mask_bit)) {
                 channel_info->channel_mask[mask_index] ^= compare_mask_bit;
                 channel_info->channel_count--;
