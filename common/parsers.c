@@ -23,29 +23,27 @@ static int set_bitmask(uint32_t *out, int size, int shift)
 
 int parse_bitmask(uint32_t *out, int size, const char *str)
 {
-    char *range;
     char *endptr;
-    unsigned long cur, end;
-    char *str_mut = strdupa(str);
+    uint32_t cur, end;
 
     memset(out, 0, size * sizeof(uint32_t));
-    range = strtok(str_mut, ",");
     do {
-        cur = strtoul(range, &endptr, 0);
+        cur = strtoul(str, &endptr, 0);
         if (*endptr == '-') {
-            range = endptr + 1;
-            end = strtol(range, &endptr, 0);
+            str = endptr + 1;
+            end = strtoul(str, &endptr, 0);
         } else {
             end = cur;
         }
-        if (*endptr != '\0')
+        if (*endptr != '\0' && *endptr != ',')
             return -1;
         if (cur > end)
             return -1;
         for (; cur <= end; cur++)
             if (set_bitmask(out, size, cur) < 0)
                 return -1;
-    } while ((range = strtok(NULL, ",")));
+        str = endptr + 1;
+    } while (*endptr != '\0');
     return 0;
 }
 
