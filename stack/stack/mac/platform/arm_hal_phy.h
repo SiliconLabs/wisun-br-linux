@@ -142,14 +142,14 @@ typedef struct phy_csma_params {
 } phy_csma_params_t;
 
 /** PHY modulation scheme */
-typedef enum phy_modulation_e {
+enum {
     MODULATION_OFDM,     ///< QFDM
     MODULATION_OQPSK,    ///< OQPSK
     MODULATION_BPSK,     ///< BPSK
     MODULATION_GFSK,     ///< GFSK
     MODULATION_2FSK,     ///< 2FSK
     MODULATION_UNDEFINED ///< UNDEFINED
-} phy_modulation_e;
+};
 
 /** Channel page numbers */
 typedef enum {
@@ -166,30 +166,11 @@ typedef enum {
 } channel_page_e;
 
 /** Modulation index */
-typedef enum {
+enum {
     MODULATION_INDEX_0_5 = 0,   ///< Modulation index 0.5
     MODULATION_INDEX_1_0 = 1,   ///< Modulation index 1.0
     MODULATION_INDEX_UNDEF      ///< Modulation index undefined
-} phy_modulation_index_e;
-
-/** OFDM option */
-typedef enum {
-    OFDM_OPTION_1 = 1,      ///< OFDM option 1
-    OFDM_OPTION_2 = 2,      ///< OFDM option 2
-    OFDM_OPTION_3 = 3,      ///< OFDM option 3
-    OFDM_OPTION_4 = 4       ///< OFDM option 4
-} phy_ofdm_option_e;
-
-/** Modulation and coding scheme (OFDM) */
-typedef enum {
-    OFDM_MCS_0 = 0,         ///< OFDM MCS 0
-    OFDM_MCS_1 = 1,         ///< OFDM MCS 1
-    OFDM_MCS_2 = 2,         ///< OFDM MCS 2
-    OFDM_MCS_3 = 3,         ///< OFDM MCS 3
-    OFDM_MCS_4 = 4,         ///< OFDM MCS 4
-    OFDM_MCS_5 = 5,         ///< OFDM MCS 5
-    OFDM_MCS_6 = 6          ///< OFDM MCS 6
-} phy_ofdm_mcs_e;
+};
 
 /**
  * @brief enum phy_802_15_4_mode_t IEEE 802.15.4 mode
@@ -206,11 +187,11 @@ typedef struct phy_rf_channel_configuration_s {
     uint32_t channel_spacing;                   ///< Channel spacing
     uint32_t datarate;                          ///< Data rate
     uint16_t number_of_channels;                ///< Number of channels
-    phy_modulation_e modulation;                ///< Modulation scheme
-    phy_modulation_index_e modulation_index;    ///< Modulation index
+    uint8_t  modulation;                        ///< Modulation scheme
+    uint8_t  modulation_index;                  ///< Modulation index
     bool fec;                                   ///< Forward error correction, true - enabled, false - disabled
-    phy_ofdm_option_e ofdm_option;              ///< OFDM option
-    phy_ofdm_mcs_e ofdm_mcs;                    ///< OFDM modulation and coding scheme
+    uint8_t  ofdm_option;                       ///< OFDM option
+    uint8_t  ofdm_mcs;                          ///< OFDM modulation and coding scheme
 } phy_rf_channel_configuration_s;
 
 /** Channel page configuration */

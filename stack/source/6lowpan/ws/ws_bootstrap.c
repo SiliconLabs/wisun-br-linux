@@ -1901,11 +1901,11 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
     // an error anyway.
     if (check_phy_chan_compat(phy_params, chan_params)) {
         rf_config.datarate = phy_params->datarate;
-        rf_config.modulation = (phy_modulation_e)phy_params->modulation;
-        rf_config.modulation_index = (phy_modulation_index_e)phy_params->fsk_modulation_index;
+        rf_config.modulation = phy_params->modulation;
+        rf_config.modulation_index = phy_params->fsk_modulation_index;
         rf_config.fec = phy_params->fec;
-        rf_config.ofdm_option = (phy_ofdm_option_e)phy_params->ofdm_option;
-        rf_config.ofdm_mcs = (phy_ofdm_mcs_e)phy_params->ofdm_mcs;
+        rf_config.ofdm_option = phy_params->ofdm_option;
+        rf_config.ofdm_mcs = phy_params->ofdm_mcs;
         rf_config.channel_0_center_frequency = chan_params->chan0_freq;
         rf_config.channel_spacing = chan_params->chan_spacing;
         rf_config.number_of_channels = chan_params->chan_count_valid;
