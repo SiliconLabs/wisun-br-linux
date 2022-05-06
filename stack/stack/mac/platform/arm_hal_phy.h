@@ -143,12 +143,12 @@ typedef struct phy_csma_params {
 
 /** PHY modulation scheme */
 typedef enum phy_modulation_e {
-    M_OFDM,     ///< QFDM
-    M_OQPSK,    ///< OQPSK
-    M_BPSK,     ///< BPSK
-    M_GFSK,     ///< GFSK
-    M_2FSK,     ///< 2FSK
-    M_UNDEFINED ///< UNDEFINED
+    MODULATION_OFDM,     ///< QFDM
+    MODULATION_OQPSK,    ///< OQPSK
+    MODULATION_BPSK,     ///< BPSK
+    MODULATION_GFSK,     ///< GFSK
+    MODULATION_2FSK,     ///< 2FSK
+    MODULATION_UNDEFINED ///< UNDEFINED
 } phy_modulation_e;
 
 /** Channel page numbers */

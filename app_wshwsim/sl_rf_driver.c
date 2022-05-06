@@ -43,15 +43,15 @@ static uint16_t channel = 0;
 
 
 /** XXX: dummy values copied from Atmel RF driver */
-static const phy_rf_channel_configuration_s phy_2_4ghz = {.channel_0_center_frequency = 2405000000, .channel_spacing = 5000000, .datarate = 250000, .number_of_channels = 16, .modulation = M_OQPSK};
-static const phy_rf_channel_configuration_s phy_subghz = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 11, .modulation = M_OQPSK};
+static const phy_rf_channel_configuration_s phy_2_4ghz = {.channel_0_center_frequency = 2405000000, .channel_spacing = 5000000, .datarate = 250000, .number_of_channels = 16, .modulation = MODULATION_OQPSK};
+static const phy_rf_channel_configuration_s phy_subghz = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 11, .modulation = MODULATION_OQPSK};
 
-static const phy_rf_channel_configuration_s phy_subghz_8_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 8, .modulation = M_OQPSK};
-static const phy_rf_channel_configuration_s phy_subghz_11_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 11, .modulation = M_OQPSK};
-static const phy_rf_channel_configuration_s phy_subghz_16_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 16, .modulation = M_OQPSK};
-static const phy_rf_channel_configuration_s phy_2_4ghz_14_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 14, .modulation = M_OQPSK};
-static const phy_rf_channel_configuration_s phy_2_4ghz_5_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 5, .modulation = M_OQPSK}; //For FHSS testing only
-static const phy_rf_channel_configuration_s phy_2_4ghz_256_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 256, .modulation = M_OQPSK}; //For FHSS testing only
+static const phy_rf_channel_configuration_s phy_subghz_8_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 8, .modulation = MODULATION_OQPSK};
+static const phy_rf_channel_configuration_s phy_subghz_11_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 11, .modulation = MODULATION_OQPSK};
+static const phy_rf_channel_configuration_s phy_subghz_16_ch = {.channel_0_center_frequency = 868300000, .channel_spacing = 2000000, .datarate = 250000, .number_of_channels = 16, .modulation = MODULATION_OQPSK};
+static const phy_rf_channel_configuration_s phy_2_4ghz_14_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 14, .modulation = MODULATION_OQPSK};
+static const phy_rf_channel_configuration_s phy_2_4ghz_5_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 5, .modulation = MODULATION_OQPSK}; //For FHSS testing only
+static const phy_rf_channel_configuration_s phy_2_4ghz_256_ch = {.channel_0_center_frequency = 2405000000, .channel_spacing = 1000000, .datarate = 250000, .number_of_channels = 256, .modulation = MODULATION_OQPSK}; //For FHSS testing only
 
 static phy_device_channel_page_s phy_channel_pages[] = {
     {CHANNEL_PAGE_0, &phy_2_4ghz}, // this will be modified to contain 11 or 16 channels, depending on radio type

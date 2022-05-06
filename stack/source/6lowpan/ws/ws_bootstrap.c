@@ -1849,7 +1849,7 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Set Ack wait duration
     uint8_t bits_per_symbol = 1;
-    if (rf_configs.modulation == M_OFDM) {
+    if (rf_configs.modulation == MODULATION_OFDM) {
         bits_per_symbol = 4;
     }
     uint16_t ack_wait_symbols = WS_ACK_WAIT_SYMBOLS + (WS_TACK_MAX_MS * (rf_configs.datarate / 1000) / bits_per_symbol);

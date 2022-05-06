@@ -64,12 +64,12 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
     else
         sprintf(out + strlen(out), "   ??");
 
-    if (phy_params && phy_params->modulation == M_OFDM) {
+    if (phy_params && phy_params->modulation == MODULATION_OFDM) {
         sprintf(out + strlen(out), "   OFDM");
         sprintf(out + strlen(out), "   %1d", phy_params->ofdm_mcs);
         sprintf(out + strlen(out), "    %1d", phy_params->ofdm_option);
         sprintf(out + strlen(out), "   --");
-    } else if (phy_params && phy_params->modulation == M_2FSK) {
+    } else if (phy_params && phy_params->modulation == MODULATION_2FSK) {
         sprintf(out + strlen(out), "    FSK");
         sprintf(out + strlen(out), "  --");
         sprintf(out + strlen(out), "   --");
