@@ -1184,6 +1184,36 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
 
     }
 
+    switch (bs_ie->excluded_channel_ctrl) {
+        case WS_EXC_CHAN_CTRL_NONE:
+
+            break;
+        case WS_EXC_CHAN_CTRL_RANGE:
+            bs_ie->excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (bs_ie->excluded_channels.range.number_of_range * 4) + 1) {
+                return false;
+            }
+            //Set Range start after validation
+            bs_ie->excluded_channels.range.range_start = data + 1;
+            break;
+
+        case WS_EXC_CHAN_CTRL_BITMASK:
+            if (bs_ie->channel_plan == 1) {
+                bs_ie->excluded_channels.mask.mask_len_inline = ((bs_ie->plan.one.number_of_channel + 7) / 8);
+                if (bs_ie->excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
+                    //Channel mask length is not correct
+                    return false;
+                }
+            } else {
+                bs_ie->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+            }
+
+            bs_ie->excluded_channels.mask.channel_mask = data;
+            break;
+        default:
+            return false;
+    }
+
     return true;
 }
 

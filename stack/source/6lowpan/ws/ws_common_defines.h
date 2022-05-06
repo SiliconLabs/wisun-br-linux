@@ -431,6 +431,10 @@ typedef struct ws_bs_ie {
         ws_channel_function_zero_t zero;
         ws_channel_function_three_t three;
     } function;
+    union {
+        ws_excluded_channel_range_t range;
+        ws_excluded_channel_mask_t mask;
+    } excluded_channels;
 } ws_bs_ie_t;
 
 
