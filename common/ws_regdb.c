@@ -6,6 +6,9 @@
 #include "ws_regdb.h"
 
 const struct phy_params phy_params_table[] = {
+    /* ,- rail_phy_mode_id
+       |   ,- phy_mode_id  ,- datarate             ofdm_mcs -.  ,- ofdm_option
+       |   | modulation    |   mode  fsk_modulation_index    |  |   fec  */
     {  1,  1, M_2FSK,   50000, 0x1a, MODULATION_INDEX_0_5,   0, 0, false },
     {  2,  2, M_2FSK,   50000, 0x1b, MODULATION_INDEX_1_0,   0, 0, false },
     {  3,  3, M_2FSK,  100000, 0x2a, MODULATION_INDEX_0_5,   0, 0, false },
@@ -41,9 +44,11 @@ const struct phy_params phy_params_table[] = {
 };
 
 const struct chan_params chan_params_table[] = {
-    // REG_DOMAIN_AZ and REG_DOMAIN_NZ share the same ID
+    /*                                                    chan_count -.
+                               chan_plan_id -.    chan_spacing -.     |    ,- chan_count_valid
+         domain    class   regional_reg      |   chan0_freq     |     |    | */
     { REG_DOMAIN_AZ, 1, REG_REGIONAL_NONE,   0,  915200000,  200000,  64,  64,
-        {  2,  3, }, },
+        {  2,  3, }, }, // REG_DOMAIN_AZ and REG_DOMAIN_NZ share the same ID
     { REG_DOMAIN_AZ, 2, REG_REGIONAL_NONE,   0,  915400000,  400000,  32,  32,
         {  5,  6,  8, }, },
     { REG_DOMAIN_BZ, 1, REG_REGIONAL_NONE,   1,  902200000,  200000, 129,  90,
