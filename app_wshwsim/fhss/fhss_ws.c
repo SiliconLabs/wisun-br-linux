@@ -130,10 +130,10 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         tr_err("Invalid FHSS enable configuration");
         return NULL;
     }
-    int bc_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
+    int domain_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
     int uc_channel_count = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
 
-    if (bc_channel_count <= 0) {
+    if (domain_channel_count <= 0) {
         // There must be at least one configured channel in channel list
         return NULL;
     }
@@ -147,7 +147,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         return NULL;
     }
     memset(fhss_struct->ws, 0, sizeof(fhss_ws_t));
-    if (fhss_ws_manage_channel_table_allocation(fhss_struct, uc_channel_count > bc_channel_count ? uc_channel_count : bc_channel_count)) {
+    if (fhss_ws_manage_channel_table_allocation(fhss_struct, uc_channel_count > domain_channel_count ? uc_channel_count : domain_channel_count)) {
         free(fhss_struct->ws);
         fhss_free_instance(fhss_api);
         tr_error("Failed to allocate channel tables");
@@ -161,12 +161,12 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         for (uint8_t i = 0; i < 8; i++) {
             fhss_struct->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
         }
-        uc_channel_count = bc_channel_count;
+        uc_channel_count = domain_channel_count;
     }
 
     fhss_struct->number_of_channels = fhss_configuration->channel_mask_size;
     fhss_struct->number_of_uc_channels = uc_channel_count;
-    fhss_struct->number_of_bc_channels = bc_channel_count;
+    fhss_struct->number_of_bc_channels = domain_channel_count;
     fhss_struct->optimal_packet_length = OPTIMAL_PACKET_LENGTH;
     fhss_ws_set_hop_count(fhss_struct, 0xff);
     fhss_struct->rx_channel = fhss_configuration->unicast_fixed_channel;
