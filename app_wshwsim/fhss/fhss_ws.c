@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/common_functions.h"
@@ -132,6 +133,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
     }
     int domain_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
     int uc_channel_count = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
+    int bc_channel_count = channel_list_count_channels(fhss_configuration->broadcast_channel_mask);
 
     if (domain_channel_count <= 0) {
         // There must be at least one configured channel in channel list
@@ -147,7 +149,9 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         return NULL;
     }
     memset(fhss_struct->ws, 0, sizeof(fhss_ws_t));
-    if (fhss_ws_manage_channel_table_allocation(fhss_struct, uc_channel_count > domain_channel_count ? uc_channel_count : domain_channel_count)) {
+    BUG_ON(uc_channel_count > domain_channel_count);
+    BUG_ON(bc_channel_count > domain_channel_count);
+    if (fhss_ws_manage_channel_table_allocation(fhss_struct, domain_channel_count)) {
         free(fhss_struct->ws);
         fhss_free_instance(fhss_api);
         tr_error("Failed to allocate channel tables");
@@ -163,10 +167,17 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         }
         uc_channel_count = domain_channel_count;
     }
+    if (bc_channel_count == 0) {
+        //If Broadcast channel is empty use Domain mask
+        for (uint8_t i = 0; i < 8; i++) {
+            fhss_struct->ws->fhss_configuration.broadcast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
+        }
+        bc_channel_count = domain_channel_count;
+    }
 
     fhss_struct->number_of_channels = fhss_configuration->channel_mask_size;
     fhss_struct->number_of_uc_channels = uc_channel_count;
-    fhss_struct->number_of_bc_channels = domain_channel_count;
+    fhss_struct->number_of_bc_channels = bc_channel_count;
     fhss_struct->optimal_packet_length = OPTIMAL_PACKET_LENGTH;
     fhss_ws_set_hop_count(fhss_struct, 0xff);
     fhss_struct->rx_channel = fhss_configuration->unicast_fixed_channel;
@@ -255,14 +266,14 @@ static int32_t fhss_ws_calc_bc_channel(fhss_structure_t *fhss_structure)
 
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         next_channel = tr51_get_bc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels, NULL);
-        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.domain_channel_mask, next_channel, fhss_structure->number_of_channels);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.broadcast_channel_mask, next_channel, fhss_structure->number_of_channels);
         if (++fhss_structure->ws->bc_slot == fhss_structure->number_of_bc_channels) {
             fhss_structure->ws->bc_slot = 0;
         }
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_DH1CF) {
         fhss_structure->ws->bc_slot++;
         next_channel = dh1cf_get_bc_channel_index(fhss_structure->ws->bc_slot, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_bc_channels);
-        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.domain_channel_mask, next_channel, fhss_structure->number_of_channels);
+        next_channel = fhss_channel_index_from_mask(fhss_structure->ws->fhss_configuration.broadcast_channel_mask, next_channel, fhss_structure->number_of_channels);
     } else if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_VENDOR_DEF_CF) {
         if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
             next_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, NULL, fhss_structure->ws->fhss_configuration.bsi, fhss_structure->number_of_channels);
@@ -1184,21 +1195,25 @@ int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[
 
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration)
 {
-    int channel_count_bc = channel_list_count_channels(fhss_configuration->domain_channel_mask);
+    int channel_count_domain = channel_list_count_channels(fhss_configuration->domain_channel_mask);
     int channel_count_uc = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
-    if (channel_count_bc <= 0 || fhss_configuration->channel_mask_size == 0) {
+    int channel_count_bc = channel_list_count_channels(fhss_configuration->broadcast_channel_mask);
+    if (channel_count_domain <= 0 || fhss_configuration->channel_mask_size == 0) {
         return -1;
     }
 
-    if (fhss_structure->number_of_bc_channels < channel_count_bc ||
-            (channel_count_uc && fhss_structure->number_of_uc_channels < channel_count_uc)) {
+    BUG_ON(channel_count_bc > channel_count_domain);
+    BUG_ON(channel_count_uc > channel_count_domain);
+    // FIXME: this section looks weird. Does channel_count_bc and channel_count_uc could be 0?
+    if (fhss_structure->number_of_bc_channels < channel_count_domain ||
+        fhss_structure->number_of_uc_channels < channel_count_domain) {
         // Channel amount changed to largeneed to reallocate channel table
         free(fhss_structure->ws->tr51_channel_table);
         fhss_structure->ws->tr51_channel_table = NULL;
         free(fhss_structure->ws->tr51_output_table);
         fhss_structure->ws->tr51_output_table = NULL;
 
-        if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_uc > channel_count_bc ? channel_count_uc : channel_count_bc)) {
+        if (fhss_ws_manage_channel_table_allocation(fhss_structure, channel_count_domain)) {
             return -1;
         }
     }
@@ -1221,7 +1236,14 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
         for (uint8_t i = 0; i < 8; i++) {
             fhss_structure->ws->fhss_configuration.unicast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
         }
-        channel_count_uc = channel_count_bc;
+        channel_count_uc = channel_count_domain;
+    }
+    if (channel_count_bc == 0) {
+        //If Unicast channel is empty use Domain mask
+        for (uint8_t i = 0; i < 8; i++) {
+            fhss_structure->ws->fhss_configuration.broadcast_channel_mask[i] = fhss_configuration->domain_channel_mask[i];
+        }
+        channel_count_bc = channel_count_domain;
     }
 
     // No one would poll TX queue if schedule timers were not started. Start poll timer with default interval.
