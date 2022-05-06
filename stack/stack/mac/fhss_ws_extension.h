@@ -69,7 +69,6 @@ typedef struct fhss_ws_neighbor_timing_info {
     unicast_timing_info_t uc_timing_info;       /**< Neighbor unicast timing info */
     broadcast_timing_info_t bc_timing_info;     /**< Neighbor broadcast timing info */
     ws_channel_mask_t uc_channel_list;          /**< Neighbor Unicast channel list */
-    uint32_t *excluded_channels;                /**< Neighbor excluded channels (bit mask) */
 } fhss_ws_neighbor_timing_info_t;
 
 /**
