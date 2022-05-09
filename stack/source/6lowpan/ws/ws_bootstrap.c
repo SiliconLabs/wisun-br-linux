@@ -753,6 +753,14 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
         if (fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
             cur->ws_info->hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
             cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
+        } else {
+            ws_common_generate_channel_list(cur, fhss_configuration.broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+            // Apply primary parent channel mask to broadcast channel mask.
+            for (uint8_t n = 0; n < 8; n++) {
+                fhss_configuration.broadcast_channel_mask[n] &= neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask[n];
+            }
+            // Update broadcast excluded channels.
+            ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.bc_excluded_channels, fhss_configuration.broadcast_channel_mask, fhss_configuration.domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
         }
         fhss_configuration.bsi = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id;
         fhss_configuration.fhss_bc_dwell_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval;
