@@ -123,7 +123,7 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
  * \param ws_us Unicast schedule IE data
  *
  */
-void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, ws_hopping_schedule_t *own_shedule, const uint8_t address[8]);
+void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8]);
 
 
 /**

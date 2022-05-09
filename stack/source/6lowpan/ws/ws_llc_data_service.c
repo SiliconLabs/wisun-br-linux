@@ -768,7 +768,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
 
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
     if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schedule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {
@@ -878,7 +878,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     uint8_t auth_eui64[8];
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
     if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, &interface->ws_info->hopping_schedule, data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {

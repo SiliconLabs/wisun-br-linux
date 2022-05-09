@@ -3043,7 +3043,7 @@ int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_in
     }
     ws_bootstrap_neighbor_set_stable(cur, parent_ptr->addr);
     ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &parent_ptr->ws_utt, parent_ptr->timestamp, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, &parent_ptr->ws_us, &cur->ws_info->hopping_schedule, parent_ptr->addr);
+    ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, &parent_ptr->ws_us, parent_ptr->addr);
     return 0;
 }
 

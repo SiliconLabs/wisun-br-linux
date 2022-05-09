@@ -256,13 +256,14 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, ws_hopping_schedule_t *own_schedule, const uint8_t address[8])
+void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8])
 {
     ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->channel_function;
     if (ws_us->channel_function == WS_FIXED_CHANNEL) {
         ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
+        ws_hopping_schedule_t *own_schedule = &cur->ws_info->hopping_schedule;
 
         if (ws_us->channel_plan == 0) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class, own_schedule->channel_plan_id);
