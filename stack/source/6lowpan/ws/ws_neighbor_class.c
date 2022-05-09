@@ -305,16 +305,44 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 }
 
 
-void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie)
+void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
 {
     ws_neighbor->broadcast_schedule_info_stored = true;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs_ie->channel_function;
-    if (ws_bs_ie->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs_ie->function.zero.fixed_channel;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->channel_function;
+    if (ws_bs->channel_function == WS_FIXED_CHANNEL) {
+        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs->function.zero.fixed_channel;
+    } else {
+        ws_hopping_schedule_t *own_schedule = &cur->ws_info->hopping_schedule;
+        uint16_t broadcast_number_of_channels;
+
+        if (ws_bs->channel_plan == 0) {
+            broadcast_number_of_channels = ws_common_channel_number_calc(ws_bs->plan.zero.regulator_domain, ws_bs->plan.zero.operation_class, own_schedule->channel_plan_id);
+        } else if (ws_bs->channel_plan == 1) {
+            broadcast_number_of_channels = ws_bs->plan.one.number_of_channel;
+
+        } else if (ws_bs->channel_plan == 2) {
+            //TODO add Channel plan 2 channel count function call here
+        }
+
+        //Handle excluded channel and generate activate channel list
+        if (ws_bs->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+            ws_neighbor->fhss_data.bc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels);
+            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->excluded_channels.range, broadcast_number_of_channels);
+        } else if (ws_bs->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
+            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+            ws_neighbor->fhss_data.bc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels);
+            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->excluded_channels.mask, broadcast_number_of_channels);
+        } else if (ws_bs->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
+            if (broadcast_number_of_channels != ws_neighbor->fhss_data.bc_channel_list.channel_count) {
+                ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+                ws_neighbor->fhss_data.bc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels);
+            }
+        }
     }
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = ws_bs_ie->dwell_interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval = ws_bs_ie->broadcast_interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs_ie->broadcast_schedule_identifier;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = ws_bs->dwell_interval;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval = ws_bs->broadcast_interval;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs->broadcast_schedule_identifier;
 }
 
 void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard)

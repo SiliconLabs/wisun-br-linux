@@ -68,7 +68,8 @@ typedef struct fhss_ws_neighbor_timing_info {
     uint8_t timing_accuracy;                    /**< Neighbor timing accuracy */
     unicast_timing_info_t uc_timing_info;       /**< Neighbor unicast timing info */
     broadcast_timing_info_t bc_timing_info;     /**< Neighbor broadcast timing info */
-    ws_channel_mask_t uc_channel_list;          /**< Neighbor Unicast channel list */
+    ws_channel_mask_t uc_channel_list;          /**< Neighbor unicast channel list */
+    ws_channel_mask_t bc_channel_list;          /**< Neighbor broadcast channel list */
 } fhss_ws_neighbor_timing_info_t;
 
 /**
