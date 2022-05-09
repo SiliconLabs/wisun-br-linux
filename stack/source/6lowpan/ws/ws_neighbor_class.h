@@ -143,7 +143,7 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
  * \param ws_bs_ie Broadcast schedule IE data
  *
  */
-void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie);
+void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie);
 
 /**
  * ws_neighbor_class_rf_sensitivity_calculate

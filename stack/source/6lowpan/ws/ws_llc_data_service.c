@@ -772,7 +772,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {
-        ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+        ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
     }
 
     //Update BT if it is part of message
@@ -882,7 +882,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     }
     //Update BS if it is part of message
     if (bs_ie_inline) {
-        ws_neighbor_class_neighbor_broadcast_schedule_set(neighbor_info.ws_neighbor, &ws_bs_ie);
+        ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
     }
 
     //Discover and write Auhtenticator EUI-64
