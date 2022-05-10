@@ -2004,13 +2004,6 @@ static void ws_bootstrap_set_fhss_hop(protocol_interface_info_entry_t *cur)
     // Calculate own hop count. This method gets inaccurate when hop count increases.
     uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
     ns_fhss_ws_set_hop_count(cur->ws_info->fhss_api, own_hop);
-    if (own_hop == 1) {
-        // Allow transmitting unicast frames only on TX slots in normal mode and always in expedited forwarding mode for first hop
-        ns_fhss_ws_set_tx_allowance_level(cur->ws_info->fhss_api, WS_TX_SLOT, WS_TX_ALWAYS);
-    } else {
-        // Allow transmitting unicast frames only on TX slots in normal and expedited forwarding mode for other hops
-        ns_fhss_ws_set_tx_allowance_level(cur->ws_info->fhss_api, WS_TX_SLOT, WS_TX_SLOT);
-    }
     tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
 }
 
