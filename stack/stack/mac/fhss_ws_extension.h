@@ -139,8 +139,6 @@ typedef enum {
     WS_TX_SLOT,
     /** Allow transmitting only on TX and RX slots. */
     WS_TX_AND_RX_SLOT,
-    /** Allow transmitting always. Also unicast on broadcast channel. */
-    WS_TX_ALWAYS
 } fhss_ws_tx_allow_level;
 
 /**
