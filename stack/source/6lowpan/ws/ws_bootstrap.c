@@ -673,8 +673,8 @@ static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
             return -1;
         }
         ns_sw_mac_fhss_register(cur->mac_api, fhss_api);
-        // Allow transmitting unicast frames only on TX slots in normal and expedited forwarding mode
-        ns_fhss_ws_set_tx_allowance_level(fhss_api, WS_TX_SLOT, WS_TX_SLOT);
+        // Allow transmitting unicast data on TX and RX slots for normal and expedited forwarding mode
+        ns_fhss_ws_set_tx_allowance_level(fhss_api, WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     } else {
         return -1;
     }
