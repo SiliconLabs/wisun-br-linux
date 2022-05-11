@@ -599,15 +599,15 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
             excluded_data->channel_mask[i / 32] |= 1U << (31 - (i % 32));
             excluded_data->excluded_channel_count++;
 
-            if (excluded_data->excluded_range_length < WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-                if (!active_range) {
+            if (!active_range) {
+                if (excluded_data->excluded_range_length < WS_EXCLUDED_MAX_RANGE_TO_SEND) {
                     excluded_data->excluded_range_length++;
                     active_range = true;
                     //Set start channel
                     excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_start = i;
-                } else {
-                    excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_end = i;
                 }
+            } else {
+                excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_end = i;
             }
         }
     }
