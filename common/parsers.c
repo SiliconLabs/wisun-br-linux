@@ -28,6 +28,8 @@ int parse_bitmask(uint32_t *out, int size, const char *str)
 
     memset(out, 0, size * sizeof(uint32_t));
     do {
+        if (!*str) /* empty string or string terminated by ',' */
+            return -1;
         cur = strtoul(str, &endptr, 0);
         if (*endptr == '-') {
             str = endptr + 1;
