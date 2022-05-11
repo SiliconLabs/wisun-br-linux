@@ -23,6 +23,7 @@
 #include "stack/ns_file_system.h"
 #include "common/named_values.h"
 #include "common/os_types.h"
+#include "common/ws_regdb.h"
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"

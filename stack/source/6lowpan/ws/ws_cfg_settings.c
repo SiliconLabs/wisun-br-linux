@@ -18,6 +18,7 @@
 #include <string.h>
 #include "nsconfig.h"
 #include <stdint.h>
+#include "common/ws_regdb.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include <stdlib.h>

@@ -141,16 +141,6 @@ typedef struct phy_csma_params {
     bool mode_switch_phr;            /**< True - Frame is a mode switch PHR. In this case PHY driver should skip FCS and send two byte PHR as it is given by TX callback */
 } phy_csma_params_t;
 
-/** PHY modulation scheme */
-enum {
-    MODULATION_OFDM,     ///< QFDM
-    MODULATION_OQPSK,    ///< OQPSK
-    MODULATION_BPSK,     ///< BPSK
-    MODULATION_GFSK,     ///< GFSK
-    MODULATION_2FSK,     ///< 2FSK
-    MODULATION_UNDEFINED ///< UNDEFINED
-};
-
 /** Channel page numbers */
 typedef enum {
     CHANNEL_PAGE_0 = 0,     ///< Page 0
@@ -164,13 +154,6 @@ typedef enum {
     CHANNEL_PAGE_10 = 10,   ///< Page 10
     CHANNEL_PAGE_UNDEFINED  ///< Undefined
 } channel_page_e;
-
-/** Modulation index */
-enum {
-    MODULATION_INDEX_0_5 = 0,   ///< Modulation index 0.5
-    MODULATION_INDEX_1_0 = 1,   ///< Modulation index 1.0
-    MODULATION_INDEX_UNDEF      ///< Modulation index undefined
-};
 
 /**
  * @brief enum phy_802_15_4_mode_t IEEE 802.15.4 mode

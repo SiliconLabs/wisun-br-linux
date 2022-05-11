@@ -30,26 +30,6 @@
 
 typedef struct fhss_timer fhss_timer_t;
 
-/* Regulatory domain values*/
-#define REG_DOMAIN_WW   0x00 /**< World wide */
-#define REG_DOMAIN_NA   0x01 /**< North America */
-#define REG_DOMAIN_JP   0x02 /**< Japan */
-#define REG_DOMAIN_EU   0x03 /**< European Union */
-#define REG_DOMAIN_CN   0x04 /**< China */
-#define REG_DOMAIN_IN   0x05 /**< India */
-#define REG_DOMAIN_MX   0x06 /**< Mexico */
-#define REG_DOMAIN_BZ   0x07 /**< Brazil */
-#define REG_DOMAIN_AZ   0x08 /**< Australia */
-#define REG_DOMAIN_NZ   0x08 /**< New zealand */
-#define REG_DOMAIN_KR   0x09 /**< Korea */
-#define REG_DOMAIN_PH   0x0A /**< Philippines */
-#define REG_DOMAIN_MY   0x0B /**< Malaysia */
-#define REG_DOMAIN_HK   0x0C /**< Hong Kong */
-#define REG_DOMAIN_SG   0x0D /**< Singapore band 866-869 */
-#define REG_DOMAIN_TH   0x0E /**< Thailand */
-#define REG_DOMAIN_VN   0x0F /**< Vietnam */
-#define REG_DOMAIN_UNDEF 0xFE
-
 #define OPERATING_MODE_1a 0x1a  /**< 50, 0,5 */
 #define OPERATING_MODE_1b 0x1b  /**< 50, 1.0 */
 #define OPERATING_MODE_2a 0x2a  /**< 100, 0,5 */
@@ -69,13 +49,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define CHANNEL_FUNCTION_DH1CF            0x02  /**< Direct Hash */
 #define CHANNEL_FUNCTION_VENDOR_DEFINED   0x03  /**< vendor given channel hop schedule */
 
-#define CHANNEL_SPACING_200     0x00    /**< 200 khz */
-#define CHANNEL_SPACING_400     0x01    /**< 400 khz */
-#define CHANNEL_SPACING_600     0x02    /**< 600 khz */
-#define CHANNEL_SPACING_100     0x03    /**< 100 khz */
-#define CHANNEL_SPACING_250     0x04    /**< 250 khz */
-#define CHANNEL_SPACING_800     0x05    /**< 800 khz */
-#define CHANNEL_SPACING_1200    0x06    /**< 1200 khz */
 
 /*
  * Wi-SUN FAN 1.1 Phy capability types.
@@ -87,10 +60,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define WS_PHY_TYPE_ID_OFDM2 3          /**< OFDM2 phy type */
 #define WS_PHY_TYPE_ID_OFDM3 4          /**< OFDM3 phy type */
 #define WS_PHY_TYPE_ID_OFDM4 5          /**< OFDM4 phy type */
-
-#define REG_REGIONAL_NONE 0
-#define REG_REGIONAL_ARIB 1
-// #define REG_REGIONAL_AUTO XX
 
 /*
  *  Network Size definitions are device amount in hundreds of devices.

@@ -27,6 +27,7 @@
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
+#include "common/ws_regdb.h"
 #include "common/log.h"
 #include "common/utils.h"
 #include "mac/rf_driver_storage.h"

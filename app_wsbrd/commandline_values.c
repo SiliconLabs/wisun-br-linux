@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #include "common/log.h"
+#include "common/ws_regdb.h"
 
 #include "stack/ws_management_api.h"
 #include "stack/mac/channel_list.h"
