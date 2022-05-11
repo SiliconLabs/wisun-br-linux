@@ -42,6 +42,8 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     spinel_push_fixed_u32_array(buf, config->unicast_channel_mask, 8);
     spinel_push_u16(buf, config->channel_mask_size);
     spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
+    if (!fw_api_older_than(ctxt, 0, 12, 0))
+        spinel_push_fixed_u32_array(buf, config->broadcast_channel_mask, 8);
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
     ctxt->fhss_conf_valid = true;
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
