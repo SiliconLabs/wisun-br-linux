@@ -154,7 +154,7 @@ static void ws_wp_channel_function_set(ws_generic_channel_info_t *generic_channe
     }
 }
 
-static uint16_t ws_wp_generic_shedule_length_get(ws_generic_channel_info_t *generic_channel_info)
+static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *generic_channel_info)
 {
     uint16_t length = 1;
 
@@ -184,7 +184,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopp
     } else {
         length = 9;
     }
-    length += ws_wp_generic_shedule_length_get(&generic_channel_info);
+    length += ws_wp_generic_schedule_length_get(&generic_channel_info);
     return length;
 }
 
@@ -464,7 +464,7 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
     } else {
         length = 9;
     }
-    length += ws_wp_generic_shedule_length_get(&generic_channel_info);
+    length += ws_wp_generic_schedule_length_get(&generic_channel_info);
 
     if (!unicast_schedule) {
         ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_BS_TYPE, length);
@@ -720,7 +720,7 @@ uint16_t ws_wp_nested_lfn_channel_plan_length(ws_generic_channel_info_t *ws_lcp)
 {
     uint16_t length = 1; //Channel Plan Tag
 
-    length += ws_wp_generic_shedule_length_get(ws_lcp);
+    length += ws_wp_generic_schedule_length_get(ws_lcp);
     return length;
 }
 
