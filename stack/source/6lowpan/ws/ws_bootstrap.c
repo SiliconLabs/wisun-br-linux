@@ -1356,12 +1356,12 @@ bool ws_bootstrap_validate_channel_function(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs
 
 uint32_t ws_time_from_last_unicast_traffic(uint32_t current_time_stamp, ws_neighbor_class_entry_t *ws_neighbor)
 {
-    uint32_t time_from_last_unicast_shedule = current_time_stamp;
+    uint32_t time_from_last_unicast_schedule = current_time_stamp;
 
     //Time from last RX unicast in us
-    time_from_last_unicast_shedule -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
-    time_from_last_unicast_shedule /= 1000000; //Convert to seconds
-    return time_from_last_unicast_shedule;
+    time_from_last_unicast_schedule -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+    time_from_last_unicast_schedule /= 1000000; //Convert to seconds
+    return time_from_last_unicast_schedule;
 }
 
 static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_entry *interface)
@@ -1425,15 +1425,15 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
         }
 
         //Read current timestamp
-        uint32_t time_from_last_unicast_shedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
-        if (time_from_last_unicast_shedule >= temp_link_min_timeout) {
+        uint32_t time_from_last_unicast_schedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
+        if (time_from_last_unicast_schedule >= temp_link_min_timeout) {
             //Accept only Enough Old Device
             if (!neighbor_entry_ptr) {
                 //Accept first compare
                 neighbor_entry_ptr = cur;
             } else {
                 uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_entry_ptr->index));
-                if (compare_neigh_time < time_from_last_unicast_shedule)  {
+                if (compare_neigh_time < time_from_last_unicast_schedule)  {
                     //Accept older RX timeout allways
                     neighbor_entry_ptr = cur;
                 }
