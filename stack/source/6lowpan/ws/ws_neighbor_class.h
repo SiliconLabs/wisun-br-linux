@@ -34,7 +34,7 @@ typedef struct ws_neighbor_class_entry {
     uint8_t last_DSN;
     bool candidate_parent: 1;
     bool broadcast_timing_info_stored: 1;
-    bool broadcast_shedule_info_stored: 1;
+    bool broadcast_schedule_info_stored: 1;
     bool synch_done : 1;
     bool unicast_data_rx : 1;
 #ifdef HAVE_WS_VERSION_1_1

@@ -735,7 +735,7 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
     fhss_ws_configuration_t fhss_configuration = ws_common_get_current_fhss_configuration(cur);
 
     // Learning broadcast network configuration
-    if (neighbor_info->ws_neighbor->broadcast_shedule_info_stored) {
+    if (neighbor_info->ws_neighbor->broadcast_schedule_info_stored) {
         if (synch_req != WS_EAPOL_PARENT_SYNCH) {
             ws_bootstrap_fhss_set_defaults(cur, &fhss_configuration);
         }
@@ -762,7 +762,7 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
 
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, llc_neighbour_req_t *neighbor_info)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_shedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_schedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
         return;
     }
 

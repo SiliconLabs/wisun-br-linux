@@ -306,7 +306,7 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 
 void ws_neighbor_class_neighbor_broadcast_schedule_set(ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie)
 {
-    ws_neighbor->broadcast_shedule_info_stored = true;
+    ws_neighbor->broadcast_schedule_info_stored = true;
     ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs_ie->channel_function;
     if (ws_bs_ie->channel_function == WS_FIXED_CHANNEL) {
         ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs_ie->function.zero.fixed_channel;
