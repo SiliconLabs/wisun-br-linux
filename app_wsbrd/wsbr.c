@@ -445,9 +445,9 @@ int main(int argc, char *argv[])
             FATAL(2, "pselect: %m");
         if (FD_ISSET(dbus_get_fd(ctxt), &rfds))
             dbus_process(ctxt);
-        if (FD_ISSET(kmp_socket_if_get_native_sockfd(), &rfds)) {
+        if (kmp_socket_if_get_native_sockfd() >= 0 &&
+            FD_ISSET(kmp_socket_if_get_native_sockfd(), &rfds))
             kmp_socket_if_data_from_ext_radius();
-        }
         if (FD_ISSET(ctxt->tun_fd, &rfds))
             wsbr_tun_read(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
