@@ -24,7 +24,7 @@
 struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
                                    const fhss_timer_t *fhss_timer)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(128);
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     // fhss_timer is filled by wsbr_configure(). We know we know we pass -1.
