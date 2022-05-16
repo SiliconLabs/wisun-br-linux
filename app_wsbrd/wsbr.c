@@ -142,7 +142,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                              1, // application specific plan (FIXME: really?)
                                              CHANNEL_FUNCTION_DH1CF,
                                              CHANNEL_FUNCTION_DH1CF,
-                                             ctxt->ws_chan_base,
+                                             ctxt->ws_chan0_freq,
                                              chan_spacing_id(ctxt->ws_chan_spacing),
                                              ctxt->ws_chan_count);
     }

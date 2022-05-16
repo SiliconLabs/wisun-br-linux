@@ -74,7 +74,7 @@ struct wsbr_ctxt {
     int  ws_domain;
     int  ws_mode;
     int  ws_class;
-    int  ws_chan_base;
+    int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;
     int  ws_size;

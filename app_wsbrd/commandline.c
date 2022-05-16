@@ -246,7 +246,7 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
                 break;
         if (i == ARRAY_SIZE(valid_ws_classes))
             FATAL(1, "%s:%d: invalid class: %d", filename, line_no, ctxt->ws_class);
-    } else if (sscanf(line, " chan_base = %u %c", &ctxt->ws_chan_base, &garbage) == 1) {
+    } else if (sscanf(line, " chan0_freq = %u %c", &ctxt->ws_chan0_freq, &garbage) == 1) {
         /* empty */
     } else if (sscanf(line, " chan_spacing = %u %c", &ctxt->ws_chan_spacing, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_chan_spacing); i++)
@@ -506,11 +506,11 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "unexpected argument: %s", argv[optind]);
     if (!ctxt->ws_name[0])
         FATAL(1, "missing \"network_name\" parameter");
-    if (ctxt->ws_chan_base || ctxt->ws_chan_spacing || ctxt->ws_chan_count) {
+    if (ctxt->ws_chan0_freq || ctxt->ws_chan_spacing || ctxt->ws_chan_count) {
         if (ctxt->ws_domain != REG_DOMAIN_UNDEF || ctxt->ws_class)
             FATAL(1, "custom channel plan is exclusive with \"domain\" and \"class\"");
-        if (!ctxt->ws_chan_base)
-            FATAL(1, "custom channel plan need \"chan_base\"");
+        if (!ctxt->ws_chan0_freq)
+            FATAL(1, "custom channel plan need \"chan0_freq\"");
         if (!ctxt->ws_chan_spacing)
             FATAL(1, "custom channel plan need \"chan_spacing\"");
         if (!ctxt->ws_chan_count)
