@@ -472,6 +472,7 @@ int libdhcpv6_reply_message_option_validate(dhcp_duid_options_params_t *clientId
 {
     /**
      * Solication Message Should Include Next Options:
+     *  - DHCPV6_OPTION_RAPID_COMMIT
      *  - DHCPV6_SERVER_ID_OPTION
      *  - DHCPV6_CLIENT_ID_OPTION
      *  - DHCPV6_IDENTITY_ASSOCIATION_OPTION
@@ -483,6 +484,10 @@ int libdhcpv6_reply_message_option_validate(dhcp_duid_options_params_t *clientId
     }
 
     if (libdhcpv6_get_duid_by_selected_type_id_opt(ptr, data_length, DHCPV6_SERVER_ID_OPTION, serverId) != 0) {
+        return -1;
+    }
+
+    if (!libdhcpv6_rapid_commit_option_at_packet(ptr, data_length)) {
         return -1;
     }
 
