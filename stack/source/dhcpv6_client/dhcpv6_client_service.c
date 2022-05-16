@@ -362,6 +362,11 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
         goto error_exit;
     }
 
+    if (!dhcp_ia_non_temporal_params.nonTemporalAddress) {
+        tr_error("No associated address");
+        goto error_exit;
+    }
+
     if (libdhcpv6_compare_DUID(&srv_data_ptr->clientDUID, &clientId) != 0) {
         tr_error("Not Valid Client Id");
         goto error_exit;
