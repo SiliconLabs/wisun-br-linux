@@ -185,11 +185,11 @@ typedef struct if_6lowpan_dad_entry {
 
 typedef enum {
     IPV6_LL_CONFIG,
-    IPV6_ROUTER_SOLICATION,
+    IPV6_ROUTER_SOLICITATION,
     IPV6_GP_GEN,
     IPV6_GP_CONFIG,
     IPV6_READY,
-    IPV6_DHCPV6_SOLICATION,
+    IPV6_DHCPV6_SOLICITATION,
     IPV6_DHCPV6_ADDRESS_REQUEST,
     IPV6_DHCPV6_ADDRESS_REQ_FAIL,
     //IPV6_DHCPV6_PREFIX_READY
@@ -202,7 +202,7 @@ typedef struct {
     uint8_t     wb_table_ttl;
     uint16_t    ND_TIMER;
     uint8_t     static_prefix64[8];
-    uint8_t     routerSolicationRetryCounter;
+    uint8_t     routerSolicitationRetryCounter;
     bool        temporaryUlaAddressState;
 } ipv6_interface_info_t;
 

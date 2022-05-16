@@ -324,17 +324,17 @@ static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
             }
             break;
 
-        case IPV6_ROUTER_SOLICATION:
+        case IPV6_ROUTER_SOLICITATION:
             if (ipv6_nd_rs(cur)) {
                 tr_debug("Waiting for ICMPv6 Router Advertisement");
-                if (cur->ipv6_configure.routerSolicationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
-                    cur->ipv6_configure.routerSolicationRetryCounter++;
+                if (cur->ipv6_configure.routerSolicitationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
+                    cur->ipv6_configure.routerSolicitationRetryCounter++;
                 }
             }
-            if (cur->ipv6_configure.routerSolicationRetryCounter == 0) {
-                cur->ipv6_configure.routerSolicationRetryCounter++;
+            if (cur->ipv6_configure.routerSolicitationRetryCounter == 0) {
+                cur->ipv6_configure.routerSolicitationRetryCounter++;
             }
-            cur->ipv6_configure.ND_TIMER = (cur->ipv6_configure.routerSolicationRetryCounter * 25);
+            cur->ipv6_configure.ND_TIMER = (cur->ipv6_configure.routerSolicitationRetryCounter * 25);
             break;
 
         case IPV6_GP_GEN:
@@ -345,8 +345,8 @@ static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
         case IPV6_GP_CONFIG:
             break;
 
-        case IPV6_DHCPV6_SOLICATION:
-//              if(dhcpv6_non_temporal_address_solication(cur) == 0)
+        case IPV6_DHCPV6_SOLICITATION:
+//              if(dhcpv6_non_temporal_address_solicitation(cur) == 0)
 //              {
 //                  cur->ipv6_configure.ND_TIMER = 0;
 //              }
@@ -675,7 +675,7 @@ int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur)
     cur->ipv6_configure.IPv6_ND_state = IPV6_LL_CONFIG;
     cur->ipv6_configure.ND_TIMER = 1;
 
-    cur->ipv6_configure.routerSolicationRetryCounter = 0;
+    cur->ipv6_configure.routerSolicitationRetryCounter = 0;
     cur->ipv6_configure.wb_table_ttl       = WB_UPDATE_PERIOD_SECONDS;
     icmpv6_radv_disable(cur);
 
@@ -998,7 +998,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                     if (interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
                         interface->ipv6_configure.IPv6_ND_state = IPV6_GP_GEN;
                     } else {
-                        interface->ipv6_configure.IPv6_ND_state = IPV6_ROUTER_SOLICATION;
+                        interface->ipv6_configure.IPv6_ND_state = IPV6_ROUTER_SOLICITATION;
                     }
 
                     interface->ipv6_configure.ND_TIMER = 1;
@@ -1071,7 +1071,7 @@ void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, const ui
     if_address_entry_t *address_entry = icmpv6_slaac_address_add(cur, slaacPrefix, prefixLen, validLifeTime, preferredLifeTime, false, SLAAC_IID_DEFAULT);
     if (address_entry) {
         address_entry->cb = ipv6_interface_address_cb;
-        if (cur->ipv6_configure.IPv6_ND_state == IPV6_ROUTER_SOLICATION) {
+        if (cur->ipv6_configure.IPv6_ND_state == IPV6_ROUTER_SOLICITATION) {
             cur->ipv6_configure.IPv6_ND_state = IPV6_GP_CONFIG;
         }
         // If DAD not enabled address is valid right away

@@ -153,8 +153,8 @@ int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
 
     tr_debug("GUA Handler");
     switch (message_type) {
-        case DHCPV6_SOLICATION_TYPE:
-            if (libdhcpv6_solication_message_options_validate(msg_ptr, msg_len, &replyPacket.clientDUID, &dhcp_ia_non_temporal_params) == 0) {
+        case DHCPV6_SOLICITATION_TYPE:
+            if (libdhcpv6_solicitation_message_options_validate(msg_ptr, msg_len, &replyPacket.clientDUID, &dhcp_ia_non_temporal_params) == 0) {
                 //Start Build Response
                 serverBase = libdhcpv6_server_data_get_by_prefix_and_socketinstance(instance_id, dhcp_ia_non_temporal_params.nonTemporalAddress);
                 if (serverBase) {

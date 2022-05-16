@@ -125,7 +125,7 @@ dhcp_service_class_t *dhcp_service = NULL;
 static bool dhcpv6_socket_timeout_timer_active = false;
 
 static const struct name_value dhcp_frames[] = {
-    { "sol",        DHCPV6_SOLICATION_TYPE },
+    { "sol",        DHCPV6_SOLICITATION_TYPE },
     { "adv",        DHCPV6_ADVERTISMENT_TYPE },
     { "req",        DHCPV6_REQUEST_TYPE },
     { "renew",      DHCPV6_RENEW_TYPE },
@@ -233,7 +233,7 @@ void dhcp_tr_delete(msg_tr_t *msg_ptr)
 void dhcp_tr_set_retry_timers(msg_tr_t *msg_ptr, uint8_t msg_type)
 {
     if (msg_ptr != NULL) {
-        if (msg_type == DHCPV6_SOLICATION_TYPE) {
+        if (msg_type == DHCPV6_SOLICITATION_TYPE) {
             msg_ptr->timeout_init = SOL_TIMEOUT;
             msg_ptr->timeout_max = SOL_MAX_RT;
             msg_ptr->retrans_max = 0;

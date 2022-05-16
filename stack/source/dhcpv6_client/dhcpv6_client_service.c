@@ -322,7 +322,7 @@ static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp
     }
 }
 
-/* solication responce received for either global address or routter id assignment */
+/* solicitation response received for either global address or router id assignment */
 int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uint8_t *msg_ptr, uint16_t msg_len)
 {
     dhcp_ia_non_temporal_params_t dhcp_ia_non_temporal_params;
@@ -437,7 +437,7 @@ error_exit:
 
 int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], dhcp_client_global_adress_cb *error_cb)
 {
-    dhcpv6_solication_base_packet_s solPacket = {0};
+    dhcpv6_solicitation_base_packet_s solPacket = {0};
 
     uint8_t *payload_ptr;
     uint32_t payload_len;
@@ -503,7 +503,7 @@ dhcp_address_get:
         add_prefix = prefix != NULL;
     }
 
-    payload_len = libdhcpv6_solication_message_length(srv_data_ptr->clientDUID.duid_length, add_prefix, 0);
+    payload_len = libdhcpv6_solicitation_message_length(srv_data_ptr->clientDUID.duid_length, add_prefix, 0);
 
 
     payload_ptr = malloc(payload_len);
@@ -518,7 +518,7 @@ dhcp_address_get:
     // Build solicit
     solPacket.clientDUID = srv_data_ptr->clientDUID;
     solPacket.iaID = srv_data_ptr->IAID;
-    solPacket.messageType = DHCPV6_SOLICATION_TYPE;
+    solPacket.messageType = DHCPV6_SOLICITATION_TYPE;
     solPacket.transActionId = libdhcpv6_txid_get();
     /*Non Temporal Address */
 
@@ -659,7 +659,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         tr_error("Out of memory");
         return ;
     }
-    dhcpv6_solication_base_packet_s packetReq = {
+    dhcpv6_solicitation_base_packet_s packetReq = {
         .messageType = DHCPV6_RENEW_TYPE,
         .clientDUID = srv_data_ptr->clientDUID,
         .requestedOptionCnt = 0,
@@ -670,7 +670,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
     };
 
     if (dhcp_client->renew_uses_solicit) {
-        packetReq.messageType = DHCPV6_SOLICATION_TYPE;
+        packetReq.messageType = DHCPV6_SOLICITATION_TYPE;
     }
 
 
@@ -711,7 +711,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
         }
         tr_error("DHCP renew send failed");
     }
-    if (packetReq.messageType == DHCPV6_SOLICATION_TYPE && dhcp_client->sol_timeout != 0) {
+    if (packetReq.messageType == DHCPV6_SOLICITATION_TYPE && dhcp_client->sol_timeout != 0) {
         // Default retry values are modified from specification update to message
         dhcp_service_set_retry_timers(srv_data_ptr->transActionId, dhcp_client->sol_timeout, dhcp_client->sol_max_rt, dhcp_client->sol_max_rc);
     }
