@@ -714,7 +714,7 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
     if (libdhcpv6_message_option_discover(ptr, data_length, DHCPV6_STATUS_CODE_OPTION, &option_msg) == 0) {
         if (option_msg.len >= DHCPV6_STATUS_CODE_OPTION_LEN) {
             status_code = common_read_16_bit(option_msg.msg_ptr);
-            if (status_code == DHCPV6_STATUS_NO_ADDR_AVAILABLE_CODE) {
+            if (status_code) {
                 return -1;
             }
         }
@@ -739,7 +739,7 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
             if (libdhcpv6_message_option_discover(t_ptr, length, DHCPV6_STATUS_CODE_OPTION, &option_msg) == 0) {
                 if (option_msg.len >= DHCPV6_STATUS_CODE_OPTION_LEN) {
                     status_code = common_read_16_bit(option_msg.msg_ptr);
-                    if (status_code != 0) {
+                    if (status_code) {
                         return -1;
                     }
                 }
