@@ -268,7 +268,7 @@ install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
               examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
-if(RUST_FOUND AND CARGO_FOUND)
+if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.52)
 
     string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
     if(NOT CMAKE_BUILD_TYPE_UPPER OR CMAKE_BUILD_TYPE_UPPER STREQUAL DEBUG)
