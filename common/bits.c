@@ -26,7 +26,7 @@ void *bitcpy(void *dst, const void *src, size_t len)
     uint8_t *dst8 = dst;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    char mask = 0xFFu >> nb_bits;
+    uint8_t mask = (1u << nb_bits) - 1;
 
     memcpy(dst8, src8, nb_bytes);
     if (!nb_bits)
@@ -34,8 +34,8 @@ void *bitcpy(void *dst, const void *src, size_t len)
 
     dst8 += nb_bytes;
     src8 += nb_bytes;
-    *dst8 &= mask;
-    *dst8 |= ~mask & *src8;
+    *dst8 &= ~mask;
+    *dst8 |= mask & *src8;
     return dst;
 }
 
@@ -45,7 +45,7 @@ void *bitcpy0(void *dst, const void *src, size_t len)
     uint8_t *dst8 = dst;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    char mask = 0xFFu >> nb_bits;
+    uint8_t mask = (1u << nb_bits) - 1;
 
     memcpy(dst8, src8, nb_bytes);
     if (!nb_bits)
@@ -53,7 +53,7 @@ void *bitcpy0(void *dst, const void *src, size_t len)
 
     dst8 += nb_bytes;
     src8 += nb_bytes;
-    *dst8 = ~mask & *src8;
+    *dst8 = mask & *src8;
     return dst;
 }
 
@@ -63,7 +63,7 @@ int bitcmp(const void *s1, const void *s2, size_t len)
     const uint8_t *s2_8 = s2;
     int nb_bytes = len / 8;
     int nb_bits = len % 8;
-    char mask = 0xFFu >> nb_bits;
+    uint8_t mask = (1u << nb_bits) - 1;
     int ret;
 
     ret = memcmp(s1, s2, nb_bytes);
@@ -74,5 +74,5 @@ int bitcmp(const void *s1, const void *s2, size_t len)
 
     s1_8 += nb_bytes;
     s2_8 += nb_bytes;
-    return ((int) (*s1_8 & ~mask)) - ((int) (*s2_8 & ~mask));
+    return ((int) (*s1_8 & mask)) - ((int) (*s2_8 & mask));
 }
