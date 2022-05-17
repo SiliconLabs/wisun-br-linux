@@ -204,9 +204,7 @@ void dhcp_client_delete(int8_t interface)
         return;
     }
 
-
     dhcp_service_delete(dhcp_client->service_instance);
-
 
     cur = protocol_stack_interface_info_get_by_id(interface);
 
@@ -226,6 +224,11 @@ void dhcp_client_delete(int8_t interface)
         }
     } while (srv_data_ptr != NULL);
     dhcp_client->service_instance = 0;
+
+    free(dhcp_client->duid.duid);
+    ns_list_remove(&dhcp_client_list, dhcp_client);
+    free(dhcp_client);
+
     return;
 }
 
