@@ -7,20 +7,16 @@
 #include <string.h>
 #include "bits.h"
 
-void *bitset(void *dst, int c, size_t len)
+void *bitfill(void *dst, bool val, size_t start, size_t end)
 {
     uint8_t *dst8 = dst;
-    int nb_bytes = len / 8;
-    int nb_bits = len % 8;
-    char mask = 0xFFu >> nb_bits;
+    int i;
 
-    memset(dst8, c, nb_bytes);
-    if (nb_bits)
-        return dst;
-
-    dst8 += nb_bytes;
-    *dst8 &= mask;
-    *dst8 |= ~mask & c;
+    for (i = start; i <= end; i++)
+        if (val)
+            dst8[i / 8] |= 1u << (i % 8);
+        else
+            dst8[i / 8] &= ~(1u << (i % 8));
     return dst;
 }
 
