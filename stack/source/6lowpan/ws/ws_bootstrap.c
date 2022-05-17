@@ -995,6 +995,7 @@ static int8_t ws_bootstrap_down(protocol_interface_info_entry_t *cur)
     }
     ws_nud_table_reset(cur);
     dhcp_client_delete(cur->id);
+    dhcp_relay_agent_disable(cur->id);
     ws_eapol_relay_delete(cur);
     ws_eapol_auth_relay_delete(cur);
     ws_pae_controller_stop(cur);
