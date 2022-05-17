@@ -79,10 +79,10 @@ int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entr
         chan_params = chan_params_fan1_0(regulatory_domain, operating_class);
     WARN_ON(chan_params && chan_params->chan_count != number_of_channels);
 
+    memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
     if (chan_params && chan_params->chan_allowed)
         parse_bitmask(channel_mask, 8, chan_params->chan_allowed);
-    else
-        memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
+    bitfill(channel_mask, false, number_of_channels, 8 * 32);
     return 0;
 }
 
