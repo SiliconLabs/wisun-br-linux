@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "stack-services/ip6string.h"
@@ -943,6 +944,22 @@ void addr_max_slaac_entries_set(protocol_interface_info_entry_t *cur, uint8_t ma
     cur->ip_addresses_max_slaac_entries = max_slaac_entries;
 }
 
+void notify_user_if_ready()
+{
+    bool had_global_address;
+
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        had_global_address = false;
+        ns_list_foreach(if_address_entry_t, entry, &cur->ip_addresses) {
+            if (!addr_is_ipv6_link_local(entry->address))
+                had_global_address = true;
+        }
+        if (!had_global_address)
+            return;
+    }
+    INFO("Wi-SUN Border Router is ready");
+}
+
 if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_t source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
 {
     if (addr_get_entry(cur, address)) {
@@ -982,6 +999,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
     tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, trace_ipv6(address));
 
     ns_list_add_to_end(&cur->ip_addresses, entry);
+    notify_user_if_ready();
 
     return entry;
 }
