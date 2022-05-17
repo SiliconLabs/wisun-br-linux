@@ -141,6 +141,12 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     spinel_trace(buf, buf_len, "hif tx: ");
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len, "write: %m");
+    
+    ctxt->retransmission_index = (ctxt->retransmission_index + 1) % ARRAY_SIZE(ctxt->retransmission_buffers);
+    memcpy(ctxt->retransmission_buffers[ctxt->retransmission_index].frame, frame, frame_len);
+    ctxt->retransmission_buffers[ctxt->retransmission_index].frame_len = frame_len;
+    ctxt->retransmission_buffers[ctxt->retransmission_index].crc = crc;
+
     free(frame);
 
     return frame_len;

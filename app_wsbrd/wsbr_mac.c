@@ -7,7 +7,9 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "common/log.h"
+#include "common/os_types.h"
 #include "common/named_values.h"
 #include "common/parsers.h"
 #include "common/spinel_defs.h"
@@ -298,6 +300,31 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         BUG_ON(spinel_remaining_size(buf));
         if (val)
             FATAL(2, "RF configuration not supported by the RCP");
+        break;
+    }
+    case SPINEL_PROP_WS_RCP_CRC_ERR: {
+        bool crc_found = false;
+        uint16_t crc            = spinel_pop_u16(buf);
+        int frame_len           = spinel_pop_u32(buf);
+        uint8_t header          = spinel_pop_u8(buf);
+        uint8_t irq_err_counter = spinel_pop_u8(buf); // FIXME: on the rcp side, always zero for now
+        for (int i = 0; i < ARRAY_SIZE(ctxt->os_ctxt->retransmission_buffers); i++) {
+            if (ctxt->os_ctxt->retransmission_buffers[i].crc == crc) {
+                crc_found = true;
+                if (ctxt->os_ctxt->retransmission_buffers[i].frame_len < frame_len)
+                    WARN("frame_len too big: delimiter byte must have been lost on the RCP side");
+                if(ctxt->os_ctxt->retransmission_buffers[i].frame[0] != header)
+                    WARN("frame header is different although CRC is the same, this is suspicious");
+                DEBUG("retransmission to the RCP of packet associated with crc: %02x",
+                     ctxt->os_ctxt->retransmission_buffers[i].crc);
+                write(ctxt->os_ctxt->data_fd,
+                      ctxt->os_ctxt->retransmission_buffers[i].frame,
+                      ctxt->os_ctxt->retransmission_buffers[i].frame_len);
+                break;
+            }
+        }
+        if (!crc_found)
+            WARN("no crc was found for this packet, we cannot recover it: packet lost");
         break;
     }
     default:
