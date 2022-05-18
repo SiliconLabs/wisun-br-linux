@@ -82,6 +82,20 @@ int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entr
     memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
     if (chan_params && chan_params->chan_allowed)
         parse_bitmask(channel_mask, 8, chan_params->chan_allowed);
+    if (cur->ws_info->regulation == REG_REGIONAL_ARIB) {
+        // For now, ARIB is not supported for custom channel plans
+        BUG_ON(!chan_params);
+        // For now, ARIB is not supported outside of Japan
+        BUG_ON(chan_params->reg_domain != REG_DOMAIN_JP);
+        // Note: if user specify a FAN1.1 channel plan, these mask are already
+        // applied
+        if (chan_params->op_class == 1)
+            bitfill(channel_mask, false, 0, 8); // Allowed channels: "9-255"
+        if (chan_params->op_class == 2)
+            bitfill(channel_mask, false, 0, 3); // Allowed channels: "4-255"
+        if (chan_params->op_class == 3)
+            bitfill(channel_mask, false, 0, 2); // Allowed channels: "3-255"
+    }
     bitfill(channel_mask, false, number_of_channels, 8 * 32);
     return 0;
 }

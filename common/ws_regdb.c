@@ -74,12 +74,14 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_HK, 2, REG_REGIONAL_NONE,   0,  920400000,  400000,  12,  12, {  5,  6,  8,                 }, },
     { REG_DOMAIN_IN, 1, REG_REGIONAL_NONE,   0,  865100000,  100000,  19,  19, {  1,                         }, },
     { REG_DOMAIN_IN, 2, REG_REGIONAL_NONE,   0,  865100000,  200000,  10,  10, {  3,  5,                     }, },
-    // regional_reg and chan_allowed are dropped if configuration option regional_reg == none
-    { REG_DOMAIN_JP, 1, REG_REGIONAL_ARIB,   0,  920600000,  200000,  38,  29, {  2,                         }, .chan_allowed = "9-255", },
-    { REG_DOMAIN_JP, 2, REG_REGIONAL_ARIB,   0,  920900000,  400000,  18,  14, {  4,  5,                     }, .chan_allowed = "4-255", },
-    { REG_DOMAIN_JP, 3, REG_REGIONAL_ARIB,   0,  920800000,  600000,  12,   9, {  7,  8,                     }, .chan_allowed = "3-255", },
+    { REG_DOMAIN_JP, 1, REG_REGIONAL_ARIB,   0,  920600000,  200000,  38,  38, {  2,                         }, },
+    { REG_DOMAIN_JP, 2, REG_REGIONAL_ARIB,   0,  920900000,  400000,  18,  18, {  4,  5,                     }, },
+    { REG_DOMAIN_JP, 3, REG_REGIONAL_ARIB,   0,  920800000,  600000,  12,  12, {  7,  8,                     }, },
+    // Except the mask, same than class 1
     { REG_DOMAIN_JP, 0, REG_REGIONAL_ARIB,  21,  920600000,  200000,  38,  29, {  2, 18, 84, 85, 86,         }, .chan_allowed = "9-255", },
+    // Except the mask, same than class 2
     { REG_DOMAIN_JP, 0, REG_REGIONAL_ARIB,  22,  920900000,  400000,  18,  14, {  4,  5, 20, 21, 68, 69, 70, }, .chan_allowed = "4-255", },
+    // Except the mask, same than class 3
     { REG_DOMAIN_JP, 0, REG_REGIONAL_ARIB,  23,  920800000,  600000,  12,   9, {  7,  8, 23, 24,             }, .chan_allowed = "3-255", },
     { REG_DOMAIN_JP, 0, REG_REGIONAL_ARIB,  24,  921100000,  800000,   9,   7, { 51, 52, 53, 54,             }, .chan_allowed = "2-255", },
     { REG_DOMAIN_KR, 1, REG_REGIONAL_NONE,   0,  917100000,  200000,  32,  32, {  2,  3,                     }, },
