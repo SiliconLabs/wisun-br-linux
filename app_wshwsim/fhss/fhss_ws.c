@@ -86,7 +86,6 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
 static bool fhss_allow_transmitting_on_rx_slot(fhss_structure_t *fhss_structure);
-static bool fhss_allow_unicast_on_broadcast_channel(fhss_structure_t *fhss_structure);
 static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels);
 
 // This function supports rounding up
@@ -185,7 +184,7 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
     // By default, allow transmitting unicast data only on TX slots.
     fhss_struct->ws->tx_level = WS_TX_SLOT;
     // By default, allow always transmitting unicast data in expedited forwarding mode.
-    fhss_struct->ws->ef_tx_level = WS_TX_ALWAYS;
+    fhss_struct->ws->ef_tx_level = WS_TX_AND_RX_SLOT;
     ns_list_init(&fhss_struct->fhss_failed_tx_list);
     return fhss_struct;
 }
@@ -695,9 +694,6 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     }
     // Do not allow unicast destination on broadcast channel unless it is specifically enabled
     if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
-        if (fhss_allow_unicast_on_broadcast_channel(fhss_structure)) {
-            return 0;
-        }
         return -3;
     }
     // Check TX/RX slot
@@ -828,18 +824,6 @@ static bool fhss_allow_transmitting_on_rx_slot(fhss_structure_t *fhss_structure)
     return false;
 }
 
-static bool fhss_allow_unicast_on_broadcast_channel(fhss_structure_t *fhss_structure)
-{
-    if (fhss_structure->ws->tx_level >= WS_TX_ALWAYS) {
-        return true;
-    }
-    // This is allowed only for devices in expedited forwarding mode
-    if (fhss_structure->ws->expedited_forwarding_enabled_us && (fhss_structure->ws->ef_tx_level >= WS_TX_ALWAYS)) {
-        return true;
-    }
-    return false;
-}
-
 static bool fhss_ws_check_tx_conditions_callback(const fhss_api_t *api, bool is_broadcast_addr, uint8_t handle, int frame_type, uint16_t frame_length, uint8_t phy_header_length, uint8_t phy_tail_length)
 {
     (void) frame_type;
@@ -852,7 +836,7 @@ static bool fhss_ws_check_tx_conditions_callback(const fhss_api_t *api, bool is_
         return false;
     }
     // Do not allow unicast destination on broadcast channel unless it is specifically enabled
-    if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true) && !fhss_allow_unicast_on_broadcast_channel(fhss_structure)) {
+    if (!is_broadcast_addr && (fhss_structure->ws->is_on_bc_channel == true)) {
         return false;
     }
     // This condition will check that message is not sent on bad channel
