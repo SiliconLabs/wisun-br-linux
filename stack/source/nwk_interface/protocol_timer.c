@@ -16,15 +16,9 @@
  */
 #include "nsconfig.h"
 #include <stdint.h>
+#include "common/log.h"
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_trace.h"
-#include "stack-scheduler/eventOS_event.h"
-
-#include "nwk_interface/protocol.h"
-
 #include "nwk_interface/protocol_timer.h"
-
-#define TRACE_GROUP "ctim"
 
 #define PROTOCOL_TIMER_PERIOD_MS 50
 
@@ -33,27 +27,19 @@ protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
 // time is in milliseconds
 void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time)
 {
-    //Check Overflow
-    if (passed_fptr) {
-        if (time > 0x12FFED)
-            time = 0xffff;
-        if (time >= 2 * PROTOCOL_TIMER_PERIOD_MS)
-            time /= PROTOCOL_TIMER_PERIOD_MS;
-        else
-            time = 1;
-        platform_enter_critical();
-        protocol_timer[id].ticks = (uint16_t) time;
+    BUG_ON(!passed_fptr);
+    BUG_ON(time % PROTOCOL_TIMER_PERIOD_MS);
 
-        protocol_timer[id].orderedTime = (uint16_t) time;
-        if (time > 1 && protocol_timer[id].time_drifts >= 50) {
-            protocol_timer[id].ticks--;
-            protocol_timer[id].time_drifts -= 50;
-        }
-        protocol_timer[id].fptr = passed_fptr;
-        platform_exit_critical();
-    } else {
-        tr_debug("Do Not use Null pointer for fptr!!!");
+    time /= PROTOCOL_TIMER_PERIOD_MS;
+    platform_enter_critical();
+    protocol_timer[id].ticks = (uint16_t)time;
+    protocol_timer[id].orderedTime = (uint16_t)time;
+    if (time > 1 && protocol_timer[id].time_drifts >= 50) {
+        protocol_timer[id].ticks--;
+        protocol_timer[id].time_drifts -= 50;
     }
+    protocol_timer[id].fptr = passed_fptr;
+    platform_exit_critical();
 }
 
 void protocol_timer_stop(protocol_timer_id_t id)
