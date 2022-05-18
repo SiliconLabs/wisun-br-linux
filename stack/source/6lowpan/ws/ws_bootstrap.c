@@ -1936,7 +1936,7 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
                 "non standard RF configuration in use");
         rf_config.channel_0_center_frequency = chan_params->chan0_freq;
         rf_config.channel_spacing = chan_params->chan_spacing;
-        rf_config.number_of_channels = chan_params->chan_count_valid;
+        rf_config.number_of_channels = chan_params->chan_count;
     }
 
     ws_bootstrap_set_rf_config(cur, rf_config);
