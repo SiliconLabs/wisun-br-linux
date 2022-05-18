@@ -521,6 +521,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         if (!ctxt->ws_class)
             FATAL(1, "missing \"class\" parameter");
     }
+    if (ctxt->ws_domain == REG_DOMAIN_JP && ctxt->ws_regional_regulation != REG_REGIONAL_ARIB)
+        WARN("Japanese regulation domain used without ARIB regional regulation");
+    if (ctxt->ws_domain != REG_DOMAIN_JP && ctxt->ws_regional_regulation == REG_REGIONAL_ARIB)
+        FATAL(1, "ARIB is only supported with Japanese regulation domain");
     if (!ctxt->ws_mode)
         FATAL(1, "missing \"mode\" parameter");
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
