@@ -72,48 +72,6 @@ void protocol_timer_stop(protocol_timer_id_t id)
     platform_exit_critical();
 }
 
-
-
-void protocol_timer_sleep_balance(uint32_t time_in_ms)
-{
-    uint8_t i;
-    uint16_t ticks_module;
-    uint16_t time_in50ms_ticks;
-    uint16_t tick_update, tempTimer;
-
-    ticks_module = (time_in_ms % 50);
-    time_in50ms_ticks = (time_in_ms / 50);
-    for (i = 0; i < PROTOCOL_TIMER_MAX; i++) {
-        if (protocol_timer[i].ticks) {
-
-            tick_update = time_in50ms_ticks;
-            protocol_timer[i].time_drifts += ticks_module;
-
-            if (protocol_timer[i].time_drifts >= 50) {
-                protocol_timer[i].time_drifts -= 50;
-            }
-
-            if (protocol_timer[i].ticks <= tick_update) {
-                tempTimer = (tick_update - protocol_timer[i].ticks);
-                tick_update = 1;
-                if (tempTimer >= protocol_timer[i].orderedTime) {
-                    tick_update += (tempTimer / protocol_timer[i].orderedTime);
-                    //time drift
-                    protocol_timer[i].time_drifts += ((tempTimer % protocol_timer[i].orderedTime) * 50);
-                }
-
-                protocol_timer[i].ticks = 0;
-                protocol_timer[i].orderedTime = 0;
-                protocol_timer[i].fptr(tick_update);
-
-            } else {
-                protocol_timer[i].ticks -= tick_update;
-            }
-        }
-    }
-
-}
-
 void protocol_timer_cb(uint16_t ticks)
 {
     uint8_t i;
