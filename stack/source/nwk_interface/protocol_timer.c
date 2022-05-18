@@ -28,15 +28,7 @@
 
 #define PROTOCOL_TIMER_PERIOD_MS 50
 
-NS_LARGE protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
-void protocol_timer_init(void)
-{
-    uint8_t i;
-    for (i = 0; i < PROTOCOL_TIMER_MAX; i++) {
-        protocol_timer[i].ticks = 0;
-        protocol_timer[i].time_drifts = 0;
-    }
-}
+protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
 
 // time is in milliseconds
 void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time)

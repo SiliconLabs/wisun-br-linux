@@ -323,7 +323,6 @@ static void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
     };
 
     timer_sys_init();
-    protocol_timer_init();
     ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
     FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
     ret = timerfd_settime(ctxt->timerfd, 0, &parms, NULL);
