@@ -153,14 +153,6 @@ void protocol_root_tasklet(arm_event_t *event)
             tr_debug("NS Root task Init");
             break;
 
-        case ARM_IN_PROTOCOL_TIMER_EVENT: {
-            uint16_t tick_update = (uint16_t)event->event_data;
-            /* This event is delivered as "user-allocated", so finish reading
-             * before "freeing" */
-            protocol_timer_event_lock_free();
-            protocol_timer_cb(tick_update);
-            break;
-        }
         case ARM_IN_INTERFACE_BOOTSTRAP_CB:
             net_bootstrap_cb_run(event->event_id);
             break;

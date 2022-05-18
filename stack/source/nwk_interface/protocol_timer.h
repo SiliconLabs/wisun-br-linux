@@ -32,9 +32,7 @@ typedef struct {
 } protocol_timer_t;
 
 void protocol_timer_init(void);
-void protocol_timer_event_lock_free(void);
 void protocol_timer_cb(uint16_t ticks);
-void protocol_timer_interrupt();
 void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time_ms);
 void protocol_timer_stop(protocol_timer_id_t id);
 void protocol_timer_sleep_balance(uint32_t time_in_ms);

@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
             WARN_ON(ret < sizeof(val), "cancelled timer?");
             WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
             system_timer_tick_update(1);
-            protocol_timer_interrupt();
+            protocol_timer_cb(1);
         }
     }
 

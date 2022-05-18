@@ -99,7 +99,6 @@ typedef enum {
 typedef enum arm_internal_event_type {
     ARM_IN_TASKLET_INIT_EVENT = 0, /**< Tasklet Init come always when generate tasklet*/
     ARM_IN_NWK_INTERFACE_EVENT = 1, /**< Interface Bootstrap  or state update event */
-    ARM_IN_PROTOCOL_TIMER_EVENT = 2, /*!*< System Timer event */
     ARM_IN_SOCKET_EVENT = 5,    /**< Interface Bootstrap  or state update event */
     ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootstrap_cb_run */
     ARM_IN_INTERFACE_CORE_TIMER_CB, /** call net_bootstrap_cb_run */

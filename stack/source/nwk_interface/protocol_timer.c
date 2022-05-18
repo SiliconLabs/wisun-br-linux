@@ -29,8 +29,6 @@
 #define PROTOCOL_TIMER_PERIOD_MS 50
 
 NS_LARGE protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
-bool protocol_tick_handle_busy = false;
-static uint16_t  protocol_tick_update = 0;
 void protocol_timer_init(void)
 {
     uint8_t i;
@@ -116,14 +114,6 @@ void protocol_timer_sleep_balance(uint32_t time_in_ms)
 
 }
 
-void protocol_timer_event_lock_free(void)
-{
-    platform_enter_critical();
-    protocol_tick_handle_busy = false;
-    platform_exit_critical();
-}
-
-
 void protocol_timer_cb(uint16_t ticks)
 {
     uint8_t i;
@@ -152,31 +142,5 @@ void protocol_timer_cb(uint16_t ticks)
                 protocol_timer[i].ticks -= ticks;
             }
         }
-    }
-}
-
-void protocol_timer_interrupt()
-{
-    protocol_tick_update++;
-
-    if (!protocol_tick_handle_busy) {
-        /* This static stuff gets initialised once */
-        static arm_event_storage_t event = {
-            .data = {
-                .data_ptr = NULL,
-                .event_type = ARM_IN_PROTOCOL_TIMER_EVENT,
-                .event_id = 0,
-                .priority = ARM_LIB_HIGH_PRIORITY_EVENT
-            }
-        };
-
-        /* Dynamic stuff */
-        event.data.receiver = event.data.sender = protocol_read_tasklet_id();
-        event.data.event_data = protocol_tick_update;
-        protocol_tick_update = 0;
-
-        /* Use user-allocated variant to avoid memory allocation failure */
-        eventOS_event_send_user_allocated(&event);
-        protocol_tick_handle_busy = true;
     }
 }
