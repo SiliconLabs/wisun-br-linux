@@ -542,4 +542,6 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         if (ctxt->tls_own.cert_len != 0 || ctxt->tls_own.key_len != 0 || ctxt->tls_ca.cert_len != 0)
             WARN("ignore certificates and key since an external radius server is in use");
     }
+    if (ctxt->dhcpv6_server.sin6_family == AF_INET)
+        FATAL(1, "dhcpv6_server does not support IPv4 server");
 }
