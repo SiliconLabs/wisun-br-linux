@@ -105,7 +105,7 @@ uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_
     uint16_t active_channels = 0;
     // Set channel maks outside excluded channels
     for (uint16_t i = 0; i < number_of_channels; i++) {
-        if (channel_mask[i / 32] & (1U << (i % 32))) {
+        if (channel_mask[i / 32] & (1u << (i % 32))) {
             active_channels++;
         }
     }

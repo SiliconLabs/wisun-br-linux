@@ -179,7 +179,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
 
             if (channel >= range_start && channel <= range_stop) {
                 //Cut channel
-                compare_mask_bit = 1U << (channel % 32);
+                compare_mask_bit = 1u << (channel % 32);
                 mask_index = 0 + (channel / 32);
 
                 if (channel_info->channel_mask[mask_index] & compare_mask_bit) {
@@ -198,7 +198,7 @@ static uint32_t ws_reserve_order_32_bit(uint32_t value)
     uint32_t ret_val = 0;
     for (uint8_t i = 0; i < 32; i++) {
         if ((value & (1 << i))) {
-            ret_val |= 1U << ((32 - 1) - i);
+            ret_val |= 1u << ((32 - 1) - i);
         }
     }
     return ret_val;

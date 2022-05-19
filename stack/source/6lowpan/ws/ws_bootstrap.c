@@ -581,7 +581,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
     memset(excluded_data, 0, sizeof(ws_excluded_channel_data_t));
 
     for (uint8_t i = 0; i < number_of_channels; i++) {
-        if (!(global_channel_mask[i / 32] & (1U << (i % 32)))) {
+        if (!(global_channel_mask[i / 32] & (1u << (i % 32)))) {
             //Global excluded channel
             if (active_range) {
                 //Mark range stop here
@@ -590,7 +590,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
             continue;
         }
 
-        if (selected_channel_mask[i / 32] & (1U << (i % 32))) {
+        if (selected_channel_mask[i / 32] & (1u << (i % 32))) {
             if (active_range) {
                 //Mark range stop here
                 active_range = false;
@@ -598,7 +598,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
         } else {
             //Mark excluded channel
             //Swap Order already here
-            excluded_data->channel_mask[i / 32] |= 1U << (31 - (i % 32));
+            excluded_data->channel_mask[i / 32] |= 1u << (31 - (i % 32));
             excluded_data->excluded_channel_count++;
 
             if (!active_range) {
@@ -698,7 +698,7 @@ int8_t ws_bootstrap_fhss_set_defaults(protocol_interface_info_entry_t *cur, fhss
 
 static bool ws_bootstrap_channel_allowed(uint8_t channel, uint32_t *channel_mask)
 {
-    if ((1U << (channel % 32)) & (channel_mask[channel / 32])) {
+    if ((1u << (channel % 32)) & (channel_mask[channel / 32])) {
         return true;
     }
     return false;
@@ -1084,8 +1084,8 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
                 //channel_index = 0;
             }
             if (channel >= range_start && channel <= range_stop) {
-                //mask_ptr[mask_index] |= 1U << (31 - channel_index);
-                mask_ptr[channel / 32] |= 1U << (31 - (channel % 32));
+                //mask_ptr[mask_index] |= 1u << (31 - channel_index);
+                mask_ptr[channel / 32] |= 1u << (31 - (channel % 32));
             } else if (channel > range_stop) {
                 break;
             }
@@ -2890,7 +2890,7 @@ static void ws_bootstrap_set_asynch_channel_list(protocol_interface_info_entry_t
         //SET 1 Channel only
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.next_channel_number = channel_number;
-        async_req->channel_list.channel_mask[channel_number / 32] = 1U << (channel_number % 32);
+        async_req->channel_list.channel_mask[channel_number / 32] = 1u << (channel_number % 32);
     } else {
         ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
         for (uint8_t n = 0; n < 8; n++)
