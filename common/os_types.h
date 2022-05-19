@@ -31,7 +31,7 @@ struct os_ctxt {
     // For retransmission in case of crc error on the rcp
     // FIXME: rename this and the structure / naive circular buffer : rearch
     int retransmission_index;
-    struct retransmission_frame retransmission_buffers[64];
+    struct retransmission_frame retransmission_buffers[15]; // spinel header range from 1 to 15
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

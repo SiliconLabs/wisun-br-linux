@@ -162,6 +162,54 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
         INFO("%s", tmp_buf[i]);
 }
 
+static void handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter)
+{
+    struct retransmission_frame *buffers = ctxt->os_ctxt->retransmission_buffers;
+    int buffers_len = ARRAY_SIZE(ctxt->os_ctxt->retransmission_buffers);
+    int extra_frame;
+    int i;
+
+    for (i = 0; i < buffers_len; i++) {
+        if (buffers[i].crc == crc) {
+            if (buffers[i].frame_len < frame_len) {
+                extra_frame = (i + buffers_len - 1) % buffers_len;
+                if (buffers[extra_frame].frame[0] != header) {
+                    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): 1 packet lost, %d bytes recovered",
+                         irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+                } else {
+                    DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered",
+                          irq_err_counter, frame_len, header, crc,
+                          buffers[extra_frame].frame_len, buffers[i].frame_len);
+                    write(ctxt->os_ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
+                }
+            } else {
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered",
+                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+            }
+            write(ctxt->os_ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
+            return;
+        }
+    }
+    for (i = 0; i < buffers_len; i++) {
+        if (buffers[i].frame[0] == header) {
+            write(ctxt->os_ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
+            if (buffers[i].frame_len < frame_len) {
+                extra_frame = (i + 1) % buffers_len;
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered (header match)",
+                      irq_err_counter, frame_len, header, crc,
+                      buffers[i].frame_len, buffers[extra_frame].frame_len);
+                write(ctxt->os_ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
+            } else {
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered (header match)",
+                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+            }
+            return;
+        }
+    }
+    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): one or several packets lost",
+         irq_err_counter, frame_len, header, crc);
+}
+
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
 {
     switch (prop) {
@@ -303,28 +351,11 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         break;
     }
     case SPINEL_PROP_WS_RCP_CRC_ERR: {
-        bool crc_found = false;
         uint16_t crc            = spinel_pop_u16(buf);
-        int frame_len           = spinel_pop_u32(buf);
+        uint32_t frame_len      = spinel_pop_u32(buf);
         uint8_t header          = spinel_pop_u8(buf);
-        uint8_t irq_err_counter = spinel_pop_u8(buf); // FIXME: on the rcp side, always zero for now
-        for (int i = 0; i < ARRAY_SIZE(ctxt->os_ctxt->retransmission_buffers); i++) {
-            if (ctxt->os_ctxt->retransmission_buffers[i].crc == crc) {
-                crc_found = true;
-                if (ctxt->os_ctxt->retransmission_buffers[i].frame_len < frame_len)
-                    WARN("frame_len too big: delimiter byte must have been lost on the RCP side");
-                if(ctxt->os_ctxt->retransmission_buffers[i].frame[0] != header)
-                    WARN("frame header is different although CRC is the same, this is suspicious");
-                DEBUG("retransmission to the RCP of packet associated with crc: %02x",
-                     ctxt->os_ctxt->retransmission_buffers[i].crc);
-                write(ctxt->os_ctxt->data_fd,
-                      ctxt->os_ctxt->retransmission_buffers[i].frame,
-                      ctxt->os_ctxt->retransmission_buffers[i].frame_len);
-                break;
-            }
-        }
-        if (!crc_found)
-            WARN("no crc was found for this packet, we cannot recover it: packet lost");
+        uint8_t irq_err_counter = spinel_pop_u8(buf);
+        handle_crc_error(ctxt, crc, frame_len, header, irq_err_counter);
         break;
     }
     default:
