@@ -346,7 +346,7 @@ bool rpl_policy_dao_trigger_after_srh_error(rpl_domain_t *domain, uint32_t secon
     return errors_since_last_dao_trigger > 2 * targets;
 }
 
-bool rpl_policy_target_descriptor_for_own_address(rpl_domain_t *domain, const uint8_t addr[16], if_address_source_t source, void *data, uint32_t *descriptor_out)
+bool rpl_policy_target_descriptor_for_own_address(rpl_domain_t *domain, const uint8_t addr[16], if_address_source_e source, void *data, uint32_t *descriptor_out)
 {
     (void)domain;
     (void)addr;

@@ -63,14 +63,14 @@ typedef struct addr_multicast_fwd {
     ns_list_link_t link;
 } addr_multicast_fwd_t;
 
-typedef enum if_address_source_e {
+typedef enum if_address_source {
     ADDR_SOURCE_UNKNOWN,
     ADDR_SOURCE_SLAAC,
     ADDR_SOURCE_DHCP,
     ADDR_SOURCE_STATIC,
     ADDR_SOURCE_THREAD_ALOC,
     ADDR_SOURCE_THREAD_DOMAIN
-} if_address_source_t;
+} if_address_source_e;
 
 typedef enum if_address_callback {
     ADDR_CALLBACK_DAD_COMPLETE, // Duplicate Address Detection complete - address now valid
@@ -96,7 +96,7 @@ typedef struct if_address_entry {
     bool temporary: 1;          // RFC 4941 temporary address
     bool tentative: 1;          // Tentative address (Duplicate Address Detection running)
     bool group_added: 1;        // Solicited-Node group added
-    if_address_source_t source; //
+    if_address_source_e source; //
     if_address_callback_fn *cb; // Address protocol callback function
     void *data;                 // Address protocol data
     ns_list_link_t link;
@@ -153,12 +153,12 @@ uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 void address_module_init(void);
 void addr_fast_timer(struct protocol_interface_info_entry *cur, uint_fast16_t ticks);
 void addr_slow_timer(struct protocol_interface_info_entry *cur, uint_fast16_t seconds);
-struct if_address_entry *addr_add(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16], uint_fast8_t prefix_len, if_address_source_t source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad);
+struct if_address_entry *addr_add(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad);
 int_fast8_t addr_delete(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
 int_fast8_t addr_deprecate(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
-void addr_delete_matching(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_t source);
+void addr_delete_matching(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct protocol_interface_info_entry *cur, if_address_entry_t *addr);
-void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_address_source_t source);
+void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_address_source_e source);
 void addr_max_slaac_entries_set(struct protocol_interface_info_entry *cur, uint8_t max_slaac_entries);
 
 void addr_notification_register(if_address_notification_fn fn);

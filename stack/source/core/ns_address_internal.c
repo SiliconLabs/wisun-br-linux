@@ -63,7 +63,7 @@ static NS_LIST_DEFINE(addr_policy_table, addr_policy_table_entry_t, link);
 uint32_t addr_preferences_default = SOCKET_IPV6_PREFER_SRC_TMP | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
 
 static void addr_policy_table_reset(void);
-static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_t source);
+static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_e source);
 
 const uint8_t ADDR_LINK_LOCAL_PREFIX[8]         = { 0xfe, 0x80 };
 const uint8_t ADDR_SHORT_ADR_SUFFIC[6]          = { 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00};
@@ -914,7 +914,7 @@ void addr_slow_timer(protocol_interface_info_entry_t *cur, uint_fast16_t seconds
 #endif
 }
 
-static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_t source)
+static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_e source)
 {
     // Limit only auto configuration addresses
     if (source != ADDR_SOURCE_SLAAC || cur->ip_addresses_max_slaac_entries == 0) {
@@ -960,7 +960,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_t source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
+if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -1029,7 +1029,7 @@ int_fast8_t addr_deprecate(protocol_interface_info_entry_t *cur, const uint8_t a
     return -1;
 }
 
-void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_t source)
+void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if ((source == ADDR_SOURCE_UNKNOWN || e->source == source) &&
@@ -1040,7 +1040,7 @@ void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *p
 
 }
 
-void addr_set_non_preferred(protocol_interface_info_entry_t *cur, if_address_source_t source)
+void addr_set_non_preferred(protocol_interface_info_entry_t *cur, if_address_source_e source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if (e->source == source) {
