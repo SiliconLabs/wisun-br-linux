@@ -122,10 +122,10 @@ typedef enum net_address {
 } net_address_e;
 
 /** MAC address type. */
-typedef enum net_mac_address_t {
+typedef enum net_mac_address {
     ADDR_MAC_SHORT16,             /**< Nodes 16-bit short address. */
     ADDR_MAC_LONG64,              /**< IP layer EUID64 based on MAC layer 64-bit long address after U/I -bit conversion.  */
-} net_mac_address_t;
+} net_mac_address_e;
 
 /** TLS cipher type */
 typedef enum {
@@ -178,7 +178,7 @@ typedef enum {
 typedef struct link_layer_setups_s {
     uint16_t PANId;            /**< Network PAN-ID. */
     uint8_t LogicalChannel;    /**< Network logical channel. */
-    net_mac_address_t addr_mode;   /**< Coordinator address mode. */
+    net_mac_address_e addr_mode;   /**< Coordinator address mode. */
     uint8_t address[8];        /**< Coordinator address. */
     uint8_t sf;                /**< Network superframe setup. */
 } link_layer_setups_s;
