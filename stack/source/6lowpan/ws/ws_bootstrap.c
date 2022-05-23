@@ -180,7 +180,7 @@ static void ws_address_reregister_trig(struct protocol_interface_info_entry *int
     }
 }
 
-static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_t reason)
+static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_e reason)
 {
     /* No need for LL address registration */
     if (addr->source == ADDR_SOURCE_UNKNOWN || !interface->ws_info) {

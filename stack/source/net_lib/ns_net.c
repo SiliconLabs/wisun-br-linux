@@ -816,7 +816,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_c
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */
-static void net_automatic_loopback_route_update(protocol_interface_info_entry_t *interface, const if_address_entry_t *addr, if_address_callback_t reason)
+static void net_automatic_loopback_route_update(protocol_interface_info_entry_t *interface, const if_address_entry_t *addr, if_address_callback_e reason)
 {
     /* Don't care about link-local addresses - we know they're on-link */
     if (addr_is_ipv6_link_local(addr->address)) {

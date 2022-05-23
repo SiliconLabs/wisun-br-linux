@@ -76,7 +76,7 @@ static uint8_t ipv6_nd_rs(protocol_interface_info_entry_t *cur);
 
 static void ipv6_stack_prefix_on_link_update(protocol_interface_info_entry_t *cur, uint8_t *address);
 static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur);
-static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason);
+static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
 int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address);
 /* These are the advertised on-link prefixes */
 static NS_LIST_DEFINE(prefix_on_link, ipv6_interface_prefix_on_link_t, link);
@@ -986,7 +986,7 @@ static void ipv6_stack(buffer_t *b)
     }
 }
 
-static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
+static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     tr_debug("Interface ID: %i, ipv6: %s", interface->id, trace_ipv6(addr->address));
 

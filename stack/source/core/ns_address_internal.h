@@ -72,7 +72,7 @@ typedef enum if_address_source_e {
     ADDR_SOURCE_THREAD_DOMAIN
 } if_address_source_t;
 
-typedef enum if_address_callback_e {
+typedef enum if_address_callback {
     ADDR_CALLBACK_DAD_COMPLETE, // Duplicate Address Detection complete - address now valid
     ADDR_CALLBACK_DAD_FAILED,   // Duplicate Address Detection failed - address is a duplicate, about to be deleted
     ADDR_CALLBACK_PARENT_FULL,  // Neighbour Cache full at parent or 6LBR - couldn't register address, about to be deleted
@@ -81,10 +81,10 @@ typedef enum if_address_callback_e {
     ADDR_CALLBACK_INVALIDATED,  // valid lifetime reached 0 - about to be deleted, unless callback increases lifetime
     ADDR_CALLBACK_REFRESHED,    // valid lifetime updated (up or down, aside from usual expiry)
     ADDR_CALLBACK_DELETED,      // address is deleted (no longer on interface at point of call)
-} if_address_callback_t;
+} if_address_callback_e;
 
-typedef void if_address_callback_fn(struct protocol_interface_info_entry *interface, struct if_address_entry *addr, if_address_callback_t reason);
-typedef void if_address_notification_fn(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_t reason);
+typedef void if_address_callback_fn(struct protocol_interface_info_entry *interface, struct if_address_entry *addr, if_address_callback_e reason);
+typedef void if_address_notification_fn(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_e reason);
 
 typedef struct if_address_entry {
     uint8_t address[16];        // IPv6 (or IPv4-mapped IPv6 in future)
@@ -162,7 +162,7 @@ void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_addres
 void addr_max_slaac_entries_set(struct protocol_interface_info_entry *cur, uint8_t max_slaac_entries);
 
 void addr_notification_register(if_address_notification_fn fn);
-void addr_cb(struct protocol_interface_info_entry *interface, if_address_entry_t *addr, if_address_callback_t reason);
+void addr_cb(struct protocol_interface_info_entry *interface, if_address_entry_t *addr, if_address_callback_e reason);
 void addr_set_valid_lifetime(struct protocol_interface_info_entry *interface, if_address_entry_t *entry, uint32_t valid_lifetime);
 void addr_set_preferred_lifetime(struct protocol_interface_info_entry *interface, if_address_entry_t *entry, uint32_t preferred_lifetime);
 

@@ -1085,7 +1085,7 @@ void addr_notification_register(if_address_notification_fn *fn)
     ns_list_add_to_end(&addr_notifications, n);
 }
 
-void addr_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
+void addr_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     ns_list_foreach(addr_notification_t, n, &addr_notifications) {
         n->fn(interface, addr, reason);

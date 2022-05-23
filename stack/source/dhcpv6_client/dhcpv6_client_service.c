@@ -55,7 +55,7 @@ typedef struct {
 static NS_LARGE NS_LIST_DEFINE(dhcp_client_list, dhcp_client_class_t, link);
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr);
-void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason);
+void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 
 
@@ -613,7 +613,7 @@ void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uin
     libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
 }
 
-void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
+void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
 
     uint8_t *payload_ptr;

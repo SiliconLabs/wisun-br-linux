@@ -49,7 +49,7 @@ static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id nwk_id);
 
-static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason);
+static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
 uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface);
 bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds);
@@ -312,7 +312,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
 }
 
 
-static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
+static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     nd_router_t *cur = NULL;
     bool g16_address;

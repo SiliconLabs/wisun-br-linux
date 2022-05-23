@@ -395,7 +395,7 @@ bool rpl_control_find_worst_neighbor(protocol_interface_info_entry_t *interface,
 
 
 /* Address changes need to trigger DAO target re-evaluation */
-static void rpl_control_addr_notifier(struct protocol_interface_info_entry *interface, const if_address_entry_t *addr, if_address_callback_t reason)
+static void rpl_control_addr_notifier(struct protocol_interface_info_entry *interface, const if_address_entry_t *addr, if_address_callback_e reason)
 {
     /* Don't care about link-local addresses */
     if (addr_is_ipv6_link_local(addr->address)) {
