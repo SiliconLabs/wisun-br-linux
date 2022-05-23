@@ -18,8 +18,13 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/log.h"
+#include "common/bits.h"
 #include "common/rand.h"
+#include "common/utils.h"
+#include "common/ws_regdb.h"
 #include "common/trickle.h"
+#include "common/named_values.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/utils/ns_time.h"
@@ -38,6 +43,7 @@
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
 
+#include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -264,6 +270,83 @@ void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *inte
     }
 }
 
+static const char *tr_channel_mask(const uint32_t *chan_mask, int num_chans)
+{
+    uint8_t tmp[32] = { };
+    int num_bytes = roundup(num_chans, 8) / 8;
+    int i;
+
+    bitcpy(tmp, chan_mask, num_chans);
+    for (i = 0; i < num_bytes; i++)
+        tmp[i] ^= 0xFF;
+    return tr_bytes(tmp, num_bytes, NULL, 96, DELIM_COLON);
+}
+
+static const char *tr_excl_channel_mask(const uint32_t *chan_mask, int num_chans)
+{
+    uint32_t tmp[8] = { };
+    int num_bytes = roundup(num_chans, 8) / 8;
+    int i;
+
+    for (i = 0; i < roundup(num_chans, 32); i++)
+        if (chan_mask[i / 32] & (1u << (i % 32)))
+            tmp[i / 32] |= 1u << (31 - (i % 32));
+
+    if (bitcmp0(tmp, num_chans))
+        return "--";
+    return tr_bytes(tmp, num_bytes, NULL, 96, DELIM_COLON);
+}
+
+static void ws_bootstrap_6lbr_print_config(protocol_interface_info_entry_t *cur)
+{
+    ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
+    const struct fhss_ws_configuration *fhss_configuration = ns_fhss_ws_configuration_get(cur->ws_info->fhss_api);
+    int length;
+
+    if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
+        INFO("  domain: custom");
+    else
+        INFO("  domain: %s", val_to_str(hopping_schedule->regulatory_domain, valid_ws_domains, "??"));
+
+    if (hopping_schedule->channel_plan_id != 255)
+        INFO("  channel plan id: %d", hopping_schedule->channel_plan_id);
+    else
+        INFO("  class: 0x%x", hopping_schedule->operating_class);
+
+    if (hopping_schedule->phy_mode_id != 255)
+        INFO("  phy mode id: %d", hopping_schedule->phy_mode_id);
+    else
+        INFO("  mode: 0x%x", hopping_schedule->operating_mode);
+
+    INFO("  channel 0 frequency: %ldMHz", hopping_schedule->ch0_freq / 1000000);
+    INFO("  channel spacing: %dkHz", ws_regdb_chan_spacing_value(hopping_schedule->channel_spacing) / 1000);
+    INFO("  channel count: %d", hopping_schedule->number_of_channels);
+    INFO("  channel masks:");
+
+    length = -roundup(hopping_schedule->number_of_channels, 8) / 8 * 3;
+    INFO("               %*s %*s", length, "advertised", length, "effective");
+
+    if (!hopping_schedule->uc_channel_function)
+        INFO("     unicast   %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
+    else
+        INFO("     unicast   %*s %*s",
+             length, tr_excl_channel_mask(hopping_schedule->uc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
+             length, tr_channel_mask(fhss_configuration->unicast_channel_mask, hopping_schedule->number_of_channels));
+
+    if (!hopping_schedule->bc_channel_function)
+        INFO("     broadcast %*s BIT(%d)", length, "--", hopping_schedule->bc_fixed_channel);
+    else
+        INFO("     broadcast %*s %*s",
+             length, tr_excl_channel_mask(hopping_schedule->bc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
+             length, tr_channel_mask(fhss_configuration->broadcast_channel_mask, hopping_schedule->number_of_channels));
+
+    if (!hopping_schedule->uc_channel_function)
+        INFO("     async     %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
+    else
+        INFO("     async     %*s %*s", length, "--",
+             length, tr_channel_mask(fhss_configuration->unicast_channel_mask, hopping_schedule->number_of_channels));
+}
+
 void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
 {
     ws_bootstrap_event_type_e event_type;
@@ -347,6 +430,8 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             ws_bootstrap_set_domain_rf_config(cur);
             ws_bootstrap_fhss_activate(cur);
             ns_fhss_ws_set_hop_count(cur->ws_info->fhss_api, 0);
+
+            ws_bootstrap_6lbr_print_config(cur);
 
             uint8_t ll_addr[16];
             addr_interface_get_ll_address(cur, ll_addr, 1);
