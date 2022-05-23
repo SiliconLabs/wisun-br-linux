@@ -74,7 +74,7 @@ void ipv6_prefix_on_link_update(uint8_t *address);
 void ipv6_prefix_on_link_remove(uint8_t *address);
 int8_t ipv6_interface_accept_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra);
 #else
-#define ipv6_interface_configure_ipv6_bootstrap_set(nwk_interface_id, bootstrap_mode, ipv6_prefix_pointer) -1
+#define ipv6_interface_configure_ipv6_bootstrap_set(nwk_interface_id_e, bootstrap_mode, ipv6_prefix_pointer) -1
 #define ipv6_core_slow_timer_event_handle(cur) ((void)0)
 #define ipv6_core_timer_event_handle(cur, event) ((void)0)
 #define ipv6_interface_slaac_handler(cur, slaacPrefix, prefixLen, validLifeTime, preferredLifeTime) ((void)0)

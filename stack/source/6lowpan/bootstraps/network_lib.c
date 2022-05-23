@@ -46,7 +46,7 @@
  * \return 1 when IPv6 address is valid and 0 when it is not valid
  */
 
-uint8_t nwk_ready(nwk_interface_id id)
+uint8_t nwk_ready(nwk_interface_id_e id)
 {
     uint8_t ret_val = 0;
     protocol_interface_info_entry_t *cur = 0;

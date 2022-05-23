@@ -167,7 +167,7 @@ typedef struct arm_15_4_mac_parameters_t {
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
 
-typedef void mac_poll_fail_cb(int8_t nwk_interface_id);
+typedef void mac_poll_fail_cb(int8_t nwk_interface_id_e);
 
 typedef struct gp_ipv6_address_entry {
     uint8_t address[16];
@@ -221,7 +221,7 @@ typedef struct ipv6_ra_timing {
 } ipv6_ra_timing_t;
 
 struct protocol_interface_info_entry {
-    nwk_interface_id nwk_id;
+    nwk_interface_id_e nwk_id;
     int8_t id;
     int8_t bootStrapId;
     uint8_t zone_index[16];
@@ -346,7 +346,7 @@ void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entr
 
 uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id);
+protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
 bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
 protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api_s *api);
 protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api_s *api);

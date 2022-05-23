@@ -157,7 +157,7 @@ uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_
  *  Callback indicates when ETX value has changed more or equal to
  *  hysteresis value.
  *
- * \param nwk_interface_id network interface id
+ * \param nwk_interface_id_e network interface id
  * \param previous_etx ETX value to what the current ETX was compared (8 bit fraction)
  * \param current_etx current ETX value (8 bit fraction)
  * \param attribute_index Neighbour attribute index
@@ -184,14 +184,14 @@ typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumul
  *  When ETX value has changed more or equal to hysteresis value ETX
  *  module calls ETX value change callback.
  *
- * \param nwk_interface_id network interface id
+ * \param nwk_interface_id_e network interface id
  * \param hysteresis hysteresis value (8 bit fraction)
  * \param callback_ptr callback function pointer
  *
  * \return 0 not 6LowPAN interface
  * \return 1 success
  */
-uint8_t etx_value_change_callback_register(nwk_interface_id nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
+uint8_t etx_value_change_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
 
 /**
  * \brief A function to allocte ETX storage list
@@ -231,7 +231,7 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
  * \return 0 not 6LowPAN interface
  * \return 1 success
  */
-uint8_t etx_accum_failures_callback_register(nwk_interface_id nwk_id, int8_t interface_id, uint8_t threshold, etx_accum_failures_handler_t *callback_ptr);
+uint8_t etx_accum_failures_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint8_t threshold, etx_accum_failures_handler_t *callback_ptr);
 
 /**
  * \brief A function to remove ETX neighbor

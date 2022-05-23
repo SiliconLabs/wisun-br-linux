@@ -24,14 +24,14 @@ struct rpl_domain;
 struct fhss_api;
 
 /*!
- * \enum nwk_interface_id
+ * \enum nwk_interface_id_e
  * \brief Determines the ID of the network interface.
  */
 /** Network interface IDs. */
 typedef enum {
     IF_6LoWPAN,
     IF_IPV6,
-} nwk_interface_id;
+} nwk_interface_id_e;
 
 extern uint32_t protocol_core_monotonic_time;   /* 100ms ticks */
 

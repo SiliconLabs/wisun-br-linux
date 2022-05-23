@@ -143,7 +143,7 @@ void protocol_6lowpan_bootstrap_re_start(protocol_interface_info_entry_t *interf
     tr_info("-->Bootstrap");
 }
 
-uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id nwk_id)
+uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id_e nwk_id)
 {
     nd_router_t   *object = nd_get_object_by_nwk_id(nwk_id);
     if (object) {

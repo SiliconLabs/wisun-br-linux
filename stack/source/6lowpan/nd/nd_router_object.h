@@ -47,7 +47,7 @@ void gp_address_list_free(gp_ipv6_address_list_t *list);
 uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
 bool nd_object_active(void);
 void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
-nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id nwk_id);
+nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id_e nwk_id);
 void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 
 
@@ -91,7 +91,7 @@ void nd_ra_process_lowpan_context_option(struct protocol_interface_info_entry *c
 
 /** ND Routing Part */
 uint8_t nd_prefix_dst_check(uint8_t *ptr);
-nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id nwk_id);
+nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id_e nwk_id);
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
 bool nd_ra_process_abro(struct protocol_interface_info_entry *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);

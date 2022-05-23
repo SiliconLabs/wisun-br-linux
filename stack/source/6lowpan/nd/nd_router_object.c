@@ -47,7 +47,7 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id nwk_id);
+static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id_e nwk_id);
 
 static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
 uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface);
@@ -174,7 +174,7 @@ static void nd_router_remove(nd_router_t *router, protocol_interface_info_entry_
     }
 }
 
-nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id nwk_id)
+nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id_e nwk_id)
 {
     nd_router_t *new_entry = 0;
     uint_fast8_t count = 0;
@@ -1370,7 +1370,7 @@ ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16])
     return NULL;
 }
 
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr, nwk_interface_id nwk_id)
+static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr, nwk_interface_id_e nwk_id)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
         if (cur->nwk_id == nwk_id) {
@@ -1624,7 +1624,7 @@ int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_inf
     return -1;
 }
 
-nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id nwk_id)
+nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id_e nwk_id)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
         if (cur->nwk_id == nwk_id) {

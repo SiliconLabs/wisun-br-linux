@@ -94,7 +94,7 @@ typedef struct {
 
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
-// maximum value of nwk_interface_id is 1
+// maximum value of nwk_interface_id_e is 1
 protocol_interface_info_entry_t protocol_interface_info[2];
 
 static lowpan_core_timer_structures_s protocol_core_timer_info;
@@ -360,7 +360,7 @@ uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_ent
 }
 
 
-static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_interface_id nwk_id)
+static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_interface_id_e nwk_id)
 {
     entry->nwk_id = nwk_id;
     switch (nwk_id) {
@@ -432,7 +432,7 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_init(&entry->ipv6_neighbour_cache.list);
 }
 
-static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_interface_id nwk_id)
+static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_interface_id_e nwk_id)
 {
     protocol_interface_info_entry_t *entry = &protocol_interface_info[nwk_id];
     int id = net_interface_get_free_id();
@@ -605,7 +605,7 @@ void nwk_interface_flush_neigh_cache(void)
     }
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id nwk_id)
+protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id)
 {
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list)
     if (cur->nwk_id == nwk_id) {

@@ -881,7 +881,7 @@ static void ipv6_stack(buffer_t *b)
 {
     /* Protocol Buffer Handle */
     int8_t status;
-    nwk_interface_id nwk_id = IF_IPV6;
+    nwk_interface_id_e nwk_id = IF_IPV6;
     if (b) {
         //Save Original Interface id
         nwk_id = b->interface->nwk_id;
