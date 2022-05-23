@@ -49,13 +49,25 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
 {
     int i;
 
-    if (chan_params) {
+    *out = '\0';
+    if (chan_params)
         sprintf(out + strlen(out), " %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
-        sprintf(out + strlen(out), "   %d", chan_params->op_class);
-    } else {
+    else
         sprintf(out + strlen(out), " ??");
-        sprintf(out + strlen(out), "  ??");
-    }
+
+    if (chan_params && chan_params->op_class)
+        sprintf(out + strlen(out), "   %d", chan_params->op_class);
+    else if (chan_params)
+        sprintf(out + strlen(out), "   -");
+    else
+        sprintf(out + strlen(out), "   ?");
+
+    if (chan_params && chan_params->chan_plan_id)
+        sprintf(out + strlen(out), "  %3d", chan_params->chan_plan_id);
+    else if (chan_params)
+        sprintf(out + strlen(out), "   --");
+    else
+        sprintf(out + strlen(out), "   ??");
 
     sprintf(out + strlen(out), "   %2d", phy_mode_id);
 
@@ -90,21 +102,14 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
 
     sprintf(out + strlen(out), " %4.1fMHz", (double)chan0_freq / 1000000);
     sprintf(out + strlen(out), " %4dkHz", chan_spacing / 1000);
-    sprintf(out + strlen(out), "   %3d", chan_count);
-
-    if (chan_params && chan_params->chan_plan_id != 255)
-        sprintf(out + strlen(out), "  %3d", chan_params->chan_plan_id);
-    else if (chan_params)
-        sprintf(out + strlen(out), "   --");
-    else
-        sprintf(out + strlen(out), "   ??");
+    sprintf(out + strlen(out), "  %3d", chan_count);
 
     if (chan_params && chan_params->chan_allowed)
         sprintf(out + strlen(out), "  %s", chan_params->chan_allowed);
     else if (chan_params)
-        sprintf(out + strlen(out), "   --");
+        sprintf(out + strlen(out), "  --");
     else
-        sprintf(out + strlen(out), "   ??");
+        sprintf(out + strlen(out), "  ??");
 
     if (chan_params) {
         for (i = 0; chan_params->valid_phy_modes[i]; i++)
@@ -126,8 +131,8 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     char tmp_buf[110][150]; // max: 110 lines of 150 characters
     int i, j, k = 0;
 
-    INFO("dom  cla phy  mode modula mcs ofdm mod    data    chan    chan   #chans chan  chans");
-    INFO("-ain -ss mode      -tion      opt. idx    rate    base    space         plan allowed");
+    INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans  chans");
+    INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        allowed");
     while (spinel_remaining_size(buf)) {
         BUG_ON(k >= ARRAY_SIZE(tmp_buf));
         chan0_freq = spinel_pop_u32(buf);
