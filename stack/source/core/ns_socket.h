@@ -66,11 +66,11 @@ typedef enum socket_family {
 // If we support more types in future it becomes "((socket)->family == SOCKET_FAMILY_IPV6)"
 #define socket_is_ipv6(socket) true
 
-typedef enum socket_type_e {
+typedef enum socket_type {
     SOCKET_TYPE_DGRAM,
     SOCKET_TYPE_STREAM,
     SOCKET_TYPE_RAW
-} socket_type_t;
+} socket_type_e;
 
 #define SOCKET_FLAG_CLOSED          128     /* Has been closed by application */
 #define SOCKET_FLAG_PENDING         64      /* Is waiting for accept on a listening socket */
@@ -136,7 +136,7 @@ typedef struct socket {
     int8_t    tasklet;                /*!< Receiver tasklet */
     uint16_t   refcount;
     socket_family_e family;
-    socket_type_t type;
+    socket_type_e type;
     int8_t    default_interface_id;
     int8_t    broadcast_pan;
     uint8_t   listen_backlog;       /*!< Limit if pending connection queue */
@@ -192,7 +192,7 @@ void socket_init(void);
 int8_t socket_event_handler_id_get(void);
 bool socket_data_queued_event_push(socket_t *socket);
 void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id, void *session_ptr, uint16_t length);
-socket_error_t socket_create(socket_family_e family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
+socket_error_t socket_create(socket_family_e family, socket_type_e type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
 socket_t *socket_new_incoming_connection(socket_t *listen_socket);
 void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t reason);
 void socket_connection_complete(socket_t *socket, int8_t interface_id);

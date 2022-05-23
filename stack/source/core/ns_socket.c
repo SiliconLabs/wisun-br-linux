@@ -418,7 +418,7 @@ inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig)
 }
 
 
-socket_t *socket_allocate(socket_type_t type)
+socket_t *socket_allocate(socket_type_e type)
 {
     socket_t *socket = malloc(sizeof(socket_t));
     if (!socket) {
@@ -493,7 +493,7 @@ socket_t *socket_dereference(socket_t *socket_ptr)
  * \return eFALSE no free sockets
  * \return eBUSY port reserved
  */
-socket_error_t socket_create(socket_family_e family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
+socket_error_t socket_create(socket_family_e family, socket_type_e type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
 {
     if (sid) {
         *sid = -1;

@@ -49,7 +49,7 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
 {
     int8_t sid = -1;
     socket_family_e family;
-    socket_type_t type;
+    socket_type_e type;
 
     switch (protocol) {
         case SOCKET_ICMP:
