@@ -103,7 +103,7 @@ typedef enum arm_library_event_type_e {
 
 
 /** Network security levels. */
-typedef enum net_security_t {
+typedef enum net_security {
     NW_NO_SECURITY = 0,                       /**< No Security. */
     NW_SECURITY_LEVEL_MIC32 = 1,              /**< 32-bit MIC verify, no encoding. */
     NW_SECURITY_LEVEL_MIC64 = 2,              /**< 64-bit MIC verify, no encoding. */
@@ -112,7 +112,7 @@ typedef enum net_security_t {
     NW_SECURITY_LEVEL_ENC_MIC32 = 5,          /**< 32-bit MIC verify with encoding. */
     NW_SECURITY_LEVEL_ENC_MIC64 = 6,          /**< 64-bit MIC verify with encoding. */
     NW_SECURITY_LEVEL_ENC_MIC128 = 7          /**< 128-bit MIC verify with encoding. */
-} net_security_t;
+} net_security_e;
 
 /** Ipv6 address type.*/
 typedef enum net_address {

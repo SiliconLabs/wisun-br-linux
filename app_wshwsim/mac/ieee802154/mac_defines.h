@@ -32,7 +32,7 @@ struct mlme_key_descriptor_s;
 struct arm_device_driver_list;
 struct fhss_api;
 
-typedef enum mac_event_t {
+typedef enum mac_event {
     MAC_STATE_IDLE = 0,
     MAC_TX_DONE,
     MAC_TX_DONE_PENDING,
@@ -45,34 +45,30 @@ typedef enum mac_event_t {
     MAC_UNKNOWN_DESTINATION,
     MAC_TX_PRECOND_FAIL,
     MAC_RETURN_TO_QUEUE,
-} mac_event_t;
+} mac_event_e;
 
-typedef enum mac_tx_status_type_t {
+typedef enum mac_tx_status_type {
     MAC_TX_STATUS_LEN = 0,
     MAC_TX_STATUS_CCA_CNT,
     MAC_TX_STATUS_RETRY_CNT,
-} mac_tx_status_type_t;
+} mac_tx_status_type_e;
 
-
-typedef enum mac_int_event_t {
+typedef enum mac_int_event {
     MAC_INT_IDLE = 0,
     MAC_INT_TX,
     MAC_INT_TIMER
-} mac_int_event_t;
+} mac_int_event_e;
 
-
-typedef enum mac_ifs_event_t {
+typedef enum mac_ifs_event {
     MAC_IFS_IDLE = 0,
     MAC_IFS_CCA,
     MAC_IFS_TRIG_TX,
     MAC_IFS_TX_ACTIVE,
     MAC_IFS_CCA_FAILED,
     MAC_IFS_ACK_TIMEOUT,
-} mac_ifs_event_t;
+} mac_ifs_event_e;
 
-
-
-typedef enum mac_timer_event_t {
+typedef enum mac_timer_event {
     MAC_INT_TIMER_IDLE = 0,
     MAC_INT_TIMER_ACK,
     MAC_INT_TIMER_CCA
@@ -250,8 +246,8 @@ typedef struct protocol_interface_rf_mac_setup {
     arm_event_storage_t mac_ack_event;
     uint16_t indirect_pending_bytes;
     arm_nwk_mlme_event_type_e mac_mlme_event;
-    mac_event_t timer_mac_event;
-    mac_event_t mac_tx_result;
+    mac_event_e timer_mac_event;
+    mac_event_e mac_tx_result;
     uint16_t active_mac_events;
     int8_t mac_tasklet_id;
     int mac_mcps_timer;

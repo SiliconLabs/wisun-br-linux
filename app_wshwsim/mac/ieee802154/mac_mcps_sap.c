@@ -1166,9 +1166,9 @@ static bool mac_frame_security_parameters_init(ccm_globals_t *ccm_ptr, protocol_
 
 static void mac_common_data_confirmation_handle(protocol_interface_rf_mac_setup_s *rf_mac_setup, mac_pre_build_frame_t *buf)
 {
-    mac_event_t m_event;
+    mac_event_e m_event;
     /* Raed MAC TX state */
-    m_event = (mac_event_t) rf_mac_setup->mac_tx_result;
+    m_event = (mac_event_e) rf_mac_setup->mac_tx_result;
     rf_mac_setup->mac_tx_result = MAC_STATE_IDLE;
 
     /* Discard Tx timeout timer */

@@ -16,7 +16,7 @@
 #include <stdint.h>
 
 struct wsmac_ctxt;
-typedef enum phy_link_type_e phy_link_type_e;
+typedef enum phy_link_type phy_link_type_e;
 
 void rf_rx(struct wsmac_ctxt *ctxt);
 int8_t virtual_rf_device_register(phy_link_type_e link_type, uint16_t mtu_size);

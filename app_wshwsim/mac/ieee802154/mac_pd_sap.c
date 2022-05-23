@@ -144,7 +144,7 @@ static bool mac_data_interface_read_last_ack_pending_status(protocol_interface_r
 
 }
 
-static void mac_tx_done_state_set(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_t event)
+static void mac_tx_done_state_set(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_e event)
 {
     rf_ptr->mac_tx_result = event;
 

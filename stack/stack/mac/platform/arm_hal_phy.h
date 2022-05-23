@@ -90,7 +90,7 @@ typedef enum {
 } phy_address_type_e;
 
 /** PHY types */
-typedef enum phy_link_type_e {
+typedef enum phy_link_type {
     PHY_LINK_ETHERNET_TYPE,         /**< Standard IEEE 802 Ethernet. */
     PHY_LINK_15_4_2_4GHZ_TYPE,      /**< Standard 802.15.4 2.4GHz radio. */
     PHY_LINK_15_4_SUBGHZ_TYPE,      /**< Standard 802.15.4 subGHz radio 868 /915MHz. */
@@ -100,7 +100,7 @@ typedef enum phy_link_type_e {
 } phy_link_type_e;
 
 /** Data layers */
-typedef enum data_protocol_e {
+typedef enum data_protocol {
     LOCAL_SOCKET_DATA = 0,          /**< 6LoWPAN library local socket data. */
     INTERFACE_DATA = 1,             /**< 6LoWPAN library interface internal used protocol. */
     PHY_LAYER_PAYLOAD = 2,          /**< PHY layer data selection or handler. */
@@ -109,7 +109,7 @@ typedef enum data_protocol_e {
 } data_protocol_e;
 
 /** Requested data layer */
-typedef enum driver_data_request_e {
+typedef enum driver_data_request {
     PHY_LAYER_PAYLOAD_DATA_FLOW,    /**< PHY layer data. */
     IPV6_DATAGRAMS_DATA_FLOW,       /**< IP layer data or TUN driver request data. */
 } driver_data_request_e;

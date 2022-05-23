@@ -73,7 +73,7 @@ typedef enum {
     GTKHASH4WH_SET,
     PMKLTIME_SET,
     PTKLTIME_SET,
-} field_set_t;
+} field_set_e;
 
 #define FIELD_SET(field) (field_set | (1u << field))
 #define FIELD_IS_SET(field) (field_set & (1u << field))

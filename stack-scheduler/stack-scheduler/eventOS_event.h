@@ -162,7 +162,7 @@
  * \enum arm_library_event_priority_e
  * \brief Event Priority level.
  */
-typedef enum arm_library_event_priority_e {
+typedef enum arm_library_event_priority {
     ARM_LIB_HIGH_PRIORITY_EVENT = 0, /**< High Priority Event (Function CB) */
     ARM_LIB_MED_PRIORITY_EVENT = 1, /**< Medium Priority (Timer) */
     ARM_LIB_LOW_PRIORITY_EVENT = 2, /*!*< Normal Event and ECC / Security */

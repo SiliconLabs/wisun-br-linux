@@ -28,7 +28,7 @@ typedef enum {
     ND_READY = 0,
     ND_RS_UNCAST = 2,
     ND_RS_MULTICAST = 3,
-} nd_obj_state;
+} nd_obj_state_e;
 
 #define nd_is_ready_state(state) ((state) == ND_READY)
 #define nd_is_bootstrap_state(state) (!nd_is_ready_state(state))
@@ -36,7 +36,7 @@ typedef enum {
 typedef enum {
     ND_ADDRESS_PRIMARY = 0,
     ND_ADDRESS_SECONDARY = 1,
-} nd_multi_address_type;
+} nd_multi_address_type_e;
 
 typedef struct nd_router_next_hop {
     addrtype_e addrtype;
@@ -63,7 +63,7 @@ typedef struct nd_router {
     uint8_t flags;
     uint16_t life_time;
     uint16_t nd_re_validate;
-    nd_obj_state nd_state;
+    nd_obj_state_e nd_state;
     uint16_t ns_forward_timer;
     uint16_t nd_timer;
     uint8_t nd_bootstrap_tick;

@@ -38,7 +38,7 @@
  *
  * \return none
  */
-void timer_mac_start(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_t event, uint16_t slots)
+void timer_mac_start(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_e event, uint16_t slots)
 {
     /*Save MAC event*/
     if (rf_ptr->mac_timer_id != -1) {

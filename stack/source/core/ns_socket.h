@@ -108,7 +108,7 @@ typedef struct socket_buffer_callback_t {
 typedef enum {
     SOCKET_SRC_ADDRESS_PRIMARY = 0,
     SOCKET_SRC_ADDRESS_SECONDARY = 1,
-} socket_src_address_type;
+} socket_src_address_type_e;
 
 struct inet_pcb_s;
 struct socket;

@@ -46,7 +46,7 @@ typedef struct mlme_pan_descriptor_s {
 } mlme_pan_descriptor_t;
 
 /**
- * @brief struct mlme_command_type_t Command type enumeration
+ * @brief struct mlme_command_type_e Command type enumeration
  *
  * See IEEE standard 802.15.4-2006 (table 82) for more details
  */
@@ -61,7 +61,7 @@ typedef enum {
     COORDINATOR_REALIGNMENT = 8,        /**<Coordinator Realignment (Not supported)*/
     GTS_REQUEST = 9                     /**<GTS request (Not supported)*/
                   //Reserved
-} mlme_command_type_t;
+} mlme_command_type_e;
 
 /**
  * @brief struct mlme_key_usage_descriptor_t Key usage descriptor
@@ -85,7 +85,7 @@ typedef struct mlme_key_device_descriptor_s {
 } mlme_key_device_descriptor_t;
 
 /**
- * @brief enum mlme_security_type_t Security type enumeration
+ * @brief enum mlme_security_type_e Security type enumeration
  *
  * See IEEE standard 802.15.4-2006 (table 95) for more details
  */
@@ -98,7 +98,7 @@ typedef enum {
     SEC_ENC_MIC32 = 5,  /**< Payload encode enabled with 32-bit MIC authentication */
     SEC_ENC_MIC64 = 6,  /**< Payload encode enabled with 64-bit MIC authentication */
     SEC_ENC_MIC128 = 7  /**< Payload encode enabled with 128-bit MIC authentication */
-} mlme_security_type_t;
+} mlme_security_type_e;
 
 /**
  * @brief struct mlme_security_level_descriptor_t Security level descriptor
