@@ -57,10 +57,10 @@
 #define SOCKET_DEFAULT_REFERENCE_LIMIT 512
 #endif
 
-typedef enum socket_family_e {
+typedef enum socket_family {
     SOCKET_FAMILY_NONE,
     SOCKET_FAMILY_IPV6,
-} socket_family_t;
+} socket_family_e;
 
 // This is always true because we currently have only 1 type
 // If we support more types in future it becomes "((socket)->family == SOCKET_FAMILY_IPV6)"
@@ -135,7 +135,7 @@ typedef struct socket {
     uint8_t   flags;                  /*!< Socket option flags */
     int8_t    tasklet;                /*!< Receiver tasklet */
     uint16_t   refcount;
-    socket_family_t family;
+    socket_family_e family;
     socket_type_t type;
     int8_t    default_interface_id;
     int8_t    broadcast_pan;
@@ -192,7 +192,7 @@ void socket_init(void);
 int8_t socket_event_handler_id_get(void);
 bool socket_data_queued_event_push(socket_t *socket);
 void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id, void *session_ptr, uint16_t length);
-socket_error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
+socket_error_t socket_create(socket_family_e family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type);
 socket_t *socket_new_incoming_connection(socket_t *listen_socket);
 void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t reason);
 void socket_connection_complete(socket_t *socket, int8_t interface_id);
@@ -201,7 +201,7 @@ void socket_cant_recv_more(socket_t *socket, int8_t interface_id);
 int8_t socket_id_assign_and_attach(socket_t *socket);
 void socket_id_detach(int8_t sid);
 buffer_t *socket_buffer_read(socket_t *socket);
-socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr);
+socket_t *socket_lookup(socket_family_e family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr);
 socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards);
 socket_error_t socket_port_validate(uint16_t port, uint8_t protocol);
 socket_error_t socket_up(buffer_t *buf);

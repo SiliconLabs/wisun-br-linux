@@ -493,7 +493,7 @@ socket_t *socket_dereference(socket_t *socket_ptr)
  * \return eFALSE no free sockets
  * \return eBUSY port reserved
  */
-socket_error_t socket_create(socket_family_t family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
+socket_error_t socket_create(socket_family_e family, socket_type_t type, uint8_t protocol, int8_t *sid, uint16_t port, void (*passed_fptr)(void *), bool buffer_type)
 {
     if (sid) {
         *sid = -1;
@@ -818,7 +818,7 @@ void socket_list_print(route_print_fn_t *print_fn, char sep)
     }
 }
 
-socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr)
+socket_t *socket_lookup(socket_family_e family, uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr)
 {
     switch (family) {
         case SOCKET_FAMILY_IPV6:
@@ -849,7 +849,7 @@ socket_error_t socket_up(buffer_t *buf)
     socket_t *socket = buf->socket;
 
     if (!socket) {
-        socket = socket_lookup((socket_family_t) buf->options.type, buf->options.code, &buf->dst_sa, &buf->src_sa);
+        socket = socket_lookup((socket_family_e) buf->options.type, buf->options.code, &buf->dst_sa, &buf->src_sa);
 
         if (!socket) {
             //tr_debug("Socket:Drop");

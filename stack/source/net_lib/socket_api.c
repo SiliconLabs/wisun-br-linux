@@ -48,7 +48,7 @@ const uint8_t ns_in6addr_any[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(void *))
 {
     int8_t sid = -1;
-    socket_family_t family;
+    socket_family_e family;
     socket_type_t type;
 
     switch (protocol) {
