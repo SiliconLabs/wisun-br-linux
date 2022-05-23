@@ -115,11 +115,11 @@ typedef enum net_security_t {
 } net_security_t;
 
 /** Ipv6 address type.*/
-typedef enum net_address_t {
+typedef enum net_address {
     ADDR_IPV6_GP,             /**< Node default global address. */
     ADDR_IPV6_GP_SEC,         /**< Node secondary global address. */
     ADDR_IPV6_LL              /**< Node default link local address. */
-} net_address_t;
+} net_address_e;
 
 /** MAC address type. */
 typedef enum net_mac_address_t {
@@ -585,7 +585,7 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
  * \param address A pointer to a structure where the address information is written.
  * \return 0 On success, -1 on failure.
  */
-int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, uint8_t *address);
+int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address);
 
 /**
  * \brief A function to read networking addresses one by one.

@@ -229,7 +229,7 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
  * \param address is a pointer to a buffer to where the address information is written to.
  * \return zero on success, -1 on errors.
  */
-int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, uint8_t *address)
+int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address)
 {
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur;
