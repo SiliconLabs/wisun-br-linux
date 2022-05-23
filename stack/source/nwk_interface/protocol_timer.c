@@ -25,7 +25,7 @@
 protocol_timer_t protocol_timer[PROTOCOL_TIMER_MAX];
 
 // time is in milliseconds
-void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time)
+void protocol_timer_start(protocol_timer_id_e id, void (*passed_fptr)(uint16_t), uint32_t time)
 {
     BUG_ON(!passed_fptr);
     BUG_ON(time % PROTOCOL_TIMER_PERIOD_MS);
@@ -42,7 +42,7 @@ void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t),
     platform_exit_critical();
 }
 
-void protocol_timer_stop(protocol_timer_id_t id)
+void protocol_timer_stop(protocol_timer_id_e id)
 {
     platform_enter_critical();
     protocol_timer[id].ticks = 0;

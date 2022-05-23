@@ -22,7 +22,7 @@ typedef enum {
     PROTOCOL_TIMER_STACK_TIM,
     PROTOCOL_TIMER_MULTICAST_TIM,
     PROTOCOL_TIMER_MAX
-} protocol_timer_id_t;
+} protocol_timer_id_e;
 
 typedef struct {
     void (*fptr)(uint16_t);
@@ -32,7 +32,7 @@ typedef struct {
 } protocol_timer_t;
 
 void protocol_timer_cb(uint16_t ticks);
-void protocol_timer_start(protocol_timer_id_t id, void (*passed_fptr)(uint16_t), uint32_t time_ms);
-void protocol_timer_stop(protocol_timer_id_t id);
+void protocol_timer_start(protocol_timer_id_e id, void (*passed_fptr)(uint16_t), uint32_t time_ms);
+void protocol_timer_stop(protocol_timer_id_e id);
 
 #endif /* PROTOCOL_TIMER_H_ */
