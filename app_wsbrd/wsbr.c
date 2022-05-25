@@ -334,14 +334,49 @@ void kill_handler(int signal)
     exit(3);
 }
 
-int main(int argc, char *argv[])
+static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 1, 60, 600, 3600 }; // seconds
+    struct timespec ts = { };
+    fd_set rfds;
+    int ret;
+
+    for (int i = 0; i < ARRAY_SIZE(timeout_values); i++) {
+        FD_ZERO(&rfds);
+        FD_SET(ctxt->os_ctxt->data_fd, &rfds);
+        ts.tv_sec = timeout_values[i];
+        ret = pselect(ctxt->os_ctxt->data_fd + 1, &rfds, NULL, NULL, &ts, NULL);
+        if (ret == 1)
+            break;
+        if (ret < 0)
+            FATAL(2, "pselect: %m");
+        else
+            WARN("Still waiting for RCP");
+    }
+
+    while (!ctxt->hw_addr_done)
+        rcp_rx(ctxt);
+    memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
+
+    if (ctxt->list_rf_configs) {
+        if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+            wsbr_rcp_get_rf_config_list(ctxt);
+            while (!ctxt->list_rf_configs_done)
+                rcp_rx(ctxt);
+            exit(0);
+        } else {
+            FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
+        }
+    }
+}
+
+int main(int argc, char *argv[])
+{
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct timespec ts = { };
     fd_set rfds, efds;
     int maxfd, ret;
     uint64_t val;
-    struct timespec ts = { };
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon);
     signal(SIGINT, kill_handler);
@@ -362,35 +397,7 @@ int main(int argc, char *argv[])
     wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);
-
-    for (int i = 0; i < ARRAY_SIZE(timeout_values); i++) {
-        FD_ZERO(&rfds);
-        FD_SET(ctxt->os_ctxt->data_fd, &rfds);
-        ts.tv_sec = timeout_values[i];
-        ret = pselect(ctxt->os_ctxt->data_fd + 1, &rfds, NULL, NULL, &ts, NULL);
-        if (ret == 1)
-            break;
-        if (ret < 0)
-            FATAL(2, "pselect: %m");
-        else
-            WARN("Still waiting for RCP");
-    }
-    ts.tv_sec = 0;
-
-    while (!ctxt->hw_addr_done)
-        rcp_rx(ctxt);
-    memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
-
-    if (ctxt->list_rf_configs) {
-        if (!fw_api_older_than(ctxt, 0, 11, 0)) {
-            wsbr_rcp_get_rf_config_list(ctxt);
-            while (!ctxt->list_rf_configs_done)
-                rcp_rx(ctxt);
-            exit(0);
-        } else {
-            FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
-        }
-    }
+    wsbr_rcp_init(ctxt);
 
     wsbr_common_timer_init(ctxt);
 
