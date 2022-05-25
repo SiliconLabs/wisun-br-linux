@@ -213,13 +213,53 @@ void kill_handler(int signal)
     exit(3);
 }
 
+static void wsbr_poll(struct wsbr_ctxt *ctxt)
+{
+    struct timespec ts = { };
+    fd_set rfds, efds;
+    int maxfd = 0;
+    uint64_t val;
+    int ret;
+
+    FD_ZERO(&rfds);
+    FD_ZERO(&efds);
+    if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
+        FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
+    else
+        FD_SET(ctxt->os_ctxt->trig_fd, &efds); // SPI + GPIO
+    maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
+    FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
+    maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
+    FD_SET(ctxt->timerfd, &rfds);
+    maxfd = max(maxfd, ctxt->timerfd);
+    // FIXME: consider poll() usage
+    if (ctxt->os_ctxt->uart_next_frame_ready)
+        ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
+    else
+        ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
+    if (ret < 0)
+        FATAL(2, "pselect: %m");
+    if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
+        read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
+        WARN_ON(val != 'W');
+        eventOS_scheduler_run_until_idle();
+    }
+    if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) ||
+        FD_ISSET(ctxt->os_ctxt->trig_fd, &efds) ||
+        ctxt->os_ctxt->uart_next_frame_ready)
+        rcp_rx(ctxt);
+    if (FD_ISSET(ctxt->timerfd, &rfds)) {
+        ret = read(ctxt->timerfd, &val, sizeof(val));
+        WARN_ON(ret < sizeof(val), "cancelled timer?");
+        WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
+        system_timer_tick_update(1);
+        protocol_timer_cb(1);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
-    fd_set rfds, efds;
-    int maxfd, ret;
-    uint64_t val;
-    struct timespec ts = { };
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon);
     signal(SIGINT, kill_handler);
@@ -252,43 +292,8 @@ int main(int argc, char *argv[])
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         BUG("eventOS_event_handler_create");
 
-    for (;;) {
-        maxfd = 0;
-        FD_ZERO(&rfds);
-        FD_ZERO(&efds);
-        if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
-            FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
-        else
-            FD_SET(ctxt->os_ctxt->trig_fd, &efds); // SPI + GPIO
-        maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
-        FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
-        maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
-        FD_SET(ctxt->timerfd, &rfds);
-        maxfd = max(maxfd, ctxt->timerfd);
-        // FIXME: consider poll() usage
-        if (ctxt->os_ctxt->uart_next_frame_ready)
-            ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
-        else
-            ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
-        if (ret < 0)
-            FATAL(2, "pselect: %m");
-        if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
-            read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
-            WARN_ON(val != 'W');
-            eventOS_scheduler_run_until_idle();
-        }
-        if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) ||
-            FD_ISSET(ctxt->os_ctxt->trig_fd, &efds) ||
-            ctxt->os_ctxt->uart_next_frame_ready)
-            rcp_rx(ctxt);
-        if (FD_ISSET(ctxt->timerfd, &rfds)) {
-            ret = read(ctxt->timerfd, &val, sizeof(val));
-            WARN_ON(ret < sizeof(val), "cancelled timer?");
-            WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
-            system_timer_tick_update(1);
-            protocol_timer_cb(1);
-        }
-    }
+    while (true)
+        wsbr_poll(ctxt);
 
     return 0;
 }
