@@ -211,7 +211,7 @@ const char *tr_bytes(const void *in, int len, const void **in_done, int max_out,
     if (trace_idx + max_out > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_bytes(in, len, in_done, out, max_out, opt);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -221,7 +221,7 @@ const char *tr_bytes_ascii(const void *in, int len, int opt)
     char *out = trace_buffer + trace_idx;
 
     str_bytes_ascii(in, len, out, sizeof(trace_buffer) - trace_idx, opt);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -233,7 +233,7 @@ const char *tr_eui48(const uint8_t in[static 6])
     if (trace_idx + STR_MAX_LEN_EUI48 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_eui48(in, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -245,7 +245,7 @@ const char *tr_eui64(const uint8_t in[static 8])
     if (trace_idx + STR_MAX_LEN_EUI64 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_eui64(in, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -257,7 +257,7 @@ const char *tr_ipv4(uint8_t in[static 4])
     if (trace_idx + STR_MAX_LEN_IPV4 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv4(in, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -269,7 +269,7 @@ const char *tr_ipv6(const uint8_t in[static 16])
     if (trace_idx + STR_MAX_LEN_IPV6 > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv6(in, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -281,7 +281,7 @@ const char *tr_ipv4_prefix(uint8_t in[], int prefix_len)
     if (trace_idx + STR_MAX_LEN_IPV4_NET > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv4_prefix(in, prefix_len, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
@@ -293,7 +293,7 @@ const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len)
     if (trace_idx + STR_MAX_LEN_IPV6_NET > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_ipv6_prefix(in, prefix_len, out);
-    trace_idx += strlen(out);
+    trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
 }
