@@ -233,8 +233,6 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_node);
-    if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-        WARN("ipv6_prefix is ignored");
     ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 

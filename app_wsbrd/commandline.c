@@ -4,6 +4,7 @@
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
 #define _GNU_SOURCE
+#include "nsconfig.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -542,6 +543,18 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         if (ctxt->tls_own.cert_len != 0 || ctxt->tls_own.key_len != 0 || ctxt->tls_ca.cert_len != 0)
             WARN("ignore certificates and key since an external radius server is in use");
     }
-    if (ctxt->dhcpv6_server.sin6_family == AF_INET)
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (ctxt->dhcpv6_server.sin6_family == AF_INET6) {
+        if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16) != 0)
+            WARN("ipv6_prefix will be ignored because you specified a dhcpv6_server address");
+    } else if (ctxt->dhcpv6_server.sin6_family == AF_INET) {
         FATAL(1, "dhcpv6_server does not support IPv4 server");
+    } else {
+        if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+            FATAL(1, "You must specify a ipv6_prefix");
+    }
+#else
+    if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+        WARN("ipv6_prefix is ignored");
+#endif
 }

@@ -357,13 +357,6 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
-    if (ctxt->dhcpv6_server.sin6_family == AF_INET6) {
-        if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16) != 0)
-            WARN("ipv6_prefix will be ignored because you specified a dhcpv6_server address");
-    } else {
-        if (!memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-            FATAL(1, "You must specify a ipv6_prefix");
-    }
     ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     wsbr_tun_init(ctxt);
