@@ -3,6 +3,7 @@
  * Main authors:
  *     - Jérôme Pouiller <jerome.pouiller@silabs.com>
  */
+#include <poll.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +12,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/stat.h>
-#include <sys/select.h>
 #include <sys/timerfd.h>
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
@@ -38,6 +38,13 @@
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
+
+enum {
+    POLLFD_RCP,
+    POLLFD_EVENT,
+    POLLFD_TIMER,
+    POLLFD_COUNT,
+};
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
@@ -213,42 +220,38 @@ void kill_handler(int signal)
     exit(3);
 }
 
-static void wsbr_poll(struct wsbr_ctxt *ctxt)
+static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 {
-    struct timespec ts = { };
-    fd_set rfds, efds;
-    int maxfd = 0;
+    fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
+    fds[POLLFD_RCP].events = POLLIN;
+    fds[POLLFD_EVENT].fd = ctxt->os_ctxt->event_fd[0];
+    fds[POLLFD_EVENT].events = POLLIN;
+    fds[POLLFD_TIMER].fd = ctxt->timerfd;
+    fds[POLLFD_TIMER].events = POLLIN;
+}
+
+static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
+{
     uint64_t val;
     int ret;
 
-    FD_ZERO(&rfds);
-    FD_ZERO(&efds);
-    if (ctxt->os_ctxt->trig_fd == ctxt->os_ctxt->data_fd)
-        FD_SET(ctxt->os_ctxt->trig_fd, &rfds); // UART
-    else
-        FD_SET(ctxt->os_ctxt->trig_fd, &efds); // SPI + GPIO
-    maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
-    FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
-    maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
-    FD_SET(ctxt->timerfd, &rfds);
-    maxfd = max(maxfd, ctxt->timerfd);
-    // FIXME: consider poll() usage
     if (ctxt->os_ctxt->uart_next_frame_ready)
-        ret = pselect(maxfd + 1, &rfds, NULL, &efds, &ts, NULL);
+        ret = poll(fds, POLLFD_COUNT, 0);
     else
-        ret = pselect(maxfd + 1, &rfds, NULL, &efds, NULL, NULL);
+        ret = poll(fds, POLLFD_COUNT, -1);
     if (ret < 0)
-        FATAL(2, "pselect: %m");
-    if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
+        FATAL(2, "poll: %m");
+
+    if (fds[POLLFD_EVENT].revents & POLLIN) {
         read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
         eventOS_scheduler_run_until_idle();
     }
-    if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) ||
-        FD_ISSET(ctxt->os_ctxt->trig_fd, &efds) ||
+    if (fds[POLLFD_RCP].revents & POLLIN ||
+        fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->os_ctxt->uart_next_frame_ready)
         rcp_rx(ctxt);
-    if (FD_ISSET(ctxt->timerfd, &rfds)) {
+    if (fds[POLLFD_TIMER].revents & POLLIN) {
         ret = read(ctxt->timerfd, &val, sizeof(val));
         WARN_ON(ret < sizeof(val), "cancelled timer?");
         WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
@@ -260,6 +263,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt)
 int main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct pollfd fds[POLLFD_COUNT];
 
     INFO("Silicon Labs Wi-SUN router %s", version_daemon);
     signal(SIGINT, kill_handler);
@@ -292,8 +296,10 @@ int main(int argc, char *argv[])
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         BUG("eventOS_event_handler_create");
 
+    wsbr_fds_init(ctxt, fds);
+
     while (true)
-        wsbr_poll(ctxt);
+        wsbr_poll(ctxt, fds);
 
     return 0;
 }
