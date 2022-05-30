@@ -10,25 +10,10 @@ use dbus::blocking::Connection;
 use dbus::arg::PropMap;
 use dbus::arg::prop_cast;
 use wsbrddbusapi::ComSilabsWisunBorderRouter;
-use clap::Parser;
-use clap::Subcommand;
+use clap::App;
+use clap::AppSettings;
+use clap::SubCommand;
 
-/// Get information from wsbrd (the Silicon Labs Wi-SUN Border Router)
-#[derive(Parser)]
-struct Cli {
-    #[clap(subcommand)]
-    command: Commands,
-
-    /// Use user bus instead of system bus
-    #[clap(long = "user")]
-    dbus_user: bool,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Display a brief status of the Wi-SUN network
-    Status,
-}
 
 fn format_byte_array(input: &Vec<u8>) -> String {
     input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
@@ -106,9 +91,17 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args = Cli::parse();
+    let matches = App::new("wsbrd_cli")
+        .setting(AppSettings::SubcommandRequired)
+        .args_from_usage("--user 'Use user bus instead of system bus'")
+        .subcommand(
+            SubCommand::with_name("status").about("Display a brief status of the Wi-SUN network"),
+        )
+        .get_matches();
+    let dbus_user = matches.is_present("user");
 
-    match args.command {
-        Commands::Status => do_status(args.dbus_user)
+    match matches.subcommand_name() {
+        Some("status") => do_status(dbus_user),
+        _ => Ok(()), // Already covered by AppSettings::SubcommandRequired
     }
 }
