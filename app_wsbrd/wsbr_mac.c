@@ -122,7 +122,7 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     uint32_t chan_spacing;
     uint8_t rail_phy_mode_id;
     uint16_t chan_count;
-    bool phy_mode_found, chan_plan_found;
+    bool phy_mode_found, chan_plan_found, is_submode;
     char tmp_buf[110][150]; // max: 110 lines of 150 characters
     int i, j, k = 0;
 
@@ -134,11 +134,13 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
         chan_spacing = spinel_pop_u32(buf);
         chan_count = spinel_pop_u16(buf);
         rail_phy_mode_id = spinel_pop_u8(buf);
-        spinel_pop_u8(buf); // reserved for alignement
+        is_submode = spinel_pop_u8(buf); // can only be used with mode switch
         // the loops below allow several entries to match
         phy_mode_found = false;
         chan_plan_found = false;
 
+        if (is_submode)
+            continue;
         for (i = 0; phy_params_table[i].phy_mode_id; i++) {
             if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id) {
                 phy_mode_found = true;
