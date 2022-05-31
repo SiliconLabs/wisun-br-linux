@@ -96,14 +96,12 @@ struct chan_params {
 extern const struct phy_params phy_params_table[];
 extern const struct chan_params chan_params_table[];
 
-bool check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params);
-const struct phy_params *phy_params_from_mode(int operating_mode);
-const struct phy_params *phy_params_from_id(int phy_mode_id);
-const struct chan_params *chan_params_fan1_0(int domain, int class);
-const struct chan_params *chan_params_fan1_1(int domain, int chan_plan_id);
-const struct chan_params *chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid);
+bool ws_regdb_check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params);
+const struct phy_params *ws_regdb_phy_params(int phy_mode_id, int operating_mode);
+const struct chan_params *ws_regdb_chan_params(int domain, int chan_plan_id, int operating_class);
+const struct chan_params *ws_regdb_chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid);
 
-int chan_spacing_id(int val);
-int chan_spacing_value(int id);
+int ws_regdb_chan_spacing_id(int val);
+int ws_regdb_chan_spacing_value(int id);
 
 #endif

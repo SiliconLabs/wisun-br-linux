@@ -111,7 +111,7 @@ const struct chan_params chan_params_table[] = {
     { REG_DOMAIN_UNDEF, 0, REG_REGIONAL_NONE, 0,         0,       0,   0,   0, {                             }, },
 };
 
-bool check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params)
+bool ws_regdb_check_phy_chan_compat(const struct phy_params *phy_params, const struct chan_params *chan_params)
 {
     int i;
 
@@ -124,7 +124,7 @@ bool check_phy_chan_compat(const struct phy_params *phy_params, const struct cha
     return false;
 }
 
-const struct phy_params *phy_params_from_mode(int operating_mode)
+const struct phy_params *ws_regdb_phy_params_from_mode(int operating_mode)
 {
     int i;
 
@@ -134,7 +134,7 @@ const struct phy_params *phy_params_from_mode(int operating_mode)
     return NULL;
 }
 
-const struct phy_params *phy_params_from_id(int phy_mode_id)
+const struct phy_params *ws_regdb_phy_params_from_id(int phy_mode_id)
 {
     int i;
 
@@ -144,7 +144,17 @@ const struct phy_params *phy_params_from_id(int phy_mode_id)
     return NULL;
 }
 
-const struct chan_params *chan_params_fan1_0(int reg_domain, int operating_class)
+const struct phy_params *ws_regdb_phy_params(int phy_mode_id, int operating_mode)
+{
+    const struct phy_params* phy_params = NULL;
+    phy_params = ws_regdb_phy_params_from_id(phy_mode_id);
+    if (!phy_params)
+        phy_params = ws_regdb_phy_params_from_mode(operating_mode);
+
+    return phy_params;
+}
+
+static const struct chan_params *ws_regdb_chan_params_fan1_0(int reg_domain, int operating_class)
 {
     int i;
 
@@ -157,7 +167,7 @@ const struct chan_params *chan_params_fan1_0(int reg_domain, int operating_class
     return NULL;
 }
 
-const struct chan_params *chan_params_fan1_1(int reg_domain, int chan_plan_id)
+static const struct chan_params *ws_regdb_chan_params_fan1_1(int reg_domain, int chan_plan_id)
 {
     int i;
 
@@ -170,7 +180,18 @@ const struct chan_params *chan_params_fan1_1(int reg_domain, int chan_plan_id)
     return NULL;
 }
 
-const struct chan_params *chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid)
+const struct chan_params * ws_regdb_chan_params(int reg_domain, int chan_plan_id, int operating_class)
+{
+    const struct chan_params * chan_params = NULL;
+
+    chan_params = ws_regdb_chan_params_fan1_1(reg_domain, chan_plan_id);
+    if (!chan_params)
+        chan_params = ws_regdb_chan_params_fan1_0(reg_domain, operating_class);
+
+    return chan_params;
+}
+
+const struct chan_params *ws_regdb_chan_params_universal(int chan0_freq, int chan_spacing, int chan_count_valid)
 {
     int i;
 
@@ -195,7 +216,7 @@ static const struct {
     { 1200000, CHANNEL_SPACING_1200 },
 };
 
-int chan_spacing_id(int val)
+int ws_regdb_chan_spacing_id(int val)
 {
     int i;
 
@@ -205,7 +226,7 @@ int chan_spacing_id(int val)
     return -1;
 }
 
-int chan_spacing_value(int id)
+int ws_regdb_chan_spacing_value(int id)
 {
     int i;
 

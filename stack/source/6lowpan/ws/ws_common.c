@@ -74,9 +74,7 @@ int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entr
 {
     const struct chan_params *chan_params;
 
-    chan_params = chan_params_fan1_1(regulatory_domain, channel_plan_id);
-    if (!chan_params)
-        chan_params = chan_params_fan1_0(regulatory_domain, operating_class);
+    chan_params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
     WARN_ON(chan_params && chan_params->chan_count != number_of_channels);
 
     memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
@@ -117,7 +115,7 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     const struct chan_params *chan_params;
 
     // Check if phy_mode_id is valid
-    if (!phy_params_from_id(hopping_schedule->phy_mode_id) && !phy_params_from_mode(hopping_schedule->operating_mode))
+    if (!ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode))
         return -1;
 
     // Case where channel parameters are provided by the user
@@ -125,15 +123,14 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
         return 0;
 
     hopping_schedule->channel_plan = 0;
-    chan_params = chan_params_fan1_1(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id);
-    if (!chan_params)
-        chan_params = chan_params_fan1_0(hopping_schedule->regulatory_domain, hopping_schedule->operating_class);
+    chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
+                                       hopping_schedule->operating_class);
     if (!chan_params)
         return -1;
 
     hopping_schedule->ch0_freq = chan_params->chan0_freq;
     hopping_schedule->number_of_channels = chan_params->chan_count;
-    hopping_schedule->channel_spacing = chan_spacing_id(chan_params->chan_spacing);
+    hopping_schedule->channel_spacing = ws_regdb_chan_spacing_id(chan_params->chan_spacing);
     BUG_ON(hopping_schedule->channel_spacing < 0);
 
     return 0;
@@ -143,9 +140,7 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
 {
     const struct chan_params *params;
 
-    params = chan_params_fan1_1(regulatory_domain, channel_plan_id);
-    if (!params)
-        params = chan_params_fan1_0(regulatory_domain, operating_class);
+    params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
     if (!params)
         return 0;
     return params->chan_count;
@@ -383,9 +378,7 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 {
     const struct phy_params *phy_params;
 
-    phy_params = phy_params_from_id(phy_mode_id);
-    if (!phy_params)
-        phy_params = phy_params_from_mode(operating_mode);
+    phy_params = ws_regdb_phy_params(phy_mode_id, operating_mode);
     if (!phy_params)
         return 0;
     return phy_params->datarate;

@@ -1913,13 +1913,9 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
     phy_rf_channel_configuration_s rf_config = { };
 
-    phy_params = phy_params_from_id(hopping_schedule->phy_mode_id);
-    if (!phy_params)
-        phy_params = phy_params_from_mode(hopping_schedule->operating_mode);
-
-    chan_params = chan_params_fan1_1(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id);
-    if (!chan_params)
-        chan_params = chan_params_fan1_0(hopping_schedule->regulatory_domain, hopping_schedule->operating_class);
+    phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
+    chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
+                                       hopping_schedule->operating_class);
 
     // We don't worry of the case where phy_params == NULL, the RCP will return
     // an error anyway.
@@ -1934,10 +1930,10 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
 
     if (!chan_params) {
         rf_config.channel_0_center_frequency = hopping_schedule->ch0_freq;
-        rf_config.channel_spacing = chan_spacing_value(hopping_schedule->channel_spacing);
+        rf_config.channel_spacing = ws_regdb_chan_spacing_value(hopping_schedule->channel_spacing);
         rf_config.number_of_channels = hopping_schedule->number_of_channels;
     } else {
-        WARN_ON(!check_phy_chan_compat(phy_params, chan_params),
+        WARN_ON(!ws_regdb_check_phy_chan_compat(phy_params, chan_params),
                 "non standard RF configuration in use");
         rf_config.channel_0_center_frequency = chan_params->chan0_freq;
         rf_config.channel_spacing = chan_params->chan_spacing;
