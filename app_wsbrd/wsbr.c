@@ -149,7 +149,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
     if (ctxt->ws_domain == REG_DOMAIN_UNDEF) {
         ret = ws_management_channel_plan_set(ctxt->rcp_if_id,
-                                             1, // application specific plan (FIXME: really?)
                                              CHANNEL_FUNCTION_DH1CF,
                                              CHANNEL_FUNCTION_DH1CF,
                                              ctxt->ws_chan0_freq,

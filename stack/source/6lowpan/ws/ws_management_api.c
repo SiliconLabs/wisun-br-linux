@@ -534,7 +534,6 @@ int ws_management_channel_mask_validate(
 
 int ws_management_channel_plan_set(
     int8_t interface_id,
-    uint8_t channel_plan,
     uint8_t uc_channel_function,
     uint8_t bc_channel_function,
     uint32_t ch0_freq, // Stack can not modify this
@@ -547,7 +546,7 @@ int ws_management_channel_plan_set(
     if (!cur || !ws_info(cur)) {
         return -1;
     }
-    cur->ws_info->hopping_schedule.channel_plan = channel_plan;
+    cur->ws_info->hopping_schedule.channel_plan = 1;
     cur->ws_info->hopping_schedule.uc_channel_function = uc_channel_function;
     cur->ws_info->hopping_schedule.bc_channel_function = bc_channel_function;
     cur->ws_info->hopping_schedule.ch0_freq = ch0_freq;

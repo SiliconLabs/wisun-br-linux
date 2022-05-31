@@ -569,7 +569,6 @@ int ws_management_channel_mask_validate(
  *
  *
  * \param interface_id Network interface ID.
- * \param channel_plan Channel plan must be 1 application defined if deviating from regulatory domain (0).
  * \param uc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
  * \param bc_channel_function 0: Fixed channel, 1:TR51CF, 2: Direct Hash, 3: Vendor defined.
  * \param ch0_freq ch0 center frequency in Hz
@@ -581,7 +580,6 @@ int ws_management_channel_mask_validate(
  */
 int ws_management_channel_plan_set(
     int8_t interface_id,
-    uint8_t channel_plan,
     uint8_t uc_channel_function,
     uint8_t bc_channel_function,
     uint32_t ch0_freq, // Stack can not modify this
