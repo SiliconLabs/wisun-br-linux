@@ -1321,15 +1321,9 @@ static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hop
 
 static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    uint16_t num_of_channel = hopping_schedule->number_of_channels;
-    if (rx_plan->ch0 != hopping_schedule->ch0_freq) {
-        return false;
-    } else if (rx_plan->channel_spacing != hopping_schedule->channel_spacing) {
-        return false;
-    } else if (rx_plan->number_of_channel != num_of_channel) {
-        return false;
-    }
-    return true;
+    return rx_plan->ch0 * 1000 == hopping_schedule->ch0_freq
+        && rx_plan->channel_spacing == hopping_schedule->channel_spacing
+        && rx_plan->number_of_channel == hopping_schedule->number_of_channels;
 }
 
 static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
