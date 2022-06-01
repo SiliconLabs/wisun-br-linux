@@ -576,6 +576,7 @@ void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, 
 static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint32_t *selected_channel_mask, const uint32_t *global_channel_mask, uint16_t number_of_channels)
 {
     bool active_range = false;
+    int total_excluded_range_length = 0;
 
     //Clear Old Data
     memset(excluded_data, 0, sizeof(ws_excluded_channel_data_t));
@@ -602,14 +603,15 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
             excluded_data->excluded_channel_count++;
 
             if (!active_range) {
-                if (excluded_data->excluded_range_length < WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-                    excluded_data->excluded_range_length++;
-                    active_range = true;
-                    //Set start channel
-                    excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_start = i;
+                active_range = true;
+                total_excluded_range_length++;
+                if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
+                    excluded_data->excluded_range[total_excluded_range_length - 1].range_start = i;
+                    excluded_data->excluded_range_length = total_excluded_range_length;
                 }
-            } else {
-                excluded_data->excluded_range[excluded_data->excluded_range_length - 1].range_end = i;
+            }
+            if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
+                excluded_data->excluded_range[total_excluded_range_length - 1].range_end = i;
             }
         }
     }
@@ -617,11 +619,10 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
     excluded_data->channel_mask_bytes_inline = ((number_of_channels + 7) / 8);
 
     uint8_t channel_plan = 0;
-    if (excluded_data->excluded_range_length == 0) {
+    if (total_excluded_range_length == 0) {
         excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
-    } else if (excluded_data->excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-
-        uint8_t range_length = (excluded_data->excluded_range_length * 4) + 3;
+    } else if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
+        uint8_t range_length = (total_excluded_range_length * 4) + 3;
         if (range_length <= ((number_of_channels + 7) / 8) + 6) {
             excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
         } else {
@@ -632,7 +633,8 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
         excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
         channel_plan = 1;
     }
-    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u", excluded_data->excluded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
+    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u",
+             excluded_data->excluded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
     return channel_plan;
 }
 
