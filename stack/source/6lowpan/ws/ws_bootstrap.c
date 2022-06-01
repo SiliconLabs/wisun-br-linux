@@ -1301,7 +1301,7 @@ void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cu
 
 static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    if (rx_plan->operation_class != hopping_schedule->operating_class) {
+    if (rx_plan->operating_class != hopping_schedule->operating_class) {
         return false;
     } else if (rx_plan->regulatory_domain != hopping_schedule->regulatory_domain) {
         return false;

@@ -297,7 +297,7 @@ typedef struct ws_lgtkhash_ie {
  */
 typedef struct ws_channel_plan_zero {
     uint8_t regulatory_domain;
-    uint8_t operation_class;
+    uint8_t operating_class;
 } ws_channel_plan_zero_t;
 
 /**

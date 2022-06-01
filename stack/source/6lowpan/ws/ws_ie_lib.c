@@ -119,7 +119,7 @@ static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_in
         case 0:
             //Regulator domain and operationg class inline
             generic_channel_info->plan.zero.regulatory_domain = hopping_schedule->regulatory_domain;
-            generic_channel_info->plan.zero.operation_class = hopping_schedule->operating_class;
+            generic_channel_info->plan.zero.operating_class = hopping_schedule->operating_class;
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
@@ -370,7 +370,7 @@ static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t
         case 0:
             //Regulator domain and operationg class inline
             *ptr++ = generic_channel_info->plan.zero.regulatory_domain;
-            *ptr++ = generic_channel_info->plan.zero.operation_class;
+            *ptr++ = generic_channel_info->plan.zero.operating_class;
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
@@ -972,7 +972,7 @@ bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *ws_pan
 static uint8_t *ws_channel_plan_zero_read(uint8_t *ptr, ws_channel_plan_zero_t *plan)
 {
     plan->regulatory_domain = *ptr++;
-    plan->operation_class = *ptr++;
+    plan->operating_class = *ptr++;
     return ptr;
 }
 
