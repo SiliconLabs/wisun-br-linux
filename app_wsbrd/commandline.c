@@ -241,12 +241,18 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
                 break;
         if (i == ARRAY_SIZE(valid_ws_modes))
             FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, ctxt->ws_mode);
+        ctxt->ws_phy_mode_id = 0;
+        if (ctxt->ws_mode & OPERATING_MODE_PHY_MODE_ID_BIT)
+            ctxt->ws_phy_mode_id = ctxt->ws_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
     } else if (sscanf(line, " class = %d %c", &ctxt->ws_class, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
             if (valid_ws_classes[i] == ctxt->ws_class)
                 break;
         if (i == ARRAY_SIZE(valid_ws_classes))
             FATAL(1, "%s:%d: invalid class: %d", filename, line_no, ctxt->ws_class);
+        ctxt->ws_chan_plan_id = 0;
+        if (ctxt->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+            ctxt->ws_chan_plan_id = ctxt->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
     } else if (sscanf(line, " chan0_freq = %u %c", &ctxt->ws_chan0_freq, &garbage) == 1) {
         /* empty */
     } else if (sscanf(line, " chan_spacing = %u %c", &ctxt->ws_chan_spacing, &garbage) == 1) {

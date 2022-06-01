@@ -426,7 +426,9 @@ int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,
     uint8_t operating_class,
-    uint8_t operating_mode);
+    uint8_t operating_mode,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id);
 
 /**
  * Get regulatory domain of Wi-SUN stack.

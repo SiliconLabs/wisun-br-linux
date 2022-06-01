@@ -145,7 +145,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
 
     ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
-                                              ctxt->ws_class, ctxt->ws_mode);
+                                              ctxt->ws_class, ctxt->ws_mode,
+                                              ctxt->ws_phy_mode_id, ctxt->ws_chan_plan_id);
     WARN_ON(ret);
     if (ctxt->ws_domain == REG_DOMAIN_UNDEF) {
         ret = ws_management_channel_plan_set(ctxt->rcp_if_id,

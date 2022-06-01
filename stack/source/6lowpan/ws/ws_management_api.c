@@ -261,25 +261,13 @@ int ws_management_domain_configuration_validate(
     return 0;
 }
 
-// If using PhyModeId and ChanPlanId on FAN1.0 API, convert operating mode and operating class
-// into PhyModeId ChanPlanId
-void ws_management_convert_legacy_config(ws_phy_cfg_t *cfg)
-{
-    if (cfg->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT) {
-        // Channel plan ID is coded on the operating class LSB
-        cfg->channel_plan_id = cfg->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
-    }
-
-    if (cfg->operating_mode & OPERATING_MODE_PHY_MODE_ID_BIT) {
-        cfg->phy_mode_id = cfg->operating_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
-    }
-}
-
 int ws_management_regulatory_domain_set(
     int8_t interface_id,
     uint8_t regulatory_domain,
     uint8_t operating_class,
-    uint8_t operating_mode)
+    uint8_t operating_mode,
+    uint8_t phy_mode_id,
+    uint8_t channel_plan_id)
 {
     protocol_interface_info_entry_t *cur;
 
@@ -289,32 +277,16 @@ int ws_management_regulatory_domain_set(
     }
 
     ws_phy_cfg_t cfg;
-    ws_phy_cfg_t cfg_default;
     if (ws_cfg_phy_get(&cfg) < 0) {
         return -3;
     }
 
-    if (ws_cfg_phy_default_set(&cfg_default) < 0) {
-        return -3;
-    }
+    cfg.regulatory_domain = regulatory_domain;
+    cfg.operating_mode = operating_mode;
+    cfg.operating_class = operating_class;
+    cfg.phy_mode_id = phy_mode_id;
+    cfg.channel_plan_id = channel_plan_id;
 
-    if (regulatory_domain != 255) {
-        cfg.regulatory_domain = regulatory_domain;
-    } else {
-        cfg.regulatory_domain = cfg_default.regulatory_domain;
-    }
-    if (operating_mode != 255) {
-        cfg.operating_mode = operating_mode;
-    } else {
-        cfg.operating_mode = cfg_default.operating_mode;
-    }
-    if (operating_class != 255) {
-        cfg.operating_class = operating_class;
-    } else {
-        cfg.operating_class = cfg_default.operating_class;
-    }
-
-    ws_management_convert_legacy_config(&cfg);
     if (ws_cfg_phy_set(cur, &cfg, 0) < 0) {
         return -4;
     }
