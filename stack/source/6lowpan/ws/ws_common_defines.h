@@ -301,7 +301,7 @@ typedef struct ws_channel_plan_zero {
 } ws_channel_plan_zero_t;
 
 /**
- * @brief ws_channel_plan_one_t WS channel plan 1 define ch0, spasing and channel count
+ * @brief ws_channel_plan_one_t WS channel plan 1 define ch0, channel spacing and channel count
  */
 typedef struct ws_channel_plan_one {
     uint_fast24_t ch0; // kHz
