@@ -108,7 +108,7 @@ bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
 
-bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct protocol_interface_info_entry *cur);
+bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs, struct protocol_interface_info_entry *cur);
 
 bool ws_bootstrap_validate_channel_function(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs);
 

@@ -220,7 +220,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
         return;
     }
 
-    if (!ws_bootstrap_validate_channel_plan(&ws_us, cur) ||
+    if (!ws_bootstrap_validate_channel_plan(&ws_us, NULL, cur) ||
             !ws_bootstrap_validate_channel_function(&ws_us, NULL)) {
         return;
     }

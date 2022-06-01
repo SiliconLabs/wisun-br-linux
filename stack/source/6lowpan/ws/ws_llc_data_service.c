@@ -721,7 +721,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
 
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
-            (!ws_bootstrap_validate_channel_plan(&us_ie, interface) ||
+            (!ws_bootstrap_validate_channel_plan(&us_ie, NULL, interface) ||
              !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
         //Channel plan or channel function configuration mismatch
         return;
@@ -848,7 +848,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
 
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
-            (!ws_bootstrap_validate_channel_plan(&us_ie, interface) ||
+            (!ws_bootstrap_validate_channel_plan(&us_ie, NULL, interface) ||
              !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
         //Channel plan or channel function configuration mismatch
         return;

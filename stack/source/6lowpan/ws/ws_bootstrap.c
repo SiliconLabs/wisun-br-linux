@@ -1338,25 +1338,48 @@ static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hoppi
     return true;
 }
 
-bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, struct protocol_interface_info_entry *cur)
+bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, struct protocol_interface_info_entry *cur)
 {
-    if (ws_us->channel_plan == 0) {
-        if (!ws_channel_plan_zero_compare(&ws_us->plan.zero, &cur->ws_info->hopping_schedule)) {
+    if (ws_us) {
+        if (ws_us->channel_plan == 0) {
+            if (!ws_channel_plan_zero_compare(&ws_us->plan.zero, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else if (ws_us->channel_plan == 1) {
+            if (!ws_channel_plan_one_compare(&ws_us->plan.one, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else if (ws_us->channel_plan == 2) {
+            if (!ws_version_1_1(cur)) {
+                return false;
+            }
+            if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else {
             return false;
         }
-    } else if (ws_us->channel_plan == 1) {
-        if (!ws_channel_plan_one_compare(&ws_us->plan.one, &cur->ws_info->hopping_schedule)) {
+    }
+
+    if (ws_bs) {
+        if (ws_bs->channel_plan == 0) {
+            if (!ws_channel_plan_zero_compare(&ws_bs->plan.zero, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else if (ws_bs->channel_plan == 1) {
+            if (!ws_channel_plan_one_compare(&ws_bs->plan.one, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else if (ws_bs->channel_plan == 2) {
+            if (!ws_version_1_1(cur)) {
+                return false;
+            }
+            if (!ws_channel_plan_two_compare(&ws_bs->plan.two, &cur->ws_info->hopping_schedule)) {
+                return false;
+            }
+        } else {
             return false;
         }
-    } else if (ws_us->channel_plan == 2) {
-        if (!ws_version_1_1(cur)) {
-            return false;
-        }
-        if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schedule)) {
-            return false;
-        }
-    } else {
-        return false;
     }
 
     return true;
