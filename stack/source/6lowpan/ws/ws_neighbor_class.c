@@ -264,33 +264,54 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_inter
         ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
-        ws_hopping_schedule_t *own_schedule = &cur->ws_info->hopping_schedule;
+        uint8_t excluded_channel_ctrl;
+        uint8_t regulatory_domain;
+        uint8_t operating_class;
+        uint8_t channel_plan_id;
 
-        if (ws_us->channel_plan == 0) {
-            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulatory_domain, ws_us->plan.zero.operating_class, own_schedule->channel_plan_id);
-        } else if (ws_us->channel_plan == 1) {
-            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
-
-        } else if (ws_us->channel_plan == 2) {
-            //TODO add Channel plan 2 channel count function call here
+        switch (ws_us->channel_plan) {
+            case 0:  // Regulatory Domain and Operating Class
+                excluded_channel_ctrl = ws_us->excluded_channel_ctrl;
+                regulatory_domain = ws_us->plan.zero.regulatory_domain;
+                operating_class = ws_us->plan.zero.operating_class;
+                channel_plan_id = 255;
+                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
+                break;
+            case 1:  // Explicit Channel Plan
+                excluded_channel_ctrl = ws_us->excluded_channel_ctrl;
+                regulatory_domain = REG_DOMAIN_UNDEF;
+                operating_class = 255;
+                channel_plan_id = 255;
+                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
+                break;
+            case 2:  // ChanPlanID and Regulatory Domain
+                //TODO add Channel plan 2 channel count function call here
+                // Fall through until it is handled
+            default:
+                // Unknown channel plan, so use domain channel mask
+                excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
+                regulatory_domain = cur->ws_info->hopping_schedule.regulatory_domain;
+                operating_class = cur->ws_info->hopping_schedule.operating_class;
+                channel_plan_id = cur->ws_info->hopping_schedule.channel_plan_id;
+                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = cur->ws_info->hopping_schedule.number_of_channels;
+                break;
         }
 
-        //Handle excluded channel and generate activate channel list
-        if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+        // Handle excluded channel and generate activate channel list
+        if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
-        } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+        } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
+            ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
-        } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
+        } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
             if (ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels != ws_neighbor->fhss_data.uc_channel_list.channel_count) {
-                ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, own_schedule->regulatory_domain, own_schedule->operating_class, own_schedule->channel_plan_id);
+                ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
                 ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
             }
         }
-
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
     ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
