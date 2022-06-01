@@ -76,3 +76,21 @@ int bitcmp(const void *s1, const void *s2, size_t len)
     s2_8 += nb_bytes;
     return ((int) (*s1_8 & mask)) - ((int) (*s2_8 & mask));
 }
+
+bool bitcmp0(const void *s1, size_t len)
+{
+    const uint8_t *s1_8 = s1;
+    int nb_bytes = len / 8;
+    int nb_bits = len % 8;
+    uint8_t mask = (1u << nb_bits) - 1;
+    int i;
+
+    for (i = 0; i < nb_bytes; i++)
+        if (s1_8[i])
+            return false;
+    s1_8 += nb_bytes;
+    if (*s1_8 & mask)
+        return false;
+    return true;
+}
+
