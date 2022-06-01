@@ -727,7 +727,9 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         return;
     }
 
-    if (bs_ie_inline && !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie)) {
+    if (bs_ie_inline &&
+            (!ws_bootstrap_validate_channel_plan(NULL,  &ws_bs_ie, interface) ||
+             !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie))) {
         return;
     }
 
@@ -854,7 +856,9 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
         return;
     }
 
-    if (bs_ie_inline && !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie)) {
+    if (bs_ie_inline &&
+            (!ws_bootstrap_validate_channel_plan(NULL,  &ws_bs_ie, interface) ||
+             !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie))) {
         return;
     }
 
