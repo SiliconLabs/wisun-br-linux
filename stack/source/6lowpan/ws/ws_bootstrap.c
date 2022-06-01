@@ -1307,12 +1307,16 @@ void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cu
 
 static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
 {
-    if (rx_plan->operating_class != hopping_schedule->operating_class) {
-        return false;
-    } else if (rx_plan->regulatory_domain != hopping_schedule->regulatory_domain) {
-        return false;
+    const struct chan_params *chan_params;
+    chan_params = ws_regdb_chan_params(rx_plan->regulatory_domain, 255, rx_plan->operating_class);
+    if (chan_params) {
+        return chan_params->chan0_freq == hopping_schedule->ch0_freq
+            && ws_regdb_chan_spacing_id(chan_params->chan_spacing) == hopping_schedule->channel_spacing
+            && chan_params->chan_count == hopping_schedule->number_of_channels;
+    } else {
+        return rx_plan->regulatory_domain == hopping_schedule->regulatory_domain
+            && rx_plan->operating_class == hopping_schedule->operating_class;
     }
-    return true;
 }
 
 static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
