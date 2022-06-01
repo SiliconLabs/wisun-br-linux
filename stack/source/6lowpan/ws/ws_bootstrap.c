@@ -1303,7 +1303,7 @@ static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hop
 {
     if (rx_plan->operation_class != hopping_schedule->operating_class) {
         return false;
-    } else if (rx_plan->regulator_domain != hopping_schedule->regulatory_domain) {
+    } else if (rx_plan->regulatory_domain != hopping_schedule->regulatory_domain) {
         return false;
     }
     return true;
@@ -1326,7 +1326,7 @@ static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hoppi
 {
     if (rx_plan->channel_plan_id != hopping_schedule->channel_plan_id) {
         return false;
-    } else if (rx_plan->regulator_domain != hopping_schedule->regulatory_domain) {
+    } else if (rx_plan->regulatory_domain != hopping_schedule->regulatory_domain) {
         return false;
     }
     return true;

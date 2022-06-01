@@ -118,7 +118,7 @@ static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_in
     switch (generic_channel_info->channel_plan) {
         case 0:
             //Regulator domain and operationg class inline
-            generic_channel_info->plan.zero.regulator_domain = hopping_schedule->regulatory_domain;
+            generic_channel_info->plan.zero.regulatory_domain = hopping_schedule->regulatory_domain;
             generic_channel_info->plan.zero.operation_class = hopping_schedule->operating_class;
             break;
         case 1:
@@ -128,7 +128,7 @@ static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_in
             generic_channel_info->plan.one.number_of_channel = hopping_schedule->number_of_channels;
             break;
         case 2:
-            generic_channel_info->plan.two.regulator_domain = hopping_schedule->regulatory_domain;
+            generic_channel_info->plan.two.regulatory_domain = hopping_schedule->regulatory_domain;
             generic_channel_info->plan.two.channel_plan_id = hopping_schedule->channel_plan_id;
             break;
         default:
@@ -369,7 +369,7 @@ static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t
     switch (generic_channel_info->channel_plan) {
         case 0:
             //Regulator domain and operationg class inline
-            *ptr++ = generic_channel_info->plan.zero.regulator_domain;
+            *ptr++ = generic_channel_info->plan.zero.regulatory_domain;
             *ptr++ = generic_channel_info->plan.zero.operation_class;
             break;
         case 1:
@@ -379,7 +379,7 @@ static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t
             ptr = common_write_16_bit_inverse(generic_channel_info->plan.one.number_of_channel, ptr);
             break;
         case 2:
-            *ptr++ = generic_channel_info->plan.two.regulator_domain;
+            *ptr++ = generic_channel_info->plan.two.regulatory_domain;
             *ptr++ = generic_channel_info->plan.two.channel_plan_id;
             break;
         default:
@@ -971,7 +971,7 @@ bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *ws_pan
 
 static uint8_t *ws_channel_plan_zero_read(uint8_t *ptr, ws_channel_plan_zero_t *plan)
 {
-    plan->regulator_domain = *ptr++;
+    plan->regulatory_domain = *ptr++;
     plan->operation_class = *ptr++;
     return ptr;
 }
@@ -988,7 +988,7 @@ static uint8_t *ws_channel_plan_one_read(uint8_t *ptr, ws_channel_plan_one_t *pl
 
 static uint8_t *ws_channel_plan_two_read(uint8_t *ptr, ws_channel_plan_two_t *plan)
 {
-    plan->regulator_domain = *ptr++;
+    plan->regulatory_domain = *ptr++;
     plan->channel_plan_id = *ptr++;
     return ptr;
 }

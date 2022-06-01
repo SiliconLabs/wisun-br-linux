@@ -266,7 +266,7 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_inter
         ws_hopping_schedule_t *own_schedule = &cur->ws_info->hopping_schedule;
 
         if (ws_us->channel_plan == 0) {
-            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulator_domain, ws_us->plan.zero.operation_class, own_schedule->channel_plan_id);
+            ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(ws_us->plan.zero.regulatory_domain, ws_us->plan.zero.operation_class, own_schedule->channel_plan_id);
         } else if (ws_us->channel_plan == 1) {
             ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
 
@@ -316,7 +316,7 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_int
         uint16_t broadcast_number_of_channels;
 
         if (ws_bs->channel_plan == 0) {
-            broadcast_number_of_channels = ws_common_channel_number_calc(ws_bs->plan.zero.regulator_domain, ws_bs->plan.zero.operation_class, own_schedule->channel_plan_id);
+            broadcast_number_of_channels = ws_common_channel_number_calc(ws_bs->plan.zero.regulatory_domain, ws_bs->plan.zero.operation_class, own_schedule->channel_plan_id);
         } else if (ws_bs->channel_plan == 1) {
             broadcast_number_of_channels = ws_bs->plan.one.number_of_channel;
 

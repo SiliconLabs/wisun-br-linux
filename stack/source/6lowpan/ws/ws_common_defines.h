@@ -296,7 +296,7 @@ typedef struct ws_lgtkhash_ie {
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class
  */
 typedef struct ws_channel_plan_zero {
-    uint8_t regulator_domain;
+    uint8_t regulatory_domain;
     uint8_t operation_class;
 } ws_channel_plan_zero_t;
 
@@ -313,7 +313,7 @@ typedef struct ws_channel_plan_one {
  * @brief ws_channel_plan_two_t WS channel plan 2 define regulator domain and chanel plan 1
  */
 typedef struct ws_channel_plan_two {
-    uint8_t regulator_domain;
+    uint8_t regulatory_domain;
     uint8_t channel_plan_id;
 } ws_channel_plan_two_t;
 
