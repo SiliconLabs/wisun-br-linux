@@ -198,10 +198,27 @@ char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MA
 
 static __thread char trace_buffer[256];
 static __thread int trace_idx = 0;
+/*
+ * trace_nested_counter allow to handle nested trace calls. For exemple:
+ *  char *a() {
+ *      DEBUG();
+ *      ...;
+ *  }
+ *  ...
+ *  DEBUG("%d", tr_bytes(...), tr_bytes(a()));
+ */
+static __thread int trace_nested_counter = 0;
 
-void tr_reset()
+void __tr_enter()
 {
-    trace_idx = 0;
+    trace_nested_counter++;
+}
+
+void __tr_exit()
+{
+    trace_nested_counter--;
+    if (!trace_nested_counter)
+        trace_idx = 0;
 }
 
 const char *tr_bytes(const void *in, int len, const void **in_done, int max_out, int opt)
