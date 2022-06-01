@@ -350,7 +350,12 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_int
                 excluded_channel_ctrl = ws_bs->excluded_channel_ctrl;
                 regulatory_domain = ws_bs->plan.zero.regulatory_domain;
                 operating_class = ws_bs->plan.zero.operating_class;
-                channel_plan_id = 255;
+                // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
+                // non standard extension
+                if (ws_bs->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+                    channel_plan_id = ws_bs->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
+                else
+                    channel_plan_id = 255;
                 broadcast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
                 break;
             case 1:  // Explicit Channel Plan
