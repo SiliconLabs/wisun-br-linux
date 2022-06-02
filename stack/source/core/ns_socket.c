@@ -957,7 +957,7 @@ bool socket_message_validate_iov(const ns_msghdr_t *msg, uint16_t *length_out)
     }
 
     uint16_t msg_length = 0;
-    ns_iovec_t *msg_iov = msg->msg_iov;
+    struct iovec *msg_iov = msg->msg_iov;
     for (uint_fast16_t i = 0; i < msg->msg_iovlen; i++) {
         if (msg_iov->iov_len != 0 && !msg_iov->iov_base) {
             return false;
@@ -1029,7 +1029,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
             goto fail;
         }
 
-        const ns_iovec_t *msg_iov = msg->msg_iov;
+        const struct iovec *msg_iov = msg->msg_iov;
         uint16_t to_copy = payload_length;
         for (uint_fast16_t i = 0; i < msg->msg_iovlen; i++, msg_iov++) {
             uint16_t len = msg_iov->iov_len < to_copy ? msg_iov->iov_len : to_copy;

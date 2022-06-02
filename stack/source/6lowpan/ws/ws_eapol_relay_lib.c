@@ -31,7 +31,7 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
 {
     ns_address_t addr = *dest_addr;
 
-    ns_iovec_t msg_iov[2];
+    struct iovec msg_iov[2];
     ns_msghdr_t msghdr;
     //Set messages name buffer
     msghdr.msg_name = &addr;

@@ -190,7 +190,7 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
     ns_address_t dest_addr = eapol_auth_relay->relay_addr;
 
     uint8_t temp_array[26];
-    ns_iovec_t msg_iov[2];
+    struct iovec msg_iov[2];
     ns_msghdr_t msghdr;
     //Set messages name buffer
     msghdr.msg_name = &dest_addr;

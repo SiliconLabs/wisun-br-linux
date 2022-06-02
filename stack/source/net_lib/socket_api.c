@@ -165,7 +165,7 @@ static uint_fast16_t socket_copy_queue_to_user(sockbuf_t *sb, ns_msghdr_t *msg, 
 {
     uint_fast16_t retVal = 0;
 
-    const ns_iovec_t *iovec_ptr = msg->msg_iov;
+    const struct iovec *iovec_ptr = msg->msg_iov;
     uint_fast16_t iovec_cnt = msg->msg_iovlen;
 
     uint8_t *out_ptr = iovec_ptr->iov_base;
@@ -254,7 +254,7 @@ int16_t socket_recv(int8_t socket, void *buffer, uint16_t length, int flags)
 
 int16_t socket_recvfrom(int8_t socket, void *buffer, uint16_t length, int flags, ns_address_t *src_addr)
 {
-    ns_iovec_t msg_iov;
+    struct iovec msg_iov;
     ns_msghdr_t msghdr;
 
     //Init message payload vector
@@ -368,7 +368,7 @@ int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
 
 int16_t socket_sendto(int8_t socket, const ns_address_t *address, const void *buffer, uint16_t length)
 {
-    ns_iovec_t data_vector;
+    struct iovec data_vector;
     ns_msghdr_t msghdr;
 
     //SET IOV vector

@@ -448,7 +448,7 @@ void recv_dhcp_relay_msg(void *cb_res)
 
 
     ns_msghdr_t msghdr;
-    ns_iovec_t msg_data;
+    struct iovec msg_data;
     msg_data.iov_base = socket_data;
     msg_data.iov_len = sckt_data->d_len;
     //Set messages name buffer
@@ -521,7 +521,7 @@ void recv_dhcp_relay_msg(void *cb_res)
             tr_error("No GP address");
             goto cleanup;
         }
-        ns_iovec_t msg_iov[2];
+        struct iovec msg_iov[2];
         uint8_t *ptr = relay_frame;
         //Build
         //ADD relay frame vector front of original data
@@ -927,7 +927,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         //Build Relay Reply only server do this
         int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
         socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
-        ns_iovec_t data_vector[4];
+        struct iovec data_vector[4];
         uint8_t relay_header[4];
         libdhcpv6_dhcp_option_header_write(relay_header, DHCPV6_OPTION_RELAY, msg_tr_ptr->msg_len);
         ns_msghdr_t msghdr;

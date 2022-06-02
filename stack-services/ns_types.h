@@ -392,14 +392,4 @@ typedef int_fast32_t int_fast24_t;
 
 #endif
 
-/** \brief Scatter-gather descriptor
- *
- * Slightly optimised for small platforms - we assume we won't need any
- * element bigger than 64K.
- */
-typedef struct ns_iovec {
-    void *iov_base;
-    uint_fast16_t iov_len;
-} ns_iovec_t;
-
 #endif /* NS_TYPES_H */

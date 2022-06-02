@@ -20,6 +20,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 #include "common/hal_interrupt.h"
 #include "stack-services/ns_trace.h"
 #include "stack/net_interface.h"
@@ -358,7 +359,7 @@ buffer_t *buffer_clone(buffer_t *buf)
     return result_ptr;
 }
 
-static uint16_t ip_fcf_v(uint_fast8_t count, const ns_iovec_t vec[static count])
+static uint16_t ip_fcf_v(uint_fast8_t count, const struct iovec vec[static count])
 {
     uint_fast32_t acc32 = 0;
     bool odd = false;
@@ -399,7 +400,7 @@ static uint16_t ipv6_fcf(const uint8_t src_address[static 16],
 {
     // Use gather vector to lay out IPv6 pseudo-header (RFC 2460) and data
     uint8_t hdr_data[] = { data_length >> 8, data_length, 0, next_protocol };
-    ns_iovec_t vec[4] = {
+    struct iovec vec[4] = {
         { (void *) src_address, 16 },
         { (void *) dest_address, 16 },
         { hdr_data, 4 },

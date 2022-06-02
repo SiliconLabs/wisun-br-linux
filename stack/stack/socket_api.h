@@ -16,6 +16,7 @@
  */
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
+#include <sys/socket.h>
 #include "stack-services/ns_types.h"
 #include "stack/ns_address.h"
 
@@ -231,7 +232,7 @@ typedef struct socket_callback_t {
 typedef struct ns_msghdr {
     void *msg_name;                 /**< Optional address send use for destination and receive it will be source. MUST be ns_address_t */
     uint_fast16_t msg_namelen;      /**< Length of optional address use sizeof(ns_address_t) when msg_name is defined */
-    ns_iovec_t *msg_iov;            /**< Message data vector list */
+    struct iovec *msg_iov;                 /**< Message data vector list */
     uint_fast16_t  msg_iovlen;      /**< Data vector count in msg_iov */
     void *msg_control;              /**< Ancillary data list of ns_cmsghdr_t pointer */
     uint_fast16_t  msg_controllen;  /**< Ancillary data length */
