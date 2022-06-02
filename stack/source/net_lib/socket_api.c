@@ -161,7 +161,7 @@ int8_t socket_getpeername(int8_t socket, ns_address_t *address)
  * For non-streams, will return actual datagram length if flags & NS_MSG_TRUNC.
  * Otherwise, returns amount read.
  */
-static uint_fast16_t socket_copy_queue_to_user(sockbuf_t *sb, ns_msghdr_t *msg, int flags, bool stream)
+static uint_fast16_t socket_copy_queue_to_user(sockbuf_t *sb, struct msghdr *msg, int flags, bool stream)
 {
     uint_fast16_t retVal = 0;
 
@@ -255,7 +255,7 @@ int16_t socket_recv(int8_t socket, void *buffer, uint16_t length, int flags)
 int16_t socket_recvfrom(int8_t socket, void *buffer, uint16_t length, int flags, ns_address_t *src_addr)
 {
     struct iovec msg_iov;
-    ns_msghdr_t msghdr;
+    struct msghdr msghdr;
 
     //Init message payload vector
     msg_iov.iov_base = buffer;
@@ -272,7 +272,7 @@ int16_t socket_recvfrom(int8_t socket, void *buffer, uint16_t length, int flags,
     return socket_recvmsg(socket, &msghdr, flags);
 }
 
-static uint_fast16_t copy_ancillary_to_user(ns_msghdr_t *msg, uint_fast16_t written_data, uint8_t type, void *data_ptr, uint16_t length)
+static uint_fast16_t copy_ancillary_to_user(struct msghdr *msg, uint_fast16_t written_data, uint8_t type, void *data_ptr, uint16_t length)
 {
     if (!msg->msg_control || msg->msg_controllen < (written_data + NS_CMSG_SPACE(length))) {
         msg->msg_flags |= NS_MSG_CTRUNC;
@@ -285,7 +285,7 @@ static uint_fast16_t copy_ancillary_to_user(ns_msghdr_t *msg, uint_fast16_t writ
     return (written_data + NS_CMSG_SPACE(length));
 }
 
-int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags)
+int16_t socket_recvmsg(int8_t socket, struct msghdr *msg, int flags)
 {
     if (!msg) {
         return -1;
@@ -357,7 +357,7 @@ int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags)
     return len;
 }
 
-int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
+int16_t socket_sendmsg(int8_t socket, const struct msghdr *msg, int flags)
 {
     if (!msg) {
         return -1;
@@ -369,7 +369,7 @@ int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags)
 int16_t socket_sendto(int8_t socket, const ns_address_t *address, const void *buffer, uint16_t length)
 {
     struct iovec data_vector;
-    ns_msghdr_t msghdr;
+    struct msghdr msghdr;
 
     //SET IOV vector
     data_vector.iov_base = (void *) buffer;
@@ -1074,7 +1074,7 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
     return 0;
 }
 
-ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg)
+ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg)
 {
     if (!cmsg) {
         return NS_CMSG_FIRSTHDR(msgh);

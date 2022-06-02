@@ -950,7 +950,7 @@ void socket_inet_pcb_set_buffer_hop_limit(const inet_pcb_t *inet_pcb, buffer_t *
 /**
  * Calculate message payload length and validate message header iov vectors
  */
-bool socket_message_validate_iov(const ns_msghdr_t *msg, uint16_t *length_out)
+bool socket_message_validate_iov(const struct msghdr *msg, uint16_t *length_out)
 {
     if (msg->msg_iovlen != 0 && !msg->msg_iov) {
         return false;
@@ -994,7 +994,7 @@ bool socket_message_validate_iov(const ns_msghdr_t *msg, uint16_t *length_out)
  * \return -5 Socket not properly connected
  * \return -6 Packet too short
  */
-int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr *msg, int flags)
+int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *msg, int flags)
 {
     int8_t ret_val;
     int8_t interface_id = -1;

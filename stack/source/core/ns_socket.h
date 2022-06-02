@@ -31,6 +31,7 @@
 #include "core/ns_error_types.h"
 #include "core/ns_buffer.h"
 #include "core/sockbuf.h"
+#include <sys/socket.h>
 
 #ifndef SOCKET_RX_LIMIT
 #define SOCKET_RX_LIMIT 3
@@ -110,7 +111,6 @@ typedef enum {
 } socket_src_address_type;
 
 struct inet_pcb_s;
-struct ns_msghdr;
 struct socket;
 typedef NS_LIST_HEAD_INCOMPLETE(struct socket) socket_queue_list_t;
 
@@ -205,8 +205,8 @@ socket_t *socket_lookup(socket_family_t family, uint8_t protocol, const sockaddr
 socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards);
 socket_error_t socket_port_validate(uint16_t port, uint8_t protocol);
 socket_error_t socket_up(buffer_t *buf);
-bool socket_message_validate_iov(const struct ns_msghdr *msg, uint16_t *length_out);
-int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr *msg, int flags);
+bool socket_message_validate_iov(const struct msghdr *msg, uint16_t *length_out);
+int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *msg, int flags);
 socket_t *socket_pointer_get(int8_t socket);
 void socket_inet_pcb_set_buffer_hop_limit(const inet_pcb_t *socket, buffer_t *buf, const int16_t *msg_hoplimit);
 bool socket_validate_listen_backlog(const socket_t *socket_ptr);

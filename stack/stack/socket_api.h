@@ -225,21 +225,6 @@ typedef struct socket_callback_t {
 } socket_callback_t;
 
 /*!
- * \struct ns_msghdr
- * \brief Normal IP socket message structure for socket_recvmsg() and socket_sendmsg().
- */
-
-typedef struct ns_msghdr {
-    void *msg_name;                 /**< Optional address send use for destination and receive it will be source. MUST be ns_address_t */
-    uint_fast16_t msg_namelen;      /**< Length of optional address use sizeof(ns_address_t) when msg_name is defined */
-    struct iovec *msg_iov;                 /**< Message data vector list */
-    uint_fast16_t  msg_iovlen;      /**< Data vector count in msg_iov */
-    void *msg_control;              /**< Ancillary data list of ns_cmsghdr_t pointer */
-    uint_fast16_t  msg_controllen;  /**< Ancillary data length */
-    int msg_flags;                  /**< Flags for received messages */
-} ns_msghdr_t;
-
-/*!
  * \struct ns_cmsghdr
  * \brief Control messages.
  */
@@ -333,7 +318,7 @@ typedef struct ns_in6_pktinfo {
  * \return Pointer to Next control message header , Could be NULL when no more control messages data.
  */
 
-ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg);
+ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg);
 
 /**
  * \brief Get Data pointer from control message header.
@@ -606,7 +591,7 @@ int16_t socket_recvfrom(int8_t socket, void *buffer, uint16_t length, int flags,
  *
  * \return as for socket_recvfrom
  */
-int16_t socket_recvmsg(int8_t socket, ns_msghdr_t *msg, int flags);
+int16_t socket_recvmsg(int8_t socket, struct msghdr *msg, int flags);
 
 /**
  * \brief A function to send UDP, TCP or raw ICMP data via the socket.
@@ -669,7 +654,7 @@ int16_t socket_sendto(int8_t socket, const ns_address_t *address, const void *bu
  * \return -5 Socket not connected
  * \return -6 Packet too short (ICMP raw socket error).
  */
-int16_t socket_sendmsg(int8_t socket, const ns_msghdr_t *msg, int flags);
+int16_t socket_sendmsg(int8_t socket, const struct msghdr *msg, int flags);
 
 /**
  * \brief A function to read local address and port for a bound socket.

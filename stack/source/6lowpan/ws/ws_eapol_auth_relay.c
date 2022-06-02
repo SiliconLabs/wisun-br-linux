@@ -191,7 +191,7 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
 
     uint8_t temp_array[26];
     struct iovec msg_iov[2];
-    ns_msghdr_t msghdr;
+    struct msghdr msghdr;
     //Set messages name buffer
     msghdr.msg_name = &dest_addr;
     msghdr.msg_namelen = sizeof(dest_addr);

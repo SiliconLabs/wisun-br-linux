@@ -447,7 +447,7 @@ void recv_dhcp_relay_msg(void *cb_res)
     }
 
 
-    ns_msghdr_t msghdr;
+    struct msghdr msghdr;
     struct iovec msg_data;
     msg_data.iov_base = socket_data;
     msg_data.iov_len = sckt_data->d_len;
@@ -930,7 +930,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         struct iovec data_vector[4];
         uint8_t relay_header[4];
         libdhcpv6_dhcp_option_header_write(relay_header, DHCPV6_OPTION_RELAY, msg_tr_ptr->msg_len);
-        ns_msghdr_t msghdr;
+        struct msghdr msghdr;
         msghdr.msg_iovlen = 0;
         memcpy(msg_tr_ptr->addr.address, msg_tr_ptr->relay_start + 2, 16);
         msg_tr_ptr->addr.identifier = DHCPV6_SERVER_PORT;

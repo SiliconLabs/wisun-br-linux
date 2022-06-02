@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include <sys/socket.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack/socket_api.h"
@@ -32,7 +33,7 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
     ns_address_t addr = *dest_addr;
 
     struct iovec msg_iov[2];
-    ns_msghdr_t msghdr;
+    struct msghdr msghdr;
     //Set messages name buffer
     msghdr.msg_name = &addr;
     msghdr.msg_namelen = sizeof(addr);
