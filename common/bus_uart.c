@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include <sys/file.h>
 
 #include "log.h"
 #include "utils.h"
@@ -105,6 +106,8 @@ int uart_open(const char *device, int bitrate, bool hardflow)
         tty.c_cflag &= ~CRTSCTS;
     if (tcsetattr(fd, TCSAFLUSH, &tty) < 0)
         FATAL(1, "tcsetattr: %m");
+    if (flock(fd, LOCK_EX | LOCK_NB) < 0)
+        FATAL(1, "flock: %m");
     return fd;
 }
 
