@@ -1103,7 +1103,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
             memcpy(buf->dst_sa.address, address->address, 16);
         }
 
-        ns_cmsghdr_t *cmsg = NS_CMSG_FIRSTHDR(msg);
+        struct cmsghdr *cmsg = NS_CMSG_FIRSTHDR(msg);
         //Stay at while when full ancillary data is analyzed
         while (cmsg) {
             if (cmsg->cmsg_level == SOCKET_IPPROTO_IPV6) {

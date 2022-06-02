@@ -224,16 +224,6 @@ typedef struct socket_callback_t {
     uint8_t LINK_LQI;       /**< LINK LQI info if interface cuold give */
 } socket_callback_t;
 
-/*!
- * \struct ns_cmsghdr
- * \brief Control messages.
- */
-typedef struct ns_cmsghdr {
-    uint16_t cmsg_len;      /**< Ancillary data control messages length including cmsghdr */
-    uint8_t cmsg_level;     /**< Originating protocol level should be SOCKET_IPPROTO_IPV6 */
-    uint8_t cmsg_type;      /**< Protocol Specific types for example SOCKET_IPV6_PKTINFO,  */
-} ns_cmsghdr_t;
-
 /** \name  Error values
  * \anchor ERROR_CODES
  */
@@ -306,9 +296,9 @@ typedef struct ns_in6_pktinfo {
  * \return Pointer to first control message header , Could be NULL when control_message is undefined.
  */
 #define NS_CMSG_FIRSTHDR(msgh) \
-    ((msgh)->msg_controllen >= sizeof(struct ns_cmsghdr) ? \
-            (struct ns_cmsghdr *)(msgh)->msg_control : \
-            (struct ns_cmsghdr *)NULL )
+    ((msgh)->msg_controllen >= sizeof(struct cmsghdr) ? \
+            (struct cmsghdr *)(msgh)->msg_control : \
+            (struct cmsghdr *)NULL )
 /**
  * \brief Parse next control message from message by current control message header.
  *
@@ -318,17 +308,17 @@ typedef struct ns_in6_pktinfo {
  * \return Pointer to Next control message header , Could be NULL when no more control messages data.
  */
 
-ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg);
+struct cmsghdr *NS_CMSG_NXTHDR(const struct msghdr *msgh, const struct cmsghdr *cmsg);
 
 /**
  * \brief Get Data pointer from control message header.
  *
- * \param cmsg Pointer (ns_cmsghdr_t) for last parsed control message
+ * \param cmsg Pointer (struct cmsghdr) for last parsed control message
  *
  * \return Data pointer.
  */
 #define NS_CMSG_DATA(cmsg) \
-    ((uint8_t *)(cmsg) + NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN))
+    ((uint8_t *)(cmsg) + NS_ALIGN_SIZE(sizeof(struct cmsghdr), CMSG_DATA_ALIGN))
 
 /**
  * \brief Returns the total space required for a cmsg header plus the specified data, allowing for all padding
@@ -340,7 +330,7 @@ ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg
  * \return Total size of CMSG header, data and trailing padding.
  */
 #define NS_CMSG_SPACE(length) \
-    (NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN) + NS_ALIGN_SIZE(length, CMSG_HEADER_ALIGN))
+    (NS_ALIGN_SIZE(sizeof(struct cmsghdr), CMSG_DATA_ALIGN) + NS_ALIGN_SIZE(length, CMSG_HEADER_ALIGN))
 
 /**
  * \brief Calculate length to store in cmsg_len with taking into account any necessary alignment.
@@ -352,7 +342,7 @@ ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg
  * \return Size of CMSG header plus data, without trailing padding.
  */
 #define NS_CMSG_LEN(length) \
-    (NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN) + length)
+    (NS_ALIGN_SIZE(sizeof(struct cmsghdr), CMSG_DATA_ALIGN) + length)
 
 /** IPv6 wildcard address IN_ANY */
 extern const uint8_t ns_in6addr_any[16];

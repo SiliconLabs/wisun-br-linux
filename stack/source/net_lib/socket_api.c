@@ -234,7 +234,7 @@ static uint_fast16_t socket_copy_queue_to_user(sockbuf_t *sb, struct msghdr *msg
     return retVal;
 }
 
-static uint8_t *socket_cmsg_ipv6_header_set(ns_cmsghdr_t *cmsg, uint8_t type, uint16_t length)
+static uint8_t *socket_cmsg_ipv6_header_set(struct cmsghdr *cmsg, uint8_t type, uint16_t length)
 {
     cmsg->cmsg_level = SOCKET_IPPROTO_IPV6;
     cmsg->cmsg_type = type;
@@ -279,7 +279,7 @@ static uint_fast16_t copy_ancillary_to_user(struct msghdr *msg, uint_fast16_t wr
         return written_data;
     }
     uint8_t *msg_start = msg->msg_control;
-    uint8_t *data_start = socket_cmsg_ipv6_header_set((ns_cmsghdr_t *)(msg_start + written_data), type, length);
+    uint8_t *data_start = socket_cmsg_ipv6_header_set((struct cmsghdr *)(msg_start + written_data), type, length);
     memcpy(data_start, data_ptr, length);
 
     return (written_data + NS_CMSG_SPACE(length));
@@ -1074,15 +1074,15 @@ int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *o
     return 0;
 }
 
-ns_cmsghdr_t *NS_CMSG_NXTHDR(const struct msghdr *msgh, const ns_cmsghdr_t *cmsg)
+struct cmsghdr *NS_CMSG_NXTHDR(const struct msghdr *msgh, const struct cmsghdr *cmsg)
 {
     if (!cmsg) {
         return NS_CMSG_FIRSTHDR(msgh);
     }
     uint8_t *start_of_next_header = (uint8_t *)(cmsg) + NS_ALIGN_SIZE(cmsg->cmsg_len, CMSG_HEADER_ALIGN);
-    uint8_t *end_of_next_header = start_of_next_header + NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN);
+    uint8_t *end_of_next_header = start_of_next_header + NS_ALIGN_SIZE(sizeof(struct cmsghdr), CMSG_DATA_ALIGN);
     if (end_of_next_header > (uint8_t *)(msgh)->msg_control + (msgh)->msg_controllen) {
         return NULL;
     }
-    return (ns_cmsghdr_t *) start_of_next_header;
+    return (struct cmsghdr *) start_of_next_header;
 }
