@@ -154,6 +154,11 @@ configured on your dhcp server:
 
     sudo ip addr add 2001:db8::1 dev tap0
 
+In order to prevent packets with an MTU of more than 1280 bytes from going 
+on the Wi-SUN network:
+
+    sudo ip link set mtu 1280 dev tap0
+
 Bring up the interface, this will add a route to the Wi-SUN network:
 
     sudo ip link set up dev tap0
