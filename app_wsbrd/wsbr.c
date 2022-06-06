@@ -346,19 +346,20 @@ void kill_handler(int signal)
 
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
+    static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
     struct pollfd fds = { .fd = ctxt->os_ctxt->data_fd, .events = POLLIN };
-    static const int timeout_values[] = { 1, 60, 600, 3600 }; // seconds
-    int ret;
+    int ret, i;
 
-    for (int i = 0; i < ARRAY_SIZE(timeout_values); i++) {
-        ret = poll(&fds, 1, timeout_values[i]);
-        if (ret == 1)
-            break;
+    i = 0;
+    do {
+        ret = poll(&fds, 1, timeout_values[i] * 1000);
         if (ret < 0)
             FATAL(2, "poll: %m");
-        else
-            WARN("Still waiting for RCP");
-    }
+        if (ret == 0)
+            WARN("still waiting for RCP");
+        if (i + 1 < ARRAY_SIZE(timeout_values))
+            i++;
+    } while (ret < 1);
 
     while (!ctxt->hw_addr_done)
         rcp_rx(ctxt);
