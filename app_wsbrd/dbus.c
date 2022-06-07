@@ -25,6 +25,28 @@
 
 #include "dbus.h"
 
+static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+
+    struct wsbr_ctxt *ctxt = userdata;
+    int ret;
+    uint8_t mode;
+
+    ret = sd_bus_message_read(m, "y", &mode);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+
+    if (mode == 0)
+        ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+    else if (mode == 1)
+        ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, WS_TX_SLOT, WS_TX_SLOT);
+    else
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    sd_bus_reply_method_return(m, NULL);
+
+    return 0;
+}
+
 void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {
     sd_bus_emit_properties_changed(ctxt->dbus,
@@ -340,6 +362,8 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
+                      dbus_set_slot_algorithm, 0),
         SD_BUS_METHOD("DebugPing", "s", NULL,
                       dbus_debug_ping, 0),
         SD_BUS_METHOD("AddRootCertificate", "s", NULL,
