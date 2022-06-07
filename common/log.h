@@ -23,15 +23,20 @@
  * send a bug report to the developer. For errors resulting from the user
  * environment, consider FATAL().
  *
- * Use FATAL() and FATAL_ON() you have detected something wrong in the
+ * Use FATAL() and FATAL_ON() if you have detected something wrong in the
  * environment. You consider it make no sense to continue, but it is not the
  * developper fault. You should always provide an explanation as precise as
  * possible to help the user. Typically:
  *     fd = open(filename, O_RDWR);
  *     FATAL_ON(fd < 0, 1, "open: %s: %m", filename);
  *
+ * Use ERROR() and ERROR_ON() if you think there is a bug in a third-party
+ * component and you are able to recover the error on your side (typically, you
+ * are going to throw the request).
+ *
  * Use WARN() and WARN_ON() to log unexpected events but you are able to
- * recover. They are not (yet) a bug and not (yet) fatal.
+ * recover. They are not (yet) a bug and not (yet) fatal. It can also be used to
+ * warn user about a degraded environment.
  *
  * Use INFO() to log some useful information for user. Use it thrifty. Only log
  * useful information for final user. Some people may consider these logs as a
@@ -44,9 +49,10 @@
  * conditional. The user have to set g_enabled_traces to make some traces
  * appear.
  *
- * BUG_ON(), FATAL_ON() and WARN_ON(), allow to keep error handling small
- * enough. However, as soon as you add a description of the error, the code will
- * be probably clearer if you use the unconditional versions of these macros.
+ * BUG_ON(), FATAL_ON(), ERROR_ON() and WARN_ON(), allow to keep error handling
+ * small enough. However, as soon as you add a description of the error, the
+ * code will be probably clearer if you use the unconditional versions of these
+ * macros.
  */
 
 extern unsigned int g_enabled_traces;
@@ -70,6 +76,8 @@ enum {
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)
 #define WARN(...)                 __WARN("" __VA_ARGS__)
 #define WARN_ON(COND, ...)        __WARN_ON(COND, "" __VA_ARGS__)
+#define ERROR(CODE, ...)          __ERROR("" __VA_ARGS__)
+#define ERROR_ON(COND, CODE, ...) __ERROR_ON(COND, "" __VA_ARGS__)
 #define FATAL(CODE, ...)          __FATAL(CODE, "" __VA_ARGS__)
 #define FATAL_ON(COND, CODE, ...) __FATAL_ON(COND, CODE, "" __VA_ARGS__)
 #define BUG(...)                  __BUG("" __VA_ARGS__)
@@ -151,6 +159,26 @@ void __tr_exit();
                 __PRINT(93, "warning: " MSG, ##__VA_ARGS__);         \
             else                                                     \
                 __PRINT_WITH_LINE(93, "warning: \"%s\"", #COND);     \
+        }                                                            \
+        __ret;                                                       \
+    })
+
+#define __ERROR(MSG, ...) \
+    do {                                                             \
+        if (MSG[0] != '\0')                                          \
+            __PRINT(31, "error: " MSG, ##__VA_ARGS__);               \
+        else                                                         \
+            __PRINT_WITH_LINE(31, "error");                          \
+    } while (0)
+
+#define __ERROR_ON(COND, MSG, ...) \
+    ({                                                               \
+        bool __ret = (COND);                                         \
+        if (__ret) {                                                 \
+            if (MSG[0] != '\0')                                      \
+                __PRINT(31, "error: " MSG, ##__VA_ARGS__);           \
+            else                                                     \
+                __PRINT_WITH_LINE(31, "error: \"%s\"", #COND);       \
         }                                                            \
         __ret;                                                       \
     })
