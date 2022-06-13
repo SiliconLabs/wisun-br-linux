@@ -128,7 +128,7 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     uint8_t rail_phy_mode_id;
     uint16_t chan_count;
     bool phy_mode_found, chan_plan_found, is_submode;
-    char tmp_buf[110][150]; // max: 110 lines of 150 characters
+    char tmp_buf[256][150]; // max: 256 lines of 150 characters. FIXME: 38kB is too much for a stack allocation
     int i, j, k = 0;
 
     INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans  chans");
