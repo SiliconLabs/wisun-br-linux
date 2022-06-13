@@ -16,10 +16,6 @@
  */
 
 #include "nsconfig.h"
-#define _HAVE_IPV6
-
-#ifdef _HAVE_IPV6
-
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1427,5 +1423,3 @@ drop:
     protocol_stats_update(STATS_IP_RX_DROP, 1);
     return buffer_free(buf);
 }
-
-#endif /* _HAVE_IPV6 */
