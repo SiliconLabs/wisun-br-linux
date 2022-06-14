@@ -60,10 +60,12 @@
 #define WP_PAYLOAD_IE_PAN_VER_TYPE  6   /**< Pan configuration version */
 #define WP_PAYLOAD_IE_GTKHASH_TYPE  7   /**< GTK Hash information */
 /* Wi-SUN FAN definition 1.1 */
-#define WP_PAYLOAD_IE_PCAP_TYPE     8   /**< PHY Capability information */
+#define WP_PAYLOAD_IE_POM_TYPE     8   /**< PHY Capability information */
 #define WP_PAYLOAD_IE_LFNVER_TYPE   9   /**< LFN Version information */
 #define WP_PAYLOAD_IE_LGTKHASH_TYPE 10  /**< LFN GTK Hash Information */
 
+/* Payload IE sub elements inside WS_WP_NESTED_IE fixed size */
+#define WP_PAYLOAD_IE_POM_SIZE      1
 
 /* WS frame types to WH_IE_UTT_TYPE */
 #define WS_FT_PAN_ADVERT        0          /**< PAN Advert */
@@ -247,7 +249,7 @@ typedef struct ws_panid_ie {
  * @brief ws_pcap_ie_t WS PCAB-IE
  */
 typedef struct ws_pcap_ie {
-    unsigned phy_type: 3;
+    uint8_t phy_type: 3;
     uint16_t operating_mode;
 } ws_pcap_ie_t;
 

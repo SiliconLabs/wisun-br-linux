@@ -657,7 +657,7 @@ uint8_t *ws_wp_nested_pcap_write(uint8_t *ptr, struct ws_phy_cap_info *pcap_list
 {
     uint16_t lenght = ws_wp_nested_pcap_length(pcap_list->length_of_list);
 
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PCAP_TYPE, lenght);
+    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE, lenght);
     *ptr++ = pcap_list->length_of_list;
     for (int i = 0; i < pcap_list->length_of_list; i++) {
         *ptr++ = pcap_list->pcap[i].phy_type;
@@ -1288,7 +1288,7 @@ bool ws_wp_nested_pcap_read(uint8_t *data, uint16_t length, struct ws_phy_cap_in
 {
 #ifdef HAVE_WS_VERSION_1_1
     mac_nested_payload_IE_t nested_payload_ie;
-    nested_payload_ie.id = WP_PAYLOAD_IE_PCAP_TYPE;
+    nested_payload_ie.id = WP_PAYLOAD_IE_POM_TYPE;
     nested_payload_ie.type_long = false;
     if (4 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
         return false;
