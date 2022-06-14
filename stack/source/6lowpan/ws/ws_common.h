@@ -142,7 +142,6 @@ typedef struct ws_info_s {
     ws_test_proc_trg_t test_proc_trg;
 #ifdef HAVE_WS_VERSION_1_1
     ws_lfn_lgtk_t lfngtk;
-    ws_phy_cap_info_t phy_cap_info;
 #endif
     struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information_s pan_information;
@@ -218,12 +217,10 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interf
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
 #define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
 #define ws_lfn_version_learned(cur) ((cur)->ws_info->lfngtk.lfn_version_learned == true)
-#define ws_neighbour_cap_pointer(neighbour) (&neighbour->pcap_info)
 #else
 #define ws_version_1_1(cur) (false)
 #define ws_version_1_0(cur) ((cur)->ws_info)
 #define ws_lfn_version_learned(cur) (false)
-#define ws_neighbour_cap_pointer(neighbour) NULL
 #endif
 #define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 #endif //WS_COMMON_H_

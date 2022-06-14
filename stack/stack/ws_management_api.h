@@ -208,28 +208,6 @@ typedef struct ws_neighbour_info {
     ws_management_neighbor_type_e type;
 } ws_neighbour_info_t;
 
-
-/**
- * @brief ws_management_pcap_t Wi-SUN FAN 1.1 Phy Capability type and operating mode
- */
-typedef struct ws_management_pcap {
-    /** Phy type */
-    uint8_t phy_type;
-    /** Phy operating mode */
-    uint16_t operating_mode;
-} ws_management_pcap_t;
-
-/**
- * @brief ws_management_pcap_info_t Wi-SUN FAN 1.1 Phy Capability list for MDR support
- */
-typedef struct ws_management_pcap_info {
-    /** Length of the capability */
-    uint8_t length_of_list: 3;
-    /** Capability information */
-    ws_management_pcap_t pcap[7];
-} ws_management_pcap_info_t;
-
-
 /**
  * Initialize Wi-SUN stack.
  *
@@ -879,19 +857,5 @@ int ws_neighbor_info_get(
 int ws_device_min_sens_set(
     int8_t interface_id,
     uint8_t device_min_sens);
-
-/**
- * Set Phy Capability support for MDR, FAN 1.1 feature
- *
- *
- * \param interface_id Network interface ID.
- * \param pcap_list pointer to supported list
- *
- * \return 0 Success.
- * \return <0 Failure.
- */
-int ws_management_phy_capability_set(
-    int8_t interface_id,
-    ws_management_pcap_info_t *pcap_list);
 
 #endif /* WS_MANAGEMENT_API_H_ */

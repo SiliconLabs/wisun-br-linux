@@ -187,6 +187,9 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interfa
 
 void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
+    ws_pom_ie_t pom_ie;
+    llc_neighbour_req_t neighbor_info;
+
     // Store weakest heard packet RSSI
     if (cur->ws_info->weakest_received_rssi > data->signal_dbm) {
         cur->ws_info->weakest_received_rssi = data->signal_dbm;
@@ -230,6 +233,10 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
             !ws_bootstrap_validate_channel_function(&ws_us, NULL)) {
         return;
     }
+
+    if (ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pom_ie))
+        if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false))
+            ws_neighbor_update_pom(neighbor_info.ws_neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
 
     //Handle Message's
     switch (message_type) {

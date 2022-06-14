@@ -241,4 +241,15 @@ ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct protocol_interface_
 
 void ws_llc_free_multicast_temp_entry(struct protocol_interface_info_entry *interface, ws_neighbor_temp_class_t *neighbor);
 
+/**
+ * @brief Configure WS POM information (Data of WP_PAYLOAD_IE_POM_TYPE IE element)
+ * @param interface Interface pointer
+ * @param phy_op_mode_number length of phy_operating_modes
+ * @param phy_operating_modes pointer to phy_operating_modes array. This pointer must be kept alive when it is configured to LLC
+ *
+ */
+void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes);
+
+int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, uint8_t mode, uint8_t phy_mode_id);
+
 #endif /* WS_LLC_H_ */

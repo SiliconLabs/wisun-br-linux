@@ -75,13 +75,22 @@ typedef struct {
     uint16_t                vendor_payload_length;  /**< Vendor specific payload length */
     uint8_t                 vendor_header_length;   /**< Vendor specific header length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
+    uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     struct ws_hopping_schedule_s *hopping_schedule;/**< Channel hopping schedule */
     uint8_t                 *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
     uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
+    uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
 } llc_ie_params_t;
+
+/// Enumeration for Mode Switch mode
+typedef enum {
+    SL_WISUN_MODE_SWITCH_DISABLED     = 0,     /// Mode switch is not allowed
+    SL_WISUN_MODE_SWITCH_ALL_UNICAST  = 1,     /// Mode switch is allowed for all unicast data frames
+    SL_WISUN_MODE_SWITCH_ALWAYS       = 2,     /// Mode switch is allowed for all data frames
+} sl_wisun_mode_switch_mode_t;
 
 typedef struct {
     uint8_t dst_address[8];             /**< Destination address */
@@ -158,6 +167,8 @@ typedef struct {
     uint8_t                         ws_enhanced_response_elements[ENHANCED_FRAME_RESPONSE];
     ns_ie_iovec_t                   ws_header_vector;
     bool                            high_priority_mode;
+    uint8_t                         ms_mode;
+    uint8_t                         ms_tx_phy_mode_id;
     protocol_interface_info_entry_t *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
@@ -429,8 +440,10 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
             length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_lgtk_hash_length(&ws_lgtkhash);
         }
 
-        if (requested_list.phy_cap_ie) {
-            length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pcap_length(llc_base->interface_ptr->ws_info->phy_cap_info.length_of_list);
+        // We put only POM-IE if more than 1 phy (base phy + something else)
+        if (requested_list.pom_ie && params->phy_operating_modes && params->phy_op_mode_number > 1) {
+            //Dynamic length
+            length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + WP_PAYLOAD_IE_POM_SIZE + params->phy_op_mode_number;
         }
     }
 #endif
@@ -710,11 +723,14 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     ws_us_ie_t us_ie;
     bool us_ie_inline = false;
     bool bs_ie_inline = false;
+    bool pom_ie_inline = false;
     ws_wp_nested.id = WS_WP_NESTED_IE;
     ws_bs_ie_t ws_bs_ie;
+    ws_pom_ie_t pom_ie;
     if (mac_ie_payload_discover(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_wp_nested) > 2) {
         us_ie_inline = ws_wp_nested_us_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &us_ie);
         bs_ie_inline = ws_wp_nested_bs_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &ws_bs_ie);
+        pom_ie_inline = ws_wp_nested_pom_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &pom_ie);
     }
 
     protocol_interface_info_entry_t *interface = base->interface_ptr;
@@ -802,7 +818,9 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         //
         //Phy CAP info read and store
         if (ws_version_1_1(interface)) {
-            ws_neighbor_class_pcap_ie_store(neighbor_info.ws_neighbor, ie_ext);
+            if (pom_ie_inline) {
+                ws_neighbor_update_pom(neighbor_info.ws_neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
+            }
         }
     }
 
@@ -1108,17 +1126,20 @@ static void ws_llc_lowpan_mpx_header_set(llc_message_t *message, uint16_t user_i
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req_s *data)
 {
 
-    if (!ws_version_1_1(base->interface_ptr) || !data->TxAckReq || data->msduLength < 500) {
+    if (!ws_version_1_1(base->interface_ptr) || !data->TxAckReq || data->msduLength < 500)
         return 0;
-    }
 
     llc_neighbour_req_t neighbor_info;
 
-    if (!base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false)) {
+    if (!base->ms_mode)
         return 0;
-    }
-
-    return neighbor_info.ws_neighbor->phy_mode_id;
+    if (!data->TxAckReq && base->ms_mode == SL_WISUN_MODE_SWITCH_ALWAYS)
+        return base->ms_tx_phy_mode_id;
+    if (data->TxAckReq &&
+        base->ie_params.phy_operating_modes &&
+        base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false))
+        return ws_neighbor_find_phy_mode_id(neighbor_info.ws_neighbor, base->ms_tx_phy_mode_id);
+    return 0;
 }
 #else
 #define  ws_llc_mdr_phy_mode_get(base, data) 0
@@ -1148,6 +1169,8 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (!data->TxAckReq) {
         nested_wp_id.bs_ie = true;
     }
+
+    nested_wp_id.pom_ie = true; // Only need once by peer ideally
 
     nested_wp_id.us_ie = true;
 
@@ -1243,6 +1266,12 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         if (nested_wp_id.bs_ie) {
             //Write Broadcastcast schedule
             ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, false);
+        }
+
+        // We put only POM-IE if more than 1 phy (base phy + something else)
+        if (nested_wp_id.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
+            //Write PHY Operating Modes payload
+            ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
         }
     }
     // SET Payload IE Length
@@ -1853,31 +1882,6 @@ mpx_api_t *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface)
     }
     return &base->mpx_data_base.mpx_api;
 }
-#ifdef HAVE_WS_VERSION_1_1
-
-static void ws_llc_phy_cab_list_generate(struct protocol_interface_info_entry *interface, ws_phy_cap_info_t *phy_cap)
-{
-
-    memset(phy_cap, 0, sizeof(ws_phy_cap_info_t));
-
-    ws_phy_cap_info_t *prefedd_list = &interface->ws_info->phy_cap_info;
-
-    if (!prefedd_list->length_of_list) {
-        return;
-    }
-
-
-    for (int i = 0; i < prefedd_list->length_of_list; i++) {
-        ws_ie_lib_phy_cap_list_update(phy_cap, &prefedd_list->pcap[i]);
-    }
-
-    //Add base support
-    ws_pcap_ie_t base_cap = ws_ie_lib_generate_phy_cap_from_phy_mode_id(interface->ws_info->hopping_schedule.phy_mode_id);
-    if (base_cap.operating_mode) {
-        ws_ie_lib_phy_cap_list_update(phy_cap, &base_cap);
-    }
-}
-#endif
 
 int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, asynch_request_t *request)
 {
@@ -2014,10 +2018,10 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 ptr = ws_wp_nested_lgtk_hash_write(ptr, &ws_lgtkhash);
             }
 
-            if (request->wp_requested_nested_ie_list.phy_cap_ie) {
-                ws_phy_cap_info_t phy_cap;
-                ws_llc_phy_cab_list_generate(base->interface_ptr, &phy_cap);
-                ptr = ws_wp_nested_pcap_write(ptr, &phy_cap);
+            // We put only POM-IE if more than 1 phy (base phy + something else)
+            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
+                //Write PHY Operating Modes payload
+                ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             }
         }
 #endif
@@ -2030,6 +2034,43 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     return 0;
 }
 
+int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, uint8_t mode, uint8_t phy_mode_id)
+{
+    llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
+    if (!llc) {
+        // Invalid LLC context
+        return -1;
+    }
+
+    BUG_ON((mode != SL_WISUN_MODE_SWITCH_DISABLED) && (mode != SL_WISUN_MODE_SWITCH_ALL_UNICAST) && (mode != SL_WISUN_MODE_SWITCH_ALWAYS));
+
+    if (mode != SL_WISUN_MODE_SWITCH_DISABLED) {
+        bool found = false;
+        uint8_t i;
+
+        if (llc->ie_params.phy_operating_modes == NULL) {
+            return -2;
+        }
+
+        // Check Mode Switch PhyModeId is valid
+        for (i = 0; i < llc->ie_params.phy_op_mode_number; i++) {
+            if (phy_mode_id == llc->ie_params.phy_operating_modes[i]) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            // Invalid PhyModeId
+            return -3;
+        }
+    }
+
+    llc->ms_tx_phy_mode_id = phy_mode_id;
+    llc->ms_mode = mode;
+
+    return 0;
+}
 
 void ws_llc_set_vendor_header_data(struct protocol_interface_info_entry *interface, uint8_t *vendor_header, uint8_t vendor_header_length)
 {
@@ -2099,6 +2140,20 @@ void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interf
         return;
     }
     base->ie_params.hopping_schedule = hopping_schedule;
+}
+
+void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    if (!base) {
+        return;
+    }
+
+    base->ie_params.phy_op_mode_number = 0;
+    for (int i = 0; phy_operating_modes[i] != 0; i++)
+        base->ie_params.phy_op_mode_number++;
+
+    base->ie_params.phy_operating_modes = base->ie_params.phy_op_mode_number ? phy_operating_modes : NULL;
 }
 
 void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t ticks)

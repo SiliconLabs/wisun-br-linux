@@ -246,17 +246,14 @@ typedef struct ws_panid_ie {
 } ws_panid_ie_t;
 
 /**
- * @brief ws_pcap_ie_t WS PCAB-IE
+ * @brief ws_pom_ie_t PHY Operating Modes
  */
-typedef struct ws_pcap_ie {
-    uint8_t phy_type: 3;
-    uint16_t operating_mode;
-} ws_pcap_ie_t;
-
-typedef struct ws_phy_cap_info {
-    unsigned length_of_list: 3;
-    ws_pcap_ie_t pcap[7];
-} ws_phy_cap_info_t;
+typedef struct ws_pom_ie {
+    uint8_t phy_op_mode_number: 4; /**< Number of PHY Operating Modes */
+    uint8_t mdr_command_capable: 1;/**< Indicate if the transmitter supports MDR Command */
+    uint8_t reserved: 3;           /**< Reserved, set to 0. */
+    uint8_t *phy_op_mode_id;       /**< Pointer to PHY Operating Modes List */
+} ws_pom_ie_t;
 
 /**
  * @brief ws_bt_ie_t WS BT-IE read

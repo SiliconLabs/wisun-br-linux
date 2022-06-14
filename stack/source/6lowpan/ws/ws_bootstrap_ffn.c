@@ -341,10 +341,6 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
     neighbor_info.neighbor = NULL;
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         neighbor_info.ws_neighbor->routing_cost = pan_information.routing_cost;
-        //Store and search neighbour PCAP info
-        if (ws_version_1_1(cur)) {
-            ws_neighbor_class_pcap_ie_store(neighbor_info.ws_neighbor, ie_ext);
-        }
     }
 
     ws_bootstrap_ffn_pan_advertisement_analyse_active(cur, &pan_information);

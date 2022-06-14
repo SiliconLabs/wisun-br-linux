@@ -24,8 +24,7 @@ struct ws_bt_ie;
 struct ws_us_ie;
 struct ws_hopping_schedule_s;
 struct ws_fc_ie;
-struct ws_phy_cap_info;
-struct ws_pcap_ie;
+struct ws_pom_ie;
 
 /**
  * @brief ws_wp_network_name_t WS nested payload network name
@@ -91,12 +90,6 @@ uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *p
 uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkhash_length);
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
-/* WS PCAP */
-uint8_t *ws_wp_nested_pcap_write(uint8_t *ptr, struct ws_phy_cap_info *pcap_list);
-uint16_t ws_wp_nested_pcap_length(uint8_t list_length);
-struct ws_pcap_ie ws_ie_lib_generate_phy_cap_from_phy_mode_id(uint8_t phy_mode_id);
-uint8_t  ws_ie_lib_phy_mode_id_get_from_phy_cap(struct ws_pcap_ie *phy_cap);
-void ws_ie_lib_phy_cap_list_update(struct ws_phy_cap_info *phy_pap, struct ws_pcap_ie *pcap);
 /* WS LFN version */
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
 /* WS LFN GTK HAS */
@@ -114,7 +107,8 @@ bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan
 bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name);
 uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length);
 /* Wi-SUN FAN 1.1 */
-bool ws_wp_nested_pcap_read(uint8_t *data, uint16_t length, struct ws_phy_cap_info *ws_pcap_list);
+uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
+bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash);
 bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);

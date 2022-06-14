@@ -942,33 +942,3 @@ int ws_device_min_sens_set(
     ws_info(cur)->device_min_sens = device_min_sens;
     return 0;
 }
-
-int ws_management_phy_capability_set(
-    int8_t interface_id,
-    ws_management_pcap_info_t *pcap_list)
-{
-#ifdef HAVE_WS_VERSION_1_1
-    protocol_interface_info_entry_t *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !ws_info(cur) || pcap_list->length_of_list > 7) {
-        return -1;
-    }
-
-    //Set supported configure for MDR
-    //TODO add validation for Phy_type and operation modes
-    cur->ws_info->phy_cap_info.length_of_list = pcap_list->length_of_list;
-    for (int i = 0; i < pcap_list->length_of_list; i++) {
-        cur->ws_info->phy_cap_info.pcap[i].phy_type = pcap_list->pcap[i].phy_type;
-        cur->ws_info->phy_cap_info.pcap[i].operating_mode = pcap_list->pcap[i].operating_mode;
-    }
-
-    return 0;
-
-#else
-    (void)interface_id;
-    (void)pcap_list;
-    return -1;
-#endif
-}
-
-

@@ -558,114 +558,23 @@ uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkh
     return ptr;
 }
 
-uint16_t ws_wp_nested_pcap_length(uint8_t list_length)
+uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable)
 {
-    uint16_t lenght = (list_length * 3) + 1;
-    return lenght;
-}
+    uint16_t length;
 
-void ws_ie_lib_phy_cap_list_update(struct ws_phy_cap_info *phy_pap, struct ws_pcap_ie *pcap)
-{
-    for (int i = 0; i < phy_pap->length_of_list; i++) {
-        if (phy_pap->pcap[i].phy_type == pcap->phy_type) {
-            phy_pap->pcap[i].operating_mode |= pcap->operating_mode;
-            return;
-        }
-    }
+    if (!phy_op_mode_number)
+        return ptr;
 
-    if (phy_pap->length_of_list == 7) {
-        return;
-    }
+    length = phy_op_mode_number;
+    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE, WP_PAYLOAD_IE_POM_SIZE + length);
+    *ptr++ = (phy_op_mode_number & 0xF) | ((mdr_command_capable & 1) << 4);
 
-    phy_pap->pcap[phy_pap->length_of_list].phy_type = pcap->phy_type;
-    phy_pap->pcap[phy_pap->length_of_list].operating_mode |= pcap->operating_mode;
-    phy_pap->length_of_list++;
-}
-
-
-ws_pcap_ie_t ws_ie_lib_generate_phy_cap_from_phy_mode_id(uint8_t phy_mode_id)
-{
-    ws_pcap_ie_t pcap;
-    if (phy_mode_id > 96) {
-        pcap.operating_mode = 0;
-        return pcap;
-    }
-
-    if (phy_mode_id < 16) {
-        pcap.phy_type = WS_PHY_TYPE_ID_FSK;
-    } else if (phy_mode_id < 32) {
-        phy_mode_id -= 16;
-        pcap.phy_type = WS_PHY_TYPE_ID_FSK_FEC;
-    } else if (phy_mode_id < 48) {
-        phy_mode_id -= 32;
-        pcap.phy_type = WS_PHY_TYPE_ID_OFDM1;
-    } else if (phy_mode_id < 64) {
-        phy_mode_id -= 48;
-        pcap.phy_type = WS_PHY_TYPE_ID_OFDM2;
-    } else if (phy_mode_id < 80) {
-        phy_mode_id -= 64;
-        pcap.phy_type = WS_PHY_TYPE_ID_OFDM3;
-    } else {
-        phy_mode_id -= 80;
-        pcap.phy_type = WS_PHY_TYPE_ID_OFDM4;
-    }
-    pcap.operating_mode = 1u << phy_mode_id;
-    return pcap;
-}
-
-uint8_t  ws_ie_lib_phy_mode_id_get_from_phy_cap(ws_pcap_ie_t *phy_cap)
-{
-    if (!phy_cap->operating_mode) {
-        return 0;
-    }
-
-    uint8_t phy_mode_id = 0;
-    for (uint8_t i = 0; i < 16; i++) {
-        if (phy_cap->operating_mode & (1u << (15 - i))) {
-            phy_mode_id = 15 - i;
-            break;
-        }
-    }
-
-    switch (phy_cap->phy_type) {
-        case WS_PHY_TYPE_ID_FSK:
-            break;
-        case WS_PHY_TYPE_ID_FSK_FEC:
-            phy_mode_id += 16;
-            break;
-        case WS_PHY_TYPE_ID_OFDM1:
-            phy_mode_id += 32;
-            break;
-        case WS_PHY_TYPE_ID_OFDM2:
-            phy_mode_id += 48;
-            break;
-        case WS_PHY_TYPE_ID_OFDM3:
-            phy_mode_id += 64;
-            break;
-        case WS_PHY_TYPE_ID_OFDM4:
-            phy_mode_id += 80;
-            break;
-        default:
-            break;
-    }
-
-    return phy_mode_id;
-
-}
-
-uint8_t *ws_wp_nested_pcap_write(uint8_t *ptr, struct ws_phy_cap_info *pcap_list)
-{
-    uint16_t lenght = ws_wp_nested_pcap_length(pcap_list->length_of_list);
-
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE, lenght);
-    *ptr++ = pcap_list->length_of_list;
-    for (int i = 0; i < pcap_list->length_of_list; i++) {
-        *ptr++ = pcap_list->pcap[i].phy_type;
-        ptr = common_write_16_bit_inverse(pcap_list->pcap[i].operating_mode, ptr);
+    if (phy_operating_modes) {
+        memcpy(ptr, phy_operating_modes, length);
+        ptr += length;
     }
     return ptr;
 }
-
 
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver)
 {
@@ -1284,40 +1193,27 @@ bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_networ
     return true;
 }
 
-bool ws_wp_nested_pcap_read(uint8_t *data, uint16_t length, struct ws_phy_cap_info *ws_pcap_list)
+bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie)
 {
-#ifdef HAVE_WS_VERSION_1_1
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_POM_TYPE;
     nested_payload_ie.type_long = false;
-    if (4 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
+    if (mac_ie_nested_discover(data, length, &nested_payload_ie) <= 1) {
+        // Too short
         return false;
     }
-    //Read & Validate length
-    data = nested_payload_ie.content_ptr;
-    uint8_t length_of_cap = *data++ & 0x07;
 
-    if (nested_payload_ie.length < length_of_cap * 3) {
-        return false;
+    pom_ie->phy_op_mode_number = nested_payload_ie.content_ptr[0] & 0x0F;
+    pom_ie->mdr_command_capable = (nested_payload_ie.content_ptr[0] & 0x10) >> 4;
+    if (pom_ie->phy_op_mode_number != 0) {
+        pom_ie->phy_op_mode_id = nested_payload_ie.content_ptr + 1; //FIXME: this is nasty
+    } else {
+        pom_ie->phy_op_mode_id = NULL;
     }
-    ws_pcap_list->length_of_list = length_of_cap;
-
-    for (uint8_t i = 0; i < length_of_cap; i++) {
-        ws_pcap_list->pcap[i].phy_type = *data++ & 7;
-        ws_pcap_list->pcap[i].operating_mode = common_read_16_bit_inverse(data);
-        data += 2;
-    }
-
 
     return true;
-#else
-    (void) data;
-    (void) length;
-    (void) ws_pcap_list;
-    return false;
-#endif
 }
-
 
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
 {

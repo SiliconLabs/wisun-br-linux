@@ -231,74 +231,6 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
         }
     }
 }
-#ifdef HAVE_WS_VERSION_1_1
-
-static ws_pcap_ie_t ws_neighbour_phy_cap_list_compare(ws_phy_cap_info_t *prefered_mode, ws_phy_cap_info_t *neighbour_cap_list)
-{
-    ws_pcap_ie_t pref_setup;
-
-    ws_pcap_ie_t *prefered_setup = prefered_mode->pcap;
-    int length_of_list = prefered_mode->length_of_list;
-    while (length_of_list) {
-        for (int i = 0; i < neighbour_cap_list->length_of_list; i++) {
-            //Check first phy type is matching
-            if (neighbour_cap_list->pcap[i].phy_type != prefered_setup->phy_type) {
-                continue;
-            }
-            //Validate supported
-            if (neighbour_cap_list->pcap[i].operating_mode & prefered_setup->operating_mode) {
-
-                //Take only matched opeating modes
-                pref_setup.operating_mode = neighbour_cap_list->pcap[i].operating_mode & prefered_setup->operating_mode;
-                pref_setup.phy_type = prefered_setup->phy_type;
-                return pref_setup;
-            }
-            break;
-        }
-        prefered_setup++;
-        length_of_list--;
-    }
-    //Mark zero operating modes
-    pref_setup.operating_mode = 0;
-    return pref_setup;
-}
-
-static void ws_neighbour_mdr_mode_analyze(struct protocol_interface_info_entry *interface)
-{
-    if (!ws_version_1_1(interface)) {
-        return;
-    }
-
-    if (!interface->ws_info->uptime || (interface->ws_info->uptime % 10)) {
-        return;
-    }
-
-    if (!interface->ws_info->phy_cap_info.length_of_list) {
-        //No Preferred Cap modes
-        return;
-    }
-
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
-
-        ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, cur->index);
-
-        if (!ws_neighbor || ws_neighbor->phy_mode_id || !ws_neighbor->pcap_info.length_of_list) {
-            continue;
-        }
-
-        ws_pcap_ie_t preferred = ws_neighbour_phy_cap_list_compare(&interface->ws_info->phy_cap_info, ws_neighbour_cap_pointer(ws_neighbor));
-        uint8_t phy_mode_id = ws_ie_lib_phy_mode_id_get_from_phy_cap(&preferred);
-        if (ws_neighbor->phy_mode_id != phy_mode_id) {
-            tr_debug("Updated Neigh %u MDR phy mode id %u -> %u", cur->index, ws_neighbor->phy_mode_id, phy_mode_id);
-            ws_neighbor->phy_mode_id = phy_mode_id;
-        }
-
-    }
-}
-#else
-#define ws_neighbour_mdr_mode_analyze(interface) ((void)0)
-#endif
-
 
 void ws_bootstrap_configure_max_retries(protocol_interface_info_entry_t *cur, uint8_t max_mac_retries)
 {
@@ -2946,6 +2878,9 @@ static void ws_bootstrap_pan_advert_solicit(protocol_interface_info_entry_t *cur
     async_req.wh_requested_ie_list.utt_ie = true;
     async_req.wp_requested_nested_ie_list.us_ie = true;
     async_req.wp_requested_nested_ie_list.net_name_ie = true;
+    if (ws_version_1_1(cur)) {
+        async_req.wp_requested_nested_ie_list.pom_ie = true;
+    }
 
     ws_bootstrap_set_asynch_channel_list(cur, &async_req);
 
@@ -3250,8 +3185,6 @@ void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t s
         ws_stats_update(cur, STATS_WS_STATE_4, 1);
     } else if (ws_bootstrap_state_active(cur)) {
         ws_stats_update(cur, STATS_WS_STATE_5, 1);
-        //Update neighbour MDR phy capability mode id
-        ws_neighbour_mdr_mode_analyze(cur);
     }
     cur->ws_info->uptime++;
 
