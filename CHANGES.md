@@ -1,3 +1,47 @@
+v1.3.0
+------
+
+  - Add support for external DHCP server
+  - Add support for external Radius server
+  - Add support for custom regulation domains
+  - allowed_channels now also impact broadcast and asynchronous frames
+  - Add support for --list-rf-configs allowing to get the RF configurations
+    supported by the RCP. Mainly useful for people who want to use custom RF
+    configurations.
+  - Display RF configuration and channel masks on start up. So it is now easier
+    to setup a custom configuration domain.
+  - Catch error from the RCP of the RF configuration is not supported
+  - Add support for TAP network interface instead of a TUN network interface
+  - Provide wsbrd_cli, a sample client for the DBus interface
+  - DBus interface now expose the RPL tree
+  - Add alpha support for POM-IE
+  - Add alpha support for SetModeSwitch DBus API
+  - Improve traces. It is now possible to trace these events: trickles,
+    15.4-mngt, 15.4, eap, icmp-rf, icmp-tun, dhcp
+  - Disable the non standard algorithm that restrict the Tx windows. The new
+    DBus API SetSlotAlgorithm allow to restore previous behavior. Please report
+    a bug if you encounter any performance hit with the new default
+    configuration.
+  - The RF configurations advertised by remotes are now better compared with the
+    local RF configuration. So, if a node with with a custom regulatory domain
+    try to connect to a BR with a classical domain, they can connect eah other
+    if they are compatible.
+  - Improve reliability of the UART link. wsbrd is now able to resend corrupted
+    frames.
+  - Protect UART against concurrent accesses (typically with minicom or another
+    wsbrd instance)
+  - Increase the range of available UART baudrates
+  - wsbrd now relies on Linux for IPv6 fragmentation (while it was done
+    internally until now)
+  - There is no more default values for "mode" and "class" parameters. They are
+    mandatory now
+  - Improve interoperability for ARIB
+  - Fix excluded channels advertised (unicast and broadcast)
+  - Fix case where \x00 was used in configuration file
+  - Fix internal timer ticks, wsbrd now wake-up less often
+  - Fix some bugs in traces display
+  - Provide configuration files for systemd
+
 v1.2.0
 ------
 
