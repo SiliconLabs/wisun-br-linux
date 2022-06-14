@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "app_wsbrd/wsbr.h"
 #include "common/rand.h"
 #include "common/bits.h"
 #include "stack-services/ns_trace.h"
@@ -47,6 +48,8 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 
+#include "6lowpan/mac/mpx_api.h"
+#include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
@@ -1606,4 +1609,19 @@ int ws_bbr_timezone_configuration_set(int8_t interface_id, bbr_timezone_configur
     (void) daylight_saving_time_ptr;
     return -1;
 #endif
+}
+
+uint8_t *ws_bbr_get_phy_operating_modes()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    return ctxt->phy_operating_modes;
+}
+
+int ws_bbr_set_mode_switch(int8_t interface_id, uint8_t mode, uint8_t phy_mode_id)
+{
+    struct protocol_interface_info_entry *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    if (interface == NULL)
+        return -1;
+
+    return ws_llc_set_mode_switch(interface, mode, phy_mode_id);;
 }

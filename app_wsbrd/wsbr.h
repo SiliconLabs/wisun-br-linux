@@ -109,6 +109,7 @@ struct wsbr_ctxt {
     int ws_regional_regulation;
     bool list_rf_configs;
     bool list_rf_configs_done;
+    uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 
     // For DebugPing dbus interface
     int ping_socket_fd;

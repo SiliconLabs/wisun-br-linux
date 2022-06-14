@@ -554,4 +554,8 @@ int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], 
  */
 int ws_bbr_timezone_configuration_set(int8_t interface_id, bbr_timezone_configuration_t *daylight_saving_time_ptr);
 
+int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_modes, uint8_t phy_op_mode_number);
+
+int ws_bbr_set_mode_switch(int8_t interface_id, uint8_t mode, uint8_t phy_mode_id);
+
 #endif /* WS_BBR_API_H_ */

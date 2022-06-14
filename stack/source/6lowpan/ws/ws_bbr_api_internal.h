@@ -21,6 +21,10 @@
 
 #ifdef HAVE_WS_BORDER_ROUTER
 
+#include "6lowpan/ws/ws_common_defines.h"
+
+struct ws_pom_ie;
+
 extern uint16_t test_pan_size_override;
 
 void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
@@ -30,6 +34,8 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur);
 uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur);
 
 int ws_bbr_get_backbone_id();
+
+uint8_t *ws_bbr_get_phy_operating_modes();
 
 void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime);
 
@@ -56,6 +62,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface);
 #define ws_bbr_bsi_generate(interface) 0
 #define ws_bbr_pan_id_get(interface) 0
 #define ws_bbr_init(interface) (void) 0
+#define ws_bbr_get_phy_operating_modes(void) NULL
 
 #endif //HAVE_WS_BORDER_ROUTER
 
