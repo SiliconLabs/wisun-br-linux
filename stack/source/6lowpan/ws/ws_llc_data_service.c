@@ -819,7 +819,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         //Phy CAP info read and store
         if (ws_version_1_1(interface)) {
             if (pom_ie_inline) {
-                ws_neighbor_update_pom(neighbor_info.ws_neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
+                mac_neighbor_update_pom(neighbor_info.neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
             }
         }
     }
@@ -1138,7 +1138,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
     if (data->TxAckReq &&
         base->ie_params.phy_operating_modes &&
         base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false))
-        return ws_neighbor_find_phy_mode_id(neighbor_info.ws_neighbor, base->ms_tx_phy_mode_id);
+        return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, base->ms_tx_phy_mode_id);
     return 0;
 }
 #else

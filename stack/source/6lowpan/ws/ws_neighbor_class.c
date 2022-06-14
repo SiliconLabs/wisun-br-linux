@@ -487,22 +487,3 @@ bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t
 
     return true;
 }
-
-void ws_neighbor_update_pom(ws_neighbor_class_entry_t *ws_neighbor, uint8_t phy_mode_id_count, uint8_t *phy_mode_ids, uint8_t mdr_capable)
-{
-    ws_neighbor->phy_mode_id_count = phy_mode_id_count;
-    ws_neighbor->mdr_capable = (!!mdr_capable);
-
-    // Copy PhyModeId list from IE to neighbor database
-    memcpy(ws_neighbor->phy_mode_ids, phy_mode_ids, phy_mode_id_count);
-}
-
-uint8_t ws_neighbor_find_phy_mode_id(ws_neighbor_class_entry_t *ws_neighbor, uint8_t phy_mode_id)
-{
-    uint8_t i;
-
-    for (i = 0; i < ws_neighbor->phy_mode_id_count; i++)
-        if (phy_mode_id == ws_neighbor->phy_mode_ids[i])
-            return phy_mode_id;
-    return 0;
-}

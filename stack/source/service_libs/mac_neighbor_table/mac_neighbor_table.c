@@ -284,3 +284,23 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t
     }
     return NULL;
 }
+
+// Update a neighbor entry with the last POM-IE received
+void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, uint8_t *phy_mode_ids, uint8_t mdr_capable)
+{
+    neighbor_entry->phy_mode_id_count = phy_mode_id_count;
+    neighbor_entry->mdr_capable = (!!mdr_capable);
+
+    // Copy PhyModeId list from IE to neighbor database
+    memcpy(neighbor_entry->phy_mode_ids, phy_mode_ids, phy_mode_id_count);
+}
+
+uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id)
+{
+    uint8_t i;
+
+    for (i = 0; i < neighbor_entry->phy_mode_id_count; i++)
+        if (phy_mode_id == neighbor_entry->phy_mode_ids[i])
+            return phy_mode_id;
+    return 0;
+}

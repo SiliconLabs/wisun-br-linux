@@ -38,9 +38,6 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_schedule_info_stored: 1;
     bool synch_done : 1;
     bool unicast_data_rx : 1;
-    bool mdr_capable: 1;
-    uint8_t phy_mode_ids[16];
-    uint8_t phy_mode_id_count;
 } ws_neighbor_class_entry_t;
 
 /**
@@ -190,27 +187,5 @@ void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, 
 void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor, uint8_t rsl_reported);
 
 bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor, uint8_t mac_dsn, uint32_t rx_timestamp);
-
-/**
- * Update a neighbor entry with the last POM-IE received
- *
- * \param neighbor_entry pointer to neighbor
- * \param phy_mode_id_count number of PhyModeId in \p phy_mode_ids
- * \param phy_mode_ids list of supported PhyModeId
- * \param mdr_capable indicate if the device support MDR Mode Switching capability
- */
-void ws_neighbor_update_pom(ws_neighbor_class_entry_t *ws_neighbor, uint8_t phy_mode_id_count, uint8_t *phy_mode_ids, uint8_t mdr_capable);
-
-/**
- * Find a PhyModeId matching both transmitter and received capabilities
- *
- * \details if the receiver POM-IE isn't known, use base operating mode
- *          otherwise use the \p PhyModeId if it part of POM-IE
- *
- * \param neighbor_entry pointer to neighbor (receiver)
- * \
- * \param phy_mode_id phy_mode_id the transmitter want to transit the packet
- */
-uint8_t ws_neighbor_find_phy_mode_id(ws_neighbor_class_entry_t *ws_neighbor, uint8_t phy_mode_id);
 
 #endif /* WS_NEIGHBOR_CLASS_H_ */

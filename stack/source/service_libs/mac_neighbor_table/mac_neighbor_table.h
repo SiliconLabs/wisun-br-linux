@@ -40,6 +40,9 @@ typedef struct mac_neighbor_table_entry {
     uint16_t        mac16;                  /*!< MAC16 address for neighbor 0xffff when no 16-bit address is unknown */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
+    uint8_t         phy_mode_ids[16]; // TODO define
+    uint8_t         phy_mode_id_count;
+    bool            mdr_capable:1;
     bool            rx_on_idle: 1;          /*!< True, RX on idle allways at idle state, false disable radio */
     bool            ffd_device: 1;          /*!< True FFD device, false for RFD */
     bool            advertisment: 1;
@@ -205,5 +208,27 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class);
+
+/**
+ * Update a neighbor entry with the last POM-IE received
+ *
+ * \param neighbor_entry pointer to neighbor
+ * \param phy_mode_id_count number of PhyModeId in \p phy_mode_ids
+ * \param phy_mode_ids list of supported PhyModeId
+ * \param mdr_capable indicate if the device support MDR Mode Switching capability
+ */
+void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id_count, uint8_t *phy_mode_ids, uint8_t mdr_capable);
+
+/**
+ * Find a PhyModeId matching both transmitter and received capabilities
+ *
+ * \details if the receiver POM-IE isn't known, use base operating mode
+ *          otherwise use the \p PhyModeId if it part of POM-IE
+ *
+ * \param neighbor_entry pointer to neighbor (receiver)
+ * \
+ * \param phy_mode_id phy_mode_id the transmitter want to transit the packet
+ */
+uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id);
 
 #endif /* MAC_NEIGHBOR_TABLE_H_ */
