@@ -366,14 +366,16 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
     if (ctxt->list_rf_configs) {
-        if (!fw_api_older_than(ctxt, 0, 11, 0)) {
-            wsbr_rcp_get_rf_config_list(ctxt);
-            while (!ctxt->list_rf_configs_done)
-                rcp_rx(ctxt);
-            exit(0);
-        } else {
+        if (fw_api_older_than(ctxt, 0, 11, 0))
             FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
-        }
+    }
+
+    if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+        wsbr_rcp_get_rf_config_list(ctxt);
+        while (!ctxt->list_rf_configs_done)
+            rcp_rx(ctxt);
+        if (ctxt->list_rf_configs)
+            exit(0);
     }
 }
 

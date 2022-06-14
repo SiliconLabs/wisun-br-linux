@@ -47,6 +47,31 @@ static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_err
     return 0;
 }
 
+int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    int ret;
+    bool unicast_and_broadcast;
+    uint8_t phy_mode_id;
+
+    ret = sd_bus_message_read(m, "yb", &phy_mode_id, &unicast_and_broadcast);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+
+    if (phy_mode_id && unicast_and_broadcast)
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 2, phy_mode_id); // mode switch enabled on unicast and broadcast
+    else if (phy_mode_id && !unicast_and_broadcast)
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 1, phy_mode_id); // mode switch enabled on unicast only
+    else if (phy_mode_id == 0)
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 0, 0); // mode switch disabled
+
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    sd_bus_reply_method_return(m, NULL);
+
+    return 0;
+}
+
 void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
 {
     sd_bus_emit_properties_changed(ctxt->dbus,
@@ -362,6 +387,8 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
+        SD_BUS_METHOD("SetModeSwitch", "yb", NULL,
+                      dbus_set_mode_switch, 0),
         SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
                       dbus_set_slot_algorithm, 0),
         SD_BUS_METHOD("DebugPing", "s", NULL,

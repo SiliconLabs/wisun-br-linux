@@ -21,6 +21,7 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/channel_list.h"
 #include "stack/ws_management_api.h"
+#include "stack/ws_bbr_api.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
@@ -120,6 +121,55 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
     }
 }
 
+
+static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
+{
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    uint32_t chan0_freq;
+    uint32_t chan_spacing;
+    uint8_t rail_phy_mode_id;
+    uint16_t chan_count;
+    bool rf_cfg_found = false;
+    int index = 0;
+
+    phy_params = ws_regdb_phy_params(ctxt->ws_phy_mode_id, ctxt->ws_mode);
+    chan_params = ws_regdb_chan_params(ctxt->ws_domain, ctxt->ws_chan_plan_id, ctxt->ws_class);
+
+    // pom-ie section, needed for mode switch
+    memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
+
+    while (spinel_remaining_size(buf)) {
+        chan0_freq = spinel_pop_u32(buf);
+        chan_spacing = spinel_pop_u32(buf);
+        chan_count = spinel_pop_u16(buf);
+        rail_phy_mode_id = spinel_pop_u8(buf);
+        bool is_submode = spinel_pop_bool(buf);
+
+        for (int i = 0; phy_params_table[i].phy_mode_id; i++) {
+            if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id) {
+                if ((phy_params->phy_mode_id == phy_params_table[i].phy_mode_id)
+                && (chan0_freq == chan_params->chan0_freq)
+                && (chan_spacing == chan_params->chan_spacing)
+                && (chan_count == chan_params->chan_count)) {
+                    rf_cfg_found = true;
+                    break;
+                }
+                if(rf_cfg_found && is_submode) {
+                    for (int j = 0; j <= index; j++) {
+                        if (ctxt->phy_operating_modes[j] == 0) {
+                            ctxt->phy_operating_modes[j] = phy_params_table[i].phy_mode_id;
+                            index++;
+                            break;
+                        } else if (ctxt->phy_operating_modes[j] == phy_params_table[i].phy_mode_id)
+                            break; // Do nothing, a value already exists
+                    }
+                } else if(rf_cfg_found && !is_submode)
+                    return; // We have found all the submodes
+            }
+        }
+    }
+}
 
 static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
 {
@@ -339,7 +389,13 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         break;
     }
     case SPINEL_PROP_WS_RF_CONFIGURATION_LIST: {
-        print_rf_config_list(ctxt, buf);
+        store_rf_config_list(ctxt, buf);
+        spinel_reset(buf);
+        spinel_pop_u8(buf); // header
+        spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_VALUE_IS
+        spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
+        if (ctxt->list_rf_configs)
+            print_rf_config_list(ctxt, buf);
         ctxt->list_rf_configs_done = true;
         break;
     }
@@ -885,7 +941,8 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                         ie_ext->headerIeVectorList[i].iovLen);
     if (!fw_api_older_than(ctxt, 0, 7, 0))
         spinel_push_u16(buf, async_channel_list->next_channel_number);
-    // FIXME: also push phy_id
+    if (!fw_api_older_than(ctxt, 0, 12,0))
+        spinel_push_u8(buf, phy_id);
 
     ctxt->rcp_tx(ctxt->os_ctxt, buf->frame, buf->cnt);
 }
