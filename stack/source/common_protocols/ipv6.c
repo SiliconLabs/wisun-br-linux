@@ -74,7 +74,7 @@ static ipv6_exthdr_provider_fn_t *ipv6_exthdr_provider[ROUTE_MAX];
  *
  * Return negative if failed (will usually end up treated as "no route" error).
  */
-static buffer_t *ipv6_get_exthdrs(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *ipv6_get_exthdrs(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     if (ipv6_exthdr_provider[buf->route->route_info.source]) {
         return ipv6_exthdr_provider[buf->route->route_info.source](buf, stage, result);

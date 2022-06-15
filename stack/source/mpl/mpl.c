@@ -112,7 +112,7 @@ static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message)
 static void mpl_control_reset_or_start(mpl_domain_t *domain);
 static void mpl_schedule_timer(void);
 static void mpl_fast_timer(uint16_t ticks);
-static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result);
+static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed);
 
 static bool mpl_initted;
@@ -1002,7 +1002,7 @@ void mpl_clear_realm_scope_seeds(protocol_interface_info_entry_t *cur)
     }
 }
 
-static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     mpl_domain_t *domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
 

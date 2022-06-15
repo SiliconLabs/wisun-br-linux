@@ -32,7 +32,7 @@ typedef enum ipv6_exthdr_stage {
     IPV6_EXTHDR_SIZE,
     IPV6_EXTHDR_INSERT,
     IPV6_EXTHDR_MODIFY
-} ipv6_exthdr_stage_t;
+} ipv6_exthdr_stage_e;
 
 #define IPV6_EXTHDR_MODIFY_TUNNEL 1
 
@@ -66,7 +66,7 @@ typedef enum ipv6_exthdr_stage {
  *
  * In all cases, a negative value in result indicates error.
  */
-typedef buffer_t *ipv6_exthdr_provider_fn_t(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result);
+typedef buffer_t *ipv6_exthdr_provider_fn_t(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 void ipv6_set_exthdr_provider(ipv6_route_src_t src, ipv6_exthdr_provider_fn_t *fn);
 
 buffer_t *ipv6_down(buffer_t *buf);

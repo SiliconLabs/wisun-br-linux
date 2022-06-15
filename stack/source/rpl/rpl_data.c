@@ -314,7 +314,7 @@ static const uint8_t *rpl_data_get_dodagid(const buffer_t *buf)
  *
  *                     Figure 1: RPL Option
  */
-static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *instance, rpl_neighbour_t *neighbour, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *instance, rpl_neighbour_t *neighbour, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     ipv6_route_info_t *route_info = &buf->route->route_info;
 
@@ -502,7 +502,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
     }
 }
 
-static buffer_t *rpl_data_exthdr_provider_hbh(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *rpl_data_exthdr_provider_hbh(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     ipv6_route_info_t *route_info = &buf->route->route_info;
     rpl_neighbour_t *neighbour = route_info->info;
@@ -516,7 +516,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh(buffer_t *buf, ipv6_exthdr_stage_t
     return rpl_data_exthdr_provider_hbh_2(buf, instance, neighbour, stage, result);
 }
 
-static buffer_t *rpl_data_exthdr_provider_fwd_error_hbh(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *rpl_data_exthdr_provider_fwd_error_hbh(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     ipv6_route_info_t *route_info = &buf->route->route_info;
     rpl_instance_t *instance = route_info->info;
@@ -944,7 +944,7 @@ static uint8_t *rpl_data_sr_write_header(const rpl_srh_info_t *info, uint8_t *pt
     return ptr;
 }
 
-static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
+static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result)
 {
     ipv6_route_info_t *route_info = &buf->route->route_info;
     rpl_dao_target_t *target = route_info->info;
