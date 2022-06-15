@@ -56,7 +56,7 @@ static int8_t ns_sw_mac_api_enable_edfe_ext(mac_api_t *api, mcps_edfe_handler *e
 
 static int8_t mlme_req(const mac_api_t *api, mlme_primitive_e id, const void *data);
 static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data);
-static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list,  mac_data_priority_t priority, uint8_t phy_mode_id);
+static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list,  mac_data_priority_e priority, uint8_t phy_mode_id);
 static uint8_t purge_req(const mac_api_t *api, const mcps_purge_t *data);
 static int8_t macext_mac64_address_set(const mac_api_t *api, const uint8_t *mac64);
 static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf);
@@ -468,7 +468,7 @@ static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data)
     }
 }
 
-static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list, mac_data_priority_t priority, uint8_t phy_mode_id)
+static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id)
 {
 //TODO: Populate linked list when present
     if (mac_store.mac_api == api) {

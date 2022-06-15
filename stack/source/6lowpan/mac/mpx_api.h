@@ -34,7 +34,7 @@ typedef struct mpx_api_s mpx_api_t;
  * @param priority priority level
  *
  */
-typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_t priority);
+typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_e priority);
 
 /**
  * @brief mpx_data_queue_clean clean MPX user data

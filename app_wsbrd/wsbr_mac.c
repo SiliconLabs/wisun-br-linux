@@ -927,7 +927,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,
                        const struct mcps_data_req_ie_list *ie_ext,
                        const struct channel_list_s *async_channel_list,
-                       mac_data_priority_t priority, uint8_t phy_id)
+                       mac_data_priority_e priority, uint8_t phy_id)
 {
     const struct channel_list_s default_chan_list = {
         .channel_page = CHANNEL_PAGE_UNDEFINED,

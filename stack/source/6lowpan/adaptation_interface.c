@@ -949,7 +949,7 @@ static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buf
         }
     }
     //Define data priority
-    mac_data_priority_t data_priority;
+    mac_data_priority_e data_priority;
 
     switch (buf->priority) {
         case QOS_HIGH:

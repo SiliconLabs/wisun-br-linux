@@ -122,7 +122,7 @@ int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, struct ma
 
 void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req);
 
-void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_t priority, uint8_t phy_mode_id);
+void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
 
 void mac_mcps_trig_buffer_from_queue(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 

@@ -37,7 +37,7 @@ typedef struct mcps_ack_data_payload    mcps_ack_data_payload_t;
 typedef struct mcps_edfe_response_s     mcps_edfe_response_t;
 typedef struct mcps_data_ie_list        mcps_data_ie_list_t;
 typedef struct phy_rf_channel_configuration_s phy_rf_channel_configuration_s;
-typedef enum mac_data_priority_e        mac_data_priority_t;
+typedef enum mac_data_priority          mac_data_priority_e;
 
 /**
  * Every MAC adapting to Upper layer must implement a function which creates mac_api_t pointer, e.g 'mac_api_t* create_mac_api();'
@@ -136,7 +136,7 @@ typedef void mcps_data_request(const mac_api_t *api, const mcps_data_req_t *data
  *
  * Asynch data request is mac standard extension. asynch_channel_list include channel mask which channel message is requested to send.
  */
-typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_t priority, uint8_t phy_mode_id);
+typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
 
 /**
  * @brief mcps_purge_request MCPS_PURGE request call
