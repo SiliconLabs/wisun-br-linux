@@ -156,7 +156,7 @@ bool ws_bootstrap_state_configure(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_wait_rpl(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur);
 void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
-void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_t nwk_bootstrap_state);
+void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_e nwk_bootstrap_state);
 
 void ws_bootstrap_candidate_list_clean(struct protocol_interface_info_entry *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
 void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information);

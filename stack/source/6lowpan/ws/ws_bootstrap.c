@@ -3095,7 +3095,7 @@ bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur)
     return false;
 }
 
-void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_t nwk_bootstrap_state)
+void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_e nwk_bootstrap_state)
 {
     cur->bootstrap_state_machine_cnt = 1;
     cur->nwk_bootstrap_state = nwk_bootstrap_state;

@@ -334,7 +334,7 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
     }
 }
 
-void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur)
+void bootstrap_next_state_kick(icmp_state_e new_state, protocol_interface_info_entry_t *cur)
 {
     cur->bootstrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;

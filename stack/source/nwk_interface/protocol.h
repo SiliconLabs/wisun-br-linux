@@ -89,7 +89,7 @@ typedef enum icmp_state {
     ER_BOOTSTRAP_DAD_FAIL,
     ER_WAIT_RESTART,
     ER_RPL_NETWORK_LEAVING,
-} icmp_state_t;
+} icmp_state_e;
 
 typedef enum {
     INTERFACE_IDLE = 0,
@@ -234,7 +234,7 @@ struct protocol_interface_info_entry {
     uint8_t configure_flags;
     uint8_t lowpan_info;
     uint16_t bootstrap_state_machine_cnt;
-    icmp_state_t nwk_bootstrap_state;
+    icmp_state_e nwk_bootstrap_state;
     if_address_list_t ip_addresses;
     uint8_t ip_addresses_max_slaac_entries;
     if_group_list_t ip_groups;
@@ -362,7 +362,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix);
 
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
-void bootstrap_next_state_kick(icmp_state_t new_state, protocol_interface_info_entry_t *cur);
+void bootstrap_next_state_kick(icmp_state_e new_state, protocol_interface_info_entry_t *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
 bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len);
 bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len);
