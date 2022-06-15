@@ -584,7 +584,7 @@ static uint32_t fhss_ws_get_sf_timeout_callback(fhss_structure_t *fhss_structure
     return MS_TO_US(fhss_structure->ws->fhss_configuration.fhss_uc_dwell_interval);
 }
 
-static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id)
+static int16_t fhss_ws_synch_state_set_callback(const fhss_api_t *api, fhss_states_e fhss_state, uint16_t pan_id)
 {
     (void) pan_id;
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);

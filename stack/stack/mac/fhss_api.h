@@ -47,7 +47,7 @@ typedef enum {
     FHSS_UNSYNCHRONIZED,
     FHSS_SYNCHRONIZED,
     FHSS_EXPEDITED_FORWARDING
-} fhss_states;
+} fhss_states_e;
 
 /**
  * @brief FHSS is broadcast channel. Checks if current channel is broadcast channel.
@@ -132,7 +132,7 @@ typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle, int frame_
  * @param pan_id PAN id of the network FHSS synchronizes with.
  * @return -1 when failed, otherwise current MAC channel.
  */
-typedef int16_t fhss_synch_state_set(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id);
+typedef int16_t fhss_synch_state_set(const fhss_api_t *api, fhss_states_e fhss_state, uint16_t pan_id);
 
 /**
  * @brief Read timestamp.
