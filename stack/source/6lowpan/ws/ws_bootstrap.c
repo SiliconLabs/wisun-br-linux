@@ -2226,7 +2226,7 @@ static void ws_rpl_parent_dis_callback(const uint8_t *ll_parent_address, void *h
 }
 
 
-static void ws_bootstrap_rpl_callback(rpl_event_t event, void *handle)
+static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
 {
 
     protocol_interface_info_entry_t *cur = handle;

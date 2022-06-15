@@ -35,9 +35,9 @@ typedef enum rpl_event {
     RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS, /* RPL not sending DIS anymore user can report bootstrap error */
     RPL_EVENT_DAO_PARENT_ADD, /* RPL indicate that DAO downward Parent has been added */
     RPL_EVENT_POISON_FINISHED, /* RPL have finished Dodag Poison proces */
-} rpl_event_t;
+} rpl_event_e;
 
-typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);
+typedef void rpl_domain_callback_t(rpl_event_e event, void *handle);
 
 typedef void rpl_prefix_callback_t(struct prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local);
 
@@ -113,7 +113,7 @@ void rpl_control_transmit_multicast_dio(struct rpl_domain *domain, struct rpl_in
 void rpl_control_transmit_dio(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, struct rpl_dodag *dodag, const uint8_t dodagid[16], const struct rpl_dodag_conf *conf, const uint8_t *dst);
 bool rpl_control_transmit_dao(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, struct rpl_instance *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst);
 void rpl_control_disable_ra_routes(struct rpl_domain *domain);
-void rpl_control_event(struct rpl_domain *domain, rpl_event_t event);
+void rpl_control_event(struct rpl_domain *domain, rpl_event_e event);
 void rpl_control_process_prefix_option(struct prefix_entry_t *prefix, struct protocol_interface_info_entry *cur);
 
 /*********************** RPL control API to rest of system *******************/

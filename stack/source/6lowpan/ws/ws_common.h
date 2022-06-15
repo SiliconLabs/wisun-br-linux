@@ -112,7 +112,7 @@ typedef struct ws_info_s {
     trickle_t trickle_pan_advertisement;
     trickle_params_t trickle_params_pan_discovery;
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
-    uint8_t rpl_state; // state from rpl_event_t
+    uint8_t rpl_state; // state from rpl_event_e
     uint8_t pas_requests; // Amount of PAN solicits sent
     uint8_t device_min_sens; // Device min sensitivity set by the application
     int8_t weakest_received_rssi; // Weakest received signal (dBm)

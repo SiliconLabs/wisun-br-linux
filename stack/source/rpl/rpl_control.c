@@ -124,7 +124,7 @@ void rpl_free(void *p, uint16_t size)
     free(p);
 }
 
-void rpl_control_event(struct rpl_domain *domain, rpl_event_t event)
+void rpl_control_event(struct rpl_domain *domain, rpl_event_e event)
 {
     if (domain->callback) {
         domain->callback(event, domain->cb_handle);
