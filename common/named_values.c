@@ -34,6 +34,8 @@ int str_to_val(const char *str, const struct name_value table[])
 {
     int i;
 
+    if (!str)
+        FATAL(1, "invalid empty string");
     for (i = 0; table[i].name; i++)
         if (!strcasecmp(table[i].name, str))
             return table[i].val;
