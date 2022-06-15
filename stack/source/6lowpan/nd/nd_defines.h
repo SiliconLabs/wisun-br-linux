@@ -39,7 +39,7 @@ typedef enum {
 } nd_multi_address_type;
 
 typedef struct nd_router_next_hop {
-    addrtype_t addrtype;
+    addrtype_e addrtype;
     uint8_t address[8];
     uint8_t LQI;
 } nd_router_next_hop;

@@ -42,14 +42,14 @@ typedef enum {
     //ADDR_DATA=5,                              /*!< Attribute-based data-centric query */
     ADDR_BROADCAST = 6,                         /*!< Broadcast (inc RFC 4944 multicast) address (obsolescent) */
     ADDR_EUI_48 = 7,                            /*!< 48-bit Extended Unique Identifier (eg Ethernet) */
-} addrtype_t;                               /*!< Address types in the stack */
+} addrtype_e;                               /*!< Address types in the stack */
 
 /** Address field */
 typedef uint8_t address_t[ADDR_SIZE];
 
 /** Address structure */
 typedef struct ns_sockaddr {
-    addrtype_t    addr_type;              /*!< Type of address */
+    addrtype_e    addr_type;              /*!< Type of address */
     address_t     address;                /*!< Source or destination address */
     uint16_t      port;                   /*!< Source or destination port */
 } sockaddr_t;
@@ -148,7 +148,7 @@ extern const uint8_t ADDR_6TO4[16];                                 // 2002::
 #define ADDR_EUI64_ZERO ADDR_UNSPECIFIED
 
 /** Functions provided by address.c */
-uint8_t addr_check_broadcast(const address_t addr, addrtype_t addr_type);
+uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 
 void address_module_init(void);
 void addr_fast_timer(struct protocol_interface_info_entry *cur, uint_fast16_t ticks);
@@ -170,7 +170,7 @@ void addr_lifetime_update(struct protocol_interface_info_entry *interface, if_ad
 
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
-uint8_t addr_len_from_type(addrtype_t addr_type);
+uint8_t addr_len_from_type(addrtype_e addr_type);
 char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
 const uint8_t *addr_select_source(struct protocol_interface_info_entry *interface, const uint8_t dest[__static 16], uint32_t addr_preferences);

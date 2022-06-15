@@ -87,7 +87,7 @@ static int arm_channel_list_validation(const channel_list_s *scan_list)
 int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_params)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    addrtype_t addrType = mac_helper_coordinator_address_get(cur, network_params->address);
+    addrtype_e addrType = mac_helper_coordinator_address_get(cur, network_params->address);
     if (addrType == ADDR_NONE) {
         return -2;
     }

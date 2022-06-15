@@ -242,7 +242,7 @@ static uint8_t protocol_6lowpan_llao_parse(protocol_interface_info_entry_t *cur,
     }
 }
 
-static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t *cur, const uint8_t *ip_addr, addrtype_t *ll_type, const uint8_t **ll_addr_out)
+static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t *cur, const uint8_t *ip_addr, addrtype_e *ll_type, const uint8_t **ll_addr_out)
 {
     static uint8_t ll_addr[10];
     *ll_type = ADDR_NONE;
@@ -271,7 +271,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t
 
 }
 
-static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t *cur, addrtype_t ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out)
+static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out)
 {
     (void)cur;
 
@@ -351,7 +351,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 }
 
 
-uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)
+uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
@@ -390,7 +390,7 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t 
     }
 }
 
-uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)
+uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
 {
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -470,7 +470,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_ent
     return ret_val;
 }
 
-int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, uint8_t *address_ptr, addrtype_t type)
+int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, uint8_t *address_ptr, addrtype_e type)
 {
     mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address_ptr, type);
     if (entry) {
@@ -501,7 +501,7 @@ int8_t protocol_6lowpan_interface_compare_cordinator_netid(protocol_interface_in
     int8_t ret_val = -1;
 
     if (cur) {
-        addrtype_t addrType;
+        addrtype_e addrType;
         uint8_t tempAddress[8];
         addrType = mac_helper_coordinator_address_get(cur, tempAddress);
 

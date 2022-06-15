@@ -536,7 +536,7 @@ static bool rpl_downward_ip_addr_matches_ll_addr(protocol_interface_info_entry_t
     if (!ll_addr_b) {
         return false;
     }
-    addrtype_t ll_type_a;
+    addrtype_e ll_type_a;
     const uint8_t *ll_addr_a;
     if (!ipv6_map_ip_to_ll(cur, NULL, ip_addr_a, &ll_type_a, &ll_addr_a)) {
         return false;

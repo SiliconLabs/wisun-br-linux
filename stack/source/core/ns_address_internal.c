@@ -109,7 +109,7 @@ static bool addr_am_implicit_group_member(const uint8_t group[static 16])
     return false;
 }
 
-uint8_t addr_len_from_type(addrtype_t addr_type)
+uint8_t addr_len_from_type(addrtype_e addr_type)
 {
     switch (addr_type) {
         case ADDR_NONE:
@@ -135,7 +135,7 @@ uint8_t addr_len_from_type(addrtype_t addr_type)
  * \param addr_type the type of the address_t
  * \return 0 if the address is a broadcast address
  */
-uint8_t addr_check_broadcast(const address_t addr, addrtype_t addr_type)
+uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type)
 {
     switch (addr_type) {
         case ADDR_802_15_4_SHORT:

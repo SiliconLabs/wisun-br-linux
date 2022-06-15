@@ -433,12 +433,12 @@ bool ipv6_neighbour_addr_is_probably_reachable(ipv6_neighbour_cache_t *cache, co
     return ipv6_neighbour_is_probably_reachable(cache, ipv6_neighbour_lookup(cache, address));
 }
 
-bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_t ll_type, const uint8_t *ll_address)
+bool ipv6_neighbour_ll_addr_match(const ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
     return ll_type == entry->ll_type && memcmp(entry->ll_address, ll_address, addr_len_from_type(ll_type)) == 0;
 }
 
-static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_t ll_type, const uint8_t *ll_address)
+static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_e ll_type, const uint8_t *ll_address)
 {
     uint8_t ll_len = addr_len_from_type(ll_type);
 
@@ -455,7 +455,7 @@ static bool ipv6_neighbour_update_ll(ipv6_neighbour_t *entry, addrtype_t ll_type
     return false;
 }
 
-void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_t ll_type, const uint8_t *ll_address)
+void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
         if (cur->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE && ipv6_neighbour_ll_addr_match(cur, ll_type, ll_address)) {
@@ -530,7 +530,7 @@ void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *e
 }
 
 /* Called when LL address information is received other than in an NA (NS source, RS source, RA source, Redirect target) */
-void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_t type, const uint8_t *ll_address/*, bool tentative*/)
+void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/)
 {
     bool modified_ll = ipv6_neighbour_update_ll(entry, type, ll_address);
 
@@ -550,7 +550,7 @@ void ipv6_neighbour_entry_update_unsolicited(ipv6_neighbour_cache_t *cache, ipv6
     }
 }
 
-ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_t type, const uint8_t *ll_address/*, bool tentative*/)
+ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cache, const uint8_t *ip_address, addrtype_e type, const uint8_t *ll_address/*, bool tentative*/)
 {
     ipv6_neighbour_t *entry = ipv6_neighbour_lookup_or_create(cache, ip_address/*, tentative*/);
     if (!entry) {
@@ -562,7 +562,7 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
     return entry;
 }
 
-void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_t ll_type, const uint8_t *ll_address)
+void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_e ll_type, const uint8_t *ll_address)
 {
     if (entry->state == IP_NEIGHBOUR_NEW || entry->state == IP_NEIGHBOUR_INCOMPLETE) {
         entry->is_router = flags & NA_R;
@@ -1016,7 +1016,7 @@ static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neig
     }
 }
 
-void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address)
+void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(dest_addr, interface_id);
     ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);

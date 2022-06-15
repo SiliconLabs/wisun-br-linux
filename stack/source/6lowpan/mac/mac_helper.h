@@ -61,9 +61,9 @@ int8_t mac_helper_security_key_to_descriptor_set(struct protocol_interface_info_
 
 int8_t mac_helper_security_key_descriptor_clear(struct protocol_interface_info_entry *interface, uint8_t descriptor);
 
-void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, addrtype_t adr_type, uint8_t *adr_ptr);
+void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, addrtype_e adr_type, uint8_t *adr_ptr);
 
-addrtype_t mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
+addrtype_e mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
 
 int8_t mac_helper_pib_boolean_set(struct protocol_interface_info_entry *interface, mlme_attr_t attribute, bool value);
 

@@ -242,7 +242,7 @@ int8_t mac_helper_security_key_descriptor_clear(protocol_interface_info_entry_t 
     return 0;
 }
 
-void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interface, addrtype_t adr_type, uint8_t *adr_ptr)
+void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interface, addrtype_e adr_type, uint8_t *adr_ptr)
 {
     uint16_t short_addr;
     mlme_set_t set_req;
@@ -268,9 +268,9 @@ void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interfa
     }
 }
 
-addrtype_t mac_helper_coordinator_address_get(protocol_interface_info_entry_t *interface, uint8_t *adr_ptr)
+addrtype_e mac_helper_coordinator_address_get(protocol_interface_info_entry_t *interface, uint8_t *adr_ptr)
 {
-    addrtype_t ret = ADDR_NONE;
+    addrtype_e ret = ADDR_NONE;
     if (!interface) {
         return ret;
     }

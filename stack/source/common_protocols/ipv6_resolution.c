@@ -167,7 +167,7 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(protocol_interface_info_entry_t *cu
     }
 
     if (n->state == IP_NEIGHBOUR_NEW || n->state == IP_NEIGHBOUR_INCOMPLETE) {
-        addrtype_t ll_type;
+        addrtype_e ll_type;
         const uint8_t *ll_addr;
 
         if (cur->if_map_ip_to_link_addr &&
@@ -195,7 +195,7 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(protocol_interface_info_entry_t *cu
 }
 
 /* Attempt a mapping from current information (neighbour cache, hard mappings) */
-bool ipv6_map_ip_to_ll(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *n, const uint8_t ip_addr[16], addrtype_t *ll_type, const uint8_t **ll_addr_out)
+bool ipv6_map_ip_to_ll(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *n, const uint8_t ip_addr[16], addrtype_e *ll_type, const uint8_t **ll_addr_out)
 {
     if (!n) {
         n = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, ip_addr);
@@ -215,7 +215,7 @@ bool ipv6_map_ip_to_ll(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *n
 }
 
 /* Attempt a mapping from current information (neighbour cache, hard mappings) */
-bool ipv6_map_ll_to_ip_link_local(protocol_interface_info_entry_t *cur, addrtype_t ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16])
+bool ipv6_map_ll_to_ip_link_local(protocol_interface_info_entry_t *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16])
 {
     if (cur->if_map_link_addr_to_ip &&
             cur->if_map_link_addr_to_ip(cur, ll_type, ll_addr, ip_addr_out)) {
@@ -235,7 +235,7 @@ bool ipv6_map_ll_to_ip_link_local(protocol_interface_info_entry_t *cur, addrtype
 /* To comply with ETX returns 0xFFFF when neighbor doesn't exist and 0 when neighbor is currently unknown. */
 uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(protocol_interface_info_entry_t *cur, int8_t interface_id, ipv6_neighbour_t *n, const uint8_t ipaddr[16], ll_addr_handler_t *ll_addr_handler_ptr)
 {
-    addrtype_t ll_type;
+    addrtype_e ll_type;
     const uint8_t *ll_addr;
 
     if (!cur) {

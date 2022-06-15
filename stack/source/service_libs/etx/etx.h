@@ -111,7 +111,7 @@ void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming
  * \return 0x0000 address unknown or other error
  * \return 0x0001 no ETX statistics on this interface
  */
-uint16_t etx_read(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
+uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
 
 /**
  * \brief A function to read local incoming IDR value

@@ -831,7 +831,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
     }
 }
 
-void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address)
+void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
@@ -1571,7 +1571,7 @@ uint8_t nd_prefix_dst_check(uint8_t *ptr)
 int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_info_entry_t *cur_interface)
 {
     int8_t ret_val = -1;
-    addrtype_t adr_type = ADDR_802_15_4_LONG;
+    addrtype_e adr_type = ADDR_802_15_4_LONG;
     uint8_t *adr_ptr = neighbor_address;
     nd_router_next_hop *hop;
     uint8_t compare_len = 8;

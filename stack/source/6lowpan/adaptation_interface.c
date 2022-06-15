@@ -1549,10 +1549,10 @@ void lowpan_adaptation_interface_data_ind(protocol_interface_info_entry_t *cur, 
     //tr_debug("MAC Paylod size %u %s",data_ind->msduLength, trace_array(data_ind->msdu_ptr, 8));
     buf->options.lqi = data_ind->mpduLinkQuality;
     buf->options.dbm = data_ind->signal_dbm;
-    buf->src_sa.addr_type = (addrtype_t)data_ind->SrcAddrMode;
+    buf->src_sa.addr_type = (addrtype_e)data_ind->SrcAddrMode;
     ptr = common_write_16_bit(data_ind->SrcPANId, buf->src_sa.address);
     memcpy(ptr, data_ind->SrcAddr, 8);
-    buf->dst_sa.addr_type = (addrtype_t)data_ind->DstAddrMode;
+    buf->dst_sa.addr_type = (addrtype_e)data_ind->DstAddrMode;
     ptr = common_write_16_bit(data_ind->DstPANId, buf->dst_sa.address);
     memcpy(ptr, data_ind->DstAddr, 8);
     //Set Link specific stuff to seperately
@@ -1611,7 +1611,7 @@ bool lowpan_adaptation_tx_active(int8_t interface_id)
     return true;
 }
 
-static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *address_ptr, addrtype_t adr_type)
+static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *address_ptr, addrtype_e adr_type)
 {
 
     if (dst_sa->addr_type != adr_type) {
@@ -1684,7 +1684,7 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(protocol_interface_info_entry
 }
 
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t adr_type)
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_e adr_type)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 
