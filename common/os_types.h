@@ -15,6 +15,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#ifdef HAVE_LIBCPC
+#include <sl_cpc.h>
+#endif
 
 struct slist;
 
@@ -32,6 +35,9 @@ struct os_ctxt {
     bool    uart_next_frame_ready;
     int     uart_rx_buf_len;
     uint8_t uart_rx_buf[2048];
+#ifdef HAVE_LIBCPC
+    cpc_endpoint_t cpc_ep;
+#endif
 
     int event_fd[2];
     

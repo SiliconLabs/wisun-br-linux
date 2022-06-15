@@ -450,7 +450,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 70);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(4096);
     int cmd, prop;
 
     buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
