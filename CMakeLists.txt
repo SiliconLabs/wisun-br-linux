@@ -12,6 +12,7 @@ check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
 check_c_compiler_flag(-rdynamic              CC_HAVE_RDYNAMIC)
 
 include(CheckIncludeFile)
+check_include_file(sl_cpc.h LIBCPC_FOUND)
 # Depending of the distribution backtrace.h may be packaged with gcc. Else,
 # the libbacktrace project provides a fully compatible library.
 check_include_file(backtrace.h BACKTRACE_FOUND)
@@ -251,6 +252,11 @@ endif()
 if(LIBDL_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBDL)
     target_link_libraries(libwsbrd PRIVATE ${CMAKE_DL_LIBS})
+endif()
+if(LIBCPC_FOUND)
+    target_compile_definitions(libwsbrd PRIVATE HAVE_LIBCPC)
+    target_sources(libwsbrd PRIVATE common/bus_cpc.c)
+    target_link_libraries(libwsbrd PRIVATE cpc)
 endif()
 set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
 
