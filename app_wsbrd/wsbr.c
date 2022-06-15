@@ -15,6 +15,7 @@
 #include <signal.h>
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
+#include "common/bus_cpc.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
@@ -426,8 +427,6 @@ int wsbr_main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->ping_socket_fd = -1;
-    ctxt->rcp_tx = wsbr_uart_tx;
-    ctxt->rcp_rx = uart_rx;
     wsbr_check_mbedtls_features();
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
@@ -435,7 +434,17 @@ int wsbr_main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
-    ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
+    if (ctxt->uart_dev[0]) {
+        ctxt->rcp_tx = wsbr_uart_tx;
+        ctxt->rcp_rx = uart_rx;
+        ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
+    } else if (ctxt->cpc_instance[0]) {
+        ctxt->rcp_tx = cpc_tx;
+        ctxt->rcp_rx = cpc_rx;
+        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->cpc_instance, ctxt->cpc_verbose);
+    } else {
+        BUG();
+    }
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
     wsbr_tun_init(ctxt);
 

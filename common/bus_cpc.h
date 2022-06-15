@@ -10,21 +10,35 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <sl_cpc.h>
+#ifndef BUS_CPC_H
+#define BUS_CPC_H
+#include "common/log.h"
 
-#include "common/bus_cpc.h"
+struct os_ctxt;
 
-int cpc_open(struct os_ctxt *ctxt, const char *cpc_instance, bool verbose)
+#ifdef HAVE_LIBCPC
+
+int cpc_open(struct os_ctxt *ctxt, const char *instance_name, bool verbose);
+int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len);
+int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
+
+#else
+
+static inline int cpc_open(struct os_ctxt *ctxt, const char *instance_name, bool verbose)
+{
+    FATAL(1, "support for CPC is disabled");
+}
+
+static inline int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     return -1;
 }
 
-int cpc_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+static inline int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     return -1;
 }
 
-int cpc_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
-{
-    return -1;
-}
+#endif
+
+#endif
