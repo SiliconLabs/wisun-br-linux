@@ -40,7 +40,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
 uint8_t wsbr_mcps_purge(const struct mac_api_s *api, const mcps_purge_t *data);
 int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64);
 int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
-                     mac_extended_address_type type, uint8_t *mac64);
+                     mac_extended_address_type_e type, uint8_t *mac64);
 int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
                                   struct mac_description_storage_size_s *buffer);
 int8_t wsbr_mac_mcps_ext_init(struct mac_api_s *api,

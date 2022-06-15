@@ -1029,7 +1029,7 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
 }
 
 int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
-                     mac_extended_address_type type, uint8_t *mac64)
+                     mac_extended_address_type_e type, uint8_t *mac64)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
 

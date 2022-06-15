@@ -92,13 +92,13 @@ typedef struct mac_description_storage_size_s {
 } mac_description_storage_size_t;
 
 /*!
- * \enum mac_extended_address_type
+ * \enum mac_extended_address_type_e
  * \brief Enum for MAC extended address types.
  */
-typedef enum mac_extended_address_type {
+typedef enum mac_extended_address_type_e {
     MAC_EXTENDED_READ_ONLY, /** EUID64 which is unique */
     MAC_EXTENDED_DYNAMIC /** Configured MAC 64-bit address to RAM and Radio */
-} mac_extended_address_type;
+} mac_extended_address_type_e;
 //External MAC functions
 
 /**
@@ -230,7 +230,7 @@ typedef int8_t mac_ext_mac64_address_set(const mac_api_t *api, const uint8_t *ma
  * @param api API to handle the request
  * @param mac64_buf Pointer where mac extended address can be written
  */
-typedef int8_t mac_ext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf);
+typedef int8_t mac_ext_mac64_address_get(const mac_api_t *api, mac_extended_address_type_e type, uint8_t *mac64_buf);
 
 /**
  * @brief Read MAC security description storage sizes from MAC

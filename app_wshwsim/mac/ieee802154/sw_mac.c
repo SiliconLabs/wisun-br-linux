@@ -59,7 +59,7 @@ static void mcps_req(const mac_api_t *api, const mcps_data_req_t *data);
 static void mcps_req_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list,  mac_data_priority_e priority, uint8_t phy_mode_id);
 static uint8_t purge_req(const mac_api_t *api, const mcps_purge_t *data);
 static int8_t macext_mac64_address_set(const mac_api_t *api, const uint8_t *mac64);
-static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf);
+static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type_e type, uint8_t *mac64_buf);
 
 static int8_t sw_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uint8_t link_quality, int8_t dbm, int8_t driver_id);
 static int8_t sw_mac_net_phy_tx_done(int8_t driver_id, uint8_t tx_handle, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
@@ -497,7 +497,7 @@ static int8_t macext_mac64_address_set(const mac_api_t *api, const uint8_t *mac6
 }
 
 
-static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type type, uint8_t *mac64_buf)
+static int8_t macext_mac64_address_get(const mac_api_t *api, mac_extended_address_type_e type, uint8_t *mac64_buf)
 {
     if (!mac64_buf || !api || mac_store.mac_api != api) {
         return -1;
