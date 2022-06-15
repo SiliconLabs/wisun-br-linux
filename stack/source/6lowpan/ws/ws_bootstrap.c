@@ -2839,7 +2839,7 @@ void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_boot
 {
     ws_bootstrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
-void ws_bootstrap_event_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure)
+void ws_bootstrap_event_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure)
 {
     if (cur->bootStrapId < 0) {
         return;
@@ -3393,7 +3393,7 @@ void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur)
 
 static bool auto_test_proc_trg_enabled = false;
 
-int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure)
+int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure)
 {
     switch (procedure) {
         case PROCEDURE_AUTO_ON:
@@ -3437,7 +3437,7 @@ int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws
     return 0;
 }
 
-void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure)
+void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure)
 {
     switch (procedure) {
         case PROCEDURE_DIS:

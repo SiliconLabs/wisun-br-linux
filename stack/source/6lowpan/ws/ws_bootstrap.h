@@ -53,7 +53,7 @@ typedef enum {
     PROCEDURE_PAS_TRICKLE_INCON,
     PROCEDURE_PCS_TRICKLE_INCON
 
-} ws_bootstrap_procedure_t;
+} ws_bootstrap_procedure_e;
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
@@ -120,7 +120,7 @@ int ws_bootstrap_neighbor_info_get(protocol_interface_info_entry_t *cur, struct 
 
 void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_entry *interface, const uint8_t *src64, uint32_t valid_time);
 
-int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure);
+int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure);
 
 /*
  * Functions shared with different bootstrap modes
@@ -141,7 +141,7 @@ void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
 
-void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_t procedure);
+void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure);
 
 void ws_bootstrap_network_down(protocol_interface_info_entry_t *cur);
 

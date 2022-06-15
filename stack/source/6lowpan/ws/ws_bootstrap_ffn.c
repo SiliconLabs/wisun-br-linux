@@ -826,7 +826,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
             break;
 
         case WS_TEST_PROC_TRIGGER:
-            ws_bootstrap_test_procedure_trigger_exec(cur, (ws_bootstrap_procedure_t) event->data_ptr);
+            ws_bootstrap_test_procedure_trigger_exec(cur, (ws_bootstrap_procedure_e) event->data_ptr);
             break;
 
         default:
