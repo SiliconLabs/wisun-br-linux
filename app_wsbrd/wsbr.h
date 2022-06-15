@@ -42,6 +42,9 @@ struct wsbr_ctxt {
 
     int timerfd;
 
+    char cpc_instance[PATH_MAX];
+    bool cpc_verbose;
+
     char uart_dev[PATH_MAX];
     int  uart_baudrate;
     bool uart_rtscts;

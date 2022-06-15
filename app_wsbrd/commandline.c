@@ -191,6 +191,11 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         /* empty */
     } else if (sscanf(line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
         ctxt->uart_rtscts = str_to_val(str_arg, valid_booleans);
+    } else if (sscanf(line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
+        if (parse_escape_sequences(ctxt->cpc_instance, str_arg))
+            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+    } else if (sscanf(line, " cpc_verbose = %s %c", str_arg, &garbage) == 1) {
+        ctxt->cpc_verbose = str_to_val(str_arg, valid_booleans);
     } else if (sscanf(line, " tun_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(ctxt->tun_dev, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
@@ -545,8 +550,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         ctxt->ws_chan_plan_id = ctxt->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
     if (ctxt->bc_interval < ctxt->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", ctxt->bc_interval, ctxt->bc_dwell_interval);
-    if (!ctxt->uart_dev[0])
-        FATAL(1, "missing \"uart_device\" parameter");
+    if (!ctxt->uart_dev[0] && !ctxt->cpc_instance[0])
+        FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
+    if (ctxt->uart_dev[0] && ctxt->cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", ctxt->uart_dev);
     if (ctxt->radius_server.ss_family == AF_UNSPEC) {
         if (!ctxt->tls_own.key)
             FATAL(1, "missing \"key\" (or \"radius_server\") parameter");
@@ -569,6 +576,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
             FATAL(1, "You must specify a ipv6_prefix");
     }
 #else
+    if (!ctxt->uart_dev[0])
+        FATAL(1, "missing \"uart_device\" parameter");
     if (memcmp(ctxt->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         WARN("ipv6_prefix is ignored");
 #endif
