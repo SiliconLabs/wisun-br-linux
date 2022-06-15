@@ -76,7 +76,7 @@ typedef struct arm_pd_sap_generic_ind_s {
  *
  */
 typedef struct arm_mlme_req_s {
-    mlme_primitive primitive;
+    mlme_primitive_e primitive;
     const void *mlme_ptr;
     uint16_t ptr_length;
 } arm_mlme_req_t;

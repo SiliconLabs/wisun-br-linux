@@ -133,7 +133,7 @@ void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
     tr_info("MCPS Data Purge confirm status %u, for handle %u", data->status, data->msduHandle);
 }
 
-void mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const void *data)
+void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
     protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     if (!info_entry) {
@@ -189,7 +189,7 @@ void mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const void *d
     }
 }
 
-void mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const void *data)
+void mlme_indication_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
     switch (id) {
         case MLME_ASSOCIATE: {

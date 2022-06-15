@@ -30,7 +30,7 @@ void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void 
 void rcp_rx(struct wsbr_ctxt *ctxt);
 void rcp_tx(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf);
 
-int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data);
+int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive_e id, const void *data);
 void wsbr_mcps_req(const struct mac_api_s *api, const mcps_data_req_t *data);
 void wsbr_mcps_req_ext(const struct mac_api_s *api,
                        const struct mcps_data_req_s *data,

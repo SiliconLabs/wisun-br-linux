@@ -733,7 +733,7 @@ void wsmac_mlme_start(struct wsmac_ctxt *ctxt, const void *data)
     uart_tx(ctxt->os_ctxt, tx_buf->frame, tx_buf->cnt);
 }
 
-void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive id, const void *data)
+void wsmac_mlme_confirm(const mac_api_t *mac_api, mlme_primitive_e id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
     static const struct {
@@ -839,7 +839,7 @@ void wsmac_mcps_purge_confirm(const mac_api_t *mac_api, mcps_purge_conf_t *data)
     WARN("not implemented");
 }
 
-void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive id, const void *data)
+void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive_e id, const void *data)
 {
     struct wsmac_ctxt *ctxt = &g_ctxt;
     int data_len;

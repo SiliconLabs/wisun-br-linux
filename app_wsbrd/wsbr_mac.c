@@ -883,7 +883,7 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
     wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_RESET, &req->SetDefaultPIB, sizeof(bool));
 }
 
-int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive id, const void *data)
+int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive_e id, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     static const struct {

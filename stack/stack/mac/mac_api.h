@@ -59,7 +59,7 @@ typedef enum mac_data_priority_e        mac_data_priority_t;
  */
 
 /*!
- * \enum mlme_primitive
+ * \enum mlme_primitive_e
  * \brief Enum for MLME primitive types.
  */
 typedef enum {
@@ -78,7 +78,7 @@ typedef enum {
     MLME_SYNC,
     MLME_SYNC_LOSS,
     MLME_POLL
-} mlme_primitive;
+} mlme_primitive_e;
 
 /**
  * \struct mac_description_storage_size_s
@@ -116,7 +116,7 @@ typedef enum mac_extended_address_type {
  * @param id The identifier of the MLME primitive
  * @param data Primitive specific data (\see mlme.h)
  */
-typedef int8_t mlme_request(const mac_api_t *api, mlme_primitive id, const void *data);
+typedef int8_t mlme_request(const mac_api_t *api, mlme_primitive_e id, const void *data);
 
 /**
  * @brief mcps_request MCPS_DATA request call
@@ -208,7 +208,7 @@ typedef void mcps_purge_confirm(const mac_api_t *api, mcps_purge_conf_t *data);
  * @param id The identifier of the MLME primitive
  * @param data Primitive specific data (\see mlme.h)
  */
-typedef void mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *data);
+typedef void mlme_confirm(const mac_api_t *api, mlme_primitive_e id, const void *data);
 
 /**
  * @brief mlme_indication One of the
@@ -216,7 +216,7 @@ typedef void mlme_confirm(const mac_api_t *api, mlme_primitive id, const void *d
  * @param id The identifier of the MLME primitive
  * @param data Primitive specific data (\see mlme.h)
  */
-typedef void mlme_indication(const mac_api_t *api, mlme_primitive id, const void *data);
+typedef void mlme_indication(const mac_api_t *api, mlme_primitive_e id, const void *data);
 
 /**
  * @brief Set extended address from MAC
