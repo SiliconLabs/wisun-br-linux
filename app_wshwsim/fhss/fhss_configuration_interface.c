@@ -125,7 +125,7 @@ int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count
     return fhss_ws_set_hop_count(fhss_structure, hop_count);
 }
 
-int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level)
+int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level_e global_level, const fhss_ws_tx_allow_level_e ef_level)
 {
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
     if (!fhss_structure || !fhss_structure->ws) {

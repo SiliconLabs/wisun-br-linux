@@ -109,8 +109,8 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
 }
 
 int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api,
-                                      const fhss_ws_tx_allow_level global_level,
-                                      const fhss_ws_tx_allow_level ef_level)
+                                      const fhss_ws_tx_allow_level_e global_level,
+                                      const fhss_ws_tx_allow_level_e ef_level)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 6);
     struct wsbr_ctxt *ctxt = &g_ctxt;

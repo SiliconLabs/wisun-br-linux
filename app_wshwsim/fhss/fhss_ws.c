@@ -1264,7 +1264,7 @@ int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_co
     return 0;
 }
 
-int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level)
+int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level_e global_level, const fhss_ws_tx_allow_level_e ef_level)
 {
     fhss_structure->ws->tx_level = global_level;
     fhss_structure->ws->ef_tx_level = ef_level;

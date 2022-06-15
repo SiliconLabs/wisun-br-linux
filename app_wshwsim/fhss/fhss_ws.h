@@ -55,8 +55,8 @@ struct fhss_ws {
     bool unicast_timer_running;
     bool broadcast_timer_running;
     bool is_on_bc_channel;
-    fhss_ws_tx_allow_level tx_level;
-    fhss_ws_tx_allow_level ef_tx_level;
+    fhss_ws_tx_allow_level_e tx_level;
+    fhss_ws_tx_allow_level_e ef_tx_level;
     struct fhss_ws_configuration fhss_configuration;
     fhss_get_neighbor_info *get_neighbor_info;
 };
@@ -67,7 +67,7 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
 int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8]);
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration);
 int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_count);
-int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
+int fhss_ws_set_tx_allowance_level(fhss_structure_t *fhss_structure, const fhss_ws_tx_allow_level_e global_level, const fhss_ws_tx_allow_level_e ef_level);
 void fhss_set_txrx_slot_length(fhss_structure_t *fhss_structure);
 
 #endif /*FHSS_WS_H_*/

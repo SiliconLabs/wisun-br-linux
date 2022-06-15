@@ -139,15 +139,15 @@ typedef enum {
     WS_TX_SLOT,
     /** Allow transmitting only on TX and RX slots. */
     WS_TX_AND_RX_SLOT,
-} fhss_ws_tx_allow_level;
+} fhss_ws_tx_allow_level_e;
 
 /**
- * @brief Set node unicast TX allowance level. Allows device to use the unicast and broadcast channel for unicast transmission as described by fhss_ws_tx_allow_level.
+ * @brief Set node unicast TX allowance level. Allows device to use the unicast and broadcast channel for unicast transmission as described by fhss_ws_tx_allow_level_e.
  * @param fhss_api FHSS instance.
  * @param global_level Level of TX allowance in normal mode.
  * @param ef_level Level of TX allowance in expedited forwarding mode.
  * @return 0 on success, -1 on fail.
  */
-int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level global_level, const fhss_ws_tx_allow_level ef_level);
+int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api, const fhss_ws_tx_allow_level_e global_level, const fhss_ws_tx_allow_level_e ef_level);
 
 #endif // FHSS_WS_EXT_H
