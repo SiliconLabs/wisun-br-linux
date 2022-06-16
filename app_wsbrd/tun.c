@@ -166,12 +166,8 @@ static void wsbr_tun_accept_ra(char *devname)
     }
 }
 
-void wsbr_tun_init(struct wsbr_ctxt *ctxt)
+static void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev, ctxt->tun_use_tap);
-    if (ctxt->tun_autoconf)
-        wsbr_tun_accept_ra(ctxt->tun_dev);
-
     ctxt->tun_driver = &tun_driver;
     ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);
     if (ctxt->tun_driver_id < 0)
@@ -182,6 +178,14 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     ctxt->tun_if_id = arm_nwk_interface_ethernet_init(ctxt->tun_mac_api, "bh0");
     if (ctxt->tun_if_id < 0)
         FATAL(2, "%s: arm_nwk_interface_ethernet_init: %d", __func__, ctxt->tun_if_id);
+}
+
+void wsbr_tun_init(struct wsbr_ctxt *ctxt)
+{
+    ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev, ctxt->tun_use_tap);
+    if (ctxt->tun_autoconf)
+        wsbr_tun_accept_ra(ctxt->tun_dev);
+    wsbr_tun_stack_init(ctxt);
 }
 
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
