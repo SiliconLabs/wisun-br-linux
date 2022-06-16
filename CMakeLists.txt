@@ -285,6 +285,7 @@ add_executable(wsbrd-fuzz
 target_include_directories(wsbrd-fuzz PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     stack/
+    stack-scheduler/
 )
 add_dependencies(wsbrd-fuzz libwsbrd)
 target_link_libraries(wsbrd-fuzz libwsbrd)
@@ -295,6 +296,8 @@ target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=print_help_br
     -Wl,--wrap=uart_open
     -Wl,--wrap=uart_rx
+    -Wl,--wrap=wsbr_common_timer_init
+    -Wl,--wrap=wsbr_spinel_replay_timers
     -Wl,--wrap=read
     -Wl,--wrap=write
     -Wl,--wrap=getrandom
