@@ -81,7 +81,7 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-int uart_tx_append(uint8_t *buf, uint8_t byte)
+static int uart_tx_append(uint8_t *buf, uint8_t byte)
 {
     if (byte == 0x7D || byte == 0x7E) {
         buf[0] = 0x7D;
@@ -93,22 +93,29 @@ int uart_tx_append(uint8_t *buf, uint8_t byte)
     }
 }
 
+static size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
+{
+    uint8_t crc_bytes[2];
+    int frame_len;
+
+    frame_len = 0;
+    for (int i = 0; i < in_len; i++)
+        frame_len += uart_tx_append(out + frame_len, in[i]);
+    common_write_16_bit_inverse(crc, crc_bytes);
+    frame_len += uart_tx_append(out + frame_len, crc_bytes[0]);
+    frame_len += uart_tx_append(out + frame_len, crc_bytes[1]);
+    out[frame_len++] = 0x7E;
+    return frame_len;
+}
+
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
-    uint8_t crc_bytes[2];
     uint8_t *frame = malloc(buf_len * 2 + 3);
-    const uint8_t *buf8 = buf;
-    int i, frame_len;
+    int frame_len;
     int ret;
 
-    frame_len = 0;
-    for (i = 0; i < buf_len; i++)
-        frame_len += uart_tx_append(frame + frame_len, buf8[i]);
-    common_write_16_bit_inverse(crc, crc_bytes);
-    frame_len += uart_tx_append(frame + frame_len, crc_bytes[0]);
-    frame_len += uart_tx_append(frame + frame_len, crc_bytes[1]);
-    frame[frame_len++] = 0x7E;
+    frame_len = uart_encode_hdlc(frame, buf, buf_len, crc);
     TRACE(TR_BUS, "bus tx: %s (%d bytes)",
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
