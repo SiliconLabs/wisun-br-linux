@@ -274,7 +274,10 @@ install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
               examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
-add_executable(wsbrd-fuzz app_wsbrd_fuzz/wsbrd_fuzz.c)
+add_executable(wsbrd-fuzz
+    app_wsbrd_fuzz/wsbrd_fuzz.c
+    app_wsbrd_fuzz/commandline.c
+)
 target_include_directories(wsbrd-fuzz PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     stack/
@@ -284,6 +287,9 @@ target_link_libraries(wsbrd-fuzz libwsbrd)
 if(BACKTRACE_FOUND)
     target_compile_definitions(wsbrd-fuzz PRIVATE HAVE_BACKTRACE)
 endif()
+target_link_options(wsbrd-fuzz PRIVATE
+    -Wl,--wrap=print_help_br
+)
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 
