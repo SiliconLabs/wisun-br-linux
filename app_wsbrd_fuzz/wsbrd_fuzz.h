@@ -7,6 +7,7 @@ struct fuzz_ctxt {
     bool capture_enabled;
     bool replay_enabled;
     int uart_fd;
+    int timer_counter;
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;

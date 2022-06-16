@@ -26,6 +26,15 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     return frame_len;
 }
 
+ssize_t __real_read(int fd, void *buf, size_t count);
+ssize_t __wrap_read(int fd, void *buf, size_t count)
+{
+    if (fd == g_ctxt.timerfd && g_fuzz_ctxt.capture_enabled)
+        g_fuzz_ctxt.timer_counter++;
+
+    return __real_read(fd, buf, count);
+}
+
 int main(int argc, char *argv[])
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;

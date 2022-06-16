@@ -292,6 +292,7 @@ endif()
 target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=print_help_br
     -Wl,--wrap=uart_rx
+    -Wl,--wrap=read
 )
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
