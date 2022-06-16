@@ -322,11 +322,12 @@ static const struct {
     char *str;
     int val;
 } spinel_cmds[] = {
-    { "PROP_IS",  SPINEL_CMD_PROP_VALUE_IS },
-    { "PROP_SET", SPINEL_CMD_PROP_VALUE_SET },
-    { "PROP_GET", SPINEL_CMD_PROP_VALUE_GET },
-    { "NOOP",     SPINEL_CMD_NOOP },
-    { "RESET",    SPINEL_CMD_RESET },
+    { "PROP_IS",       SPINEL_CMD_PROP_VALUE_IS },
+    { "PROP_SET",      SPINEL_CMD_PROP_VALUE_SET },
+    { "PROP_GET",      SPINEL_CMD_PROP_VALUE_GET },
+    { "NOOP",          SPINEL_CMD_NOOP },
+    { "RESET",         SPINEL_CMD_RESET },
+    { "REPLAY_TIMERS", SPINEL_CMD_REPLAY_TIMERS },
 };
 
 #define prop_name(name) { #name, SPINEL_PROP_##name }

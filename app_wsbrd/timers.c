@@ -33,3 +33,8 @@ void wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
     system_timer_tick_update(1);
     protocol_timer_cb(1);
 }
+
+void wsbr_spinel_replay_timers(struct spinel_buffer *buf)
+{
+    WARN("%s: not implemented", __func__);
+}

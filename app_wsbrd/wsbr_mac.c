@@ -33,6 +33,7 @@
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "timers.h"
 #include "dbus.h"
 #include "commandline_values.h"
 
@@ -474,6 +475,9 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         wsbr_handle_reset(ctxt, version_fw_str);
         break;
     }
+    case SPINEL_CMD_REPLAY_TIMERS:
+        wsbr_spinel_replay_timers(buf);
+        break;
     default:
         WARN("%s: not implemented: %02x", __func__, cmd);
         return;
