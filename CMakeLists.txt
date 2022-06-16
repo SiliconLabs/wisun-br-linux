@@ -280,6 +280,7 @@ add_executable(wsbrd-fuzz
     app_wsbrd_fuzz/wsbrd_fuzz.c
     app_wsbrd_fuzz/commandline.c
     app_wsbrd_fuzz/capture.c
+    app_wsbrd_fuzz/rand.c
 )
 target_include_directories(wsbrd-fuzz PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -294,6 +295,7 @@ target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=print_help_br
     -Wl,--wrap=uart_rx
     -Wl,--wrap=read
+    -Wl,--wrap=getrandom
 )
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 struct fuzz_ctxt {
+    bool rand_predictable;
     bool capture_enabled;
     bool replay_enabled;
     int uart_fd;

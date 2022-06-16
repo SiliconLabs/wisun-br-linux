@@ -117,5 +117,8 @@ int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv)
     }
     argv[j] = NULL;
 
+    if (ctxt->capture_enabled || ctxt->replay_enabled)
+        ctxt->rand_predictable = true;
+
     return j;
 }
