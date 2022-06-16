@@ -4,6 +4,7 @@
 
 #include "app_wsbrd/commandline.h"
 #include "common/log.h"
+#include "wsbrd_fuzz.h"
 #include "commandline.h"
 
 enum {
@@ -14,7 +15,7 @@ enum {
 struct option {
     const char *name;
     bool has_arg;
-    void (*func)(const char *);
+    void (*func)(struct fuzz_ctxt *, const char *);
 };
 
 void __real_print_help_br(FILE *stream);
@@ -28,12 +29,12 @@ void __wrap_print_help_br(FILE *stream)
     fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture\n");
 }
 
-static void parse_opt_capture(const char *arg)
+static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 {
     BUG("Not yet implemented");
 }
 
-static void parse_opt_replay(const char *arg)
+static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
 {
     BUG("Not yet implemented");
 }
@@ -44,7 +45,7 @@ static void parse_opt_replay(const char *arg)
     exit(1);                                                             \
 } while (0)
 
-static int fuzz_parse_opt(char **argv, const struct option *opt)
+static int fuzz_parse_opt(struct fuzz_ctxt *ctxt, char **argv, const struct option *opt)
 {
     size_t optlen = strlen(opt->name);
 
@@ -53,19 +54,19 @@ static int fuzz_parse_opt(char **argv, const struct option *opt)
 
     if (strlen(argv[0]) == optlen) { // '--foo bar' form
         if (!opt->has_arg) {
-            opt->func(NULL);
+            opt->func(ctxt, NULL);
             return 1;
         }
         if (!argv[1])
             parsing_error("option '%s' requires an argument\n", opt->name);
-        opt->func(argv[1]);
+        opt->func(ctxt, argv[1]);
         return 2;
     } else { // '--foo=bar' form
         if (argv[0][optlen] != '=')
             return 0;
         if (!opt->has_arg)
             parsing_error("option '%s' doesn't allow an argument\n", opt->name);
-        opt->func(argv[0] + optlen + 1);
+        opt->func(ctxt, argv[0] + optlen + 1);
         return 1;
     }
 }
@@ -74,7 +75,7 @@ static int fuzz_parse_opt(char **argv, const struct option *opt)
  * Parses one or two argument(s) depending if an option requires an parameter.
  * Returns the number of args correctly parsed (0, 1 or 2).
  */
-static int fuzz_parse_arg(char **argv)
+static int fuzz_parse_arg(struct fuzz_ctxt *ctxt, char **argv)
 {
     static const struct option opts[] = {
         { "--capture", true, parse_opt_capture },
@@ -84,7 +85,7 @@ static int fuzz_parse_arg(char **argv)
     int ret;
 
     for (const struct option *opt = opts; opt->name; opt++) {
-        ret = fuzz_parse_opt(argv, opt);
+        ret = fuzz_parse_opt(ctxt, argv, opt);
         if (ret)
             return ret;
     }
@@ -96,13 +97,13 @@ static int fuzz_parse_arg(char **argv)
  * in place to only keep remaining arguments.
  * Returns the new length of argv.
  */
-int fuzz_parse_commandline(char **argv)
+int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv)
 {
     int i = 1, j = 1;
     int ret;
 
     while (argv[i]) {
-        ret = fuzz_parse_arg(argv + i);
+        ret = fuzz_parse_arg(ctxt, argv + i);
         if (ret)
             i += ret;
         else

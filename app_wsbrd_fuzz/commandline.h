@@ -1,6 +1,8 @@
 #ifndef FUZZ_COMMANDLINE_H
 #define FUZZ_COMMANDLINE_H
 
-int fuzz_parse_commandline(char **argv);
+struct fuzz_ctxt;
+
+int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv);
 
 #endif
