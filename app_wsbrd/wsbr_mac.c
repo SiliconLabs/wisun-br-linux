@@ -138,8 +138,10 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     uint32_t chan_spacing;
     uint8_t rail_phy_mode_id;
     uint16_t chan_count;
+    bool is_submode;
     bool rf_cfg_found = false;
     int index = 0;
+    int i, j;
 
     phy_params = ws_regdb_phy_params(ctxt->ws_phy_mode_id, ctxt->ws_mode);
     chan_params = ws_regdb_chan_params(ctxt->ws_domain, ctxt->ws_chan_plan_id, ctxt->ws_class);
@@ -152,19 +154,19 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
         chan_spacing = spinel_pop_u32(buf);
         chan_count = spinel_pop_u16(buf);
         rail_phy_mode_id = spinel_pop_u8(buf);
-        bool is_submode = spinel_pop_bool(buf);
+        is_submode = spinel_pop_bool(buf);
 
-        for (int i = 0; phy_params_table[i].phy_mode_id; i++) {
+        for (i = 0; phy_params_table[i].phy_mode_id; i++) {
             if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id) {
-                if ((phy_params->phy_mode_id == phy_params_table[i].phy_mode_id)
-                && (chan0_freq == chan_params->chan0_freq)
-                && (chan_spacing == chan_params->chan_spacing)
-                && (chan_count == chan_params->chan_count)) {
+                if (phy_params->phy_mode_id == phy_params_table[i].phy_mode_id
+                    && chan0_freq == chan_params->chan0_freq
+                    && chan_spacing == chan_params->chan_spacing
+                    && chan_count == chan_params->chan_count) {
                     rf_cfg_found = true;
                     break;
                 }
-                if(rf_cfg_found && is_submode) {
-                    for (int j = 0; j <= index; j++) {
+                if (rf_cfg_found && is_submode) {
+                    for (j = 0; j <= index; j++) {
                         if (ctxt->phy_operating_modes[j] == 0) {
                             ctxt->phy_operating_modes[j] = phy_params_table[i].phy_mode_id;
                             index++;
@@ -172,8 +174,9 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
                         } else if (ctxt->phy_operating_modes[j] == phy_params_table[i].phy_mode_id)
                             break; // Do nothing, a value already exists
                     }
-                } else if(rf_cfg_found && !is_submode)
+                } else if (rf_cfg_found && !is_submode) {
                     return; // We have found all the submodes
+                }
             }
         }
     }
