@@ -2,9 +2,11 @@
 #define WSBRD_FUZZ_H
 
 #include <stdbool.h>
+#include <time.h>
 
 struct fuzz_ctxt {
     bool rand_predictable;
+    time_t mbedtls_time;
     bool capture_enabled;
     bool replay_enabled;
     int uart_fd;

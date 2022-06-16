@@ -296,6 +296,7 @@ target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=uart_rx
     -Wl,--wrap=read
     -Wl,--wrap=getrandom
+    -Wl,--wrap=time
 )
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
