@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/stat.h>
-#include <sys/timerfd.h>
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
@@ -29,7 +28,6 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-scheduler/source/timer_sys.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
@@ -39,12 +37,12 @@
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/core/ns_address_internal.h"
-#include "stack/source/nwk_interface/protocol_timer.h"
 
 #include "commandline.h"
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "timers.h"
 
 enum {
     POLLFD_RCP,
@@ -208,21 +206,6 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
-static void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
-{
-    int ret;
-    struct itimerspec parms = {
-        .it_value.tv_nsec = 50 * 1000 * 1000,
-        .it_interval.tv_nsec = 50 * 1000 * 1000,
-    };
-
-    timer_sys_init();
-    ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
-    FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
-    ret = timerfd_settime(ctxt->timerfd, 0, &parms, NULL);
-    FATAL_ON(ret < 0, 2, "timerfd_settime: %m");
-}
-
 void kill_handler(int signal)
 {
     exit(3);
@@ -259,13 +242,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
         fds[POLLFD_RCP].revents & POLLERR ||
         ctxt->os_ctxt->uart_next_frame_ready)
         rcp_rx(ctxt);
-    if (fds[POLLFD_TIMER].revents & POLLIN) {
-        ret = read(ctxt->timerfd, &val, sizeof(val));
-        WARN_ON(ret < sizeof(val), "cancelled timer?");
-        WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
-        system_timer_tick_update(1);
-        protocol_timer_cb(1);
-    }
+    if (fds[POLLFD_TIMER].revents & POLLIN)
+        wsbr_common_timer_process(ctxt);
 }
 
 int main(int argc, char *argv[])
