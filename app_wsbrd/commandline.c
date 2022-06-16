@@ -60,7 +60,7 @@ static const int valid_ws_chan_spacing[] = {
     100000, 200000, 400000, 600000, 800000, 1200000,
 };
 
-void print_help_br(FILE *stream, int exit_code) {
+void print_help_br(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Start Wi-SUN border router\n");
     fprintf(stream, "\n");
@@ -100,10 +100,9 @@ void print_help_br(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsbrd -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
-    exit(exit_code);
 }
 
-void print_help_node(FILE *stream, int exit_code) {
+void print_help_node(FILE *stream) {
     fprintf(stream, "\n");
     fprintf(stream, "Simulate a Wi-SUN node\n");
     fprintf(stream, "\n");
@@ -138,7 +137,6 @@ void print_help_node(FILE *stream, int exit_code) {
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
-    exit(exit_code);
 }
 
 static int read_cert(const char *filename, const uint8_t **ptr)
@@ -371,7 +369,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 }
 
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
-                       void (*print_help)(FILE *stream, int exit_code))
+                       void (*print_help)(FILE *stream))
 {
     const char *opts_short = "u:sF:o:t:T:n:d:m:c:S:K:C:A:b:Hh";
     static const struct option opts_long[] = {
@@ -420,7 +418,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 parse_config_file(ctxt, optarg);
                 break;
             case '?':
-                print_help(stderr, 1);
+                print_help(stderr);
+                exit(1);
                 break;
             default:
                 break;
@@ -503,7 +502,8 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 FATAL(1, "deprecated option: -H/--hardflow");
                 break;
             case 'h':
-                print_help(stdout, 0);
+                print_help(stdout);
+                exit(0);
                 break;
             default:
                 BUG(); /* Cannot happen */
