@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include "app_wsbrd/commandline.h"
 #include "app_wsbrd/wsbr.h"
@@ -43,11 +44,15 @@ static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 
 static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
 {
+    int ret;
+
     FATAL_ON(ctxt->replay_enabled, 1, "--replay used more than once");
     FATAL_ON(ctxt->capture_enabled, 1, "using --capture and --replay at the same time");
     ctxt->replay_enabled = true;
     ctxt->uart_fd = open(arg, O_RDONLY);
     FATAL_ON(ctxt->uart_fd < 0, 2, "open '%s': %m", arg);
+    ret = pipe(ctxt->tun_pipe);
+    FATAL_ON(ret < 0, 2, "pipe: %m");
     g_ctxt.uart_dev[0] = true; // UART device does not need to be specified
 }
 

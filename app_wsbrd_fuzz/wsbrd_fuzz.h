@@ -11,6 +11,7 @@ struct fuzz_ctxt {
     bool replay_enabled;
     int uart_fd;
     int timer_counter;
+    int tun_pipe[2];
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;

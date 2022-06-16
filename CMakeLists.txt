@@ -296,6 +296,8 @@ target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=print_help_br
     -Wl,--wrap=uart_open
     -Wl,--wrap=uart_rx
+    -Wl,--wrap=wsbr_tun_init
+    -Wl,--wrap=wsbr_spinel_replay_tun
     -Wl,--wrap=wsbr_common_timer_init
     -Wl,--wrap=wsbr_spinel_replay_timers
     -Wl,--wrap=read

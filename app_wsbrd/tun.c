@@ -166,7 +166,7 @@ static void wsbr_tun_accept_ra(char *devname)
     }
 }
 
-static void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
+void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_driver = &tun_driver;
     ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);

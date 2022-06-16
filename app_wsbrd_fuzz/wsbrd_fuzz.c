@@ -4,6 +4,7 @@
 #include "stack-scheduler/source/timer_sys.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr.h"
+#include "app_wsbrd/tun.h"
 #include "common/bus_uart.h"
 #include "common/log.h"
 #include "common/os_types.h"
@@ -23,6 +24,17 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
         return g_fuzz_ctxt.uart_fd;
     else
         return __real_uart_open(device, bitrate, hardflow);
+}
+
+void __real_wsbr_tun_init(struct wsbr_ctxt *ctxt);
+void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
+{
+    if (g_fuzz_ctxt.replay_enabled) {
+        ctxt->tun_fd = g_fuzz_ctxt.tun_pipe[0];
+        wsbr_tun_stack_init(ctxt);
+    } else {
+        __real_wsbr_tun_init(ctxt);
+    }
 }
 
 int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
@@ -76,6 +88,19 @@ void __wrap_wsbr_spinel_replay_timers(struct spinel_buffer *buf)
     g_fuzz_ctxt.timer_counter = spinel_pop_u16(buf);
     if (g_fuzz_ctxt.timer_counter)
         fuzz_trigger_timer();
+}
+
+void __wrap_wsbr_spinel_replay_tun(struct spinel_buffer *buf)
+{
+    uint8_t *data;
+    size_t size;
+    int ret;
+
+    FATAL_ON(!g_fuzz_ctxt.replay_enabled, 1, "TUN command received while replay is disabled");
+    size = spinel_pop_data_ptr(buf, &data);
+    ret = write(g_fuzz_ctxt.tun_pipe[1], data, size);
+    FATAL_ON(ret < 0, 2, "write: %m");
+    FATAL_ON(ret < size, 2, "write: Short write");
 }
 
 ssize_t __real_read(int fd, void *buf, size_t count);

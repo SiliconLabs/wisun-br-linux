@@ -18,6 +18,7 @@ struct wsbr_ctxt;
 struct spinel_buffer;
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt);
+void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);
 int get_link_local_addr(char *if_name, uint8_t ip[static 16]);
 
