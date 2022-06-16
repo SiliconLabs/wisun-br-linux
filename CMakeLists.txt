@@ -296,6 +296,7 @@ target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=uart_open
     -Wl,--wrap=uart_rx
     -Wl,--wrap=read
+    -Wl,--wrap=write
     -Wl,--wrap=getrandom
     -Wl,--wrap=time
 )

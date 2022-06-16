@@ -1,6 +1,7 @@
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr.h"
 #include "common/bus_uart.h"
+#include "common/os_types.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 #include "capture.h"
@@ -46,6 +47,15 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
         g_fuzz_ctxt.timer_counter++;
 
     return __real_read(fd, buf, count);
+}
+
+ssize_t __real_write(int fd, const void *buf, size_t count);
+ssize_t __wrap_write(int fd, const void *buf, size_t count)
+{
+    if (fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_enabled)
+        return count;
+
+    return __real_write(fd, buf, count);
 }
 
 int main(int argc, char *argv[])
