@@ -444,16 +444,19 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     spinel_pop_u8(buf); /* packet header */
     cmd = spinel_pop_uint(buf);
 
-    if (cmd == SPINEL_CMD_NOOP) {
+    switch (cmd) {
+    case SPINEL_CMD_NOOP:
         /* empty */
-    } else if (cmd == SPINEL_CMD_PROP_VALUE_IS) {
+        break;
+    case SPINEL_CMD_PROP_VALUE_IS:
         prop = spinel_pop_uint(buf);
         if (!ctxt->hw_addr_done && prop != SPINEL_PROP_HWADDR) {
             WARN("unexpected boot-up sequence (expected SPINEL_PROP_HWADDR)");
             return;
         }
         wsbr_spinel_is(ctxt, prop, buf);
-    } else if (cmd == SPINEL_CMD_RESET) {
+        break;
+    case SPINEL_CMD_RESET: {
         const char *version_fw_str;
 
         if (spinel_remaining_size(buf) < 16)
@@ -469,7 +472,9 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
         wsbr_handle_reset(ctxt, version_fw_str);
-    } else {
+        break;
+    }
+    default:
         WARN("%s: not implemented: %02x", __func__, cmd);
         return;
     }
