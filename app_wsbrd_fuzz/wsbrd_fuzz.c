@@ -131,6 +131,9 @@ ssize_t __wrap_write(int fd, const void *buf, size_t count)
     if (fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_enabled)
         return count;
 
+    if (fd == g_ctxt.tun_fd && g_fuzz_ctxt.replay_enabled)
+        return count;
+
     return __real_write(fd, buf, count);
 }
 
