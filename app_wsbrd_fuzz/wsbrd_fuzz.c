@@ -20,8 +20,10 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    if (fuzz_ctxt->capture_enabled)
+    if (fuzz_ctxt->capture_enabled) {
+        fuzz_capture_timers(fuzz_ctxt);
         fuzz_capture(fuzz_ctxt, frame, frame_len);
+    }
     frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len);
     return frame_len;
 }

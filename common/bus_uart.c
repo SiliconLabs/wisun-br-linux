@@ -93,7 +93,7 @@ static int uart_tx_append(uint8_t *buf, uint8_t byte)
     }
 }
 
-static size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
+size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
 {
     uint8_t crc_bytes[2];
     int frame_len;

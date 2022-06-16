@@ -26,6 +26,7 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
 // These functions are exported for debug purposes
 size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len);
 size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len);
+size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc);
 
 #endif
 
