@@ -70,7 +70,7 @@ add_custom_target(check_git
     COMMENT "Checking the git repository for changes..."
     COMMAND ${CMAKE_SOURCE_DIR}/version.sh ${CMAKE_SOURCE_DIR} version.c)
 
-add_executable(wsbrd
+add_library(libwsbrd STATIC
     version.c
     app_wsbrd/wsbr.c
     app_wsbrd/wsbr_mac.c
@@ -224,31 +224,37 @@ add_executable(wsbrd
     stack-services/ns_trace.c
     # Excluded stack-services/nvmHelper
 )
-target_include_directories(wsbrd PRIVATE
+target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     stack/source/
     stack-scheduler/
     stack/
 )
-target_compile_definitions(wsbrd PRIVATE NSCONFIG=ws_border_router)
-# target_compile_definitions(wsbrd PRIVATE EXTRA_DEBUG_INFO)
-target_link_libraries(wsbrd PRIVATE Threads::Threads)
-target_link_libraries(wsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
-target_link_libraries(wsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+target_compile_definitions(libwsbrd PRIVATE NSCONFIG=ws_border_router)
+target_compile_options(libwsbrd PRIVATE -fPIC)
+# target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
+target_link_libraries(libwsbrd PRIVATE Threads::Threads)
+target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
+target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
 if(LIBSYSTEMD_FOUND)
-    target_compile_definitions(wsbrd PRIVATE HAVE_LIBSYSTEMD)
-    target_sources(wsbrd PRIVATE app_wsbrd/dbus.c)
-    target_link_libraries(wsbrd PRIVATE PkgConfig::LIBSYSTEMD)
+    target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
+    target_sources(libwsbrd PRIVATE app_wsbrd/dbus.c)
+    target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBSYSTEMD)
 endif()
 if(BACKTRACE_FOUND)
-    target_compile_definitions(wsbrd PRIVATE HAVE_BACKTRACE)
-    target_sources(wsbrd PRIVATE common/backtrace_show.c)
-    target_link_libraries(wsbrd PRIVATE backtrace)
+    target_compile_definitions(libwsbrd PRIVATE HAVE_BACKTRACE)
+    target_sources(libwsbrd PRIVATE common/backtrace_show.c)
+    target_link_libraries(libwsbrd PRIVATE backtrace)
 endif()
 if(LIBDL_FOUND)
-    target_compile_definitions(wsbrd PRIVATE HAVE_LIBDL)
-    target_link_libraries(wsbrd PRIVATE ${CMAKE_DL_LIBS})
+    target_compile_definitions(libwsbrd PRIVATE HAVE_LIBDL)
+    target_link_libraries(libwsbrd PRIVATE ${CMAKE_DL_LIBS})
 endif()
+set_target_properties(libwsbrd PROPERTIES OUTPUT_NAME wsbrd)
+
+add_executable(wsbrd app_wsbrd/wsbrd.c)
+add_dependencies(wsbrd libwsbrd)
+target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 # FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
 # the code

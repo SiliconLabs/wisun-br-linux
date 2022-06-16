@@ -47,6 +47,7 @@
 #include "commandline.h"
 #include "version.h"
 #include "wsbr_mac.h"
+#include "libwsbrd.h"
 #include "wsbr.h"
 #include "dbus.h"
 #include "tun.h"
@@ -438,7 +439,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     }
 }
 
-int main(int argc, char *argv[])
+int wsbr_main(int argc, char *argv[])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
