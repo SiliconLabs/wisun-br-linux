@@ -169,12 +169,13 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     return frame_len;
 }
 
-int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+/*
+ * Returns the next HDLC frame if available, terminator included.
+ */
+static size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 {
-    uint8_t *buf8 = buf;
-    uint16_t crc;
-    int i, frame_len;
-    int ret;
+    int frame_start, frame_len;
+    int ret, i;
 
     if (!ctxt->uart_next_frame_ready) {
         ret = read(ctxt->data_fd,
@@ -185,40 +186,26 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
                tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
         ctxt->uart_rx_buf_len += ret;
     }
+
     i = 0;
-    frame_len = 0;
     while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
-    while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len) {
-        BUG_ON(frame_len > buf_len);
-        if (ctxt->uart_rx_buf[i] == 0x7D) {
-            i++;
-            buf8[frame_len++] = ctxt->uart_rx_buf[i] ^ 0x20;
-        } else {
-            BUG_ON(ctxt->uart_rx_buf[i] == 0x7E);
-            buf8[frame_len++] = ctxt->uart_rx_buf[i];
-        }
+    frame_start = i;
+    while (ctxt->uart_rx_buf[i] != 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
-    }
-    // Note: if buffer ends with 0x7D, i == ctxt->uart_rx_buf_len + 1
+    frame_len = i - frame_start + 1;
     BUG_ON(ctxt->uart_next_frame_ready && i >= ctxt->uart_rx_buf_len);
     if (i >= ctxt->uart_rx_buf_len)
         return 0;
-    if (frame_len <= 2) {
-        WARN("frame length < 2, frame dropped");
-        frame_len = 0;
-    } else {
-        frame_len -= sizeof(uint16_t);
-        crc = crc16(buf8, frame_len);
-        if (memcmp(buf8 + frame_len, &crc, sizeof(uint16_t))) {
-            WARN("bad crc, frame dropped");
-            frame_len = 0;
-        }
-    }
+
+    BUG_ON(buf_len < frame_len);
+    memcpy(buf, ctxt->uart_rx_buf + frame_start, frame_len);
+
     while (ctxt->uart_rx_buf[i] == 0x7E && i < ctxt->uart_rx_buf_len)
         i++;
     memmove(ctxt->uart_rx_buf, ctxt->uart_rx_buf + i, ctxt->uart_rx_buf_len - i);
     ctxt->uart_rx_buf_len -= i;
+
     i = 0;
     ctxt->uart_next_frame_ready = false;
     while (i < ctxt->uart_rx_buf_len) {
@@ -228,10 +215,51 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         }
         i++;
     }
-    if (frame_len) {
-        TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
-              tr_bytes(buf, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
-        spinel_trace(buf, frame_len, "hif rx: ");
+
+    return frame_len;
+}
+
+static size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len)
+{
+    int i = 0, frame_len = 0;
+    uint16_t crc;
+
+    while (i < in_len - 1) {
+        BUG_ON(frame_len > out_len);
+        if (in[i] == 0x7D) {
+            i++;
+            out[frame_len++] = in[i] ^ 0x20;
+        } else {
+            BUG_ON(in[i] == 0x7E);
+            out[frame_len++] = in[i];
+        }
+        i++;
     }
+    if (frame_len <= 2) {
+        WARN("frame length < 2, frame dropped");
+        return 0;
+    } else {
+        frame_len -= sizeof(uint16_t);
+        crc = crc16(out, frame_len);
+        if (memcmp(out + frame_len, &crc, sizeof(uint16_t))) {
+            WARN("bad crc, frame dropped");
+            return 0;
+        }
+    }
+    TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
+        tr_bytes(out, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
+    spinel_trace(out, frame_len, "hif rx: ");
+    return frame_len;
+}
+
+int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+{
+    uint8_t frame[4096];
+    size_t frame_len;
+
+    frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
+    if (!frame_len)
+        return 0;
+    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len);
     return frame_len;
 }
