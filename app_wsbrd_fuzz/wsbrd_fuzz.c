@@ -81,6 +81,9 @@ void __wrap_wsbr_spinel_replay_timers(struct spinel_buffer *buf)
 ssize_t __real_read(int fd, void *buf, size_t count);
 ssize_t __wrap_read(int fd, void *buf, size_t count)
 {
+    ssize_t ret = __real_read(fd, buf, count);
+    struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+
     if (fd == g_ctxt.timerfd) {
         if (g_fuzz_ctxt.capture_enabled) {
             g_fuzz_ctxt.timer_counter++;
@@ -89,9 +92,12 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
             if (g_fuzz_ctxt.timer_counter)
                 fuzz_trigger_timer();
         }
+    } else if (fd == g_ctxt.tun_fd && ctxt->capture_enabled) {
+        fuzz_capture_timers(ctxt);
+        fuzz_capture_tun(ctxt, buf, count);
     }
 
-    return __real_read(fd, buf, count);
+    return ret;
 }
 
 ssize_t __real_write(int fd, const void *buf, size_t count);

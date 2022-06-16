@@ -44,3 +44,14 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
     fuzz_capture_spinel(ctxt, buf);
     ctxt->timer_counter = 0;
 }
+
+void fuzz_capture_tun(struct fuzz_ctxt *ctxt, const void *data, size_t size)
+{
+    struct spinel_buffer *buf;
+
+    buf = ALLOC_STACK_SPINEL_BUF(7 + size);
+    spinel_push_u8(buf, wsbr_get_spinel_hdr(&g_ctxt));
+    spinel_push_uint(buf, SPINEL_CMD_REPLAY_TUN);
+    spinel_push_data(buf, data, size);
+    fuzz_capture_spinel(ctxt, buf);
+}
