@@ -16,6 +16,7 @@
 #include <termios.h>
 #include <sys/file.h>
 
+#include "stack-services/common_functions.h"
 #include "crc.h"
 #include "log.h"
 #include "utils.h"
@@ -96,6 +97,7 @@ int uart_tx_append(uint8_t *buf, uint8_t byte)
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
+    uint8_t crc_bytes[2];
     uint8_t *frame = malloc(buf_len * 2 + 3);
     const uint8_t *buf8 = buf;
     int i, frame_len;
@@ -104,8 +106,9 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
     frame_len = 0;
     for (i = 0; i < buf_len; i++)
         frame_len += uart_tx_append(frame + frame_len, buf8[i]);
-    frame_len += uart_tx_append(frame + frame_len, crc & 0xFF);
-    frame_len += uart_tx_append(frame + frame_len, crc >> 8);
+    common_write_16_bit_inverse(crc, crc_bytes);
+    frame_len += uart_tx_append(frame + frame_len, crc_bytes[0]);
+    frame_len += uart_tx_append(frame + frame_len, crc_bytes[1]);
     frame[frame_len++] = 0x7E;
     TRACE(TR_BUS, "bus tx: %s (%d bytes)",
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
@@ -178,7 +181,6 @@ static size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 static size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len)
 {
     int i = 0, frame_len = 0;
-    uint16_t crc;
 
     while (i < in_len - 1) {
         BUG_ON(frame_len > out_len);
@@ -196,8 +198,7 @@ static size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, 
         return 0;
     } else {
         frame_len -= sizeof(uint16_t);
-        crc = crc16(out, frame_len);
-        if (memcmp(out + frame_len, &crc, sizeof(uint16_t))) {
+        if (crc16(out, frame_len) != common_read_16_bit_inverse(out + frame_len)) {
             WARN("bad crc, frame dropped");
             return 0;
         }
