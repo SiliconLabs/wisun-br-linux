@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <stdint.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
@@ -131,7 +130,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 /*
  * Returns the next HDLC frame if available, terminator included.
  */
-static size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
+size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 {
     int frame_start, frame_len;
     int ret, i;
@@ -178,7 +177,7 @@ static size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     return frame_len;
 }
 
-static size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len)
+size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len)
 {
     int i = 0, frame_len = 0;
 

@@ -14,12 +14,18 @@
 #define BUS_UART_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 struct os_ctxt;
 
 int uart_open(const char *device, int bitrate, bool hardflow);
 int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int len);
 int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int len);
+
+// These functions are exported for debug purposes
+size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len);
+size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len);
 
 #endif
 

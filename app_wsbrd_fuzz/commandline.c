@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "app_wsbrd/commandline.h"
 #include "common/log.h"
@@ -31,7 +32,12 @@ void __wrap_print_help_br(FILE *stream)
 
 static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 {
-    BUG("Not yet implemented");
+    FATAL_ON(ctxt->capture_enabled, 1, "--capture used more than once");
+    FATAL_ON(ctxt->replay_enabled, 1, "using --capture and --replay at the same time");
+    ctxt->capture_enabled = true;
+    ctxt->uart_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    FATAL_ON(ctxt->uart_fd < 0, 2, "open '%s': %m", arg);
 }
 
 static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
