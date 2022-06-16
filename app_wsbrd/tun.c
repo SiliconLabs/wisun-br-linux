@@ -195,3 +195,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     ctxt->tun_driver->phy_rx_cb(buf, len, 0x80, 0, ctxt->tun_driver_id);
 }
 
+void wsbr_spinel_replay_tun(struct spinel_buffer *buf)
+{
+    WARN("%s: not implemented", __func__);
+}

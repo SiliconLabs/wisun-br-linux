@@ -206,6 +206,12 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
+// Defined here to avoid compiling tun.c
+void wsbr_spinel_replay_tun(struct spinel_buffer *buf)
+{
+    WARN("%s: not implemented", __func__);
+}
+
 void kill_handler(int signal)
 {
     exit(3);

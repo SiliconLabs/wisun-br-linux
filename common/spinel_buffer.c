@@ -328,6 +328,7 @@ static const struct {
     { "NOOP",          SPINEL_CMD_NOOP },
     { "RESET",         SPINEL_CMD_RESET },
     { "REPLAY_TIMERS", SPINEL_CMD_REPLAY_TIMERS },
+    { "REPLAY_TUN"   , SPINEL_CMD_REPLAY_TUN },
 };
 
 #define prop_name(name) { #name, SPINEL_PROP_##name }
