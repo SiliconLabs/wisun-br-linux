@@ -9,6 +9,15 @@ struct fuzz_ctxt g_fuzz_ctxt = {
     .mbedtls_time = 1700000000, // Tue Nov 14 23:13:20 CET 2023
 };
 
+int __real_uart_open(const char *device, int bitrate, bool hardflow);
+int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
+{
+    if (g_fuzz_ctxt.replay_enabled)
+        return g_fuzz_ctxt.uart_fd;
+    else
+        return __real_uart_open(device, bitrate, hardflow);
+}
+
 int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
 int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {

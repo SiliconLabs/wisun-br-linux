@@ -293,6 +293,7 @@ if(BACKTRACE_FOUND)
 endif()
 target_link_options(wsbrd-fuzz PRIVATE
     -Wl,--wrap=print_help_br
+    -Wl,--wrap=uart_open
     -Wl,--wrap=uart_rx
     -Wl,--wrap=read
     -Wl,--wrap=getrandom
