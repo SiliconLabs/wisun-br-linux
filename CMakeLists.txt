@@ -81,6 +81,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/commandline_values.c
     app_wsbrd/os_whiteboard.c
     app_wsbrd/mbedtls_config_check.c
+    common/crc.c
     common/bus_uart.c
     common/hal_interrupt.c
     common/os_scheduler.c
@@ -325,6 +326,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/wsbr_fhss_net.c
         app_wsbrd/commandline.c
         app_wsbrd/commandline_values.c
+        common/crc.c
         common/bus_uart.c
         common/hal_interrupt.c
         common/os_scheduler.c
@@ -487,6 +489,7 @@ if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wshwsim
         version.c
+        common/crc.c
         common/bus_uart.c
         common/hal_interrupt.c
         common/os_scheduler.c
