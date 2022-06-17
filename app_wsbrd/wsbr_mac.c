@@ -141,7 +141,7 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     uint16_t chan_count;
     bool is_submode;
     bool rf_cfg_found = false;
-    int i, j;
+    int i, j = 0;
 
     memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
 
