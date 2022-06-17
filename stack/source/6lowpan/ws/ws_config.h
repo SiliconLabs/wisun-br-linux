@@ -97,7 +97,7 @@
 
 #define PAN_VERSION_SMALL_NETWORK_TIMEOUT 30*60
 
-#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 30*60
+#define PAN_VERSION_MEDIUM_NETWORK_TIMEOUT 60*60
 
 #define PAN_VERSION_LARGE_NETWORK_TIMEOUT 90*60
 
@@ -145,13 +145,13 @@ extern uint8_t DEVICE_MIN_SENS;
 /*Small network size*/
 #define MPL_SMALL_IMIN 1
 #define MPL_SMALL_IMAX 10
-#define MPL_SMALL_EXPIRATIONS 1
+#define MPL_SMALL_EXPIRATIONS 2
 #define MPL_SMALL_K 8
 #define MPL_SMALL_SEED_LIFETIME (MPL_SMALL_IMAX * MPL_SAFE_HOP_COUNT * (MPL_SMALL_EXPIRATIONS + 1)) // time that packet should get to safe distance
 /*Medium network size*/
 #define MPL_MEDIUM_IMIN 1
 #define MPL_MEDIUM_IMAX 32
-#define MPL_MEDIUM_EXPIRATIONS 1
+#define MPL_MEDIUM_EXPIRATIONS 2
 #define MPL_MEDIUM_K 8
 #define MPL_MEDIUM_SEED_LIFETIME (MPL_MEDIUM_IMAX * MPL_SAFE_HOP_COUNT * (MPL_MEDIUM_EXPIRATIONS + 1)) // time that packet should get to safe distance
 /*Large network size*/
