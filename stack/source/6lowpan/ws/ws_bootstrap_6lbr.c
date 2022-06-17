@@ -319,12 +319,12 @@ static void ws_bootstrap_6lbr_print_config(protocol_interface_info_entry_t *cur)
     else
         INFO("  domain: %s", val_to_str(hopping_schedule->regulatory_domain, valid_ws_domains, "??"));
 
-    if (hopping_schedule->channel_plan_id != 255)
+    if (hopping_schedule->channel_plan_id && hopping_schedule->channel_plan_id != 255)
         INFO("  channel plan id: %d", hopping_schedule->channel_plan_id);
     else
         INFO("  class: 0x%x", hopping_schedule->operating_class);
 
-    if (hopping_schedule->phy_mode_id != 255)
+    if (hopping_schedule->phy_mode_id && hopping_schedule->phy_mode_id != 255)
         INFO("  phy mode id: %d", hopping_schedule->phy_mode_id);
     else
         INFO("  mode: 0x%x", hopping_schedule->operating_mode);
