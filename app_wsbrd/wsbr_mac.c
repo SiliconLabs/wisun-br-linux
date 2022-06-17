@@ -149,6 +149,10 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     // pom-ie section, needed for mode switch
     memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
 
+    // MDR with custom domains are not yet supported
+    if (!chan_params || !phy_params)
+        return;
+
     while (spinel_remaining_size(buf)) {
         chan0_freq = spinel_pop_u32(buf);
         chan_spacing = spinel_pop_u32(buf);
