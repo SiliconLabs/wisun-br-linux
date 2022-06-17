@@ -140,9 +140,7 @@ typedef struct ws_info_s {
     ws_nud_table_list_t active_nud_process;
     ws_nud_table_list_t free_nud_entries;
     ws_test_proc_trg_t test_proc_trg;
-#ifdef HAVE_WS_VERSION_1_1
     ws_lfn_lgtk_t lfngtk;
-#endif
     struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information_s pan_information;
     ws_hopping_schedule_t hopping_schedule;
@@ -213,14 +211,8 @@ void ws_common_state_machine(protocol_interface_info_entry_t *cur);
 fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interface_info_entry_t *cur);
 
 #define ws_info(cur) ((cur)->ws_info)
-#ifdef HAVE_WS_VERSION_1_1
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
 #define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
 #define ws_lfn_version_learned(cur) ((cur)->ws_info->lfngtk.lfn_version_learned == true)
-#else
-#define ws_version_1_1(cur) (false)
-#define ws_version_1_0(cur) ((cur)->ws_info)
-#define ws_lfn_version_learned(cur) (false)
-#endif
 #define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 #endif //WS_COMMON_H_

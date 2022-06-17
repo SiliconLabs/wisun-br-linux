@@ -422,13 +422,11 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             // initialize for FAN 1.1 defaults
             if (ws_version_1_1(cur)) {
                 cur->ws_info->pan_information.version = WS_FAN_VERSION_1_1;
-#ifdef HAVE_WS_VERSION_1_1
                 if (!cur->ws_info->lfngtk.lfn_version_learned) {
                     //Randomize LFN version
                     cur->ws_info->lfngtk.lfn_version = rand_get_random_in_range(0, 0xffff);
                     cur->ws_info->lfngtk.lfn_version_learned = true;
                 }
-#endif
             }
 
             uint8_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);

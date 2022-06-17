@@ -1118,7 +1118,6 @@ static void ws_llc_lowpan_mpx_header_set(llc_message_t *message, uint16_t user_i
     message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
 }
 
-#ifdef HAVE_WS_VERSION_1_1
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req_s *data)
 {
 
@@ -1137,9 +1136,6 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
         return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, base->ms_tx_phy_mode_id);
     return 0;
 }
-#else
-#define  ws_llc_mdr_phy_mode_get(base, data) 0
-#endif
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req_s *data, mac_data_priority_t priority)
 {
@@ -1995,7 +1991,6 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             ptr = ws_wp_nested_vp_write(ptr, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
         }
 
-#ifdef HAVE_WS_VERSION_1_1
         if (ws_version_1_1(interface)) {
             if (request->wp_requested_nested_ie_list.lfn_gtk_version_ie) {
                 ws_lfnver_ie_t lfn_ver;
@@ -2020,8 +2015,6 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             }
         }
-#endif
-
     }
 
     ws_trace_llc_mac_req(&data_req, message);

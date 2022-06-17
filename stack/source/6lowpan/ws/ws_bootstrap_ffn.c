@@ -394,7 +394,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
         }
     }
 }
-#ifdef HAVE_WS_VERSION_1_1
+
 static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_info_entry *cur, const struct mcps_data_ie_list *ie_ext)
 {
     if (!ws_version_1_1(cur) || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -452,7 +452,6 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
     }
     //TODO Analyze HASH's and set LFN group key index
 }
-#endif
 
 
 static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
@@ -565,9 +564,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_SOFT_SYNCH);
             }
             // no need to process more
-#ifdef HAVE_WS_VERSION_1_1
             ws_bootstrap_ffn_pan_config_lfn_analyze(cur, ie_ext);
-#endif
             return;
         } else  {
             // received version is different so we need to reset the trickle
@@ -605,9 +602,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
 
     ws_pae_controller_nw_key_index_update(cur, data->Key.KeyIndex - 1);
 
-#ifdef HAVE_WS_VERSION_1_1
     ws_bootstrap_ffn_pan_config_lfn_analyze(cur, ie_ext);
-#endif
 
     if (!cur->ws_info->configuration_learned) {
         // Generate own hopping schedules Follow first parent broadcast and plans and also use same unicast dwell
