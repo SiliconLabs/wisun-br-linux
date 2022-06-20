@@ -1,3 +1,11 @@
+v1.3.1
+------
+
+  - Fix buffer overflow when mode switch capabilities are advertised.
+  - Fix segfault when custom domain is in use.
+  - Fix the RF configuration displayed on start up.
+  - Slightly change the default lifetimes of MPL and PAN version.
+
 v1.3.0
 ------
 
