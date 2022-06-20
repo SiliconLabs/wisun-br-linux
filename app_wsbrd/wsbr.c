@@ -24,6 +24,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "service_libs/utils/ns_file_system.h"
 #include "stack/net_multicast.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
@@ -439,6 +440,7 @@ int wsbr_main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
+    ns_file_system_set_root_path(ctxt->storage_prefix);
     if (ctxt->uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;

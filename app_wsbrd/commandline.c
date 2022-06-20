@@ -30,7 +30,6 @@
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"
-#include "service_libs/utils/ns_file_system.h"
 #include "stack/ws_management_api.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
@@ -286,20 +285,8 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
         if (ctxt->tx_power < INT8_MIN || ctxt->tx_power > INT8_MAX)
             FATAL(1, "%s:%d: invalid tx_power: %d", filename, line_no, ctxt->tx_power);
     } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(str_arg, str_arg))
+        if (parse_escape_sequences(ctxt->storage_prefix, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-        if (!strcmp(str_arg, "-")) {
-            ns_file_system_set_root_path(NULL);
-            return;
-        }
-        ns_file_system_set_root_path(str_arg);
-        if (strlen(str_arg) && str_arg[strlen(str_arg) - 1] == '/') {
-            if (access(str_arg, W_OK))
-                FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
-        } else {
-            if (access(dirname(str_arg), W_OK))
-                FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
-        }
     } else if (sscanf(line, " unicast_dwell_interval = %d %c", &ctxt->uc_dwell_interval, &garbage) == 1) {
         if (ctxt->uc_dwell_interval < 15 || ctxt->uc_dwell_interval > 255)
             FATAL(1, "%s:%d: invalid unicast dwell interval: %d", filename, line_no, ctxt->uc_dwell_interval);
@@ -379,6 +366,18 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
     fclose(f);
 }
 
+int check_storage_access(const char *storage_prefix)
+{
+    char *tmp;
+
+    if (!strlen(storage_prefix))
+        return 0;
+    if (storage_prefix[strlen(storage_prefix) - 1] == '/')
+        return access(storage_prefix, W_OK);
+    tmp = strdupa(storage_prefix);
+    return access(dirname(tmp), W_OK);
+}
+
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
@@ -422,7 +421,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
     ctxt->ws_allowed_mac_address_count = 0;
     ctxt->ws_denied_mac_address_count = 0;
     ctxt->ws_regional_regulation = 0,
-    ns_file_system_set_root_path("/var/lib/wsbrd/");
+    strcpy(ctxt->storage_prefix, "/var/lib/wsbrd/");
     memset(ctxt->ws_allowed_channels, 0xFF, sizeof(ctxt->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
         switch (opt) {
@@ -560,6 +559,10 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (ctxt->uart_dev[0] && ctxt->cpc_instance[0])
         FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", ctxt->uart_dev);
+    if (!strcmp(ctxt->storage_prefix, "-"))
+        ctxt->storage_prefix[0]= '\0';
+    if (check_storage_access(ctxt->storage_prefix))
+        FATAL(1, "%s: %m", ctxt->storage_prefix);
     if (ctxt->radius_server.ss_family == AF_UNSPEC) {
         if (!ctxt->tls_own.key)
             FATAL(1, "missing \"key\" (or \"radius_server\") parameter");

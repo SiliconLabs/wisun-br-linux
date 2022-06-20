@@ -108,6 +108,7 @@ struct wsbr_ctxt {
     int ws_gtk_max_mismatch;
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
+    char storage_prefix[PATH_MAX];
     int uc_dwell_interval;
     int bc_interval;
     int bc_dwell_interval;

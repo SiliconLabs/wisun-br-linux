@@ -28,7 +28,7 @@ int ns_file_system_set_root_path(const char *root_path)
 {
     char *new_root_path;
 
-    if (root_path == NULL) {
+    if (root_path == NULL || !root_path[0]) {
         // File system usage disabled
         free(file_system_root);
         file_system_root = NULL;

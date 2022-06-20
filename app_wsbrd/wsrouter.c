@@ -27,6 +27,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "service_libs/utils/ns_file_system.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
@@ -273,6 +274,7 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_node);
+    ns_file_system_set_root_path(ctxt->storage_prefix);
     ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
