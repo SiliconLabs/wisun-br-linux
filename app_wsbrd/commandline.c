@@ -40,6 +40,12 @@
 
 #include "commandline.h"
 
+struct parser_info {
+    const char *filename;
+    int line_no;
+    char line[256];
+};
+
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05,
     0xa2, 0xa3, 0xa4, 0xa5, 0xa6,
@@ -174,8 +180,7 @@ static int read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
-static void parse_config_line(struct wsbrd_conf *config, const char *filename,
-                              int line_no, const char *line)
+static void parse_config_line(struct wsbrd_conf *config, const struct parser_info *info)
 {
     char garbage; // detect garbage at end of the line
     char str_arg[256];
@@ -183,185 +188,186 @@ static void parse_config_line(struct wsbrd_conf *config, const char *filename,
     int int_arg;
     int i;
 
-    if (sscanf(line, " %c", &garbage) == EOF) {
-        /* blank line*/;
-    } else if (sscanf(line, " uart_device = %s %c", str_arg, &garbage) == 1) {
+    if (sscanf(info->line, " %c", &garbage) == EOF) {
+        /* blank info->line*/;
+    } else if (sscanf(info->line, " uart_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->uart_dev, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " uart_baudrate = %u %c", &config->uart_baudrate, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " uart_baudrate = %u %c", &config->uart_baudrate, &garbage) == 1) {
         /* empty */
-    } else if (sscanf(line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
         config->uart_rtscts = str_to_val(str_arg, valid_booleans);
-    } else if (sscanf(line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->cpc_instance, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " cpc_verbose = %s %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " cpc_verbose = %s %c", str_arg, &garbage) == 1) {
         config->cpc_verbose = str_to_val(str_arg, valid_booleans);
-    } else if (sscanf(line, " tun_device = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " tun_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->tun_dev, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
         config->tun_autoconf = str_to_val(str_arg, valid_booleans);
-    } else if (sscanf(line, " network_name = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " network_name = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->ws_name, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
         if (int_arg != 64)
-            FATAL(1, "%s:%d: invalid prefix length: %d", filename, line_no, int_arg);
+            FATAL(1, "%s:%d: invalid prefix length: %d", info->filename, info->line_no, int_arg);
         if (inet_pton(AF_INET6, str_arg, config->ipv6_prefix) != 1)
-            FATAL(1, "%s:%d: invalid prefix: %s", filename, line_no, str_arg);
-    } else if (sscanf(line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid prefix: %s", info->filename, info->line_no, str_arg);
+    } else if (sscanf(info->line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
         parse_netaddr((struct sockaddr_storage *)&config->dhcpv6_server, str_arg);
-    } else if (sscanf(line, " certificate = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
         int_arg = read_cert(str_arg, &config->tls_own.cert);
         if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
         config->tls_own.cert_len = int_arg;
-    } else if (sscanf(line, " key = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " key = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
         int_arg = read_cert(str_arg, &config->tls_own.key);
         if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
         config->tls_own.key_len = int_arg;
-    } else if (sscanf(line, " authority = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " authority = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
         int_arg = read_cert(str_arg, &config->tls_ca.cert);
         if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
         config->tls_ca.cert_len = int_arg;
-    } else if (sscanf(line, " radius_server = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " radius_server = %s %c", str_arg, &garbage) == 1) {
         parse_netaddr(&config->radius_server, str_arg);
-    } else if (sscanf(line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->radius_secret, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " trace = %s %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " trace = %s %c", str_arg, &garbage) == 1) {
         g_enabled_traces = 0;
         substr = strtok(str_arg, ",");
         do {
             g_enabled_traces |= str_to_val(substr, valid_traces);
         } while ((substr = strtok(NULL, ",")));
-    } else if (sscanf(line, " domain = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " domain = %s %c", str_arg, &garbage) == 1) {
         config->ws_domain = str_to_val(str_arg, valid_ws_domains);
-    } else if (sscanf(line, " mode = %x %c", &config->ws_mode, &garbage) == 1) {
+    } else if (sscanf(info->line, " mode = %x %c", &config->ws_mode, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
             if (valid_ws_modes[i] == config->ws_mode)
                 break;
         if (i == ARRAY_SIZE(valid_ws_modes))
-            FATAL(1, "%s:%d: invalid mode: %x", filename, line_no, config->ws_mode);
-    } else if (sscanf(line, " class = %d %c", &config->ws_class, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid mode: %x", info->filename, info->line_no, config->ws_mode);
+    } else if (sscanf(info->line, " class = %d %c", &config->ws_class, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
             if (valid_ws_classes[i] == config->ws_class)
                 break;
         if (i == ARRAY_SIZE(valid_ws_classes))
-            FATAL(1, "%s:%d: invalid class: %d", filename, line_no, config->ws_class);
-    } else if (sscanf(line, " chan0_freq = %u %c", &config->ws_chan0_freq, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid class: %d", info->filename, info->line_no, config->ws_class);
+    } else if (sscanf(info->line, " chan0_freq = %u %c", &config->ws_chan0_freq, &garbage) == 1) {
         /* empty */
-    } else if (sscanf(line, " chan_spacing = %u %c", &config->ws_chan_spacing, &garbage) == 1) {
+    } else if (sscanf(info->line, " chan_spacing = %u %c", &config->ws_chan_spacing, &garbage) == 1) {
         for (i = 0; i < ARRAY_SIZE(valid_ws_chan_spacing); i++)
             if (valid_ws_chan_spacing[i] == config->ws_chan_spacing)
                 break;
         if (i == ARRAY_SIZE(valid_ws_chan_spacing))
-            FATAL(1, "%s:%d: invalid channel spacing: %d", filename, line_no, config->ws_chan_spacing);
-    } else if (sscanf(line, " chan_count = %u %c", &config->ws_chan_count, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid channel spacing: %d", info->filename, info->line_no, config->ws_chan_spacing);
+    } else if (sscanf(info->line, " chan_count = %u %c", &config->ws_chan_count, &garbage) == 1) {
         /* empty */
-    } else if (sscanf(line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
         if (parse_bitmask(config->ws_allowed_channels, ARRAY_SIZE(config->ws_allowed_channels), str_arg) < 0)
-            FATAL(1, "%s:%d: invalid range: %s", filename, line_no, str_arg);
-    } else if (sscanf(line, " pan_id = %u %c", &config->ws_pan_id, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, str_arg);
+    } else if (sscanf(info->line, " pan_id = %u %c", &config->ws_pan_id, &garbage) == 1) {
         /* empty */
-    } else if (sscanf(line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
+    } else if (sscanf(info->line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
         if (int_arg < 0 || int_arg > 3)
-            FATAL(1, "%s:%d: invalid key index: %d", filename, line_no, int_arg);
+            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, int_arg);
         if (parse_byte_array(config->ws_gtk[int_arg], 16, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_gtk_force[int_arg] = true;
-    } else if (sscanf(line, " size = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " size = %s %c", str_arg, &garbage) == 1) {
         config->ws_size = str_to_val(str_arg, valid_ws_size);
-    } else if (sscanf(line, " tx_power = %d %c", &config->tx_power, &garbage) == 1) {
+    } else if (sscanf(info->line, " tx_power = %d %c", &config->tx_power, &garbage) == 1) {
         if (config->tx_power < INT8_MIN || config->tx_power > INT8_MAX)
-            FATAL(1, "%s:%d: invalid tx_power: %d", filename, line_no, config->tx_power);
-    } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid tx_power: %d", info->filename, info->line_no, config->tx_power);
+    } else if (sscanf(info->line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->storage_prefix, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
-    } else if (sscanf(line, " unicast_dwell_interval = %d %c", &config->uc_dwell_interval, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+    } else if (sscanf(info->line, " unicast_dwell_interval = %d %c", &config->uc_dwell_interval, &garbage) == 1) {
         if (config->uc_dwell_interval < 15 || config->uc_dwell_interval > 255)
-            FATAL(1, "%s:%d: invalid unicast dwell interval: %d", filename, line_no, config->uc_dwell_interval);
-    } else if (sscanf(line, " broadcast_interval = %d %c", &config->bc_interval, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid unicast dwell interval: %d", info->filename, info->line_no, config->uc_dwell_interval);
+    } else if (sscanf(info->line, " broadcast_interval = %d %c", &config->bc_interval, &garbage) == 1) {
         if (config->bc_interval < 100 || config->bc_interval > 16777215) // UINT24_MAX
-            FATAL(1, "%s:%d: invalid broadcast interval: %d", filename, line_no, config->bc_interval);
-    } else if (sscanf(line, " broadcast_dwell_interval = %d %c", &config->bc_dwell_interval, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid broadcast interval: %d", info->filename, info->line_no, config->bc_interval);
+    } else if (sscanf(info->line, " broadcast_dwell_interval = %d %c", &config->bc_dwell_interval, &garbage) == 1) {
         if (config->bc_dwell_interval < 100 || config->bc_dwell_interval > 255)
-            FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", filename, line_no, config->bc_dwell_interval);
-    } else if (sscanf(line, " pmk_lifetime = %d %c", &config->ws_pmk_lifetime, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", info->filename, info->line_no, config->bc_dwell_interval);
+    } else if (sscanf(info->line, " pmk_lifetime = %d %c", &config->ws_pmk_lifetime, &garbage) == 1) {
         if (config->ws_pmk_lifetime <= 0)
-            FATAL(1, "%s:%d: invalid pmk_lifetime: %d", filename, line_no, config->ws_pmk_lifetime);
-    } else if (sscanf(line, " ptk_lifetime = %d %c", &config->ws_ptk_lifetime, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid pmk_lifetime: %d", info->filename, info->line_no, config->ws_pmk_lifetime);
+    } else if (sscanf(info->line, " ptk_lifetime = %d %c", &config->ws_ptk_lifetime, &garbage) == 1) {
         if (config->ws_ptk_lifetime <= 0)
-            FATAL(1, "%s:%d: invalid ptk_lifetime: %d", filename, line_no, config->ws_ptk_lifetime);
-    } else if (sscanf(line, " gtk_expire_offset = %d %c", &config->ws_gtk_expire_offset, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid ptk_lifetime: %d", info->filename, info->line_no, config->ws_ptk_lifetime);
+    } else if (sscanf(info->line, " gtk_expire_offset = %d %c", &config->ws_gtk_expire_offset, &garbage) == 1) {
         if (config->ws_gtk_expire_offset <= 0)
-            FATAL(1, "%s:%d: invalid gtk_expire_offset: %d", filename, line_no, config->ws_gtk_expire_offset);
-    } else if (sscanf(line, " gtk_new_activation_time = %d %c", &config->ws_gtk_new_activation_time, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid gtk_expire_offset: %d", info->filename, info->line_no, config->ws_gtk_expire_offset);
+    } else if (sscanf(info->line, " gtk_new_activation_time = %d %c", &config->ws_gtk_new_activation_time, &garbage) == 1) {
         if (config->ws_gtk_new_activation_time <= 1)
-            FATAL(1, "%s:%d: invalid gtk_new_activation_time: %d", filename, line_no, config->ws_gtk_new_activation_time);
-    } else if (sscanf(line, " gtk_new_install_required = %d %c", &config->ws_gtk_new_install_required, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid gtk_new_activation_time: %d", info->filename, info->line_no, config->ws_gtk_new_activation_time);
+    } else if (sscanf(info->line, " gtk_new_install_required = %d %c", &config->ws_gtk_new_install_required, &garbage) == 1) {
         if (config->ws_gtk_new_install_required <= 0 || config->ws_gtk_new_install_required > 100)
-            FATAL(1, "%s:%d: invalid gtk_new_install_required: %d", filename, line_no, config->ws_gtk_new_install_required);
-    } else if (sscanf(line, " revocation_lifetime_reduction = %d %c", &config->ws_revocation_lifetime_reduction, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid gtk_new_install_required: %d", info->filename, info->line_no, config->ws_gtk_new_install_required);
+    } else if (sscanf(info->line, " revocation_lifetime_reduction = %d %c", &config->ws_revocation_lifetime_reduction, &garbage) == 1) {
         if (config->ws_revocation_lifetime_reduction <= 0)
-            FATAL(1, "%s:%d: invalid revocation_lifetime_reduction: %d", filename, line_no, config->ws_revocation_lifetime_reduction);
-    } else if (sscanf(line, " gtk_max_mismatch = %d %c", &config->ws_gtk_max_mismatch, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid revocation_lifetime_reduction: %d", info->filename, info->line_no, config->ws_revocation_lifetime_reduction);
+    } else if (sscanf(info->line, " gtk_max_mismatch = %d %c", &config->ws_gtk_max_mismatch, &garbage) == 1) {
         if (config->ws_gtk_max_mismatch <= 0)
-            FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", filename, line_no, config->ws_gtk_max_mismatch);
-    } else if (sscanf(line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
+            FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", info->filename, info->line_no, config->ws_gtk_max_mismatch);
+    } else if (sscanf(info->line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
         if (config->ws_denied_mac_address_count > 0)
-            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
+            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", info->filename, info->line_no);
         if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
-            FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", filename, line_no);
+            FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
         if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_allowed_mac_address_count++;
-    } else if (sscanf(line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
         if (config->ws_allowed_mac_address_count > 0)
-            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", filename, line_no);
+            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", info->filename, info->line_no);
         if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
-            FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", filename, line_no);
+            FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->line_no);
         if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", filename, line_no, str_arg);
+            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_denied_mac_address_count++;
-    } else if (sscanf(line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
         config->ws_regional_regulation = str_to_val(str_arg, valid_ws_regional_regulations);
-    } else if (sscanf(line, " use_tap = %s %c", str_arg, &garbage) == 1) {
+    } else if (sscanf(info->line, " use_tap = %s %c", str_arg, &garbage) == 1) {
         config->tun_use_tap = str_to_val(str_arg, valid_booleans);
     } else {
-        FATAL(1, "%s:%d: syntax error: '%s'", filename, line_no, line);
+        FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->line_no, info->line);
     }
 }
 
 static void parse_config_file(struct wsbrd_conf *config, const char *filename)
 {
+    struct parser_info info = {
+        .filename = filename
+    };
     FILE *f = fopen(filename, "r");
-    int line_no = 0;
-    char line[256];
     int len;
 
     if (!f)
-        FATAL(1, "%s: %m", filename);
-    while (fgets(line, sizeof(line), f)) {
-        line_no++;
-        len = strlen(line);
-        if (len > 0 && line[len - 1] == '\n')
-            line[--len] = '\0';
-        if (len > 0 && line[len - 1] == '\r')
-            line[--len] = '\0';
+        FATAL(1, "%s: %m", info.filename);
+    while (fgets(info.line, sizeof(info.line), f)) {
+        info.line_no++;
+        len = strlen(info.line);
+        if (len > 0 && info.line[len - 1] == '\n')
+            info.line[--len] = '\0';
+        if (len > 0 && info.line[len - 1] == '\r')
+            info.line[--len] = '\0';
         if (len <= 0)
             continue;
-        *(strchrnul(line, '#')) = '\0';
-        parse_config_line(config, filename, line_no, line);
+        *(strchrnul(info.line, '#')) = '\0';
+        parse_config_line(config, &info);
     }
     fclose(f);
 }
@@ -402,6 +408,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
         { 0,             0,                 0,   0  }
+    };
+    struct parser_info info = {
+        .filename = "command line",
     };
     char *end_ptr;
     int opt, i, ret;
@@ -445,7 +454,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 strncpy(config->uart_dev, optarg, sizeof(config->uart_dev) - 1);
                 break;
             case 'o':
-                parse_config_line(config, "command line", 0, optarg);
+                strncpy(info.line, optarg, sizeof(info.line));
+                parse_config_line(config, &info);
                 break;
             case 'l':
                 config->list_rf_configs = true;
