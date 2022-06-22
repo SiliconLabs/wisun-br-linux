@@ -30,6 +30,7 @@ void __wrap_print_help_br(FILE *stream)
     fprintf(stream, "  --capture=FILE        Record raw data received on UART and TUN interfaces, and save it to\n");
     fprintf(stream, "                          FILE. Also write additional timer information for replay.\n");
     fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture\n");
+    fprintf(stream, "  --fuzz                Disable CRC check, stub security RNG, relax SPINEL checks.\n");
 }
 
 static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
@@ -54,6 +55,11 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
     ret = pipe(ctxt->tun_pipe);
     FATAL_ON(ret < 0, 2, "pipe: %m");
     g_ctxt.uart_dev[0] = true; // UART device does not need to be specified
+}
+
+static void parse_opt_fuzz(struct fuzz_ctxt *ctxt, const char *arg)
+{
+    ctxt->fuzzing_enabled = true;
 }
 
 #define parsing_error(fmt, ...) do {                                     \
@@ -95,8 +101,9 @@ static int fuzz_parse_opt(struct fuzz_ctxt *ctxt, char **argv, const struct opti
 static int fuzz_parse_arg(struct fuzz_ctxt *ctxt, char **argv)
 {
     static const struct option opts[] = {
-        { "--capture", true, parse_opt_capture },
-        { "--replay",  true, parse_opt_replay },
+        { "--capture", true,  parse_opt_capture },
+        { "--replay",  true,  parse_opt_replay },
+        { "--fuzz",    false, parse_opt_fuzz },
         { 0,           0,    0 },
     };
     int ret;

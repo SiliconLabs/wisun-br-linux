@@ -5,6 +5,7 @@
 #include <time.h>
 
 struct fuzz_ctxt {
+    bool fuzzing_enabled;
     bool rand_predictable;
     time_t mbedtls_time;
     bool capture_enabled;
