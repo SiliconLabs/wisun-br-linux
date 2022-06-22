@@ -8,6 +8,7 @@ ssize_t __real_getrandom(void *buf, size_t buflen, unsigned int flags);
 ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
     static bool init = false;
+    uint8_t *buf8 = (uint8_t *) buf;
 
     if (!g_fuzz_ctxt.rand_predictable)
         return __real_getrandom(buf, buflen, flags);
@@ -17,8 +18,16 @@ ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
         init = true;
     }
 
-    for (size_t i = 0; i < buflen; i++)
-        ((uint8_t *) buf)[i] = rand();
+    // In most of the cases, when the stack ask for an array of random uint8_t,
+    // it is initializing a key or seed for cryptographic material. In this
+    // case, returning very predictible data simplify frames replay
+    if (g_fuzz_ctxt.fuzzing_enabled && buflen > 8) {
+        for (size_t i = 0; i < buflen; i++)
+            buf8[i] = i + 1;
+    } else {
+        for (size_t i = 0; i < buflen; i++)
+            buf8[i] = rand();
+    }
 
     return buflen;
 }
