@@ -29,6 +29,7 @@ void __wrap_print_help_br(FILE *stream)
     fprintf(stream, "Extra options:\n");
     fprintf(stream, "  --capture=FILE        Record raw data received on UART and TUN interfaces, and save it to\n");
     fprintf(stream, "                          FILE. Also write additional timer information for replay.\n");
+    fprintf(stream, "  --capture-init=FILE   Record the RCP initialization phase to a separate file than --capture.\n");
     fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture\n");
     fprintf(stream, "  --fuzz                Disable CRC check, stub security RNG, relax SPINEL checks.\n");
 }
@@ -41,6 +42,15 @@ static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
     ctxt->uart_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     FATAL_ON(ctxt->uart_fd < 0, 2, "open '%s': %m", arg);
+}
+
+static void parse_opt_capture_init(struct fuzz_ctxt *ctxt, const char *arg)
+{
+    FATAL_ON(ctxt->capture_init_enabled, 1, "--capture-init used more than once");
+    ctxt->capture_init_enabled = true;
+    ctxt->capture_init_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    FATAL_ON(ctxt->capture_init_fd < 0, 2, "open '%s': %m", arg);
 }
 
 static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
@@ -101,10 +111,11 @@ static int fuzz_parse_opt(struct fuzz_ctxt *ctxt, char **argv, const struct opti
 static int fuzz_parse_arg(struct fuzz_ctxt *ctxt, char **argv)
 {
     static const struct option opts[] = {
-        { "--capture", true,  parse_opt_capture },
-        { "--replay",  true,  parse_opt_replay },
-        { "--fuzz",    false, parse_opt_fuzz },
-        { 0,           0,    0 },
+        { "--capture",      true,  parse_opt_capture },
+        { "--capture-init", true,  parse_opt_capture_init },
+        { "--replay",       true,  parse_opt_replay },
+        { "--fuzz",         false, parse_opt_fuzz },
+        { 0,                0,     0 },
     };
     int ret;
 
@@ -137,6 +148,9 @@ int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv)
 
     if (ctxt->capture_enabled || ctxt->replay_enabled)
         ctxt->rand_predictable = true;
+
+    if (ctxt->capture_init_enabled && !ctxt->capture_enabled)
+        FATAL(1, "--capture-init used without --capture");
 
     return j;
 }
