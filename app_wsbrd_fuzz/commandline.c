@@ -7,6 +7,7 @@
 #include "app_wsbrd/commandline.h"
 #include "app_wsbrd/wsbr.h"
 #include "common/log.h"
+#include "common/utils.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 
@@ -30,18 +31,19 @@ void __wrap_print_help_br(FILE *stream)
     fprintf(stream, "  --capture=FILE        Record raw data received on UART and TUN interfaces, and save it to\n");
     fprintf(stream, "                          FILE. Also write additional timer information for replay.\n");
     fprintf(stream, "  --capture-init=FILE   Record the RCP initialization phase to a separate file than --capture.\n");
-    fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture\n");
+    fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture. When specified more than\n");
+    fprintf(stream, "                          once, files are replayed back to back from left to right.\n");
     fprintf(stream, "  --fuzz                Disable CRC check, stub security RNG, relax SPINEL checks.\n");
 }
 
 static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 {
     FATAL_ON(ctxt->capture_enabled, 1, "--capture used more than once");
-    FATAL_ON(ctxt->replay_enabled, 1, "using --capture and --replay at the same time");
+    FATAL_ON(ctxt->replay_count, 1, "using --capture and --replay at the same time");
     ctxt->capture_enabled = true;
-    ctxt->uart_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
+    ctxt->capture_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    FATAL_ON(ctxt->uart_fd < 0, 2, "open '%s': %m", arg);
+    FATAL_ON(ctxt->capture_fd < 0, 2, "open '%s': %m", arg);
 }
 
 static void parse_opt_capture_init(struct fuzz_ctxt *ctxt, const char *arg)
@@ -57,11 +59,12 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
 {
     int ret;
 
-    FATAL_ON(ctxt->replay_enabled, 1, "--replay used more than once");
+    FATAL_ON(ctxt->replay_count > ARRAY_SIZE(ctxt->replay_fds), 1,
+        "--replay used too many times (max %ld)", ARRAY_SIZE(ctxt->replay_fds));
     FATAL_ON(ctxt->capture_enabled, 1, "using --capture and --replay at the same time");
-    ctxt->replay_enabled = true;
-    ctxt->uart_fd = open(arg, O_RDONLY);
-    FATAL_ON(ctxt->uart_fd < 0, 2, "open '%s': %m", arg);
+    ret = open(arg, O_RDONLY);
+    FATAL_ON(ret < 0, 2, "open '%s': %m", arg);
+    ctxt->replay_fds[ctxt->replay_count++] = ret;
     ret = pipe(ctxt->tun_pipe);
     FATAL_ON(ret < 0, 2, "pipe: %m");
     g_ctxt.uart_dev[0] = true; // UART device does not need to be specified
@@ -146,7 +149,7 @@ int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv)
     }
     argv[j] = NULL;
 
-    if (ctxt->capture_enabled || ctxt->replay_enabled)
+    if (ctxt->capture_enabled || ctxt->replay_count)
         ctxt->rand_predictable = true;
 
     if (ctxt->capture_init_enabled && !ctxt->capture_enabled)
