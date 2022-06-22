@@ -276,36 +276,6 @@ install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
               examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
-add_executable(wsbrd-fuzz
-    app_wsbrd_fuzz/wsbrd_fuzz.c
-    app_wsbrd_fuzz/commandline.c
-    app_wsbrd_fuzz/capture.c
-    app_wsbrd_fuzz/rand.c
-)
-target_include_directories(wsbrd-fuzz PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    stack/
-    stack-scheduler/
-)
-add_dependencies(wsbrd-fuzz libwsbrd)
-target_link_libraries(wsbrd-fuzz libwsbrd)
-if(BACKTRACE_FOUND)
-    target_compile_definitions(wsbrd-fuzz PRIVATE HAVE_BACKTRACE)
-endif()
-target_link_options(wsbrd-fuzz PRIVATE
-    -Wl,--wrap=print_help_br
-    -Wl,--wrap=uart_open
-    -Wl,--wrap=uart_rx
-    -Wl,--wrap=wsbr_tun_init
-    -Wl,--wrap=wsbr_spinel_replay_tun
-    -Wl,--wrap=wsbr_common_timer_init
-    -Wl,--wrap=wsbr_spinel_replay_timers
-    -Wl,--wrap=read
-    -Wl,--wrap=write
-    -Wl,--wrap=getrandom
-    -Wl,--wrap=time
-)
-
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 
     string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
@@ -581,5 +551,36 @@ if(COMPILE_SIMULATION_TOOLS)
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
     install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+    add_executable(wsbrd-fuzz
+        app_wsbrd_fuzz/wsbrd_fuzz.c
+        app_wsbrd_fuzz/commandline.c
+        app_wsbrd_fuzz/capture.c
+        app_wsbrd_fuzz/rand.c
+    )
+    target_include_directories(wsbrd-fuzz PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        stack/
+        stack-scheduler/
+    )
+    add_dependencies(wsbrd-fuzz libwsbrd)
+    target_link_libraries(wsbrd-fuzz libwsbrd)
+    if(BACKTRACE_FOUND)
+        target_compile_definitions(wsbrd-fuzz PRIVATE HAVE_BACKTRACE)
+    endif()
+    target_link_options(wsbrd-fuzz PRIVATE
+        -Wl,--wrap=print_help_br
+        -Wl,--wrap=uart_open
+        -Wl,--wrap=uart_rx
+        -Wl,--wrap=wsbr_tun_init
+        -Wl,--wrap=wsbr_spinel_replay_tun
+        -Wl,--wrap=wsbr_common_timer_init
+        -Wl,--wrap=wsbr_spinel_replay_timers
+        -Wl,--wrap=read
+        -Wl,--wrap=write
+        -Wl,--wrap=getrandom
+        -Wl,--wrap=time
+    )
+    install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
