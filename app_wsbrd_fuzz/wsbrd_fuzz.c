@@ -61,6 +61,15 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     return frame_len;
 }
 
+bool __real_crc_check(const uint8_t *data, int len, uint16_t expected_crc);
+bool __wrap_crc_check(const uint8_t *data, int len, uint16_t expected_crc)
+{
+    if (g_fuzz_ctxt.fuzzing_enabled)
+        return true;
+    else
+        return __real_crc_check(data, len, expected_crc);
+}
+
 void __real_wsbr_common_timer_init(struct wsbr_ctxt *ctxt);
 void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {

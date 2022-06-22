@@ -572,6 +572,7 @@ if(COMPILE_SIMULATION_TOOLS)
         -Wl,--wrap=print_help_br
         -Wl,--wrap=uart_open
         -Wl,--wrap=uart_rx
+        -Wl,--wrap=crc_check
         -Wl,--wrap=wsbr_tun_init
         -Wl,--wrap=wsbr_spinel_replay_tun
         -Wl,--wrap=wsbr_common_timer_init

@@ -205,7 +205,7 @@ size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t 
         return 0;
     } else {
         frame_len -= sizeof(uint16_t);
-        if (crc16(out, frame_len) != common_read_16_bit_inverse(out + frame_len)) {
+        if (!crc_check(out, frame_len, common_read_16_bit_inverse(out + frame_len))) {
             WARN("bad crc, frame dropped");
             return 0;
         }

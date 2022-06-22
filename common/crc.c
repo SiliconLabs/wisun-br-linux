@@ -44,3 +44,8 @@ uint16_t crc16(const uint8_t *data, int len)
         crc = crc_table[(crc ^ *data++) & 0xff] ^ (crc >> 8);
     return crc ^ 0xFFFF;
 }
+
+bool crc_check(const uint8_t *data, int len, uint16_t expected_crc)
+{
+    return crc16(data, len) == expected_crc;
+}
