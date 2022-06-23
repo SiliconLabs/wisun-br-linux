@@ -148,10 +148,19 @@ void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
     BUG_ON(buf->cnt > buf->len);
 }
 
+static bool spinel_pop_is_valid(struct spinel_buffer *buf, int size)
+{
+    if (spinel_remaining_size(buf) < size)
+        buf->err = true;
+    return !buf->err;
+}
+
 bool spinel_pop_bool(struct spinel_buffer *buf)
 {
     uint8_t val;
 
+    if (!spinel_pop_is_valid(buf, 1))
+        return false;
     val = buf->frame[buf->cnt];
     WARN_ON(val != 1 && val != 0);
     buf->cnt += 1;
@@ -165,9 +174,14 @@ unsigned int spinel_pop_uint(struct spinel_buffer *buf)
     int i = 0;
 
     do {
+        if (!spinel_pop_is_valid(buf, 1))
+            return 0;
         val |= (buf->frame[buf->cnt] & 0x7F) << i;
         i += 7;
-        BUG_ON(i > 32);
+        if (i > 32) {
+            buf->err = true;
+            return 0;
+        }
     } while (buf->frame[buf->cnt++] & 0x80);
     BUG_ON(buf->cnt > buf->len);
     return val;
@@ -177,6 +191,8 @@ uint8_t spinel_pop_u8(struct spinel_buffer *buf)
 {
     uint8_t val;
 
+    if (!spinel_pop_is_valid(buf, 1))
+        return 0;
     val = buf->frame[buf->cnt];
     buf->cnt += 1;
     BUG_ON(buf->cnt > buf->len);
@@ -187,6 +203,8 @@ uint16_t spinel_pop_u16(struct spinel_buffer *buf)
 {
     uint16_t val = 0;
 
+    if (!spinel_pop_is_valid(buf, 2))
+        return 0;
     val |= buf->frame[buf->cnt + 0] << 0;
     val |= buf->frame[buf->cnt + 1] << 8;
     buf->cnt += 2;
@@ -198,6 +216,8 @@ uint32_t spinel_pop_u32(struct spinel_buffer *buf)
 {
     uint32_t val = 0;
 
+    if (!spinel_pop_is_valid(buf, 4))
+        return 0;
     val |= buf->frame[buf->cnt + 0] << 0;
     val |= buf->frame[buf->cnt + 1] << 8;
     val |= buf->frame[buf->cnt + 2] << 16;
@@ -227,8 +247,11 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
     const char *val;
 
     val = (char *)buf->frame + buf->cnt;
-    buf->cnt += strnlen(val, buf->len - buf->cnt) + 1;
-    BUG_ON(buf->cnt > buf->len);
+    buf->cnt += strnlen(val, spinel_remaining_size(buf)) + 1;
+    if (buf->cnt > buf->len) {
+        buf->err = true;
+        return NULL;
+    }
     return val;
 }
 
@@ -261,6 +284,8 @@ unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned i
     unsigned int size;
 
     size = spinel_pop_u16(buf);
+    if (!spinel_pop_is_valid(buf, size))
+        return 0;
     BUG_ON(size > val_size);
     memcpy(val, buf->frame + buf->cnt, size);
     buf->cnt += size;
@@ -273,6 +298,8 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
     unsigned int size;
 
     size = spinel_pop_u16(buf);
+    if (!spinel_pop_is_valid(buf, size))
+        return 0;
     *val = buf->frame + buf->cnt;
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);

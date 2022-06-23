@@ -12,6 +12,7 @@
  */
 #ifndef SPINEL_BUFFER_H
 #define SPINEL_BUFFER_H
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "log.h"
@@ -19,6 +20,7 @@
 struct spinel_buffer {
     int len; // Length of the data in frame or size of the frame buffer
     int cnt; // Index of the already hanled data or pointer to end of frame
+    bool err;
     uint8_t frame[];
 };
 
@@ -26,6 +28,7 @@ struct spinel_buffer {
     struct spinel_buffer *_tmp = alloca(SIZE + sizeof(*_tmp)); \
     _tmp->cnt = 0;                                             \
     _tmp->len = SIZE;                                          \
+    _tmp->err = false;                                         \
     _tmp;                                                      \
 })
 
