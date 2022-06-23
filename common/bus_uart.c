@@ -120,7 +120,6 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
           tr_bytes(buf, buf_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf_len);
-    spinel_trace(buf, buf_len, "hif tx: ");
     ret = write(ctxt->data_fd, frame, frame_len);
     BUG_ON(ret != frame_len, "write: %m");
     
@@ -212,7 +211,6 @@ size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t 
     }
     TRACE(TR_HDLC, "hdlc rx: %s (%d bytes)",
         tr_bytes(out, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
-    spinel_trace(out, frame_len, "hif rx: ");
     return frame_len;
 }
 

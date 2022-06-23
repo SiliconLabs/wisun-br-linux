@@ -159,28 +159,16 @@ bool spinel_pop_bool(struct spinel_buffer *buf)
     return val;
 }
 
-static size_t spinel_decode_uint(const uint8_t *frame, unsigned int *val)
-{
-    int i = 0;
-    int cnt = 0;
-
-    *val = 0;
-    do {
-        *val |= (frame[cnt] & 0x7F) << i;
-        cnt += 1;
-        i += 7;
-        BUG_ON(i > 32);
-    } while (frame[cnt - 1] & 0x80);
-    return cnt;
-}
-
-// FIXME: replace by
-// unsigned int spinel_pop_uint(struct spinel_buffer *buf)
 unsigned int spinel_pop_uint(struct spinel_buffer *buf)
 {
-    unsigned int val;
+    unsigned int val = 0;
+    int i = 0;
 
-    buf->cnt += spinel_decode_uint(buf->frame + buf->cnt, &val);
+    do {
+        val |= (buf->frame[buf->cnt] & 0x7F) << i;
+        i += 7;
+        BUG_ON(i > 32);
+    } while (buf->frame[buf->cnt++] & 0x80);
     BUG_ON(buf->cnt > buf->len);
     return val;
 }
@@ -394,30 +382,25 @@ static const struct {
     prop_name(WS_MAC_FILTER_STOP)
 };
 
-void spinel_trace(const uint8_t *buf, int len, const char *prefix)
+void spinel_trace(struct spinel_buffer *buf, const char *prefix)
 {
     unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
-    int cnt = 0;
     int i;
 
-    cnt = 1; // ignore header
-    cnt += spinel_decode_uint(buf + cnt, &cmd);
-    if (cnt > len) {
-        WARN("malformed spinel_buffer");
+    if (!(g_enabled_traces & TR_HIF))
         return;
-    }
+
+    spinel_pop_u8(buf); // ignore header
+    cmd = spinel_pop_uint(buf);
     switch (cmd) {
         case SPINEL_CMD_PROP_VALUE_IS:
         case SPINEL_CMD_PROP_VALUE_GET:
         case SPINEL_CMD_PROP_VALUE_SET:
-            cnt += spinel_decode_uint(buf + cnt, &prop);
-            if (cnt > len) {
-                WARN("malformed spinel_buffer");
-                return;
-            }
+            prop = spinel_pop_uint(buf);
             break;
     }
+    buf->cnt = 0; // reset buffer
     cmd_str = NULL;
     for (i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
         if (cmd == spinel_cmds[i].val)
@@ -427,5 +410,5 @@ void spinel_trace(const uint8_t *buf, int len, const char *prefix)
         if (prop == spinel_props[i].val)
             prop_str = spinel_props[i].str;
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
-          tr_bytes(buf + cnt, len - cnt, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), len);
+          tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf->len);
 }
