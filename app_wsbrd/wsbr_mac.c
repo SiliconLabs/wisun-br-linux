@@ -292,7 +292,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, data.ExtAddress, 8);
         data.FrameCounter = spinel_pop_u32(buf);
         data.Exempt       = spinel_pop_bool(buf);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
@@ -306,7 +307,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 
         req.attr_index = spinel_pop_uint(buf);
         data           = spinel_pop_u32(buf);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
@@ -316,7 +318,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         };
 
         req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
@@ -326,7 +329,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 
         id = spinel_pop_uint(buf);
         spinel_pop_data_ptr(buf, &data);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
         break;
     }
@@ -334,6 +338,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         struct mcps_purge_conf_s req = { };
 
         req.msduHandle = spinel_pop_u8(buf);
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->mac_api.purge_conf_cb(&ctxt->mac_api, &req);
         break;
     }
@@ -349,7 +355,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList);
         conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
         conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_conf_cb()
         ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
@@ -377,7 +384,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
         ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
         ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_ind_cb()
         ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
@@ -385,13 +393,15 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_HWADDR: {
         spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         ctxt->hw_addr_done = true;
         break;
     }
     case SPINEL_PROP_WS_RX_SENSITIVITY: {
         int val = spinel_pop_i16(buf);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         // from -174dBm to + 80dBm, so add + 174 to real sensitivity
         ws_device_min_sens_set(ctxt->rcp_if_id, val + 174);
         break;
@@ -416,7 +426,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_WS_RF_CONFIGURATION: {
         int val = spinel_pop_uint(buf);
-        BUG_ON(spinel_remaining_size(buf));
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         if (val)
             FATAL(2, "RF configuration not supported by the RCP");
         break;
@@ -426,6 +437,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         uint32_t frame_len      = spinel_pop_u32(buf);
         uint8_t header          = spinel_pop_u8(buf);
         uint8_t irq_err_counter = spinel_pop_u8(buf);
+        if (!spinel_prop_is_valid(buf, prop))
+            return;
         handle_crc_error(ctxt, crc, frame_len, header, irq_err_counter);
         break;
     }

@@ -409,6 +409,27 @@ static const struct {
     prop_name(WS_MAC_FILTER_STOP)
 };
 
+static const char *spinel_prop_str(int prop)
+{
+    for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)
+        if (prop == spinel_props[i].val)
+            return spinel_props[i].str;
+    return NULL;
+}
+
+bool spinel_prop_is_valid(struct spinel_buffer *buf, int prop)
+{
+    if (buf->err) {
+        ERROR("spinel error (offset %d): %s", buf->cnt, spinel_prop_str(prop));
+        return false;
+    }
+    if (spinel_remaining_size(buf)) {
+        ERROR("spinel error (data left): %s", spinel_prop_str(prop));
+        return false;
+    }
+    return true;
+}
+
 void spinel_trace(struct spinel_buffer *buf, const char *prefix)
 {
     unsigned int cmd, prop = -1;
@@ -432,10 +453,7 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
     for (i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
         if (cmd == spinel_cmds[i].val)
             cmd_str = spinel_cmds[i].str;
-    prop_str = NULL;
-    for (i = 0; i < ARRAY_SIZE(spinel_props); i++)
-        if (prop == spinel_props[i].val)
-            prop_str = spinel_props[i].str;
+    prop_str = spinel_prop_str(prop);
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
           tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf->len);
 }
