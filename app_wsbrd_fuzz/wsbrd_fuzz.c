@@ -70,6 +70,18 @@ bool __wrap_crc_check(const uint8_t *data, int len, uint16_t expected_crc)
         return __real_crc_check(data, len, expected_crc);
 }
 
+bool __real_spinel_prop_is_valid(struct spinel_buffer *buf, int prop);
+bool __wrap_spinel_prop_is_valid(struct spinel_buffer *buf, int prop)
+{
+    if (!g_fuzz_ctxt.fuzzing_enabled)
+        return __real_spinel_prop_is_valid(buf, prop);
+    if (buf->err) {
+        ERROR("spinel error (offset %d): %s", buf->cnt, spinel_prop_str(prop));
+        return false;
+    }
+    return true;
+}
+
 void __real_wsbr_common_timer_init(struct wsbr_ctxt *ctxt);
 void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {

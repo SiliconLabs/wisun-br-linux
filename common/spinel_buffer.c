@@ -409,7 +409,7 @@ static const struct {
     prop_name(WS_MAC_FILTER_STOP)
 };
 
-static const char *spinel_prop_str(int prop)
+const char *spinel_prop_str(int prop)
 {
     for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)
         if (prop == spinel_props[i].val)
