@@ -106,7 +106,8 @@ uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_
 uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, mac_payload_IE_t *payload_ie)
 {
     mac_payload_IE_t ie_element;
-    while (length >= 2) {
+    int32_t remaining_length = length;
+    while (remaining_length >= 2) {
         mac_ie_payload_parse(&ie_element, payload_ptr);
         if (payload_ie->id == ie_element.id) {
             payload_ie->content_ptr = ie_element.content_ptr;
@@ -114,7 +115,7 @@ uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, mac_payl
             return ie_element.length;
         }
 
-        length -= ie_element.length + 2;
+        remaining_length -= ie_element.length + 2;
 
         payload_ptr += ie_element.length + 2;
     }
@@ -174,7 +175,8 @@ uint16_t mac_ie_nested_tagged_discover(uint8_t *payload_ptr, uint16_t length, ma
 uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie)
 {
     mac_header_IE_t ie_element;
-    while (length >= 2) {
+    int32_t remaining_length = length;
+    while (remaining_length >= 2) {
         mac_ie_header_parse(&ie_element, header_ptr);
         if (header_ie->id == ie_element.id) {
             header_ie->content_ptr = ie_element.content_ptr;
@@ -182,7 +184,7 @@ uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, mac_header_
             return ie_element.length;
         }
 
-        length -= ie_element.length + 2;
+        remaining_length -= ie_element.length + 2;
 
         header_ptr += ie_element.length + 2;
     }
