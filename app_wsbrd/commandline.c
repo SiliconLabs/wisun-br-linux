@@ -281,6 +281,10 @@ static void parse_config_line(struct wsbr_ctxt *ctxt, const char *filename,
     } else if (sscanf(line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", filename, line_no);
+        if (!strcmp(str_arg, "-")) {
+            ns_file_system_set_root_path(NULL);
+            return;
+        }
         ns_file_system_set_root_path(str_arg);
         if (strlen(str_arg) && str_arg[strlen(str_arg) - 1] == '/') {
             if (access(str_arg, W_OK))

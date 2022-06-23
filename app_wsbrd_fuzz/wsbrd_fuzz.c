@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "stack-scheduler/source/timer_sys.h"
+#include "stack/ns_file_system.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/tun.h"
@@ -20,6 +21,11 @@ struct fuzz_ctxt g_fuzz_ctxt = {
 int __real_uart_open(const char *device, int bitrate, bool hardflow);
 int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 {
+    // This function is the first being executed ater parse_commandline in
+    // wsbr_main. Thus some checks can be put here.
+    if (ns_file_system_get_root_path() && (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count))
+        WARN("using storage while in cature/replay mode");
+
     if (g_fuzz_ctxt.replay_count)
         return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];
     else
