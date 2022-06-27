@@ -130,11 +130,11 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
 static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry);
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
+static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 #endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
@@ -202,6 +202,7 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
 }
 #endif
 
+#ifdef HAVE_PAE_AUTH
 int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     (void) local_port;
@@ -247,6 +248,7 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
 
     return 0;
 }
+#endif
 
 int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_auth_next_target *auth_next_target, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment, ws_pae_controller_nw_info_updated *nw_info_updated, ws_pae_controller_congestion_get *congestion_get)
 {
@@ -1642,6 +1644,7 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
 #endif
 }
 
+#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1666,6 +1669,7 @@ static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *inte
         controller->gtkhash_set = true;
     }
 }
+#endif
 
 uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
 {
