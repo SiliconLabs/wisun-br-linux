@@ -423,7 +423,7 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
     }
 }
 
-void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority priority)
+void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 

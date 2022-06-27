@@ -37,14 +37,14 @@ extern struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 typedef enum {
     PRIORITY_1ST,
     PRIORITY_2ND,
-} neighbor_priority;
+} neighbor_priority_e;
 
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
-void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority priority);
+void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority);
 
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);
