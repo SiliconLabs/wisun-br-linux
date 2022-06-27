@@ -292,7 +292,7 @@ typedef enum {
     PROC_AUTO_OFF,  /* disable automatic bootstrap test procedure triggering */
 
     MSG_NONE
-} ws_test_proc_t;
+} ws_test_proc_e;
 
 /**
  * Trigger a test procedure
@@ -309,7 +309,7 @@ typedef enum {
  * \return 0                        Success
  * \return <0                       Failure
  */
-int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, void *parameters);
+int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, void *parameters);
 
 #endif /* DOXYGEN */
 #endif

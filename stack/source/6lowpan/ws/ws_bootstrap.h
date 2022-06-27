@@ -31,7 +31,7 @@ typedef enum {
     WS_TEST_PROC_TRIGGER     /**< Trigger test procedure */
 } ws_bootstrap_event_type_e;
 
-/* Bootstrap internal test procedures, these must match to ws_test_proc_t
+/* Bootstrap internal test procedures, these must match to ws_test_proc_e
    on net_ws_test_ext.h */
 typedef enum {
     PROCEDURE_DIS,
@@ -48,7 +48,7 @@ typedef enum {
     PROCEDURE_AUTO_ON,
     PROCEDURE_AUTO_OFF,
 
-    /* Above must match to ws_test_proc_t */
+    /* Above must match to ws_test_proc_e */
 
     PROCEDURE_PAS_TRICKLE_INCON,
     PROCEDURE_PCS_TRICKLE_INCON

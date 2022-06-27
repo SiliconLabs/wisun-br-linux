@@ -195,7 +195,7 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
     return 0;
 }
 
-int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_t procedure, void *parameters)
+int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, void *parameters)
 {
     (void) parameters;
 
