@@ -56,7 +56,6 @@
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
-#include "net_lib/net_dns_internal.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
@@ -2022,8 +2021,6 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
             }
             while (options->option.vendor_specific.data_length) {
                 uint16_t option_type;
-                char *domain;
-                uint8_t *address;
                 uint16_t option_len;
                 option_len = net_dns_option_vendor_option_data_get_next(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &option_type);
                 tr_debug("DHCP vendor specific data type:%u length %d", option_type, option_len);
@@ -2032,16 +2029,6 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
                 if (option_len == 0) {
                     // Option fields were corrupted
                     break;
-                }
-                if (option_type == ARM_DHCP_VENDOR_DATA_DNS_QUERY_RESULT) {
-                    // Process ARM DNS query result
-                    domain = NULL;
-                    address = NULL;
-                    if (net_dns_option_vendor_option_data_dns_query_read(options->option.vendor_specific.data, options->option.vendor_specific.data_length, &address, &domain) > 0 ||
-                            domain || address) {
-                        // Valid ARM DNS query entry
-                        net_dns_query_result_set(interface, address, domain, server_info->life_time);
-                    }
                 }
                 if (option_type == ARM_DHCP_VENDOR_DATA_TIME_CONFIGURATION) {
                     timezone_info_t time_configuration;
@@ -2093,17 +2080,6 @@ static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notif
             }
             break;
 
-        case DHCPV6_OPTION_DNS_SERVERS:
-            while (options->option.generic.data_length && options->option.generic.data_length >= 16 && options->option.generic.data_length % 16 == 0) {
-                // Validate payload to have full 16 byte length addresses without any extra bytes
-                net_dns_server_address_set(interface, server_ll64, options->option.generic.data, server_info->life_time);
-                options->option.generic.data_length -= 16;
-                options->option.generic.data += 16;
-            }
-            break;
-        case DHCPV6_OPTION_DOMAIN_LIST:
-            net_dns_server_search_list_set(interface, server_ll64, options->option.generic.data, options->option.generic.data_length, server_info->life_time);
-            break;
         default:
             break;
     }

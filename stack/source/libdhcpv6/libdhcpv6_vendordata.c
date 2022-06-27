@@ -26,28 +26,6 @@
 
 #define TRACE_GROUP "vend"
 
-
-/* DHCPv6 vendor options to distribute ARM vendor data*/
-
-uint16_t net_dns_option_vendor_option_data_dns_query_length(char *domain)
-{
-    return 4 + 16 + strlen(domain) + 1;
-}
-
-uint8_t *net_dns_option_vendor_option_data_dns_query_write(uint8_t *ptr, uint8_t *address, char *domain)
-{
-    int domain_len = strlen(domain);
-    int length = 16 + domain_len + 1;
-
-    ptr = common_write_16_bit(ARM_DHCP_VENDOR_DATA_DNS_QUERY_RESULT, ptr);
-    ptr = common_write_16_bit(length, ptr);
-    memcpy(ptr, address, 16);
-    ptr += 16;
-    memcpy(ptr, domain, domain_len + 1);
-    ptr += domain_len + 1;
-    return ptr;
-}
-
 uint16_t net_dns_option_vendor_option_data_get_next(uint8_t *ptr, uint16_t length, uint16_t *type)
 {
     uint16_t option_len;
@@ -67,37 +45,6 @@ uint16_t net_dns_option_vendor_option_data_get_next(uint8_t *ptr, uint16_t lengt
     }
 
     return option_len + 4;
-}
-
-uint16_t net_dns_option_vendor_option_data_dns_query_read(uint8_t *ptr, uint16_t length, uint8_t **address, char **domain)
-{
-    uint16_t option_len;
-    option_len = common_read_16_bit(ptr + 2);
-
-    if (length < 4 + 16 + 1) {
-        // Corrupted as there is no room for all fields
-        return 0;
-    }
-    if (option_len < 17) {
-        // Corrupted as not enough room in field
-        return 0;
-    }
-    if (*(ptr + 4 + option_len - 1) != 0) {
-        // Not nul terminated string for domain
-        return 0;
-    }
-
-    if (common_read_16_bit(ptr) != ARM_DHCP_VENDOR_DATA_DNS_QUERY_RESULT) {
-        return 0;
-    }
-
-    if (address) {
-        *address = ptr + 4;
-    }
-    if (domain) {
-        *domain = (char *)(ptr + 4 + 16);
-    }
-    return option_len;
 }
 
 uint16_t net_vendor_option_current_time_length(void)

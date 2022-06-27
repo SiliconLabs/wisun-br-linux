@@ -53,7 +53,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
-#include "net_lib/net_dns_internal.h"
 
 
 #define TRACE_GROUP "lNet"
@@ -470,24 +469,6 @@ int8_t arm_net_address_delete_from_interface(int8_t interface_id, const uint8_t 
 
     return addr_delete(cur, address);
 }
-
-/* DNS cache functions
- */
-int8_t arm_net_dns_server_get(int8_t interface_id, uint8_t address[16], uint8_t **dns_search_list_ptr, uint8_t *dns_search_list_len, uint8_t index)
-{
-    return net_dns_server_get(interface_id, address, dns_search_list_ptr, dns_search_list_len, index);
-}
-
-int8_t arm_net_dns_query_result_set(int8_t interface_id, const uint8_t address[16], const char *domain_name_ptr, uint32_t lifetime)
-{
-    return net_dns_query_result_set(interface_id, address, domain_name_ptr, lifetime);
-}
-
-int8_t arm_net_dns_query_result_get(int8_t interface_id, uint8_t address[16], char *domain_name_ptr)
-{
-    return net_dns_query_result_get(interface_id, address, domain_name_ptr);
-}
-
 
 int8_t arm_net_route_add(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *next_hop, uint32_t lifetime, uint8_t metric, int8_t interface_id)
 {

@@ -300,16 +300,6 @@ static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp
             length -= 4;
             dhcp_option.option.vendor_specific.data = ptr;
             dhcp_option.option.vendor_specific.data_length = length;
-
-
-        } else if (type == DHCPV6_OPTION_DNS_SERVERS && (length >= 16 && ((length % 16) == 0))) {
-            valid_optional_options = true;
-            dhcp_option.option.generic.data = ptr;
-            dhcp_option.option.generic.data_length = length;
-        } else if (type == DHCPV6_OPTION_DOMAIN_LIST) {
-            valid_optional_options = true;
-            dhcp_option.option.generic.data = ptr;
-            dhcp_option.option.generic.data_length = length;
         }
         if (valid_optional_options) {
             dhcp_option.option_type = type;

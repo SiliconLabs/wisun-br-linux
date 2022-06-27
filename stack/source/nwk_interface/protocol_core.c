@@ -53,7 +53,6 @@
 #include "rpl/rpl_control.h"
 #include "libdhcpv6/libdhcpv6.h"
 #include "ipv6_stack/protocol_ipv6.h"
-#include "net_lib/net_dns_internal.h"
 
 #include "nwk_interface/protocol_timer.h"
 #include "nwk_interface/protocol_stats.h"
@@ -237,7 +236,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
         ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
-        net_dns_timer_seconds(seconds);
 
         ws_pae_controller_slow_timer(seconds);
     } else {

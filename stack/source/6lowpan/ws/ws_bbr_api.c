@@ -43,7 +43,6 @@
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "libdhcpv6/libdhcpv6_vendordata.h"
-#include "net_lib/net_dns_internal.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -120,16 +119,6 @@ static rpl_dodag_conf_t rpl_conf = {
     .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL
 };
 
-typedef struct dns_resolution {
-    /** Resolved address for the domain*/
-    uint8_t address[16];
-    /** Domain name string */
-    char *domain_name;
-} dns_resolution_t;
-
-#define MAX_DNS_RESOLUTIONS 4
-
-static dns_resolution_t pre_resolved_dns_queries[MAX_DNS_RESOLUTIONS] = {0};
 //BBR NVM info buffer
 
 #define BBR_NVM_BSI_OFFSET 0
@@ -559,52 +548,8 @@ static uint8_t *ws_bbr_dhcp_server_dynamic_vendor_data_write(int8_t interfaceId,
 
 static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
-    //add DNS server information to DHCP server that is learned from the backbone interface.
-    uint8_t *dhcp_vendor_data_ptr = NULL;
-    uint8_t dhcp_vendor_data_len = 0;
-    uint8_t dns_server_address[16];
-    uint8_t *dns_search_list_ptr = NULL;
-    uint8_t dns_search_list_len = 0;
-    (void)cur;
-    if (net_dns_server_get(backbone_interface_id, dns_server_address, &dns_search_list_ptr, &dns_search_list_len, 0) == 0) {
-        /*Only supporting one DNS server address*/
-        dhcpv6_server_service_set_dns_server(cur->id, global_id, dns_server_address, dns_search_list_ptr, dns_search_list_len);
-    }
-
-    //Generate ARM specific vendor data in Wi-SUN network
-    // Cached DNS query results
-    // Network Time
-
-    int vendor_data_len = 0;
-    for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
-        if (pre_resolved_dns_queries[n].domain_name != NULL) {
-            vendor_data_len += net_dns_option_vendor_option_data_dns_query_length(pre_resolved_dns_queries[n].domain_name);
-        }
-    }
-
-    if (vendor_data_len) {
-        dhcp_vendor_data_ptr = malloc(vendor_data_len);
-        if (!dhcp_vendor_data_ptr) {
-            tr_warn("Vendor info set fail");
-            return;
-        }
-        dhcp_vendor_data_len = vendor_data_len;
-    }
-    // Write ARM vendor data
-    uint8_t *ptr = dhcp_vendor_data_ptr;
-
-    if (dhcp_vendor_data_ptr) {
-        // Write vendor data
-        for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
-            if (pre_resolved_dns_queries[n].domain_name != NULL) {
-                ptr = net_dns_option_vendor_option_data_dns_query_write(ptr, pre_resolved_dns_queries[n].address, pre_resolved_dns_queries[n].domain_name);
-            }
-        }
-    }
     dhcpv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
-
-    dhcpv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, dhcp_vendor_data_ptr, dhcp_vendor_data_len);
-    free(dhcp_vendor_data_ptr);
+    dhcpv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, NULL, 0);
 }
 
 static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
@@ -1497,87 +1442,6 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
 #else
     (void) interface_id;
     (void) timing;
-    return -1;
-#endif
-}
-
-int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr)
-{
-#ifdef HAVE_WS_BORDER_ROUTER
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    /* This information is only stored to the DHCPv6 server where it is distributed to the network
-     *
-     * Border router stores a list of these entries and includes a function to parse and generate the vendor data output
-     *
-     * This is included in the vendor extension where the format is decided by the vendor
-     */
-
-    // Delete all entries
-    if (!domain_name_ptr) {
-        for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
-            // Delete all entries
-            memset(pre_resolved_dns_queries[n].address, 0, 16);
-            free(pre_resolved_dns_queries[n].domain_name);
-            pre_resolved_dns_queries[n].domain_name = NULL;
-        }
-        goto update_information;
-    }
-
-    // Update existing entries or delete
-    for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
-        if (pre_resolved_dns_queries[n].domain_name != NULL &&
-                strcasecmp(pre_resolved_dns_queries[n].domain_name, domain_name_ptr) == 0) {
-            // Matching query updated
-            if (address) {
-                // Update address
-                memcpy(pre_resolved_dns_queries[n].address, address, 16);
-                tr_info("Update DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, trace_ipv6(pre_resolved_dns_queries[n].address));
-            } else {
-                // delete entry
-                memset(pre_resolved_dns_queries[n].address, 0, 16);
-                free(pre_resolved_dns_queries[n].domain_name);
-                pre_resolved_dns_queries[n].domain_name = NULL;
-            }
-            goto update_information;
-        }
-    }
-
-    if (address && domain_name_ptr) {
-        // Store new entry to the list
-        for (int n = 0; n < MAX_DNS_RESOLUTIONS; n++) {
-            if (pre_resolved_dns_queries[n].domain_name == NULL) {
-                // Free entry found
-                pre_resolved_dns_queries[n].domain_name  = malloc(strlen(domain_name_ptr) + 1);
-                if (!pre_resolved_dns_queries[n].domain_name) {
-                    // Out of memory
-                    return -2;
-                }
-                memcpy(pre_resolved_dns_queries[n].address, address, 16);
-                strcpy(pre_resolved_dns_queries[n].domain_name, domain_name_ptr);
-                tr_info("set DNS query result for %s, addr: %s", pre_resolved_dns_queries[n].domain_name, trace_ipv6(pre_resolved_dns_queries[n].address));
-                goto update_information;
-            }
-        }
-        // No room to store new field
-        return -3;
-    }
-
-update_information:
-    if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
-        // Not in active state so changes are activated after start
-        return 0;
-    }
-
-    ws_bbr_dhcp_server_dns_info_update(cur, current_global_prefix);
-    return 0;
-#else
-    (void) interface_id;
-    (void) address;
-    (void) domain_name_ptr;
     return -1;
 #endif
 }

@@ -159,7 +159,6 @@ add_library(libwsbrd STATIC
     stack/source/libdhcpv6/libdhcpv6_server.c
     stack/source/libdhcpv6/libdhcpv6_vendordata.c
     stack/source/net_lib/net_short_address_extension.c
-    stack/source/net_lib/net_dns.c
     stack/source/net_lib/multicast_api.c
     stack/source/net_lib/net_6lowpan_parameter_api.c
     stack/source/net_lib/net_rpl.c
@@ -388,7 +387,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/libdhcpv6/libdhcpv6.c
         stack/source/libdhcpv6/libdhcpv6_vendordata.c
         stack/source/net_lib/net_short_address_extension.c
-        stack/source/net_lib/net_dns.c
         stack/source/net_lib/multicast_api.c
         stack/source/net_lib/net_6lowpan_parameter_api.c
         stack/source/net_lib/net_rpl.c
