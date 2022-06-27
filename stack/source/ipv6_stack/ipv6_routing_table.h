@@ -52,14 +52,14 @@ typedef enum ip_neighbour_cache_state {
     IP_NEIGHBOUR_DELAY,
     IP_NEIGHBOUR_PROBE,
     IP_NEIGHBOUR_UNREACHABLE
-} ip_neighbour_cache_state_t;
+} ip_neighbour_cache_state_e;
 
 /* RFC 6775 types */
 typedef enum ip_neighbour_cache_type {
     IP_NEIGHBOUR_GARBAGE_COLLECTIBLE,
     IP_NEIGHBOUR_REGISTERED,
     IP_NEIGHBOUR_TENTATIVE
-} ip_neighbour_cache_type_t;
+} ip_neighbour_cache_type_e;
 
 typedef enum ipv6_route_src {
     ROUTE_ANY,          /* Unspecified - use in lookups */
@@ -95,8 +95,8 @@ typedef struct ipv6_neighbour {
     bool                            is_router: 1;
     bool                            from_redirect: 1;
     uint8_t                         retrans_count;
-    ip_neighbour_cache_state_t      state;
-    ip_neighbour_cache_type_t       type;
+    ip_neighbour_cache_state_e      state;
+    ip_neighbour_cache_type_e       type;
     addrtype_e                      ll_type;
     uint32_t                        timer;                      /* 100ms ticks */
     uint32_t                        lifetime;                   /* seconds */
@@ -149,7 +149,7 @@ typedef void (route_print_fn_t)(const char *fmt, ...);
 void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id);
 void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache);
 ipv6_neighbour_t *ipv6_neighbour_update(ipv6_neighbour_cache_t *cache, const uint8_t *address, bool solicited);
-void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state);
+void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_e state);
 ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
 ipv6_neighbour_t *ipv6_neighbour_lookup(ipv6_neighbour_cache_t *cache, const uint8_t *address);
 ipv6_neighbour_t *ipv6_neighbour_lookup_by_interface_id(int8_t interface_id, const uint8_t *address);

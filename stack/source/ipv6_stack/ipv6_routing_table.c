@@ -396,7 +396,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
     return entry;
 }
 
-static bool ipv6_neighbour_state_is_probably_reachable(ip_neighbour_cache_state_t state)
+static bool ipv6_neighbour_state_is_probably_reachable(ip_neighbour_cache_state_e state)
 {
     switch (state) {
         case IP_NEIGHBOUR_NEW:
@@ -493,7 +493,7 @@ ipv6_neighbour_t *ipv6_neighbour_get_registered_by_eui64(ipv6_neighbour_cache_t 
     return NULL;
 }
 
-void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state)
+void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_e state)
 {
     if (!ipv6_neighbour_state_is_probably_reachable(entry->state) &&
             ipv6_neighbour_state_is_probably_reachable(state)) {
