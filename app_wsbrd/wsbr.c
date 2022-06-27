@@ -475,6 +475,7 @@ int main(int argc, char *argv[])
 
     if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         BUG("eventOS_event_handler_create");
+    eventOS_scheduler_run_until_idle();
 
     dbus_register(ctxt);
 
