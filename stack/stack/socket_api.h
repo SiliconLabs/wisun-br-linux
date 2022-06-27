@@ -671,12 +671,6 @@ int8_t socket_getsockname(int8_t socket, ns_address_t *address);
  */
 int8_t socket_getpeername(int8_t socket, ns_address_t *address);
 
-/* Backwards compatibility */
-static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *address)
-{
-    return socket_getpeername(socket, address);
-}
-
 /** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
 ///@{
 #define SOCKET_IPV6_PREFER_SRC_TMP              0x00000001 /**< Prefer temporary address (RFC 4941); default. */
