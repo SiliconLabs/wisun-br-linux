@@ -2611,15 +2611,6 @@ static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *
     ws_bbr_pan_version_increase(cur);
 }
 
-// Start authentication
-void ws_bootstrap_start_authentication(protocol_interface_info_entry_t *cur)
-{
-    // Set PAN ID and network name to controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
-
-    ws_pae_controller_authenticate(cur);
-}
-
 static void ws_bootstrap_mac_security_enable(protocol_interface_info_entry_t *cur)
 {
     mac_helper_default_security_level_set(cur, AES_SECURITY_LEVEL_ENC_MIC64);

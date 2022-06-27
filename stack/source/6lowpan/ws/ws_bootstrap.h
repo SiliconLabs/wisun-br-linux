@@ -145,10 +145,6 @@ void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *c
 
 void ws_bootstrap_network_down(protocol_interface_info_entry_t *cur);
 
-// Bootstrap functions
-void ws_bootstrap_start_authentication(protocol_interface_info_entry_t *cur);
-
-
 // Bootstrap state machine state Functions
 bool ws_bootstrap_state_discovery(struct protocol_interface_info_entry *cur);
 bool ws_bootstrap_state_authenticate(struct protocol_interface_info_entry *cur);

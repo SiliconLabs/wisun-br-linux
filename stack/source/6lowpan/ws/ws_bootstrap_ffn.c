@@ -905,6 +905,13 @@ void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
     return;
 }
 
+static void ws_bootstrap_ffn_start_authentication(protocol_interface_info_entry_t *cur)
+{
+    // Set PAN ID and network name to controller
+    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
+
+    ws_pae_controller_authenticate(cur);
+}
 
 /*
  * State machine
@@ -936,7 +943,7 @@ void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur)
                 // Restart automatic CCA threshold using weakest received RSSI as new default
                 mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
             }
-            ws_bootstrap_start_authentication(cur);
+            ws_bootstrap_ffn_start_authentication(cur);
             break;
         case ER_RPL_SCAN:
             tr_debug("WS SM:Wait RPL to contact DODAG root");
