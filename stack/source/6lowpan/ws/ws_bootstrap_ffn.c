@@ -142,7 +142,7 @@ static int8_t ws_bootstrap_ffn_fhss_configure(protocol_interface_info_entry_t *c
     if (discovery) {
         fhss_configuration.ws_uc_channel_function = WS_FIXED_CHANNEL;
     } else {
-        fhss_configuration.ws_uc_channel_function = (fhss_ws_channel_functions)cur->ws_info->cfg->fhss.fhss_uc_channel_function;
+        fhss_configuration.ws_uc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info->cfg->fhss.fhss_uc_channel_function;
     }
     fhss_configuration.ws_bc_channel_function = WS_FIXED_CHANNEL;
     fhss_configuration.fhss_broadcast_interval = 0;

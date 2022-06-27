@@ -37,7 +37,7 @@ typedef enum {
     WS_DH1CF,
     /** Vendor Defined channel function. */
     WS_VENDOR_DEF_CF
-} fhss_ws_channel_functions;
+} fhss_ws_channel_functions_e;
 
 /**
  * @brief Get channel using vendor defined channel function.
@@ -65,10 +65,10 @@ typedef struct fhss_config_parameters {
  */
 typedef struct fhss_ws_configuration {
     /** WS unicast channel function. */
-    fhss_ws_channel_functions ws_uc_channel_function;
+    fhss_ws_channel_functions_e ws_uc_channel_function;
 
     /** WS broadcast channel function. */
-    fhss_ws_channel_functions ws_bc_channel_function;
+    fhss_ws_channel_functions_e ws_bc_channel_function;
 
     /** Broadcast schedule identifier. */
     uint16_t bsi;

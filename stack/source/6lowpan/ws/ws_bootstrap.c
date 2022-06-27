@@ -623,8 +623,8 @@ static int8_t ws_bootstrap_fhss_initialize(protocol_interface_info_entry_t *cur)
 int8_t ws_bootstrap_fhss_set_defaults(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration)
 {
     fhss_configuration->fhss_uc_dwell_interval = cur->ws_info->cfg->fhss.fhss_uc_dwell_interval;
-    fhss_configuration->ws_uc_channel_function = (fhss_ws_channel_functions)cur->ws_info->cfg->fhss.fhss_uc_channel_function;
-    fhss_configuration->ws_bc_channel_function = (fhss_ws_channel_functions)cur->ws_info->cfg->fhss.fhss_bc_channel_function;
+    fhss_configuration->ws_uc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info->cfg->fhss.fhss_uc_channel_function;
+    fhss_configuration->ws_bc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info->cfg->fhss.fhss_bc_channel_function;
     fhss_configuration->fhss_bc_dwell_interval = cur->ws_info->cfg->fhss.fhss_bc_dwell_interval;
     fhss_configuration->fhss_broadcast_interval = cur->ws_info->cfg->fhss.fhss_bc_interval;
     if (cur->ws_info->cfg->fhss.fhss_uc_fixed_channel != 0xffff) {
@@ -687,7 +687,7 @@ void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, 
         if (synch_req != WS_EAPOL_PARENT_SYNCH) {
             ws_bootstrap_fhss_set_defaults(cur, &fhss_configuration);
         }
-        fhss_configuration.ws_bc_channel_function = (fhss_ws_channel_functions)neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function;
+        fhss_configuration.ws_bc_channel_function = (fhss_ws_channel_functions_e)neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function;
         if (fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
             cur->ws_info->hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
             cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
