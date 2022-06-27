@@ -42,8 +42,9 @@
 
 volatile unsigned int buffer_count = 0;
 
-uint8_t *(buffer_corrupt_check)(buffer_t *buf)
+uint8_t *buffer_corrupt_check(buffer_t *buf)
 {
+#ifdef EXTRA_CONSISTENCY_CHECKS
     if (buf == NULL) {
         return NULL;
     }
@@ -53,6 +54,7 @@ uint8_t *(buffer_corrupt_check)(buffer_t *buf)
         tr_error("Data: %s", trace_array(buffer_data_pointer(buf), 56));
         while (1);
     }
+#endif
 
     return buffer_data_pointer(buf);
 }

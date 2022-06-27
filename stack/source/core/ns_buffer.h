@@ -243,16 +243,7 @@ NS_STATIC_ASSERT(offsetof(buffer_t, link) == 0, "Some use NS_LIST_HEAD_INCOMPLET
 #define SYST_WDCLEAR    0xff
 #define SYST_TX_TO      0xfe
 
-/** Macro to check buffer corruptions with debug flagging. */
-#ifdef EXTRA_CONSISTENCY_CHECKS
 #define buffer_data_pointer_after_adjustment(x) buffer_corrupt_check(x)
-#define _buffer_corruption_check(x) buffer_corrupt_check(x)
-#else
-#define buffer_data_pointer_after_adjustment(x) buffer_data_pointer(x)
-#define _buffer_corruption_check(x)
-#endif
-
-
 
 /** Allocate memory for a buffer_t from the heap */
 buffer_t *buffer_get(uint16_t size);
@@ -276,11 +267,8 @@ buffer_t *buffer_free_route(buffer_t *buf);
 uint16_t buffer_ipv6_fcf(const buffer_t *buf, uint8_t next_header);
 
 /** Check for corrupt buffers should only be used when testing.*/
-#ifdef EXTRA_CONSISTENCY_CHECKS
 uint8_t *buffer_corrupt_check(buffer_t *buf);
-#else
-#define buffer_corrupt_check(b) ((void)0)
-#endif
+
 /** Allocate header space in buffer */
 buffer_t *buffer_headroom(buffer_t *buf, uint16_t size);
 
@@ -323,7 +311,7 @@ struct socket *buffer_socket_set(buffer_t *buf, struct socket *socket);
 /** get pointer to end of data*/
 #define buffer_data_end_set(x,new_end_ptr)     do {\
         ((x)->buf_end = (new_end_ptr) - (x)->buf);\
-        _buffer_corruption_check(x);\
+        buffer_corrupt_check(x);\
         } while(0)
 
 /** get data length*/
@@ -364,14 +352,14 @@ static inline uint8_t *buffer_data_reserve_header(buffer_t *x, uint16_t z)
 /** append 1 byte to data*/
 #define buffer_push_uint8(x, z)   do {\
                                     (x)->buf[x->buf_end++] = (z);\
-                                    _buffer_corruption_check(x);\
+                                    buffer_corrupt_check(x);\
                                     } while(0)
 
 /** append 2 byte to data*/
 #define buffer_push_uint16(x, z)  do {\
                                     (x)->buf[x->buf_end++] = (uint8_t)( (z) >> 8);\
                                     (x)->buf[x->buf_end++] = (uint8_t)  (z);\
-                                    _buffer_corruption_check(x);\
+                                    buffer_corrupt_check(x);\
                                     } while(0)
 
 
@@ -381,14 +369,14 @@ static inline uint8_t *buffer_data_reserve_header(buffer_t *x, uint16_t z)
                                     (x)->buf[(x)->buf_end++] = (uint8_t) ((z) >> 16);\
                                     (x)->buf[(x)->buf_end++] = (uint8_t) ((z) >> 8);\
                                     (x)->buf[(x)->buf_end++] = (uint8_t) ((z));\
-                                    _buffer_corruption_check(x);\
+                                    buffer_corrupt_check(x);\
                                     } while(0)
 
 /** append 2 byte to data on little endian order or inverse*/
 #define buffer_push_uint16_i(x, z)  do {\
                                     (x)->buf[(x)->buf_end++] = (uint8_t)(z);\
                                     (x)->buf[(x)->buf_end++] = (uint8_t)((z) >> 8);\
-                                    _buffer_corruption_check(x);\
+                                    buffer_corrupt_check(x);\
                                     } while(0)
 
 /** read 1 byte out of the buffer*/
