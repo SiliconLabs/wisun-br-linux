@@ -498,9 +498,6 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             // stopped all to make sure we can enter here from any state
             ws_bootstrap_asynch_trickle_stop(cur);
 
-            // Indicate PAE controller that bootstrap is ready
-            ws_pae_controller_bootstrap_done(cur);
-
             ws_bootstrap_advertise_start(cur);
             ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
             break;
