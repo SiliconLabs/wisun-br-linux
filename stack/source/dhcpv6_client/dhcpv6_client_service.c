@@ -30,8 +30,6 @@
 
 #include "dhcpv6_client/dhcpv6_client_api.h"
 
-#ifdef HAVE_DHCPV6
-
 #define TRACE_GROUP "DHP"
 
 typedef struct {
@@ -757,5 +755,3 @@ static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_
     address_entry->cb = dhcpv6_renew;
     return true;
 }
-
-#endif

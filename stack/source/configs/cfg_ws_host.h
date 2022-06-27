@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#define HAVE_DHCPV6
-
 #define HAVE_WS_HOST
 
 #define EXTRA_CONSISTENCY_CHECKS

@@ -37,7 +37,6 @@
 #include "common_protocols/ip.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 
-#ifdef HAVE_DHCPV6
 #define TRACE_GROUP    "dhcp"
 
 #define MAX_SERVERS 20
@@ -1070,83 +1069,3 @@ int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_
     notify_srv->interface_id = interface_id;
     return 0;
 }
-
-#else
-uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_type, dhcp_service_receive_req_cb *receive_req_cb)
-{
-    (void)interface_id;
-    (void)instance_type;
-    (void)receive_req_cb;
-    return 0;
-}
-
-void dhcp_service_delete(uint16_t instance)
-{
-    (void)instance;
-}
-
-void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_address)
-{
-    (void)instance;
-    (void)server_address;
-}
-
-void dhcp_service_relay_interface_id_option_enable(uint16_t instance, bool enable)
-{
-    (void)instance;
-    (void)enable;
-}
-
-int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len)
-{
-    (void)msg_tr_id;
-    (void)options;
-    (void)msg_ptr;
-    (void)msg_len;
-    return -1;
-}
-
-uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx)
-{
-    (void)instance_id;
-    (void)options;
-    (void)ptr;
-    (void)addr;
-    (void)msg_ptr;
-    (void)msg_len;
-    (void)receive_resp_cb;
-    (void)delay_tx;
-    return 0;
-}
-
-void dhcp_service_set_retry_timers(uint32_t msg_tr_id, uint16_t timeout_init, uint16_t timeout_max, uint8_t retrans_max)
-{
-    (void)msg_tr_id;
-    (void)timeout_init;
-    (void)timeout_max;
-    (void)retrans_max;
-}
-void dhcp_service_req_remove(uint32_t msg_tr_id)
-{
-    (void)msg_tr_id;
-}
-
-bool dhcp_service_timer_tick(uint16_t ticks)
-{
-    (void)ticks;
-    return false;
-}
-
-void dhcp_service_req_remove_all(void *msg_class_ptr)
-{
-    (void)msg_class_ptr;
-}
-
-int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_cb *notify_cb)
-{
-    (void) interface_id;
-    (void) notify_cb;
-    return -1;
-}
-
-#endif

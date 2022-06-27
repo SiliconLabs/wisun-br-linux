@@ -30,7 +30,6 @@
 
 #include "libdhcpv6/libdhcpv6.h"
 
-#ifdef HAVE_DHCPV6
 #define TRACE_GROUP "dhcp"
 
 static NS_LARGE NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_server_data_t, link);
@@ -904,5 +903,3 @@ bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t 
 
     return true;
 }
-
-#endif
