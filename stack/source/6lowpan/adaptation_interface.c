@@ -484,7 +484,7 @@ int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_
     return 0;
 }
 
-buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_ptr, buffer_priority_t priority)
+buffer_t *lowpan_adaptation_get_oldest_packet(fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
 {
     ns_list_foreach(buffer_t, entry, &interface_ptr->directTxQueue) {
         if (entry->priority == priority) {
@@ -1083,7 +1083,7 @@ static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info
 }
 
 
-static void lowpan_adaptation_priority_status_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_priority_t priority)
+static void lowpan_adaptation_priority_status_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
 {
     if (priority == QOS_EXPEDITE_FORWARD) {
         lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);

@@ -184,7 +184,7 @@ typedef enum buffer_priority {
     QOS_NETWORK_CTRL = 2,
     QOS_EXPEDITE_FORWARD = 3,
     QOS_MAC_BEACON = 4
-} buffer_priority_t;
+} buffer_priority_e;
 
 #define B_TO_MAC_MLME_MASK (B_DIR_MASK + B_FROM_MASK + B_TO_MASK )
 #define B_TO_MAC_FROM_MAC (B_DIR_UP + B_FROM_MAC + B_TO_MAC )
@@ -226,7 +226,7 @@ typedef struct buffer {
     //uint16_t            bad_channel;
     void                *session_ptr;
     uint8_t             *rpl_option;
-    buffer_priority_t   priority;
+    buffer_priority_e   priority;
     buffer_link_info_t  link_specific;
     uint16_t            mpl_option_data_offset;
     uint8_t             trickle_data_len;
