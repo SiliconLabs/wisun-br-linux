@@ -99,10 +99,10 @@ typedef enum {
     EAPOL_PDU_RECV_HIGH_PRIORITY = 0,
     EAPOL_PDU_RECV_MEDIUM_PRIORITY = 100,
     EAPOL_PDU_RECV_LOW_PRIORITY = 200
-} eapol_pdu_recv_prior_t;
+} eapol_pdu_recv_prior_e;
 
 typedef struct {
-    eapol_pdu_recv_prior_t priority;           /**< Priority: high, medium or low */
+    eapol_pdu_recv_prior_e priority;           /**< Priority: high, medium or low */
     bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
     ws_eapol_pdu_address_check *addr_check;    /**< Address check callback */
     ws_eapol_pdu_receive *receive;             /**< PDU receive callback */
