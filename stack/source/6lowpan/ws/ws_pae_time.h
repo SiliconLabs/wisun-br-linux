@@ -28,7 +28,7 @@ typedef enum {
     TIME_FORMAT_MINUTES,
     TIME_FORMAT_HOURS,
     TIME_FORMAT_DAYS,
-} time_format_t;
+} time_format_e;
 
 #define STIME_TIME_BITS             14
 #define STIME_TIME_MAX              0x3FFF

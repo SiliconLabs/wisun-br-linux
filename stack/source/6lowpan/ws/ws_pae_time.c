@@ -41,7 +41,7 @@ static uint64_t ws_pae_current_time = CURRENT_TIME_INIT_VALUE;
 uint16_t ws_pae_time_to_short_convert(uint32_t time)
 {
     uint16_t short_time;
-    time_format_t format;
+    time_format_e format;
 
     if (time < STIME_TIME_MAX) {
         short_time = time;
@@ -66,7 +66,7 @@ uint32_t ws_pae_time_from_short_convert(uint16_t short_time)
 {
     uint32_t time;
 
-    time_format_t format = short_time >> STIME_TIME_BITS;
+    time_format_e format = short_time >> STIME_TIME_BITS;
 
     short_time &= STIME_TIME_MASK;
 
