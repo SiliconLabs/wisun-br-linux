@@ -241,7 +241,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_mlme_retry_max;
     uint8_t aUnitBackoffPeriod;
     uint16_t phy_mtu_size;
-    phy_802_15_4_mode_t current_mac_mode;
+    phy_802_15_4_mode_e current_mac_mode;
     /* Indirect queue parameters */
     struct mac_pre_build_frame *indirect_pd_data_request_queue;
     struct mac_pre_build_frame enhanced_ack_buffer;

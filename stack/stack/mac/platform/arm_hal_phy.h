@@ -78,7 +78,7 @@ typedef enum {
     PHY_EXTENSION_SET_CCA_THRESHOLD, /**<  Set CCA threshold which is given as percentage of maximum threshold. 0 is the lowest(strictest) possible threshold and 100 is the highest possible threshold */
     PHY_EXTENSION_SET_CHANNEL_CCA_THRESHOLD, /**<  Set CCA threshold which is given as dBm. This value is set in PHY_LINK_CCA_PREPARE callback and PHY driver should update the CCA threshold configuration */
     PHY_EXTENSION_SET_DATA_WHITENING, /**<  Enable or disable data whitening. Boolean true for enable, false for disable */
-    PHY_EXTENSION_SET_802_15_4_MODE /**<  Set IEEE 802.15.4 mode as defined by phy_802_15_4_mode_t*/
+    PHY_EXTENSION_SET_802_15_4_MODE /**<  Set IEEE 802.15.4 mode as defined by phy_802_15_4_mode_e*/
 } phy_extension_type_e;
 
 /** Address types */
@@ -156,13 +156,13 @@ typedef enum {
 } channel_page_e;
 
 /**
- * @brief enum phy_802_15_4_mode_t IEEE 802.15.4 mode
+ * @brief enum phy_802_15_4_mode_e IEEE 802.15.4 mode
  *
  */
 typedef enum {
     IEEE_802_15_4_2011,    /**<IEEE 802.15.4-2011*/
     IEEE_802_15_4G_2012    /**<IEEE 802.15.4g-2012*/
-} phy_802_15_4_mode_t;
+} phy_802_15_4_mode_e;
 
 /** Channel configuration */
 typedef struct phy_rf_channel_configuration_s {

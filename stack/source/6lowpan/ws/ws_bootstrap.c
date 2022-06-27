@@ -1829,10 +1829,10 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     mlme_get_t get_request;
 
     // Set MAC mode
-    phy_802_15_4_mode_t mac_mode = IEEE_802_15_4G_2012;
+    phy_802_15_4_mode_e mac_mode = IEEE_802_15_4G_2012;
     set_request.attr = mac802_15_4Mode;
     set_request.value_pointer = &mac_mode;
-    set_request.value_size = sizeof(phy_802_15_4_mode_t);
+    set_request.value_size = sizeof(phy_802_15_4_mode_e);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Set RF configuration
     set_request.attr = macRfConfiguration;
