@@ -16,4 +16,6 @@
  */
 #define HAVE_WS_HOST
 
+#define HAVE_PAE_SUPP
+
 #define EXTRA_CONSISTENCY_CHECKS
