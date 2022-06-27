@@ -131,7 +131,7 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_pae_lib.c
     stack/source/6lowpan/ws/ws_pae_nvm_store.c
     stack/source/6lowpan/ws/ws_pae_nvm_data.c
-    stack/source/6lowpan/ws/ws_pae_supp.c
+    # stack/source/6lowpan/ws/ws_pae_supp.c
     stack/source/6lowpan/ws/ws_pae_time.c
     stack/source/6lowpan/ws/ws_pae_timers.c
     stack/source/6lowpan/ws/ws_regulation.c

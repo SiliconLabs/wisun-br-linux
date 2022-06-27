@@ -133,7 +133,6 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key);
-static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
@@ -159,6 +158,7 @@ pae_controller_config_t pae_controller_config = {
     .ext_cert_valid_enabled = false
 };
 
+#ifdef HAVE_PAE_SUPP
 int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -200,6 +200,7 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
 
     return 0;
 }
+#endif
 
 int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
@@ -429,6 +430,7 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_in
 
 int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
 {
+#ifdef HAVE_PAE_SUPP
     if (!interface_ptr) {
         return -1;
     }
@@ -439,6 +441,9 @@ int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface
     }
 
     return ws_pae_supp_nw_key_valid(interface_ptr, br_iid);
+#else
+    return -1;
+#endif
 }
 
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install)
@@ -674,6 +679,7 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
 }
 #endif
 
+#ifdef HAVE_PAE_SUPP
 static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index)
 {
     pae_controller_t *controller = ws_pae_controller_get(cur);
@@ -692,6 +698,7 @@ static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t 
 
     }
 }
+#endif
 
 int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
 {
@@ -929,6 +936,7 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
     return 0;
 }
 
+#ifdef HAVE_PAE_SUPP
 int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -959,6 +967,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
 
     return 0;
 }
+#endif
 
 int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_ptr)
 {
