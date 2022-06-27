@@ -39,9 +39,9 @@ typedef enum {
     STATS_WS_NEIGHBOUR_REMOVE,
     STATS_WS_CHILD_ADD,
     STATS_WS_CHILD_REMOVE,
-} ws_stats_type_t;
+} ws_stats_type_e;
 
-void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val);
+void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_e type, uint32_t update_val);
 
 
 #endif // WS_STATS_H_

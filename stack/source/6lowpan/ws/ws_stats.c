@@ -50,7 +50,7 @@ int ws_statistics_stop(int8_t interface_id)
     return 0;
 }
 
-void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_t type, uint32_t update_val)
+void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_e type, uint32_t update_val)
 {
     if (!cur || !ws_info(cur) || !cur->ws_info->stored_stats_ptr) {
         return;
