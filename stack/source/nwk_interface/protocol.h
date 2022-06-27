@@ -94,7 +94,7 @@ typedef enum icmp_state {
 typedef enum {
     INTERFACE_IDLE = 0,
     INTERFACE_UP = 1
-} interface_mode_t;
+} interface_mode_e;
 
 typedef enum arm_internal_event_type {
     ARM_IN_TASKLET_INIT_EVENT = 0, /**< Tasklet Init come always when generate tasklet*/
@@ -299,7 +299,7 @@ struct protocol_interface_info_entry {
     /* Link Layer Part */
     uint8_t mac[8]; // MAC address (EUI-64 for LoWPAN, EUI-48 for Ethernet)
 
-    interface_mode_t interface_mode;
+    interface_mode_e interface_mode;
     ipv6_interface_info_t ipv6_configure;
     struct red_info_s *random_early_detection;
     struct red_info_s *llc_random_early_detection;
