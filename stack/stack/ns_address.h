@@ -24,14 +24,14 @@
 #include <stdint.h>
 
 /**
- * /enum address_type_t
+ * /enum address_type_e
  * /brief Address types.
  */
-typedef enum address_type_t {
+typedef enum address_type {
     ADDRESS_IPV6,                 /**< IPv6 Address type. Must be used always at socket interface. */
     ADDRESS_IPV4,                 /**< IPv4 Address type. Must be used always at socket interface. */
     ADDRESS_TUN_DRIVER_ID         /**< Local socket address type. The length is 1 byte (driver ID for packet source). */
-} address_type_t;
+} address_type_e;
 
 
 /**
@@ -39,7 +39,7 @@ typedef enum address_type_t {
  * /brief Struct for the addresses used by the socket interface functions and net_address_get().
  */
 typedef struct ns_address {
-    address_type_t type;          /**< Address type. */
+    address_type_e type;          /**< Address type. */
     uint8_t address[16];          /**< Address. */
     uint16_t identifier;          /**< TCP/UDP port number. */
 } ns_address_t;
