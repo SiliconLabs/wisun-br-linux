@@ -201,6 +201,18 @@ Start `wsbrd`:
 
 # Bugs and Limitations
 
+## Should I use CPC and plain UART?
+
+CPC protocol relies on an external service (CPCd). So plain UART allows an
+easier integration for simple setups. However, CPC offers some features:
+
+  - support for SPI bus
+  - support for encrypted link with the RCP
+  - support for Dynamic MultiProtocol (DMP). Thus, CPCd can share the RCP
+    between several network stacks (ie. Bluetooth, Zigbee, OpenThread and
+    Wi-SUN)
+
+
 ## Hidden Internal Network Interfaces
 
 The network interface presented on the Linux side is not directly linked to the
