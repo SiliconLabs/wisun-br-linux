@@ -54,7 +54,6 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
 #include "libdhcpv6/libdhcpv6.h"
-#include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -104,7 +103,6 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
 static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16]);
-static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info);
 static void ws_bootstrap_test_procedure_trigger_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
 uint16_t test_pan_version = 1;
@@ -887,7 +885,6 @@ static int8_t ws_bootstrap_up(protocol_interface_info_entry_t *cur)
     dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
 
     dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC, WS_DHCP_SOLICIT_MAX_DELAY);
-    dhcp_client_option_notification_cb_set(cur->id, ws_bootstrap_dhcp_info_notify_cb);
 
     ws_nud_table_reset(cur);
 
@@ -1989,36 +1986,6 @@ static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t l
     memcpy(mac64, ll_addr + 8, 8);
     mac64[0] ^= 2;
     ws_bootstrap_mac_neighbor_short_time_set(cur, mac64, WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME);
-}
-
-static void ws_bootstrap_dhcp_info_notify_cb(int8_t interface, dhcp_option_notify_t *options, dhcp_server_notify_info_t *server_info)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
-    if (!cur) {
-        return;
-    }
-    uint8_t server_ll64[16];
-    memcpy(server_ll64, ADDR_LINK_LOCAL_PREFIX, 8);
-
-    if (server_info->duid_length == 8) {
-        memcpy(server_ll64 + 8, server_info->duid, 8);
-    } else {
-        server_ll64[8] = server_info->duid[0];
-        server_ll64[9] = server_info->duid[1];
-        server_ll64[10] = server_info->duid[2];
-        server_ll64[11] = 0xff;
-        server_ll64[12] = 0xfe;
-        server_ll64[13] = server_info->duid[3];
-        server_ll64[14] = server_info->duid[4];
-        server_ll64[15] = server_info->duid[5];
-    }
-    server_ll64[8] ^= 2;
-
-    switch (options->option_type) {
-        default:
-            break;
-    }
-
 }
 
 static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status)

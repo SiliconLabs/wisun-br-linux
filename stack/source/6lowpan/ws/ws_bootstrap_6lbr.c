@@ -57,7 +57,6 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
 #include "libdhcpv6/libdhcpv6.h"
-#include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

@@ -34,7 +34,6 @@
 
 typedef struct {
     dhcp_client_global_adress_cb *global_address_cb;
-    dhcp_client_options_notify_cb *option_information_cb;
     uint16_t service_instance;
     uint16_t relay_instance;
     uint16_t sol_max_delay;
@@ -157,17 +156,6 @@ void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_
     return;
 }
 
-int dhcp_client_option_notification_cb_set(int8_t interface, dhcp_client_options_notify_cb *notify_cb)
-{
-    dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
-    if (!dhcp_client) {
-        return -1;
-    }
-    dhcp_client->option_information_cb = notify_cb;
-    return 0;
-
-}
-
 void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16])
 {
     dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
@@ -256,60 +244,6 @@ void dhcpv6_client_send_error_cb(dhcpv6_client_server_data_t *srv_data_ptr)
     }
 }
 
-
-static void dhcp_vendor_information_notify(uint8_t *ptr, uint16_t data_len, dhcp_client_class_t *dhcp_client, dhcpv6_client_server_data_t *srv_data_ptr, uint32_t message_rtt)
-{
-    if (!dhcp_client->option_information_cb) {
-        return;
-    }
-
-    if (!srv_data_ptr->iaNontemporalAddress.validLifetime) {
-        return; //Valid Lifetime zero
-    }
-
-    dhcp_option_notify_t dhcp_option;
-
-    uint16_t type, length;
-    bool valid_optional_options;
-
-    dhcp_server_notify_info_t server_info;
-    server_info.life_time = srv_data_ptr->iaNontemporalAddress.validLifetime;
-    server_info.duid = srv_data_ptr->serverDUID.duid + 2; // Skip the type
-    server_info.duid_type = srv_data_ptr->serverDUID.type;
-    server_info.duid_length = srv_data_ptr->serverDUID.duid_length - 2;// remove the type
-    server_info.rtt = message_rtt;
-
-
-    while (data_len >= 4) {
-        type = common_read_16_bit(ptr);
-        ptr += 2;
-        length = common_read_16_bit(ptr);
-        ptr += 2;
-        data_len -= 4;
-        if (data_len < length) {
-            return;
-        }
-        valid_optional_options = false;
-        //Accept only listed items below with validated lengths
-        if ((type == DHCPV6_OPTION_VENDOR_SPECIFIC_INFO || type == DHCPV6_OPTION_VENDOR_CLASS) && data_len >= 4) {
-            valid_optional_options = true;
-            //Parse enterprise number
-            dhcp_option.option.vendor_specific.enterprise_number = common_read_32_bit(ptr);
-            ptr += 4;
-            data_len -= 4;
-            length -= 4;
-            dhcp_option.option.vendor_specific.data = ptr;
-            dhcp_option.option.vendor_specific.data_length = length;
-        }
-        if (valid_optional_options) {
-            dhcp_option.option_type = type;
-            dhcp_client->option_information_cb(dhcp_client->interface, &dhcp_option, &server_info);
-        }
-        data_len -= length;
-        ptr += length;
-    }
-}
-
 /* solicitation response received for either global address or router id assignment */
 int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uint8_t *msg_ptr, uint16_t msg_len)
 {
@@ -317,7 +251,6 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     dhcp_duid_options_params_t clientId;
     dhcp_duid_options_params_t serverId;
     dhcpv6_client_server_data_t *srv_data_ptr = NULL;
-    uint32_t message_rtt;
     (void)instance_id;
 
     //Validate that started TR ID class is still at list
@@ -334,9 +267,6 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
         tr_error("No DHCPv6 client avilabale");
         goto error_exit;
     }
-
-
-    message_rtt = dhcp_service_rtt_get(srv_data_ptr->transActionId);
 
     //Clear Active Transaction state
     srv_data_ptr->transActionId = 0;
@@ -413,9 +343,6 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     if (dhcp_client->global_address_cb) {
         dhcp_client->global_address_cb(dhcp_client->interface, srv_data_ptr->server_address, srv_data_ptr->iaNontemporalAddress.addressPrefix, status);
     }
-
-    //Optional Options notify from Reply
-    dhcp_vendor_information_notify(msg_ptr, msg_len, dhcp_client, srv_data_ptr, message_rtt);
 
     return RET_MSG_ACCEPTED;
 error_exit:

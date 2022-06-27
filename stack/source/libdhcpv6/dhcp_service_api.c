@@ -864,16 +864,6 @@ void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_addr
     }
 }
 
-uint32_t dhcp_service_rtt_get(uint32_t msg_tr_id)
-{
-    msg_tr_t *msg_tr_ptr = dhcp_tr_find(msg_tr_id);
-
-    if (msg_tr_ptr && msg_tr_ptr->transmit_time) {
-        return protocol_core_monotonic_time - msg_tr_ptr->transmit_time;
-    }
-    return 0;
-}
-
 void dhcp_service_req_remove(uint32_t msg_tr_id)
 {
     if (dhcp_service) {

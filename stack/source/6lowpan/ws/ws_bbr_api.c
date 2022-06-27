@@ -42,7 +42,6 @@
 #include "common_protocols/ip.h"
 #include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
-#include "libdhcpv6/libdhcpv6_vendordata.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -511,21 +510,6 @@ static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_upd
     return true;
 }
 
-static uint8_t *ws_bbr_dhcp_server_dynamic_vendor_data_write(int8_t interfaceId, uint8_t *ptr, uint16_t *data_len)
-{
-    // If local time is not available vendor data is not written and data_len is not modified
-    (void)interfaceId;
-
-    return ptr;
-}
-
-
-static void ws_bbr_dhcp_server_dns_info_update(protocol_interface_info_entry_t *cur, uint8_t *global_id)
-{
-    dhcpv6_server_service_set_vendor_data_callback(cur->id, global_id, ARM_ENTERPRISE_NUMBER, ws_bbr_dhcp_server_dynamic_vendor_data_write);
-    dhcpv6_server_service_set_vendor_data(cur->id, global_id, ARM_ENTERPRISE_NUMBER, NULL, 0);
-}
-
 static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
 {
     (void) interfaceId;
@@ -556,8 +540,6 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     dhcpv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     dhcpv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
-
-    ws_bbr_dhcp_server_dns_info_update(cur, global_id);
 
     ws_dhcp_client_address_request(cur, global_id, ll);
 }
@@ -766,7 +748,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
             // Add also global prefix and route to RPL
             rpl_control_update_dodag_route(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, 0, WS_ROUTE_LIFETIME, false);
         }
-        ws_bbr_dhcp_server_dns_info_update(cur, current_global_prefix);
     }
 }
 void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)

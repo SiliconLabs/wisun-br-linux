@@ -227,16 +227,6 @@ void dhcp_service_set_retry_timers(uint32_t msg_tr_id, uint16_t timeout_init, ui
 void dhcp_service_update_server_address(uint32_t msg_tr_id, uint8_t *server_address);
 
 /**
- * \brief Get Round Trip time of the request
- *
- * get the elapsed time of the request from last message sent to server.
- *
- * \param msg_tr_id The message transaction ID.
- *
- */
-uint32_t dhcp_service_rtt_get(uint32_t msg_tr_id);
-
-/**
  * \brief Stops transactions for a message (retransmissions).
  *
  * Clears off sending retransmissions for a particular message transaction by finding it via its message transaction ID.
