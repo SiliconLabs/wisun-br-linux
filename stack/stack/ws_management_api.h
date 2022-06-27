@@ -858,4 +858,4 @@ int ws_device_min_sens_set(
     int8_t interface_id,
     uint8_t device_min_sens);
 
-#endif /* WS_MANAGEMENT_API_H_ */
+#endif

@@ -20,4 +20,4 @@
 
 void rpl_mrhof_init(void);
 
-#endif /* RPL_MRHOF_H_ */
+#endif

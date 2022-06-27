@@ -28,4 +28,4 @@
  */
 int8_t supp_gkh_sec_prot_register(kmp_service_t *service);
 
-#endif /* SUPP_GKH_SEC_PROT_H_ */
+#endif

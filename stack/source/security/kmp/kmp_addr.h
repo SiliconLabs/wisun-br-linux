@@ -86,4 +86,4 @@ int8_t kmp_address_eui_64_set(kmp_addr_t *addr, const uint8_t *eui64);
  */
 int8_t kmp_address_copy(kmp_addr_t *to_addr, const kmp_addr_t *from_addr);
 
-#endif /* KMP_ADDR_H_ */
+#endif

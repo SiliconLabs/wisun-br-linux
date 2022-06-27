@@ -28,4 +28,4 @@ uint32_t fnv_hash_1a_32_block_update(uint32_t hash, const uint8_t *data, uint16_
 uint32_t fnv_hash_1a_32_reverse_block(const uint8_t *data, uint16_t len);
 uint32_t fnv_hash_1a_32_reverse_block_update(uint32_t hash, const uint8_t *data, uint16_t len);
 
-#endif /* FNV_HASH_H_ */
+#endif

@@ -29,4 +29,4 @@ typedef enum {
     eSYSTEM     /*!< error code readable in sys_error */
 } socket_error_e;
 
-#endif /* NS_ERROR_TYPES_H_ */
+#endif

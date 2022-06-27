@@ -42,4 +42,4 @@ uint16_t whiteboard_size_get(void);
 #define whiteboard_interface_address_cmp(address) false
 #endif
 
-#endif /* WHITEBOARD_H_ */
+#endif

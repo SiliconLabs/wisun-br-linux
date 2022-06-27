@@ -302,4 +302,4 @@ bool etx_allow_drop_for_poor_measurements(uint8_t bad_link_level, uint8_t max_al
  */
 void etx_max_set(uint16_t etx_max);
 
-#endif /* ETX_H_ */
+#endif

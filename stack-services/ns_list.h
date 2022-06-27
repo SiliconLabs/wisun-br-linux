@@ -760,5 +760,5 @@ NS_LIST_FN uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t 
 }
 #endif /* defined NS_ALLOW_INLINING || defined NS_LIST_FN */
 
-#endif /* NS_LIST_H_ */
+#endif
 

@@ -212,4 +212,4 @@ uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 void rpl_control_instant_poison(struct protocol_interface_info_entry *cur, rpl_domain_t *domain);
 
 
-#endif /* RPL_CONTROL_H_ */
+#endif

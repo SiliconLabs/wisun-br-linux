@@ -71,4 +71,4 @@ int8_t mac_cca_threshold_update(protocol_interface_rf_mac_setup_s *rf_ptr, uint8
  */
 mac_cca_threshold_s *mac_get_cca_threshold_table(protocol_interface_rf_mac_setup_s *rf_ptr);
 
-#endif /* MAC_CCA_THRESHOLD_H_ */
+#endif

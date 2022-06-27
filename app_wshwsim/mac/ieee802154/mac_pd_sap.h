@@ -64,4 +64,4 @@ int8_t mac_data_edfe_force_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
 
 bool mac_pd_sap_ack_validation(struct protocol_interface_rf_mac_setup *rf_ptr, const struct mac_fcf_sequence_s *fcf_dsn, const uint8_t *data_ptr);
 
-#endif /* MAC_PD_SAP_H_ */
+#endif

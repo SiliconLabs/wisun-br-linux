@@ -158,4 +158,4 @@ bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, struct rpl_dodag
 bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_neighbour_t *neighbour, const rpl_neighbour_t *pref_parent);
 uint16_t rpl_upward_read_dao_target_list_size(const rpl_instance_t *instance, const uint8_t *target_prefix);
 
-#endif /* RPL_UPWARD_H_ */
+#endif

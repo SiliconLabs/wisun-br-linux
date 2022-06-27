@@ -55,4 +55,4 @@ void blacklist_ttl_update(uint16_t ticks);
 void blacklist_clear(void);
 void blacklist_free(void);
 
-#endif /* BLACKLIST_H_ */
+#endif

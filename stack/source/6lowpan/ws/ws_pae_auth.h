@@ -303,4 +303,4 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 
 #endif
 
-#endif /* WS_PAE_AUTH_H_ */
+#endif

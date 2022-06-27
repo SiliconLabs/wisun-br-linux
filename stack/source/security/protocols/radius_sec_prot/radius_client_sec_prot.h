@@ -33,4 +33,4 @@
  */
 int8_t radius_client_sec_prot_register(kmp_service_t *service);
 
-#endif /* RADIUS_CLIENT_SEC_PROT_H_ */
+#endif

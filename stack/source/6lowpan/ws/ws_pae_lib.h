@@ -461,4 +461,4 @@ int8_t ws_pae_lib_shared_comp_list_remove(shared_comp_list_t *comp_list, kmp_sha
  */
 int8_t ws_pae_lib_shared_comp_list_timeout(shared_comp_list_t *comp_list, uint16_t ticks);
 
-#endif /* WS_PAE_AUTH_H_ */
+#endif

@@ -19,4 +19,4 @@
 
 buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf, uint16_t hc_space, bool stable_only);
 
-#endif /* IPHC_COMPRESS_H_ */
+#endif

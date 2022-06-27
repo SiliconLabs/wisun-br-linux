@@ -81,4 +81,4 @@ void rpl_policy_set_dio_multicast_config_advertisment_min_count(uint8_t min_coun
 uint16_t rpl_policy_address_registration_timeout();
 void rpl_policy_set_address_registration_timeout(uint16_t timeout_in_minutes);
 
-#endif /* RPL_POLICY_H_ */
+#endif

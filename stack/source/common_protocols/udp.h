@@ -28,4 +28,4 @@ buffer_t *udp_up(buffer_t *buf);
 #define UDP_PORT_PANA              716      /* Protocol for carrying Authentication for Network Access - RFC 5191 */
 #define UDP_PORT_MLE               19788    /* Mesh Link Establishment - draft */
 
-#endif /* UDP_H_ */
+#endif

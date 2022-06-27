@@ -33,4 +33,4 @@
  */
 int8_t radius_eap_tls_sec_prot_register(kmp_service_t *service);
 
-#endif /* RADIUS_EAP_TLS_SEC_PROT_H_ */
+#endif

@@ -88,4 +88,4 @@ bool ws_pae_timers_gtk_new_activation_time(sec_cfg_t *sec_cfg, uint32_t seconds)
  */
 uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_cfg_t *sec_cfg);
 
-#endif /* WS_PAE_TIMERS_H_ */
+#endif

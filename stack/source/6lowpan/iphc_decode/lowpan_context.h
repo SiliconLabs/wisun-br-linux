@@ -102,4 +102,4 @@ lowpan_context_t *lowpan_context_get_by_id(const lowpan_context_list_t *list, ui
  */
 lowpan_context_t *lowpan_context_get_by_address(const lowpan_context_list_t *list, const uint8_t *ipv6Address);
 
-#endif /* LOWPAN_CONTEXT_DEFINE_H_ */
+#endif

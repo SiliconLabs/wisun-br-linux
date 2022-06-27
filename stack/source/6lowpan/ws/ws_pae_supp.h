@@ -265,4 +265,4 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_
 
 #endif
 
-#endif /* WS_PAE_SUPP_H_ */
+#endif

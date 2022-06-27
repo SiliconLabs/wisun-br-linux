@@ -617,4 +617,4 @@ typedef int8_t kmp_service_event_if_event_send(kmp_service_t *service, void *dat
  */
 int8_t kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_if_event_send send);
 
-#endif /* KMP_API_H_ */
+#endif

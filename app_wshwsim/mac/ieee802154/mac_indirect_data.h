@@ -34,4 +34,4 @@ void mac_indirect_data_ttl_handle(struct protocol_interface_rf_mac_setup *cur, u
 uint8_t mac_indirect_data_req_handle(struct mac_pre_parsed_frame_s *buf, struct protocol_interface_rf_mac_setup *mac_ptr);
 void mac_indirect_queue_write(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mac_pre_build_frame *buffer);
 
-#endif /* MAC_INDIRECT_DATA_H_ */
+#endif

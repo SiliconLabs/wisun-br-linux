@@ -52,4 +52,4 @@ int8_t client_tls_sec_prot_register(kmp_service_t *service);
 int8_t server_tls_sec_prot_register(kmp_service_t *service);
 
 
-#endif /* TLS_SEC_PROT_H_ */
+#endif

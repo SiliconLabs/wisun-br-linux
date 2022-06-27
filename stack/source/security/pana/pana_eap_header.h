@@ -75,4 +75,4 @@ uint8_t eap_tls_header_size(uint16_t eap_tls_flags);
 uint8_t *eap_tls_header_build(uint8_t *ptr, uint16_t eap_tls_flags, uint16_t frame_length);
 
 
-#endif /* PANA_EAP_HEADER_H_ */
+#endif

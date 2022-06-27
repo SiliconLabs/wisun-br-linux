@@ -81,4 +81,4 @@ void ns_time_system_time_acquired_set(void);
  */
 bool ns_time_system_time_acquired_get(void);
 
-#endif /* _NS_TIME_H_ */
+#endif

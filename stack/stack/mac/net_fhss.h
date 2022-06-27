@@ -59,4 +59,4 @@ int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_ws_confi
  */
 int ns_fhss_delete(fhss_api_t *fhss_api);
 
-#endif /* NET_FHSS_H_ */
+#endif

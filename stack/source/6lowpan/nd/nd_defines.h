@@ -89,4 +89,4 @@ typedef struct nd_router_setup {
 } nd_router_setup_t;
 
 
-#endif /* ND_DEFINES_H_ */
+#endif

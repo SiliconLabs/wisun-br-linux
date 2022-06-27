@@ -58,4 +58,4 @@ uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct mac_
 /** Header IE elemnt discover with sub id */
 uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie, uint8_t sub_id);
 
-#endif /* MAC_IE_LIB_H_ */
+#endif

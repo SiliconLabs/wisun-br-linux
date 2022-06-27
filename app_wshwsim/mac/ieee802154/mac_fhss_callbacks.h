@@ -27,4 +27,4 @@ int mac_poll_tx_queue(const fhss_api_t *fhss_api);
 int mac_broadcast_notification(const fhss_api_t *fhss_api, uint32_t broadcast_time);
 int mac_get_coordinator_mac_address(const fhss_api_t *fhss_api, uint8_t *mac_address);
 
-#endif /* MAC_FHSS_CALLBACKS_H_ */
+#endif

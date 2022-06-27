@@ -47,4 +47,4 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api);
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(void);
 
-#endif /* NWK_INTERFACE_INCLUDE_PROTOCOL_ABSTRACT_H_ */
+#endif

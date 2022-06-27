@@ -115,4 +115,4 @@ typedef struct mac_pre_build_frame {
 } mac_pre_build_frame_t;
 
 
-#endif /* MAC_DATA_BUFFER_H_ */
+#endif

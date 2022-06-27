@@ -336,4 +336,4 @@ extern uint8_t DEVICE_MIN_SENS;
  */
 #define EAP_TLS_FRAGMENT_LEN_VALUE         600       // EAP-TLS fragment length
 
-#endif /* WS_CONFIG_H_ */
+#endif

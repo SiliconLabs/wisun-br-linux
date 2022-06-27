@@ -306,4 +306,4 @@ bool sec_prot_result_ok_check(sec_prot_common_t *data);
  */
 void sec_prot_default_timeout_set(sec_prot_common_t *data);
 
-#endif /* SEC_PROT_LIB_H_ */
+#endif

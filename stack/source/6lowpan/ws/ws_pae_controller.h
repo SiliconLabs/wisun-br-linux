@@ -699,4 +699,4 @@ int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id);
 
 
-#endif /* WS_PAE_CONTROLLER_H_ */
+#endif

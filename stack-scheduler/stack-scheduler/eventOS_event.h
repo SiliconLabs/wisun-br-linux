@@ -292,4 +292,4 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uin
  */
 void eventOS_cancel(arm_event_storage_t *event);
 
-#endif /* EVENTOS_EVENT_H_ */
+#endif

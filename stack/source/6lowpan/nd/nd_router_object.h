@@ -101,4 +101,4 @@ uint32_t nd_object_time_to_next_nd_reg(void);
 void icmp_nd_router_object_reset(nd_router_t *router_object);
 void icmp_nd_border_router_release(nd_router_t *router_object);
 void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface);
-#endif /* ND_ROUTER_OBJECT_H_ */
+#endif

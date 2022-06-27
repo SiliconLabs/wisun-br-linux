@@ -68,4 +68,4 @@ void rpl_downward_paths_invalidate(struct rpl_instance *instance);
 #define rpl_downward_paths_invalidate(instance) ((void) 0)
 #endif
 
-#endif /* RPL_DOWNWARD_H_ */
+#endif

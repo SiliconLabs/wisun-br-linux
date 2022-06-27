@@ -236,4 +236,4 @@ uint8_t *avp_state_read(uint8_t *ptr, uint16_t len, uint8_t *state_len);
  */
 uint8_t *avp_vsa_ms_mppe_recv_key_read(uint8_t *ptr, uint16_t len, uint8_t *recv_key_len);
 
-#endif /* AVP_HELPER_H_ */
+#endif

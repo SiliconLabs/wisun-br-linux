@@ -100,4 +100,4 @@ typedef struct mac_payload_IE_s {
     unsigned id: 4;         /**< Group ID */
 } mac_payload_IE_t;
 
-#endif /* MAC_COMMON_DEFINES_H_ */
+#endif

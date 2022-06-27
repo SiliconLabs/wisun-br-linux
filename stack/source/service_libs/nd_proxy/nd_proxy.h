@@ -152,4 +152,4 @@ NS_DUMMY_DEFINITIONS_OK
 
 #endif /* HAVE_ND_PROXY */
 
-#endif /* ND_PROXY_H_ */
+#endif

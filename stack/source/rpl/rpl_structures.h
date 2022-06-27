@@ -217,4 +217,4 @@ NS_STATIC_ASSERT(offsetof(struct rpl_instance, link) == 0, "Link must be first i
 
 
 
-#endif /* RPL_STRUCTURES_H_ */
+#endif

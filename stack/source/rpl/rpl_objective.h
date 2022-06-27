@@ -43,4 +43,4 @@ void rpl_objective_register(rpl_objective_t *objective);
 /* Look up an objective function by OCP */
 rpl_objective_t *rpl_objective_lookup(uint16_t ocp);
 
-#endif /* RPL_OBJECTIVE_H_ */
+#endif

@@ -45,4 +45,4 @@ int8_t supp_key_sec_prot_register(kmp_service_t *service);
  */
 int8_t auth_key_sec_prot_register(kmp_service_t *service);
 
-#endif /* KEY_SEC_PROT_H_ */
+#endif

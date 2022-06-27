@@ -95,4 +95,4 @@ int kmp_socket_if_get_native_sockfd();
 uint8_t kmp_socket_if_data_from_ext_radius();
 
 
-#endif /* KMP_SOCKET_IF_H_ */
+#endif

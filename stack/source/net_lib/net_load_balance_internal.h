@@ -21,4 +21,4 @@
 struct protocol_interface_info_entry;
 void net_load_balance_internal_state_activate(struct protocol_interface_info_entry *interface_ptr, bool state);
 
-#endif /* NET_LOAD_BALANCE_INTERNAL_H_ */
+#endif

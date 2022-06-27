@@ -169,4 +169,4 @@ void ws_pae_key_storage_fast_timer(uint16_t ticks);
  */
 uint16_t ws_pae_key_storage_storing_interval_get(void);
 
-#endif /* WS_PAE_KEY_STORAGE_H_ */
+#endif

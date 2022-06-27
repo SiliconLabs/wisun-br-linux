@@ -301,4 +301,4 @@ cert_revocat_list_entry_t *sec_prot_certs_revocat_lists_entry_find(cert_revocat_
  */
 void sec_prot_certs_revocat_lists_delete(cert_revocat_lists_t *cert_revocat_lists);
 
-#endif /* SEC_PROT_CERTS_H_ */
+#endif

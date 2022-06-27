@@ -960,4 +960,4 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is
  */
 bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index);
 
-#endif /* SEC_PROT_KEYS_H_ */
+#endif

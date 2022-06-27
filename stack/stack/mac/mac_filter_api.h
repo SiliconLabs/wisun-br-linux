@@ -191,4 +191,4 @@ int_fast8_t mac_filter_add_short(int8_t interface_id, uint16_t mac16, int16_t lq
  */
 int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
 
-#endif /* MAC_FILTER_API_H_ */
+#endif

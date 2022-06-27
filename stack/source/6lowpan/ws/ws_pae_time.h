@@ -135,4 +135,4 @@ void ws_pae_current_time_update(uint16_t seconds);
  */
 int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time);
 
-#endif /* WS_PAE_KEY_STORAGE_H_ */
+#endif

@@ -93,4 +93,4 @@ void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, struct protoc
 
 uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
 
-#endif /* MAC_MLME_H_ */
+#endif

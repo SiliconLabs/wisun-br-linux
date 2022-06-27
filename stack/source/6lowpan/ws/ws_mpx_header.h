@@ -38,4 +38,4 @@ bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg
 uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg);
 
 
-#endif /* WS_MPX_HEADER_H_ */
+#endif

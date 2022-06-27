@@ -109,4 +109,4 @@ int8_t ccm_process_run(ccm_globals_t *ccm_params);
  */
 void ccm_free(ccm_globals_t *ccm_params);
 
-#endif /* CCMLIB_H_ */
+#endif

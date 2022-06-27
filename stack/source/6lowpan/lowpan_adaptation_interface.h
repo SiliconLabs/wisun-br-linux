@@ -64,4 +64,4 @@ bool lowpan_adaptation_expedite_forward_state_get(struct protocol_interface_info
 
 void lowpan_adaptation_interface_slow_timer(struct protocol_interface_info_entry *cur);
 
-#endif /* LOWPAN_ADAPTATION_INTERFACE_H_ */
+#endif

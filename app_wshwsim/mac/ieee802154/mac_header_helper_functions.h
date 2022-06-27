@@ -77,4 +77,4 @@ uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr
 #define mac_header_message_start_pointer(x)  (&(x)->buf[0])
 
 
-#endif /* MAC_HEADER_HELPER_FUNCTIONS_H_ */
+#endif

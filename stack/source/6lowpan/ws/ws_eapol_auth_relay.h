@@ -61,4 +61,4 @@ int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr
 
 #endif
 
-#endif /* WS_EAPOL_AUTH_RELAY_H_ */
+#endif

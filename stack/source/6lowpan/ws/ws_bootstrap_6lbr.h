@@ -40,4 +40,4 @@ void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint3
 
 #endif
 
-#endif /* WS_BOOTSTRAP_H_ */
+#endif

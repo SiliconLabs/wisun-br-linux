@@ -27,4 +27,4 @@
 
 uint32_t isqrt32(uint32_t n);
 
-#endif /* ISQRT_H_ */
+#endif

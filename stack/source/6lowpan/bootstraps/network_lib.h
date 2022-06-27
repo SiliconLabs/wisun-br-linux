@@ -23,4 +23,4 @@ void network_library_init(void);
 buffer_t *nwk_udp_rx_security_check(buffer_t *buf);
 
 
-#endif /* NETWORK_LIB_H_ */
+#endif

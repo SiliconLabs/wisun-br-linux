@@ -35,4 +35,4 @@ void protocol_timer_cb(uint16_t ticks);
 void protocol_timer_start(protocol_timer_id_e id, void (*passed_fptr)(uint16_t), uint32_t time_ms);
 void protocol_timer_stop(protocol_timer_id_e id);
 
-#endif /* PROTOCOL_TIMER_H_ */
+#endif

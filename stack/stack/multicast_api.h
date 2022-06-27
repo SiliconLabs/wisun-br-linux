@@ -347,4 +347,4 @@ int8_t multicast_fwd_full_for_scope(int8_t interface_id, uint_fast8_t min_scope)
  */
 int8_t multicast_fwd_set_proxy_upstream(int8_t interface_id);
 
-#endif /* MULTICAST_API_H_ */
+#endif

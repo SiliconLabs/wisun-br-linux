@@ -77,4 +77,4 @@ void mac_sec_mib_key_outgoing_frame_counter_increment(struct protocol_interface_
 
 void mac_sec_mib_key_outgoing_frame_counter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup, mlme_key_descriptor_t *key_description);
 
-#endif /* MAC_SECURITY_MIB_H_ */
+#endif

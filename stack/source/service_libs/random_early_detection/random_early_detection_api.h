@@ -117,4 +117,4 @@ uint16_t random_early_detection_aq_calc(struct red_info_s *red_info, uint16_t sa
  */
 uint16_t random_early_detection_aq_read(struct red_info_s *red_info);
 
-#endif /* SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_ */
+#endif

@@ -231,4 +231,4 @@ void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t
  */
 uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id);
 
-#endif /* MAC_NEIGHBOR_TABLE_H_ */
+#endif

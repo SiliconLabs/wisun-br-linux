@@ -329,4 +329,4 @@ typedef struct protocol_interface_rf_mac_setup {
 // TODO: make this dynamic
 #define FHSS_SYNCH_INFO_START   20
 
-#endif /* MAC_DEFINES_H_ */
+#endif

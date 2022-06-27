@@ -355,4 +355,4 @@ uint16_t arm_net_phy_mtu_size(int8_t id);
  */
 void arm_net_phy_unregister(int8_t driver_id);
 
-#endif /* ARM_HAL_PHY_H_ */
+#endif

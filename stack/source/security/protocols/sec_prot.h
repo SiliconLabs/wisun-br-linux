@@ -406,4 +406,4 @@ struct sec_prot_s {
     sec_prot_int_data_t           *data;                 /**< Protocol internal data */
 };
 
-#endif /* SEC_PROT_H_ */
+#endif

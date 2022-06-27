@@ -1009,5 +1009,5 @@ int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
  */
 const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id);
 
-#endif /* NET_INTERFACE_H_ */
+#endif
 

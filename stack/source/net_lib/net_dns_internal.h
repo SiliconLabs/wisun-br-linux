@@ -44,4 +44,4 @@ int8_t net_dns_query_result_get(int8_t interface_id, uint8_t address[16], const 
  */
 void net_dns_timer_seconds(uint32_t seconds);
 
-#endif /* NET_DNS_INTERNAL_H_ */
+#endif

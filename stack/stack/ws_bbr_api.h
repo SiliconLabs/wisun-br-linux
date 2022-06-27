@@ -558,4 +558,4 @@ int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_
 
 int ws_bbr_set_mode_switch(int8_t interface_id, uint8_t mode, uint8_t phy_mode_id);
 
-#endif /* WS_BBR_API_H_ */
+#endif

@@ -166,4 +166,4 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
  */
 int8_t tls_sec_prot_lib_process(tls_security_t *sec);
 
-#endif /* TLS_SEC_PROT_LIB_H_ */
+#endif

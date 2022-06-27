@@ -21,4 +21,4 @@ uint16_t iphc_header_scan(buffer_t *buf, uint16_t *uncompressed_size);
 
 buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *buf);
 
-#endif /* IPHC_DECOMPRESS_H_ */
+#endif

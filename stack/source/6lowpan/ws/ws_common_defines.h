@@ -590,4 +590,4 @@ typedef struct ws_bs_ie {
 #define PAE_AUTH_SOCKET_PORT                  10254
 
 
-#endif /* WS_COMMON_DEFINES_H_ */
+#endif

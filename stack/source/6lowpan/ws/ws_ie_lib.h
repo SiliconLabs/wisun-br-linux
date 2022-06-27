@@ -114,4 +114,4 @@ bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkh
 bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
 
 
-#endif /* WS_IE_LIB_H_ */
+#endif

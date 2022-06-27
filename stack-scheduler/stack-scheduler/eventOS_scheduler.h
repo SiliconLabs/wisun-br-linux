@@ -66,4 +66,4 @@ int8_t eventOS_scheduler_get_active_tasklet(void);
  */
 void eventOS_scheduler_signal(void);
 
-#endif /* EVENTOS_SCHEDULER_H_ */
+#endif

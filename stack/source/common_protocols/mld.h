@@ -41,4 +41,4 @@ void mld_stop_listening(struct protocol_interface_info_entry *interface, struct 
 void mld_slow_timer(struct protocol_interface_info_entry *interface, uint_fast16_t seconds);
 void mld_fast_timer(struct protocol_interface_info_entry *interface, uint_fast16_t ticks);
 
-#endif /* MLD_H_ */
+#endif

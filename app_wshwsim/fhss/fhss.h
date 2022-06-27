@@ -20,4 +20,4 @@
 typedef struct fhss_structure fhss_structure_t;
 typedef struct fhss_failed_tx fhss_failed_tx_t;
 
-#endif /* FHSS_H_ */
+#endif

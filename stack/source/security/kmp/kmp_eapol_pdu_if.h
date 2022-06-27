@@ -59,4 +59,4 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service);
  */
 int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
 
-#endif /* KMP_EAPOL_PDU_IF_H_ */
+#endif

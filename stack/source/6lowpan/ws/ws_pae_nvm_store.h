@@ -114,4 +114,4 @@ int8_t ws_pae_nvm_store_tlv_file_read(const char *file, nvm_tlv_t *tlv);
  */
 int8_t ws_pae_nvm_store_tlv_file_remove(const char *file);
 
-#endif /* WS_PAE_NVM_STORE_H_ */
+#endif

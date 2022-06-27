@@ -188,4 +188,4 @@ void ws_neighbor_class_rsl_out_calculate(ws_neighbor_class_entry_t *ws_neighbor,
 
 bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t *ws_neighbor, uint8_t mac_dsn, uint32_t rx_timestamp);
 
-#endif /* WS_NEIGHBOR_CLASS_H_ */
+#endif

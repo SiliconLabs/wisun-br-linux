@@ -34,4 +34,4 @@
  */
 int8_t supp_fwh_sec_prot_register(kmp_service_t *service);
 
-#endif /* SUPP_FWH_SEC_PROT_H_ */
+#endif

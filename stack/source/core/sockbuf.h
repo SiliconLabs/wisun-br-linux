@@ -41,4 +41,4 @@ bool sockbuf_reserve(sockbuf_t *sb, uint32_t space);
 int32_t sockbuf_space(const sockbuf_t *sb);
 void sockbuf_check(sockbuf_t *sb);
 
-#endif /* SOCKBUF_H_ */
+#endif

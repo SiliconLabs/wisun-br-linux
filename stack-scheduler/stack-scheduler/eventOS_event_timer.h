@@ -85,4 +85,4 @@ int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t 
 arm_event_storage_t *eventOS_event_timer_request_every(const struct arm_event_s *event, int32_t period);
 
 
-#endif /* EVENTOS_EVENT_TIMER_H_ */
+#endif

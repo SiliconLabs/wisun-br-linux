@@ -113,4 +113,4 @@ void ns_time_api_system_time_write_callback_set(ns_time_api_system_time_write_ca
  */
 void ns_time_api_time_configuration_notify_callback_set(ns_time_api_time_configuration_notify_callback callback_wr);
 
-#endif /* NS_TIME_API_H_ */
+#endif

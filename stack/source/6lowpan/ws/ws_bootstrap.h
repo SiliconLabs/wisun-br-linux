@@ -195,4 +195,4 @@ void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur);
 
-#endif /* WS_BOOTSTRAP_H_ */
+#endif

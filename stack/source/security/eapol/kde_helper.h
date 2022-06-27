@@ -169,4 +169,4 @@ int8_t kde_lifetime_read(const uint8_t *ptr, uint16_t len, uint32_t *lifetime);
  */
 int8_t kde_gtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *gtkl);
 
-#endif /* KDE_HELPER_H_ */
+#endif

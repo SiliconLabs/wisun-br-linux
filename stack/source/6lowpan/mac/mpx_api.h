@@ -113,4 +113,4 @@ struct mpx_api_s {
 };
 
 
-#endif /* MPX_API_H_ */
+#endif

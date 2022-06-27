@@ -66,4 +66,4 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface);
 
 #endif //HAVE_WS_BORDER_ROUTER
 
-#endif /* WS_BBR_API_PRIVATE_H_ */
+#endif

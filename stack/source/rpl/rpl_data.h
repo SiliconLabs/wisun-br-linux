@@ -41,4 +41,4 @@ buffer_t *rpl_data_process_routing_header(buffer_t *buf, protocol_interface_info
 buffer_t *rpl_data_source_route_error_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
 bool rpl_data_get_srh_last_address(const uint8_t *srh, uint8_t *addr_out);
 
-#endif /* RPL_DATA_H_ */
+#endif

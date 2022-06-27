@@ -55,4 +55,4 @@ bool mpl_domain_delete(struct protocol_interface_info_entry *cur, const uint8_t 
 void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params *data_trickle_params, uint16_t seed_set_entry_lifetime);
 
 
-#endif /* MPL_H_ */
+#endif

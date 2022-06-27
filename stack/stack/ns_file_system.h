@@ -148,4 +148,4 @@ typedef int (*ns_file_size)(NS_FILE *handle, size_t *size);
  */
 void ns_file_system_callbacks_set(ns_file_open open, ns_file_close close, ns_file_remove remove, ns_file_write write, ns_file_read read, ns_file_size size);
 
-#endif /* _NS_FILE_SYSTEM_H_ */
+#endif

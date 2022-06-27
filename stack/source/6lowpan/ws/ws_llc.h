@@ -252,4 +252,4 @@ void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interfa
 
 int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, uint8_t mode, uint8_t phy_mode_id);
 
-#endif /* WS_LLC_H_ */
+#endif

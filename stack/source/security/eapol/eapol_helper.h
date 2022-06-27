@@ -111,4 +111,4 @@ void eapol_write_key_packet_mic(uint8_t *eapol_pdu, uint8_t *mic);
  */
 uint8_t eapol_pdu_key_mask_get(eapol_pdu_t *eapol_pdu);
 
-#endif /* EAPOL_HELPER_H_ */
+#endif

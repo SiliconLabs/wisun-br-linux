@@ -33,5 +33,5 @@
  */
 int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service);
 
-#endif /* SUPP_EAP_TLS_SEC_PROT_H_ */
+#endif
 

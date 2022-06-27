@@ -36,4 +36,4 @@ typedef struct red_info_s {
     uint16_t count;             /*< Missed Packet drop's. This value is incremented when average queue is over min threshoild and packet is noot dropped */
 } red_info_t;
 
-#endif /* SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_H_ */
+#endif

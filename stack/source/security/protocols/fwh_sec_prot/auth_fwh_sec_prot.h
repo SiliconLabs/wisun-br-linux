@@ -56,4 +56,4 @@ int8_t auth_fwh_sec_prot_register(kmp_service_t *service);
  */
 int8_t auth_fwh_sec_prot_timing_adjust(uint8_t timing);
 
-#endif /* AUTH_FWH_SEC_PROT_H_ */
+#endif

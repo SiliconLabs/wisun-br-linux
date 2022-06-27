@@ -107,4 +107,4 @@ size_t ns_fread(NS_FILE *ns_handle, void *buffer, size_t size);
  */
 int ns_fsize(NS_FILE *ns_handle, size_t *size);
 
-#endif /* _NS_FILE_SYSTEM_H_ */
+#endif

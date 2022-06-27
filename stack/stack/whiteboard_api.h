@@ -49,4 +49,4 @@ whiteboard_entry_t *whiteboard_get(whiteboard_entry_t *cur);
  */
 void whiteboard_set_device_hard_limit(uint16_t limit);
 
-#endif /* WHITEBOARD_API_H_ */
+#endif

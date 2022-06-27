@@ -83,4 +83,4 @@ void arm_aes_encrypt(
  */
 void arm_aes_finish(arm_aes_context_t *aes_context);
 
-#endif /* ARM_HAL_AES_H_ */
+#endif

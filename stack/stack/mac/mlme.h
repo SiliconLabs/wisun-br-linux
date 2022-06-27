@@ -455,4 +455,4 @@ typedef struct mlme_request_mac_filter_add_long_s {
     int16_t dbm_add;
 } mlme_request_mac_filter_add_long_t;
 
-#endif /* MLME_H_ */
+#endif

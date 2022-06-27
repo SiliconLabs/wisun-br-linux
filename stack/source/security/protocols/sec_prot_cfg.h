@@ -67,4 +67,4 @@ typedef struct sec_cfg_s {
     sec_radius_cfg_t *radius_cfg;
 } sec_cfg_t;
 
-#endif /* SEC_PROT_CONF_H_ */
+#endif

@@ -221,4 +221,4 @@ int8_t ws_pae_nvm_store_key_storage_tlv_read(nvm_tlv_t *tlv_entry, uint16_t leng
 
 nvm_tlv_t *ws_pae_buffer_allocate(void);
 
-#endif /* WS_PAE_NVM_DATA_H_ */
+#endif

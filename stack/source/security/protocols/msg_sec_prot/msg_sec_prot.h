@@ -34,4 +34,4 @@
  */
 int8_t msg_sec_prot_register(kmp_service_t *service);
 
-#endif /* MSG_SEC_PROT_H_ */
+#endif

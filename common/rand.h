@@ -118,4 +118,4 @@ uint16_t rand_get_random_in_range(uint16_t min, uint16_t max);
   */
 uint32_t rand_randomise_base(uint32_t base, uint16_t min_factor, uint16_t max_factor);
 
-#endif /* RANDLIB_H_ */
+#endif

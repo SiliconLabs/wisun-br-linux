@@ -44,4 +44,4 @@ struct arm_pd_sap_generic_ind_s;
  */
 int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_sequence_s *fcf, struct arm_pd_sap_generic_ind_s *mac_frame);
 
-#endif /* MAC_FILTER_H_ */
+#endif

@@ -30,4 +30,4 @@ typedef enum {
 void fhss_stats_update(fhss_structure_t *fhss_structure, fhss_stats_type_t type, uint32_t update_val);
 int fhss_statistics_start(fhss_structure_t *fhss_structure, fhss_statistics_t *fhss_statistics);
 
-#endif /* FHSS_STATISTICS_H_ */
+#endif
