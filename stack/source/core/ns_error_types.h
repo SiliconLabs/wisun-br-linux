@@ -27,6 +27,6 @@ typedef enum {
     eFALSE = 1, /*!< no result */
     eBUSY = 2,  /*!< resource busy */
     eSYSTEM     /*!< error code readable in sys_error */
-} socket_error_t;
+} socket_error_e;
 
 #endif /* NS_ERROR_TYPES_H_ */
