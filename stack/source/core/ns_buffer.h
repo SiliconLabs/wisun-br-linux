@@ -74,7 +74,7 @@ typedef enum {
     B_SECURITY_KEY_ID_MODE_DEFAULT = 0,
     B_SECURITY_KEY_ID_2,
     B_SECURITY_KEY_ID_IMPLICIT,
-} buffer_security_key_id_mode;
+} buffer_security_key_id_mode_e;
 
 /** link-specific buffer data */
 typedef struct buffer_link_ieee802_15_4 {
@@ -84,7 +84,7 @@ typedef struct buffer_link_ieee802_15_4 {
     bool indirectTxProcess: 1;
     bool requestAck: 1;
     bool rf_channel_switch: 1;
-    buffer_security_key_id_mode key_id_mode;
+    buffer_security_key_id_mode_e key_id_mode;
     uint8_t selected_channel;
     uint32_t indirectTTL;
     uint16_t srcPanId;
