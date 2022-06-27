@@ -35,7 +35,7 @@
 typedef enum {
     RPL_POLICY_FORWARD,
     RPL_POLICY_DROP
-} rpl_forward_policy_t;
+} rpl_forward_policy_e;
 
 static bool rpl_policy_parent_confirmation_req = false;
 static int8_t rpl_policy_dao_retry_count_conf = 0;
@@ -190,7 +190,7 @@ int rpl_policy_forward_link_etx_threshold_set(uint16_t etx_full_forward, uint16_
     return 0;
 }
 
-static rpl_forward_policy_t rpl_policy_link_forward_policy(uint16_t link_etx)
+static rpl_forward_policy_e rpl_policy_link_forward_policy(uint16_t link_etx)
 {
     if (link_etx >= rpl_policy_etx_full_drop) {
         return RPL_POLICY_DROP;
