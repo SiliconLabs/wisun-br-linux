@@ -314,9 +314,7 @@ void buffer_data_add(buffer_t *buf, const uint8_t *data_ptr, uint16_t data_len)
 {
     memcpy(buffer_data_end(buf), data_ptr, data_len);
     buffer_data_end_set(buf, buffer_data_end(buf) + data_len);
-#ifdef EXTRA_CONSISTENCY_CHECKS
     buffer_corrupt_check(buf);
-#endif
     return;
 }
 
