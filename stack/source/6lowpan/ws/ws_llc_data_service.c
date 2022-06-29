@@ -2141,15 +2141,16 @@ void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interf
 void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
+    int i;
+
+    if (!base)
         return;
-    }
-
     base->ie_params.phy_op_mode_number = 0;
-    for (int i = 0; phy_operating_modes[i] != 0; i++)
+    base->ie_params.phy_operating_modes = NULL;
+    for (i = 0; phy_operating_modes && phy_operating_modes[i]; i++)
         base->ie_params.phy_op_mode_number++;
-
-    base->ie_params.phy_operating_modes = base->ie_params.phy_op_mode_number ? phy_operating_modes : NULL;
+    if (base->ie_params.phy_op_mode_number)
+        base->ie_params.phy_operating_modes = phy_operating_modes;
 }
 
 void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t ticks)
