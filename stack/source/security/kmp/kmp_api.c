@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "stack/socket_api.h"
+#include "stack/net_socket.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

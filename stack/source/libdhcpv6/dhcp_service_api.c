@@ -28,7 +28,7 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack-scheduler/eventOS_event_timer.h"
-#include "stack/socket_api.h"
+#include "stack/net_socket.h"
 #include "stack/net_interface.h"
 #include "stack/dhcp_service_api.h"
 

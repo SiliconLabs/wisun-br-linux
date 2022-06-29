@@ -28,7 +28,7 @@
 #include "service_libs/utils/ns_time.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
-#include "stack/socket_api.h"
+#include "stack/net_socket.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
 #include "stack/mac/platform/os_whiteboard.h"

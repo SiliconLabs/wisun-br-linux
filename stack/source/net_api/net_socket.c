@@ -29,7 +29,6 @@
 #include "stack-services/common_functions.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ns_address.h"
-#include "stack/socket_api.h"
 
 #include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -37,6 +36,8 @@
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/udp.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
+
+#include "stack/net_socket.h"
 
 #define TRACE_GROUP "sckA"
 

@@ -21,7 +21,7 @@
 #include <sys/socket.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "stack/socket_api.h"
+#include "stack/net_socket.h"
 
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
