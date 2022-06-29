@@ -55,7 +55,6 @@
 typedef struct etx_storage_s {
     uint16_t        etx;                       /*!< 12 bits fraction */
     uint16_t        stored_diff_etx;           /*!< 12 bits fraction */
-    uint8_t         remote_incoming_idr;       /*!< 5 bits fraction */
     unsigned        accumulated_failures: 5;
     unsigned        tmp_etx: 1;
     unsigned        linkIdr: 4;
@@ -85,19 +84,6 @@ typedef struct etx_sample_storage_s {
 void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
 
 /**
- * \brief A function to update ETX value based on remote incoming IDR
- *
- *  Update is made based on remote incoming IDR received from
- *  neighbor.
- *
- * \param interface_id Interface identifier
- * \param remote_incoming_idr Remote incoming IDR
- * \param attribute_index Neighbour attribute index
- * \param mac64_addr_ptr Neighbour MAC64
- */
-void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
-
-/**
  * \brief A function to read ETX value
  *
  *  Returns ETX value for an address
@@ -114,18 +100,6 @@ void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming
 uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
 
 /**
- * \brief A function to read local incoming IDR value
- *
- *  Returns local incoming IDR value for an neighbour
- *
- * \param attribute_index Neighbour attribute index
- *
- * \return 0x0100 to 0xFFFF incoming IDR value (8 bit fraction)
- * \return 0x0000 address unknown
- */
-uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_index);
-
-/**
  * \brief A function to read local ETXvalue
  *
  *  Returns local ETX value for an address
@@ -136,20 +110,6 @@ uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_inde
  * \return 0x0000 address unknown
  */
 uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index);
-
-/**
- * \brief A function to update ETX value based on LQI and dBm
- *
- *  Update is made based on dBM and LQI of received message.
- *
- * \param lqi link quality indicator
- * \param dbm measured dBm
- * \param attribute_index Neighbour attribute index
- * \param mac64_addr_ptr Neighbour MAC64
- *
- * \return 0x0100 to 0xFFFF local incoming IDR value (8 bit fraction)
- */
-uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
 
 /**
  * \brief A function callback that indicates ETX value change
@@ -165,18 +125,6 @@ uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_
  *
  */
 typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index, const uint8_t *mac64_addr_ptr);
-
-/**
- * \brief A function callback that indicates the number of accumulated TX failures
- *
- * Callback indicates when number of accumulated failures is more or equal to threshold value.
- *
- * \param interface_id interface ID
- * \param accumulated_failures number of accumulated failures
- * \param attribute_index Neighbour attribute index
- *
- */
-typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumulated_failures, uint8_t attribute_index);
 
 /**
  * \brief A function to register ETX value change callback
@@ -214,24 +162,6 @@ bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size);
  * \return NULL When unknow interface or attribute
  */
 etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_index);
-
-
-/**
- * \brief A function to register accumulated failures callback
- *
- *  When the number of accumulated failures has reached the threshold
- *  value, the ETX module calls the accumulated failures callback on
- *  every transmission failure.
- *
- * \param nwk_id network ID (6lowpan)
- * \param interface_id interface ID
- * \param threshold threshold value for accumulated failures
- * \param callback_ptr callback function pointer
- *
- * \return 0 not 6LowPAN interface
- * \return 1 success
- */
-uint8_t etx_accum_failures_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint8_t threshold, etx_accum_failures_handler_t *callback_ptr);
 
 /**
  * \brief A function to remove ETX neighbor

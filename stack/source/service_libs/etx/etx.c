@@ -21,7 +21,6 @@
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/utils/isqrt.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/net_interface.h"
@@ -42,9 +41,7 @@ typedef struct {
 } ext_neigh_info_t;
 
 static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures);
-static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm);
 static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *stored_diff_etx, uint8_t accumulated_failures, ext_neigh_info_t *etx_neigh_info);
-static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8_t attribute_index);
 static void etx_cache_entry_init(uint8_t attribute_index);
 
 #if ETX_ACCELERATED_SAMPLE_COUNT == 0 || ETX_ACCELERATED_SAMPLE_COUNT > 6
@@ -62,7 +59,6 @@ static void etx_cache_entry_init(uint8_t attribute_index);
 
 typedef struct {
     etx_value_change_handler_t *callback_ptr;
-    etx_accum_failures_handler_t *accum_cb_ptr;
     etx_storage_t *etx_storage_list;
     etx_sample_storage_t *etx_cache_storage_list;
     uint32_t max_etx_update;
@@ -83,7 +79,6 @@ static ext_info_t etx_info = {
     .hysteresis = 0,
     .accum_threshold = 0,
     .callback_ptr = NULL,
-    .accum_cb_ptr = NULL,
     .etx_storage_list = NULL,
     .etx_cache_storage_list = NULL,
     .ext_storage_list_size = 0,
@@ -285,8 +280,6 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
 
     if (success) {
         entry->accumulated_failures = 0;
-    } else {
-        etx_accum_failures_callback_needed_check(entry, attribute_index);
     }
 
     if (entry->etx) {
@@ -295,53 +288,6 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
             etx_calculation(entry, attempts + accumulated_failures, 1, &etx_neigh_info);
         }
     }
-}
-
-/**
- * \brief A function to update ETX value based on remote incoming IDR
- *
- *  Update is made based on remote incoming IDR received from
- *  neighbor.
- *
- * \param remote_incoming_idr Remote incoming IDR
- * \param mac64_addr_ptr long MAC address
- */
-void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
-{
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-    if (!entry) {
-        return;
-    }
-
-    ext_neigh_info_t etx_neigh_info;
-    etx_neigh_info.attribute_index = attribute_index;
-    etx_neigh_info.mac64 = mac64_addr_ptr;
-
-
-    // If ETX has been set
-    if (entry->etx) {
-        // If hysteresis is set stores ETX value to enable comparison
-        if (etx_info.hysteresis && !entry->stored_diff_etx) {
-            entry->stored_diff_etx = entry->etx;
-        }
-        // remote EXT = remote incoming IDR^2 (12 bit fraction)
-        uint32_t remote_ext = ((uint32_t)remote_incoming_idr * remote_incoming_idr) << 2;
-
-        // ETX = 7/8 * current ETX + 1/8 * remote ETX */
-        uint32_t etx = entry->etx - (entry->etx >> ETX_MOVING_AVERAGE_FRACTION);
-        etx += remote_ext >> ETX_MOVING_AVERAGE_FRACTION;
-
-        if (etx > 0xffff) {
-            entry->etx = 0xffff;
-        } else {
-            entry->etx = etx;
-        }
-
-        // Checks if ETX value change callback is needed
-        etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, &etx_neigh_info);
-    }
-    entry->remote_incoming_idr = remote_incoming_idr;
-
 }
 
 /**
@@ -405,31 +351,6 @@ uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr
  * \return 0x0100 to 0xFFFF incoming IDR value (8 bit fraction)
  * \return 0x0000 address unknown
  */
-uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_index)
-{
-    uint32_t local_incoming_idr = 0;
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-    if (entry) {
-        uint16_t local_etx = etx_current_calc(entry->etx, entry->accumulated_failures);
-
-        local_incoming_idr = isqrt32((uint32_t)local_etx << 16);
-        // divide by sqrt(2^12)
-        local_incoming_idr = local_incoming_idr >> 6;
-    }
-
-    return local_incoming_idr;
-}
-
-/**
- * \brief A function to read local incoming IDR value
- *
- *  Returns local incoming IDR value for an address
- *
- * \param mac64_addr_ptr long MAC address
- *
- * \return 0x0100 to 0xFFFF incoming IDR value (8 bit fraction)
- * \return 0x0000 address unknown
- */
 uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index)
 {
     etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
@@ -473,120 +394,6 @@ static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures)
     }
 
     return current_etx;
-}
-
-/**
- * \brief A function to update ETX value based on LQI and dBm
- *
- *  Update is made based on dBM and LQI of received message.
- *
- * \param lqi link quality indicator
- * \param dbm measured dBm
- * \param mac64_addr_ptr long MAC address
- *
- * \return 0x0100 to 0xFFFF local incoming IDR value (8 bit fraction)
- */
-uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_t attribute_index, const uint8_t *mac64_addr_ptr)
-{
-    uint32_t local_incoming_idr = 0;
-    uint32_t etx = 0;
-
-    etx_storage_t *entry = etx_storage_entry_get(interface_id, attribute_index);
-
-
-    if (entry) {
-        ext_neigh_info_t etx_neigh_info;
-        etx_neigh_info.attribute_index = attribute_index;
-        etx_neigh_info.mac64 = mac64_addr_ptr;
-        // If local ETX is not set calculate it based on LQI and dBm
-        if (!entry->etx) {
-            etx = etx_dbm_lqi_calc(lqi, dbm);
-            entry->etx = etx;
-            entry->stored_diff_etx = etx;
-            entry->tmp_etx = true;
-            if (etx_info.callback_ptr) {
-                etx_info.callback_ptr(etx_info.interface_id, 0, entry->etx >> 4,
-                                      attribute_index, mac64_addr_ptr);
-            }
-        }
-        // If local ETX has been calculated without remote incoming IDR and
-        // remote incoming IDR is available update it by remote incoming IDR value
-        if (entry->remote_incoming_idr && entry->tmp_etx) {
-            entry->tmp_etx = false;
-
-            local_incoming_idr = isqrt32((uint32_t)entry->etx << 16);
-            // divide by sqrt(2^12) and scale to 12 bit fraction
-            local_incoming_idr = local_incoming_idr >> 2;
-
-            etx = local_incoming_idr * (((uint16_t)entry->remote_incoming_idr) << 7);
-            entry->etx = etx >> 12;
-
-            local_incoming_idr >>= 4;
-            etx_value_change_callback_needed_check(entry->etx, &(entry->stored_diff_etx), entry->accumulated_failures, &etx_neigh_info);
-        }
-    }
-
-    // If local ETX is not set return temporary ETX based on LQI and dB,
-    if (!local_incoming_idr) {
-        if (!etx) {
-            etx = etx_dbm_lqi_calc(lqi, dbm);
-        }
-
-        local_incoming_idr = isqrt32(etx << 16);
-        // divide by sqrt(2^12)
-        local_incoming_idr >>= 6;
-    }
-
-    return local_incoming_idr;
-}
-
-/**
- * \brief A function to calculate ETX value based on dBm and LQI
- *
- *  Calculation is made using RF driver service. If service does not
- *  exists then local function is used.
- *
- * \param lqi link quality indicator
- * \param dbm measured dBm
- *
- * \return ETX value (12 bit fraction)
- */
-static uint16_t etx_dbm_lqi_calc(uint8_t lqi, int8_t dbm)
-{
-    protocol_interface_info_entry_t *cur = 0;
-    int8_t driver_ret_value = -1;
-    uint16_t etx;
-
-    phy_signal_info_s signal_info;
-    signal_info.type = PHY_SIGNAL_INFO_ETX;
-    signal_info.lqi = lqi;
-    signal_info.dbm = dbm;
-    signal_info.result = 0xffff;
-
-    //TODO: This is needed, but RF driver cannot be accessed directly! Figure out MAC extension for this.
-    cur = protocol_stack_interface_info_get(IF_6LoWPAN);
-    if ((cur) && (cur->dev_driver) && (cur->dev_driver->phy_driver)) {
-        phy_device_driver_s *dev_driver = cur->dev_driver->phy_driver;
-        if (dev_driver->extension) {
-            driver_ret_value = dev_driver->extension(PHY_EXTENSION_CONVERT_SIGNAL_INFO, (uint8_t *)&signal_info);
-        }
-    }
-
-    if ((driver_ret_value != -1) && (signal_info.result != 0xffff)) {
-        etx = signal_info.result;
-        etx <<= 4;
-    } else {
-        /* Atmel version
-           dBm = RSSI base value [dBm] + 1.03 [dB] x ED level
-           LQI = errors in received frame */
-
-        // for dBm -90 and LQI 0 ETX will be 2.4
-        etx = ((dbm * -1) * (256 - lqi));
-        etx >>= 1; // scale result to 12 bits
-        etx += 1u << 12; // add one (perfect link)
-    }
-
-    return etx;
 }
 
 /**
@@ -756,34 +563,6 @@ etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_inde
     return entry;
 }
 
-
-/**
- * \brief A function to register accumulated failures callback
- *
- *  When the number of accumulated failures has reached the threshold
- *  value, the ETX module calls the accumulated failures callback on
- *  every transmission failure.
- *
- * \param nwk_id network ID (6lowpan)
- * \param interface_id interface ID
- * \param threshold threshold value for accumulated failures
- * \param callback_ptr callback function pointer
- *
- * \return 0 not 6LowPAN interface
- * \return 1 success
- */
-uint8_t etx_accum_failures_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint8_t threshold, etx_accum_failures_handler_t *callback_ptr)
-{
-    if ((nwk_id == IF_6LoWPAN) && threshold && callback_ptr) {
-        etx_info.interface_id = interface_id;
-        etx_info.accum_threshold = threshold;
-        etx_info.accum_cb_ptr = callback_ptr;
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 /**
  * \brief A function to check if ETX value change callback is needed
  *
@@ -828,27 +607,6 @@ static void etx_value_change_callback_needed_check(uint16_t etx, uint16_t *store
         etx_info.callback_ptr(etx_info.interface_id, (*stored_diff_etx) >> 4, current_etx >> 4, etx_neigh_info->attribute_index, etx_neigh_info->mac64);
         *stored_diff_etx = current_etx;
     }
-}
-
-/**
- * \brief A function to check if accumulated failures callback is needed
- *
- *  If the current number of accumulated failures is equal or greater than
- *  the set threshold value, the function calls accumulated failures callback.
- *
- * \param neigh_table_ptr the neighbor node in question
- */
-static void etx_accum_failures_callback_needed_check(etx_storage_t *entry, uint8_t attribute_index)
-{
-    if (!etx_info.accum_threshold) {
-        return;
-    }
-
-    if (entry->accumulated_failures < etx_info.accum_threshold) {
-        return;
-    }
-
-    etx_info.accum_cb_ptr(etx_info.interface_id, entry->accumulated_failures, attribute_index);
 }
 
 /**
