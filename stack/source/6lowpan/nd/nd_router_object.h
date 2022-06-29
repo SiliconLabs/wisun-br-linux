@@ -16,7 +16,7 @@
  */
 #ifndef ND_ROUTER_OBJECT_H_
 #define ND_ROUTER_OBJECT_H_
-#include "stack/net_6lowpan_parameter_api.h"
+#include "stack/net_6lowpan_parameter.h"
 
 #include "6lowpan/nd/nd_defines.h"
 

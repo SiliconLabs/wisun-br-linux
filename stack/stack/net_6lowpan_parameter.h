@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 /**
- * \file net_6lowpan_parameter_api.h
+ * \file net_6lowpan_parameter.h
  * \brief API for setting up 6LoWPAN network parameters
  *
  * \section tim-para-def 6LoWPAN Default timer values
