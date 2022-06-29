@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "stack-services/ns_trace.h"
-#include "stack/net_ipv6_api.h"
+#include "stack/net_ipv6.h"
 
 #include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
