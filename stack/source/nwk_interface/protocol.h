@@ -30,9 +30,9 @@
 #error "Why haven't you included config.h before all other headers?"
 #endif
 #include "common/trickle.h"
+#include "stack/net_multicast.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/net_interface.h"
-#include "stack/multicast_api.h"
 
 // Users of protocol.h can assume it includes these headers
 #include "nwk_interface/protocol_abstract.h"

@@ -24,12 +24,12 @@
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
+#include "stack/net_multicast.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_ws_test.h"
-#include "stack/multicast_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
