@@ -1,3 +1,9 @@
+v1.3.2
+------
+
+  - Fix support for external Radius server
+  - Fix simulation tools
+
 v1.3.1
 ------
 
