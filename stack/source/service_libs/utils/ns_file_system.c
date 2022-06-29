@@ -19,7 +19,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "stack/ns_file_system.h"
+
+#include "ns_file_system.h"
 
 static char *file_system_root;
 

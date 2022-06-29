@@ -26,7 +26,6 @@
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
-#include "stack/ns_file_system.h"
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_ws_test.h"

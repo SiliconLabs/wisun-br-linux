@@ -30,7 +30,6 @@
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
-#include "stack/ns_file_system.h"
 #include "stack/net_ws_test.h"
 #include "stack/ws_management_api.h"
 

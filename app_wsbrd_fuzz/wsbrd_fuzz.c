@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 #include "stack-scheduler/source/timer_sys.h"
-#include "stack/ns_file_system.h"
+#include "stack/source/service_libs/utils/ns_file_system.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/tun.h"

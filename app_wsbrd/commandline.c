@@ -30,8 +30,8 @@
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"
+#include "service_libs/utils/ns_file_system.h"
 #include "stack/ws_management_api.h"
-#include "stack/ns_file_system.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/core/ns_address_internal.h"
