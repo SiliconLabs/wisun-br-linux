@@ -19,7 +19,6 @@
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
-#include "common/slist.h"
 #include "common/log.h"
 #include "common/ws_regdb.h"
 #include "stack-services/ns_trace.h"

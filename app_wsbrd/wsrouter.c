@@ -23,7 +23,6 @@
 #include "common/bus_uart.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
-#include "common/slist.h"
 #include "common/log.h"
 #include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
