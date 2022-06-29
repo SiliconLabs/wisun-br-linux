@@ -157,12 +157,12 @@ add_library(libwsbrd STATIC
     stack/source/libdhcpv6/dhcp_service_api.c
     stack/source/libdhcpv6/libdhcpv6.c
     stack/source/libdhcpv6/libdhcpv6_server.c
-    stack/source/net_lib/multicast_api.c
-    stack/source/net_lib/net_6lowpan_parameter_api.c
-    stack/source/net_lib/net_rpl.c
-    stack/source/net_lib/ns_net.c
-    stack/source/net_lib/socket_api.c
-    stack/source/net_lib/net_ipv6.c
+    stack/source/net_api/net_multicast.c
+    stack/source/net_api/net_6lowpan_parameter.c
+    stack/source/net_api/net_rpl.c
+    stack/source/net_api/net_interface.c
+    stack/source/net_api/net_socket.c
+    stack/source/net_api/net_ipv6.c
     stack/source/mac/rf_driver_storage.c
     stack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded stack/source/mac/ieee802154
@@ -382,12 +382,12 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/ipv6_stack/protocol_ipv6.c
         stack/source/libdhcpv6/dhcp_service_api.c
         stack/source/libdhcpv6/libdhcpv6.c
-        stack/source/net_lib/multicast_api.c
-        stack/source/net_lib/net_6lowpan_parameter_api.c
-        stack/source/net_lib/net_rpl.c
-        stack/source/net_lib/ns_net.c
-        stack/source/net_lib/socket_api.c
-        stack/source/net_lib/net_ipv6.c
+        stack/source/net_api/net_multicast.c
+        stack/source/net_api/net_6lowpan_parameter.c
+        stack/source/net_api/net_rpl.c
+        stack/source/net_api/net_interface.c
+        stack/source/net_api/net_socket.c
+        stack/source/net_api/net_ipv6.c
         stack/source/mac/rf_driver_storage.c
         stack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded stack/source/mac/ieee802154
