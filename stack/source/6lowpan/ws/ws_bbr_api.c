@@ -100,9 +100,6 @@ static uint8_t current_global_prefix[16] = {0}; // DHCP requires 16 bytes prefix
 static uint32_t bbr_delay_timer = 10; // initial delay.
 static uint32_t global_prefix_unavailable_timer = 0; // initial delay.
 
-static bbr_timezone_configuration_t *bbr_time_config = NULL;
-
-
 static rpl_dodag_conf_t rpl_conf = {
     // Lifetime values
     .default_lifetime = 120,
@@ -1397,35 +1394,6 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
 #else
     (void) interface_id;
     (void) timing;
-    return -1;
-#endif
-}
-
-int ws_bbr_timezone_configuration_set(int8_t interface_id, bbr_timezone_configuration_t *daylight_saving_time_ptr)
-{
-#ifdef HAVE_WS_BORDER_ROUTER
-    (void) interface_id;
-
-    if (!daylight_saving_time_ptr) {
-        // Delete configuration
-        free(bbr_time_config);
-        bbr_time_config = NULL;
-        return 0;
-    }
-
-    if (!bbr_time_config) {
-        bbr_time_config = malloc(sizeof(bbr_timezone_configuration_t));
-    }
-
-    if (!bbr_time_config) {
-        return -2;
-    }
-    *bbr_time_config = *daylight_saving_time_ptr;
-
-    return 0;
-#else
-    (void) interface_id;
-    (void) daylight_saving_time_ptr;
     return -1;
 #endif
 }
