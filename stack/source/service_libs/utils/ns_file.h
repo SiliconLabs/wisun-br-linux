@@ -22,7 +22,7 @@
  * \file ns_file.h
  * \brief Nanostack file handling API.
  */
-
+#include <stdio.h>
 #include "stack/ns_file_system.h"
 
 /**
@@ -38,7 +38,7 @@
  * \return NULL on error
  *
  */
-NS_FILE ns_fopen(const char *filename, const char *mode);
+FILE *ns_fopen(const char *filename, const char *mode);
 
 /**
  * File close
@@ -49,7 +49,7 @@ NS_FILE ns_fopen(const char *filename, const char *mode);
  * \return < 0 in case of errors
  *
  */
-int ns_fclose(NS_FILE *ns_handle);
+int ns_fclose(FILE *ns_handle);
 
 /**
  * File remove
@@ -76,7 +76,7 @@ int ns_fremove(const char *filename);
  * \return bytes written
  *
  */
-size_t ns_fwrite(NS_FILE *ns_handle, const void *buffer, size_t size);
+size_t ns_fwrite(FILE *ns_handle, const void *buffer, size_t size);
 
 /**
  * File read
@@ -91,7 +91,7 @@ size_t ns_fwrite(NS_FILE *ns_handle, const void *buffer, size_t size);
  * \return bytes written
  *
  */
-size_t ns_fread(NS_FILE *ns_handle, void *buffer, size_t size);
+size_t ns_fread(FILE *ns_handle, void *buffer, size_t size);
 
 /**
  * File size callback
@@ -105,6 +105,6 @@ size_t ns_fread(NS_FILE *ns_handle, void *buffer, size_t size);
  * \return < 0 in case of reading file size is not supported
  *
  */
-int ns_fsize(NS_FILE *ns_handle, size_t *size);
+int ns_fsize(FILE *ns_handle, size_t *size);
 
 #endif

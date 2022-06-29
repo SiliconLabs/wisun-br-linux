@@ -159,7 +159,7 @@ static int8_t ws_pae_nvm_store_write(const char *file_name, nvm_tlv_t *tlv)
         return -1;
     }
 
-    NS_FILE *fp = ns_fopen(file_name, "w");
+    FILE *fp = ns_fopen(file_name, "w");
     if (fp == NULL) {
         tr_error("NVM open error: %s", file_name);
         return PAE_NVM_FILE_CANNOT_OPEN;
@@ -181,7 +181,7 @@ static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_t *tlv)
         return -1;
     }
 
-    NS_FILE *fp = ns_fopen(file_name, "r");
+    FILE *fp = ns_fopen(file_name, "r");
     if (fp == NULL) {
         tr_warning("File not found: %s", file_name);
         return PAE_NVM_FILE_CANNOT_OPEN;

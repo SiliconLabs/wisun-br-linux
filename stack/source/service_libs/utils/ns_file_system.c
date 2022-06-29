@@ -54,7 +54,7 @@ char *ns_file_system_get_root_path(void)
     return file_system_root;
 }
 
-NS_FILE ns_fopen(const char *file_name, const char *mode)
+FILE *ns_fopen(const char *file_name, const char *mode)
 {
     if (!file_name || !mode || (*mode != 'r' && *mode != 'w')) {
         return NULL;
@@ -65,16 +65,16 @@ NS_FILE ns_fopen(const char *file_name, const char *mode)
         return NULL;
     }
 
-    return (NS_FILE) file;
+    return file;
 }
 
-int ns_fclose(NS_FILE *ns_handle)
+int ns_fclose(FILE *ns_handle)
 {
     if (!ns_handle) {
         return -1;
     }
 
-    fclose((FILE *) ns_handle);
+    fclose(ns_handle);
     return 0;
 }
 
@@ -87,32 +87,32 @@ int ns_fremove(const char *file_name)
     return remove(file_name);
 }
 
-size_t ns_fwrite(NS_FILE *ns_handle, const void *buffer, size_t size)
+size_t ns_fwrite(FILE *ns_handle, const void *buffer, size_t size)
 {
     if (!ns_handle || !buffer || size == 0) {
         return 0;
     }
 
-    rewind((FILE *) ns_handle);
-    return fwrite(buffer, 1, size, (FILE *) ns_handle);
+    rewind(ns_handle);
+    return fwrite(buffer, 1, size, ns_handle);
 }
 
-size_t ns_fread(NS_FILE *ns_handle, void *buffer, size_t size)
+size_t ns_fread(FILE *ns_handle, void *buffer, size_t size)
 {
     if (!ns_handle || !buffer || size == 0) {
         return 0;
     }
 
-    rewind((FILE *) ns_handle);
-    return fread(buffer, 1, size, (FILE *) ns_handle);
+    rewind(ns_handle);
+    return fread(buffer, 1, size, ns_handle);
 }
 
-int ns_fsize(NS_FILE *ns_handle, size_t *size)
+int ns_fsize(FILE *ns_handle, size_t *size)
 {
     if (!ns_handle || !size) {
         return 0;
     }
 
-    fseek((FILE *) ns_handle, 0L, SEEK_END);
-    return ftell((FILE *) ns_handle);
+    fseek(ns_handle, 0L, SEEK_END);
+    return ftell(ns_handle);
 }

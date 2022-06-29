@@ -45,10 +45,4 @@ int ns_file_system_set_root_path(const char *root_path);
  */
 char *ns_file_system_get_root_path(void);
 
-/**
- * \brief NS file handle
- *
- */
-typedef void *NS_FILE;
-
 #endif
