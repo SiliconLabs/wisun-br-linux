@@ -38,7 +38,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/udp.h"
-#include "net_lib/net_load_balance_internal.h"
 #include "rpl/rpl_control.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
