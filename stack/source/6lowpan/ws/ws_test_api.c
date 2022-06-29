@@ -23,9 +23,9 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "stack/net_ws_test.h"
-#include "stack/mac/fhss_config.h"
+#include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
+#include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
 
 #include "6lowpan/mac/mac_helper.h"

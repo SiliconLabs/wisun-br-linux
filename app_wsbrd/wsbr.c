@@ -29,7 +29,7 @@
 #include "stack/mac/mac_filter_api.h"
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
-#include "stack/net_ws_test.h"
+#include "stack/ws_test_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
