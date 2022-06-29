@@ -22,7 +22,6 @@
 #include "common/rand.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "service_libs/utils/ns_file.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/fhss_config.h"

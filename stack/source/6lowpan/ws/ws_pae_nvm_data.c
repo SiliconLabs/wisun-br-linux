@@ -22,10 +22,8 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "stack/ns_file_system.h"
 
 #include "nwk_interface/protocol.h"
-#include "service_libs/utils/ns_file.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_config.h"

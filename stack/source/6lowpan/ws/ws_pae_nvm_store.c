@@ -19,10 +19,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/utils/ns_file.h"
 #include "stack/ns_file_system.h"
 
 #include "security/protocols/sec_prot_certs.h"
@@ -111,7 +111,7 @@ int8_t ws_pae_nvm_store_tlv_file_remove(const char *file)
 
     ws_pae_nvm_store_create_path(nw_info_path, file);
 
-    int ret = ns_fremove(nw_info_path);
+    int ret = remove(nw_info_path);
     if (ret < 0) {
         return -1;
     }
@@ -159,14 +159,14 @@ static int8_t ws_pae_nvm_store_write(const char *file_name, nvm_tlv_t *tlv)
         return -1;
     }
 
-    FILE *fp = ns_fopen(file_name, "w");
+    FILE *fp = fopen(file_name, "w");
     if (fp == NULL) {
         tr_error("NVM open error: %s", file_name);
         return PAE_NVM_FILE_CANNOT_OPEN;
     }
 
-    size_t n_bytes = ns_fwrite(fp, tlv, tlv->len + sizeof(nvm_tlv_t));
-    ns_fclose(fp);
+    size_t n_bytes = fwrite(tlv, 1, tlv->len + sizeof(nvm_tlv_t), fp);
+    fclose(fp);
     if (n_bytes != tlv->len + sizeof(nvm_tlv_t)) {
         tr_error("NVM write error %s", file_name);
         return PAE_NVM_FILE_WRITE_ERROR;
@@ -181,14 +181,14 @@ static int8_t ws_pae_nvm_store_read(const char *file_name, nvm_tlv_t *tlv)
         return -1;
     }
 
-    FILE *fp = ns_fopen(file_name, "r");
+    FILE *fp = fopen(file_name, "r");
     if (fp == NULL) {
         tr_warning("File not found: %s", file_name);
         return PAE_NVM_FILE_CANNOT_OPEN;
     }
 
-    size_t n_bytes = ns_fread(fp, tlv, tlv->len + sizeof(nvm_tlv_t));
-    ns_fclose(fp);
+    size_t n_bytes = fread(tlv, 1, tlv->len + sizeof(nvm_tlv_t), fp);
+    fclose(fp);
     if (n_bytes != tlv->len + sizeof(nvm_tlv_t)) {
         tr_warning("File not found or cannot be read: %s", file_name);
         return PAE_NVM_FILE_READ_ERROR;

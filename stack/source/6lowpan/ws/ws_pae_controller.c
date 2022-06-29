@@ -24,7 +24,6 @@
 #include <mbedtls/sha256.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "service_libs/utils/ns_file.h"
 #include "service_libs/utils/ns_time.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ns_address.h"
