@@ -422,6 +422,8 @@ int wsbr_main(int argc, char *argv[])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
 
+    g_trace_stream = stdout;
+    setlinebuf(stdout);
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);

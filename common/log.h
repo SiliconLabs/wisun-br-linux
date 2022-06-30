@@ -62,6 +62,7 @@
  * macros.
  */
 
+extern FILE *g_trace_stream;
 extern unsigned int g_enabled_traces;
 extern bool g_enable_color_traces;
 
@@ -236,9 +237,9 @@ void __tr_exit();
     do {                                                             \
         __tr_enter();                                                \
         if (COLOR != 0 && g_enable_color_traces)                     \
-            fprintf(stderr, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__); \
+            fprintf(g_trace_stream, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__); \
         else                                                         \
-            fprintf(stderr, MSG "\n", ##__VA_ARGS__);                \
+            fprintf(g_trace_stream, MSG "\n", ##__VA_ARGS__);        \
         __tr_exit();                                                 \
     } while(0)
 

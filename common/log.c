@@ -17,6 +17,7 @@
 #include "bits.h"
 #include "log.h"
 
+FILE *g_trace_stream = NULL;
 unsigned int g_enabled_traces = 0;
 bool g_enable_color_traces = true;
 
