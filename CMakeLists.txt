@@ -234,7 +234,6 @@ target_include_directories(libwsbrd PRIVATE
     stack/
 )
 target_compile_definitions(libwsbrd PRIVATE NSCONFIG=ws_border_router)
-target_compile_options(libwsbrd PRIVATE -fPIC)
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_libraries(libwsbrd PRIVATE Threads::Threads)
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
