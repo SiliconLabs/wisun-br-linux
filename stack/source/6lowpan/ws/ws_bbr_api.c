@@ -516,32 +516,6 @@ static uint8_t *ws_bbr_dhcp_server_dynamic_vendor_data_write(int8_t interfaceId,
     // If local time is not available vendor data is not written and data_len is not modified
     (void)interfaceId;
 
-    uint64_t time_read = 0;
-
-    ns_time_system_time_read(&time_read);
-
-    if (data_len) {
-        if (time_read) {
-            *data_len += net_vendor_option_current_time_length();
-        }
-        if (bbr_time_config) {
-            *data_len += net_vendor_option_time_configuration_length();
-        }
-    }
-    if (!ptr) {
-        return ptr;
-    }
-    if (time_read) {
-        time_read += 2208988800; // Time starts now from the 0 era instead of First day of Unix (1 Jan 1970)
-
-        uint32_t era = time_read / (uint64_t)(4294967296);
-        uint32_t timestamp = time_read - (era * (uint64_t)(4294967296));
-        ptr = net_vendor_option_current_time_write(ptr, era, timestamp, 0);
-    }
-    if (bbr_time_config) {
-        ptr = net_vendor_option_time_configuration_write(ptr, bbr_time_config->timestamp, bbr_time_config->timezone, bbr_time_config->deviation, bbr_time_config->status);
-
-    }
     return ptr;
 }
 
