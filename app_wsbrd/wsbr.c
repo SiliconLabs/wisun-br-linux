@@ -331,6 +331,11 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
+static void mbed_trace_print_function(const char *str)
+{
+    fprintf(g_trace_stream, "%s\n", str);
+}
+
 void kill_handler(int signal)
 {
     exit(3);
@@ -432,6 +437,7 @@ int wsbr_main(int argc, char *argv[])
     wsbr_check_mbedtls_features();
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
+    mbed_trace_print_function_set(mbed_trace_print_function);
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
