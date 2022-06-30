@@ -344,12 +344,18 @@ int main(int argc, char *argv[])
         if (ret < 0)
             FATAL(2, "pselect: %m");
         if (FD_ISSET(ctxt->rf_fd, &rfds))
+#ifndef CHANNEL_HOPPING_ON
             rf_rx(ctxt);
         if (ctxt->rf_frame_cca_progress) {
             ctxt->rf_frame_cca_progress = false;
             ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
             ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
         }
+#else
+            if (!ctxt->rf_frame_cca_progress) {
+                rf_rx(ctxt);
+            }
+#endif /* CHANNEL_HOPPING_ON */
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
             wsmac_rx_host(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {

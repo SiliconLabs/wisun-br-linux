@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#ifdef CHANNEL_HOPPING_ON
+#include <pthread.h>
+#endif
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
@@ -41,7 +44,17 @@ static uint8_t rf_mac_address[8];
 static int8_t rf_driver_id = (-1);
 static bool data_request_pending_flag = false;
 static uint16_t channel = 0;
+static bool rf_state = false;
+static int tx_time = 0;
+static bool cca_enabled = false;
 
+#ifdef CHANNEL_HOPPING_ON
+struct data_content {
+    uint8_t *data_ptr;
+    uint16_t data_len;
+    uint8_t tx_handle;
+} tx_data_content;
+#endif /* CHANNEL_HOPPING_ON */
 
 /** XXX: dummy values copied from Atmel RF driver */
 static const phy_rf_channel_configuration_s phy_2_4ghz = {.channel_0_center_frequency = 2405000000, .channel_spacing = 5000000, .datarate = 250000, .number_of_channels = 16, .modulation = MODULATION_OQPSK};
@@ -109,6 +122,7 @@ void write_pcap(struct wsmac_ctxt *ctxt, uint8_t *buf, int len)
 
 void rf_rx(struct wsmac_ctxt *ctxt)
 {
+    rf_state = true;
     uint8_t buf[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
     uint8_t hdr[6];
     uint16_t pkt_len;
@@ -121,18 +135,31 @@ void rf_rx(struct wsmac_ctxt *ctxt)
     if (len != 6 || hdr[0] != 'x' || hdr[1] != 'x') {
         TRACE(TR_RF, " rf drop: chan=%2d/%2d %s", -1, channel,
               tr_bytes(hdr, len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+        rf_state = false;
         return;
     }
     pkt_len = ((uint16_t *)hdr)[1];
     pkt_chan = ((uint16_t *)hdr)[2];
+
+#ifdef CHANNEL_HOPPING_ON
+    if (channel != pkt_chan) {
+        // Normally it should be only printed for ASYNC packets
+        WARN("rf drop: wrong channel. pkt_chan=%d, curr_chan=%d", pkt_chan, channel);
+        rf_state = false;
+        return;
+    }
+#endif /* CHANNEL_HOPPING_ON */
+
     len = read(ctxt->rf_fd, buf, pkt_len);
     WARN_ON(len != pkt_len);
     TRACE(TR_RF, "   rf rx: chan=%2d/%2d %s (%d bytes)", pkt_chan, channel,
           tr_bytes(buf, len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), pkt_len);
     write_pcap(ctxt, buf, len);
     ctxt->rf_driver->phy_driver->phy_rx_cb(buf, len, 200, 0, ctxt->rcp_driver_id);
+    rf_state = false;
 }
 
+#ifndef CHANNEL_HOPPING_ON
 /**
  * \brief This function is used give driver data to transfer.
  *
@@ -177,6 +204,138 @@ static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle,
 
     return 0;
 }
+#else
+static void * thread_phy_rf_tx(void *data_struct)
+{
+    struct data_content *data_content = (struct data_content *)data_struct;
+    uint8_t *data_ptr = data_content->data_ptr;
+    uint16_t data_len = data_content->data_len;
+    uint8_t tx_handle = data_content->tx_handle;
+
+    uint8_t hdr[6];
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+
+    BUG_ON(!data_ptr);
+
+    uint32_t rf_timestamp;
+    if (cca_enabled && tx_time) {
+        phy_rf_extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&rf_timestamp);
+        uint32_t backoff_time = tx_time - rf_timestamp;
+        // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
+        if (backoff_time > 65000)
+        {
+            backoff_time = 1;
+        }
+        TRACE(TR_RF, "   CCA %d us", backoff_time);
+        ctxt->rf_frame_cca_progress = true;
+        usleep(backoff_time);
+    }
+
+AGAIN:
+    if (cca_enabled) {
+        int status = -1;
+        status = device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_CCA_PREPARE, 0, 0);
+        phy_rf_extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&rf_timestamp);
+        switch (status) {
+        case PHY_TX_NOT_ALLOWED:
+            ctxt->rf_frame_cca_progress = false;
+            WARN("PHY_TX_NOT_ALLOWED %u", rf_timestamp);
+            pthread_exit(NULL);
+            break;
+        case PHY_RESTART_CSMA:
+            if (rf_state == 1) {
+                device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_CCA_FAIL_RX, 0, 0);
+                ctxt->rf_frame_cca_progress = false;
+                WARN("PHY_RESTART_CSMA BUT RF STATE 1 %u", rf_timestamp);
+                pthread_exit(NULL);
+            }
+            WARN("PHY_RESTART_CSMA %u", rf_timestamp);
+            ctxt->rf_frame_cca_progress = false;
+            device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_CCA_OK, 0, 0);
+            if (tx_time) {
+                phy_rf_extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&rf_timestamp);
+                uint32_t backoff_time = tx_time - rf_timestamp;
+                // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
+                if (backoff_time > 65000) {
+                    backoff_time = 1;
+                }
+                WARN("RESTART CCA %d us", backoff_time);
+                ctxt->rf_frame_cca_progress = true;
+                usleep(backoff_time);
+                goto AGAIN;
+            }
+            break;
+        case PHY_TX_ALLOWED:
+            if (rf_state == 1) {
+                device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_CCA_FAIL_RX, 0, 0);
+                ctxt->rf_frame_cca_progress = false;
+                WARN("PHY_TX_ALLOWED BUT RF STATE 1 %u", rf_timestamp);
+                pthread_exit(NULL);
+            }
+            TRACE(TR_RF, "   PHY_TX_ALLOWED");
+            ctxt->rf_frame_cca_progress = true;
+            break;
+        default:
+            pthread_exit(NULL);
+            break;
+        }
+    }
+    // Prepend data with a synchronisation marker
+    memcpy(hdr + 0, "xx", 2);
+    memcpy(hdr + 2, &data_len, 2);
+    memcpy(hdr + 4, &channel, 2);
+    TRACE(TR_RF, "   rf tx: chan=%2d/%2d %s (%d bytes)", channel, channel,
+          tr_bytes(data_ptr, data_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), data_len);
+
+    if (write(ctxt->rf_fd, hdr, 26) && write(ctxt->rf_fd, data_ptr, data_len)) {
+        // usleep((6+data_len)*8*1000000/250000); // tx duration for 250kbps
+        device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
+    } else {
+        device_driver.phy_tx_done_cb(ctxt->rcp_driver_id, tx_handle, PHY_LINK_TX_FAIL, 0, 0);
+    }
+    write_pcap(ctxt, data_ptr, data_len);
+    // HACK: wait the time for the remote to receive the message and ack it.
+    // Else, message will be sent as fast as possible and it clutter the pcap.
+    //
+    ctxt->rf_frame_cca_progress = false;
+    pthread_exit(NULL);
+}
+
+/**
+ * \brief This function is used give driver data to transfer.
+ *
+ * \param data_ptr A pointer to TX data. The platform driver can use the same pointer, but the
+ *                 network stack will free the memory when the device driver implementation
+ *                 notifies the stack (using the unique tx_handle) that it is allowed to do so.
+ *
+ * \param data_len The length of data behind a pointer.
+ *
+ * \param tx_handle A unique TX handle defined by the network stack.
+ *
+ * \return 0 TX process start is OK. The library must wait for the TX Done callback
+ *           before pushing a new packet.
+ *
+ * \return -1 PHY is busy.
+ *
+ */
+static int8_t phy_rf_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handle, data_protocol_e protocol) {
+
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    if (ctxt->rf_frame_cca_progress) {
+        WARN("CCA in progress, return");
+        return -1;
+    }
+
+    tx_data_content.data_ptr = data_ptr;
+    tx_data_content.data_len = data_len;
+    tx_data_content.tx_handle = tx_handle;
+
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, thread_phy_rf_tx, &tx_data_content);
+    //WARN("Thread created for thread_phy_rf_tx");
+    return 0;
+}
+#endif /* CHANNEL_HOPPING_ON */
 
 static void phy_rf_mlme_orserver_tx(const mlme_set_t *set_req)
 {
@@ -258,6 +417,10 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
                 break;
             }
             case PHY_EXTENSION_SET_CSMA_PARAMETERS: {
+                phy_csma_params_t *csma_params;
+                csma_params = (phy_csma_params_t *)data_ptr;
+                tx_time = csma_params->backoff_time;
+                cca_enabled = csma_params->cca_enabled;
                 break;
             }
             case PHY_EXTENSION_SET_CHANNEL: {
