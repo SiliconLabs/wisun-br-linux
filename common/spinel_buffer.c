@@ -434,11 +434,13 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
 {
     unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
+    int cnt_bkp = buf->cnt;
     int i;
 
     if (!(g_enabled_traces & TR_HIF))
         return;
 
+    spinel_reset(buf);
     spinel_pop_u8(buf); // ignore header
     cmd = spinel_pop_uint(buf);
     switch (cmd) {
@@ -448,7 +450,6 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
             prop = spinel_pop_uint(buf);
             break;
     }
-    buf->cnt = 0; // reset buffer
     cmd_str = NULL;
     for (i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
         if (cmd == spinel_cmds[i].val)
@@ -456,4 +457,5 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
     prop_str = spinel_prop_str(prop);
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
           tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf->len);
+    buf->cnt = cnt_bkp; // reset buffer
 }
