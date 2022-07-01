@@ -64,8 +64,10 @@ char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char 
     }
 
     // Nothing to display just return empty string
-    if (!in_len)
+    if (!in_len) {
+        out[0] = '\0';
         goto out;
+    }
 
     // We can't write at least one byte
     if (out_len <= strlen(ellipsis) + 3) {
