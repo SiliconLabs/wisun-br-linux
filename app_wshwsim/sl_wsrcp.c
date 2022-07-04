@@ -71,6 +71,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "                        bus, hdlc, hif\n");
     fprintf(stream, "  -c, --pcap=FILE       Dump RF data to FILE\n");
     fprintf(stream, "  -w, --wireshark       Invoke wireshark and dump RF data into\n");
+    fprintf(stream, "  -f, --disable-fhss    Disable channel hopping in FHSS\n");
     fprintf(stream, "\n");
     fprintf(stream, "Examples:\n");
     fprintf(stream, "  wisun-mac /dev/pts/7 /tmp/rf_server\n");
@@ -207,20 +208,22 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
         { "hif",  TR_HIF },
     };
     static const struct option opt_list[] = {
-        { "eui64",     required_argument, 0, 'm' },
-        { "pcap",      required_argument, 0, 'c' },
-        { "trace",     required_argument, 0, 'T' },
-        { "wireshark", no_argument,       0, 'w' },
-        { "help",      no_argument,       0, 'h' },
+        { "eui64",       required_argument, 0, 'm' },
+        { "pcap",        required_argument, 0, 'c' },
+        { "trace",       required_argument, 0, 'T' },
+        { "wireshark",   no_argument,       0, 'w' },
+        { "disable_fhss",no_argument,       0, 'f' },
+        { "help",        no_argument,       0, 'h' },
         { 0,           0,                 0,  0  }
     };
     char *tag;
     int opt, i;
 
+    ctxt->disable_fhss = false;
     fill_random(ctxt->eui64, sizeof(ctxt->eui64));
     ctxt->eui64[0] &= ~1;
     ctxt->eui64[0] |= 2;
-    while ((opt = getopt_long(argc, argv, "hm:c:T:w", opt_list, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hm:c:T:w:f", opt_list, NULL)) != -1) {
         switch (opt) {
             case 'm':
                 configure_mac(ctxt, optarg);
@@ -243,6 +246,9 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
                 break;
             case 'w':
                 invoke_wireshark(ctxt);
+                break;
+            case 'f':
+                ctxt->disable_fhss = true;
                 break;
             case 'h':
                 print_help(stdout, 0);
@@ -343,19 +349,18 @@ int main(int argc, char *argv[])
             ret = pselect(maxfd + 1, &rfds, NULL, NULL, NULL, NULL);
         if (ret < 0)
             FATAL(2, "pselect: %m");
-        if (FD_ISSET(ctxt->rf_fd, &rfds))
-#ifndef CHANNEL_HOPPING_ON
-            rf_rx(ctxt);
-        if (ctxt->rf_frame_cca_progress) {
-            ctxt->rf_frame_cca_progress = false;
-            ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
-            ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
-        }
-#else
-            if (!ctxt->rf_frame_cca_progress) {
+        if(ctxt->disable_fhss) {
+            if (FD_ISSET(ctxt->rf_fd, &rfds))
                 rf_rx(ctxt);
+            if (ctxt->rf_frame_cca_progress) {
+                ctxt->rf_frame_cca_progress = false;
+                ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_CCA_PREPARE, 1, 1);
+                ctxt->rf_driver->phy_driver->phy_tx_done_cb(ctxt->rcp_driver_id, 1, PHY_LINK_TX_SUCCESS, 1, 1);
             }
-#endif /* CHANNEL_HOPPING_ON */
+        } else {
+            if (FD_ISSET(ctxt->rf_fd, &rfds) && !ctxt->rf_frame_cca_progress)
+                rf_rx(ctxt);
+        }
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
             wsmac_rx_host(ctxt);
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
