@@ -133,6 +133,15 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
     mbedtls_ssl_config_init(&sec->conf);
     mbedtls_ctr_drbg_init(&sec->ctr_drbg);
     mbedtls_entropy_init(&sec->entropy);
+    // mbedtls calls 'syscall(SYS_getrandom, ...)' in its default source.
+    // This makes it difficult to wrap RNG for fuzzing or simulation so
+    // the default source is disabled in favor of randlib which uses the C
+    // wrapper 'getrandom'.
+#if (MBEDTLS_VERSION_MAJOR >= 3)
+    sec->entropy.private_source_count = 0;
+#else
+    sec->entropy.source_count = 0;
+#endif
 
     mbedtls_x509_crt_init(&sec->cacert);
 
@@ -142,7 +151,7 @@ int8_t tls_sec_prot_lib_init(tls_security_t *sec)
     sec->crl = NULL;
 
     if (mbedtls_entropy_add_source(&sec->entropy, tls_sec_lib_entropy_poll, NULL,
-                                   128, MBEDTLS_ENTROPY_SOURCE_WEAK) < 0) {
+                                   128, MBEDTLS_ENTROPY_SOURCE_STRONG) < 0) {
         tr_error("Entropy add fail");
         return -1;
     }
