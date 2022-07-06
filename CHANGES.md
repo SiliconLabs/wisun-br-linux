@@ -1,3 +1,8 @@
+v1.3.3
+------
+
+  - Fix compilation of wsbrd_cli with old Cargo/Rust versions.
+
 v1.3.2
 ------
 
