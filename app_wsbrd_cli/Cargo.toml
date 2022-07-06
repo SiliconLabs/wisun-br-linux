@@ -10,7 +10,7 @@ name = "wsbrd_cli"
 path = "wsbrd_cli.rs"
 
 [dependencies]
-dbus = "0.9"
+dbus = "0.9.1"
 # In older rust editions, clap 2.28 fail to build with:
 #   error[E0658]: `if` is not allowed in a `const fn`
 # The problem may be difficult to identify/solve for average user, so we prefer
