@@ -10,9 +10,16 @@ name = "wsbrd_cli"
 path = "wsbrd_cli.rs"
 
 [dependencies]
-dbus = "0.9.1"
+# dbus < 0.9.4 does not properly declare dependency on libdbus-sys and breaks
+# "cargo build -Z minimal-versions".
+dbus = "0.9.4"
+
 # In older rust editions, clap 2.28 fail to build with:
 #   error[E0658]: `if` is not allowed in a `const fn`
 # The problem may be difficult to identify/solve for average user, so we prefer
 # to limit the version here.
 clap = "2.0, < 2.28"
+
+# pkg-config is not a dependency of wsbrd_cli, it is a dependcy of dbus.
+# However, pkg-config < 0.3.7 is incompatible with dbus.
+pkg-config = "0.3.7"
