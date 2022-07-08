@@ -51,6 +51,7 @@ struct wsmac_ctxt {
     struct os_ctxt *os_ctxt;
 
     bool rf_frame_cca_progress;
+    bool disable_fhss;
     int rf_fd;
 
     uint8_t eui64[8];
