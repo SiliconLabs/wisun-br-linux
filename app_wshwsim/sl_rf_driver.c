@@ -193,18 +193,28 @@ static int8_t phy_rf_tx_nohop(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_h
 }
 
 static void * thread_phy_rf_tx(void *ptr)
-{
+{  
+    struct wsmac_ctxt *ctxt = &g_ctxt;
+    uint32_t rf_timestamp;
+
     if(!tx_time) {
             pthread_exit(NULL);
+    } else {
+        phy_rf_extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&rf_timestamp);
+        uint32_t backoff_time = tx_time - rf_timestamp;
+        // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
+        if (backoff_time > 65000) {
+            backoff_time = 1;
+        }
+        ctxt->rf_frame_cca_progress = true;
+        usleep(backoff_time);
     }
+
     uint8_t *tmp_ptr = (uint8_t *)ptr;
     uint16_t data_len = *(uint16_t *)(tmp_ptr);
     uint8_t *data_ptr = tmp_ptr + 2;
 
     uint8_t hdr[6];
-    struct wsmac_ctxt *ctxt = &g_ctxt;
-    uint32_t rf_timestamp;
-
     BUG_ON(!data_ptr);
 
     while(1) {
@@ -246,15 +256,6 @@ static void * thread_phy_rf_tx(void *ptr)
                 pthread_exit(NULL);
             }
             ctxt->rf_frame_cca_progress = true;
-            if (tx_time) {
-                phy_rf_extension(PHY_EXTENSION_GET_TIMESTAMP, (uint8_t *)&rf_timestamp);
-                uint32_t backoff_time = tx_time - rf_timestamp;
-                // Max. time to TX can be 65ms, otherwise time has passed already -> send immediately
-                if (backoff_time > 65000) {
-                    backoff_time = 1;
-                }
-                usleep(backoff_time);
-            }
             break;
         }
         else {
