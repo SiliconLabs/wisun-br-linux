@@ -59,17 +59,5 @@
 #define MAYBE_UNUSED
 #endif
 
-/** \brief Pragma to suppress warnings about unusual pointer values.
- *
- * Useful if using "poison" values.
- */
-#ifdef __IAR_SYSTEMS_ICC__
-#define NS_FUNNY_INTPTR_OK      _Pragma("diag_suppress=Pe1053")
-#define NS_FUNNY_INTPTR_RESTORE _Pragma("diag_default=Pe1053")
-#else
-#define NS_FUNNY_INTPTR_OK
-#define NS_FUNNY_INTPTR_RESTORE
-#endif
-
 
 #endif /* NS_TYPES_H */

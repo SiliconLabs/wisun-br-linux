@@ -18,7 +18,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "common/utils.h"
-#include "stack-services/ns_types.h"
 
 /** \defgroup ns_list Linked list support library.
  *
@@ -606,10 +605,8 @@ NS_LIST_FN void ns_list_init_(ns_list_t *list)
 
 NS_LIST_FN void ns_list_link_init_(ns_list_link_t *link)
 {
-    NS_FUNNY_INTPTR_OK
     link->next = NS_LIST_POISON;
     link->prev = NS_LIST_POISON;
-    NS_FUNNY_INTPTR_RESTORE
 }
 
 NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *restrict entry)
