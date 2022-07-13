@@ -120,54 +120,6 @@
 #endif
 #endif /* __cplusplus */
 
-/** \brief Compile-time assertion
- *
- * C11 provides _Static_assert, as does GCC even in C99 mode (and
- * as a freestanding implementation, we can't rely on <assert.h> to get
- * the static_assert macro).
- * C++11 provides static_assert as a keyword, as does G++ in C++0x mode.
- *
- * The assertion acts as a declaration that can be placed at file scope, in a
- * code block (except after a label), or as a member of a struct/union. It
- * produces a compiler error if "test" evaluates to 0.
- *
- * Note that this *includes* the required semicolon when defined, else it
- * is totally empty, permitting use in structs. (If the user provided the `;`,
- * it would leave an illegal stray `;` if unavailable).
- */
-#ifdef __cplusplus
-# if __cplusplus >= 201103L || __cpp_static_assert >= 200410
-# define NS_STATIC_ASSERT(test, str) static_assert(test, str);
-# elif defined __GXX_EXPERIMENTAL_CXX0X__  && NS_GCC_VERSION >= 40300
-# define NS_STATIC_ASSERT(test, str) __extension__ static_assert(test, str);
-# else
-# define NS_STATIC_ASSERT(test, str)
-# endif
-#else /* C */
-# if __STDC_VERSION__ >= 201112L
-# define NS_STATIC_ASSERT(test, str) _Static_assert(test, str);
-# elif defined __GNUC__ && NS_GCC_VERSION >= 40600
-# ifdef _Static_assert
-/*
- * Some versions of glibc cdefs.h (which comes in via <stdint.h> above)
- * attempt to define their own _Static_assert (if GCC < 4.6 or
- * __STRICT_ANSI__) using an extern declaration, which doesn't work in a
- * struct/union.
- *
- * For GCC >= 4.6 and __STRICT_ANSI__, we can do better - just use
- * the built-in _Static_assert with __extension__. We have to do this, as
- * ns_list.h needs to use it in a union. No way to get at it though, without
- * overriding their define.
- */
-#   undef _Static_assert
-#   define _Static_assert(x, y) __extension__ _Static_assert(x, y)
-# endif
-# define NS_STATIC_ASSERT(test, str) __extension__ _Static_assert(test, str);
-# else
-# define NS_STATIC_ASSERT(test, str)
-#endif
-#endif
-
 /** \brief Pragma to suppress warnings about unusual pointer values.
  *
  * Useful if using "poison" values.

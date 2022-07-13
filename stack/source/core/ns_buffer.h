@@ -239,7 +239,7 @@ typedef struct buffer {
 } buffer_t;
 
 typedef NS_LIST_HEAD(buffer_t, link) buffer_list_t;
-NS_STATIC_ASSERT(offsetof(buffer_t, link) == 0, "Some use NS_LIST_HEAD_INCOMPLETE")
+static_assert(offsetof(buffer_t, link) == 0, "Some use NS_LIST_HEAD_INCOMPLETE");
 
 #define SYST_WDCLEAR    0xff
 #define SYST_TX_TO      0xfe

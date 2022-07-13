@@ -213,7 +213,8 @@ struct rpl_instance {
 };
 
 /* rpl_control.h uses NS_LIST_HEAD_INCOMPLETE */
-NS_STATIC_ASSERT(offsetof(struct rpl_instance, link) == 0, "Link must be first in struct rpl_instance")
+static_assert(offsetof(struct rpl_instance, link) == 0,
+              "Link must be first in struct rpl_instance");
 
 
 

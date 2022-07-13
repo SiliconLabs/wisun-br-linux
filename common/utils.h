@@ -37,6 +37,7 @@
     __x - (__x % (y));   \
 })
 
+#define static_assert(test, str) _Static_assert(test, str)
 
 #define container_of(ptr, type, member)  (type *)((uintptr_t)(ptr) - ((uintptr_t)(offsetof(type, member))))
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))

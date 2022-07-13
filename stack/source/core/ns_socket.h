@@ -147,7 +147,8 @@ typedef struct socket {
     ns_list_link_t link;            /*!< link */
 } socket_t;
 
-NS_STATIC_ASSERT(offsetof(socket_t, u.pending.link) == 0, "Listen queue link must be first (NS_LIST_HEAD_INCOMPLETE)")
+static_assert(offsetof(socket_t, u.pending.link) == 0,
+              "Listen queue link must be first (NS_LIST_HEAD_INCOMPLETE)");
 
 typedef struct inet_group {
     uint8_t group_addr[16];
