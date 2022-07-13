@@ -251,7 +251,7 @@ int8_t eventOS_event_send(const arm_event_t *event);
  * invalidate it, or send it again.
  *
  * The recipient receives a pointer to the arm_event_t data member of the
- * event - it can use NS_CONTAINER_OF() to get a pointer to the original
+ * event - it can use container_of() to get a pointer to the original
  * event passed to this call, or to its outer container.
  *
  * It is a program error to send a user-allocated event to a non-existent task.

@@ -158,10 +158,6 @@
 #define NS_DUMMY_DEFINITIONS_OK
 #endif
 
-/** \brief Convert pointer to member to pointer to containing structure */
-#define NS_CONTAINER_OF(ptr, type, member) \
-    ((type *) ((char *) (ptr) - offsetof(type, member)))
-
 
 #if defined __SDCC_mcs51 || defined __ICC8051__ || defined __C51__
 

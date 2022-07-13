@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/utils.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
@@ -48,7 +49,7 @@
 
 void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, bool unicast, uint_fast8_t seq)
 {
-    protocol_interface_info_entry_t *cur_interface = NS_CONTAINER_OF(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
+    protocol_interface_info_entry_t *cur_interface = container_of(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
 
     if (cur_interface->if_ns_transmit) {
         /* Thread uses DHCP Leasequery (!) instead of NS for address resolution */
@@ -71,7 +72,7 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
 /* Entry has already been removed from cache, and is about to be freed. Hence entry->queue can't change while we process it */
 void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
-    protocol_interface_info_entry_t *cur_interface = NS_CONTAINER_OF(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
+    protocol_interface_info_entry_t *cur_interface = container_of(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
 
     tr_warn("LL addr of %s not found", trace_ipv6(entry->ip_address));
     ns_list_foreach_safe(buffer_t, buf, &entry->queue) {

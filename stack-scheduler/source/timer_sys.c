@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log.h"
+#include "common/utils.h"
 #include "common/hal_interrupt.h"
 #include "stack-services/ns_list.h"
 
@@ -80,7 +81,7 @@ static sys_timer_struct_s *timer_struct_get(void)
 void timer_sys_event_free(arm_event_storage_t *event)
 {
     platform_enter_critical();
-    sys_timer_struct_s *timer = NS_CONTAINER_OF(event, sys_timer_struct_s, event);
+    sys_timer_struct_s *timer = container_of(event, sys_timer_struct_s, event);
     if (timer->period == 0) {
         // Non-periodic - return to free list
         ns_list_add_to_start(&system_timer_free, timer);
@@ -100,7 +101,7 @@ void timer_sys_event_free(arm_event_storage_t *event)
 
 void timer_sys_event_cancel_critical(struct arm_event_storage *event)
 {
-    sys_timer_struct_s *timer = NS_CONTAINER_OF(event, sys_timer_struct_s, event);
+    sys_timer_struct_s *timer = container_of(event, sys_timer_struct_s, event);
     timer->period = 0;
     // If its unqueued it is on my timer list, otherwise it is in event-loop.
     if (event->state == ARM_LIB_EVENT_UNQUEUED) {
