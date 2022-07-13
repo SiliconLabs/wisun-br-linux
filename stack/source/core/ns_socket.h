@@ -227,8 +227,8 @@ inet_pcb_t *socket_inet_pcb_clone(const inet_pcb_t *orig);
  */
 inet_pcb_t *socket_inet_pcb_free(inet_pcb_t *inet_pcb);
 
-int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
-int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[__static 16]);
+int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[static 16]);
+int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, const uint8_t group[static 16]);
 
 /**
  * Determine interface based on socket_id and address

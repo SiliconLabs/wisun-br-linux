@@ -126,26 +126,6 @@
 #endif
 #endif /* __cplusplus */
 
-
-/**
- * C++ doesn't allow "static" in function parameter types: ie
- * ~~~
- *    entry_t *find_entry(const uint8_t address[static 16])
- * ~~~
- * If a header file may be included from C++, use this __static define instead.
- *
- * (Syntax introduced in C99 - `uint8_t address[16]` in a prototype was always
- * equivalent to `uint8_t *address`, but the C99 addition of static tells the
- * compiler that address is never NULL, and always points to at least 16
- * elements. This adds no new type-checking, but the information could aid
- * compiler optimisation, and it can serve as documentation).
- */
-#ifdef __cplusplus
-#define __static
-#else
-#define __static static
-#endif
-
 #ifdef __GNUC__
 #define NS_GCC_VERSION (__GNUC__ * 10000 \
                    + __GNUC_MINOR__ * 100 \

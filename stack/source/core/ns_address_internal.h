@@ -153,9 +153,9 @@ uint8_t addr_check_broadcast(const address_t addr, addrtype_e addr_type);
 void address_module_init(void);
 void addr_fast_timer(struct protocol_interface_info_entry *cur, uint_fast16_t ticks);
 void addr_slow_timer(struct protocol_interface_info_entry *cur, uint_fast16_t seconds);
-struct if_address_entry *addr_add(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad);
-int_fast8_t addr_delete(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
-int_fast8_t addr_deprecate(struct protocol_interface_info_entry *cur, const uint8_t address[__static 16]);
+struct if_address_entry *addr_add(struct protocol_interface_info_entry *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad);
+int_fast8_t addr_delete(struct protocol_interface_info_entry *cur, const uint8_t address[static 16]);
+int_fast8_t addr_deprecate(struct protocol_interface_info_entry *cur, const uint8_t address[static 16]);
 void addr_delete_matching(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct protocol_interface_info_entry *cur, if_address_entry_t *addr);
 void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_address_source_e source);
@@ -173,22 +173,22 @@ int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
 uint8_t addr_len_from_type(addrtype_e addr_type);
 char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
-const uint8_t *addr_select_source(struct protocol_interface_info_entry *interface, const uint8_t dest[__static 16], uint32_t addr_preferences);
+const uint8_t *addr_select_source(struct protocol_interface_info_entry *interface, const uint8_t dest[static 16], uint32_t addr_preferences);
 const uint8_t *addr_select_with_prefix(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences);
 int8_t addr_interface_select_source(struct protocol_interface_info_entry *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences);
-struct if_address_entry *addr_get_entry(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
-bool addr_is_assigned_to_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
-bool addr_is_tentative_for_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
+struct if_address_entry *addr_get_entry(const struct protocol_interface_info_entry *interface, const uint8_t addr[static 16]);
+bool addr_is_assigned_to_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[static 16]);
+bool addr_is_tentative_for_interface(const struct protocol_interface_info_entry *interface, const uint8_t addr[static 16]);
 
 void addr_policy_remove_by_label(uint8_t label);
 
-void addr_duplicate_detected(struct protocol_interface_info_entry *interface, const uint8_t addr[__static 16]);
+void addr_duplicate_detected(struct protocol_interface_info_entry *interface, const uint8_t addr[static 16]);
 
-struct if_group_entry *addr_add_group(struct protocol_interface_info_entry *interface, const uint8_t group[__static 16]);
-void addr_remove_group(struct protocol_interface_info_entry *interface, const uint8_t group[__static 16]);
-bool addr_am_group_member_on_interface(const struct protocol_interface_info_entry *interface, const uint8_t group[__static 16]);
-struct if_group_entry *addr_get_group_entry(const struct protocol_interface_info_entry *interface, const uint8_t group[__static 16]);
-void addr_delete_group(struct protocol_interface_info_entry *interface, const uint8_t group[__static 16]);
+struct if_group_entry *addr_add_group(struct protocol_interface_info_entry *interface, const uint8_t group[static 16]);
+void addr_remove_group(struct protocol_interface_info_entry *interface, const uint8_t group[static 16]);
+bool addr_am_group_member_on_interface(const struct protocol_interface_info_entry *interface, const uint8_t group[static 16]);
+struct if_group_entry *addr_get_group_entry(const struct protocol_interface_info_entry *interface, const uint8_t group[static 16]);
+void addr_delete_group(struct protocol_interface_info_entry *interface, const uint8_t group[static 16]);
 void addr_delete_group_entry(struct protocol_interface_info_entry *interface, if_group_entry_t *entry);
 
 void addr_add_router_groups(struct protocol_interface_info_entry *interface);
@@ -201,21 +201,21 @@ void addr_multicast_fwd_set_forwarding(struct protocol_interface_info_entry *int
 
 #define addr_is_ipv6_unspecified(addr) (memcmp(addr, ADDR_UNSPECIFIED, 16) == 0)
 #define addr_is_ipv6_loopback(addr) (memcmp(addr, ADDR_LOOPBACK, 16) == 0)
-bool addr_is_ipv6_link_local(const uint8_t addr[__static 16]);
+bool addr_is_ipv6_link_local(const uint8_t addr[static 16]);
 #define addr_is_ipv6_multicast(addr) (*(addr) == 0xFF)
-uint_fast8_t addr_ipv6_scope(const uint8_t addr[__static 16], const struct protocol_interface_info_entry *interface);
+uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const struct protocol_interface_info_entry *interface);
 #define addr_ipv6_multicast_scope(addr) ((addr)[1] & 0x0F)
-bool addr_ipv6_equal(const uint8_t a[__static 16], const uint8_t b[__static 16]);
-bool addr_iid_matches_eui64(const uint8_t iid[__static 8], const uint8_t eui64[__static 8]);
-bool addr_iid_matches_lowpan_short(const uint8_t iid[__static 8], uint16_t short_addr);
-bool addr_iid_reserved(const uint8_t iid[__static 8]);
+bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
+bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
+bool addr_iid_matches_lowpan_short(const uint8_t iid[static 8], uint16_t short_addr);
+bool addr_iid_reserved(const uint8_t iid[static 8]);
 int_fast8_t addr_opaque_iid_key_set(const void *secret_key, uint8_t key_len);
 int_fast8_t addr_opaque_initial_iid_set(const void *iid);
 bool addr_opaque_iid_key_is_set(void);
-void addr_generate_opaque_iid(struct protocol_interface_info_entry *cur, uint8_t addr[__static 16]);
-bool addr_iid_from_outer(uint8_t iid_out[__static 8], const sockaddr_t *addr_in);
+void addr_generate_opaque_iid(struct protocol_interface_info_entry *cur, uint8_t addr[static 16]);
+bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
 
-uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[__static 16], const uint8_t prefix[__static 8], uint16_t short_addr);
+uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr);
 
 void memswap(uint8_t *restrict a, uint8_t *restrict b, uint_fast8_t len);
 

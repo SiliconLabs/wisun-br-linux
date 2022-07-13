@@ -27,7 +27,7 @@
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[__static 8]);
+NS_INLINE uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8]);
 
 /*
  * Common read 64-bit variable from 8-bit pointer.
@@ -38,7 +38,7 @@ NS_INLINE uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[__static 8]);
  *
  * \return 64-bit variable
  */
-NS_INLINE uint64_t common_read_64_bit(const uint8_t data_buf[__static 8]);
+NS_INLINE uint64_t common_read_64_bit(const uint8_t data_buf[static 8]);
 
 /*
  * Common write 32-bit variable to 8-bit pointer.
@@ -50,7 +50,7 @@ NS_INLINE uint64_t common_read_64_bit(const uint8_t data_buf[__static 8]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[__static 4]);
+NS_INLINE uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4]);
 
 /*
  * Common read 32-bit variable from 8-bit pointer.
@@ -61,7 +61,7 @@ NS_INLINE uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[__static 4]);
  *
  * \return 32-bit variable
  */
-NS_INLINE uint32_t common_read_32_bit(const uint8_t data_buf[__static 4]);
+NS_INLINE uint32_t common_read_32_bit(const uint8_t data_buf[static 4]);
 
 /*
  * Common write 32-bit variable to 8-bit pointer.
@@ -73,7 +73,7 @@ NS_INLINE uint32_t common_read_32_bit(const uint8_t data_buf[__static 4]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[__static 4]);
+NS_INLINE uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[static 4]);
 
 /*
  * Common read 32-bit variable from 8-bit pointer.
@@ -84,7 +84,7 @@ NS_INLINE uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[__sta
  *
  * \return 32-bit variable
  */
-NS_INLINE uint32_t common_read_32_bit_inverse(const uint8_t data_buf[__static 4]);
+NS_INLINE uint32_t common_read_32_bit_inverse(const uint8_t data_buf[static 4]);
 
 /*
  * Common write 24-bit variable to 8-bit pointer.
@@ -96,7 +96,7 @@ NS_INLINE uint32_t common_read_32_bit_inverse(const uint8_t data_buf[__static 4]
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[__static 3]);
+NS_INLINE uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[static 3]);
 
 /*
  * Common read 24-bit variable from 8-bit pointer.
@@ -107,7 +107,7 @@ NS_INLINE uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[__static
  *
  * \return 24-bit variable
  */
-NS_INLINE uint_fast24_t common_read_24_bit(const uint8_t data_buf[__static 3]);
+NS_INLINE uint_fast24_t common_read_24_bit(const uint8_t data_buf[static 3]);
 
 /*
  * Common write 24-bit variable to 8-bit pointer.
@@ -119,7 +119,7 @@ NS_INLINE uint_fast24_t common_read_24_bit(const uint8_t data_buf[__static 3]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[__static 3]);
+NS_INLINE uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[static 3]);
 
 /*
  * Common read 24-bit variable from 8-bit pointer.
@@ -130,7 +130,7 @@ NS_INLINE uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[
  *
  * \return 24-bit variable
  */
-NS_INLINE uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[__static 3]);
+NS_INLINE uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[static 3]);
 
 /*
  * Common write 16-bit variable to 8-bit pointer.
@@ -142,7 +142,7 @@ NS_INLINE uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[__stat
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[__static 2]);
+NS_INLINE uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[static 2]);
 
 /*
  * Common read 16-bit variable from 8-bit pointer.
@@ -153,7 +153,7 @@ NS_INLINE uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[__static 2]);
  *
  * \return 16-bit variable
  */
-NS_INLINE uint16_t common_read_16_bit(const uint8_t data_buf[__static 2]);
+NS_INLINE uint16_t common_read_16_bit(const uint8_t data_buf[static 2]);
 
 /*
  * Common write 16-bit variable to 8-bit pointer.
@@ -165,7 +165,7 @@ NS_INLINE uint16_t common_read_16_bit(const uint8_t data_buf[__static 2]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[__static 2]);
+NS_INLINE uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2]);
 
 /*
  * Common read 16-bit variable from 8-bit pointer.
@@ -176,7 +176,7 @@ NS_INLINE uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[__sta
  *
  * \return 16-bit variable
  */
-NS_INLINE uint16_t common_read_16_bit_inverse(const uint8_t data_buf[__static 2]);
+NS_INLINE uint16_t common_read_16_bit_inverse(const uint8_t data_buf[static 2]);
 
 /*
  * Count bits in a byte
@@ -306,7 +306,7 @@ NS_INLINE void bit_clear(uint8_t *bitset, uint_fast8_t bit);
 #define COMMON_FUNCTIONS_FN NS_INLINE
 #endif
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[__static 8])
+COMMON_FUNCTIONS_FN uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8])
 {
     *ptr++ = value >> 56;
     *ptr++ = value >> 48;
@@ -319,7 +319,7 @@ COMMON_FUNCTIONS_FN uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[__s
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint64_t common_read_64_bit(const uint8_t data_buf[__static 8])
+COMMON_FUNCTIONS_FN uint64_t common_read_64_bit(const uint8_t data_buf[static 8])
 {
     uint64_t temp_64;
     temp_64 = (uint64_t)(*data_buf++) << 56;
@@ -333,7 +333,7 @@ COMMON_FUNCTIONS_FN uint64_t common_read_64_bit(const uint8_t data_buf[__static 
     return temp_64;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[__static 4])
+COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4])
 {
     *ptr++ = value >> 24;
     *ptr++ = value >> 16;
@@ -342,7 +342,7 @@ COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[__s
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint32_t common_read_32_bit(const uint8_t data_buf[__static 4])
+COMMON_FUNCTIONS_FN uint32_t common_read_32_bit(const uint8_t data_buf[static 4])
 {
     uint32_t temp_32;
     temp_32 = (uint32_t)(*data_buf++) << 24;
@@ -352,7 +352,7 @@ COMMON_FUNCTIONS_FN uint32_t common_read_32_bit(const uint8_t data_buf[__static 
     return temp_32;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[__static 4])
+COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[static 4])
 {
     *ptr++ = value;
     *ptr++ = value >> 8;
@@ -361,7 +361,7 @@ COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint32_t common_read_32_bit_inverse(const uint8_t data_buf[__static 4])
+COMMON_FUNCTIONS_FN uint32_t common_read_32_bit_inverse(const uint8_t data_buf[static 4])
 {
     uint32_t temp_32;
     temp_32 =  *data_buf++;
@@ -371,7 +371,7 @@ COMMON_FUNCTIONS_FN uint32_t common_read_32_bit_inverse(const uint8_t data_buf[_
     return temp_32;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[__static 3])
+COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[static 3])
 {
     *ptr++ = value >> 16;
     *ptr++ = value >> 8;
@@ -379,7 +379,7 @@ COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t pt
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit(const uint8_t data_buf[__static 3])
+COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit(const uint8_t data_buf[static 3])
 {
     uint_fast24_t temp_24;
     temp_24 = (uint_fast24_t)(*data_buf++) << 16;
@@ -388,7 +388,7 @@ COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit(const uint8_t data_buf[__st
     return temp_24;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[__static 3])
+COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[static 3])
 {
     *ptr++ = value;
     *ptr++ = value >> 8;
@@ -396,7 +396,7 @@ COMMON_FUNCTIONS_FN uint8_t *common_write_24_bit_inverse(uint_fast24_t value, ui
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[__static 3])
+COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[static 3])
 {
     uint_fast24_t temp_24;
     temp_24 =  *data_buf++;
@@ -405,14 +405,14 @@ COMMON_FUNCTIONS_FN uint_fast24_t common_read_24_bit_inverse(const uint8_t data_
     return temp_24;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[__static 2])
+COMMON_FUNCTIONS_FN uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[static 2])
 {
     *ptr++ = value >> 8;
     *ptr++ = value;
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint16_t common_read_16_bit(const uint8_t data_buf[__static 2])
+COMMON_FUNCTIONS_FN uint16_t common_read_16_bit(const uint8_t data_buf[static 2])
 {
     uint16_t temp_16;
     temp_16 = (uint16_t)(*data_buf++) << 8;
@@ -420,14 +420,14 @@ COMMON_FUNCTIONS_FN uint16_t common_read_16_bit(const uint8_t data_buf[__static 
     return temp_16;
 }
 
-COMMON_FUNCTIONS_FN uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[__static 2])
+COMMON_FUNCTIONS_FN uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2])
 {
     *ptr++ = value;
     *ptr++ = value >> 8;
     return ptr;
 }
 
-COMMON_FUNCTIONS_FN uint16_t common_read_16_bit_inverse(const uint8_t data_buf[__static 2])
+COMMON_FUNCTIONS_FN uint16_t common_read_16_bit_inverse(const uint8_t data_buf[static 2])
 {
     uint16_t temp_16;
     temp_16 = *data_buf++;

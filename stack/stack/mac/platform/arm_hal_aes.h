@@ -56,7 +56,7 @@ typedef struct arm_aes_context arm_aes_context_t;
  * \return Pointer to aes context
  * \return NULL if aes context allocation fail
  */
-arm_aes_context_t *arm_aes_start(const uint8_t key[__static 16]);
+arm_aes_context_t *arm_aes_start(const uint8_t key[static 16]);
 
 /**
  * \brief This function performs dst=E[preset key,src] (Simple ECB block).
@@ -71,8 +71,8 @@ arm_aes_context_t *arm_aes_start(const uint8_t key[__static 16]);
  */
 void arm_aes_encrypt(
     arm_aes_context_t *aes_context,
-    const uint8_t src[__static 16],
-    uint8_t dst[__static 16]);
+    const uint8_t src[static 16],
+    uint8_t dst[static 16]);
 
 /**
  * \brief Finish AES operations
