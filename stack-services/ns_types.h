@@ -82,18 +82,6 @@
 #define MAYBE_UNUSED
 #endif
 
-/*
- * C++ (even C++11) doesn't provide restrict: define away or provide
- * alternative.
- */
-#ifdef __cplusplus
-#ifdef __GNUC__
-#define restrict __restrict
-#else
-#define restrict
-#endif
-#endif /* __cplusplus */
-
 /** \brief Pragma to suppress warnings about unusual pointer values.
  *
  * Useful if using "poison" values.
