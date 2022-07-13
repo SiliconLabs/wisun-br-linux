@@ -55,7 +55,7 @@ bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds);
 
 //ND Router List
-static NS_LARGE NS_LIST_DEFINE(nd_router_list, nd_router_t, link);
+static NS_LIST_DEFINE(nd_router_list, nd_router_t, link);
 
 /*
  * Default values are documented in net_6lowpan_parameter_api.h - keep in sync.

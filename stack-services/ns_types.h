@@ -113,18 +113,4 @@
 #endif
 
 
-#if defined __SDCC_mcs51 || defined __ICC8051__ || defined __C51__
-
-/* The 8051 environments: SDCC (historic), IAR (current), Keil (future?) */
-
-#define NS_LARGE            __xdata
-#define NS_LARGE_PTR        __xdata
-
-#else
-
-/* "Normal" systems. Define it all away. */
-#define NS_LARGE
-#define NS_LARGE_PTR
-
-#endif
 #endif /* NS_TYPES_H */

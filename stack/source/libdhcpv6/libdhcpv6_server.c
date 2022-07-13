@@ -33,7 +33,7 @@
 
 #define TRACE_GROUP "dhcp"
 
-static NS_LARGE NS_LIST_DEFINE(dhcpv6_gua_server_list, dhcpv6_gua_server_entry_s, link);
+static NS_LIST_DEFINE(dhcpv6_gua_server_list, dhcpv6_gua_server_entry_s, link);
 
 bool libdhcpv6_gua_server_list_empty(void)
 {

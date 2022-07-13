@@ -49,7 +49,7 @@ typedef struct {
     ns_list_link_t      link;                   /*!< List link entry */
 } dhcp_client_class_t;
 
-static NS_LARGE NS_LIST_DEFINE(dhcp_client_list, dhcp_client_class_t, link);
+static NS_LIST_DEFINE(dhcp_client_list, dhcp_client_class_t, link);
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr);
 void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);

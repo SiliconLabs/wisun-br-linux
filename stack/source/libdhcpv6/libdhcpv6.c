@@ -32,7 +32,7 @@
 
 #define TRACE_GROUP "dhcp"
 
-static NS_LARGE NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_server_data_t, link);
+static NS_LIST_DEFINE(dhcpv6_client_nonTemporal_list, dhcpv6_client_server_data_t, link);
 
 //Allocate
 static dhcpv6_client_server_data_t *libdhcvp6_nontemporalAddress_entry_allocate(void)
