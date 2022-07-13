@@ -16,7 +16,7 @@
  */
 #ifndef WHITEBOARD_API_H_
 #define WHITEBOARD_API_H_
-#include "stack-services/ns_types.h"
+#include "common/int24.h"
 
 /**
  * \file whiteboard_api.h

@@ -32,6 +32,7 @@
 #endif
 
 #include <stdint.h>
+#include "common/int24.h"
 #include "stack-services/ns_list.h"
 
 #include "core/ns_address_internal.h"

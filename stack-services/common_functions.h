@@ -15,6 +15,7 @@
  */
 #ifndef COMMON_FUNCTIONS_H_
 #define COMMON_FUNCTIONS_H_
+#include "common/int24.h"
 #include "stack-services/ns_types.h"
 
 /*

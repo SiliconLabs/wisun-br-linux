@@ -28,10 +28,11 @@
 #ifndef _NS_SOCKET_H
 #define _NS_SOCKET_H
 
+#include <sys/socket.h>
+#include "common/int24.h"
 #include "core/ns_error_types.h"
 #include "core/ns_buffer.h"
 #include "core/sockbuf.h"
-#include <sys/socket.h>
 
 #ifndef SOCKET_RX_LIMIT
 #define SOCKET_RX_LIMIT 3

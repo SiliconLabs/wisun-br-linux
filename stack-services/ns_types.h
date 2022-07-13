@@ -57,8 +57,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "common/int24.h"
-
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
 #ifndef NS_NORETURN
 #if defined  __cplusplus && __cplusplus >= 201103L
