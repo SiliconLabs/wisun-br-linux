@@ -412,7 +412,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_u8(buf); // header
         spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
         spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
-        if (ctxt->list_rf_configs)
+        if (ctxt->config.list_rf_configs)
             print_rf_config_list(ctxt, buf);
         ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG_LIST;
         break;

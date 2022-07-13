@@ -69,7 +69,6 @@ struct wsbr_ctxt {
     uint32_t rcp_version_api;
     uint32_t rcp_version_fw;
 
-    bool list_rf_configs;
     uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 
     // For DebugPing dbus interface

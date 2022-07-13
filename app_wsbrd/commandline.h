@@ -27,6 +27,8 @@ struct wsbr_ctxt;
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
+    bool list_rf_configs;
+
     char cpc_instance[PATH_MAX];
     bool cpc_verbose;
 

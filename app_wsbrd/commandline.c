@@ -448,7 +448,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 parse_config_line(ctxt, "command line", 0, optarg);
                 break;
             case 'l':
-                ctxt->list_rf_configs = true;
+                ctxt->config.list_rf_configs = true;
                 break;
             case 't':
                 strncpy(ctxt->config.tun_dev, optarg, sizeof(ctxt->config.tun_dev) - 1);
