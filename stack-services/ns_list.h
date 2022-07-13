@@ -154,9 +154,7 @@ typedef struct ns_list {
 union \
 { \
     ns_list_t slist; \
-    NS_FUNNY_COMPARE_OK \
     static_assert(link_offset <= (ns_list_offset_t) -1, "link offset too large"); \
-    NS_FUNNY_COMPARE_RESTORE \
     char (*offset)[link_offset + 1]; \
     entry_type *type; \
 }

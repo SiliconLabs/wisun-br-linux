@@ -71,17 +71,6 @@
 #define NS_FUNNY_INTPTR_RESTORE
 #endif
 
-/** \brief Pragma to suppress warnings about always true/false comparisons
- */
-#if defined __GNUC__ && NS_GCC_VERSION >= 40600
-#define NS_FUNNY_COMPARE_OK         _Pragma("GCC diagnostic push") \
-                                    _Pragma("GCC diagnostic ignored \"-Wtype-limits\"")
-#define NS_FUNNY_COMPARE_RESTORE    _Pragma("GCC diagnostic pop")
-#else
-#define NS_FUNNY_COMPARE_OK
-#define NS_FUNNY_COMPARE_RESTORE
-#endif
-
 /** \brief Pragma to suppress warnings arising from dummy definitions.
  *
  * Useful when you have function-like macros that returning constants
