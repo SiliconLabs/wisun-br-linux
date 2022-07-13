@@ -45,14 +45,6 @@
  * internal and external use, for finer control? Not yet, but maybe...)
  */
 
-/* Make sure <stdint.h> defines its macros if C++ */
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
 #ifndef NS_NORETURN
 #if defined  __cplusplus && __cplusplus >= 201103L
