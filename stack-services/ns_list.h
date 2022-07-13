@@ -15,6 +15,7 @@
  */
 #ifndef NS_LIST_H_
 #define NS_LIST_H_
+#include <stdint.h>
 #include "stack-services/ns_types.h"
 
 /** \defgroup ns_list Linked list support library.

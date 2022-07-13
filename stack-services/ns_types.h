@@ -54,7 +54,6 @@
 #endif
 
 #include <stddef.h>
-#include <stdint.h>
 #include <stdbool.h>
 
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
