@@ -23,8 +23,6 @@
 
 #include "stack/net_interface.h"
 
-struct wsbr_ctxt;
-
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
     bool list_rf_configs;
@@ -86,7 +84,7 @@ struct wsbrd_conf {
 void print_help_br(FILE *stream);
 void print_help_node(FILE *stream);
 
-void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
+void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream));
 
 #endif
