@@ -18,8 +18,8 @@
 #ifndef IPV6_FLOW_H_
 #define IPV6_FLOW_H_
 
+#include <stdbool.h>
 #include "common/int24.h"
-#include "stack-services/ns_types.h"
 
 extern bool ipv6_flow_auto_label;
 

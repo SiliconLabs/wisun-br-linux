@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdbool.h>
 #include <mbedtls/aes.h>
 #include "common/hal_interrupt.h"
 #include "stack/mac/platform/arm_hal_aes.h"

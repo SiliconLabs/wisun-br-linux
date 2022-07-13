@@ -18,6 +18,7 @@
 #define CCMLIB_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "stack/mac/platform/arm_hal_aes.h"
 
 /**

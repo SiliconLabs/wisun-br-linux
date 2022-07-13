@@ -54,7 +54,6 @@
 #endif
 
 #include <stddef.h>
-#include <stdbool.h>
 
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
 #ifndef NS_NORETURN
