@@ -57,46 +57,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/*
- * Create the optional <stdint.h> 24-bit types if they don't exist (worth trying
- * to use them, as they could exist and be more efficient than 32-bit on 8-bit
- * systems...)
- */
-#ifndef UINT_LEAST24_MAX
-typedef uint_least32_t uint_least24_t;
-#define UINT_LEAST24_MAX UINT_LEAST32_MAX
-#define UINT24_C(x) UINT32_C(x)
-#define PRIoLEAST24 PRIoLEAST32
-#define PRIuLEAST24 PRIuLEAST32
-#define PRIxLEAST24 PRIxLEAST32
-#define PRIXLEAST24 PRIXLEAST32
-#endif
-
-#ifndef INT_LEAST24_MAX
-typedef int_least32_t int_least24_t;
-#define INT_LEAST24_MIN INT_LEAST32_MIN
-#define INT_LEAST24_MAX INT_LEAST32_MAX
-#define INT24_C(x) INT32_C(x)
-#define PRIdLEAST24 PRIdLEAST32
-#define PRIiLEAST24 PRIiLEAST32
-#endif
-
-#ifndef UINT_FAST24_MAX
-typedef uint_fast32_t uint_fast24_t;
-#define UINT_FAST24_MAX UINT_FAST32_MAX
-#define PRIoFAST24 PRIoFAST32
-#define PRIuFAST24 PRIuFAST32
-#define PRIxFAST24 PRIxFAST32
-#define PRIXFAST24 PRIXFAST32
-#endif
-
-#ifndef INT_FAST24_MAX
-typedef int_fast32_t int_fast24_t;
-#define INT_FAST24_MIN INT_FAST32_MIN
-#define INT_FAST24_MAX INT_FAST32_MAX
-#define PRIdFAST24 PRIdFAST32
-#define PRIiFAST24 PRIiFAST32
-#endif
+#include "common/int24.h"
 
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
 #ifndef NS_NORETURN
