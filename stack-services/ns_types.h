@@ -53,8 +53,6 @@
 #define __STDC_CONSTANT_MACROS
 #endif
 
-#include <stddef.h>
-
 /* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
 #ifndef NS_NORETURN
 #if defined  __cplusplus && __cplusplus >= 201103L
