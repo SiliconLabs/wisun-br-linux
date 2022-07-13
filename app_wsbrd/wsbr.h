@@ -32,12 +32,15 @@ typedef struct sd_bus sd_bus;
 #include "stack/net_interface.h"
 #include "stack/source/mac/rf_driver_storage.h"
 
+#include "commandline.h"
+
 struct phy_device_driver_s;
 struct eth_mac_api_s;
 struct fhss_api;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
+    struct wsbrd_conf config;
     sd_bus *dbus;
 
     int timerfd;

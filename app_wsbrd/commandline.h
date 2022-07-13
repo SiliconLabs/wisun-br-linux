@@ -17,6 +17,10 @@
 
 struct wsbr_ctxt;
 
+// This struct is filled by parse_commandline() and never modified after.
+struct wsbrd_conf {
+};
+
 void print_help_br(FILE *stream);
 void print_help_node(FILE *stream);
 
