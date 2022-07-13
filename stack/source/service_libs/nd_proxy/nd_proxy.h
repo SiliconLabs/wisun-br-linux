@@ -17,7 +17,6 @@
 
 #ifndef ND_PROXY_H_
 #define ND_PROXY_H_
-#include "stack-services/ns_types.h"
 
 #ifdef HAVE_ND_PROXY
 /**
@@ -139,8 +138,6 @@ bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address);
 bool nd_proxy_upstream_route_onlink(int8_t downstream_id, uint8_t *address);
 
 #else
-
-NS_DUMMY_DEFINITIONS_OK
 
 #define nd_proxy_downstream_interface_register(interface_id, nd_proxy_req, bridge_state_update) -1
 #define nd_proxy_downstream_interface_unregister(interface_id) (-1)

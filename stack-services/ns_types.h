@@ -71,20 +71,5 @@
 #define NS_FUNNY_INTPTR_RESTORE
 #endif
 
-/** \brief Pragma to suppress warnings arising from dummy definitions.
- *
- * Useful when you have function-like macros that returning constants
- * in cut-down builds. Can be fairly cavalier about disabling as we
- * do not expect every build to use this macro. Generic builds of
- * components should ensure this is not included by only using it in
- * a ifdef blocks providing dummy definitions.
- */
-#if defined __IAR_SYSTEMS_ICC__
-// controlling expression is constant
-#define NS_DUMMY_DEFINITIONS_OK _Pragma("diag_suppress=Pe236")
-#else
-#define NS_DUMMY_DEFINITIONS_OK
-#endif
-
 
 #endif /* NS_TYPES_H */
