@@ -126,12 +126,6 @@
 #endif
 #endif /* __cplusplus */
 
-#ifdef __GNUC__
-#define NS_GCC_VERSION (__GNUC__ * 10000 \
-                   + __GNUC_MINOR__ * 100 \
-                   + __GNUC_PATCHLEVEL__)
-#endif
-
 /** \brief Compile-time assertion
  *
  * C11 provides _Static_assert, as does GCC even in C99 mode (and
@@ -222,34 +216,19 @@
 #define NS_CONTAINER_OF(ptr, type, member) \
     ((type *) ((char *) (ptr) - offsetof(type, member)))
 
-/*
- * Inlining could cause problems when mixing with C++; provide a mechanism to
- * disable it. This could also be turned off for other reasons (although
- * this can usually be done through a compiler flag, eg -O0 on gcc).
- */
-#ifndef __cplusplus
-#define NS_ALLOW_INLINING
-#endif
-
-/* There is inlining problem in GCC version 4.1.x and we know it works in 4.6.3 */
-#if defined __GNUC__ && NS_GCC_VERSION < 40600
-#undef NS_ALLOW_INLINING
-#endif
-
 /** \brief Mark a potentially-inlineable function.
  *
  * We follow C99 semantics, which requires precisely one external definition.
- * To also allow inlining to be totally bypassed under control of
- * NS_ALLOW_INLINING, code can be structured as per the example of ns_list:
+ * the code can be structured as per the example of ns_list:
  *
  * foo.h
  * -----
  * ~~~
- *    NS_INLINE int my_func(int);
+ *    inline int my_func(int);
  *
- *    #if defined NS_ALLOW_INLINING || defined FOO_FN
+ *    #if defined FOO_FN
  *    #ifndef FOO_FN
- *    #define FOO_FN NS_INLINE
+ *    #define FOO_FN inline
  *    #endif
  *    FOO_FN int my_func(int a)
  *    {
@@ -265,11 +244,9 @@
  * ~~~
  * Which generates:
  * ~~~
- *                 NS_ALLOW_INLINING set          NS_ALLOW_INLINING unset
- *                 =====================          =======================
- *                 Include foo.h                  Include foo.h
- *                 -------------                  -------------
- *                 inline int my_func(int);       int my_func(int);
+ *                 Include foo.h
+ *                 -------------
+ *                 inline int my_func(int);
  *
  *                 // inline definition
  *                 inline int my_func(int a)
@@ -277,21 +254,21 @@
  *                     definition;
  *                 }
  *
- *                 Compile foo.c                  Compile foo.c
- *                 -------------                  -------------
- *    (from .h)    inline int my_func(int);       int my_func(int);
+ *                 Compile foo.c
+ *                 -------------
+ *    (from .h)    inline int my_func(int);
  *
  *                 // external definition
- *                 // because of no "inline"      // normal external definition
- *                 extern int my_func(int a)      extern int my_func(int a)
- *                 {                              {
- *                     definition;                    definition;
- *                 }                              }
+ *                 // because of no "inline"
+ *                 extern int my_func(int a)
+ *                 {
+ *                     definition;
+ *                 }
  * ~~~
  *
  * Note that even with inline keywords, whether the compiler inlines or not is
  * up to it. For example, gcc at "-O0" will not inline at all, and will always
- * call the real functions in foo.o, just as if NS_ALLOW_INLINING was unset.
+ * call the real functions in foo.o.
  * At "-O2", gcc could potentially inline everything, meaning that foo.o is not
  * referenced at all.
  *
@@ -301,11 +278,6 @@
  * ends up non-inlined, and it's harder to breakpoint. I don't recommend it
  * except for the most trivial functions (which could then probably be macros).
  */
-#ifdef NS_ALLOW_INLINING
-#define NS_INLINE inline
-#else
-#define NS_INLINE
-#endif
 
 #if defined __SDCC_mcs51 || defined __ICC8051__ || defined __C51__
 

@@ -27,7 +27,7 @@
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8]);
+inline uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8]);
 
 /*
  * Common read 64-bit variable from 8-bit pointer.
@@ -38,7 +38,7 @@ NS_INLINE uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8]);
  *
  * \return 64-bit variable
  */
-NS_INLINE uint64_t common_read_64_bit(const uint8_t data_buf[static 8]);
+inline uint64_t common_read_64_bit(const uint8_t data_buf[static 8]);
 
 /*
  * Common write 32-bit variable to 8-bit pointer.
@@ -50,7 +50,7 @@ NS_INLINE uint64_t common_read_64_bit(const uint8_t data_buf[static 8]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4]);
+inline uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4]);
 
 /*
  * Common read 32-bit variable from 8-bit pointer.
@@ -61,7 +61,7 @@ NS_INLINE uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4]);
  *
  * \return 32-bit variable
  */
-NS_INLINE uint32_t common_read_32_bit(const uint8_t data_buf[static 4]);
+inline uint32_t common_read_32_bit(const uint8_t data_buf[static 4]);
 
 /*
  * Common write 32-bit variable to 8-bit pointer.
@@ -73,7 +73,7 @@ NS_INLINE uint32_t common_read_32_bit(const uint8_t data_buf[static 4]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[static 4]);
+inline uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[static 4]);
 
 /*
  * Common read 32-bit variable from 8-bit pointer.
@@ -84,7 +84,7 @@ NS_INLINE uint8_t *common_write_32_bit_inverse(uint32_t value, uint8_t ptr[stati
  *
  * \return 32-bit variable
  */
-NS_INLINE uint32_t common_read_32_bit_inverse(const uint8_t data_buf[static 4]);
+inline uint32_t common_read_32_bit_inverse(const uint8_t data_buf[static 4]);
 
 /*
  * Common write 24-bit variable to 8-bit pointer.
@@ -96,7 +96,7 @@ NS_INLINE uint32_t common_read_32_bit_inverse(const uint8_t data_buf[static 4]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[static 3]);
+inline uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[static 3]);
 
 /*
  * Common read 24-bit variable from 8-bit pointer.
@@ -107,7 +107,7 @@ NS_INLINE uint8_t *common_write_24_bit(uint_fast24_t value, uint8_t ptr[static 3
  *
  * \return 24-bit variable
  */
-NS_INLINE uint_fast24_t common_read_24_bit(const uint8_t data_buf[static 3]);
+inline uint_fast24_t common_read_24_bit(const uint8_t data_buf[static 3]);
 
 /*
  * Common write 24-bit variable to 8-bit pointer.
@@ -119,7 +119,7 @@ NS_INLINE uint_fast24_t common_read_24_bit(const uint8_t data_buf[static 3]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[static 3]);
+inline uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[static 3]);
 
 /*
  * Common read 24-bit variable from 8-bit pointer.
@@ -130,7 +130,7 @@ NS_INLINE uint8_t *common_write_24_bit_inverse(uint_fast24_t value, uint8_t ptr[
  *
  * \return 24-bit variable
  */
-NS_INLINE uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[static 3]);
+inline uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[static 3]);
 
 /*
  * Common write 16-bit variable to 8-bit pointer.
@@ -142,7 +142,7 @@ NS_INLINE uint_fast24_t common_read_24_bit_inverse(const uint8_t data_buf[static
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[static 2]);
+inline uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[static 2]);
 
 /*
  * Common read 16-bit variable from 8-bit pointer.
@@ -153,7 +153,7 @@ NS_INLINE uint8_t *common_write_16_bit(uint16_t value, uint8_t ptr[static 2]);
  *
  * \return 16-bit variable
  */
-NS_INLINE uint16_t common_read_16_bit(const uint8_t data_buf[static 2]);
+inline uint16_t common_read_16_bit(const uint8_t data_buf[static 2]);
 
 /*
  * Common write 16-bit variable to 8-bit pointer.
@@ -165,7 +165,7 @@ NS_INLINE uint16_t common_read_16_bit(const uint8_t data_buf[static 2]);
  *
  * \return updated pointer
  */
-NS_INLINE uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2]);
+inline uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2]);
 
 /*
  * Common read 16-bit variable from 8-bit pointer.
@@ -176,7 +176,7 @@ NS_INLINE uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[stati
  *
  * \return 16-bit variable
  */
-NS_INLINE uint16_t common_read_16_bit_inverse(const uint8_t data_buf[static 2]);
+inline uint16_t common_read_16_bit_inverse(const uint8_t data_buf[static 2]);
 
 /*
  * Count bits in a byte
@@ -185,7 +185,7 @@ NS_INLINE uint16_t common_read_16_bit_inverse(const uint8_t data_buf[static 2]);
  *
  * \return number of 1-bits in byte
  */
-NS_INLINE uint_fast8_t common_count_bits(uint8_t value);
+inline uint_fast8_t common_count_bits(uint8_t value);
 
 /*
  * Count leading zeros in a byte
@@ -196,7 +196,7 @@ NS_INLINE uint_fast8_t common_count_bits(uint8_t value);
  *
  * \return number of leading zeros in byte (0-8)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t value);
+inline uint_fast8_t common_count_leading_zeros(uint8_t value);
 
 /*
  * Count leading zeros in a byte
@@ -205,7 +205,7 @@ NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t value);
  *
  * \return number of leading zeros in byte (0-8)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros_8(uint8_t value);
+inline uint_fast8_t common_count_leading_zeros_8(uint8_t value);
 
 /*
  * Count leading zeros in a 16-bit value
@@ -214,7 +214,7 @@ NS_INLINE uint_fast8_t common_count_leading_zeros_8(uint8_t value);
  *
  * \return number of leading zeros in byte (0-16)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros_16(uint16_t value);
+inline uint_fast8_t common_count_leading_zeros_16(uint16_t value);
 
 /*
  * Count leading zeros in a 32-bit value
@@ -223,7 +223,7 @@ NS_INLINE uint_fast8_t common_count_leading_zeros_16(uint16_t value);
  *
  * \return number of leading zeros in byte (0-32)
  */
-NS_INLINE uint_fast8_t common_count_leading_zeros_32(uint32_t value);
+inline uint_fast8_t common_count_leading_zeros_32(uint32_t value);
 
 /*
  * Compare 8-bit serial numbers
@@ -237,7 +237,7 @@ NS_INLINE uint_fast8_t common_count_leading_zeros_32(uint32_t value);
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-NS_INLINE bool common_serial_number_greater_8(uint8_t s1, uint8_t s2);
+inline bool common_serial_number_greater_8(uint8_t s1, uint8_t s2);
 
 /*
  * Compare 16-bit serial numbers
@@ -251,7 +251,7 @@ NS_INLINE bool common_serial_number_greater_8(uint8_t s1, uint8_t s2);
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-NS_INLINE bool common_serial_number_greater_16(uint16_t s1, uint16_t s2);
+inline bool common_serial_number_greater_16(uint16_t s1, uint16_t s2);
 
 /*
  * Compare 32-bit serial numbers
@@ -265,7 +265,7 @@ NS_INLINE bool common_serial_number_greater_16(uint16_t s1, uint16_t s2);
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-NS_INLINE bool common_serial_number_greater_32(uint32_t s1, uint32_t s2);
+inline bool common_serial_number_greater_32(uint32_t s1, uint32_t s2);
 
 /*
  * Test a bit in an bit array.
@@ -278,7 +278,7 @@ NS_INLINE bool common_serial_number_greater_32(uint32_t s1, uint32_t s2);
  *
  * \return true if the bit is set
  */
-NS_INLINE bool bit_test(const uint8_t *bitset, uint_fast8_t bit);
+inline bool bit_test(const uint8_t *bitset, uint_fast8_t bit);
 
 /*
  * Set a bit in an bit array.
@@ -288,7 +288,7 @@ NS_INLINE bool bit_test(const uint8_t *bitset, uint_fast8_t bit);
  * \param bitset pointer to bit array
  * \param bit index of bit - 0 is the most significant bit of the first byte
  */
-NS_INLINE void bit_set(uint8_t *bitset, uint_fast8_t bit);
+inline void bit_set(uint8_t *bitset, uint_fast8_t bit);
 
 /*
  * Clear a bit in an bit array.
@@ -298,12 +298,11 @@ NS_INLINE void bit_set(uint8_t *bitset, uint_fast8_t bit);
  * \param bitset pointer to bit array
  * \param bit index of bit - 0 is the most significant bit of the first byte
  */
-NS_INLINE void bit_clear(uint8_t *bitset, uint_fast8_t bit);
+inline void bit_clear(uint8_t *bitset, uint_fast8_t bit);
 
 /* Provide definitions, either for inlining, or for common_functions.c */
-#if defined NS_ALLOW_INLINING || defined COMMON_FUNCTIONS_FN
 #ifndef COMMON_FUNCTIONS_FN
-#define COMMON_FUNCTIONS_FN NS_INLINE
+#define COMMON_FUNCTIONS_FN inline
 #endif
 
 COMMON_FUNCTIONS_FN uint8_t *common_write_64_bit(uint64_t value, uint8_t ptr[static 8])
@@ -568,7 +567,5 @@ COMMON_FUNCTIONS_FN void bit_clear(uint8_t *bitset, uint_fast8_t bit)
 {
     bitset[bit >> 3] &= ~(0x80 >> (bit & 7));
 }
-
-#endif /* defined NS_ALLOW_INLINING || defined COMMON_FUNCTIONS_FN */
 
 #endif /*__COMMON_FUNCTIONS_H_*/

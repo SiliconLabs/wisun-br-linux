@@ -564,24 +564,23 @@ typedef struct ns_list_link {
 /** \privatesection
  *  Internal functions - designed to be accessed using corresponding macros above
  */
-NS_INLINE void ns_list_init_(ns_list_t *list);
-NS_INLINE void ns_list_link_init_(ns_list_link_t *link);
-NS_INLINE void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
-NS_INLINE void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
-NS_INLINE void ns_list_add_before_(ns_list_offset_t link_offset, void *before, void *restrict entry);
-NS_INLINE void ns_list_add_after_(ns_list_t *list, ns_list_offset_t link_offset, void *after, void *restrict entry);
-NS_INLINE void *ns_list_get_next_(ns_list_offset_t link_offset, const void *current);
-NS_INLINE void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t link_offset, const void *current);
-NS_INLINE void *ns_list_get_last_(const ns_list_t *list,  ns_list_offset_t offset);
-NS_INLINE void ns_list_remove_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
-NS_INLINE void ns_list_replace_(ns_list_t *list, ns_list_offset_t link_offset, void *current, void *restrict replacement);
-NS_INLINE void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset);
-NS_INLINE uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t link_offset);
+inline void ns_list_init_(ns_list_t *list);
+inline void ns_list_link_init_(ns_list_link_t *link);
+inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
+inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
+inline void ns_list_add_before_(ns_list_offset_t link_offset, void *before, void *restrict entry);
+inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t link_offset, void *after, void *restrict entry);
+inline void *ns_list_get_next_(ns_list_offset_t link_offset, const void *current);
+inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t link_offset, const void *current);
+inline void *ns_list_get_last_(const ns_list_t *list,  ns_list_offset_t offset);
+inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
+inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t link_offset, void *current, void *restrict replacement);
+inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset);
+inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t link_offset);
 
 /* Provide definitions, either for inlining, or for ns_list.c */
-#if defined NS_ALLOW_INLINING || defined NS_LIST_FN
 #ifndef NS_LIST_FN
-#define NS_LIST_FN NS_INLINE
+#define NS_LIST_FN inline
 #endif
 
 /* Pointer to the link member in entry e */
@@ -758,7 +757,6 @@ NS_LIST_FN uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t 
 
     return count;
 }
-#endif /* defined NS_ALLOW_INLINING || defined NS_LIST_FN */
 
 #endif
 
