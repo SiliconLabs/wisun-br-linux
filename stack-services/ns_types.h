@@ -45,19 +45,5 @@
  * internal and external use, for finer control? Not yet, but maybe...)
  */
 
-/**
- * Marker for functions or objects that may be unused, suppressing warnings.
- * Place after the identifier:
- * ~~~
- *    static int X MAYBE_UNUSED = 3;
- *    static int foo(void) MAYBE_UNUSED;
- * ~~~
- */
-#if defined __GNUC__
-#define MAYBE_UNUSED __attribute__((unused))
-#else
-#define MAYBE_UNUSED
-#endif
-
 
 #endif /* NS_TYPES_H */

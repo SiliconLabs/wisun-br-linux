@@ -17,7 +17,6 @@
 
 #include "nsconfig.h"
 #include <string.h>
-#include "stack-services/ns_types.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -292,7 +291,7 @@ void multicast_set_parameters(uint8_t i_min, uint8_t i_doublings, uint8_t k, uin
 }
 
 
-uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle MAYBE_UNUSED)
+uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle)
 {
     uint8_t ret_val = 1;
     if (!addr_is_ipv6_multicast(address_ptr)) {
