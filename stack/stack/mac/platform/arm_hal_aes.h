@@ -22,7 +22,6 @@
 #ifndef ARM_HAL_AES_H_
 #define ARM_HAL_AES_H_
 #include <stdint.h>
-#include "stack-services/ns_types.h"
 
 /* The network library requires a simple AES implementation for its
  * IEEE 802.15.4 security. The expectation is that 802.15.4 devices will have

@@ -17,7 +17,6 @@
 #define COMMON_FUNCTIONS_H_
 #include <stdbool.h>
 #include "common/int24.h"
-#include "stack-services/ns_types.h"
 
 /*
  * Common write 64-bit variable to 8-bit pointer.

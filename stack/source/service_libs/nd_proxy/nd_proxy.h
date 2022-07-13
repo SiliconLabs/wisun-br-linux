@@ -17,6 +17,7 @@
 
 #ifndef ND_PROXY_H_
 #define ND_PROXY_H_
+#include "stack-services/ns_types.h"
 
 #ifdef HAVE_ND_PROXY
 /**

@@ -17,7 +17,6 @@
 #ifndef FHSS_WS_EXT_H
 #define FHSS_WS_EXT_H
 #include "common/int24.h"
-#include "stack-services/ns_types.h"
 
 /**
  * \file fhss_ws_extension.h

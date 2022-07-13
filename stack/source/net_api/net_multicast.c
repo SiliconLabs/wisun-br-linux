@@ -17,6 +17,7 @@
 
 #include "nsconfig.h"
 #include <string.h>
+#include "stack-services/ns_types.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

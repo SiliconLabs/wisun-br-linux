@@ -18,7 +18,6 @@
 #define _NS_SOCKET_API_H
 #include <stdint.h>
 #include <sys/socket.h>
-#include "stack-services/ns_types.h"
 #include "stack/ns_address.h"
 
 /**
