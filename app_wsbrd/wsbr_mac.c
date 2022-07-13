@@ -134,8 +134,8 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
 
 static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
 {
-    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->ws_domain, ctxt->ws_chan_plan_id, ctxt->ws_class);
-    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->ws_phy_mode_id, ctxt->ws_mode);
+    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
+    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
     uint32_t chan0_freq;
     uint32_t chan_spacing;
     uint8_t rail_phy_mode_id;

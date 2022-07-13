@@ -90,19 +90,19 @@ static int get_fixed_channel(uint32_t bitmask[static 8])
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
-    int fixed_channel = get_fixed_channel(ctxt->ws_allowed_channels);
+    int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
 
-    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
-                                  ctxt->ws_name, (struct fhss_timer *)-1);
+    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
+                                  ctxt->config.ws_name, (struct fhss_timer *)-1);
     WARN_ON(ret);
 
-    WARN_ON(ctxt->ws_domain == 0xFE, "Not supported");
-    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
-                                              ctxt->ws_class, ctxt->ws_mode,
-                                              ctxt->ws_phy_mode_id, ctxt->ws_chan_plan_id);
+    WARN_ON(ctxt->config.ws_domain == 0xFE, "Not supported");
+    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->config.ws_domain,
+                                              ctxt->config.ws_class, ctxt->config.ws_mode,
+                                              ctxt->config.ws_phy_mode_id, ctxt->config.ws_chan_plan_id);
     WARN_ON(ret);
 
     // Note that calling ws_management_fhss_timing_configure() is redundant
@@ -114,30 +114,30 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                                   WS_FHSS_BC_DWELL_INTERVAL, WS_FHSS_BC_INTERVAL);
     WARN_ON(ret);
     if (fixed_channel == 0xFFFF) {
-        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->ws_allowed_channels);
+        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->config.ws_allowed_channels);
         WARN_ON(ret);
     }
 
 
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.
-    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->ws_size);
+    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->config.ws_size);
     WARN_ON(ret);
 
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
-    ret = arm_network_own_certificate_add(&ctxt->tls_own);
+    ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 
-    ret = arm_network_trusted_certificate_add(&ctxt->tls_ca);
+    ret = arm_network_trusted_certificate_add(&ctxt->config.tls_ca);
     WARN_ON(ret);
 
 
-    for (i = 0; i < ARRAY_SIZE(ctxt->ws_gtk_force); i++) {
-        if (ctxt->ws_gtk_force[i]) {
+    for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {
+        if (ctxt->config.ws_gtk_force[i]) {
             gtk_force = true;
-            gtks[i] = ctxt->ws_gtk[i];
+            gtks[i] = ctxt->config.ws_gtk[i];
         }
     }
     if (gtk_force) {
@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_node);
-    ns_file_system_set_root_path(ctxt->storage_prefix);
-    ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
+    ns_file_system_set_root_path(ctxt->config.storage_prefix);
+    ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     wsbr_rcp_reset(ctxt);

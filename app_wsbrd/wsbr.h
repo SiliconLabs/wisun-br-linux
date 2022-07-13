@@ -15,10 +15,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/socket.h> // Compatibility with linux headers < 4.12
-#include <arpa/inet.h>
-#include <linux/if.h>
-#include <linux/limits.h>
 #ifdef HAVE_LIBSYSTEMD
 #  include <systemd/sd-bus.h>
 #else
@@ -45,21 +41,11 @@ struct wsbr_ctxt {
 
     int timerfd;
 
-    char cpc_instance[PATH_MAX];
-    bool cpc_verbose;
-
-    char uart_dev[PATH_MAX];
-    int  uart_baudrate;
-    bool uart_rtscts;
-
     struct phy_device_driver_s *tun_driver;
     struct eth_mac_api_s *tun_mac_api;
     int  tun_driver_id;
     int  tun_if_id;
     int  tun_fd;
-    char tun_dev[IFNAMSIZ];
-    bool tun_autoconf;
-    bool tun_use_tap;
 
     uint32_t rcp_init_state;
     uint8_t hw_mac[8];
@@ -83,43 +69,6 @@ struct wsbr_ctxt {
     uint32_t rcp_version_api;
     uint32_t rcp_version_fw;
 
-    int  ws_domain;
-    int  ws_mode;
-    int  ws_class;
-    int  ws_chan0_freq;
-    int  ws_chan_spacing;
-    int  ws_chan_count;
-    int  ws_size;
-    char ws_name[33]; // null-terminated string of 32 chars
-    int  ws_pan_id;
-    int ws_phy_mode_id;
-    int ws_chan_plan_id;
-    int  tx_power;
-    uint8_t ws_gtk[4][16];
-    bool ws_gtk_force[4];
-    uint8_t ipv6_prefix[16];
-    struct sockaddr_storage radius_server;
-    char radius_secret[256];
-    struct sockaddr_in6 dhcpv6_server;
-    uint32_t ws_allowed_channels[8];
-    int ws_pmk_lifetime;
-    int ws_ptk_lifetime;
-    int ws_gtk_expire_offset;
-    int ws_gtk_new_activation_time;
-    int ws_gtk_new_install_required;
-    int ws_revocation_lifetime_reduction;
-    int ws_gtk_max_mismatch;
-    arm_certificate_entry_s tls_own;
-    arm_certificate_entry_s tls_ca;
-    char storage_prefix[PATH_MAX];
-    int uc_dwell_interval;
-    int bc_interval;
-    int bc_dwell_interval;
-    uint8_t ws_allowed_mac_addresses[10][8];
-    uint8_t ws_allowed_mac_address_count;
-    uint8_t ws_denied_mac_addresses[10][8];
-    uint8_t ws_denied_mac_address_count;
-    int ws_regional_regulation;
     bool list_rf_configs;
     uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 

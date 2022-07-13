@@ -105,14 +105,14 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     int ret;
     int i;
 
-    if (ctxt->ws_allowed_mac_address_count > 0 || ctxt->ws_denied_mac_address_count > 0) {
+    if (ctxt->config.ws_allowed_mac_address_count > 0 || ctxt->config.ws_denied_mac_address_count > 0) {
         if (fw_api_older_than(ctxt, 0, 3, 0))
             FATAL(1, "RCP API is too old to enable MAC address filtering");
     }
 
-    if (ctxt->ws_allowed_mac_address_count > 0)
+    if (ctxt->config.ws_allowed_mac_address_count > 0)
         ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_BLOCKED);
-    else if (ctxt->ws_denied_mac_address_count > 0)
+    else if (ctxt->config.ws_denied_mac_address_count > 0)
         ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_ALLOWED);
     else
         return 0;
@@ -123,14 +123,14 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     if (ret)
         return -2;
 
-    for (i = 0; i < ctxt->ws_allowed_mac_address_count; i++) {
-        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->ws_allowed_mac_addresses[i], MAC_FILTER_ALLOWED);
+    for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++) {
+        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->config.ws_allowed_mac_addresses[i], MAC_FILTER_ALLOWED);
         if (ret)
             return -3;
     }
 
-    for (i = 0; i < ctxt->ws_denied_mac_address_count; i++) {
-        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->ws_denied_mac_addresses[i], MAC_FILTER_BLOCKED);
+    for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++) {
+        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->config.ws_denied_mac_addresses[i], MAC_FILTER_BLOCKED);
         if (ret)
             return -4;
     }
@@ -141,26 +141,26 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
-    int fixed_channel = get_fixed_channel(ctxt->ws_allowed_channels);
+    int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
 
-    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->ws_domain,
-                                  ctxt->ws_name, (struct fhss_timer *)-1);
+    ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
+                                  ctxt->config.ws_name, (struct fhss_timer *)-1);
     WARN_ON(ret);
 
-    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->ws_domain,
-                                              ctxt->ws_class, ctxt->ws_mode,
-                                              ctxt->ws_phy_mode_id, ctxt->ws_chan_plan_id);
+    ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->config.ws_domain,
+                                              ctxt->config.ws_class, ctxt->config.ws_mode,
+                                              ctxt->config.ws_phy_mode_id, ctxt->config.ws_chan_plan_id);
     WARN_ON(ret);
-    if (ctxt->ws_domain == REG_DOMAIN_UNDEF) {
+    if (ctxt->config.ws_domain == REG_DOMAIN_UNDEF) {
         ret = ws_management_channel_plan_set(ctxt->rcp_if_id,
                                              CHANNEL_FUNCTION_DH1CF,
                                              CHANNEL_FUNCTION_DH1CF,
-                                             ctxt->ws_chan0_freq,
-                                             ws_regdb_chan_spacing_id(ctxt->ws_chan_spacing),
-                                             ctxt->ws_chan_count);
+                                             ctxt->config.ws_chan0_freq,
+                                             ws_regdb_chan_spacing_id(ctxt->config.ws_chan_spacing),
+                                             ctxt->config.ws_chan_count);
     }
     WARN_ON(ret);
 
@@ -168,46 +168,46 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     // Note that calling ws_management_fhss_timing_configure() is redundant
     // with the two function calls bellow.
     ret = ws_management_fhss_unicast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
-                                                                ctxt->uc_dwell_interval);
+                                                                ctxt->config.uc_dwell_interval);
     WARN_ON(ret);
     ret = ws_management_fhss_broadcast_channel_function_configure(ctxt->rcp_if_id, channel_function, fixed_channel,
-                                                                  ctxt->bc_dwell_interval, ctxt->bc_interval);
+                                                                  ctxt->config.bc_dwell_interval, ctxt->config.bc_interval);
     WARN_ON(ret);
     if (fixed_channel == 0xFFFF) {
-        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->ws_allowed_channels);
+        ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->config.ws_allowed_channels);
         WARN_ON(ret);
     }
 
-    if (ctxt->ws_pan_id >= 0)
-        ws_bbr_pan_configuration_set(ctxt->rcp_if_id, ctxt->ws_pan_id);
+    if (ctxt->config.ws_pan_id >= 0)
+        ws_bbr_pan_configuration_set(ctxt->rcp_if_id, ctxt->config.ws_pan_id);
 
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.
-    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->ws_size);
+    ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->config.ws_size);
     WARN_ON(ret);
 
-    ret = arm_nwk_set_tx_output_power(ctxt->rcp_if_id, ctxt->tx_power);
+    ret = arm_nwk_set_tx_output_power(ctxt->rcp_if_id, ctxt->config.tx_power);
     WARN_ON(ret);
 
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
-    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id, ctxt->ws_gtk_expire_offset, ctxt->ws_pmk_lifetime, ctxt->ws_ptk_lifetime);
+    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id, ctxt->config.ws_gtk_expire_offset, ctxt->config.ws_pmk_lifetime, ctxt->config.ws_ptk_lifetime);
     WARN_ON(ret);
 
-    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id, ctxt->ws_revocation_lifetime_reduction, ctxt->ws_gtk_new_activation_time, ctxt->ws_gtk_new_install_required, ctxt->ws_gtk_max_mismatch);
+    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id, ctxt->config.ws_revocation_lifetime_reduction, ctxt->config.ws_gtk_new_activation_time, ctxt->config.ws_gtk_new_install_required, ctxt->config.ws_gtk_max_mismatch);
     WARN_ON(ret);
 
-    ret = arm_network_own_certificate_add(&ctxt->tls_own);
+    ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 
-    ret = arm_network_trusted_certificate_add(&ctxt->tls_ca);
+    ret = arm_network_trusted_certificate_add(&ctxt->config.tls_ca);
     WARN_ON(ret);
 
-    for (i = 0; i < ARRAY_SIZE(ctxt->ws_gtk_force); i++) {
-        if (ctxt->ws_gtk_force[i]) {
+    for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {
+        if (ctxt->config.ws_gtk_force[i]) {
             gtk_force = true;
-            gtks[i] = ctxt->ws_gtk[i];
+            gtks[i] = ctxt->config.ws_gtk[i];
         }
     }
     if (gtk_force) {
@@ -218,10 +218,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_enable_mac_filtering(ctxt);
     WARN_ON(ret);
 
-    if (ctxt->ws_regional_regulation) {
+    if (ctxt->config.ws_regional_regulation) {
         FATAL_ON(fw_api_older_than(ctxt, 0, 6, 0), 2,
                  "this device does not support regional regulation");
-        ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->ws_regional_regulation);
+        ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->config.ws_regional_regulation);
         WARN_ON(ret);
     }
 }
@@ -255,11 +255,11 @@ static void wsbr_tasklet(struct arm_event_s *event)
             WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
             ret = arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
                                                                  NET_IPV6_BOOTSTRAP_STATIC,
-                                                                 (ctxt->dhcpv6_server.sin6_family == AF_INET6) ?
-                                                                 (uint8_t *)&ctxt->dhcpv6_server.sin6_addr :
-                                                                 ctxt->ipv6_prefix);
+                                                                 (ctxt->config.dhcpv6_server.sin6_family == AF_INET6) ?
+                                                                 (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr :
+                                                                 ctxt->config.ipv6_prefix);
             WARN_ON(ret, "arm_nwk_interface_configure_ipv6_bootstrap_set: %d", ret);
-            get_link_local_addr(ctxt->tun_dev, ipv6);
+            get_link_local_addr(ctxt->config.tun_dev, ipv6);
             arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
             multicast_fwd_full_for_scope(ctxt->tun_if_id, 3);
             multicast_fwd_full_for_scope(ctxt->rcp_if_id, 3);
@@ -270,20 +270,20 @@ static void wsbr_tasklet(struct arm_event_s *event)
                  WARN("arm_nwk_interface_up RCP");
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
                  WARN("ws_bbr_start");
-            if (strlen(ctxt->radius_secret) != 0)
-                if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->radius_secret), (uint8_t *)ctxt->radius_secret))
+            if (strlen(ctxt->config.radius_secret) != 0)
+                if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
                     WARN("ws_bbr_radius_shared_secret_set");
-            if (ctxt->radius_server.ss_family != AF_UNSPEC)
-                if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->radius_server))
+            if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
+                if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
                     WARN("ws_bbr_radius_address_set");
-            if (ctxt->dhcpv6_server.sin6_family == AF_INET6) {
+            if (ctxt->config.dhcpv6_server.sin6_family == AF_INET6) {
                 // dhcp relay agent needs a client instance (no other use)
                 dhcp_client_init(ctxt->tun_if_id, DHCPV6_DUID_HARDWARE_EUI48_TYPE);
                 dhcp_client_configure(ctxt->tun_if_id, true, true, true);
                 // for nodes of rank 2 or more
-                dhcp_relay_agent_enable(ctxt->tun_if_id, (uint8_t *)&ctxt->dhcpv6_server.sin6_addr);
+                dhcp_relay_agent_enable(ctxt->tun_if_id, (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr);
                 // for rank 1 nodes
-                dhcp_relay_agent_enable(ctxt->rcp_if_id, (uint8_t *)&ctxt->dhcpv6_server.sin6_addr);
+                dhcp_relay_agent_enable(ctxt->rcp_if_id, (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr);
             }
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
@@ -440,15 +440,15 @@ int wsbr_main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(ctxt, argc, argv, print_help_br);
-    ns_file_system_set_root_path(ctxt->storage_prefix);
-    if (ctxt->uart_dev[0]) {
+    ns_file_system_set_root_path(ctxt->config.storage_prefix);
+    if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;
-        ctxt->os_ctxt->data_fd = uart_open(ctxt->uart_dev, ctxt->uart_baudrate, ctxt->uart_rtscts);
-    } else if (ctxt->cpc_instance[0]) {
+        ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
+    } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp_tx = cpc_tx;
         ctxt->rcp_rx = cpc_rx;
-        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->cpc_instance, ctxt->cpc_verbose);
+        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, ctxt->config.cpc_verbose);
     } else {
         BUG();
     }

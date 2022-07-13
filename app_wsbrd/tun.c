@@ -182,9 +182,9 @@ void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->tun_dev, ctxt->tun_use_tap);
-    if (ctxt->tun_autoconf)
-        wsbr_tun_accept_ra(ctxt->tun_dev);
+    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->config.tun_use_tap);
+    if (ctxt->config.tun_autoconf)
+        wsbr_tun_accept_ra(ctxt->config.tun_dev);
     wsbr_tun_stack_init(ctxt);
 }
 
