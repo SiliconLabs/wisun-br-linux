@@ -45,21 +45,6 @@
  * internal and external use, for finer control? Not yet, but maybe...)
  */
 
-/* Function attribute - C11 "noreturn" or C++11 "[[noreturn]]" */
-#ifndef NS_NORETURN
-#if defined  __cplusplus && __cplusplus >= 201103L
-#define NS_NORETURN [[noreturn]]
-#elif !defined  __cplusplus && __STDC_VERSION__ >= 201112L
-#define NS_NORETURN _Noreturn
-#elif defined __GNUC__
-#define NS_NORETURN __attribute__((__noreturn__))
-#elif defined __IAR_SYSTEMS_ICC__
-#define NS_NORETURN __noreturn
-#else
-#define NS_NORETURN
-#endif
-#endif
-
 /**
  * Marker for functions or objects that may be unused, suppressing warnings.
  * Place after the identifier:
