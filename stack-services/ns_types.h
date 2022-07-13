@@ -68,32 +68,6 @@
 #endif
 #endif
 
-/* C11's "alignas" macro, emulated for integer expressions if necessary */
-#ifndef __alignas_is_defined
-#if defined __TASKING__
-#define alignas(n) __align(n)
-#define __alignas_is_defined 1
-#elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
-# if defined __ARMCC_VERSION && __ARMCC_VERSION < 6120000
-/* Workaround for Arm Compiler versions prior to 6.12 */
-#   if !defined __cplusplus
-#     define alignas _Alignas
-#   endif
-#   define __alignas_is_defined 1
-# else
-#   include <stdalign.h>
-# endif
-#elif defined __GNUC__
-#define alignas(n) __attribute__((__aligned__(n)))
-#define __alignas_is_defined 1
-#elif defined __IAR_SYSTEMS_ICC__
-/* Does this really just apply to the next variable? */
-#define alignas(n) __Alignas(data_alignment=n)
-#define __Alignas(x) _Pragma(#x)
-#define __alignas_is_defined 1
-#endif
-#endif
-
 /**
  * Marker for functions or objects that may be unused, suppressing warnings.
  * Place after the identifier:
