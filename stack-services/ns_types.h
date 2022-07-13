@@ -127,14 +127,12 @@
 
 #define NS_LARGE            __xdata
 #define NS_LARGE_PTR        __xdata
-#define NS_NEAR_FUNC        __near_func
 
 #else
 
 /* "Normal" systems. Define it all away. */
 #define NS_LARGE
 #define NS_LARGE_PTR
-#define NS_NEAR_FUNC
 
 #endif
 #endif /* NS_TYPES_H */
