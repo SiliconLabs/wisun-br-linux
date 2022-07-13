@@ -127,13 +127,6 @@
 
 #define NS_LARGE            __xdata
 #define NS_LARGE_PTR        __xdata
-#ifdef __ICC8051__
-#define NS_REENTRANT
-#define NS_REENTRANT_PREFIX __idata_reentrant
-#else
-#define NS_REENTRANT        __reentrant
-#define NS_REENTRANT_PREFIX
-#endif
 #define NS_NEAR_FUNC        __near_func
 
 #else
@@ -141,8 +134,6 @@
 /* "Normal" systems. Define it all away. */
 #define NS_LARGE
 #define NS_LARGE_PTR
-#define NS_REENTRANT
-#define NS_REENTRANT_PREFIX
 #define NS_NEAR_FUNC
 
 #endif
