@@ -274,8 +274,13 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 {
     int rcp_if_id = *(int *)userdata;
     bbr_route_info_t table[4096];
+    bbr_information_t br_info;
+    uint8_t ipv6[16];
     int ret, len, i;
 
+    ret = ws_bbr_info_get(rcp_if_id, &br_info);
+    if (ret)
+        return sd_bus_error_set_errno(ret_error, EAGAIN);
     len = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
     if (len < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
@@ -302,6 +307,22 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
             ret = sd_bus_message_open_container(reply, 'v', "ay");
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             ret = sd_bus_message_append_array(reply, 'y', table[i].parent, ARRAY_SIZE(table[i].parent));
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(reply);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(reply);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+
+            ret = sd_bus_message_open_container(reply, 'e', "sv");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append(reply, "s", "ipv6");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_open_container(reply, 'v', "ay");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            memcpy(ipv6 + 0, br_info.prefix, 8);
+            memcpy(ipv6 + 8, table[i].target, 8);
+            ipv6[8] ^= 0x02;
+            ret = sd_bus_message_append_array(reply, 'y', ipv6, ARRAY_SIZE(ipv6));
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             ret = sd_bus_message_close_container(reply);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
