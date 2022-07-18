@@ -23,6 +23,7 @@ typedef struct sd_bus sd_bus;
 
 #include "common/bits.h"
 #include "common/utils.h"
+#include "common/version.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/net_interface.h"
@@ -86,17 +87,7 @@ static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
                                      uint16_t minor,
                                      uint8_t patch)
 {
-    uint8_t fw_api_major = FIELD_GET(0xFF000000, ctxt->rcp_version_api);
-    uint16_t fw_api_minor = FIELD_GET(0x00FFFF00, ctxt->rcp_version_api);
-    uint8_t fw_api_patch = FIELD_GET(0x000000FF, ctxt->rcp_version_api);
-
-    if (fw_api_major < major)
-        return true;
-    if (fw_api_major == major && fw_api_minor < minor)
-        return true;
-    if (fw_api_major == major && fw_api_minor == minor && fw_api_patch < patch)
-        return true;
-    return false;
+    return version_older_than(ctxt->rcp_version_api, major, minor, patch);
 }
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
