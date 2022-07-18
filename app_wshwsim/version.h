@@ -22,11 +22,11 @@
 #define VERSION_MAJOR_MASK 0xFF000000
 
 // Versions for machines
-extern uint32_t version_api;
-extern uint32_t version_fw;
+extern uint32_t version_hwsim_api;
+extern uint32_t version_hwsim;
 
 // For human beings, we can provide a more descriptive version (ie. output of
 // 'git describe --tags')
-extern const char *version_fw_str;
+extern const char *version_hwsim_str;
 
 #endif

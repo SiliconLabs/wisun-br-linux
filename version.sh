@@ -13,9 +13,9 @@ cat << EOF > $VERSION_FILE.tmp
 #include <stdint.h>
 
 const char *version_daemon = "${GIT_LABEL}";
-const char *version_fw_str = "hwsim-${GIT_LABEL}";
-uint32_t version_fw = 0x00000004;
-uint32_t version_api = 0x00000a00;
+const char *version_hwsim_str = "hwsim-${GIT_LABEL}";
+uint32_t version_hwsim = 0x00000004;
+uint32_t version_hwsim_api = 0x00000a00;
 EOF
 
 if cmp -s $VERSION_FILE $VERSION_FILE.tmp

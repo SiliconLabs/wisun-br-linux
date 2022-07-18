@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
-    INFO("Silicon Labs Wi-SUN RCP simulation %s", version_fw_str);
+    INFO("Silicon Labs Wi-SUN RCP simulation %s", version_hwsim_str);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
