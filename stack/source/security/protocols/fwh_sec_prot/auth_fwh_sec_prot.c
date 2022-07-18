@@ -248,12 +248,14 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         case FWH_MESSAGE_3: {
             uint8_t gtk_index;
             uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys, &gtk_index);
-            if (gtk) {
-                kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
-
-                uint32_t gtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->gtks, gtk_index);
-                kde_end = kde_lifetime_write(kde_end, gtk_lifetime);
+            if (!gtk) {
+                // 4WH MUST contain a GTK, get active one
+                gtk_index = sec_prot_keys_gtk_status_active_get(prot->sec_keys->gtks);
+                gtk = sec_prot_keys_gtk_get(prot->sec_keys->gtks, gtk_index);
             }
+            kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
+            uint32_t gtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->gtks, gtk_index);
+            kde_end = kde_lifetime_write(kde_end, gtk_lifetime);
             uint8_t gtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->gtks);
             kde_end = kde_gtkl_write(kde_end, gtkl);
             kde_padding_write(kde_end, kde_start + kde_len);
