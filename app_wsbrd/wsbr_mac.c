@@ -31,6 +31,7 @@
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
 
+#include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "timers.h"
@@ -745,10 +746,11 @@ static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, u
 
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 4);
 
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_uint(buf, SPINEL_CMD_RESET);
+    spinel_push_u32(buf, version_daemon_api);
     rcp_tx(ctxt, buf);
 }
 

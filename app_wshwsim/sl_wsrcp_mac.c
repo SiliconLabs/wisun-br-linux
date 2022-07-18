@@ -633,7 +633,6 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     }
 
     if (cmd == SPINEL_CMD_RESET) {
-        BUG_ON(spinel_remaining_size(rx_buf));
         ns_sw_mac_fhss_unregister(ctxt->rcp_mac_api);
         ns_fhss_delete(ctxt->fhss_api);
         memset(ctxt->neighbor_timings, 0, sizeof(ctxt->neighbor_timings));

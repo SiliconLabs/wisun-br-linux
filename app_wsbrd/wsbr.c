@@ -446,7 +446,7 @@ int wsbr_main(int argc, char *argv[])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
 
-    INFO("Silicon Labs Wi-SUN border router %s", version_daemon);
+    INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     g_enable_color_traces = isatty(fileno(g_trace_stream));
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);

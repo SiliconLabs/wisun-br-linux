@@ -12,7 +12,9 @@
  */
 #ifndef SL_WSHOST_VERSION_H
 #define SL_WSHOST_VERSION_H
+#include <stdint.h>
 
-extern const char *version_daemon;
+extern const char *version_daemon_str;
+extern uint32_t version_daemon_api;
 
 #endif

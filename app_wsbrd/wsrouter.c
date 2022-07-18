@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
 
-    INFO("Silicon Labs Wi-SUN router %s", version_daemon);
+    INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
