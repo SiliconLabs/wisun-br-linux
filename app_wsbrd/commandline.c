@@ -17,6 +17,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <getopt.h>
 #include <libgen.h>
 #include <sys/stat.h>
@@ -52,6 +53,7 @@ static const int valid_ws_modes[] = {
     0xb3, 0xb4, 0xb5, 0xb6,
     0xc4, 0xc5, 0xc6,
     0xd4, 0xd5, 0xd6,
+    INT_MIN
 };
 
 static const int valid_ws_classes[] = {
@@ -59,10 +61,12 @@ static const int valid_ws_classes[] = {
     0x81, 0x82, 0x83, 0x84, 0x85,                   // ChanPlanIDs NA/BZ
     0x95, 0x96, 0x97, 0x98,                         // ChanPlanIDs JP
     0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, // ChanPlanIDs EU
+    INT_MIN
 };
 
 static const int valid_ws_chan_spacing[] = {
     100000, 200000, 400000, 600000, 800000, 1200000,
+    INT_MIN
 };
 
 void print_help_br(FILE *stream) {
@@ -252,24 +256,24 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " domain = %s %c", str_arg, &garbage) == 1) {
         config->ws_domain = str_to_val(str_arg, valid_ws_domains);
     } else if (sscanf(info->line, " mode = %x %c", &config->ws_mode, &garbage) == 1) {
-        for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
+        for (i = 0; valid_ws_modes[i] != INT_MIN; i++)
             if (valid_ws_modes[i] == config->ws_mode)
                 break;
-        if (i == ARRAY_SIZE(valid_ws_modes))
+        if (valid_ws_modes[i] == INT_MIN)
             FATAL(1, "%s:%d: invalid mode: %x", info->filename, info->line_no, config->ws_mode);
     } else if (sscanf(info->line, " class = %d %c", &config->ws_class, &garbage) == 1) {
-        for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
+        for (i = 0; valid_ws_classes[i] != INT_MIN; i++)
             if (valid_ws_classes[i] == config->ws_class)
                 break;
-        if (i == ARRAY_SIZE(valid_ws_classes))
+        if (valid_ws_classes[i] == INT_MIN)
             FATAL(1, "%s:%d: invalid class: %d", info->filename, info->line_no, config->ws_class);
     } else if (sscanf(info->line, " chan0_freq = %u %c", &config->ws_chan0_freq, &garbage) == 1) {
         /* empty */
     } else if (sscanf(info->line, " chan_spacing = %u %c", &config->ws_chan_spacing, &garbage) == 1) {
-        for (i = 0; i < ARRAY_SIZE(valid_ws_chan_spacing); i++)
+        for (i = 0; valid_ws_chan_spacing[i] != INT_MIN; i++)
             if (valid_ws_chan_spacing[i] == config->ws_chan_spacing)
                 break;
-        if (i == ARRAY_SIZE(valid_ws_chan_spacing))
+        if (valid_ws_chan_spacing[i] == INT_MIN)
             FATAL(1, "%s:%d: invalid channel spacing: %d", info->filename, info->line_no, config->ws_chan_spacing);
     } else if (sscanf(info->line, " chan_count = %u %c", &config->ws_chan_count, &garbage) == 1) {
         /* empty */
@@ -479,20 +483,20 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 config->ws_mode = strtoul(optarg, &end_ptr, 16);
                 if (*end_ptr)
                     FATAL(1, "invalid mode: %s", optarg);
-                for (i = 0; i < ARRAY_SIZE(valid_ws_modes); i++)
+                for (i = 0; valid_ws_modes[i] != INT_MIN; i++)
                     if (valid_ws_modes[i] == config->ws_mode)
                         break;
-                if (i == ARRAY_SIZE(valid_ws_modes))
+                if (valid_ws_modes[i] == INT_MIN)
                     FATAL(1, "invalid mode: %s", optarg);
                 break;
             case 'c':
                 config->ws_class = strtoul(optarg, &end_ptr, 10);
                 if (*end_ptr)
                     FATAL(1, "invalid class: %s", optarg);
-                for (i = 0; i < ARRAY_SIZE(valid_ws_classes); i++)
+                for (i = 0; valid_ws_classes[i] != INT_MIN; i++)
                     if (valid_ws_classes[i] == config->ws_class)
                         break;
-                if (i == ARRAY_SIZE(valid_ws_classes))
+                if (valid_ws_classes[i] == INT_MIN)
                     FATAL(1, "invalid class: %s", optarg);
                 break;
             case 'S':
