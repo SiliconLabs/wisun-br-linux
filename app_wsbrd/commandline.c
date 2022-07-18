@@ -77,6 +77,7 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from teh RCP then exit. Most\n");
@@ -116,6 +117,7 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
@@ -380,7 +382,7 @@ static void parse_config_file(struct wsbr_ctxt *ctxt, const char *filename)
 void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
-    const char *opts_short = "u:sF:o:t:T:n:d:m:c:S:K:C:A:b:Hh";
+    const char *opts_short = "u:sF:o:t:T:n:d:m:c:S:K:C:A:b:Hhv";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -399,6 +401,7 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
         { "baudrate",    required_argument, 0,  'b' },
         { "hardflow",    no_argument,       0,  'H' },
         { "help",        no_argument,       0,  'h' },
+        { "version",     no_argument,       0,  'v' },
         { 0,             0,                 0,   0  }
     };
     char *end_ptr;
@@ -514,6 +517,9 @@ void parse_commandline(struct wsbr_ctxt *ctxt, int argc, char *argv[],
                 print_help(stdout);
                 exit(0);
                 break;
+            case 'v':
+                /* version is printed at the start of main */
+                exit(0);
             default:
                 BUG(); /* Cannot happen */
                 break;
