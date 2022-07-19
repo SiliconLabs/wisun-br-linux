@@ -64,6 +64,7 @@ const struct name_value valid_traces[] = {
     { "bus",       TR_BUS },
     { "hdlc",      TR_HDLC },
     { "hif",       TR_HIF },
+    { "hif-extra", TR_HIF_EXTRA },
     { "trickle",   TR_TRICKLE },
     { "15.4-mngt", TR_15_4_MNGT },
     { "15.4",      TR_15_4_MNGT | TR_15_4_DATA },
