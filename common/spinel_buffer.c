@@ -134,23 +134,13 @@ void spinel_push_bool(struct spinel_buffer *buf, bool val)
     BUG_ON(buf->cnt > buf->len);
 }
 
-static int spinel_encode_uint(uint8_t *buf, unsigned int val)
-{
-    int cnt = 0;
-
-    do {
-        buf[cnt++] = (val & 0x7F) | 0x80;
-        val >>= 7;
-    } while(val);
-    buf[cnt - 1] &= ~0x80;
-    return cnt;
-}
-
-// FIXME: replace by
-// void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
 void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
 {
-    buf->cnt += spinel_encode_uint(buf->frame + buf->cnt, val);
+    do {
+        buf->frame[buf->cnt++] = (val & 0x7F) | 0x80;
+        val >>= 7;
+    } while(val);
+    buf->frame[buf->cnt - 1] &= ~0x80;
     BUG_ON(buf->cnt > buf->len);
 }
 
@@ -161,12 +151,34 @@ void spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
     BUG_ON(buf->cnt > buf->len);
 }
 
+void spinel_push_i8(struct spinel_buffer *buf, int8_t val)
+{
+    spinel_push_u8(buf, (uint8_t)val);
+}
+
+void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        spinel_push_u8(buf, val[i]);
+}
+
 void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
 {
     buf->frame[buf->cnt + 0] = val >> 0;
     buf->frame[buf->cnt + 1] = val >> 8;
     buf->cnt += 2;
     BUG_ON(buf->cnt > buf->len);
+}
+
+void spinel_push_i16(struct spinel_buffer *buf, int16_t val)
+{
+    spinel_push_u16(buf, (uint16_t)val);
+}
+
+void spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        spinel_push_u16(buf, val[i]);
 }
 
 void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
@@ -179,19 +191,15 @@ void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
     BUG_ON(buf->cnt > buf->len);
 }
 
-void spinel_push_i8(struct spinel_buffer *buf, int8_t val)
-{
-    spinel_push_u8(buf, (uint8_t)val);
-}
-
-void spinel_push_i16(struct spinel_buffer *buf, int16_t val)
-{
-    spinel_push_u16(buf, (uint16_t)val);
-}
-
 void spinel_push_i32(struct spinel_buffer *buf, int32_t val)
 {
     spinel_push_u32(buf, (uint32_t)val);
+}
+
+void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        spinel_push_u32(buf, val[i]);
 }
 
 void spinel_push_str(struct spinel_buffer *buf, const char *val)
@@ -201,30 +209,6 @@ void spinel_push_str(struct spinel_buffer *buf, const char *val)
     memcpy(buf->frame + buf->cnt, val, size);
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        spinel_push_u8(buf, val[i]);
-}
-
-void spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        spinel_push_u16(buf, val[i]);
-}
-
-void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        spinel_push_u32(buf, val[i]);
 }
 
 void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
@@ -293,6 +277,17 @@ uint8_t spinel_pop_u8(struct spinel_buffer *buf)
     return val;
 }
 
+int8_t spinel_pop_i8(struct spinel_buffer *buf)
+{
+    return (int8_t)spinel_pop_u8(buf);
+}
+
+void spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = spinel_pop_u8(buf);
+}
+
 uint16_t spinel_pop_u16(struct spinel_buffer *buf)
 {
     uint16_t val = 0;
@@ -304,6 +299,17 @@ uint16_t spinel_pop_u16(struct spinel_buffer *buf)
     buf->cnt += 2;
     BUG_ON(buf->cnt > buf->len);
     return val;
+}
+
+int16_t spinel_pop_i16(struct spinel_buffer *buf)
+{
+    return (int16_t)spinel_pop_u16(buf);
+}
+
+void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = spinel_pop_u16(buf);
 }
 
 uint32_t spinel_pop_u32(struct spinel_buffer *buf)
@@ -321,19 +327,15 @@ uint32_t spinel_pop_u32(struct spinel_buffer *buf)
     return val;
 }
 
-int8_t spinel_pop_i8(struct spinel_buffer *buf)
-{
-    return (int8_t)spinel_pop_u8(buf);
-}
-
-int16_t spinel_pop_i16(struct spinel_buffer *buf)
-{
-    return (int16_t)spinel_pop_u16(buf);
-}
-
 int32_t spinel_pop_i32(struct spinel_buffer *buf)
 {
     return (int32_t)spinel_pop_u32(buf);
+}
+
+void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = spinel_pop_u32(buf);
 }
 
 const char *spinel_pop_str(struct spinel_buffer *buf)
@@ -349,44 +351,6 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
     return val;
 }
 
-void spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        val[i] = spinel_pop_u8(buf);
-}
-
-void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        val[i] = spinel_pop_u16(buf);
-}
-
-void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num)
-{
-    int i;
-
-    for (i = 0; i < num; i++)
-        val[i] = spinel_pop_u32(buf);
-}
-
-unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
-{
-    unsigned int size;
-
-    size = spinel_pop_u16(buf);
-    if (!spinel_pop_is_valid(buf, size))
-        return 0;
-    BUG_ON(size > val_size);
-    memcpy(val, buf->frame + buf->cnt, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
-    return size;
-}
-
 unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
     unsigned int size;
@@ -400,17 +364,15 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
     return size;
 }
 
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
-    unsigned int size = spinel_remaining_size(buf);
+    unsigned int size;
+    uint8_t *ptr;
 
-    if (check_exact_size)
-        BUG_ON(size < val_size);
-    if (size > val_size)
-        size = val_size;
-    memcpy(val, buf->frame + buf->cnt, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
+    size = spinel_pop_data_ptr(buf, &ptr);
+    if (buf->err)
+        return 0;
+    memcpy(val, ptr, size);
     return size;
 }
 
@@ -424,6 +386,18 @@ unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsign
     *val = buf->frame + buf->cnt;
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
+    return size;
+}
+
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+{
+    unsigned int size;
+    uint8_t *ptr;
+
+    size = spinel_pop_raw_ptr(buf, &ptr, val_size, check_exact_size);
+    if (size > val_size)
+        size = val_size;
+    memcpy(val, ptr, size);
     return size;
 }
 
