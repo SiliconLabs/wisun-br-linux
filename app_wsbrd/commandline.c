@@ -160,6 +160,36 @@ static void conf_set_enum(struct wsbrd_conf *config, const struct parser_info *i
     *dest = str_to_val(raw_value, specs);
 }
 
+static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct parser_info *info, int *dest, const int *specs, const char *raw_value)
+{
+    char *end;
+    int i;
+
+    *dest = strtol(raw_value, &end, 16);
+    if (*end)
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+
+    for (i = 0; specs[i] != INT_MIN; i++)
+        if (specs[i] == *dest)
+            return;
+    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
+}
+
+static void conf_set_enum_int(struct wsbrd_conf *config, const struct parser_info *info, int *dest, const int *specs, const char *raw_value)
+{
+    char *end;
+    int i;
+
+    *dest = strtol(raw_value, &end, 0);
+    if (*end)
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+
+    for (i = 0; specs[i] != INT_MIN; i++)
+        if (specs[i] == *dest)
+            return;
+    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -200,7 +230,6 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     char str_arg[256];
     char *substr;
     int int_arg;
-    int i;
 
     if (sscanf(info->line, " %c", &garbage) == EOF) {
         /* blank info->line*/;
@@ -265,26 +294,14 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         } while ((substr = strtok(NULL, ",")));
     } else if (sscanf(info->line, " domain = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_domain, valid_ws_domains, str_arg);
-    } else if (sscanf(info->line, " mode = %x %c", &config->ws_mode, &garbage) == 1) {
-        for (i = 0; valid_ws_modes[i] != INT_MIN; i++)
-            if (valid_ws_modes[i] == config->ws_mode)
-                break;
-        if (valid_ws_modes[i] == INT_MIN)
-            FATAL(1, "%s:%d: invalid mode: %x", info->filename, info->line_no, config->ws_mode);
-    } else if (sscanf(info->line, " class = %d %c", &config->ws_class, &garbage) == 1) {
-        for (i = 0; valid_ws_classes[i] != INT_MIN; i++)
-            if (valid_ws_classes[i] == config->ws_class)
-                break;
-        if (valid_ws_classes[i] == INT_MIN)
-            FATAL(1, "%s:%d: invalid class: %d", info->filename, info->line_no, config->ws_class);
+    } else if (sscanf(info->line, " mode = %s %c", str_arg, &garbage) == 1) {
+        conf_set_enum_int_hex(config, info, &config->ws_mode, valid_ws_modes, str_arg);
+    } else if (sscanf(info->line, " class = %s %c", str_arg, &garbage) == 1) {
+        conf_set_enum_int(config, info, &config->ws_class, valid_ws_classes, str_arg);
     } else if (sscanf(info->line, " chan0_freq = %u %c", &config->ws_chan0_freq, &garbage) == 1) {
         /* empty */
-    } else if (sscanf(info->line, " chan_spacing = %u %c", &config->ws_chan_spacing, &garbage) == 1) {
-        for (i = 0; valid_ws_chan_spacing[i] != INT_MIN; i++)
-            if (valid_ws_chan_spacing[i] == config->ws_chan_spacing)
-                break;
-        if (valid_ws_chan_spacing[i] == INT_MIN)
-            FATAL(1, "%s:%d: invalid channel spacing: %d", info->filename, info->line_no, config->ws_chan_spacing);
+    } else if (sscanf(info->line, " chan_spacing = %s %c", str_arg, &garbage) == 1) {
+        conf_set_enum_int(config, info, &config->ws_chan_spacing, valid_ws_chan_spacing, str_arg);
     } else if (sscanf(info->line, " chan_count = %u %c", &config->ws_chan_count, &garbage) == 1) {
         /* empty */
     } else if (sscanf(info->line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
@@ -422,8 +439,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     struct parser_info info = {
         .filename = "command line",
     };
-    char *end_ptr;
-    int opt, i, ret;
+    int opt, ret;
     char *tag;
 
     config->uart_baudrate = 115200;
@@ -486,24 +502,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 conf_set_enum(config, &info, &config->ws_domain, valid_ws_domains, optarg);
                 break;
             case 'm':
-                config->ws_mode = strtoul(optarg, &end_ptr, 16);
-                if (*end_ptr)
-                    FATAL(1, "invalid mode: %s", optarg);
-                for (i = 0; valid_ws_modes[i] != INT_MIN; i++)
-                    if (valid_ws_modes[i] == config->ws_mode)
-                        break;
-                if (valid_ws_modes[i] == INT_MIN)
-                    FATAL(1, "invalid mode: %s", optarg);
+                conf_set_enum_int_hex(config, &info, &config->ws_mode, valid_ws_modes, optarg);
                 break;
             case 'c':
-                config->ws_class = strtoul(optarg, &end_ptr, 10);
-                if (*end_ptr)
-                    FATAL(1, "invalid class: %s", optarg);
-                for (i = 0; valid_ws_classes[i] != INT_MIN; i++)
-                    if (valid_ws_classes[i] == config->ws_class)
-                        break;
-                if (valid_ws_classes[i] == INT_MIN)
-                    FATAL(1, "invalid class: %s", optarg);
+                conf_set_enum_int(config, &info, &config->ws_class, valid_ws_classes, optarg);
                 break;
             case 'S':
                 conf_set_enum(config, &info, &config->ws_size, valid_ws_size, optarg);
