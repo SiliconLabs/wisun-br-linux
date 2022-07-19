@@ -221,6 +221,10 @@ static __thread int trace_nested_counter = 0;
 
 void __tr_enter()
 {
+    if (!g_trace_stream) {
+        g_trace_stream = stdout;
+        setlinebuf(stdout);
+    }
     trace_nested_counter++;
 }
 

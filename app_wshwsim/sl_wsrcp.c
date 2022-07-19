@@ -306,8 +306,6 @@ int main(int argc, char *argv[])
     uint64_t val;
     fd_set rfds;
 
-    g_trace_stream = stdout;
-    setlinebuf(stdout);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
