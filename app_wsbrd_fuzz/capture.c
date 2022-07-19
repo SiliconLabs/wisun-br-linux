@@ -10,11 +10,26 @@
 #include "wsbrd_fuzz.h"
 #include "capture.h"
 
+static bool wsbr_rcp_init_done(struct wsbr_ctxt *ctxt)
+{
+    if (!ctxt->reset_done)
+        return false;
+    if (!fw_api_older_than(ctxt, 0, 11, 0))
+        return ctxt->list_rf_configs_done;
+    else
+        return ctxt->hw_addr_done;
+}
+
 void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
 {
     int ret;
+    int fd;
 
-    ret = write(g_ctxt.hw_addr_done ? ctxt->capture_fd : ctxt->capture_init_fd, data, size);
+    if (ctxt->capture_init_enabled && !wsbr_rcp_init_done(&g_ctxt))
+        fd = ctxt->capture_init_fd;
+    else
+        fd = ctxt->capture_fd;
+    ret = write(fd, data, size);
     FATAL_ON(ret < 0, 2, "write: %m");
     FATAL_ON(ret < size, 2, "write: Short write");
 }
