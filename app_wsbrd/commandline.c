@@ -150,6 +150,11 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
+static void conf_set_enum(struct wsbrd_conf *config, const struct parser_info *info, int *dest, const struct name_value *specs, const char *raw_value)
+{
+    *dest = str_to_val(raw_value, specs);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -254,7 +259,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
             g_enabled_traces |= str_to_val(substr, valid_traces);
         } while ((substr = strtok(NULL, ",")));
     } else if (sscanf(info->line, " domain = %s %c", str_arg, &garbage) == 1) {
-        config->ws_domain = str_to_val(str_arg, valid_ws_domains);
+        conf_set_enum(config, info, &config->ws_domain, valid_ws_domains, str_arg);
     } else if (sscanf(info->line, " mode = %x %c", &config->ws_mode, &garbage) == 1) {
         for (i = 0; valid_ws_modes[i] != INT_MIN; i++)
             if (valid_ws_modes[i] == config->ws_mode)
@@ -289,7 +294,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
             FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_gtk_force[int_arg] = true;
     } else if (sscanf(info->line, " size = %s %c", str_arg, &garbage) == 1) {
-        config->ws_size = str_to_val(str_arg, valid_ws_size);
+        conf_set_enum(config, info, &config->ws_size, valid_ws_size, str_arg);
     } else if (sscanf(info->line, " tx_power = %d %c", &config->tx_power, &garbage) == 1) {
         if (config->tx_power < INT8_MIN || config->tx_power > INT8_MAX)
             FATAL(1, "%s:%d: invalid tx_power: %d", info->filename, info->line_no, config->tx_power);
@@ -339,7 +344,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
             FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_denied_mac_address_count++;
     } else if (sscanf(info->line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
-        config->ws_regional_regulation = str_to_val(str_arg, valid_ws_regional_regulations);
+        conf_set_enum(config, info, &config->ws_regional_regulation, valid_ws_regional_regulations, str_arg);
     } else if (sscanf(info->line, " use_tap = %s %c", str_arg, &garbage) == 1) {
         config->tun_use_tap = str_to_val(str_arg, valid_booleans);
     } else {
@@ -473,7 +478,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 strncpy(config->ws_name, optarg, sizeof(config->ws_name) - 1);
                 break;
             case 'd':
-                config->ws_domain = str_to_val(optarg, valid_ws_domains);
+                conf_set_enum(config, &info, &config->ws_domain, valid_ws_domains, optarg);
                 break;
             case 'm':
                 config->ws_mode = strtoul(optarg, &end_ptr, 16);
@@ -496,7 +501,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                     FATAL(1, "invalid class: %s", optarg);
                 break;
             case 'S':
-                config->ws_size = str_to_val(optarg, valid_ws_size);
+                conf_set_enum(config, &info, &config->ws_size, valid_ws_size, optarg);
                 break;
             case 'K':
                 ret = read_cert(optarg, &config->tls_own.key);
