@@ -150,6 +150,11 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
+static void conf_set_bool(struct wsbrd_conf *config, const struct parser_info *info, bool *dest, const char *raw_value)
+{
+    *dest = str_to_val(raw_value, valid_booleans);
+}
+
 static void conf_set_enum(struct wsbrd_conf *config, const struct parser_info *info, int *dest, const struct name_value *specs, const char *raw_value)
 {
     *dest = str_to_val(raw_value, specs);
@@ -205,17 +210,17 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " uart_baudrate = %u %c", &config->uart_baudrate, &garbage) == 1) {
         /* empty */
     } else if (sscanf(info->line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
-        config->uart_rtscts = str_to_val(str_arg, valid_booleans);
+        conf_set_bool(config, info, &config->uart_rtscts, str_arg);
     } else if (sscanf(info->line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->cpc_instance, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
     } else if (sscanf(info->line, " cpc_verbose = %s %c", str_arg, &garbage) == 1) {
-        config->cpc_verbose = str_to_val(str_arg, valid_booleans);
+        conf_set_bool(config, info, &config->cpc_verbose, str_arg);
     } else if (sscanf(info->line, " tun_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->tun_dev, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
     } else if (sscanf(info->line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
-        config->tun_autoconf = str_to_val(str_arg, valid_booleans);
+        conf_set_bool(config, info, &config->tun_autoconf, str_arg);
     } else if (sscanf(info->line, " network_name = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->ws_name, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
@@ -346,7 +351,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_regional_regulation, valid_ws_regional_regulations, str_arg);
     } else if (sscanf(info->line, " use_tap = %s %c", str_arg, &garbage) == 1) {
-        config->tun_use_tap = str_to_val(str_arg, valid_booleans);
+        conf_set_bool(config, info, &config->tun_use_tap, str_arg);
     } else {
         FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->line_no, info->line);
     }
