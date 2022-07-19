@@ -47,6 +47,39 @@ struct parser_info {
     char line[256];
 };
 
+struct number_limit {
+    int min;
+    int max;
+};
+
+struct number_limit valid_unsigned = {
+    0, INT_MAX
+};
+
+struct number_limit valid_positive = {
+    1, INT_MAX
+};
+
+struct number_limit valid_int8 = {
+    INT8_MIN, INT8_MAX
+};
+
+struct number_limit valid_gtk_new_install_required = {
+    0, 100
+};
+
+struct number_limit valid_unicast_dwell_interval = {
+    15, 0xFF
+};
+
+struct number_limit valid_broadcast_dwell_interval = {
+    100, 0xFF
+};
+
+struct number_limit valid_broadcast_interval = {
+    100, 0xFFFFFF
+};
+
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05,
     0xa2, 0xa3, 0xa4, 0xa5, 0xa6,
@@ -190,6 +223,17 @@ static void conf_set_enum_int(struct wsbrd_conf *config, const struct parser_inf
     FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
 }
 
+static void conf_set_number(struct wsbrd_conf *config, const struct parser_info *info, int *dest, const struct number_limit *specs, const char *raw_value)
+{
+    char *end;
+
+    *dest = strtol(raw_value, &end, 0);
+    if (*end)
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+    if (specs && (specs->min > *dest || specs->max < *dest))
+        FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -236,8 +280,8 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " uart_device = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->uart_dev, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
-    } else if (sscanf(info->line, " uart_baudrate = %u %c", &config->uart_baudrate, &garbage) == 1) {
-        /* empty */
+    } else if (sscanf(info->line, " uart_baudrate = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->uart_baudrate, NULL, str_arg);
     } else if (sscanf(info->line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
         conf_set_bool(config, info, &config->uart_rtscts, str_arg);
     } else if (sscanf(info->line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
@@ -298,17 +342,17 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         conf_set_enum_int_hex(config, info, &config->ws_mode, valid_ws_modes, str_arg);
     } else if (sscanf(info->line, " class = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum_int(config, info, &config->ws_class, valid_ws_classes, str_arg);
-    } else if (sscanf(info->line, " chan0_freq = %u %c", &config->ws_chan0_freq, &garbage) == 1) {
-        /* empty */
+    } else if (sscanf(info->line, " chan0_freq = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_chan0_freq, NULL, str_arg);
     } else if (sscanf(info->line, " chan_spacing = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum_int(config, info, &config->ws_chan_spacing, valid_ws_chan_spacing, str_arg);
-    } else if (sscanf(info->line, " chan_count = %u %c", &config->ws_chan_count, &garbage) == 1) {
-        /* empty */
+    } else if (sscanf(info->line, " chan_count = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_chan_count, NULL, str_arg);
     } else if (sscanf(info->line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
         if (parse_bitmask(config->ws_allowed_channels, ARRAY_SIZE(config->ws_allowed_channels), str_arg) < 0)
             FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, str_arg);
-    } else if (sscanf(info->line, " pan_id = %u %c", &config->ws_pan_id, &garbage) == 1) {
-        /* empty */
+    } else if (sscanf(info->line, " pan_id = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_pan_id, NULL, str_arg);
     } else if (sscanf(info->line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
         if (int_arg < 0 || int_arg > 3)
             FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, int_arg);
@@ -317,42 +361,31 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         config->ws_gtk_force[int_arg] = true;
     } else if (sscanf(info->line, " size = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_size, valid_ws_size, str_arg);
-    } else if (sscanf(info->line, " tx_power = %d %c", &config->tx_power, &garbage) == 1) {
-        if (config->tx_power < INT8_MIN || config->tx_power > INT8_MAX)
-            FATAL(1, "%s:%d: invalid tx_power: %d", info->filename, info->line_no, config->tx_power);
+    } else if (sscanf(info->line, " tx_power = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->tx_power, &valid_int8, str_arg);
     } else if (sscanf(info->line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(config->storage_prefix, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
-    } else if (sscanf(info->line, " unicast_dwell_interval = %d %c", &config->uc_dwell_interval, &garbage) == 1) {
-        if (config->uc_dwell_interval < 15 || config->uc_dwell_interval > 255)
-            FATAL(1, "%s:%d: invalid unicast dwell interval: %d", info->filename, info->line_no, config->uc_dwell_interval);
-    } else if (sscanf(info->line, " broadcast_interval = %d %c", &config->bc_interval, &garbage) == 1) {
-        if (config->bc_interval < 100 || config->bc_interval > 16777215) // UINT24_MAX
-            FATAL(1, "%s:%d: invalid broadcast interval: %d", info->filename, info->line_no, config->bc_interval);
-    } else if (sscanf(info->line, " broadcast_dwell_interval = %d %c", &config->bc_dwell_interval, &garbage) == 1) {
-        if (config->bc_dwell_interval < 100 || config->bc_dwell_interval > 255)
-            FATAL(1, "%s:%d: invalid broadcast dwell interval: %d", info->filename, info->line_no, config->bc_dwell_interval);
-    } else if (sscanf(info->line, " pmk_lifetime = %d %c", &config->ws_pmk_lifetime, &garbage) == 1) {
-        if (config->ws_pmk_lifetime <= 0)
-            FATAL(1, "%s:%d: invalid pmk_lifetime: %d", info->filename, info->line_no, config->ws_pmk_lifetime);
-    } else if (sscanf(info->line, " ptk_lifetime = %d %c", &config->ws_ptk_lifetime, &garbage) == 1) {
-        if (config->ws_ptk_lifetime <= 0)
-            FATAL(1, "%s:%d: invalid ptk_lifetime: %d", info->filename, info->line_no, config->ws_ptk_lifetime);
-    } else if (sscanf(info->line, " gtk_expire_offset = %d %c", &config->ws_gtk_expire_offset, &garbage) == 1) {
-        if (config->ws_gtk_expire_offset <= 0)
-            FATAL(1, "%s:%d: invalid gtk_expire_offset: %d", info->filename, info->line_no, config->ws_gtk_expire_offset);
-    } else if (sscanf(info->line, " gtk_new_activation_time = %d %c", &config->ws_gtk_new_activation_time, &garbage) == 1) {
-        if (config->ws_gtk_new_activation_time <= 1)
-            FATAL(1, "%s:%d: invalid gtk_new_activation_time: %d", info->filename, info->line_no, config->ws_gtk_new_activation_time);
-    } else if (sscanf(info->line, " gtk_new_install_required = %d %c", &config->ws_gtk_new_install_required, &garbage) == 1) {
-        if (config->ws_gtk_new_install_required <= 0 || config->ws_gtk_new_install_required > 100)
-            FATAL(1, "%s:%d: invalid gtk_new_install_required: %d", info->filename, info->line_no, config->ws_gtk_new_install_required);
-    } else if (sscanf(info->line, " revocation_lifetime_reduction = %d %c", &config->ws_revocation_lifetime_reduction, &garbage) == 1) {
-        if (config->ws_revocation_lifetime_reduction <= 0)
-            FATAL(1, "%s:%d: invalid revocation_lifetime_reduction: %d", info->filename, info->line_no, config->ws_revocation_lifetime_reduction);
-    } else if (sscanf(info->line, " gtk_max_mismatch = %d %c", &config->ws_gtk_max_mismatch, &garbage) == 1) {
-        if (config->ws_gtk_max_mismatch <= 0)
-            FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", info->filename, info->line_no, config->ws_gtk_max_mismatch);
+    } else if (sscanf(info->line, " unicast_dwell_interval = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->uc_dwell_interval, &valid_unicast_dwell_interval, str_arg);
+    } else if (sscanf(info->line, " broadcast_interval = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->bc_interval, &valid_broadcast_interval, str_arg);
+    } else if (sscanf(info->line, " broadcast_dwell_interval = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->bc_interval, &valid_broadcast_dwell_interval, str_arg);
+    } else if (sscanf(info->line, " pmk_lifetime = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_pmk_lifetime, &valid_unsigned, str_arg);
+    } else if (sscanf(info->line, " ptk_lifetime = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_ptk_lifetime, &valid_unsigned, str_arg);
+    } else if (sscanf(info->line, " gtk_expire_offset = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_gtk_expire_offset, &valid_unsigned, str_arg);
+    } else if (sscanf(info->line, " gtk_new_activation_time = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_gtk_new_activation_time, &valid_positive, str_arg);
+    } else if (sscanf(info->line, " gtk_new_install_required = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_gtk_new_install_required, &valid_gtk_new_install_required, str_arg);
+    } else if (sscanf(info->line, " revocation_lifetime_reduction = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_revocation_lifetime_reduction, &valid_unsigned, str_arg);
+    } else if (sscanf(info->line, " gtk_max_mismatch = %s %c", str_arg, &garbage) == 1) {
+        conf_set_number(config, info, &config->ws_gtk_max_mismatch, &valid_unsigned, str_arg);
     } else if (sscanf(info->line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
         if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
             FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
