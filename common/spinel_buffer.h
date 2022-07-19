@@ -68,6 +68,7 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val);
 unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size, bool check_exact_size);
 unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int size, bool check_exact_size);
 
+const char *spinel_cmd_str(int cmd);
 const char *spinel_prop_str(int prop);
 bool spinel_prop_is_valid(struct spinel_buffer *buf, int prop);
 void spinel_trace(struct spinel_buffer *buf, const char *prefix);

@@ -347,6 +347,14 @@ static const struct {
     cmd_name(REPLAY_TUN),
 };
 
+const char *spinel_cmd_str(int cmd)
+{
+    for (int i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
+        if (cmd == spinel_cmds[i].val)
+            return spinel_cmds[i].str;
+    return NULL;
+}
+
 #define prop_name(name) { #name, SPINEL_PROP_##name }
 static const struct {
     char *str;
@@ -436,7 +444,6 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
     unsigned int cmd, prop = -1;
     const char *cmd_str, *prop_str;
     int cnt_bkp = buf->cnt;
-    int i;
 
     if (!(g_enabled_traces & TR_HIF))
         return;
@@ -451,10 +458,7 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
             prop = spinel_pop_uint(buf);
             break;
     }
-    cmd_str = NULL;
-    for (i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
-        if (cmd == spinel_cmds[i].val)
-            cmd_str = spinel_cmds[i].str;
+    cmd_str = spinel_cmd_str(cmd);
     prop_str = spinel_prop_str(prop);
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
           tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf->len);
