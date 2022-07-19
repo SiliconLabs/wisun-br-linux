@@ -317,8 +317,12 @@ void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 
 static bool spinel_pop_is_valid(struct spinel_buffer *buf, int size)
 {
-    if (spinel_remaining_size(buf) < size)
+    if (!buf->err && spinel_remaining_size(buf) < size) {
         buf->err = true;
+        TRACE(TR_HIF_EXTRA, "hif rx:  invalid: %s (%d bytes)",
+            tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), spinel_remaining_size(buf));
+        WARN("invalid spinel pop");
+    }
     return !buf->err;
 }
 
@@ -339,7 +343,8 @@ bool spinel_pop_bool(struct spinel_buffer *buf)
 {
     bool val = __spinel_pop_bool(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:     bool: %s", val ? "true" : "false");
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:     bool: %s", val ? "true" : "false");
     return val;
 }
 
@@ -366,7 +371,8 @@ unsigned int spinel_pop_uint(struct spinel_buffer *buf)
 {
     unsigned int val = __spinel_pop_uint(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:     uint: %u", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:     uint: %u", val);
     return val;
 }
 
@@ -385,7 +391,8 @@ static uint8_t __spinel_pop_u8(struct spinel_buffer *buf)
 uint8_t spinel_pop_u8(struct spinel_buffer *buf) {
     uint8_t val = __spinel_pop_u8(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:       u8: %u", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:       u8: %u", val);
     return val;
 }
 
@@ -398,7 +405,8 @@ int8_t spinel_pop_i8(struct spinel_buffer *buf)
 {
     int8_t val = __spinel_pop_i8(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:       i8: %i", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:       i8: %i", val);
     return val;
 }
 
@@ -411,8 +419,9 @@ static void __spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val,
 void spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num)
 {
     __spinel_pop_fixed_u8_array(buf, val, num);
-    TRACE(TR_HIF_EXTRA, "hif rx:   u8[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:   u8[%2d]: %s", num,
+            tr_bytes(spinel_ptr(buf) - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
 static uint16_t __spinel_pop_u16(struct spinel_buffer *buf)
@@ -432,7 +441,8 @@ uint16_t spinel_pop_u16(struct spinel_buffer *buf)
 {
     uint16_t val = __spinel_pop_u16(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:      u16: %u", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      u16: %u", val);
     return val;
 }
 
@@ -445,7 +455,8 @@ int16_t spinel_pop_i16(struct spinel_buffer *buf)
 {
     int16_t val = __spinel_pop_i16(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:      i16: %i", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      i16: %i", val);
     return val;
 }
 
@@ -458,8 +469,9 @@ static void __spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *va
 void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num)
 {
     __spinel_pop_fixed_u16_array(buf, val, num);
-    TRACE(TR_HIF_EXTRA, "hif rx:  u16[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:  u16[%2d]: %s", num,
+            tr_bytes(spinel_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
 static uint32_t __spinel_pop_u32(struct spinel_buffer *buf)
@@ -481,7 +493,8 @@ uint32_t spinel_pop_u32(struct spinel_buffer *buf)
 {
     uint32_t val = __spinel_pop_u32(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:      u32: %u", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      u32: %u", val);
     return val;
 }
 
@@ -494,7 +507,8 @@ int32_t spinel_pop_i32(struct spinel_buffer *buf)
 {
     int32_t val = __spinel_pop_i32(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:      i32: %i", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      i32: %i", val);
     return val;
 }
 
@@ -507,8 +521,9 @@ static void __spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *va
 void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num)
 {
     __spinel_pop_fixed_u32_array(buf, val, num);
-    TRACE(TR_HIF_EXTRA, "hif rx:  u32[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:  u32[%2d]: %s", num,
+            tr_bytes(spinel_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
 static const char *__spinel_pop_str(struct spinel_buffer *buf)
@@ -528,7 +543,8 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
 {
     const char *val = __spinel_pop_str(buf);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:   string: %s", val);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:   string: %s", val);
     return val;
 }
 
@@ -549,8 +565,9 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
     unsigned int size = __spinel_pop_data_ptr(buf, val);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
-        size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
+            size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
@@ -568,8 +585,9 @@ unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned i
 {
     unsigned int size = __spinel_pop_data(buf, val, val_size);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
-        size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
+            size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
@@ -592,8 +610,9 @@ unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsign
     unsigned int size = __spinel_pop_raw_ptr(buf, val, val_size, check_exact_size);
 
     BUG_ON(check_exact_size != !!(val_size > 0));
-    TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
-        size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
+            size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
@@ -611,8 +630,9 @@ unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned in
 {
     unsigned int size = __spinel_pop_raw(buf, val, val_size, check_exact_size);
 
-    TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
-        size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    if (!buf->err)
+        TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
+            size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
