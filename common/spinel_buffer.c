@@ -127,14 +127,20 @@ void spinel_reset(struct spinel_buffer *buf)
     buf->cnt = 0;
 }
 
-void spinel_push_bool(struct spinel_buffer *buf, bool val)
+static void __spinel_push_bool(struct spinel_buffer *buf, bool val)
 {
     buf->frame[buf->cnt + 0] = val;
     buf->cnt += 1;
     BUG_ON(buf->cnt > buf->len);
 }
 
-void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
+void spinel_push_bool(struct spinel_buffer *buf, bool val)
+{
+    __spinel_push_bool(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:     bool: %s", val ? "true" : "false");
+}
+
+static void __spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
 {
     do {
         buf->frame[buf->cnt++] = (val & 0x7F) | 0x80;
@@ -144,25 +150,50 @@ void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
     BUG_ON(buf->cnt > buf->len);
 }
 
-void spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
+void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
+{
+    __spinel_push_uint(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:     uint: %u", val);
+}
+
+static void __spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
 {
     buf->frame[buf->cnt] = val;
     buf->cnt += 1;
     BUG_ON(buf->cnt > buf->len);
 }
 
+void spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
+{
+    __spinel_push_u8(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:       u8: %u", val);
+}
+
+static void __spinel_push_i8(struct spinel_buffer *buf, int8_t val)
+{
+    __spinel_push_u8(buf, (uint8_t)val);
+}
+
 void spinel_push_i8(struct spinel_buffer *buf, int8_t val)
 {
-    spinel_push_u8(buf, (uint8_t)val);
+    __spinel_push_i8(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:       i8: %i", val);
+}
+
+static void __spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        __spinel_push_u8(buf, val[i]);
 }
 
 void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        spinel_push_u8(buf, val[i]);
+    __spinel_push_fixed_u8_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif tx:   u8[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
+static void __spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
 {
     buf->frame[buf->cnt + 0] = val >> 0;
     buf->frame[buf->cnt + 1] = val >> 8;
@@ -170,18 +201,37 @@ void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
     BUG_ON(buf->cnt > buf->len);
 }
 
+void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
+{
+    __spinel_push_u16(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      u16: %u", val);
+}
+
+static void __spinel_push_i16(struct spinel_buffer *buf, int16_t val)
+{
+    __spinel_push_u16(buf, (uint16_t)val);
+}
+
 void spinel_push_i16(struct spinel_buffer *buf, int16_t val)
 {
-    spinel_push_u16(buf, (uint16_t)val);
+    __spinel_push_i16(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      i16: %i", val);
+}
+
+static void __spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        __spinel_push_u16(buf, val[i]);
 }
 
 void spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        spinel_push_u16(buf, val[i]);
+    __spinel_push_fixed_u16_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif tx:  u16[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
+static void __spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
 {
     buf->frame[buf->cnt + 0] = val >> 0;
     buf->frame[buf->cnt + 1] = val >> 8;
@@ -191,18 +241,37 @@ void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
     BUG_ON(buf->cnt > buf->len);
 }
 
+void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
+{
+    __spinel_push_u32(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      u32: %u", val);
+}
+
+static void __spinel_push_i32(struct spinel_buffer *buf, int32_t val)
+{
+    __spinel_push_u32(buf, (uint32_t)val);
+}
+
 void spinel_push_i32(struct spinel_buffer *buf, int32_t val)
 {
-    spinel_push_u32(buf, (uint32_t)val);
+    __spinel_push_i32(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:      i32: %i", val);
+}
+
+static void __spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        __spinel_push_u32(buf, val[i]);
 }
 
 void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        spinel_push_u32(buf, val[i]);
+    __spinel_push_fixed_u32_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif tx:  u32[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-void spinel_push_str(struct spinel_buffer *buf, const char *val)
+static void __spinel_push_str(struct spinel_buffer *buf, const char *val)
 {
     int size = strlen(val) + 1; // include final '\0'
 
@@ -211,9 +280,29 @@ void spinel_push_str(struct spinel_buffer *buf, const char *val)
     BUG_ON(buf->cnt > buf->len);
 }
 
+void spinel_push_str(struct spinel_buffer *buf, const char *val)
+{
+    __spinel_push_str(buf, val);
+    TRACE(TR_HIF_EXTRA, "hif tx:   string: %s", val);
+}
+
+static void __spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
+{
+    __spinel_push_u16(buf, size);
+    memcpy(buf->frame + buf->cnt, val, size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
+}
+
 void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
-    spinel_push_u16(buf, size);
+    __spinel_push_data(buf, val, size);
+    TRACE(TR_HIF_EXTRA, "hif tx:     data: %s (%lu bytes)",
+        tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
+}
+
+static void __spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
+{
     memcpy(buf->frame + buf->cnt, val, size);
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
@@ -221,9 +310,9 @@ void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size
 
 void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
-    memcpy(buf->frame + buf->cnt, val, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
+    __spinel_push_raw(buf, val, size);
+    TRACE(TR_HIF_EXTRA, "hif tx:      raw: %s (%lu bytes)",
+        tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
 }
 
 static bool spinel_pop_is_valid(struct spinel_buffer *buf, int size)
@@ -233,7 +322,7 @@ static bool spinel_pop_is_valid(struct spinel_buffer *buf, int size)
     return !buf->err;
 }
 
-bool spinel_pop_bool(struct spinel_buffer *buf)
+static bool __spinel_pop_bool(struct spinel_buffer *buf)
 {
     uint8_t val;
 
@@ -246,7 +335,15 @@ bool spinel_pop_bool(struct spinel_buffer *buf)
     return val;
 }
 
-unsigned int spinel_pop_uint(struct spinel_buffer *buf)
+bool spinel_pop_bool(struct spinel_buffer *buf)
+{
+    bool val = __spinel_pop_bool(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:     bool: %s", val ? "true" : "false");
+    return val;
+}
+
+static unsigned int __spinel_pop_uint(struct spinel_buffer *buf)
 {
     unsigned int val = 0;
     int i = 0;
@@ -265,7 +362,15 @@ unsigned int spinel_pop_uint(struct spinel_buffer *buf)
     return val;
 }
 
-uint8_t spinel_pop_u8(struct spinel_buffer *buf)
+unsigned int spinel_pop_uint(struct spinel_buffer *buf)
+{
+    unsigned int val = __spinel_pop_uint(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:     uint: %u", val);
+    return val;
+}
+
+static uint8_t __spinel_pop_u8(struct spinel_buffer *buf)
 {
     uint8_t val;
 
@@ -277,18 +382,40 @@ uint8_t spinel_pop_u8(struct spinel_buffer *buf)
     return val;
 }
 
+uint8_t spinel_pop_u8(struct spinel_buffer *buf) {
+    uint8_t val = __spinel_pop_u8(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:       u8: %u", val);
+    return val;
+}
+
+static int8_t __spinel_pop_i8(struct spinel_buffer *buf)
+{
+    return (int8_t)__spinel_pop_u8(buf);
+}
+
 int8_t spinel_pop_i8(struct spinel_buffer *buf)
 {
-    return (int8_t)spinel_pop_u8(buf);
+    int8_t val = __spinel_pop_i8(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:       i8: %i", val);
+    return val;
+}
+
+static void __spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = __spinel_pop_u8(buf);
 }
 
 void spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        val[i] = spinel_pop_u8(buf);
+    __spinel_pop_fixed_u8_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif rx:   u8[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-uint16_t spinel_pop_u16(struct spinel_buffer *buf)
+static uint16_t __spinel_pop_u16(struct spinel_buffer *buf)
 {
     uint16_t val = 0;
 
@@ -301,18 +428,41 @@ uint16_t spinel_pop_u16(struct spinel_buffer *buf)
     return val;
 }
 
+uint16_t spinel_pop_u16(struct spinel_buffer *buf)
+{
+    uint16_t val = __spinel_pop_u16(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:      u16: %u", val);
+    return val;
+}
+
+static int16_t __spinel_pop_i16(struct spinel_buffer *buf)
+{
+    return (int16_t)__spinel_pop_u16(buf);
+}
+
 int16_t spinel_pop_i16(struct spinel_buffer *buf)
 {
-    return (int16_t)spinel_pop_u16(buf);
+    int16_t val = __spinel_pop_i16(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:      i16: %i", val);
+    return val;
+}
+
+static void __spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = __spinel_pop_u16(buf);
 }
 
 void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        val[i] = spinel_pop_u16(buf);
+    __spinel_pop_fixed_u16_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif rx:  u16[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-uint32_t spinel_pop_u32(struct spinel_buffer *buf)
+static uint32_t __spinel_pop_u32(struct spinel_buffer *buf)
 {
     uint32_t val = 0;
 
@@ -327,18 +477,41 @@ uint32_t spinel_pop_u32(struct spinel_buffer *buf)
     return val;
 }
 
+uint32_t spinel_pop_u32(struct spinel_buffer *buf)
+{
+    uint32_t val = __spinel_pop_u32(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:      u32: %u", val);
+    return val;
+}
+
+static int32_t __spinel_pop_i32(struct spinel_buffer *buf)
+{
+    return (int32_t)__spinel_pop_u32(buf);
+}
+
 int32_t spinel_pop_i32(struct spinel_buffer *buf)
 {
-    return (int32_t)spinel_pop_u32(buf);
+    int32_t val = __spinel_pop_i32(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:      i32: %i", val);
+    return val;
+}
+
+static void __spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num)
+{
+    for (int i = 0; i < num; i++)
+        val[i] = __spinel_pop_u32(buf);
 }
 
 void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        val[i] = spinel_pop_u32(buf);
+    __spinel_pop_fixed_u32_array(buf, val, num);
+    TRACE(TR_HIF_EXTRA, "hif rx:  u32[%2d]: %s", num,
+        tr_bytes(spinel_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-const char *spinel_pop_str(struct spinel_buffer *buf)
+static const char *__spinel_pop_str(struct spinel_buffer *buf)
 {
     const char *val;
 
@@ -351,11 +524,19 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
     return val;
 }
 
-unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
+const char *spinel_pop_str(struct spinel_buffer *buf)
+{
+    const char *val = __spinel_pop_str(buf);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:   string: %s", val);
+    return val;
+}
+
+static unsigned int __spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
     unsigned int size;
 
-    size = spinel_pop_u16(buf);
+    size = __spinel_pop_u16(buf);
     if (!spinel_pop_is_valid(buf, size))
         return 0;
     *val = buf->frame + buf->cnt;
@@ -364,40 +545,74 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
     return size;
 }
 
-unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
+unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
+{
+    unsigned int size = __spinel_pop_data_ptr(buf, val);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
+        size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    return size;
+}
+
+static unsigned int __spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
     unsigned int size;
     uint8_t *ptr;
 
-    size = spinel_pop_data_ptr(buf, &ptr);
-    if (buf->err)
-        return 0;
+    size = __spinel_pop_data_ptr(buf, &ptr);
     memcpy(val, ptr, size);
     return size;
 }
 
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
+unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
+{
+    unsigned int size = __spinel_pop_data(buf, val, val_size);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
+        size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    return size;
+}
+
+static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
 {
     unsigned int size = spinel_remaining_size(buf);
 
-    BUG_ON(check_exact_size != !!(val_size > 0));
     if (check_exact_size)
         BUG_ON(size < val_size);
+    if (size > val_size)
+        size = val_size;
     *val = buf->frame + buf->cnt;
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
+{
+    unsigned int size = __spinel_pop_raw_ptr(buf, val, val_size, check_exact_size);
+
+    BUG_ON(check_exact_size != !!(val_size > 0));
+    TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
+        size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+    return size;
+}
+
+static unsigned int __spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
 {
     unsigned int size;
     uint8_t *ptr;
 
-    size = spinel_pop_raw_ptr(buf, &ptr, val_size, check_exact_size);
-    if (size > val_size)
-        size = val_size;
+    size = __spinel_pop_raw_ptr(buf, &ptr, val_size, check_exact_size);
     memcpy(val, ptr, size);
+    return size;
+}
+
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+{
+    unsigned int size = __spinel_pop_raw(buf, val, val_size, check_exact_size);
+
+    TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
+        size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
@@ -424,13 +639,13 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
         return;
 
     spinel_reset(buf);
-    spinel_pop_u8(buf); // ignore header
-    cmd = spinel_pop_uint(buf);
+    __spinel_pop_u8(buf); // ignore header
+    cmd = __spinel_pop_uint(buf);
     switch (cmd) {
         case SPINEL_CMD_PROP_IS:
         case SPINEL_CMD_PROP_GET:
         case SPINEL_CMD_PROP_SET:
-            prop = spinel_pop_uint(buf);
+            prop = __spinel_pop_uint(buf);
             break;
     }
     cmd_str = spinel_cmd_str(cmd);
