@@ -234,6 +234,12 @@ static void conf_set_number(struct wsbrd_conf *config, const struct parser_info 
         FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
 }
 
+static void conf_set_string(struct wsbrd_conf *config, const struct parser_info *info, char *dest, const char *raw_value)
+{
+    if (parse_escape_sequences(dest, raw_value))
+        FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -278,25 +284,21 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     if (sscanf(info->line, " %c", &garbage) == EOF) {
         /* blank info->line*/;
     } else if (sscanf(info->line, " uart_device = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->uart_dev, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->uart_dev, str_arg);
     } else if (sscanf(info->line, " uart_baudrate = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->uart_baudrate, NULL, str_arg);
     } else if (sscanf(info->line, " uart_rtscts = %s %c", str_arg, &garbage) == 1) {
         conf_set_bool(config, info, &config->uart_rtscts, str_arg);
     } else if (sscanf(info->line, " cpc_instance = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->cpc_instance, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->cpc_instance, str_arg);
     } else if (sscanf(info->line, " cpc_verbose = %s %c", str_arg, &garbage) == 1) {
         conf_set_bool(config, info, &config->cpc_verbose, str_arg);
     } else if (sscanf(info->line, " tun_device = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->tun_dev, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->tun_dev, str_arg);
     } else if (sscanf(info->line, " tun_autoconf = %s %c", str_arg, &garbage) == 1) {
         conf_set_bool(config, info, &config->tun_autoconf, str_arg);
     } else if (sscanf(info->line, " network_name = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->ws_name, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->ws_name, str_arg);
     } else if (sscanf(info->line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
         if (int_arg != 64)
             FATAL(1, "%s:%d: invalid prefix length: %d", info->filename, info->line_no, int_arg);
@@ -328,8 +330,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " radius_server = %s %c", str_arg, &garbage) == 1) {
         parse_netaddr(&config->radius_server, str_arg);
     } else if (sscanf(info->line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->radius_secret, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->radius_secret, str_arg);
     } else if (sscanf(info->line, " trace = %s %c", str_arg, &garbage) == 1) {
         g_enabled_traces = 0;
         substr = strtok(str_arg, ",");
@@ -364,8 +365,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " tx_power = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->tx_power, &valid_int8, str_arg);
     } else if (sscanf(info->line, " storage_prefix = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(config->storage_prefix, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        conf_set_string(config, info, config->storage_prefix, str_arg);
     } else if (sscanf(info->line, " unicast_dwell_interval = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->uc_dwell_interval, &valid_unicast_dwell_interval, str_arg);
     } else if (sscanf(info->line, " broadcast_interval = %s %c", str_arg, &garbage) == 1) {
