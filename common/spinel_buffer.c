@@ -333,17 +333,18 @@ unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsign
     return size;
 }
 
+#define cmd_name(name) { #name, SPINEL_CMD_##name }
 static const struct {
     char *str;
     int val;
 } spinel_cmds[] = {
-    { "PROP_IS",       SPINEL_CMD_PROP_IS },
-    { "PROP_SET",      SPINEL_CMD_PROP_SET },
-    { "PROP_GET",      SPINEL_CMD_PROP_GET },
-    { "NOOP",          SPINEL_CMD_NOOP },
-    { "RESET",         SPINEL_CMD_RESET },
-    { "REPLAY_TIMERS", SPINEL_CMD_REPLAY_TIMERS },
-    { "REPLAY_TUN"   , SPINEL_CMD_REPLAY_TUN },
+    cmd_name(PROP_IS),
+    cmd_name(PROP_SET),
+    cmd_name(PROP_GET),
+    cmd_name(NOOP),
+    cmd_name(RESET),
+    cmd_name(REPLAY_TIMERS),
+    cmd_name(REPLAY_TUN),
 };
 
 #define prop_name(name) { #name, SPINEL_PROP_##name }
