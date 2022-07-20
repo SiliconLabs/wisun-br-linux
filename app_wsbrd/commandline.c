@@ -87,8 +87,8 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2, 3 or 4\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
-    fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
-    fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
+    fprintf(stream, "                          the network. Valid values: S (< 100, default), M (100-1000),\n");
+    fprintf(stream, "                          L (> 1000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN network authentication:\n");
     fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM od DER\n");
@@ -124,8 +124,8 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "                          4b and 5\n");
     fprintf(stream, "  -c, --class=VAL       Set operating class. Valid values: 1 (default), 2, 3 or 4\n");
     fprintf(stream, "  -S, --size=SIZE       Optimize network timings considering the number of expected nodes on\n");
-    fprintf(stream, "                          the network. Valid values: CERT (development and certification),\n");
-    fprintf(stream, "                          S (< 100, default), M (100-800), L (800-2500), XL (> 2500)\n");
+    fprintf(stream, "                          the network. Valid values: S (< 100, default), M (100-1000),\n");
+    fprintf(stream, "                          L (> 1000)\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN network authentication:\n");
     fprintf(stream, "  The following option are mandatory. Every option has to specify a file in PEM\n");
