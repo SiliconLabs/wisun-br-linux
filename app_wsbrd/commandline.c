@@ -336,6 +336,28 @@ static void conf_set_key(struct wsbrd_conf *config, const struct parser_info *in
         FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
 }
 
+static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct parser_info *info, uint8_t (*dest)[8], const char *raw_value)
+{
+    BUG_ON(dest != config->ws_allowed_mac_addresses);
+
+    if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
+        FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
+    if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, raw_value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    config->ws_allowed_mac_address_count++;
+}
+
+static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct parser_info *info, uint8_t (*dest)[8], const char *raw_value)
+{
+    BUG_ON(dest != config->ws_denied_mac_addresses);
+
+    if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
+        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->line_no);
+    if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, raw_value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    config->ws_denied_mac_address_count++;
+}
+
 static void parse_config_line(struct wsbrd_conf *config, const struct parser_info *info)
 {
     char garbage; // detect garbage at end of the line
@@ -426,17 +448,9 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " gtk_max_mismatch = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->ws_gtk_max_mismatch, &valid_unsigned, str_arg);
     } else if (sscanf(info->line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
-        if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
-            FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
-        if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
-        config->ws_allowed_mac_address_count++;
+        conf_set_allowed_macaddr(config, info, config->ws_allowed_mac_addresses, str_arg);
     } else if (sscanf(info->line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
-        if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
-            FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->line_no);
-        if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
-        config->ws_denied_mac_address_count++;
+        conf_set_denied_macaddr(config, info, config->ws_denied_mac_addresses, str_arg);
     } else if (sscanf(info->line, " regional_regulation = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_regional_regulation, valid_ws_regional_regulations, str_arg);
     } else if (sscanf(info->line, " use_tap = %s %c", str_arg, &garbage) == 1) {
