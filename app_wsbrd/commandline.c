@@ -274,6 +274,18 @@ static void conf_set_bitmask(struct wsbrd_conf *config, const struct parser_info
         FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, raw_value);
 }
 
+static void conf_set_flags(struct wsbrd_conf *config, const struct parser_info *info, unsigned int *dest, const struct name_value *specs, const char *raw_value)
+{
+    char *tmp, *substr;
+
+    tmp = strdup(raw_value);
+    substr = strtok(tmp, ",");
+    do {
+        *dest |= str_to_val(substr, specs);
+    } while ((substr = strtok(NULL, ",")));
+    free(tmp);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -312,7 +324,6 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
 {
     char garbage; // detect garbage at end of the line
     char str_arg[256];
-    char *substr;
     int int_arg;
 
     if (sscanf(info->line, " %c", &garbage) == EOF) {
@@ -364,10 +375,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         conf_set_string(config, info, config->radius_secret, str_arg);
     } else if (sscanf(info->line, " trace = %s %c", str_arg, &garbage) == 1) {
         g_enabled_traces = 0;
-        substr = strtok(str_arg, ",");
-        do {
-            g_enabled_traces |= str_to_val(substr, valid_traces);
-        } while ((substr = strtok(NULL, ",")));
+        conf_set_flags(config, info, &g_enabled_traces, valid_traces, str_arg);
     } else if (sscanf(info->line, " domain = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_domain, valid_ws_domains, str_arg);
     } else if (sscanf(info->line, " mode = %s %c", str_arg, &garbage) == 1) {
@@ -503,7 +511,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         .filename = "command line",
     };
     int opt, ret;
-    char *tag;
 
     config->uart_baudrate = 115200;
     config->tun_autoconf = true;
@@ -553,10 +560,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 strncpy(config->tun_dev, optarg, sizeof(config->tun_dev) - 1);
                 break;
             case 'T':
-                tag = strtok(optarg, ",");
-                do {
-                    g_enabled_traces |= str_to_val(tag, valid_traces);
-                } while ((tag = strtok(NULL, ",")));
+                conf_set_flags(config, &info, &g_enabled_traces, valid_traces, optarg);
                 break;
             case 'n':
                 strncpy(config->ws_name, optarg, sizeof(config->ws_name) - 1);
