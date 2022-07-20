@@ -18,6 +18,100 @@
 #include "utils.h"
 #include "log.h"
 
+const char *spinel_cmd_str(int cmd)
+{
+    #define cmd_name(name) { #name, SPINEL_CMD_##name }
+    static const struct {
+        char *str;
+        int val;
+    } spinel_cmds[] = {
+        cmd_name(PROP_IS),
+        cmd_name(PROP_SET),
+        cmd_name(PROP_GET),
+        cmd_name(NOOP),
+        cmd_name(RESET),
+        cmd_name(REPLAY_TIMERS),
+        cmd_name(REPLAY_TUN),
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
+        if (cmd == spinel_cmds[i].val)
+            return spinel_cmds[i].str;
+    return NULL;
+}
+
+
+const char *spinel_prop_str(int prop)
+{
+    #define prop_name(name) { #name, SPINEL_PROP_##name }
+    static const struct {
+        char *str;
+        int val;
+    } spinel_props[] = {
+        { "-", -1 },
+        prop_name(HWADDR),
+        prop_name(LAST_STATUS),
+        prop_name(MAC_15_4_PANID),
+        prop_name(MAC_15_4_SADDR),
+        prop_name(PHY_CHAN),
+        prop_name(PHY_TX_POWER),
+        prop_name(STREAM_RAW),
+        prop_name(STREAM_STATUS),
+        prop_name(WS_15_4_MODE),
+        prop_name(WS_ACCEPT_BYPASS_UNKNOW_DEVICE),
+        prop_name(WS_ACK_WAIT_DURATION),
+        prop_name(WS_ASSOCIATION_PERMIT),
+        prop_name(WS_AUTO_REQUEST_KEY_ID_MODE),
+        prop_name(WS_AUTO_REQUEST_KEY_INDEX),
+        prop_name(WS_AUTO_REQUEST_KEY_SOURCE),
+        prop_name(WS_AUTO_REQUEST_SECURITY_LEVEL),
+        prop_name(WS_BEACON_PAYLOAD),
+        prop_name(WS_BEACON_PAYLOAD_LENGTH),
+        prop_name(WS_CCA_THRESHOLD),
+        prop_name(WS_CCA_THRESHOLD_START),
+        prop_name(WS_COORD_EXTENDED_ADDRESS),
+        prop_name(WS_COORD_SHORT_ADDRESS),
+        prop_name(WS_DEFAULT_KEY_SOURCE),
+        prop_name(WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE),
+        prop_name(WS_DEVICE_TABLE),
+        prop_name(WS_EDFE_FORCE_STOP),
+        prop_name(WS_ENABLE_FRAME_COUNTER_PER_KEY),
+        prop_name(WS_FHSS_CREATE),
+        prop_name(WS_FHSS_DELETE),
+        prop_name(WS_FHSS_DROP_NEIGHBOR),
+        prop_name(WS_FHSS_REGISTER),
+        prop_name(WS_FHSS_SET_CONF),
+        prop_name(WS_FHSS_SET_HOP_COUNT),
+        prop_name(WS_FHSS_SET_PARENT),
+        prop_name(WS_FHSS_SET_TX_ALLOWANCE_LEVEL),
+        prop_name(WS_FHSS_UNREGISTER),
+        prop_name(WS_FHSS_UPDATE_NEIGHBOR),
+        prop_name(WS_FRAME_COUNTER),
+        prop_name(WS_KEY_TABLE),
+        prop_name(WS_MAX_BE),
+        prop_name(WS_MAX_CSMA_BACKOFFS),
+        prop_name(WS_MAX_FRAME_RETRIES),
+        prop_name(WS_MIN_BE),
+        prop_name(WS_MLME_IND),
+        prop_name(WS_MULTI_CSMA_PARAMETERS),
+        prop_name(WS_REQUEST_RESTART),
+        prop_name(WS_RESET),
+        prop_name(WS_RF_CONFIGURATION),
+        prop_name(WS_RX_ON_WHEN_IDLE),
+        prop_name(WS_SECURITY_ENABLED),
+        prop_name(WS_START),
+        prop_name(WS_MAC_FILTER_START),
+        prop_name(WS_MAC_FILTER_CLEAR),
+        prop_name(WS_MAC_FILTER_ADD_LONG),
+        prop_name(WS_MAC_FILTER_STOP)
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)
+        if (prop == spinel_props[i].val)
+            return spinel_props[i].str;
+    return NULL;
+}
+
 int spinel_remaining_size(const struct spinel_buffer *buf)
 {
     return buf->len - buf->cnt;
@@ -331,99 +425,6 @@ unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsign
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
     return size;
-}
-
-#define cmd_name(name) { #name, SPINEL_CMD_##name }
-static const struct {
-    char *str;
-    int val;
-} spinel_cmds[] = {
-    cmd_name(PROP_IS),
-    cmd_name(PROP_SET),
-    cmd_name(PROP_GET),
-    cmd_name(NOOP),
-    cmd_name(RESET),
-    cmd_name(REPLAY_TIMERS),
-    cmd_name(REPLAY_TUN),
-};
-
-const char *spinel_cmd_str(int cmd)
-{
-    for (int i = 0; i < ARRAY_SIZE(spinel_cmds); i++)
-        if (cmd == spinel_cmds[i].val)
-            return spinel_cmds[i].str;
-    return NULL;
-}
-
-#define prop_name(name) { #name, SPINEL_PROP_##name }
-static const struct {
-    char *str;
-    int val;
-} spinel_props[] = {
-    { "-", -1 },
-    prop_name(HWADDR),
-    prop_name(LAST_STATUS),
-    prop_name(MAC_15_4_PANID),
-    prop_name(MAC_15_4_SADDR),
-    prop_name(PHY_CHAN),
-    prop_name(PHY_TX_POWER),
-    prop_name(STREAM_RAW),
-    prop_name(STREAM_STATUS),
-    prop_name(WS_15_4_MODE),
-    prop_name(WS_ACCEPT_BYPASS_UNKNOW_DEVICE),
-    prop_name(WS_ACK_WAIT_DURATION),
-    prop_name(WS_ASSOCIATION_PERMIT),
-    prop_name(WS_AUTO_REQUEST_KEY_ID_MODE),
-    prop_name(WS_AUTO_REQUEST_KEY_INDEX),
-    prop_name(WS_AUTO_REQUEST_KEY_SOURCE),
-    prop_name(WS_AUTO_REQUEST_SECURITY_LEVEL),
-    prop_name(WS_BEACON_PAYLOAD),
-    prop_name(WS_BEACON_PAYLOAD_LENGTH),
-    prop_name(WS_CCA_THRESHOLD),
-    prop_name(WS_CCA_THRESHOLD_START),
-    prop_name(WS_COORD_EXTENDED_ADDRESS),
-    prop_name(WS_COORD_SHORT_ADDRESS),
-    prop_name(WS_DEFAULT_KEY_SOURCE),
-    prop_name(WS_DEVICE_DESCRIPTION_PAN_ID_UPDATE),
-    prop_name(WS_DEVICE_TABLE),
-    prop_name(WS_EDFE_FORCE_STOP),
-    prop_name(WS_ENABLE_FRAME_COUNTER_PER_KEY),
-    prop_name(WS_FHSS_CREATE),
-    prop_name(WS_FHSS_DELETE),
-    prop_name(WS_FHSS_DROP_NEIGHBOR),
-    prop_name(WS_FHSS_REGISTER),
-    prop_name(WS_FHSS_SET_CONF),
-    prop_name(WS_FHSS_SET_HOP_COUNT),
-    prop_name(WS_FHSS_SET_PARENT),
-    prop_name(WS_FHSS_SET_TX_ALLOWANCE_LEVEL),
-    prop_name(WS_FHSS_UNREGISTER),
-    prop_name(WS_FHSS_UPDATE_NEIGHBOR),
-    prop_name(WS_FRAME_COUNTER),
-    prop_name(WS_KEY_TABLE),
-    prop_name(WS_MAX_BE),
-    prop_name(WS_MAX_CSMA_BACKOFFS),
-    prop_name(WS_MAX_FRAME_RETRIES),
-    prop_name(WS_MIN_BE),
-    prop_name(WS_MLME_IND),
-    prop_name(WS_MULTI_CSMA_PARAMETERS),
-    prop_name(WS_REQUEST_RESTART),
-    prop_name(WS_RESET),
-    prop_name(WS_RF_CONFIGURATION),
-    prop_name(WS_RX_ON_WHEN_IDLE),
-    prop_name(WS_SECURITY_ENABLED),
-    prop_name(WS_START),
-    prop_name(WS_MAC_FILTER_START),
-    prop_name(WS_MAC_FILTER_CLEAR),
-    prop_name(WS_MAC_FILTER_ADD_LONG),
-    prop_name(WS_MAC_FILTER_STOP)
-};
-
-const char *spinel_prop_str(int prop)
-{
-    for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)
-        if (prop == spinel_props[i].val)
-            return spinel_props[i].str;
-    return NULL;
 }
 
 bool spinel_prop_is_valid(struct spinel_buffer *buf, int prop)
