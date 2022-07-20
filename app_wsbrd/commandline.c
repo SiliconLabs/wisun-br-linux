@@ -327,16 +327,12 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         if (config->ws_gtk_max_mismatch <= 0)
             FATAL(1, "%s:%d: invalid gtk_max_mismatch: %d", info->filename, info->line_no, config->ws_gtk_max_mismatch);
     } else if (sscanf(info->line, " allowed_mac64 = %s %c", str_arg, &garbage) == 1) {
-        if (config->ws_denied_mac_address_count > 0)
-            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", info->filename, info->line_no);
         if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
             FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
         if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, str_arg))
             FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
         config->ws_allowed_mac_address_count++;
     } else if (sscanf(info->line, " denied_mac64 = %s %c", str_arg, &garbage) == 1) {
-        if (config->ws_allowed_mac_address_count > 0)
-            FATAL(1, "%s:%d: allowed_mac64 and denied_mac64 are exclusive", info->filename, info->line_no);
         if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
             FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->line_no);
         if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, str_arg))
@@ -569,6 +565,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         config->ws_chan_plan_id = config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
+    if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
+        FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (!config->uart_dev[0] && !config->cpc_instance[0])
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->uart_dev[0] && config->cpc_instance[0])
