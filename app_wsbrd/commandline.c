@@ -266,6 +266,14 @@ static void conf_set_netaddr(struct wsbrd_conf *config, const struct parser_info
     freeaddrinfo(results);
 }
 
+static void conf_set_bitmask(struct wsbrd_conf *config, const struct parser_info *info, uint32_t *dest, const char *raw_value)
+{
+    BUG_ON(dest != config->ws_allowed_channels);
+    BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 8);
+    if (parse_bitmask(dest, 8, raw_value) < 0)
+        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, raw_value);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -373,8 +381,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " chan_count = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->ws_chan_count, NULL, str_arg);
     } else if (sscanf(info->line, " allowed_channels = %s %c", str_arg, &garbage) == 1) {
-        if (parse_bitmask(config->ws_allowed_channels, ARRAY_SIZE(config->ws_allowed_channels), str_arg) < 0)
-            FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, str_arg);
+        conf_set_bitmask(config, info, config->ws_allowed_channels, str_arg);
     } else if (sscanf(info->line, " pan_id = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->ws_pan_id, NULL, str_arg);
     } else if (sscanf(info->line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
