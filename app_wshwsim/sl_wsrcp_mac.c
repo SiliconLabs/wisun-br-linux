@@ -592,7 +592,7 @@ static struct spinel_buffer *rx_buf = (struct spinel_buffer *)&__rx_buf;
 void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
 {
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_PROP_VALUE_IS);
+    spinel_push_uint(buf, SPINEL_CMD_PROP_IS);
     spinel_push_uint(buf, prop);
 }
 
@@ -623,7 +623,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     spinel_reset(rx_buf);
     spinel_pop_u8(rx_buf); /* packet header */
     cmd = spinel_pop_uint(rx_buf);
-    if (cmd == SPINEL_CMD_PROP_VALUE_GET || cmd == SPINEL_CMD_PROP_VALUE_SET) {
+    if (cmd == SPINEL_CMD_PROP_GET || cmd == SPINEL_CMD_PROP_SET) {
         prop = spinel_pop_uint(rx_buf);
         for (i = 0; mlme_prop_cstr[i].prop; i++)
             if (prop == mlme_prop_cstr[i].prop)
@@ -638,16 +638,16 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
         ctxt->fhss_api = NULL;
         ctxt->rcp_mac_api = init_mac_api(ctxt->rcp_driver_id);
         wsmac_reset_ind(ctxt, false);
-    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_HWADDR) {
+    } else if (cmd == SPINEL_CMD_PROP_GET && prop == SPINEL_PROP_HWADDR) {
         int index = spinel_pop_uint(rx_buf);
 
         WARN_ON(index != 0);
         BUG_ON(spinel_remaining_size(rx_buf));
         wsmac_spinel_get_hw_addr(ctxt);
-    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET && prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST) {
+    } else if (cmd == SPINEL_CMD_PROP_GET && prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST) {
         BUG_ON(spinel_remaining_size(rx_buf));
         wsmac_spinel_get_rf_configs(ctxt);
-    } else if (cmd == SPINEL_CMD_PROP_VALUE_GET) {
+    } else if (cmd == SPINEL_CMD_PROP_GET) {
         int index = spinel_pop_uint(rx_buf);
         mlme_get_t req = {
             .attr_index = index,
@@ -656,7 +656,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
 
         BUG_ON(spinel_remaining_size(rx_buf));
         ctxt->rcp_mac_api->mlme_req(ctxt->rcp_mac_api, MLME_GET, &req);
-    } else if (cmd == SPINEL_CMD_PROP_VALUE_SET) {
+    } else if (cmd == SPINEL_CMD_PROP_SET) {
         if (mlme_prop_cstr[i].prop_set)
             mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].attr, rx_buf);
         else

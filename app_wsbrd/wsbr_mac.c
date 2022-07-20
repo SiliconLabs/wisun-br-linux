@@ -410,7 +410,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         store_rf_config_list(ctxt, buf);
         spinel_reset(buf);
         spinel_pop_u8(buf); // header
-        spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_VALUE_IS
+        spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
         spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
         if (ctxt->list_rf_configs)
             print_rf_config_list(ctxt, buf);
@@ -464,7 +464,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     case SPINEL_CMD_NOOP:
         /* empty */
         break;
-    case SPINEL_CMD_PROP_VALUE_IS:
+    case SPINEL_CMD_PROP_IS:
         prop = spinel_pop_uint(buf);
         if (!ctxt->hw_addr_done && prop != SPINEL_PROP_HWADDR) {
             WARN("unexpected boot-up sequence (expected SPINEL_PROP_HWADDR)");
@@ -522,14 +522,14 @@ uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
 void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
 {
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_PROP_VALUE_SET);
+    spinel_push_uint(buf, SPINEL_CMD_PROP_SET);
     spinel_push_uint(buf, prop);
 }
 
 void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop)
 {
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_PROP_VALUE_GET);
+    spinel_push_uint(buf, SPINEL_CMD_PROP_GET);
     spinel_push_uint(buf, prop);
 }
 
@@ -808,7 +808,7 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
-    // SPINEL_CMD_PROP_VALUE_SET
+    // SPINEL_CMD_PROP_SET
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;

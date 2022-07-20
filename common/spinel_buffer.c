@@ -337,9 +337,9 @@ static const struct {
     char *str;
     int val;
 } spinel_cmds[] = {
-    { "PROP_IS",       SPINEL_CMD_PROP_VALUE_IS },
-    { "PROP_SET",      SPINEL_CMD_PROP_VALUE_SET },
-    { "PROP_GET",      SPINEL_CMD_PROP_VALUE_GET },
+    { "PROP_IS",       SPINEL_CMD_PROP_IS },
+    { "PROP_SET",      SPINEL_CMD_PROP_SET },
+    { "PROP_GET",      SPINEL_CMD_PROP_GET },
     { "NOOP",          SPINEL_CMD_NOOP },
     { "RESET",         SPINEL_CMD_RESET },
     { "REPLAY_TIMERS", SPINEL_CMD_REPLAY_TIMERS },
@@ -444,9 +444,9 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
     spinel_pop_u8(buf); // ignore header
     cmd = spinel_pop_uint(buf);
     switch (cmd) {
-        case SPINEL_CMD_PROP_VALUE_IS:
-        case SPINEL_CMD_PROP_VALUE_GET:
-        case SPINEL_CMD_PROP_VALUE_SET:
+        case SPINEL_CMD_PROP_IS:
+        case SPINEL_CMD_PROP_GET:
+        case SPINEL_CMD_PROP_SET:
             prop = spinel_pop_uint(buf);
             break;
     }

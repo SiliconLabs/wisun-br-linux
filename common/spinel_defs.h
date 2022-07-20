@@ -45,13 +45,13 @@ enum {
 enum {
     SPINEL_CMD_NOOP                = 0,
     SPINEL_CMD_RESET               = 1,
-    SPINEL_CMD_PROP_VALUE_GET      = 2,
-    SPINEL_CMD_PROP_VALUE_SET      = 3,
-    SPINEL_CMD_PROP_VALUE_INSERT   = 4, /* Unused */
-    SPINEL_CMD_PROP_VALUE_REMOVE   = 5, /* Unused */
-    SPINEL_CMD_PROP_VALUE_IS       = 6,
-    SPINEL_CMD_PROP_VALUE_INSERTED = 7, /* Unused */
-    SPINEL_CMD_PROP_VALUE_REMOVED  = 8, /* Unused */
+    SPINEL_CMD_PROP_GET            = 2,
+    SPINEL_CMD_PROP_SET            = 3,
+    SPINEL_CMD_PROP_INSERT         = 4, /* Unused */
+    SPINEL_CMD_PROP_REMOVE         = 5, /* Unused */
+    SPINEL_CMD_PROP_IS             = 6,
+    SPINEL_CMD_PROP_INSERTED       = 7, /* Unused */
+    SPINEL_CMD_PROP_REMOVED        = 8, /* Unused */
 
     SPINEL_CMD_VENDOR__BEGIN       = 0x3C00,
     SPINEL_CMD_VENDOR__END         = 0x4000,
