@@ -358,11 +358,24 @@ static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct pars
     config->ws_denied_mac_address_count++;
 }
 
+static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *info, uint8_t (*dest)[16], const char *raw_value)
+{
+    int index;
+
+    BUG_ON(dest != config->ws_gtk);
+    if (sscanf(info->line, " gtk[%d]", &index) != 1)
+        FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
+    if (index < 0 || index > 3)
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
+    if (parse_byte_array(config->ws_gtk[index], 16, raw_value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    config->ws_gtk_force[index] = true;
+}
+
 static void parse_config_line(struct wsbrd_conf *config, const struct parser_info *info)
 {
     char garbage; // detect garbage at end of the line
     char str_arg[256];
-    int int_arg;
 
     if (sscanf(info->line, " %c", &garbage) == EOF) {
         /* blank info->line*/;
@@ -415,12 +428,8 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         conf_set_bitmask(config, info, config->ws_allowed_channels, str_arg);
     } else if (sscanf(info->line, " pan_id = %s %c", str_arg, &garbage) == 1) {
         conf_set_number(config, info, &config->ws_pan_id, NULL, str_arg);
-    } else if (sscanf(info->line, " gtk[%d] = %s %c", &int_arg, str_arg, &garbage) == 2) {
-        if (int_arg < 0 || int_arg > 3)
-            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, int_arg);
-        if (parse_byte_array(config->ws_gtk[int_arg], 16, str_arg))
-            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, str_arg);
-        config->ws_gtk_force[int_arg] = true;
+    } else if (sscanf(info->line, " gtk[%*d] = %s %c", str_arg, &garbage) == 1) {
+        conf_set_gtk(config, info, config->ws_gtk, str_arg);
     } else if (sscanf(info->line, " size = %s %c", str_arg, &garbage) == 1) {
         conf_set_enum(config, info, &config->ws_size, valid_ws_size, str_arg);
     } else if (sscanf(info->line, " tx_power = %s %c", str_arg, &garbage) == 1) {
