@@ -253,6 +253,19 @@ static void conf_set_netmask(struct wsbrd_conf *config, const struct parser_info
         FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->line_no, mask);
 }
 
+static void conf_set_netaddr(struct wsbrd_conf *config, const struct parser_info *info, struct sockaddr *dest, const char *raw_value)
+{
+    struct addrinfo *results;
+    int err;
+
+    err = getaddrinfo(raw_value, NULL, NULL, &results);
+    if (err != 0)
+        FATAL(1, "%s:%d: %s: %s", info->filename, info->line_no, raw_value, gai_strerror(err));
+    BUG_ON(!results);
+    memcpy(dest, results->ai_addr, results->ai_addrlen);
+    freeaddrinfo(results);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -314,8 +327,8 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         conf_set_string(config, info, config->ws_name, str_arg);
     } else if (sscanf(info->line, " ipv6_prefix = %s %c", str_arg, &garbage) == 2) {
         conf_set_netmask(config, info, config->ipv6_prefix, str_arg);
-    } else if (sscanf(info->line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
-        parse_netaddr((struct sockaddr_storage *)&config->dhcpv6_server, str_arg);
+    } else if (sscanf(info->line, " dhcpv6_server = %s %c", str_arg, &garbage) == 1) {
+        conf_set_netaddr(config, info, (struct sockaddr *)&config->dhcpv6_server, str_arg);
     } else if (sscanf(info->line, " certificate = %s %c", str_arg, &garbage) == 1) {
         if (parse_escape_sequences(str_arg, str_arg))
             FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
@@ -338,7 +351,7 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
             FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
         config->tls_ca.cert_len = int_arg;
     } else if (sscanf(info->line, " radius_server = %s %c", str_arg, &garbage) == 1) {
-        parse_netaddr(&config->radius_server, str_arg);
+        conf_set_netaddr(config, info, (struct sockaddr *)&config->radius_server, str_arg);
     } else if (sscanf(info->line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
         conf_set_string(config, info, config->radius_secret, str_arg);
     } else if (sscanf(info->line, " trace = %s %c", str_arg, &garbage) == 1) {
