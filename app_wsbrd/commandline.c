@@ -240,6 +240,19 @@ static void conf_set_string(struct wsbrd_conf *config, const struct parser_info 
         FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
 }
 
+static void conf_set_netmask(struct wsbrd_conf *config, const struct parser_info *info, void *dest, const char *raw_value)
+{
+    char mask[STR_MAX_LEN_IPV6];
+    int len;
+
+    if (sscanf(raw_value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
+        FATAL(1, "%s:%d: invalid netmask: %s", info->filename, info->line_no, raw_value);
+    if (len != 64)
+        FATAL(1, "%s:%d: invalid mask length: %d", info->filename, info->line_no, len);
+    if (inet_pton(AF_INET6, mask, dest) != 1)
+        FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->line_no, mask);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -299,11 +312,8 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
         conf_set_bool(config, info, &config->tun_autoconf, str_arg);
     } else if (sscanf(info->line, " network_name = %s %c", str_arg, &garbage) == 1) {
         conf_set_string(config, info, config->ws_name, str_arg);
-    } else if (sscanf(info->line, " ipv6_prefix = %[0-9a-zA-Z:]/%d %c", str_arg, &int_arg, &garbage) == 2) {
-        if (int_arg != 64)
-            FATAL(1, "%s:%d: invalid prefix length: %d", info->filename, info->line_no, int_arg);
-        if (inet_pton(AF_INET6, str_arg, config->ipv6_prefix) != 1)
-            FATAL(1, "%s:%d: invalid prefix: %s", info->filename, info->line_no, str_arg);
+    } else if (sscanf(info->line, " ipv6_prefix = %s %c", str_arg, &garbage) == 2) {
+        conf_set_netmask(config, info, config->ipv6_prefix, str_arg);
     } else if (sscanf(info->line, " dhcpv6_server = %[0-9a-zA-Z:] %c", str_arg, &garbage) == 1) {
         parse_netaddr((struct sockaddr_storage *)&config->dhcpv6_server, str_arg);
     } else if (sscanf(info->line, " certificate = %s %c", str_arg, &garbage) == 1) {
