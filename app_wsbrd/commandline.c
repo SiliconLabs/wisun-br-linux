@@ -320,6 +320,22 @@ static int read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
+static void conf_set_cert(struct wsbrd_conf *config, const struct parser_info *info, arm_certificate_entry_s *dest, const char *raw_value)
+{
+
+    dest->cert_len = read_cert(raw_value, &dest->cert);
+    if (dest->cert_len < 0)
+        FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+}
+
+static void conf_set_key(struct wsbrd_conf *config, const struct parser_info *info, arm_certificate_entry_s *dest, const char *raw_value)
+{
+
+    dest->key_len = read_cert(raw_value, &dest->key);
+    if (dest->key_len < 0)
+        FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+}
+
 static void parse_config_line(struct wsbrd_conf *config, const struct parser_info *info)
 {
     char garbage; // detect garbage at end of the line
@@ -349,26 +365,11 @@ static void parse_config_line(struct wsbrd_conf *config, const struct parser_inf
     } else if (sscanf(info->line, " dhcpv6_server = %s %c", str_arg, &garbage) == 1) {
         conf_set_netaddr(config, info, (struct sockaddr *)&config->dhcpv6_server, str_arg);
     } else if (sscanf(info->line, " certificate = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
-        int_arg = read_cert(str_arg, &config->tls_own.cert);
-        if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
-        config->tls_own.cert_len = int_arg;
+        conf_set_cert(config, info, &config->tls_own, str_arg);
     } else if (sscanf(info->line, " key = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
-        int_arg = read_cert(str_arg, &config->tls_own.key);
-        if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
-        config->tls_own.key_len = int_arg;
+        conf_set_key(config, info, &config->tls_own, str_arg);
     } else if (sscanf(info->line, " authority = %s %c", str_arg, &garbage) == 1) {
-        if (parse_escape_sequences(str_arg, str_arg))
-            FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
-        int_arg = read_cert(str_arg, &config->tls_ca.cert);
-        if (int_arg < 0)
-            FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, str_arg);
-        config->tls_ca.cert_len = int_arg;
+        conf_set_cert(config, info, &config->tls_ca, str_arg);
     } else if (sscanf(info->line, " radius_server = %s %c", str_arg, &garbage) == 1) {
         conf_set_netaddr(config, info, (struct sockaddr *)&config->radius_server, str_arg);
     } else if (sscanf(info->line, " radius_secret = %s %c", str_arg, &garbage) == 1) {
@@ -510,7 +511,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     struct parser_info info = {
         .filename = "command line",
     };
-    int opt, ret;
+    int opt;
 
     config->uart_baudrate = 115200;
     config->tun_autoconf = true;
@@ -578,22 +579,13 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 conf_set_enum(config, &info, &config->ws_size, valid_ws_size, optarg);
                 break;
             case 'K':
-                ret = read_cert(optarg, &config->tls_own.key);
-                if (ret < 0)
-                    FATAL(1, "%s: %m", optarg);
-                config->tls_own.key_len = ret;
+                conf_set_key(config, &info, &config->tls_own, optarg);
                 break;
             case 'C':
-                ret = read_cert(optarg, &config->tls_own.cert);
-                if (ret < 0)
-                    FATAL(1, "%s: %m", optarg);
-                config->tls_own.cert_len = ret;
+                conf_set_cert(config, &info, &config->tls_own, optarg);
                 break;
             case 'A':
-                ret = read_cert(optarg, &config->tls_ca.cert);
-                if (ret < 0)
-                    FATAL(1, "%s: %m", optarg);
-                config->tls_ca.cert_len = ret;
+                conf_set_cert(config, &info, &config->tls_ca, optarg);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
