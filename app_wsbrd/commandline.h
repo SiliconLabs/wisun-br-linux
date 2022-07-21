@@ -28,7 +28,6 @@ struct wsbrd_conf {
     bool list_rf_configs;
 
     char cpc_instance[PATH_MAX];
-    bool cpc_verbose;
 
     char uart_dev[PATH_MAX];
     int  uart_baudrate;

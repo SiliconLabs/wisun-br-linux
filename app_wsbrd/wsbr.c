@@ -448,7 +448,7 @@ int wsbr_main(int argc, char *argv[])
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp_tx = cpc_tx;
         ctxt->rcp_rx = cpc_rx;
-        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, ctxt->config.cpc_verbose);
+        ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
     } else {
         BUG();
     }

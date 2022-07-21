@@ -62,6 +62,7 @@ const struct name_value valid_ws_size[] = {
 
 const struct name_value valid_traces[] = {
     { "bus",       TR_BUS },
+    { "cpc",       TR_CPC },
     { "hdlc",      TR_HDLC },
     { "hif",       TR_HIF },
     { "hif-extra", TR_HIF_EXTRA },

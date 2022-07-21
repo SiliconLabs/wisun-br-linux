@@ -121,8 +121,8 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "Common options:\n");
     fprintf(stream, "  -u UART_DEVICE        Use UART bus\n");
     fprintf(stream, "  -t TUN                Map a specific TUN device (eg. allocated with 'ip tuntap add tun0')\n");
-    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, hdlc, hif, hif-extra,\n");
-    fprintf(stream, "                           trickle, 15.4-mngt, 15.4, eap, icmp-rf, icmp-tun, dhcp\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
+    fprintf(stream, "                           hif-extra, trickle, 15.4-mngt, 15.4, eap, icmp-rf, icmp-tun, dhcp\n");
     fprintf(stream, "  -F, --config=FILE     Read parameters from FILE. Command line options always have priority\n");
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
@@ -413,7 +413,6 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
         { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
         { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      NULL },
-        { "cpc_verbose",                   &config->cpc_verbose,                      conf_set_bool,        NULL },
         { "tun_device",                    config->tun_dev,                           conf_set_string,      NULL },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "use_tap",                       &config->tun_use_tap,                      conf_set_bool,        NULL },

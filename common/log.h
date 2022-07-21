@@ -80,6 +80,7 @@ enum {
     TR_ICMP_TUN  = 0x0400,
     TR_DHCP      = 0x0800,
     TR_HIF_EXTRA = 0x1000,
+    TR_CPC       = 0x2000,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)
