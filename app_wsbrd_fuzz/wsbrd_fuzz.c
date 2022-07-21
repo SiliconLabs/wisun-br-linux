@@ -4,6 +4,7 @@
 #include "stack-scheduler/source/timer_sys.h"
 #include "stack/source/service_libs/utils/ns_file_system.h"
 #include "app_wsbrd/libwsbrd.h"
+#include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/tun.h"
 #include "common/bus_uart.h"
@@ -111,6 +112,7 @@ static void fuzz_trigger_timer()
 
 void __wrap_wsbr_spinel_replay_timers(struct spinel_buffer *buf)
 {
+    FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
     g_fuzz_ctxt.timer_counter = spinel_pop_u16(buf);
     if (g_fuzz_ctxt.timer_counter)
@@ -123,6 +125,7 @@ void __wrap_wsbr_spinel_replay_tun(struct spinel_buffer *buf)
     size_t size;
     int ret;
 
+    FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "TUN command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "TUN command received while replay is disabled");
     size = spinel_pop_data_ptr(buf, &data);
     ret = write(g_fuzz_ctxt.tun_pipe[1], data, size);
