@@ -448,6 +448,17 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
 }
 
+static bool wsbr_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
+{
+    if (!ctxt->reset_done)
+        return false;
+    if (!ctxt->hw_addr_done)
+        return prop == SPINEL_PROP_HWADDR;
+    if (!fw_api_older_than(ctxt, 0, 11, 0) && !ctxt->list_rf_configs_done)
+        return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
+    return true;
+}
+
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(4096);
@@ -466,8 +477,8 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         break;
     case SPINEL_CMD_PROP_IS:
         prop = spinel_pop_uint(buf);
-        if (!ctxt->hw_addr_done && prop != SPINEL_PROP_HWADDR) {
-            WARN("unexpected boot-up sequence (expected SPINEL_PROP_HWADDR)");
+        if (!wsbr_init_state_is_valid(ctxt, prop)) {
+            WARN("ignoring unexpected boot-up sequence");
             return;
         }
         wsbr_spinel_is(ctxt, prop, buf);
