@@ -436,6 +436,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "chan_count",                    &config->ws_chan_count,                    conf_set_number,      NULL },
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
+        { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
         { "gtk[%*d]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
@@ -544,6 +545,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
     config->ws_size = NETWORK_SIZE_SMALL;
+    config->ws_fan_version = WS_FAN_VERSION_1_1;
     config->ws_pan_id = -1;
     config->tx_power = 20;
     config->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;

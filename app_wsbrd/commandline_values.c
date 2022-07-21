@@ -16,6 +16,7 @@
 #include "stack/ws_management_api.h"
 #include "stack/mac/channel_list.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
+#include "stack/source/6lowpan/ws/ws_common_defines.h"
 
 #include "commandline_values.h"
 
@@ -57,6 +58,12 @@ const struct name_value valid_ws_size[] = {
     { "L",      NETWORK_SIZE_LARGE },
     { "XLARGE", NETWORK_SIZE_XLARGE },
     { "XL",     NETWORK_SIZE_XLARGE },
+    { NULL },
+};
+
+const struct name_value valid_fan_versions[] = {
+    { "1.0",       WS_FAN_VERSION_1_0 },
+    { "1.1",       WS_FAN_VERSION_1_1 },
     { NULL },
 };
 
