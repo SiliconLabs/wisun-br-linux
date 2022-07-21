@@ -65,8 +65,8 @@ void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int nu
 void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num);
 unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int size);
 unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val);
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size, bool check_exact_size);
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int size, bool check_exact_size);
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size);
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val);
 
 const char *spinel_cmd_str(int cmd);
 const char *spinel_prop_str(int prop);

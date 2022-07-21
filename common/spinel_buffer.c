@@ -591,44 +591,41 @@ unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned i
     return size;
 }
 
-static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
+static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
     unsigned int size = spinel_remaining_size(buf);
 
-    if (check_exact_size)
-        BUG_ON(size < val_size);
-    if (size > val_size)
-        size = val_size;
-    *val = buf->frame + buf->cnt;
+    *val = spinel_ptr(buf);
     buf->cnt += size;
     BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val, unsigned int val_size, bool check_exact_size)
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val)
 {
-    unsigned int size = __spinel_pop_raw_ptr(buf, val, val_size, check_exact_size);
+    unsigned int size = __spinel_pop_raw_ptr(buf, val);
 
-    BUG_ON(check_exact_size != !!(val_size > 0));
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
             size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
-static unsigned int __spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+static unsigned int __spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
-    unsigned int size;
-    uint8_t *ptr;
+    unsigned int size = spinel_remaining_size(buf);
 
-    size = __spinel_pop_raw_ptr(buf, &ptr, val_size, check_exact_size);
-    memcpy(val, ptr, size);
+    if (val_size < size)
+        size = val_size;
+    memcpy(val, spinel_ptr(buf), size);
+    buf->cnt += size;
+    BUG_ON(buf->cnt > buf->len);
     return size;
 }
 
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size, bool check_exact_size)
+unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
-    unsigned int size = __spinel_pop_raw(buf, val, val_size, check_exact_size);
+    unsigned int size = __spinel_pop_raw(buf, val, val_size);
 
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:      raw: %s (%u bytes)",
