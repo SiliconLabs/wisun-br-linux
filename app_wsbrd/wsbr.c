@@ -431,6 +431,7 @@ int wsbr_main(int argc, char *argv[])
     struct pollfd fds[POLLFD_COUNT];
 
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon);
+    g_enable_color_traces = isatty(fileno(g_trace_stream));
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
@@ -443,6 +444,8 @@ int wsbr_main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
+    if (ctxt->config.color_output != -1)
+        g_enable_color_traces = ctxt->config.color_output;
     ns_file_system_set_root_path(ctxt->config.storage_prefix);
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;

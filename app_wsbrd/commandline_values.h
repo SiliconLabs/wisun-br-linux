@@ -21,6 +21,7 @@ extern const struct name_value valid_ws_size[];
 extern const struct name_value valid_fan_versions[];
 extern const struct name_value valid_traces[];
 extern const struct name_value valid_booleans[];
+extern const struct name_value valid_tristate[];
 extern const struct name_value valid_ws_regional_regulations[];
 
 #endif

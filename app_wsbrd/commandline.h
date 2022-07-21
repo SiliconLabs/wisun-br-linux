@@ -26,6 +26,7 @@
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {
     bool list_rf_configs;
+    int color_output;
 
     char cpc_instance[PATH_MAX];
 

@@ -83,6 +83,21 @@ const struct name_value valid_traces[] = {
     { NULL },
 };
 
+const struct name_value valid_tristate[] = {
+    { "auto",    -1 },
+    { "true",    1 },
+    { "false",   0 },
+    { "enable",  1 },
+    { "disable", 0 },
+    { "yes",     1 },
+    { "no",      0 },
+    { "y",       1 },
+    { "n",       0 },
+    { "1",       1 },
+    { "0",       0 },
+    { NULL },
+};
+
 const struct name_value valid_booleans[] = {
     { "true",    1 },
     { "false",   0 },
