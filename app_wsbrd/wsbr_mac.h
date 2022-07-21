@@ -18,6 +18,11 @@
 struct wsbr_ctxt;
 struct spinel_buffer;
 
+#define RCP_HAS_RESET          0x0001
+#define RCP_HAS_HWADDR         0x0002
+#define RCP_HAS_RF_CONFIG_LIST 0x0004
+#define RCP_INIT_DONE          0x0008
+
 uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
 void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop);
 void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf, unsigned int prop);

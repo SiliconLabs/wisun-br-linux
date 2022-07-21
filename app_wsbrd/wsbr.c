@@ -314,7 +314,7 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 {
-    if (ctxt->reset_done && ctxt->hw_addr_done)
+    if (ctxt->rcp_init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
           FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
@@ -325,7 +325,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
     if (fw_api_older_than(ctxt, 0, 2, 0))
         FATAL(3, "RCP API is too old");
-    ctxt->reset_done = true;
+    ctxt->rcp_init_state |= RCP_HAS_RESET;
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
@@ -356,7 +356,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
             i++;
     } while (ret < 1);
 
-    while (!ctxt->hw_addr_done)
+    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
@@ -367,11 +367,12 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     if (!fw_api_older_than(ctxt, 0, 11, 0)) {
         wsbr_rcp_get_rf_config_list(ctxt);
-        while (!ctxt->list_rf_configs_done)
+        while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         if (ctxt->list_rf_configs)
             exit(0);
     }
+    ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)

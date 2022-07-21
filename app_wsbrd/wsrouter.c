@@ -189,7 +189,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 {
-    if (ctxt->reset_done && ctxt->hw_addr_done)
+    if (ctxt->rcp_init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
           FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
@@ -200,7 +200,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
     if (fw_api_older_than(ctxt, 0, 2, 0))
         FATAL(3, "RCP API is too old");
-    ctxt->reset_done = true;
+    ctxt->rcp_init_state |= RCP_HAS_RESET;
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
@@ -277,9 +277,10 @@ int main(int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     wsbr_rcp_reset(ctxt);
-    while (!ctxt->hw_addr_done)
+    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
+    ctxt->rcp_init_state |= RCP_INIT_DONE;
 
     wsbr_common_timer_init(ctxt);
     if (net_init_core())

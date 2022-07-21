@@ -58,8 +58,7 @@ struct wsbr_ctxt {
     bool tun_autoconf;
     bool tun_use_tap;
 
-    bool reset_done;
-    bool hw_addr_done;
+    uint32_t rcp_init_state;
     uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
     struct fhss_api *fhss_api;
@@ -118,7 +117,6 @@ struct wsbr_ctxt {
     uint8_t ws_denied_mac_address_count;
     int ws_regional_regulation;
     bool list_rf_configs;
-    bool list_rf_configs_done;
     uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 
     // For DebugPing dbus interface

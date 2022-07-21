@@ -395,7 +395,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
         if (!spinel_prop_is_valid(buf, prop))
             return;
-        ctxt->hw_addr_done = true;
+        ctxt->rcp_init_state |= RCP_HAS_HWADDR;
         break;
     }
     case SPINEL_PROP_WS_RX_SENSITIVITY: {
@@ -414,7 +414,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
         if (ctxt->list_rf_configs)
             print_rf_config_list(ctxt, buf);
-        ctxt->list_rf_configs_done = true;
+        ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG_LIST;
         break;
     }
     // FIXME: for now, only SPINEL_PROP_WS_START return a SPINEL_PROP_LAST_STATUS
@@ -450,11 +450,11 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 
 static bool wsbr_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
 {
-    if (!ctxt->reset_done)
+    if (!(ctxt->rcp_init_state & RCP_HAS_RESET))
         return false;
-    if (!ctxt->hw_addr_done)
+    if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         return prop == SPINEL_PROP_HWADDR;
-    if (!fw_api_older_than(ctxt, 0, 11, 0) && !ctxt->list_rf_configs_done)
+    if (!fw_api_older_than(ctxt, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
         return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
     return true;
 }
