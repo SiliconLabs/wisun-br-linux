@@ -445,11 +445,12 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     struct channel_list_s async_channel_list;
     struct msdu_malloc_info *malloc_info;
     uint16_t prio;
+    uint8_t *ptr;
     int len;
 
-    data.msduLength                 = spinel_pop_u16(buf);
+    data.msduLength                 = spinel_pop_data_ptr(buf, &ptr);
     data.msdu = malloc(data.msduLength);
-    spinel_pop_raw(buf, data.msdu, data.msduLength, true);
+    memcpy(data.msdu, ptr, data.msduLength);
     data.SrcAddrMode                = spinel_pop_u8(buf);
     data.DstAddrMode                = spinel_pop_u8(buf);
     data.DstPANId                   = spinel_pop_u16(buf);
@@ -469,22 +470,22 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_t attr, str
     async_channel_list.channel_page = spinel_pop_uint(buf);
     spinel_pop_fixed_u32_array(buf, async_channel_list.channel_mask, 8);
 
-    len = spinel_pop_u16(buf);
+    len = spinel_pop_data_ptr(buf, &ptr);
     if (len) {
         ie_ext.payloadIovLength = 1;
         ie_ext.payloadIeVectorList = malloc(sizeof(struct ns_ie_iovec));
         ie_ext.payloadIeVectorList->iovLen = len;
         ie_ext.payloadIeVectorList->ieBase = malloc(len);
-        spinel_pop_raw(buf, ie_ext.payloadIeVectorList->ieBase, len, true);
+        memcpy(ie_ext.payloadIeVectorList->ieBase, ptr, len);
     }
 
-    len = spinel_pop_u16(buf);
+    len = spinel_pop_data_ptr(buf, &ptr);
     if (len) {
         ie_ext.headerIovLength = 1;
         ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
         ie_ext.headerIeVectorList->iovLen = len;
         ie_ext.headerIeVectorList->ieBase = malloc(len);
-        spinel_pop_raw(buf, ie_ext.headerIeVectorList->ieBase, len, true);
+        memcpy(ie_ext.headerIeVectorList->ieBase, ptr, len);
     }
     if (spinel_remaining_size(buf))
          async_channel_list.next_channel_number = spinel_pop_u16(buf);
