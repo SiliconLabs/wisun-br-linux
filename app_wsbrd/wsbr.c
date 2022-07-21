@@ -161,6 +161,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
+    uint8_t *lgtks[3] = { };
+    bool lgtk_force = false;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
                                   ctxt->config.ws_name, (struct fhss_timer *)-1);
@@ -231,6 +233,17 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
     if (gtk_force) {
         ret = ws_test_gtk_set(ctxt->rcp_if_id, gtks);
+        WARN_ON(ret);
+    }
+
+    for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_lgtk_force); i++) {
+        if (ctxt->config.ws_lgtk_force[i]) {
+            lgtk_force = true;
+            lgtks[i] = ctxt->config.ws_lgtk[i];
+        }
+    }
+    if (lgtk_force) {
+        ret = ws_test_lgtk_set(ctxt->rcp_if_id, lgtks);
         WARN_ON(ret);
     }
 

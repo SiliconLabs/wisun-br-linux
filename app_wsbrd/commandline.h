@@ -59,6 +59,8 @@ struct wsbrd_conf {
     arm_certificate_entry_s tls_ca;
     uint8_t ws_gtk[4][16];
     bool ws_gtk_force[4];
+    uint8_t ws_lgtk[3][16];
+    bool ws_lgtk_force[3];
     struct sockaddr_storage radius_server;
     char radius_secret[256];
 

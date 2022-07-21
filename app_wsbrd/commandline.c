@@ -412,14 +412,27 @@ static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *in
     int index;
 
     BUG_ON(raw_param);
-    BUG_ON(raw_dest != config->ws_gtk);
-    if (sscanf(info->line, " gtk[%d]", &index) != 1)
-        FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
-    if (index < 0 || index > 3)
-        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
-    if (parse_byte_array(config->ws_gtk[index], 16, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
-    config->ws_gtk_force[index] = true;
+    BUG_ON(raw_dest != config->ws_gtk && raw_dest != config->ws_lgtk);
+    if (raw_dest == config->ws_gtk) {
+        if (sscanf(info->line, " gtk[%d]", &index) != 1)
+            FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
+    } else {
+        if (sscanf(info->line, " lgtk[%d]", &index) != 1)
+            FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
+    }
+    if (raw_dest == config->ws_gtk) {
+        if (index < 0 || index >= ARRAY_SIZE(config->ws_gtk))
+            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
+        if (parse_byte_array(config->ws_gtk[index], 16, raw_value))
+            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+        config->ws_gtk_force[index] = true;
+    } else {
+        if (index < 0 || index >= ARRAY_SIZE(config->ws_lgtk))
+            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
+        if (parse_byte_array(config->ws_lgtk[index], 16, raw_value))
+            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+        config->ws_lgtk_force[index] = true;
+    }
 }
 
 static void parse_config_line(struct wsbrd_conf *config, struct parser_info *info)
@@ -456,6 +469,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
         { "gtk[%*d]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
+        { "lgtk[%*d]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
