@@ -68,7 +68,7 @@ void print_help(FILE *stream, int exit_code) {
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -m, --eui64=ADDR      Set MAC address (EUI64) to ADDR (default: random)\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG] Enable traces marked with TAG. Valid tags: rf, chan,\n");
-    fprintf(stream, "                        bus, hdlc, hif\n");
+    fprintf(stream, "                        bus, hdlc, hif, hif-extra\n");
     fprintf(stream, "  -c, --pcap=FILE       Dump RF data to FILE\n");
     fprintf(stream, "  -w, --wireshark       Invoke wireshark and dump RF data into\n");
     fprintf(stream, "\n");
@@ -200,11 +200,12 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
         char *name;
         int val;
     } valid_traces[] = {
-        { "rf",   TR_RF },
-        { "chan", TR_CHAN },
-        { "bus",  TR_BUS },
-        { "hdlc", TR_HDLC },
-        { "hif",  TR_HIF },
+        { "rf",        TR_RF },
+        { "chan",      TR_CHAN },
+        { "bus",       TR_BUS },
+        { "hdlc",      TR_HDLC },
+        { "hif",       TR_HIF },
+        { "hif-extra", TR_HIF_EXTRA },
     };
     static const struct option opt_list[] = {
         { "eui64",     required_argument, 0, 'm' },

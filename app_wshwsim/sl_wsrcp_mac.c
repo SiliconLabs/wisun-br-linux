@@ -621,6 +621,7 @@ void wsmac_rx_host(struct wsmac_ctxt *ctxt)
     rx_buf->len = uart_rx(ctxt->os_ctxt, rx_buf->frame, SPINEL_SIZE_MAX);
     if (!rx_buf->len)
         return;
+    spinel_trace(rx_buf, "hif rx: ");
     spinel_reset(rx_buf);
     spinel_pop_u8(rx_buf); /* packet header */
     cmd = spinel_pop_uint(rx_buf);
