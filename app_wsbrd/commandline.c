@@ -256,10 +256,10 @@ static void conf_set_number(struct wsbrd_conf *config, const struct parser_info 
 
 static void conf_set_string(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
+    uintptr_t max_len = (uintptr_t)raw_param;
     char *dest = raw_dest;
 
-    BUG_ON(raw_param);
-    if (parse_escape_sequences(dest, raw_value))
+    if (parse_escape_sequences(dest, raw_value, max_len))
         FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
 }
 
@@ -409,23 +409,23 @@ static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *in
 static void parse_config_line(struct wsbrd_conf *config, struct parser_info *info)
 {
     const struct option_struct options[] = {
-        { "uart_device",                   config->uart_dev,                          conf_set_string,      NULL },
+        { "uart_device",                   config->uart_dev,                          conf_set_string,      (void *)sizeof(config->uart_dev) },
         { "uart_baudrate",                 &config->uart_baudrate,                    conf_set_number,      NULL },
         { "uart_rtscts",                   &config->uart_rtscts,                      conf_set_bool,        NULL },
-        { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      NULL },
-        { "tun_device",                    config->tun_dev,                           conf_set_string,      NULL },
+        { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      (void *)sizeof(config->cpc_instance) },
+        { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "use_tap",                       &config->tun_use_tap,                      conf_set_bool,        NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
-        { "storage_prefix",                config->storage_prefix,                    conf_set_string,      NULL },
+        { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_set_flags,       NULL },
         { "dhcpv6_server",                 &config->dhcpv6_server,                    conf_set_netaddr,     NULL },
         { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
-        { "radius_secret",                 config->radius_secret,                     conf_set_string,      NULL },
+        { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
         { "key",                           &config->tls_own,                          conf_set_key,         NULL },
         { "certificate",                   &config->tls_own,                          conf_set_cert,        NULL },
         { "authority",                     &config->tls_ca,                           conf_set_cert,        NULL },
-        { "network_name",                  config->ws_name,                           conf_set_string,      NULL },
+        { "network_name",                  config->ws_name,                           conf_set_string,      (void *)sizeof(config->ws_name) },
         { "size",                          &config->ws_size,                          conf_set_enum,        &valid_ws_size },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
