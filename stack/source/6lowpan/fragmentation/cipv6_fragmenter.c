@@ -356,6 +356,10 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     }
 
     uint16_t fragment_last = fragment_first + ipv6_size - 1;
+    // RFC4944: All link fragments for a datagram except the last one MUST be
+    // multiples of eight bytes in length.
+    if (ipv6_size % 8 && fragment_last + 1 != datagram_size)
+        goto resassembly_error;
     if (fragment_last >= datagram_size) {
         tr_err("Frag out-of-range: last=%u, size=%u", fragment_last, datagram_size);
         //Free Current entry
