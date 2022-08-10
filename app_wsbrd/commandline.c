@@ -573,24 +573,24 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             case 'F':
                 break;
             case 'u':
-                strncpy(config->uart_dev, optarg, sizeof(config->uart_dev) - 1);
+                snprintf(config->uart_dev, sizeof(config->uart_dev), "%s", optarg); // safe strncpy()
                 break;
             case 'o':
-                strncpy(info.line, optarg, sizeof(info.line));
+                snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
                 parse_config_line(config, &info);
                 break;
             case 'l':
                 config->list_rf_configs = true;
                 break;
             case 't':
-                strncpy(config->tun_dev, optarg, sizeof(config->tun_dev) - 1);
+                snprintf(config->tun_dev, sizeof(config->tun_dev), "%s", optarg); // safe strncpy()
                 break;
             case 'T':
                 strcpy(info.key, "trace");
                 conf_set_flags(config, &info, &g_enabled_traces, valid_traces, optarg);
                 break;
             case 'n':
-                strncpy(config->ws_name, optarg, sizeof(config->ws_name) - 1);
+                snprintf(config->ws_name, sizeof(config->ws_name), "%s", optarg); // safe strncpy()
                 break;
             case 'd':
                 strcpy(info.key, "domain");
