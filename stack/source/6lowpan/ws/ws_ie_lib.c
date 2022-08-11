@@ -252,9 +252,10 @@ uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lutt_length(), WH_IE_LUTT_TYPE);
     *ptr++ = message_type;
-    //Set 0 for next 5 bytes which will be initializwed by FHSS
-    memset(ptr, 0, 5); /* Unicast Slot Number 2 bytes, UFSI 3 bytes */
-    ptr += 5;
+    memset(ptr, 0, 2); /* Unicast Slot Number 2 bytes */
+    ptr += 2;
+    memset(ptr, 0, 3); /* UFSI 3 bytes */
+    ptr += 3;
     return ptr;
 }
 
@@ -277,9 +278,10 @@ uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr)
 uint8_t *ws_wh_lbt_write(uint8_t *ptr)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbt_length(), WH_IE_LBT_TYPE);
-    //Set 0 for next 5 bytes which will be initializwed by FHSS
-    memset(ptr, 0, ws_wh_lbt_length()); /* LFN Broadcast Slot Number 2 bytes,  LFN Broadcast Interval Offset 3 bytes */
-    ptr += ws_wh_lbt_length();
+    memset(ptr, 0, 2); /* LFN Broadcast Slot Number 2 bytes */
+    ptr += 2;
+    memset(ptr, 0, 3); /* LFN Broadcast Interval Offset 3 bytes */
+    ptr += 3;
     return ptr;
 
 }
@@ -303,7 +305,6 @@ uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ptr)
     }
     return length;
 }
-
 
 uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ptr)
 {
@@ -345,8 +346,6 @@ uint8_t *ws_wh_panid_write(uint8_t *ptr, uint16_t pana_id)
     ptr = common_write_16_bit_inverse(pana_id, ptr);
     return ptr;
 }
-
-
 
 uint8_t *ws_wp_base_write(uint8_t *ptr, uint16_t length)
 {
@@ -545,7 +544,8 @@ uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *p
         return ptr;
     }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_VER_TYPE, 2);
-    return common_write_16_bit_inverse(pan_configuration->pan_version, ptr);
+    ptr = common_write_16_bit_inverse(pan_configuration->pan_version, ptr);
+    return ptr;
 }
 
 uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkhash_length)
@@ -606,16 +606,15 @@ uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash)
 uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash)
 {
     uint16_t length = ws_wp_lgtk_hash_length(ws_lgtkhash);
+    uint8_t temp8 = 0;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
-
-    uint8_t temp8 = 0;
     temp8 |= (ws_lgtkhash->lgtk0 << 0);
     temp8 |= (ws_lgtkhash->lgtk1 << 1);
     temp8 |= (ws_lgtkhash->lgtk2 << 2);
     temp8 |= (ws_lgtkhash->active_lgtk_index << 3);
-
     *ptr++ = temp8;
+
     if (ws_lgtkhash->lgtk0) {
         memcpy(ptr, ws_lgtkhash->lgtk0_hash, 8);
         ptr += 8;
@@ -630,7 +629,6 @@ uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lg
         memcpy(ptr, ws_lgtkhash->lgtk2_hash, 8);
         ptr += 8;
     }
-
     return ptr;
 }
 
@@ -653,7 +651,6 @@ uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, ws_generic_channel_in
     ptr = ws_wp_channel_function_write(ptr, ws_lcp);
     ptr = ws_wp_nested_excluded_channel_write(ptr, ws_lcp);
     return ptr;
-
 }
 
 
@@ -661,6 +658,7 @@ uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, ws_generic_channel_in
 bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
     mac_header_IE_t utt_ie_data;
+
     utt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (4 > mac_ie_header_sub_id_discover(data, length, &utt_ie_data, WH_IE_UTT_TYPE)) {
         // NO UTT header
@@ -675,6 +673,7 @@ bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
 {
     mac_header_IE_t btt_ie_data;
+
     btt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (5 > mac_ie_header_sub_id_discover(data, length, &btt_ie_data, WH_IE_BT_TYPE)) {
         return false;
@@ -688,6 +687,7 @@ bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
 bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
 {
     mac_header_IE_t fc_ie_data;
+
     fc_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (2 > mac_ie_header_sub_id_discover(data, length, &fc_ie_data, WH_IE_FC_TYPE)) {
         return false;
@@ -701,6 +701,7 @@ bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
 bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl)
 {
     mac_header_IE_t rsl_ie_data;
+
     rsl_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (1 > mac_ie_header_sub_id_discover(data, length, &rsl_ie_data, WH_IE_RSL_TYPE)) {
         return false;
@@ -713,6 +714,7 @@ bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl)
 bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64)
 {
     mac_header_IE_t rsl_ie_data;
+
     rsl_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (8 > mac_ie_header_sub_id_discover(data, length, &rsl_ie_data, WH_IE_EA_TYPE)) {
         return false;
@@ -724,8 +726,8 @@ bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64)
 
 bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *ws_lutt)
 {
-
     mac_header_IE_t lutt_ie_data;
+
     lutt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lutt_length() > mac_ie_header_sub_id_discover(data, length, &lutt_ie_data, WH_IE_LUTT_TYPE)) {
         return false;
@@ -741,6 +743,7 @@ bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *ws_lutt)
 bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr)
 {
     mac_header_IE_t lus_ie_data;
+
     lus_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lus_length() > mac_ie_header_sub_id_discover(data, length, &lus_ie_data, WH_IE_LUS_TYPE)) {
         return false;
@@ -756,6 +759,7 @@ bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr)
 bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr)
 {
     mac_header_IE_t flus_ie_data;
+
     flus_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_flus_length() > mac_ie_header_sub_id_discover(data, length, &flus_ie_data, WH_IE_FLUS_TYPE)) {
         return false;
@@ -770,6 +774,7 @@ bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr
 bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt)
 {
     mac_header_IE_t lbt_ie_data;
+
     lbt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lbt_length() > mac_ie_header_sub_id_discover(data, length, &lbt_ie_data, WH_IE_LBT_TYPE)) {
         return false;
@@ -784,11 +789,11 @@ bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt)
 bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr)
 {
     mac_header_IE_t lbs_ie_data;
+
     lbs_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lbs_length() > mac_ie_header_sub_id_discover(data, length, &lbs_ie_data, WH_IE_LBS_TYPE)) {
         return false;
     }
-
     data = lbs_ie_data.content_ptr;
     lbs_ptr->broadcast_interval = common_read_24_bit_inverse(data);
     data += 3;
@@ -802,6 +807,7 @@ bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr)
 bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
 {
     mac_header_IE_t nr_ie_data;
+
     nr_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (3 > mac_ie_header_sub_id_discover(data, length, &nr_ie_data, WH_IE_NR_TYPE)) {
         return false;
@@ -832,11 +838,11 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
 bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr)
 {
     mac_header_IE_t lnd_ie_data;
+
     lnd_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lnd_length() > mac_ie_header_sub_id_discover(data, length, &lnd_ie_data, WH_IE_LND_TYPE)) {
         return false;
     }
-
     data = lnd_ie_data.content_ptr;
     lnd_ptr->response_threshold = *data++;
     lnd_ptr->response_delay = common_read_24_bit_inverse(data);
@@ -851,12 +857,12 @@ bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr)
 bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ptr)
 {
     mac_header_IE_t lto_ie_data;
+
     lto_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
     if (ws_wh_lto_length() > mac_ie_header_sub_id_discover(data, length, &lto_ie_data, WH_IE_LTO_TYPE)) {
         return false;
     }
     data = lto_ie_data.content_ptr;
-
     lto_ptr->offset = common_read_24_bit_inverse(data);
     lto_ptr->adjusted_listening_interval = common_read_24_bit_inverse(data + 3);
 
@@ -918,6 +924,7 @@ static uint8_t *ws_channel_function_three_read(uint8_t *ptr, ws_channel_function
 bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_US_TYPE;
     nested_payload_ie.type_long = true;
     if (4 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
@@ -1020,9 +1027,11 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
 
     return true;
 }
+
 bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_BS_TYPE;
     nested_payload_ie.type_long = true;
     if (10 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
@@ -1129,6 +1138,7 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
 bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information_s *pan_configuration)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_PAN_TYPE;
     nested_payload_ie.type_long = false;
     if (5 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
@@ -1153,6 +1163,7 @@ bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_informa
 bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan_version)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_PAN_VER_TYPE;
     nested_payload_ie.type_long = false;
     if (2 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
@@ -1166,6 +1177,7 @@ bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan
 uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_GTKHASH_TYPE;
     nested_payload_ie.type_long = false;
     if (mac_ie_nested_discover(data, length, &nested_payload_ie) !=  32) {
@@ -1175,13 +1187,12 @@ uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
     return nested_payload_ie.content_ptr;
 }
 
-
 bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_NETNAME_TYPE;
     nested_payload_ie.type_long = false;
-
     if (0 == mac_ie_nested_discover(data, length, &nested_payload_ie)) {
         return false;
     } else if (nested_payload_ie.length > 32) {
@@ -1232,6 +1243,7 @@ bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfn
 bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_LGTKHASH_TYPE;
     nested_payload_ie.type_long = false;
     if (1 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
@@ -1270,7 +1282,6 @@ bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkh
     }
 
     return true;
-
 }
 
 
@@ -1297,13 +1308,12 @@ bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, ws_gener
     if (nested_payload_ie.length < info_length) {
         return false;
     }
-
     nested_payload_ie.length -= info_length;
+
     switch (ws_lcp->channel_plan) {
         case 0:
             data = ws_channel_plan_zero_read(data, &ws_lcp->plan.zero);
             break;
-
         case 1:
             data = ws_channel_plan_one_read(data, &ws_lcp->plan.one);
             break;
@@ -1312,28 +1322,22 @@ bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, ws_gener
             break;
         default:
             return false;
-
     }
 
     info_length = ws_channel_function_length(ws_lcp->channel_function, 0);
-
     if (nested_payload_ie.length < info_length) {
         return false;
     }
     nested_payload_ie.length -= info_length;
 
-
     switch (ws_lcp->channel_function) {
         case 0:
             data = ws_channel_function_zero_read(data, &ws_lcp->function.zero);
             break;
-
         case 1:
         case 2:
             break;
-
         case 3:
-
             data = ws_channel_function_three_read(data, &ws_lcp->function.three);
             info_length = ws_lcp->function.three.channel_hop_count;
             if (nested_payload_ie.length < info_length) {

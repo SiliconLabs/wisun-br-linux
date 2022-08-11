@@ -60,7 +60,7 @@
 #define WP_PAYLOAD_IE_PAN_VER_TYPE  6   /**< Pan configuration version */
 #define WP_PAYLOAD_IE_GTKHASH_TYPE  7   /**< GTK Hash information */
 /* Wi-SUN FAN definition 1.1 */
-#define WP_PAYLOAD_IE_POM_TYPE     8   /**< PHY Capability information */
+#define WP_PAYLOAD_IE_POM_TYPE      8   /**< PHY Capability information */
 #define WP_PAYLOAD_IE_LFNVER_TYPE   9   /**< LFN Version information */
 #define WP_PAYLOAD_IE_LGTKHASH_TYPE 10  /**< LFN GTK Hash Information */
 
@@ -180,18 +180,17 @@ typedef struct ws_lbt_ie {
     uint_fast24_t   interval_offset;
 } ws_lbt_ie_t;
 
-
 /**
  * @brief ws_nr_ie_t WS NR-IE
  */
 typedef struct ws_nr_ie {
-    unsigned node_role: 3;
+    uint8_t node_role: 3;
+    uint8_t reserved: 5;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
     uint_fast24_t listen_interval_min;
     uint_fast24_t listen_interval_max;
 } ws_nr_ie_t;
-
 
 /**
  * @brief ws_lus_ie_t WS LUS-IE
@@ -435,7 +434,6 @@ typedef struct ws_bs_ie {
         ws_excluded_channel_mask_t mask;
     } excluded_channels;
 } ws_bs_ie_t;
-
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */
 #define MPX_LOWPAN_ENC_USER_ID 0xA0ED           /**< MPX Lowpan User Id */

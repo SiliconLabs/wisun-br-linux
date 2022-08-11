@@ -90,12 +90,9 @@ uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *p
 uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkhash_length);
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
-/* WS LFN version */
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
-/* WS LFN GTK HAS */
 uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
 uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash);
-/* WS LFN Channel plan */
 uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
 uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_generic_channel_info *ws_lcp);
 
