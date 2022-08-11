@@ -59,7 +59,7 @@ uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ptr);
 #define ws_wh_lnd_length() 8
 uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr);
 #define ws_wh_lto_length() 6
-uint8_t *ws_wh_panid_write(uint8_t *ptr, uint16_t pana_id);
+uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ptr);
 #define ws_wh_panid_length() 2
 
 

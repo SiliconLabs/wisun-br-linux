@@ -338,12 +338,10 @@ uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr)
     return ptr;
 }
 
-
-uint8_t *ws_wh_panid_write(uint8_t *ptr, uint16_t pana_id)
+uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_panid_length(), WH_IE_PANID_TYPE);
-    //TODO need to be check byte order
-    ptr = common_write_16_bit_inverse(pana_id, ptr);
+    ptr = common_write_16_bit_inverse(panid_ie->panid, ptr);
     return ptr;
 }
 
