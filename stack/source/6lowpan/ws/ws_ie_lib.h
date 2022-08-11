@@ -61,6 +61,8 @@ uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr);
 #define ws_wh_lto_length() 6
 uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ptr);
 #define ws_wh_panid_length() 2
+uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie);
+#define ws_wh_lbc_length() 4
 
 
 bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
@@ -74,6 +76,7 @@ bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr);
 bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr);
 bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt);
 bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr);
+bool ws_wh_lbc_read(uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie);
 bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr);
 bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr);
 bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ptr);

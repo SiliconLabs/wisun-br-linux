@@ -40,6 +40,7 @@
 #define WH_IE_LND_TYPE              16  /**< LFN Network Discovery information */
 #define WH_IE_LTO_TYPE              17  /**< LFN Timing information */
 #define WH_IE_PANID_TYPE            18  /**< PAN Identifier information */
+#define WH_IE_LBC_TYPE              128 /**< LFN Broadcast Configuration IE */
 
 
 #define WS_WP_NESTED_IE             4 /**< WS nested Payload IE element'selement could include mltiple sub payload IE */
@@ -243,6 +244,14 @@ typedef struct ws_lbs_ie {
 typedef struct ws_panid_ie {
     uint16_t        panid;
 } ws_panid_ie_t;
+
+/**
+ * @brief ws_lbc_ie_t WS LBC-IE read
+ */
+typedef struct ws_lbc_ie {
+    uint_fast24_t lfn_broadcast_interval;
+    uint8_t broadcast_sync_period;
+} ws_lbc_ie_t;
 
 /**
  * @brief ws_pom_ie_t PHY Operating Modes
