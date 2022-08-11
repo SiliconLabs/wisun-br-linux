@@ -2003,9 +2003,9 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 ws_lgtkhash.lgtk1 = base->interface_ptr->ws_info->lfngtk.active_hash_2;
                 ws_lgtkhash.lgtk2 = base->interface_ptr->ws_info->lfngtk.active_hash_3;
                 ws_lgtkhash.active_lgtk_index = base->interface_ptr->ws_info->lfngtk.active_key_index;
-                ws_lgtkhash.lgtk0_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash;
-                ws_lgtkhash.lgtk1_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 8;
-                ws_lgtkhash.lgtk2_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 16;
+                memcpy(ws_lgtkhash.lgtk0_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash, 8);
+                memcpy(ws_lgtkhash.lgtk1_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 8, 8);
+                memcpy(ws_lgtkhash.lgtk2_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
                 ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
             }
 

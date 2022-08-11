@@ -283,9 +283,9 @@ typedef struct ws_lgtkhash_ie {
     bool lgtk1: 1;                  /**< 1= LGTK1 in line 0 = elided */
     bool lgtk2: 1;                  /**< 1= LGTK2 in line 0 = elided */
     unsigned active_lgtk_index: 2;  /**< Indicate Active LGTK index 0-2 */
-    uint8_t *lgtk0_hash;            /**< LGTK0 64-bit Hash if  lgtk0=1*/
-    uint8_t *lgtk1_hash;            /**< LGTK1 64-bit Hash if  lgtk1=1*/
-    uint8_t *lgtk2_hash;            /**< LGTK2 64-bit Hash if  lgtk2=1*/
+    uint8_t lgtk0_hash[8];          /**< LGTK0 64-bit Hash if  lgtk0=1*/
+    uint8_t lgtk1_hash[8];          /**< LGTK1 64-bit Hash if  lgtk1=1*/
+    uint8_t lgtk2_hash[8];          /**< LGTK2 64-bit Hash if  lgtk2=1*/
 } ws_lgtkhash_ie_t;
 
 /**

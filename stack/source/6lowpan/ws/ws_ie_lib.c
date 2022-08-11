@@ -1262,23 +1262,23 @@ bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkha
 
     data++;
     if (ws_lgtkhash->lgtk0) {
-        ws_lgtkhash->lgtk0_hash = data;
+        memcpy(ws_lgtkhash->lgtk0_hash, data, 8);
         data += 8;
     } else {
-        ws_lgtkhash->lgtk0_hash = NULL;
+        memset(ws_lgtkhash->lgtk0_hash, 0, 8);
     }
 
     if (ws_lgtkhash->lgtk1) {
-        ws_lgtkhash->lgtk1_hash = data;
+        memcpy(ws_lgtkhash->lgtk1_hash, data, 8);
         data += 8;
     } else {
-        ws_lgtkhash->lgtk1_hash = NULL;
+        memset(ws_lgtkhash->lgtk1_hash, 0, 8);
     }
 
     if (ws_lgtkhash->lgtk2) {
-        ws_lgtkhash->lgtk2_hash = data;
+        memcpy(ws_lgtkhash->lgtk2_hash, data, 8);
     } else {
-        ws_lgtkhash->lgtk2_hash = NULL;
+        memset(ws_lgtkhash->lgtk2_hash, 0, 8);
     }
 
     return true;
