@@ -34,15 +34,6 @@ typedef struct ws_wp_network_name {
     uint8_t *network_name;
 } ws_wp_network_name_t;
 
-#define ws_wp_nested_lfn_version_length() 2
-#define ws_wh_lutt_length() 6
-#define ws_wh_lus_length() 4
-#define ws_wh_flus_length() 2
-#define ws_wh_lbt_length() 5
-#define ws_wh_lbs_length() 6
-#define ws_wh_lnd_length() 8
-#define ws_wh_lto_length() 6
-#define ws_wh_panid_length() 2
 
 /* WS_WH HEADER IE */
 uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type);
@@ -53,15 +44,23 @@ uint8_t *ws_wh_vh_write(uint8_t *ptr, uint8_t *vendor_header, uint8_t vendor_hea
 uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64);
 /* Wi-SUN FAN 1.1 */
 uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type);
+#define ws_wh_lutt_length() 6
 uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ptr);
+#define ws_wh_lus_length() 4
 uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr);
+#define ws_wh_flus_length() 2
 uint8_t *ws_wh_lbt_write(uint8_t *ptr);
+#define ws_wh_lbt_length() 5
 uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ptr);
+#define ws_wh_lbs_length() 7
 uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ptr);
 uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ptr);
 uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ptr);
+#define ws_wh_lnd_length() 8
 uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr);
+#define ws_wh_lto_length() 6
 uint8_t *ws_wh_panid_write(uint8_t *ptr, uint16_t pana_id);
+#define ws_wh_panid_length() 2
 
 
 bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
@@ -91,6 +90,7 @@ uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkh
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
+#define ws_wp_nested_lfn_version_length() 2
 uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
 uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash);
 uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
