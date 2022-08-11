@@ -64,9 +64,6 @@
 #define WP_PAYLOAD_IE_LFNVER_TYPE   9   /**< LFN Version information */
 #define WP_PAYLOAD_IE_LGTKHASH_TYPE 10  /**< LFN GTK Hash Information */
 
-/* Payload IE sub elements inside WS_WP_NESTED_IE fixed size */
-#define WP_PAYLOAD_IE_POM_SIZE      1
-
 /* WS frame types to WH_IE_UTT_TYPE */
 #define WS_FT_PAN_ADVERT        0          /**< PAN Advert */
 #define WS_FT_PAN_ADVERT_SOL    1          /**< PAN Advert Solicit */

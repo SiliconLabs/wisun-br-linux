@@ -441,7 +441,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (requested_list.pom_ie && params->phy_operating_modes && params->phy_op_mode_number > 1) {
         //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + WP_PAYLOAD_IE_POM_SIZE + params->phy_op_mode_number;
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pom_length(params->phy_op_mode_number);
     }
 
     if (requested_list.bs_ie) {

@@ -558,21 +558,20 @@ uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkh
     return ptr;
 }
 
+uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number)
+{
+    return 1 + phy_op_mode_number;
+}
+
 uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable)
 {
-    uint16_t length;
-
     if (!phy_op_mode_number)
         return ptr;
 
-    length = phy_op_mode_number;
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE, WP_PAYLOAD_IE_POM_SIZE + length);
+    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE,  ws_wp_nested_pom_length(phy_op_mode_number));
     *ptr++ = (phy_op_mode_number & 0xF) | ((mdr_command_capable & 1) << 4);
-
-    if (phy_operating_modes) {
-        memcpy(ptr, phy_operating_modes, length);
-        ptr += length;
-    }
+    memcpy(ptr, phy_operating_modes, phy_op_mode_number);
+    ptr += phy_op_mode_number;
     return ptr;
 }
 
