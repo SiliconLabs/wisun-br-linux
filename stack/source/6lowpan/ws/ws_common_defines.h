@@ -210,10 +210,10 @@ typedef struct ws_flus_ie {
  */
 typedef struct ws_lnd_ie {
     uint8_t response_threshold;
+    uint_fast24_t response_delay; // Filled by MAC
     uint8_t discovery_slot_time;
     uint8_t discovery_slots;
-    uint16_t discovery_first_slot;
-    uint_fast24_t response_delay;
+    uint16_t discovery_first_slot; // Filled by MAC
 } ws_lnd_ie_t;
 
 /**

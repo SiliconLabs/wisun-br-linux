@@ -324,10 +324,12 @@ uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ptr)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lnd_length(), WH_IE_LND_TYPE);
     *ptr++ = lnd_ptr->response_threshold;
-    ptr = common_write_24_bit_inverse(lnd_ptr->response_delay, ptr);
+    memset(ptr, 0, 3);  /* Response Delay 3 bytes */
+    ptr += 3;
     *ptr++ = lnd_ptr->discovery_slot_time;
     *ptr++ = lnd_ptr->discovery_slots;
-    ptr = common_write_16_bit_inverse(lnd_ptr->discovery_first_slot, ptr);
+    memset(ptr, 0, 2);  /* Discovery First Slot 2 bytes */
+    ptr += 2;
     return ptr;
 }
 
