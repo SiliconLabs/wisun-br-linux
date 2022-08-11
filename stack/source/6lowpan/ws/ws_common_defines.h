@@ -231,6 +231,7 @@ typedef struct ws_lbs_ie {
     uint8_t channel_plan_tag;
     uint16_t broadcast_scheduler_id;
     uint_fast24_t broadcast_interval;
+    uint8_t broadcast_sync_period;
 } ws_lbs_ie_t;
 
 

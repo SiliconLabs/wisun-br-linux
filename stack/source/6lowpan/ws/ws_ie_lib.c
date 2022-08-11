@@ -292,6 +292,7 @@ uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ptr)
     ptr = common_write_24_bit_inverse(lbs_ptr->broadcast_interval, ptr);
     ptr = common_write_16_bit_inverse(lbs_ptr->broadcast_scheduler_id, ptr);
     *ptr++ = lbs_ptr->channel_plan_tag;
+    *ptr++ = lbs_ptr->broadcast_sync_period;
     return ptr;
 }
 
@@ -795,7 +796,8 @@ bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr)
     data += 3;
     lbs_ptr->broadcast_scheduler_id = common_read_16_bit_inverse(data);
     data += 2;
-    lbs_ptr->channel_plan_tag = *data;
+    lbs_ptr->channel_plan_tag = *data++;
+    lbs_ptr->broadcast_sync_period = *data;
 
     return true;
 }
