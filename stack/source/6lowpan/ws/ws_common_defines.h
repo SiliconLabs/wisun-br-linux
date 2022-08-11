@@ -193,16 +193,16 @@ typedef struct ws_nr_ie {
  * @brief ws_lus_ie_t WS LUS-IE
  */
 typedef struct ws_lus_ie {
-    uint8_t channel_plan_tag;
     uint_fast24_t listen_interval;
+    uint8_t channel_plan_tag;
 } ws_lus_ie_t;
 
 /**
  * @brief ws_lus_ie_t WS FLUS-IE
  */
 typedef struct ws_flus_ie {
-    uint8_t channel_plan_tag;
     uint8_t dwell_interval;
+    uint8_t channel_plan_tag;
 } ws_flus_ie_t;
 
 /**
@@ -228,9 +228,9 @@ typedef struct ws_lto_ie {
  * @brief ws_lbs_ie_t WS LBS-IE
  */
 typedef struct ws_lbs_ie {
-    uint8_t channel_plan_tag;
-    uint16_t broadcast_scheduler_id;
     uint_fast24_t broadcast_interval;
+    uint16_t broadcast_scheduler_id;
+    uint8_t channel_plan_tag;
     uint8_t broadcast_sync_period;
 } ws_lbs_ie_t;
 
