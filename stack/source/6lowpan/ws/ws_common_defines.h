@@ -150,7 +150,7 @@ typedef struct ws_hopping_schedule_s {
     uint16_t bc_fixed_channel;
     uint16_t fhss_bsi;
     uint32_t fhss_broadcast_interval;
-    uint_fast24_t ch0_freq; // Default should be derived from regulatory domain
+    uint24_t ch0_freq; // Default should be derived from regulatory domain
     ws_excluded_channel_data_t uc_excluded_channels;
     ws_excluded_channel_data_t bc_excluded_channels;
 } ws_hopping_schedule_t;
@@ -160,24 +160,24 @@ typedef struct ws_hopping_schedule_s {
  */
 typedef struct ws_utt_ie {
     uint8_t message_type;
-    uint_fast24_t ufsi;
+    uint24_t ufsi;
 } ws_utt_ie_t;
 
 /**
  * @brief ws_utt_ie_t WS LUTT-IE
  */
 typedef struct ws_lutt_ie {
-    uint8_t         message_type;
-    uint16_t        slot_number; // Filled by MAC
-    uint_fast24_t   interval_offset; // Filled by MAC
+    uint8_t  message_type;
+    uint16_t slot_number; // Filled by MAC
+    uint24_t interval_offset; // Filled by MAC
 } ws_lutt_ie_t;
 
 /**
  * @brief ws_lbt_ie_t WS LBT-IE
  */
 typedef struct ws_lbt_ie {
-    uint16_t        slot_number; // Filled by MAC
-    uint_fast24_t   interval_offset; // Filled by MAC
+    uint16_t slot_number; // Filled by MAC
+    uint24_t interval_offset; // Filled by MAC
 } ws_lbt_ie_t;
 
 /**
@@ -188,15 +188,15 @@ typedef struct ws_nr_ie {
     uint8_t reserved: 5;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
-    uint_fast24_t listen_interval_min;
-    uint_fast24_t listen_interval_max;
+    uint24_t listen_interval_min;
+    uint24_t listen_interval_max;
 } ws_nr_ie_t;
 
 /**
  * @brief ws_lus_ie_t WS LUS-IE
  */
 typedef struct ws_lus_ie {
-    uint_fast24_t listen_interval;
+    uint24_t listen_interval;
     uint8_t channel_plan_tag;
 } ws_lus_ie_t;
 
@@ -213,7 +213,7 @@ typedef struct ws_flus_ie {
  */
 typedef struct ws_lnd_ie {
     uint8_t response_threshold;
-    uint_fast24_t response_delay; // Filled by MAC
+    uint24_t response_delay; // Filled by MAC
     uint8_t discovery_slot_time;
     uint8_t discovery_slots;
     uint16_t discovery_first_slot; // Filled by MAC
@@ -223,15 +223,15 @@ typedef struct ws_lnd_ie {
  * @brief ws_lto_ie_t WS LTO-IE
  */
 typedef struct ws_lto_ie {
-    uint_fast24_t offset;
-    uint_fast24_t adjusted_listening_interval;
+    uint24_t offset;
+    uint24_t adjusted_listening_interval;
 } ws_lto_ie_t;
 
 /**
  * @brief ws_lbs_ie_t WS LBS-IE
  */
 typedef struct ws_lbs_ie {
-    uint_fast24_t broadcast_interval;
+    uint24_t broadcast_interval;
     uint16_t broadcast_scheduler_id;
     uint8_t channel_plan_tag;
     uint8_t broadcast_sync_period;
@@ -249,7 +249,7 @@ typedef struct ws_panid_ie {
  * @brief ws_lbc_ie_t WS LBC-IE read
  */
 typedef struct ws_lbc_ie {
-    uint_fast24_t lfn_broadcast_interval;
+    uint24_t lfn_broadcast_interval;
     uint8_t broadcast_sync_period;
 } ws_lbc_ie_t;
 
@@ -268,7 +268,7 @@ typedef struct ws_pom_ie {
  */
 typedef struct ws_bt_ie {
     uint16_t broadcast_slot_number;
-    uint_fast24_t broadcast_interval_offset;
+    uint24_t broadcast_interval_offset;
 } ws_bt_ie_t;
 
 /**
@@ -316,7 +316,7 @@ typedef struct ws_channel_plan_zero {
  * @brief ws_channel_plan_one_t WS channel plan 1 define ch0, channel spacing and channel count
  */
 typedef struct ws_channel_plan_one {
-    uint_fast24_t ch0; // kHz
+    uint24_t ch0; // kHz
     unsigned channel_spacing: 4;
     uint16_t number_of_channel;
 } ws_channel_plan_one_t;
