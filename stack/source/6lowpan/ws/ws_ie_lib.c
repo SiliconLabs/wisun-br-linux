@@ -583,8 +583,7 @@ uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lf
     return ptr;
 }
 
-
-uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash)
+uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *ws_lgtkhash)
 {
     uint16_t length = 1;
 
@@ -602,9 +601,9 @@ uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash)
     return length;
 }
 
-uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash)
+uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash)
 {
-    uint16_t length = ws_wp_lgtk_hash_length(ws_lgtkhash);
+    uint16_t length = ws_wp_nested_lgtkhash_length(ws_lgtkhash);
     uint8_t temp8 = 0;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
@@ -1238,8 +1237,7 @@ bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfn
     return true;
 }
 
-
-bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash)
+bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1255,7 +1253,7 @@ bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkh
     ws_lgtkhash->lgtk2 = (*data & 0x04) == 0x04;
     ws_lgtkhash->active_lgtk_index = (*data & 0x18) >> 3;
 
-    if (ws_wp_lgtk_hash_length(ws_lgtkhash) > nested_payload_ie.length) {
+    if (ws_wp_nested_lgtkhash_length(ws_lgtkhash) > nested_payload_ie.length) {
         return false;
     }
 

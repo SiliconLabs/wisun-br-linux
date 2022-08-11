@@ -93,8 +93,8 @@ uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_
 uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number);
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
 #define ws_wp_nested_lfn_version_length() 2
-uint8_t *ws_wp_nested_lgtk_hash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
-uint16_t ws_wp_lgtk_hash_length(struct ws_lgtkhash_ie *ws_lgtkhash);
+uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
+uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *ws_lgtkhash);
 uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
 uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_generic_channel_info *ws_lcp);
 
@@ -108,7 +108,7 @@ uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
-bool ws_wp_nested_lgtk_hash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash);
+bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash);
 bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
 
 

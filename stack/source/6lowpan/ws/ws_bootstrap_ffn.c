@@ -406,7 +406,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
 
     //Read LFNGTKHASH
     ws_lgtkhash_ie_t ws_lgtkhash;
-    if (!ws_wp_nested_lgtk_hash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_lgtkhash)) {
+    if (!ws_wp_nested_lgtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_lgtkhash)) {
         return;
     }
 

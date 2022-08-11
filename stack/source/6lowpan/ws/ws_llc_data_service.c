@@ -435,7 +435,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
         ws_lgtkhash.lgtk0 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_1;
         ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
         ws_lgtkhash.lgtk2 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_3;
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_lgtk_hash_length(&ws_lgtkhash);
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(&ws_lgtkhash);
     }
 
     // We put only POM-IE if more than 1 phy (base phy + something else)
@@ -2006,7 +2006,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 ws_lgtkhash.lgtk0_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash;
                 ws_lgtkhash.lgtk1_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 8;
                 ws_lgtkhash.lgtk2_hash = base->interface_ptr->ws_info->lfngtk.lgtkhash + 16;
-                ptr = ws_wp_nested_lgtk_hash_write(ptr, &ws_lgtkhash);
+                ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
             }
 
             // We put only POM-IE if more than 1 phy (base phy + something else)
