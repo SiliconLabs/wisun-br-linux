@@ -577,7 +577,7 @@ uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_
 
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver)
 {
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LFNVER_TYPE, ws_wp_nested_lfn_version_length());
+    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LFN_VER_TYPE, ws_wp_nested_lfn_version_length());
     ptr = common_write_16_bit_inverse(ws_lfnver->lfn_version, ptr);
 
     return ptr;
@@ -1227,7 +1227,8 @@ bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
 {
     mac_nested_payload_IE_t nested_payload_ie;
-    nested_payload_ie.id = WP_PAYLOAD_IE_LFNVER_TYPE;
+
+    nested_payload_ie.id = WP_PAYLOAD_IE_LFN_VER_TYPE;
     nested_payload_ie.type_long = false;
     if (ws_wp_nested_lfn_version_length() > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
         return false;
