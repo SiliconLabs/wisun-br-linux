@@ -165,16 +165,16 @@ typedef struct ws_utt_ie {
  */
 typedef struct ws_lutt_ie {
     uint8_t         message_type;
-    uint16_t        slot_number;
-    uint_fast24_t   interval_offset;
+    uint16_t        slot_number; // Filled by MAC
+    uint_fast24_t   interval_offset; // Filled by MAC
 } ws_lutt_ie_t;
 
 /**
  * @brief ws_lbt_ie_t WS LBT-IE
  */
 typedef struct ws_lbt_ie {
-    uint16_t        slot_number;
-    uint_fast24_t   interval_offset;
+    uint16_t        slot_number; // Filled by MAC
+    uint_fast24_t   interval_offset; // Filled by MAC
 } ws_lbt_ie_t;
 
 /**
