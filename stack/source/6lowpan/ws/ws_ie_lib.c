@@ -944,7 +944,7 @@ static uint8_t *ws_channel_function_zero_read(uint8_t *ptr, ws_channel_function_
 static uint8_t *ws_channel_function_three_read(uint8_t *ptr, ws_channel_function_three_t *plan)
 {
     plan->channel_hop_count = *ptr++;
-    plan->channel_list = ptr++;
+    plan->channel_list = ptr;
     return ptr;
 }
 
