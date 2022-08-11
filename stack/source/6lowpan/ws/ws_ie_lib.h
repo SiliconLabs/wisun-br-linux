@@ -115,7 +115,7 @@ bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom
 bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash);
-bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
+bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
 
 
 #endif

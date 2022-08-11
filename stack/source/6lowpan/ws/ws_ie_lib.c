@@ -1326,24 +1326,31 @@ bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie 
     return true;
 }
 
-bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, ws_generic_channel_info_t *ws_lcp, uint8_t plan_tag_id)
+bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+    uint16_t info_length;
+    uint8_t plan_tag_id;
+
     nested_payload_ie.id = WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE;
     nested_payload_ie.type_long = true;
-
-    if (1 <  mac_ie_nested_tagged_discover(data, length, &nested_payload_ie, plan_tag_id)) {
+    if (2 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
+        return false;
+    }
+    // FIXME is mac_ie_nested_tagged_discover() needed?
+    plan_tag_id = *nested_payload_ie.content_ptr;
+    if (1 < mac_ie_nested_tagged_discover(data, length, &nested_payload_ie, plan_tag_id)) {
         return false;
     }
     //Parse Channel Plan, function and excluded channel
     data = nested_payload_ie.content_ptr;
+    ws_lcp->lfn_channel_plan_tag = *data++;
     ws_lcp->channel_plan = (*data & 3);
     ws_lcp->channel_function = (*data & 0x38) >> 3;
     ws_lcp->excluded_channel_ctrl = (*data & 0xc0) >> 6;
     data++;
     nested_payload_ie.length--;
 
-    uint16_t info_length = 0;
     info_length = ws_channel_plan_length(ws_lcp->channel_plan);
     if (nested_payload_ie.length < info_length) {
         return false;
@@ -1388,34 +1395,27 @@ bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, ws_gener
             break;
         default:
             return false;
-
     }
 
     switch (ws_lcp->excluded_channel_ctrl) {
         case WS_EXC_CHAN_CTRL_NONE:
-
             break;
         case WS_EXC_CHAN_CTRL_RANGE:
-            ws_lcp->excluded_channels.range_in.number_of_range = *data;
-            if (nested_payload_ie.length < (ws_lcp->excluded_channels.range_in.number_of_range * 4) + 1) {
+            ws_lcp->excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (ws_lcp->excluded_channels.range.number_of_range * 4) + 1) {
                 return false;
             }
             //Set Range start after validation
-            ws_lcp->excluded_channels.range_in.range_start = data + 1;
+            ws_lcp->excluded_channels.range.range_start = data + 1;
             break;
-
         case WS_EXC_CHAN_CTRL_BITMASK:
-            if (ws_lcp->channel_plan == 1) {
-                ws_lcp->excluded_channels.mask_in.mask_len_inline = ((ws_lcp->plan.one.number_of_channel + 7) / 8);
-                if (ws_lcp->excluded_channels.mask_in.mask_len_inline != nested_payload_ie.length) {
-                    //Channel mask length is not correct
-                    return false;
-                }
-            } else {
-                ws_lcp->excluded_channels.mask_in.mask_len_inline = nested_payload_ie.length;
+            if (ws_lcp->channel_plan == 1 &&
+                (ws_lcp->plan.one.number_of_channel + 7) / 8 != nested_payload_ie.length) {
+                //Channel mask length is not correct
+                return false;
             }
-
-            ws_lcp->excluded_channels.mask_in.channel_mask = data;
+            ws_lcp->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+            ws_lcp->excluded_channels.mask.channel_mask = data;
             break;
         default:
             return false;
