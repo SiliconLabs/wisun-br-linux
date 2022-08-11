@@ -259,23 +259,23 @@ uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type)
     return ptr;
 }
 
-uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ptr)
+uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lus_length(), WH_IE_LUS_TYPE);
-    ptr = common_write_24_bit_inverse(lus_ptr->listen_interval, ptr);
-    *ptr++ = lus_ptr->channel_plan_tag;
+    ptr = common_write_24_bit_inverse(lus_ie->listen_interval, ptr);
+    *ptr++ = lus_ie->channel_plan_tag;
     return ptr;
 }
 
-uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr)
+uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_flus_length(), WH_IE_FLUS_TYPE);
-    *ptr++ = flus_ptr->dwell_interval;
-    *ptr++ = flus_ptr->channel_plan_tag;
+    *ptr++ = flus_ie->dwell_interval;
+    *ptr++ = flus_ie->channel_plan_tag;
     return ptr;
 }
 
-uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ptr)
+uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbt_length(), WH_IE_LBT_TYPE);
     memset(ptr, 0, 2); /* LFN Broadcast Slot Number 2 bytes */
@@ -286,13 +286,13 @@ uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ptr)
 
 }
 
-uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ptr)
+uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbs_length(), WH_IE_LBS_TYPE);
-    ptr = common_write_24_bit_inverse(lbs_ptr->broadcast_interval, ptr);
-    ptr = common_write_16_bit_inverse(lbs_ptr->broadcast_scheduler_id, ptr);
-    *ptr++ = lbs_ptr->channel_plan_tag;
-    *ptr++ = lbs_ptr->broadcast_sync_period;
+    ptr = common_write_24_bit_inverse(lbs_ie->broadcast_interval, ptr);
+    ptr = common_write_16_bit_inverse(lbs_ie->broadcast_scheduler_id, ptr);
+    *ptr++ = lbs_ie->channel_plan_tag;
+    *ptr++ = lbs_ie->broadcast_sync_period;
     return ptr;
 }
 
@@ -304,10 +304,10 @@ uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie)
     return ptr;
 }
 
-uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ptr)
+uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie)
 {
     uint16_t length;
-    if (nr_ptr->node_role == WS_NR_ROLE_LFN) {
+    if (nr_ie->node_role == WS_NR_ROLE_LFN) {
         length = 9;
     } else {
         length = 3;
@@ -315,37 +315,37 @@ uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ptr)
     return length;
 }
 
-uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ptr)
+uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_nr_length(nr_ptr), WH_IE_NR_TYPE);
-    *ptr++ = nr_ptr->node_role;
-    *ptr++ = nr_ptr->clock_drift;
-    *ptr++ = nr_ptr->timing_accuracy;
-    if (nr_ptr->node_role == WS_NR_ROLE_LFN) {
-        ptr = common_write_24_bit_inverse(nr_ptr->listen_interval_min, ptr);
-        ptr = common_write_24_bit_inverse(nr_ptr->listen_interval_max, ptr);
+    ptr = ws_wh_header_base_write(ptr, ws_wh_nr_length(nr_ie), WH_IE_NR_TYPE);
+    *ptr++ = nr_ie->node_role;
+    *ptr++ = nr_ie->clock_drift;
+    *ptr++ = nr_ie->timing_accuracy;
+    if (nr_ie->node_role == WS_NR_ROLE_LFN) {
+        ptr = common_write_24_bit_inverse(nr_ie->listen_interval_min, ptr);
+        ptr = common_write_24_bit_inverse(nr_ie->listen_interval_max, ptr);
     }
     return ptr;
 }
 
-uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ptr)
+uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lnd_length(), WH_IE_LND_TYPE);
-    *ptr++ = lnd_ptr->response_threshold;
+    *ptr++ = lnd_ie->response_threshold;
     memset(ptr, 0, 3);  /* Response Delay 3 bytes */
     ptr += 3;
-    *ptr++ = lnd_ptr->discovery_slot_time;
-    *ptr++ = lnd_ptr->discovery_slots;
+    *ptr++ = lnd_ie->discovery_slot_time;
+    *ptr++ = lnd_ie->discovery_slots;
     memset(ptr, 0, 2);  /* Discovery First Slot 2 bytes */
     ptr += 2;
     return ptr;
 }
 
-uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr)
+uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lto_length(), WH_IE_LTO_TYPE);
-    ptr = common_write_24_bit_inverse(lto_ptr->offset, ptr);
-    ptr = common_write_24_bit_inverse(lto_ptr->adjusted_listening_interval, ptr);
+    ptr = common_write_24_bit_inverse(lto_ie->offset, ptr);
+    ptr = common_write_24_bit_inverse(lto_ie->adjusted_listening_interval, ptr);
     return ptr;
 }
 
@@ -584,56 +584,56 @@ uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_
     return ptr;
 }
 
-uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver)
+uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *lfnver_ie)
 {
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LFN_VER_TYPE, ws_wp_nested_lfn_version_length());
-    ptr = common_write_16_bit_inverse(ws_lfnver->lfn_version, ptr);
+    ptr = common_write_16_bit_inverse(lfnver_ie->lfn_version, ptr);
 
     return ptr;
 }
 
-uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *ws_lgtkhash)
+uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *lgtkhash_ie)
 {
     uint16_t length = 1;
 
-    if (ws_lgtkhash->lgtk0) {
+    if (lgtkhash_ie->lgtk0) {
         length += 8;
     }
 
-    if (ws_lgtkhash->lgtk1) {
+    if (lgtkhash_ie->lgtk1) {
         length += 8;
     }
 
-    if (ws_lgtkhash->lgtk2) {
+    if (lgtkhash_ie->lgtk2) {
         length += 8;
     }
     return length;
 }
 
-uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash)
+uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *lgtkhash_ie)
 {
-    uint16_t length = ws_wp_nested_lgtkhash_length(ws_lgtkhash);
+    uint16_t length = ws_wp_nested_lgtkhash_length(lgtkhash_ie);
     uint8_t temp8 = 0;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
-    temp8 |= (ws_lgtkhash->lgtk0 << 0);
-    temp8 |= (ws_lgtkhash->lgtk1 << 1);
-    temp8 |= (ws_lgtkhash->lgtk2 << 2);
-    temp8 |= (ws_lgtkhash->active_lgtk_index << 3);
+    temp8 |= (lgtkhash_ie->lgtk0 << 0);
+    temp8 |= (lgtkhash_ie->lgtk1 << 1);
+    temp8 |= (lgtkhash_ie->lgtk2 << 2);
+    temp8 |= (lgtkhash_ie->active_lgtk_index << 3);
     *ptr++ = temp8;
 
-    if (ws_lgtkhash->lgtk0) {
-        memcpy(ptr, ws_lgtkhash->lgtk0_hash, 8);
+    if (lgtkhash_ie->lgtk0) {
+        memcpy(ptr, lgtkhash_ie->lgtk0_hash, 8);
         ptr += 8;
     }
 
-    if (ws_lgtkhash->lgtk1) {
-        memcpy(ptr, ws_lgtkhash->lgtk1_hash, 8);
+    if (lgtkhash_ie->lgtk1) {
+        memcpy(ptr, lgtkhash_ie->lgtk1_hash, 8);
         ptr += 8;
     }
 
-    if (ws_lgtkhash->lgtk2) {
-        memcpy(ptr, ws_lgtkhash->lgtk2_hash, 8);
+    if (lgtkhash_ie->lgtk2) {
+        memcpy(ptr, lgtkhash_ie->lgtk2_hash, 8);
         ptr += 8;
     }
     return ptr;
@@ -737,7 +737,7 @@ bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64)
     return true;
 }
 
-bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *ws_lutt)
+bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie)
 {
     mac_header_IE_t lutt_ie_data;
 
@@ -746,14 +746,14 @@ bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *ws_lutt)
         return false;
     }
     data = lutt_ie_data.content_ptr;
-    ws_lutt->message_type = *data++;
-    ws_lutt->slot_number = common_read_16_bit_inverse(data);
-    ws_lutt->interval_offset = common_read_24_bit_inverse(data + 2);
+    lutt_ie->message_type = *data++;
+    lutt_ie->slot_number = common_read_16_bit_inverse(data);
+    lutt_ie->interval_offset = common_read_24_bit_inverse(data + 2);
 
     return true;
 }
 
-bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr)
+bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie)
 {
     mac_header_IE_t lus_ie_data;
 
@@ -762,14 +762,14 @@ bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr)
         return false;
     }
     data = lus_ie_data.content_ptr;
-    lus_ptr->listen_interval = common_read_24_bit_inverse(data);
+    lus_ie->listen_interval = common_read_24_bit_inverse(data);
     data += 3;
-    lus_ptr->channel_plan_tag = *data;
+    lus_ie->channel_plan_tag = *data;
 
     return true;
 }
 
-bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr)
+bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie)
 {
     mac_header_IE_t flus_ie_data;
 
@@ -778,13 +778,13 @@ bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr
         return false;
     }
     data = flus_ie_data.content_ptr;
-    flus_ptr->dwell_interval = *data++;
-    flus_ptr->channel_plan_tag = *data;
+    flus_ie->dwell_interval = *data++;
+    flus_ie->channel_plan_tag = *data;
 
     return true;
 }
 
-bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt)
+bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie)
 {
     mac_header_IE_t lbt_ie_data;
 
@@ -793,13 +793,13 @@ bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt)
         return false;
     }
     data = lbt_ie_data.content_ptr;
-    ws_lbt->slot_number = common_read_16_bit_inverse(data);
-    ws_lbt->interval_offset = common_read_24_bit_inverse(data + 2);
+    lbt_ie->slot_number = common_read_16_bit_inverse(data);
+    lbt_ie->interval_offset = common_read_24_bit_inverse(data + 2);
 
     return true;
 }
 
-bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr)
+bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie)
 {
     mac_header_IE_t lbs_ie_data;
 
@@ -808,17 +808,17 @@ bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr)
         return false;
     }
     data = lbs_ie_data.content_ptr;
-    lbs_ptr->broadcast_interval = common_read_24_bit_inverse(data);
+    lbs_ie->broadcast_interval = common_read_24_bit_inverse(data);
     data += 3;
-    lbs_ptr->broadcast_scheduler_id = common_read_16_bit_inverse(data);
+    lbs_ie->broadcast_scheduler_id = common_read_16_bit_inverse(data);
     data += 2;
-    lbs_ptr->channel_plan_tag = *data++;
-    lbs_ptr->broadcast_sync_period = *data;
+    lbs_ie->channel_plan_tag = *data++;
+    lbs_ie->broadcast_sync_period = *data;
 
     return true;
 }
 
-bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
+bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 {
     mac_header_IE_t nr_ie_data;
 
@@ -827,10 +827,10 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
         return false;
     }
     data = nr_ie_data.content_ptr;
-    nr_ptr->node_role = *data++ & 7;
-    nr_ptr->clock_drift = *data++;
-    nr_ptr->timing_accuracy = *data++;
-    switch (nr_ptr->node_role) {
+    nr_ie->node_role = *data++ & 7;
+    nr_ie->clock_drift = *data++;
+    nr_ie->timing_accuracy = *data++;
+    switch (nr_ie->node_role) {
         case WS_NR_ROLE_BR:
             break;
         case WS_NR_ROLE_ROUTER:
@@ -839,8 +839,8 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
             if (9 > nr_ie_data.length) {
                 return false;
             }
-            nr_ptr->listen_interval_min = common_read_24_bit_inverse(data);
-            nr_ptr->listen_interval_max = common_read_24_bit_inverse(data + 3);
+            nr_ie->listen_interval_min = common_read_24_bit_inverse(data);
+            nr_ie->listen_interval_max = common_read_24_bit_inverse(data + 3);
             break;
         default:
             return false;
@@ -849,7 +849,7 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr)
     return true;
 }
 
-bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr)
+bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie)
 {
     mac_header_IE_t lnd_ie_data;
 
@@ -858,17 +858,17 @@ bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr)
         return false;
     }
     data = lnd_ie_data.content_ptr;
-    lnd_ptr->response_threshold = *data++;
-    lnd_ptr->response_delay = common_read_24_bit_inverse(data);
+    lnd_ie->response_threshold = *data++;
+    lnd_ie->response_delay = common_read_24_bit_inverse(data);
     data += 3;
-    lnd_ptr->discovery_slot_time = *data++;
-    lnd_ptr->discovery_slots = *data++;
-    lnd_ptr->discovery_first_slot = common_read_16_bit_inverse(data);
+    lnd_ie->discovery_slot_time = *data++;
+    lnd_ie->discovery_slots = *data++;
+    lnd_ie->discovery_first_slot = common_read_16_bit_inverse(data);
 
     return true;
 }
 
-bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ptr)
+bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie)
 {
     mac_header_IE_t lto_ie_data;
 
@@ -877,13 +877,13 @@ bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ptr)
         return false;
     }
     data = lto_ie_data.content_ptr;
-    lto_ptr->offset = common_read_24_bit_inverse(data);
-    lto_ptr->adjusted_listening_interval = common_read_24_bit_inverse(data + 3);
+    lto_ie->offset = common_read_24_bit_inverse(data);
+    lto_ie->adjusted_listening_interval = common_read_24_bit_inverse(data + 3);
 
     return true;
 }
 
-bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *ws_panid)
+bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie)
 {
     mac_header_IE_t panid_ie_data;
 
@@ -891,7 +891,7 @@ bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *ws_pan
     if (ws_wh_panid_length() > mac_ie_header_sub_id_discover(data, length, &panid_ie_data, WH_IE_PANID_TYPE)) {
         return false;
     }
-    ws_panid->panid = common_read_16_bit_inverse(panid_ie_data.content_ptr);
+    panid_ie->panid = common_read_16_bit_inverse(panid_ie_data.content_ptr);
 
     return true;
 }

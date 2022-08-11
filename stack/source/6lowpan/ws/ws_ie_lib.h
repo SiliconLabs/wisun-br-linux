@@ -45,21 +45,21 @@ uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64);
 /* Wi-SUN FAN 1.1 */
 uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type);
 #define ws_wh_lutt_length() 6
-uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ptr);
+uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ie);
 #define ws_wh_lus_length() 4
-uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr);
+uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ie);
 #define ws_wh_flus_length() 2
 uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie);
 #define ws_wh_lbt_length() 5
-uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ptr);
+uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie);
 #define ws_wh_lbs_length() 7
-uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ptr);
-uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ptr);
-uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ptr);
+uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie);
+uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie);
+uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ie);
 #define ws_wh_lnd_length() 8
-uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ptr);
+uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie);
 #define ws_wh_lto_length() 6
-uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ptr);
+uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie);
 #define ws_wh_panid_length() 2
 uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie);
 #define ws_wh_lbc_length() 4
@@ -71,16 +71,16 @@ bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
 bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl);
 bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64);
 /*Wi-SUN FAN 1.1 */
-bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *ws_lutt);
-bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ptr);
-bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ptr);
-bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *ws_lbt);
-bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ptr);
+bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie);
+bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie);
+bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie);
+bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie);
+bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie);
 bool ws_wh_lbc_read(uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie);
-bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ptr);
-bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ptr);
-bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ptr);
-bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *ws_panid);
+bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie);
+bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie);
+bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie);
+bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
 uint8_t *ws_wp_base_write(uint8_t *ptr, uint16_t length);
