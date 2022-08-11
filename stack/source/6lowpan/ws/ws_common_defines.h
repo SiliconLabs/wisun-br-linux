@@ -53,6 +53,8 @@
 #define WP_PAYLOAD_IE_VP_TYPE               3   /**< Vendor Payload information */
 /* Wi-SUN FAN definition 1.1 */
 #define WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE 4   /**< LFN Channel Plan information*/
+#define WP_PAYLOAD_IE_LBATS_TYPE            5   /**< LFN Broadcast Additional Transmit Schedule information */
+
 
 /* Short form subID's */
 #define WP_PAYLOAD_IE_PAN_TYPE      4   /**< PAN Information */
@@ -287,6 +289,11 @@ typedef struct ws_lgtkhash_ie {
     uint8_t lgtk1_hash[8];          /**< LGTK1 64-bit Hash if  lgtk1=1*/
     uint8_t lgtk2_hash[8];          /**< LGTK2 64-bit Hash if  lgtk2=1*/
 } ws_lgtkhash_ie_t;
+
+typedef struct ws_lbats_ie {
+    uint8_t additional_transmissions;
+    uint16_t next_transmit_delay;
+} ws_lbats_ie_t;
 
 /**
  * @brief ws_channel_plan_zero_t WS channel plan 0 define domain and class

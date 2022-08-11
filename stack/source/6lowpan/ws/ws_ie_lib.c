@@ -652,7 +652,13 @@ uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, ws_generic_channel_in
     return ptr;
 }
 
-
+uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie)
+{
+    ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_LBATS_TYPE, ws_wp_nested_lbats_length());
+    *ptr++ = lbats_ie->additional_transmissions;
+    ptr = common_write_16_bit_inverse(lbats_ie->next_transmit_delay, ptr);
+    return ptr;
+}
 
 bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
@@ -1284,7 +1290,20 @@ bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkha
     return true;
 }
 
+bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie)
+{
+    mac_nested_payload_IE_t nested_payload_ie;
 
+    nested_payload_ie.id = WP_PAYLOAD_IE_LBATS_TYPE;
+    nested_payload_ie.type_long = true;
+    if (3 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
+        return false;
+    }
+    lbats_ie->additional_transmissions = *nested_payload_ie.content_ptr++;
+    lbats_ie->next_transmit_delay = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
+
+    return true;
+}
 
 bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, ws_generic_channel_info_t *ws_lcp, uint8_t plan_tag_id)
 {

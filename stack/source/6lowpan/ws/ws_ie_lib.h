@@ -91,6 +91,8 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopp
 /* Wi-SUN FAN 1.1 */
 uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
 uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number);
+uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie);
+#define ws_wp_nested_lbats_length() 3
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
 #define ws_wp_nested_lfn_version_length() 2
 uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
@@ -107,6 +109,7 @@ bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_networ
 uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
+bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
 bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash);
 bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
