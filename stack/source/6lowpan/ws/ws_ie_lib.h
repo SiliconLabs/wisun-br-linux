@@ -49,7 +49,7 @@ uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ptr);
 #define ws_wh_lus_length() 4
 uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr);
 #define ws_wh_flus_length() 2
-uint8_t *ws_wh_lbt_write(uint8_t *ptr);
+uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie);
 #define ws_wh_lbt_length() 5
 uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ptr);
 #define ws_wh_lbs_length() 7

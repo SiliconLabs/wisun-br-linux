@@ -275,7 +275,7 @@ uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ptr)
     return ptr;
 }
 
-uint8_t *ws_wh_lbt_write(uint8_t *ptr)
+uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ptr)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbt_length(), WH_IE_LBT_TYPE);
     memset(ptr, 0, 2); /* LFN Broadcast Slot Number 2 bytes */
