@@ -17,8 +17,8 @@
 
 #ifndef MAC_NEIGHBOR_TABLE_H_
 #define MAC_NEIGHBOR_TABLE_H_
-
 #include <stdint.h>
+#include <stdbool.h>
 #include "stack-services/ns_list.h"
 
 #include "nwk_interface/protocol.h"

@@ -17,7 +17,8 @@
 
 #ifndef SEC_PROT_KEYS_H_
 #define SEC_PROT_KEYS_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include "security/protocols/sec_prot_certs.h"
 
 /*
@@ -87,7 +88,7 @@ typedef struct {
 } sec_prot_gtk_hash_t;
 
 // Security key data
-typedef struct {
+typedef struct sec_prot_keys {
     uint64_t               pmk_key_replay_cnt;        /**< Pairwise Master Key replay counter */
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */

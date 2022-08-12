@@ -17,7 +17,8 @@
 
 #ifndef RPL_UPWARD_H_
 #define RPL_UPWARD_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include "common_protocols/icmpv6_prefix.h"
 #include "rpl/rpl_control.h"
 

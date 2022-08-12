@@ -23,6 +23,8 @@
 
 #ifndef MAC_PD_SAP_H_
 #define MAC_PD_SAP_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 struct protocol_interface_rf_mac_setup;
 struct arm_phy_sap_msg_s;

@@ -17,6 +17,7 @@
 
 #ifndef WS_EAPOL_RELAY_LIB_H_
 #define WS_EAPOL_RELAY_LIB_H_
+#include <stdint.h>
 
 int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *eui_64, const ns_address_t *dest_addr, const void *data, uint16_t data_len);
 

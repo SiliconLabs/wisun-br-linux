@@ -17,7 +17,7 @@
 
 #ifndef WS_STATS_H_
 #define WS_STATS_H_
-
+#include <stdint.h>
 
 typedef enum {
     STATS_WS_ASYNCH_TX,

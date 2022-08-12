@@ -17,6 +17,7 @@
 
 #ifndef KDE_HELPER_H_
 #define KDE_HELPER_H_
+#include <stdint.h>
 
 /*
  * EAPOL KDE helper functions

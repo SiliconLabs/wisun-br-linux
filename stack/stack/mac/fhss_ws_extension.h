@@ -16,6 +16,8 @@
  */
 #ifndef FHSS_WS_EXT_H
 #define FHSS_WS_EXT_H
+#include <stdint.h>
+#include <stdbool.h>
 #include "common/int24.h"
 
 /**

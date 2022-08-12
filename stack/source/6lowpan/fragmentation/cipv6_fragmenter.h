@@ -16,6 +16,7 @@
  */
 #ifndef CIPV6_FRAGMENTER_H
 #define CIPV6_FRAGMENTER_H
+#include <stdint.h>
 
 struct buffer;
 int8_t reassembly_interface_reset(int8_t interface_id);

@@ -23,6 +23,8 @@
 
 #ifndef LIBDHCPV6_SERVER_H_
 #define LIBDHCPV6_SERVER_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "stack-services/ns_list.h"
 
 #include "libdhcpv6/libdhcpv6.h"

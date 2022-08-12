@@ -16,6 +16,8 @@
  */
 #ifndef IPHC_COMPRESS_H_
 #define IPHC_COMPRESS_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 buffer_t *iphc_compress(const lowpan_context_list_t *context_list, buffer_t *buf, uint16_t hc_space, bool stable_only);
 

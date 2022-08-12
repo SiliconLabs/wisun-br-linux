@@ -16,6 +16,9 @@
  */
 #ifndef _ICMPV6_H
 #define _ICMPV6_H
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "common_protocols/icmpv6_prefix.h"
 
 #define ICMPV6_TYPE_ERROR_DESTINATION_UNREACH       1

@@ -18,6 +18,7 @@
 #ifndef NET_WS_TEST_H_
 #define NET_WS_TEST_H_
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Prevent this file being inserted in public Doxygen generated file
  * this is not part of our external API. */

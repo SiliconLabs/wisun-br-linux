@@ -17,12 +17,15 @@
 
 #ifndef TLS_SEC_PROT_LIB_H_
 #define TLS_SEC_PROT_LIB_H_
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /*
  * TLS security protocol library to connect to mbed TLS
  *
  */
-
+typedef struct sec_prot_certs_s sec_prot_certs_t;
 typedef struct tls_security_s tls_security_t;
 
 typedef enum {

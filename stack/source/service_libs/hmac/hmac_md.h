@@ -17,6 +17,7 @@
 
 #ifndef HMAC_SHA1_
 #define HMAC_SHA1_
+#include <stdint.h>
 
 typedef enum {
     ALG_HMAC_MD5,

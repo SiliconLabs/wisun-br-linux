@@ -17,6 +17,8 @@
 
 #ifndef EAPOL_HELPER_H_
 #define EAPOL_HELPER_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #define EAPOL_PROTOCOL_VERSION      3
 #define EAPOL_EAP_TYPE              0

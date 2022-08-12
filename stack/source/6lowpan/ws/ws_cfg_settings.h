@@ -17,6 +17,7 @@
 
 #ifndef WS_CFG_STORAGE_H_
 #define WS_CFG_STORAGE_H_
+#include <stdint.h>
 
 /**
  * \brief Struct ws_gen_cfg_t General configuration

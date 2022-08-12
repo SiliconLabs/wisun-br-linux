@@ -17,6 +17,7 @@
 
 #ifndef KMP_EAPOL_PDU_IF_H_
 #define KMP_EAPOL_PDU_IF_H_
+#include <stdint.h>
 
 /*
  * Supplicant KMP interface to/from EAPOL PDU interface (to MPX).

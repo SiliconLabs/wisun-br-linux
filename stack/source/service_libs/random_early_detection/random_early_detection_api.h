@@ -17,6 +17,8 @@
 
 #ifndef SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
 #define SERVICE_LIBS_RANDOM_EARLY_DETECTION_RANDOM_EARLY_DETECTION_API_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 struct red_info_s;
 

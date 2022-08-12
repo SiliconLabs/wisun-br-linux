@@ -15,6 +15,7 @@
  */
 #ifndef COMMON_FUNCTIONS_H_
 #define COMMON_FUNCTIONS_H_
+#include <stdint.h>
 #include <stdbool.h>
 #include "common/int24.h"
 

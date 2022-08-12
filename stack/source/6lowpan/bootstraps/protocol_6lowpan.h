@@ -22,6 +22,8 @@
 
 #ifndef PROTOCOL_6LOWPAN_H_
 #define PROTOCOL_6LOWPAN_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 struct protocol_interface_info_entry;
 struct route_info_entry_t;

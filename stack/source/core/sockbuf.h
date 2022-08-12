@@ -17,6 +17,8 @@
 
 #ifndef SOCKBUF_H_
 #define SOCKBUF_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "core/ns_buffer.h"
 

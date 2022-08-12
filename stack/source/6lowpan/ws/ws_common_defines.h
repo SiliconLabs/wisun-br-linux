@@ -17,7 +17,8 @@
 
 #ifndef WS_COMMON_DEFINES_H_
 #define WS_COMMON_DEFINES_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include "common/int24.h"
 
 #define WH_IE_ELEMENT_HEADER_LENGTH 3

@@ -23,6 +23,8 @@
 
 #ifndef DHCPV6_SERVER_SERVICE_H_
 #define DHCPV6_SERVER_SERVICE_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
 

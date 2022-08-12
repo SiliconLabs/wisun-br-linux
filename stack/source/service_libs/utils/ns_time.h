@@ -22,6 +22,8 @@
  * \file ns_time.h
  * \brief Nanostack internal time handling API.
  */
+#include <stdint.h>
+#include <stdbool.h>
 #include "stack/ns_time_api.h"
 
 /**

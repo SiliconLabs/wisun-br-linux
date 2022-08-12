@@ -17,6 +17,8 @@
 
 #ifndef SEC_PROT_CFG_H_
 #define SEC_PROT_CFG_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 
 /* Security protocol configuration settings */

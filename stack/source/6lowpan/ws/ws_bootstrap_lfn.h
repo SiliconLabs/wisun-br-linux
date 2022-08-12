@@ -17,6 +17,7 @@
 
 #ifndef WS_BOOTSTRAP_LFN_H_
 #define WS_BOOTSTRAP_LFN_H_
+#include <stdint.h>
 
 #ifdef HAVE_WS_HOST
 

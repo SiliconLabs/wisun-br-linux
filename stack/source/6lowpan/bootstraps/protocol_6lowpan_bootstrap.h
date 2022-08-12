@@ -22,6 +22,8 @@
 
 #ifndef PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #define PROTOCOL_6LOWPAN_BOOTSTRAP_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "stack/net_interface.h"
 
 struct protocol_interface_info_entry;

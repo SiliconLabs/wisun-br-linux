@@ -17,6 +17,8 @@
 
 #ifndef ND_DEFINES_H_
 #define ND_DEFINES_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "stack-services/ns_list.h"
 
 #include "nwk_interface/protocol.h"

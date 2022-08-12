@@ -17,6 +17,8 @@
 
 #ifndef WS_LLC_H_
 #define WS_LLC_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 

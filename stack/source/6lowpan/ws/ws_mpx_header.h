@@ -17,6 +17,8 @@
 
 #ifndef WS_MPX_HEADER_H_
 #define WS_MPX_HEADER_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #define MPX_FT_FULL_FRAME                   0
 #define MPX_FT_FULL_FRAME_SMALL_MULTILEX_ID 1

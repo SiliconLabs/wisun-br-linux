@@ -17,6 +17,9 @@
 
 #ifndef WS_PAE_NVM_DATA_H_
 #define WS_PAE_NVM_DATA_H_
+#include <stdint.h>
+
+#include "source/security/protocols/sec_prot_keys.h"
 
 /*
  * Port access entity non-volatile memory (NVM) data module. Module is used

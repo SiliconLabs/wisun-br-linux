@@ -18,6 +18,8 @@
 
 #ifndef IPV6_RESOLUTION_H_
 #define IPV6_RESOLUTION_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "core/ns_address_internal.h"
 

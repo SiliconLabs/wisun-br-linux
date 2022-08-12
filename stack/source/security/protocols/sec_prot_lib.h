@@ -17,6 +17,8 @@
 
 #ifndef SEC_PROT_LIB_H_
 #define SEC_PROT_LIB_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
  * Library functions used by security protocols. These include helper functions

@@ -17,6 +17,8 @@
 
 #ifndef LOWPAN_ADAPTATION_INTERFACE_H_
 #define LOWPAN_ADAPTATION_INTERFACE_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "core/ns_address_internal.h"
 
 struct protocol_interface_info_entry;

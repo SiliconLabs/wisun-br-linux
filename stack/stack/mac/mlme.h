@@ -21,8 +21,9 @@
 
 #ifndef MLME_H_
 #define MLME_H_
-
+#include <stdint.h>
 #include <stdbool.h>
+
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/channel_list.h"
 

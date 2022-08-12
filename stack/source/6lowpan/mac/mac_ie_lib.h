@@ -17,8 +17,9 @@
 
 #ifndef MAC_IE_LIB_H_
 #define MAC_IE_LIB_H_
+#include <stdint.h>
+#include <stdbool.h>
 
-struct mac_payload_IE_s;
 struct mac_payload_IE_s;
 
 /**

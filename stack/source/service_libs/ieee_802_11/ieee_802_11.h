@@ -17,6 +17,7 @@
 
 #ifndef IEEE_802_11_
 #define IEEE_802_11_
+#include <stdint.h>
 
 typedef struct {
     const uint8_t *key;   /**< Key string */

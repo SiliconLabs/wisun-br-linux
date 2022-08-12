@@ -17,7 +17,8 @@
 
 #ifndef RPL_POLICY_H_
 #define RPL_POLICY_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include "core/ns_address_internal.h"
 
 typedef struct rpl_domain rpl_domain_t;

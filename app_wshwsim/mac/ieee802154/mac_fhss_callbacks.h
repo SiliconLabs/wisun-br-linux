@@ -17,6 +17,10 @@
 
 #ifndef MAC_FHSS_CALLBACKS_H_
 #define MAC_FHSS_CALLBACKS_H_
+#include <stdint.h>
+#include <stdbool.h>
+
+typedef struct fhss_api fhss_api_t;
 
 uint16_t mac_read_tx_queue_sizes(const fhss_api_t *fhss_api, bool broadcast_queue);
 int mac_read_64bit_mac_address(const fhss_api_t *fhss_api, uint8_t *mac_address);

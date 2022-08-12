@@ -22,7 +22,7 @@
 
 #ifndef FHSS_TEST_API_H
 #define FHSS_TEST_API_H
-
+#include <stdint.h>
 
 /**
   * \brief Set optimal packet length

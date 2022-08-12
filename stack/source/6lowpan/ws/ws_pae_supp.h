@@ -17,6 +17,8 @@
 
 #ifndef WS_PAE_SUPP_H_
 #define WS_PAE_SUPP_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "6lowpan/ws/ws_pae_controller.h"
 

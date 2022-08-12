@@ -17,6 +17,8 @@
 
 #ifndef PANA_EAP_HEADER_H_
 #define PANA_EAP_HEADER_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 // Codes
 #define EAP_REQ                         0x01

@@ -16,6 +16,7 @@
  */
 #ifndef PROROCOL_STATS_H
 #define PROROCOL_STATS_H
+#include <stdint.h>
 
 typedef enum {
     STATS_IP_RX_COUNT,

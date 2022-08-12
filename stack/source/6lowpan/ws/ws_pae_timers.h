@@ -18,6 +18,7 @@
 #ifndef WS_PAE_TIMERS_H_
 #define WS_PAE_TIMERS_H_
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "security/protocols/sec_prot_cfg.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

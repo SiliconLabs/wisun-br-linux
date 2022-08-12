@@ -17,6 +17,7 @@
 
 #ifndef WS_EAPOL_RELAY_H_
 #define WS_EAPOL_RELAY_H_
+#include <stdint.h>
 
 #ifdef HAVE_EAPOL_RELAY
 

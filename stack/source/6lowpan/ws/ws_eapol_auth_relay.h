@@ -20,6 +20,8 @@
 
 #ifdef HAVE_PAE_AUTH
 
+#include <stdint.h>
+
 /*
  * EAPOL authenticator relay acts as a proxy between EAPOL UDP relay and
  * authenticator PAE (KMP service). Relay is bound by default to EAPOL UDP

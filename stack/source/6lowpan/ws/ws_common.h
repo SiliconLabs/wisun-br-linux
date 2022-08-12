@@ -18,6 +18,8 @@
 #ifndef WS_COMMON_H_
 #define WS_COMMON_H_
 #include <stdint.h>
+#include <stdbool.h>
+
 #include "stack-services/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/fhss_config.h"

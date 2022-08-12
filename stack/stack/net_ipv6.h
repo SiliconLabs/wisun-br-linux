@@ -22,8 +22,8 @@
 
 #ifndef NET_IPV6_API_H_
 #define NET_IPV6_API_H_
-
 #include <stdint.h>
+#include <stdbool.h>
 
 /**
  * \brief Set maximum IPv6 fragmented datagram reception size.

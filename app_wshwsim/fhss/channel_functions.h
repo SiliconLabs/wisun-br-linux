@@ -16,6 +16,7 @@
  */
 #ifndef CHANNEL_FUNC_H_
 #define CHANNEL_FUNC_H_
+#include <stdint.h>
 
 /**
  * @brief Function calculates nearest (higher) prime number for given start value.

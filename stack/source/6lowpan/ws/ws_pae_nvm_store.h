@@ -17,6 +17,7 @@
 
 #ifndef WS_PAE_NVM_STORE_H_
 #define WS_PAE_NVM_STORE_H_
+#include <stdint.h>
 
 /*
  * Port access entity non-volatile memory (NVM) storage module. Module is used

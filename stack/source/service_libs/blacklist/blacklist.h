@@ -18,6 +18,7 @@
 #ifndef BLACKLIST_H_
 #define BLACKLIST_H_
 #include <stdint.h>
+#include <stdbool.h>
 #include "stack-services/ns_list.h"
 
 #define BLACKLIST_DEFAULT_TIMER_TIMEOUT           4

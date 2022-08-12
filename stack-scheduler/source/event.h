@@ -15,6 +15,8 @@
  */
 #ifndef NS_EVENT_H_
 #define NS_EVENT_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 bool event_tasklet_handler_id_valid(uint8_t tasklet_id);
 void eventOS_event_send_timer_allocated(arm_event_storage_t *event);

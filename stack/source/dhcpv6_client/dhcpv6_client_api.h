@@ -18,6 +18,7 @@
 #ifndef DHCPV6_CLIENT_API_H_
 #define DHCPV6_CLIENT_API_H_
 #include <stdint.h>
+#include <stdbool.h>
 
 /* DHCP client implementation.
  *

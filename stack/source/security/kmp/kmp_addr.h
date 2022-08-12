@@ -17,6 +17,7 @@
 
 #ifndef KMP_ADDR_H_
 #define KMP_ADDR_H_
+#include <stdint.h>
 
 typedef enum {
     KMP_ADDR_EUI_64 = 0,

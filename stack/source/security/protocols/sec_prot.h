@@ -17,7 +17,8 @@
 
 #ifndef SEC_PROT_H_
 #define SEC_PROT_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include "security/protocols/sec_prot_keys.h"
 #include "security/kmp/kmp_api.h"
 

@@ -19,6 +19,7 @@
 #define WS_PAE_CONTROLLER_H_
 
 #include "nsconfig.h"
+#include <stdint.h>
 #include <sys/socket.h>
 #include "stack/net_interface.h"
 

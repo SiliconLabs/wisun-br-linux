@@ -27,9 +27,10 @@
 
 #ifndef _NS_SOCKET_H
 #define _NS_SOCKET_H
-
-#include <sys/socket.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <assert.h>
+#include <sys/socket.h>
 #include "common/int24.h"
 #include "core/ns_error_types.h"
 #include "core/ns_buffer.h"

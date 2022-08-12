@@ -17,6 +17,9 @@
 
 #ifndef WS_IE_LIB_H_
 #define WS_IE_LIB_H_
+#include <stdint.h>
+#include <stdbool.h>
+#include "6lowpan/ws/ws_common_defines.h"
 
 struct ws_pan_information_s;
 struct ws_utt_ie;

@@ -17,6 +17,8 @@
 
 #ifndef WS_BOOTSTRAP_H_
 #define WS_BOOTSTRAP_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "6lowpan/ws/ws_common.h"
 

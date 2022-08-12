@@ -16,6 +16,7 @@
  */
 #ifndef _ICMPV6_RADV_H
 #define _ICMPV6_RADV_H
+#include <stdint.h>
 
 struct protocol_interface_info_entry;
 struct buffer;

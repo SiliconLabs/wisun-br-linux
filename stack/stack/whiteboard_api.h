@@ -16,6 +16,7 @@
  */
 #ifndef WHITEBOARD_API_H_
 #define WHITEBOARD_API_H_
+#include <stdint.h>
 #include "common/int24.h"
 
 /**

@@ -16,6 +16,7 @@
  */
 #ifndef FHSS_STATISTICS_H_
 #define FHSS_STATISTICS_H_
+#include <stdint.h>
 
 typedef enum {
     STATS_FHSS_DRIFT_COMP,

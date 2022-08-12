@@ -12,6 +12,8 @@
  */
 #ifndef SL_WSRCP_MAC_H
 #define SL_WSRCP_MAC_H
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "stack/mac/mac_api.h"
 

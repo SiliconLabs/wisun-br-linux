@@ -17,6 +17,8 @@
 
 #ifndef PROTOCOL_IPV6_H_
 #define PROTOCOL_IPV6_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef HAVE_ETHERNET
 

@@ -17,6 +17,8 @@
 
 #ifndef WS_PAE_KEY_STORAGE_H_
 #define WS_PAE_KEY_STORAGE_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
  * Port access entity key storage functions.

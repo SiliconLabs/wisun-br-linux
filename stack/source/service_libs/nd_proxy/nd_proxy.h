@@ -17,6 +17,8 @@
 
 #ifndef ND_PROXY_H_
 #define ND_PROXY_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef HAVE_ND_PROXY
 /**

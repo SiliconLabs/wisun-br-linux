@@ -17,6 +17,8 @@
 
 #ifndef RPL_DATA_H_
 #define RPL_DATA_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 struct rpl_domain;
 struct rpl_instance;

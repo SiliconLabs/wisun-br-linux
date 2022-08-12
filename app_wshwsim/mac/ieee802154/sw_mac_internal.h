@@ -16,6 +16,7 @@
  */
 #ifndef SW_MAC_INTERNAL_H
 #define SW_MAC_INTERNAL_H
+#include <stdint.h>
 
 typedef enum {
     STAT_MAC_TX_QUEUE,

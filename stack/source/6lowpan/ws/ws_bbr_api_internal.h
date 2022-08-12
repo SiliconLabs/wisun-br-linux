@@ -21,9 +21,11 @@
 
 #ifdef HAVE_WS_BORDER_ROUTER
 
-#include "6lowpan/ws/ws_common_defines.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 struct ws_pom_ie;
+typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
 
 extern uint16_t test_pan_size_override;
 

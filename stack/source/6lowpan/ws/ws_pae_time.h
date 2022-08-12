@@ -17,6 +17,8 @@
 
 #ifndef WS_PAE_TIME_H_
 #define WS_PAE_TIME_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
  * Port access entity time functions.

@@ -17,6 +17,9 @@
 
 #ifndef RPL_CONTROL_H_
 #define RPL_CONTROL_H_
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "stack-services/ns_list.h"
 
 #include "ipv6_stack/ipv6_routing_table.h"

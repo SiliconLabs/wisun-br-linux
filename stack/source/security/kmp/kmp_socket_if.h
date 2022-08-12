@@ -17,7 +17,8 @@
 
 #ifndef KMP_SOCKET_IF_H_
 #define KMP_SOCKET_IF_H_
-
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <stdbool.h>
 

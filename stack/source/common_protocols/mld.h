@@ -17,6 +17,7 @@
 
 #ifndef MLD_H_
 #define MLD_H_
+#include <stdint.h>
 
 /* MLDv2 Record Types */
 #define MLD_MODE_IS_INCLUDE         1

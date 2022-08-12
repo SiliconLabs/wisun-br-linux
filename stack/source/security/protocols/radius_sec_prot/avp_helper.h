@@ -17,6 +17,7 @@
 
 #ifndef AVP_HELPER_H_
 #define AVP_HELPER_H_
+#include <stdint.h>
 
 /*
  * RADIUS AVP helper functions

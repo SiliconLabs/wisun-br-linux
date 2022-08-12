@@ -17,6 +17,8 @@
 
 #ifndef MAC_SECURITY_MIB_H_
 #define MAC_SECURITY_MIB_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "stack/mac/mlme.h"
 

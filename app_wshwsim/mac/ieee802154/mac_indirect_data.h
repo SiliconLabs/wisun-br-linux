@@ -23,6 +23,7 @@
 
 #ifndef MAC_INDIRECT_DATA_H_
 #define MAC_INDIRECT_DATA_H_
+#include <stdint.h>
 
 struct protocol_interface_rf_mac_setup;
 struct mac_pre_build_frame;

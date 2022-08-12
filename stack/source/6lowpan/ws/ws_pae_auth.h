@@ -20,7 +20,11 @@
 
 #ifdef HAVE_PAE_AUTH
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <sys/socket.h>
+
+typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
 
 /*
  * Authenticator port access entity controls key security protocols using KMP API.

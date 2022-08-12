@@ -17,6 +17,8 @@
 
 #ifndef MPX_API_H_
 #define MPX_API_H_
+#include <stdint.h>
+#include <stdbool.h>
 #include "stack/mac/mac_mcps.h"
 
 struct mcps_data_req_s;

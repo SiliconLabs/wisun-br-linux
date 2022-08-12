@@ -18,6 +18,8 @@
 
 #ifndef MAC_HEADER_HELPER_FUNCTIONS_H_
 #define MAC_HEADER_HELPER_FUNCTIONS_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 struct mac_fcf_sequence_s;
 struct mlme_security_s;

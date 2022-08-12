@@ -17,6 +17,8 @@
 
 #ifndef MAC_DEFINES_H_
 #define MAC_DEFINES_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "stack-services/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"

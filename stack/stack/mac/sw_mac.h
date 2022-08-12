@@ -21,6 +21,7 @@
 #ifndef NS_SW_MAC_H
 #define NS_SW_MAC_H
 #include <stdint.h>
+#include <stdbool.h>
 
 struct protocol_interface_rf_mac_setup;
 struct mac_api_s;

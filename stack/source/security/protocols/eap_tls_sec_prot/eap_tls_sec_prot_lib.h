@@ -17,6 +17,8 @@
 
 #ifndef EAP_TLS_SEC_PROT_LIB_H_
 #define EAP_TLS_SEC_PROT_LIB_H_
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
  * EAP-TLS security protocol library
