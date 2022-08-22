@@ -49,7 +49,7 @@
  * \struct nd_parameters_s
  * \brief 6LoWPAN Neighbor Discovery parameters
  */
-typedef struct nd_parameters_s {
+typedef struct nd_parameters {
     uint8_t rs_retry_max;                   /**< Define Bootstrap RS max retry count. */
     uint8_t ns_retry_max;                   /**< Define Bootstrap NS max retry count. */
     uint16_t timer_random_max;              /**< Define Interval random in 6LoWPAN bootstrap timer ticks for RS, NS and starting NS - NA process.  */

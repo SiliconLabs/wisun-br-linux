@@ -23,6 +23,7 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
+#include "stack/net_6lowpan_parameter.h"
 #include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"

@@ -18,10 +18,10 @@
 #define ND_ROUTER_OBJECT_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack/net_6lowpan_parameter.h"
 
 #include "6lowpan/nd/nd_defines.h"
 
+struct nd_parameters;
 enum nwk_interface_id;
 enum addrtype;
 
@@ -35,7 +35,7 @@ enum addrtype;
 #define ADV_CUR_HOP_LIMIT 64
 #endif
 extern uint8_t nd_base_tick;
-extern nd_parameters_s nd_params;
+extern struct nd_parameters nd_params;
 struct aro;
 
 #ifdef HAVE_6LOWPAN_BORDER_ROUTER
