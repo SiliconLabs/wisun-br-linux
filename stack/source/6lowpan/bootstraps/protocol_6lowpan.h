@@ -52,10 +52,10 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);
 int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, enum addrtype type);
 
-void protocol_6lowpan_allocate_mac16(protocol_interface_info_entry_t *cur);
+void protocol_6lowpan_allocate_mac16(struct protocol_interface_info_entry *cur);
 
 int8_t protocol_6lowpan_interface_compare_cordinator_netid(struct protocol_interface_info_entry *cur, uint8_t *adr_ptr);
-int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, struct ns_sockaddr *adr_ptr);
+int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct protocol_interface_info_entry *cur, struct ns_sockaddr *adr_ptr);
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void);
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);
