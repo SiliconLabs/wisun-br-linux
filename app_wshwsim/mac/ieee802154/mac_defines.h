@@ -22,6 +22,7 @@
 
 #include "stack-services/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
+#include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
 
 #include "mac_data_buffer.h"

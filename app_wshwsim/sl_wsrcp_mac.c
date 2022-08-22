@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/sw_mac.h"

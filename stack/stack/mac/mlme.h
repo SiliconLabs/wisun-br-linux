@@ -25,7 +25,6 @@
 #include <stdbool.h>
 
 #include "stack/mac/mac_common_defines.h"
-#include "stack/mac/channel_list.h"
 
 /**
  * @brief struct mlme_pan_descriptor_t PAN descriptor

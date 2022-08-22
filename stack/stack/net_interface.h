@@ -18,10 +18,9 @@
 #define NET_INTERFACE_H_
 #include <stdint.h>
 
-#include "mac/channel_list.h"
-
 struct mac_api_s;
 struct eth_mac_api_s;
+struct channel_list_s;
 
 /**
  * \file net_interface.h
@@ -378,7 +377,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */
-int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup);
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup);
 
 /**
  * \brief Set configured network interface global address mode (border router bootstrap mode cannot set this).
@@ -415,7 +414,7 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
  * \return -2 Empty channel list, no channels enabled.
  * \return -4 If network interface is already active and cannot be re-configured.
  */
-int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_channel_list);
+int8_t arm_nwk_set_channel_list(int8_t interface_id, const struct channel_list_s *nwk_channel_list);
 
 /**
   * \brief Get current used channel.
