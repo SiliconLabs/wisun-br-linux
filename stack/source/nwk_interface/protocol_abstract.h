@@ -28,7 +28,7 @@ struct fhss_api;
  * \brief Determines the ID of the network interface.
  */
 /** Network interface IDs. */
-typedef enum {
+typedef enum nwk_interface_id {
     IF_6LoWPAN,
     IF_IPV6,
 } nwk_interface_id_e;

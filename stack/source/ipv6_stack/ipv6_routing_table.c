@@ -49,6 +49,7 @@
 #include "nwk_interface/protocol.h"
 
 #include "ipv6_stack/ipv6_routing_table.h"
+#include "nwk_interface/protocol_abstract.h"
 
 #define TRACE_GROUP "rout"
 

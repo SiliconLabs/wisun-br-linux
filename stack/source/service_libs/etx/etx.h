@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nwk_interface/protocol_abstract.h"
+enum nwk_interface_id;
 enum addrtype;
 
 /* Fraction that is used when calculating moving average
@@ -140,7 +140,7 @@ typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, 
  * \return 0 not 6LowPAN interface
  * \return 1 success
  */
-uint8_t etx_value_change_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
+uint8_t etx_value_change_callback_register(enum nwk_interface_id nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
 
 /**
  * \brief A function to allocte ETX storage list

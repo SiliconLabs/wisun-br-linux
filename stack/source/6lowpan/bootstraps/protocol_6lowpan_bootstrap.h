@@ -24,10 +24,10 @@
 #define PROTOCOL_6LOWPAN_BOOTSTRAP_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack/net_interface.h"
 
 struct protocol_interface_info_entry;
 struct nd_router;
+enum nwk_interface_id;
 
 #define LOWPAN_MAX_FRAME_RETRIES 4
 
@@ -37,7 +37,7 @@ struct nd_router;
 #define BOOTSTRAP_START_TIMEOUT  10000
 
 void arm_6lowpan_bootstrap_init(struct protocol_interface_info_entry *cur);
-uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id_e nwk_id);
+uint8_t *protocol_6lowpan_nd_border_router_address_get(enum nwk_interface_id nwk_id);
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
 void protocol_6lowpan_bootstrap_re_start(struct protocol_interface_info_entry *interface);
 void protocol_6lowpan_bootstrap_nd_ready(struct protocol_interface_info_entry *cur_interface);
