@@ -190,7 +190,7 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
 }
 
 
-static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, bool value)
+static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_e attribute, bool value)
 {
     switch (attribute) {
         case macSecurityEnabled:
@@ -214,7 +214,7 @@ static int8_t mac_mlme_boolean_set(protocol_interface_rf_mac_setup_s *rf_mac_set
     return 0;
 }
 
-static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint16_t value)
+static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_e attribute, uint16_t value)
 {
     switch (attribute) {
         case macCoordShortAddress:
@@ -235,7 +235,7 @@ static int8_t mac_mlme_16bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup
     return 0;
 }
 
-static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint8_t value)
+static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_e attribute, uint8_t value)
 {
     switch (attribute) {
         case phyCurrentChannel:
@@ -285,7 +285,7 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
     return 0;
 }
 
-static int8_t mac_mlme_32bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_t attribute, uint8_t index, uint32_t value)
+static int8_t mac_mlme_32bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup, mlme_attr_e attribute, uint8_t index, uint32_t value)
 {
 
     switch (attribute) {

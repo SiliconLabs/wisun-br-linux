@@ -63,7 +63,7 @@ void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *in
 
 addrtype_e mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
 
-int8_t mac_helper_pib_boolean_set(struct protocol_interface_info_entry *interface, mlme_attr_t attribute, bool value);
+int8_t mac_helper_pib_boolean_set(struct protocol_interface_info_entry *interface, mlme_attr_e attribute, bool value);
 
 int8_t mac_helper_mac_channel_set(struct protocol_interface_info_entry *interface, uint8_t new_channel);
 

@@ -193,7 +193,7 @@ typedef struct mlme_key_descriptor_entry_s {
 #define MLME_DATA_POLL_NOTIFICATION     0xff /**< Thread requirement feature COMM status status for indicate for successfully data poll event to refresh neighbour data */
 
 /**
- * @brief enum mlme_attr_t MLME attributes used with GET and SET primitives
+ * @brief enum mlme_attr_e MLME attributes used with GET and SET primitives
  *
  * See IEEE standard 802.15.4-2006 (table 86) for more details
  */
@@ -250,7 +250,7 @@ typedef enum {
     macMultiCSMAParameters = 0xfa,  /*<Multi CSMA parameters*/
     macRfConfiguration = 0xfb,      /*<RF channel configuration parameters*/
     macAcceptByPassUnknowDevice = 0xfc,  /*< Accept data trough MAC if packet is data can be authenticated by group key nad MIC. Security enforsment point must be handled carefully these packets */
-} mlme_attr_t;
+} mlme_attr_e;
 
 /**
  * @brief struct mlme_beacon_pending_address_spec_t Pending address specification field
@@ -278,7 +278,7 @@ typedef struct mlme_beacon_gts_spec_s {
  * See IEEE standard 802.15.4-2006 (table 70) for more details
  */
 typedef struct mlme_set_s {
-    mlme_attr_t attr;           /**<PIB attribute for operation*/
+    mlme_attr_e attr;           /**<PIB attribute for operation*/
     uint8_t attr_index;         /**< attribute index to to table (use only for PIB attributes which are tables)*/
     const void *value_pointer;  /**< Pointer to value*/
     uint8_t value_size;         /**< define data length in bytes behind pointer*/
@@ -290,7 +290,7 @@ typedef struct mlme_set_s {
  * See IEEE standard 802.15.4-2006 (table 56) for more details
  */
 typedef struct mlme_get_s {
-    mlme_attr_t attr;       /**<PIB attribute for operation*/
+    mlme_attr_e attr;       /**<PIB attribute for operation*/
     uint8_t attr_index;     /**< attribute index to to table (use only for PIB attributes which are tables)*/
 } mlme_get_t;
 
@@ -301,7 +301,7 @@ typedef struct mlme_get_s {
  */
 typedef struct mlme_get_conf_s {
     uint8_t status;             /**< status of operation*/
-    mlme_attr_t attr;           /**<PIB attribute for operation*/
+    mlme_attr_e attr;           /**<PIB attribute for operation*/
     uint8_t attr_index;         /**< attribute index to to table (valid only for PIB attributes which are tables)*/
     void *value_pointer;        /**< Pointer to data when status is MLME_SUCCESS */
     uint8_t value_size;         /**< define data length in bytes behind pointer*/
@@ -314,7 +314,7 @@ typedef struct mlme_get_conf_s {
  */
 typedef struct mlme_set_conf_s {
     uint8_t status;         /**< status of operation*/
-    mlme_attr_t attr;       /**<PIB attribute for operation*/
+    mlme_attr_e attr;       /**<PIB attribute for operation*/
     uint8_t attr_index;     /**< attribute index to to table (valid only for PIB attributes which are tables)*/
 } mlme_set_conf_t;
 

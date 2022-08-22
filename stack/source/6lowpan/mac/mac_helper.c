@@ -35,7 +35,7 @@ static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0,
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface, mlme_attr_t attribute, uint8_t value)
+static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface, mlme_attr_e attribute, uint8_t value)
 {
     switch (attribute) {
         case macAutoRequestKeyIdMode:
@@ -283,7 +283,7 @@ addrtype_e mac_helper_coordinator_address_get(protocol_interface_info_entry_t *i
     return ret;
 }
 
-int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, mlme_attr_t attribute, bool value)
+int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, mlme_attr_e attribute, bool value)
 {
 
     switch (attribute) {

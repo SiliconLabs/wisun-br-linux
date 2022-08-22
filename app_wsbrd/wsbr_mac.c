@@ -780,7 +780,7 @@ void wsbr_rcp_get_rf_config_list(struct wsbr_ctxt *ctxt)
 }
 
 static const struct {
-    mlme_attr_t attr;
+    mlme_attr_e attr;
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
