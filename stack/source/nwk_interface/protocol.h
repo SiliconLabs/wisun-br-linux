@@ -36,7 +36,6 @@
 
 // Users of protocol.h can assume it includes these headers
 #include "nwk_interface/protocol_abstract.h"
-#include "core/ns_address_internal.h"
 #include "core/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
@@ -50,6 +49,7 @@ struct arm_device_driver_list;
 struct mlme_security_s;
 struct load_balance_api;
 struct red_info_s;
+enum addrtype;
 
 #define SLEEP_MODE_REQ      0x80
 #define SLEEP_PERIOD_ACTIVE 0x40
@@ -316,8 +316,8 @@ struct protocol_interface_info_entry {
     void (*if_stack_buffer_handler)(buffer_t *);
     void (*if_common_forwarding_out_cb)(struct protocol_interface_info_entry *, buffer_t *);
     bool (*if_ns_transmit)(struct protocol_interface_info_entry *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);
-    bool (*if_map_ip_to_link_addr)(struct protocol_interface_info_entry *cur, const uint8_t *ip_addr, addrtype_e *ll_type, const uint8_t **ll_addr_out);
-    bool (*if_map_link_addr_to_ip)(struct protocol_interface_info_entry *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);
+    bool (*if_map_ip_to_link_addr)(struct protocol_interface_info_entry *cur, const uint8_t *ip_addr, enum addrtype *ll_type, const uint8_t **ll_addr_out);
+    bool (*if_map_link_addr_to_ip)(struct protocol_interface_info_entry *cur, enum addrtype ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);
     buffer_t *(*if_special_forwarding)(struct protocol_interface_info_entry *cur, buffer_t *buf, const sockaddr_t *ll_src, bool *bounce);
     void (*if_special_multicast_forwarding)(struct protocol_interface_info_entry *cur, buffer_t *buf);
     buffer_t *(*if_snoop)(struct protocol_interface_info_entry *cur, buffer_t *buf, const sockaddr_t *ll_dst, const sockaddr_t *ll_src, bool *bounce);
@@ -325,7 +325,7 @@ struct protocol_interface_info_entry {
     uint8_t (*if_llao_parse)(struct protocol_interface_info_entry *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
     uint8_t (*if_llao_write)(struct protocol_interface_info_entry *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
     void (*mac_security_key_usage_update_cb)(struct protocol_interface_info_entry *cur, const struct mlme_security_s *security_params);
-    uint16_t (*etx_read_override)(struct protocol_interface_info_entry *cur, addrtype_e addr_type, const uint8_t *addr_ptr);
+    uint16_t (*etx_read_override)(struct protocol_interface_info_entry *cur, enum addrtype addr_type, const uint8_t *addr_ptr);
 };
 
 typedef NS_LIST_HEAD(protocol_interface_info_entry_t, link) protocol_interface_list_t;

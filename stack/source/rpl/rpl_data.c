@@ -31,6 +31,7 @@
 #include "stack-services/ns_trace.h"
 
 #include "core/ns_buffer.h"
+#include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "6lowpan/ws/ws_common.h"

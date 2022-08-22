@@ -26,8 +26,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "core/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"
+enum addrtype;
 
 /* Fraction that is used when calculating moving average
    e.g. ETX = 7/8 * current ETX + 1/8 * new ETX sample
@@ -98,7 +98,7 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
  * \return 0x0000 address unknown or other error
  * \return 0x0001 no ETX statistics on this interface
  */
-uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
+uint16_t etx_read(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
 
 /**
  * \brief A function to read local ETXvalue

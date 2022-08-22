@@ -24,6 +24,7 @@
 
 #include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_resolution.h"
+#include "core/ns_address_internal.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "rpl/rpl_objective.h"
 #include "rpl/rpl_control.h"

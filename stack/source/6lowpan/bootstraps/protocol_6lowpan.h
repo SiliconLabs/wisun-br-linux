@@ -31,7 +31,7 @@ struct ns_sockaddr;
 struct rpl_domain;
 struct rpl_dodag;
 struct mlme_pan_descriptor_s;
-
+enum addrtype;
 
 extern struct rpl_domain *protocol_6lowpan_rpl_domain;
 extern struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
@@ -44,13 +44,13 @@ typedef enum {
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
 
-uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
-uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr);
+uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
+uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority);
 
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);
-int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_e type);
+int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, enum addrtype type);
 
 void protocol_6lowpan_allocate_mac16(protocol_interface_info_entry_t *cur);
 

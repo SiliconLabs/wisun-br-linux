@@ -22,6 +22,7 @@
 
 #include "6lowpan/nd/nd_defines.h"
 
+enum addrtype;
 #define ND_OBJECT_MAX 1
 
 #define ND_MAX_PROXY_CONTEXT_COUNT 5
@@ -70,7 +71,7 @@ void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_inte
 void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface);
 /** 6LoWPAN specific ICMP message Handler */
 bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
-void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_e ll_type, const uint8_t *ll_address);
+void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 nd_router_t *nd_get_pana_address(void);
 /* This processes the 6CO for the interface itself - separate from the ABRO

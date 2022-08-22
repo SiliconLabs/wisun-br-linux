@@ -20,14 +20,13 @@
 
 #include "stack/mac/mlme.h"
 
-#include "core/ns_address_internal.h"
-
 struct channel_list_s;
 struct nwk_pan_descriptor_t;
 struct protocol_interface_info_entry;
 struct ns_sockaddr;
 struct buffer;
 struct mac_api_s;
+enum addrtype;
 
 void mac_helper_panid_set(struct protocol_interface_info_entry *interface, uint16_t panId);
 
@@ -59,9 +58,9 @@ int8_t mac_helper_security_key_to_descriptor_set(struct protocol_interface_info_
 
 int8_t mac_helper_security_key_descriptor_clear(struct protocol_interface_info_entry *interface, uint8_t descriptor);
 
-void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, addrtype_e adr_type, uint8_t *adr_ptr);
+void mac_helper_coordinator_address_set(struct protocol_interface_info_entry *interface, enum addrtype adr_type, uint8_t *adr_ptr);
 
-addrtype_e mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
+enum addrtype mac_helper_coordinator_address_get(struct protocol_interface_info_entry *interface, uint8_t *adr_ptr);
 
 int8_t mac_helper_pib_boolean_set(struct protocol_interface_info_entry *interface, mlme_attr_e attribute, bool value);
 

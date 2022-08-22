@@ -34,7 +34,7 @@
 #define ADDR_SIZE 16
 #define PAN_ID_LEN 2
 /** Address types */
-typedef enum {
+typedef enum addrtype {
     ADDR_NONE = 0,                              /*!< No address */
     ADDR_802_15_4_SHORT = 2,                    /*!< 16-bit PAN with 16-bit 802.15.4 address */
     ADDR_802_15_4_LONG = 3,                     /*!< 16-bit PAN with 64-bit 802.15.4 address */

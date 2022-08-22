@@ -19,7 +19,6 @@
 #define LOWPAN_ADAPTATION_INTERFACE_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "core/ns_address_internal.h"
 
 struct protocol_interface_info_entry;
 struct mcps_data_conf_s;
@@ -28,6 +27,7 @@ struct buffer;
 struct mpx_api_s;
 struct mac_neighbor_table_entry;
 enum buffer_priority;
+enum addrtype;
 
 int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_size);
 
@@ -56,7 +56,7 @@ bool lowpan_adaptation_tx_active(int8_t interface_id);
 
 void lowpan_adaptation_neigh_remove_free_tx_tables(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_e adr_type);
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, enum addrtype adr_type);
 
 int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
 
