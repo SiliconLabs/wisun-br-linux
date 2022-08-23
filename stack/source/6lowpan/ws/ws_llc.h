@@ -57,7 +57,8 @@ typedef struct wp_nested_ie_sub_list_s {
     bool net_name_ie: 1;            /**< Network Name information */
     bool pan_version_ie: 1;         /**< Pan configuration version */
     bool gtkhash_ie: 1;             /**< GTK Hash information */
-    bool lfn_gtk_version_ie: 1;     /**<  LFN Version & GTK Hash */
+    bool lgtkhash_ie: 1;            /**< LFN GTK Hash */
+    bool lfnver_ie: 1;              /**< LFN Version */
     bool pom_ie: 1;                 /**< PHY Operating Modes information */
 } wp_nested_ie_sub_list_t;
 

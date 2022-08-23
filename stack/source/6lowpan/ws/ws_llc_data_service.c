@@ -411,8 +411,11 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
         }
     }
 
-    if (requested_list.lfn_gtk_version_ie) {
+    if (requested_list.lfnver_ie) {
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_version_length();
+    }
+
+    if (requested_list.lgtkhash_ie) {
         ws_lgtkhash_ie_t ws_lgtkhash;
         ws_lgtkhash.lgtk0 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_1;
         ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
@@ -1973,12 +1976,15 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
         }
 
         if (ws_version_1_1(interface)) {
-            if (request->wp_requested_nested_ie_list.lfn_gtk_version_ie) {
+            if (request->wp_requested_nested_ie_list.lfnver_ie) {
                 ws_lfnver_ie_t lfn_ver;
-                ws_lgtkhash_ie_t ws_lgtkhash;
                 //Write LFN Version
                 lfn_ver.lfn_version = interface->ws_info->lfngtk.lfn_version;
                 ptr =  ws_wp_nested_lfn_version_write(ptr, &lfn_ver);
+            }
+
+            if (request->wp_requested_nested_ie_list.lgtkhash_ie) {
+                ws_lgtkhash_ie_t ws_lgtkhash;
                 //Write LFN GTK Hash info
                 ws_lgtkhash.lgtk0 = base->interface_ptr->ws_info->lfngtk.active_hash_1;
                 ws_lgtkhash.lgtk1 = base->interface_ptr->ws_info->lfngtk.active_hash_2;

@@ -2818,7 +2818,8 @@ static void ws_bootstrap_pan_config(protocol_interface_info_entry_t *cur)
     async_req.wp_requested_nested_ie_list.gtkhash_ie = true;
     async_req.wp_requested_nested_ie_list.vp_ie = true;
     if (ws_version_1_1(cur)) {
-        async_req.wp_requested_nested_ie_list.lfn_gtk_version_ie = ws_lfn_version_learned(cur);
+        async_req.wp_requested_nested_ie_list.lgtkhash_ie = ws_lfn_version_learned(cur);
+        async_req.wp_requested_nested_ie_list.lfnver_ie = ws_lfn_version_learned(cur);
     }
 
     ws_bootstrap_set_asynch_channel_list(cur, &async_req);
