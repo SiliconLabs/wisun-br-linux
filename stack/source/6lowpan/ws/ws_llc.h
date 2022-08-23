@@ -19,8 +19,9 @@
 #define WS_LLC_H_
 #include <stdint.h>
 #include <stdbool.h>
-
-#include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "stack-services/ns_list.h"
+#include "stack/mac/mac_common_defines.h"
+#include "stack/mac/channel_list.h"
 
 #include "6lowpan/ws/ws_neighbor_class.h"
 
@@ -34,6 +35,7 @@ struct ws_hopping_schedule_s;
 struct ws_neighbor_class_entry;
 struct mac_neighbor_table_entry;
 struct ws_neighbor_temp_class_s;
+struct mpx_api_s;
 
 
 /**
@@ -176,7 +178,7 @@ int8_t ws_llc_delete(struct protocol_interface_info_entry *interface);
  * @return Pointer to MPX API
  *
  */
-mpx_api_t *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface);
+struct mpx_api_s *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface);
 
 /**
  * @brief ws_llc_asynch_request ws asynch message request to all giving channels
