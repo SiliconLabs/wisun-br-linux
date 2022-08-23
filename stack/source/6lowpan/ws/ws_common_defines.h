@@ -64,8 +64,8 @@
 #define WP_PAYLOAD_IE_GTKHASH_TYPE  7   /**< GTK Hash information */
 /* Wi-SUN FAN definition 1.1 */
 #define WP_PAYLOAD_IE_POM_TYPE      8   /**< PHY Capability information */
-#define WP_PAYLOAD_IE_LFN_VER_TYPE  9   /**< LFN Version information */
-#define WP_PAYLOAD_IE_LGTKHASH_TYPE 10  /**< LFN GTK Hash Information */
+#define WP_PAYLOAD_IE_LFN_VER_TYPE  0x40   /**< LFN Version information */
+#define WP_PAYLOAD_IE_LGTKHASH_TYPE 0x41   /**< LFN GTK Hash Information */
 
 /* WS frame types to WH_IE_UTT_TYPE */
 #define WS_FT_PAN_ADVERT        0          /**< PAN Advert */
