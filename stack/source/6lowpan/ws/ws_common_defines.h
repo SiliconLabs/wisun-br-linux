@@ -390,8 +390,8 @@ typedef struct ws_generic_channel_info {
         ws_channel_function_three_t three;
     } function;
     union {
-        ws_excluded_channel_range_out_t range;
-        ws_excluded_channel_mask_out_t mask;
+        ws_excluded_channel_range_out_t range_out;
+        ws_excluded_channel_mask_out_t mask_out;
         ws_excluded_channel_range_t range_in;
         ws_excluded_channel_mask_t mask_in;
     } excluded_channels;

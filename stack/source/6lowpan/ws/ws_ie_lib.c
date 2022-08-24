@@ -76,9 +76,9 @@ static uint16_t ws_excluded_channel_length(ws_generic_channel_info_t *generic_ch
 {
     uint16_t length;
     if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-        length = (generic_channel_info->excluded_channels.range.excluded_range_length * 4) + 1;
+        length = (generic_channel_info->excluded_channels.range_out.excluded_range_length * 4) + 1;
     } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        length = generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline;
+        length = generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline;
     } else {
         length = 0;
     }
@@ -92,23 +92,23 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_s
         generic_channel_info->channel_function = hopping_schedule->uc_channel_function;
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->uc_excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->uc_excluded_channels.excluded_range_length;
-            generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->uc_excluded_channels.excluded_range;
+            generic_channel_info->excluded_channels.range_out.excluded_range_length = hopping_schedule->uc_excluded_channels.excluded_range_length;
+            generic_channel_info->excluded_channels.range_out.excluded_range = hopping_schedule->uc_excluded_channels.excluded_range;
         } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline = hopping_schedule->uc_excluded_channels.channel_mask_bytes_inline;
-            generic_channel_info->excluded_channels.mask.excluded_channel_count = hopping_schedule->uc_excluded_channels.excluded_channel_count;
-            generic_channel_info->excluded_channels.mask.channel_mask = hopping_schedule->uc_excluded_channels.channel_mask;
+            generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline = hopping_schedule->uc_excluded_channels.channel_mask_bytes_inline;
+            generic_channel_info->excluded_channels.mask_out.excluded_channel_count = hopping_schedule->uc_excluded_channels.excluded_channel_count;
+            generic_channel_info->excluded_channels.mask_out.channel_mask = hopping_schedule->uc_excluded_channels.channel_mask;
         }
     } else {
         generic_channel_info->channel_function = hopping_schedule->bc_channel_function;
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->bc_excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-            generic_channel_info->excluded_channels.range.excluded_range_length = hopping_schedule->bc_excluded_channels.excluded_range_length;
-            generic_channel_info->excluded_channels.range.excluded_range = hopping_schedule->bc_excluded_channels.excluded_range;
+            generic_channel_info->excluded_channels.range_out.excluded_range_length = hopping_schedule->bc_excluded_channels.excluded_range_length;
+            generic_channel_info->excluded_channels.range_out.excluded_range = hopping_schedule->bc_excluded_channels.excluded_range;
         } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-            generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline = hopping_schedule->bc_excluded_channels.channel_mask_bytes_inline;
-            generic_channel_info->excluded_channels.mask.excluded_channel_count = hopping_schedule->bc_excluded_channels.excluded_channel_count;
-            generic_channel_info->excluded_channels.mask.channel_mask = hopping_schedule->bc_excluded_channels.channel_mask;
+            generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline = hopping_schedule->bc_excluded_channels.channel_mask_bytes_inline;
+            generic_channel_info->excluded_channels.mask_out.excluded_channel_count = hopping_schedule->bc_excluded_channels.excluded_channel_count;
+            generic_channel_info->excluded_channels.mask_out.channel_mask = hopping_schedule->bc_excluded_channels.channel_mask;
         }
     }
 }
@@ -430,8 +430,8 @@ static uint8_t *ws_wp_channel_function_write(uint8_t *ptr, ws_generic_channel_in
 static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_channel_info_t *generic_channel_info)
 {
     if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-        uint8_t range_length = generic_channel_info->excluded_channels.range.excluded_range_length;
-        ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range.excluded_range;
+        uint8_t range_length = generic_channel_info->excluded_channels.range_out.excluded_range_length;
+        ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range_out.excluded_range;
         *ptr++ = range_length;
         while (range_length) {
             ptr = common_write_16_bit_inverse(range_ptr->range_start, ptr);
@@ -441,10 +441,10 @@ static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_cha
         }
     } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
         //Set Mask
-        uint16_t channel_mask_length = generic_channel_info->excluded_channels.mask.channel_mask_bytes_inline * 8;
+        uint16_t channel_mask_length = generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline * 8;
 
         for (uint8_t i = 0; i < 8; i++) {
-            uint32_t mask_value = generic_channel_info->excluded_channels.mask.channel_mask[i];
+            uint32_t mask_value = generic_channel_info->excluded_channels.mask_out.channel_mask[i];
             if (channel_mask_length >= 32) {
                 ptr = common_write_32_bit(mask_value, ptr);
                 channel_mask_length -= 32;
