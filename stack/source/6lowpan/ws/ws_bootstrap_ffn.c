@@ -302,9 +302,9 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
         return;
     }
 
-    if (ws_us->excluded_channel_ctrl) {
+    if (ws_us->chan_plan.excluded_channel_ctrl) {
         //Validate that we can storage data
-        if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK && ws_us->excluded_channels.mask.mask_len_inline > 32) {
+        if (ws_us->chan_plan.excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK && ws_us->chan_plan.excluded_channels.mask.mask_len_inline > 32) {
             return;
         }
     }

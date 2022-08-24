@@ -962,35 +962,35 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
     us_ie->dwell_interval = *data++;
     us_ie->clock_drift = *data++;
     us_ie->timing_accuracy = *data++;
-    us_ie->channel_plan = (*data & 3);
-    us_ie->channel_function = (*data & 0x38) >> 3;
-    us_ie->excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    us_ie->chan_plan.channel_plan = (*data & 3);
+    us_ie->chan_plan.channel_function = (*data & 0x38) >> 3;
+    us_ie->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
     data++;
     uint16_t info_length = 0;
     nested_payload_ie.length -= 4;
-    info_length = ws_channel_plan_length(us_ie->channel_plan);
+    info_length = ws_channel_plan_length(us_ie->chan_plan.channel_plan);
     if (nested_payload_ie.length < info_length) {
         return false;
     }
 
     nested_payload_ie.length -= info_length;
-    switch (us_ie->channel_plan) {
+    switch (us_ie->chan_plan.channel_plan) {
         case 0:
-            data = ws_channel_plan_zero_read(data, &us_ie->plan.zero);
+            data = ws_channel_plan_zero_read(data, &us_ie->chan_plan.plan.zero);
             break;
 
         case 1:
-            data = ws_channel_plan_one_read(data, &us_ie->plan.one);
+            data = ws_channel_plan_one_read(data, &us_ie->chan_plan.plan.one);
             break;
         case 2:
-            data = ws_channel_plan_two_read(data, &us_ie->plan.two);
+            data = ws_channel_plan_two_read(data, &us_ie->chan_plan.plan.two);
             break;
         default:
             return false;
 
     }
 
-    info_length = ws_channel_function_length(us_ie->channel_function, 0);
+    info_length = ws_channel_function_length(us_ie->chan_plan.channel_function, 0);
 
     if (nested_payload_ie.length < info_length) {
         return false;
@@ -998,9 +998,9 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
     nested_payload_ie.length -= info_length;
 
 
-    switch (us_ie->channel_function) {
+    switch (us_ie->chan_plan.channel_function) {
         case 0:
-            data = ws_channel_function_zero_read(data, &us_ie->function.zero);
+            data = ws_channel_function_zero_read(data, &us_ie->chan_plan.function.zero);
             break;
 
         case 1:
@@ -1009,8 +1009,8 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
 
         case 3:
 
-            data = ws_channel_function_three_read(data, &us_ie->function.three);
-            info_length = us_ie->function.three.channel_hop_count;
+            data = ws_channel_function_three_read(data, &us_ie->chan_plan.function.three);
+            info_length = us_ie->chan_plan.function.three.channel_hop_count;
             if (nested_payload_ie.length < info_length) {
                 return false;
             }
@@ -1022,31 +1022,31 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
 
     }
 
-    switch (us_ie->excluded_channel_ctrl) {
+    switch (us_ie->chan_plan.excluded_channel_ctrl) {
         case WS_EXC_CHAN_CTRL_NONE:
 
             break;
         case WS_EXC_CHAN_CTRL_RANGE:
-            us_ie->excluded_channels.range.number_of_range = *data;
-            if (nested_payload_ie.length < (us_ie->excluded_channels.range.number_of_range * 4) + 1) {
+            us_ie->chan_plan.excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (us_ie->chan_plan.excluded_channels.range.number_of_range * 4) + 1) {
                 return false;
             }
             //Set Range start after validation
-            us_ie->excluded_channels.range.range_start = data + 1;
+            us_ie->chan_plan.excluded_channels.range.range_start = data + 1;
             break;
 
         case WS_EXC_CHAN_CTRL_BITMASK:
-            if (us_ie->channel_plan == 1) {
-                us_ie->excluded_channels.mask.mask_len_inline = ((us_ie->plan.one.number_of_channel + 7) / 8);
-                if (us_ie->excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
+            if (us_ie->chan_plan.channel_plan == 1) {
+                us_ie->chan_plan.excluded_channels.mask.mask_len_inline = ((us_ie->chan_plan.plan.one.number_of_channel + 7) / 8);
+                if (us_ie->chan_plan.excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
                     //Channel mask length is not correct
                     return false;
                 }
             } else {
-                us_ie->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+                us_ie->chan_plan.excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
             }
 
-            us_ie->excluded_channels.mask.channel_mask = data;
+            us_ie->chan_plan.excluded_channels.mask.channel_mask = data;
             break;
         default:
             return false;
@@ -1072,43 +1072,43 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
     bs_ie->clock_drift = *data++;
     bs_ie->timing_accuracy = *data++;
 
-    bs_ie->channel_plan = (*data & 3);
-    bs_ie->channel_function = (*data & 0x38) >> 3;
-    bs_ie->excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    bs_ie->chan_plan.channel_plan = (*data & 3);
+    bs_ie->chan_plan.channel_function = (*data & 0x38) >> 3;
+    bs_ie->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
     data++;
     nested_payload_ie.length -= 10;
     uint16_t info_length = 0;
 
-    info_length = ws_channel_plan_length(bs_ie->channel_plan);
+    info_length = ws_channel_plan_length(bs_ie->chan_plan.channel_plan);
     if (nested_payload_ie.length < info_length) {
         return false;
     }
     nested_payload_ie.length -= info_length;
-    switch (bs_ie->channel_plan) {
+    switch (bs_ie->chan_plan.channel_plan) {
         case 0:
-            data = ws_channel_plan_zero_read(data, &bs_ie->plan.zero);
+            data = ws_channel_plan_zero_read(data, &bs_ie->chan_plan.plan.zero);
             break;
 
         case 1:
-            data = ws_channel_plan_one_read(data, &bs_ie->plan.one);
+            data = ws_channel_plan_one_read(data, &bs_ie->chan_plan.plan.one);
             break;
         case 2:
-            data = ws_channel_plan_two_read(data, &bs_ie->plan.two);
+            data = ws_channel_plan_two_read(data, &bs_ie->chan_plan.plan.two);
             break;
         default:
             return false;
 
     }
 
-    info_length = ws_channel_function_length(bs_ie->channel_function, 0);
+    info_length = ws_channel_function_length(bs_ie->chan_plan.channel_function, 0);
     if (nested_payload_ie.length < info_length) {
         return false;
     }
     nested_payload_ie.length -= info_length;
 
-    switch (bs_ie->channel_function) {
+    switch (bs_ie->chan_plan.channel_function) {
         case 0:
-            data = ws_channel_function_zero_read(data, &bs_ie->function.zero);
+            data = ws_channel_function_zero_read(data, &bs_ie->chan_plan.function.zero);
             break;
 
         case 1:
@@ -1116,8 +1116,8 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
             break;
 
         case 3:
-            data = ws_channel_function_three_read(data, &bs_ie->function.three);
-            info_length = bs_ie->function.three.channel_hop_count;
+            data = ws_channel_function_three_read(data, &bs_ie->chan_plan.function.three);
+            info_length = bs_ie->chan_plan.function.three.channel_hop_count;
             if (nested_payload_ie.length < info_length) {
                 return false;
             }
@@ -1129,31 +1129,31 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
 
     }
 
-    switch (bs_ie->excluded_channel_ctrl) {
+    switch (bs_ie->chan_plan.excluded_channel_ctrl) {
         case WS_EXC_CHAN_CTRL_NONE:
 
             break;
         case WS_EXC_CHAN_CTRL_RANGE:
-            bs_ie->excluded_channels.range.number_of_range = *data;
-            if (nested_payload_ie.length < (bs_ie->excluded_channels.range.number_of_range * 4) + 1) {
+            bs_ie->chan_plan.excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (bs_ie->chan_plan.excluded_channels.range.number_of_range * 4) + 1) {
                 return false;
             }
             //Set Range start after validation
-            bs_ie->excluded_channels.range.range_start = data + 1;
+            bs_ie->chan_plan.excluded_channels.range.range_start = data + 1;
             break;
 
         case WS_EXC_CHAN_CTRL_BITMASK:
-            if (bs_ie->channel_plan == 1) {
-                bs_ie->excluded_channels.mask.mask_len_inline = ((bs_ie->plan.one.number_of_channel + 7) / 8);
-                if (bs_ie->excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
+            if (bs_ie->chan_plan.channel_plan == 1) {
+                bs_ie->chan_plan.excluded_channels.mask.mask_len_inline = ((bs_ie->chan_plan.plan.one.number_of_channel + 7) / 8);
+                if (bs_ie->chan_plan.excluded_channels.mask.mask_len_inline != nested_payload_ie.length) {
                     //Channel mask length is not correct
                     return false;
                 }
             } else {
-                bs_ie->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+                bs_ie->chan_plan.excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
             }
 
-            bs_ie->excluded_channels.mask.channel_mask = data;
+            bs_ie->chan_plan.excluded_channels.mask.channel_mask = data;
             break;
         default:
             return false;
@@ -1345,48 +1345,48 @@ bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct w
     //Parse Channel Plan, function and excluded channel
     data = nested_payload_ie.content_ptr;
     ws_lcp->lfn_channel_plan_tag = *data++;
-    ws_lcp->channel_plan = (*data & 3);
-    ws_lcp->channel_function = (*data & 0x38) >> 3;
-    ws_lcp->excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    ws_lcp->chan_plan.channel_plan = (*data & 3);
+    ws_lcp->chan_plan.channel_function = (*data & 0x38) >> 3;
+    ws_lcp->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
     data++;
     nested_payload_ie.length--;
 
-    info_length = ws_channel_plan_length(ws_lcp->channel_plan);
+    info_length = ws_channel_plan_length(ws_lcp->chan_plan.channel_plan);
     if (nested_payload_ie.length < info_length) {
         return false;
     }
     nested_payload_ie.length -= info_length;
 
-    switch (ws_lcp->channel_plan) {
+    switch (ws_lcp->chan_plan.channel_plan) {
         case 0:
-            data = ws_channel_plan_zero_read(data, &ws_lcp->plan.zero);
+            data = ws_channel_plan_zero_read(data, &ws_lcp->chan_plan.plan.zero);
             break;
         case 1:
-            data = ws_channel_plan_one_read(data, &ws_lcp->plan.one);
+            data = ws_channel_plan_one_read(data, &ws_lcp->chan_plan.plan.one);
             break;
         case 2:
-            data = ws_channel_plan_two_read(data, &ws_lcp->plan.two);
+            data = ws_channel_plan_two_read(data, &ws_lcp->chan_plan.plan.two);
             break;
         default:
             return false;
     }
 
-    info_length = ws_channel_function_length(ws_lcp->channel_function, 0);
+    info_length = ws_channel_function_length(ws_lcp->chan_plan.channel_function, 0);
     if (nested_payload_ie.length < info_length) {
         return false;
     }
     nested_payload_ie.length -= info_length;
 
-    switch (ws_lcp->channel_function) {
+    switch (ws_lcp->chan_plan.channel_function) {
         case 0:
-            data = ws_channel_function_zero_read(data, &ws_lcp->function.zero);
+            data = ws_channel_function_zero_read(data, &ws_lcp->chan_plan.function.zero);
             break;
         case 1:
         case 2:
             break;
         case 3:
-            data = ws_channel_function_three_read(data, &ws_lcp->function.three);
-            info_length = ws_lcp->function.three.channel_hop_count;
+            data = ws_channel_function_three_read(data, &ws_lcp->chan_plan.function.three);
+            info_length = ws_lcp->chan_plan.function.three.channel_hop_count;
             if (nested_payload_ie.length < info_length) {
                 return false;
             }
@@ -1397,25 +1397,25 @@ bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct w
             return false;
     }
 
-    switch (ws_lcp->excluded_channel_ctrl) {
+    switch (ws_lcp->chan_plan.excluded_channel_ctrl) {
         case WS_EXC_CHAN_CTRL_NONE:
             break;
         case WS_EXC_CHAN_CTRL_RANGE:
-            ws_lcp->excluded_channels.range.number_of_range = *data;
-            if (nested_payload_ie.length < (ws_lcp->excluded_channels.range.number_of_range * 4) + 1) {
+            ws_lcp->chan_plan.excluded_channels.range.number_of_range = *data;
+            if (nested_payload_ie.length < (ws_lcp->chan_plan.excluded_channels.range.number_of_range * 4) + 1) {
                 return false;
             }
             //Set Range start after validation
-            ws_lcp->excluded_channels.range.range_start = data + 1;
+            ws_lcp->chan_plan.excluded_channels.range.range_start = data + 1;
             break;
         case WS_EXC_CHAN_CTRL_BITMASK:
-            if (ws_lcp->channel_plan == 1 &&
-                (ws_lcp->plan.one.number_of_channel + 7) / 8 != nested_payload_ie.length) {
+            if (ws_lcp->chan_plan.channel_plan == 1 &&
+                (ws_lcp->chan_plan.plan.one.number_of_channel + 7) / 8 != nested_payload_ie.length) {
                 //Channel mask length is not correct
                 return false;
             }
-            ws_lcp->excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
-            ws_lcp->excluded_channels.mask.channel_mask = data;
+            ws_lcp->chan_plan.excluded_channels.mask.mask_len_inline = nested_payload_ie.length;
+            ws_lcp->chan_plan.excluded_channels.mask.channel_mask = data;
             break;
         default:
             return false;

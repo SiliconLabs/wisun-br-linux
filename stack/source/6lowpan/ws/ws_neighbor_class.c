@@ -259,9 +259,9 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
 
 void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8])
 {
-    ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->channel_function;
-    if (ws_us->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->function.zero.fixed_channel;
+    ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->chan_plan.channel_function;
+    if (ws_us->chan_plan.channel_function == WS_FIXED_CHANNEL) {
+        ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->chan_plan.function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
         uint8_t excluded_channel_ctrl;
@@ -269,25 +269,25 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_inter
         uint8_t operating_class;
         uint8_t channel_plan_id;
 
-        switch (ws_us->channel_plan) {
+        switch (ws_us->chan_plan.channel_plan) {
             case 0:  // Regulatory Domain and Operating Class
-                excluded_channel_ctrl = ws_us->excluded_channel_ctrl;
-                regulatory_domain = ws_us->plan.zero.regulatory_domain;
-                operating_class = ws_us->plan.zero.operating_class;
+                excluded_channel_ctrl = ws_us->chan_plan.excluded_channel_ctrl;
+                regulatory_domain = ws_us->chan_plan.plan.zero.regulatory_domain;
+                operating_class = ws_us->chan_plan.plan.zero.operating_class;
                 // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
                 // non standard extension
-                if (ws_us->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
-                    channel_plan_id = ws_us->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
+                if (ws_us->chan_plan.plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+                    channel_plan_id = ws_us->chan_plan.plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
                 else
                     channel_plan_id = 255;
                 ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
                 break;
             case 1:  // Explicit Channel Plan
-                excluded_channel_ctrl = ws_us->excluded_channel_ctrl;
+                excluded_channel_ctrl = ws_us->chan_plan.excluded_channel_ctrl;
                 regulatory_domain = REG_DOMAIN_UNDEF;
                 operating_class = 255;
                 channel_plan_id = 255;
-                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->plan.one.number_of_channel;
+                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->chan_plan.plan.one.number_of_channel;
                 break;
             case 2:  // ChanPlanID and Regulatory Domain
                 //TODO add Channel plan 2 channel count function call here
@@ -306,11 +306,11 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_inter
         if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
-            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->chan_plan.excluded_channels.range, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
             ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.uc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
-            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.uc_channel_list, &ws_us->chan_plan.excluded_channels.mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
         } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
             if (ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels != ws_neighbor->fhss_data.uc_channel_list.channel_count) {
                 ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.uc_channel_list.channel_mask, ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
@@ -335,9 +335,9 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
 {
     ws_neighbor->broadcast_schedule_info_stored = true;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->channel_function;
-    if (ws_bs->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs->function.zero.fixed_channel;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->chan_plan.channel_function;
+    if (ws_bs->chan_plan.channel_function == WS_FIXED_CHANNEL) {
+        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs->chan_plan.function.zero.fixed_channel;
     } else {
         uint8_t excluded_channel_ctrl;
         uint8_t regulatory_domain;
@@ -345,25 +345,25 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_int
         uint8_t channel_plan_id;
         uint16_t broadcast_number_of_channels;
 
-        switch (ws_bs->channel_plan) {
+        switch (ws_bs->chan_plan.channel_plan) {
             case 0:  // Regulatory Domain and Operating Class
-                excluded_channel_ctrl = ws_bs->excluded_channel_ctrl;
-                regulatory_domain = ws_bs->plan.zero.regulatory_domain;
-                operating_class = ws_bs->plan.zero.operating_class;
+                excluded_channel_ctrl = ws_bs->chan_plan.excluded_channel_ctrl;
+                regulatory_domain = ws_bs->chan_plan.plan.zero.regulatory_domain;
+                operating_class = ws_bs->chan_plan.plan.zero.operating_class;
                 // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
                 // non standard extension
-                if (ws_bs->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
-                    channel_plan_id = ws_bs->plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
+                if (ws_bs->chan_plan.plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+                    channel_plan_id = ws_bs->chan_plan.plan.zero.operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
                 else
                     channel_plan_id = 255;
                 broadcast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
                 break;
             case 1:  // Explicit Channel Plan
-                excluded_channel_ctrl = ws_bs->excluded_channel_ctrl;
+                excluded_channel_ctrl = ws_bs->chan_plan.excluded_channel_ctrl;
                 regulatory_domain = REG_DOMAIN_UNDEF;
                 operating_class = 255;
                 channel_plan_id = 255;
-                broadcast_number_of_channels = ws_bs->plan.one.number_of_channel;
+                broadcast_number_of_channels = ws_bs->chan_plan.plan.one.number_of_channel;
                 break;
             case 2:  // ChanPlanID and Regulatory Domain
                 // TODO add Channel plan 2 channel count function call here
@@ -382,11 +382,11 @@ void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_int
         if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.bc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels);
-            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->excluded_channels.range, broadcast_number_of_channels);
+            ws_neighbour_excluded_mask_by_range(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->chan_plan.excluded_channels.range, broadcast_number_of_channels);
         } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
             ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);
             ws_neighbor->fhss_data.bc_channel_list.channel_count = ws_common_active_channel_count(ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels);
-            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->excluded_channels.mask, broadcast_number_of_channels);
+            ws_neighbour_excluded_mask_by_mask(&ws_neighbor->fhss_data.bc_channel_list, &ws_bs->chan_plan.excluded_channels.mask, broadcast_number_of_channels);
         } else if (excluded_channel_ctrl == WS_EXC_CHAN_CTRL_NONE) {
             if (broadcast_number_of_channels != ws_neighbor->fhss_data.bc_channel_list.channel_count) {
                 ws_common_generate_channel_list(cur, ws_neighbor->fhss_data.bc_channel_list.channel_mask, broadcast_number_of_channels, regulatory_domain, operating_class, channel_plan_id);

@@ -402,22 +402,7 @@ typedef struct ws_generic_channel_info {
  */
 typedef struct ws_lcp_ie {
     uint8_t lfn_channel_plan_tag;
-    uint8_t channel_plan: 3;
-    uint8_t channel_function: 3;
-    uint8_t excluded_channel_ctrl: 2;
-    union {
-        ws_channel_plan_zero_t zero;
-        ws_channel_plan_one_t one;
-        ws_channel_plan_two_t two;
-    } plan;
-    union {
-        ws_channel_function_zero_t zero;
-        ws_channel_function_three_t three;
-    } function;
-    union {
-        ws_excluded_channel_range_t range;
-        ws_excluded_channel_mask_t mask;
-    } excluded_channels;
+    struct ws_generic_channel_info chan_plan;
 } ws_lcp_ie_t;
 
 /**
@@ -427,22 +412,7 @@ typedef struct ws_us_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
-    unsigned channel_plan: 3;
-    unsigned channel_function: 3;
-    unsigned excluded_channel_ctrl: 2;
-    union {
-        ws_channel_plan_zero_t zero;
-        ws_channel_plan_one_t one;
-        ws_channel_plan_two_t two;
-    } plan;
-    union {
-        ws_channel_function_zero_t zero;
-        ws_channel_function_three_t three;
-    } function;
-    union {
-        ws_excluded_channel_range_t range;
-        ws_excluded_channel_mask_t mask;
-    } excluded_channels;
+    struct ws_generic_channel_info chan_plan;
 } ws_us_ie_t;
 
 /**
@@ -454,22 +424,7 @@ typedef struct ws_bs_ie {
     uint8_t dwell_interval;
     uint8_t clock_drift;
     uint8_t timing_accuracy;
-    unsigned channel_plan: 3;
-    unsigned channel_function: 3;
-    unsigned excluded_channel_ctrl: 2;
-    union {
-        ws_channel_plan_zero_t zero;
-        ws_channel_plan_one_t one;
-        ws_channel_plan_two_t two;
-    } plan;
-    union {
-        ws_channel_function_zero_t zero;
-        ws_channel_function_three_t three;
-    } function;
-    union {
-        ws_excluded_channel_range_t range;
-        ws_excluded_channel_mask_t mask;
-    } excluded_channels;
+    struct ws_generic_channel_info chan_plan;
 } ws_bs_ie_t;
 
 #define MPX_KEY_MANAGEMENT_ENC_USER_ID 0x0001   /**< MPX Key management user ID */

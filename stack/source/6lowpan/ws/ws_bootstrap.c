@@ -1043,16 +1043,16 @@ void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcp
     parent->ws_us = *ws_us;
 
     //copy excluded channel here if it is inline
-    if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
+    if (ws_us->chan_plan.excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
         memset(parent->excluded_channel_data, 0, 32);
         //Decode Range to mask here
-        ws_bootstrap_decode_exclude_range_to_mask_by_range(parent->excluded_channel_data, &parent->ws_us.excluded_channels.range, 256);
-        parent->ws_us.excluded_channels.mask.channel_mask = parent->excluded_channel_data;
-        parent->ws_us.excluded_channels.mask.mask_len_inline = 32;
-        parent->ws_us.excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
-    } else if (ws_us->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        parent->ws_us.excluded_channels.mask.channel_mask = parent->excluded_channel_data;
-        memcpy(parent->excluded_channel_data, ws_us->excluded_channels.mask.channel_mask, ws_us->excluded_channels.mask.mask_len_inline);
+        ws_bootstrap_decode_exclude_range_to_mask_by_range(parent->excluded_channel_data, &parent->ws_us.chan_plan.excluded_channels.range, 256);
+        parent->ws_us.chan_plan.excluded_channels.mask.channel_mask = parent->excluded_channel_data;
+        parent->ws_us.chan_plan.excluded_channels.mask.mask_len_inline = 32;
+        parent->ws_us.chan_plan.excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
+    } else if (ws_us->chan_plan.excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
+        parent->ws_us.chan_plan.excluded_channels.mask.channel_mask = parent->excluded_channel_data;
+        memcpy(parent->excluded_channel_data, ws_us->chan_plan.excluded_channels.mask.channel_mask, ws_us->chan_plan.excluded_channels.mask.mask_len_inline);
     }
 
     // Saved from Pan information, do not overwrite pan_version as it is not valid here
@@ -1281,16 +1281,16 @@ static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hoppi
 bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, struct protocol_interface_info_entry *cur)
 {
     if (ws_us) {
-        if (ws_us->channel_plan == 0) {
-            if (!ws_channel_plan_zero_compare(&ws_us->plan.zero, &cur->ws_info->hopping_schedule)) {
+        if (ws_us->chan_plan.channel_plan == 0) {
+            if (!ws_channel_plan_zero_compare(&ws_us->chan_plan.plan.zero, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
-        } else if (ws_us->channel_plan == 1) {
-            if (!ws_channel_plan_one_compare(&ws_us->plan.one, &cur->ws_info->hopping_schedule)) {
+        } else if (ws_us->chan_plan.channel_plan == 1) {
+            if (!ws_channel_plan_one_compare(&ws_us->chan_plan.plan.one, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
-        } else if (ws_us->channel_plan == 2) {
-            if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schedule)) {
+        } else if (ws_us->chan_plan.channel_plan == 2) {
+            if (!ws_channel_plan_two_compare(&ws_us->chan_plan.plan.two, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
         } else {
@@ -1299,16 +1299,16 @@ bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, st
     }
 
     if (ws_bs) {
-        if (ws_bs->channel_plan == 0) {
-            if (!ws_channel_plan_zero_compare(&ws_bs->plan.zero, &cur->ws_info->hopping_schedule)) {
+        if (ws_bs->chan_plan.channel_plan == 0) {
+            if (!ws_channel_plan_zero_compare(&ws_bs->chan_plan.plan.zero, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
-        } else if (ws_bs->channel_plan == 1) {
-            if (!ws_channel_plan_one_compare(&ws_bs->plan.one, &cur->ws_info->hopping_schedule)) {
+        } else if (ws_bs->chan_plan.channel_plan == 1) {
+            if (!ws_channel_plan_one_compare(&ws_bs->chan_plan.plan.one, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
-        } else if (ws_bs->channel_plan == 2) {
-            if (!ws_channel_plan_two_compare(&ws_bs->plan.two, &cur->ws_info->hopping_schedule)) {
+        } else if (ws_bs->chan_plan.channel_plan == 2) {
+            if (!ws_channel_plan_two_compare(&ws_bs->chan_plan.plan.two, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
         } else {
@@ -1322,17 +1322,17 @@ bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, st
 bool ws_bootstrap_validate_channel_function(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs)
 {
     if (ws_us) {
-        if (ws_us->channel_function != WS_FIXED_CHANNEL &&
-                ws_us->channel_function != WS_TR51CF &&
-                ws_us->channel_function != WS_DH1CF) {
+        if (ws_us->chan_plan.channel_function != WS_FIXED_CHANNEL &&
+                ws_us->chan_plan.channel_function != WS_TR51CF &&
+                ws_us->chan_plan.channel_function != WS_DH1CF) {
             return false;
         }
     }
 
     if (ws_bs) {
-        if (ws_bs->channel_function != WS_FIXED_CHANNEL &&
-                ws_bs->channel_function != WS_TR51CF &&
-                ws_bs->channel_function != WS_DH1CF) {
+        if (ws_bs->chan_plan.channel_function != WS_FIXED_CHANNEL &&
+                ws_bs->chan_plan.channel_function != WS_TR51CF &&
+                ws_bs->chan_plan.channel_function != WS_DH1CF) {
             return false;
         }
     }
