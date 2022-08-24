@@ -982,7 +982,7 @@ static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf
     }
     mac_pre_build_frame_t *buf;
 
-    //Disable allways
+    //Disable always
     mac_mlme_mac_radio_disabled(rf_setup);
     buf = rf_setup->active_pd_data_request;
     rf_setup->active_pd_data_request = NULL;

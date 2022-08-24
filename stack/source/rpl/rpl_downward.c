@@ -266,7 +266,7 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
             }
         }
 
-        //Trig DAO allways after change
+        //Trig DAO always after change
         rpl_instance_dao_trigger(instance, 0);
     }
 }
@@ -397,7 +397,7 @@ void rpl_instance_publish_dao_target(rpl_instance_t *instance, const uint8_t *pr
     target->response_wait_time = 0;
     target->active_confirmation_state = false;
     target->trig_confirmation_state = true;
-    //Activate allways registration
+    //Activate always registration
     instance->pending_neighbour_confirmation = rpl_policy_parent_confirmation_requested();
     tr_debug("New Target %s", trace_ipv6(target->prefix));
     /* Path lifetime left as 0 for now - will be filled in on transmission, along with refresh timer */

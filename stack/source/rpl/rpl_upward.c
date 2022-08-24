@@ -1625,7 +1625,7 @@ static bool rpl_instance_parent_selected(rpl_instance_t *instance)
 static bool rpl_instance_dao_route_registered(rpl_instance_t *instance)
 {
     if (rpl_instance_am_root(instance)) {
-        //Border router is allways at stable state
+        //Border router is always at stable state
         return true;
     }
 
@@ -1781,7 +1781,7 @@ void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair)
         instance->repair_dis_timer = 0;
 
     }
-    //SET False allways for guarantee reboot possibility
+    //SET False always for guarantee reboot possibility
     instance->advertised_dodag_membership_since_last_repair = false;
 
     /* When repair ends, eliminate all higher-rank neighbours (potential sub-DODAG) from table */
@@ -2100,7 +2100,7 @@ bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, rpl_dodag_info_t
 
 bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_neighbour_t *neighbour, const rpl_neighbour_t *pref_parent)
 {
-    //Accept allways from Pref parent or before it is selected
+    //Accept always from Pref parent or before it is selected
     if (!pref_parent || neighbour == pref_parent) {
         return true;
     }

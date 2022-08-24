@@ -43,7 +43,7 @@ typedef struct mac_neighbor_table_entry {
     uint8_t         phy_mode_ids[16]; // TODO define
     uint8_t         phy_mode_id_count;
     bool            mdr_capable:1;
-    bool            rx_on_idle: 1;          /*!< True, RX on idle allways at idle state, false disable radio */
+    bool            rx_on_idle: 1;          /*!< True, RX on idle always at idle state, false disable radio */
     bool            ffd_device: 1;          /*!< True FFD device, false for RFD */
     bool            advertisment: 1;
     bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/

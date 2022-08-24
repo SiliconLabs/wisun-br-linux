@@ -345,22 +345,22 @@ static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_par
 {
     uint16_t length = 0;
     if (requested_list.utt_ie) {
-        //Static 4 bytes allways UTT
+        //Static 4 bytes always UTT
         length += WH_IE_ELEMENT_HEADER_LENGTH + 4;
     }
 
     if (requested_list.bt_ie) {
-        //Static 5 bytes allways
+        //Static 5 bytes always
         length += WH_IE_ELEMENT_HEADER_LENGTH + 5;
     }
 
     if (requested_list.fc_ie) {
-        //Static 1 bytes allways
+        //Static 1 bytes always
         length += WH_IE_ELEMENT_HEADER_LENGTH + 2;
     }
 
     if (requested_list.rsl_ie) {
-        //Static 1 bytes allways
+        //Static 1 bytes always
         length += WH_IE_ELEMENT_HEADER_LENGTH + 1;
     }
 
@@ -381,7 +381,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     uint16_t length = 0;
     llc_ie_params_t *params = &llc_base->ie_params;
     if (requested_list.gtkhash_ie) {
-        //Static 32 bytes allways
+        //Static 32 bytes always
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + params->gtkhash_length;
     }
 
@@ -396,7 +396,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     }
 
     if (requested_list.pan_ie) {
-        //Static 5 bytes allways
+        //Static 5 bytes always
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
         if (params->pan_configuration) {
             length += 5;
@@ -404,7 +404,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     }
 
     if (requested_list.pan_version_ie) {
-        //Static 2 bytes allways
+        //Static 2 bytes always
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
         if (params->pan_configuration) {
             length += 2;
@@ -1926,7 +1926,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     }
 
     if (request->wh_requested_ie_list.bt_ie) {
-        //Static 5 bytes allways
+        //Static 5 bytes always
         ptr = ws_wh_bt_write(ptr);
     }
 

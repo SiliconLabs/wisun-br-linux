@@ -428,7 +428,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
 
     cur->ws_info->lfngtk.lfn_version = lfn_version.lfn_version;
 
-    //Clear HASH allways at new first or for first leaned one's
+    //Clear HASH always at new first or for first leaned one's
     memset(cur->ws_info->lfngtk.lgtkhash, 0, 24);
     cur->ws_info->lfngtk.lfn_version_learned = true;
 

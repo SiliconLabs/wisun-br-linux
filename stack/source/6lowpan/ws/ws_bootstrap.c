@@ -1420,7 +1420,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
             } else {
                 uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_entry_ptr->index));
                 if (compare_neigh_time < time_from_last_unicast_schedule)  {
-                    //Accept older RX timeout allways
+                    //Accept older RX timeout always
                     neighbor_entry_ptr = cur;
                 }
             }
@@ -1671,7 +1671,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         goto init_fail;
     }
 
-    //Disable allways by default
+    //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
     mac_neighbor_table_delete(mac_neighbor_info(cur));
