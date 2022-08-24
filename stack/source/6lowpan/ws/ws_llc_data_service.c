@@ -85,6 +85,7 @@ typedef struct {
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
     ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
+    ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
 
 /// Enumeration for Mode Switch mode
@@ -444,6 +445,10 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     if (requested_list.lcp_ie) {
         //Dynamic length
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_channel_plan_length(params->lfn_channel_plan);
+    }
+
+    if (requested_list.lbats_ie) {
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lbats_length();
     }
 
     return length;
@@ -2012,6 +2017,11 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 memcpy(ws_lgtkhash.lgtk1_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 8, 8);
                 memcpy(ws_lgtkhash.lgtk2_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
                 ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
+            }
+
+            if (request->wp_requested_nested_ie_list.lbats_ie) {
+                //Write LFN Broadcast Additional Transmit Schedule payload
+                ptr = ws_wp_nested_lbats_write(ptr, base->ie_params.lbats_ie);
             }
         }
     }

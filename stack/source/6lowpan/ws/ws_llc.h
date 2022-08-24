@@ -60,6 +60,7 @@ typedef struct wp_nested_ie_sub_list_s {
     bool lgtkhash_ie: 1;            /**< LFN GTK Hash */
     bool lfnver_ie: 1;              /**< LFN Version */
     bool lcp_ie: 1;                 /**< LFN Channel Plan information */
+    bool lbats_ie: 1;               /**< LFN Broadcast Additional Transmit Schedule */
     bool pom_ie: 1;                 /**< PHY Operating Modes information */
 } wp_nested_ie_sub_list_t;
 
