@@ -411,6 +411,22 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
         }
     }
 
+    if (requested_list.bs_ie) {
+        ///Dynamic length
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, false);
+    }
+
+    if (requested_list.us_ie) {
+        //Dynamic length
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, true);
+    }
+
+    // We put only POM-IE if more than 1 phy (base phy + something else)
+    if (requested_list.pom_ie && params->phy_operating_modes && params->phy_op_mode_number > 1) {
+        //Dynamic length
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pom_length(params->phy_op_mode_number);
+    }
+
     if (requested_list.lfnver_ie) {
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_version_length();
     }
@@ -421,22 +437,6 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
         ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
         ws_lgtkhash.lgtk2 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_3;
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(&ws_lgtkhash);
-    }
-
-    // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (requested_list.pom_ie && params->phy_operating_modes && params->phy_op_mode_number > 1) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pom_length(params->phy_op_mode_number);
-    }
-
-    if (requested_list.bs_ie) {
-        ///Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, false);
-    }
-
-    if (requested_list.us_ie) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, true);
     }
 
     return length;
@@ -1976,6 +1976,12 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
         }
 
         if (ws_version_1_1(interface)) {
+            // We put only POM-IE if more than 1 phy (base phy + something else)
+            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
+                //Write PHY Operating Modes payload
+                ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+            }
+
             if (request->wp_requested_nested_ie_list.lfnver_ie) {
                 ws_lfnver_ie_t lfn_ver;
                 //Write LFN Version
@@ -1994,12 +2000,6 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
                 memcpy(ws_lgtkhash.lgtk1_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 8, 8);
                 memcpy(ws_lgtkhash.lgtk2_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
                 ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
-            }
-
-            // We put only POM-IE if more than 1 phy (base phy + something else)
-            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
-                //Write PHY Operating Modes payload
-                ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             }
         }
     }
