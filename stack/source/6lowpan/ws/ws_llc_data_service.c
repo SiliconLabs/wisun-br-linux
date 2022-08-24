@@ -106,7 +106,7 @@ typedef enum {
 typedef struct {
     uint8_t dst_address[8];             /**< Destination address */
     uint16_t pan_id;                    /**< Destination Pan-Id */
-    unsigned        message_type: 3;   /**< Frame type to UTT */
+    unsigned        message_type: 4;   /**< Frame type to UTT */
     unsigned        mpx_id: 5;          /**< MPX sequence */
     bool            ack_requested: 1;   /**< ACK requested */
     bool            eapol_temporary: 1; /**< EAPOL TX entry index used */
