@@ -83,6 +83,8 @@ typedef struct {
     uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
     uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
+    /* FAN 1.1 elements */
+    ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
 } llc_ie_params_t;
 
 /// Enumeration for Mode Switch mode
@@ -437,6 +439,11 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
         ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
         ws_lgtkhash.lgtk2 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_3;
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(&ws_lgtkhash);
+    }
+
+    if (requested_list.lcp_ie) {
+        //Dynamic length
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_channel_plan_length(params->lfn_channel_plan);
     }
 
     return length;
@@ -1980,6 +1987,11 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
                 //Write PHY Operating Modes payload
                 ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+            }
+
+            if (request->wp_requested_nested_ie_list.lcp_ie) {
+                //Write LFN Channel Plan payload
+                ptr = ws_wp_nested_lfn_channel_plan_write(ptr, base->ie_params.lfn_channel_plan);
             }
 
             if (request->wp_requested_nested_ie_list.lfnver_ie) {
