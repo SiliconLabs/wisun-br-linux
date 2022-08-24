@@ -84,6 +84,14 @@ typedef struct {
     uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
+    ws_nr_ie_t              *node_role;             /**< Node Role */
+    ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
+    ws_flus_ie_t            *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
+    ws_lbs_ie_t             *lfn_bs;                /**< LFN Broadcast schedule */
+    ws_lnd_ie_t             *lfn_network_discovery; /**< LFN Network Discovery */
+    ws_lto_ie_t             *lfn_timing;            /**< LFN Timing */
+    ws_panid_ie_t           *pan_id;                /**< PAN ID */
+    ws_lbc_ie_t             *lfn_bc;                /**< LFN Broadcast Configuration */
     ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
     ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
@@ -374,6 +382,46 @@ static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_par
 
     if (requested_list.ea_ie) {
         length += WH_IE_ELEMENT_HEADER_LENGTH + 8;
+    }
+
+    if (requested_list.lutt_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lutt_length();
+    }
+
+    if (requested_list.lbt_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbt_length();
+    }
+
+    if (requested_list.nr_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_nr_length(params->node_role);
+    }
+
+    if (requested_list.lus_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lus_length();
+    }
+
+    if (requested_list.flus_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_flus_length();
+    }
+
+    if (requested_list.lbs_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbs_length();
+    }
+
+    if (requested_list.lnd_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lnd_length();
+    }
+
+    if (requested_list.lto_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lto_length();
+    }
+
+    if (requested_list.panid_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_panid_length();
+    }
+
+    if (requested_list.lbc_ie) {
+        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbc_length();
     }
 
     return length;
@@ -1943,6 +1991,46 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     if (request->wh_requested_ie_list.bt_ie) {
         //Static 5 bytes always
         ptr = ws_wh_bt_write(ptr);
+    }
+
+    if (request->wh_requested_ie_list.lutt_ie) {
+        ptr = ws_wh_lutt_write(ptr, message->message_type);
+    }
+
+    if (request->wh_requested_ie_list.lbt_ie) {
+        ptr = ws_wh_lbt_write(ptr, NULL);
+    }
+
+    if (request->wh_requested_ie_list.nr_ie) {
+        ptr = ws_wh_nr_write(ptr, base->ie_params.node_role);
+    }
+
+    if (request->wh_requested_ie_list.lus_ie) {
+        ptr = ws_wh_lus_write(ptr, base->ie_params.lfn_us);
+    }
+
+    if (request->wh_requested_ie_list.flus_ie) {
+        ptr = ws_wh_flus_write(ptr, base->ie_params.ffn_lfn_us);
+    }
+
+    if (request->wh_requested_ie_list.lbs_ie) {
+        ptr = ws_wh_lbs_write(ptr, base->ie_params.lfn_bs);
+    }
+
+    if (request->wh_requested_ie_list.lnd_ie) {
+        ptr = ws_wh_lnd_write(ptr, base->ie_params.lfn_network_discovery);
+    }
+
+    if (request->wh_requested_ie_list.lto_ie) {
+        ptr = ws_wh_lto_write(ptr, base->ie_params.lfn_timing);
+    }
+
+    if (request->wh_requested_ie_list.panid_ie) {
+        ptr = ws_wh_panid_write(ptr, base->ie_params.pan_id);
+    }
+
+    if (request->wh_requested_ie_list.lbc_ie) {
+        ptr = ws_wh_lbc_write(ptr, base->ie_params.lfn_bc);
     }
 
     if (wp_nested_payload_length) {

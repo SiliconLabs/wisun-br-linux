@@ -44,6 +44,16 @@ typedef struct wh_ie_sub_list_s {
     bool rsl_ie: 1;  /**< Received Signal Level information */
     bool vh_ie: 1;   /**< Vendor header information */
     bool ea_ie: 1;   /**< EAPOL autheticator EUI-64 header information */
+    bool lutt_ie: 1;  /**< LFN Unicast Timing and Frame Type information */
+    bool lbt_ie: 1;   /**< LFN Broadcast Timing information */
+    bool nr_ie: 1;    /**< Node Role information */
+    bool lus_ie: 1;   /**< LFN Unicast Schedule information */
+    bool flus_ie: 1;  /**< FFN for LFN unicast Schedule information */
+    bool lbs_ie: 1;   /**< LFN Broadcast Schedule information */
+    bool lnd_ie: 1;   /**< LFN Network Discovery information */
+    bool lto_ie: 1;   /**< LFN Timing information */
+    bool panid_ie: 1; /**< PAN Identifier information */
+    bool lbc_ie: 1;   /**< LFN Broadcast Configuration information */
 } wh_ie_sub_list_t;
 
 /**
