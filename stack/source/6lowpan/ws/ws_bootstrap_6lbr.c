@@ -226,6 +226,9 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
         case WS_FT_PAN_ADVERT:
         case WS_FT_PAN_ADVERT_SOL:
         case WS_FT_PAN_CONF_SOL:
+        case WS_FT_LPA:
+        case WS_FT_LPAS:
+        case WS_FT_LPCS:
             //Check Network Name
             if (!ws_bootstrap_network_name_matches(ie_ext, cur->ws_info->cfg->gen.network_name)) {
                 // Not in our network
@@ -233,6 +236,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
             }
             break;
         case WS_FT_PAN_CONF:
+        case WS_FT_LPC:
             break;
         default:
             return;
@@ -281,6 +285,12 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
             trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
             ws_bootstrap_6lbr_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
+            break;
+        case WS_FT_LPA:
+        case WS_FT_LPAS:
+        case WS_FT_LPCS:
+        case WS_FT_LPC:
+            tr_warn("LFN messages are not yet supported");
         default:
             // Unknown message do not process
             break;

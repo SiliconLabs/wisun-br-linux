@@ -994,6 +994,9 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
         case WS_FT_PAN_ADVERT:
         case WS_FT_PAN_CONF:
         case WS_FT_PAN_CONF_SOL:
+        case WS_FT_LPA:
+        case WS_FT_LPC:
+        case WS_FT_LPCS:
             ws_llc_release_eapol_temp_entry(base->temp_entries, data->SrcAddr);
             break;
         default:
