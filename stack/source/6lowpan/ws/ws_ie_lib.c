@@ -639,24 +639,24 @@ uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *lgtkha
     return ptr;
 }
 
-uint16_t ws_wp_nested_lfn_channel_plan_length(ws_generic_channel_info_t *ws_lcp)
+uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp)
 {
     uint16_t length = 1; //Channel Plan Tag
 
-    length += ws_wp_generic_schedule_length_get(ws_lcp);
+    length += ws_wp_generic_schedule_length_get(&ws_lcp->chan_plan);
     return length;
 }
 
-uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t *ws_lcp, uint8_t plan_tag_id)
+uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_lcp_ie *ws_lcp)
 {
     uint16_t length = ws_wp_nested_lfn_channel_plan_length(ws_lcp);
 
     ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, length);
-    *ptr++ = plan_tag_id;
-    *ptr++ = ws_wp_channel_info_base_get(ws_lcp);
-    ptr = ws_wp_channel_plan_write(ptr, ws_lcp);
-    ptr = ws_wp_channel_function_write(ptr, ws_lcp);
-    ptr = ws_wp_nested_excluded_channel_write(ptr, ws_lcp);
+    *ptr++ = ws_lcp->lfn_channel_plan_tag;
+    *ptr++ = ws_wp_channel_info_base_get(&ws_lcp->chan_plan);
+    ptr = ws_wp_channel_plan_write(ptr, &ws_lcp->chan_plan);
+    ptr = ws_wp_channel_function_write(ptr, &ws_lcp->chan_plan);
+    ptr = ws_wp_nested_excluded_channel_write(ptr, &ws_lcp->chan_plan);
     return ptr;
 }
 

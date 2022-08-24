@@ -100,8 +100,8 @@ uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lf
 #define ws_wp_nested_lfn_version_length() 2
 uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *ws_lgtkhash);
 uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *ws_lgtkhash);
-uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_generic_channel_info *ws_lcp, uint8_t plan_tag_id);
-uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_generic_channel_info *ws_lcp);
+uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_lcp_ie *ws_lcp);
+uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp);
 
 
 bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
