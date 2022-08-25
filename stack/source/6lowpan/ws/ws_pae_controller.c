@@ -135,7 +135,6 @@ static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_e
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
-static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
@@ -564,13 +563,6 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
     return ret;
 }
 
-static void ws_pae_controller_active_nw_key_clear(nw_key_t *nw_key)
-{
-    memset(nw_key, 0, sizeof(nw_key_t));
-    nw_key->set = false;
-    nw_key->installed = false;
-}
-
 int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_name)
 {
     uint8_t network_name_len = strlen(network_name);
@@ -794,14 +786,10 @@ int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_pt
 
 static void ws_pae_controller_data_init(pae_controller_t *controller)
 {
-    memset(controller->target_eui_64, 0, 8);
-    memset(controller->br_eui_64, 0, 8);
-    memset(controller->gtks.gtkhash, 0, 32);
-
-    ws_pae_controller_active_nw_key_clear(&controller->gtks.nw_key[0]);
-    ws_pae_controller_active_nw_key_clear(&controller->gtks.nw_key[1]);
-    ws_pae_controller_active_nw_key_clear(&controller->gtks.nw_key[2]);
-    ws_pae_controller_active_nw_key_clear(&controller->gtks.nw_key[3]);
+    memset(controller->target_eui_64, 0, sizeof(controller->target_eui_64));
+    memset(controller->br_eui_64, 0, sizeof(controller->br_eui_64));
+    memset(controller->gtks.gtkhash, 0, sizeof(controller->gtks.gtkhash));
+    memset(controller->gtks.nw_key, 0, sizeof(controller->gtks.nw_key));
 
     controller->target_pan_id = 0xffff;
     controller->pae_delete = NULL;
