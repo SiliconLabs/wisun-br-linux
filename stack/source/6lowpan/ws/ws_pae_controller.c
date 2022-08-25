@@ -121,7 +121,7 @@ typedef struct pae_controller_config {
     bool ext_cert_valid_enabled : 1;                                 /**< Extended certificate validation enabled */
 } pae_controller_config_t;
 
-static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks);
+static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entry_t *interface_ptr);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
@@ -326,7 +326,7 @@ int8_t ws_pae_controller_set_target(protocol_interface_info_entry_t *interface_p
     return 0;
 }
 
-static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks)
+static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
     if (!sec_keys_nw_info) {
         return;
@@ -335,6 +335,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     memset(sec_keys_nw_info, 0, sizeof(sec_prot_keys_nw_info_t));
 
     sec_keys_nw_info->gtks = gtks;
+    sec_keys_nw_info->lgtks = lgtks;
     sec_keys_nw_info->new_pan_id = 0xFFFF;
     sec_keys_nw_info->key_pan_id = 0xFFFF;
     sec_keys_nw_info->updated = false;
@@ -815,7 +816,7 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     sec_prot_keys_gtks_init(&controller->gtks.next_gtks);
     sec_prot_certs_init(&controller->certs);
     sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
-    ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks);
+    ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks, NULL);
 }
 
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
