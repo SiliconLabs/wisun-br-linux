@@ -129,7 +129,6 @@ typedef struct ws_info_s {
     uint32_t authentication_time;          /**< When the last authentication was performed */
     uint32_t connected_time;               /**< Time we have been connected to network */
     uint32_t pan_config_sol_max_timeout;
-    uint8_t gtkhash[32];
     uint16_t network_pan_id;
     bool configuration_learned: 1;
     bool trickle_pas_running: 1;
