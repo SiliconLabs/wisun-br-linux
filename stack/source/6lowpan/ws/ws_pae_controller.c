@@ -82,6 +82,7 @@ typedef struct pae_controller {
     uint16_t target_pan_id;                                          /**< EAPOL target PAN ID */
     uint8_t br_eui_64[8];                                            /**< Border router EUI-64 */
     pae_controller_gtk_t gtks;                                       /**< Material for GTKs */
+    pae_controller_gtk_t lgtks;                                       /**< Material for GTKs */
     sec_prot_keys_nw_info_t sec_keys_nw_info;                        /**< Security keys network information */
     sec_prot_certs_t certs;                                          /**< Certificates */
     uint16_t frame_cnt_store_timer;                                  /**< Timer to check if storing of frame counter value is needed */
@@ -790,7 +791,9 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     memset(controller->target_eui_64, 0, sizeof(controller->target_eui_64));
     memset(controller->br_eui_64, 0, sizeof(controller->br_eui_64));
     memset(controller->gtks.gtkhash, 0, sizeof(controller->gtks.gtkhash));
+    memset(controller->lgtks.gtkhash, 0, sizeof(controller->lgtks.gtkhash));
     memset(controller->gtks.nw_key, 0, sizeof(controller->gtks.nw_key));
+    memset(controller->lgtks.nw_key, 0, sizeof(controller->lgtks.nw_key));
 
     controller->target_pan_id = 0xffff;
     controller->pae_delete = NULL;
@@ -805,18 +808,24 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->gtks.gtks_set = false;
     controller->gtks.gtkhash_set = false;
     controller->gtks.key_index_set = false;
+    controller->lgtks.gtks_set = false;
+    controller->lgtks.gtkhash_set = false;
+    controller->lgtks.key_index_set = false;
     controller->frame_counter_read = false;
     controller->gtks.gtk_index = -1;
+    controller->lgtks.gtk_index = -1;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
     controller->frame_cnt_store_force_timer = FRAME_COUNTER_STORE_FORCE_INTERVAL;
     controller->restart_cnt = 0;
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
     sec_prot_keys_gtks_init(&controller->gtks.gtks);
+    sec_prot_keys_gtks_init(&controller->lgtks.gtks);
     sec_prot_keys_gtks_init(&controller->gtks.next_gtks);
+    sec_prot_keys_gtks_init(&controller->lgtks.next_gtks);
     sec_prot_certs_init(&controller->certs);
     sec_prot_certs_ext_certificate_validation_set(&controller->certs, pae_controller_config.ext_cert_valid_enabled);
-    ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks, NULL);
+    ws_pae_controller_keys_nw_info_init(&controller->sec_keys_nw_info, &controller->gtks.gtks, &controller->lgtks.gtks);
 }
 
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
