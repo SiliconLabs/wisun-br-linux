@@ -87,6 +87,12 @@
 #define TIME_MINIMUM_DIFFERENCE                5
 #define TIME_DIFFERENCE_THRESHOLD              3600
 
+typedef struct pae_auth_gtk {
+    sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
+    bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
+    bool gtk_new_act_time_exp : 1;                           /**< GTK new activation time expired */
+} pae_auth_gtk_t;
+
 typedef struct pae_auth {
     ns_list_link_t link;                                     /**< Link */
     uint16_t pan_id;                                         /**< PAN ID */
@@ -105,7 +111,7 @@ typedef struct pae_auth {
     supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
     arm_event_storage_t *timer;                              /**< Timer */
-    sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
+    pae_auth_gtk_t gtks;                                     /**< Material for GTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
     sec_cfg_t *sec_cfg;                                      /**< Security configuration */
@@ -119,8 +125,6 @@ typedef struct pae_auth {
     uint8_t relay_socked_msg_if_instance_id;                 /**< Relay socket message interface instance identifier */
     uint8_t radius_socked_msg_if_instance_id;                /**< Radius socket message interface instance identifier */
     bool timer_running : 1;                                  /**< Timer is running */
-    bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
-    bool gtk_new_act_time_exp : 1;                           /**< GTK new activation time expired */
     bool prev_system_time_set : 1;                           /**< Previous system time set */
     bool prev_frame_cnt_set : 1;                             /**< Previous frame counter set */
 } pae_auth_t;
@@ -194,7 +198,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->congestion_get = NULL;
     pae_auth->nw_frame_cnt_read = NULL;
 
-    pae_auth->next_gtks = next_gtks;
+    pae_auth->gtks.next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
     pae_auth->sec_cfg = sec_cfg;
@@ -206,8 +210,8 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
     pae_auth->waiting_supp_list_size = 0;
 
-    pae_auth->gtk_new_inst_req_exp = false;
-    pae_auth->gtk_new_act_time_exp = false;
+    pae_auth->gtks.gtk_new_inst_req_exp = false;
+    pae_auth->gtks.gtk_new_act_time_exp = false;
     pae_auth->prev_frame_cnt_set = false;
     pae_auth->prev_system_time_set = false;
 
@@ -770,9 +774,9 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             }
             uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds + gtk_lifetime_dec_extra_seconds, true);
             if (active_index == i) {
-                if (!pae_auth->gtk_new_inst_req_exp) {
-                    pae_auth->gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
-                    if (pae_auth->gtk_new_inst_req_exp) {
+                if (!pae_auth->gtks.gtk_new_inst_req_exp) {
+                    pae_auth->gtks.gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
+                    if (pae_auth->gtks.gtk_new_inst_req_exp) {
                         int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
                         if (second_index < 0) {
                             tr_info("GTK new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"", active_index, timer_seconds, g_monotonic_time_100ms / 10);
@@ -786,16 +790,16 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                     }
                 }
 
-                if (!pae_auth->gtk_new_act_time_exp) {
-                    pae_auth->gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(pae_auth->sec_cfg, timer_seconds);
-                    if (pae_auth->gtk_new_act_time_exp) {
+                if (!pae_auth->gtks.gtk_new_act_time_exp) {
+                    pae_auth->gtks.gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(pae_auth->sec_cfg, timer_seconds);
+                    if (pae_auth->gtks.gtk_new_act_time_exp) {
                         int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth);
                         tr_info("GTK new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"", active_index, timer_seconds, new_active_index, g_monotonic_time_100ms / 10);
                         if (new_active_index >= 0) {
                             ws_pae_auth_network_key_index_set(pae_auth, new_active_index);
                         }
-                        pae_auth->gtk_new_inst_req_exp = false;
-                        pae_auth->gtk_new_act_time_exp = false;
+                        pae_auth->gtks.gtk_new_inst_req_exp = false;
+                        pae_auth->gtks.gtk_new_act_time_exp = false;
                         // Update keys to NVM as needed
                         pae_auth->nw_info_updated(pae_auth->interface_ptr);
                     }
@@ -986,14 +990,14 @@ static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
     uint8_t gtk_value[GTK_LEN];
 
     // Checks if next GTK values are set and gets first GTK to install
-    int8_t next_gtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->next_gtks);
+    int8_t next_gtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->gtks.next_gtks);
     if (next_gtk_index >= 0) {
         // Gets GTK value
-        uint8_t *gtk = sec_prot_keys_gtk_get(pae_auth->next_gtks, next_gtk_index);
+        uint8_t *gtk = sec_prot_keys_gtk_get(pae_auth->gtks.next_gtks, next_gtk_index);
         memcpy(gtk_value, gtk, GTK_LEN);
         // Sets same key back to next GTKs but as the last key to be installed
-        sec_prot_keys_gtk_clear(pae_auth->next_gtks, next_gtk_index);
-        sec_prot_keys_gtk_set(pae_auth->next_gtks, next_gtk_index, gtk_value, 0);
+        sec_prot_keys_gtk_clear(pae_auth->gtks.next_gtks, next_gtk_index);
+        sec_prot_keys_gtk_set(pae_auth->gtks.next_gtks, next_gtk_index, gtk_value, 0);
     } else {
         do {
             rand_get_n_bytes_random(gtk_value, GTK_LEN);
