@@ -873,11 +873,7 @@ static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counte
 
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index)
 {
-    memset(frame_counters->counter[index].gtk, 0, GTK_LEN);
-    frame_counters->counter[index].frame_counter = 0;
-    frame_counters->counter[index].stored_frame_counter = 0;
-    frame_counters->counter[index].max_frame_counter_chg = 0;
-    frame_counters->counter[index].set = false;
+    memset(&frame_counters->counter[index], 0, sizeof(frame_counters->counter[index]));
 }
 
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks)
