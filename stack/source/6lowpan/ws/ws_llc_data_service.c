@@ -2095,7 +2095,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             if (request->wp_requested_nested_ie_list.lfnver_ie) {
                 ws_lfnver_ie_t lfn_ver;
                 //Write LFN Version
-                lfn_ver.lfn_version = interface->ws_info->lfngtk.lfn_version;
+                lfn_ver.lfn_version = interface->ws_info->pan_information.lpan_version;
                 ptr =  ws_wp_nested_lfn_version_write(ptr, &lfn_ver);
             }
 

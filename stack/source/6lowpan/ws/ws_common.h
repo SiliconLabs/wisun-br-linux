@@ -95,8 +95,6 @@ typedef struct ws_test_proc_trg {
 } ws_test_proc_trg_t;
 
 typedef struct {
-    uint16_t lfn_version;
-    bool lfn_version_learned: 1;
     bool active_hash_1: 1;
     bool active_hash_2: 1;
     bool active_hash_3: 1;
@@ -214,6 +212,5 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interf
 #define ws_info(cur) ((cur)->ws_info)
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
 #define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
-#define ws_lfn_version_learned(cur) ((cur)->ws_info->lfngtk.lfn_version_learned == true)
 #define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 #endif //WS_COMMON_H_

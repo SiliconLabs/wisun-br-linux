@@ -409,26 +409,26 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
         return;
     }
 
-    if (!cur->ws_info->lfngtk.lfn_version_learned) {
+    if (!cur->ws_info->pan_information.lpan_version_set) {
         if (!cur->ws_info->configuration_learned) {
             trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
         }
     } else {
-        if (cur->ws_info->lfngtk.lfn_version == lfn_version.lfn_version) {
+        if (cur->ws_info->pan_information.lpan_version == lfn_version.lfn_version) {
             return;
         }
 
-        if (common_serial_number_greater_16(cur->ws_info->lfngtk.lfn_version, lfn_version.lfn_version)) {
+        if (common_serial_number_greater_16(cur->ws_info->pan_information.lpan_version, lfn_version.lfn_version)) {
             // older version heard ignoring the message
             return;
         }
     }
 
-    cur->ws_info->lfngtk.lfn_version = lfn_version.lfn_version;
+    cur->ws_info->pan_information.lpan_version = lfn_version.lfn_version;
+    cur->ws_info->pan_information.lpan_version_set = true;
 
     //Clear HASH always at new first or for first leaned one's
     memset(cur->ws_info->lfngtk.lgtkhash, 0, 24);
-    cur->ws_info->lfngtk.lfn_version_learned = true;
 
     //Set Active key index and hash inline bits
     cur->ws_info->lfngtk.active_key_index = ws_lgtkhash.active_lgtk_index;
