@@ -17,7 +17,6 @@
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/net_fhss.h"
-#include "stack/source/6lowpan/ws/ws_common_defines.h"
 
 #include "version.h"
 #include "sl_wsrcp.h"
@@ -901,6 +900,11 @@ static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
 }
 
 // Copy-paste from stack/source/6lowpan/mac/mac_ie_lib.c
+#define WH_IE_UTT_TYPE              1   /**< Unicast Timing and Frame type information */
+#define WH_IE_RSL_TYPE              4   /**< Received Signal Level information */
+
+#define WS_FT_ACK                   5   /**< Enhanced ACK */
+
 static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
 {
     uint16_t ie_dummy = 0; //Header Type
