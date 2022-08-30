@@ -18,6 +18,7 @@
 #ifndef WS_BOOTSTRAP_FFN_H_
 #define WS_BOOTSTRAP_FFN_H_
 #include <stdint.h>
+#include "common/log.h"
 
 #ifdef HAVE_WS_ROUTER
 
@@ -29,8 +30,16 @@ void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
 
 #else
 
-#define ws_bootstrap_ffn_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
-#define ws_bootstrap_ffn_asynch_confirm(interface, asynch_message) ((void) 0)
+static inline void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
 #define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_ffn_state_machine(cur) ((void) 0)
 #define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
