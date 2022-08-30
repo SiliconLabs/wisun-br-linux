@@ -19,8 +19,6 @@
 #define SEC_PROT_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "security/protocols/sec_prot_keys.h"
-#include "security/kmp/kmp_api.h"
 
 /*
  * Interface between KMP API and key management security protocols. Interface
@@ -30,6 +28,9 @@
  * security keys and network address services.
  *
  */
+typedef struct sec_cfg_s sec_cfg_t;
+typedef struct sec_prot_s sec_prot_t;
+typedef struct sec_prot_keys sec_prot_keys_t;
 
 typedef enum {
     SEC_RESULT_OK = 0,
