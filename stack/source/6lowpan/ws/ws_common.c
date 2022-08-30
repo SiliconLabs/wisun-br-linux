@@ -199,13 +199,13 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
 void ws_common_state_machine(protocol_interface_info_entry_t *cur)
 {
-    if (wisun_mode_host(cur)) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
         // Configure for LFN device
         ws_bootstrap_lfn_state_machine(cur);
-    } else if (wisun_mode_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         // Configure FFN device
         ws_bootstrap_ffn_state_machine(cur);
-    } else if (wisun_mode_border_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Configure as Border router
         ws_bootstrap_6lbr_state_machine(cur);
     }

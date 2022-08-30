@@ -1682,17 +1682,17 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         goto init_fail;
     }
 
-    if (wisun_mode_host(cur)) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
         // Configure for LFN device
 #ifdef HAVE_WS_HOST
         ws_llc_create(cur, &ws_bootstrap_lfn_asynch_ind, &ws_bootstrap_lfn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
 #endif
-    } else if (wisun_mode_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         // Configure FFN device
 #ifdef HAVE_WS_ROUTER
         ws_llc_create(cur, &ws_bootstrap_ffn_asynch_ind, &ws_bootstrap_ffn_asynch_confirm, &ws_bootstrap_neighbor_info_request);
 #endif
-    } else if (wisun_mode_border_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Configure as Border router
 #ifdef HAVE_WS_BORDER_ROUTER
         ws_llc_create(cur, &ws_bootstrap_6lbr_asynch_ind, &ws_bootstrap_6lbr_asynch_confirm, &ws_bootstrap_neighbor_info_request);
@@ -2845,11 +2845,11 @@ static void ws_bootstrap_event_handler(arm_event_s *event)
         return;
     }
 
-    if (wisun_mode_host(cur)) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
         ws_bootstrap_lfn_event_handler(cur, event);
-    } else if (wisun_mode_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         ws_bootstrap_ffn_event_handler(cur, event);
-    } else if (wisun_mode_border_router(cur)) {
+    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         ws_bootstrap_6lbr_event_handler(cur, event);
     }
 }

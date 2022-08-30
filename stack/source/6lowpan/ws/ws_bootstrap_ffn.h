@@ -27,8 +27,6 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
 void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
 
-#define wisun_mode_router(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER)
-
 #else
 
 #define ws_bootstrap_ffn_asynch_ind(cur, data, ie_ext, message_type) ((void) 0)
@@ -36,8 +34,6 @@ void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
 #define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_ffn_state_machine(cur) ((void) 0)
 #define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
-
-#define wisun_mode_router(cur) (false)
 
 #endif
 
