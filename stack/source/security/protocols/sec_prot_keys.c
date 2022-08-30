@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/string_extra.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack/net_socket.h"
@@ -38,8 +39,6 @@
 #include "security/protocols/sec_prot_keys.h"
 
 #define TRACE_GROUP "spke"
-
-static const uint8_t empty_hash[GTK_HASH_LEN] = {0};
 
 sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
 {
@@ -710,7 +709,7 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
     sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
 
     // Checks if GTK hash for the GTK would be all zero
-    if (memcmp(gtk_hash, empty_hash, GTK_HASH_LEN) == 0) {
+    if (memzcmp(gtk_hash, sizeof(gtk_hash)) == 0) {
         return -1;
     }
 
@@ -777,7 +776,7 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
 
 bool sec_prot_keys_gtk_hash_empty(uint8_t *gtkhash)
 {
-    if (memcmp(gtkhash, empty_hash, GTK_HASH_LEN) == 0) {
+    if (memzcmp(gtkhash, GTK_HASH_LEN) == 0) {
         return true;
     } else {
         return false;
