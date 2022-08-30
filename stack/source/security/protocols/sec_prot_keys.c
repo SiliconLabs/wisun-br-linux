@@ -683,18 +683,15 @@ int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, ui
     return 0;
 }
 
-void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash)
+void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash)
 {
-    memset(gtkhash, 0, GTK_ALL_HASHES_LEN);
-
-    uint8_t *gtk_hash_ptr = gtkhash;
-
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (sec_prot_keys_gtk_is_set(gtks, i)) {
             uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
-            sec_prot_lib_gtkhash_generate(gtk, gtk_hash_ptr);
+            sec_prot_lib_gtkhash_generate(gtk, gtkhash[i]);
+        } else {
+            memset(gtkhash[i], 0, 8);
         }
-        gtk_hash_ptr += GTK_HASH_LEN;
     }
 }
 
@@ -705,7 +702,7 @@ int8_t sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash)
 
 int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
 {
-    uint8_t gtk_hash[8];
+    gtkhash_t gtk_hash;
     sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
 
     // Checks if GTK hash for the GTK would be all zero
@@ -716,15 +713,13 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
     return 0;
 }
 
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash, bool del_gtk_on_mismatch)
+gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
 {
-    uint8_t *gtk_hash_ptr = gtkhash;
-
     gtk_mismatch_e mismatch = GTK_NO_MISMATCH;
 
-    for (uint8_t i = 0; i < GTK_NUM; i++, gtk_hash_ptr += 8) {
+    for (uint8_t i = 0; i < GTK_NUM; i++) {
         // If hash is not set, stop using the key
-        if (sec_prot_keys_gtk_hash_empty(gtk_hash_ptr)) {
+        if (sec_prot_keys_gtk_hash_empty(gtkhash[i])) {
             if (sec_prot_keys_gtk_is_set(gtks, i)) {
                 uint32_t lifetime = sec_prot_keys_gtk_lifetime_get(gtks, i);
                 if (lifetime > GTK_EXPIRE_MISMATCH_TIME) {
@@ -754,7 +749,7 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
 
             sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
 
-            if (memcmp(gtk_hash, gtk_hash_ptr, 8) == 0) {
+            if (memcmp(gtk_hash, gtkhash[i], sizeof(gtkhash[i])) == 0) {
                 // Key is fresh (or active, if old do not change state)
                 sec_prot_keys_gtk_status_fresh_set(gtks, i);
             } else {
@@ -774,9 +769,9 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
     return mismatch;
 }
 
-bool sec_prot_keys_gtk_hash_empty(uint8_t *gtkhash)
+bool sec_prot_keys_gtk_hash_empty(gtkhash_t gtkhash)
 {
-    if (memzcmp(gtkhash, GTK_HASH_LEN) == 0) {
+    if (memzcmp(gtkhash, sizeof(gtkhash_t)) == 0) {
         return true;
     } else {
         return false;

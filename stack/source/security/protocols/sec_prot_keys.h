@@ -19,6 +19,7 @@
 #define SEC_PROT_KEYS_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_certs.h"
 
 /*
@@ -56,7 +57,6 @@
 #define GTK_INSTALL_ORDER_SECOND  1                       // Install order runs from 0 to 3, where 1 is the GTK to be installed second
 
 #define GTK_HASH_LEN              8
-#define GTK_ALL_HASHES_LEN        GTK_HASH_LEN * GTK_NUM
 #define INS_GTK_HASH_LEN          2
 
 // Limit is 60000 (of 65536)
@@ -789,7 +789,7 @@ int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, ui
  * \param gtk_hash GTK hash
  *
  */
-void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, uint8_t *gtk_hash);
+void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtk_hash);
 
 /**
  * sec_prot_keys_gtk_hash_generate generate GTK hash for a GTK
@@ -822,7 +822,7 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk);
  * \return GTK mismatch type or no mismatch
  *
  */
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t *gtkhash, bool del_gtk_on_mismatch);
+gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
  * sec_prot_keys_gtk_hash_empty checks if GTK hash field is empty
@@ -832,7 +832,7 @@ gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, uint8_t
  * \return TRUE GTK hash is empty, FALSE GTK hash is set
  *
  */
-bool sec_prot_keys_gtk_hash_empty(uint8_t *gtkhash);
+bool sec_prot_keys_gtk_hash_empty(gtkhash_t gtkhash);
 
 /**
  * sec_prot_keys_gtk_install_order_last_get gets install order of the last GTK to be installd

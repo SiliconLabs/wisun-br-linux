@@ -70,6 +70,11 @@ typedef enum {
 #define SEC_PROT_SEND_FLAG_NO_DEALLOC         0x01
 
 /**
+ * An alias to make cast and function declarations easier
+ */
+typedef uint8_t gtkhash_t[8];
+
+/**
  * sec_prot_create_request KMP-CREATE.request to security protocol
  *
  * \param prot protocol

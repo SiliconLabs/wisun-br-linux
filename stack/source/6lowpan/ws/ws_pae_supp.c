@@ -285,7 +285,7 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, 
 
 static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
 {
-    uint8_t *gtkhash = pae_supp->gtk_hash_ptr_get(pae_supp->interface_ptr);
+    gtkhash_t *gtkhash = pae_supp->gtk_hash_ptr_get(pae_supp->interface_ptr);
     if (!gtkhash) {
         return -1;
     }
@@ -300,7 +300,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
     return 0;
 }
 
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch)
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -311,10 +311,10 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash, del_gtk_on_mismatch);
     if (mismatch > GTK_NO_MISMATCH) {
         tr_info("GTK hash update %s %s %s %s",
-                trace_array(&gtkhash[0], 8),
-                trace_array(&gtkhash[8], 8),
-                trace_array(&gtkhash[16], 8),
-                trace_array(&gtkhash[24], 8));
+                trace_array(gtkhash[0], 8),
+                trace_array(gtkhash[1], 8),
+                trace_array(gtkhash[2], 8),
+                trace_array(gtkhash[3], 8));
 
         /* Mismatch, initiate EAPOL (if authentication not already ongoing or if not on
            wait time for the authenticator to answer) */

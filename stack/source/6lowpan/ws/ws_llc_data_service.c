@@ -78,7 +78,7 @@ typedef struct llc_ie_params {
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     struct ws_hopping_schedule *hopping_schedule;/**< Channel hopping schedule */
-    uint8_t                 *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
+    gtkhash_t               *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
     uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
@@ -2195,7 +2195,7 @@ void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, ui
     base->ie_params.network_name_length = name_length;
 }
 
-void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, uint8_t *gtkhash)
+void ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *gtkhash)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {

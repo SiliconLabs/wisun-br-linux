@@ -557,7 +557,7 @@ uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information *pan
     return ptr;
 }
 
-uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, uint8_t *gtkhash, uint8_t gtkhash_length)
+uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, gtkhash_t *gtkhash, uint8_t gtkhash_length)
 {
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_GTKHASH_TYPE, gtkhash_length);
     if (gtkhash_length) {
@@ -1201,7 +1201,7 @@ bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan
     return true;
 }
 
-uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
+gtkhash_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1211,7 +1211,7 @@ uint8_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
         return NULL;
     }
 
-    return nested_payload_ie.content_ptr;
+    return (gtkhash_t *)nested_payload_ie.content_ptr;
 }
 
 bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)

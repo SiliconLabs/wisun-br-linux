@@ -247,7 +247,7 @@ static void ws_bootstrap_ffn_network_configuration_learn(protocol_interface_info
 
     // Timing information can be modified here
     ws_llc_set_pan_information_pointer(cur, &cur->ws_info->pan_information);
-    uint8_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
+    gtkhash_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
     ws_llc_set_gtkhash(cur, gtkhash);
     // TODO update own fhss schedules we are starting to follow first parent
 
@@ -456,7 +456,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
 
     uint16_t pan_version;
     ws_bs_ie_t ws_bs_ie;
-    uint8_t *gtkhash_ptr;
+    gtkhash_t *gtkhash_ptr;
 
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
         return;

@@ -226,7 +226,7 @@ void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, ui
  * @param gtkhash pointer to GTK hash which length is 32 bytes this pointer must keep alive when it is configured to LLC
  *
  */
-void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, uint8_t *gtkhash);
+void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *gtkhash);
 
 /**
  * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WP_PAYLOAD_IE_PAN_TYPE IE element)

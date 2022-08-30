@@ -141,7 +141,7 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, 
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch);
+int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
  * ws_pae_supp_nw_key_index_update key index been updated (on PAN configuration)
@@ -243,7 +243,7 @@ typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interf
  * \return pointer to GTK has storage or NULL
  *
  */
-typedef uint8_t *ws_pae_supp_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+typedef gtkhash_t *ws_pae_supp_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
 
 /**
  * ws_pae_supp_nw_info_updated security keys network information updated

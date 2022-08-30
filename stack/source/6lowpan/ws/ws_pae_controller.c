@@ -54,7 +54,7 @@ typedef void ws_pae_timer(uint16_t ticks);
 typedef int8_t ws_pae_br_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
 typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
-typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash, bool del_gtk_on_mismatch);
+typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
@@ -68,7 +68,7 @@ typedef struct pae_controller_gtk {
     sec_prot_gtk_keys_t gtks;                                        /**< GTKs */
     sec_prot_gtk_keys_t next_gtks;                                   /**< Next GTKs */
     int8_t gtk_index;                                                /**< GTK index */
-    uint8_t gtkhash[8 * GTK_NUM];                                    /**< GTK hashes */
+    gtkhash_t gtkhash[4];                                            /**< GTK hashes */
     nw_key_t nw_key[GTK_NUM];                                        /**< Currently active network keys (on MAC) */
     frame_counters_t frame_counters;                                 /**< Frame counters */
     bool gtks_set : 1;                                               /**< GTKs are set */
@@ -138,7 +138,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 #endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
@@ -522,7 +522,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
 
         // If network key has not been installed, installs it and updates frame counter as needed
         if (!nw_key[i].installed) {
-            uint8_t gtkhash[GTK_HASH_LEN];
+            gtkhash_t gtkhash;
             sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
             tr_info("NW key set: %i, hash: %s", i, trace_array(gtkhash, 8));
             uint8_t gak[GTK_LEN];
@@ -1666,20 +1666,20 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
+static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
         return;
     }
 
-    memcpy(controller->gtks.gtkhash, gtkhash, 32);
+    memcpy(controller->gtks.gtkhash, gtkhash, sizeof(controller->gtks.gtkhash));
 
     tr_info("GTK hash set %s %s %s %s",
-            trace_array(&gtkhash[0], 8),
-            trace_array(&gtkhash[8], 8),
-            trace_array(&gtkhash[16], 8),
-            trace_array(&gtkhash[24], 8));
+            trace_array(gtkhash[0], 8),
+            trace_array(gtkhash[1], 8),
+            trace_array(gtkhash[2], 8),
+            trace_array(gtkhash[3], 8));
 
     // Do not update PAN version for initial hash set
     if (controller->gtks.gtkhash_set) {
@@ -1692,7 +1692,7 @@ static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *inte
 }
 #endif
 
-uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
+gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1702,14 +1702,14 @@ uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *int
     return controller->gtks.gtkhash;
 }
 
-int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash)
+int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
         return -1;
     }
 
-    memcpy(controller->gtks.gtkhash, gtkhash, 32);
+    memcpy(controller->gtks.gtkhash, gtkhash, sizeof(controller->gtks.gtkhash));
 
     if (controller->pae_gtk_hash_update) {
         return controller->pae_gtk_hash_update(interface_ptr, controller->gtks.gtkhash, true);

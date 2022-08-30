@@ -23,6 +23,7 @@
 #include <sys/socket.h>
 #include "stack/net_interface.h"
 
+#include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "nwk_interface/protocol_abstract.h"
 
@@ -498,7 +499,7 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index);
  * \return pointer to GTK has storage or NULL
  *
  */
-uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
 
 /**
  * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
@@ -510,7 +511,7 @@ uint8_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *int
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, uint8_t *gtkhash);
+int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
 
 /**
  * ws_pae_controller_nw_key_index_update key index been updated (on PAN configuration)

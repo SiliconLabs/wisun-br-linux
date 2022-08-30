@@ -620,7 +620,7 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool 
     sec_prot_keys_gtk_status_all_fresh_set(pae_auth->sec_keys_nw_info->gtks);
 
     if (pae_auth->hash_set) {
-        uint8_t gtk_hash[32];
+        gtkhash_t gtk_hash[4];
         sec_prot_keys_gtks_hash_generate(pae_auth->sec_keys_nw_info->gtks, gtk_hash);
         pae_auth->hash_set(pae_auth->interface_ptr, gtk_hash);
     }
