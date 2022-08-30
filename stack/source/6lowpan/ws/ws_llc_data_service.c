@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log.h"
+#include "common/bits.h"
 #include "common/named_values.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
@@ -484,9 +485,10 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
 
     if (requested_list.lgtkhash_ie) {
         ws_lgtkhash_ie_t ws_lgtkhash;
-        ws_lgtkhash.lgtk0 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_1;
-        ws_lgtkhash.lgtk1 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_2;
-        ws_lgtkhash.lgtk2 = llc_base->interface_ptr->ws_info->lfngtk.active_hash_3;
+        ws_lgtkhash.valid_hashs =
+            FIELD_PREP(0x1, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_1) |
+            FIELD_PREP(0x2, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_2) |
+            FIELD_PREP(0x4, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_3);
         length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(&ws_lgtkhash);
     }
 
@@ -2100,13 +2102,14 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             if (request->wp_requested_nested_ie_list.lgtkhash_ie) {
                 ws_lgtkhash_ie_t ws_lgtkhash;
                 //Write LFN GTK Hash info
-                ws_lgtkhash.lgtk0 = base->interface_ptr->ws_info->lfngtk.active_hash_1;
-                ws_lgtkhash.lgtk1 = base->interface_ptr->ws_info->lfngtk.active_hash_2;
-                ws_lgtkhash.lgtk2 = base->interface_ptr->ws_info->lfngtk.active_hash_3;
                 ws_lgtkhash.active_lgtk_index = base->interface_ptr->ws_info->lfngtk.active_key_index;
-                memcpy(ws_lgtkhash.lgtk0_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash, 8);
-                memcpy(ws_lgtkhash.lgtk1_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 8, 8);
-                memcpy(ws_lgtkhash.lgtk2_hash, base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
+                ws_lgtkhash.valid_hashs =
+                    FIELD_PREP(0x1, !!base->interface_ptr->ws_info->lfngtk.active_hash_1) |
+                    FIELD_PREP(0x2, !!base->interface_ptr->ws_info->lfngtk.active_hash_2) |
+                    FIELD_PREP(0x4, !!base->interface_ptr->ws_info->lfngtk.active_hash_3);
+                memcpy(ws_lgtkhash.gtkhashs[0], base->interface_ptr->ws_info->lfngtk.lgtkhash +  0, 8);
+                memcpy(ws_lgtkhash.gtkhashs[1], base->interface_ptr->ws_info->lfngtk.lgtkhash +  8, 8);
+                memcpy(ws_lgtkhash.gtkhashs[2], base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
                 ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
             }
 

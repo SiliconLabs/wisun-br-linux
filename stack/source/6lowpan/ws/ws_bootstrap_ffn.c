@@ -432,20 +432,20 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
 
     //Set Active key index and hash inline bits
     cur->ws_info->lfngtk.active_key_index = ws_lgtkhash.active_lgtk_index;
-    cur->ws_info->lfngtk.active_hash_1 = ws_lgtkhash.lgtk0;
-    cur->ws_info->lfngtk.active_hash_2 = ws_lgtkhash.lgtk1;
-    cur->ws_info->lfngtk.active_hash_3 = ws_lgtkhash.lgtk2;
+    cur->ws_info->lfngtk.active_hash_1 = !!(ws_lgtkhash.valid_hashs & (1 << 0));
+    cur->ws_info->lfngtk.active_hash_2 = !!(ws_lgtkhash.valid_hashs & (1 << 1));
+    cur->ws_info->lfngtk.active_hash_3 = !!(ws_lgtkhash.valid_hashs & (1 << 2));
 
     if (cur->ws_info->lfngtk.active_hash_1) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash, ws_lgtkhash.lgtk0_hash, 8);
+        memcpy(cur->ws_info->lfngtk.lgtkhash, ws_lgtkhash.gtkhashs[0], 8);
     }
 
     if (cur->ws_info->lfngtk.active_hash_2) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash + 8, ws_lgtkhash.lgtk1_hash, 8);
+        memcpy(cur->ws_info->lfngtk.lgtkhash + 8, ws_lgtkhash.gtkhashs[1], 8);
     }
 
     if (cur->ws_info->lfngtk.active_hash_3) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash + 16, ws_lgtkhash.lgtk2_hash, 8);
+        memcpy(cur->ws_info->lfngtk.lgtkhash + 16, ws_lgtkhash.gtkhashs[2], 8);
     }
     //TODO Analyze HASH's and set LFN group key index
 }

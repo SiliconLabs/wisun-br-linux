@@ -292,13 +292,9 @@ typedef struct ws_lfnver_ie {
  * @brief ws_lgtkhash_ie_t WS LGTKHASH-IE element
  */
 typedef struct ws_lgtkhash_ie {
-    bool lgtk0: 1;                  /**< 1= LGTK0 in line 0 = elided */
-    bool lgtk1: 1;                  /**< 1= LGTK1 in line 0 = elided */
-    bool lgtk2: 1;                  /**< 1= LGTK2 in line 0 = elided */
-    unsigned active_lgtk_index: 2;  /**< Indicate Active LGTK index 0-2 */
-    gtkhash_t lgtk0_hash;           /**< LGTK0 64-bit Hash if  lgtk0=1*/
-    gtkhash_t lgtk1_hash;           /**< LGTK1 64-bit Hash if  lgtk1=1*/
-    gtkhash_t lgtk2_hash;           /**< LGTK2 64-bit Hash if  lgtk2=1*/
+    unsigned active_lgtk_index: 2; /**< Indicate Active LGTK index 0-2 */
+    uint8_t valid_hashs;           /**< Valid entries */
+    gtkhash_t gtkhashs[4];         /**< A generic struct to handle GTKs */
 } ws_lgtkhash_ie_t;
 
 typedef struct ws_lbats_ie {

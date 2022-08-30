@@ -18,6 +18,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
+#include "common/bits.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
@@ -595,18 +596,11 @@ uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *lfnve
 uint16_t ws_wp_nested_lgtkhash_length(struct ws_lgtkhash_ie *lgtkhash_ie)
 {
     uint16_t length = 1;
+    int i;
 
-    if (lgtkhash_ie->lgtk0) {
-        length += 8;
-    }
-
-    if (lgtkhash_ie->lgtk1) {
-        length += 8;
-    }
-
-    if (lgtkhash_ie->lgtk2) {
-        length += 8;
-    }
+    for (i = 0; i < 3; i++)
+        if (lgtkhash_ie->valid_hashs & (1 << i))
+            length += 8;
     return length;
 }
 
@@ -614,27 +608,17 @@ uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, struct ws_lgtkhash_ie *lgtkha
 {
     uint16_t length = ws_wp_nested_lgtkhash_length(lgtkhash_ie);
     uint8_t temp8 = 0;
+    int i;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
-    temp8 |= (lgtkhash_ie->lgtk0 << 0);
-    temp8 |= (lgtkhash_ie->lgtk1 << 1);
-    temp8 |= (lgtkhash_ie->lgtk2 << 2);
-    temp8 |= (lgtkhash_ie->active_lgtk_index << 3);
+    temp8 = FIELD_PREP(0x7, lgtkhash_ie->valid_hashs) | FIELD_PREP(0x8, lgtkhash_ie->active_lgtk_index);
     *ptr++ = temp8;
 
-    if (lgtkhash_ie->lgtk0) {
-        memcpy(ptr, lgtkhash_ie->lgtk0_hash, 8);
-        ptr += 8;
-    }
-
-    if (lgtkhash_ie->lgtk1) {
-        memcpy(ptr, lgtkhash_ie->lgtk1_hash, 8);
-        ptr += 8;
-    }
-
-    if (lgtkhash_ie->lgtk2) {
-        memcpy(ptr, lgtkhash_ie->lgtk2_hash, 8);
-        ptr += 8;
+    for (i = 0; i < 3; i++) {
+        if (lgtkhash_ie->valid_hashs & (1 << i)) {
+            memcpy(ptr, lgtkhash_ie->gtkhashs[i], 8);
+            ptr += 8;
+        }
     }
     return ptr;
 }
@@ -1270,6 +1254,7 @@ bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfn
 bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkhash_ie *ws_lgtkhash)
 {
     mac_nested_payload_IE_t nested_payload_ie;
+    int i;
 
     nested_payload_ie.id = WP_PAYLOAD_IE_LGTKHASH_TYPE;
     nested_payload_ie.type_long = false;
@@ -1278,34 +1263,21 @@ bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, struct ws_lgtkha
     }
     data = nested_payload_ie.content_ptr;
 
-    ws_lgtkhash->lgtk0 = (*data & 0x01) == 0x01;
-    ws_lgtkhash->lgtk1 = (*data & 0x02) == 0x02;
-    ws_lgtkhash->lgtk2 = (*data & 0x04) == 0x04;
-    ws_lgtkhash->active_lgtk_index = (*data & 0x18) >> 3;
+    ws_lgtkhash->valid_hashs = FIELD_GET(0x07, *data);
+    ws_lgtkhash->active_lgtk_index = FIELD_GET(0x18, *data);
 
     if (ws_wp_nested_lgtkhash_length(ws_lgtkhash) > nested_payload_ie.length) {
         return false;
     }
 
     data++;
-    if (ws_lgtkhash->lgtk0) {
-        memcpy(ws_lgtkhash->lgtk0_hash, data, 8);
-        data += 8;
-    } else {
-        memset(ws_lgtkhash->lgtk0_hash, 0, 8);
-    }
-
-    if (ws_lgtkhash->lgtk1) {
-        memcpy(ws_lgtkhash->lgtk1_hash, data, 8);
-        data += 8;
-    } else {
-        memset(ws_lgtkhash->lgtk1_hash, 0, 8);
-    }
-
-    if (ws_lgtkhash->lgtk2) {
-        memcpy(ws_lgtkhash->lgtk2_hash, data, 8);
-    } else {
-        memset(ws_lgtkhash->lgtk2_hash, 0, 8);
+    for (i = 0; i < 3; i++) {
+        if (ws_lgtkhash->valid_hashs & (1 << i)) {
+            memcpy(ws_lgtkhash->gtkhashs[i], data, 8);
+            data += 8;
+        } else {
+            memset(ws_lgtkhash->gtkhashs[i], 0, 8);
+        }
     }
 
     return true;
