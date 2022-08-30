@@ -82,8 +82,6 @@
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
 #include "6lowpan/ws/ws_eapol_relay.h"
 
-#ifdef HAVE_WS_BORDER_ROUTER
-
 #define TRACE_GROUP "wsbs"
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(protocol_interface_info_entry_t *cur)
@@ -584,5 +582,3 @@ void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint3
     (void)seconds;
 }
 
-
-#endif

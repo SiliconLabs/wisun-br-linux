@@ -77,8 +77,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_stats.h"
 
-#ifdef HAVE_WS_HOST
-
 #define TRACE_GROUP "wsbs"
 
 void ws_bootstrap_lfn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
@@ -163,6 +161,3 @@ void ws_bootstrap_lfn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
     (void)cur;
     (void)seconds;
 }
-
-
-#endif

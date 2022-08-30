@@ -76,8 +76,6 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_stats.h"
 
-#ifdef HAVE_WS_ROUTER
-
 #define TRACE_GROUP "wsbs"
 
 static void ws_bootstrap_ffn_ip_stack_addr_clear(protocol_interface_info_entry_t *cur)
@@ -1015,6 +1013,3 @@ void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32
         }
     }
 }
-
-
-#endif
