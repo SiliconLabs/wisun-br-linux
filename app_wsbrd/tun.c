@@ -53,7 +53,7 @@ static struct phy_device_driver_s tun_driver = {
      *   IFF_TUN | IFF_NO_PI -> PHY_LINK_SLIP
      *   IFF_TUN -> PHY_LINK_TUN
      */
-    .link_type = PHY_LINK_TUN,
+    .link_type = PHY_LINK_SLIP,
     .PHY_MAC = tun_mac,
     .data_request_layer = IPV6_DATAGRAMS_DATA_FLOW,
     .driver_description = (char *)"TUN BH",
@@ -135,7 +135,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     struct rtnl_link *link;
     struct nl_sock *sock;
     struct ifreq ifr = {
-        .ifr_flags = IFF_TUN,
+        .ifr_flags = IFF_TUN | IFF_NO_PI,
     };
     int fd, ifindex;
     uint8_t hw_mac_slaac[8];
