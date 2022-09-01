@@ -244,7 +244,7 @@ static int8_t dhcpv6_server_service_tasklet_generated(void)
  * /param serverDUIDType
  *
  */
-int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
+int dhcpv6_server_service_init(int8_t interface, const uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType)
 {
     int retVal = -1;
     uint16_t socketInstance;
@@ -337,7 +337,7 @@ void dhcpv6_server_service_delete(int8_t interface, uint8_t guaPrefix[static 8],
  *  /param mode true assign addresses anonymously. false define address by Prefix + client id
  *  /param disable_address_list Dont keep track of assigned Addresses (Can't be used if anonymous)
  */
-int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uint8_t guaPrefix[static 16], bool mode, bool disable_address_list)
+int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, const uint8_t guaPrefix[static 16], bool mode, bool disable_address_list)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -356,7 +356,7 @@ int dhcpv6_server_service_set_address_generation_anonymous(int8_t interface, uin
     return 0;
 }
 
-void dhcpv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb)
+void dhcpv6_server_service_callback_set(int8_t interface, const uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb)
 {
     dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_server_data_get_by_prefix_and_interfaceid(interface, guaPrefix);
     if (!serverInfo) {
@@ -394,7 +394,7 @@ int dhcpv6_server_service_duid_update(int8_t interface, uint8_t guaPrefix[static
  *  /param guaPrefix Prefix which will be removed
  *  /param maxClientCount
  */
-int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_t guaPrefix[static 16], uint32_t maxClientCount)
+int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, const uint8_t guaPrefix[static 16], uint32_t maxClientCount)
 {
     dhcpv6_gua_server_entry_s *serverInfo;
     if (maxClientCount == 0 || maxClientCount > MAX_SUPPORTED_ADDRESS_LIST_SIZE) {
@@ -418,7 +418,7 @@ int dhcpv6_server_service_set_max_clients_accepts_count(int8_t interface, uint8_
  *  /param guaPrefix Prefix which will be removed
  *  /param validLifeTimne in seconds
  */
-int dhcpv6_server_service_set_address_validlifetime(int8_t interface, uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
+int dhcpv6_server_service_set_address_validlifetime(int8_t interface, const uint8_t guaPrefix[static 16], uint32_t validLifeTimne)
 {
     dhcpv6_gua_server_entry_s *serverInfo;
     if (validLifeTimne < 120) {

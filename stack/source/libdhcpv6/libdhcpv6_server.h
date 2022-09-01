@@ -111,7 +111,7 @@ typedef struct dhcpv6_gua_server_entry_s {
 } dhcpv6_gua_server_entry_s;
 
 bool libdhcpv6_gua_server_list_empty(void);
-dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType);
+dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(const uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType);
 int libdhcpv6_server_duid_set(dhcpv6_gua_server_entry_s *server_info, uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length);
 void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t interfaceId);
 void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds);

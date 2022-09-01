@@ -195,7 +195,7 @@ int libdhcpv6_server_duid_set(dhcpv6_gua_server_entry_s *server_info, uint8_t *d
 }
 
 
-dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType)
+dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(const uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType)
 {
 
 
