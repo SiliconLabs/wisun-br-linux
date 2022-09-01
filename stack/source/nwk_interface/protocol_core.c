@@ -267,7 +267,6 @@ void core_timer_event_handle(uint16_t ticksUpdate)
     }
 
     rpl_control_fast_timer(ticksUpdate);
-    icmpv6_radv_timer(ticksUpdate);
     ws_pae_controller_fast_timer(ticksUpdate);
     platform_enter_critical();
     protocol_core_timer_info.core_timer_event = false;
@@ -415,7 +414,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->ipv6_neighbour_cache.link_mtu = IPV6_MIN_LINK_MTU;
     entry->max_link_mtu = IPV6_MIN_LINK_MTU;
     entry->pmtu_lifetime = 10 * 60; // RFC 1981 default - 10 minutes
-    icmpv6_radv_init(entry);
     ns_list_link_init(entry, link);
     entry->if_stack_buffer_handler = NULL;
     entry->interface_name = 0;
@@ -905,12 +903,6 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
                 cur->ipv6_configure.IPv6_ND_state = IPV6_READY;
                 if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
                     addr_add_router_groups(cur);
-                    icmpv6_radv_enable(cur);//Activate RA send only with static enviroment
-                    icmpv6_restart_router_advertisements(cur, ADDR_UNSPECIFIED);
-                    if (cur->ipv6_configure.accept_ra != NET_IPV6_RA_ACCEPT_ALWAYS) {
-                        icmpv6_recv_ra_routes(cur, false); // removes all existing RADV routes
-                        icmpv6_recv_ra_prefixes(cur, false);
-                    }
                 }
 #endif
                 break;
