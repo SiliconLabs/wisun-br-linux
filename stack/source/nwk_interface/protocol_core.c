@@ -831,26 +831,8 @@ void protocol_push(buffer_t *buf)
         return;
     }
 
-    arm_event_s event = {
-        .receiver = protocol_root_tasklet_ID,
-        .sender = 0,
-        .event_type = ARM_IN_INTERFACE_PROTOCOL_HANDLE,
-        .data_ptr = buf,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-    };
-
-    if (eventOS_event_send(&event) == 0) {
-        protocol_core_buffers_in_event_queue++;
-    } else {
-        if ((buf->info & B_DIR_MASK) == B_DIR_DOWN) {
-            buf = socket_tx_buffer_event(buf, SOCKET_NO_RAM);
-        }
-        if (buf) {
-            buffer_free(buf);
-        } else {
-            tr_debug("TCP Allocated");
-        }
-    }
+    protocol_core_buffers_in_event_queue++;
+    protocol_buffer_poll(buf);
 }
 
 /*
