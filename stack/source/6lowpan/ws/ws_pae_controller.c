@@ -1702,6 +1702,16 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *i
     return controller->gtks.gtkhash;
 }
 
+gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
+{
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return NULL;
+    }
+
+    return controller->lgtks.gtkhash;
+}
+
 int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1714,6 +1724,18 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
     if (controller->pae_gtk_hash_update) {
         return controller->pae_gtk_hash_update(interface_ptr, controller->gtks.gtkhash, true);
     }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_lgtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
+{
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return -1;
+    }
+
+    memcpy(controller->lgtks.gtkhash, gtkhash, sizeof(controller->lgtks.gtkhash));
 
     return 0;
 }

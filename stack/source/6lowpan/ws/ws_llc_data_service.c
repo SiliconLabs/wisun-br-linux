@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include "common/log.h"
 #include "common/bits.h"
+#include "common/string_extra.h"
 #include "common/named_values.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
@@ -94,6 +95,7 @@ typedef struct llc_ie_params {
     ws_panid_ie_t           *pan_id;                /**< PAN ID */
     ws_lbc_ie_t             *lfn_bc;                /**< LFN Broadcast Configuration */
     ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
+    gtkhash_t               *lgtkhash;              /**< Pointer to LGTK HASH. User must provide a pointer to 3 gtkhash_t */
     ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
 
@@ -484,12 +486,7 @@ static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_li
     }
 
     if (requested_list.lgtkhash_ie) {
-        ws_lgtkhash_ie_t ws_lgtkhash;
-        ws_lgtkhash.valid_hashs =
-            FIELD_PREP(0x1, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_1) |
-            FIELD_PREP(0x2, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_2) |
-            FIELD_PREP(0x4, !!llc_base->interface_ptr->ws_info->lfngtk.active_hash_3);
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(&ws_lgtkhash);
+        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(params->lgtkhash);
     }
 
     if (requested_list.lcp_ie) {
@@ -2100,17 +2097,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             }
 
             if (request->wp_requested_nested_ie_list.lgtkhash_ie) {
-                ws_lgtkhash_ie_t ws_lgtkhash;
-                //Write LFN GTK Hash info
-                ws_lgtkhash.active_lgtk_index = base->interface_ptr->ws_info->lfngtk.active_key_index;
-                ws_lgtkhash.valid_hashs =
-                    FIELD_PREP(0x1, !!base->interface_ptr->ws_info->lfngtk.active_hash_1) |
-                    FIELD_PREP(0x2, !!base->interface_ptr->ws_info->lfngtk.active_hash_2) |
-                    FIELD_PREP(0x4, !!base->interface_ptr->ws_info->lfngtk.active_hash_3);
-                memcpy(ws_lgtkhash.gtkhashs[0], base->interface_ptr->ws_info->lfngtk.lgtkhash +  0, 8);
-                memcpy(ws_lgtkhash.gtkhashs[1], base->interface_ptr->ws_info->lfngtk.lgtkhash +  8, 8);
-                memcpy(ws_lgtkhash.gtkhashs[2], base->interface_ptr->ws_info->lfngtk.lgtkhash + 16, 8);
-                ptr = ws_wp_nested_lgtkhash_write(ptr, &ws_lgtkhash);
+                ptr = ws_wp_nested_lgtkhash_write(ptr, base->ie_params.lgtkhash, base->interface_ptr->ws_info->active_key_index);
             }
 
             if (request->wp_requested_nested_ie_list.lbats_ie) {
@@ -2213,7 +2200,15 @@ void ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash
     }
 }
 
+void ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *lgtkhash)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    if (!base) {
+        return;
+    }
 
+    base->ie_params.lgtkhash = lgtkhash;
+}
 
 void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information *pan_information_pointer)
 {

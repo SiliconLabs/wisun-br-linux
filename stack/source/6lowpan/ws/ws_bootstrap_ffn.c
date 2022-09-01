@@ -248,7 +248,9 @@ static void ws_bootstrap_ffn_network_configuration_learn(protocol_interface_info
     // Timing information can be modified here
     ws_llc_set_pan_information_pointer(cur, &cur->ws_info->pan_information);
     gtkhash_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
+    gtkhash_t *lgtkhash = ws_pae_controller_lgtk_hash_ptr_get(cur);
     ws_llc_set_gtkhash(cur, gtkhash);
+    ws_llc_set_lgtkhash(cur, lgtkhash);
     // TODO update own fhss schedules we are starting to follow first parent
 
     return;
@@ -404,8 +406,9 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
     }
 
     //Read LFNGTKHASH
-    ws_lgtkhash_ie_t ws_lgtkhash;
-    if (!ws_wp_nested_lgtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_lgtkhash)) {
+    gtkhash_t lgtkhash[3];
+    unsigned active_lgtk_index;
+    if (!ws_wp_nested_lgtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, lgtkhash, &active_lgtk_index)) {
         return;
     }
 
@@ -429,26 +432,10 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
     cur->ws_info->pan_information.lpan_version = lfn_version.lfn_version;
     cur->ws_info->pan_information.lpan_version_set = true;
 
-    //Clear HASH always at new first or for first leaned one's
-    memset(cur->ws_info->lfngtk.lgtkhash, 0, 24);
-
     //Set Active key index and hash inline bits
-    cur->ws_info->lfngtk.active_key_index = ws_lgtkhash.active_lgtk_index;
-    cur->ws_info->lfngtk.active_hash_1 = !!(ws_lgtkhash.valid_hashs & (1 << 0));
-    cur->ws_info->lfngtk.active_hash_2 = !!(ws_lgtkhash.valid_hashs & (1 << 1));
-    cur->ws_info->lfngtk.active_hash_3 = !!(ws_lgtkhash.valid_hashs & (1 << 2));
+    cur->ws_info->active_key_index = active_lgtk_index;
 
-    if (cur->ws_info->lfngtk.active_hash_1) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash, ws_lgtkhash.gtkhashs[0], 8);
-    }
-
-    if (cur->ws_info->lfngtk.active_hash_2) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash + 8, ws_lgtkhash.gtkhashs[1], 8);
-    }
-
-    if (cur->ws_info->lfngtk.active_hash_3) {
-        memcpy(cur->ws_info->lfngtk.lgtkhash + 16, ws_lgtkhash.gtkhashs[2], 8);
-    }
+    ws_pae_controller_lgtk_hash_update(cur, lgtkhash);
     //TODO Analyze HASH's and set LFN group key index
 }
 

@@ -502,6 +502,16 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index);
 gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
 
 /**
+ * ws_pae_controller_lgtk_hash_ptr_get get pointer to LFN-GTK hash storage
+ *
+ * \param interface_ptr interface
+ *
+ * \return pointer to LFN-GTK has storage or NULL
+ *
+ */
+gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+
+/**
  * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
  *
  * \param interface_ptr interface
@@ -512,6 +522,18 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *i
  *
  */
 int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
+
+/**
+ * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param gtkhash new GTK hash
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_lgtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
 
 /**
  * ws_pae_controller_nw_key_index_update key index been updated (on PAN configuration)

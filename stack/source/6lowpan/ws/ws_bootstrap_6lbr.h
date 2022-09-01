@@ -18,6 +18,7 @@
 #ifndef WS_BOOTSTRAP_6LBR_H_
 #define WS_BOOTSTRAP_6LBR_H_
 #include <stdint.h>
+#include "common/log.h"
 
 #ifdef HAVE_WS_BORDER_ROUTER
 

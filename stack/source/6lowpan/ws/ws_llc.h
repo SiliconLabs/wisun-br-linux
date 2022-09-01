@@ -229,6 +229,14 @@ void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, ui
 void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *gtkhash);
 
 /**
+ * @brief ws_llc_set_lgtkhash Configure WS LFN GTK hash information (Data of WP_PAYLOAD_IE_LGTKHASH_TYPE IE element)
+ * @param interface Interface pointer
+ * @param gtkhash pointer to LGTK hashes. This pointer must keep alive when it is configured to LLC
+ *
+ */
+void  ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *lgtkhash);
+
+/**
  * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WP_PAYLOAD_IE_PAN_TYPE IE element)
  * @param interface Interface pointer
  * @param pan_information_pointer pointer to Pan information this pointer must keep alive when it is configured to LLC

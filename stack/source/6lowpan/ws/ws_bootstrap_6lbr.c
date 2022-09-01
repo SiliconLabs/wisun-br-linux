@@ -454,7 +454,9 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             }
 
             gtkhash_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
+            gtkhash_t *lgtkhash = ws_pae_controller_lgtk_hash_ptr_get(cur);
             ws_llc_set_gtkhash(cur, gtkhash);
+            ws_llc_set_lgtkhash(cur, lgtkhash);
             ws_bbr_pan_version_increase(cur);
 
             // Set default parameters for FHSS when starting a discovery
