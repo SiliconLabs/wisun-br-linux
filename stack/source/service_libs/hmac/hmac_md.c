@@ -21,6 +21,7 @@
 #include <mbedtls/md.h>
 #include "stack-services/ns_trace.h"
 #include "service_libs/hmac/hmac_md.h"
+#include "stack-services/common_functions.h"
 
 #define TRACE_GROUP "hmac"
 
@@ -42,6 +43,10 @@ int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len
         }
     }
 #endif
+
+    uint16_t payload_length = common_read_16_bit(&data[2]);
+    if (data_len > payload_length)
+        data_len = payload_length + 4;
 
     mbedtls_md_type_t md_type;
     if (md == ALG_HMAC_MD5) {
