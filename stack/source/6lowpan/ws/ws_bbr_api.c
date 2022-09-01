@@ -287,16 +287,6 @@ bool ws_bbr_backbone_address_get(uint8_t *address)
     return true;
 }
 
-static void ws_bbr_get_matching_addr(protocol_interface_info_entry_t *interface, uint8_t * dst, const uint8_t *pattern, const uint8_t pat_size)
-{
-    ns_list_foreach(if_address_entry_t, addr, &interface->ip_addresses) {
-        if (memcmp(addr, pattern, pat_size) == 0) {
-            memcpy(dst, addr, 16);
-            break;
-        }
-    }
-}
-
 static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t *dodag_id)
 {
     tr_info("RPL root start");
