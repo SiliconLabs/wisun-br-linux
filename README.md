@@ -163,8 +163,7 @@ Bring up the interface, this will add a route to the Wi-SUN network:
 
     sudo ip link set up dev tap0
 
-To keep things clean, we suggest to disable SLAAC on the TAP interface (also
-make sure you have `tun_autoconf` set to `false` in your `wsbrd.conf`):
+If you have `tun_autoconf` set to `false` in your `wsbrd.conf`:
 
     sudo sysctl net.ipv6.conf.tap0.accept_ra=0
 

@@ -203,11 +203,14 @@ static void wsbr_tun_accept_ra(char *devname)
     close(fd);
     // Don't try to write the file if not necessary so wsrbd can launched
     // without root permissions.
-    if (content != '2') {
+    if (content != '0') {
         fd = open(buf, O_WRONLY);
-        if (fd < 0)
-            FATAL(2, "open %s: %m", buf);
-        if (write(fd, "2", 1) <= 0)
+        if (fd < 0) {
+            WARN("%s: cannot disable SLAAC (%m)", devname);
+            close(fd);
+            return;
+        }
+        if (write(fd, "0", 1) <= 0)
             FATAL(2, "write %s: %m", buf);
         close(fd);
     }
@@ -230,8 +233,7 @@ void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac, ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf);
-    if (ctxt->config.tun_autoconf)
-        wsbr_tun_accept_ra(ctxt->config.tun_dev);
+    wsbr_tun_accept_ra(ctxt->config.tun_dev);
     wsbr_tun_stack_init(ctxt);
 }
 
