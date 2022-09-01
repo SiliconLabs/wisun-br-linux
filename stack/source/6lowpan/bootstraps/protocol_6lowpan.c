@@ -182,6 +182,7 @@ void protocol_6lowpan_stack(buffer_t *b)
                     break;
             }
         }
+#ifndef HAVE_WS_BORDER_ROUTER
         if (b) {
             //Check If Stack forward packet to different interface
             if (b->interface != cur) {
@@ -189,6 +190,7 @@ void protocol_6lowpan_stack(buffer_t *b)
                 b = 0;
             }
         }
+#endif 
     }
 }
 

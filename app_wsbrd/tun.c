@@ -27,7 +27,6 @@
 #include "common_protocols/icmpv6.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ethernet_mac_api.h"
-#include "stack/net_interface.h"
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
@@ -36,19 +35,6 @@
 #include "tun.h"
 #include "wsbr.h"
 
-static int8_t wsbr_tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_protocol_e protocol)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    int ret;
-
-    ret = write(ctxt->tun_fd, buf, len);
-    if (ret < 0)
-        WARN("write: %m");
-    else if (ret != len)
-        WARN("write: short write: %d < %d", ret, len);
-    ctxt->tun_driver->phy_tx_done_cb(ctxt->tun_driver_id, tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
-    return 0;
-}
 
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
 {
@@ -63,21 +49,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-static uint8_t tun_mac[8] = { 20, 21, 22, 23, 24, 25, 26, 27 };
-static struct phy_device_driver_s tun_driver = {
-    /* link_type must match with ifr.ifr_flags:
-     *   IFF_TAP | IFF_NO_PI -> PHY_LINK_ETHERNET_TYPE
-     *   IFF_TUN | IFF_NO_PI -> PHY_LINK_SLIP
-     *   IFF_TUN -> PHY_LINK_TUN
-     */
-    .link_type = PHY_LINK_SLIP,
-    .PHY_MAC = tun_mac,
-    .data_request_layer = IPV6_DATAGRAMS_DATA_FLOW,
-    .driver_description = (char *)"TUN BH",
-    .tx = wsbr_tun_tx,
-};
-
-int get_link_local_addr(char* if_name, uint8_t ip[static 16])
+int get_global_unicast_addr(char* if_name, uint8_t ip[static 16]) 
 {
     struct sockaddr_in6 *ipv6;
     struct ifaddrs *ifaddr, *ifa;
@@ -100,7 +72,7 @@ int get_link_local_addr(char* if_name, uint8_t ip[static 16])
 
             ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 
-            if (!IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
+            if (IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
                 continue;
 
             memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
@@ -233,25 +205,10 @@ static void wsbr_tun_accept_ra(char *devname)
     }
 }
 
-void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
-{
-    ctxt->tun_driver = &tun_driver;
-    ctxt->tun_driver_id = arm_net_phy_register(ctxt->tun_driver);
-    if (ctxt->tun_driver_id < 0)
-        FATAL(2, "%s: arm_net_phy_register: %d", __func__, ctxt->tun_driver_id);
-    ctxt->tun_mac_api = ethernet_mac_create(ctxt->tun_driver_id);
-    if (!ctxt->tun_mac_api)
-        FATAL(2, "%s: ethernet_mac_create", __func__);
-    ctxt->tun_if_id = arm_nwk_interface_ethernet_init(ctxt->tun_mac_api, "bh0");
-    if (ctxt->tun_if_id < 0)
-        FATAL(2, "%s: arm_nwk_interface_ethernet_init: %d", __func__, ctxt->tun_if_id);
-}
-
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac, ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf);
     wsbr_tun_accept_ra(ctxt->config.tun_dev);
-    wsbr_tun_stack_init(ctxt);
 }
 
 static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)

@@ -41,9 +41,6 @@ struct wsbr_ctxt {
 
     int timerfd;
 
-    struct phy_device_driver_s *tun_driver;
-    struct eth_mac_api_s *tun_mac_api;
-    int  tun_driver_id;
     int  tun_if_id;
     int  tun_fd;
 

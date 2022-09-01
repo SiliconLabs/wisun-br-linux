@@ -257,22 +257,10 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_BORDER_ROUTER,
                                                                   NET_6LOWPAN_WS);
             WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
-            ret = arm_nwk_interface_configure_ipv6_bootstrap_set(ctxt->tun_if_id,
-                                                                 NET_IPV6_BOOTSTRAP_STATIC,
-                                                                 (ctxt->config.dhcpv6_server.sin6_family == AF_INET6) ?
-                                                                 (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr :
-                                                                 ctxt->config.ipv6_prefix);
-            WARN_ON(ret, "arm_nwk_interface_configure_ipv6_bootstrap_set: %d", ret);
-            get_link_local_addr(ctxt->config.tun_dev, ipv6);
-            arm_net_route_add(NULL, 0, ipv6, 0xFFFFFFFF, 0, ctxt->tun_if_id);
-            multicast_fwd_full_for_scope(ctxt->tun_if_id, 3);
-            multicast_fwd_full_for_scope(ctxt->rcp_if_id, 3);
             wsbr_configure_ws(ctxt);
-            if (arm_nwk_interface_up(ctxt->tun_if_id))
-                 WARN("arm_nwk_interface_up TUN");
             if (arm_nwk_interface_up(ctxt->rcp_if_id))
                  WARN("arm_nwk_interface_up RCP");
-            if (ws_bbr_start(ctxt->rcp_if_id, ctxt->tun_if_id))
+            if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
                  WARN("ws_bbr_start");
             if (strlen(ctxt->config.radius_secret) != 0)
                 if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
@@ -281,19 +269,11 @@ static void wsbr_tasklet(struct arm_event_s *event)
                 if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
                     WARN("ws_bbr_radius_address_set");
             if (ctxt->config.dhcpv6_server.sin6_family == AF_INET6) {
-                // dhcp relay agent needs a client instance (no other use)
-                dhcp_client_init(ctxt->tun_if_id, DHCPV6_DUID_HARDWARE_EUI48_TYPE);
-                dhcp_client_configure(ctxt->tun_if_id, true, true, true);
-                // for nodes of rank 2 or more
-                dhcp_relay_agent_enable(ctxt->tun_if_id, (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr);
-                // for rank 1 nodes
                 dhcp_relay_agent_enable(ctxt->rcp_if_id, (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr);
             }
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
-            if (event->event_id == ctxt->tun_if_id) {
-                DEBUG("get event for tun interface: %s", nwk_events[event->event_data]);
-            } else if (event->event_id == ctxt->rcp_if_id) {
+            if (event->event_id == ctxt->rcp_if_id) {
                 DEBUG("get event for ws interface: %s", nwk_events[event->event_data]);
             } else {
                 WARN("received unknown network event: %d", event->event_id);
