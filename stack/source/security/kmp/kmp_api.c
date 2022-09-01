@@ -562,7 +562,7 @@ int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, 
         return 0;
     }
 
-    // Allocate new entry if does not exists
+    // Allocate new entry if it does not exist
     if (entry == NULL) {
         entry = malloc(sizeof(kmp_msg_if_entry_t));
         if (entry == NULL) {

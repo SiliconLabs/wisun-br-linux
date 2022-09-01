@@ -19,6 +19,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
@@ -37,6 +41,7 @@
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
+#include "app_wsbrd/wsbr.h"
 
 #ifdef HAVE_PAE_AUTH
 
@@ -51,10 +56,19 @@ typedef struct {
 } eapol_auth_relay_t;
 
 static eapol_auth_relay_t *ws_eapol_auth_relay_get(protocol_interface_info_entry_t *interface_ptr);
-static void ws_eapol_auth_relay_socket_cb(void *cb);
 static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_relay, const uint8_t *eui_64, const uint8_t *ip_addr, uint16_t port, const void *data, uint16_t data_len);
 
-static NS_LIST_DEFINE(eapol_auth_relay_list, eapol_auth_relay_t, link);
+static eapol_auth_relay_t *g_eapol_auth_relay;
+
+int ws_eapol_auth_relay_get_socket_fd()
+{
+    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    eapol_auth_relay_t *eapol_auth_relay = ws_eapol_auth_relay_get(interface_ptr);
+    if (eapol_auth_relay)
+        return eapol_auth_relay->socket_id;
+    else
+        return -1;
+}
 
 int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
@@ -66,6 +80,8 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
         return 0;
     }
 
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(local_port) };
     eapol_auth_relay_t *eapol_auth_relay = malloc(sizeof(eapol_auth_relay_t));
     if (!eapol_auth_relay) {
         return -1;
@@ -77,15 +93,17 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
     memcpy(&eapol_auth_relay->relay_addr.address, remote_addr, 16);
     eapol_auth_relay->relay_addr.identifier = remote_port;
 
-    eapol_auth_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_auth_relay_socket_cb);
+    eapol_auth_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
+    setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
+    if (bind(eapol_auth_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
+        tr_err("could not create eapol_auth_relay->socket_id socket: %m");
+    }
     if (eapol_auth_relay->socket_id < 0) {
         free(eapol_auth_relay);
         return -1;
     }
-    int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
-    socket_setsockopt(eapol_auth_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
 
-    ns_list_add_to_end(&eapol_auth_relay_list, eapol_auth_relay);
+    g_eapol_auth_relay = eapol_auth_relay;
 
     return 0;
 }
@@ -101,9 +119,9 @@ int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr
         return -1;
     }
 
-    socket_close(eapol_auth_relay->socket_id);
+    close(eapol_auth_relay->socket_id);
 
-    ns_list_remove(&eapol_auth_relay_list, eapol_auth_relay);
+    g_eapol_auth_relay = NULL;
     free(eapol_auth_relay);
 
     return 0;
@@ -111,47 +129,37 @@ int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr
 
 static eapol_auth_relay_t *ws_eapol_auth_relay_get(protocol_interface_info_entry_t *interface_ptr)
 {
-    ns_list_foreach(eapol_auth_relay_t, entry, &eapol_auth_relay_list) {
-        if (entry->interface_ptr == interface_ptr) {
-            return entry;
-        }
-    }
-
-    return NULL;
+    return g_eapol_auth_relay;
 }
 
-static void ws_eapol_auth_relay_socket_cb(void *cb)
+void ws_eapol_auth_relay_socket_cb(int fd)
 {
-    socket_callback_t *cb_data = cb;
-
-    if (cb_data->event_type != SOCKET_DATA) {
-        return;
-    }
-
-    eapol_auth_relay_t *eapol_auth_relay = NULL;
-
-    ns_list_foreach(eapol_auth_relay_t, entry, &eapol_auth_relay_list) {
-        if (entry->socket_id == cb_data->socket_id) {
-            eapol_auth_relay = entry;
-            break;
-        }
-    }
+    ssize_t socket_data_len;
+    uint8_t data[2048];
+    uint8_t *socket_pdu = NULL;
+    uint16_t data_len;
+    ns_address_t src_addr;
+    struct sockaddr_in6 sockaddr;
+    socklen_t sockaddr_len = sizeof(struct sockaddr_in6);
+    eapol_auth_relay_t *eapol_auth_relay = g_eapol_auth_relay;
 
     if (!eapol_auth_relay) {
         return;
     }
 
-    uint8_t *socket_pdu = malloc(cb_data->d_len);
-    if (!socket_pdu) {
+    socket_data_len = recvfrom(fd, data, sizeof(data), 0, (struct sockaddr *) &sockaddr, &sockaddr_len);
+    if (socket_data_len <= 0)
         return;
-    }
 
-    ns_address_t src_addr;
-
-    if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {
-        free(socket_pdu);
+    socket_pdu = malloc(socket_data_len);
+    if (!socket_pdu)
         return;
-    }
+
+    memcpy(socket_pdu, data, socket_data_len);
+
+    src_addr.type = ADDRESS_IPV6;
+    src_addr.identifier = ntohs(sockaddr.sin6_port);
+    memcpy(src_addr.address, &sockaddr.sin6_addr, 16);
 
     // Message from source port 10254 (KMP service) -> to IP relay on node or on authenticator
     if (src_addr.identifier == eapol_auth_relay->relay_addr.identifier) {
@@ -165,7 +173,7 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
         ptr += 2;
         eui_64 = ptr;
         ptr += 8;
-        uint16_t data_len = cb_data->d_len - 26;
+        data_len = socket_data_len - 26;
         /* If EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
          * i.e. is purge message and is not going to authenticator local relay then ignores message
          */
@@ -180,21 +188,22 @@ static void ws_eapol_auth_relay_socket_cb(void *cb)
     } else {
         uint8_t *ptr = socket_pdu;
         ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay, ptr, src_addr.address, src_addr.identifier,
-                                        ptr + 8, cb_data->d_len - 8);
+                                        ptr + 8, socket_data_len - 8);
         free(socket_pdu);
     }
 }
 
 static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_relay, const uint8_t *eui_64, const uint8_t *ip_addr, uint16_t port, const void *data, uint16_t data_len)
 {
-    ns_address_t dest_addr = eapol_auth_relay->relay_addr;
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_port = htons(eapol_auth_relay->relay_addr.identifier) };
+    memcpy(&sockaddr.sin6_addr, eapol_auth_relay->relay_addr.address , 16);
 
     uint8_t temp_array[26];
     struct iovec msg_iov[2];
-    struct msghdr msghdr;
+    struct msghdr msghdr = { };
     //Set messages name buffer
-    msghdr.msg_name = &dest_addr;
-    msghdr.msg_namelen = sizeof(dest_addr);
+    msghdr.msg_name = &sockaddr;
+    msghdr.msg_namelen = sizeof(struct sockaddr_in6);
     msghdr.msg_iov = &msg_iov[0];
     msghdr.msg_iovlen = 2;
     msghdr.msg_control = NULL;
@@ -208,7 +217,8 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
     msg_iov[0].iov_len = 26;
     msg_iov[1].iov_base = (void *)data;
     msg_iov[1].iov_len = data_len;
-    socket_sendmsg(eapol_auth_relay->socket_id, &msghdr, NS_MSG_LEGACY0);
+    if (sendmsg(eapol_auth_relay->socket_id, &msghdr, 0) <= 0)
+        tr_debug("ws_eapol_auth_relay_send_to_kmp: %m");
     return 0;
 }
 

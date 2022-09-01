@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
@@ -36,31 +38,31 @@
 #include "security/kmp/kmp_api.h"
 
 #include "security/kmp/kmp_socket_if.h"
+#include "app_wsbrd/wsbr.h"
 
 
 #define TRACE_GROUP "kmsi"
 
-#define SOCKET_IF_HEADER_SIZE        27
-#define INSTANCE_SOCKETS_NUMBER      3
+#define SOCKET_IF_HEADER_SIZE       27
+#define KMP_INSTANCE_NUMBER         2
+#define KMP_RELAY_INSTANCE_INDEX    0
+#define KMP_RADIUS_INSTANCE_INDEX   1
 
 typedef struct {
     kmp_service_t *kmp_service;                       /**< KMP service */
     uint8_t instance_id;                              /**< Instance identifier */
     bool relay;                                       /**< Interface is relay interface */
     ns_address_t remote_addr;                         /**< Remote address */
-    int8_t socket_id[INSTANCE_SOCKETS_NUMBER];        /**< Socket ID */
-    unsigned socket_id_in_use : 4;                    /**< Socket ID is in use */
+    int kmp_socket_id;                                /**< Socket ID */
     ns_list_link_t link;                              /**< Link */
-    struct sockaddr_storage native_sock_addr;         /**< Native linux socket address */
+    struct sockaddr_storage remote_sockaddr;          /**< Remote socket address (can be INET4 or INET6) */
 } kmp_socket_if_t;
 
 static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags);
-static void kmp_socket_if_socket_cb(void *ptr);
 
-static NS_LIST_DEFINE(kmp_socket_if_list, kmp_socket_if_t, link);
-static uint8_t kmp_socket_if_instance_id = 1;
+static kmp_socket_if_t *g_kmp_socket_if_instances[KMP_INSTANCE_NUMBER];
 
-int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
+int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const void *remote_addr,  uint16_t remote_port)
 {
     if (!service || !remote_addr) {
         return -1;
@@ -68,100 +70,15 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
 
     kmp_socket_if_t *socket_if = NULL;
     bool new_socket_if_allocated = false;
-
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        if (entry->kmp_service == service && entry->instance_id == *instance_id) {
-            socket_if = entry;
-        }
-    }
-
-    if (!socket_if) {
-        socket_if = malloc(sizeof(kmp_socket_if_t));
-        if (!socket_if) {
-            return -1;
-        }
-        memset(socket_if, 0, sizeof(kmp_socket_if_t));
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            socket_if->socket_id[socket_num] = -1;
-        }
-        socket_if->socket_id_in_use = 1;
-        new_socket_if_allocated = true;
-    }
-
-    socket_if->kmp_service = service;
-
-    if (*instance_id == 0) {
-        socket_if->instance_id = kmp_socket_if_instance_id++;
-        if (socket_if->instance_id == 0) {
-            socket_if->instance_id = kmp_socket_if_instance_id++;
-        }
-        *instance_id = socket_if->instance_id;
-    }
-
-    socket_if->relay = relay;
-
-    socket_if->remote_addr.type = ADDRESS_IPV6;
-
-    bool address_changed = false;
-    if (memcmp(&socket_if->remote_addr.address, remote_addr, 16) != 0 ||
-            socket_if->remote_addr.identifier != remote_port) {
-        address_changed = true;
-    }
-    memcpy(&socket_if->remote_addr.address, remote_addr, 16);
-    socket_if->remote_addr.identifier = remote_port;
-
-    for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-        if (socket_if->socket_id_in_use & (1u << socket_num)) {
-
-            if ((socket_if->socket_id[socket_num] < 1) || address_changed) {
-                if (socket_if->socket_id[socket_num] >= 0) {
-                    socket_close(socket_if->socket_id[socket_num]);
-                }
-                socket_if->socket_id[socket_num] = socket_open(IPV6_NH_UDP, local_port, &kmp_socket_if_socket_cb);
-                if (socket_if->socket_id[socket_num] < 0) {
-                    free(socket_if);
-                    return -1;
-                }
-            }
-        }
-    }
-
-    uint8_t header_size = 0;
-    if (relay) {
-        header_size = SOCKET_IF_HEADER_SIZE;
-    }
-
-    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, INSTANCE_SOCKETS_NUMBER) < 0) {
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            if (socket_if->socket_id[socket_num] >= 0) {
-                socket_close(socket_if->socket_id[socket_num]);
-            }
-        }
-        free(socket_if);
-        return -1;
-    }
-
-    if (new_socket_if_allocated) {
-        ns_list_add_to_end(&kmp_socket_if_list, socket_if);
-    }
-
-    return 0;
-}
-
-int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const struct sockaddr_storage *remote_addr, uint16_t remote_port)
-{
-    if (!service || !remote_addr) {
-        return -1;
-    }
-
-    kmp_socket_if_t *socket_if = NULL;
-    bool new_socket_if_allocated = false;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(local_port) };
     struct sockaddr_storage radius_cli_bind = { };
+    int kmp_socket_if_instance_index = relay ? KMP_RELAY_INSTANCE_INDEX : KMP_RADIUS_INSTANCE_INDEX;
 
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        if (entry->kmp_service == service && entry->instance_id == *instance_id) {
-            socket_if = entry;
-        }
+    if (g_kmp_socket_if_instances[kmp_socket_if_instance_index] != NULL) {
+        if (g_kmp_socket_if_instances[kmp_socket_if_instance_index]->kmp_service == service &&
+            g_kmp_socket_if_instances[kmp_socket_if_instance_index]->instance_id == *instance_id)
+            socket_if = g_kmp_socket_if_instances[kmp_socket_if_instance_index];
     }
 
     if (!socket_if) {
@@ -170,20 +87,14 @@ int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_i
             return -1;
         }
         memset(socket_if, 0, sizeof(kmp_socket_if_t));
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            socket_if->socket_id[socket_num] = -1;
-        }
-        socket_if->socket_id_in_use = 1;
+        socket_if->kmp_socket_id = -1;
         new_socket_if_allocated = true;
     }
 
     socket_if->kmp_service = service;
 
     if (*instance_id == 0) {
-        socket_if->instance_id = kmp_socket_if_instance_id++;
-        if (socket_if->instance_id == 0) {
-            socket_if->instance_id = kmp_socket_if_instance_id++;
-        }
+        socket_if->instance_id = kmp_socket_if_instance_index + 1;
         *instance_id = socket_if->instance_id;
     }
 
@@ -191,51 +102,70 @@ int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_i
 
     socket_if->remote_addr.type = ADDRESS_IPV6;
 
-    for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-        if (socket_if->socket_id_in_use & (1u << socket_num)) {
+    if (relay) {
+        bool address_changed = false;
+        if (memcmp(&socket_if->remote_addr.address, remote_addr, 16) != 0 ||
+            socket_if->remote_addr.identifier != remote_port) {
+            address_changed = true;
+        }
+        memcpy(&socket_if->remote_addr.address, remote_addr, 16);
+        socket_if->remote_addr.identifier = remote_port;
 
-            if ((socket_if->socket_id[socket_num] < 1)) {
+        if ((socket_if->kmp_socket_id < 1) || address_changed) {
+            if (socket_if->kmp_socket_id >= 0) {
+                close(socket_if->kmp_socket_id);
+            }
+            socket_if->kmp_socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
+            setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
+            if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
+                tr_err("could not create socket_if->kmp_socket_id socket: %m");
+            }
+            if (socket_if->kmp_socket_id < 0) {
+                free(socket_if);
+                return -1;
+            }
+        }
+    } else {
+        if ((socket_if->kmp_socket_id < 1)) {
 
-                if (socket_if->socket_id[socket_num] >= 0)
-                    close(socket_if->socket_id[socket_num]);
+            if (socket_if->kmp_socket_id >= 0)
+                close(socket_if->kmp_socket_id);
 
-                memcpy(&socket_if->native_sock_addr, remote_addr, sizeof(struct sockaddr_storage));
-                ((struct sockaddr_in *) &socket_if->native_sock_addr)->sin_port = htons(remote_port);
-                socket_if->socket_id[socket_num] = socket(socket_if->native_sock_addr.ss_family, SOCK_DGRAM, 0);
+            memcpy(&socket_if->remote_sockaddr, remote_addr, sizeof(struct sockaddr_storage));
+            ((struct sockaddr_in *) &socket_if->remote_sockaddr)->sin_port = htons(remote_port);
+            socket_if->kmp_socket_id = socket(socket_if->remote_sockaddr.ss_family, SOCK_DGRAM, 0);
 
-                if (socket_if->socket_id[socket_num] < 0) {
-                    free(socket_if);
-                    return -1;
-                }
+            if (socket_if->kmp_socket_id < 0) {
+                free(socket_if);
+                return -1;
+            }
 
-                radius_cli_bind.ss_family = remote_addr->ss_family;
-                if (bind(socket_if->socket_id[socket_num],
-                         (struct sockaddr *)&radius_cli_bind,
-                         sizeof(radius_cli_bind)) < 0) {
-                    free(socket_if);
-                    return -1;
-                }
+            radius_cli_bind.ss_family = ((struct sockaddr_storage *) remote_addr)->ss_family;
+            if (bind(socket_if->kmp_socket_id,
+                     (struct sockaddr *)&radius_cli_bind,
+                     sizeof(radius_cli_bind)) < 0) {
+                free(socket_if);
+                return -1;
             }
         }
     }
+
+
 
     uint8_t header_size = 0;
     if (relay) {
         header_size = SOCKET_IF_HEADER_SIZE;
     }
 
-    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, INSTANCE_SOCKETS_NUMBER) < 0) {
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            if (socket_if->socket_id[socket_num] >= 0) {
-                socket_close(socket_if->socket_id[socket_num]);
-            }
-        }
+    if (kmp_service_msg_if_register(service, *instance_id, kmp_socket_if_send, header_size, 1) < 0) {
+        if (socket_if->kmp_socket_id >= 0)
+            close(socket_if->kmp_socket_id);
         free(socket_if);
         return -1;
     }
 
     if (new_socket_if_allocated) {
-        ns_list_add_to_end(&kmp_socket_if_list, socket_if);
+        g_kmp_socket_if_instances[kmp_socket_if_instance_index] = socket_if;
     }
 
     return 0;
@@ -247,16 +177,12 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
         return -1;
     }
 
-    ns_list_foreach_safe(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        if (entry->kmp_service == service) {
-            ns_list_remove(&kmp_socket_if_list, entry);
-            for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-                if (entry->socket_id[socket_num] >= 0) {
-                    socket_close(entry->socket_id[socket_num]);
-                }
-            }
-            kmp_service_msg_if_register(service, entry->instance_id, NULL, 0, 0);
-            free(entry);
+    for (int i = 0; i < KMP_INSTANCE_NUMBER; i++) {
+        if (g_kmp_socket_if_instances[i]->kmp_service == service) {
+            if (g_kmp_socket_if_instances[i]->kmp_socket_id >= 0)
+                close(g_kmp_socket_if_instances[i]->kmp_socket_id);
+            kmp_service_msg_if_register(service, g_kmp_socket_if_instances[i]->instance_id, NULL, 0, 0);
+            free(g_kmp_socket_if_instances[i]);
         }
     }
     return 0;
@@ -265,23 +191,20 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service)
 static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t connection_num, uint8_t flags)
 {
     (void) tx_identifier;
+    (void) connection_num;
 
     if (!service || !pdu || !addr) {
         return -1;
     }
 
-    if (connection_num >= INSTANCE_SOCKETS_NUMBER) {
+    if (connection_num >= 1) {
         return -1;
     }
 
-    kmp_socket_if_t *socket_if = NULL;
-
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        if (entry->kmp_service == service && entry->instance_id == instance_id) {
-            socket_if = entry;
-            break;
-        }
-    }
+    ssize_t ret;
+    kmp_socket_if_t *socket_if = g_kmp_socket_if_instances[--instance_id];
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_port = htons(socket_if->remote_addr.identifier) };
+    memcpy(&sockaddr.sin6_addr, socket_if->remote_addr.address, 16);
 
     if (!socket_if) {
         return -1;
@@ -298,28 +221,14 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         *ptr = kmp_id;
     }
 
-    int8_t socket_id = -1;
-    if ((socket_if->socket_id_in_use & (1u << connection_num)) && socket_if->socket_id[connection_num] >= 0) {
-        socket_id = socket_if->socket_id[connection_num];
-    } else {
-        if (socket_if->socket_id[connection_num] < 0) {
-            socket_if->socket_id[connection_num] = socket_open(IPV6_NH_UDP, 0, &kmp_socket_if_socket_cb);
-        }
-        if (socket_if->socket_id[connection_num] < 0) {
-            return -1;
-        }
-        socket_if->socket_id_in_use |= (1u << connection_num);
-    }
+    if (instance_id == KMP_RELAY_INSTANCE_INDEX)
+        ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&sockaddr, sizeof(struct sockaddr_in6));
+    else if (instance_id == KMP_RADIUS_INSTANCE_INDEX)
+        ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->remote_sockaddr, sizeof(socket_if->remote_sockaddr));
 
-    if (socket_if->native_sock_addr.ss_family != AF_UNSPEC) { // native linux socket
-        int ret = sendto(socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->native_sock_addr, sizeof(socket_if->native_sock_addr));
-        if (ret < 0) {
-            return -1;
-        } else if (ret != size) {
-            return -1;
-        }
-    } else {
-        socket_sendto(socket_id, &socket_if->remote_addr, pdu, size);
+    if (ret < 0 || ret != size) {
+        tr_err("kmp_socket_if_send, instance_id = %d sendto: %m", instance_id);
+        return -1;
     }
 
     // Deallocate unless flags deny it
@@ -332,37 +241,35 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
     return 0;
 }
 
-static void kmp_socket_if_socket_cb(void *ptr)
+int kmp_socket_if_get_pae_socket_fd()
 {
-    socket_callback_t *cb_data = ptr;
+    if (g_kmp_socket_if_instances[KMP_RELAY_INSTANCE_INDEX])
+        return g_kmp_socket_if_instances[KMP_RELAY_INSTANCE_INDEX]->kmp_socket_id;
 
-    if (cb_data->event_type != SOCKET_DATA) {
-        return;
-    }
+    return -1;
+}
 
-    kmp_socket_if_t *socket_if = NULL;
+void kmp_socket_if_pae_socket_cb(int fd)
+{
+    kmp_socket_if_t *socket_if = g_kmp_socket_if_instances[KMP_RELAY_INSTANCE_INDEX];
     uint8_t connection_num = 0;
+    ssize_t data_len;
+    uint8_t data[2048];
+    uint8_t *pdu = NULL;
 
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            if (entry->socket_id[socket_num] == cb_data->socket_id) {
-                socket_if = entry;
-                connection_num = socket_num;
-                break;
-            }
-        }
-    }
+    data_len = recv(fd, data, sizeof(data), 0);
+    if (data_len <= 0)
+        return;
 
     if (!socket_if) {
         return;
     }
 
-    uint8_t *pdu = malloc(cb_data->d_len);
-
-    if (socket_recvfrom(cb_data->socket_id, pdu, cb_data->d_len, 0, 0) != cb_data->d_len) {
-        free(pdu);
+    pdu = malloc(data_len);
+    if (!pdu)
         return;
-    }
+
+    memcpy(pdu, data, data_len);
 
     kmp_addr_t addr;
     memset(&addr, 0, sizeof(kmp_addr_t));
@@ -383,54 +290,34 @@ static void kmp_socket_if_socket_cb(void *ptr)
             free(pdu);
             return;
         }
-        cb_data->d_len -= SOCKET_IF_HEADER_SIZE;
     }
 
-    kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, cb_data->d_len, connection_num);
-
+    kmp_service_msg_if_receive(socket_if->kmp_service, socket_if->instance_id, type, &addr, data_ptr, data_len, connection_num);
     free(pdu);
 }
 
-int kmp_socket_if_get_native_sockfd()
+int kmp_socket_if_get_radius_sockfd()
 {
-    int native_sockfd = -1;
+    if (g_kmp_socket_if_instances[KMP_RADIUS_INSTANCE_INDEX])
+        return g_kmp_socket_if_instances[KMP_RADIUS_INSTANCE_INDEX]->kmp_socket_id;
 
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            if (entry->native_sock_addr.ss_family != AF_UNSPEC) {
-                native_sockfd = entry->socket_id[socket_num];
-                break;
-            }
-        }
-    }
-
-    return native_sockfd;
+    return -1;
 }
 
-uint8_t kmp_socket_if_data_from_ext_radius()
+uint8_t kmp_socket_if_radius_socket_cb(int fd)
 {
     ssize_t size;
     uint8_t radius_recv_buf[4096];
-    kmp_socket_if_t *socket_if = NULL;
+    kmp_socket_if_t *socket_if = g_kmp_socket_if_instances[KMP_RADIUS_INSTANCE_INDEX];
     uint8_t connection_num = 0;
     kmp_addr_t addr = { };
     kmp_type_e type = KMP_TYPE_NONE;
-
-    ns_list_foreach(kmp_socket_if_t, entry, &kmp_socket_if_list) {
-        for (uint8_t socket_num = 0; socket_num < INSTANCE_SOCKETS_NUMBER; socket_num++) {
-            if (entry->native_sock_addr.ss_family != AF_UNSPEC) {
-                socket_if = entry;
-                connection_num = socket_num;
-                break;
-            }
-        }
-    }
 
     if (!socket_if) {
         return -1;
     }
 
-    size = recv(socket_if->socket_id[connection_num], radius_recv_buf, sizeof(radius_recv_buf), 0);
+    size = recv(fd, radius_recv_buf, sizeof(radius_recv_buf), 0);
     if (size < 0)
         return -1;
 

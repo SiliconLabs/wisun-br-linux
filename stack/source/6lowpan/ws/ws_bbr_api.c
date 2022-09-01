@@ -56,6 +56,7 @@
 #include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_pae_controller.h"
+#include "6lowpan/ws/ws_bootstrap_6lbr.h"
 
 #define TRACE_GROUP "BBRw"
 
@@ -1305,6 +1306,26 @@ int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_numbe
     (void) storing_interval;
     return -1;
 #endif
+}
+
+int ws_bbr_eapol_relay_get_socket_fd()
+{
+    return ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
+}
+
+int ws_bbr_eapol_auth_relay_get_socket_fd()
+{
+    return ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
+}
+
+void ws_bbr_eapol_relay_socket_cb(int fd)
+{
+    ws_bootstrap_6lbr_eapol_relay_socket_cb(fd);
+}
+
+void ws_bbr_eapol_auth_relay_socket_cb(int fd)
+{
+    ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(fd);
 }
 
 int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)

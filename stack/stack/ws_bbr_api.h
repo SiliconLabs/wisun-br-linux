@@ -389,6 +389,12 @@ int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_numb
  */
 int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval);
 
+
+int ws_bbr_eapol_relay_get_socket_fd();
+int ws_bbr_eapol_auth_relay_get_socket_fd();
+void ws_bbr_eapol_relay_socket_cb(int fd);
+void ws_bbr_eapol_auth_relay_socket_cb(int fd);
+
 /**
  * Set RADIUS server IPv6 address
  *

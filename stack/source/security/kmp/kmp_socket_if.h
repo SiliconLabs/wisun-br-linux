@@ -33,6 +33,9 @@ typedef struct kmp_service_s kmp_service_t;
  *
  */
 
+int kmp_socket_if_get_pae_socket_fd();
+void kmp_socket_if_pae_socket_cb(int fd);
+
 /**
  * kmp_socket_if_register register socket interface to KMP service
  *
@@ -47,7 +50,7 @@ typedef struct kmp_service_s kmp_service_t;
  * \return >= 0 success
  *
  */
-int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const void *remote_addr, uint16_t remote_port);
 
 /**
  * kmp_socket_if_unregister unregister socket interface from KMP service
@@ -61,7 +64,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
 int8_t kmp_socket_if_unregister(kmp_service_t *service);
 
 /**
- * kmp_socket_if_register_native register native socket interface to KMP service
+ * kmp_socket_if_register_radius register native socket interface to KMP service
  *
  * \param service KMP service to register to
  * \param instance_id instance identifier, for new instance set to zero when called
@@ -74,25 +77,9 @@ int8_t kmp_socket_if_unregister(kmp_service_t *service);
  * \return >= 0 success
  *
  */
-int8_t kmp_socket_if_register_native(kmp_service_t *service, uint8_t *instance_id, bool relay, uint16_t local_port, const struct sockaddr_storage *remote_addr, uint16_t remote_port);
 
-/**
- * kmp_socket_if_get_native_sockfd return the first native socket found in KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int kmp_socket_if_get_native_sockfd();
-
-/**
- * kmp_socket_if_data_from_ext_radius transfer data from wsbrd to KMP
- *
- * \return < 0 failure (data not sent)
- * \return >= 0 success the number of bytes transferred
- *
- */
-uint8_t kmp_socket_if_data_from_ext_radius();
+int kmp_socket_if_get_radius_sockfd();
+uint8_t kmp_socket_if_radius_socket_cb(int fd);
 
 
 #endif

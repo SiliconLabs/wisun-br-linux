@@ -318,7 +318,7 @@ int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface
         return -1;
     }
 
-    if (kmp_socket_if_register_native(pae_auth->kmp_service, &pae_auth->radius_socked_msg_if_instance_id, false, 0, remote_addr, 1812) < 0) {
+    if (kmp_socket_if_register(pae_auth->kmp_service, &pae_auth->radius_socked_msg_if_instance_id, false, 0, remote_addr, 1812) < 0) {
         return -1;
     }
 

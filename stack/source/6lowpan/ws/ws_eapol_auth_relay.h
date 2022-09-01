@@ -29,6 +29,9 @@
  *
  */
 
+int ws_eapol_auth_relay_get_socket_fd();
+void ws_eapol_auth_relay_socket_cb(int fd);
+
 /**
  * ws_eapol_auth_relay_start start authenticator relay
  *

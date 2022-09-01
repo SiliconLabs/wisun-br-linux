@@ -54,12 +54,15 @@
 
 enum {
     POLLFD_TUN,
-    POLLFD_KMP,
     POLLFD_RCP,
     POLLFD_DBUS,
     POLLFD_EVENT,
     POLLFD_TIMER,
     POLLFD_DHCP_SERVER,
+    POLLFD_BR_EAPOL_RELAY,
+    POLLFD_EAPOL_RELAY,
+    POLLFD_PAE_AUTH,
+    POLLFD_RADIUS,
     POLLFD_COUNT,
 };
 
@@ -366,8 +369,6 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 {
     fds[POLLFD_DBUS].fd = dbus_get_fd(ctxt);
     fds[POLLFD_DBUS].events = POLLIN;
-    fds[POLLFD_KMP].fd = kmp_socket_if_get_native_sockfd();
-    fds[POLLFD_KMP].events = POLLIN;
     fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
     fds[POLLFD_RCP].events = POLLIN;
     fds[POLLFD_TUN].fd = ctxt->tun_fd;
@@ -378,6 +379,14 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_TIMER].events = POLLIN;
     fds[POLLFD_DHCP_SERVER].fd = dhcp_service_get_server_socket_fd();
     fds[POLLFD_DHCP_SERVER].events = POLLIN;
+    fds[POLLFD_BR_EAPOL_RELAY].fd = ws_bbr_eapol_relay_get_socket_fd();
+    fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
+    fds[POLLFD_EAPOL_RELAY].fd = ws_bbr_eapol_auth_relay_get_socket_fd();
+    fds[POLLFD_EAPOL_RELAY].events = POLLIN;
+    fds[POLLFD_PAE_AUTH].fd = kmp_socket_if_get_pae_socket_fd();
+    fds[POLLFD_PAE_AUTH].events = POLLIN;
+    fds[POLLFD_RADIUS].fd = kmp_socket_if_get_radius_sockfd();
+    fds[POLLFD_RADIUS].events = POLLIN;
 }
 
 static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
@@ -393,10 +402,16 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 
     if (fds[POLLFD_DBUS].revents & POLLIN)
         dbus_process(ctxt);
-    if (fds[POLLFD_KMP].revents & POLLIN)
-        kmp_socket_if_data_from_ext_radius();
     if (fds[POLLFD_DHCP_SERVER].revents & POLLIN)
         recv_dhcp_server_msg();
+    if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
+        ws_bbr_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
+    if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)
+        ws_bbr_eapol_auth_relay_socket_cb(fds[POLLFD_EAPOL_RELAY].fd);
+    if (fds[POLLFD_PAE_AUTH].revents & POLLIN)
+        kmp_socket_if_pae_socket_cb(fds[POLLFD_PAE_AUTH].fd);
+    if (fds[POLLFD_RADIUS].revents & POLLIN)
+        kmp_socket_if_radius_socket_cb(fds[POLLFD_RADIUS].fd);
     if (fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (fds[POLLFD_EVENT].revents & POLLIN) {

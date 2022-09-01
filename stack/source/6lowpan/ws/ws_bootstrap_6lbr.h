@@ -25,6 +25,10 @@ void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *inte
 void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event);
 void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur);
 void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
+int ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
+int ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
+void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd);
+void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd);
 
 #define wisun_mode_border_router(cur) (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER)
 
@@ -35,6 +39,10 @@ void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint3
 #define ws_bootstrap_6lbr_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_6lbr_state_machine(cur) ((void) 0)
 #define ws_bootstrap_6lbr_seconds_timer(cur, seconds) ((void) 0)
+#define ws_bootstrap_6lbr_eapol_relay_get_socket_fd() ((void) 0)
+#define ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd() ((void) 0)
+#define ws_bootstrap_6lbr_eapol_relay_socket_cb(fd) ((void) 0)
+#define ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(fd) ((void) 0)
 
 #define wisun_mode_border_router(cur) (false)
 

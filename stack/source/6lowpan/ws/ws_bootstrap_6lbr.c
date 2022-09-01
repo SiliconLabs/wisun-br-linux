@@ -138,6 +138,26 @@ static void ws_bootstrap_6lbr_eapol_congestion_init(protocol_interface_info_entr
     }
 }
 
+int ws_bootstrap_6lbr_eapol_relay_get_socket_fd()
+{
+    return ws_eapol_relay_get_socket_fd();
+}
+
+int ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd()
+{
+    return ws_eapol_auth_relay_get_socket_fd();
+}
+
+void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd)
+{
+    ws_eapol_relay_socket_cb(fd);
+}
+
+void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
+{
+    ws_eapol_auth_relay_socket_cb(fd);
+}
+
 static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     ws_bs_ie_t ws_bs_ie;

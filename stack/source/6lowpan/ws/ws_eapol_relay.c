@@ -19,6 +19,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack/mac/fhss_config.h"
@@ -36,6 +40,7 @@
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 
 #include "6lowpan/ws/ws_eapol_relay.h"
+#include "app_wsbrd/wsbr.h"
 
 #ifdef HAVE_EAPOL_RELAY
 
@@ -51,7 +56,9 @@ typedef struct {
 static eapol_relay_t *ws_eapol_relay_get(protocol_interface_info_entry_t *interface_ptr);
 static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
+#ifndef HAVE_WS_BORDER_ROUTER
 static void ws_eapol_relay_socket_cb(void *cb);
+#endif
 
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .priority = EAPOL_PDU_RECV_LOW_PRIORITY,
@@ -60,7 +67,17 @@ static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .receive = ws_eapol_relay_eapol_pdu_receive
 };
 
-static NS_LIST_DEFINE(eapol_relay_list, eapol_relay_t, link);
+static eapol_relay_t * g_eapol_relay = NULL;
+
+int ws_eapol_relay_get_socket_fd()
+{
+    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
+    if (eapol_relay)
+        return eapol_relay->socket_id;
+    else
+        return -1;
+}
 
 int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
@@ -86,20 +103,32 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
     memcpy(&eapol_relay->remote_addr.address, remote_addr, 16);
     eapol_relay->remote_addr.identifier = remote_port;
 
+#ifdef HAVE_WS_BORDER_ROUTER
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(local_port) };
+    eapol_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
+    setsockopt(eapol_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
+    if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
+        tr_err("could not create eapol_auth_relay->socket_id socket: %m");
+    }
+#else
     eapol_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_relay_socket_cb);
+#endif
     if (eapol_relay->socket_id < 0) {
         free(eapol_relay);
         return -1;
     }
+#ifndef HAVE_WS_BORDER_ROUTER
     int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     socket_setsockopt(eapol_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
+#endif
 
     if (ws_eapol_pdu_cb_register(interface_ptr, &eapol_pdu_recv_cb_data) < 0) {
         free(eapol_relay);
         return -1;
     }
 
-    ns_list_add_to_end(&eapol_relay_list, eapol_relay);
+    g_eapol_relay = eapol_relay;
 
     return 0;
 }
@@ -115,11 +144,15 @@ int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
         return -1;
     }
 
+#ifdef HAVE_WS_BORDER_ROUTER
+    close(eapol_relay->socket_id);
+#else
     socket_close(eapol_relay->socket_id);
+#endif
 
     ws_eapol_pdu_cb_unregister(interface_ptr, &eapol_pdu_recv_cb_data);
 
-    ns_list_remove(&eapol_relay_list, eapol_relay);
+    g_eapol_relay = NULL;
     free(eapol_relay);
 
     return 0;
@@ -127,13 +160,7 @@ int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
 
 static eapol_relay_t *ws_eapol_relay_get(protocol_interface_info_entry_t *interface_ptr)
 {
-    ns_list_foreach(eapol_relay_t, entry, &eapol_relay_list) {
-        if (entry->interface_ptr == interface_ptr) {
-            return entry;
-        }
-    }
-
-    return NULL;
+    return g_eapol_relay;
 }
 
 static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
@@ -153,52 +180,61 @@ static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *
     }
 
     ws_eapol_relay_lib_send_to_relay(eapol_relay->socket_id, eui_64, &eapol_relay->remote_addr, pdu, size);
-
     return 0;
 }
 
+#ifdef HAVE_WS_BORDER_ROUTER
+void ws_eapol_relay_socket_cb(int fd)
+#else
 static void ws_eapol_relay_socket_cb(void *cb)
+#endif
 {
+    uint8_t *socket_pdu = NULL;
+    ssize_t data_len;
+#ifdef HAVE_WS_BORDER_ROUTER
+    uint8_t data[2048];
+
+    data_len = recv(fd, data, sizeof(data), 0);
+    if (data_len <= 0)
+        return;
+#else
     socket_callback_t *cb_data = cb;
+    ns_address_t src_addr;
 
     if (cb_data->event_type != SOCKET_DATA) {
         return;
     }
 
-    eapol_relay_t *eapol_relay = NULL;
+    data_len = cb_data->d_len;
+#endif
 
-    ns_list_foreach(eapol_relay_t, entry, &eapol_relay_list) {
-        if (entry->socket_id == cb_data->socket_id) {
-            eapol_relay = entry;
-            break;
-        }
-    }
+    eapol_relay_t *eapol_relay = g_eapol_relay;
 
     if (!eapol_relay) {
         return;
     }
-
-    uint8_t *socket_pdu = malloc(cb_data->d_len);
-    if (!socket_pdu) {
+    socket_pdu = malloc(data_len);
+    if (!socket_pdu)
         return;
-    }
 
-    ns_address_t src_addr;
-
+#ifdef HAVE_WS_BORDER_ROUTER
+    memcpy(socket_pdu, data, data_len);
+#else
     if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {
         free(socket_pdu);
         return;
     }
+#endif
 
     // EAPOL PDU data length is zero (message contains only supplicant EUI-64 and KMP ID)
-    if (cb_data->d_len == 9) {
+    if (data_len == 9) {
         ws_eapol_pdu_mpx_eui64_purge(eapol_relay->interface_ptr, socket_pdu);
         free(socket_pdu);
         return;
     }
 
     //First 8 byte is EUID64 and rsr payload
-    if (ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, cb_data->d_len - 8, socket_pdu, NULL, 0) < 0) {
+    if (ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, data_len - 8, socket_pdu, NULL, 0) < 0) {
         free(socket_pdu);
     }
 }
