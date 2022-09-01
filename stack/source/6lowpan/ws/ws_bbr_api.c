@@ -537,8 +537,6 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     dhcpv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
     //SEt max value for not limiting address allocation
     dhcpv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
-
-    ws_dhcp_client_address_request(cur, global_id, ll);
 }
 
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)

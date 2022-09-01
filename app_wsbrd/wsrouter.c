@@ -172,7 +172,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_WS))
                 WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
             wsbr_configure_ws(ctxt);
-            if (arm_nwk_interface_up(ctxt->rcp_if_id))
+            if (arm_nwk_interface_up(ctxt->rcp_if_id, NULL))
                  WARN("arm_nwk_interface_up RCP");
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:

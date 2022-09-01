@@ -601,7 +601,7 @@ int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_l
     return ret_val;
 }
 
-int8_t arm_nwk_interface_up(int8_t interface_id)
+int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address)
 {
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur = 0;
@@ -619,7 +619,7 @@ int8_t arm_nwk_interface_up(int8_t interface_id)
     }
 
     cur->net_start_tasklet = eventOS_scheduler_get_active_tasklet();
-    ret_val = cur->if_up(cur);
+    ret_val = cur->if_up(cur, ipv6_address);
 
 
     return ret_val;

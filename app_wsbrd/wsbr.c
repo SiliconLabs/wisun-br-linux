@@ -258,7 +258,8 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_WS);
             WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
             wsbr_configure_ws(ctxt);
-            if (arm_nwk_interface_up(ctxt->rcp_if_id))
+            get_global_unicast_addr(ctxt->config.tun_dev, ipv6);
+            if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
                  WARN("arm_nwk_interface_up RCP");
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
                  WARN("ws_bbr_start");

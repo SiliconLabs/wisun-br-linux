@@ -45,7 +45,7 @@ int8_t ipv6_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6
  * \param cur pointer to interface pointer.
  *
  */
-int8_t ipv6_interface_up(struct protocol_interface_info_entry *cur);
+int8_t ipv6_interface_up(struct protocol_interface_info_entry *cur, const uint8_t * ipv6_address);
 /**
  * \brief Disable IPv6 protocol stack
  */

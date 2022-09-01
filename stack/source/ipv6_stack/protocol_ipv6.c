@@ -638,8 +638,9 @@ int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address)
 
 }
 
-int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur)
+int8_t ipv6_interface_up(protocol_interface_info_entry_t *cur, const uint8_t * ipv6_address)
 {
+    (void) ipv6_address;
     uint8_t ipv6_interface_adr[16];
 
     if (cur->if_stack_buffer_handler) {

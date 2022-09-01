@@ -314,7 +314,7 @@ struct protocol_interface_info_entry {
 
     struct arm_device_driver_list *dev_driver;
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
-    int8_t (*if_up)(struct protocol_interface_info_entry *cur);
+    int8_t (*if_up)(struct protocol_interface_info_entry *cur, const uint8_t * ipv6_address);
     void (*if_stack_buffer_handler)(buffer_t *);
     void (*if_common_forwarding_out_cb)(struct protocol_interface_info_entry *, buffer_t *);
     bool (*if_ns_transmit)(struct protocol_interface_info_entry *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);

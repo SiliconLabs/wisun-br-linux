@@ -466,6 +466,7 @@ typedef uint8_t beacon_compare_rx_cb(int8_t interface_id, uint8_t join_priority,
  * \brief Start network interface bootstrap.
  *
  * \param interface_id Network interface ID.
+ * \param ipv6_address IPv6 address of the interface (only useful for the BR)
  *
  *
  * \return >=0 Bootstrap start OK.
@@ -473,7 +474,7 @@ typedef uint8_t beacon_compare_rx_cb(int8_t interface_id, uint8_t join_priority,
  * \return -2 Not configured.
  * \return -3 Active.
  */
-int8_t arm_nwk_interface_up(int8_t interface_id);
+int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address);
 
 /**
  * \brief Stop and set interface to idle.
