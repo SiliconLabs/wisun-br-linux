@@ -36,7 +36,6 @@ struct wsbrd_conf {
 
     char tun_dev[IFNAMSIZ];
     bool tun_autoconf;
-    bool tun_use_tap;
 
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_size;

@@ -92,7 +92,7 @@ int get_link_local_addr(char* if_name, uint8_t ip[static 16])
     return -2;
 }
 
-static int wsbr_tun_open(char *devname, bool use_tap)
+static int wsbr_tun_open(char *devname)
 {
     struct rtnl_link *link;
     struct nl_sock *sock;
@@ -101,10 +101,6 @@ static int wsbr_tun_open(char *devname, bool use_tap)
     };
     int fd, ifindex;
 
-    if(use_tap) {
-        ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-        tun_driver.link_type = PHY_LINK_ETHERNET_TYPE;
-    }
     if (devname && *devname)
         strcpy(ifr.ifr_name, devname);
     fd = open("/dev/net/tun", O_RDWR);
@@ -182,7 +178,7 @@ void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->config.tun_use_tap);
+    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev);
     if (ctxt->config.tun_autoconf)
         wsbr_tun_accept_ra(ctxt->config.tun_dev);
     wsbr_tun_stack_init(ctxt);

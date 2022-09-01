@@ -191,6 +191,11 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
+static void conf_deprecated(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+{
+    FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->line_no, info->key);
+}
+
 static void conf_set_bool(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
     bool *dest = raw_dest;
@@ -416,7 +421,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
-        { "use_tap",                       &config->tun_use_tap,                      conf_set_bool,        NULL },
+        { "use_tap",                       NULL,                                      conf_deprecated,      NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_set_flags,       NULL },
