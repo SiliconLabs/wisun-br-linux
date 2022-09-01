@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "nsconfig.h"
 #include <ifaddrs.h>
 #include <string.h>
 #include <unistd.h>
@@ -23,11 +24,14 @@
 #include <netlink/route/link/inet6.h>
 #include <arpa/inet.h>
 #include "common/log.h"
+#include "common_protocols/icmpv6.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ethernet_mac_api.h"
 #include "stack/net_interface.h"
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
+#include "stack/source/nwk_interface/protocol.h"
+#include "stack-services/common_functions.h"
 
 #include "tun.h"
 #include "wsbr.h"
@@ -237,15 +241,82 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     wsbr_tun_stack_init(ctxt);
 }
 
+static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
+{
+    // ICMPv6 error messages, see RFC 4443
+    // ICMPv6 informational messages, see RFC 4443 (Ping, Echo Request and Reply)
+    // Neighbor Soliciation and Neighbor Advertisement, see RFC 6775
+    // RPL, see RFC 6550 and 9010
+    // The rest is not supported by Wi-SUN
+    if ((iv6t >= ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && iv6t <= ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM) ||
+         iv6t == ICMPV6_TYPE_INFO_ECHO_REQUEST ||
+         iv6t == ICMPV6_TYPE_INFO_ECHO_REPLY ||
+         iv6t == ICMPV6_TYPE_INFO_NS ||
+         iv6t == ICMPV6_TYPE_INFO_NA ||
+         iv6t == ICMPV6_TYPE_INFO_RPL_CONTROL)
+        return true;
+    else
+        return false;
+}
+
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 {
     uint8_t buf[1504]; // Max ethernet frame size + TUN header
-    int len;
+    ssize_t len;
+    uint8_t ip_version, next_header, icmpv6_type;
+    buffer_t * buffer_to_6lowpan = NULL;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
 
     if (lowpan_adaptation_queue_size(ctxt->rcp_if_id) > 2)
         return;
     len = read(ctxt->tun_fd, buf, sizeof(buf));
-    ctxt->tun_driver->phy_rx_cb(buf, len, 0x80, 0, ctxt->tun_driver_id);
+    ip_version = ((unsigned char) buf[0]) >> 4;
+
+    if (ip_version != 6) {
+        WARN("unsupported ip version (received packet was not IPv6)");
+        return;
+    }
+
+    buffer_to_6lowpan = buffer_get_minimal(len);
+    if (!buffer_to_6lowpan)
+        FATAL(1,"could not allocate tun buffer_t");
+
+    buffer_to_6lowpan->interface = cur;
+
+    buffer_data_add(buffer_to_6lowpan, buf, len);
+    buffer_to_6lowpan->payload_length = len;
+
+    next_header = buf[6];
+    buffer_to_6lowpan->options.hop_limit = buf[7];
+
+    buffer_to_6lowpan->src_sa.addr_type = ADDR_IPV6;
+    memcpy(buffer_to_6lowpan->src_sa.address, buf + 8, 16);
+
+    buffer_to_6lowpan->dst_sa.addr_type = ADDR_IPV6;
+    memcpy(buffer_to_6lowpan->dst_sa.address, buf + 24, 16);
+
+    if (addr_is_ipv6_multicast(buffer_to_6lowpan->dst_sa.address)) {
+        // silently discard if is ff01::* or ff02::*
+        if (!memcmp(buffer_to_6lowpan->dst_sa.address, ADDR_IF_LOCAL_ALL_NODES, 2) ||
+            !memcmp(buffer_to_6lowpan->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 2) ) {
+            buffer_free(buffer_to_6lowpan);
+            return;
+        }
+    }
+
+    if (next_header == 6 || next_header == 17) { // is next_header TCP/UDP ?
+        buffer_to_6lowpan->src_sa.port = common_read_16_bit(buf + 40);
+        buffer_to_6lowpan->dst_sa.port = common_read_16_bit(buf + 42);
+    } else if (next_header == 58) { // is next_header IMCPv6 ?
+        icmpv6_type = buf[40];
+        if (!is_icmpv6_type_supported_by_wisun(icmpv6_type)) {
+            buffer_free(buffer_to_6lowpan);
+            return;
+        }
+    }
+
+    buffer_to_6lowpan->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
+    protocol_push(buffer_to_6lowpan);
 }
 
 void wsbr_spinel_replay_tun(struct spinel_buffer *buf)
