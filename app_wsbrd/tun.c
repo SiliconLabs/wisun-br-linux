@@ -50,6 +50,19 @@ static int8_t wsbr_tun_tx(uint8_t *buf, uint16_t len, uint8_t tx_handle, data_pr
     return 0;
 }
 
+ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    ssize_t ret;
+
+    ret = write(ctxt->tun_fd, buf, len);
+    if (ret < 0)
+        WARN("write: %m");
+    else if (ret != len)
+        WARN("write: short write: %ld < %d", ret, len);
+    return ret;
+}
+
 static uint8_t tun_mac[8] = { 20, 21, 22, 23, 24, 25, 26, 27 };
 static struct phy_device_driver_s tun_driver = {
     /* link_type must match with ifr.ifr_flags:

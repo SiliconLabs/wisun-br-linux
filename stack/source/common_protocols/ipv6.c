@@ -38,6 +38,7 @@
 #include "common_protocols/ipv6_flow.h"
 
 #include "common_protocols/ipv6.h"
+#include "app_wsbrd/tun.h"
 
 #define TRACE_GROUP "ipv6"
 
@@ -889,6 +890,19 @@ static buffer_t *ipv6_handle_routing_header(buffer_t *buf, protocol_interface_in
     return buf;
 }
 
+#ifdef HAVE_WS_BORDER_ROUTER
+static buffer_t *ipv6_tun_up(buffer_t *b)
+{
+    ssize_t status;
+
+    // FIXME: do not call app_wsbrd directly. Use a callback instead.
+    status = wsbr_tun_write(buffer_data_pointer(b), buffer_data_length(b));
+    if (status <= 0)
+        tr_warn("packet not sent to tun interface: %m");
+    return buffer_free(b);
+}
+#endif
+
 static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol_interface_info_entry_t *cur, const sockaddr_t *ll_src)
 {
     /* Security checks needed here before forwarding */
@@ -934,7 +948,12 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
             buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
             return buf;
         }
+#ifdef HAVE_WS_BORDER_ROUTER
+        // If we can't route inside the network, let's try outside !
+        return ipv6_tun_up(buf);
+#else
         return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
+#endif
     }
 
     protocol_interface_info_entry_t *out_interface;
@@ -1335,6 +1354,15 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 cur->if_common_forwarding_out_cb(cur, buf);
             }
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
+#ifdef HAVE_WS_BORDER_ROUTER
+        } else {
+            if (*nh_ptr == IPV6_NH_ICMPV6) {
+                if (ptr[0] < ICMPV6_TYPE_INFO_MCAST_LIST_QUERY)
+                    return ipv6_tun_up(buf);
+            } else if (*nh_ptr == IPV6_NH_UDP || *nh_ptr == IPV6_NH_TCP) {
+                return ipv6_tun_up(buf);
+            }
+#endif
         }
     }
 
