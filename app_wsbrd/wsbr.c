@@ -459,10 +459,10 @@ int wsbr_main(int argc, char *argv[])
         BUG();
     }
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
-    wsbr_tun_init(ctxt);
 
     wsbr_rcp_reset(ctxt);
     wsbr_rcp_init(ctxt);
+    wsbr_tun_init(ctxt);
 
     wsbr_common_timer_init(ctxt);
 

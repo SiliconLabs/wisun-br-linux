@@ -19,6 +19,9 @@
 #include <linux/if_tun.h>
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
+#include <netlink/route/addr.h>
+#include <netlink/route/link/inet6.h>
+#include <arpa/inet.h>
 #include "common/log.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ethernet_mac_api.h"
@@ -92,7 +95,42 @@ int get_link_local_addr(char* if_name, uint8_t ip[static 16])
     return -2;
 }
 
-static int wsbr_tun_open(char *devname)
+static int tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
+{
+    int err = 0;
+    char ipv6_addr_str[128] = { };
+    uint8_t ipv6_addr_buf[16] = { };
+    struct rtnl_addr *ipv6_addr = NULL;
+    struct nl_addr* lo_ipv6_addr = NULL;
+
+    memcpy(ipv6_addr_buf, ipv6_prefix, 8);
+    memcpy(ipv6_addr_buf+8, hw_mac_addr, 8);
+    inet_ntop(AF_INET6, ipv6_addr_buf, ipv6_addr_str, INET6_ADDRSTRLEN);
+    strcat(ipv6_addr_str, "/64");
+    if ((err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr)) < 0) {
+        nl_perror(err, "nl_addr_parse");
+        return err;
+    }
+    ipv6_addr = rtnl_addr_alloc();
+    if ((err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr)) < 0) {
+        nl_perror(err, "rtnl_addr_set_local");
+        return err;
+    }
+    rtnl_addr_set_ifindex(ipv6_addr, ifindex);
+    rtnl_addr_set_link(ipv6_addr, link);
+    rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
+
+    if ((err = rtnl_addr_add(sock, ipv6_addr, 0)) < 0) {
+        nl_perror(err, "rtnl_addr_add");
+        return err;
+    }
+    nl_addr_put(lo_ipv6_addr);
+    rtnl_addr_put(ipv6_addr);
+
+    return err;
+}
+
+static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf)
 {
     struct rtnl_link *link;
     struct nl_sock *sock;
@@ -100,6 +138,10 @@ static int wsbr_tun_open(char *devname)
         .ifr_flags = IFF_TUN,
     };
     int fd, ifindex;
+    uint8_t hw_mac_slaac[8];
+
+    memcpy(hw_mac_slaac, hw_mac, 8);
+    hw_mac_slaac[0] ^= 2;
 
     if (devname && *devname)
         strcpy(ifr.ifr_name, devname);
@@ -121,11 +163,20 @@ static int wsbr_tun_open(char *devname)
         rtnl_link_put(link);
         link = rtnl_link_alloc();
         rtnl_link_set_ifindex(link, ifindex);
+        if (tun_autoconf) {
+            rtnl_link_inet6_set_addr_gen_mode(link, rtnl_link_inet6_str2addrgenmode("none"));
+            if (rtnl_link_add(sock, link, NLM_F_CREATE))
+                FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
+            if (tun_addr_add(sock, link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac))
+                FATAL(2, "ip_addr_add ll");
+            if (tun_addr_add(sock, link, ifindex, ipv6_prefix, hw_mac_slaac))
+                FATAL(2, "ip_addr_add gua");
+        }
         rtnl_link_set_operstate(link, IF_OPER_UP);
         rtnl_link_set_mtu(link, 1280);
         rtnl_link_set_flags(link, IFF_UP);
         rtnl_link_set_txqlen(link, 10);
-        if (rtnl_link_add(sock, link, 0))
+        if (rtnl_link_add(sock, link, NLM_F_CREATE))
             FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
         rtnl_link_put(link);
     } else {
@@ -178,7 +229,7 @@ void wsbr_tun_stack_init(struct wsbr_ctxt *ctxt)
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev);
+    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac, ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf);
     if (ctxt->config.tun_autoconf)
         wsbr_tun_accept_ra(ctxt->config.tun_dev);
     wsbr_tun_stack_init(ctxt);
