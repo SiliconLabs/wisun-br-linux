@@ -118,6 +118,10 @@ typedef int (dhcp_service_receive_resp_cb)(uint16_t instance_id, void *ptr, uint
  */
 typedef void (dhcp_relay_neighbour_cb)(int8_t interface, uint8_t ll_addr[static 16]);
 
+#ifdef HAVE_WS_BORDER_ROUTER
+int dhcp_service_get_server_socket_fd();
+void recv_dhcp_server_msg();
+#endif
 
 /**
  * \brief Initialize a new DHCP service instance.

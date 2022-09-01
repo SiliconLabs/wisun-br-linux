@@ -32,6 +32,7 @@
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
+#include "stack/dhcp_service_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
@@ -58,6 +59,7 @@ enum {
     POLLFD_DBUS,
     POLLFD_EVENT,
     POLLFD_TIMER,
+    POLLFD_DHCP_SERVER,
     POLLFD_COUNT,
 };
 
@@ -263,15 +265,14 @@ static void wsbr_tasklet(struct arm_event_s *event)
                  WARN("arm_nwk_interface_up RCP");
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
                  WARN("ws_bbr_start");
+            if (ctxt->config.internal_dhcp)
+                ws_bbr_internal_dhcp_server_start(ctxt->rcp_if_id, ipv6);
             if (strlen(ctxt->config.radius_secret) != 0)
                 if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
                     WARN("ws_bbr_radius_shared_secret_set");
             if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
                 if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
                     WARN("ws_bbr_radius_address_set");
-            if (ctxt->config.dhcpv6_server.sin6_family == AF_INET6) {
-                dhcp_relay_agent_enable(ctxt->rcp_if_id, (uint8_t *)&ctxt->config.dhcpv6_server.sin6_addr);
-            }
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->rcp_if_id) {
@@ -375,6 +376,8 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_EVENT].events = POLLIN;
     fds[POLLFD_TIMER].fd = ctxt->timerfd;
     fds[POLLFD_TIMER].events = POLLIN;
+    fds[POLLFD_DHCP_SERVER].fd = dhcp_service_get_server_socket_fd();
+    fds[POLLFD_DHCP_SERVER].events = POLLIN;
 }
 
 static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
@@ -392,6 +395,8 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
         dbus_process(ctxt);
     if (fds[POLLFD_KMP].revents & POLLIN)
         kmp_socket_if_data_from_ext_radius();
+    if (fds[POLLFD_DHCP_SERVER].revents & POLLIN)
+        recv_dhcp_server_msg();
     if (fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (fds[POLLFD_EVENT].revents & POLLIN) {

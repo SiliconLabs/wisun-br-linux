@@ -36,6 +36,7 @@ struct wsbrd_conf {
 
     char tun_dev[IFNAMSIZ];
     bool tun_autoconf;
+    bool internal_dhcp;
 
     char ws_name[33]; // null-terminated string of 32 chars
     int  ws_size;
@@ -51,7 +52,6 @@ struct wsbrd_conf {
     int  ws_chan_plan_id;
 
     uint8_t ipv6_prefix[16];
-    struct sockaddr_in6 dhcpv6_server;
 
     char storage_prefix[PATH_MAX];
     arm_certificate_entry_s tls_own;

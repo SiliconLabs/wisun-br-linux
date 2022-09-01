@@ -143,7 +143,7 @@ int dhcpv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
 }
 
 
-int DHCPV6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_id, uint8_t message_type, uint8_t *msg_ptr, uint16_t msg_len)
+int dhcpv6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_id, uint8_t message_type, uint8_t *msg_ptr, uint16_t msg_len)
 {
     int retVal = RET_MSG_NOT_MINE;
     dhcp_ia_non_temporal_params_t dhcp_ia_non_temporal_params;
@@ -251,7 +251,7 @@ int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], u
     protocol_interface_info_entry_t *cur;
     (void)serverDUID;
     //allocate Socket Service
-    socketInstance  = dhcp_service_init(interface, DHCP_INSTANCE_SERVER, DHCPV6_server_service_request_handler);
+    socketInstance  = dhcp_service_init(interface, DHCP_INSTANCE_SERVER, dhcpv6_server_service_request_handler);
     cur = protocol_stack_interface_info_get_by_id(interface);
     if (!cur) {
         return -1;

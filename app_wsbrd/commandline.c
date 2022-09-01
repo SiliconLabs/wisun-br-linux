@@ -425,7 +425,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
         { "trace",                         &g_enabled_traces,                         conf_set_flags,       NULL },
-        { "dhcpv6_server",                 &config->dhcpv6_server,                    conf_set_netaddr,     NULL },
+        { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
         { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
         { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
         { "key",                           &config->tls_own,                          conf_set_key,         NULL },
@@ -547,6 +547,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
 
     config->uart_baudrate = 115200;
     config->tun_autoconf = true;
+    config->internal_dhcp = true;
     config->ws_class = 0;
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
@@ -700,15 +701,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             WARN("ignore certificates and key since an external radius server is in use");
     }
 #ifdef HAVE_WS_BORDER_ROUTER
-    if (config->dhcpv6_server.sin6_family == AF_INET6) {
-        if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) != 0)
-            WARN("ipv6_prefix will be ignored because you specified a dhcpv6_server address");
-    } else if (config->dhcpv6_server.sin6_family == AF_INET) {
-        FATAL(1, "dhcpv6_server does not support IPv4 server");
-    } else {
-        if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-            FATAL(1, "You must specify a ipv6_prefix");
-    }
+    if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "You must specify a ipv6_prefix");
 #else
     if (!config->uart_dev[0])
         FATAL(1, "missing \"uart_device\" parameter");

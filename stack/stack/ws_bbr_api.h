@@ -520,6 +520,9 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
  * \return < 0 failure
  * \return >= 0 success
  */
+
+void ws_bbr_internal_dhcp_server_start(int8_t interface_id, uint8_t *global_id);
+
 int ws_bbr_dns_query_result_set(int8_t interface_id, const uint8_t address[16], char *domain_name_ptr);
 
 int ws_bbr_set_phy_operating_modes(int8_t interface_id, uint8_t * phy_operating_modes, uint8_t phy_op_mode_number);

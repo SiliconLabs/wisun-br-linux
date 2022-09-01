@@ -41,6 +41,7 @@
  */
 int dhcpv6_server_service_init(int8_t interface, uint8_t guaPrefix[static 16], uint8_t serverDUID[static 8], uint16_t serverDUIDType);
 
+int dhcpv6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_id, uint8_t message_type, uint8_t *msg_ptr, uint16_t msg_len);
 
 void dhcpv6_server_service_callback_set(int8_t interface, uint8_t guaPrefix[static 16], dhcp_address_prefer_remove_cb *remove_cb, dhcp_address_add_notify_cb *add_cb);
 

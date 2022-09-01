@@ -539,6 +539,12 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     dhcpv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
 }
 
+void ws_bbr_internal_dhcp_server_start(int8_t interface_id, uint8_t *global_id)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    ws_bbr_dhcp_server_start(cur, global_id, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
+}
+
 static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
 {
     if (!cur) {
@@ -707,12 +713,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
                 prefix_flags |= PIO_A;
                 prefix_lifetime = WS_ULA_LIFETIME;
             }
-            if (cur->is_dhcp_relay_agent_enabled) {
-                uint8_t ll[16];
-                ws_bbr_get_matching_addr(cur, ll, ADDR_LINK_LOCAL_PREFIX, 8);
-                ws_dhcp_client_address_request(cur, global_prefix, ll);
-            } else
-                ws_bbr_dhcp_server_start(cur, global_prefix, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
 
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, global_prefix, 64, prefix_flags, prefix_lifetime, prefix_lifetime, false);
             // no check for failure should have

@@ -19,6 +19,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <net/if.h>
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/named_values.h"
@@ -36,6 +40,9 @@
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
 #include "common_protocols/ip.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
+#ifdef HAVE_WS_BORDER_ROUTER
+#include "app_wsbrd/wsbr.h"
+#endif
 
 #define TRACE_GROUP    "dhcp"
 
@@ -138,6 +145,13 @@ static const struct name_value dhcp_frames[] = {
 };
 
 void dhcp_service_send_message(msg_tr_t *msg_tr_ptr);
+
+#ifdef HAVE_WS_BORDER_ROUTER
+int dhcp_service_get_server_socket_fd()
+{
+    return dhcp_service ? dhcp_service->dhcp_server_socket : -1;
+}
+#endif
 
 void dhcpv6_socket_service_tasklet(arm_event_s *event)
 {
@@ -320,34 +334,29 @@ static relay_instance_t *dhcp_service_relay_interface(int8_t  interface_id)
     return result;
 }
 
-
-void recv_dhcp_server_msg(void *cb_res)
+void recv_dhcp_server_msg()
 {
-    socket_callback_t *sckt_data;
     server_instance_t *srv_ptr = NULL;
     msg_tr_t *msg_tr_ptr;
     uint8_t *msg_ptr, *allocated_ptr;
-    uint16_t msg_len;
     dhcpv6_relay_msg_t relay_msg;
-
-    sckt_data = cb_res;
-
-    if (sckt_data->event_type != SOCKET_DATA || sckt_data->d_len < 4) {
-        return;
-    }
+    ssize_t msg_len;
+    uint8_t msg[2048];
+    uint8_t msg_type;
+    struct sockaddr_in6 src_addr;
+    socklen_t src_addr_len = sizeof(struct sockaddr_in6);
     relay_notify_t *neigh_notify = NULL;
 
     msg_tr_ptr = dhcp_tr_create();
-    msg_ptr = malloc(sckt_data->d_len);
-    allocated_ptr = msg_ptr;
-    if (msg_ptr == NULL || msg_tr_ptr == NULL) {
-        // read actual message
-        tr_error("Out of resources");
-        goto cleanup;
-    }
-    msg_len = socket_read(sckt_data->socket_id, &msg_tr_ptr->addr, msg_ptr, sckt_data->d_len);
+    msg_ptr = msg;
+    msg_len = recvfrom(dhcp_service->dhcp_server_socket, msg, sizeof(msg), 0, (struct sockaddr *) &src_addr, &src_addr_len);
+    memcpy(msg_tr_ptr->addr.address, &(src_addr.sin6_addr), 16);
+    msg_type = *msg_ptr;
 
-    uint8_t msg_type = *msg_ptr;
+    msg_ptr = malloc(msg_len);
+    memcpy(msg_ptr, msg, msg_len);
+    allocated_ptr = msg_ptr;
+
     TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
           val_to_str(msg_type, dhcp_frames, "[UNK]"),
           tr_ipv6(msg_tr_ptr->addr.address));
@@ -371,7 +380,7 @@ void recv_dhcp_server_msg(void *cb_res)
         goto cleanup;
     } else {
         //Search only for direct messages here
-        neigh_notify = dhcp_service_notify_find(sckt_data->interface_id);
+        neigh_notify = dhcp_service_notify_find(IF_IPV6);
     }
 
     //TODO use real function from lib also call validity check
@@ -383,15 +392,15 @@ void recv_dhcp_server_msg(void *cb_res)
     }
 
     if (neigh_notify && neigh_notify->recv_notify_cb) {
-        neigh_notify->recv_notify_cb(sckt_data->interface_id, msg_tr_ptr->addr.address);
+        neigh_notify->recv_notify_cb(IF_IPV6, msg_tr_ptr->addr.address);
     }
 
-    msg_tr_ptr->socket = sckt_data->socket_id;
+    msg_tr_ptr->socket = dhcp_service->dhcp_server_socket;
     // call all receivers until found.
     ns_list_foreach(server_instance_t, cur_ptr, &dhcp_service->srv_list) {
-        if (cur_ptr->interface_id == sckt_data->interface_id && cur_ptr->recv_req_cb != NULL) {
+        if (cur_ptr->interface_id == IF_IPV6 && cur_ptr->recv_req_cb != NULL) {
             msg_tr_ptr->instance_id = cur_ptr->instance_id;
-            msg_tr_ptr->interface_id = sckt_data->interface_id;
+            msg_tr_ptr->interface_id = IF_IPV6;
             if ((RET_MSG_ACCEPTED ==
                     cur_ptr->recv_req_cb(cur_ptr->instance_id, msg_tr_ptr->msg_tr_id, msg_type, msg_ptr + 4, msg_len - 4))) {
                 // should not modify pointers but library requires.
@@ -624,6 +633,7 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
 {
     uint16_t id = 1;
     server_instance_t *srv_ptr;
+    struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(DHCPV6_SERVER_PORT) };
 
     if (!dhcp_service_allocate()) {
         tr_error("dhcp Sockets data base alloc fail");
@@ -633,7 +643,14 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
         if (dhcp_service->dhcp_relay_socket >= 0) {
             tr_error("dhcp Server socket can't open because Agent open already");
         }
-        dhcp_service->dhcp_server_socket = socket_open(SOCKET_UDP, DHCPV6_SERVER_PORT, recv_dhcp_server_msg);
+        dhcp_service->dhcp_server_socket = socket(AF_INET6, SOCK_DGRAM, 0);
+#ifdef HAVE_WS_BORDER_ROUTER
+        struct wsbr_ctxt *ctxt = &g_ctxt;
+        setsockopt(dhcp_service->dhcp_server_socket, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
+#endif
+        if (bind(dhcp_service->dhcp_server_socket, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
+            FATAL(1, "could not create dhcp server socket: %m");
+        }
     }
 
     if (instance_type == DHCP_INTANCE_RELAY_AGENT && dhcp_service->dhcp_relay_socket < 0) {
@@ -769,7 +786,7 @@ void dhcp_service_delete(uint16_t instance)
     }
 
     if ((server_instances == 0 && relay_instances == 0) && dhcp_service->dhcp_server_socket > -1) {
-        socket_close(dhcp_service->dhcp_server_socket);
+        close(dhcp_service->dhcp_server_socket);
         dhcp_service->dhcp_server_socket = -1;
     }
 
@@ -885,16 +902,27 @@ void dhcp_service_req_remove_all(void *msg_class_ptr)
 
 void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
 {
+#ifdef HAVE_WS_BORDER_ROUTER
+    ssize_t retval;
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+#else
     int8_t retval;
     int16_t multicast_hop_limit = -1;
     const uint32_t address_pref = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
+    int16_t tc;
+#endif
+    uint8_t relay_header[4];
+    struct msghdr msghdr = { };
+    struct iovec data_vector[4];
+    uint32_t t;
+    uint16_t cs;
+    uint8_t *ptr;
     dhcp_options_msg_t elapsed_time;
 
     if (msg_tr_ptr->first_transmit_time && libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
 
-        uint32_t t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
-        uint16_t cs;
+        t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         if (t > 0xffff / 10) {
             cs = 0xffff;
         } else {
@@ -903,6 +931,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         common_write_16_bit(cs, elapsed_time.msg_ptr);
     }
 
+#ifndef HAVE_WS_BORDER_ROUTER
     if ((msg_tr_ptr->options & TX_OPT_USE_SHORT_ADDR) == TX_OPT_USE_SHORT_ADDR) {
         socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_ADDR_PREFERENCES, &address_pref, sizeof address_pref);
     }
@@ -911,15 +940,15 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     }
     socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &multicast_hop_limit, sizeof multicast_hop_limit);
     socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_INTERFACE_SELECT, &msg_tr_ptr->interface_id, sizeof(int8_t));
+#endif
 
     if (msg_tr_ptr->relay_start) {
         //Build Relay Reply only server do this
-        int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
+#ifndef HAVE_WS_BORDER_ROUTER
+        tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
         socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
-        struct iovec data_vector[4];
-        uint8_t relay_header[4];
+#endif
         libdhcpv6_dhcp_option_header_write(relay_header, DHCPV6_OPTION_RELAY, msg_tr_ptr->msg_len);
-        struct msghdr msghdr;
         msghdr.msg_iovlen = 0;
         memcpy(msg_tr_ptr->addr.address, msg_tr_ptr->relay_start + 2, 16);
         msg_tr_ptr->addr.identifier = DHCPV6_SERVER_PORT;
@@ -943,14 +972,25 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         msghdr.msg_iovlen++;
 
         //Set message name
+
+#ifndef HAVE_WS_BORDER_ROUTER
         msghdr.msg_name = (void *) &msg_tr_ptr->addr;
         msghdr.msg_namelen = sizeof(ns_address_t);
+#else
+        struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6 };
+        memcpy(&sockaddr.sin6_addr, &msg_tr_ptr->addr.address, 16);
+        sockaddr.sin6_port = htons(msg_tr_ptr->addr.identifier);
+        sockaddr.sin6_scope_id = if_nametoindex(ctxt->config.tun_dev);
+        msghdr.msg_name = &sockaddr;
+        msghdr.msg_namelen = sizeof(sockaddr);
+#endif
+
         msghdr.msg_iov = &data_vector[0];
         //No ancillary data
         msghdr.msg_control = NULL;
         msghdr.msg_controllen = 0;
 
-        uint8_t *ptr = msg_tr_ptr->relay_start;
+        ptr = msg_tr_ptr->relay_start;
         *ptr = DHCPV6_RELAY_REPLY;
         if (msg_tr_ptr->delayed_tx) {
             retval = 0;
@@ -958,19 +998,34 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
             TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
                   val_to_str(*(char *)(msghdr.msg_iov[0].iov_base), dhcp_frames, "[UNK]"),
                   trace_ipv6(msg_tr_ptr->addr.address));
+#ifdef HAVE_WS_BORDER_ROUTER
+            retval = sendmsg(msg_tr_ptr->socket, &msghdr, 0);
+#else
             retval = socket_sendmsg(msg_tr_ptr->socket, &msghdr, NS_MSG_LEGACY0);
+#endif
         }
 
     } else {
         if (msg_tr_ptr->delayed_tx) {
             retval = 0;
         } else {
-            int16_t tc = 0;
+#ifndef HAVE_WS_BORDER_ROUTER
+            tc = 0;
+#endif
             TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
                   val_to_str(*msg_tr_ptr->msg_ptr, dhcp_frames, "[UNK]"),
                   tr_ipv6(msg_tr_ptr->addr.address));
+#ifdef HAVE_WS_BORDER_ROUTER
+            struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6 };
+            memcpy(&sockaddr.sin6_addr, &msg_tr_ptr->addr.address, 16);
+            sockaddr.sin6_port = htons(msg_tr_ptr->addr.identifier);
+            sockaddr.sin6_port = htons(546);
+            sockaddr.sin6_scope_id = if_nametoindex(ctxt->config.tun_dev);
+            retval = sendto(dhcp_service->dhcp_server_socket, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len, 0, (struct sockaddr *) &sockaddr, sizeof(sockaddr));
+#else
             socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
             retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
+#endif
             msg_tr_ptr->transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
             if (msg_tr_ptr->first_transmit_time == 0 && retval == 0) {
                 //Mark first pushed message timestamp
@@ -978,8 +1033,13 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
             }
         }
     }
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (retval == -1) {
+        tr_warn("dhcp service socket_sendto fails: %ld: %m", retval);
+#else
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
+#endif
     }
 }
 bool dhcp_service_timer_tick(uint16_t ticks)
