@@ -200,7 +200,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
  * \param gtkhash GTK hash, 32 bytes
  *
  */
-typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
+typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_key_insert network key insert callback

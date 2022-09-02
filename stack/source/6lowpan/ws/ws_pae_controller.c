@@ -97,6 +97,7 @@ typedef struct pae_controller {
     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set;    /**< Frame counter set callback */
     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read;  /**< Frame counter read callback */
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
+    ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
     ws_pae_controller_nw_info_updated *nw_info_updated;              /**< Network information updated callback */
     ws_pae_controller_auth_next_target *auth_next_target;            /**< Authentication next target callback */
     ws_pae_controller_congestion_get *congestion_get;                /**< Congestion get callback */
@@ -138,7 +139,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
+static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 #endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
@@ -1666,14 +1667,15 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
+static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
         return;
     }
+    pae_controller_gtk_t *gtk_struct = is_lgtk ? &controller->lgtks : &controller->gtks;
 
-    memcpy(controller->gtks.gtkhash, gtkhash, sizeof(controller->gtks.gtkhash));
+    memcpy(gtk_struct->gtkhash, gtkhash, sizeof(gtk_struct->gtkhash));
 
     tr_info("GTK hash set %s %s %s %s",
             trace_array(gtkhash[0], 8),
@@ -1682,12 +1684,15 @@ static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *inte
             trace_array(gtkhash[3], 8));
 
     // Do not update PAN version for initial hash set
-    if (controller->gtks.gtkhash_set) {
-        if (controller->pan_ver_increment) {
+    if (gtk_struct->gtkhash_set) {
+        if (!is_lgtk && controller->pan_ver_increment) {
             controller->pan_ver_increment(interface_ptr);
         }
+        if (is_lgtk && controller->lpan_ver_increment) {
+            controller->lpan_ver_increment(interface_ptr);
+        }
     } else {
-        controller->gtks.gtkhash_set = true;
+        gtk_struct->gtkhash_set = true;
     }
 }
 #endif
