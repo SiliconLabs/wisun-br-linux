@@ -90,38 +90,48 @@ void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_
     ws_pae_timers_calculate(timer_settings);
 }
 
-static void ws_pae_timers_calculate(sec_timer_cfg_t *timer_settings)
+static uint32_t ws_pae_timers_calculate_subcheck(int revocat_lifetime_reduct, int expire_offset, int max_mismatch, int new_install_req, int new_act_time)
 {
     // Calculate GTK_NEW_INSTALL_REQUIRED < 100 * (1 - 1 / REVOCATION_LIFETIME_REDUCTION)
-    uint8_t calc_gtk_new_install_req = 100 - (100 / timer_settings->gtk.revocat_lifetime_reduct);
+    uint8_t calc_gtk_new_install_req = 100 - (100 / revocat_lifetime_reduct);
 
-    if (timer_settings->gtk.expire_offset < 3600) {
+    if (expire_offset < 3600) {
         // For very short GTKs give some more time to distribute the new GTK key to network, tune this if needed
         calc_gtk_new_install_req = calc_gtk_new_install_req * 60 / 100;
     }
 
-    if (timer_settings->gtk.new_install_req > calc_gtk_new_install_req) {
+    if (new_install_req > calc_gtk_new_install_req) {
         tr_info("GTK new install required adjusted %i", calc_gtk_new_install_req);
-        timer_settings->gtk.new_install_req = calc_gtk_new_install_req;
+        new_install_req = calc_gtk_new_install_req;
     }
+    uint32_t gtk_revocation_lifetime = expire_offset / revocat_lifetime_reduct;
+    uint32_t new_gtk_activation_time = expire_offset / new_act_time;
 
-    // Verify that GTK request Imin and Imax are sensible when compared to revocation lifetime
-    uint32_t gtk_revocation_lifetime = timer_settings->gtk.expire_offset / timer_settings->gtk.revocat_lifetime_reduct;
-    uint32_t new_activation_time = timer_settings->gtk.expire_offset / timer_settings->gtk.new_act_time;
-
-    uint32_t time_to_update = gtk_revocation_lifetime;
-    if (gtk_revocation_lifetime > new_activation_time) {
-        time_to_update = gtk_revocation_lifetime - new_activation_time;
+    uint32_t time_to_gtk_update = gtk_revocation_lifetime;
+    if (gtk_revocation_lifetime > new_gtk_activation_time) {
+        time_to_gtk_update = gtk_revocation_lifetime - new_gtk_activation_time;
     }
+    tr_info("GTK timers revocation lifetime: %"PRIu32", new activation time: %"PRIu32", max mismatch %i, time to update: %"PRIu32"",
+            gtk_revocation_lifetime, new_gtk_activation_time, max_mismatch, time_to_gtk_update);
+    return time_to_gtk_update;
+}
 
-    tr_info("Key timers revocation lifetime: %"PRIu32", new activation time: %"PRIu32", max mismatch %i, time to update: %"PRIu32"", gtk_revocation_lifetime, new_activation_time, timer_settings->gtk.max_mismatch, time_to_update);
+static void ws_pae_timers_calculate(sec_timer_cfg_t *timer_settings)
+{
+    uint32_t time_to_gtk_update;
+
+    time_to_gtk_update = ws_pae_timers_calculate_subcheck(timer_settings->gtk.revocat_lifetime_reduct,
+                                                          timer_settings->gtk.expire_offset,
+                                                          timer_settings->gtk.max_mismatch,
+                                                          timer_settings->gtk.new_install_req,
+                                                          timer_settings->gtk.new_act_time);
 
     // If time to update results smaller GTK request Imax use it for calculation otherwise use GTK max mismatch
-    if (time_to_update < timer_settings->gtk.max_mismatch) {
+    if (time_to_gtk_update < timer_settings->gtk.max_mismatch) {
         // If time to update is smaller than GTK request Imax update GTK request values
-        if (timer_settings->gtk.request_imax > time_to_update) {
-            timer_settings->gtk.request_imin = time_to_update / 4;
-            timer_settings->gtk.request_imax = time_to_update / 2;
+        if (timer_settings->gtk.request_imax > time_to_gtk_update) {
+            timer_settings->gtk.request_imin = time_to_gtk_update / 4;
+            timer_settings->gtk.request_imax = time_to_gtk_update / 2;
             tr_info("GTK request timers adjusted Imin: %i, Imax: %i", timer_settings->gtk.request_imin, timer_settings->gtk.request_imax);
         }
     } else if (timer_settings->gtk.request_imax > timer_settings->gtk.max_mismatch) {
