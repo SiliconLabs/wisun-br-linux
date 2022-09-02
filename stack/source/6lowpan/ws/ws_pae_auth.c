@@ -130,7 +130,7 @@ typedef struct pae_auth {
 } pae_auth_t;
 
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
-static int8_t ws_pae_auth_active_gtk_set(pae_auth_t *pae_auth, uint8_t index);
+static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
 static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_ptr);
@@ -399,9 +399,9 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
         // If there is no key, inserts a new one
         ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
         index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->gtks);
-        ws_pae_auth_active_gtk_set(pae_auth, index);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
     } else {
-        ws_pae_auth_active_gtk_set(pae_auth, index);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
     }
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
@@ -441,7 +441,7 @@ int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interfac
         return -1;
     }
 
-    ws_pae_auth_active_gtk_set(pae_auth, index);
+    ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
     ws_pae_auth_network_key_index_set(pae_auth, index);
     return 0;
 }
@@ -632,9 +632,9 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool 
     return 0;
 }
 
-static int8_t ws_pae_auth_active_gtk_set(pae_auth_t *pae_auth, uint8_t index)
+static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index)
 {
-    return sec_prot_keys_gtk_status_active_set(pae_auth->sec_keys_nw_info->gtks, index);
+    return sec_prot_keys_gtk_status_active_set(gtks, index);
 }
 
 static int8_t ws_pae_auth_gtk_clear(pae_auth_t *pae_auth, uint8_t index)
@@ -1024,7 +1024,7 @@ static int8_t ws_pae_auth_new_gtk_activate(pae_auth_t *pae_auth)
 {
     int8_t new_active_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
     if (new_active_index >= 0) {
-        ws_pae_auth_active_gtk_set(pae_auth, new_active_index);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, new_active_index);
     }
 
     return new_active_index;
