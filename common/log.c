@@ -12,6 +12,7 @@
  */
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include <ctype.h>
 
 #include "bits.h"
@@ -224,6 +225,7 @@ void __tr_enter()
     if (!g_trace_stream) {
         g_trace_stream = stdout;
         setlinebuf(stdout);
+        g_enable_color_traces = isatty(fileno(g_trace_stream));
     }
     trace_nested_counter++;
 }
