@@ -33,7 +33,7 @@ void __wrap_print_help_br(FILE *stream)
     fprintf(stream, "  --capture-init=FILE   Record the RCP initialization phase to a separate file than --capture.\n");
     fprintf(stream, "  --replay=FILE         Replay a sequence captured using --capture. When specified more than\n");
     fprintf(stream, "                          once, files are replayed back to back from left to right.\n");
-    fprintf(stream, "  --fuzz                Disable CRC check, stub security RNG, relax SPINEL checks.\n");
+    fprintf(stream, "  --fuzz                Disable CRC check, stub security RNG, relax SPINEL checks, disable NVM.\n");
 }
 
 static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)

@@ -24,8 +24,12 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 {
     // This function is the first being executed ater parse_commandline in
     // wsbr_main. Thus some checks can be put here.
-    if (ns_file_system_get_root_path() && (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count))
-        WARN("using storage while in cature/replay mode");
+    if (ns_file_system_get_root_path()) {
+        if (g_fuzz_ctxt.fuzzing_enabled)
+            ns_file_system_set_root_path(NULL);
+        else if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count)
+            WARN("using storage while in cature/replay mode");
+    }
 
     if (g_fuzz_ctxt.replay_count)
         return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];

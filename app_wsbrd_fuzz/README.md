@@ -16,7 +16,8 @@ additional options:
   and release version.
 - `--fuzz` ignores CRC checks for UART packets, stubs the RNG for large polls
   (which are generally seeds or keys for cryptographic purposes), and removes
-  some SPINEL size checks to help the fuzzer.
+  some SPINEL size checks to help the fuzzer. The NVM is also disabled as when
+  using `storage_prefix = -`.
 - `--capture-init` records the RCP initialization phase in a seperate file
   during capture. This helps the fuzzer explore the main loop rather than this
   restrictive phase.
