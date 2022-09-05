@@ -91,51 +91,6 @@ void dbus_emit_keys_change(struct wsbr_ctxt *ctxt)
                        "Gaks", NULL);
 }
 
-
-static void print_ping_reply(void *cb)
-{
-    socket_callback_t *event = (socket_callback_t *)cb;
-    ns_address_t src_addr;
-    uint8_t data[256];
-    int len;
-
-    len = socket_recvfrom(event->socket_id, data, sizeof(data), 0, &src_addr);
-    DEBUG("if %d, socket %d, event %2X from %s, %d/%d bytes", event->interface_id,
-          event->socket_id, event->event_type, tr_ipv6(src_addr.address), event->d_len, len);
-}
-
-static int dbus_debug_ping(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
-{
-    struct wsbr_ctxt *ctxt = userdata;
-    const char *ipv6str;
-    struct ns_address dest_addr = {
-        .type = ADDRESS_IPV6,
-    };
-    uint8_t payload[8] = { ICMPV6_TYPE_INFO_ECHO_REQUEST, };
-    int16_t multicast_hop_limit = 64;
-    int ret;
-
-    ret = sd_bus_message_read(m, "s", &ipv6str);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-    ret = inet_pton(AF_INET6, ipv6str, dest_addr.address);
-    if (ret != 1)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    if (ctxt->ping_socket_fd >= 0)
-        socket_close(ctxt->ping_socket_fd);
-    ctxt->ping_socket_fd = socket_open(SOCKET_ICMP, 0, print_ping_reply);
-    if (ctxt->ping_socket_fd < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = socket_setsockopt(ctxt->ping_socket_fd, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &multicast_hop_limit, sizeof(multicast_hop_limit));
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = socket_sendto(ctxt->ping_socket_fd, &dest_addr, payload, sizeof(payload));
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
 static int dbus_get_gtks(sd_bus *bus, const char *path, const char *interface,
                          const char *property, sd_bus_message *reply,
                          void *userdata, sd_bus_error *ret_error)
@@ -419,8 +374,6 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_set_mode_switch, 0),
         SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
                       dbus_set_slot_algorithm, 0),
-        SD_BUS_METHOD("DebugPing", "s", NULL,
-                      dbus_debug_ping, 0),
         SD_BUS_METHOD("AddRootCertificate", "s", NULL,
                       dbus_root_certificate_add, 0),
         SD_BUS_METHOD("RemoveRootCertificate", "s", NULL,
