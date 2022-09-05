@@ -994,6 +994,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
 }
 #endif
 
+#ifdef HAVE_PAE_AUTH
 int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1022,7 +1023,6 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         read_gtks_to = NULL;
     }
 
-#ifdef HAVE_PAE_AUTH
     if (sec_prot_keys_gtks_are_updated(&controller->gtks)) {
         // If application has set GTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr);
@@ -1031,7 +1031,6 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         }
         sec_prot_keys_gtks_updated_reset(&controller->gtks);
     }
-#endif
     if (read_gtks_to && ws_pae_controller_nw_info_read(controller, read_gtks_to) >= 0) {
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
@@ -1056,6 +1055,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
 
     return 0;
 }
+#endif
 
 int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
 {
