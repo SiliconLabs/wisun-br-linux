@@ -448,7 +448,7 @@ int wsbr_main(int argc, char *argv[])
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
-    ns_file_system_set_root_path(ctxt->config.storage_prefix);
+    ns_file_system_set_root_path(ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL);
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;
