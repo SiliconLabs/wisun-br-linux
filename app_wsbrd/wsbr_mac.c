@@ -943,7 +943,7 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     const struct channel_list_s default_chan_list = {
         .channel_page = CHANNEL_PAGE_UNDEFINED,
     };
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 75 + MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 3);
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     int total, i;
 
