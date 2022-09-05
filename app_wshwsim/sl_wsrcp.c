@@ -289,7 +289,7 @@ struct mac_api_s *init_mac_api(int rcp_driver_id)
 
 static void mbed_trace_print_function(const char *str)
 {
-    fprintf(g_trace_stream, "%s\n", str);
+    INFO("%s", str);
 }
 
 void kill_handler(int signal)

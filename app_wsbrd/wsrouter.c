@@ -207,7 +207,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 
 static void mbed_trace_print_function(const char *str)
 {
-    fprintf(g_trace_stream, "%s\n", str);
+    INFO("%s", str);
 }
 
 void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
