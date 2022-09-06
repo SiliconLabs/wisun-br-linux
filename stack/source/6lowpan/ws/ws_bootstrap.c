@@ -95,7 +95,7 @@ static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(protocol_interface_info_entry_t *cur, uint32_t counter, uint8_t slot);
 static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *cur, uint32_t *counter, uint8_t slot);
-static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name);
+static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, auth_result_e result, uint8_t *target_eui_64);
 static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface_info_entry_t *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
 static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
@@ -2532,7 +2532,7 @@ static void ws_bootstrap_nw_frame_counter_read(protocol_interface_info_entry_t *
     mac_helper_key_link_frame_counter_read(cur->id, counter, slot);
 }
 
-static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, uint16_t pan_id, uint16_t pan_version, char *network_name)
+static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
 {
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
@@ -2550,6 +2550,8 @@ static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, u
             // Sets PAN version
             cur->ws_info->pan_information.pan_version = pan_version;
             cur->ws_info->pan_information.pan_version_set = true;
+            cur->ws_info->pan_information.lpan_version = lpan_version;
+            cur->ws_info->pan_information.lpan_version_set = true;
         }
 
         // If network name has not been set, set it

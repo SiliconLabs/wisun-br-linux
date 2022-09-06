@@ -1034,7 +1034,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.pan_version, controller->sec_keys_nw_info.network_name);
+            controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.pan_version, controller->sec_keys_nw_info.lpan_version, controller->sec_keys_nw_info.network_name);
         }
         if (sec_prot_keys_gtk_count(read_gtks_to) == 0) {
             // Key material invalid or GTKs are expired, delete GTKs from NVM

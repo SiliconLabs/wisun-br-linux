@@ -642,7 +642,7 @@ typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t
  * \param network_name network name
  *
  */
-typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name);
+typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 
 /**
  * ws_pae_controller_congestion_get get congestion information
