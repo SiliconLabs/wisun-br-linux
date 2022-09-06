@@ -59,7 +59,7 @@ typedef enum {
 
 typedef struct tls_sec_prot_lib_int tls_sec_prot_lib_int_t;
 
-typedef struct {
+typedef struct tls_sec_prot_int {
     sec_prot_common_t             common;            /**< Common data */
     uint8_t                       new_pmk[PMK_LEN];  /**< New Pair Wise Master Key */
     tls_data_t                    tls_send;          /**< TLS send buffer */
@@ -79,7 +79,7 @@ typedef struct {
 
 // TLS server EC queue is currently disabled, since EC calculation is made on server in one go
 #ifdef SERVER_TLS_EC_CALC_QUEUE
-typedef struct {
+typedef struct tls_sec_prot_queue {
     ns_list_link_t link;                             /**< Link */
     sec_prot_t *prot;                                /**< Protocol instance */
 } tls_sec_prot_queue_t;

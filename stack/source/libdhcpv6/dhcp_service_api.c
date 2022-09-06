@@ -52,7 +52,7 @@
 #define RAND1_LOW   0x7333 // 1 - 0.1; minimum for "1+RAND"
 #define RAND1_HIGH  0x8CCD // 1 + 0.1; maximum for "1+RAND"
 
-typedef struct {
+typedef struct server_instance {
     dhcp_service_receive_req_cb *recv_req_cb;
     uint16_t instance_id;
     int8_t interface_id;
@@ -62,7 +62,7 @@ typedef struct {
 typedef NS_LIST_HEAD(server_instance_t, link) server_instance_list_t;
 
 
-typedef struct {
+typedef struct relay_instance {
     uint16_t instance_id;
     int8_t interface_id;
     uint8_t server_address[16];
@@ -72,7 +72,7 @@ typedef struct {
 } relay_instance_t;
 typedef NS_LIST_HEAD(relay_instance_t, link) relay_instance_list_t;
 
-typedef struct {
+typedef struct msg_tr {
     ns_address_t addr;
     dhcp_service_receive_resp_cb *recv_resp_cb;
     uint16_t instance_id;
@@ -99,14 +99,14 @@ typedef struct {
 } msg_tr_t;
 typedef NS_LIST_HEAD(msg_tr_t, link) tr_list_t;
 
-typedef struct {
+typedef struct relay_notify {
     dhcp_relay_neighbour_cb *recv_notify_cb;
     int8_t interface_id;
     ns_list_link_t link;
 } relay_notify_t;
 typedef NS_LIST_HEAD(relay_notify_t, link) relay_notify_list_t;
 
-typedef struct {
+typedef struct dhcp_service_class {
     ns_address_t src_address;
     server_instance_list_t srv_list;
     relay_instance_list_t relay_list;

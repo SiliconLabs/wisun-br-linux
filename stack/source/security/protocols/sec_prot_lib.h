@@ -39,7 +39,7 @@
 
 
 // Common data shared between security protocols needing general timers and state machines
-typedef struct {
+typedef struct sec_prot_common {
     trickle_t                     trickle_timer;    /**< Trickle timer for re-sending */
     uint16_t                      ticks;            /**< Timer ticks */
     int8_t                        state;            /**< Protocol state machine state */

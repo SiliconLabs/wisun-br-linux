@@ -40,7 +40,7 @@
 
 #define SEC_PROT_CERT_CHAIN_DEPTH             4
 
-typedef struct {
+typedef struct cert_chain_entry {
     uint8_t *cert[SEC_PROT_CERT_CHAIN_DEPTH];           /**< Certificate chain (from bottom up) */
     uint16_t cert_len[SEC_PROT_CERT_CHAIN_DEPTH];       /**< Certificate chain length */
     uint8_t *key;                                       /**< Private key */
@@ -48,7 +48,7 @@ typedef struct {
     ns_list_link_t link;                                /**< Link */
 } cert_chain_entry_t;
 
-typedef struct {
+typedef struct cert_revocat_list_entry {
     const uint8_t *crl;                                 /**< Certificate Revocation List */
     uint16_t crl_len;                                   /**< Certificate Revocation List length */
     ns_list_link_t link;                                /**< Link */

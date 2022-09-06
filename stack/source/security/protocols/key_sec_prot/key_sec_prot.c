@@ -53,7 +53,7 @@ typedef enum {
     KEY_STATE_FINISHED = SEC_STATE_FINISHED
 } key_sec_prot_state_e;
 
-typedef struct {
+typedef struct key_sec_prot_int {
     sec_prot_common_t              common;       /**< Common data */
 } key_sec_prot_int_t;
 

@@ -61,7 +61,7 @@ typedef void (adaptation_etx_update_cb)(protocol_interface_info_entry_t *cur, bu
 
 #define ADAPTION_DIRECT_TX_QUEUE_SIZE_THRESHOLD_TRACE 20
 
-typedef struct {
+typedef struct fragmenter_tx_entry {
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
     uint16_t size;  /*!< Datagram Total Size (uncompressed) */
     uint16_t orig_size; /*!< Datagram Original Size (compressed) */
@@ -83,7 +83,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(fragmenter_tx_entry_t, link) fragmenter_tx_list_t;
 
-typedef struct {
+typedef struct fragmenter_interface {
     int8_t interface_id;
     uint16_t local_frag_tag;
     uint8_t msduHandle;

@@ -788,13 +788,13 @@ typedef struct ns_ipv6_mreq {
 } ns_ipv6_mreq_t;
 
 /** Latency request used for getsockopt() */
-typedef struct {
+typedef struct ns_ipv6_latency {
     uint8_t dest_addr[16];      /**< [IN] IPv6 destination address */
     uint32_t latency;           /**< [OUT] estimated latency value in milliseconds */
 } ns_ipv6_latency_t;
 
 /** Stagger request used for getsockopt() */
-typedef struct {
+typedef struct ns_ipv6_stagger {
     uint8_t dest_addr[16];      /**< [IN] IPv6 destination address */
     uint16_t data_amount;       /**< [IN] Amount of data in kilobytes */
     uint16_t stagger_min;       /**< [OUT] Minimum stagger value in seconds */

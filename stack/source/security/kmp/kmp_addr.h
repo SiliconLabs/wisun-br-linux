@@ -24,7 +24,7 @@ typedef enum kmp_addr_type {
     KMP_ADDR_EUI_64_AND_IP
 } kmp_addr_type_e;
 
-typedef struct {
+typedef struct kmp_addr {
     uint8_t type;
     uint8_t eui_64[8];
     address_t relay_address;

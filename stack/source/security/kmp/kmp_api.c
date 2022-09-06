@@ -52,7 +52,7 @@ struct kmp_api {
     sec_prot_t                   sec_prot;                /**< Security protocol interface */
 };
 
-typedef struct {
+typedef struct kmp_sec_prot_entry {
     kmp_type_e                   type;                    /**< Security protocol type callback */
     kmp_sec_prot_size            *size;                   /**< Security protocol data size callback */
     kmp_sec_prot_init            *init;                   /**< Security protocol init */
@@ -61,7 +61,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(kmp_sec_prot_entry_t, link) kmp_sec_prot_list_t;
 
-typedef struct {
+typedef struct kmp_msg_if_entry {
     uint8_t                      instance_id;             /**< Message interface instance identifier */
     uint8_t                      header_size;             /**< Message interface header size */
     uint8_t                      number_of_conn;          /**< Message interface number of connections */
@@ -87,7 +87,7 @@ struct kmp_service {
     ns_list_link_t                     link;                    /**< Link */
 };
 
-typedef struct {
+typedef struct kmp_pdu {
     uint8_t kmp_id;               /**< Kmp id */
     uint8_t kmp_data;             /**< Kmp data e.g. eapol frame */
 } kmp_pdu_t;

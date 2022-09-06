@@ -57,7 +57,7 @@
 // Give up on data request after given timeout (seconds)
 #define DATA_REQUEST_TIMEOUT_NORMAL_PRIORITY_S  10
 
-typedef struct {
+typedef struct neighbour_security_update {
     uint8_t address[8];
     unsigned addr_type: 2;
     uint8_t nonce_ptr[8];

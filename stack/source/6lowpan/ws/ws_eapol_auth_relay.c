@@ -47,7 +47,7 @@
 
 #define TRACE_GROUP "wsar"
 
-typedef struct {
+typedef struct eapol_auth_relay {
     protocol_interface_info_entry_t *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address and port */
     ns_address_t relay_addr;                                /**< Relay address */

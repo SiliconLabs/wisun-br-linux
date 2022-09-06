@@ -71,17 +71,17 @@ typedef struct ws_nud_table_entry {
 #define PENDING_KEY_INDEX_ADVERTISMENT 1
 #define PENDING_KEY_INDEX_ACTIVATE 2
 
-typedef struct {
+typedef struct ws_pending_key_index {
     unsigned state: 2;
     uint8_t index;
 } ws_pending_key_index_t;
 
-typedef struct {
+typedef struct ws_bsi_block {
     uint32_t block_time;
     uint16_t old_bsi;
 } ws_bsi_block_t;
 
-typedef struct {
+typedef struct ws_test_proc_trg {
     uint16_t eapol_trigger_timer;
     uint16_t pas_trigger_timer;
     uint16_t pcs_trigger_timer;

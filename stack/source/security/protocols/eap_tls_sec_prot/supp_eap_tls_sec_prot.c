@@ -58,7 +58,7 @@ typedef enum {
 // Filters EAP re-transmission bursts that arrive with same EAP sequence number
 #define BURST_FILTER_TIMER_TIMEOUT                  5 * 10
 
-typedef struct {
+typedef struct eap_tls_sec_prot_int {
     sec_prot_common_t             common;           /**< Common data */
     sec_prot_t                    *tls_prot;        /**< TLS security protocol */
     eapol_pdu_t                   recv_eapol_pdu;   /**< Received EAPOL PDU */

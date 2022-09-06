@@ -39,7 +39,7 @@ typedef struct nvm_tlv {
     uint16_t len;              /**< Number of the bytes after the length field */
 } nvm_tlv_t;
 
-typedef struct {
+typedef struct key_storage_nvm_tlv_entry {
     nvm_tlv_t nvm_tlv;                  /**< NVM TLV */
     uint32_t reference_restart_cnt;     /**< Reference re-start counter set when file is created) */
     uint64_t reference_time;            /**< Reference time used for timers (set when file is created) */

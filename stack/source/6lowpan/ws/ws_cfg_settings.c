@@ -60,7 +60,7 @@ typedef int8_t (*ws_cfg_default_set)(void *cfg);
 typedef int8_t (*ws_cfg_validate)(void *new_cfg);
 typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *new_cfg, uint8_t flags);
 
-typedef struct {
+typedef struct ws_cfg_cb {
     ws_cfg_default_set default_set;
     ws_cfg_validate validate;
     ws_cfg_set set;

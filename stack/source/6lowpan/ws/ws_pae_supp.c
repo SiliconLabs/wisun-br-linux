@@ -78,7 +78,7 @@
 #define INITIAL_KEY_TIMER_MIN                  1
 #define INITIAL_KEY_TIMER_MAX                  3
 
-typedef struct {
+typedef struct pae_supp {
     ns_list_link_t link;                                   /**< Link */
     kmp_service_t *kmp_service;                            /**< KMP service */
     protocol_interface_info_entry_t *interface_ptr;        /**< Interface */

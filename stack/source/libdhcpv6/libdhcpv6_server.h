@@ -39,7 +39,7 @@
 typedef void (dhcp_address_prefer_remove_cb)(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info);
 typedef uint8_t *(dhcp_vendor_data_cb)(int8_t interfaceId, uint8_t *ptr, uint16_t *dhcp_vendor_data_len);
 
-typedef struct dhcpv6_allocated_address_entry_s {
+typedef struct dhcpv6_allocated_address_entry {
     uint8_t             linkId[8];  /*!< Services UL64 */
     uint32_t            iaID;
     uint32_t            T0;
@@ -51,14 +51,14 @@ typedef struct dhcpv6_allocated_address_entry_s {
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_allocated_address_entry_t;
 
-typedef struct dhcpv6_dns_server_data_s {
+typedef struct dhcpv6_dns_server_data {
     uint8_t             server_address[16];
     uint8_t             *search_list;
     uint8_t             search_list_length;
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_dns_server_data_t;
 
-typedef struct dhcpv6_vendor_data_s {
+typedef struct dhcpv6_vendor_data {
     uint32_t            enterprise_number;
     dhcp_vendor_data_cb *vendor_data_cb;    // Additional vendor data that can be set for individual reply
     uint8_t             *vendor_data;
@@ -66,7 +66,7 @@ typedef struct dhcpv6_vendor_data_s {
     ns_list_link_t      link;               /*!< List link entry */
 } dhcpv6_vendor_data_t;
 
-typedef struct dhcpv6_allocated_address_s {
+typedef struct dhcpv6_allocated_address {
     uint8_t             nonTemporalAddress[16];
     uint8_t             linkId[8];  /*!< Services UL64 */
     uint16_t            linkType;
@@ -90,7 +90,7 @@ typedef struct dhcp_address_cache_update {
 
 typedef bool (dhcp_address_add_notify_cb)(int8_t interfaceId, dhcp_address_cache_update_t *address_info, void *route_src);
 
-typedef struct dhcpv6_gua_server_entry_s {
+typedef struct dhcpv6_gua_server_entry {
     int8_t                          interfaceId;
     bool                            anonymousAddress: 1;
     bool                            disableAddressList: 1;

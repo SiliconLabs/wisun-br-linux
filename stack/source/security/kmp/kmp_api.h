@@ -554,7 +554,7 @@ typedef int8_t kmp_service_shared_comp_timer_timeout(uint16_t ticks);
  */
 typedef int8_t kmp_service_shared_comp_delete(void);
 
-typedef struct {
+typedef struct kmp_shared_comp {
     kmp_service_shared_comp_timer_timeout *timeout;
     kmp_service_shared_comp_delete *delete;
 } kmp_shared_comp_t;

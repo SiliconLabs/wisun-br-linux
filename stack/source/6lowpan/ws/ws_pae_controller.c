@@ -58,13 +58,13 @@ typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
-typedef struct {
+typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
     bool set : 1;                                                    /**< Key has been set */
     bool installed : 1;                                              /**< Key has been installed on MAC */
 } nw_key_t;
 
-typedef struct {
+typedef struct pae_controller {
     ns_list_link_t link;                                             /**< Link */
     uint8_t target_eui_64[8];                                        /**< EAPOL target */
     uint16_t target_pan_id;                                          /**< EAPOL target PAN ID */
@@ -110,7 +110,7 @@ typedef struct {
     bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
 
-typedef struct {
+typedef struct pae_controller_config {
     sec_radius_cfg_t *radius_cfg;                                    /**< Radius configuration settings */
     uint16_t node_limit;                                             /**< Max number of stored supplicants */
     bool node_limit_set : 1;                                         /**< Node limit set */

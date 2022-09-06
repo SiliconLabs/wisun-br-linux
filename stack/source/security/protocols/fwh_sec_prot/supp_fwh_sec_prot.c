@@ -68,7 +68,7 @@ typedef enum {
 #define KEY_INFO_KEY_MIC              0x04
 #define KEY_INFO_SECURED_KEY_FRAME    0x08
 
-typedef struct {
+typedef struct fwh_sec_prot_int {
     sec_prot_common_t             common;                      /**< Common data */
     eapol_pdu_t                   recv_eapol_pdu;              /**< Received EAPOL PDU */
     fwh_sec_prot_msg_e            recv_msg;                    /**< Received message */

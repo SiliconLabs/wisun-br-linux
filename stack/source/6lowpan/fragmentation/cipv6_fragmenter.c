@@ -41,7 +41,7 @@
 
 #define TRACE_GROUP "6frg"
 
-typedef struct {
+typedef struct reassembly_entry {
     uint16_t ttl;   /*!< Reassembly timer (seconds) */
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
     uint16_t size;  /*!< Datagram Total Size (uncompressed) */
@@ -55,7 +55,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(reassembly_entry_t, link) reassembly_list_t;
 
-typedef struct {
+typedef struct reassembly_interface {
     int8_t interface_id;
     uint16_t timeout;
     reassembly_list_t rx_list;

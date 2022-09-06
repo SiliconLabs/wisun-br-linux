@@ -46,7 +46,7 @@
 
 #define TRACE_GROUP "wser"
 
-typedef struct {
+typedef struct eapol_relay {
     protocol_interface_info_entry_t *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address (border router address) */
     int8_t socket_id;                                       /**< Socket ID for relay */

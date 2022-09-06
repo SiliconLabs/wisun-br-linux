@@ -69,7 +69,7 @@
 #define SYSTEM_TIME_NOT_CHANGED     0
 #define SYSTEM_TIME_CHANGED         1
 
-typedef struct {
+typedef struct gtk_key {
     uint8_t                key[GTK_LEN];              /**< Group Transient Key (128 bits) */
     uint64_t               expirytime;                /**< GTK expiry time on storage */
     uint32_t               lifetime;                  /**< GTK lifetime in seconds */
@@ -83,7 +83,7 @@ typedef struct sec_prot_gtk_keys {
     bool                   updated: 1;                /**< Group Transient Keys has been updated */
 } sec_prot_gtk_keys_t;
 
-typedef struct {
+typedef struct sec_prot_gtk_hash {
     uint8_t                hash[INS_GTK_HASH_LEN];    /**< Inserted GTKs for a PTK hash */
 } sec_prot_gtk_hash_t;
 
@@ -112,7 +112,7 @@ typedef struct sec_prot_keys {
 } sec_prot_keys_t;
 
 // Frame counter data
-typedef struct {
+typedef struct frame_counter {
     uint8_t gtk[GTK_LEN];                             /**< GTK of the frame counter */
     uint32_t frame_counter;                           /**< Current frame counter */
     uint32_t stored_frame_counter;                    /**< Stored frame counter */
@@ -120,13 +120,13 @@ typedef struct {
     bool set : 1;                                     /**< Value has been set */
 } frame_counter_t;
 
-typedef struct {
+typedef struct frame_counters {
     frame_counter_t counter[GTK_NUM];                 /**< Frame counter for each GTK key */
     int8_t active_gtk_index;                          /**< Active GTK index */
 } frame_counters_t;
 
 // Authenticator supplicant security key data
-typedef struct {
+typedef struct sec_prot_keys_storage {
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
@@ -146,7 +146,7 @@ typedef struct {
 } sec_prot_keys_storage_t;
 
 // Security keys (GTKs) and needed network information
-typedef struct {
+typedef struct sec_prot_keys_nw_info {
     char network_name[33];                                 /**< Network name for keys */
     sec_prot_gtk_keys_t *gtks;                             /**< Link to GTKs */
     uint16_t new_pan_id;                                   /**< new PAN ID indicated by bootstrap */

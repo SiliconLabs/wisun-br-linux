@@ -55,21 +55,21 @@
 #define LLC_MESSAGE_QUEUE_LIST_SIZE_MAX   16 //Do not config over 30 never
 #define MPX_USER_SIZE 2
 
-typedef struct {
+typedef struct mpx_user {
     uint16_t                user_id;        /**< User ID for identify MPX User */
     mpx_data_confirm        *data_confirm;  /**< User registred MPX Data confirmation call back */
     mpx_data_indication     *data_ind;      /**< User registred MPX Data indication call back */
 } mpx_user_t;
 
 
-typedef struct {
+typedef struct mpx_class {
     mpx_api_t   mpx_api;                        /**< API for MPX user like Stack and EAPOL */
     mpx_user_t  mpx_user_table[MPX_USER_SIZE];  /**< MPX user list include registered call back pointers and user id's */
     unsigned    mpx_id: 4;                      /**< MPX class sequence number */
 } mpx_class_t;
 
 
-typedef struct {
+typedef struct llc_ie_params {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
     uint16_t                network_name_length;    /**< Network name length */
     uint16_t                vendor_payload_length;  /**< Vendor specific payload length */
@@ -103,7 +103,7 @@ typedef enum {
     SL_WISUN_MODE_SWITCH_ALWAYS       = 2,     /// Mode switch is allowed for all data frames
 } sl_wisun_mode_switch_mode_t;
 
-typedef struct {
+typedef struct llc_message {
     uint8_t dst_address[8];             /**< Destination address */
     uint16_t pan_id;                    /**< Destination Pan-Id */
     unsigned        message_type: 4;   /**< Frame type to UTT */
@@ -126,7 +126,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
-typedef struct {
+typedef struct temp_entriest {
     ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
     ws_neighbor_temp_list_t         active_multicast_temp_neigh;
     ws_neighbor_temp_list_t         active_eapol_temp_neigh;
@@ -140,7 +140,7 @@ typedef struct {
 
 #define ENHANCED_FRAME_RESPONSE (WH_IE_ELEMENT_HEADER_LENGTH + 2 + WH_IE_ELEMENT_HEADER_LENGTH + 4 + WH_IE_ELEMENT_HEADER_LENGTH + 1 + WH_IE_ELEMENT_HEADER_LENGTH + 5)
 
-typedef struct {
+typedef struct llc_data_base {
     ns_list_link_t                  link;                           /**< List link entry */
 
     uint8_t                         mac_handle_base;                /**< Mac handle id base this will be updated by 1 after use */

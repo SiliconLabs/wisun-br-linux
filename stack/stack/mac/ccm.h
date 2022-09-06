@@ -63,7 +63,7 @@
  * \brief CCM global structure.
  * The structure is used for configuring NONCE, adata and data before calling ccm_process_run().
  */
-typedef struct {
+typedef struct ccm_globals {
     uint8_t exp_nonce[15];      /**< CCM NONCE buffer Nonce. */
     uint8_t *data_ptr;          /**< Pointer to data IN. */
     uint16_t data_len;          /**< Length of data IN. */

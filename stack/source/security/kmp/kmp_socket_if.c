@@ -48,7 +48,7 @@
 #define KMP_RELAY_INSTANCE_INDEX    0
 #define KMP_RADIUS_INSTANCE_INDEX   1
 
-typedef struct {
+typedef struct kmp_socket_if {
     kmp_service_t *kmp_service;                       /**< KMP service */
     uint8_t instance_id;                              /**< Instance identifier */
     bool relay;                                       /**< Interface is relay interface */

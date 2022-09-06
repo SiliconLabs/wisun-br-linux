@@ -50,7 +50,7 @@ typedef enum {
     EAP_TLS_RESULT_HANDSHAKE_FATAL_ERROR,
 } eap_tls_sec_prot_result_e;
 
-typedef struct {
+typedef struct tls_data {
     uint8_t                       *data;          /**< Data buffer */
     uint16_t                      total_len;      /**< Total length of the data buffer */
     uint16_t                      handled_len;    /**< Handled length of the data buffer (e.g. acked by other end) */

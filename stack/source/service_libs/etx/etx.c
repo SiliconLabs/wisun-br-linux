@@ -35,7 +35,7 @@
 
 #define TRACE_GROUP "etx"
 
-typedef struct {
+typedef struct ext_neigh_info {
     uint8_t attribute_index;
     const uint8_t *mac64;
 } ext_neigh_info_t;
@@ -57,7 +57,7 @@ static void etx_cache_entry_init(uint8_t attribute_index);
 #endif
 
 
-typedef struct {
+typedef struct ext_info {
     etx_value_change_handler_t *callback_ptr;
     etx_storage_t *etx_storage_list;
     etx_sample_storage_t *etx_cache_storage_list;

@@ -53,7 +53,7 @@ typedef struct arm_pd_sap_generic_confirm {
  *
  * See IEEE standard 802.15.4-2006 (table 7) for more details
  */
-typedef struct arm_pd_sap_15_4_confirm_with_params_s {
+typedef struct arm_pd_sap_15_4_confirm_with_params {
     phy_link_tx_status_e status;
     uint8_t cca_retry; //Non-standard addition, 0 if not available
     uint8_t tx_retry; //Non-standard addition, 0 if not available

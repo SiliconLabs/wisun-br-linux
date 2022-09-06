@@ -56,7 +56,7 @@ typedef enum {
     GKH_MESSAGE_2
 } gkh_sec_prot_msg_e;
 
-typedef struct {
+typedef struct gkh_sec_prot_int {
     sec_prot_common_t             common;           /**< Common data */
     eapol_pdu_t                   recv_eapol_pdu;   /**< Received EAPOL PDU */
     void                          *recv_pdu;        /**< Received pdu */

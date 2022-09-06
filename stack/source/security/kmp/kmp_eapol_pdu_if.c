@@ -36,12 +36,12 @@
 
 #define EAPOL_PDU_IF_HEADER_SIZE                 1
 
-typedef struct {
+typedef struct eapol_kmp_pdu {
     uint8_t kmp_id;                                   /**< Kmp id */
     uint8_t kmp_data;                                 /**< Kmp data e.g. eapol frame */
 } eapol_kmp_pdu_t;
 
-typedef struct {
+typedef struct kmp_eapol_pdu_if {
     kmp_service_t *kmp_service;                       /**< KMP service */
     protocol_interface_info_entry_t *interface_ptr;   /**< Interface pointer */
     ns_list_link_t link;                              /**< Link */

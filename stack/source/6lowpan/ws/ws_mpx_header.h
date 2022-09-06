@@ -26,7 +26,7 @@
 #define MPX_FT_LAST_FRAGMENT                4
 #define MPX_FT_ABORT                        6
 
-typedef struct {
+typedef struct mpx_msg {
     unsigned    transfer_type: 3;
     unsigned    transaction_id: 5;
     uint8_t     fragment_number;

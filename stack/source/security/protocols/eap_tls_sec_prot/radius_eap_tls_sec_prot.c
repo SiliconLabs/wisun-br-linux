@@ -69,7 +69,7 @@ typedef enum {
 // How long to wait RADIUS client to proceed with handshake (RADIUS server to answer)
 #define RADIUS_EAP_TLS_CLIENT_TIMEOUT               60 * 10    // 60 seconds
 
-typedef struct {
+typedef struct radius_eap_tls_sec_prot_int {
     sec_prot_common_t             common;                  /**< Common data */
     sec_prot_t                    *radius_client_prot;     /**< RADIUS client security protocol */
     sec_prot_receive              *radius_client_send;     /**< RADIUS client security protocol send (receive from peer) */

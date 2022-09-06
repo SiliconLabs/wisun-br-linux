@@ -37,7 +37,7 @@
 
 #define TRACE_GROUP "wsep"
 
-typedef struct {
+typedef struct eapol_pdu_msdu {
     void *data_ptr;
     void *buffer;
     ws_eapol_pdu_tx_status *tx_status;
@@ -48,7 +48,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(eapol_pdu_msdu_t, link) eapol_pdu_msdu_list_t;
 
-typedef struct {
+typedef struct eapol_pdu_recv_cb {
     uint8_t priority;
     bool filter_requsted: 1;
     ws_eapol_pdu_address_check *addr_check;
@@ -58,7 +58,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(eapol_pdu_recv_cb_t, link) eapol_pdu_recv_cb_list_t;
 
-typedef struct {
+typedef struct eapol_pdu_data {
     eapol_pdu_recv_cb_list_t recv_cb_list;                 /**< List of receive callbacks */
     eapol_pdu_msdu_list_t msdu_list;                       /**< MSDU list */
     ws_eapol_pdu_receive *receive;                         /**< data receive callback */

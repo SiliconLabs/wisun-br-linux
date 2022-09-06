@@ -194,7 +194,7 @@ typedef enum {
     //IPV6_DHCPV6_PREFIX_READY
 } ipv6_nd_state_e;
 
-typedef struct {
+typedef struct ipv6_interface_info {
     net_ipv6_mode_e ipv6_stack_mode;
     ipv6_nd_state_e IPv6_ND_state;
     net_ipv6_accept_ra_e accept_ra;

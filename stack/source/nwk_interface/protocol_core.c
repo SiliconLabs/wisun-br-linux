@@ -80,7 +80,7 @@ int protocol_core_buffers_in_event_queue;
 
 protocol_interface_info_entry_t *protocol_core_multicast_upstream;
 
-typedef struct {
+typedef struct lowpan_core_timer_structures {
     uint8_t core_timer_ticks;
     bool core_timer_event;
 } lowpan_core_timer_structures_s;

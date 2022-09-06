@@ -19,7 +19,7 @@
 #define IEEE_802_11_
 #include <stdint.h>
 
-typedef struct {
+typedef struct ieee_802_11_prf {
     const uint8_t *key;   /**< Key string */
     uint8_t *string;      /**< Data string (A string + Y + B string + X) */
     uint16_t bits;        /**< Number of PRF bits */

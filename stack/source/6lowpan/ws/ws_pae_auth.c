@@ -87,7 +87,7 @@
 #define TIME_MINIMUM_DIFFERENCE                5
 #define TIME_DIFFERENCE_THRESHOLD              3600
 
-typedef struct {
+typedef struct pae_auth {
     ns_list_link_t link;                                     /**< Link */
     uint16_t pan_id;                                         /**< PAN ID */
     char network_name[33];                                   /**< Network name */

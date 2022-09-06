@@ -27,7 +27,7 @@
  *
  */
 
-typedef struct {
+typedef struct kmp_entry {
     kmp_api_t *kmp;                    /**< KMP API */
     bool timer_running;                /**< Timer running inside KMP */
     ns_list_link_t link;               /**< Link */
@@ -49,7 +49,7 @@ typedef struct supp_entry {
 
 typedef NS_LIST_HEAD(supp_entry_t, link) supp_list_t;
 
-typedef struct {
+typedef struct shared_comp_entry {
     kmp_shared_comp_t *data;           /**< KMP shared component data */
     ns_list_link_t link;               /**< Link */
 } shared_comp_entry_t;

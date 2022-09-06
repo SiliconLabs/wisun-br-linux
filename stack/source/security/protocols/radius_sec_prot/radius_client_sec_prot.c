@@ -84,7 +84,7 @@ typedef enum {
 
 typedef struct radius_client_sec_prot_lib_int radius_client_sec_prot_lib_int_t;
 
-typedef struct {
+typedef struct radius_client_sec_prot_int {
     sec_prot_common_t             common;                       /**< Common data */
     sec_prot_t                    *radius_eap_tls_prot;         /**< Radius EAP-TLS security protocol */
     sec_prot_receive              *radius_eap_tls_send;         /**< Radius EAP-TLS security protocol send (receive from peer) */
@@ -110,7 +110,7 @@ typedef struct {
     bool                          radius_id_range_set : 1;      /**< Radius identifier start value set */
 } radius_client_sec_prot_int_t;
 
-typedef struct {
+typedef struct radius_client_sec_prot_shared {
     uint8_t radius_identifier_timer[RADIUS_CONN_NUMBER][RADIUS_ID_RANGE_NUM];
     shared_comp_data_t comp_data;                               /**< Shared component data (timer, delete) */
     uint8_t local_eui64_hash[8];                                /**< Local EUI-64 hash used for called stations id */

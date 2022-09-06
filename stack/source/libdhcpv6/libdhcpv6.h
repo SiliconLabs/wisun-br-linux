@@ -34,31 +34,31 @@ typedef struct dhcp_duid_options_params {
     uint8_t *duid;
 } dhcp_duid_options_params_t;
 
-typedef struct {
+typedef struct dhcp_link_options_params {
     uint16_t link_type;
     uint32_t link_time;
     uint8_t *link_id;
 } dhcp_link_options_params_t;
 
-typedef struct {
+typedef struct dhcp_options_msg {
     uint16_t type;
     uint16_t len;
     uint8_t *msg_ptr;
 } dhcp_options_msg_t;
 
-typedef struct {
+typedef struct dhcp_ia_addressoptions_msg {
     uint8_t *ipv6Address;
     uint32_t validLifeTime;
     uint32_t preferredLifeTime;
 } dhcp_ia_addressoptions_msg_t;
 
-typedef struct {
+typedef struct dhcpv6_ia_non_temporal_address {
     uint8_t *requestedAddress;
     uint32_t validLifeTime;
     uint32_t preferredLifeTime;
 } dhcpv6_ia_non_temporal_address_s;
 
-typedef struct {
+typedef struct dhcpv6_reply_packet {
     dhcp_duid_options_params_t clientDUID;
     dhcp_duid_options_params_t serverDUID;
     uint32_t transaction_ID;
@@ -68,12 +68,12 @@ typedef struct {
     bool    rapidCommit;
 } dhcpv6_reply_packet_s;
 
-typedef struct {
+typedef struct dhcpv6_vendor_data_packet {
     uint8_t *vendorData;
     uint16_t vendorDataLength;
 } dhcpv6_vendor_data_packet_s;
 
-typedef struct {
+typedef struct dhcpv6_solicitation_base_packet {
     uint8_t messageType;
     uint32_t transActionId;
     dhcp_duid_options_params_t clientDUID;
@@ -84,7 +84,7 @@ typedef struct {
     uint8_t  requestedOptionCnt;
 } dhcpv6_solicitation_base_packet_s;
 
-typedef struct {
+typedef struct dhcp_ia_non_temporal_params {
     uint32_t iaId;
     uint32_t T0;
     uint32_t T1;
@@ -93,14 +93,14 @@ typedef struct {
     uint32_t preferredValidLifeTime;
 } dhcp_ia_non_temporal_params_t;
 
-typedef struct dhcpv6_ia_nontemp_addres_entry_t {
+typedef struct dhcpv6_ia_nontemp_addres_entry {
     uint32_t    validLifetime;
     uint32_t    preferredTime;
     uint8_t     addressPrefix[16];
 } dhcpv6_ia_nontemp_addres_entry_t;
 
 
-typedef struct dhcpv6_client_server_entry_s {
+typedef struct dhcpv6_client_server_data {
     int8_t      interfaceId;
     uint8_t     instanceId; // instance identifying specific client
     uint8_t     dyn_server_duid_length;

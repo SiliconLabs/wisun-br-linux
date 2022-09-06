@@ -78,7 +78,7 @@ typedef enum {
 #define FIELD_SET(field) (field_set | (1u << field))
 #define FIELD_IS_SET(field) (field_set & (1u << field))
 
-typedef struct {
+typedef struct key_storage_array {
     ns_list_link_t link;                                /**< Link */
     const void *instance;                               /**< Instance; for support of multiple authenticators */
     key_storage_nvm_tlv_entry_t *storage_array_handle;  /**< Key storage array handle (NVM header + array) */
@@ -91,7 +91,7 @@ typedef struct {
     bool pending_storing : 1;                           /**< Entry is pending storing to NVM */
 } key_storage_array_t;
 
-typedef struct {
+typedef struct key_storage_params {
     uint8_t settings_set;                               /**< Settings set, do not use defaults */
     uint8_t storages_empty;                             /**< Number of empty i.e. to be allocated storages */
     uint16_t storage_default_size;                      /**< Default size for storages */

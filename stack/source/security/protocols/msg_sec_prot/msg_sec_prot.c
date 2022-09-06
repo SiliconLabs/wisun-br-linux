@@ -47,7 +47,7 @@ typedef enum {
     MSG_STATE_FINISHED = SEC_STATE_FINISHED
 } msg_sec_prot_state_e;
 
-typedef struct {
+typedef struct msg_sec_prot_int {
     sec_prot_common_t              common;       /**< Common data */
 } msg_sec_prot_int_t;
 

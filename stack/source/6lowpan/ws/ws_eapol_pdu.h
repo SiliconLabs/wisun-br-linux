@@ -96,13 +96,13 @@ typedef int8_t ws_eapol_pdu_address_check(protocol_interface_info_entry_t *inter
  */
 typedef int8_t ws_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size);
 
-typedef enum {
+typedef enum eapol_pdu_recv_prior {
     EAPOL_PDU_RECV_HIGH_PRIORITY = 0,
     EAPOL_PDU_RECV_MEDIUM_PRIORITY = 100,
     EAPOL_PDU_RECV_LOW_PRIORITY = 200
 } eapol_pdu_recv_prior_e;
 
-typedef struct {
+typedef struct eapol_pdu_recv_cb_data {
     eapol_pdu_recv_prior_e priority;           /**< Priority: high, medium or low */
     bool filter_requsted: 1;                    /**< True when EAPOL temporary filter requsted, false for normal functionality */
     ws_eapol_pdu_address_check *addr_check;    /**< Address check callback */

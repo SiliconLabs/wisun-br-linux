@@ -210,7 +210,7 @@ typedef struct net_tls_psk_info {
 } net_tls_psk_info_s;
 
 /** Certificate chain structure. */
-typedef struct {
+typedef struct arm_certificate_chain_entry {
     uint8_t chain_length;           /**< Certificate chain length, indicates the chain length. */
     const uint8_t *cert_chain[4];   /**< Certificate chain pointer list. */
     uint16_t cert_len[4];           /**< Certificate length. */
@@ -218,7 +218,7 @@ typedef struct {
 } arm_certificate_chain_entry_s;
 
 /** Certificate structure. */
-typedef struct {
+typedef struct arm_certificate_entry {
     const uint8_t *cert;           /**< Certificate pointer. */
     const uint8_t *key;            /**< Key pointer. */
     uint16_t cert_len;             /**< Certificate length. */
@@ -226,15 +226,13 @@ typedef struct {
 } arm_certificate_entry_s;
 
 /** Certificate Revocation List structure. */
-typedef struct {
+typedef struct arm_cert_revocation_list_entry {
     const uint8_t *crl;            /**< Certificate Revocation List pointer. */
     uint16_t crl_len;              /**< Certificate Revocation List length. */
 } arm_cert_revocation_list_entry_s;
 
 /** Structure for the network keys used by net_network_key_get */
-typedef struct ns_keys
-
-{
+typedef struct ns_keys {
     uint8_t previous_active_network_key[16];    /**< The key that is currently active when a new key is generated and activated. */
     uint8_t previous_active_key_index;           /**< The index associated to the current_active_network_key. */
     uint8_t current_active_network_key[16];     /**< Last generated and activated key. */
@@ -242,7 +240,7 @@ typedef struct ns_keys
 } ns_keys_t;
 
 /** 6LoWPAN border router information structure. */
-typedef struct {
+typedef struct border_router_setup {
     uint16_t mac_panid;             /**< Link layer PAN-ID, accepts only < 0xfffe.  */
     uint16_t mac_short_adr;         /**< Defines 802.15.4 short address. If the value is <0xfffe it indicates that GP16 is activated. */
     uint8_t beacon_protocol_id;     /**< ZigBeeIP uses always 2. */
@@ -253,7 +251,7 @@ typedef struct {
 } border_router_setup_s;
 
 /** 6LoWPAN radio interface setup. */
-typedef struct {
+typedef struct network_driver_setup {
     uint16_t mac_panid;                 /**< Link layer PAN-ID, accepts only < 0xfffe. */
     uint16_t mac_short_adr;             /**< Defines 802.15.4 short address. If the value is <0xfffe it indicates that GP16 is activated. */
     uint8_t beacon_protocol_id;         /**< ZigBeeIP uses always 2. */
@@ -263,7 +261,7 @@ typedef struct {
 } network_driver_setup_t;
 
 /** CCA threshold table */
-typedef struct {
+typedef struct cca_threshold_table {
     uint8_t number_of_channels;         /**< Number of channels */
     const int8_t *cca_threshold_table;  /**< CCA threshold table */
 } cca_threshold_table_s;

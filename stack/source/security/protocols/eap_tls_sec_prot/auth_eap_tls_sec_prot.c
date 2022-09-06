@@ -62,7 +62,7 @@ typedef enum {
 // How many times initial EAPOL-key is accepted on wait for identity response state
 #define INITIAL_EAPOL_KEY_MAX_COUNT                 2
 
-typedef struct {
+typedef struct eap_tls_sec_prot_int {
     sec_prot_common_t             common;           /**< Common data */
     sec_prot_t                    *tls_prot;        /**< TLS security protocol */
     eapol_pdu_t                   recv_eapol_pdu;   /**< Received EAPOL PDU */

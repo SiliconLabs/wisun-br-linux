@@ -32,7 +32,7 @@
 
 #define TRACE_GROUP "DHP"
 
-typedef struct {
+typedef struct dhcp_client_class {
     dhcp_client_global_adress_cb *global_address_cb;
     uint16_t service_instance;
     uint16_t relay_instance;
