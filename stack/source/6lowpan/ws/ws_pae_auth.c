@@ -219,19 +219,29 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
         goto error;
     }
 
-    if (kmp_service_cb_register(pae_auth->kmp_service, ws_pae_auth_kmp_incoming_ind, NULL, ws_pae_auth_kmp_service_addr_get, ws_pae_auth_kmp_service_ip_addr_get, ws_pae_auth_kmp_service_api_get)) {
+    if (kmp_service_cb_register(pae_auth->kmp_service,
+                                ws_pae_auth_kmp_incoming_ind,
+                                NULL,
+                                ws_pae_auth_kmp_service_addr_get,
+                                ws_pae_auth_kmp_service_ip_addr_get,
+                                ws_pae_auth_kmp_service_api_get)) {
         goto error;
     }
 
-    if (kmp_service_event_if_register(pae_auth->kmp_service, ws_pae_auth_event_send)) {
+    if (kmp_service_event_if_register(pae_auth->kmp_service,
+                                      ws_pae_auth_event_send)) {
         goto error;
     }
 
-    if (kmp_service_timer_if_register(pae_auth->kmp_service, ws_pae_auth_timer_if_start, ws_pae_auth_timer_if_stop)) {
+    if (kmp_service_timer_if_register(pae_auth->kmp_service,
+                                      ws_pae_auth_timer_if_start,
+                                      ws_pae_auth_timer_if_stop)) {
         goto error;
     }
 
-    if (kmp_service_shared_comp_if_register(pae_auth->kmp_service, ws_pae_auth_shared_comp_add, ws_pae_auth_shared_comp_remove)) {
+    if (kmp_service_shared_comp_if_register(pae_auth->kmp_service,
+                                            ws_pae_auth_shared_comp_add,
+                                            ws_pae_auth_shared_comp_remove)) {
         goto error;
     }
 
@@ -341,7 +351,14 @@ int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get, ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read)
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
+                             ws_pae_auth_gtk_hash_set *hash_set,
+                             ws_pae_auth_nw_key_insert *nw_key_insert,
+                             ws_pae_auth_nw_key_index_set *nw_key_index_set,
+                             ws_pae_auth_nw_info_updated *nw_info_updated,
+                             ws_pae_auth_ip_addr_get *ip_addr_get,
+                             ws_pae_auth_congestion_get *congestion_get,
+                             ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read)
 {
     if (!interface_ptr) {
         return;

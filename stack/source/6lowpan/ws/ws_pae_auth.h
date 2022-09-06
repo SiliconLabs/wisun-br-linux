@@ -285,7 +285,14 @@ typedef int8_t ws_pae_auth_nw_frame_counter_read(protocol_interface_info_entry_t
  * \param nw_frame_cnt_read network frame counter read callback
  *
  */
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_auth_gtk_hash_set *hash_set, ws_pae_auth_nw_key_insert *nw_key_insert, ws_pae_auth_nw_key_index_set *nw_key_index_set, ws_pae_auth_nw_info_updated *nw_info_updated, ws_pae_auth_ip_addr_get *ip_addr_get, ws_pae_auth_congestion_get *congestion_get, ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read);
+void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
+                             ws_pae_auth_gtk_hash_set *hash_set,
+                             ws_pae_auth_nw_key_insert *nw_key_insert,
+                             ws_pae_auth_nw_key_index_set *nw_key_index_set,
+                             ws_pae_auth_nw_info_updated *nw_info_updated,
+                             ws_pae_auth_ip_addr_get *ip_addr_get,
+                             ws_pae_auth_congestion_get *congestion_get,
+                             ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read);
 
 #else
 

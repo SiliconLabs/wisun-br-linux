@@ -1731,7 +1731,17 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_cb_register(cur, &ws_bootstrap_authentication_completed, &ws_bootstrap_authentication_next_target, &ws_bootstrap_nw_key_set, &ws_bootstrap_nw_key_clear, &ws_bootstrap_nw_key_index_set, &ws_bootstrap_nw_frame_counter_set, &ws_bootstrap_nw_frame_counter_read, &ws_bootstrap_pan_version_increment, &ws_bootstrap_nw_info_updated, &ws_bootstrap_eapol_congestion_get) < 0) {
+    if (ws_pae_controller_cb_register(cur,
+                                      ws_bootstrap_authentication_completed,
+                                      ws_bootstrap_authentication_next_target,
+                                      ws_bootstrap_nw_key_set,
+                                      ws_bootstrap_nw_key_clear,
+                                      ws_bootstrap_nw_key_index_set,
+                                      ws_bootstrap_nw_frame_counter_set,
+                                      ws_bootstrap_nw_frame_counter_read,
+                                      ws_bootstrap_pan_version_increment,
+                                      ws_bootstrap_nw_info_updated,
+                                      ws_bootstrap_eapol_congestion_get) < 0) {
         ret_val =  -4;
         goto init_fail;
     }

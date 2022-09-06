@@ -651,7 +651,17 @@ typedef bool ws_pae_controller_congestion_get(protocol_interface_info_entry_t *i
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_auth_next_target *auth_next_target, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment, ws_pae_controller_nw_info_updated *nw_info_updated, ws_pae_controller_congestion_get *congestion_get);
+int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr,
+                                     ws_pae_controller_auth_completed *completed,
+                                     ws_pae_controller_auth_next_target *auth_next_target,
+                                     ws_pae_controller_nw_key_set *nw_key_set,
+                                     ws_pae_controller_nw_key_clear *nw_key_clear,
+                                     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
+                                     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
+                                     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
+                                     ws_pae_controller_pan_ver_increment *pan_ver_increment,
+                                     ws_pae_controller_nw_info_updated *nw_info_updated,
+                                     ws_pae_controller_congestion_get *congestion_get);
 
 /**
  * ws_pae_controller_ip_addr_get gets IP addressing information

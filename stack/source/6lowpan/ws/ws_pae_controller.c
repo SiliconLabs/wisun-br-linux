@@ -240,7 +240,14 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
         ws_pae_auth_node_limit_set(controller->interface_ptr, pae_controller_config.node_limit);
     }
 
-    ws_pae_auth_cb_register(interface_ptr, ws_pae_controller_gtk_hash_set, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_nw_key_index_check_and_set, ws_pae_controller_nw_info_updated_check, ws_pae_controller_auth_ip_addr_get, ws_pae_controller_auth_congestion_get, ws_pae_controller_auth_nw_frame_counter_read);
+    ws_pae_auth_cb_register(interface_ptr,
+                            ws_pae_controller_gtk_hash_set,
+                            ws_pae_controller_nw_key_check_and_insert,
+                            ws_pae_controller_nw_key_index_check_and_set,
+                            ws_pae_controller_nw_info_updated_check,
+                            ws_pae_controller_auth_ip_addr_get,
+                            ws_pae_controller_auth_congestion_get,
+                            ws_pae_controller_auth_nw_frame_counter_read);
 
     controller->auth_started = true;
 
@@ -250,7 +257,17 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
 }
 #endif
 
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_auth_completed *completed, ws_pae_controller_auth_next_target *auth_next_target, ws_pae_controller_nw_key_set *nw_key_set, ws_pae_controller_nw_key_clear *nw_key_clear, ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set, ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set, ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read, ws_pae_controller_pan_ver_increment *pan_ver_increment, ws_pae_controller_nw_info_updated *nw_info_updated, ws_pae_controller_congestion_get *congestion_get)
+int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr,
+                                     ws_pae_controller_auth_completed *completed,
+                                     ws_pae_controller_auth_next_target *auth_next_target,
+                                     ws_pae_controller_nw_key_set *nw_key_set,
+                                     ws_pae_controller_nw_key_clear *nw_key_clear,
+                                     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
+                                     ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
+                                     ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
+                                     ws_pae_controller_pan_ver_increment *pan_ver_increment,
+                                     ws_pae_controller_nw_info_updated *nw_info_updated,
+                                     ws_pae_controller_congestion_get *congestion_get)
 {
     if (!interface_ptr) {
         return -1;
@@ -959,7 +976,13 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
     controller->pae_nw_key_index_update = ws_pae_supp_nw_key_index_update;
     controller->pae_nw_info_set = ws_pae_supp_nw_info_set;
 
-    ws_pae_supp_cb_register(controller->interface_ptr, controller->auth_completed, controller->auth_next_target, ws_pae_controller_nw_key_check_and_insert, ws_pae_controller_active_nw_key_set, ws_pae_controller_gtk_hash_ptr_get, ws_pae_controller_nw_info_updated_check);
+    ws_pae_supp_cb_register(controller->interface_ptr,
+                            controller->auth_completed,
+                            controller->auth_next_target,
+                            ws_pae_controller_nw_key_check_and_insert,
+                            ws_pae_controller_active_nw_key_set,
+                            ws_pae_controller_gtk_hash_ptr_get,
+                            ws_pae_controller_nw_info_updated_check);
 
     ws_pae_controller_frame_counter_read(controller);
     ws_pae_controller_nw_info_read(controller, controller->sec_keys_nw_info.gtks);

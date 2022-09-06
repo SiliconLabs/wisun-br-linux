@@ -273,7 +273,10 @@ void kmp_api_sec_keys_set(kmp_api_t *kmp, kmp_sec_keys_t *sec_keys);
  * \param finish KMP has finished and is ready for delete
  *
  */
-void kmp_api_cb_register(kmp_api_t *kmp, kmp_api_create_confirm *create_conf, kmp_api_create_indication *create_ind, kmp_api_finished_indication *finished_ind, kmp_api_finished *finished);
+void kmp_api_cb_register(kmp_api_t *kmp, kmp_api_create_confirm *create_conf,
+                         kmp_api_create_indication *create_ind,
+                         kmp_api_finished_indication *finished_ind,
+                         kmp_api_finished *finished);
 
 /**
  * kmp_service_create creates KMP service
@@ -365,7 +368,12 @@ typedef kmp_api_t *kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, k
  * \return >= 0 success
  *
  */
-int8_t kmp_service_cb_register(kmp_service_t *service, kmp_service_incoming_ind *incoming_ind, kmp_service_tx_status_ind *tx_status_ind, kmp_service_addr_get *addr_get, kmp_service_ip_addr_get *ip_addr_get, kmp_service_api_get *api_get);
+int8_t kmp_service_cb_register(kmp_service_t *service,
+                               kmp_service_incoming_ind *incoming_ind,
+                               kmp_service_tx_status_ind *tx_status_ind,
+                               kmp_service_addr_get *addr_get,
+                               kmp_service_ip_addr_get *ip_addr_get,
+                               kmp_service_api_get *api_get);
 
 /**
  * kmp_service_msg_if_receive receive a message
@@ -416,7 +424,8 @@ typedef int8_t kmp_service_msg_if_send(kmp_service_t *service, uint8_t instance_
  * \return >= 0 success
  *
  */
-int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, kmp_service_msg_if_send *send, uint8_t header_size, uint8_t number_of_conn);
+int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id,
+                                   kmp_service_msg_if_send *send, uint8_t header_size, uint8_t number_of_conn);
 
 /**
  * kmp_service_tx_status tx status indication
@@ -462,7 +471,8 @@ typedef int8_t kmp_sec_prot_init(sec_prot_t *prot);
  * \return >= 0 success
  *
  */
-int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type, kmp_sec_prot_size *size, kmp_sec_prot_init *init);
+int8_t kmp_service_sec_protocol_register(kmp_service_t *service, kmp_type_e type,
+                                         kmp_sec_prot_size *size, kmp_sec_prot_init *init);
 
 /**
  * kmp_service_sec_protocol_unregister unregister a security protocol from KMP service
@@ -520,7 +530,9 @@ typedef int8_t kmp_service_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp)
  * \return >= 0 success
  *
  */
-int8_t kmp_service_timer_if_register(kmp_service_t *service, kmp_service_timer_if_start start, kmp_service_timer_if_stop stop);
+int8_t kmp_service_timer_if_register(kmp_service_t *service,
+                                     kmp_service_timer_if_start start,
+                                     kmp_service_timer_if_stop stop);
 
 /**
  * kmp_service_shared_comp_timer_timeout shared component timer timeout
@@ -582,7 +594,9 @@ typedef int8_t kmp_service_shared_comp_remove(kmp_service_t *service, kmp_shared
  * \return >= 0 success
  *
  */
-int8_t kmp_service_shared_comp_if_register(kmp_service_t *service, kmp_service_shared_comp_add add, kmp_service_shared_comp_remove remove);
+int8_t kmp_service_shared_comp_if_register(kmp_service_t *service,
+                                           kmp_service_shared_comp_add add,
+                                           kmp_service_shared_comp_remove remove);
 
 /**
  * kmp_service_event_if_event event callback
@@ -615,6 +629,7 @@ typedef int8_t kmp_service_event_if_event_send(kmp_service_t *service, void *dat
  * \return >= 0 success
  *
  */
-int8_t kmp_service_event_if_register(kmp_service_t *service, kmp_service_event_if_event_send send);
+int8_t kmp_service_event_if_register(kmp_service_t *service,
+                                     kmp_service_event_if_event_send send);
 
 #endif

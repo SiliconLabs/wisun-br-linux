@@ -533,7 +533,13 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     return 0;
 }
 
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_supp_auth_completed *completed, ws_pae_supp_auth_next_target *auth_next_target, ws_pae_supp_nw_key_insert *nw_key_insert, ws_pae_supp_nw_key_index_set *nw_key_index_set, ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get, ws_pae_supp_nw_info_updated *nw_info_updated)
+void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr,
+                             ws_pae_supp_auth_completed *completed,
+                             ws_pae_supp_auth_next_target *auth_next_target,
+                             ws_pae_supp_nw_key_insert *nw_key_insert,
+                             ws_pae_supp_nw_key_index_set *nw_key_index_set,
+                             ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get,
+                             ws_pae_supp_nw_info_updated *nw_info_updated)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -597,15 +603,22 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
         goto error;
     }
 
-    if (kmp_service_cb_register(pae_supp->kmp_service, ws_pae_supp_kmp_incoming_ind, ws_pae_supp_kmp_tx_status_ind, ws_pae_supp_kmp_service_addr_get, NULL, ws_pae_supp_kmp_service_api_get) < 0) {
+    if (kmp_service_cb_register(pae_supp->kmp_service,
+                                ws_pae_supp_kmp_incoming_ind,
+                                ws_pae_supp_kmp_tx_status_ind,
+                                ws_pae_supp_kmp_service_addr_get, NULL,
+                                ws_pae_supp_kmp_service_api_get) < 0) {
         goto error;
     }
 
-    if (kmp_service_event_if_register(pae_supp->kmp_service, ws_pae_supp_event_send)) {
+    if (kmp_service_event_if_register(pae_supp->kmp_service,
+                                      ws_pae_supp_event_send)) {
         goto error;
     }
 
-    if (kmp_service_timer_if_register(pae_supp->kmp_service, ws_pae_supp_timer_if_start, ws_pae_supp_timer_if_stop)) {
+    if (kmp_service_timer_if_register(pae_supp->kmp_service,
+                                      ws_pae_supp_timer_if_start,
+                                      ws_pae_supp_timer_if_stop)) {
         goto error;
     }
 
