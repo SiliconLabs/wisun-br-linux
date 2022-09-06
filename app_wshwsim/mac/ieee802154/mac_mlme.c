@@ -70,7 +70,7 @@ static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf
 static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
 static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_mac_setup, arm_device_driver_list_s *dev_driver, uint16_t mtu_size);
 
-uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list, bool clear_channel)
+uint16_t mlme_scan_analyze_next_channel(channel_list_t *mac_channel_list, bool clear_channel)
 {
     uint8_t i, j, k = 1, i_start;
     uint32_t mask;

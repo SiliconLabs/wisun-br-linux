@@ -24,7 +24,7 @@ typedef struct channel_list_s {
     channel_page_e channel_page;    /**< Channel page */
     uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
     uint16_t next_channel_number;   /**< Next channel to use in the list */
-} channel_list_s;
+} channel_list_t;
 
 #endif
 

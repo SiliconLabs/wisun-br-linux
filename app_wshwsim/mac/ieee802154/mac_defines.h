@@ -212,7 +212,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t backoff_period_in_10us; // max 2550us - it's 320us for standard 250kbps
     uint8_t mac_frame_filters;
     /* MAC channel parameters */
-    channel_list_s mac_channel_list;
+    channel_list_t mac_channel_list;
 
     uint8_t mac_channel;
     uint8_t mac_tx_start_channel;

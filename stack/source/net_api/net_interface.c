@@ -62,7 +62,7 @@
  * \return 0 on success.
  * \return -1 if channel list is empty.
  */
-static int arm_channel_list_validation(const channel_list_s *scan_list)
+static int arm_channel_list_validation(const channel_list_t *scan_list)
 {
     uint8_t i = 1;
     if (scan_list) {
@@ -573,7 +573,7 @@ int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
  * \return -4 Null pointer parameter
  * \return -5 Channel list empty
  */
-int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup)
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_t *nwk_channel_list, network_driver_setup_s *link_setup)
 {
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur = 0;
@@ -765,7 +765,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
     return ret_val;
 }
 
-int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_s *nwk_channel_list)
+int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_t *nwk_channel_list)
 {
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);

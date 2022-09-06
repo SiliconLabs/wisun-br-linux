@@ -2723,7 +2723,7 @@ void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *c
 
 static void ws_bootstrap_set_asynch_channel_list(protocol_interface_info_entry_t *cur, asynch_request_t *async_req)
 {
-    memset(&async_req->channel_list, 0, sizeof(channel_list_s));
+    memset(&async_req->channel_list, 0, sizeof(channel_list_t));
     if (cur->ws_info->cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
         //SET 1 Channel only
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
