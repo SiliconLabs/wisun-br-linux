@@ -169,7 +169,7 @@ static void mac_helper_key_lookup_set(mlme_key_id_lookup_descriptor_t *lookup, u
 }
 
 
-static void mac_helper_keytable_descriptor_set(struct mac_api_s *api, const uint8_t *key, uint8_t id, uint8_t attribute_id)
+static void mac_helper_keytable_descriptor_set(struct mac_api *api, const uint8_t *key, uint8_t id, uint8_t attribute_id)
 {
     mlme_set_t set_req;
     mlme_key_id_lookup_descriptor_t lookup_description;
@@ -552,7 +552,7 @@ void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, pro
     mac_helper_devicetable_direct_set(cur->mac_api, device_desc, attribute_index);
 }
 
-void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index)
+void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index)
 {
     if (!mac_api) {
         return;

@@ -30,7 +30,7 @@
 
 #include "wsbr_fhss_mac.h"
 
-int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api)
+int ns_sw_mac_fhss_register(struct mac_api *mac_api, struct fhss_api *fhss_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
@@ -45,14 +45,14 @@ int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api
     return 0;
 }
 
-struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
+struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
 
     return ctxt->fhss_api;
 }
 
-int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
+int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
@@ -65,7 +65,7 @@ int ns_sw_mac_fhss_unregister(struct mac_api_s *mac_api)
     return 0;
 }
 
-uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
+uint32_t ns_sw_mac_read_current_timestamp(struct mac_api *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
     struct timespec tp;
@@ -77,7 +77,7 @@ uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
     return (tp.tv_sec * 1000000 + tp.tv_nsec / 1000) - ctxt->rcp_time_diff;
 }
 
-int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api,
+int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api *mac_api,
                                               bool enable_feature)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);

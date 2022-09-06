@@ -32,7 +32,7 @@
  *
  * See IEEE standard 802.15.4-2006 (table 41) for more details
  */
-typedef struct mcps_data_req_s {
+typedef struct mcps_data_req {
     unsigned SrcAddrMode: 2;        /**< Source address mode */
     unsigned DstAddrMode: 2;        /**< Destination address mode */
     uint16_t DstPANId;              /**< Destination PAN ID */
@@ -54,7 +54,7 @@ typedef struct mcps_data_req_s {
  *
  * See IEEE standard 802.15.4-2006 (table 42) for more details
  */
-typedef struct mcps_data_conf_s {
+typedef struct mcps_data_conf {
     uint8_t msduHandle;     /**< Handle associated with MSDU */
     uint8_t status;         /**< Status of the last MSDU transmission */
     uint32_t timestamp;     /**< Time, in symbols, at which the data were transmitted */
@@ -68,7 +68,7 @@ typedef struct mcps_data_conf_s {
  * @brief struct mcps_data_conf_payload Data confirmatio IE extension list and payload from enhanced ACK
  *
  */
-typedef struct mcps_data_conf_payload_s {
+typedef struct mcps_data_conf_payload {
     uint8_t *headerIeList;              /**< Header information IE's list without terminator*/
     uint8_t *payloadIeList;             /**< Payload information IE's list without terminator*/
     uint8_t *payloadPtr;                /**< Ack payload pointer */
@@ -83,7 +83,7 @@ typedef struct mcps_data_conf_payload_s {
  *
  * See IEEE standard 802.15.4-2006 (table 43) for more details
  */
-typedef struct mcps_data_ind_s {
+typedef struct mcps_data_ind {
     unsigned SrcAddrMode: 2;    /**< 0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     uint16_t SrcPANId;          /**< Source PAN ID */
     uint8_t SrcAddr[8];         /**< Source address */
@@ -153,7 +153,7 @@ typedef struct mcps_ack_data_payload {
  *
  * See IEEE standard 802.15.4-2006 (table 44) for more details
  */
-typedef struct mcps_purge_s {
+typedef struct mcps_purge {
     uint8_t msduHandle;         /**< Handle associated with MSDU */
 } mcps_purge_t;
 
@@ -162,7 +162,7 @@ typedef struct mcps_purge_s {
  *
  * See IEEE standard 802.15.4-2006 (table 45) for more details
  */
-typedef struct mcps_purge_conf_s {
+typedef struct mcps_purge_conf {
     uint8_t msduHandle;         /**< Handle associated with MSDU */
     uint8_t status;             /**< Status of the purge performed */
 } mcps_purge_conf_t;
@@ -178,7 +178,7 @@ typedef struct mcps_purge_conf_s {
  * @brief struct mcps_edfe_response EDFE detetction and response structure
  *
  */
-typedef struct mcps_edfe_response_s {
+typedef struct mcps_edfe_response {
     struct mcps_data_ie_list ie_elements;   /**< IE hader and payload's elements from Packet */
     struct mcps_data_req_ie_list ie_response; /**< IE hader and payload's elements for Response Packet */
     uint8_t edfe_message_status; /**< Indicate Packet handler status */

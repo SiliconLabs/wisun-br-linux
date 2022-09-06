@@ -21,10 +21,10 @@
 #include <stdbool.h>
 
 struct protocol_interface_info_entry;
-struct mcps_data_conf_s;
-struct mcps_data_ind_s;
+struct mcps_data_conf;
+struct mcps_data_ind;
 struct buffer;
-struct mpx_api_s;
+struct mpx_api;
 struct mac_neighbor_table_entry;
 enum buffer_priority;
 enum addrtype;
@@ -35,7 +35,7 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_reset(int8_t interface_id);
 
-int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api_s *mpx_api, uint16_t mpx_user_id);
+int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id);
 
 int lowpan_adaptation_queue_size(int8_t interface_id);
 
@@ -46,9 +46,9 @@ struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct protocol_inte
 
 int8_t lowpan_adaptation_interface_tx(struct protocol_interface_info_entry *cur, struct buffer *buf);
 
-int8_t lowpan_adaptation_interface_tx_confirm(struct protocol_interface_info_entry *cur, const struct mcps_data_conf_s *confirm);
+int8_t lowpan_adaptation_interface_tx_confirm(struct protocol_interface_info_entry *cur, const struct mcps_data_conf *confirm);
 
-void lowpan_adaptation_interface_data_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data_ind);
+void lowpan_adaptation_interface_data_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data_ind);
 
 struct buffer *lowpan_adaptation_reassembly(struct protocol_interface_info_entry *cur, struct buffer *buf);
 

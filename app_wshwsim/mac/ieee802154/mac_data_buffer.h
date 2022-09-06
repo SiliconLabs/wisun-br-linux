@@ -24,7 +24,7 @@
  * @brief struct mac_aux_security_header MAC auxiliarity security header structure
  * INTERNAL use only
  */
-typedef struct mac_aux_security_header_s {
+typedef struct mac_aux_security_header {
     uint32_t frameCounter;
     uint8_t Keysource[8];
     uint8_t KeyIndex;
@@ -32,7 +32,7 @@ typedef struct mac_aux_security_header_s {
     unsigned KeyIdMode: 2;
 } mac_aux_security_header_t;
 
-typedef struct mac_fcf_sequence_s {
+typedef struct mac_fcf_sequence {
     unsigned frametype: 3;
     bool securityEnabled: 1;
     bool framePending : 1;
@@ -48,7 +48,7 @@ typedef struct mac_fcf_sequence_s {
     uint8_t DSN;
 } mac_fcf_sequence_t;
 
-typedef struct mac_pre_parsed_frame_s {
+typedef struct mac_pre_parsed_frame {
     void *mac_class_ptr;
     uint8_t *payloadsIePtr;
     uint8_t *headerIePtr;
@@ -84,7 +84,7 @@ typedef struct mac_pre_build_frame {
     uint8_t msduHandle;
     uint16_t buffer_ttl;
     struct mcps_data_req_ie_list ie_elements;
-    struct channel_list_s asynch_channel_list;
+    struct channel_list asynch_channel_list;
     uint8_t *mac_payload;
     uint8_t status;
     uint8_t asynch_channel;

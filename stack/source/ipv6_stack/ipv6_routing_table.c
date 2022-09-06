@@ -68,14 +68,14 @@
 #define DCACHE_MAX_ABSOLUTE     64 /* Never have more than this */
 #define DCACHE_GC_AGE           (30 * DCACHE_GC_PERIOD)    /* 10 minutes */
 
-typedef struct destination_cache_configuration_s {
+typedef struct destination_cache_configuration {
     uint16_t max_entries;  // Never have more than this
     uint16_t short_term_entries; // Expire stale entries if more than this
     uint16_t long_term_entries; // Target for basic GC - expire old entries if more than this
     uint16_t entry_lifetime;  // 20s units - decremented once per periodic GC
 } destination_cache_config_t;
 
-typedef struct neighbour_cache_configuration_s {
+typedef struct neighbour_cache_configuration {
     uint16_t max_entries; // Never have more than this
     uint16_t short_term_entries; // Expire stale entries if more than this
     uint16_t long_term_entries; // Target for basic GC - expire old entries if more than this

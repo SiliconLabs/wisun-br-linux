@@ -129,7 +129,7 @@ static void wsmac_spinel_set_cca_threshold_start(struct wsmac_ctxt *ctxt, mlme_a
 
 static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct spinel_buffer *buf)
 {
-    struct phy_rf_channel_configuration_s data;
+    struct phy_rf_channel_configuration data;
     int ret;
     mlme_set_t req = {
         .attr = attr,
@@ -155,7 +155,7 @@ static void wsmac_spinel_set_rf_configuration(struct wsmac_ctxt *ctxt, mlme_attr
 
 static void wsmac_spinel_set_device_table(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct spinel_buffer *buf)
 {
-    struct mlme_device_descriptor_s data;
+    struct mlme_device_descriptor data;
     mlme_set_t req = {
         .attr = attr,
         .value_pointer = &data,
@@ -440,9 +440,9 @@ static void wsmac_spinel_ws_reset(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
 
 static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct spinel_buffer *buf)
 {
-    struct mcps_data_req_s data;
+    struct mcps_data_req data;
     struct mcps_data_req_ie_list ie_ext = { };
-    struct channel_list_s async_channel_list;
+    struct channel_list async_channel_list;
     struct msdu_malloc_info *malloc_info;
     uint16_t prio;
     uint8_t *ptr;
@@ -510,7 +510,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
 
 static void wsmac_spinel_ws_mcps_drop(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct spinel_buffer *buf)
 {
-    struct mcps_purge_s data = { 0 };
+    struct mcps_purge data = { 0 };
 
     (void)attr;
     data.msduHandle = spinel_pop_u8(buf);

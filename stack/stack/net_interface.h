@@ -18,9 +18,9 @@
 #define NET_INTERFACE_H_
 #include <stdint.h>
 
-struct mac_api_s;
-struct eth_mac_api_s;
-struct channel_list_s;
+struct mac_api;
+struct eth_mac_api;
+struct channel_list;
 
 /**
  * \file net_interface.h
@@ -174,7 +174,7 @@ typedef enum {
 /** Network coordinator parameter list.
  * Structure is used to read network parameter for warm start.
  */
-typedef struct link_layer_setups_s {
+typedef struct link_layer_setups {
     uint16_t PANId;            /**< Network PAN-ID. */
     uint8_t LogicalChannel;    /**< Network logical channel. */
     net_mac_address_e addr_mode;   /**< Coordinator address mode. */
@@ -183,7 +183,7 @@ typedef struct link_layer_setups_s {
 } link_layer_setups_s;
 
 /** Network MAC address info. */
-typedef struct link_layer_address_s {
+typedef struct link_layer_address {
     uint16_t PANId;            /**< Network PAN-ID. */
     uint16_t mac_short;        /**< MAC short address, if <0xfffe then is valid. */
     uint8_t mac_long[8];       /**< MAC long address (EUI-48 for Ethernet; EUI-64 for IEEE 802.15.4). */
@@ -191,7 +191,7 @@ typedef struct link_layer_address_s {
 } link_layer_address_s;
 
 /** Network layer parent address info. */
-typedef struct network_layer_address_s {
+typedef struct network_layer_address {
     uint8_t border_router[16]; /**< ND Border Router Address. */
     uint8_t prefix[8];        /**< Long 64-bit network ID. */
 } network_layer_address_s;
@@ -204,7 +204,7 @@ typedef enum {
 } net_6lowpan_gp_address_mode_e;
 
 /** TLS PSK info */
-typedef struct net_tls_psk_info_s {
+typedef struct net_tls_psk_info {
     uint32_t key_id;    /**< PSK Key ID can be 0x01-0xffff, storage size is intentionally 32 bits. */
     uint8_t key[16];    /**< 128-bit PSK Key. */
 } net_tls_psk_info_s;
@@ -287,7 +287,7 @@ int8_t net_init_core(void);
  * \return -2 Ethernet is not supported at this build.
  * \return -3 No memory for the interface.
  */
-int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
+int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api *api, const char *interface_name_ptr);
 
 /**
  * \brief Create network interface base to IDLE state.
@@ -300,7 +300,7 @@ int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api_s *api, const char *in
  * \return -1 api was NULL.
  * \return -3 No memory for the interface.
  */
-int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interface_name_ptr);
+int8_t arm_nwk_interface_lowpan_init(struct mac_api *api, char *interface_name_ptr);
 
 /**
  * \brief Create network interface base to IDLE state.
@@ -314,7 +314,7 @@ int8_t arm_nwk_interface_lowpan_init(struct mac_api_s *api, char *interface_name
  * \return -2 PPP is not supported at this build.
  * \return -3 No memory for the interface.
  */
-int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr);
+int8_t arm_nwk_interface_ppp_init(struct eth_mac_api *api, const char *interface_name_ptr);
 
 /**
  * \brief Set IPv6 interface setup.
@@ -377,7 +377,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */
-int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list_s *nwk_channel_list, network_driver_setup_t *link_setup);
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list *nwk_channel_list, network_driver_setup_t *link_setup);
 
 /**
  * \brief Set configured network interface global address mode (border router bootstrap mode cannot set this).
@@ -414,7 +414,7 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
  * \return -2 Empty channel list, no channels enabled.
  * \return -4 If network interface is already active and cannot be re-configured.
  */
-int8_t arm_nwk_set_channel_list(int8_t interface_id, const struct channel_list_s *nwk_channel_list);
+int8_t arm_nwk_set_channel_list(int8_t interface_id, const struct channel_list *nwk_channel_list);
 
 /**
   * \brief Get current used channel.

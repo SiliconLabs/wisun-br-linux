@@ -56,7 +56,7 @@ red_info_t *random_early_detection_create(uint16_t threshold_min, uint16_t thres
 }
 
 
-void random_early_detection_free(struct red_info_s *red_info)
+void random_early_detection_free(struct red_info *red_info)
 {
     free(red_info);
 }

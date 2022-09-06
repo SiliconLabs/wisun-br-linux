@@ -27,8 +27,8 @@
 #include <stdbool.h>
 
 struct protocol_interface_rf_mac_setup;
-struct arm_phy_sap_msg_s;
-struct mac_fcf_sequence_s;
+struct arm_phy_sap_msg;
+struct mac_fcf_sequence;
 
 #define ENHANCED_ACK_NEIGHBOUR_POLL_MAX_TIME_US 3500
 
@@ -49,7 +49,7 @@ void mac_pd_sap_set_phy_tx_time(struct protocol_interface_rf_mac_setup *rf_mac_s
 
 void mac_pd_sap_rf_low_level_function_set(void *mac_ptr, void *driver);
 
-int8_t mac_pd_sap_data_cb(void *identifier, struct arm_phy_sap_msg_s *message);
+int8_t mac_pd_sap_data_cb(void *identifier, struct arm_phy_sap_msg *message);
 
 void mac_csma_param_init(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
@@ -64,6 +64,6 @@ void mac_pd_sap_state_machine(struct protocol_interface_rf_mac_setup *rf_mac_set
 
 int8_t mac_data_edfe_force_stop(struct protocol_interface_rf_mac_setup *rf_ptr);
 
-bool mac_pd_sap_ack_validation(struct protocol_interface_rf_mac_setup *rf_ptr, const struct mac_fcf_sequence_s *fcf_dsn, const uint8_t *data_ptr);
+bool mac_pd_sap_ack_validation(struct protocol_interface_rf_mac_setup *rf_ptr, const struct mac_fcf_sequence *fcf_dsn, const uint8_t *data_ptr);
 
 #endif

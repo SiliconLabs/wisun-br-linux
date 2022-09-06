@@ -69,8 +69,8 @@ typedef struct {
     ns_list_link_t link;                                   /**< Link */
 } eapol_pdu_data_t;
 
-static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf_s *data);
-static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind_s *data);
+static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data);
+static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data);
 static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur);
 static eapol_pdu_data_t *ws_eapol_pdu_data_get(protocol_interface_info_entry_t *interface_ptr);
 
@@ -241,7 +241,7 @@ static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, pro
     dataReq->DstPANId = mac_helper_panid_get(cur);
 }
 
-int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api_s *mpx_api, uint16_t mpx_user_id)
+int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
 {
     if (!interface_ptr) {
         return -1;
@@ -267,7 +267,7 @@ int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr,
     return 0;
 }
 
-static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf_s *data)
+static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data)
 {
     eapol_pdu_data_t *eapol_pdu_data = NULL;
 
@@ -304,7 +304,7 @@ static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcp
     }
 }
 
-static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind_s *data)
+static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data)
 {
     if (!data || !data->msduLength || !data->msdu_ptr) {
         return;

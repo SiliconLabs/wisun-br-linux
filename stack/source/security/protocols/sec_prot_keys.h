@@ -78,7 +78,7 @@ typedef struct {
     bool                   set: 1;                    /**< Group Transient Key set (valid value) */
 } gtk_key_t;
 
-typedef struct sec_prot_gtk_keys_s {
+typedef struct sec_prot_gtk_keys {
     gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
     bool                   updated: 1;                /**< Group Transient Keys has been updated */
 } sec_prot_gtk_keys_t;

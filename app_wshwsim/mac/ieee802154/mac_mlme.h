@@ -27,29 +27,29 @@
 #include <stdbool.h>
 
 struct protocol_interface_rf_mac_setup;
-struct arm_event_s;
+struct arm_event;
 struct arm_device_driver_list;
-struct mlme_poll_s;
-struct mlme_reset_s;
-struct mlme_start_s;
-struct mlme_get_conf_s;
-struct mlme_set_s;
-struct channel_list_s;
+struct mlme_poll;
+struct mlme_reset;
+struct mlme_start;
+struct mlme_get_conf;
+struct mlme_set;
+struct channel_list;
 
 /**
  * MLME Start Request
  *
  */
-int8_t mac_mlme_start_req(const struct mlme_start_s *s, struct protocol_interface_rf_mac_setup *rf_mac_setup);
+int8_t mac_mlme_start_req(const struct mlme_start *s, struct protocol_interface_rf_mac_setup *rf_mac_setup);
 /**
  * MLME Reset Request
  *
  */
-int8_t mac_mlme_reset(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_reset_s *reset);
+int8_t mac_mlme_reset(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_reset *reset);
 
-int8_t mac_mlme_set_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_set_s *set_req);
+int8_t mac_mlme_set_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mlme_set *set_req);
 
-int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mlme_get_conf_s *get_req);
+int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mlme_get_conf *get_req);
 
 void mac_extended_mac_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, const uint8_t *mac64);
 
@@ -57,7 +57,7 @@ void mac_extended_mac_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, 
  * MLME Poll Request
  *
  */
-void mac_mlme_poll_req(struct protocol_interface_rf_mac_setup *cur, const struct mlme_poll_s *poll_req);
+void mac_mlme_poll_req(struct protocol_interface_rf_mac_setup *cur, const struct mlme_poll *poll_req);
 
 void mac_mlme_poll_process_confirm(struct protocol_interface_rf_mac_setup *rf_mac_setup, uint8_t status);
 
@@ -84,7 +84,7 @@ void mac_mlme_event_cb(void *mac_ptr);
 
 void mac_mlme_set_active_state(struct protocol_interface_rf_mac_setup *entry, bool new_state);
 
-struct protocol_interface_rf_mac_setup *mac_mlme_data_base_allocate(uint8_t *mac64, struct arm_device_driver_list *dev_driver, struct mac_description_storage_size_s *storage_sizes, uint16_t mtu_size);
+struct protocol_interface_rf_mac_setup *mac_mlme_data_base_allocate(uint8_t *mac64, struct arm_device_driver_list *dev_driver, struct mac_description_storage_size *storage_sizes, uint16_t mtu_size);
 void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_mac);
 
 uint8_t mac_mlme_set_new_sqn(struct protocol_interface_rf_mac_setup *rf_setup);
@@ -93,6 +93,6 @@ uint16_t mac_mlme_get_panid(struct protocol_interface_rf_mac_setup *rf_setup);
 
 void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, struct protocol_interface_rf_mac_setup *rf_ptr, uint8_t *addressPtr);
 
-uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
+uint16_t mlme_scan_analyze_next_channel(struct channel_list *mac_channel_list, bool clear_channel);
 
 #endif

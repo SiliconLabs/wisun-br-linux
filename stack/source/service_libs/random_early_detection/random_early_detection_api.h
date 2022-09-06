@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct red_info_s;
+struct red_info;
 
 #define RED_AVERAGE_WEIGHT_DISABLED 256     /*< Average is disabled */
 #define RED_AVERAGE_WEIGHT_HALF     128     /*< Average weight for new sample is 0.5*new + 0.5 to last one */
@@ -74,7 +74,7 @@ struct red_info_s;
  * \param weight accepted values 256-1, 256 is 1.0 weight which mean that new queue size overwrite old. 128 is 0.5 which gives 0.5 from old + 0.5 from new.
  * \return Pointer for allocated structure, NULL if memory allocation fail
  */
-struct red_info_s *random_early_detection_create(uint16_t threshold_min, uint16_t threshold_max, uint8_t drop_maX_P, uint16_t weight);
+struct red_info *random_early_detection_create(uint16_t threshold_min, uint16_t threshold_max, uint8_t drop_maX_P, uint16_t weight);
 
 
 /**
@@ -83,7 +83,7 @@ struct red_info_s *random_early_detection_create(uint16_t threshold_min, uint16_
  *
  * \param red_info pointer to data
  */
-void random_early_detection_free(struct red_info_s *red_info);
+void random_early_detection_free(struct red_info *red_info);
 
 
 /**
@@ -94,7 +94,7 @@ void random_early_detection_free(struct red_info_s *red_info);
  * \return true Drop packet
  * \return false Packet can be added to queue
  */
-bool random_early_detection_congestion_check(struct red_info_s *red_info);
+bool random_early_detection_congestion_check(struct red_info *red_info);
 
 /**
  * \brief Random early detection Average queue calculate
@@ -106,7 +106,7 @@ bool random_early_detection_congestion_check(struct red_info_s *red_info);
  *
  * \return New average
  */
-uint16_t random_early_detection_aq_calc(struct red_info_s *red_info, uint16_t sampleLen);
+uint16_t random_early_detection_aq_calc(struct red_info *red_info, uint16_t sampleLen);
 
 /**
  * \brief Read Random early detection Average queue size
@@ -117,6 +117,6 @@ uint16_t random_early_detection_aq_calc(struct red_info_s *red_info, uint16_t sa
  *
  * \return Current average
  */
-uint16_t random_early_detection_aq_read(struct red_info_s *red_info);
+uint16_t random_early_detection_aq_read(struct red_info *red_info);
 
 #endif

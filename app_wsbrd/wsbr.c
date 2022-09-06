@@ -264,7 +264,7 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
         tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->config.tun_dev);
 }
 
-static void wsbr_tasklet(struct arm_event_s *event)
+static void wsbr_tasklet(struct arm_event *event)
 {
     const char *const nwk_events[] = {
         "ARM_NWK_BOOTSTRAP_READY",

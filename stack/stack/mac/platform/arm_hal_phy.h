@@ -127,7 +127,7 @@ typedef enum phy_signal_info_type_e {
 } phy_signal_info_type_e;
 
 /** Signal level info */
-typedef struct phy_signal_info_s {
+typedef struct phy_signal_info {
     phy_signal_info_type_e type;    /**< Signal info type desired. */
     uint8_t lqi;                    /**< Quality passed to arm_net_phy_rx. */
     int8_t dbm;                     /**< Strength passed to arm_net_phy_rx. */
@@ -165,7 +165,7 @@ typedef enum {
 } phy_802_15_4_mode_e;
 
 /** Channel configuration */
-typedef struct phy_rf_channel_configuration_s {
+typedef struct phy_rf_channel_configuration {
     uint32_t channel_0_center_frequency;        ///< Center frequency
     uint32_t channel_spacing;                   ///< Channel spacing
     uint32_t datarate;                          ///< Data rate
@@ -178,13 +178,13 @@ typedef struct phy_rf_channel_configuration_s {
 } phy_rf_channel_configuration_t;
 
 /** Channel page configuration */
-typedef struct phy_device_channel_page_s {
+typedef struct phy_device_channel_page {
     channel_page_e channel_page;            ///< Channel page
     const phy_rf_channel_configuration_t *rf_channel_configuration; ///< Pointer to channel configuration
 } phy_device_channel_page_s;
 
 /** PHY statistics */
-typedef struct phy_rf_statistics_s {
+typedef struct phy_rf_statistics {
     uint32_t crc_fails;        ///< CRC failures
     uint32_t tx_timeouts;      ///< transmission timeouts
     uint32_t rx_timeouts;      ///< reception timeouts
@@ -195,7 +195,7 @@ typedef struct phy_rf_statistics_s {
 } phy_rf_statistics_t;
 
 /** Virtual data request */
-typedef struct virtual_data_req_s {
+typedef struct virtual_data_req {
     uint16_t parameter_length;      /**< Length of user specified header. Can be zero. */
     uint8_t *parameters;            /**< Pointer to user specified header. Optional */
     uint16_t msduLength;            /**< MSDU Length */
@@ -269,7 +269,7 @@ typedef int8_t arm_net_virtual_config_tx_fn(int8_t driver_id, const uint8_t *dat
 typedef int8_t arm_net_virtual_confirmation_rx_fn(int8_t driver_id, const uint8_t *data, uint16_t length);
 
 /** Device driver structure */
-typedef struct phy_device_driver_s {
+typedef struct phy_device_driver {
     phy_link_type_e link_type;                                      /**< Define driver types. */
     driver_data_request_e data_request_layer;                       /**< Define interface data OUT protocol. */
     uint8_t *PHY_MAC;                                               /**< Pointer to 64-bit or 48-bit MAC address. */

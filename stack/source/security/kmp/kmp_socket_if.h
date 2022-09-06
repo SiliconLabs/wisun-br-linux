@@ -22,7 +22,7 @@
 #include <sys/socket.h>
 #include <stdbool.h>
 
-typedef struct kmp_service_s kmp_service_t;
+typedef struct kmp_service kmp_service_t;
 
 /*
  * Authenticator KMP socket interface to/from EAPOL authenticator relay. EAPOL

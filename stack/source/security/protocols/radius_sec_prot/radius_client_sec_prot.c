@@ -82,7 +82,7 @@ typedef enum {
 
 #define RADIUS_ID_TIMEOUT             60
 
-typedef struct radius_client_sec_prot_lib_int_s radius_client_sec_prot_lib_int_t;
+typedef struct radius_client_sec_prot_lib_int radius_client_sec_prot_lib_int_t;
 
 typedef struct {
     sec_prot_common_t             common;                       /**< Common data */

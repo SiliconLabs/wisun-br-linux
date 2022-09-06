@@ -101,7 +101,7 @@ typedef struct dhcp_vendor_specific_option {
     uint8_t *data;
 } dhcp_vendor_specific_option_t;
 
-typedef struct dhcp_option_notify_s {
+typedef struct dhcp_option_notify {
     uint8_t option_type;
     union {
         dhcp_gen_option_t generic;

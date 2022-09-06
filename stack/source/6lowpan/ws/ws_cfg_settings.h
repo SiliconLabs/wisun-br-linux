@@ -22,7 +22,7 @@
 /**
  * \brief Struct ws_gen_cfg_t General configuration
  */
-typedef struct ws_gen_cfg_s {
+typedef struct ws_gen_cfg {
     /* Changing the network size resets the configuration settings depending on it to
        default values */
     uint8_t network_size;               /**< Network size selection; default medium (= 8) */
@@ -34,7 +34,7 @@ typedef struct ws_gen_cfg_s {
 /**
  * \brief Struct ws_phy_cfg_t Physical layer configuration
  */
-typedef struct ws_phy_cfg_s {
+typedef struct ws_phy_cfg {
     uint8_t regulatory_domain;          /**< PHY regulatory domain; default "KR" 0x09 */
     uint8_t operating_class;            /**< PHY operating class; default 1 */
     uint8_t operating_mode;             /**< PHY operating mode; default "1b" symbol rate 50, modulation index 1 */
@@ -45,7 +45,7 @@ typedef struct ws_phy_cfg_s {
 /**
  * \brief Struct ws_timing_cfg_t Timing configuration
  */
-typedef struct ws_timing_cfg_s {
+typedef struct ws_timing_cfg {
     uint16_t disc_trickle_imin;         /**< Discovery trickle Imin; DISC_IMIN; seconds; range 1-255; default 30 */
     uint16_t disc_trickle_imax;         /**< Discovery trickle Imax; DISC_IMAX; seconds; range (2-2^8)*Imin‬; default 960 */
     uint8_t disc_trickle_k;             /**< Discovery trickle k; DISC_K; default 1 */
@@ -57,7 +57,7 @@ typedef struct ws_timing_cfg_s {
 /**
  * \brief Struct ws_rpl_cfg_t RPL configuration
  */
-typedef struct ws_bbr_cfg_s {
+typedef struct ws_bbr_cfg {
     uint8_t dio_interval_min;           /**< DIO interval min; DEFAULT_DIO_INTERVAL_MIN; 2^value in milliseconds; range 1-255; default */
     uint8_t dio_interval_doublings;     /**< DIO interval doublings; DEFAULT_DIO_INTERVAL_DOUBLINGS; range 1-8; default */
     uint8_t dio_redundancy_constant;    /**< DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
@@ -70,7 +70,7 @@ typedef struct ws_bbr_cfg_s {
 /**
  * \brief Struct ws_fhss_cfg_t Frequency hopping configuration
  */
-typedef struct ws_fhss_cfg_s {
+typedef struct ws_fhss_cfg {
     uint8_t fhss_uc_dwell_interval;     /**< FHSS unicast dwell interval; range 15-250 milliseconds; default 255 */
     uint8_t fhss_bc_dwell_interval;     /**< FHSS broadcast dwell interval; range 15-250 milliseconds; default 255 */
     uint32_t fhss_bc_interval;          /**< FHSS broadcast interval; duration between broadcast dwell intervals. range: 0-16777216 milliseconds; default 1020 */
@@ -84,7 +84,7 @@ typedef struct ws_fhss_cfg_s {
 /**
  * \brief Struct ws_mpl_cfg_t Multicast configuration
  */
-typedef struct ws_mpl_cfg_s {
+typedef struct ws_mpl_cfg {
     uint16_t mpl_trickle_imin;          /**< MPL trickle parameters Imin; DATA_MESSAGE_IMIN; seconds; range 1-255; default 10 */
     uint16_t mpl_trickle_imax;          /**< MPL trickle parameters Imax; DATA_MESSAGE_IMAX; seconds; range (2-2^8)*Imin‬;  default 10 */
     uint8_t mpl_trickle_k;              /**< MPL trickle parameters k; default 8 */
@@ -95,7 +95,7 @@ typedef struct ws_mpl_cfg_s {
 /**
  * \brief Struct ws_sec_timer_cfg_t Security timers configuration
  */
-typedef struct ws_sec_timer_cfg_s {
+typedef struct ws_sec_timer_cfg {
     uint32_t gtk_expire_offset;         /**< GTK lifetime; GTK_EXPIRE_OFFSET; minutes; default 43200 */
     uint32_t pmk_lifetime;              /**< PMK lifetime; minutes; default 172800 */
     uint32_t ptk_lifetime;              /**< PTK lifetime; minutes; default 86400 */
@@ -110,7 +110,7 @@ typedef struct ws_sec_timer_cfg_s {
 /**
  * \brief Struct ws_sec_prot_cfg_t Security protocols configuration
  */
-typedef struct ws_sec_prot_cfg_s {
+typedef struct ws_sec_prot_cfg {
     uint16_t sec_prot_retry_timeout;          /**< Security protocol retry timeout; seconds; default 330 */
     uint16_t sec_prot_trickle_imin;           /**< Security protocol trickle parameters Imin; seconds; default 30 */
     uint16_t sec_prot_trickle_imax;           /**< Security protocol trickle parameters Imax; seconds; default 90 */
@@ -126,7 +126,7 @@ typedef struct ws_sec_prot_cfg_s {
 /**
  * \brief Struct ws_nw_size_cfg_t Network size configuration
  */
-typedef struct ws_cfg_s {
+typedef struct ws_cfg {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_phy_cfg_t phy;                   /**< Physical layer configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
@@ -164,7 +164,7 @@ int8_t ws_cfg_settings_init(void);
 int8_t ws_cfg_settings_default_set(void);
 int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur);
 int8_t ws_cfg_settings_get(ws_cfg_t *cfg);
-int8_t ws_cfg_settings_validate(struct ws_cfg_s *new_cfg);
+int8_t ws_cfg_settings_validate(struct ws_cfg *new_cfg);
 int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_cfg);
 
 cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur);

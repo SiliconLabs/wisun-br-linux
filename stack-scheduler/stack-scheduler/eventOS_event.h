@@ -169,10 +169,10 @@ typedef enum arm_library_event_priority {
 } arm_library_event_priority_e;
 
 /**
- * \struct arm_event_s
+ * \struct arm_event
  * \brief Event structure.
  */
-typedef struct arm_event_s {
+typedef struct arm_event {
     int8_t receiver; /**< Event handler Tasklet ID */
     int8_t sender; /**< Event sender Tasklet ID */
     uint8_t event_type; /**< This will be typecast arm_library_event_type_e, arm_internal_event_type_e or application specific define */

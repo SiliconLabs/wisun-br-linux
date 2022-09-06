@@ -36,7 +36,7 @@
 
 //TODO: create linked list of created MACs
 
-typedef struct mac_internal_s {
+typedef struct mac_internal {
     mac_api_t *mac_api;
     arm_device_driver_list_s *dev_driver;
     //Move define inside MAC (now in protocol_abstract.h)
@@ -137,7 +137,7 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     return this;
 }
 
-int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api_s *mac_api_s, bool enable_feature)
+int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api *mac_api_s, bool enable_feature)
 {
     if (!mac_api_s || mac_api_s != mac_store.mac_api) {
         return -1;
@@ -190,7 +190,7 @@ int ns_sw_mac_fhss_unregister(mac_api_t *mac_api)
     return 0;
 }
 
-struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
+struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api *mac_api)
 {
     if (!mac_api) {
         return NULL;
@@ -202,7 +202,7 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
     return mac_setup->fhss_api;
 }
 
-int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics)
+int ns_sw_mac_statistics_start(struct mac_api *mac_api, struct mac_statistics *mac_statistics)
 {
     if (!mac_api || !mac_statistics) {
         return -1;
@@ -613,7 +613,7 @@ void sw_mac_stats_update(protocol_interface_rf_mac_setup_s *setup, mac_stats_typ
     }
 }
 
-int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, phy_rf_statistics_t *phy_statistics)
+int ns_sw_mac_phy_statistics_start(struct mac_api *mac_api, phy_rf_statistics_t *phy_statistics)
 {
     if (!mac_api || !phy_statistics) {
         return -1;
@@ -626,7 +626,7 @@ int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, phy_rf_statistics_
     return 0;
 }
 
-uint32_t ns_sw_mac_read_current_timestamp(struct mac_api_s *mac_api)
+uint32_t ns_sw_mac_read_current_timestamp(struct mac_api *mac_api)
 {
     if (!mac_api) {
         return 0;

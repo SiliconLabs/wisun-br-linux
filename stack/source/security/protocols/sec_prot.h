@@ -28,8 +28,8 @@
  * security keys and network address services.
  *
  */
-typedef struct sec_cfg_s sec_cfg_t;
-typedef struct sec_prot_s sec_prot_t;
+typedef struct sec_cfg sec_cfg_t;
+typedef struct sec_prot sec_prot_t;
 typedef struct sec_prot_keys sec_prot_keys_t;
 
 typedef enum {
@@ -359,10 +359,10 @@ typedef void sec_prot_receive_disable(sec_prot_t *prot);
  */
 typedef int8_t sec_prot_receive_check(sec_prot_t *prot, const void *pdu, uint16_t size);
 
-typedef struct sec_prot_int_data_s sec_prot_int_data_t;
+typedef struct sec_prot_int_data sec_prot_int_data_t;
 
 // Security protocol data
-struct sec_prot_s {
+struct sec_prot {
     sec_prot_create_request       *create_req;           /**< Create request */
     sec_prot_create_response      *create_resp;          /**< Create response */
 

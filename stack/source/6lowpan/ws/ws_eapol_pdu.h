@@ -57,7 +57,7 @@ int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr);
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api_s *mpx_api, uint16_t mpx_user_id);
+int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id);
 
 /**
  *  ws_eapol_pdu_delete delete EAPOL PDU module

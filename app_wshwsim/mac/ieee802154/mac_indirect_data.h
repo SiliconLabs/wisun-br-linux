@@ -27,12 +27,12 @@
 
 struct protocol_interface_rf_mac_setup;
 struct mac_pre_build_frame;
-struct mac_pre_parsed_frame_s;
+struct mac_pre_parsed_frame;
 
 #define MAC_INDIRECT_TICK_IN_MS 100
 
 void mac_indirect_data_ttl_handle(struct protocol_interface_rf_mac_setup *cur, uint16_t tick_value);
-uint8_t mac_indirect_data_req_handle(struct mac_pre_parsed_frame_s *buf, struct protocol_interface_rf_mac_setup *mac_ptr);
+uint8_t mac_indirect_data_req_handle(struct mac_pre_parsed_frame *buf, struct protocol_interface_rf_mac_setup *mac_ptr);
 void mac_indirect_queue_write(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mac_pre_build_frame *buffer);
 
 #endif

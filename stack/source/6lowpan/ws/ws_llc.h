@@ -26,22 +26,22 @@
 #include "6lowpan/ws/ws_neighbor_class.h"
 
 struct protocol_interface_info_entry;
-struct mcps_data_ind_s;
+struct mcps_data_ind;
 struct mcps_data_ie_list;
-struct channel_list_s;
-struct ws_pan_information_s;
-struct mlme_security_s;
-struct ws_hopping_schedule_s;
+struct channel_list;
+struct ws_pan_information;
+struct mlme_security;
+struct ws_hopping_schedule;
 struct ws_neighbor_class_entry;
 struct mac_neighbor_table_entry;
-struct ws_neighbor_temp_class_s;
-struct mpx_api_s;
+struct ws_neighbor_temp_class;
+struct mpx_api;
 
 
 /**
  * @brief wh_ie_sub_list_t ws asynch header IE elemnt request list
  */
-typedef struct wh_ie_sub_list_s {
+typedef struct wh_ie_sub_list {
     bool utt_ie: 1;  /**< Unicast Timing and Frame type information */
     bool bt_ie: 1;   /**< Broadcast timing information */
     bool fc_ie: 1;   /**< Flow Control for Extended Direct Frame Exchange */
@@ -63,7 +63,7 @@ typedef struct wh_ie_sub_list_s {
 /**
  * @brief wp_nested_ie_sub_list_t ws asynch Nested Payload sub IE element request list
  */
-typedef struct wp_nested_ie_sub_list_s {
+typedef struct wp_nested_ie_sub_list {
     bool us_ie: 1;                  /**< Unicast Schedule information */
     bool bs_ie: 1;                  /**< Broadcast Schedule information */
     bool vp_ie: 1;                  /**< Vendor Payload information */
@@ -81,12 +81,12 @@ typedef struct wp_nested_ie_sub_list_s {
 /**
  * @brief asynch_request_t Asynch message request parameters
  */
-typedef struct asynch_request_s {
+typedef struct asynch_request {
     unsigned  message_type: 4;                              /**< Asynch message type: WS_FT_PAN_ADVERT, WS_FT_PAN_ADVERT_SOL, WS_FT_PAN_CONF or WS_FT_PAN_CONF_SOL. */
     wh_ie_sub_list_t wh_requested_ie_list;                  /**< WH-IE header list to message. */
     wp_nested_ie_sub_list_t wp_requested_nested_ie_list;    /**< WP-IE Nested IE list to message. */
-    struct mlme_security_s security;                               /**< Request MAC security paramaters */
-    struct channel_list_s channel_list;                     /**< Channel List. */
+    struct mlme_security security;                               /**< Request MAC security paramaters */
+    struct channel_list channel_list;                     /**< Channel List. */
 } asynch_request_t;
 
 
@@ -98,7 +98,7 @@ typedef struct llc_neighbour_req {
     struct ws_neighbor_class_entry *ws_neighbor;                /**< Wi-sun Neighbor information entry. */
 } llc_neighbour_req_t;
 
-typedef struct eapol_temporary_info_s {
+typedef struct eapol_temporary_info {
     uint8_t eapol_rx_relay_filter; /*!< seconds for dropping duplicate id */
     uint8_t last_rx_mac_sequency; /*!< Only compared when Timer is active */
     uint16_t eapol_timeout; /*!< EAPOL relay Temporary entry lifetime */
@@ -107,7 +107,7 @@ typedef struct eapol_temporary_info_s {
 /**
  * Neighbor temporary structure for storage FHSS data before create a real Neighbour info
  */
-typedef struct ws_neighbor_temp_class_s {
+typedef struct ws_neighbor_temp_class {
     struct ws_neighbor_class_entry neigh_info_list;  /*!< Allocated hopping info array*/
     eapol_temporary_info_t eapol_temp_info;
     uint8_t mac64[8];
@@ -124,7 +124,7 @@ typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
  * @param data MCPS-DATA.indication specific values
  * @param ie_ext Information element list
  */
-typedef void ws_asynch_ind(struct protocol_interface_info_entry *interface, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
+typedef void ws_asynch_ind(struct protocol_interface_info_entry *interface, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 
 /**
  * @brief ws_asynch_confirm ws asynch data confirmation to asynch message request
@@ -178,7 +178,7 @@ int8_t ws_llc_delete(struct protocol_interface_info_entry *interface);
  * @return Pointer to MPX API
  *
  */
-struct mpx_api_s *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface);
+struct mpx_api *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface);
 
 /**
  * @brief ws_llc_asynch_request ws asynch message request to all giving channels
@@ -234,7 +234,7 @@ void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, uint8_
  * @param pan_information_pointer pointer to Pan information this pointer must keep alive when it is configured to LLC
  *
  */
-void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information_s *pan_information_pointer);
+void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information *pan_information_pointer);
 
 /**
  * @brief ws_llc_hopping_schedule_config Configure channel hopping
@@ -242,7 +242,7 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
  * @param hopping_schedule pointer to Channel hopping schedule
  *
  */
-void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule);
+void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule *hopping_schedule);
 
 void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update);
 

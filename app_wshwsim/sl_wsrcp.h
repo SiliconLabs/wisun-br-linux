@@ -24,7 +24,7 @@
 #include "mac/rf_driver_storage.h"
 
 struct os_ctxt;
-struct mac_api_s;
+struct mac_api;
 
 struct neighbor_timings {
     uint8_t eui64[8];
@@ -55,7 +55,7 @@ struct wsmac_ctxt {
 
     uint8_t eui64[8];
     int  rcp_driver_id;
-    struct mac_api_s *rcp_mac_api;
+    struct mac_api *rcp_mac_api;
     struct arm_device_driver_list *rf_driver;
     struct fhss_api *fhss_api;
     struct slist *msdu_malloc_list;
@@ -79,6 +79,6 @@ struct wsmac_ctxt {
 extern struct wsmac_ctxt g_ctxt;
 extern mac_description_storage_size_t g_storage_sizes;
 
-struct mac_api_s *init_mac_api(int rcp_driver_id);
+struct mac_api *init_mac_api(int rcp_driver_id);
 
 #endif

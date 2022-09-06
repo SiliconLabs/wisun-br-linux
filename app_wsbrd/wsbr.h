@@ -32,8 +32,8 @@ typedef struct sd_bus sd_bus;
 #include "commandline.h"
 
 struct spinel_buffer;
-struct phy_device_driver_s;
-struct eth_mac_api_s;
+struct phy_device_driver;
+struct eth_mac_api;
 struct fhss_api;
 
 struct wsbr_ctxt {
@@ -51,8 +51,8 @@ struct wsbr_ctxt {
     uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
     struct fhss_api *fhss_api;
-    struct mac_api_s mac_api;
-    struct mac_description_storage_size_s storage_sizes;
+    struct mac_api mac_api;
+    struct mac_description_storage_size storage_sizes;
 
     bool fhss_conf_valid;
     struct fhss_ws_configuration fhss_conf;

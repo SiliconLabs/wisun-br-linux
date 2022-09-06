@@ -34,9 +34,9 @@
 // Interval to check if storage has been modified and needs to be updated to NVM
 #define DEFAULT_STORING_INTERVAL                   3600
 
-struct supp_entry_s;
-struct sec_prot_gtk_keys_s;
-struct sec_prot_certs_s;
+struct supp_entry;
+struct sec_prot_gtk_keys;
+struct sec_prot_certs;
 
 /**
  * ws_pae_key_storage_memory_set sets memory used for key storages
@@ -120,7 +120,7 @@ void ws_pae_key_storage_remove(void);
  * \return >= 0 success
  *
  */
-int8_t ws_pae_key_storage_supp_write(const void *instance, struct supp_entry_s *pae_supp);
+int8_t ws_pae_key_storage_supp_write(const void *instance, struct supp_entry *pae_supp);
 
 /**
  * ws_pae_key_storage_supp_read reads supplicant entry from key storage
@@ -133,7 +133,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, struct supp_entry_s *
  * \return supplicant entry or NULL if supplicant entry does not exits
  *
  */
-struct supp_entry_s *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, struct sec_prot_gtk_keys_s *gtks, const struct sec_prot_certs_s *certs);
+struct supp_entry *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, struct sec_prot_gtk_keys *gtks, const struct sec_prot_certs *certs);
 
 /**
  * ws_pae_key_storage_supp_delete delete supplicant entry from key storage

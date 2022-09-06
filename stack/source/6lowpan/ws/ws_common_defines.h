@@ -98,7 +98,7 @@
 /**
  * @brief ws_pan_information_t PAN information
  */
-typedef struct ws_pan_information_s {
+typedef struct ws_pan_information {
     uint16_t pan_size;          /**< Number devices connected to Border Router. */
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
@@ -112,7 +112,7 @@ typedef struct ws_pan_information_s {
 /**
  * @brief ws_excluded_channel_range_data_t Excludd Chanel range information
  */
-typedef struct ws_excluded_channel_range_data_s {
+typedef struct ws_excluded_channel_range_data {
     uint16_t range_start;
     uint16_t range_end;
 } ws_excluded_channel_range_data_t;
@@ -120,7 +120,7 @@ typedef struct ws_excluded_channel_range_data_s {
 /**
  * @brief ws_excluded_channel_data_t Excludd Chanel information
  */
-typedef struct ws_excluded_channel_data_s {
+typedef struct ws_excluded_channel_data {
     unsigned excluded_channel_ctrl: 2;
     unsigned excluded_range_length: 3;
     ws_excluded_channel_range_data_t excluded_range[WS_EXCLUDED_MAX_RANGE_TO_SEND];
@@ -132,7 +132,7 @@ typedef struct ws_excluded_channel_data_s {
 /**
  * @brief ws_hopping_schedule_t Chanel hopping schedule information
  */
-typedef struct ws_hopping_schedule_s {
+typedef struct ws_hopping_schedule {
     uint8_t fhss_uc_dwell_interval;
     uint8_t fhss_bc_dwell_interval;
     uint8_t regulatory_domain;          /**< PHY regulatory domain default to "KR" 0x09 */

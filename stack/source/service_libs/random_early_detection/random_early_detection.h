@@ -24,14 +24,14 @@
 #define PROB_SCALE_MAX PROB_SCALE * 100
 #define PROX_MAX_RANDOM PROB_SCALE_MAX-1
 
-typedef struct red_config_s {
+typedef struct red_config {
     uint16_t weight;            /*< Weight for new sample len, 256 disabled average */
     uint16_t threshold_min;     /*< Threshold Min value which start possibility start drop a packet */
     uint16_t threshold_max;     /*< Threshold Max this value give max Probability for configured value over that every new packet will be dropped*/
     uint8_t drop_maX_P;         /*< Max probability for drop packet between threshold_min and threshold_max threshold */
 } red_config_t;
 
-typedef struct red_info_s {
+typedef struct red_info {
     red_config_t parameters;    /*< Random Early detetction parameters for queue avarge and packet drop */
     uint32_t averageQ;          /*< Average queue size Scaled by 256 1.0 is 256 */
     uint16_t count;             /*< Missed Packet drop's. This value is incremented when average queue is over min threshoild and packet is noot dropped */

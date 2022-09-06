@@ -35,7 +35,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(kmp_entry_t, link) kmp_list_t;
 
-typedef struct supp_entry_s {
+typedef struct supp_entry {
     kmp_list_t kmp_list;               /**< Ongoing KMP negotiations */
     kmp_addr_t addr;                   /**< EUI-64 (Relay IP address, Relay port) */
     sec_prot_keys_t sec_keys;          /**< Security keys */

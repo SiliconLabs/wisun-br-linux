@@ -44,12 +44,12 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;
-struct mac_api_s;
-struct eth_mac_api_s;
+struct mac_api;
+struct eth_mac_api;
 struct arm_device_driver_list;
-struct mlme_security_s;
+struct mlme_security;
 struct load_balance_api;
-struct red_info_s;
+struct red_info;
 enum addrtype;
 
 #define SLEEP_MODE_REQ      0x80
@@ -205,8 +205,8 @@ typedef struct {
     bool        temporaryUlaAddressState;
 } ipv6_interface_info_t;
 
-struct thread_info_s;
-struct ws_info_s;
+struct thread_info;
+struct ws_info;
 struct auth_info;
 struct rpl_domain;
 
@@ -300,16 +300,16 @@ struct protocol_interface_info_entry {
 
     interface_mode_e interface_mode;
     ipv6_interface_info_t ipv6_configure;
-    struct red_info_s *random_early_detection;
-    struct red_info_s *llc_random_early_detection;
-    struct red_info_s *llc_eapol_random_early_detection;
-    struct ws_info_s *ws_info;
+    struct red_info *random_early_detection;
+    struct red_info *llc_random_early_detection;
+    struct red_info *llc_eapol_random_early_detection;
+    struct ws_info *ws_info;
     struct rpl_domain *rpl_domain;
 
-    struct mac_api_s *mac_api;
+    struct mac_api *mac_api;
     arm_15_4_mac_parameters_t mac_parameters;
 
-    struct eth_mac_api_s *eth_mac_api;
+    struct eth_mac_api *eth_mac_api;
 
     struct arm_device_driver_list *dev_driver;
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
@@ -325,7 +325,7 @@ struct protocol_interface_info_entry {
     buffer_t *(*if_icmp_handler)(struct protocol_interface_info_entry *cur, buffer_t *buf, bool *bounce);
     uint8_t (*if_llao_parse)(struct protocol_interface_info_entry *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
     uint8_t (*if_llao_write)(struct protocol_interface_info_entry *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
-    void (*mac_security_key_usage_update_cb)(struct protocol_interface_info_entry *cur, const struct mlme_security_s *security_params);
+    void (*mac_security_key_usage_update_cb)(struct protocol_interface_info_entry *cur, const struct mlme_security *security_params);
     uint16_t (*etx_read_override)(struct protocol_interface_info_entry *cur, enum addrtype addr_type, const uint8_t *addr_ptr);
 };
 
@@ -347,9 +347,9 @@ uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
 protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
 bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api_s *api);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api_s *api);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api_s *api);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api *api);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api *api);
+protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api *api);
 uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);
 

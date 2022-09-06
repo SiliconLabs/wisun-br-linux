@@ -19,12 +19,12 @@
 
 #include "stack/mac/mlme.h"
 
-struct channel_list_s;
+struct channel_list;
 struct nwk_pan_descriptor;
 struct protocol_interface_info_entry;
 struct ns_sockaddr;
 struct buffer;
-struct mac_api_s;
+struct mac_api;
 enum addrtype;
 
 void mac_helper_panid_set(struct protocol_interface_info_entry *interface, uint16_t panId);
@@ -53,10 +53,10 @@ uint_fast8_t mac_helper_frame_overhead(struct protocol_interface_info_entry *cur
 int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr);
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor);
 int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor);
-void mac_helper_devicetable_remove(struct mac_api_s *mac_api, uint8_t attribute_index, uint8_t *mac64);
+void mac_helper_devicetable_remove(struct mac_api *mac_api, uint8_t attribute_index, uint8_t *mac64);
 void mac_helper_device_description_write(struct protocol_interface_info_entry *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt);
 void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, struct protocol_interface_info_entry *cur, uint8_t attribute_index, uint8_t keyID, bool force_set);
-void mac_helper_devicetable_direct_set(struct mac_api_s *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index);
+void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index);
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
 int8_t mac_helper_mac_mlme_max_csma_backoffs_set(int8_t interface_id, uint8_t csma_backoffs);
 int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t max_be);

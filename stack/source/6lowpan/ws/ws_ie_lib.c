@@ -85,7 +85,7 @@ static uint16_t ws_excluded_channel_length(ws_generic_channel_info_t *generic_ch
     return length;
 }
 
-static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_schedule, ws_generic_channel_info_t *generic_channel_info, bool unicast_schedule)
+static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_schedule, ws_generic_channel_info_t *generic_channel_info, bool unicast_schedule)
 {
     generic_channel_info->channel_plan = hopping_schedule->channel_plan;
     if (unicast_schedule) {
@@ -113,7 +113,7 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule_s *hopping_s
     }
 }
 
-static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule_s *hopping_schedule)
+static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule *hopping_schedule)
 {
     switch (generic_channel_info->channel_plan) {
         case 0:
@@ -136,7 +136,7 @@ static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_in
     }
 }
 
-static void ws_wp_channel_function_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule)
+static void ws_wp_channel_function_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
 {
     switch (generic_channel_info->channel_function) {
         case 0:
@@ -181,7 +181,7 @@ static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *gen
     return length;
 }
 
-uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule)
+uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
 {
     ws_generic_channel_info_t generic_channel_info;
 
@@ -466,7 +466,7 @@ static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_cha
     return ptr;
 }
 
-uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_schedule_s *hopping_schedule, bool unicast_schedule)
+uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
 {
     //Calculate length
     ws_generic_channel_info_t generic_channel_info;
@@ -515,7 +515,7 @@ uint8_t *ws_wp_nested_vp_write(uint8_t *ptr, uint8_t *vendor_payload, uint16_t v
     return ptr;
 }
 
-uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information_s *pan_configuration)
+uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pan_configuration)
 {
     if (!pan_configuration) {
         return mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 0);
@@ -547,7 +547,7 @@ uint8_t *ws_wp_nested_netname_write(uint8_t *ptr, uint8_t *network_name, uint8_t
     return ptr;
 }
 
-uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information_s *pan_configuration)
+uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information *pan_configuration)
 {
     if (!pan_configuration) {
         return ptr;
@@ -1162,7 +1162,7 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
     return true;
 }
 
-bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information_s *pan_configuration)
+bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 

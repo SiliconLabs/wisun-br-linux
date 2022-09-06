@@ -519,7 +519,7 @@ int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface
 #endif
 }
 
-int8_t arm_nwk_interface_ppp_init(struct eth_mac_api_s *api, const char *interface_name_ptr)
+int8_t arm_nwk_interface_ppp_init(struct eth_mac_api *api, const char *interface_name_ptr)
 {
 #ifdef HAVE_ETHERNET
     if (!api) {

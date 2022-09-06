@@ -756,7 +756,7 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_ptr, struct ws_sec_timer_cfg_s *sec_timer_cfg, struct ws_sec_prot_cfg_s *sec_prot_cfg, struct ws_timing_cfg_s *timing_cfg)
+int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (controller == NULL) {

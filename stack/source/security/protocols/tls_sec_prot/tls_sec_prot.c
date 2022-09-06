@@ -57,7 +57,7 @@ typedef enum {
     TLS_STATE_FINISHED = SEC_STATE_FINISHED
 } eap_tls_sec_prot_state_e;
 
-typedef struct tls_sec_prot_lib_int_s tls_sec_prot_lib_int_t;
+typedef struct tls_sec_prot_lib_int tls_sec_prot_lib_int_t;
 
 typedef struct {
     sec_prot_common_t             common;            /**< Common data */

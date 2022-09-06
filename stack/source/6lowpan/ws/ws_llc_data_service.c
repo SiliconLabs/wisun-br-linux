@@ -77,7 +77,7 @@ typedef struct {
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
-    struct ws_hopping_schedule_s *hopping_schedule;/**< Channel hopping schedule */
+    struct ws_hopping_schedule *hopping_schedule;/**< Channel hopping schedule */
     uint8_t                 *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
@@ -186,10 +186,10 @@ static llc_data_base_t *ws_llc_base_allocate(void);
 static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);
 static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext);
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
-static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_e priority);
+static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
 static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_id);
-static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge_s *purge, uint16_t user_id);
+static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge *purge, uint16_t user_id);
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
@@ -1170,7 +1170,7 @@ static void ws_llc_lowpan_mpx_header_set(llc_message_t *message, uint16_t user_i
     message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
 }
 
-uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req_s *data)
+uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
 {
 
     if (!ws_version_1_1(base->interface_ptr) || !data->TxAckReq || data->msduLength < 500)
@@ -1189,7 +1189,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
     return 0;
 }
 
-static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req_s *data, mac_data_priority_e priority)
+static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
     wh_ie_sub_list_t ie_header_mask;
     memset(&ie_header_mask, 0, sizeof(wh_ie_sub_list_t));
@@ -1382,7 +1382,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 }
 
 
-static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req_s *data, mac_data_priority_e priority)
+static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
     wh_ie_sub_list_t ie_header_mask;
     memset(&ie_header_mask, 0, sizeof(wh_ie_sub_list_t));
@@ -1477,7 +1477,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
 }
 
 
-static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_e priority)
+static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
     if (!base) {
@@ -1542,7 +1542,7 @@ static uint16_t ws_llc_mpx_header_size_get(const mpx_api_t *api, uint16_t user_i
     return ws_mpx_header_size_get(base, user_id);
 }
 
-static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge_s *purge, uint16_t user_id)
+static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge *purge, uint16_t user_id)
 {
     llc_data_base_t *base = ws_llc_discover_by_mpx(api);
     if (!base) {
@@ -2212,7 +2212,7 @@ void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, uint8_
 
 
 
-void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information_s *pan_information_pointer)
+void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information *pan_information_pointer)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2222,7 +2222,7 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
     base->ie_params.pan_configuration = pan_information_pointer;
 }
 
-void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule_s *hopping_schedule)
+void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule *hopping_schedule)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {

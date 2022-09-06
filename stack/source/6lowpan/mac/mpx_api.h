@@ -21,12 +21,12 @@
 #include <stdbool.h>
 #include "stack/mac/mac_mcps.h"
 
-struct mcps_data_req_s;
-struct mcps_data_conf_s;
-struct mcps_data_ind_s;
-struct mcps_purge_s;
+struct mcps_data_req;
+struct mcps_data_conf;
+struct mcps_data_ind;
+struct mcps_purge;
 
-typedef struct mpx_api_s mpx_api_t;
+typedef struct mpx_api mpx_api_t;
 
 /**
  * @brief mpx_data_request MPX_DATA request with user ID
@@ -36,7 +36,7 @@ typedef struct mpx_api_s mpx_api_t;
  * @param priority priority level
  *
  */
-typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s *data, uint16_t user_id, mac_data_priority_e priority);
+typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
 
 /**
  * @brief mpx_data_queue_clean clean MPX user data
@@ -46,7 +46,7 @@ typedef void mpx_data_request(const mpx_api_t *api, const struct mcps_data_req_s
  * @return 0 if purge requst was OK, non-zero otherwise
  *
  */
-typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge_s *purge, uint16_t user_id);
+typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge *purge, uint16_t user_id);
 
 /**
  * @brief mpx_data_confirm MPX-DATA confirm is called as a response to MPX-DATA request
@@ -54,7 +54,7 @@ typedef uint8_t mpx_data_purge_request(const mpx_api_t *api, struct mcps_purge_s
  * @param data MCPS-DATA.confirm specific values
  * @param user_id MPX user ID
  */
-typedef void mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf_s *data);
+typedef void mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data);
 
 /**
  * @brief mpx_data_indication MPX-DATA confirm is called as a response to MPX-DATA request
@@ -62,7 +62,7 @@ typedef void mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf_
  * @param data MCPS-DATA.indication specific values
  * @param user_id MPX user ID
  */
-typedef void mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind_s *data);
+typedef void mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data);
 
 /**
  * @brief mpx_header_size_get Function for request MPX user head room size
@@ -105,7 +105,7 @@ typedef void mpx_high_priority_mode_set(const mpx_api_t *api, bool enable_mode);
 /**
  * \brief Struct mpx_api_s defines functions for MPX user for register call backs and send data.
  */
-struct mpx_api_s {
+struct mpx_api {
     mpx_data_request *mpx_data_request;             /**< MPX data request. */
     mpx_data_purge_request *mpx_data_purge;            /**< MPX data Purge. */
     mpx_header_size_get *mpx_headroom_size_get;     /**< MPX headroom size get in bytes. */

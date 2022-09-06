@@ -37,7 +37,7 @@
 
 #define TRACE_GROUP "kmap"
 
-struct kmp_api_s {
+struct kmp_api {
     void                         *app_data_ptr;           /**< Opaque pointer for application data */
     kmp_api_create_confirm       *create_conf;            /**< KMP-CREATE.confirm callback */
     kmp_api_create_indication    *create_ind;             /**< KMP-CREATE.indication callback */
@@ -71,7 +71,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(kmp_msg_if_entry_t, link) kmp_msg_if_list_t;
 
-struct kmp_service_s {
+struct kmp_service {
     kmp_sec_prot_list_t                sec_prot_list;           /**< Security protocols list */
     kmp_msg_if_list_t                  msg_if_list;             /**< Message interface list */
     kmp_service_incoming_ind           *incoming_ind;           /**< Callback to application to indicate incoming KMP frame */

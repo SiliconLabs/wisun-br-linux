@@ -156,7 +156,7 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
     ws_eapol_auth_relay_socket_cb(fd);
 }
 
-static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     ws_bs_ie_t ws_bs_ie;
     ws_bt_ie_t ws_bt_ie;
@@ -187,7 +187,7 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
     }
 }
 
-static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     llc_neighbour_req_t neighbor_info;
 
@@ -201,7 +201,7 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interfa
     }
 }
 
-void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     ws_pom_ie_t pom_ie;
     mac_neighbor_table_entry_t *neighbor;

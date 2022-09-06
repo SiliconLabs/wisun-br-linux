@@ -61,7 +61,7 @@
  *
  * See IEEE standard 802.15.4-2006 (e.g end of table 41) for more details
  */
-typedef struct mlme_security_s {
+typedef struct mlme_security {
     unsigned SecurityLevel: 3;  /**< Security level */
     unsigned KeyIdMode: 2;      /**< 2-bit value which define key source and ID use case */
     uint8_t KeyIndex;           /**< Key index */
@@ -78,7 +78,7 @@ typedef struct mlme_security_s {
  * @brief struct mac_header_IE_t Mac Header information element structure for parsing or write operation
  * This structure encapsulates security related variables,
  */
-typedef struct mac_header_IE_s {
+typedef struct mac_header_IE {
     uint8_t *content_ptr;   /**< Content data */
     unsigned length: 7;     /**< Element length 0- 127 */
     uint8_t id;             /**< Element ID */
@@ -94,7 +94,7 @@ typedef struct mac_header_IE_s {
  * @brief struct mac_header_IE_t Mac Payload information element structure for parsing or write operation
  * This structure encapsulates security related variables,
  */
-typedef struct mac_payload_IE_s {
+typedef struct mac_payload_IE {
     uint8_t *content_ptr;   /**< Content data */
     unsigned length: 11;    /**< Element length 0- 2047 */
     unsigned id: 4;         /**< Group ID */

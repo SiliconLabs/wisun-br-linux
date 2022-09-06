@@ -79,7 +79,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-void ws_bootstrap_lfn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_lfn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     (void)ie_ext;
     // Store weakest heard packet RSSI

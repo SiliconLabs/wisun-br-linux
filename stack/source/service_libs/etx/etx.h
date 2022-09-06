@@ -53,7 +53,7 @@ enum addrtype;
  */
 #define ETX_ACCELERATED_INTERVAL          2
 
-typedef struct etx_storage_s {
+typedef struct etx_storage {
     uint16_t        etx;                       /*!< 12 bits fraction */
     uint16_t        stored_diff_etx;           /*!< 12 bits fraction */
     unsigned        accumulated_failures: 5;
@@ -63,7 +63,7 @@ typedef struct etx_storage_s {
     unsigned        drop_bad_count: 2;
 } etx_storage_t;
 
-typedef struct etx_sample_storage_s {
+typedef struct etx_sample_storage {
     uint16_t           attempts_count;         /*!< TX attempt count */
     uint8_t            etx_timer;              /*!< Count down from configured value 0 means that ETX Update is possible done again*/
     uint8_t            received_acks;          /*!< Received ACK's */

@@ -20,7 +20,7 @@
 #include "stack/mac/platform/arm_hal_phy.h"
 
 /** Channel list */
-typedef struct channel_list_s {
+typedef struct channel_list {
     channel_page_e channel_page;    /**< Channel page */
     uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
     uint16_t next_channel_number;   /**< Next channel to use in the list */

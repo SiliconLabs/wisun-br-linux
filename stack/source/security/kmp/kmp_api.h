@@ -67,11 +67,11 @@ typedef enum {
 #define MSG_IF_SEND_FLAG_NO_DEALLOC        0x01
 
 typedef void kmp_sec_keys_t;
-typedef struct sec_prot_s sec_prot_t;
-typedef struct kmp_api_s kmp_api_t;
-typedef struct kmp_service_s kmp_service_t;
+typedef struct sec_prot sec_prot_t;
+typedef struct kmp_api kmp_api_t;
+typedef struct kmp_service kmp_service_t;
 
-struct ws_cfg_settings_s;
+struct ws_cfg_settings;
 
 /**
  * kmp_api_create_request KMP-CREATE.request

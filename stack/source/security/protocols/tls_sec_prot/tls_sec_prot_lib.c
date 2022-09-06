@@ -49,7 +49,7 @@
 
 typedef int tls_sec_prot_lib_crt_verify_cb(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 
-struct tls_security_s {
+struct tls_security {
     mbedtls_ssl_config             conf;                 /**< mbed TLS SSL configuration */
     mbedtls_ssl_context            ssl;                  /**< mbed TLS SSL context */
 

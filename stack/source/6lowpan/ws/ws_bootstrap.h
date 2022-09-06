@@ -72,7 +72,7 @@ struct llc_neighbour_req;
 struct ws_stack_info;
 struct ws_neighbour_info;
 struct mcps_data_ie_list;
-struct mcps_data_ind_s;
+struct mcps_data_ind;
 
 extern uint16_t test_pan_version;
 
@@ -157,7 +157,7 @@ void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_boot
 void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_e nwk_bootstrap_state);
 
 void ws_bootstrap_candidate_list_clean(struct protocol_interface_info_entry *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
-void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information);
+void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information);
 void ws_bootstrap_candidate_table_reset(protocol_interface_info_entry_t *cur);
 parent_info_t *ws_bootstrap_candidate_parent_get(struct protocol_interface_info_entry *cur, const uint8_t *addr, bool create);
 void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cur, parent_info_t *new_entry);

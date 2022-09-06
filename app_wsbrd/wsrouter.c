@@ -149,7 +149,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 }
 
-static void wsbr_tasklet(struct arm_event_s *event)
+static void wsbr_tasklet(struct arm_event *event)
 {
     const char *const nwk_events[] = {
         "ARM_NWK_BOOTSTRAP_READY",

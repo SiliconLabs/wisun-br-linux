@@ -446,14 +446,14 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     return 0;
 }
 
-static void lowpan_adaptation_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf_s *data)
+static void lowpan_adaptation_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data)
 {
     protocol_interface_info_entry_t *interface = lowpan_adaptation_network_interface_discover(api);
 
     lowpan_adaptation_interface_tx_confirm(interface, data);
 }
 
-static void lowpan_adaptation_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind_s *data)
+static void lowpan_adaptation_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data)
 {
     protocol_interface_info_entry_t *interface = lowpan_adaptation_network_interface_discover(api);
     lowpan_adaptation_interface_data_ind(interface, data);
@@ -462,7 +462,7 @@ static void lowpan_adaptation_mpx_data_indication(const mpx_api_t *api, const st
 
 
 
-int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api_s *mpx_api, uint16_t mpx_user_id)
+int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api *mpx_api, uint16_t mpx_user_id)
 {
     //Discover
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(interface_id);

@@ -27,19 +27,19 @@
  * Vendor must implement a function which fills supported callback functions which Upper layer will use.
  */
 
-struct channel_list_s;
-typedef struct mac_api_s                mac_api_t;
-typedef struct mcps_purge_s             mcps_purge_t;
-typedef struct mcps_purge_conf_s        mcps_purge_conf_t;
-typedef struct mcps_data_ind_s          mcps_data_ind_t;
-typedef struct mcps_data_req_s          mcps_data_req_t;
+struct channel_list;
+typedef struct mac_api                mac_api_t;
+typedef struct mcps_purge             mcps_purge_t;
+typedef struct mcps_purge_conf        mcps_purge_conf_t;
+typedef struct mcps_data_ind          mcps_data_ind_t;
+typedef struct mcps_data_req          mcps_data_req_t;
 typedef struct mcps_data_req_ie_list    mcps_data_req_ie_list_t;
-typedef struct mcps_data_conf_s         mcps_data_conf_t;
-typedef struct mcps_data_conf_payload_s mcps_data_conf_payload_t;
+typedef struct mcps_data_conf         mcps_data_conf_t;
+typedef struct mcps_data_conf_payload mcps_data_conf_payload_t;
 typedef struct mcps_ack_data_payload    mcps_ack_data_payload_t;
-typedef struct mcps_edfe_response_s     mcps_edfe_response_t;
+typedef struct mcps_edfe_response     mcps_edfe_response_t;
 typedef struct mcps_data_ie_list        mcps_data_ie_list_t;
-typedef struct phy_rf_channel_configuration_s phy_rf_channel_configuration_t;
+typedef struct phy_rf_channel_configuration phy_rf_channel_configuration_t;
 typedef enum mac_data_priority          mac_data_priority_e;
 
 /**
@@ -84,10 +84,10 @@ typedef enum {
 } mlme_primitive_e;
 
 /**
- * \struct mac_description_storage_size_s
+ * \struct mac_description_storage_size
  * \brief Container for MAC storage sizes.
  */
-typedef struct mac_description_storage_size_s {
+typedef struct mac_description_storage_size {
     uint8_t device_description_table_size;   /**< MAC Device description list size */
     uint8_t key_description_table_size;     /**< MAC Key description list size */
     uint8_t key_lookup_size;                /**< Key description key lookup list size */
@@ -139,7 +139,7 @@ typedef void mcps_data_request(const mac_api_t *api, const mcps_data_req_t *data
  *
  * Asynch data request is mac standard extension. asynch_channel_list include channel mask which channel message is requested to send.
  */
-typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
+typedef void mcps_data_request_ext(const mac_api_t *api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
 
 /**
  * @brief mcps_purge_request MCPS_PURGE request call
@@ -284,7 +284,7 @@ typedef int8_t mac_api_enable_mcps_edfe_ext(mac_api_t *api,
  * Then object is passed to Upper layer which then initializes it's own callback functions.
  * Then MAC is operated by Upper layer by calling MLME or MCPS primitive functions.
  */
-struct mac_api_s {
+struct mac_api {
     mac_api_initialize                  *mac_initialize;                /**< MAC initialize function to use */
     mac_api_enable_mcps_ext             *mac_mcps_extension_enable;     /**< MAC MCPS IE extension enable function, optional feature */
     mac_api_enable_mcps_edfe_ext        *mac_mcps_edfe_enable;          /**< MAC MCPS MCPS EDFE frame extension enable function, optional feature */
@@ -312,10 +312,10 @@ struct mac_api_s {
 };
 
 /**
- * \struct mac_statistics_s
+ * \struct mac_statistics
  * \brief MAC statistics structure.
  */
-typedef struct mac_statistics_s {
+typedef struct mac_statistics {
     uint16_t mac_tx_queue_size;         /**< MAC TX queue current size. */
     uint16_t mac_tx_queue_peak;         /**< MAC TX queue peak size. */
     uint32_t mac_rx_count;              /**< MAC RX packet count. */

@@ -25,8 +25,8 @@
  * TLS security protocol library to connect to mbed TLS
  *
  */
-typedef struct sec_prot_certs_s sec_prot_certs_t;
-typedef struct tls_security_s tls_security_t;
+typedef struct sec_prot_certs sec_prot_certs_t;
+typedef struct tls_security tls_security_t;
 
 typedef enum {
     TLS_SEC_PROT_LIB_ERROR = -2,

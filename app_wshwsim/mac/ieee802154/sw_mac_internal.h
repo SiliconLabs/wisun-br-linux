@@ -43,12 +43,12 @@ typedef enum arm_nwk_timer_id {
     ARM_MCPS_TIMER = 5,
 } arm_nwk_timer_id_e;
 
-struct mac_api_s;
+struct mac_api;
 struct fhss_api;
 struct protocol_interface_rf_mac_setup;
 
-struct mac_api_s *get_sw_mac_api(struct protocol_interface_rf_mac_setup *setup);
-struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_mac_api(struct mac_api_s *api);
+struct mac_api *get_sw_mac_api(struct protocol_interface_rf_mac_setup *setup);
+struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_mac_api(struct mac_api *api);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_fhss_api(const struct fhss_api *api);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_timer(int id, enum arm_nwk_timer_id type);
 struct protocol_interface_rf_mac_setup *get_sw_mac_ptr_by_driver_id(int8_t id);

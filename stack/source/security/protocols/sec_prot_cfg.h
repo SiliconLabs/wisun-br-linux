@@ -23,7 +23,7 @@
 
 /* Security protocol configuration settings */
 
-typedef struct sec_prot_cfg_s {
+typedef struct sec_prot_cfg {
     trickle_params_t sec_prot_trickle_params;
     uint16_t sec_prot_retry_timeout;
     uint16_t initial_key_retry_min;
@@ -36,7 +36,7 @@ typedef struct sec_prot_cfg_s {
 
 /* Security timer configuration settings */
 
-typedef struct sec_timer_cfg_s {
+typedef struct sec_timer_cfg {
     uint32_t gtk_expire_offset;                      /* GTK lifetime; GTK_EXPIRE_OFFSET (seconds) */
     uint32_t pmk_lifetime;                           /* PMK lifetime (seconds) */
     uint32_t ptk_lifetime;                           /* PTK lifetime (seconds) */
@@ -50,7 +50,7 @@ typedef struct sec_timer_cfg_s {
 
 /* Security radius configuration settings */
 
-typedef struct sec_radius_cfg_s {
+typedef struct sec_radius_cfg {
     struct sockaddr_storage radius_addr;             /**< Radius server IP address */
     const uint8_t *radius_shared_secret;             /**< Radius shared secret */
     uint16_t radius_shared_secret_len;               /**< Radius shared secret length */
@@ -58,11 +58,11 @@ typedef struct sec_radius_cfg_s {
     bool radius_addr_set : 1;                        /**< Radius server address is set */
 } sec_radius_cfg_t;
 
-typedef struct sec_timing_cfg_s {
+typedef struct sec_timing_cfg {
     uint16_t temp_eapol_min_timeout;                 /**< Temporary neighbor link minimum timeout; seconds; default 330 */
 } sec_timing_cfg_t;
 
-typedef struct sec_cfg_s {
+typedef struct sec_cfg {
     sec_prot_cfg_t prot_cfg;
     sec_timer_cfg_t timer_cfg;
     sec_timing_cfg_t timing_cfg;

@@ -293,7 +293,7 @@ int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t l
     return 0;
 }
 
-int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_sequence_s *fcf, struct arm_pd_sap_generic_ind_s *mac_frame)
+int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_sequence *fcf, struct arm_pd_sap_generic_ind *mac_frame)
 {
     filter_instance_t *this = filter_instance_find(interface_id);
     filter_t *filter_ptr = NULL;

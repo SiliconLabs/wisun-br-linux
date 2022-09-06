@@ -46,7 +46,7 @@
  */
 
 /*!
- * \struct nd_parameters_s
+ * \struct nd_parameters
  * \brief 6LoWPAN Neighbor Discovery parameters
  */
 typedef struct nd_parameters {

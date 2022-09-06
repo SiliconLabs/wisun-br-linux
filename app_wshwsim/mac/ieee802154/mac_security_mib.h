@@ -23,9 +23,9 @@
 #include "stack/mac/mlme.h"
 
 struct protocol_interface_rf_mac_setup;
-struct mac_description_storage_size_s;
+struct mac_description_storage_size;
 
-typedef struct mlme_key_descriptor_s {
+typedef struct mlme_key_descriptor {
     mlme_key_id_lookup_descriptor_t *KeyIdLookupList;
     mlme_key_device_descriptor_t *KeyDeviceList;
     mlme_key_usage_descriptor_t *KeyUsageList;
@@ -41,7 +41,7 @@ typedef struct mlme_key_descriptor_s {
     bool KeyFrameCounterPerKey: 1;
 } mlme_key_descriptor_t;
 
-int8_t mac_sec_mib_init(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mac_description_storage_size_s *storage_sizes);
+int8_t mac_sec_mib_init(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mac_description_storage_size *storage_sizes);
 
 void mac_sec_mib_deinit(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 

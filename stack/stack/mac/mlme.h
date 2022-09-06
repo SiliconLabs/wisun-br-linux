@@ -31,7 +31,7 @@
  *
  * See IEEE standard 802.15.4-2006 (table 55) for more details
  */
-typedef struct mlme_pan_descriptor_s {
+typedef struct mlme_pan_descriptor {
     unsigned CoordAddrMode: 2;  /**<Coordinator address mode MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint16_t CoordPANId;        /**<PAN-id */
     uint8_t CoordAddress[8];    /**< Coordinator based CoordAddrMode */
@@ -68,7 +68,7 @@ typedef enum {
  *
  * See IEEE standard 802.15.4-2006 (table 90) for more details
  */
-typedef struct mlme_key_usage_descriptor_s {
+typedef struct mlme_key_usage_descriptor {
     unsigned FrameType: 3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
     unsigned CommandFrameIdentifier: 4; /**< Set this part only when FrameType is 3 */
 } mlme_key_usage_descriptor_t;
@@ -78,7 +78,7 @@ typedef struct mlme_key_usage_descriptor_s {
  *
  * See IEEE standard 802.15.4-2006 (table 91) for more details
  */
-typedef struct mlme_key_device_descriptor_s {
+typedef struct mlme_key_device_descriptor {
     uint8_t DeviceDescriptorHandle; /**< User defined unique ID to key User */
     bool UniqueDevice: 1;           /**< true = Key description is for Key Pair Key usage only, False = group key  */
     bool Blacklisted: 1;            /**< true = Description is black listed, False = valid to use */
@@ -105,7 +105,7 @@ typedef enum {
  *
  * See IEEE standard 802.15.4-2006 (table 92) for more details
  */
-typedef struct mlme_security_level_descriptor_s {
+typedef struct mlme_security_level_descriptor {
     unsigned FrameType: 3; /**<0 = Beacon Frame, 1 = Data Frame or 3 Command Frame */
     unsigned CommandFrameIdentifier: 4; /**< Set this part only when FrameType is 3 */
     unsigned SecurityMinimum: 3; /**< Define Minimum acceptable security level for RX */
@@ -117,7 +117,7 @@ typedef struct mlme_security_level_descriptor_s {
  *
  * See IEEE standard 802.15.4-2006 (table 93) for more details
  */
-typedef struct mlme_device_descriptor_s {
+typedef struct mlme_device_descriptor {
     uint16_t PANId;         /**< Pan-id */
     uint16_t ShortAddress;  /**< Device 16-bit short address 0xffff means not defined */
     uint8_t ExtAddress[8];  /**< Device Extended 64-bit address */
@@ -130,7 +130,7 @@ typedef struct mlme_device_descriptor_s {
  *
  * See IEEE standard 802.15.4-2006 (table 94) for more details
  */
-typedef struct mlme_key_id_lookup_descriptor_s {
+typedef struct mlme_key_id_lookup_descriptor {
     uint8_t LookupData[9];      /**< Key Lookup data */
     unsigned LookupDataSize: 1; /**< Key Lookup data size 0= 5 1 is 9 bytes */
 } mlme_key_id_lookup_descriptor_t;
@@ -141,7 +141,7 @@ typedef struct mlme_key_id_lookup_descriptor_s {
  *
  * See IEEE standard 802.15.4-2006 (table 89) for more details
  */
-typedef struct mlme_key_descriptor_entry_s {
+typedef struct mlme_key_descriptor_entry {
     mlme_key_id_lookup_descriptor_t *KeyIdLookupList;   /**< List of Key lookup data for this descriptor*/
     uint8_t KeyIdLookupListEntries;                     /**< Number of entries in KeyIdLookupList*/
     mlme_key_device_descriptor_t *KeyDeviceList;        /**< List of descriptor user entries indicating which devices are valid or blacklisted */
@@ -256,7 +256,7 @@ typedef enum {
  *
  * See IEEE standard 802.15.4-2006 (figure 51) for more details
  */
-typedef struct mlme_beacon_pending_address_spec_s {
+typedef struct mlme_beacon_pending_address_spec {
     unsigned short_address_count: 3;                /**< Number of short address count */
     unsigned extended_address_count: 3;             /**< Number of extended address count */
 } mlme_beacon_pending_address_spec_t;
@@ -266,7 +266,7 @@ typedef struct mlme_beacon_pending_address_spec_s {
  *
  * See IEEE standard 802.15.4-2006 (figure 48) for more details
  */
-typedef struct mlme_beacon_gts_spec_s {
+typedef struct mlme_beacon_gts_spec {
     unsigned description_count: 3;      /**< Number of GTS description count */
     unsigned gts_permit: 1;             /**< 1= GTS request accepted 0= not accepted */
 } mlme_beacon_gts_spec_t;
@@ -276,7 +276,7 @@ typedef struct mlme_beacon_gts_spec_s {
  *
  * See IEEE standard 802.15.4-2006 (table 70) for more details
  */
-typedef struct mlme_set_s {
+typedef struct mlme_set {
     mlme_attr_e attr;           /**<PIB attribute for operation*/
     uint8_t attr_index;         /**< attribute index to to table (use only for PIB attributes which are tables)*/
     const void *value_pointer;  /**< Pointer to value*/
@@ -288,7 +288,7 @@ typedef struct mlme_set_s {
  *
  * See IEEE standard 802.15.4-2006 (table 56) for more details
  */
-typedef struct mlme_get_s {
+typedef struct mlme_get {
     mlme_attr_e attr;       /**<PIB attribute for operation*/
     uint8_t attr_index;     /**< attribute index to to table (use only for PIB attributes which are tables)*/
 } mlme_get_t;
@@ -298,7 +298,7 @@ typedef struct mlme_get_s {
  *
  * See IEEE standard 802.15.4-2006 (table 57) for more details
  */
-typedef struct mlme_get_conf_s {
+typedef struct mlme_get_conf {
     uint8_t status;             /**< status of operation*/
     mlme_attr_e attr;           /**<PIB attribute for operation*/
     uint8_t attr_index;         /**< attribute index to to table (valid only for PIB attributes which are tables)*/
@@ -311,7 +311,7 @@ typedef struct mlme_get_conf_s {
  *
  * See IEEE standard 802.15.4-2006 (table 71) for more details
  */
-typedef struct mlme_set_conf_s {
+typedef struct mlme_set_conf {
     uint8_t status;         /**< status of operation*/
     mlme_attr_e attr;       /**<PIB attribute for operation*/
     uint8_t attr_index;     /**< attribute index to to table (valid only for PIB attributes which are tables)*/
@@ -325,7 +325,7 @@ typedef struct mlme_set_conf_s {
  *
  * See IEEE standard 802.15.4-2006 (table 63) for more details
  */
-typedef struct mlme_reset_s {
+typedef struct mlme_reset {
     bool SetDefaultPIB; /**< true= Set standard default values, false= Mac sub layer will be reset but it retain configured MAC PIB values */
 } mlme_reset_t;
 
@@ -334,7 +334,7 @@ typedef struct mlme_reset_s {
  *
  * See IEEE standard 802.15.4-2006 (table 64) for more details
  */
-typedef struct mlme_reset_conf_s {
+typedef struct mlme_reset_conf {
     uint8_t status; /**< Status of reset operation */
 } mlme_reset_conf_t;
 
@@ -343,7 +343,7 @@ typedef struct mlme_reset_conf_s {
  *
  * See IEEE standard 802.15.4-2006 (table 65) for more details
  */
-typedef struct mlme_rx_enable_s {
+typedef struct mlme_rx_enable {
     bool DeferPermit;               /**< This will be ignored at nonbeacon-enabled PAN*/
     uint32_t RxOnTime;              /**< This will be ignored at nonbeacon-enabled PAN*/
     uint32_t RxOnDuration;          /**< Number of symbols which receiver is enabled, 0 receiver is not disabled*/
@@ -354,7 +354,7 @@ typedef struct mlme_rx_enable_s {
  *
  * See IEEE standard 802.15.4-2006 (table 66) for more details
  */
-typedef struct mlme_rx_enable_conf_s {
+typedef struct mlme_rx_enable_conf {
     uint8_t status;                     /**< Status of operation */
 } mlme_rx_enable_conf_t;
 
@@ -363,7 +363,7 @@ typedef struct mlme_rx_enable_conf_s {
  *
  * See IEEE standard 802.15.4-2006 (table 69) for more details
  */
-typedef struct mlme_comm_status_s {
+typedef struct mlme_comm_status {
     uint16_t PANId;                 /**< Messages Pan-id */
     unsigned SrcAddrMode: 2;        /**< source address mode: MAC_ADDR_MODE_NONE,MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint8_t SrcAddr[8];             /**< source address when mode is: MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
@@ -378,7 +378,7 @@ typedef struct mlme_comm_status_s {
  *
  * See IEEE standard 802.15.4-2006 (table 72) for more details
  */
-typedef struct mlme_start_s {
+typedef struct mlme_start {
     uint16_t PANId;                     /**< Pan-id */
     uint8_t LogicalChannel;             /**< Operated Logical channel */
     uint8_t ChannelPage;                /**< Operated Logical channel page */
@@ -397,7 +397,7 @@ typedef struct mlme_start_s {
  *
  * See IEEE standard 802.15.4-2006 (table 73) for more details
  */
-typedef struct mlme_start_conf_s {
+typedef struct mlme_start_conf {
     uint8_t status;                 /**< Status for start confirmation */
 } mlme_start_conf_t;
 
@@ -406,7 +406,7 @@ typedef struct mlme_start_conf_s {
  *
  * See IEEE standard 802.15.4-2006 (table 76) for more details
  */
-typedef struct mlme_poll_s {
+typedef struct mlme_poll {
     unsigned CoordAddrMode: 2;  /**< coordinator address mode:MAC_ADDR_MODE_16_BIT or MAC_ADDR_MODE_64_BIT */
     uint16_t CoordPANId;        /**< coordinator Pan-id to coordinator*/
     uint8_t CoordAddress[8];    /**< coordinator address */
@@ -418,16 +418,16 @@ typedef struct mlme_poll_s {
  *
  * See IEEE standard 802.15.4-2006 (table 77) for more details
  */
-typedef struct mlme_poll_conf_s {
+typedef struct mlme_poll_conf {
     uint8_t status;             /**< Status of Poll operation */
 } mlme_poll_conf_t;
 
 /**
- * @brief struct mlme_request_restart_config_s Set failed packet request restart configuration
+ * @brief struct mlme_request_restart_config Set failed packet request restart configuration
  *
  * Non standard extension to restart data request after failed CCA or TX attempts
  */
-typedef struct mlme_request_restart_config_s {
+typedef struct mlme_request_restart_config {
     uint8_t cca_failure_restart_max;    /**< Max number of restarts after CCA failure */
     uint8_t tx_failure_restart_max;     /**< Max number of restarts after TX failure */
     uint16_t blacklist_min_ms;          /**< Blacklist min, which is doubled by every restart */
@@ -437,7 +437,7 @@ typedef struct mlme_request_restart_config_s {
 /**
  * Represents payload of MAC filter start request.
  */
-typedef struct mlme_request_mac_filter_start_s {
+typedef struct mlme_request_mac_filter_start {
     int16_t lqi_m;
     int16_t lqi_add;
     int16_t dbm_m;
@@ -447,7 +447,7 @@ typedef struct mlme_request_mac_filter_start_s {
 /**
  * Represents payload of MAC filter add long request.
  */
-typedef struct mlme_request_mac_filter_add_long_s {
+typedef struct mlme_request_mac_filter_add_long {
     uint8_t mac64[8];
     int16_t lqi_m;
     int16_t lqi_add;

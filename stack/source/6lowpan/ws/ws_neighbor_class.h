@@ -43,7 +43,7 @@ typedef struct ws_neighbor_class_entry {
 /**
  * Neighbor hopping info data base
  */
-typedef struct ws_neighbor_class_s {
+typedef struct ws_neighbor_class {
     ws_neighbor_class_entry_t *neigh_info_list;           /*!< Allocated hopping info array*/
     uint8_t list_size;                                    /*!< List size*/
 } ws_neighbor_class_t;

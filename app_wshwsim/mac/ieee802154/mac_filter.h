@@ -24,8 +24,8 @@
 #ifndef MAC_FILTER_H_
 #define MAC_FILTER_H_
 
-struct mac_fcf_sequence_s;
-struct arm_pd_sap_generic_ind_s;
+struct mac_fcf_sequence;
+struct arm_pd_sap_generic_ind;
 
 /**
  * Modify the link quality values.
@@ -42,6 +42,6 @@ struct arm_pd_sap_generic_ind_s;
  * return >0 Packet is ignored.
  * return 0 Packet is not dropped.
  */
-int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_sequence_s *fcf, struct arm_pd_sap_generic_ind_s *mac_frame);
+int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_sequence *fcf, struct arm_pd_sap_generic_ind *mac_frame);
 
 #endif

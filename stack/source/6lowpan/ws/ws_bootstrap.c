@@ -1036,7 +1036,7 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
     }
 }
 
-void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
+void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
     parent->ws_utt = *ws_utt;
     // Saved from unicast IE
@@ -2620,7 +2620,7 @@ static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *c
     }
 
     bool return_value = false;
-    static struct red_info_s *red_info = NULL;
+    static struct red_info *red_info = NULL;
     uint16_t adaptation_average = 0;
     uint16_t llc_average = 0;
     uint16_t llc_eapol_average = 0;

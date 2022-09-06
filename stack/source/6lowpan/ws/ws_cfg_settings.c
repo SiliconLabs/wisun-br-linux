@@ -47,7 +47,7 @@
 #define TRICKLE_IMIN_30_SECS 30
 #define TRICKLE_IMIN_15_SECS 15
 
-typedef struct ws_cfg_nw_size_s {
+typedef struct ws_cfg_nw_size {
     ws_gen_cfg_t gen;                   /**< General configuration */
     ws_timing_cfg_t timing;             /**< Timing configuration */
     ws_bbr_cfg_t bbr;                   /**< RPL configuration */
@@ -1159,7 +1159,7 @@ int8_t ws_cfg_settings_get(ws_cfg_t *cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_settings_validate(struct ws_cfg_s *new_cfg)
+int8_t ws_cfg_settings_validate(struct ws_cfg *new_cfg)
 {
     // Validate new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {

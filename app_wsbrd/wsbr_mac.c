@@ -284,7 +284,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
 {
     switch (prop) {
     case SPINEL_PROP_WS_DEVICE_TABLE: {
-        struct mlme_device_descriptor_s data;
+        struct mlme_device_descriptor data;
         mlme_get_conf_t req = {
             .attr = macDeviceTable,
             .value_pointer = &data,
@@ -340,7 +340,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         break;
     }
     case SPINEL_PROP_WS_MCPS_DROP: {
-        struct mcps_purge_conf_s req = { };
+        struct mcps_purge_conf req = { };
 
         req.msduHandle = spinel_pop_u8(buf);
         if (!spinel_prop_is_valid(buf, prop))
@@ -619,10 +619,10 @@ static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned
 static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 27);
-    const struct phy_rf_channel_configuration_s *req = data;
+    const struct phy_rf_channel_configuration *req = data;
 
     BUG_ON(prop != SPINEL_PROP_WS_RF_CONFIGURATION);
-    BUG_ON(data_len != sizeof(struct phy_rf_channel_configuration_s));
+    BUG_ON(data_len != sizeof(struct phy_rf_channel_configuration));
     spinel_push_hdr_set_prop(ctxt, buf, prop);
     spinel_push_u32(buf, req->channel_0_center_frequency);
     spinel_push_u32(buf, req->channel_spacing);
@@ -641,10 +641,10 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
 static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 16);
-    const struct mlme_request_restart_config_s *req = data;
+    const struct mlme_request_restart_config *req = data;
 
     BUG_ON(prop != SPINEL_PROP_WS_REQUEST_RESTART);
-    BUG_ON(data_len != sizeof(struct mlme_request_restart_config_s));
+    BUG_ON(data_len != sizeof(struct mlme_request_restart_config));
     spinel_push_hdr_set_prop(ctxt, buf, prop);
     spinel_push_u8(buf,  req->cca_failure_restart_max);
     spinel_push_u8(buf,  req->tx_failure_restart_max);
@@ -821,7 +821,7 @@ static const struct {
     { }
 };
 
-static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
+static void wsbr_mlme_set(const struct mac_api *api, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     const mlme_set_t *req = data;
@@ -850,7 +850,7 @@ static void wsbr_mlme_set(const struct mac_api_s *api, const void *data)
     }
 }
 
-static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
+static void wsbr_mlme_get(const struct mac_api *api, const void *data)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 3);
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -872,7 +872,7 @@ static void wsbr_mlme_get(const struct mac_api_s *api, const void *data)
     rcp_tx(ctxt, buf);
 }
 
-static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
+static void wsbr_mlme_start(const struct mac_api *api, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 20);
@@ -892,7 +892,7 @@ static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
     rcp_tx(ctxt, buf);
 }
 
-static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
+static void wsbr_mlme_reset(const struct mac_api *api, const void *data)
 {
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1 + 4);
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -908,12 +908,12 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
     rcp_tx(ctxt, buf);
 }
 
-int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive_e id, const void *data)
+int8_t wsbr_mlme(const struct mac_api *api, mlme_primitive_e id, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     static const struct {
         uint32_t    val;
-        void (*fn)(const struct mac_api_s *, const void *);
+        void (*fn)(const struct mac_api *, const void *);
     } table[] = {
         { MLME_GET,           wsbr_mlme_get },
         { MLME_SET,           wsbr_mlme_set },
@@ -948,13 +948,13 @@ int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive_e id, const void *d
     return 0;
 }
 
-void wsbr_mcps_req_ext(const struct mac_api_s *api,
-                       const struct mcps_data_req_s *data,
+void wsbr_mcps_req_ext(const struct mac_api *api,
+                       const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list_s *async_channel_list,
+                       const struct channel_list *async_channel_list,
                        mac_data_priority_e priority, uint8_t phy_id)
 {
-    const struct channel_list_s default_chan_list = {
+    const struct channel_list default_chan_list = {
         .channel_page = CHANNEL_PAGE_UNDEFINED,
     };
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 75 + MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE + 3);
@@ -1011,18 +1011,18 @@ void wsbr_mcps_req_ext(const struct mac_api_s *api,
     rcp_tx(ctxt, buf);
 }
 
-void wsbr_mcps_req(const struct mac_api_s *api,
-                   const struct mcps_data_req_s *data)
+void wsbr_mcps_req(const struct mac_api *api,
+                   const struct mcps_data_req *data)
 {
     return wsbr_mcps_req_ext(api, data, NULL, NULL, MAC_DATA_NORMAL_PRIORITY, 0);
 }
 
-uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
-                        const struct mcps_purge_s *data)
+uint8_t wsbr_mcps_purge(const struct mac_api *api,
+                        const struct mcps_purge *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
-    struct mcps_purge_conf_s conf = {
+    struct mcps_purge_conf conf = {
         .msduHandle = data->msduHandle,
     };
 
@@ -1038,7 +1038,7 @@ uint8_t wsbr_mcps_purge(const struct mac_api_s *api,
     return 0;
 }
 
-int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
+int8_t wsbr_mac_addr_set(const struct mac_api *api, const uint8_t *mac64)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
 
@@ -1053,7 +1053,7 @@ int8_t wsbr_mac_addr_set(const struct mac_api_s *api, const uint8_t *mac64)
     return 0;
 }
 
-int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
+int8_t wsbr_mac_addr_get(const struct mac_api *api,
                      mac_extended_address_type_e type, uint8_t *mac64)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -1075,8 +1075,8 @@ int8_t wsbr_mac_addr_get(const struct mac_api_s *api,
     }
 }
 
-int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
-                                  struct mac_description_storage_size_s *buffer)
+int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
+                                  struct mac_description_storage_size *buffer)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
 
@@ -1084,11 +1084,11 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api_s *api,
     BUG_ON(!buffer);
     BUG_ON(ctxt != &g_ctxt);
 
-    memcpy(buffer, &ctxt->storage_sizes, sizeof(struct mac_description_storage_size_s));
+    memcpy(buffer, &ctxt->storage_sizes, sizeof(struct mac_description_storage_size));
     return 0;
 }
 
-int8_t wsbr_mac_mcps_ext_init(struct mac_api_s *api,
+int8_t wsbr_mac_mcps_ext_init(struct mac_api *api,
                               mcps_data_indication_ext *data_ind_cb,
                               mcps_data_confirm_ext *data_cnf_cb,
                               mcps_ack_data_req_ext *ack_data_req_cb)
@@ -1101,7 +1101,7 @@ int8_t wsbr_mac_mcps_ext_init(struct mac_api_s *api,
     return 0;
 }
 
-int8_t wsbr_mac_edfe_ext_init(struct mac_api_s *api,
+int8_t wsbr_mac_edfe_ext_init(struct mac_api *api,
                               mcps_edfe_handler *edfe_ind_cb)
 {
     BUG_ON(!api);
@@ -1110,7 +1110,7 @@ int8_t wsbr_mac_edfe_ext_init(struct mac_api_s *api,
     return 0;
 }
 
-int8_t wsbr_mac_init(struct mac_api_s *api,
+int8_t wsbr_mac_init(struct mac_api *api,
                      mcps_data_confirm *data_conf_cb,
                      mcps_data_indication *data_ind_cb,
                      mcps_purge_confirm *purge_conf_cb,

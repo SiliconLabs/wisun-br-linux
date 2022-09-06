@@ -33,14 +33,14 @@
 
 extern uint16_t test_max_child_count_override;
 
-struct ws_pan_information_s;
-struct ws_neighbor_class_s;
-struct ws_excluded_channel_data_s;
-struct ws_cfg_s;
+struct ws_pan_information;
+struct ws_neighbor_class;
+struct ws_excluded_channel_data;
+struct ws_cfg;
 struct ws_neighbor_class_entry;
 struct mcps_data_ie_list;
 
-typedef struct parent_info_s {
+typedef struct parent_info {
     uint16_t             pan_id;             /**< PAN ID */
     uint8_t              addr[8];            /**< address */
     uint8_t              link_quality;       /**< LQI value measured during reception of the MPDU */
@@ -107,7 +107,7 @@ typedef struct {
 
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
-typedef struct ws_info_s {
+typedef struct ws_info {
     trickle_t trickle_pan_config_solicit;
     trickle_t trickle_pan_config;
     trickle_t trickle_pan_advertisement_solicit;
@@ -142,11 +142,11 @@ typedef struct ws_info_s {
     ws_nud_table_list_t free_nud_entries;
     ws_test_proc_trg_t test_proc_trg;
     ws_lfn_lgtk_t lfngtk;
-    struct ws_cfg_s *cfg;                  /**< Wi-SUN configuration */
-    struct ws_pan_information_s pan_information;
+    struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
+    struct ws_pan_information pan_information;
     ws_hopping_schedule_t hopping_schedule;
     struct ws_statistics *stored_stats_ptr;
-    struct ws_neighbor_class_s neighbor_storage;
+    struct ws_neighbor_class neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     struct fhss_api *fhss_api;
     int regulation;  /**< Regional regulation context. */

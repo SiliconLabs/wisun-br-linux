@@ -31,13 +31,13 @@
 #include "mac/ieee802154/mac_data_buffer.h"
 
 struct protocol_interface_rf_mac_setup;
-struct mcps_data_req_s;
-struct arm_phy_sap_msg_s;
-struct mcps_purge_s;
+struct mcps_data_req;
+struct arm_phy_sap_msg;
+struct mcps_purge;
 struct mcps_data_req_ie_list;
-struct channel_list_s;
-struct mcps_enhanced_frame_response_s;
-struct mac_pre_parsed_frame_s;
+struct channel_list;
+struct mcps_enhanced_frame_response;
+struct mac_pre_parsed_frame;
 
 /** Address types */
 typedef enum {
@@ -118,11 +118,11 @@ int8_t mcps_sap_pd_confirm(void *mac_ptr);
 
 int8_t mcps_sap_pd_confirm_failure(void *mac_ptr);
 
-int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, struct mac_pre_parsed_frame_s *buffer);
+int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, struct mac_pre_parsed_frame *buffer);
 
-void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req);
+void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req *data_req);
 
-void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req_s *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_t *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
+void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_data_req *data_req, const struct mcps_data_req_ie_list *ie_list, const channel_list_t *asynch_channel_list, mac_data_priority_e priority, uint8_t phy_mode_id);
 
 void mac_mcps_trig_buffer_from_queue(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
@@ -134,7 +134,7 @@ int mac_convert_frame_type_to_fhss(uint8_t frame_type);
 
 void mcps_sap_trig_tx(void *mac_ptr);
 
-uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
+uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge *purge_req);
 
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 
@@ -142,7 +142,7 @@ int8_t mcps_edfe_data_request(struct protocol_interface_rf_mac_setup *rf_ptr, ma
 
 int8_t mcps_generic_ack_data_request_init(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload);
 
-int8_t mcps_generic_edfe_frame_init(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const struct mcps_edfe_response_s *response);
+int8_t mcps_generic_edfe_frame_init(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const struct mcps_edfe_response *response);
 
 int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, bool init_build);
 

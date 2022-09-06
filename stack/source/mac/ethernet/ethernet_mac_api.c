@@ -24,7 +24,7 @@
 
 #include "mac/rf_driver_storage.h"
 
-typedef struct eth_mac_internal_s {
+typedef struct eth_mac_internal {
     eth_mac_api_t *mac_api;
     arm_device_driver_list_s *dev_driver;
     uint8_t *mtu_ptr;

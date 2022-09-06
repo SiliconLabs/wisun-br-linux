@@ -262,9 +262,9 @@ void configure(struct wsmac_ctxt *ctxt, int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 }
 
-struct mac_api_s *init_mac_api(int rcp_driver_id)
+struct mac_api *init_mac_api(int rcp_driver_id)
 {
-    struct mac_api_s *rcp_mac_api;
+    struct mac_api *rcp_mac_api;
     int ret;
 
     rcp_mac_api = ns_sw_mac_create(rcp_driver_id, &g_storage_sizes);

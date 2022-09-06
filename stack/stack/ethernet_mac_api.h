@@ -29,12 +29,12 @@
 #define ETHERTYPE_802_1Q_TAG        0x8100  /**< ethernet type for 802_1Q */
 #define ETHERTYPE_IPV6              0x86dd  /**< ethernet type for IPv6 */
 
-typedef struct eth_mac_api_s eth_mac_api_t;
+typedef struct eth_mac_api eth_mac_api_t;
 
 /**
   * \brief Struct eth_data_conf_s defines arguments for data confirm message
   */
-typedef struct eth_data_conf_s {
+typedef struct eth_data_conf {
     uint8_t msduHandle;         /**< Handle associated with MSDU */
     uint8_t status;             /**< Status of the last transaction */
 } eth_data_conf_t;
@@ -42,7 +42,7 @@ typedef struct eth_data_conf_s {
 /**
   * \brief Struct eth_data_req_s defines arguments for data request message
   */
-typedef struct eth_data_req_s {
+typedef struct eth_data_req {
     uint16_t msduLength;        /**< Service data unit length */
     uint8_t *msdu;              /**< Service data unit */
     uint8_t *srcAddress;        /**< Source address */
@@ -54,7 +54,7 @@ typedef struct eth_data_req_s {
 /**
   * \brief Struct eth_data_ind_s defines arguments for data indication message
   */
-typedef struct eth_data_ind_s {
+typedef struct eth_data_ind {
     uint16_t msduLength;        /**< Service data unit length */
     uint8_t *msdu;              /**< Service data unit */
     uint8_t srcAddress[6];      /**< Source address */
@@ -148,7 +148,7 @@ typedef int8_t eth_mac_api_initialize(eth_mac_api_t *api, eth_mac_data_confirm *
 /**
   * \brief Struct eth_mac_api_s defines functions for two-way communications between ethernet MAC and Upper layer.
   */
-struct eth_mac_api_s {
+struct eth_mac_api {
     eth_mac_api_initialize      *mac_initialize;                /**< Callback function for MAC initialization */
 
     eth_mac_data_request        *data_req;                      /**< Callback function for data request */

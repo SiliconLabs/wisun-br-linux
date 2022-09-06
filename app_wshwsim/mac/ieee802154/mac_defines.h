@@ -27,11 +27,11 @@
 
 #include "mac_data_buffer.h"
 
-struct cca_structure_s;
+struct cca_structure;
 struct buffer;
 struct mac_pre_build_frame;
-struct mac_pre_parsed_frame_s;
-struct mlme_key_descriptor_s;
+struct mac_pre_parsed_frame;
+struct mlme_key_descriptor;
 struct arm_device_driver_list;
 struct fhss_api;
 
@@ -139,7 +139,7 @@ typedef struct mac_tx_status {
     uint8_t retry;
 } mac_tx_status_t;
 
-typedef struct mac_mcps_data_conf_fail_s {
+typedef struct mac_mcps_data_conf_fail {
     uint8_t msduHandle;     /**< Handle associated with MSDU */
     uint8_t status;         /**< Status of the failing MSDU transmission */
 } mac_mcps_data_conf_fail_t;
@@ -156,7 +156,7 @@ typedef enum  mac_edfe_frame_state {
 } mac_edfe_frame_state_e;
 
 
-typedef struct mac_mcps_edfe_info_s {
+typedef struct mac_mcps_edfe_info {
     mac_edfe_frame_state_e state;
     uint8_t PeerAddr[8];
     struct mac_pre_build_frame edfe_response_buffer;
@@ -225,7 +225,7 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_pre_build_frame *pd_data_request_queue_to_go;
     struct mac_pre_build_frame *pd_data_request_bc_queue_to_go;
     struct mac_pre_build_frame *active_pd_data_request;
-    struct mac_pre_parsed_frame_s *pd_rx_ack_buffer;
+    struct mac_pre_parsed_frame *pd_rx_ack_buffer;
     /* MAC Beacon info */
     uint16_t allocated_ack_buffer_length;
     uint8_t mac_bea_sequence;
@@ -265,11 +265,11 @@ typedef struct protocol_interface_rf_mac_setup {
     uint32_t datarate;
     mac_tx_status_t mac_tx_status;
     mac_mcps_data_conf_fail_t mac_mcps_data_conf_fail;
-    struct cca_structure_s *cca_structure;
+    struct cca_structure *cca_structure;
     /* MAC Security components */
-    struct mlme_device_descriptor_s *device_description_table;
+    struct mlme_device_descriptor *device_description_table;
     uint8_t device_description_table_size;
-    struct mlme_key_descriptor_s *key_description_table;
+    struct mlme_key_descriptor *key_description_table;
     void *key_device_frame_counter_list_buffer;
     uint8_t key_description_table_size;
     uint8_t key_lookup_list_size;
@@ -277,7 +277,7 @@ typedef struct protocol_interface_rf_mac_setup {
     mlme_key_device_descriptor_t *key_device_desc_buffer;
     mlme_key_usage_descriptor_t *key_usage_list_buffer;
     mlme_key_id_lookup_descriptor_t *key_lookup_buffer;
-    struct mlme_security_level_descriptor_s *security_level_descriptor_table;
+    struct mlme_security_level_descriptor *security_level_descriptor_table;
     uint8_t security_level_descriptor_table_size;
     uint32_t security_frame_counter;
     uint8_t mac_default_key_source[8];
@@ -288,7 +288,7 @@ typedef struct protocol_interface_rf_mac_setup {
     dev_driver_tx_buffer_s dev_driver_tx_buffer;
     /* End of API Control */
     struct mac_cca_threshold *cca_threshold;
-    struct mac_statistics_s *mac_statistics;
+    struct mac_statistics *mac_statistics;
     mac_mcps_edfe_frame_info_t *mac_edfe_info;
     /* FHSS API*/
     struct fhss_api *fhss_api;

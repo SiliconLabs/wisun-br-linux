@@ -87,7 +87,7 @@ static void mbed_trace_realloc(char **buffer, int *length_ptr, int new_length);
 static void mbed_trace_default_print(const char *str);
 static void mbed_trace_reset_tmp(void);
 
-typedef struct trace_s {
+typedef struct trace {
     /** trace configuration bits */
     uint8_t trace_config;
     /** exclude filters list, related group name */

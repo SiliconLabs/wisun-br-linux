@@ -90,7 +90,7 @@ static void ws_bootstrap_ffn_ip_stack_addr_clear(protocol_interface_info_entry_t
     }
 }
 
-static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
+static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
 
     parent_info_t *new_entry;
@@ -289,7 +289,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct protocol_in
 #endif
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     //Validate Pan Conrfirmation is at packet
@@ -356,7 +356,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
     }
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     (void)data;
@@ -451,7 +451,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
 }
 
 
-static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     uint16_t pan_version;
@@ -615,7 +615,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     }
 }
 
-static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
         return;
@@ -658,7 +658,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interfac
 }
 
 
-void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     // Store weakest heard packet RSSI
     if (cur->ws_info->weakest_received_rssi > data->signal_dbm) {

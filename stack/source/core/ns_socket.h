@@ -113,7 +113,7 @@ typedef enum {
     SOCKET_SRC_ADDRESS_SECONDARY = 1,
 } socket_src_address_type_e;
 
-struct inet_pcb_s;
+struct inet_pcb;
 struct socket;
 typedef NS_LIST_HEAD_INCOMPLETE(struct socket) socket_queue_list_t;
 
@@ -143,7 +143,7 @@ typedef struct socket {
     int8_t    default_interface_id;
     int8_t    broadcast_pan;
     uint8_t   listen_backlog;       /*!< Limit if pending connection queue */
-    struct inet_pcb_s *inet_pcb;    /*!< shortcut to Internet control block */
+    struct inet_pcb *inet_pcb;    /*!< shortcut to Internet control block */
     sockbuf_t   rcvq;
     sockbuf_t   sndq;
     ns_list_link_t link;            /*!< link */
@@ -159,7 +159,7 @@ typedef struct inet_group {
 } inet_group_t;
 
 /** Internet protocol control block */
-typedef struct inet_pcb_s {
+typedef struct inet_pcb {
     socket_t    *socket;
     uint8_t     local_address[16];  /*!< Local address */
     uint8_t     remote_address[16];    /*!< Destination address */

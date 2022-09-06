@@ -44,7 +44,7 @@ typedef enum {
  *
  * See IEEE standard 802.15.4-2006 (table 7) for more details
  */
-typedef struct arm_pd_sap_generic_confirm_s {
+typedef struct arm_pd_sap_generic_confirm {
     phy_link_tx_status_e status;
 } arm_pd_sap_generic_confirm_t;
 
@@ -64,7 +64,7 @@ typedef struct arm_pd_sap_15_4_confirm_with_params_s {
  *
  * See IEEE standard 802.15.4-2006 (table 8) for more details
  */
-typedef struct arm_pd_sap_generic_ind_s {
+typedef struct arm_pd_sap_generic_ind {
     const uint8_t *data_ptr;
     uint16_t data_len;
     uint8_t link_quality;
@@ -75,13 +75,13 @@ typedef struct arm_pd_sap_generic_ind_s {
  * @brief struct arm_mlme_req Common MLME message data structure
  *
  */
-typedef struct arm_mlme_req_s {
+typedef struct arm_mlme_req {
     mlme_primitive_e primitive;
     const void *mlme_ptr;
     uint16_t ptr_length;
 } arm_mlme_req_t;
 
-typedef struct arm_phy_sap_msg_s {
+typedef struct arm_phy_sap_msg {
     arm_pd_sap_primitive_e id;
     union {
         arm_pd_sap_15_4_confirm_with_params_t mac15_4_pd_sap_confirm;
