@@ -192,7 +192,7 @@ typedef struct phy_rf_statistics_s {
     uint64_t rx_active_time;   ///< reception active time
     uint32_t tx_bytes;         ///< transmitted bytes
     uint32_t rx_bytes;         ///< received bytes
-} phy_rf_statistics_s;
+} phy_rf_statistics_t;
 
 /** Virtual data request */
 typedef struct virtual_data_req_s {
@@ -288,7 +288,7 @@ typedef struct phy_device_driver_s {
     arm_net_phy_tx_done_fn *phy_tx_done_cb;                         /**< Transmission done callback. Initialized by \ref arm_net_phy_register(). */
     //Virtual upper data rx
     uint16_t tunnel_type; /**< Tun driver type. */
-    phy_rf_statistics_s *phy_rf_statistics;                         /**< PHY statistics. */
+    phy_rf_statistics_t *phy_rf_statistics;                         /**< PHY statistics. */
 } phy_device_driver_s;
 
 

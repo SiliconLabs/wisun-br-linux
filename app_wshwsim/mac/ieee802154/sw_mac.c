@@ -613,7 +613,7 @@ void sw_mac_stats_update(protocol_interface_rf_mac_setup_s *setup, mac_stats_typ
     }
 }
 
-int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, phy_rf_statistics_s *phy_statistics)
+int ns_sw_mac_phy_statistics_start(struct mac_api_s *mac_api, phy_rf_statistics_t *phy_statistics)
 {
     if (!mac_api || !phy_statistics) {
         return -1;
