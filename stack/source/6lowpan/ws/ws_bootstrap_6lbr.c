@@ -304,6 +304,7 @@ void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *inte
         if (asynch_message == WS_FT_PAN_CONF && interface->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
             interface->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
             tr_info("Activate new default key %u", interface->ws_info->pending_key_index_info.index + 1);
+            /* Deprecated: Unused by the RCP. */
             mac_helper_security_auto_request_key_index_set(interface, interface->ws_info->pending_key_index_info.index, interface->ws_info->pending_key_index_info.index + 1);
         }
     }

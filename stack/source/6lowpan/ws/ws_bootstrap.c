@@ -2522,6 +2522,7 @@ static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, 
         }
     }
 
+    /* Deprecated: Unused by the RCP. */
     mac_helper_security_auto_request_key_index_set(cur, index, index + 1);
 }
 

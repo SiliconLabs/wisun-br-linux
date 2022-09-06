@@ -37,6 +37,7 @@ static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
 static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface, mlme_attr_e attribute, uint8_t value)
 {
+    /* Deprecated: Unused by the RCP. */
     switch (attribute) {
         case macAutoRequestKeyIdMode:
             interface->mac_parameters.mac_key_id_mode = value;
@@ -141,9 +142,8 @@ void mac_helper_default_security_level_set(protocol_interface_info_entry_t *inte
     } else {
         security_enabled = false;
     }
-    mac_helper_pib_8bit_set(interface, macAutoRequestSecurityLevel,  securityLevel);
+    mac_helper_pib_8bit_set(interface, macAutoRequestSecurityLevel,  securityLevel); /* Deprecated: Unused by the RCP. */
     mac_helper_pib_boolean_set(interface, macSecurityEnabled, security_enabled);
-
 }
 
 uint8_t mac_helper_default_security_level_get(protocol_interface_info_entry_t *interface)
@@ -197,13 +197,14 @@ int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *inte
         return -1;
     }
 
-    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
+    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id); /* Deprecated: Unused by the RCP. */
     mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters.mac_default_key_attribute_id);
     return 0;
 }
 
 int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t key_attibute_index, uint8_t id)
 {
+    /* Deprecated: Unused by the RCP. */
     if (id == 0) {
         return -1;
     }
