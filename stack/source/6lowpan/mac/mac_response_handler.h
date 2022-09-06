@@ -21,7 +21,7 @@
 #include "stack/mac/mac_api.h"
 
 struct mcps_data_ind_s;
-struct mcps_data_conf_t;
+struct mcps_data_conf;
 
 void mcps_data_confirm_handler(const mac_api_t *api, const struct mcps_data_conf_s *data);
 

@@ -155,7 +155,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance);
 
 void rpl_upward_print_instance(rpl_instance_t *instance, route_print_fn_t *print_fn);
 
-bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, struct rpl_dodag_info_t *dodag_info);
+bool rpl_upward_read_dodag_info(const rpl_instance_t *instance, struct rpl_dodag_info *dodag_info);
 bool rpl_upward_accept_prefix_update(const rpl_dodag_t *dodag_info, const rpl_neighbour_t *neighbour, const rpl_neighbour_t *pref_parent);
 uint16_t rpl_upward_read_dao_target_list_size(const rpl_instance_t *instance, const uint8_t *target_prefix);
 

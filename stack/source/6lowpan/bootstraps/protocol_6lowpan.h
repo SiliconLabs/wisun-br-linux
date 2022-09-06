@@ -26,7 +26,7 @@
 #include <stdbool.h>
 
 struct protocol_interface_info_entry;
-struct route_info_entry_t;
+struct route_info_entry;
 struct ns_sockaddr;
 struct rpl_domain;
 struct rpl_dodag;

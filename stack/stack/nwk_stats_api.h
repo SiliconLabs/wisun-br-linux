@@ -30,10 +30,10 @@
  */
 
 /**
- * /struct nwk_stats_t
+ * /struct nwk_stats
  * /brief Struct for network stats buffer structure.
  */
-typedef struct nwk_stats_t {
+typedef struct nwk_stats {
     /* 6Lowpan */
     uint32_t ip_rx_count;           /**< IP RX packet count. */
     uint32_t ip_tx_count;           /**< IP TX packet count. */

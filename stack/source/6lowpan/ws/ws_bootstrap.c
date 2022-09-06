@@ -2408,7 +2408,7 @@ static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *c
     if (!rpl_instance) {
         return 0xffff;
     }
-    struct rpl_dodag_info_t dodag_info;
+    struct rpl_dodag_info dodag_info;
     if (!rpl_control_read_dodag_info(rpl_instance, &dodag_info)) {
         return 0xffff;
     }

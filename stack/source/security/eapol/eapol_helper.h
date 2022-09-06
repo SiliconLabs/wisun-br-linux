@@ -31,7 +31,7 @@
 
 #define EAPOL_KEY_FRAME_BASE_SIZE   95
 
-struct eap_header_t;
+struct eap_header;
 
 typedef struct eapol_key_information {
     unsigned description_version: 3;

@@ -35,7 +35,7 @@
 #define PIO_A 0x40  /* Autonomous address-configuration flag */
 #define PIO_R 0x20  /* Router Address flag (RFC6275) */
 
-typedef struct prefix_entry_t {
+typedef struct prefix_entry {
     uint8_t prefix_len;
     uint8_t options;
     uint32_t lifetime;

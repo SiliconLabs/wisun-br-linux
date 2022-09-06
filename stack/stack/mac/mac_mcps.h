@@ -28,7 +28,7 @@
 
 
 /**
- * @brief struct mcps_data_req_t Data request structure
+ * @brief struct mcps_data_req Data request structure
  *
  * See IEEE standard 802.15.4-2006 (table 41) for more details
  */
@@ -50,7 +50,7 @@ typedef struct mcps_data_req_s {
 } mcps_data_req_t;
 
 /**
- * @brief struct mcps_data_conf_t Data confirm structure
+ * @brief struct mcps_data_conf Data confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 42) for more details
  */
@@ -65,7 +65,7 @@ typedef struct mcps_data_conf_s {
 
 
 /**
- * @brief struct mcps_data_conf_payload_t Data confirmatio IE extension list and payload from enhanced ACK
+ * @brief struct mcps_data_conf_payload Data confirmatio IE extension list and payload from enhanced ACK
  *
  */
 typedef struct mcps_data_conf_payload_s {
@@ -79,7 +79,7 @@ typedef struct mcps_data_conf_payload_s {
 
 
 /**
- * @brief struct mcps_data_ind_t Data indication structure
+ * @brief struct mcps_data_ind Data indication structure
  *
  * See IEEE standard 802.15.4-2006 (table 43) for more details
  */
@@ -101,7 +101,7 @@ typedef struct mcps_data_ind_s {
 } mcps_data_ind_t;
 
 /**
- * @brief struct mcps_data_ie_list_t MCPS data Information element list stucture
+ * @brief struct mcps_data_ie_list MCPS data Information element list stucture
  *
  * Structure for IEEE 802.15.4-2015 MCPS data extension to Indication
  */
@@ -139,7 +139,7 @@ typedef struct mcps_data_req_ie_list {
 
 
 /**
- * @brief struct mcps_ack_data_payload_t IE extension list and payload for enhanced ACK
+ * @brief struct mcps_ack_data_payload IE extension list and payload for enhanced ACK
  *
  */
 typedef struct mcps_ack_data_payload {
@@ -149,7 +149,7 @@ typedef struct mcps_ack_data_payload {
 } mcps_ack_data_payload_t;
 
 /**
- * @brief struct mcps_purge_t Purge request structure
+ * @brief struct mcps_purge Purge request structure
  *
  * See IEEE standard 802.15.4-2006 (table 44) for more details
  */
@@ -158,7 +158,7 @@ typedef struct mcps_purge_s {
 } mcps_purge_t;
 
 /**
- * @brief struct mcps_purge_conf_t Purge confirm structure
+ * @brief struct mcps_purge_conf Purge confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 45) for more details
  */
@@ -175,7 +175,7 @@ typedef struct mcps_purge_conf_s {
 #define MCPS_EDFE_FINAL_FRAME_RX 5  /**< EDFE session can be close at MAC side and drop this packet */
 
 /**
- * @brief struct mcps_edfe_response_t EDFE detetction and response structure
+ * @brief struct mcps_edfe_response EDFE detetction and response structure
  *
  */
 typedef struct mcps_edfe_response_s {

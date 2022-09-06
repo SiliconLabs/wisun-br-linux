@@ -128,12 +128,12 @@ typedef struct dev_driver_tx_buffer {
 #define MAC_PRIORITY_EF_BACKOFF_MULTIPLIER  2
 
 #define MAC_EXT_ADDLIST_SIZE 8
-typedef struct mac_extented_address_table_t {
+typedef struct mac_extented_address_table {
     uint8_t short_addr[2];
     uint8_t addr[8];
 } mac_extented_address_table_t;
 
-typedef struct mac_tx_status_t {
+typedef struct mac_tx_status {
     uint16_t length;
     uint8_t cca_cnt;
     uint8_t retry;

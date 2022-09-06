@@ -126,10 +126,10 @@
 #define RPL_INSTANCE_LOCAL          0x80
 
 /*!
- * \struct rpl_dodag_info_t
+ * \struct rpl_dodag_info
  * \brief RPL Instance DODAG info structure for rpl_read_dodag_info. Read RFC 6550 for more information and to make sure you know what you are doing.
  */
-typedef struct rpl_dodag_info_t {
+typedef struct rpl_dodag_info {
     uint8_t dodag_id[16];           /**< RPL DODAG ID. */
     uint8_t instance_id;            /**< RPL instance ID. */
     uint8_t flags;                  /**< RPL DODAG Flags: (MOP,Grounded, Router Pref) */
@@ -145,10 +145,10 @@ typedef struct rpl_dodag_info_t {
 } rpl_dodag_info_t;
 
 /*!
- * \struct dodag_config_t
+ * \struct dodag_config
  * \brief RPL DODAG config is used when allocating RPL base arm_nwk_6lowpan_rpl_dodag_init().
  */
-typedef struct dodag_config_t {
+typedef struct dodag_config {
     uint8_t DAG_SEC_PCS;        /**< Path Control Size limits number of DAO parents. Possible values are 0-7, meaning 1-8 parents.
 (This also has an Authentication flag 0x10 – the “SEC”, but we don’t support that, and 4 reserved flags, so it is just the 3-bit PCS field). */
     uint8_t DAG_DIO_INT_DOUB;   /**< RPL Trickle DIOIntervalDoublings, recommended value 12. */

@@ -50,7 +50,7 @@ typedef struct addr_notification {
 
 static NS_LIST_DEFINE(addr_notifications, addr_notification_t, link);
 
-typedef struct addr_policy_table_entry_t {
+typedef struct addr_policy_table_entry {
     uint8_t prefix[16];
     uint8_t prefix_len;
     uint8_t precedence;

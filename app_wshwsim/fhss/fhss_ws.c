@@ -73,7 +73,7 @@ void (*fhss_bc_switch)(void) = NULL;
 #define WH_SUB_ID_BT    2
 
 
-struct ws_ie_t {
+struct ws_ie {
     uint8_t *content_ptr;
     unsigned length: 7;
     uint8_t id;
@@ -854,9 +854,9 @@ static bool fhss_ws_check_tx_conditions_callback(const fhss_api_t *api, bool is_
     return true;
 }
 
-static uint8_t fhss_ws_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct ws_ie_t *header_ie, uint8_t sub_id)
+static uint8_t fhss_ws_ie_header_discover(uint8_t *header_ptr, uint16_t length, struct ws_ie *header_ie, uint8_t sub_id)
 {
-    struct ws_ie_t ie_element;
+    struct ws_ie ie_element;
     uint8_t *sub_id_ptr;
     uint16_t ie_dummy;
     while (length > 2) {
@@ -885,7 +885,7 @@ static int16_t fhss_ws_write_synch_info_callback(const fhss_api_t *api, uint8_t 
         return -1;
     }
     platform_enter_critical();
-    struct ws_ie_t header_ie;
+    struct ws_ie header_ie;
     header_ie.id = WH_IE_ID;
     if (fhss_ws_ie_header_discover(ptr, length, &header_ie, WH_SUB_ID_UTT)) {
         uint32_t ufsi = fhss_ws_calculate_ufsi(fhss_structure, tx_time);

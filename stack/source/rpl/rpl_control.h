@@ -25,10 +25,10 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct protocol_interface_info_entry;
-struct prefix_entry_t;
+struct prefix_entry;
 struct rpl_instance;
 struct rpl_dodag_conf;
-struct rpl_dodag_info_t;
+struct rpl_dodag_info;
 struct rpl_dodag;
 struct buffer;
 
@@ -42,7 +42,7 @@ typedef enum rpl_event {
 
 typedef void rpl_domain_callback_t(rpl_event_e event, void *handle);
 
-typedef void rpl_prefix_callback_t(struct prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local);
+typedef void rpl_prefix_callback_t(struct prefix_entry *prefix, void *handle, uint8_t *parent_link_local);
 
 typedef bool rpl_new_parent_callback_t(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank);
 
@@ -117,7 +117,7 @@ void rpl_control_transmit_dio(struct rpl_domain *domain, struct protocol_interfa
 bool rpl_control_transmit_dao(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, struct rpl_instance *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst);
 void rpl_control_disable_ra_routes(struct rpl_domain *domain);
 void rpl_control_event(struct rpl_domain *domain, rpl_event_e event);
-void rpl_control_process_prefix_option(struct prefix_entry_t *prefix, struct protocol_interface_info_entry *cur);
+void rpl_control_process_prefix_option(struct prefix_entry *prefix, struct protocol_interface_info_entry *cur);
 
 /*********************** RPL control API to rest of system *******************/
 
@@ -207,7 +207,7 @@ uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *pre
 struct rpl_instance *rpl_control_enumerate_instances(rpl_domain_t *domain, struct rpl_instance *instance);
 struct rpl_instance *rpl_control_lookup_instance(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid);
 bool rpl_control_get_instance_dao_target_count(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const uint8_t *prefix, uint16_t *target_count);
-bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl_dodag_info_t *dodag_info);
+bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl_dodag_info *dodag_info);
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);

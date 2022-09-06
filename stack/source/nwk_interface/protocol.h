@@ -138,7 +138,7 @@ typedef struct mac_cordinator {
     uint8_t mac_mlme_coord_address[8];
 } mac_cordinator_s;
 
-typedef struct arm_15_4_mac_parameters_t {
+typedef struct arm_15_4_mac_parameters {
     /* Security API USE */
     unsigned mac_security_level: 3;
     unsigned mac_key_id_mode: 2;

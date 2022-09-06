@@ -27,7 +27,7 @@
 #include "stack/mac/mac_common_defines.h"
 
 /**
- * @brief struct mlme_pan_descriptor_t PAN descriptor
+ * @brief struct mlme_pan_descriptor PAN descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 55) for more details
  */
@@ -64,7 +64,7 @@ typedef enum {
 } mlme_command_type_e;
 
 /**
- * @brief struct mlme_key_usage_descriptor_t Key usage descriptor
+ * @brief struct mlme_key_usage_descriptor Key usage descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 90) for more details
  */
@@ -74,7 +74,7 @@ typedef struct mlme_key_usage_descriptor_s {
 } mlme_key_usage_descriptor_t;
 
 /**
- * @brief struct mlme_key_device_descriptor_t Key usage descriptor
+ * @brief struct mlme_key_device_descriptor Key usage descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 91) for more details
  */
@@ -101,7 +101,7 @@ typedef enum {
 } mlme_security_type_e;
 
 /**
- * @brief struct mlme_security_level_descriptor_t Security level descriptor
+ * @brief struct mlme_security_level_descriptor Security level descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 92) for more details
  */
@@ -113,7 +113,7 @@ typedef struct mlme_security_level_descriptor_s {
 } mlme_security_level_descriptor_t;
 
 /**
- * @brief struct mlme_device_descriptor_t Device descriptor
+ * @brief struct mlme_device_descriptor Device descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 93) for more details
  */
@@ -126,7 +126,7 @@ typedef struct mlme_device_descriptor_s {
 } mlme_device_descriptor_t;
 
 /**
- * @brief struct mlme_key_id_lookup_descriptor_t Key id lookup descriptor
+ * @brief struct mlme_key_id_lookup_descriptor Key id lookup descriptor
  *
  * See IEEE standard 802.15.4-2006 (table 94) for more details
  */
@@ -137,7 +137,7 @@ typedef struct mlme_key_id_lookup_descriptor_s {
 
 
 /**
- * @brief struct mlme_key_descriptor_entry_t Key descriptor entry
+ * @brief struct mlme_key_descriptor_entry Key descriptor entry
  *
  * See IEEE standard 802.15.4-2006 (table 89) for more details
  */
@@ -252,7 +252,7 @@ typedef enum {
 } mlme_attr_e;
 
 /**
- * @brief struct mlme_beacon_pending_address_spec_t Pending address specification field
+ * @brief struct mlme_beacon_pending_address_spec Pending address specification field
  *
  * See IEEE standard 802.15.4-2006 (figure 51) for more details
  */
@@ -262,7 +262,7 @@ typedef struct mlme_beacon_pending_address_spec_s {
 } mlme_beacon_pending_address_spec_t;
 
 /**
- * @brief struct mlme_beacon_gts_spec_t Format of GTS specification field
+ * @brief struct mlme_beacon_gts_spec Format of GTS specification field
  *
  * See IEEE standard 802.15.4-2006 (figure 48) for more details
  */
@@ -272,7 +272,7 @@ typedef struct mlme_beacon_gts_spec_s {
 } mlme_beacon_gts_spec_t;
 
 /**
- * @brief struct mlme_set_t Set request structure
+ * @brief struct mlme_set Set request structure
  *
  * See IEEE standard 802.15.4-2006 (table 70) for more details
  */
@@ -284,7 +284,7 @@ typedef struct mlme_set_s {
 } mlme_set_t;
 
 /**
- * @brief struct mlme_get_t Get request structure
+ * @brief struct mlme_get Get request structure
  *
  * See IEEE standard 802.15.4-2006 (table 56) for more details
  */
@@ -294,7 +294,7 @@ typedef struct mlme_get_s {
 } mlme_get_t;
 
 /**
- * @brief struct mlme_get_conf_t Get confirm structure
+ * @brief struct mlme_get_conf Get confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 57) for more details
  */
@@ -307,7 +307,7 @@ typedef struct mlme_get_conf_s {
 } mlme_get_conf_t;
 
 /**
- * @brief struct mlme_set_conf_t Set confirm structure
+ * @brief struct mlme_set_conf Set confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 71) for more details
  */
@@ -321,7 +321,7 @@ typedef struct mlme_set_conf_s {
 #define MLME_MAC_RES_SIZE_MAX 16 /**< Mac scan response max supported list size */
 
 /**
- * @brief struct mlme_reset_t Reset request structure
+ * @brief struct mlme_reset Reset request structure
  *
  * See IEEE standard 802.15.4-2006 (table 63) for more details
  */
@@ -330,7 +330,7 @@ typedef struct mlme_reset_s {
 } mlme_reset_t;
 
 /**
- * @brief struct mlme_reset_conf_t Reset confirm structure
+ * @brief struct mlme_reset_conf Reset confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 64) for more details
  */
@@ -339,7 +339,7 @@ typedef struct mlme_reset_conf_s {
 } mlme_reset_conf_t;
 
 /**
- * @brief struct mlme_rx_enable_t Rx enable request structure (Not supported)
+ * @brief struct mlme_rx_enable Rx enable request structure (Not supported)
  *
  * See IEEE standard 802.15.4-2006 (table 65) for more details
  */
@@ -350,7 +350,7 @@ typedef struct mlme_rx_enable_s {
 } mlme_rx_enable_t;
 
 /**
- * @brief struct mlme_rx_enable_conf_t Rx enable confirm structure (Not supported)
+ * @brief struct mlme_rx_enable_conf Rx enable confirm structure (Not supported)
  *
  * See IEEE standard 802.15.4-2006 (table 66) for more details
  */
@@ -359,7 +359,7 @@ typedef struct mlme_rx_enable_conf_s {
 } mlme_rx_enable_conf_t;
 
 /**
- * @brief struct mlme_comm_status_t Comm status indication structure
+ * @brief struct mlme_comm_status Comm status indication structure
  *
  * See IEEE standard 802.15.4-2006 (table 69) for more details
  */
@@ -374,7 +374,7 @@ typedef struct mlme_comm_status_s {
 } mlme_comm_status_t;
 
 /**
- * @brief struct mlme_start_t Start request structure
+ * @brief struct mlme_start Start request structure
  *
  * See IEEE standard 802.15.4-2006 (table 72) for more details
  */
@@ -393,7 +393,7 @@ typedef struct mlme_start_s {
 } mlme_start_t;
 
 /**
- * @brief struct mlme_start_conf_t Start confirm structure (Currently not triggered yet)
+ * @brief struct mlme_start_conf Start confirm structure (Currently not triggered yet)
  *
  * See IEEE standard 802.15.4-2006 (table 73) for more details
  */
@@ -402,7 +402,7 @@ typedef struct mlme_start_conf_s {
 } mlme_start_conf_t;
 
 /**
- * @brief struct mlme_poll_t Poll request structure
+ * @brief struct mlme_poll Poll request structure
  *
  * See IEEE standard 802.15.4-2006 (table 76) for more details
  */
@@ -414,7 +414,7 @@ typedef struct mlme_poll_s {
 } mlme_poll_t;
 
 /**
- * @brief struct mlme_poll_conf_t Poll confirm structure
+ * @brief struct mlme_poll_conf Poll confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 77) for more details
  */

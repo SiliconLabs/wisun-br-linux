@@ -21,7 +21,7 @@
 #include "stack/mac/mac_mcps.h"
 
 /**
- * @brief struct mac_aux_security_header_t MAC auxiliarity security header structure
+ * @brief struct mac_aux_security_header MAC auxiliarity security header structure
  * INTERNAL use only
  */
 typedef struct mac_aux_security_header_s {

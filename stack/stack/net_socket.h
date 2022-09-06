@@ -212,11 +212,11 @@
  */
 
 /*!
- * \struct socket_callback_t
+ * \struct socket_callback
  * \brief Socket Callback function structure type.
  */
 
-typedef struct socket_callback_t {
+typedef struct socket_callback {
     uint8_t event_type;     /**< Socket Callback Event check list below */
     int8_t socket_id;       /**< Socket id queue which socket cause call back */
     int8_t interface_id;    /**< Network Interface ID where Packet came */

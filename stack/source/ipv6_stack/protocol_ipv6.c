@@ -44,14 +44,14 @@
 
 #define TRACE_GROUP "pIP6"
 
-typedef struct ipv6_interface_prefix_on_link_t {
+typedef struct ipv6_interface_prefix_on_link {
     uint8_t                             prefix[16];                 /*!< destination address */
     uint8_t                             prefix_len;
     uint32_t                            prefix_valid_ttl;
     ns_list_link_t                      link;
 } ipv6_interface_prefix_on_link_t;
 
-typedef struct ipv6_interface_route_on_link_t {
+typedef struct ipv6_interface_route_on_link {
     uint8_t                             prefix[16];                 /*!< destination address */
     uint8_t                             prefix_len;
     uint8_t                             routePrefer;
@@ -59,7 +59,7 @@ typedef struct ipv6_interface_route_on_link_t {
     ns_list_link_t                      link;
 } ipv6_interface_route_on_link_t;
 
-typedef struct ipv6_interface_dns_server_on_link_t {
+typedef struct ipv6_interface_dns_server_on_link {
     uint8_t                             addr[16];                 /*!< DNS Server IPv6 address */
     ns_list_link_t                      link;
 } ipv6_interface_dns_server_on_link_t;

@@ -35,7 +35,7 @@ typedef enum address_type {
 
 
 /**
- * /struct ns_address_t
+ * /struct ns_address
  * /brief Struct for the addresses used by the socket interface functions and net_address_get().
  */
 typedef struct ns_address {

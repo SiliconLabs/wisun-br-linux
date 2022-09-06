@@ -55,7 +55,7 @@
 #define mac_unsecured_2003_compatibility false /**< For IEEE 802.15.4-2003 MAC compatibility, force max size to never exceed MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE */
 
 /**
- * @brief struct mlme_security_t MLME/MCPS security structure
+ * @brief struct mlme_security MLME/MCPS security structure
  * This structure encapsulates security related variables,
  * which are always used together if SecurityLevel > 0.
  *

@@ -20,7 +20,7 @@
 #include "stack/mac/mlme.h"
 
 struct channel_list_s;
-struct nwk_pan_descriptor_t;
+struct nwk_pan_descriptor;
 struct protocol_interface_info_entry;
 struct ns_sockaddr;
 struct buffer;

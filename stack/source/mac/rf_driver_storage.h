@@ -40,7 +40,7 @@ typedef enum {
 } arm_pd_sap_primitive_e;
 
 /**
- * @brief struct arm_pd_sap_generic_confirm_t PD Data confirm structure
+ * @brief struct arm_pd_sap_generic_confirm PD Data confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 7) for more details
  */
@@ -60,7 +60,7 @@ typedef struct arm_pd_sap_15_4_confirm_with_params_s {
 } arm_pd_sap_15_4_confirm_with_params_t;
 
 /**
- * @brief struct arm_pd_sap_generic_ind_t PD Data confirm structure
+ * @brief struct arm_pd_sap_generic_ind PD Data confirm structure
  *
  * See IEEE standard 802.15.4-2006 (table 8) for more details
  */
@@ -72,7 +72,7 @@ typedef struct arm_pd_sap_generic_ind_s {
 } arm_pd_sap_generic_ind_t;
 
 /**
- * @brief struct arm_mlme_req_t Common MLME message data structure
+ * @brief struct arm_mlme_req Common MLME message data structure
  *
  */
 typedef struct arm_mlme_req_s {

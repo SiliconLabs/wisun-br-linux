@@ -232,7 +232,7 @@ typedef struct {
 } arm_cert_revocation_list_entry_s;
 
 /** Structure for the network keys used by net_network_key_get */
-typedef struct ns_keys_t
+typedef struct ns_keys
 
 {
     uint8_t previous_active_network_key[16];    /**< The key that is currently active when a new key is generated and activated. */

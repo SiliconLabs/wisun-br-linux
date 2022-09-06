@@ -29,7 +29,7 @@ static uint16_t whiteboard_device_limit = 0;
 static uint16_t whiteboard_size = 0;
 
 /* Separate internal version to avoid exporting ns_list.h unnecessarily */
-typedef struct whiteboard_entry_int_t {
+typedef struct whiteboard_entry_int {
     whiteboard_entry_t entry;
     ns_list_link_t link;
 } whiteboard_entry_int_t;

@@ -52,7 +52,7 @@ static uint16_t port_counter;
 
 static socket_t *socket_instance[SOCKETS_MAX];
 
-typedef struct socket_cb_data_t {
+typedef struct socket_cb_data {
     int8_t tasklet;
     int8_t net_interface_id;
     socket_t *socket;
@@ -60,7 +60,7 @@ typedef struct socket_cb_data_t {
 } socket_cb_data_t;
 
 
-typedef struct socket_cb_event_t {
+typedef struct socket_cb_event {
     socket_t *socket;
     uint8_t socket_event;
     int8_t interface_id;

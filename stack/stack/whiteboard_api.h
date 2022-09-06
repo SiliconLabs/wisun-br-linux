@@ -25,10 +25,10 @@
  */
 
 /**
- * \struct whiteboard_entry_t
+ * \struct whiteboard_entry
  * \brief A structure describing a whiteboarding entry.
  */
-typedef struct whiteboard_entry_t {
+typedef struct whiteboard_entry {
     uint8_t                         address[16];        /**< Registered IP address. */
     uint_least24_t                  ttl;                /**< Whiteboard entry TTL (seconds). */
     uint8_t                         eui64[8];           /**< EUI-64 of node that IP address is registered to. */

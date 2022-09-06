@@ -100,7 +100,7 @@ typedef enum {
     ARM_SOCKET_TCP_TIMER_CB,
 } arm_socket_event_id_e;
 
-typedef struct socket_buffer_callback_t {
+typedef struct socket_buffer_callback {
     uint8_t event_type;
     int8_t socket_id;
     int8_t interface_id;

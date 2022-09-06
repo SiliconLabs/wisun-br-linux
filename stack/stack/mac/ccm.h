@@ -59,7 +59,7 @@
 
 
 /*!
- * \struct ccm_globals_t
+ * \struct ccm_globals
  * \brief CCM global structure.
  * The structure is used for configuring NONCE, adata and data before calling ccm_process_run().
  */
