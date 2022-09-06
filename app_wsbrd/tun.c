@@ -57,29 +57,29 @@ static int tun_addr_get(const char *if_name, uint8_t ip[static 16], bool gua)
     struct ifaddrs *ifaddr, *ifa;
 
     if (getifaddrs(&ifaddr) < 0) {
-            WARN("getifaddrs: %m");
-            freeifaddrs(ifaddr);
-            return -1;
+        WARN("getifaddrs: %m");
+        freeifaddrs(ifaddr);
+        return -1;
     }
 
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-            if (!ifa->ifa_addr)
-                continue;
+        if (!ifa->ifa_addr)
+            continue;
 
-            if (ifa->ifa_addr->sa_family != AF_INET6)
-                continue;
+        if (ifa->ifa_addr->sa_family != AF_INET6)
+            continue;
 
-            if (strcmp(ifa->ifa_name, if_name))
-                continue;
+        if (strcmp(ifa->ifa_name, if_name))
+            continue;
 
-            ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+        ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 
-            if (gua == IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
-                continue;
+        if (gua == IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
+            continue;
 
-            memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
-            freeifaddrs(ifaddr);
-            return 0;
+        memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
+        freeifaddrs(ifaddr);
+        return 0;
     }
 
     freeifaddrs(ifaddr);
