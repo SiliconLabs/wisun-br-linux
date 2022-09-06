@@ -39,7 +39,7 @@ typedef struct mcps_data_conf_payload_s mcps_data_conf_payload_t;
 typedef struct mcps_ack_data_payload    mcps_ack_data_payload_t;
 typedef struct mcps_edfe_response_s     mcps_edfe_response_t;
 typedef struct mcps_data_ie_list        mcps_data_ie_list_t;
-typedef struct phy_rf_channel_configuration_s phy_rf_channel_configuration_s;
+typedef struct phy_rf_channel_configuration_s phy_rf_channel_configuration_t;
 typedef enum mac_data_priority          mac_data_priority_e;
 
 /**

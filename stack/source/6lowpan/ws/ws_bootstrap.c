@@ -1822,7 +1822,7 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
     return 0;
 }
 
-static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_s rf_configs)
+static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_rf_channel_configuration_t rf_configs)
 {
     mlme_set_t set_request;
     mlme_get_t get_request;
@@ -1836,7 +1836,7 @@ static int ws_bootstrap_set_rf_config(protocol_interface_info_entry_t *cur, phy_
     // Set RF configuration
     set_request.attr = macRfConfiguration;
     set_request.value_pointer = &rf_configs;
-    set_request.value_size = sizeof(phy_rf_channel_configuration_s);
+    set_request.value_size = sizeof(phy_rf_channel_configuration_t);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
     // Set Ack wait duration
     uint8_t bits_per_symbol = 1;
@@ -1878,7 +1878,7 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
-    phy_rf_channel_configuration_s rf_config = { };
+    phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
     chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,

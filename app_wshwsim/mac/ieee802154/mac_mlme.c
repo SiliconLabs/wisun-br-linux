@@ -508,7 +508,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
         case macRfConfiguration:
             rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_RF_CONFIGURATION, (uint8_t *) set_req->value_pointer);
             mac_mlme_set_symbol_rate(rf_mac_setup);
-            phy_rf_channel_configuration_s *config_params = (phy_rf_channel_configuration_s *)set_req->value_pointer;
+            phy_rf_channel_configuration_t *config_params = (phy_rf_channel_configuration_t *)set_req->value_pointer;
             rf_mac_setup->datarate = config_params->datarate;
             tr_info("New RF config:");
             tr_info("  Frequency(ch0): %"PRIu32"Hz", config_params->channel_0_center_frequency);
