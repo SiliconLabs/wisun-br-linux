@@ -31,7 +31,7 @@
 
 #define TRACE_GROUP "kmar"
 
-void kmp_address_init(kmp_addr_e type, kmp_addr_t *addr, const uint8_t *eui_64)
+void kmp_address_init(kmp_addr_type_e type, kmp_addr_t *addr, const uint8_t *eui_64)
 {
     memset(addr, 0, sizeof(kmp_addr_t));
     addr->type = type;

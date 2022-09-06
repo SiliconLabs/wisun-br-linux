@@ -19,10 +19,10 @@
 #define KMP_ADDR_H_
 #include <stdint.h>
 
-typedef enum {
+typedef enum kmp_addr_type {
     KMP_ADDR_EUI_64 = 0,
     KMP_ADDR_EUI_64_AND_IP
-} kmp_addr_e;
+} kmp_addr_type_e;
 
 typedef struct {
     uint8_t type;
@@ -39,7 +39,7 @@ typedef struct {
  * \param eui_64 EUI-64
  *
  */
-void kmp_address_init(kmp_addr_e type, kmp_addr_t *addr, const uint8_t *eui_64);
+void kmp_address_init(kmp_addr_type_e type, kmp_addr_t *addr, const uint8_t *eui_64);
 
 
 /**
