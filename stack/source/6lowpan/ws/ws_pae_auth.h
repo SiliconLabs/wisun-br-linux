@@ -213,7 +213,7 @@ typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
+typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_keys_remove remove network keys callback

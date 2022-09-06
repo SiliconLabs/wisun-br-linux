@@ -333,7 +333,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     }
 
     // Modify keys
-    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false);
+    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false, false);
 
     return 0;
 }
@@ -495,7 +495,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
             (sec_prot_keys_pmk_get(&pae_supp->entry.sec_keys) != NULL) &&
             (sec_prot_keys_ptk_get(&pae_supp->entry.sec_keys) != NULL)) {
         tr_debug("Existing keys used, counter %i", pae_supp->nw_keys_used_cnt);
-        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false) >= 0) {
+        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false, false) >= 0) {
             tr_debug("Keys inserted");
         }
         pae_supp->nw_keys_used_cnt++;
@@ -1228,7 +1228,7 @@ static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
     if ((type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result == KMP_RESULT_OK) {
         if (sec_keys) {
             sec_prot_keys_t *keys = sec_keys;
-            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks, false);
+            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks, false, false);
         }
 
         ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_OK);

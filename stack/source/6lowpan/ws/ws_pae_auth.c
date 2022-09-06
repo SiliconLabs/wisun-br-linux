@@ -626,7 +626,7 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool 
     }
 
     if (pae_auth->nw_key_insert) {
-        pae_auth->nw_key_insert(pae_auth->interface_ptr, pae_auth->sec_keys_nw_info->gtks, force_install);
+        pae_auth->nw_key_insert(pae_auth->interface_ptr, pae_auth->sec_keys_nw_info->gtks, force_install, false);
     }
 
     return 0;

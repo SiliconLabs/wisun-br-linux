@@ -34,6 +34,7 @@
 #define PTK_LEN                 48
 #define GTK_LEN                 16
 #define GTK_NUM                 4
+#define LGTK_NUM                3
 
 #define KCK_LEN                 16
 #define KEK_LEN                 16

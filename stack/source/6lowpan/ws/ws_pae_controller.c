@@ -136,7 +136,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
 static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry);
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
-static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install);
+static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
@@ -174,7 +174,7 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     // In case test keys are set uses those and does not initiate authentication
     if (controller->gtks.gtks_set) {
         if (sec_prot_keys_gtks_are_updated(&controller->gtks.gtks)) {
-            ws_pae_controller_nw_key_check_and_insert(controller->interface_ptr, &controller->gtks.gtks, false);
+            ws_pae_controller_nw_key_check_and_insert(controller->interface_ptr, &controller->gtks.gtks, false, false);
             sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
             ws_pae_supp_gtks_set(controller->interface_ptr, &controller->gtks.gtks);
         }
@@ -471,18 +471,29 @@ int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface
 #endif
 }
 
-static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install)
+static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
 {
+    // Adds, removes and updates network keys to MAC based on new GTKs
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    nw_key_t *nw_key;
+    frame_counters_t *frame_counters;
+    int8_t ret = -1;
+    int key_offset;
+
     if (!controller) {
         return -1;
     }
 
-    int8_t ret = -1;
-
-    // Adds, removes and updates network keys to MAC based on new GTKs
-    nw_key_t *nw_key = controller->gtks.nw_key;
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
+    if (is_lgtk) {
+            nw_key = controller->lgtks.nw_key;
+            frame_counters = &controller->lgtks.frame_counters;
+            key_offset = GTK_NUM;
+    } else {
+            nw_key = controller->gtks.nw_key;
+            frame_counters = &controller->gtks.frame_counters;
+            key_offset = 0;
+    }
+    for (uint8_t i = 0; i < (is_lgtk ? LGTK_NUM : GTK_NUM); i++) {
         // Gets GTK for the index (new, modified or none)
         uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
 
@@ -501,7 +512,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
             // Install always
             nw_key[i].installed = false;
             // Frame counters are fresh
-            ws_pae_controller_frame_counter_index_reset(&controller->gtks.frame_counters, i);
+            ws_pae_controller_frame_counter_index_reset(frame_counters, i);
         }
 
         // If GTK key is not set, continues to next GTK
@@ -529,15 +540,15 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
             uint8_t gak[GTK_LEN];
             if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) >= 0) {
                 // Install the new network key derived from GTK and network name (GAK) to MAC
-                controller->nw_key_set(interface_ptr, i, i, gak);
+                controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
                 nw_key[i].installed = true;
                 ret = 0;
 #ifdef EXTRA_DEBUG_INFO
                 tr_info("NW name: %s", controller->sec_keys_nw_info.network_name);
                 size_t nw_name_len = strlen(controller->sec_keys_nw_info.network_name);
                 tr_info("NW name: %s", trace_array((uint8_t *)controller->sec_keys_nw_info.network_name, nw_name_len));
-                tr_info("GTK: %s", trace_array(gtk, 16));
-                tr_info("GAK: %s", trace_array(gak, 16));
+                tr_info("%s: %s", is_lgtk ? "LGTK" : "GTK", trace_array(gtk, 16));
+                tr_info("%s: %s", is_lgtk ? "LGAK" : "GAK", trace_array(gak, 16));
 #endif
             } else {
                 tr_error("GAK generation failed network name: %s", controller->sec_keys_nw_info.network_name);
@@ -545,19 +556,19 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
             }
 
             // If frame counter value has been stored for the network key, updates the frame counter if needed
-            if (controller->gtks.frame_counters.counter[i].set &&
-                    memcmp(gtk, controller->gtks.frame_counters.counter[i].gtk, GTK_LEN) == 0) {
+            if (frame_counters->counter[i].set &&
+                    memcmp(gtk, frame_counters->counter[i].gtk, GTK_LEN) == 0) {
                 // Read current counter from MAC
                 uint32_t curr_frame_counter;
-                controller->nw_frame_counter_read(controller->interface_ptr, &curr_frame_counter, i);
+                controller->nw_frame_counter_read(controller->interface_ptr, &curr_frame_counter, i + key_offset);
 
                 // If stored frame counter is greater than MAC counter
-                if (controller->gtks.frame_counters.counter[i].frame_counter > curr_frame_counter) {
+                if (frame_counters->counter[i].frame_counter > curr_frame_counter) {
                     tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i,
-                             controller->gtks.frame_counters.counter[i].frame_counter, curr_frame_counter);
-                    curr_frame_counter = controller->gtks.frame_counters.counter[i].frame_counter;
+                             frame_counters->counter[i].frame_counter, curr_frame_counter);
+                    curr_frame_counter = frame_counters->counter[i].frame_counter;
                     // Updates MAC frame counter
-                    controller->nw_frame_counter_set(controller->interface_ptr, curr_frame_counter, i);
+                    controller->nw_frame_counter_set(controller->interface_ptr, curr_frame_counter, i + key_offset);
                 }
             }
         }
