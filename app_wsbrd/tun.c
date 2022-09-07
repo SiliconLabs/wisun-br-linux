@@ -286,8 +286,3 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     buffer_to_6lowpan->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
     protocol_push(buffer_to_6lowpan);
 }
-
-void wsbr_spinel_replay_tun(struct spinel_buffer *buf)
-{
-    WARN("%s: not implemented", __func__);
-}

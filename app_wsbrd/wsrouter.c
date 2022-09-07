@@ -210,8 +210,7 @@ static void mbed_trace_print_function(const char *str)
     fprintf(g_trace_stream, "%s\n", str);
 }
 
-// Defined here to avoid compiling tun.c
-void wsbr_spinel_replay_tun(struct spinel_buffer *buf)
+void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 {
     WARN("%s: not implemented", __func__);
 }

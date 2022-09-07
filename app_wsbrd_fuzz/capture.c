@@ -8,6 +8,7 @@
 #include "common/spinel_buffer.h"
 #include "common/spinel_defs.h"
 #include "wsbrd_fuzz.h"
+#include "interfaces.h"
 #include "capture.h"
 
 void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
@@ -56,7 +57,8 @@ void fuzz_capture_tun(struct fuzz_ctxt *ctxt, const void *data, size_t size)
 
     buf = ALLOC_STACK_SPINEL_BUF(7 + size);
     spinel_push_u8(buf, wsbr_get_spinel_hdr(&g_ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_REPLAY_TUN);
+    spinel_push_uint(buf, SPINEL_CMD_REPLAY_INTERFACE);
+    spinel_push_u8(buf, IF_TUN);
     spinel_push_data(buf, data, size);
     fuzz_capture_spinel(ctxt, buf);
 }

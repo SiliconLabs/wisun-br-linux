@@ -15,14 +15,11 @@
 #include <stdint.h>
 
 struct wsbr_ctxt;
-struct spinel_buffer;
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);
 int get_global_unicast_addr(char *if_name, uint8_t ip[static 16]);
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len);
-
-void wsbr_spinel_replay_tun(struct spinel_buffer *buf);
 
 #endif
 

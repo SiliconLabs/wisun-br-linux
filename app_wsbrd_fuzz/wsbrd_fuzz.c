@@ -121,20 +121,6 @@ void __wrap_wsbr_spinel_replay_timers(struct spinel_buffer *buf)
         fuzz_trigger_timer();
 }
 
-void __wrap_wsbr_spinel_replay_tun(struct spinel_buffer *buf)
-{
-    uint8_t *data;
-    size_t size;
-    int ret;
-
-    FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "TUN command received during RCP init");
-    FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "TUN command received while replay is disabled");
-    size = spinel_pop_data_ptr(buf, &data);
-    ret = write(g_fuzz_ctxt.tun_pipe[1], data, size);
-    FATAL_ON(ret < 0, 2, "write: %m");
-    FATAL_ON(ret < size, 2, "write: Short write");
-}
-
 ssize_t __real_read(int fd, void *buf, size_t count);
 ssize_t __wrap_read(int fd, void *buf, size_t count)
 {

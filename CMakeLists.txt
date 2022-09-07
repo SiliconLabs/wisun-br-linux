@@ -550,6 +550,7 @@ if(COMPILE_SIMULATION_TOOLS)
     add_executable(wsbrd-fuzz
         app_wsbrd_fuzz/wsbrd_fuzz.c
         app_wsbrd_fuzz/commandline.c
+        app_wsbrd_fuzz/interfaces.c
         app_wsbrd_fuzz/capture.c
         app_wsbrd_fuzz/rand.c
     )
@@ -570,7 +571,7 @@ if(COMPILE_SIMULATION_TOOLS)
         -Wl,--wrap=crc_check
         -Wl,--wrap=spinel_prop_is_valid
         -Wl,--wrap=wsbr_tun_init
-        -Wl,--wrap=wsbr_spinel_replay_tun
+        -Wl,--wrap=wsbr_spinel_replay_interface
         -Wl,--wrap=wsbr_common_timer_init
         -Wl,--wrap=wsbr_spinel_replay_timers
         -Wl,--wrap=read

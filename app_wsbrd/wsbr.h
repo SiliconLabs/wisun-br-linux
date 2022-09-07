@@ -30,6 +30,7 @@ typedef struct sd_bus sd_bus;
 
 #include "commandline.h"
 
+struct spinel_buffer;
 struct phy_device_driver_s;
 struct eth_mac_api_s;
 struct fhss_api;
@@ -99,5 +100,7 @@ static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
 }
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
+
+void wsbr_spinel_replay_interface(struct spinel_buffer *buf);
 
 #endif

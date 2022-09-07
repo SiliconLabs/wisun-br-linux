@@ -31,7 +31,7 @@ const char *spinel_cmd_str(int cmd)
         cmd_name(NOOP),
         cmd_name(RESET),
         cmd_name(REPLAY_TIMERS),
-        cmd_name(REPLAY_TUN),
+        cmd_name(REPLAY_INTERFACE),
     };
 
     for (int i = 0; i < ARRAY_SIZE(spinel_cmds); i++)

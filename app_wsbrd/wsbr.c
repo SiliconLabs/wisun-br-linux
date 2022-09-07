@@ -324,6 +324,11 @@ static void mbed_trace_print_function(const char *str)
     fprintf(g_trace_stream, "%s\n", str);
 }
 
+void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
+{
+    WARN("%s: not implemented", __func__);
+}
+
 void kill_handler(int signal)
 {
     exit(3);

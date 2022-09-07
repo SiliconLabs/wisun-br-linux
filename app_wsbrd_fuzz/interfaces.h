@@ -1,0 +1,12 @@
+#ifndef FUZZ_INTERFACES_H
+#define FUZZ_INTERFACES_H
+
+enum {
+    IF_TUN,
+    IF_DHCP_SERVER,
+    IF_EAPOL_RELAY,
+    IF_BR_EAPOL_RELAY,
+    IF_PAE_AUTH,
+};
+
+#endif

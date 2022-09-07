@@ -504,8 +504,8 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     case SPINEL_CMD_REPLAY_TIMERS:
         wsbr_spinel_replay_timers(buf);
         break;
-    case SPINEL_CMD_REPLAY_TUN:
-        wsbr_spinel_replay_tun(buf);
+    case SPINEL_CMD_REPLAY_INTERFACE:
+        wsbr_spinel_replay_interface(buf);
         break;
     default:
         WARN("%s: not implemented: %02x", __func__, cmd);
