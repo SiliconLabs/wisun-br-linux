@@ -14,6 +14,7 @@
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 #include "capture.h"
+#include "interfaces.h"
 
 struct fuzz_ctxt g_fuzz_ctxt = {
     .mbedtls_time = 1700000000, // Tue Nov 14 23:13:20 CET 2023
@@ -137,7 +138,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
         }
     } else if (fd == g_ctxt.tun_fd && ctxt->capture_enabled) {
         fuzz_capture_timers(ctxt);
-        fuzz_capture_tun(ctxt, buf, count);
+        fuzz_capture_interface(ctxt, IF_TUN, buf, count);
     } else if (fd == g_ctxt.os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
         // Read from the next replay file
         g_ctxt.os_ctxt->data_fd = ctxt->replay_fds[ctxt->replay_i++];
