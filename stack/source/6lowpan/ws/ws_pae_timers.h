@@ -33,15 +33,16 @@
 void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_cfg_t *new_timer_settings);
 
 /**
- *  ws_pae_timers_lifetime_set sets GTK, PTK and PTK lifetimes
+ *  ws_pae_timers_lifetime_set sets GTK, LGTK, PTK and PTK lifetimes
  *
  * \param timer_settings timer settings
  * \param gtk_lifetime GTK lifetime
+ * \param lgtk_lifetime LGTK lifetime
  * \param pmk_lifetime PMK lifetime
  * \param ptk_lifetime PTK lifetime
  *
  */
-void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
+void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t lgtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime);
 
 /**
  *  ws_pae_timers_gtk_time_settings_set sets GTK, PTK and PTK lifetimes
