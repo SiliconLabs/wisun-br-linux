@@ -637,9 +637,9 @@ static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t inde
     return sec_prot_keys_gtk_status_active_set(gtks, index);
 }
 
-static int8_t ws_pae_auth_gtk_clear(pae_auth_t *pae_auth, uint8_t index)
+static int8_t ws_pae_auth_gtk_clear(sec_prot_gtk_keys_t *gtks, uint8_t index)
 {
-    return sec_prot_keys_gtk_clear(pae_auth->sec_keys_nw_info->gtks, index);
+    return sec_prot_keys_gtk_clear(gtks, index);
 }
 
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index)
@@ -812,7 +812,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
 
             if (timer_seconds == 0) {
                 tr_info("GTK expired index: %i, system time: %"PRIu32"", i, g_monotonic_time_100ms / 10);
-                ws_pae_auth_gtk_clear(pae_auth, i);
+                ws_pae_auth_gtk_clear(pae_auth->sec_keys_nw_info->gtks, i);
                 ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
                 // Update keys to NVM as needed
                 pae_auth->nw_info_updated(pae_auth->interface_ptr);
