@@ -580,6 +580,11 @@ if(COMPILE_SIMULATION_TOOLS)
         -Wl,--wrap=write
         -Wl,--wrap=recv
         -Wl,--wrap=recvfrom
+        -Wl,--wrap=socket
+        -Wl,--wrap=setsockopt
+        -Wl,--wrap=bind
+        -Wl,--wrap=sendto
+        -Wl,--wrap=sendmsg
         -Wl,--wrap=getrandom
         -Wl,--wrap=time
     )

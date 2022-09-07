@@ -18,6 +18,12 @@
 
 struct fuzz_ctxt g_fuzz_ctxt = {
     .mbedtls_time = 1700000000, // Tue Nov 14 23:13:20 CET 2023
+    .socket_pipes = {
+        { -1, -1 },
+        { -1, -1 },
+        { -1, -1 },
+        { -1, -1 },
+    },
 };
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);

@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include "interfaces.h"
+
 struct fuzz_ctxt {
     bool fuzzing_enabled;
     bool rand_predictable;
@@ -19,6 +21,8 @@ struct fuzz_ctxt {
     int replay_fds[10];
     int replay_i;
     int tun_pipe[2];
+    int socket_pipe_count;
+    int socket_pipes[IF_SOCKET_COUNT][2];
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;
