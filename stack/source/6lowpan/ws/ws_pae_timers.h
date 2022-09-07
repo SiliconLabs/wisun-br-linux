@@ -53,7 +53,7 @@ void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_li
  * \param max_mismatch max mismatch
  *
  */
-void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
+void ws_pae_timers_gtk_time_settings_set(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch);
 
 /**
  *  ws_pae_timers_gtk_new_install_required GTK new install required check
@@ -65,7 +65,7 @@ void ws_pae_timers_gtk_time_settings_set(sec_timer_cfg_t *timer_settings, uint8_
  * \return false GTK install not required
  *
  */
-bool ws_pae_timers_gtk_new_install_required(sec_cfg_t *sec_cfg, uint32_t seconds);
+bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *sec_cfg, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_new_activation_time GTK new activation time
@@ -77,7 +77,7 @@ bool ws_pae_timers_gtk_new_install_required(sec_cfg_t *sec_cfg, uint32_t seconds
  * \return false GTK new activation time not expired
  *
  */
-bool ws_pae_timers_gtk_new_activation_time(sec_cfg_t *sec_cfg, uint32_t seconds);
+bool ws_pae_timers_gtk_new_activation_time(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds);
 
 /**
  *  ws_pae_timers_gtk_revocation_lifetime_get GTK revocation lifetime get
@@ -87,6 +87,6 @@ bool ws_pae_timers_gtk_new_activation_time(sec_cfg_t *sec_cfg, uint32_t seconds)
  * \return GTK revocation lifetime
  *
  */
-uint32_t ws_pae_timers_gtk_revocation_lifetime_get(sec_cfg_t *sec_cfg);
+uint32_t ws_pae_timers_gtk_revocation_lifetime_get(struct sec_timer_gtk_cfg *timer_gtk_cfg);
 
 #endif

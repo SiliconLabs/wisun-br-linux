@@ -500,7 +500,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
         // As default removes other keys than active
         int8_t not_removed_index = active_index;
 
-        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(pae_auth->sec_cfg);
+        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(&pae_auth->sec_cfg->timer_cfg.gtk);
 
         uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, active_index);
 
@@ -775,7 +775,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             uint32_t timer_seconds = sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, i, current_time, seconds + gtk_lifetime_dec_extra_seconds, true);
             if (active_index == i) {
                 if (!pae_auth->gtks.gtk_new_inst_req_exp) {
-                    pae_auth->gtks.gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(pae_auth->sec_cfg, timer_seconds);
+                    pae_auth->gtks.gtk_new_inst_req_exp = ws_pae_timers_gtk_new_install_required(&pae_auth->sec_cfg->timer_cfg.gtk, timer_seconds);
                     if (pae_auth->gtks.gtk_new_inst_req_exp) {
                         int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
                         if (second_index < 0) {
@@ -791,7 +791,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                 }
 
                 if (!pae_auth->gtks.gtk_new_act_time_exp) {
-                    pae_auth->gtks.gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(pae_auth->sec_cfg, timer_seconds);
+                    pae_auth->gtks.gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(&pae_auth->sec_cfg->timer_cfg.gtk, timer_seconds);
                     if (pae_auth->gtks.gtk_new_act_time_exp) {
                         int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth);
                         tr_info("GTK new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"", active_index, timer_seconds, new_active_index, g_monotonic_time_100ms / 10);
