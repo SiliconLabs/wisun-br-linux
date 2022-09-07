@@ -89,8 +89,12 @@
 
 typedef struct pae_auth_gtk {
     sec_prot_gtk_keys_t *next_gtks;                          /**< Next GTKs */
+    frame_counters_t *frame_counters;                        /**< Frame counters */
+    uint32_t prev_frame_cnt;                                 /**< Previous frame counter */
+    uint16_t prev_frame_cnt_timer;                           /**< Previous frame counter timer */
     bool gtk_new_inst_req_exp : 1;                           /**< GTK new install required timer expired */
     bool gtk_new_act_time_exp : 1;                           /**< GTK new activation time expired */
+    bool prev_frame_cnt_set : 1;                             /**< Previous frame counter set */
 } pae_auth_gtk_t;
 
 typedef struct pae_auth {
@@ -115,18 +119,14 @@ typedef struct pae_auth {
     const sec_prot_certs_t *certs;                           /**< Certificates */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
     sec_cfg_t *sec_cfg;                                      /**< Security configuration */
-    frame_counters_t *gtk_frame_counters;                    /**< Frame counters */
     uint64_t prev_system_time;                               /**< Previous system time */
     uint64_t system_time_diff;                               /**< System time diffence */
-    uint32_t prev_frame_cnt;                                 /**< Previous frame counter */
-    uint16_t prev_frame_cnt_timer;                           /**< Previous frame counter timer */
     uint16_t supp_max_number;                                /**< Max number of stored supplicants */
     uint16_t waiting_supp_list_size;                         /**< Waiting supplicants list size */
     uint8_t relay_socked_msg_if_instance_id;                 /**< Relay socket message interface instance identifier */
     uint8_t radius_socked_msg_if_instance_id;                /**< Radius socket message interface instance identifier */
     bool timer_running : 1;                                  /**< Timer is running */
     bool prev_system_time_set : 1;                           /**< Previous system time set */
-    bool prev_frame_cnt_set : 1;                             /**< Previous frame counter set */
 } pae_auth_t;
 
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
@@ -202,18 +202,18 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
     pae_auth->sec_cfg = sec_cfg;
-    pae_auth->gtk_frame_counters = gtk_frame_counters;
     pae_auth->prev_system_time = 0;
     pae_auth->system_time_diff = 0;
-    pae_auth->prev_frame_cnt = 0;
-    pae_auth->prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->supp_max_number = SUPPLICANT_MAX_NUMBER;
     pae_auth->waiting_supp_list_size = 0;
+    pae_auth->prev_system_time_set = false;
 
+    pae_auth->gtks.frame_counters = gtk_frame_counters;
+    pae_auth->gtks.prev_frame_cnt = 0;
+    pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->gtks.gtk_new_inst_req_exp = false;
     pae_auth->gtks.gtk_new_act_time_exp = false;
-    pae_auth->prev_frame_cnt_set = false;
-    pae_auth->prev_system_time_set = false;
+    pae_auth->gtks.prev_frame_cnt_set = false;
 
     pae_auth->relay_socked_msg_if_instance_id = 0;
     pae_auth->radius_socked_msg_if_instance_id = 0;
@@ -832,11 +832,11 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
 {
     uint32_t decrement_seconds = 0;
 
-    if (pae_auth->prev_frame_cnt_timer > seconds) {
-        pae_auth->prev_frame_cnt_timer -= seconds;
+    if (pae_auth->gtks.prev_frame_cnt_timer > seconds) {
+        pae_auth->gtks.prev_frame_cnt_timer -= seconds;
         return 0;
     }
-    pae_auth->prev_frame_cnt_timer = FRAME_CNT_TIMER;
+    pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
 
     uint32_t frame_cnt = 0;
     if (pae_auth->nw_frame_cnt_read(pae_auth->interface_ptr, &frame_cnt, gtk_index) < 0) {
@@ -875,20 +875,20 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
 
     // Calculate how much frame counters have changed and store maximum if larger than previous maximum
     uint32_t frame_cnt_diff = 0;
-    if (pae_auth->prev_frame_cnt_set && frame_cnt > pae_auth->prev_frame_cnt) {
-        frame_cnt_diff = frame_cnt - pae_auth->prev_frame_cnt;
-        if (frame_cnt_diff > pae_auth->gtk_frame_counters->counter[gtk_index].max_frame_counter_chg) {
-            pae_auth->gtk_frame_counters->counter[gtk_index].max_frame_counter_chg = frame_cnt_diff;
+    if (pae_auth->gtks.prev_frame_cnt_set && frame_cnt > pae_auth->gtks.prev_frame_cnt) {
+        frame_cnt_diff = frame_cnt - pae_auth->gtks.prev_frame_cnt;
+        if (frame_cnt_diff > pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg) {
+            pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg = frame_cnt_diff;
         }
     }
 
-    tr_info("Frame counter change %"PRIu32", max %"PRIu32, frame_cnt_diff, pae_auth->gtk_frame_counters->counter[gtk_index].max_frame_counter_chg);
+    tr_info("Frame counter change %"PRIu32", max %"PRIu32, frame_cnt_diff, pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg);
 
     /* Calculates an estimate for how much free frame counter space is needed for the GTK update and
      * initiates it faster if needed (default length of GTK update is 6 days).
      */
     uint32_t max_needed_frame_counters =
-        pae_auth->gtk_frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_install_req_seconds / 3600;
+        pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_install_req_seconds / 3600;
     // Adds 20% to calculated value
     max_needed_frame_counters = max_needed_frame_counters * 120 / 100;
     // If estimated value is more than is left starts GTK update right away (if not already started)
@@ -905,7 +905,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk_expire_offset / timer_cfg->gtk_new_act_time;
     // Calculates the estimated maximum value for frame counter during GTK update
     max_needed_frame_counters =
-        pae_auth->gtk_frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_activation_time_seconds / 3600;
+        pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_activation_time_seconds / 3600;
     // Adds 200% to calculated value
     max_needed_frame_counters = max_needed_frame_counters * 300 / 100;
     // If estimated value is more than is left starts GTK update right away (if not already started)
@@ -916,8 +916,8 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
         }
     }
 
-    pae_auth->prev_frame_cnt = frame_cnt;
-    pae_auth->prev_frame_cnt_set = true;
+    pae_auth->gtks.prev_frame_cnt = frame_cnt;
+    pae_auth->gtks.prev_frame_cnt_set = true;
 
     return decrement_seconds;
 }
