@@ -129,7 +129,7 @@ typedef struct pae_auth {
     bool prev_system_time_set : 1;                           /**< Previous system time set */
 } pae_auth_t;
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install, bool is_lgtk);
 static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
@@ -407,7 +407,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
 
     // Inserts keys and updates GTK hash on stack
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
 
     // Sets active key index
     ws_pae_auth_network_key_index_set(pae_auth, index, false);
@@ -427,7 +427,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr)
         return;
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
 }
 
 int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
@@ -538,7 +538,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
     // Adds new GTK
     ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
 
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
@@ -603,7 +603,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
         pae_auth->nw_keys_remove(pae_auth->interface_ptr);
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, force_install);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, force_install, false);
 
     int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (index >= 0) {
@@ -614,19 +614,26 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     return 0;
 }
 
-static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install)
+static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install, bool is_lgtk)
 {
+    sec_prot_gtk_keys_t *gtks;
+
+    if (is_lgtk)
+        gtks = pae_auth->sec_keys_nw_info->lgtks;
+    else
+        gtks = pae_auth->sec_keys_nw_info->gtks;
+
     // Authenticator keys are always fresh
-    sec_prot_keys_gtk_status_all_fresh_set(pae_auth->sec_keys_nw_info->gtks);
+    sec_prot_keys_gtk_status_all_fresh_set(gtks);
 
     if (pae_auth->hash_set) {
         gtkhash_t gtk_hash[4];
-        sec_prot_keys_gtks_hash_generate(pae_auth->sec_keys_nw_info->gtks, gtk_hash);
-        pae_auth->hash_set(pae_auth->interface_ptr, gtk_hash, false);
+        sec_prot_keys_gtks_hash_generate(gtks, gtk_hash);
+        pae_auth->hash_set(pae_auth->interface_ptr, gtk_hash, is_lgtk);
     }
 
     if (pae_auth->nw_key_insert) {
-        pae_auth->nw_key_insert(pae_auth->interface_ptr, pae_auth->sec_keys_nw_info->gtks, force_install, false);
+        pae_auth->nw_key_insert(pae_auth->interface_ptr, gtks, force_install, is_lgtk);
     }
 
     return 0;
@@ -781,7 +788,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                         if (second_index < 0) {
                             tr_info("GTK new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"", active_index, timer_seconds, g_monotonic_time_100ms / 10);
                             ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
-                            ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+                            ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
                             // Update keys to NVM as needed
                             pae_auth->nw_info_updated(pae_auth->interface_ptr);
                         } else {
@@ -813,7 +820,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
             if (timer_seconds == 0) {
                 tr_info("GTK expired index: %i, system time: %"PRIu32"", i, g_monotonic_time_100ms / 10);
                 ws_pae_auth_gtk_clear(pae_auth->sec_keys_nw_info->gtks, i);
-                ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
+                ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
                 // Update keys to NVM as needed
                 pae_auth->nw_info_updated(pae_auth->interface_ptr);
             }
