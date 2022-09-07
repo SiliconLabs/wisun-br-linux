@@ -554,9 +554,11 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd_fuzz/capture.c
         app_wsbrd_fuzz/rand.c
     )
+    target_compile_definitions(wsbrd-fuzz PRIVATE NSCONFIG=ws_border_router)
     target_include_directories(wsbrd-fuzz PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/
+        stack/source/
         stack-scheduler/
     )
     add_dependencies(wsbrd-fuzz libwsbrd)
@@ -576,6 +578,8 @@ if(COMPILE_SIMULATION_TOOLS)
         -Wl,--wrap=wsbr_spinel_replay_timers
         -Wl,--wrap=read
         -Wl,--wrap=write
+        -Wl,--wrap=recv
+        -Wl,--wrap=recvfrom
         -Wl,--wrap=getrandom
         -Wl,--wrap=time
     )
