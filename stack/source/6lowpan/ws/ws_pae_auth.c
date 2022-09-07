@@ -140,7 +140,7 @@ static void ws_pae_auth_tasklet_handler(arm_event_s *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
 static uint32_t ws_pae_auth_lifetime_system_time_check(pae_auth_t *pae_auth, int8_t gtk_index, uint16_t seconds, uint32_t dec_extra_seconds);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime);
-static int8_t ws_pae_auth_new_gtk_activate(pae_auth_t *pae_auth);
+static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_auth_timer_start(pae_auth_t *pae_auth);
@@ -793,7 +793,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                 if (!pae_auth->gtks.gtk_new_act_time_exp) {
                     pae_auth->gtks.gtk_new_act_time_exp =  ws_pae_timers_gtk_new_activation_time(&pae_auth->sec_cfg->timer_cfg.gtk, timer_seconds);
                     if (pae_auth->gtks.gtk_new_act_time_exp) {
-                        int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth);
+                        int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth->sec_keys_nw_info->gtks);
                         tr_info("GTK new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"", active_index, timer_seconds, new_active_index, g_monotonic_time_100ms / 10);
                         if (new_active_index >= 0) {
                             ws_pae_auth_network_key_index_set(pae_auth, new_active_index);
@@ -1020,11 +1020,11 @@ static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_k
     tr_info("GTK install new index: %i, lifetime: %"PRIu32" system time: %"PRIu32"", install_index, lifetime, g_monotonic_time_100ms / 10);
 }
 
-static int8_t ws_pae_auth_new_gtk_activate(pae_auth_t *pae_auth)
+static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks)
 {
-    int8_t new_active_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
+    int8_t new_active_index = sec_prot_keys_gtk_install_order_second_index_get(gtks);
     if (new_active_index >= 0) {
-        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, new_active_index);
+        ws_pae_auth_active_gtk_set(gtks, new_active_index);
     }
 
     return new_active_index;
