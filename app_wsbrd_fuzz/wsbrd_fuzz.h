@@ -21,6 +21,7 @@ struct fuzz_ctxt {
     int replay_fds[10];
     int replay_i;
     int tun_pipe[2];
+    uint8_t tun_addr[16];
     int socket_pipe_count;
     int socket_pipes[IF_SOCKET_COUNT][2];
 };
