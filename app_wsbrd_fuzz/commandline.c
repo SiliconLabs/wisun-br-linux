@@ -65,8 +65,6 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
     ret = open(arg, O_RDONLY);
     FATAL_ON(ret < 0, 2, "open '%s': %m", arg);
     ctxt->replay_fds[ctxt->replay_count++] = ret;
-    ret = pipe(ctxt->tun_pipe);
-    FATAL_ON(ret < 0, 2, "pipe: %m");
     g_ctxt.config.uart_dev[0] = true; // UART device does not need to be specified
 }
 

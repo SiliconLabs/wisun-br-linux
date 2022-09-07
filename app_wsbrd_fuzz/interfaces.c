@@ -46,6 +46,20 @@ void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
     FATAL_ON(ret < size, 2, "write: Short write");
 }
 
+void __real_wsbr_tun_init(struct wsbr_ctxt *ctxt);
+void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
+{
+    int ret;
+
+    if (g_fuzz_ctxt.replay_count) {
+        ret = pipe(g_fuzz_ctxt.tun_pipe);
+        FATAL_ON(ret < 0, 2, "pipe: %m");
+        ctxt->tun_fd = g_fuzz_ctxt.tun_pipe[0];
+    } else {
+        __real_wsbr_tun_init(ctxt);
+    }
+}
+
 static void fuzz_capture_socket(int fd, void *buf, size_t size)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;

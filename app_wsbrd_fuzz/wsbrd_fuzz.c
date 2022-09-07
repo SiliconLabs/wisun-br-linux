@@ -38,15 +38,6 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
         return __real_uart_open(device, bitrate, hardflow);
 }
 
-void __real_wsbr_tun_init(struct wsbr_ctxt *ctxt);
-void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
-{
-    if (g_fuzz_ctxt.replay_count)
-        ctxt->tun_fd = g_fuzz_ctxt.tun_pipe[0];
-    else
-        __real_wsbr_tun_init(ctxt);
-}
-
 int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
 int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
