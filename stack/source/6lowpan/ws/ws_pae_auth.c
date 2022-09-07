@@ -131,7 +131,7 @@ typedef struct pae_auth {
 
 static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool force_install);
 static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
-static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index);
+static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
 static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
@@ -410,7 +410,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false);
 
     // Sets active key index
-    ws_pae_auth_network_key_index_set(pae_auth, index);
+    ws_pae_auth_network_key_index_set(pae_auth, index, false);
 
     pae_auth->prev_system_time = ws_pae_current_time_get();
     pae_auth->prev_system_time_set = true;
@@ -442,7 +442,7 @@ int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interfac
     }
 
     ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
-    ws_pae_auth_network_key_index_set(pae_auth, index);
+    ws_pae_auth_network_key_index_set(pae_auth, index, false);
     return 0;
 }
 
@@ -608,7 +608,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (index >= 0) {
         // Sets active key index
-        ws_pae_auth_network_key_index_set(pae_auth, index);
+        ws_pae_auth_network_key_index_set(pae_auth, index, false);
     }
 
     return 0;
@@ -642,10 +642,10 @@ static int8_t ws_pae_auth_gtk_clear(sec_prot_gtk_keys_t *gtks, uint8_t index)
     return sec_prot_keys_gtk_clear(gtks, index);
 }
 
-static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index)
+static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk)
 {
     if (pae_auth->nw_key_index_set) {
-        pae_auth->nw_key_index_set(pae_auth->interface_ptr, index);
+        pae_auth->nw_key_index_set(pae_auth->interface_ptr, index, is_lgtk);
     }
 
     return 0;
@@ -796,7 +796,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
                         int8_t new_active_index = ws_pae_auth_new_gtk_activate(pae_auth->sec_keys_nw_info->gtks);
                         tr_info("GTK new activation time active index: %i, time: %"PRIu32", new index: %i, system time: %"PRIu32"", active_index, timer_seconds, new_active_index, g_monotonic_time_100ms / 10);
                         if (new_active_index >= 0) {
-                            ws_pae_auth_network_key_index_set(pae_auth, new_active_index);
+                            ws_pae_auth_network_key_index_set(pae_auth, new_active_index, false);
                         }
                         pae_auth->gtks.gtk_new_inst_req_exp = false;
                         pae_auth->gtks.gtk_new_act_time_exp = false;

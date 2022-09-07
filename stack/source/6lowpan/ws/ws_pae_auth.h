@@ -230,7 +230,7 @@ typedef void ws_pae_auth_nw_keys_remove(protocol_interface_info_entry_t *interfa
  * \param index network send key index
  *
  */
-typedef void ws_pae_auth_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+typedef void ws_pae_auth_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_info_updated security keys network information updated

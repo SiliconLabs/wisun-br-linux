@@ -140,7 +140,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
-static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 #endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller);
@@ -670,10 +670,14 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_in
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
+static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
+        return;
+    }
+    if (is_lgtk) {
+        tr_warn("LGTK are still not yet supported");
         return;
     }
 
