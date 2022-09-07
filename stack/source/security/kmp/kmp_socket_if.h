@@ -19,6 +19,7 @@
 #define KMP_SOCKET_IF_H_
 
 #include <sys/socket.h>
+#include <stdbool.h>
 
 typedef struct kmp_service_s kmp_service_t;
 

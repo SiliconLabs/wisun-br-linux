@@ -18,6 +18,7 @@
 #ifndef DHCP_SERVICE_API_H_
 #define DHCP_SERVICE_API_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 /**
  * \file dhcp_service_api.h
