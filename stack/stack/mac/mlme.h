@@ -225,9 +225,9 @@ typedef enum {
     macSecurityLevelTableEntries = 0x76,    /*<The number of entries in macSecurityLevelTable*/
     macFrameCounter = 0x77,         /*<The outgoing frame counter*/
     macAutoRequestSecurityLevel = 0x78, /*<0x00–0x07  The security level used for automatic data requests.*/
-    macAutoRequestKeyIdMode = 0x79,      /*< The key identifier mode used for automatic data requests.*/
-    macAutoRequestKeySource = 0x7a, /*<Key source for automatic data*/
-    macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data*/
+    macAutoRequestKeyIdMode = 0x79,      /*< The key identifier mode used for automatic data requests. Unused by the RCP. */
+    macAutoRequestKeySource = 0x7a, /*<Key source for automatic data. Unused by the RCP. */
+    macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data. Unused by the RCP. */
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
     macGlobalTxDuration = 0xe8,     /*< Global transmission duration. */
