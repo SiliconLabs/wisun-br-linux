@@ -573,7 +573,7 @@ int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
  * \return -4 Null pointer parameter
  * \return -5 Channel list empty
  */
-int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_t *nwk_channel_list, network_driver_setup_s *link_setup)
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_t *nwk_channel_list, network_driver_setup_t *link_setup)
 {
     int8_t ret_val = -1;
     protocol_interface_info_entry_t *cur = 0;

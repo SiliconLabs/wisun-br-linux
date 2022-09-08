@@ -260,7 +260,7 @@ typedef struct {
     uint8_t network_id[16];             /**< Network ID 16-bytes, will be used at beacon payload. */
     uint8_t beacon_payload_tlv_length; /**< Optional steering parameter length. */
     uint8_t *beacon_payload_tlv_ptr;  /**< Optional steering parameters. */
-} network_driver_setup_s;
+} network_driver_setup_t;
 
 /** CCA threshold table */
 typedef struct {
@@ -377,7 +377,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
  * \return -3 No memory for 6LoWPAN stack.
  * \return -4 Null pointer parameter.
  */
-int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list_s *nwk_channel_list, network_driver_setup_s *link_setup);
+int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list_s *nwk_channel_list, network_driver_setup_t *link_setup);
 
 /**
  * \brief Set configured network interface global address mode (border router bootstrap mode cannot set this).
