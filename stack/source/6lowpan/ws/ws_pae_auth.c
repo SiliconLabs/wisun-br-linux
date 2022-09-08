@@ -448,7 +448,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     pae_auth->prev_system_time_set = true;
 }
 
-void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr)
+void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk)
 {
     if (!interface_ptr) {
         return;
@@ -459,7 +459,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr)
         return;
     }
 
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 }
 
 int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)

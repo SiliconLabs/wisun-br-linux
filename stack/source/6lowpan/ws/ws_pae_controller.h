@@ -390,6 +390,7 @@ int8_t ws_pae_controller_border_router_addr_read(protocol_interface_info_entry_t
  *
  */
 int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[4]);
+int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
  * ws_pae_controller_next_gtk_update update next GTKs used during GTK lifecycle (test interface)

@@ -141,7 +141,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr);
  * \param interface_ptr interface
  *
  */
-void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
+void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
 
 /**
  * ws_pae_auth_gtks_updated indicates that key index has been updated

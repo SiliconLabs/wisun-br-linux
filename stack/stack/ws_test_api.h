@@ -104,6 +104,7 @@ int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count);
  * \return <0                        GTK set has failed
  */
 int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
+int ws_test_lgtk_set(int8_t interface_id, uint8_t *lgtk[3]);
 
 /**
  * Sets index of active key.

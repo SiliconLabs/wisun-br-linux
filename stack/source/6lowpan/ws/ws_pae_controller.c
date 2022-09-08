@@ -53,7 +53,7 @@ typedef int8_t ws_pae_delete(protocol_interface_info_entry_t *interface_ptr);
 typedef void ws_pae_timer(uint16_t ticks);
 typedef int8_t ws_pae_br_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
-typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr);
+typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
 typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
@@ -1046,7 +1046,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
 
     if (sec_prot_keys_gtks_are_updated(&controller->gtks.gtks)) {
         // If application has set GTK keys prepare those for use
-        ws_pae_auth_gtks_updated(interface_ptr);
+        ws_pae_auth_gtks_updated(interface_ptr, false);
         if (controller->gtks.gtk_index >= 0) {
             controller->pae_nw_key_index_update(interface_ptr, controller->gtks.gtk_index);
         }
@@ -1578,7 +1578,50 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
 
     // Notifies PAE authenticator that GTKs have been updated */
     if (controller->pae_gtks_updated) {
-        controller->pae_gtks_updated(controller->interface_ptr);
+        controller->pae_gtks_updated(controller->interface_ptr, false);
+    }
+
+    return 0;
+}
+
+int8_t ws_pae_controller_lgtk_update(int8_t interface_id, uint8_t *lgtk[LGTK_NUM])
+{
+    if (!lgtk) {
+        return -1;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
+        return -1;
+    }
+
+    // Removes keys set as not used
+    for (uint8_t i = 0; i < LGTK_NUM; i++) {
+        if (!lgtk[i]) {
+            sec_prot_keys_gtk_clear(&controller->lgtks.gtks, i);
+        }
+    }
+
+    // Inserts new keys
+    for (uint8_t i = 0; i < LGTK_NUM; i++) {
+        if (lgtk[i]) {
+            uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->lgtks.gtks);
+            lifetime += controller->sec_cfg.timer_cfg.lgtk.expire_offset;
+            if (sec_prot_keys_gtk_set(&controller->lgtks.gtks, i, lgtk[i], lifetime) >= 0) {
+                controller->lgtks.gtks_set = true;
+                tr_info("LGTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, g_monotonic_time_100ms / 10);
+            }
+        }
+    }
+
+    // Sets active key
+    int8_t index = sec_prot_keys_gtk_install_order_first_index_get(&controller->lgtks.gtks);
+    sec_prot_keys_gtk_status_all_fresh_set(&controller->lgtks.gtks);
+    sec_prot_keys_gtk_status_active_set(&controller->lgtks.gtks, index);
+
+    // Notifies PAE authenticator that GTKs have been updated */
+    if (controller->pae_gtks_updated) {
+        controller->pae_gtks_updated(controller->interface_ptr, true);
     }
 
     return 0;
