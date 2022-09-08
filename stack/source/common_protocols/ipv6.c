@@ -1181,6 +1181,15 @@ no_forward:
 }
 
 
+static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
+{
+    if (next_header == IPV6_NH_DEST_OPT || next_header == IPV6_NH_ROUTING || next_header == IPV6_NH_IPV6)
+        return false;
+    if (next_header == IPV6_NH_ICMPV6 && data_ptr[0] > ICMPV6_TYPE_INFO_ECHO_REPLY)
+        return false;
+    return true;
+}
+
 buffer_t *ipv6_forwarding_up(buffer_t *buf)
 {
     uint8_t *ptr = buffer_data_pointer(buf);
@@ -1354,16 +1363,11 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 cur->if_common_forwarding_out_cb(cur, buf);
             }
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
-#ifdef HAVE_WS_BORDER_ROUTER
-        } else {
-            if (*nh_ptr == IPV6_NH_ICMPV6) {
-                if (ptr[0] < ICMPV6_TYPE_INFO_MCAST_LIST_QUERY)
-                    return ipv6_tun_up(buf);
-            } else if (*nh_ptr == IPV6_NH_UDP || *nh_ptr == IPV6_NH_TCP) {
-                return ipv6_tun_up(buf);
-            }
-#endif
         }
+#ifdef HAVE_WS_BORDER_ROUTER
+        if (is_for_linux(*nh_ptr, ptr))
+            return ipv6_tun_up(buf);
+#endif
     }
 
     /* Its destination is us (or we're intercepting) - start munching headers */
