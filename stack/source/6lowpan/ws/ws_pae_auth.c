@@ -116,6 +116,7 @@ typedef struct pae_auth {
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
     arm_event_storage_t *timer;                              /**< Timer */
     pae_auth_gtk_t gtks;                                     /**< Material for GTKs */
+    pae_auth_gtk_t lgtks;                                    /**< Material for LGTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
     sec_prot_keys_nw_info_t *sec_keys_nw_info;               /**< Security keys network information */
     sec_cfg_t *sec_cfg;                                      /**< Security configuration */
@@ -166,9 +167,16 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth);
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
 
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info, frame_counters_t *gtk_frame_counters)
+int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr,
+                        sec_prot_gtk_keys_t *next_gtks,
+                        sec_prot_gtk_keys_t *next_lgtks,
+                        const sec_prot_certs_t *certs,
+                        sec_cfg_t *sec_cfg,
+                        sec_prot_keys_nw_info_t *sec_keys_nw_info,
+                        frame_counters_t *gtk_frame_counters,
+                        frame_counters_t *lgtk_frame_counters)
 {
-    if (!interface_ptr || !next_gtks || !certs || !sec_cfg || !sec_keys_nw_info || !gtk_frame_counters) {
+    if (!interface_ptr || !next_gtks || !next_lgtks || !certs || !sec_cfg || !sec_keys_nw_info || !gtk_frame_counters || !lgtk_frame_counters) {
         return -1;
     }
 
@@ -198,7 +206,6 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->congestion_get = NULL;
     pae_auth->nw_frame_cnt_read = NULL;
 
-    pae_auth->gtks.next_gtks = next_gtks;
     pae_auth->certs = certs;
     pae_auth->sec_keys_nw_info = sec_keys_nw_info;
     pae_auth->sec_cfg = sec_cfg;
@@ -208,12 +215,21 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot
     pae_auth->waiting_supp_list_size = 0;
     pae_auth->prev_system_time_set = false;
 
+    pae_auth->gtks.next_gtks = next_gtks;
     pae_auth->gtks.frame_counters = gtk_frame_counters;
     pae_auth->gtks.prev_frame_cnt = 0;
     pae_auth->gtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
     pae_auth->gtks.gtk_new_inst_req_exp = false;
     pae_auth->gtks.gtk_new_act_time_exp = false;
     pae_auth->gtks.prev_frame_cnt_set = false;
+
+    pae_auth->lgtks.next_gtks = next_lgtks;
+    pae_auth->lgtks.frame_counters = lgtk_frame_counters;
+    pae_auth->lgtks.prev_frame_cnt = 0;
+    pae_auth->lgtks.prev_frame_cnt_timer = FRAME_CNT_TIMER;
+    pae_auth->lgtks.gtk_new_inst_req_exp = false;
+    pae_auth->lgtks.gtk_new_act_time_exp = false;
+    pae_auth->lgtks.prev_frame_cnt_set = false;
 
     pae_auth->relay_socked_msg_if_instance_id = 0;
     pae_auth->radius_socked_msg_if_instance_id = 0;
@@ -394,23 +410,37 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     }
 
     // Checks if there is predefined active key
-    int8_t index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
-    if (index < 0) {
+    int gtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
+    if (gtk_index < 0) {
         // If there is no key, inserts a new one
         ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
-        index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->gtks);
-        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
+        gtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->gtks);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     } else {
-        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     }
+
+    // Checks if there is predefined active key
+    int lgtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->lgtks);
+    if (lgtk_index < 0) {
+        // If there is no key, inserts a new one
+        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->lgtks, pae_auth->lgtks.next_gtks, pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset);
+        lgtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->lgtks);
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->lgtks, lgtk_index);
+    } else {
+        ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->lgtks, lgtk_index);
+    }
+
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);
 
     // Inserts keys and updates GTK hash on stack
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, true);
 
     // Sets active key index
-    ws_pae_auth_network_key_index_set(pae_auth, index, false);
+    ws_pae_auth_network_key_index_set(pae_auth, gtk_index, false);
+    ws_pae_auth_network_key_index_set(pae_auth, lgtk_index, true);
 
     pae_auth->prev_system_time = ws_pae_current_time_get();
     pae_auth->prev_system_time_set = true;
@@ -770,8 +800,10 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, bool is_lgtk, uint1
     int8_t active_index;
 
     if (is_lgtk) {
-        tr_warn("not supported");
-        return;
+        keys = pae_auth->sec_keys_nw_info->lgtks;
+        pae_auth_gtk = &pae_auth->lgtks;
+        active_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->lgtks);
+        timer_gtk_cfg = &pae_auth->sec_cfg->timer_cfg.lgtk;
     } else {
         keys = pae_auth->sec_keys_nw_info->gtks;
         pae_auth_gtk = &pae_auth->gtks;
@@ -845,6 +877,9 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
         // Gets index of currently active GTK
         for (uint8_t i = 0; i < GTK_NUM; i++) {
             ws_pae_auth_slow_timer_key(pae_auth, i, seconds, false);
+        }
+        for (uint8_t i = 0; i < LGTK_NUM; i++) {
+            ws_pae_auth_slow_timer_key(pae_auth, i, seconds, true);
         }
 
         ws_pae_lib_supp_list_slow_timer_update(&pae_auth->active_supp_list, seconds);

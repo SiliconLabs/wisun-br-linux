@@ -26,6 +26,10 @@
 #include "security/protocols/sec_prot.h"
 
 typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
+struct sec_prot_gtk_keys;
+struct sec_prot_certs;
+struct sec_prot_keys_nw_info;
+struct frame_counters;
 
 /*
  * Authenticator port access entity controls key security protocols using KMP API.
@@ -61,7 +65,14 @@ typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *next_gtks, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info, frame_counters_t *frame_counters);
+int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr,
+                        struct sec_prot_gtk_keys *next_gtks,
+                        struct sec_prot_gtk_keys *next_lgtks,
+                        const struct sec_prot_certs *certs,
+                        sec_cfg_t *sec_cfg,
+                        struct sec_prot_keys_nw_info *sec_keys_nw_info,
+                        struct frame_counters *gtk_frame_counters,
+                        struct frame_counters *lgtk_frame_counters);
 
 /**
  * ws_pae_auth_addresses_set set relay addresses

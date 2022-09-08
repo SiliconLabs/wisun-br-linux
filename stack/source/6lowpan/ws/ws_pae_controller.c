@@ -1016,7 +1016,14 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    if (ws_pae_auth_init(controller->interface_ptr, &controller->gtks.next_gtks, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info, &controller->gtks.frame_counters) < 0) {
+    if (ws_pae_auth_init(controller->interface_ptr,
+                         &controller->gtks.next_gtks,
+                         &controller->lgtks.next_gtks,
+                         &controller->certs,
+                         &controller->sec_cfg,
+                         &controller->sec_keys_nw_info,
+                         &controller->gtks.frame_counters,
+                         &controller->lgtks.frame_counters) < 0) {
         return -1;
     }
 
