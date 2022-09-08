@@ -1650,6 +1650,29 @@ int8_t ws_pae_controller_next_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_N
     return 0;
 }
 
+int8_t ws_pae_controller_next_lgtk_update(int8_t interface_id, uint8_t *gtk[LGTK_NUM])
+{
+    if (!gtk) {
+        return -1;
+    }
+
+    pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
+    if (!controller) {
+        return -1;
+    }
+
+    // Inserts new keys and removed keys set as not used
+    for (uint8_t i = 0; i < LGTK_NUM; i++) {
+        if (gtk[i]) {
+            sec_prot_keys_gtk_set(&controller->lgtks.next_gtks, i, gtk[i], 0);
+        } else {
+            sec_prot_keys_gtk_clear(&controller->lgtks.next_gtks, i);
+        }
+    }
+
+    return 0;
+}
+
 int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
 {
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);

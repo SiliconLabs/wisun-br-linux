@@ -159,10 +159,12 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
 
 int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 {
-    (void) interface_id;
-    (void) gtk;
-
     return ws_pae_controller_next_gtk_update(interface_id, gtk);
+}
+
+int ws_test_next_lgtk_set(int8_t interface_id, uint8_t *lgtk[3])
+{
+    return ws_pae_controller_next_gtk_update(interface_id, lgtk);
 }
 
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)

@@ -180,6 +180,7 @@ int ws_test_gtk_time_settings_set(
  * \return <0                        GTK set has failed
  */
 int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
+int ws_test_next_lgtk_set(int8_t interface_id, uint8_t *gtk[3]);
 
 /**
  * Disable First EDFE data packet send.
