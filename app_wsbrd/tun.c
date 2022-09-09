@@ -49,7 +49,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-int get_global_unicast_addr(char* if_name, uint8_t ip[static 16]) 
+int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
 {
     struct sockaddr_in6 *ipv6;
     struct ifaddrs *ifaddr, *ifa;
@@ -108,20 +108,19 @@ static int tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifinde
     rtnl_addr_set_ifindex(ipv6_addr, ifindex);
     rtnl_addr_set_link(ipv6_addr, link);
     rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
-
-    if ((err = rtnl_addr_add(sock, ipv6_addr, 0)) < 0) {
+    err = rtnl_addr_add(sock, ipv6_addr, 0);
+    if (err < 0 && err != -NLE_EXIST) {
         nl_perror(err, "rtnl_addr_add");
         return err;
     }
     nl_addr_put(lo_ipv6_addr);
     rtnl_addr_put(ipv6_addr);
-
-    return err;
+    return 0;
 }
 
 static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf)
 {
-    struct rtnl_link *link;
+    struct rtnl_link *link, *new_link;
     struct nl_sock *sock;
     struct ifreq ifr = {
         .ifr_flags = IFF_TUN | IFF_NO_PI,
@@ -146,31 +145,38 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
         FATAL(2, "nl_connect");
     if (rtnl_link_get_kernel(sock, 0, ifr.ifr_name, &link))
         FATAL(2, "rtnl_link_get_kernel %s", ifr.ifr_name);
+    ifindex = rtnl_link_get_ifindex(link);
+    rtnl_link_put(link);
+    new_link = rtnl_link_alloc();
+    rtnl_link_set_ifindex(new_link, ifindex);
+    if (tun_autoconf) {
+        rtnl_link_inet6_set_addr_gen_mode(new_link, rtnl_link_inet6_str2addrgenmode("none"));
+        if (rtnl_link_add(sock, new_link, NLM_F_CREATE))
+            FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
+        if (tun_addr_add(sock, new_link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac))
+            FATAL(2, "ip_addr_add ll");
+        if (tun_addr_add(sock, new_link, ifindex, ipv6_prefix, hw_mac_slaac))
+            FATAL(2, "ip_addr_add gua");
+    }
     if (rtnl_link_get_operstate(link) != IF_OPER_UP ||
         !(rtnl_link_get_flags(link) & IFF_UP)) {
-        ifindex = rtnl_link_get_ifindex(link);
-        rtnl_link_put(link);
-        link = rtnl_link_alloc();
-        rtnl_link_set_ifindex(link, ifindex);
-        if (tun_autoconf) {
-            rtnl_link_inet6_set_addr_gen_mode(link, rtnl_link_inet6_str2addrgenmode("none"));
-            if (rtnl_link_add(sock, link, NLM_F_CREATE))
-                FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
-            if (tun_addr_add(sock, link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac))
-                FATAL(2, "ip_addr_add ll");
-            if (tun_addr_add(sock, link, ifindex, ipv6_prefix, hw_mac_slaac))
-                FATAL(2, "ip_addr_add gua");
-        }
-        rtnl_link_set_operstate(link, IF_OPER_UP);
-        rtnl_link_set_mtu(link, 1280);
-        rtnl_link_set_flags(link, IFF_UP);
-        rtnl_link_set_txqlen(link, 10);
-        if (rtnl_link_add(sock, link, NLM_F_CREATE))
+        rtnl_link_set_operstate(new_link, IF_OPER_UP);
+        rtnl_link_set_mtu(new_link, 1280);
+        rtnl_link_set_flags(new_link, IFF_UP);
+        rtnl_link_set_txqlen(new_link, 10);
+        if (rtnl_link_add(sock, new_link, NLM_F_CREATE))
             FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
-        rtnl_link_put(link);
     } else {
-        rtnl_link_put(link);
+        uint8_t mode;
+        rtnl_link_inet6_get_addr_gen_mode(new_link, &mode);
+        if (mode != 1)
+            WARN("%s: addr_gen_mode is not set to 1", devname);
+        if (rtnl_link_get_mtu(new_link) > 1280)
+            WARN("%s: mtu is above 1280 (not 15.4 compliant)", devname);
+        if (rtnl_link_get_txqlen(new_link) > 10)
+            WARN("%s: txqlen is above 10", devname);
     }
+    rtnl_link_put(new_link);
     nl_socket_free(sock);
     return fd;
 }
