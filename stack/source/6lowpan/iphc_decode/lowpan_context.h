@@ -35,6 +35,8 @@
 #define LOWPAN_CONTEXT_CID_MASK 0x0F        // Context ID MASK
 #define LOWPAN_MAX_CONTEXT_COUNT 16
 
+struct protocol_interface_info_entry;
+
 typedef struct lowpan_context {
     uint32_t lifetime;      // Remaining lifetime (100ms ticks)
     unsigned length: 8;     // Context length
@@ -77,7 +79,7 @@ void lowpan_context_list_free(lowpan_context_list_t *list);
  * \param ticks is in 1/10s
  *
  */
-void lowpan_context_timer(lowpan_context_list_t *list, uint_fast16_t ticks);
+void lowpan_context_timer(int ticks);
 /**
  * \brief Get Context entry from the list by context ID
  *

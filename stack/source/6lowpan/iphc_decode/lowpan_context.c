@@ -27,6 +27,7 @@
 #include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/ns_list.h"
+#include "nwk_interface/protocol.h"
 
 #include "6lowpan/iphc_decode/lowpan_context.h"
 
@@ -126,8 +127,14 @@ void lowpan_context_list_free(lowpan_context_list_t *list)
 }
 
 /* ticks is in 1/10s */
-void lowpan_context_timer(lowpan_context_list_t *list, uint_fast16_t ticks)
+void lowpan_context_timer(int ticks)
 {
+    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    lowpan_context_list_t *list = &interface->lowpan_contexts;
+
+    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
     ns_list_foreach_safe(lowpan_context_t, ctx, list) {
         if (ctx->lifetime > ticks) {
             ctx->lifetime -= ticks;

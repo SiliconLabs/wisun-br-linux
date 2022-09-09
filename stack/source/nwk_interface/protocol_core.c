@@ -210,7 +210,6 @@ void core_timer_event_handle(int ticksUpdate)
         if (cur->nwk_id == IF_6LoWPAN) {
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 nwk_bootstrap_timer(cur);
-                lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
         }
         /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
@@ -247,6 +246,7 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_NEIGHBOR);
     timer_start(TIMER_6LOWPAN_NEIGHBOR_SLOW);
     timer_start(TIMER_6LOWPAN_NEIGHBOR_FAST);
+    timer_start(TIMER_6LOWPAN_CONTEXT);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }
