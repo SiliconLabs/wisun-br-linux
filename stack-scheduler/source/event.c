@@ -21,7 +21,6 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 
-#include "timer_sys.h"
 #include "event.h"
 
 
@@ -135,12 +134,6 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event)
     event_core_write(event);
 }
 
-void eventOS_event_send_timer_allocated(arm_event_storage_t *event)
-{
-    event->allocator = ARM_LIB_EVENT_TIMER;
-    event_core_write(event);
-}
-
 void eventOS_event_cancel_critical(arm_event_storage_t *event)
 {
     ns_list_remove(&event_queue_active, event);
@@ -191,11 +184,6 @@ void event_core_free_push(arm_event_storage_t *storage)
             // storage all dynamically allocated events.
             // No need to set state to UNQUEUED - it's being freed.
             free(storage);
-            break;
-        case ARM_LIB_EVENT_TIMER:
-            // Hand it back to the timer system
-            storage->state = ARM_LIB_EVENT_UNQUEUED;
-            timer_sys_event_free(storage);
             break;
         case ARM_LIB_EVENT_USER:
             // *INDENT-OFF*
@@ -339,13 +327,6 @@ void eventOS_cancel(arm_event_storage_t *event)
     }
 
     platform_enter_critical();
-
-    /*
-     * Notify timer of cancellation.
-     */
-    if (event->allocator == ARM_LIB_EVENT_TIMER) {
-        timer_sys_event_cancel_critical(event);
-    }
 
     /*
      * Remove event from the list,

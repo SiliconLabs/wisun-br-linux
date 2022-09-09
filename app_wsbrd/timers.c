@@ -1,7 +1,6 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-#include "stack-scheduler/source/timer_sys.h"
 #include "stack/timers.h"
 #include "common/log.h"
 #include "timers.h"
@@ -15,7 +14,6 @@ void wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
         .it_interval.tv_nsec = TIMER_GLOBAL_PERIOD_MS * 1000 * 1000,
     };
 
-    timer_sys_init();
     ctxt->timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
     FATAL_ON(ctxt->timerfd < 0, 2, "timerfd_create: %m");
     ret = timerfd_settime(ctxt->timerfd, 0, &parms, NULL);

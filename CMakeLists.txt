@@ -215,7 +215,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/utils/ns_time.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
-    stack-scheduler/source/timer_sys.c
     stack-services/common_functions.c
     stack-services/ip6string.c
     stack-services/ns_list.c
@@ -423,7 +422,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/utils/ns_time.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
-        stack-scheduler/source/timer_sys.c
         stack-services/common_functions.c
         stack-services/ip6string.c
         stack-services/ns_list.c

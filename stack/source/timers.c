@@ -1,6 +1,5 @@
 #include "nsconfig.h"
 #include <assert.h>
-#include "stack-scheduler/source/timer_sys.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/dhcp_service_api.h"
@@ -23,7 +22,6 @@ static struct {
 } s_timers[] = {
     [TIMER_PROTOCOL_CORE] { core_timer_event_handle,        100,                                          true,  0 },
     [TIMER_MPL]           { mpl_fast_timer,                 MPL_TICK_MS,                                  false, 0 },
-    [TIMER_SYS]           { system_timer_tick_update,       TIMER_SYS_TICK_PERIOD,                        true,  0 },
     [TIMER_DHCPV6_SERVER] { dhcpv6_server_service_timer_cb, DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true,  0 },
     [TIMER_DHCPV6_SOCKET] { dhcp_service_timer_cb,          100,                                          false, 0 },
 };
