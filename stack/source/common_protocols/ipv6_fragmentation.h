@@ -48,7 +48,7 @@
 
 uint16_t ipv6_frag_set_mru(uint16_t frag_mru);
 
-void ipv6_frag_timer(uint8_t secs);
+void ipv6_frag_timer(int secs);
 buffer_t *ipv6_frag_up(buffer_t *buf, const uint8_t *ptr, uint8_t *nh_ptr, uint16_t payload_length);
 #else
 #define ipv6_set_frag_mru(frag_mru) 0

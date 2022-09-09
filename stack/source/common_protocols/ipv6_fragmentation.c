@@ -143,7 +143,7 @@ uint16_t ipv6_frag_set_mru(uint16_t frag_mru)
     return ipv6_frag_mru;
 }
 
-void ipv6_frag_timer(uint8_t secs)
+void ipv6_frag_timer(int secs)
 {
     ns_list_foreach_safe(ip_fragmented_datagram_t, dgram, &frag_list) {
         if ((dgram->age += secs) > FRAG_TTL) {

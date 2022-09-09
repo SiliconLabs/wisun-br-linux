@@ -43,7 +43,6 @@
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6.h"
-#include "common_protocols/ipv6_fragmentation.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/mld.h"
@@ -221,7 +220,6 @@ void core_timer_event_handle(int ticksUpdate)
 
         }
 
-        ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
@@ -266,6 +264,7 @@ void protocol_core_init(void)
     timer_start(TIMER_PAE_SLOW);
     timer_start(TIMER_IPV6_DESTINATION);
     timer_start(TIMER_IPV6_ROUTE);
+    timer_start(TIMER_IPV6_FRAG);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
