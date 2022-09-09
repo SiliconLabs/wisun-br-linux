@@ -470,7 +470,7 @@ static void reassembly_entry_timer_update(reassembly_interface_t *interface_ptr,
     }
 }
 
-void cipv6_frag_timer(uint16_t seconds)
+void cipv6_frag_timer(int seconds)
 {
     ns_list_foreach(reassembly_interface_t, interface_ptr, &reassembly_interface_list) {
         reassembly_entry_timer_update(interface_ptr, seconds);

@@ -22,7 +22,7 @@ int8_t reassembly_interface_reset(int8_t interface_id);
 int8_t reassembly_interface_init(int8_t interface_id, uint8_t reassembly_session_limit, uint16_t reassembly_timeout);
 int8_t reassembly_interface_free(int8_t interface_id);
 
-void cipv6_frag_timer(uint16_t seconds);
+void cipv6_frag_timer(int seconds);
 struct buffer *cipv6_frag_reassembly(int8_t interface_id, struct buffer *buf);
 
 
