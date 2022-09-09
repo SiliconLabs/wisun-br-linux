@@ -162,9 +162,9 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
 
 int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
 
-void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
+void ws_common_seconds_timer(int seconds);
 
-void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+void ws_common_fast_timer(int ticks);
 
 void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 

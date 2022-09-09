@@ -1,6 +1,7 @@
 #include "nsconfig.h"
 #include <assert.h>
 #include "stack/source/6lowpan/fragmentation/cipv6_fragmenter.h"
+#include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
@@ -44,6 +45,8 @@ static struct {
     [TIMER_6LOWPAN_MLD_SLOW]  { mld_slow_timer,                 125000,                                       true,  0 },
     [TIMER_6LOWPAN_ADDR_FAST] { addr_fast_timer,                100,                                          true,  0 },
     [TIMER_6LOWPAN_ADDR_SLOW] { addr_slow_timer,                1000,                                         true,  0 },
+    [TIMER_WS_COMMON_FAST]    { ws_common_fast_timer,           100,                                          true,  0 },
+    [TIMER_WS_COMMON_SLOW]    { ws_common_seconds_timer,        1000,                                         true,  0 },
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 

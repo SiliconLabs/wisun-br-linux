@@ -212,8 +212,13 @@ void ws_common_state_machine(protocol_interface_info_entry_t *cur)
 
 }
 
-void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+void ws_common_seconds_timer(int seconds)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
     ws_bbr_seconds_timer(cur, seconds);
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_bootstrap_6lbr_seconds_timer(cur, seconds);
@@ -222,8 +227,13 @@ void ws_common_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seco
     blacklist_ttl_update(seconds);
 }
 
-void ws_common_fast_timer(protocol_interface_info_entry_t *cur, uint16_t ticks)
+void ws_common_fast_timer(int ticks)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
     ws_bootstrap_trickle_timer(cur, ticks);
     ws_nud_active_timer(cur, ticks);
     ws_llc_fast_timer(cur, ticks);

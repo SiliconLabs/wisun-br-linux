@@ -193,7 +193,6 @@ void core_timer_event_handle(int ticksUpdate)
         ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
             if (cur->nwk_id == IF_6LoWPAN) {
                 if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                    ws_common_seconds_timer(cur, seconds);
                     mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
                     etx_cache_timer(cur->id, seconds);
                     lowpan_adaptation_interface_slow_timer(cur);
@@ -223,7 +222,6 @@ void core_timer_event_handle(int ticksUpdate)
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 nwk_bootstrap_timer(cur);
                 nd_object_timer(cur, ticksUpdate);
-                ws_common_fast_timer(cur, ticksUpdate);
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
         }
@@ -258,6 +256,8 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_MLD_SLOW);
     timer_start(TIMER_6LOWPAN_ADDR_FAST);
     timer_start(TIMER_6LOWPAN_ADDR_SLOW);
+    timer_start(TIMER_WS_COMMON_FAST);
+    timer_start(TIMER_WS_COMMON_SLOW);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
