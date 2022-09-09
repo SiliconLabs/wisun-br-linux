@@ -645,20 +645,25 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uin
     }
 }
 
-void etx_cache_timer(int8_t interface_id, uint16_t seconds_update)
+void etx_cache_timer(int seconds_update)
 {
+    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+
     if (!etx_info.cache_sample_requested) {
         return;
     }
 
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface || !mac_neighbor_info(interface)) {
+        return;
+    }
+
+    if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE)) {
         return;
     }
 
     ns_list_foreach(mac_neighbor_table_entry_t, neighbour, &mac_neighbor_info(interface)->neighbour_list) {
 
-        etx_storage_t *etx_entry = etx_storage_entry_get(interface_id, neighbour->index);
+        etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, neighbour->index);
 
         if (!etx_entry || etx_entry->tmp_etx) {
             continue;

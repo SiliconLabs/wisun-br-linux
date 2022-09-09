@@ -11,6 +11,7 @@
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl_control.h"
+#include "stack/source/service_libs/etx/etx.h"
 #include "stack/dhcp_service_api.h"
 #include "stack/timers.h"
 #include "common/utils.h"
@@ -49,6 +50,7 @@ static struct {
     [TIMER_WS_COMMON_FAST]    { ws_common_fast_timer,           100,                                          true,  0 },
     [TIMER_WS_COMMON_SLOW]    { ws_common_seconds_timer,        1000,                                         true,  0 },
     [TIMER_6LOWPAN_ND]        { nd_object_timer,                100,                                          true,  0 },
+    [TIMER_6LOWPAN_ETX]       { etx_cache_timer,                1000,                                         true,  0 },
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 

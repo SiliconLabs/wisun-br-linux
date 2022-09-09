@@ -184,7 +184,7 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uin
  * \param seconds_update Seconds Update
  *
  */
-void etx_cache_timer(int8_t interface_id, uint16_t seconds_update);
+void etx_cache_timer(int seconds_update);
 
 /**
  * \brief A function for enable cached ETX mode and parametrs
