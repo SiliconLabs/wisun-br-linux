@@ -212,53 +212,6 @@ easier integration for simple setups. However, CPC offers some features:
     between several network stacks (ie. Bluetooth, Zigbee, OpenThread and
     Wi-SUN)
 
-
-## Hidden Internal Network Interfaces
-
-The network interface presented on the Linux side is not directly linked to the
-RF interface. Instead, `wsbrd` sees the Linux interface as a backhaul and the RF
-as a separate interface.
-
-Therefore, you can encounter three interfaces with their own MAC and IPv6
-addresses:
-
-  - The Linux interface as displayed by `ip link`
-  - The other side of the Linux interface seen by `wsbrd` (called the backhaul
-    interface)
-  - The RF interface
-
-This is mostly invisible for the end-user. However, an attentive user may notice
-small details:
-
-  - The DODAGID does not match the IP of the Linux interface.
-  - The origin of RPL frames does not match the IP of the Linux interface.
-  - The IPv6 hop-limit (formerly known as TTL in IPv4) field is decremented.
-  - Direct consequence of the previous item: packets with a hop-limit of 1 are
-    not forwarded to the Wi-SUN network. Typically, to ping a multicast address,
-    you have to enforce the hop-limit to at least 2:
-
-    ping -t 2 -I tun0 ff03::fc
-
-  - Multicast link-local frames (typically Router Solicitations and Router
-    Advertisements) are not forwarded to the Wi-SUN network. These frames would
-    be ignored in the Wi-SUN network anyway.
-
-When no DHCP is server is in use, the IP addresses of the interfaces are
-configured in this order:
-
-    1. The address of the backhaul interface is generated from `ipv6_prefix`.
-       Then wsbrd starts the internal DHCP server and starts to advertise
-       `ipv6_prefix` on the Linux interface
-    2. Thank to advertisements, the Linux interface can use SLAAC to get an IP.
-    3. The RF interface request a IP from the internal DHCP server
-
-When using an external DHCP server:
-
-    1. The IP of the Linux interface is set by the user
-    2. The backhaul interface get its IP from the prefix of the DHCP server
-       address
-    3. The RF interface request a IP from the external DHCP server
-
 ## I cannot connect to DBus interface
 
 There are several DBus instances on your system:
