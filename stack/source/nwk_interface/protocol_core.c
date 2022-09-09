@@ -158,24 +158,15 @@ void protocol_root_tasklet(arm_event_t *event)
     }
 }
 
-static void nwk_bootstrap_timer(protocol_interface_info_entry_t *cur)
+void nwk_bootstrap_timer(int ticks)
 {
-    if (cur->bootstrap_state_machine_cnt) {
-        if (cur->bootstrap_state_machine_cnt-- == 1) {
-            arm_event_s event = {
-                .receiver = protocol_root_tasklet_ID,
-                .sender = 0,
-                .event_id = (uint8_t)cur->id,
-                .event_type = ARM_IN_INTERFACE_BOOTSTRAP_CB,
-                .data_ptr = NULL,
-                .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-            };
-            if (eventOS_event_send(&event) != 0) {
-                cur->bootstrap_state_machine_cnt = 1; // Try again next tick
-                tr_error("nwk_bootstrap_timer(): event send failed");
-            }
-        }
-    }
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
+    if (cur->bootstrap_state_machine_cnt && cur->bootstrap_state_machine_cnt-- == 1)
+        net_bootstrap_cb_run(cur->id);
 }
 
 void core_timer_event_handle(int ticksUpdate)
@@ -207,11 +198,6 @@ void core_timer_event_handle(int ticksUpdate)
 
     //Fast Timer
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->nwk_id == IF_6LoWPAN) {
-            if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-                nwk_bootstrap_timer(cur);
-            }
-        }
         /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
         cur->icmp_tokens += ticksUpdate;
         if (cur->icmp_tokens > 10) {
@@ -247,6 +233,7 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_NEIGHBOR_SLOW);
     timer_start(TIMER_6LOWPAN_NEIGHBOR_FAST);
     timer_start(TIMER_6LOWPAN_CONTEXT);
+    timer_start(TIMER_6LOWPAN_BOOTSTRAP);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }

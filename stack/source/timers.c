@@ -57,6 +57,7 @@ static struct {
     [TIMER_6LOWPAN_NEIGHBOR_SLOW] { ipv6_neighbour_cache_slow_timer,            1000,                                         true,  0 },
     [TIMER_6LOWPAN_NEIGHBOR_FAST] { ipv6_neighbour_cache_fast_timer,            100,                                          true,  0 },
     [TIMER_6LOWPAN_CONTEXT]       { lowpan_context_timer,                       100,                                          true,  0 },
+    [TIMER_6LOWPAN_BOOTSTRAP]     { nwk_bootstrap_timer,                        100,                                          true,  0 },
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 
