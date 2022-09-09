@@ -32,42 +32,45 @@ static void timer_update_monotonic_time(int ticks)
     g_monotonic_time_100ms += ticks;
 }
 
+#define timer_entry(name, callback, period_ms, is_periodic) \
+    [TIMER_##name] { #name, callback, period_ms, is_periodic, 0 }
 static struct {
+    const char *trace_name;
     void (*callback)(int);
     int period_ms;
     bool periodic;
     int timeout;
 } s_timers[] = {
-    [TIMER_MONOTONIC_TIME]         { timer_update_monotonic_time,                100,                                          true,  0 },
-    [TIMER_MPL_FAST]               { mpl_fast_timer,                             MPL_TICK_MS,                                  false, 0 },
-    [TIMER_MPL_SLOW]               { mpl_slow_timer,                             1000,                                         true,  0 },
-    [TIMER_RPL_FAST]               { rpl_control_fast_timer,                     100,                                          true,  0 },
-    [TIMER_RPL_SLOW]               { rpl_control_slow_timer,                     1000,                                         true,  0 },
-    [TIMER_IPV6_DESTINATION]       { ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000,                      true,  0 },
-    [TIMER_IPV6_ROUTE]             { ipv6_route_table_ttl_update,                1000,                                         true,  0 },
-    [TIMER_IPV6_FRAG]              { ipv6_frag_timer,                            1000,                                         true,  0 },
-    [TIMER_CIPV6_FRAG]             { cipv6_frag_timer,                           1000,                                         true,  0 },
-    [TIMER_ICMP_FAST]              { icmp_fast_timer,                            100,                                          true,  0 },
-    [TIMER_ICMP_SLOW]              { icmp_slow_timer,                            1000,                                         true,  0 },
-    [TIMER_PAE_FAST]               { ws_pae_controller_fast_timer,               100,                                          true,  0 },
-    [TIMER_PAE_SLOW]               { ws_pae_controller_slow_timer,               1000,                                         true,  0 },
-    [TIMER_DHCPV6_SERVER]          { dhcpv6_server_service_timer_cb,             DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true,  0 },
-    [TIMER_DHCPV6_SOCKET]          { dhcp_service_timer_cb,                      100,                                          false, 0 },
-    [TIMER_6LOWPAN_MLD_FAST]       { mld_fast_timer,                             100,                                          true,  0 },
-    [TIMER_6LOWPAN_MLD_SLOW]       { mld_slow_timer,                             125000,                                       true,  0 },
-    [TIMER_6LOWPAN_ADDR_FAST]      { addr_fast_timer,                            100,                                          true,  0 },
-    [TIMER_6LOWPAN_ADDR_SLOW]      { addr_slow_timer,                            1000,                                         true,  0 },
-    [TIMER_WS_COMMON_FAST]         { ws_common_fast_timer,                       100,                                          true,  0 },
-    [TIMER_WS_COMMON_SLOW]         { ws_common_seconds_timer,                    1000,                                         true,  0 },
-    [TIMER_6LOWPAN_ND]             { nd_object_timer,                            100,                                          true,  0 },
-    [TIMER_6LOWPAN_ETX]            { etx_cache_timer,                            1000,                                         true,  0 },
-    [TIMER_6LOWPAN_ADAPTATION]     { lowpan_adaptation_interface_slow_timer,     1000,                                         true,  0 },
-    [TIMER_6LOWPAN_NEIGHBOR]       { mac_neighbor_table_neighbor_timeout_update, 1000,                                         true,  0 },
-    [TIMER_6LOWPAN_NEIGHBOR_SLOW]  { ipv6_neighbour_cache_slow_timer,            1000,                                         true,  0 },
-    [TIMER_6LOWPAN_NEIGHBOR_FAST]  { ipv6_neighbour_cache_fast_timer,            100,                                          true,  0 },
-    [TIMER_6LOWPAN_CONTEXT]        { lowpan_context_timer,                       100,                                          true,  0 },
-    [TIMER_6LOWPAN_BOOTSTRAP]      { nwk_bootstrap_timer,                        100,                                          true,  0 },
-    [TIMER_6LOWPAN_REACHABLE_TIME] { nwk_bootstrap_timer,                        100,                                          true,  0 },
+    timer_entry(MONOTONIC_TIME,         timer_update_monotonic_time,                100,                                          true),
+    timer_entry(MPL_FAST,               mpl_fast_timer,                             MPL_TICK_MS,                                  false),
+    timer_entry(MPL_SLOW,               mpl_slow_timer,                             1000,                                         true),
+    timer_entry(RPL_FAST,               rpl_control_fast_timer,                     100,                                          true),
+    timer_entry(RPL_SLOW,               rpl_control_slow_timer,                     1000,                                         true),
+    timer_entry(IPV6_DESTINATION,       ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000,                      true),
+    timer_entry(IPV6_ROUTE,             ipv6_route_table_ttl_update,                1000,                                         true),
+    timer_entry(IPV6_FRAG,              ipv6_frag_timer,                            1000,                                         true),
+    timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                                         true),
+    timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                                          true),
+    timer_entry(ICMP_SLOW,              icmp_slow_timer,                            1000,                                         true),
+    timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                                          true),
+    timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                                         true),
+    timer_entry(DHCPV6_SERVER,          dhcpv6_server_service_timer_cb,             DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true),
+    timer_entry(DHCPV6_SOCKET,          dhcp_service_timer_cb,                      100,                                          false),
+    timer_entry(6LOWPAN_MLD_FAST,       mld_fast_timer,                             100,                                          true),
+    timer_entry(6LOWPAN_MLD_SLOW,       mld_slow_timer,                             125000,                                       true),
+    timer_entry(6LOWPAN_ADDR_FAST,      addr_fast_timer,                            100,                                          true),
+    timer_entry(6LOWPAN_ADDR_SLOW,      addr_slow_timer,                            1000,                                         true),
+    timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                                          true),
+    timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                                         true),
+    timer_entry(6LOWPAN_ND,             nd_object_timer,                            100,                                          true),
+    timer_entry(6LOWPAN_ETX,            etx_cache_timer,                            1000,                                         true),
+    timer_entry(6LOWPAN_ADAPTATION,     lowpan_adaptation_interface_slow_timer,     1000,                                         true),
+    timer_entry(6LOWPAN_NEIGHBOR,       mac_neighbor_table_neighbor_timeout_update, 1000,                                         true),
+    timer_entry(6LOWPAN_NEIGHBOR_SLOW,  ipv6_neighbour_cache_slow_timer,            1000,                                         true),
+    timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                                          true),
+    timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                                          true),
+    timer_entry(6LOWPAN_BOOTSTRAP,      nwk_bootstrap_timer,                        100,                                          true),
+    timer_entry(6LOWPAN_REACHABLE_TIME, nwk_bootstrap_timer,                        100,                                          true),
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 
