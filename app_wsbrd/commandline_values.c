@@ -73,6 +73,7 @@ const struct name_value valid_traces[] = {
     { "icmp-rf",   TR_ICMP_RF },
     { "icmp-tun",  TR_ICMP_TUN },
     { "dhcp",      TR_DHCP },
+    { "timers",    TR_TIMERS },
     { NULL },
 };
 

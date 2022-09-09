@@ -96,6 +96,7 @@ void timer_global_tick()
             continue;
 
         s_timers[i].callback(1);
+        TRACE(TR_TIMERS, "timer: %s", s_timers[i].trace_name);
         if (s_timers[i].periodic)
             timer_start(i);
     }
