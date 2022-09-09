@@ -115,25 +115,6 @@ typedef struct {
 
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
-#define MAX_NEIGH_TEMPORARY_MULTICAST_SIZE 5
-#define MAX_NEIGH_TEMPORRY_EAPOL_SIZE 5
-#define MAX_NEIGH_TEMPORAY_LIST_SIZE (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE + MAX_NEIGH_TEMPORRY_EAPOL_SIZE)
-
-#define WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MIN 10
-#define WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX 100
-#define WS_LLC_EAPOL_DYNAMIC_HEAP_PERCENT 7
-/**
- *  7 % from total heap take about
- *
- *  How to max entry is defined: (Total heap / 100 * 7) / size of temporary entry
- *
- *  32 kBytes define 14 entry
- *  64 kBytes define 29 entry
- *  128 kBytes define 58 entry
- *
- */
-
-
 typedef struct {
     ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE];
     ws_neighbor_temp_list_t         active_multicast_temp_neigh;
@@ -141,7 +122,6 @@ typedef struct {
     ws_neighbor_temp_list_t         free_temp_neigh;
     llc_message_list_t              llc_eap_pending_list;           /**< Active Message list */
     uint16_t                        llc_eap_pending_list_size;      /**< EAPOL active Message list size */
-    uint16_t                        dynamic_alloc_max;              /**< How big EAPOL temp entry list can be extend */
     bool                            active_eapol_session: 1;        /**< Indicating active EAPOL message */
 } temp_entriest_t;
 
@@ -1569,8 +1549,6 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE - 1]) {
         ns_list_add_to_end(&base->free_temp_neigh, entry);
-    } else {
-        free(entry);
     }
 }
 
@@ -1685,12 +1663,6 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
     if (ns_list_count(&base->free_temp_neigh) > (MAX_NEIGH_TEMPORARY_MULTICAST_SIZE - ns_list_count(&base->active_multicast_temp_neigh))) {
         entry = ns_list_get_first(&base->free_temp_neigh);
         ns_list_remove(&base->free_temp_neigh, entry);
-    } else {
-        //Allocate Dynamic entry
-        //validate Can we allocate more
-        if (ns_list_count(&base->active_eapol_temp_neigh) < base->dynamic_alloc_max) {
-            entry = malloc(sizeof(ws_neighbor_temp_class_t));
-        }
     }
 
     //Add to list
@@ -1814,7 +1786,6 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
         ws_llc_clean(base);
-        base->temp_entries->dynamic_alloc_max = WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX;
         return 0;
     }
 
@@ -1834,7 +1805,6 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(base->temp_entries);
-    base->temp_entries->dynamic_alloc_max = WS_LLC_EAPOL_DYNAMIC_ALLOCATE_MAX;
     return 0;
 }
 
