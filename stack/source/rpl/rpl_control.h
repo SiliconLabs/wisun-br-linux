@@ -122,8 +122,8 @@ void rpl_control_process_prefix_option(struct prefix_entry_t *prefix, struct pro
 void rpl_control_set_memory_limits(size_t soft_limit, size_t hard_limit);
 
 /* Timer routines */
-void rpl_control_fast_timer(uint16_t ticks);
-void rpl_control_slow_timer(uint16_t seconds);
+void rpl_control_fast_timer(int ticks);
+void rpl_control_slow_timer(int seconds);
 
 /* Packet handlers, and other data flow callback indications */
 struct buffer *rpl_control_handler(struct buffer *buf);

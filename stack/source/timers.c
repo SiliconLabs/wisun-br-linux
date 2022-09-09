@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
+#include "stack/source/rpl/rpl_control.h"
 #include "stack/dhcp_service_api.h"
 #include "stack/timers.h"
 #include "common/utils.h"
@@ -23,6 +24,8 @@ static struct {
     [TIMER_PROTOCOL_CORE] { core_timer_event_handle,        100,                                          true,  0 },
     [TIMER_MPL_FAST]      { mpl_fast_timer,                 MPL_TICK_MS,                                  false, 0 },
     [TIMER_MPL_SLOW]      { mpl_slow_timer,                 1000,                                         true,  0 },
+    [TIMER_RPL_FAST]      { rpl_control_fast_timer,         100,                                          true,  0 },
+    [TIMER_RPL_SLOW]      { rpl_control_slow_timer,         1000,                                         true,  0 },
     [TIMER_DHCPV6_SERVER] { dhcpv6_server_service_timer_cb, DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true,  0 },
     [TIMER_DHCPV6_SOCKET] { dhcp_service_timer_cb,          100,                                          false, 0 },
 };

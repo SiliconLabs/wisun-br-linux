@@ -222,7 +222,6 @@ void core_timer_event_handle(int ticksUpdate)
 
         }
 
-        rpl_control_slow_timer(seconds);
         ipv6_route_table_ttl_update(seconds);
         ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
@@ -257,7 +256,6 @@ void core_timer_event_handle(int ticksUpdate)
         }
     }
 
-    rpl_control_fast_timer(ticksUpdate);
     ws_pae_controller_fast_timer(ticksUpdate);
 }
 
@@ -269,6 +267,8 @@ void protocol_core_init(void)
 
     timer_start(TIMER_PROTOCOL_CORE);
     timer_start(TIMER_MPL_SLOW);
+    timer_start(TIMER_RPL_FAST);
+    timer_start(TIMER_RPL_SLOW);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)

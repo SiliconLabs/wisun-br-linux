@@ -1846,7 +1846,7 @@ buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, protocol_interfa
 }
 #endif
 
-void rpl_control_fast_timer(uint16_t ticks)
+void rpl_control_fast_timer(int ticks)
 {
     ns_list_foreach(rpl_domain_t, domain, &rpl_domains) {
         ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
@@ -1866,7 +1866,7 @@ static void trace_info_print(const char *fmt, ...)
     va_end(ap);
 }
 #endif
-void rpl_control_slow_timer(uint16_t seconds)
+void rpl_control_slow_timer(int seconds)
 {
     bool purge = rpl_alloc_total > rpl_purge_threshold;
 
