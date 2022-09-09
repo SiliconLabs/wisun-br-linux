@@ -1,0 +1,66 @@
+From 88f21feae6f726f046acdb0ba6f93e3e3640e217 Mon Sep 17 00:00:00 2001
+From: Luis Thomas <luis.thomas@silabs.com>
+Date: Thu, 4 Aug 2022 09:50:57 +0200
+Subject: [PATCH 2/3] experimental: allow solicit to be sent to unicast address
+ (Wi-SUN)
+
+Wi-SUN uses DHCPv6 with rapid commit to provides addresses to nodes.
+They solicit the dhcp server either through a dhcp relay or directly
+when they are direct neighbors of the Border Router, in this case ISC
+DHCP will drop the Solicit request because it was sent to a unicast
+address. This is specified in the 18.3.1 and 18.4 subsections of
+RFC 8415 (DHCPv6 specification)
+
+"Unicast transmission of Solicit messages is not allowed"
+---
+ server/dhcpv6.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/server/dhcpv6.c b/server/dhcpv6.c
+index 0ea05325..37968b7c 100644
+--- a/server/dhcpv6.c
++++ b/server/dhcpv6.c
+@@ -17,6 +17,7 @@
+ /*! \file server/dhcpv6.c */
+ 
+ #include "dhcpd.h"
++#define WISUN_BYPASS_3315_SEC15
+ 
+ #ifdef DHCPv6
+ 
+@@ -589,6 +590,7 @@ valid_client_msg(struct packet *packet, struct data_string *client_id) {
+ 			goto exit;
+ 	}
+ 
++#ifndef WISUN_BYPASS_3315_SEC15
+ 	/*
+ 	 * Required by RFC 3315, section 15.
+ 	 */
+@@ -600,7 +602,7 @@ valid_client_msg(struct packet *packet, struct data_string *client_id) {
+ 			  print_hex_1(client_id->len, client_id->data, 60));
+ 		goto exit;
+ 	}
+-
++#endif
+ 
+ 	oc = lookup_option(&dhcpv6_universe, packet->options, D6O_SERVERID);
+ 	if (oc != NULL) {
+@@ -764,6 +766,7 @@ valid_client_info_req(struct packet *packet, struct data_string *server_id) {
+ 		client_id_str[0] = '\0';
+ 	}
+ 
++#ifndef WISUN_BYPASS_3315_SEC15
+ 	/*
+ 	 * Required by RFC 3315, section 15.
+ 	 */
+@@ -773,6 +776,7 @@ valid_client_info_req(struct packet *packet, struct data_string *server_id) {
+ 			  piaddr(packet->client_addr), client_id_str);
+ 		goto exit;
+ 	}
++#endif
+ 
+ 	oc = lookup_option(&dhcpv6_universe, packet->options, D6O_IA_NA);
+ 	if (oc != NULL) {
+-- 
+2.37.2
+
