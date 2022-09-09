@@ -26,11 +26,12 @@
 
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_timer.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
+
+#include "stack/timers.h"
 
 #include "mpl/mpl.h"
 
@@ -111,7 +112,6 @@ static NS_LIST_DEFINE(mpl_domains, mpl_domain_t, link);
 static void mpl_buffer_delete(mpl_seed_t *seed, mpl_buffered_message_t *message);
 static void mpl_control_reset_or_start(mpl_domain_t *domain);
 static void mpl_schedule_timer(void);
-static void mpl_fast_timer(uint16_t ticks);
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, int16_t *result);
 static void mpl_seed_delete(mpl_domain_t *domain, mpl_seed_t *seed);
 
@@ -929,11 +929,11 @@ static void mpl_schedule_timer(void)
 {
     if (!mpl_timer_running) {
         mpl_timer_running = true;
-        protocol_timer_start(PROTOCOL_TIMER_MULTICAST_TIM, mpl_fast_timer, MPL_TICK_MS);
+        timer_start(TIMER_MPL);
     }
 }
 
-static void mpl_fast_timer(uint16_t ticks)
+void mpl_fast_timer(int ticks)
 {
     bool need_timer = false;
     mpl_timer_running = false;

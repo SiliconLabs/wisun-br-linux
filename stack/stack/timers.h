@@ -5,6 +5,7 @@
 
 enum timer_id {
     TIMER_PROTOCOL,
+    TIMER_MPL,
     TIMER_SYS,
     TIMER_COUNT,
 };

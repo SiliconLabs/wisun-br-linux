@@ -18,8 +18,13 @@
 #ifndef MPL_H_
 #define MPL_H_
 
+#include <stdint.h>
+
+#include "stack/net_multicast.h"
+
 struct protocol_interface_info_entry;
 struct trickle_params;
+typedef struct buffer buffer_t;
 
 /* Timing is in 50 ms (1/20 s) ticks */
 #define MPL_TICK_MS 50
@@ -54,5 +59,6 @@ bool mpl_domain_delete(struct protocol_interface_info_entry *cur, const uint8_t 
 /* Back door to implement deprecated multicast_set_parameters() API */
 void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params *data_trickle_params, uint16_t seed_set_entry_lifetime);
 
+void mpl_fast_timer(int ticks);
 
 #endif

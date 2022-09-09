@@ -22,7 +22,6 @@
 
 typedef enum {
     PROTOCOL_TIMER_STACK_TIM,
-    PROTOCOL_TIMER_MULTICAST_TIM,
     PROTOCOL_TIMER_MAX
 } protocol_timer_id_e;
 
