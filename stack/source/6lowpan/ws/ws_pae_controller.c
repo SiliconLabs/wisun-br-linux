@@ -1696,7 +1696,7 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
     return 0;
 }
 
-void ws_pae_controller_fast_timer(uint16_t ticks)
+void ws_pae_controller_fast_timer(int ticks)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
         if (entry->pae_fast_timer) {
@@ -1705,7 +1705,7 @@ void ws_pae_controller_fast_timer(uint16_t ticks)
     }
 }
 
-void ws_pae_controller_slow_timer(uint16_t seconds)
+void ws_pae_controller_slow_timer(int seconds)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
         if (entry->pae_slow_timer) {

@@ -42,7 +42,6 @@
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/ws/ws_common.h"
-#include "6lowpan/ws/ws_pae_controller.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_fragmentation.h"
 #include "common_protocols/icmpv6_radv.h"
@@ -226,8 +225,6 @@ void core_timer_event_handle(int ticksUpdate)
         ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
-
-        ws_pae_controller_slow_timer(seconds);
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
     }
@@ -255,8 +252,6 @@ void core_timer_event_handle(int ticksUpdate)
             cur->icmp_tokens = 10;
         }
     }
-
-    ws_pae_controller_fast_timer(ticksUpdate);
 }
 
 void protocol_core_init(void)
@@ -269,6 +264,8 @@ void protocol_core_init(void)
     timer_start(TIMER_MPL_SLOW);
     timer_start(TIMER_RPL_FAST);
     timer_start(TIMER_RPL_SLOW);
+    timer_start(TIMER_PAE_FAST);
+    timer_start(TIMER_PAE_SLOW);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
