@@ -34,11 +34,6 @@
 
 static sys_timer_struct_s startup_sys_timer_pool[ST_MAX];
 
-/* 20 Hz ticker, so 50 milliseconds per tick */
-#define EVENTOS_EVENT_TIMER_HZ 20
-static_assert(1000 % EVENTOS_EVENT_TIMER_HZ == 0, "Need whole number of ms per tick");
-#define TIMER_SYS_TICK_PERIOD       (1000 / EVENTOS_EVENT_TIMER_HZ) // milliseconds
-
 // timer_sys_ticks must be read in critical section to guarantee
 // atomicity on 16-bit platforms
 static volatile uint32_t timer_sys_ticks;

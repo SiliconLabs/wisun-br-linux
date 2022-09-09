@@ -17,6 +17,8 @@
 #define _PL_NANO_TIMER_SYS_H_
 #include "stack-scheduler/eventOS_event.h"
 
+#define TIMER_SYS_TICK_PERIOD       50 // milliseconds
+
 /* We borrow base event storage, including its list link, and add a time field */
 typedef struct sys_timer_struct_s {
     arm_event_storage_t event;
