@@ -24,6 +24,7 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_event_timer.h"
 
+#include "stack/timers.h"
 #include "timer_sys.h"
 #include "event.h"
 
@@ -54,6 +55,7 @@ void timer_sys_init(void)
     for (uint8_t i = 0; i < ST_MAX; i++) {
         ns_list_add_to_start(&system_timer_free, &startup_sys_timer_pool[i]);
     }
+    timer_start(TIMER_SYS);
 }
 
 
@@ -194,7 +196,7 @@ int8_t eventOS_event_timer_request(uint8_t event_id, uint8_t event_type, int8_t 
     return ret ? 0 : -1;
 }
 
-void system_timer_tick_update(uint32_t ticks)
+void system_timer_tick_update(int ticks)
 {
     platform_enter_critical();
     //Keep runtime time

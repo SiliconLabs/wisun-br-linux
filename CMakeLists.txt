@@ -95,6 +95,7 @@ add_library(libwsbrd STATIC
     common/spinel_buffer.c
     common/trickle.c
     common/ws_regdb.c
+    stack/source/timers.c
     stack/source/6lowpan/adaptation_interface.c
     stack/source/6lowpan/bootstraps/network_lib.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -306,6 +307,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/spinel_buffer.c
         common/trickle.c
         common/ws_regdb.c
+        stack/source/timers.c
         stack/source/6lowpan/adaptation_interface.c
         stack/source/6lowpan/bootstraps/network_lib.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan.c

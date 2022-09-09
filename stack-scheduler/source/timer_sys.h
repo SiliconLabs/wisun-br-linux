@@ -38,11 +38,11 @@ void timer_sys_event_cancel_critical(struct arm_event_storage *event);
 /**
  * System Timer update and synch after sleep
  *
- * \param ticks Time in 10 ms resolution
+ * \param ticks Time in 50 ms resolution
  *
  * \return none
  *
  * */
-void system_timer_tick_update(uint32_t ticks);
+void system_timer_tick_update(int ticks);
 
 #endif /*_PL_NANO_TIMER_SYS_H_*/

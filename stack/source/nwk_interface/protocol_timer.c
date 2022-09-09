@@ -50,7 +50,7 @@ void protocol_timer_stop(protocol_timer_id_e id)
     platform_exit_critical();
 }
 
-void protocol_timer_cb(uint16_t ticks)
+void protocol_timer_cb(int ticks)
 {
     uint8_t i;
     uint16_t tick_update, tempTimer;
