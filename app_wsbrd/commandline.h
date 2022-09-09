@@ -62,7 +62,6 @@ struct wsbrd_conf {
     char radius_secret[256];
 
     int  tx_power;
-    int  ws_fan_version;
     int  ws_pan_id;
     int  ws_pmk_lifetime;
     int  ws_ptk_lifetime;
