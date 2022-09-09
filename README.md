@@ -184,20 +184,66 @@ Launch `wsbrd`.
 
 # Running `wsbrd` without Root Privileges
 
-It is possible to launch `wsbrd` without root privileges. First, ensure you have
-permission to access the UART device:
+To run `wsbrd` without root permissions, you first have to ensure you have
+permission to access the UART device (you will have to logout/login after this
+command):
 
     sudo usermod -aG dialout YOUR_USER
 
-> You must logout/login after this step
+Then, you have to take over the creation of the network interface. This process
+can also be useful to setup unusual configuration, or if you need to access tun
+interface before `wsbrd` is launched.
 
-Create a tun interface:
+First, you have to create the network interface to give to your user the
+permission to use it:
 
     sudo ip tuntap add mode tun tun0 user YOUR_USER
 
-Start `wsbrd`:
+The MTU must be set to 1280 bytes to comply with 802.15.4g:
 
-    wsbrd -F examples/wsbrd.conf -t tun0 -u /dev/ttyACM0
+    sudo ip link set dev tun0 mtu 1280
+
+We suggest to reduce queue size of the interface to avoid huge latencies:
+
+    sudo ip link set dev tun0 txqueuelen 10
+
+The Wi-SUN interface cannot be configured through SLAAC, so don't pollute your
+network with unnecessary Router Solicitations:
+
+    sudo sysctl net.ipv6.conf.tun0.accept_ra=0
+
+Wi-SUN need a link-address matching the EUI64 of the node. So, we need to ask to
+Linux to not generate any link-local address by itself.
+
+    sudo sysctl net.ipv6.conf.tun0.addr_gen_mode=1
+
+Then, `wsbrd` is able to automatically setup the IP addresses (Global and
+Link-Local) of the interface. However, to run without root privileges, you have
+to do it by yourself.
+
+Disable the `tun_autoconf` parameter in `wsbrd`'s configuration. Then add IP
+addresses by yourself:
+
+    sudo ip addr add dev tun0 fe80::acde:4823:4567:019f/64
+    sudo ip addr add dev tun0 2001:db8::acde:4823:4567:019f/64
+
+The 64 least significant bits of these addresses must match with the EUI-64 of
+the RCP (you can check logs of `wsbrd` to find it).
+
+The network mask of the GUA must match with the `ipv6_prefix` parameter.
+
+Finally, bring up the interface:
+
+    sudo ip link set dev tun0 up
+
+Also note, the internal DHCP won't be able to bind port 547 without root
+privilege. You can run an external DHCP server (with `internal_dhcp=false`) or
+you can configure your system to allow normal users to bind port 547 (and
+above):
+
+    sudo sysctl net.ipv4.ip_unprivileged_port_start=547
+
+Finally, you can run `wsbrd`.
 
 # Bugs and Limitations
 
