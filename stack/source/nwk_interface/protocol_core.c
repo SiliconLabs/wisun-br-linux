@@ -100,8 +100,6 @@ static int8_t net_interface_get_free_id(void);
 
 static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int8_t net_tasklet, int8_t nwk_id);
 
-static uint16_t  protocol_core_seconds_timer = 10;
-
 int8_t protocol_read_tasklet_id(void)
 {
     return protocol_root_tasklet_ID;
@@ -204,14 +202,6 @@ void update_reachable_time(int seconds)
 void core_timer_event_handle(int ticksUpdate)
 {
     protocol_core_monotonic_time += ticksUpdate;
-
-    if (protocol_core_seconds_timer <= ticksUpdate) {
-        uint16_t extra_ticks = ticksUpdate - protocol_core_seconds_timer;
-        protocol_core_seconds_timer = (10 - extra_ticks % 10);
-        // TODO: make this lot use "seconds", not 1
-    } else {
-        protocol_core_seconds_timer -= ticksUpdate;
-    }
 }
 
 void protocol_core_init(void)
