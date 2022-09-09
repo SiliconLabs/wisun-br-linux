@@ -1524,8 +1524,13 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
 }
 
 
-void nd_object_timer(protocol_interface_info_entry_t *cur_interface, uint16_t ticks_update)
+void nd_object_timer(int ticks_update)
 {
+    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (!(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
     ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {
         /* This may nd_router_remove(cur), so need to use safe loop */
         if (cur_interface->nwk_id == cur->nwk_id) {

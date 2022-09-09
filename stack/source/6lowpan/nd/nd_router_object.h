@@ -95,7 +95,7 @@ nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id_e nwk_id);
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
 bool nd_ra_process_abro(struct protocol_interface_info_entry *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
-void nd_object_timer(struct protocol_interface_info_entry *cur_interface, uint16_t ticks_update);
+void nd_object_timer(int ticks_update);
 uint32_t nd_object_time_to_next_nd_reg(void);
 
 void icmp_nd_router_object_reset(nd_router_t *router_object);

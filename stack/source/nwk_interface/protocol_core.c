@@ -40,7 +40,6 @@
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_response_handler.h"
-#include "6lowpan/nd/nd_router_object.h"
 #include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6_radv.h"
@@ -221,7 +220,6 @@ void core_timer_event_handle(int ticksUpdate)
         if (cur->nwk_id == IF_6LoWPAN) {
             if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                 nwk_bootstrap_timer(cur);
-                nd_object_timer(cur, ticksUpdate);
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
         }
@@ -256,6 +254,7 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_MLD_SLOW);
     timer_start(TIMER_6LOWPAN_ADDR_FAST);
     timer_start(TIMER_6LOWPAN_ADDR_SLOW);
+    timer_start(TIMER_6LOWPAN_ND);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }
