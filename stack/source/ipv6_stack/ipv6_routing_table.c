@@ -52,7 +52,6 @@
 #define TRACE_GROUP "rout"
 
 #define NCACHE_GC_PERIOD    20  /* seconds */
-#define DCACHE_GC_PERIOD    20  /* seconds */
 
 /* Neighbour Cache garbage collection parameters (per interface) */
 /* Parameters only for garbage-collectible entries; registered entries counted separately */
@@ -104,8 +103,6 @@ static uint16_t total_metric(const ipv6_route_t *route);
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source);
 static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source);
 static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source);
-
-static uint16_t dcache_gc_timer;
 
 static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retrans_num)
 {
@@ -1148,16 +1145,10 @@ static void ipv6_destination_cache_gc_periodic(void)
 
 }
 
-void ipv6_destination_cache_timer(uint8_t seconds)
+void ipv6_destination_cache_timer(int ticks)
 {
-    dcache_gc_timer += seconds;
-
-    if (dcache_gc_timer >= DCACHE_GC_PERIOD) {
-        dcache_gc_timer -= DCACHE_GC_PERIOD;
+    for (int i = 0; i < ticks; i++)
         ipv6_destination_cache_gc_periodic();
-        //ipv6_destination_cache_print(trace_debug_print);
-        //ipv6_route_table_print(trace_debug_print);
-    }
 }
 
 static const char *route_src_names[] = {

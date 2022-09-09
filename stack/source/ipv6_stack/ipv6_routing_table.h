@@ -41,6 +41,8 @@
 
 #define IPV6_ROUTE_DEFAULT_METRIC           128
 
+#define DCACHE_GC_PERIOD    20  /* seconds */
+
 /* XXX in the process of renaming this - it's really specifically the
  * IP Neighbour Cache  but was initially called a routing table */
 
@@ -217,7 +219,7 @@ typedef struct ipv6_destination {
 void ipv6_destination_cache_print(route_print_fn_t *print_fn);
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);
 ipv6_destination_t *ipv6_destination_lookup_or_create_with_route(const uint8_t *address, int8_t interface_id, ipv6_route_info_t *route_out);
-void ipv6_destination_cache_timer(uint8_t ticks);
+void ipv6_destination_cache_timer(int ticks);
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_e ll_type, const uint8_t *ll_address);
 void ipv6_destination_cache_clean(int8_t interface_id);
 

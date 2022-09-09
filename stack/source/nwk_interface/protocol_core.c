@@ -222,7 +222,6 @@ void core_timer_event_handle(int ticksUpdate)
         }
 
         ipv6_route_table_ttl_update(seconds);
-        ipv6_destination_cache_timer(seconds);
         ipv6_frag_timer(seconds);
         cipv6_frag_timer(seconds);
     } else {
@@ -266,6 +265,7 @@ void protocol_core_init(void)
     timer_start(TIMER_RPL_SLOW);
     timer_start(TIMER_PAE_FAST);
     timer_start(TIMER_PAE_SLOW);
+    timer_start(TIMER_IPV6_DESTINATION);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
