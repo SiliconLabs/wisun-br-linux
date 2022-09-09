@@ -1548,6 +1548,7 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE - 1]) {
+        ns_fhss_ws_drop_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
 }
@@ -1680,6 +1681,7 @@ void ws_llc_free_multicast_temp_entry(protocol_interface_info_entry_t *cur, ws_n
     if (!base) {
         return;
     }
+    ns_fhss_ws_drop_neighbor(neighbor->mac64);
     ns_list_remove(&base->temp_entries->active_multicast_temp_neigh, neighbor);
     ns_list_add_to_end(&base->temp_entries->free_temp_neigh, neighbor);
 }
@@ -2158,6 +2160,7 @@ void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint1
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries->active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
+            ns_fhss_ws_drop_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries->active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries->free_temp_neigh, entry);
         } else {
