@@ -1,3 +1,42 @@
+v1.4
+----
+
+  - Fix issues related to the internal network interface. This interface has
+    been dropped. This implies some changes on the way the interface brings up,
+    but they do not impact common user. The only known issue is `ndppd` won't
+    works anymore. But the user can replace it by `neighbor_proxy`
+  - Improve support for `tun_autoconf = false`. The native IP address is
+    properly used has network prefix and as DODAGID.
+  - Add support for `neighbor_proxy` parameter. `neighbor_proxy` allows to
+    create a transparent bridge between the existing IPv6 network and the Wi-SUN
+    network. Wi-SUN network and ethernet network will use the same IPv6 prefix
+    and all the hosts will see each other with adding any route on the
+    upstream router. This parameter rplace the use of `ndppd`.
+  - Fix support for channel plan 2. Channel plan 2 is now automatically
+    advertised when the user request FAN1.1 PHY.
+  - Drop support for TAP interface (the `use_tap` parameter). It was only
+    provided to support ISC-DHCP. Instead we provide patch for ISC-DHCP and
+    explanations to work with dnsmasq as an alternative.
+  - Drop the internal DHCP relay implementation. The parameter `dhcpv6_server`
+    does not exist anymore. The user can now run dhcp_relay beside `wsbrd` (he
+    has to use `internal_dhcp=false`).
+  - Add support for CPC protocol as an alternative to the traditional UART. The
+    CPC protocol bring support for encrypted link and SPI bus.
+  - Output is no more colored when redirected. The new parameter `color_output`
+    allow to enforce this behavior.
+  - Allow to disable storage with `storage_prefix = -`.
+  - Fix error catching when certificates are incorrect.
+  - Fix default permissions of `/var/lib/wsbrd`
+  - Fix paths for examples certificates in examples/wsbrd.conf during the
+    install process.
+  - Emit a DBus signal when the network topology change.
+  - DBus API expose IPv6 of the nodes.
+  - Drop `DebugPing` DBus method since there is no more internal IP stack.
+  - Introduce wsbrd-fuzz, a developer tool allowing to craft complex scenarios.
+    It can also been used to interface with fuzzing tools (ie. American Fuzzing
+    Lop).
+  - Fix warnings during the build
+
 v1.3.3
 ------
 
