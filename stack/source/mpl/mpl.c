@@ -929,7 +929,7 @@ static void mpl_schedule_timer(void)
 {
     if (!mpl_timer_running) {
         mpl_timer_running = true;
-        timer_start(TIMER_MPL);
+        timer_start(TIMER_MPL_FAST);
     }
 }
 
@@ -958,7 +958,7 @@ void mpl_fast_timer(int ticks)
     }
 }
 
-void mpl_slow_timer(uint16_t seconds)
+void mpl_slow_timer(int seconds)
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
         uint32_t message_age_limit = (domain->seed_set_entry_lifetime * UINT32_C(10)) / 4;

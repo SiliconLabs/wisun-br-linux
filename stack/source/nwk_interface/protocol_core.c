@@ -222,7 +222,6 @@ void core_timer_event_handle(int ticksUpdate)
 
         }
 
-        mpl_slow_timer(seconds);
         rpl_control_slow_timer(seconds);
         ipv6_route_table_ttl_update(seconds);
         ipv6_destination_cache_timer(seconds);
@@ -269,6 +268,7 @@ void protocol_core_init(void)
     protocol_core_monotonic_time = 0;
 
     timer_start(TIMER_PROTOCOL_CORE);
+    timer_start(TIMER_MPL_SLOW);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
