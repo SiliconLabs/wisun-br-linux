@@ -38,7 +38,7 @@ struct buffer *mld_query_handler(struct buffer *buf, struct protocol_interface_i
 void mld_start_listening(struct protocol_interface_info_entry *interface, struct if_group_entry *entry);
 void mld_stop_listening(struct protocol_interface_info_entry *interface, struct if_group_entry *entry);
 
-void mld_slow_timer(struct protocol_interface_info_entry *interface, uint_fast16_t seconds);
-void mld_fast_timer(struct protocol_interface_info_entry *interface, uint_fast16_t ticks);
+void mld_slow_timer(int seconds);
+void mld_fast_timer(int ticks);
 
 #endif

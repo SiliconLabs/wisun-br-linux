@@ -3,6 +3,7 @@
 #include "stack/source/6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
+#include "stack/source/common_protocols/mld.h"
 #include "stack/source/common_protocols/ipv6_fragmentation.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
@@ -38,6 +39,8 @@ static struct {
     [TIMER_PAE_SLOW]         { ws_pae_controller_slow_timer,   1000,                                         true,  0 },
     [TIMER_DHCPV6_SERVER]    { dhcpv6_server_service_timer_cb, DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true,  0 },
     [TIMER_DHCPV6_SOCKET]    { dhcp_service_timer_cb,          100,                                          false, 0 },
+    [TIMER_6LOWPAN_MLD_FAST] { mld_fast_timer,                 100,                                          true,  0 },
+    [TIMER_6LOWPAN_MLD_SLOW] { mld_slow_timer,                 125000,                                       true,  0 },
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 

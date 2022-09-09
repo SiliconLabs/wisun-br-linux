@@ -333,20 +333,18 @@ void mld_stop_listening(protocol_interface_info_entry_t *interface, if_group_ent
     }
 }
 
-void mld_slow_timer(protocol_interface_info_entry_t *interface, uint_fast16_t seconds)
+void mld_slow_timer(int seconds)
 {
-    static uint8_t query_timer;
-    query_timer += seconds;
-    if (query_timer >= 125) {
-        query_timer = 0;
-        if (mld_querier) {
-            protocol_push(mld_build(interface, ICMPV6_TYPE_INFO_MCAST_LIST_QUERY, 10000, ADDR_UNSPECIFIED));
-        }
-    }
+    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (mld_querier)
+        protocol_push(mld_build(interface, ICMPV6_TYPE_INFO_MCAST_LIST_QUERY, 10000, ADDR_UNSPECIFIED));
 }
 
-void mld_fast_timer(protocol_interface_info_entry_t *interface, uint_fast16_t ticks)
+void mld_fast_timer(int ticks)
 {
+    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
         if (entry->mld_timer == 0) {
             continue;
