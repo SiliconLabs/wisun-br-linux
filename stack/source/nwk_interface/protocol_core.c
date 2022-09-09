@@ -169,40 +169,48 @@ void nwk_bootstrap_timer(int ticks)
         net_bootstrap_cb_run(cur->id);
 }
 
+void icmp_slow_timer(int seconds)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    cur->icmp_ra_tokens += seconds;
+    if (cur->icmp_ra_tokens > 3) {
+        cur->icmp_ra_tokens = 3;
+    }
+}
+
+void icmp_fast_timer(int ticks)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
+    cur->icmp_tokens += ticks;
+    if (cur->icmp_tokens > 10) {
+        cur->icmp_tokens = 10;
+    }
+}
+
+void update_reachable_time(int seconds)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
+    if (cur->reachable_time_ttl > seconds) {
+        cur->reachable_time_ttl -= seconds;
+    } else {
+        protocol_stack_interface_set_reachable_time(cur, cur->base_reachable_time);
+    }
+}
+
 void core_timer_event_handle(int ticksUpdate)
 {
     protocol_core_monotonic_time += ticksUpdate;
 
     if (protocol_core_seconds_timer <= ticksUpdate) {
         uint16_t extra_ticks = ticksUpdate - protocol_core_seconds_timer;
-        uint16_t seconds = 1 + extra_ticks / 10;
         protocol_core_seconds_timer = (10 - extra_ticks % 10);
         // TODO: make this lot use "seconds", not 1
-
-        ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-            if (cur->reachable_time_ttl > seconds) {
-                cur->reachable_time_ttl -= seconds;
-            } else {
-                protocol_stack_interface_set_reachable_time(cur, cur->base_reachable_time);
-            }
-
-            cur->icmp_ra_tokens += seconds;
-            if (cur->icmp_ra_tokens > 3) {
-                cur->icmp_ra_tokens = 3;
-            }
-
-        }
     } else {
         protocol_core_seconds_timer -= ticksUpdate;
-    }
-
-    //Fast Timer
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
-        cur->icmp_tokens += ticksUpdate;
-        if (cur->icmp_tokens > 10) {
-            cur->icmp_tokens = 10;
-        }
     }
 }
 
@@ -222,6 +230,8 @@ void protocol_core_init(void)
     timer_start(TIMER_IPV6_ROUTE);
     timer_start(TIMER_IPV6_FRAG);
     timer_start(TIMER_CIPV6_FRAG);
+    timer_start(TIMER_ICMP_FAST);
+    timer_start(TIMER_ICMP_SLOW);
     timer_start(TIMER_6LOWPAN_MLD_FAST);
     timer_start(TIMER_6LOWPAN_MLD_SLOW);
     timer_start(TIMER_6LOWPAN_ADDR_FAST);
@@ -234,6 +244,7 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_NEIGHBOR_FAST);
     timer_start(TIMER_6LOWPAN_CONTEXT);
     timer_start(TIMER_6LOWPAN_BOOTSTRAP);
+    timer_start(TIMER_6LOWPAN_REACHABLE_TIME);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }
