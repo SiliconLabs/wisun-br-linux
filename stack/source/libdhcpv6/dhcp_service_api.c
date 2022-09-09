@@ -29,12 +29,10 @@
 #include "stack-services/ns_trace.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-scheduler/eventOS_event_timer.h"
 #include "stack/net_socket.h"
 #include "stack/net_interface.h"
 #include "stack/dhcp_service_api.h"
+#include "stack/timers.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
@@ -120,13 +118,6 @@ typedef struct {
     int8_t dhcpv6_socket_service_tasklet;
 } dhcp_service_class_t;
 
-#define DHCPV6_SOCKET_SERVICE_TASKLET_INIT      1
-#define DHCPV6_SOCKET_SERVICE_TIMER             2
-
-#define DHCPV6_SOCKET_SERVICE_TIMER_ID          1
-
-#define DHCPV6_SOCKET_TIMER_UPDATE_PERIOD_IN_MS 100
-
 dhcp_service_class_t *dhcp_service = NULL;
 static bool dhcpv6_socket_timeout_timer_active = false;
 
@@ -153,26 +144,18 @@ int dhcp_service_get_server_socket_fd()
 }
 #endif
 
-void dhcpv6_socket_service_tasklet(arm_event_s *event)
+void dhcp_service_timer_cb(int ticks)
 {
-    if (event->event_type == DHCPV6_SOCKET_SERVICE_TASKLET_INIT) {
-        //We should define peridiocally timer service!!
-        eventOS_event_timer_request(DHCPV6_SOCKET_SERVICE_TIMER_ID, DHCPV6_SOCKET_SERVICE_TIMER, dhcp_service->dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_TIMER_UPDATE_PERIOD_IN_MS);
+    if (dhcp_service_timer_tick(ticks)) {
         dhcpv6_socket_timeout_timer_active = true;
-    } else if (event->event_type == DHCPV6_SOCKET_SERVICE_TIMER) {
-
-        if (dhcp_service_timer_tick(1)) {
-            dhcpv6_socket_timeout_timer_active = true;
-            eventOS_event_timer_request(DHCPV6_SOCKET_SERVICE_TIMER_ID, DHCPV6_SOCKET_SERVICE_TIMER, dhcp_service->dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_TIMER_UPDATE_PERIOD_IN_MS);
-        } else {
-            dhcpv6_socket_timeout_timer_active = false;
-        }
+        timer_start(TIMER_DHCPV6_SOCKET);
+    } else {
+        dhcpv6_socket_timeout_timer_active = false;
     }
 }
 
 bool dhcp_service_allocate(void)
 {
-    bool retVal = false;
     if (dhcp_service == NULL) {
         dhcp_service = malloc(sizeof(dhcp_service_class_t));
         if (dhcp_service) {
@@ -183,18 +166,11 @@ bool dhcp_service_allocate(void)
             dhcp_service->dhcp_client_socket = -1;
             dhcp_service->dhcp_server_socket = -1;
             dhcp_service->dhcp_relay_socket = -1;
-            dhcp_service->dhcpv6_socket_service_tasklet = eventOS_event_handler_create(dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_SERVICE_TASKLET_INIT);
-            if (dhcp_service->dhcpv6_socket_service_tasklet < 0) {
-                free(dhcp_service);
-                dhcp_service = NULL;
-            } else {
-                retVal = true;
-            }
+            timer_start(TIMER_DHCPV6_SOCKET);
+            dhcpv6_socket_timeout_timer_active = true;
         }
-    } else {
-        retVal = true;
     }
-    return retVal;
+    return true;
 }
 
 /*Subclass instances*/
@@ -270,7 +246,7 @@ void dhcp_tr_set_retry_timers(msg_tr_t *msg_ptr, uint8_t msg_type)
 
         msg_ptr->timeout = msg_ptr->timeout_init;
         if (!dhcpv6_socket_timeout_timer_active) {
-            eventOS_event_timer_request(DHCPV6_SOCKET_SERVICE_TIMER_ID, DHCPV6_SOCKET_SERVICE_TIMER, dhcp_service->dhcpv6_socket_service_tasklet, DHCPV6_SOCKET_TIMER_UPDATE_PERIOD_IN_MS);
+            timer_start(TIMER_DHCPV6_SOCKET);
             dhcpv6_socket_timeout_timer_active = true;
         }
     }

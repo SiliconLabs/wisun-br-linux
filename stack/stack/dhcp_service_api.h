@@ -270,5 +270,6 @@ bool dhcp_service_timer_tick(uint16_t ticks);
  */
 int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_cb *notify_cb);
 
+void dhcp_service_timer_cb(int ticks);
 
 #endif //DHCP_SERVICE_API_H_
