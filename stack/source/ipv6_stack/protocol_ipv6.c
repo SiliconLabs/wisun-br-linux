@@ -72,10 +72,7 @@ typedef struct ipv6_interface_dns_server_on_link_t {
 
 static void ipv6_stack(buffer_t *b);
 
-static uint8_t ipv6_nd_rs(protocol_interface_info_entry_t *cur);
-
 static void ipv6_stack_prefix_on_link_update(protocol_interface_info_entry_t *cur, uint8_t *address);
-static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur);
 static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
 int ipv6_interface_route_validate(int8_t interface_id, uint8_t *address);
 /* These are the advertised on-link prefixes */
@@ -315,60 +312,6 @@ static buffer_t *ethernet_up(buffer_t *buf)
     return buf;
 }
 
-static void ipv6_nd_bootstrap(protocol_interface_info_entry_t *cur)
-{
-    switch (cur->ipv6_configure.IPv6_ND_state) {
-        case IPV6_LL_CONFIG:
-            if (addr_interface_set_ll64(cur, ipv6_interface_address_cb) != 0) {
-                cur->ipv6_configure.ND_TIMER = 1;
-            }
-            break;
-
-        case IPV6_ROUTER_SOLICITATION:
-            if (ipv6_nd_rs(cur)) {
-                tr_debug("Waiting for ICMPv6 Router Advertisement");
-                if (cur->ipv6_configure.routerSolicitationRetryCounter != ROUTER_SOL_MAX_COUNTER) {
-                    cur->ipv6_configure.routerSolicitationRetryCounter++;
-                }
-            }
-            if (cur->ipv6_configure.routerSolicitationRetryCounter == 0) {
-                cur->ipv6_configure.routerSolicitationRetryCounter++;
-            }
-            cur->ipv6_configure.ND_TIMER = (cur->ipv6_configure.routerSolicitationRetryCounter * 25);
-            break;
-
-        case IPV6_GP_GEN:
-            if (ipv6_generate_static_gp_setup(cur, false) != 0) {
-                cur->ipv6_configure.ND_TIMER = 1;
-            }
-            break;
-        case IPV6_GP_CONFIG:
-            break;
-
-        case IPV6_DHCPV6_SOLICITATION:
-//              if(dhcpv6_non_temporal_address_solicitation(cur) == 0)
-//              {
-//                  cur->ipv6_configure.ND_TIMER = 0;
-//              }
-//              else
-//              {
-//                  cur->ipv6_configure.ND_TIMER = 1;
-//              }
-            break;
-
-        case IPV6_DHCPV6_ADDRESS_REQUEST:
-            break;
-        case IPV6_DHCPV6_ADDRESS_REQ_FAIL:
-            tr_warn("DHCP ADDRESS_REQ_FAIL");
-            /*XXX Do what here? */
-            break;
-
-        case IPV6_READY:
-            break;
-    }
-}
-
-
 void ipv6_prefix_on_link_list_add_by_interface_address_list(protocol_interface_info_entry_t *cur_Ipv6, protocol_interface_info_entry_t *curRegisteredInterface)
 {
     ns_list_foreach(if_address_entry_t, e, &curRegisteredInterface->ip_addresses) {
@@ -573,38 +516,6 @@ void ipv6_rote_advert_list_free(void)
     }
 }
 
-void ipv6_core_slow_timer_event_handle(struct protocol_interface_info_entry *cur)
-{
-    protocol_interface_info_entry_t *curRegisteredInterface;
-    if (cur->ipv6_configure.wb_table_ttl-- == 1) {
-        //tr_debug("WB Table TTL");
-        whiteboard_ttl_update(WB_UPDATE_PERIOD_SECONDS);
-        cur->ipv6_configure.wb_table_ttl   = WB_UPDATE_PERIOD_SECONDS;
-    }
-
-    if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-
-        if (cur->global_address_available) {
-            curRegisteredInterface = protocol_stack_interface_info_get(IF_6LoWPAN);
-            if (curRegisteredInterface) {
-
-                ipv6_prefix_on_link_list_add_by_interface_address_list(cur, curRegisteredInterface);
-            }
-        }
-    }
-}
-
-void ipv6_core_timer_event_handle(protocol_interface_info_entry_t *cur, const uint8_t event)
-{
-    (void)event;
-    if (cur->ipv6_configure.ND_TIMER) {
-        if (cur->ipv6_configure.ND_TIMER-- == 1) {
-            //Call ND State Machine
-            ipv6_nd_bootstrap(cur);
-        }
-    }
-}
-
 int ipv6_prefix_register(uint8_t *prefix_64, uint32_t lifetime, uint32_t prefer_lifetime)
 {
     prefix_entry_t *new_entry = icmpv6_prefix_add(&ipv6_prefixs, prefix_64, 64, lifetime, prefer_lifetime, (PIO_L | PIO_A));
@@ -718,18 +629,6 @@ int8_t ipv6_interface_down(protocol_interface_info_entry_t *cur)
     //Clear all generated proxies
     nd_proxy_upstream_interface_unregister(cur->id);
 
-    return 0;
-}
-
-
-static uint8_t ipv6_nd_rs(protocol_interface_info_entry_t *cur)
-{
-    buffer_t *buf = icmpv6_build_rs(cur, NULL);
-    if (buf) {
-        tr_debug("Push RS to IPV6");
-        arm_net_protocol_packet_handler(buf, cur);
-        return 1;
-    }
     return 0;
 }
 

@@ -199,9 +199,6 @@ void core_timer_event_handle(int ticksUpdate)
                     etx_cache_timer(cur->id, seconds);
                     lowpan_adaptation_interface_slow_timer(cur);
                 }
-            } else if (cur->nwk_id == IF_IPV6) {
-                //Slow Pointer Update
-                ipv6_core_slow_timer_event_handle(cur);
             }
 
             addr_slow_timer(cur, seconds);
@@ -232,8 +229,6 @@ void core_timer_event_handle(int ticksUpdate)
                 ws_common_fast_timer(cur, ticksUpdate);
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
-        } else if (cur->nwk_id == IF_IPV6) {
-            ipv6_core_timer_event_handle(cur, ticksUpdate);
         }
 
         ipv6_neighbour_cache_fast_timer(&cur->ipv6_neighbour_cache, ticksUpdate);
