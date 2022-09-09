@@ -260,7 +260,7 @@ void ipv6_route_table_modify_router_metric(int8_t interface_id, const uint8_t *a
 void ipv6_route_table_remove_info(int8_t interface_id, ipv6_route_src_t source, void *info);
 void ipv6_route_table_set_predicate_fn(ipv6_route_src_t src, ipv6_route_predicate_fn_t *fn);
 void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_fn_t *fn);
-void ipv6_route_table_ttl_update(uint16_t seconds);
+void ipv6_route_table_ttl_update(int seconds);
 void ipv6_route_table_print(route_print_fn_t *print_fn);
 void ipv6_route_table_set_max_entries(int8_t interface_id, ipv6_route_src_t source, uint8_t max_entries);
 bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src);

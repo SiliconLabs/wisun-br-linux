@@ -1749,7 +1749,7 @@ static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ip
 }
 
 
-void ipv6_route_table_ttl_update(uint16_t seconds)
+void ipv6_route_table_ttl_update(int seconds)
 {
     ns_list_foreach_safe(ipv6_route_t, r, &ipv6_routing_table) {
         if (r->probe_timer) {
