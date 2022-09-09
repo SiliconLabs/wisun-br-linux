@@ -33,6 +33,7 @@
 #include "stack/net_rpl.h"
 #include "stack/mac/platform/os_whiteboard.h"
 #include "stack/ws_bbr_api.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_control.h"
@@ -1029,7 +1030,7 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
     info_ptr->devices_in_network = ws_bbr_pan_size(cur);
     info_ptr->instance_id = current_instance_id;
     info_ptr->version = dodag_info.version_num;
-    info_ptr->timestamp = protocol_core_monotonic_time; // TODO switch to second timer
+    info_ptr->timestamp = g_monotonic_time_100ms; // TODO switch to second timer
     // consider DTSN included It can also be added for getting device information
     // Consider own device API to get DTSN, DHCP lifetime values
     return 0;

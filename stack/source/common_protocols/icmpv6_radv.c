@@ -44,6 +44,7 @@
 #include "common/rand.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
@@ -83,7 +84,7 @@ void icmpv6_radv_init(protocol_interface_info_entry_t *cur)
     cur->rtr_adv_flags = 0;
 
     /* Initialise timing info for local RAs */
-    cur->ra_timing.rtr_adv_last_send_time = protocol_core_monotonic_time - 0x10000;
+    cur->ra_timing.rtr_adv_last_send_time = g_monotonic_time_100ms - 0x10000;
     cur->ra_timing.initial_rtr_adv_count = 0;
 }
 
@@ -185,7 +186,7 @@ void icmpv6_trigger_ra_from_rs(protocol_interface_info_entry_t *cur, const uint8
     if (dest == ADDR_LINK_LOCAL_ALL_NODES) {
         ipv6_ra_timing_t *t = icmpv6_ra_timing_lookup(cur, abro);
         uint32_t time_since_last_ra;
-        time_since_last_ra = protocol_core_monotonic_time - t->rtr_adv_last_send_time;
+        time_since_last_ra = g_monotonic_time_100ms - t->rtr_adv_last_send_time;
 
         if (time_since_last_ra < cur->min_delay_between_ras) {
             delay += cur->min_delay_between_ras - time_since_last_ra;
@@ -295,7 +296,7 @@ void icmpv6_restart_router_advertisements(protocol_interface_info_entry_t *cur, 
     t->initial_rtr_adv_count = cur->max_initial_rtr_advertisements;
 
     /* And enforce the rate limiting, if somehow we cancelled and restarted this TX */
-    uint16_t time_since_last = protocol_core_monotonic_time - t->rtr_adv_last_send_time;
+    uint16_t time_since_last = g_monotonic_time_100ms - t->rtr_adv_last_send_time;
     if (time_since_last < cur->min_delay_between_ras) {
         ra->ticks += cur->min_delay_between_ras - time_since_last;
     }

@@ -30,6 +30,7 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_common_defines.h"
+#include "stack/timers.h"
 
 #include "core/ns_address_internal.h"
 #include "core/ns_socket.h"
@@ -1025,7 +1026,7 @@ static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buff
 
 static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *interface_ptr)
 {
-    if (!interface_ptr->last_rx_high_priority || ((protocol_core_monotonic_time - interface_ptr->last_rx_high_priority) < LOWPAN_HIGH_PRIORITY_STATE_LENGTH)) {
+    if (!interface_ptr->last_rx_high_priority || ((g_monotonic_time_100ms - interface_ptr->last_rx_high_priority) < LOWPAN_HIGH_PRIORITY_STATE_LENGTH)) {
         return false;
     }
 
@@ -1077,7 +1078,7 @@ static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info
     }
 
     //Store timestamp for indicate last RX High Priority message
-    interface_ptr->last_rx_high_priority = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+    interface_ptr->last_rx_high_priority = g_monotonic_time_100ms ? g_monotonic_time_100ms : 1;
 
 }
 
@@ -1136,7 +1137,7 @@ void lowpan_adaptation_interface_slow_timer(int seconds)
 static bool lowpan_adaptation_interface_check_buffer_timeout(buffer_t *buf)
 {
     // Convert from 100ms slots to seconds
-    uint32_t buffer_age_s = (protocol_core_monotonic_time - buf->adaptation_timestamp) / 10;
+    uint32_t buffer_age_s = (g_monotonic_time_100ms - buf->adaptation_timestamp) / 10;
 
     if ((buf->priority == QOS_NORMAL) && (buffer_age_s > LOWPAN_TX_BUFFER_AGE_LIMIT_LOW_PRIORITY)) {
         return true;
@@ -1186,7 +1187,7 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
 
     if (!buf->adaptation_timestamp) {
         // Set TX start timestamp
-        buf->adaptation_timestamp = protocol_core_monotonic_time;
+        buf->adaptation_timestamp = g_monotonic_time_100ms;
         if (!buf->adaptation_timestamp) {
             buf->adaptation_timestamp--;
         }
@@ -1428,7 +1429,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
 
     // Update adaptation layer latency for unicast packets. Given as seconds.
     if (buf->link_specific.ieee802_15_4.requestAck && buf->adaptation_timestamp) {
-        protocol_stats_update(STATS_AL_TX_LATENCY, ((protocol_core_monotonic_time - buf->adaptation_timestamp) + 5) / 10);
+        protocol_stats_update(STATS_AL_TX_LATENCY, ((g_monotonic_time_100ms - buf->adaptation_timestamp) + 5) / 10);
     }
 
     //Indirect data expiration

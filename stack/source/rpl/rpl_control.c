@@ -40,6 +40,7 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h" /* slight ick */
 #include "stack/net_rpl.h"
+#include "stack/timers.h"
 
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
@@ -1972,8 +1973,8 @@ uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *pre
 
 void rpl_control_print(route_print_fn_t *print_fn)
 {
-    unsigned t = protocol_core_monotonic_time % 10;
-    unsigned s_full = protocol_core_monotonic_time / 10;
+    unsigned t = g_monotonic_time_100ms % 10;
+    unsigned s_full = g_monotonic_time_100ms / 10;
     unsigned m = s_full / 60;
     unsigned s = s_full % 60;
     unsigned h = m / 60;

@@ -40,6 +40,7 @@
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/ccm.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
@@ -1076,13 +1077,13 @@ void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcp
     if (ws_neighbor_class_rsl_from_dbm_calculate(parent->signal_dbm) < (DEVICE_MIN_SENS + CAND_PARENT_THRESHOLD - CAND_PARENT_HYSTERISIS)) {
         parent->link_acceptable = false;
     }
-    parent->age = protocol_core_monotonic_time;
+    parent->age = g_monotonic_time_100ms;
 }
 
 parent_info_t *ws_bootstrap_candidate_parent_get_best(protocol_interface_info_entry_t *cur)
 {
     ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, trace_array(entry->addr, 8), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, protocol_core_monotonic_time - entry->age);
+        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, trace_array(entry->addr, 8), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
     }
 
     return ns_list_get_first(&cur->ws_info->parent_list_reserved);

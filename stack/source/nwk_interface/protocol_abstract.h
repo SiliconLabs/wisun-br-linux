@@ -33,8 +33,6 @@ typedef enum {
     IF_IPV6,
 } nwk_interface_id_e;
 
-extern uint32_t protocol_core_monotonic_time;   /* 100ms ticks */
-
 typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
 
 extern protocol_interface_info_entry_t *protocol_core_multicast_upstream;

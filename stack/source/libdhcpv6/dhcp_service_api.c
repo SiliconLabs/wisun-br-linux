@@ -35,7 +35,7 @@
 #include "stack/timers.h"
 
 #include "libdhcpv6/libdhcpv6.h"
-#include "nwk_interface/protocol.h" // just for protocol_core_monotonic_time
+#include "nwk_interface/protocol.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #ifdef HAVE_WS_BORDER_ROUTER
@@ -898,7 +898,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     if (msg_tr_ptr->first_transmit_time && libdhcpv6_message_option_discover((msg_tr_ptr->msg_ptr + 4), (msg_tr_ptr->msg_len - 4), DHCPV6_ELAPSED_TIME_OPTION, &elapsed_time) == 0 &&
             elapsed_time.len == 2) {
 
-        t = protocol_core_monotonic_time - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
+        t = g_monotonic_time_100ms - msg_tr_ptr->first_transmit_time; // time in 1/10s ticks
         if (t > 0xffff / 10) {
             cs = 0xffff;
         } else {
@@ -1002,10 +1002,10 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
             socket_setsockopt(msg_tr_ptr->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
             retval = socket_sendto(msg_tr_ptr->socket, &msg_tr_ptr->addr, msg_tr_ptr->msg_ptr, msg_tr_ptr->msg_len);
 #endif
-            msg_tr_ptr->transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+            msg_tr_ptr->transmit_time = g_monotonic_time_100ms ? g_monotonic_time_100ms : 1;
             if (msg_tr_ptr->first_transmit_time == 0 && retval == 0) {
                 //Mark first pushed message timestamp
-                msg_tr_ptr->first_transmit_time = protocol_core_monotonic_time ? protocol_core_monotonic_time : 1;
+                msg_tr_ptr->first_transmit_time = g_monotonic_time_100ms ? g_monotonic_time_100ms : 1;
             }
         }
     }

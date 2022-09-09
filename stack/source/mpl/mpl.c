@@ -23,6 +23,7 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
+#include "stack/timers.h"
 
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
@@ -373,7 +374,7 @@ static void mpl_free_space(void)
                 continue;
             }
             if (!oldest_message ||
-                    protocol_core_monotonic_time - message->timestamp > protocol_core_monotonic_time - oldest_message->timestamp) {
+                    g_monotonic_time_100ms - message->timestamp > g_monotonic_time_100ms - oldest_message->timestamp) {
                 oldest_message = message;
                 oldest_seed = seed;
             }
@@ -424,7 +425,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     message->message[IPV6_HDROFF_HOP_LIMIT] = hop_limit;
     message->mpl_opt_data_offset = buf->mpl_option_data_offset;
     message->colour = seed->colour;
-    message->timestamp = protocol_core_monotonic_time;
+    message->timestamp = g_monotonic_time_100ms;
     /* Make sure trickle structure is initialised */
     trickle_start(&message->trickle, "MPL MSG", &domain->data_trickle_params);
     if (domain->proactive_forwarding) {
@@ -980,7 +981,7 @@ void mpl_slow_timer(int seconds)
              */
             ns_list_foreach_safe(mpl_buffered_message_t, message, &seed->messages) {
                 if (!trickle_running(&message->trickle, &domain->data_trickle_params) &&
-                        protocol_core_monotonic_time - message->timestamp >= message_age_limit) {
+                        g_monotonic_time_100ms - message->timestamp >= message_age_limit) {
                     seed->min_sequence = mpl_buffer_sequence(message) + 1;
                     mpl_buffer_delete(seed, message);
                 } else {

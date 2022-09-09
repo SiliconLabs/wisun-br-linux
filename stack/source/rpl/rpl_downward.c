@@ -88,6 +88,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack-services/ip6string.h"
 #include "stack/net_rpl.h"
+#include "stack/timers.h"
 
 #include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
@@ -1035,7 +1036,7 @@ void rpl_downward_transit_error(rpl_instance_t *instance, const uint8_t *target_
                 }
                 rpl_downward_paths_invalidate(instance);
                 instance->srh_error_count++;
-                if (rpl_policy_dao_trigger_after_srh_error(instance->domain, (protocol_core_monotonic_time - instance->last_dao_trigger_time) / 10, instance->srh_error_count, ns_list_count(&instance->dao_targets))) {
+                if (rpl_policy_dao_trigger_after_srh_error(instance->domain, (g_monotonic_time_100ms - instance->last_dao_trigger_time) / 10, instance->srh_error_count, ns_list_count(&instance->dao_targets))) {
                     rpl_instance_increment_dtsn(instance);
                 }
                 break;

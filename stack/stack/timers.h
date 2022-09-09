@@ -4,7 +4,7 @@
 #define TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
-    TIMER_PROTOCOL_CORE,
+    TIMER_MONOTONIC_TIME,
     TIMER_MPL_FAST,
     TIMER_MPL_SLOW,
     TIMER_RPL_FAST,
@@ -36,6 +36,8 @@ enum timer_id {
     TIMER_DHCPV6_SERVER,
     TIMER_COUNT,
 };
+
+extern int g_monotonic_time_100ms;
 
 void timer_start(enum timer_id id);
 void timer_stop(enum timer_id id);

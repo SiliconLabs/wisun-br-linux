@@ -74,7 +74,6 @@
  * NOT
  * "if (time_now < time_then + 200)"
  */
-uint32_t protocol_core_monotonic_time;
 static int8_t protocol_root_tasklet_ID = -1;
 
 int protocol_core_buffers_in_event_queue;
@@ -199,18 +198,12 @@ void update_reachable_time(int seconds)
     }
 }
 
-void core_timer_event_handle(int ticksUpdate)
-{
-    protocol_core_monotonic_time += ticksUpdate;
-}
-
 void protocol_core_init(void)
 {
     protocol_root_tasklet_ID = eventOS_event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
     tr_debug("Allocate Root Tasklet");
-    protocol_core_monotonic_time = 0;
 
-    timer_start(TIMER_PROTOCOL_CORE);
+    timer_start(TIMER_MONOTONIC_TIME);
     timer_start(TIMER_MPL_SLOW);
     timer_start(TIMER_RPL_FAST);
     timer_start(TIMER_RPL_SLOW);

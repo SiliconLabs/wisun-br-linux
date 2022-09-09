@@ -29,6 +29,7 @@
 #include "stack/ns_address.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
@@ -1521,7 +1522,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
             lifetime += controller->sec_cfg.timer_cfg.gtk_expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks, i, gtk[i], lifetime) >= 0) {
                 controller->gtks_set = true;
-                tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, protocol_core_monotonic_time / 10);
+                tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, g_monotonic_time_100ms / 10);
             }
         }
     }
@@ -1791,7 +1792,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     }
 
     if (update_needed || entry->frame_cnt_store_force_timer == 0) {
-        tr_debug("Write frame counters: system time %"PRIu32"", protocol_core_monotonic_time / 10);
+        tr_debug("Write frame counters: system time %"PRIu32"", g_monotonic_time_100ms / 10);
         uint64_t system_time = ws_pae_current_time_get();
         // Writes modified frame counters
         ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, entry->sec_keys_nw_info.pan_version, &entry->frame_counters, system_time);

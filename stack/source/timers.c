@@ -25,13 +25,20 @@
 #define DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS 0
 #endif
 
+int g_monotonic_time_100ms = 0;
+
+static void timer_update_monotonic_time(int ticks)
+{
+    g_monotonic_time_100ms += ticks;
+}
+
 static struct {
     void (*callback)(int);
     int period_ms;
     bool periodic;
     int timeout;
 } s_timers[] = {
-    [TIMER_PROTOCOL_CORE]          { core_timer_event_handle,                    100,                                          true,  0 },
+    [TIMER_MONOTONIC_TIME]         { timer_update_monotonic_time,                100,                                          true,  0 },
     [TIMER_MPL_FAST]               { mpl_fast_timer,                             MPL_TICK_MS,                                  false, 0 },
     [TIMER_MPL_SLOW]               { mpl_slow_timer,                             1000,                                         true,  0 },
     [TIMER_RPL_FAST]               { rpl_control_fast_timer,                     100,                                          true,  0 },

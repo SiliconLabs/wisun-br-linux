@@ -23,6 +23,7 @@
 #include "stack-services/ns_trace.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "security/kmp/kmp_addr.h"
@@ -251,10 +252,10 @@ void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, uint16_t sec
 {
     ns_list_foreach(supp_entry_t, entry, supp_list) {
         if (sec_prot_keys_pmk_lifetime_decrement(&entry->sec_keys, seconds)) {
-            tr_info("PMK and PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), protocol_core_monotonic_time / 10);
+            tr_info("PMK and PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), g_monotonic_time_100ms / 10);
         }
         if (sec_prot_keys_ptk_lifetime_decrement(&entry->sec_keys, seconds)) {
-            tr_info("PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), protocol_core_monotonic_time / 10);
+            tr_info("PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), g_monotonic_time_100ms / 10);
         }
     }
 }

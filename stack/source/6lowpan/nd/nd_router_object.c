@@ -23,6 +23,7 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
@@ -157,7 +158,7 @@ void nd_router_base_init(nd_router_t *new_entry)
     new_entry->ns_forward_timer = 0;
     new_entry->flags = 0;
     new_entry->ra_timing.initial_rtr_adv_count = 0;
-    new_entry->ra_timing.rtr_adv_last_send_time = protocol_core_monotonic_time - 0x10000;
+    new_entry->ra_timing.rtr_adv_last_send_time = g_monotonic_time_100ms - 0x10000;
     new_entry->abro_version_num = 0;
     new_entry->trig_address_reg = false;
 }

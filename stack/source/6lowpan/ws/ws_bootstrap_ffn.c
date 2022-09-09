@@ -38,6 +38,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
+#include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/protocol_ipv6.h"
@@ -106,7 +107,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_inf
     //tr_info("neighbour: addr:%s panid:%x signal:%d", trace_array(data->SrcAddr, 8), data->SrcPANId, data->signal_dbm);
 
     // Clean old entries
-    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, protocol_core_monotonic_time, data->SrcPANId);
+    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
 
     new_entry = ws_bootstrap_candidate_parent_get(cur, data->SrcAddr, true);
     if (!new_entry) {
@@ -327,7 +328,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
     //tr_debug("Advertisement active");
 
     // In active operation less neighbours per pan is allowed
-    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_ACTIVE, protocol_core_monotonic_time, data->SrcPANId);
+    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_ACTIVE, g_monotonic_time_100ms, data->SrcPANId);
 
     // Check if valid PAN
     if (data->SrcPANId != cur->ws_info->network_pan_id) {

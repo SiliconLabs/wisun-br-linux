@@ -36,6 +36,7 @@
 #include "stack-services/ip6string.h"
 #include "stack/net_interface.h"
 #include "stack/net_rpl.h"
+#include "stack/timers.h"
 
 #include "core/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
@@ -330,7 +331,7 @@ void rpl_instance_consistent_rx(rpl_instance_t *instance)
 void rpl_instance_increment_dtsn(rpl_instance_t *instance)
 {
     instance->dtsn = rpl_seq_inc(instance->dtsn);
-    instance->last_dao_trigger_time = protocol_core_monotonic_time;
+    instance->last_dao_trigger_time = g_monotonic_time_100ms;
     instance->srh_error_count = 0;
     /* Should a DTSN increment trigger DIOs, thus? */
     rpl_instance_inconsistency(instance);
@@ -389,7 +390,7 @@ rpl_dodag_t *rpl_lookup_dodag(const rpl_instance_t *instance, const uint8_t *dod
 {
     ns_list_foreach(rpl_dodag_t, dodag, &instance->dodags) {
         if (addr_ipv6_equal(dodag->id, dodagid)) {
-            dodag->timestamp = protocol_core_monotonic_time;
+            dodag->timestamp = g_monotonic_time_100ms;
             return dodag;
         }
     }
@@ -516,7 +517,7 @@ void rpl_neighbour_update_dodag_version(rpl_neighbour_t *neighbour, rpl_dodag_ve
     neighbour->g_mop_prf = g_mop_prf;
     neighbour->dodag_version = version;
     neighbour->rank = rank;
-    neighbour->dio_timestamp = protocol_core_monotonic_time;
+    neighbour->dio_timestamp = g_monotonic_time_100ms;
 }
 
 bool rpl_neighbour_update_dtsn(rpl_neighbour_t *neighbour, uint8_t dtsn)
@@ -673,7 +674,7 @@ rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, 
     }
 
     dodag->instance = instance;
-    dodag->timestamp = protocol_core_monotonic_time;
+    dodag->timestamp = g_monotonic_time_100ms;
     memcpy(dodag->id, dodagid, 16);
     dodag->leaf = false;
     dodag->root = false;
@@ -1135,7 +1136,7 @@ rpl_instance_t *rpl_create_instance(rpl_domain_t *domain, uint8_t instance_id)
     ns_list_init(&instance->candidate_neighbours);
     ns_list_init(&instance->dao_targets);
     instance->dtsn = rpl_seq_init();
-    instance->last_dao_trigger_time = protocol_core_monotonic_time;
+    instance->last_dao_trigger_time = g_monotonic_time_100ms;
     instance->dao_sequence = rpl_seq_init();
     instance->id = instance_id;
     instance->domain = domain;
@@ -1169,7 +1170,7 @@ static rpl_dodag_t *rpl_instance_choose_dodag_to_purge(const rpl_instance_t *ins
     rpl_dodag_t *worst = NULL;
 
     ns_list_foreach_reverse(rpl_dodag_t, dodag, &instance->dodags) {
-        uint32_t dodag_age = protocol_core_monotonic_time - dodag->timestamp;
+        uint32_t dodag_age = g_monotonic_time_100ms - dodag->timestamp;
         if (rpl_dodag_in_use(dodag)) {
             continue;
         }
@@ -1183,7 +1184,7 @@ static rpl_dodag_t *rpl_instance_choose_dodag_to_purge(const rpl_instance_t *ins
         }
 
         /* Prefer to purge least-recently-heard-from */
-        uint32_t worst_age = protocol_core_monotonic_time - worst->timestamp;
+        uint32_t worst_age = g_monotonic_time_100ms - worst->timestamp;
         if (dodag_age <= worst_age) {
             continue;
         } else {
@@ -1212,7 +1213,7 @@ static rpl_neighbour_t *rpl_instance_choose_worst_neighbour(const rpl_instance_t
         if (!neighbour->dodag_version) {
             old = true;
         } else {
-            uint32_t age = protocol_core_monotonic_time - neighbour->dio_timestamp;
+            uint32_t age = g_monotonic_time_100ms - neighbour->dio_timestamp;
             uint32_t age_threshold = rpl_dio_imax_time_calculate(neighbour->dodag_version->dodag->dio_timer_params.Imax,
                                                                  rpl_policy_dio_validity_period(instance->domain));
             old = age > age_threshold;
@@ -1325,7 +1326,7 @@ static uint32_t rpl_default_lifetime(rpl_dodag_t *dodag)
 static uint32_t rpl_aged_lifetime(uint32_t lifetime, uint32_t timestamp)
 {
     if (lifetime != 0xffffffff) {
-        uint32_t age = (protocol_core_monotonic_time - timestamp) / 10;
+        uint32_t age = (g_monotonic_time_100ms - timestamp) / 10;
         if (age < lifetime) {
             lifetime -= age;
         } else {
@@ -1527,7 +1528,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
         instance->parent_was_selected = true;
         //Validate time from last DIO
 
-        uint32_t time_between_parent = protocol_core_monotonic_time - preferred_parent->dio_timestamp;
+        uint32_t time_between_parent = g_monotonic_time_100ms - preferred_parent->dio_timestamp;
         uint32_t accepted_time = rpl_dio_imax_time_calculate(instance->current_dodag_version->dodag->dio_timer_params.Imax, rpl_policy_dio_validity_period(instance->domain));
 
         if (accepted_time < time_between_parent) {
