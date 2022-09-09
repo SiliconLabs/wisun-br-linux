@@ -12,6 +12,7 @@
  */
 
 /* MAC API imlementation */
+#include "nsconfig.h"
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +26,9 @@
 #include "common/utils.h"
 #include "common/ws_regdb.h"
 
+#include "6lowpan/ws/ws_common_defines.h"
+#include "6lowpan/ws/ws_common.h"
+#include "6lowpan/ws/ws_config.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/channel_list.h"
@@ -496,6 +500,11 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         version_fw_str = spinel_pop_str(buf);
         spinel_pop_bool(buf); // is_hw_reset is no more used
         ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
+        if (ctxt->storage_sizes.device_description_table_size <= MAX_NEIGH_TEMPORAY_LIST_SIZE
+                        + WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES)
+            FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)", MAX_NEIGH_TEMPORAY_LIST_SIZE
+                        + WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
+        ctxt->storage_sizes.device_description_table_size -= MAX_NEIGH_TEMPORAY_LIST_SIZE;
         ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
