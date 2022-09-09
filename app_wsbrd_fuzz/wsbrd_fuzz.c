@@ -97,7 +97,6 @@ void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
 {
     if (g_fuzz_ctxt.replay_count) {
         timer_sys_init();
-        timer_start(TIMER_PROTOCOL);
         g_ctxt.timerfd = eventfd(0, EFD_NONBLOCK);
         FATAL_ON(g_ctxt.timerfd < 0, 2, "eventfd: %m");
     } else {

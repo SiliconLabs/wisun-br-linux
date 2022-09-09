@@ -34,7 +34,6 @@
 #include "stack/net_interface.h"
 
 #include "nwk_interface/protocol.h"
-#include "nwk_interface/protocol_timer.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/udp.h"

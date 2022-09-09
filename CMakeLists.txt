@@ -170,7 +170,6 @@ add_library(libwsbrd STATIC
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
-    stack/source/nwk_interface/protocol_timer.c
     stack/source/rpl/rpl_control.c
     stack/source/rpl/rpl_mrhof.c
     stack/source/rpl/rpl_downward.c
@@ -379,7 +378,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/mpl/mpl.c
         stack/source/nwk_interface/protocol_core.c
         stack/source/nwk_interface/protocol_stats.c
-        stack/source/nwk_interface/protocol_timer.c
         stack/source/rpl/rpl_control.c
         stack/source/rpl/rpl_mrhof.c
         stack/source/rpl/rpl_downward.c

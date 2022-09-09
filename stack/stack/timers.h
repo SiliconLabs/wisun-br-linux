@@ -4,7 +4,6 @@
 #define TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
-    TIMER_PROTOCOL,
     TIMER_PROTOCOL_CORE,
     TIMER_MPL,
     TIMER_SYS,

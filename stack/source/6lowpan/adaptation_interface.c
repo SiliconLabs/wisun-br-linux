@@ -35,7 +35,6 @@
 #include "core/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "nwk_interface/protocol_timer.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "rpl/rpl_data.h"
