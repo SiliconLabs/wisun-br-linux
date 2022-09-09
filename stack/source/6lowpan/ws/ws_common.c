@@ -267,9 +267,11 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
         return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES);
     } else if (mac_table_size >= 64) {
         return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES);
-    } else {
-        return (WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
-    }
+     } else if (mac_table_size >= WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES) {
+        return WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
+     } else
+        BUG();
+    return 0;
 }
 
 static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_entry_t *interface, const uint8_t *eui64, uint32_t link_lifetime)
