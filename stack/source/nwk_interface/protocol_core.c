@@ -192,7 +192,6 @@ void core_timer_event_handle(int ticksUpdate)
             if (cur->nwk_id == IF_6LoWPAN) {
                 if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                     mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
-                    lowpan_adaptation_interface_slow_timer(cur);
                 }
             }
 
@@ -254,6 +253,7 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_ADDR_SLOW);
     timer_start(TIMER_6LOWPAN_ND);
     timer_start(TIMER_6LOWPAN_ETX);
+    timer_start(TIMER_6LOWPAN_ADAPTATION);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }

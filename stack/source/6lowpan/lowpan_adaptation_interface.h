@@ -62,6 +62,6 @@ void lowpan_adaptation_expedite_forward_enable(struct protocol_interface_info_en
 
 bool lowpan_adaptation_expedite_forward_state_get(struct protocol_interface_info_entry *cur);
 
-void lowpan_adaptation_interface_slow_timer(struct protocol_interface_info_entry *cur);
+void lowpan_adaptation_interface_slow_timer(int seconds);
 
 #endif

@@ -1110,9 +1110,15 @@ bool lowpan_adaptation_expedite_forward_state_get(protocol_interface_info_entry_
     return true;
 }
 
-void lowpan_adaptation_interface_slow_timer(protocol_interface_info_entry_t *cur)
+void lowpan_adaptation_interface_slow_timer(int seconds)
 {
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    fragmenter_interface_t *interface_ptr;
+
+    if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
+        return;
+
+    interface_ptr = lowpan_adaptation_interface_discover(cur->id);
     if (!interface_ptr) {
         return;
     }
