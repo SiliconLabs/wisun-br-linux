@@ -22,7 +22,6 @@ struct buffer;
 
 void icmpv6_radv_init(struct protocol_interface_info_entry *cur);
 struct buffer *icmpv6_rs_handler(struct buffer *buf, struct protocol_interface_info_entry *cur);
-void icmpv6_radv_timer(uint16_t ticks);
 void icmpv6_restart_router_advertisements(struct protocol_interface_info_entry *cur, const uint8_t abro[16]);
 void icmpv6_stop_router_advertisements(struct protocol_interface_info_entry *cur, const uint8_t *abro);
 void icmpv6_trigger_ra_from_rs(struct protocol_interface_info_entry *cur, const uint8_t dest[16], const uint8_t abro[16]);
