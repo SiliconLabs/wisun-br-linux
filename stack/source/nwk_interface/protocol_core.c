@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
-#include "common/hal_interrupt.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -31,6 +30,7 @@
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mac_api.h"
 #include "stack/ethernet_mac_api.h"
+#include "stack/timers.h"
 
 #include "core/ns_socket.h"
 #include "6lowpan/bootstraps/network_lib.h"
@@ -54,10 +54,10 @@
 #include "libdhcpv6/libdhcpv6.h"
 #include "ipv6_stack/protocol_ipv6.h"
 
-#include "nwk_interface/protocol_timer.h"
 #include "nwk_interface/protocol_stats.h"
 
 #include "nwk_interface/protocol.h"
+
 
 #define TRACE_GROUP_CORE "core"
 
@@ -96,12 +96,9 @@ protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 // maximum value of nwk_interface_id_e is 1
 protocol_interface_info_entry_t protocol_interface_info[2];
 
-static lowpan_core_timer_structures_s protocol_core_timer_info;
-
 /** Cores Power Save Varibale whic indicate States  */
 volatile uint8_t power_save_state =  0;
 
-void core_timer_event_handle(uint16_t ticksUpdate);
 static void protocol_buffer_poll(buffer_t *b);
 
 static int8_t net_interface_get_free_id(void);
@@ -155,11 +152,6 @@ void protocol_root_tasklet(arm_event_t *event)
         case ARM_IN_INTERFACE_BOOTSTRAP_CB:
             net_bootstrap_cb_run(event->event_id);
             break;
-        case ARM_IN_INTERFACE_CORE_TIMER_CB:
-            /* This event is delivered as "user-allocated", so finish reading
-             * before "freeing" */
-            core_timer_event_handle((uint16_t)event->event_data);
-            break;
         case ARM_IN_INTERFACE_PROTOCOL_HANDLE: {
             buffer_t *buf = event->data_ptr;
             protocol_buffer_poll(buf);
@@ -191,7 +183,7 @@ static void nwk_bootstrap_timer(protocol_interface_info_entry_t *cur)
     }
 }
 
-void core_timer_event_handle(uint16_t ticksUpdate)
+void core_timer_event_handle(int ticksUpdate)
 {
     protocol_core_monotonic_time += ticksUpdate;
 
@@ -268,43 +260,15 @@ void core_timer_event_handle(uint16_t ticksUpdate)
 
     rpl_control_fast_timer(ticksUpdate);
     ws_pae_controller_fast_timer(ticksUpdate);
-    platform_enter_critical();
-    protocol_core_timer_info.core_timer_event = false;
-    platform_exit_critical();
 }
-
-void protocol_core_cb(uint16_t ticksUpdate)
-{
-    protocol_timer_start(PROTOCOL_TIMER_STACK_TIM, protocol_core_cb, 100);
-    protocol_core_timer_info.core_timer_ticks += ticksUpdate;
-    if (!protocol_core_timer_info.core_timer_event) {
-        protocol_core_timer_info.core_timer_event = true;
-        /* Static initialised, constant values */
-        static arm_event_storage_t event = {
-            .data = {
-                .sender = 0,
-                .data_ptr = NULL,
-                .event_type = ARM_IN_INTERFACE_CORE_TIMER_CB,
-                .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
-            }
-        };
-        event.data.receiver = protocol_root_tasklet_ID;
-        event.data.event_data = protocol_core_timer_info.core_timer_ticks;
-        eventOS_event_send_user_allocated(&event);
-        protocol_core_timer_info.core_timer_ticks = 0;
-    }
-}
-
 
 void protocol_core_init(void)
 {
     protocol_root_tasklet_ID = eventOS_event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
     tr_debug("Allocate Root Tasklet");
     protocol_core_monotonic_time = 0;
-    protocol_core_timer_info.core_timer_event = false;
-    protocol_core_timer_info.core_timer_ticks = 0;
 
-    protocol_timer_start(PROTOCOL_TIMER_STACK_TIM, protocol_core_cb, 100);
+    timer_start(TIMER_PROTOCOL_CORE);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)

@@ -101,7 +101,6 @@ typedef enum arm_internal_event_type {
     ARM_IN_NWK_INTERFACE_EVENT = 1, /**< Interface Bootstrap  or state update event */
     ARM_IN_SOCKET_EVENT = 5,    /**< Interface Bootstrap  or state update event */
     ARM_IN_INTERFACE_BOOTSTRAP_CB, /** call net_bootstrap_cb_run */
-    ARM_IN_INTERFACE_CORE_TIMER_CB, /** call net_bootstrap_cb_run */
     ARM_IN_INTERFACE_PROTOCOL_HANDLE, /** protocol_buffer_poll */
     ARM_IN_SECURITY_ECC_CALLER
 } arm_internal_event_type_e;

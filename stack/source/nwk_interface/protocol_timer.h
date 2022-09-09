@@ -21,7 +21,6 @@
 #define PROTOCOL_TIMER_PERIOD_MS 50
 
 typedef enum {
-    PROTOCOL_TIMER_STACK_TIM,
     PROTOCOL_TIMER_MAX
 } protocol_timer_id_e;
 

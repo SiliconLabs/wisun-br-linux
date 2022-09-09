@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "stack-scheduler/source/timer_sys.h"
 #include "stack/source/nwk_interface/protocol_timer.h"
+#include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/timers.h"
 #include "common/utils.h"
@@ -12,9 +13,10 @@ static struct {
     bool periodic;
     int timeout;
 } s_timers[] = {
-    [TIMER_PROTOCOL] { protocol_timer_cb,        PROTOCOL_TIMER_PERIOD_MS, true,  0 },
-    [TIMER_MPL]      { mpl_fast_timer,           MPL_TICK_MS,              false, 0 },
-    [TIMER_SYS]      { system_timer_tick_update, TIMER_SYS_TICK_PERIOD,    true,  0 },
+    [TIMER_PROTOCOL]      { protocol_timer_cb,        PROTOCOL_TIMER_PERIOD_MS,      true,  0 },
+    [TIMER_PROTOCOL_CORE] { core_timer_event_handle,  100,                           true,  0 },
+    [TIMER_MPL]           { mpl_fast_timer,           MPL_TICK_MS,                   false, 0 },
+    [TIMER_SYS]           { system_timer_tick_update, TIMER_SYS_TICK_PERIOD,         true,  0 },
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 
