@@ -26,6 +26,8 @@
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
 
+#define DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS   10
+
 /* Initialize dhcp Global address server.
  *
  * This instance needs to bee initialized once for each thread network interface.
@@ -101,5 +103,7 @@ int dhcpv6_server_service_set_dns_server(int8_t interface, uint8_t guaPrefix[sta
 int dhcpv6_server_service_set_vendor_data(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, uint8_t *dhcp_vendor_data_ptr, uint16_t dhcp_vendor_data_len);
 
 int dhcpv6_server_service_set_vendor_data_callback(int8_t interface, uint8_t guaPrefix[static 16], uint32_t enterprise_number, dhcp_vendor_data_cb *vendor_data_cb);
+
+void dhcpv6_server_service_timer_cb(int ticks);
 
 #endif /* DHCPV6_SERVER_SERVICE_H_ */

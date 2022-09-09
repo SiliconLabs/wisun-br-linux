@@ -114,7 +114,7 @@ bool libdhcpv6_gua_server_list_empty(void);
 dhcpv6_gua_server_entry_s *libdhcpv6_gua_server_allocate(const uint8_t *prefix, int8_t interfaceId, uint8_t *serverDUID, uint16_t serverDUIDType);
 int libdhcpv6_server_duid_set(dhcpv6_gua_server_entry_s *server_info, uint8_t *duid_ptr, uint16_t duid_type, uint8_t duid_length);
 void libdhcpv6_gua_server_free_by_prefix_and_interfaceid(uint8_t *prefix, int8_t interfaceId);
-void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds);
+void libdhcpv6_gua_servers_time_update(uint16_t timeUpdateInSeconds);
 void libdhcpv6_allocated_address_write(uint8_t *ptr, dhcpv6_allocated_address_entry_t *address, dhcpv6_gua_server_entry_s *serverInfo);
 void libdhcpv6_address_delete(dhcpv6_gua_server_entry_s *serverInfo, const uint8_t *address);
 dhcpv6_gua_server_entry_s *libdhcpv6_server_data_get_by_prefix_and_interfaceid(int8_t interfaceId, const uint8_t *prefixPtr);

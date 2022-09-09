@@ -118,7 +118,7 @@ static void libdhcpv6_address_list_entry_free(dhcpv6_gua_server_entry_s *server_
     free(entry);
 }
 
-void libdhcpv6_gua_servers_time_update(uint32_t timeUpdateInSeconds)
+void libdhcpv6_gua_servers_time_update(uint16_t timeUpdateInSeconds)
 {
     //Check All allocated server inside this loop
     ns_list_foreach(dhcpv6_gua_server_entry_s, cur, &dhcpv6_gua_server_list) {

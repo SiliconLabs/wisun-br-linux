@@ -7,6 +7,7 @@ enum timer_id {
     TIMER_PROTOCOL_CORE,
     TIMER_MPL,
     TIMER_SYS,
+    TIMER_DHCPV6_SERVER,
     TIMER_COUNT,
 };
 

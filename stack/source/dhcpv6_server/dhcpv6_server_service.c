@@ -27,10 +27,8 @@
 #include <stdlib.h>
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-scheduler/eventOS_event_timer.h"
 #include "stack/dhcp_service_api.h"
+#include "stack/timers.h"
 
 #include "libdhcpv6/libdhcpv6.h"
 #include "libdhcpv6/libdhcpv6_server.h"
@@ -39,52 +37,24 @@
 
 #include "dhcpv6_server/dhcpv6_server_service.h"
 
+
 #define TRACE_GROUP "dhcp"
 
 #define DHCPV6_GUA_IF "dhcp"
-#define DHCPV6_SERVER_SERVICE_TASKLET_INIT      1
 #define DHCPV6_SERVER_SERVICE_TIMER             2
 
 #define DHCPV6_SERVER_SERVICE_TIMER_ID          1
 
-#define DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS   10
 
 typedef struct dhcpv6_gua_response {
     uint16_t    responseLength;
     uint8_t     *responsePtr;
 } dhcpv6_gua_response_t;
 
-static int8_t dhcpv6_service_tasklet = -1;
-
-static arm_event_storage_t *dhcp_timer_storage = NULL;
-
-static bool DHCP_server_service_timer_start(void)
-{
-    if (!dhcp_timer_storage) {
-        arm_event_s event = {
-            .receiver = dhcpv6_service_tasklet,
-            .sender = 0,
-            .event_id = DHCPV6_SERVER_SERVICE_TIMER_ID,
-            .data_ptr = NULL,
-            .event_type = DHCPV6_SERVER_SERVICE_TIMER,
-            .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-        };
-
-        dhcp_timer_storage  = eventOS_event_timer_request_every(&event, DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000);
-        if (!dhcp_timer_storage) {
-            tr_error("Dhcp server timer start fail");
-            return false;
-        }
-    }
-    return true;
-}
-
 static void DHCP_server_service_timer_stop(void)
 {
-    if (dhcp_timer_storage && libdhcpv6_gua_server_list_empty()) {
-        eventOS_cancel(dhcp_timer_storage);
-        dhcp_timer_storage = NULL;
-    }
+    if (libdhcpv6_gua_server_list_empty())
+        timer_stop(TIMER_DHCPV6_SERVER);
 }
 
 int dhcpv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_reply_packet_s *replyPacket, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, dhcpv6_gua_response_t *response, bool allocateNew)
@@ -215,22 +185,9 @@ int dhcpv6_server_service_request_handler(uint16_t instance_id, uint32_t msg_tr_
 }
 
 
-void dhcpv6_server_service_tasklet(arm_event_s *event)
+void dhcpv6_server_service_timer_cb(int ticks)
 {
-    if (event->event_type == DHCPV6_SERVER_SERVICE_TASKLET_INIT) {
-        //We should define peridiocally timer service!!
-    } else if (event->event_type == DHCPV6_SERVER_SERVICE_TIMER) {
-        libdhcpv6_gua_servers_time_update(DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS);
-    }
-}
-
-static int8_t dhcpv6_server_service_tasklet_generated(void)
-{
-    if (dhcpv6_service_tasklet == -1) {
-        dhcpv6_service_tasklet = eventOS_event_handler_create(dhcpv6_server_service_tasklet, DHCPV6_SERVER_SERVICE_TASKLET_INIT);
-    }
-
-    return dhcpv6_service_tasklet;
+    libdhcpv6_gua_servers_time_update(DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * ticks);
 }
 
 /* Initialize dhcp Global address server.
@@ -257,18 +214,13 @@ int dhcpv6_server_service_init(int8_t interface, const uint8_t guaPrefix[static 
         return -1;
     }
 
-    if (dhcpv6_server_service_tasklet_generated() < 0) {
-        retVal = -2;
-    } else if (!DHCP_server_service_timer_start()) {
-        retVal = -2;
-    } else {
-        //allocate server
-        dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_gua_server_allocate(guaPrefix, interface, cur->mac, serverDUIDType);
-        if (serverInfo) {
-            serverInfo->socketInstance_id = socketInstance;
-            socketInstance = 0;
-            retVal = 0;
-        }
+    timer_start(TIMER_DHCPV6_SERVER);
+    //allocate server
+    dhcpv6_gua_server_entry_s *serverInfo = libdhcpv6_gua_server_allocate(guaPrefix, interface, cur->mac, serverDUIDType);
+    if (serverInfo) {
+        serverInfo->socketInstance_id = socketInstance;
+        socketInstance = 0;
+        retVal = 0;
     }
     if (socketInstance > 0) {
         dhcp_service_delete(socketInstance);
