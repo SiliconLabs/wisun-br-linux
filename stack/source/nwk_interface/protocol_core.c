@@ -200,7 +200,6 @@ void core_timer_event_handle(int ticksUpdate)
                 }
             }
 
-            addr_slow_timer(cur, seconds);
             ipv6_neighbour_cache_slow_timer(&cur->ipv6_neighbour_cache, seconds);
             if (cur->reachable_time_ttl > seconds) {
                 cur->reachable_time_ttl -= seconds;
@@ -230,7 +229,6 @@ void core_timer_event_handle(int ticksUpdate)
         }
 
         ipv6_neighbour_cache_fast_timer(&cur->ipv6_neighbour_cache, ticksUpdate);
-        addr_fast_timer(cur, ticksUpdate);
 
         /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
         cur->icmp_tokens += ticksUpdate;
@@ -258,6 +256,8 @@ void protocol_core_init(void)
     timer_start(TIMER_CIPV6_FRAG);
     timer_start(TIMER_6LOWPAN_MLD_FAST);
     timer_start(TIMER_6LOWPAN_MLD_SLOW);
+    timer_start(TIMER_6LOWPAN_ADDR_FAST);
+    timer_start(TIMER_6LOWPAN_ADDR_SLOW);
 }
 
 void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)

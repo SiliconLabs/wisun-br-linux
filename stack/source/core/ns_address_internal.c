@@ -808,8 +808,10 @@ void addr_delete_entry(protocol_interface_info_entry_t *cur, if_address_entry_t 
 }
 
 /* ticks is in 1/10s */
-void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
+void addr_fast_timer(int ticks)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
     /* Fast timers only run while the interface is active. */
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
         return;
@@ -872,8 +874,10 @@ void addr_fast_timer(protocol_interface_info_entry_t *cur, uint_fast16_t ticks)
     }
 }
 
-void addr_slow_timer(protocol_interface_info_entry_t *cur, uint_fast16_t seconds)
+void addr_slow_timer(int seconds)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+
     /* Slow (lifetime) timers run whether the interface is active or not */
     ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
         if (addr->preferred_lifetime != 0xffffffff && addr->preferred_lifetime != 0) {
