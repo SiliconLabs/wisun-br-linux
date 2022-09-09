@@ -146,47 +146,74 @@ Web site][7] (restricted access).
 
 [7]: https://wi-sun.org/cyber-security-certificates/
 
-# Running your dhcp server on the same host as `wsbrd`
+# Using an external DHCPv6 server
 
-If you choose to run your dhcp server on the same host as `wsbrd` you will have
-to create a tap interface:
+`wsbrd` provides a build-in DHCPv6 server. However, it is still possible to use
+an external DHCPv6 server. If the DHCP server run on a remote host, you need to
+launch a DHCPv6 relay.
+`wsbrd` has been tested with ISC DHCP and dnsmasq. Both projects provide DHCP
+server and DHCP relay implementations. Note there are some restrictions:
 
-    sudo ip tuntap add mode tap tap0
+  - ISC DHCP needs to be patched (for relay and server). You will find patches
+    in `misc/`.
+  - DHCP relay provided by dnsmasq < 2.87 has some issues.
 
-You also have to give this interface an address in the subnet you have
-configured on your dhcp server:
+First you have to deactivate the internal dhcp server of `wsbrd` in wbsrd.conf:
 
-    sudo ip addr add 2001:db8::1 dev tap0
+    internal_dhcp = false
 
-In order to prevent packets with an MTU of more than 1280 bytes from going 
-on the Wi-SUN network:
+Obviously, the DHCP server/relay need a network interface to run. You can launch
+the DHCP server/relay just after `wsbrd` (you have to ensure the DHCP service is
+started before Wi-SUN nodes connect, but they won't connect before at least
+several dozen of seconds) or [create the interface before launching
+`wsbrd`](#running-wsbrd-without-root-privilege).
 
-    sudo ip link set mtu 1280 dev tap0
+## Using `dnsmasq`
 
-Bring up the interface, this will add a route to the Wi-SUN network:
+### Using `dnsmasq` as DHCP server
 
-    sudo ip link set up dev tap0
+`dnsmasq` does not need any specific options. A classical invocation can be used:
 
-If you have `tun_autoconf` set to `false` in your `wsbrd.conf`:
+    sudo dnsmasq -d -C /dev/null -i tun0 --dhcp-range ::,constructor:tun0,64,336h
 
-    sudo sysctl net.ipv6.conf.tap0.accept_ra=0
+You can also add `-p 0` to disable the DNS capabilities of `dnsmasq`.
 
-Copy the example configuration:
+### Using `dnsmasq` as DHCP relay
 
-    sudo cp examples/dhcpd.conf /etc/dhcp/dhcpd.conf
+To start the DHCP relay, you have to bind the `Wi-SUN` and the upstream network
+interfaces (`tun0` and `eth0`). Then specify the IP addresses of the DHCP server
+(`2001:db8::1`) and of the `wsbrd` interface (`fd01:db8::acde:4823:4567:019f`)
+to the `--dhcp-relay` option. You can also disable the DNS server (which is
+useless in this case) with `-p 0`;
 
-Start your DHCP server:
+    sudo dnsmasq -d -C /dev/null -i tun0,eth0 --dhcp-relay fd01:db8::acde:4823:4567:019f,2001:db8::1 -p 0
 
-    sudo sytemctl start dhcpd6.service
+## Using `isc-dhcp`
 
-Configure `wsbrd` to use a tap interface named `tap0`:
+### Using `isc-dhcpd` as DHCP server
 
-    tun_device = tun0
-    use_tap = false
+`isc-dhcpd` won't start if the lease file does not exist:
 
-Launch `wsbrd`.
+    sudo mkdir -p /var/lib/dhcpd/
+    sudo touch /var/lib/dhcpd/dhcpd.leases
 
-# Running `wsbrd` without Root Privileges
+We provide a sample configuration file for isc-dhcp. See `examples/dhcpd.conf`
+for details:
+
+    sudo dhcpd -6 --no-pid -lf /var/lib/dhcpd/dhcpd.leases -cf examples/dhcpd.conf tun0
+
+### Using `isc-dhcrelay` as DHCP relay
+
+To start the DHCP relay, you have to provide the `wsbrd` network interface
+(`tun0`), the address of the DHCP server (`2001:0db8::1` in the example below)
+and the network interface associated with this address (see [dhcprelay
+manpage][8]):
+
+    sudo dhcrelay -6 --no-pid -l tun0 -u 2001:db8::1%eth0
+
+[8]: https://linux.die.net/man/8/dhcrelay
+
+# Running `wsbrd` without root privilege
 
 To run `wsbrd` without root permissions, you first have to ensure you have
 permission to access the UART device (you will have to logout/login after this
@@ -290,7 +317,7 @@ You can enforce the session used with an environment variable
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
 replies with `ICMPv6/Packet Too Big` if necessary. (Remember that in IPv6,
-routers cannot fragment packets, therefore the sender is responsible of the size
+routers cannot fragment packets, therefore the sender is responsible for the size
 of the packet). Direct neighbors of the Border Router can receive frames up to
 1504 bytes, while the other nodes can receive frames up to 1280 bytes.
 
