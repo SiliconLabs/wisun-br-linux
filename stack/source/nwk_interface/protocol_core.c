@@ -189,7 +189,6 @@ void core_timer_event_handle(int ticksUpdate)
         // TODO: make this lot use "seconds", not 1
 
         ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-            ipv6_neighbour_cache_slow_timer(&cur->ipv6_neighbour_cache, seconds);
             if (cur->reachable_time_ttl > seconds) {
                 cur->reachable_time_ttl -= seconds;
             } else {
@@ -214,9 +213,6 @@ void core_timer_event_handle(int ticksUpdate)
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
         }
-
-        ipv6_neighbour_cache_fast_timer(&cur->ipv6_neighbour_cache, ticksUpdate);
-
         /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
         cur->icmp_tokens += ticksUpdate;
         if (cur->icmp_tokens > 10) {
@@ -249,6 +245,8 @@ void protocol_core_init(void)
     timer_start(TIMER_6LOWPAN_ETX);
     timer_start(TIMER_6LOWPAN_ADAPTATION);
     timer_start(TIMER_6LOWPAN_NEIGHBOR);
+    timer_start(TIMER_6LOWPAN_NEIGHBOR_SLOW);
+    timer_start(TIMER_6LOWPAN_NEIGHBOR_FAST);
     timer_start(TIMER_WS_COMMON_FAST);
     timer_start(TIMER_WS_COMMON_SLOW);
 }

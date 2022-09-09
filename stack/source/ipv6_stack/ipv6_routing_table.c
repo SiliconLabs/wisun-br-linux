@@ -46,6 +46,7 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
+#include "nwk_interface/protocol.h"
 
 #include "ipv6_stack/ipv6_routing_table.h"
 
@@ -748,8 +749,10 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
     }
 }
 
-void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seconds)
+void ipv6_neighbour_cache_slow_timer(int seconds)
 {
+    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get(IF_6LoWPAN)->ipv6_neighbour_cache;
+
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
         if (cur->lifetime == 0 || cur->lifetime == 0xffffffff) {
             continue;
@@ -787,8 +790,9 @@ void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seco
     ipv6_neighbour_cache_gc_periodic(cache);
 }
 
-void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint16_t ticks)
+void ipv6_neighbour_cache_fast_timer(int ticks)
 {
+    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get(IF_6LoWPAN)->ipv6_neighbour_cache;
     uint32_t ms = (uint32_t) ticks * 100;
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {

@@ -170,8 +170,8 @@ ipv6_neighbour_t *ipv6_neighbour_update_unsolicited(ipv6_neighbour_cache_t *cach
 void ipv6_neighbour_reachability_confirmation(const uint8_t ip_address[static 16], int8_t interface_id);
 void ipv6_neighbour_reachability_problem(const uint8_t ip_address[static 16], int8_t interface_id);
 void ipv6_neighbour_update_from_na(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, uint8_t flags, addrtype_e ll_type, const uint8_t *ll_address);
-void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint16_t ticks);
-void ipv6_neighbour_cache_slow_timer(ipv6_neighbour_cache_t *cache, uint8_t seconds);
+void ipv6_neighbour_cache_fast_timer(int ticks);
+void ipv6_neighbour_cache_slow_timer(int seconds);
 void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print_fn_t *print_fn);
 void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
 int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache);
