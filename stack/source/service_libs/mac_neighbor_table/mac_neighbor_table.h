@@ -125,11 +125,11 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class);
 /**
  * mac_neighbor_table_neighbor_timeout_update Update Neighbor table timeout values
  *
- * \param table_class pointer to table class
+ * \param interface pointer to interface
  * \param time_update in seconds
  *
  */
-void mac_neighbor_table_neighbor_timeout_update(mac_neighbor_table_t *table_class, uint32_t time_update);
+void mac_neighbor_table_neighbor_timeout_update(int time_update);
 
 
 /**
