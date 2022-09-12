@@ -84,7 +84,7 @@ int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
     return -2;
 }
 
-static int tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
+static void tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
 {
     int err = 0;
     char ipv6_addr_str[128] = { };
@@ -93,29 +93,24 @@ static int tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifinde
     struct nl_addr* lo_ipv6_addr = NULL;
 
     memcpy(ipv6_addr_buf, ipv6_prefix, 8);
-    memcpy(ipv6_addr_buf+8, hw_mac_addr, 8);
+    memcpy(ipv6_addr_buf + 8, hw_mac_addr, 8);
     inet_ntop(AF_INET6, ipv6_addr_buf, ipv6_addr_str, INET6_ADDRSTRLEN);
     strcat(ipv6_addr_str, "/64");
-    if ((err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr)) < 0) {
-        nl_perror(err, "nl_addr_parse");
-        return err;
-    }
+    err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr);
+    if (err < 0)
+        FATAL(2, "nl_addr_parse %s: %s", ipv6_addr_str, nl_geterror(err));
     ipv6_addr = rtnl_addr_alloc();
-    if ((err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr)) < 0) {
-        nl_perror(err, "rtnl_addr_set_local");
-        return err;
-    }
+    err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr);
+    if (err < 0)
+        FATAL(2, "rtnl_addr_set_local %s: %s", ipv6_addr_str, nl_geterror(err));
     rtnl_addr_set_ifindex(ipv6_addr, ifindex);
     rtnl_addr_set_link(ipv6_addr, link);
     rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
     err = rtnl_addr_add(sock, ipv6_addr, 0);
-    if (err < 0 && err != -NLE_EXIST) {
-        nl_perror(err, "rtnl_addr_add");
-        return err;
-    }
+    if (err < 0 && err != -NLE_EXIST)
+        FATAL(2, "rtnl_addr_add %s: %s", ipv6_addr_str, nl_geterror(err));
     nl_addr_put(lo_ipv6_addr);
     rtnl_addr_put(ipv6_addr);
-    return 0;
 }
 
 static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf)
@@ -127,6 +122,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     };
     int fd, ifindex;
     uint8_t hw_mac_slaac[8];
+    int err;
 
     memcpy(hw_mac_slaac, hw_mac, 8);
     hw_mac_slaac[0] ^= 2;
@@ -150,13 +146,12 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     new_link = rtnl_link_alloc();
     rtnl_link_set_ifindex(new_link, ifindex);
     if (tun_autoconf) {
-        rtnl_link_inet6_set_addr_gen_mode(new_link, rtnl_link_inet6_str2addrgenmode("none"));
-        if (rtnl_link_add(sock, new_link, NLM_F_CREATE))
-            FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
-        if (tun_addr_add(sock, new_link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac))
-            FATAL(2, "ip_addr_add ll");
-        if (tun_addr_add(sock, new_link, ifindex, ipv6_prefix, hw_mac_slaac))
-            FATAL(2, "ip_addr_add gua");
+        err = rtnl_link_inet6_set_addr_gen_mode(new_link, rtnl_link_inet6_str2addrgenmode("none"));
+        WARN_ON(err < 0, "rtnl_link_inet6_set_addr_gen_mode %s: %s", ifr.ifr_name, nl_geterror(err));
+        err = rtnl_link_add(sock, new_link, NLM_F_CREATE);
+        FATAL_ON(err < 0, 2, "rtnl_link_add %s: %s", ifr.ifr_name, nl_geterror(err));
+        tun_addr_add(sock, new_link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac);
+        tun_addr_add(sock, new_link, ifindex, ipv6_prefix, hw_mac_slaac);
     }
     if (rtnl_link_get_operstate(link) != IF_OPER_UP ||
         !(rtnl_link_get_flags(link) & IFF_UP)) {
@@ -164,8 +159,8 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
         rtnl_link_set_mtu(new_link, 1280);
         rtnl_link_set_flags(new_link, IFF_UP);
         rtnl_link_set_txqlen(new_link, 10);
-        if (rtnl_link_add(sock, new_link, NLM_F_CREATE))
-            FATAL(2, "rtnl_link_add %s", ifr.ifr_name);
+        err = rtnl_link_add(sock, new_link, NLM_F_CREATE);
+        FATAL_ON(err < 0, 2, "rtnl_link_add %s: %s", ifr.ifr_name, nl_geterror(err));
     } else {
         uint8_t mode;
         rtnl_link_inet6_get_addr_gen_mode(new_link, &mode);
