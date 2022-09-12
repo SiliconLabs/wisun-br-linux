@@ -142,7 +142,6 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     if (rtnl_link_get_kernel(sock, 0, ifr.ifr_name, &link))
         FATAL(2, "rtnl_link_get_kernel %s", ifr.ifr_name);
     ifindex = rtnl_link_get_ifindex(link);
-    rtnl_link_put(link);
     new_link = rtnl_link_alloc();
     rtnl_link_set_ifindex(new_link, ifindex);
     if (tun_autoconf) {
@@ -171,6 +170,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
         if (rtnl_link_get_txqlen(new_link) > 10)
             WARN("%s: txqlen is above 10", devname);
     }
+    rtnl_link_put(link);
     rtnl_link_put(new_link);
     nl_socket_free(sock);
     return fd;
