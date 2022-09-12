@@ -424,7 +424,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "use_tap",                       NULL,                                      conf_deprecated,      NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
-        { "trace",                         &g_enabled_traces,                         conf_set_flags,       NULL },
+        { "trace",                         &g_enabled_traces,                         conf_set_flags,       &valid_traces },
         { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
         { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
         { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
