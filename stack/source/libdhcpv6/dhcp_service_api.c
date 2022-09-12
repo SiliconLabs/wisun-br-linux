@@ -1035,7 +1035,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
     }
 #ifdef HAVE_WS_BORDER_ROUTER
     if (retval == -1) {
-        tr_warn("dhcp service socket_sendto fails: %ld: %m", retval);
+        tr_warn("dhcp service sendto fails: %ld: %m", retval);
 #else
     if (retval != 0) {
         tr_warn("dhcp service socket_sendto fails: %i", retval);
