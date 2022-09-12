@@ -84,7 +84,7 @@ int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
     return -2;
 }
 
-static void tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
+static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
 {
     int err = 0;
     char ipv6_addr_str[128] = { };
@@ -104,7 +104,6 @@ static void tun_addr_add(struct nl_sock *sock, struct rtnl_link *link, int ifind
     if (err < 0)
         FATAL(2, "rtnl_addr_set_local %s: %s", ipv6_addr_str, nl_geterror(err));
     rtnl_addr_set_ifindex(ipv6_addr, ifindex);
-    rtnl_addr_set_link(ipv6_addr, link);
     rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
     err = rtnl_addr_add(sock, ipv6_addr, 0);
     if (err < 0 && err != -NLE_EXIST)
@@ -149,8 +148,8 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
         WARN_ON(err < 0, "rtnl_link_inet6_set_addr_gen_mode %s: %s", ifr.ifr_name, nl_geterror(err));
         err = rtnl_link_add(sock, new_link, NLM_F_CREATE);
         FATAL_ON(err < 0, 2, "rtnl_link_add %s: %s", ifr.ifr_name, nl_geterror(err));
-        tun_addr_add(sock, new_link, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac);
-        tun_addr_add(sock, new_link, ifindex, ipv6_prefix, hw_mac_slaac);
+        tun_addr_add(sock, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac);
+        tun_addr_add(sock, ifindex, ipv6_prefix, hw_mac_slaac);
     }
     if (rtnl_link_get_operstate(link) != IF_OPER_UP ||
         !(rtnl_link_get_flags(link) & IFF_UP)) {
