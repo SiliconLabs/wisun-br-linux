@@ -1181,6 +1181,7 @@ no_forward:
 }
 
 
+#ifdef HAVE_WS_BORDER_ROUTER
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 {
     if (next_header == IPV6_NH_DEST_OPT || next_header == IPV6_NH_ROUTING || next_header == IPV6_NH_IPV6)
@@ -1189,6 +1190,7 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
         return false;
     return true;
 }
+#endif
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)
 {
