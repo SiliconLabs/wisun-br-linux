@@ -260,6 +260,12 @@ static int8_t phy_rf_extension(phy_extension_type_e extension_type, uint8_t *dat
             case PHY_EXTENSION_SET_CSMA_PARAMETERS: {
                 break;
             }
+            case PHY_EXTENSION_SET_802_15_4_MODE: {
+                break;
+            }
+            case PHY_EXTENSION_FILTERING_SUPPORT: {
+                break;
+            }
             case PHY_EXTENSION_SET_CHANNEL: {
                 TRACE(TR_CHAN, "channel switch: %2d -> %2u", channel, *data_ptr);
                 channel = *data_ptr;
