@@ -69,7 +69,7 @@ add_custom_target(check_git
     ALL
     BYPRODUCTS version.c
     COMMENT "Checking the git repository for changes..."
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/version.sh ${CMAKE_CURRENT_SOURCE_DIR} version.c)
+    COMMAND ${CMAKE_CURRENT_LIST_DIR}/version.sh ${CMAKE_CURRENT_LIST_DIR} version.c)
 
 add_library(libwsbrd STATIC
     version.c
