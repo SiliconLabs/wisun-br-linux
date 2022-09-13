@@ -54,7 +54,7 @@ int uart_open(const char *device, int bitrate, bool hardflow)
         FATAL(1, "%s: %m", device);
 
     if (tcgetattr(fd, &tty) == -1)
-        FATAL(1, "tcgetattr: %m");
+        FATAL(1, "%s: tcgetattr: %m", device);
     for (i = 0; i < ARRAY_SIZE(conversion); i++)
         if (conversion[i].val == bitrate)
             sym_bitrate = conversion[i].symbolic;
@@ -75,9 +75,9 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     else
         tty.c_cflag &= ~CRTSCTS;
     if (tcsetattr(fd, TCSAFLUSH, &tty) < 0)
-        FATAL(1, "tcsetattr: %m");
+        FATAL(1, "%s: tcsetattr: %m", device);
     if (flock(fd, LOCK_EX | LOCK_NB) < 0)
-        FATAL(1, "flock: %m");
+        FATAL(1, "%s: flock: %m", device);
     return fd;
 }
 
