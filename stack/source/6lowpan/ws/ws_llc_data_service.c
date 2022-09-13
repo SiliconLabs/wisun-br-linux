@@ -116,7 +116,7 @@ typedef struct {
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
 typedef struct {
-    ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE];
+    ws_neighbor_temp_class_t        neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE];
     ws_neighbor_temp_list_t         active_multicast_temp_neigh;
     ws_neighbor_temp_list_t         active_eapol_temp_neigh;
     ws_neighbor_temp_list_t         free_temp_neigh;
@@ -466,7 +466,7 @@ static llc_data_base_t *ws_llc_base_allocate(void)
     ns_list_init(&temp_entries->llc_eap_pending_list);
 
     //Add to free list to full from static
-    for (int i = 0; i < MAX_NEIGH_TEMPORAY_LIST_SIZE; i++) {
+    for (int i = 0; i < MAX_NEIGH_TEMPORARY_EAPOL_SIZE; i++) {
         ns_list_add_to_end(&temp_entries->free_temp_neigh, &temp_entries->neighbour_temporary_table[i]);
     }
     base->temp_entries = temp_entries;
@@ -1553,7 +1553,7 @@ static void ws_llc_clean(llc_data_base_t *base)
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry)
 {
     //Pointer is static add to free list
-    if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORAY_LIST_SIZE - 1]) {
+    if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
         ns_fhss_ws_drop_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
