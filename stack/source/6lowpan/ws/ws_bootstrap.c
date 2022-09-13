@@ -1291,9 +1291,6 @@ bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, st
                 return false;
             }
         } else if (ws_us->channel_plan == 2) {
-            if (!ws_version_1_1(cur)) {
-                return false;
-            }
             if (!ws_channel_plan_two_compare(&ws_us->plan.two, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
@@ -1312,9 +1309,6 @@ bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, st
                 return false;
             }
         } else if (ws_bs->channel_plan == 2) {
-            if (!ws_version_1_1(cur)) {
-                return false;
-            }
             if (!ws_channel_plan_two_compare(&ws_bs->plan.two, &cur->ws_info->hopping_schedule)) {
                 return false;
             }
