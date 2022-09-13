@@ -307,16 +307,16 @@ int main(int argc, char *argv[])
     uint64_t val;
     fd_set rfds;
 
+    INFO("Silicon Labs Wi-SUN RCP simulation %s", version_hwsim_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     mbed_trace_init();
-    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | (g_enable_color_traces ? TRACE_MODE_COLOR : 0));
     mbed_trace_print_function_set(mbed_trace_print_function);
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
-    INFO("Silicon Labs Wi-SUN RCP simulation %s", version_hwsim_str);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)

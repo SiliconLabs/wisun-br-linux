@@ -263,16 +263,18 @@ int main(int argc, char *argv[])
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
+    parse_commandline(&ctxt->config, argc, argv, print_help_node);
+    if (ctxt->config.color_output != -1)
+        g_enable_color_traces = ctxt->config.color_output;
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->rcp_tx = uart_tx;
     ctxt->rcp_rx = uart_rx;
     mbed_trace_init();
-    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | TRACE_MODE_COLOR);
+    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | (g_enable_color_traces ? TRACE_MODE_COLOR : 0));
     mbed_trace_print_function_set(mbed_trace_print_function);
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
-    parse_commandline(&ctxt->config, argc, argv, print_help_node);
     ns_file_system_set_root_path(ctxt->config.storage_prefix);
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
