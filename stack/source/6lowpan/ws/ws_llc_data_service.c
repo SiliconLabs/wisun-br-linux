@@ -746,56 +746,60 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
             //tr_debug("Drop message no neighbor");
             return;
         } else {
+#ifndef HAVE_WS_BORDER_ROUTER
             //Allocate temporary entry
             ws_neighbor_temp_class_t *temp_entry = ws_allocate_multicast_temp_entry(base->temp_entries, data->SrcAddr);
             neighbor_info.ws_neighbor = &temp_entry->neigh_info_list;
             //Storage Signal info for future ETX update possibility
             temp_entry->mpduLinkQuality = data->mpduLinkQuality;
             temp_entry->signal_dbm = data->signal_dbm;
+#endif
         }
     }
 
-    if (!multicast && !data->DSN_suppressed && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
-        tr_info("Drop duplicate message");
-        return;
-    }
-
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-    if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
-    }
-    //Update BS if it is part of message
-    if (bs_ie_inline) {
-        ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
-    }
-
-    //Update BT if it is part of message
-    ws_bt_ie_t ws_bt;
-    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
-        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
-        if (neighbor_info.neighbor && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            ns_fhss_ws_set_parent(interface->ws_info->fhss_api, neighbor_info.neighbor->mac64, &neighbor_info.ws_neighbor->fhss_data.bc_timing_info, false);
+    if (neighbor_info.ws_neighbor) {
+        if (!multicast && !data->DSN_suppressed && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
+            tr_info("Drop duplicate message");
+            return;
         }
-    }
 
-    if (data->DstAddrMode == ADDR_802_15_4_LONG) {
-        neighbor_info.ws_neighbor->unicast_data_rx = true;
-    }
-
-    // Calculate RSL for all UDATA packets heard
-    ws_neighbor_class_rf_sensitivity_calculate(interface->ws_info->device_min_sens, data->signal_dbm);
-    ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
-
-    if (neighbor_info.neighbor) {
-        if (data->Key.SecurityLevel) {
-            //SET trusted state
-            mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
+        if (us_ie_inline) {
+            ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
         }
-        //
-        //Phy CAP info read and store
-        if (ws_version_1_1(interface)) {
-            if (pom_ie_inline) {
-                mac_neighbor_update_pom(neighbor_info.neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
+        //Update BS if it is part of message
+        if (bs_ie_inline) {
+            ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
+        }
+
+        //Update BT if it is part of message
+        ws_bt_ie_t ws_bt;
+        if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
+            ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
+            if (neighbor_info.neighbor && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+                ns_fhss_ws_set_parent(interface->ws_info->fhss_api, neighbor_info.neighbor->mac64, &neighbor_info.ws_neighbor->fhss_data.bc_timing_info, false);
+            }
+        }
+
+        if (data->DstAddrMode == ADDR_802_15_4_LONG) {
+            neighbor_info.ws_neighbor->unicast_data_rx = true;
+        }
+
+        // Calculate RSL for all UDATA packets heard
+        ws_neighbor_class_rf_sensitivity_calculate(interface->ws_info->device_min_sens, data->signal_dbm);
+        ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
+
+        if (neighbor_info.neighbor) {
+            if (data->Key.SecurityLevel) {
+                //SET trusted state
+                mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);
+            }
+            //
+            //Phy CAP info read and store
+            if (ws_version_1_1(interface)) {
+                if (pom_ie_inline) {
+                    mac_neighbor_update_pom(neighbor_info.neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
+                }
             }
         }
     }
