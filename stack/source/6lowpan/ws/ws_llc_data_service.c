@@ -1642,6 +1642,7 @@ static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_
     } else {
         //Replace last entry and put it to first
         entry = ns_list_get_last(&base->active_multicast_temp_neigh);
+        ns_fhss_ws_drop_neighbor(entry->mac64);
         ns_list_remove(&base->active_multicast_temp_neigh, entry);
     }
     //Add to list
