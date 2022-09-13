@@ -182,10 +182,9 @@ extern uint8_t DEVICE_MIN_SENS;
  * Amount of ND reply entries left
  * rest are used as child count, but is related to neighbour table size
  */
-#define WS_RPL_CANDIDATE_PARENT_COUNT 3
-#define WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES 7
-#define WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES 12
-#define WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES 22
+#define WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES 10
+#define WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES 15
+#define WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES 25
 
 /*
  * Neighbour blacklist timers

@@ -501,9 +501,9 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
         spinel_pop_bool(buf); // is_hw_reset is no more used
         ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
         if (ctxt->storage_sizes.device_description_table_size <= MAX_NEIGH_TEMPORAY_LIST_SIZE
-                        + WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES)
+                        + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES)
             FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)", MAX_NEIGH_TEMPORAY_LIST_SIZE
-                        + WS_RPL_CANDIDATE_PARENT_COUNT + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
+                        + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
         ctxt->storage_sizes.device_description_table_size -= MAX_NEIGH_TEMPORAY_LIST_SIZE;
         ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
         ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
