@@ -110,19 +110,19 @@ enum str_bytes_options {
     ONLY_ALNUM      = 0x40, // In str_bytes_ascii() print other printable char with hexa
 };
 
-char *str_eui48(const uint8_t in[static 6], char out[static STR_MAX_LEN_EUI48]);
-char *str_eui64(const uint8_t in[static 8], char out[static STR_MAX_LEN_EUI64]);
-char *str_ipv4(uint8_t in[static 4], char out[static STR_MAX_LEN_IPV4]);
-char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6]);
-char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV4_NET]);
-char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV6_NET]);
+char *str_eui48(const uint8_t in[6], char out[STR_MAX_LEN_EUI48]);
+char *str_eui64(const uint8_t in[8], char out[STR_MAX_LEN_EUI64]);
+char *str_ipv4(uint8_t in[4], char out[STR_MAX_LEN_IPV4]);
+char *str_ipv6(const uint8_t in[16], char out[STR_MAX_LEN_IPV6]);
+char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[STR_MAX_LEN_IPV4_NET]);
+char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[STR_MAX_LEN_IPV6_NET]);
 char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt);
 char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, int opt);
 
-const char *tr_eui48(const uint8_t in[static 6]);
-const char *tr_eui64(const uint8_t in[static 8]);
-const char *tr_ipv4(uint8_t in[static 4]);
-const char *tr_ipv6(const uint8_t in[static 16]);
+const char *tr_eui48(const uint8_t in[6]);
+const char *tr_eui64(const uint8_t in[8]);
+const char *tr_ipv4(uint8_t in[4]);
+const char *tr_ipv6(const uint8_t in[16]);
 const char *tr_ipv4_prefix(uint8_t in[], int prefix_len);
 const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len);
 const char *tr_bytes(const void *in, int len, const void **in_done, int max_out, int opt);
