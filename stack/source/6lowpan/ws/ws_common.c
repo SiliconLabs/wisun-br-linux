@@ -122,7 +122,10 @@ int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, 
     if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
         return 0;
 
-    hopping_schedule->channel_plan = 0;
+    if (hopping_schedule->channel_plan_id && hopping_schedule->channel_plan_id != 255)
+        hopping_schedule->channel_plan = 2;
+    else
+        hopping_schedule->channel_plan = 0;
     chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
                                        hopping_schedule->operating_class);
     if (!chan_params)
