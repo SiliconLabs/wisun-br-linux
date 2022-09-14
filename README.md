@@ -267,12 +267,12 @@ Finally, bring up the interface:
 
     sudo ip link set dev tun0 up
 
-Also note, the internal DHCP won't be able to bind port 547 without root
-privilege. You can run an external DHCP server (with `internal_dhcp=false`) or
-you can configure your system to allow normal users to bind port 547 (and
-above):
+Also note, the internal DHCP won't be able to bind ports 546 and 547 without
+root privilege. You can run an external DHCP server (with `internal_dhcp=false`)
+or you can configure your system to allow normal users to bind port 546 and
+above:
 
-    sudo sysctl net.ipv4.ip_unprivileged_port_start=547
+    sudo sysctl net.ipv4.ip_unprivileged_port_start=546
 
 Finally, you can run `wsbrd`.
 
