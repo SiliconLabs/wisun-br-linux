@@ -297,7 +297,7 @@ static void __spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, si
 void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
     __spinel_push_data(buf, val, size);
-    TRACE(TR_HIF_EXTRA, "hif tx:     data: %s (%lu bytes)",
+    TRACE(TR_HIF_EXTRA, "hif tx:     data: %s (%zu bytes)",
         tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
 }
 
@@ -311,7 +311,7 @@ static void __spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, siz
 void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
 {
     __spinel_push_raw(buf, val, size);
-    TRACE(TR_HIF_EXTRA, "hif tx:      raw: %s (%lu bytes)",
+    TRACE(TR_HIF_EXTRA, "hif tx:      raw: %s (%zu bytes)",
         tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
 }
 

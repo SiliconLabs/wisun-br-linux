@@ -45,7 +45,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     if (ret < 0)
         WARN("write: %m");
     else if (ret != len)
-        WARN("write: short write: %ld < %d", ret, len);
+        WARN("write: short write: %zd < %d", ret, len);
     return ret;
 }
 
