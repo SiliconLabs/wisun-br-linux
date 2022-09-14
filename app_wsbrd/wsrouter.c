@@ -263,6 +263,7 @@ int main(int argc, char *argv[])
     INFO("Silicon Labs Wi-SUN router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
+    signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->rcp_tx = uart_tx;
     ctxt->rcp_rx = uart_rx;

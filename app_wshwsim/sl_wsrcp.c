@@ -310,6 +310,7 @@ int main(int argc, char *argv[])
     INFO("Silicon Labs Wi-SUN RCP simulation %s", version_hwsim_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
+    signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     mbed_trace_init();
     mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | (g_enable_color_traces ? TRACE_MODE_COLOR : 0));

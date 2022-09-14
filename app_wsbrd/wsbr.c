@@ -448,6 +448,7 @@ int wsbr_main(int argc, char *argv[])
     INFO("Silicon Labs Wi-SUN border router %s", version_daemon_str);
     signal(SIGINT, kill_handler);
     signal(SIGHUP, kill_handler);
+    signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->ping_socket_fd = -1;
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
