@@ -202,6 +202,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_management_network_size_set(ctxt->rcp_if_id, ctxt->config.ws_size);
     WARN_ON(ret);
 
+    ret = ws_test_version_set(ctxt->rcp_if_id, ctxt->config.ws_fan_version);
+    WARN_ON(ret);
+
     ret = arm_nwk_set_tx_output_power(ctxt->rcp_if_id, ctxt->config.tx_power);
     WARN_ON(ret);
 
