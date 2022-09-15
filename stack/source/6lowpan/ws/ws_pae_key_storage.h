@@ -133,7 +133,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, struct supp_entry *pa
  * \return supplicant entry or NULL if supplicant entry does not exits
  *
  */
-struct supp_entry *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, struct sec_prot_gtk_keys *gtks, const struct sec_prot_certs *certs);
+struct supp_entry *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, struct sec_prot_gtk_keys *gtks, struct sec_prot_gtk_keys *lgtks, const struct sec_prot_certs *certs);
 
 /**
  * ws_pae_key_storage_supp_delete delete supplicant entry from key storage

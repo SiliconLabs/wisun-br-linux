@@ -100,6 +100,7 @@ typedef struct sec_prot_keys {
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
     sec_prot_gtk_keys_t    *gtks;                     /**< Group Transient Keys */
+    sec_prot_gtk_keys_t    *lgtks;                    /**< Group Transient Keys */
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
@@ -178,7 +179,7 @@ typedef enum {
  *
  * \return security keys or NULL
  */
-sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs);
+sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs);
 
 /**
  * sec_prot_keys_init initialises security keys
@@ -188,7 +189,7 @@ sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_
  * \param cert_chain certificates
  *
  */
-void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs);
+void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs);
 
 /**
  * sec_prot_keys_delete frees security keys memory

@@ -518,7 +518,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
     return 0;
 }
 
-supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
+supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *eui_64, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {
     key_storage_array_t *key_storage_array;
     sec_prot_keys_storage_t *key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, false);
@@ -573,7 +573,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     kmp_address_init(KMP_ADDR_EUI_64_AND_IP, &pae_supp->addr, key_storage->ptk_eui_64);
 
     sec_prot_keys_t *sec_keys = &pae_supp->sec_keys;
-    sec_prot_keys_init(sec_keys, gtks, certs);
+    sec_prot_keys_init(sec_keys, gtks, lgtks, certs);
 
     // PMK is invalid, do not retrieve any security key data
     if (pmk_invalid) {

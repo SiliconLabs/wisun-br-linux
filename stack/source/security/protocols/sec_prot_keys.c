@@ -41,28 +41,31 @@
 
 #define TRACE_GROUP "spke"
 
-sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
+sec_prot_keys_t *sec_prot_keys_create(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {
     sec_prot_keys_t *sec_keys = malloc(sizeof(sec_prot_keys_t));
     if (!sec_keys) {
         return NULL;
     }
 
-    sec_prot_keys_init(sec_keys, gtks, certs);
+    sec_prot_keys_init(sec_keys, gtks, lgtks, certs);
 
     return sec_keys;
 }
 
-void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, const sec_prot_certs_t *certs)
+void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks, const sec_prot_certs_t *certs)
 {
     memset(sec_keys, 0, sizeof(sec_prot_keys_t));
     sec_keys->pmk_lifetime = 0;
     sec_keys->ptk_lifetime = 0;
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->gtks = gtks;
+    sec_keys->lgtks = lgtks;
     sec_keys->certs = certs;
     sec_keys->gtks->gtkl = 0;
     sec_keys->gtks->gtk_set_index = -1;
+    sec_keys->lgtks->gtkl = 0;
+    sec_keys->lgtks->gtk_set_index = -1;
     sec_keys->pmk_set = false;
     sec_keys->ptk_set = false;
     sec_keys->pmk_key_replay_cnt_set = false;
@@ -72,6 +75,7 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, co
     sec_keys->ptk_mismatch = false;
     sec_keys->node_role = WS_NR_ROLE_UNKNOWN;
     sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_keys->gtks);
+    sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_keys->lgtks);
 }
 
 void sec_prot_keys_delete(sec_prot_keys_t *sec_keys)

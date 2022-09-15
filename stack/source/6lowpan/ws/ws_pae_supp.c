@@ -595,7 +595,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
     kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, 0);
 
     sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
-    sec_prot_keys_init(&pae_supp->entry.sec_keys, pae_supp->sec_keys_nw_info->gtks, certs);
+    sec_prot_keys_init(&pae_supp->entry.sec_keys, pae_supp->sec_keys_nw_info->gtks, pae_supp->sec_keys_nw_info->lgtks, certs);
     memset(pae_supp->new_br_eui_64, 0, 8);
 
     pae_supp->kmp_service = kmp_service_create();

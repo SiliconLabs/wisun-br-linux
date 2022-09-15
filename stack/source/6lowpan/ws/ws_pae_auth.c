@@ -1256,7 +1256,7 @@ static supp_entry_t *ws_pae_auth_waiting_supp_list_add(pae_auth_t *pae_auth, sup
             return NULL;
         }
         pae_auth->waiting_supp_list_size++;
-        sec_prot_keys_init(&supp_entry->sec_keys, pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+        sec_prot_keys_init(&supp_entry->sec_keys, pae_auth->sec_keys_nw_info->gtks, pae_auth->sec_keys_nw_info->lgtks, pae_auth->certs);
     }
 
     // 90 percent of the EAPOL temporary entry lifetime (10 ticks per second)
@@ -1298,7 +1298,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
             supp_entry->waiting_ticks = 0;
         } else {
             // Find supplicant from key storage
-            supp_entry = ws_pae_key_storage_supp_read(pae_auth, kmp_address_eui_64_get(addr), pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+            supp_entry = ws_pae_key_storage_supp_read(pae_auth, kmp_address_eui_64_get(addr), pae_auth->sec_keys_nw_info->gtks, pae_auth->sec_keys_nw_info->lgtks, pae_auth->certs);
         }
 
         // Checks if active supplicant list has space for new supplicants
@@ -1327,7 +1327,7 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
         if (!supp_entry) {
             return 0;
         }
-        sec_prot_keys_init(&supp_entry->sec_keys, pae_auth->sec_keys_nw_info->gtks, pae_auth->certs);
+        sec_prot_keys_init(&supp_entry->sec_keys, pae_auth->sec_keys_nw_info->gtks, pae_auth->sec_keys_nw_info->lgtks, pae_auth->certs);
     } else {
         // Updates relay address
         kmp_address_copy(&supp_entry->addr, addr);
