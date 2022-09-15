@@ -414,7 +414,7 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_keys_t *se
     }
     uint8_t gtkl;
     if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-        sec_prot_keys_gtkl_set(sec_keys, gtkl);
+        sec_prot_keys_gtkl_set(sec_keys->gtks, gtkl);
     } else {
         tr_error("No GTKL");
         return -1;
@@ -422,7 +422,7 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_keys_t *se
 
     // Sanity checks
     if (gtk_index >= 0) {
-        if (!sec_prot_keys_gtkl_gtk_is_live(sec_keys, gtk_index)) {
+        if (!sec_prot_keys_gtkl_gtk_is_live(sec_keys->gtks, gtk_index)) {
             tr_error("mismatch between GTK and GTKL");
         }
     }

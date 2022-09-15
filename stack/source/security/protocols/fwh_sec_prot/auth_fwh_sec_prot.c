@@ -247,7 +247,7 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         break;
         case FWH_MESSAGE_3: {
             uint8_t gtk_index;
-            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys, &gtk_index);
+            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys->gtks, &gtk_index);
             if (!gtk) {
                 // 4WH MUST contain a GTK, get active one
                 gtk_index = sec_prot_keys_gtk_status_active_get(prot->sec_keys->gtks);
@@ -423,7 +423,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                    this stores only the hash in NVM and does not affect otherwise */
                 sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys, true);
                 // If GTK was inserted set it valid
-                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys);
+                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys->gtks);
                 // Reset PTK mismatch
                 sec_prot_keys_ptk_mismatch_reset(prot->sec_keys);
                 // Update PTK

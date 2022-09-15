@@ -341,83 +341,83 @@ uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks)
     return gtkl;
 }
 
-void sec_prot_keys_gtkl_set(sec_prot_keys_t *sec_keys, uint8_t gtkl)
+void sec_prot_keys_gtkl_set(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t gtkl)
 {
-    sec_keys->gtks->gtkl = gtkl;
+    sec_gtk_keys->gtkl = gtkl;
 }
 
-bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_keys_t *sec_keys, uint8_t index)
+bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t index)
 {
     if (index >= GTK_NUM) {
         return false;
     }
 
-    if (sec_keys->gtks->gtkl & (1u << index)) {
+    if (sec_gtk_keys->gtkl & (1u << index)) {
         return true;
     }
 
     return false;
 }
 
-int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_keys_t *sec_keys, uint8_t index)
+int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t index)
 {
     if (index >= GTK_NUM) {
         return -1;
     }
 
-    sec_keys->gtks->gtkl |= (1u << index);
+    sec_gtk_keys->gtkl |= (1u << index);
 
     return 0;
 }
 
-int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_keys_t *sec_keys, uint8_t index)
+int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t index)
 {
-    if (index >= GTK_NUM || !sec_keys->gtks->gtk[index].set) {
+    if (index >= GTK_NUM || !sec_gtk_keys->gtk[index].set) {
         return -1;
     }
 
-    sec_keys->gtks->gtk_set_index = index;
+    sec_gtk_keys->gtk_set_index = index;
     return 0;
 }
 
-int8_t sec_prot_keys_gtk_insert_index_get(sec_prot_keys_t *sec_keys)
+int8_t sec_prot_keys_gtk_insert_index_get(sec_prot_gtk_keys_t *sec_gtk_keys)
 {
-    return sec_keys->gtks->gtk_set_index;
+    return sec_gtk_keys->gtk_set_index;
 }
 
-void sec_prot_keys_gtk_insert_index_clear(sec_prot_keys_t *sec_keys)
+void sec_prot_keys_gtk_insert_index_clear(sec_prot_gtk_keys_t *sec_gtk_keys)
 {
-    sec_keys->gtks->gtk_set_index = -1;
+    sec_gtk_keys->gtk_set_index = -1;
 }
 
-void sec_prot_keys_gtkl_from_gtk_insert_index_set(sec_prot_keys_t *sec_keys)
+void sec_prot_keys_gtkl_from_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtk_keys)
 {
-    if (sec_keys->gtks->gtk_set_index >= 0) {
-        sec_prot_keys_gtkl_gtk_live_set(sec_keys, sec_keys->gtks->gtk_set_index);
-        sec_prot_keys_gtk_insert_index_clear(sec_keys);
+    if (sec_gtk_keys->gtk_set_index >= 0) {
+        sec_prot_keys_gtkl_gtk_live_set(sec_gtk_keys, sec_gtk_keys->gtk_set_index);
+        sec_prot_keys_gtk_insert_index_clear(sec_gtk_keys);
     }
 }
 
-int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_keys_t *sec_keys)
+int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_gtk_keys_t *sec_gtk_keys)
 {
     // Get currently active key index
-    int8_t active_index = sec_prot_keys_gtk_status_active_get(sec_keys->gtks);
+    int8_t active_index = sec_prot_keys_gtk_status_active_get(sec_gtk_keys);
 
-    if (active_index >= 0 && !sec_prot_keys_gtkl_gtk_is_live(sec_keys, active_index)) {
+    if (active_index >= 0 && !sec_prot_keys_gtkl_gtk_is_live(sec_gtk_keys, active_index)) {
         // If currently active key is not live on remote, inserts it
-        sec_prot_keys_gtk_insert_index_set(sec_keys, active_index);
+        sec_prot_keys_gtk_insert_index_set(sec_gtk_keys, active_index);
         return active_index;
     }
 
     // Checks all keys
     for (uint8_t i = 0; i < GTK_NUM; i++) {
-        if (sec_prot_keys_gtk_status_is_live(sec_keys->gtks, i) ||
-                sec_prot_keys_gtk_status_get(sec_keys->gtks, i) == GTK_STATUS_OLD) {
+        if (sec_prot_keys_gtk_status_is_live(sec_gtk_keys, i) ||
+                sec_prot_keys_gtk_status_get(sec_gtk_keys, i) == GTK_STATUS_OLD) {
             /* If key is live, but not indicated on GTKL inserts it. Also old keys indicated
                still on GTK hash are inserted, since supplicants do not know the status of the
                key and might need the key for receive (only) from not updated neighbors  */
-            if (!sec_prot_keys_gtkl_gtk_is_live(sec_keys, i)) {
-                sec_prot_keys_gtk_insert_index_set(sec_keys, i);
+            if (!sec_prot_keys_gtkl_gtk_is_live(sec_gtk_keys, i)) {
+                sec_prot_keys_gtk_insert_index_set(sec_gtk_keys, i);
                 return i;
             }
         }
@@ -426,11 +426,11 @@ int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_keys_t *sec_keys)
     return -1;
 }
 
-uint8_t *sec_prot_keys_get_gtk_to_insert(sec_prot_keys_t *sec_keys, uint8_t *index)
+uint8_t *sec_prot_keys_get_gtk_to_insert(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t *index)
 {
-    if (sec_keys->gtks->gtk_set_index >= 0 && sec_keys->gtks->gtk[sec_keys->gtks->gtk_set_index].set) {
-        *index = sec_keys->gtks->gtk_set_index;
-        return sec_keys->gtks->gtk[sec_keys->gtks->gtk_set_index].key;
+    if (sec_gtk_keys->gtk_set_index >= 0 && sec_gtk_keys->gtk[sec_gtk_keys->gtk_set_index].set) {
+        *index = sec_gtk_keys->gtk_set_index;
+        return sec_gtk_keys->gtk[sec_gtk_keys->gtk_set_index].key;
     } else {
         return NULL;
     }

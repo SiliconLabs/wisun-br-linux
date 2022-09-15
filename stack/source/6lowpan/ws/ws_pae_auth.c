@@ -1449,7 +1449,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     int8_t gtk_index = -1;
     if (next_type != IEEE_802_1X_MKA && next_type != RADIUS_IEEE_802_1X_MKA) {
         // Checks if GTK needs to be inserted
-        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys);
+        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->gtks);
 
         // For 4WH insert always a key, in case no other then active
         if (next_type == IEEE_802_11_4WH && gtk_index < 0) {

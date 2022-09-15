@@ -208,7 +208,7 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
     switch (msg) {
         case GKH_MESSAGE_1: {
             uint8_t gtk_index;
-            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys, &gtk_index);
+            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys->gtks, &gtk_index);
             if (gtk) {
                 kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
 
@@ -326,7 +326,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
                 // Set inserted GTK valid
-                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys);
+                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys->gtks);
 
                 sec_prot_state_set(prot, &data->common, GKH_STATE_FINISH);
             }
