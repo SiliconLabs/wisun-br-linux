@@ -81,6 +81,7 @@ typedef struct gtk_key {
 typedef struct sec_prot_gtk_keys {
     gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
     uint8_t                gtkl;                      /**< Remote GTKL information */
+    int8_t                 gtk_set_index;             /**< Index of GTK to set */
     bool                   updated: 1;                /**< Group Transient Keys has been updated */
 } sec_prot_gtk_keys_t;
 
@@ -99,7 +100,6 @@ typedef struct sec_prot_keys {
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
-    int8_t                 gtk_set_index;             /**< Index of GTK to set */
     unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
     unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
