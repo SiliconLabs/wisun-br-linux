@@ -1465,7 +1465,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * GTK keys to same index using same PTK.
              */
             if (pae_auth->sec_cfg->timer_cfg.gtk.expire_offset > SHORT_GTK_LIFETIME &&
-                    sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys, gtk_index)) {
+                    sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys->gtks, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
                 sec_keys->ptk_mismatch = true;

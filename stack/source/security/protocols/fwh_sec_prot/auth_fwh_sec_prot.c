@@ -418,10 +418,10 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
                 // PTK is fresh for installing any GTKs
-                sec_prot_keys_ptk_installed_gtk_hash_clear_all(prot->sec_keys);
+                sec_prot_keys_ptk_installed_gtk_hash_clear_all(prot->sec_keys->gtks);
                 /* Store the hash for to-be installed GTK as used for the PTK, on 4WH
                    this stores only the hash in NVM and does not affect otherwise */
-                sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys, true);
+                sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys->gtks, true);
                 // If GTK was inserted set it valid
                 sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys->gtks);
                 // Reset PTK mismatch

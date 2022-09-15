@@ -942,7 +942,7 @@ uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks);
  * \param sec_keys security keys
  *
  */
-void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys);
+void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_keys_t *sec_gtk_keys);
 
 /**
  * sec_prot_keys_ptk_installed_gtk_hash_set set GTK hash of the GTK that has been installed
@@ -952,7 +952,7 @@ void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys);
  * \param is_4wh set by 4WH
  *
  */
-void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is_4wh);
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_keys_t *sec_gtk_keys, bool is_4wh);
 
 /**
  * sec_prot_keys_ptk_installed_gtk_hash_set check if PTK is being used to store new GTK for the index
@@ -961,6 +961,6 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is
  * \param sec_keys security keys
  *
  */
-bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index);
+bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t gtk_index);
 
 #endif
