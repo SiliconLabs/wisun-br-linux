@@ -256,7 +256,7 @@ typedef struct ns_list_link {
 /** \brief "Poison" value placed in unattached entries' link pointers.
  * \internal What are good values for this? Platform dependent, maybe just NULL
  */
-#define NS_LIST_POISON ((void *) 0xDEADBEEF)
+#define NS_LIST_POISON ((void **)0xDEADBEEF)
 
 /** \brief Initialiser for an entry's link member
  *
@@ -733,7 +733,7 @@ NS_LIST_FN void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_off
 {
     ns_list_link_t *src_first;
 
-    src_first = src->first_entry;
+    src_first = (ns_list_link_t *)src->first_entry;
     if (!src_first) {
         return;
     }
