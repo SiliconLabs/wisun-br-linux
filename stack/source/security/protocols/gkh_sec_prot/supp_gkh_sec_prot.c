@@ -316,7 +316,7 @@ static int8_t supp_gkh_kde_handle(sec_prot_t *prot)
     }
 
     // If a valid new GTK value present, insert it
-    int8_t ret = sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys);
+    int8_t ret = sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys->gtks);
 
     free(kde);
 
