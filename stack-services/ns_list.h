@@ -350,7 +350,7 @@ typedef struct ns_list_link {
  * ns_list_add_to_end() is *slightly* more efficient than ns_list_add_to_start().
  *
  * \param list  `(list_t *)`           Pointer to list.
- * \param entry `(entry_t * restrict)` Pointer to new entry to add.
+ * \param entry `(entry_t *)` Pointer to new entry to add.
  */
 #define ns_list_add_to_start(list, entry) \
     ns_list_add_to_start_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, entry))
@@ -358,7 +358,7 @@ typedef struct ns_list_link {
 /** \hideinitializer \brief Add an entry to the end of the linked list.
  *
  * \param list  `(list_t *)`           Pointer to list.
- * \param entry `(entry_t * restrict)` Pointer to new entry to add.
+ * \param entry `(entry_t *)` Pointer to new entry to add.
  */
 #define ns_list_add_to_end(list, entry) \
     ns_list_add_to_end_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, entry))
@@ -367,7 +367,7 @@ typedef struct ns_list_link {
  *
  * \param list   `(list_t *)`           Pointer to list.
  * \param before `(entry_t *)`          Existing entry before which to place the new entry.
- * \param entry  `(entry_t * restrict)` Pointer to new entry to add.
+ * \param entry  `(entry_t *)` Pointer to new entry to add.
  */
 #define ns_list_add_before(list, before, entry) \
     ns_list_add_before_(NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, before), NS_LIST_TYPECHECK_(list, entry))
@@ -378,7 +378,7 @@ typedef struct ns_list_link {
  *
  * \param list  `(list_t *)`           Pointer to list.
  * \param after `(entry_t *)`          Existing entry after which to place the new entry.
- * \param entry `(entry_t * restrict)` Pointer to new entry to add.
+ * \param entry `(entry_t *)` Pointer to new entry to add.
  */
 #define ns_list_add_after(list, after, entry) \
     ns_list_add_after_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, after), NS_LIST_TYPECHECK_(list, entry))
@@ -444,7 +444,7 @@ typedef struct ns_list_link {
  *
  * \param list        `(list_t *)`           Pointer to list.
  * \param current     `(entry_t *)`          Existing entry on list to be replaced.
- * \param replacement `(entry_t * restrict)` New entry to be the replacement.
+ * \param replacement `(entry_t *)` New entry to be the replacement.
  */
 #define ns_list_replace(list, current, replacement) \
     ns_list_replace_(&(list)->slist, NS_LIST_OFFSET_(list), NS_LIST_TYPECHECK_(list, current), NS_LIST_TYPECHECK_(list, replacement))
@@ -566,15 +566,15 @@ typedef struct ns_list_link {
  */
 inline void ns_list_init_(ns_list_t *list);
 inline void ns_list_link_init_(ns_list_link_t *link);
-inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
-inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t link_offset, void *restrict entry);
-inline void ns_list_add_before_(ns_list_offset_t link_offset, void *before, void *restrict entry);
-inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t link_offset, void *after, void *restrict entry);
+inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
+inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
+inline void ns_list_add_before_(ns_list_offset_t link_offset, void *before, void *entry);
+inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t link_offset, void *after, void *entry);
 inline void *ns_list_get_next_(ns_list_offset_t link_offset, const void *current);
 inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t link_offset, const void *current);
 inline void *ns_list_get_last_(const ns_list_t *list,  ns_list_offset_t offset);
 inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
-inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t link_offset, void *current, void *restrict replacement);
+inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t link_offset, void *current, void *replacement);
 inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset);
 inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t link_offset);
 
@@ -609,7 +609,7 @@ NS_LIST_FN void ns_list_link_init_(ns_list_link_t *link)
     link->prev = NS_LIST_POISON;
 }
 
-NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *restrict entry)
+NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *entry)
 {
     void *next;
 
@@ -625,7 +625,7 @@ NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, 
     list->first_entry = entry;
 }
 
-NS_LIST_FN void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, void *current, void *restrict entry)
+NS_LIST_FN void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, void *current, void *entry)
 {
     void *next;
 
@@ -641,7 +641,7 @@ NS_LIST_FN void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, voi
     NS_LIST_NEXT_(current, offset) = entry;
 }
 
-NS_LIST_FN void ns_list_add_before_(ns_list_offset_t offset, void *current, void *restrict entry)
+NS_LIST_FN void ns_list_add_before_(ns_list_offset_t offset, void *current, void *entry)
 {
     void **prev_nextptr;
 
@@ -651,7 +651,7 @@ NS_LIST_FN void ns_list_add_before_(ns_list_offset_t offset, void *current, void
     NS_LIST_PREV_(current, offset) = &NS_LIST_NEXT_(entry, offset);
 }
 
-NS_LIST_FN void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, void *restrict entry)
+NS_LIST_FN void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, void *entry)
 {
     void **prev_nextptr;
 
@@ -711,7 +711,7 @@ NS_LIST_FN void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, void *
     ns_list_link_init_(NS_LIST_LINK_(removed, offset));
 }
 
-NS_LIST_FN void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void *current, void *restrict replacement)
+NS_LIST_FN void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void *current, void *replacement)
 {
     void *next;
     void **prev_nextptr;
