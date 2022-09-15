@@ -16,7 +16,10 @@
  */
 #ifndef MAC_API_H
 #define MAC_API_H
+
 #include <stdint.h>
+
+#include "stack/mac/mac_mcps.h"
 
 /**
  * \file mac_api.h
