@@ -103,6 +103,7 @@ typedef struct sec_prot_keys {
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
+    uint8_t                node_role;                 /**< Remote Node Role */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
     bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */

@@ -26,6 +26,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
+#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_config.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
@@ -69,6 +70,7 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, co
     sec_keys->ptk_eui_64_set = false;
     sec_keys->pmk_mismatch = false;
     sec_keys->ptk_mismatch = false;
+    sec_keys->node_role = WS_NR_ROLE_UNKNOWN;
     sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_keys->gtks);
 }
 

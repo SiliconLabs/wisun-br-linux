@@ -26,6 +26,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_common_defines.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
@@ -301,7 +302,18 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
             return -1;
         }
 
-        tr_debug("PMK %s PTK %s GTKL %x", prot->sec_keys->pmk_mismatch ? "not live" : "live", prot->sec_keys->ptk_mismatch ? "not live" : "live", gtkl);
+        // Get the Node Role that supplicant indicates
+        uint8_t node_role;
+        if (kde_node_role_read(kde, kde_len, &node_role) >= 0) {
+            prot->sec_keys->node_role = node_role;
+        } else {
+            prot->sec_keys->node_role = WS_NR_ROLE_UNKNOWN;
+        }
+
+        tr_debug("PMK %s PTK %s NR %d GTKL %x",
+                 prot->sec_keys->pmk_mismatch ? "not live" : "live",
+                 prot->sec_keys->ptk_mismatch ? "not live" : "live",
+                 prot->sec_keys->node_role, gtkl);
 
         free(kde);
     } else {

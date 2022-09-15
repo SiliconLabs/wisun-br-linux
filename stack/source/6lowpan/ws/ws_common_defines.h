@@ -95,6 +95,7 @@
 #define WS_NR_ROLE_BR       0
 #define WS_NR_ROLE_ROUTER   1
 #define WS_NR_ROLE_LFN      2
+#define WS_NR_ROLE_UNKNOWN  3
 
 /**
  * @brief ws_pan_information_t PAN information
