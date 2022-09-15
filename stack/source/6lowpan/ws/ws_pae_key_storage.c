@@ -462,15 +462,15 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         field_set |= 1u << PTKEUI64_SET;
     }
 
-    if (key_storage->ins_gtk_hash_set != sec_keys->ins_gtk_hash_set ||
-            memcmp(key_storage->ins_gtk_hash, sec_keys->ins_gtk_hash, sizeof(sec_keys->ins_gtk_hash)) != 0) {
+    if (key_storage->ins_gtk_hash_set != sec_keys->gtks->ins_gtk_hash_set ||
+            memcmp(key_storage->ins_gtk_hash, sec_keys->gtks->ins_gtk_hash, sizeof(sec_keys->gtks->ins_gtk_hash)) != 0) {
         key_storage_array->modified = true;
-        key_storage->ins_gtk_hash_set = sec_keys->ins_gtk_hash_set;
-        memcpy(key_storage->ins_gtk_hash, sec_keys->ins_gtk_hash, sizeof(sec_keys->ins_gtk_hash));
+        key_storage->ins_gtk_hash_set = sec_keys->gtks->ins_gtk_hash_set;
+        memcpy(key_storage->ins_gtk_hash, sec_keys->gtks->ins_gtk_hash, sizeof(sec_keys->gtks->ins_gtk_hash));
         field_set |= 1u << GTKHASH_SET;
     }
-    if (key_storage->ins_gtk_4wh_hash_set != sec_keys->ins_gtk_hash_set) {
-        key_storage->ins_gtk_4wh_hash_set = sec_keys->ins_gtk_hash_set;
+    if (key_storage->ins_gtk_4wh_hash_set != sec_keys->gtks->ins_gtk_hash_set) {
+        key_storage->ins_gtk_4wh_hash_set = sec_keys->gtks->ins_gtk_hash_set;
         field_set |= 1u << GTKHASH4WH_SET;
     }
 
@@ -628,13 +628,13 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     if (sec_keys->ptk_eui_64_set)
         field_set |= 1u << PTKEUI64_SET;
 
-    memcpy(sec_keys->ins_gtk_hash, key_storage->ins_gtk_hash, sizeof(sec_keys->ins_gtk_hash));
-    sec_keys->ins_gtk_hash_set = key_storage->ins_gtk_hash_set;
-    sec_keys->ins_gtk_4wh_hash_set = sec_keys->ins_gtk_hash_set;
+    memcpy(sec_keys->gtks->ins_gtk_hash, key_storage->ins_gtk_hash, sizeof(sec_keys->gtks->ins_gtk_hash));
+    sec_keys->gtks->ins_gtk_hash_set = key_storage->ins_gtk_hash_set;
+    sec_keys->gtks->ins_gtk_4wh_hash_set = sec_keys->gtks->ins_gtk_hash_set;
 
-    if (sec_keys->ins_gtk_hash_set)
+    if (sec_keys->gtks->ins_gtk_hash_set)
         field_set |= 1u << GTKHASH_SET;
-    if (sec_keys->ins_gtk_4wh_hash_set)
+    if (sec_keys->gtks->ins_gtk_4wh_hash_set)
         field_set |= 1u << GTKHASH4WH_SET;
 
     sec_keys->ptk_lifetime = ptk_lifetime;

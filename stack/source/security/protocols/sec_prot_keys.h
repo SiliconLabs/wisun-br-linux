@@ -78,16 +78,19 @@ typedef struct gtk_key {
     bool                   set: 1;                    /**< Group Transient Key set (valid value) */
 } gtk_key_t;
 
-typedef struct sec_prot_gtk_keys {
-    gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
-    uint8_t                gtkl;                      /**< Remote GTKL information */
-    int8_t                 gtk_set_index;             /**< Index of GTK to set */
-    bool                   updated: 1;                /**< Group Transient Keys has been updated */
-} sec_prot_gtk_keys_t;
-
 typedef struct sec_prot_gtk_hash {
     uint8_t                hash[INS_GTK_HASH_LEN];    /**< Inserted GTKs for a PTK hash */
 } sec_prot_gtk_hash_t;
+
+typedef struct sec_prot_gtk_keys {
+    gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
+    sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
+    uint8_t                gtkl;                      /**< Remote GTKL information */
+    int8_t                 gtk_set_index;             /**< Index of GTK to set */
+    unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
+    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
+    bool                   updated: 1;                /**< Group Transient Keys has been updated */
+} sec_prot_gtk_keys_t;
 
 // Security key data
 typedef struct sec_prot_keys {
@@ -95,13 +98,10 @@ typedef struct sec_prot_keys {
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
-    sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
     sec_prot_gtk_keys_t    *gtks;                     /**< Group Transient Keys */
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
-    unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
-    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
     bool                   pmk_key_replay_cnt_set: 1; /**< Pairwise Master Key replay counter set */

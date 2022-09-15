@@ -943,10 +943,10 @@ uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
 void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_keys_t *sec_keys)
 {
     for (uint8_t index = 0; index < GTK_NUM; index++) {
-        memset(sec_keys->ins_gtk_hash[index].hash, 0, INS_GTK_HASH_LEN);
+        memset(sec_keys->gtks->ins_gtk_hash[index].hash, 0, INS_GTK_HASH_LEN);
     }
-    sec_keys->ins_gtk_hash_set = 0;
-    sec_keys->ins_gtk_4wh_hash_set = 0;
+    sec_keys->gtks->ins_gtk_hash_set = 0;
+    sec_keys->gtks->ins_gtk_4wh_hash_set = 0;
 }
 
 void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is_4wh)
@@ -964,15 +964,15 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is
          * possible conflict between hashes causes only that 4WH is initiated/is not
          * initiated instead of GKH.
          */
-        memcpy(sec_keys->ins_gtk_hash[sec_keys->gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
-        sec_keys->ins_gtk_hash_set |= (1u << sec_keys->gtks->gtk_set_index);
+        memcpy(sec_keys->gtks->ins_gtk_hash[sec_keys->gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
+        sec_keys->gtks->ins_gtk_hash_set |= (1u << sec_keys->gtks->gtk_set_index);
         /* If used on 4WH will store the hash in case GKH is initiated later for the
          * same index as 4WH (likely to happen if just GTK update is made). This allows
          * that NVM storage does not need to be updated since hash is already stored. */
         if (is_4wh) {
-            sec_keys->ins_gtk_4wh_hash_set |= (1u << sec_keys->gtks->gtk_set_index);
+            sec_keys->gtks->ins_gtk_4wh_hash_set |= (1u << sec_keys->gtks->gtk_set_index);
         } else {
-            sec_keys->ins_gtk_4wh_hash_set &= ~(1u << sec_keys->gtks->gtk_set_index);
+            sec_keys->gtks->ins_gtk_4wh_hash_set &= ~(1u << sec_keys->gtks->gtk_set_index);
         }
     }
 }
@@ -980,8 +980,8 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_keys_t *sec_keys, bool is
 bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_keys, uint8_t gtk_index)
 {
     // If not set or the key has been inserted by 4WH then there is no mismatch
-    if ((sec_keys->ins_gtk_hash_set & (1u << sec_keys->gtks->gtk_set_index)) == 0 ||
-            (sec_keys->ins_gtk_hash_set & (1u << sec_keys->gtks->gtk_set_index)) == 1) {
+    if ((sec_keys->gtks->ins_gtk_hash_set & (1u << sec_keys->gtks->gtk_set_index)) == 0 ||
+            (sec_keys->gtks->ins_gtk_hash_set & (1u << sec_keys->gtks->gtk_set_index)) == 1) {
         return false;
     }
 
@@ -997,7 +997,7 @@ bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_keys_t *sec_ke
     }
 
     // If PTK has been used to install different GTK to index than the current one, trigger mismatch
-    if (memcmp(sec_keys->ins_gtk_hash[sec_keys->gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN) != 0) {
+    if (memcmp(sec_keys->gtks->ins_gtk_hash[sec_keys->gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN) != 0) {
         return true;
     }
 
