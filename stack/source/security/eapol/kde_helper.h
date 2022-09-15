@@ -25,10 +25,13 @@
  */
 
 #define KDE_GTK_LEN              6 + 2 + 16
+#define KDE_LGTK_LEN             6 + 2 + 16
 #define KDE_PMKID_LEN            6 + 16
 #define KDE_PTKID_LEN            6 + 16
 #define KDE_LIFETIME_LEN         6 + 4
 #define KDE_GTKL_LEN             6 + 1
+#define KDE_LGTKL_LEN            6 + 1
+#define KDE_NR_LEN               6 + 1
 
 /**
  * kde_padded_length_calc calculates padded length for kde (see IEEE 802.11 chapter 11.6.2 EAPOL-Key frames)
@@ -59,6 +62,7 @@ void kde_padding_write(uint8_t *start_ptr, uint8_t *end_ptr);
  *
  */
 uint8_t *kde_gtk_write(uint8_t *ptr, uint8_t key_id, const uint8_t *gtk);
+uint8_t *kde_lgtk_write(uint8_t *ptr, uint8_t key_id, const uint8_t *lgtk);
 
 /**
  * kde_pmkid_write writes PMKID
@@ -103,6 +107,18 @@ uint8_t *kde_lifetime_write(uint8_t *ptr, uint32_t lifetime);
  *
  */
 uint8_t *kde_gtkl_write(uint8_t *ptr, uint8_t gtkl);
+uint8_t *kde_lgtkl_write(uint8_t *ptr, uint8_t lgtkl);
+
+/**
+ * kde_node_role_write writes Node Role
+ *
+ * \param ptr pointer where to write
+ * \param node_role Node Role
+ *
+ * return incremented write pointer
+ *
+ */
+uint8_t *kde_node_role_write(uint8_t *ptr, uint8_t node_role);
 
 /**
  *  kde_gtk_read reads GTK
@@ -117,6 +133,7 @@ uint8_t *kde_gtkl_write(uint8_t *ptr, uint8_t gtkl);
  *
  */
 int8_t kde_gtk_read(const uint8_t *ptr, uint16_t len, uint8_t *key_id, uint8_t *gtk);
+int8_t kde_lgtk_read(const uint8_t *ptr, uint16_t len, uint8_t *key_id, uint8_t *lgtk);
 
 /**
  *  kde_pmkid_read reads PMKID
@@ -169,5 +186,19 @@ int8_t kde_lifetime_read(const uint8_t *ptr, uint16_t len, uint32_t *lifetime);
  *
  */
 int8_t kde_gtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *gtkl);
+int8_t kde_lgtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *lgtkl);
+
+/**
+ *  kde_node_role_read reads Node Role
+ *
+ * \param ptr pointer where to read
+ * \param len length of the remaining data
+ * \param node_role Node Role
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t kde_node_role_read(const uint8_t *ptr, uint16_t len, uint8_t *node_role);
 
 #endif
