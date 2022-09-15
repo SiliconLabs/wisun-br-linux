@@ -295,7 +295,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         // Get the GTKL that supplicant indicates
         uint8_t gtkl;
         if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-            prot->sec_keys->gtkl = gtkl;
+            prot->sec_keys->gtks->gtkl = gtkl;
         } else {
             tr_error("no GTKL");
             return -1;

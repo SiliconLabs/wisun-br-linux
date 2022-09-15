@@ -60,7 +60,7 @@ void sec_prot_keys_init(sec_prot_keys_t *sec_keys, sec_prot_gtk_keys_t *gtks, co
     sec_keys->pmk_key_replay_cnt = 0;
     sec_keys->gtks = gtks;
     sec_keys->certs = certs;
-    sec_keys->gtkl = 0;
+    sec_keys->gtks->gtkl = 0;
     sec_keys->gtk_set_index = -1;
     sec_keys->pmk_set = false;
     sec_keys->ptk_set = false;
@@ -343,7 +343,7 @@ uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks)
 
 void sec_prot_keys_gtkl_set(sec_prot_keys_t *sec_keys, uint8_t gtkl)
 {
-    sec_keys->gtkl = gtkl;
+    sec_keys->gtks->gtkl = gtkl;
 }
 
 bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_keys_t *sec_keys, uint8_t index)
@@ -352,7 +352,7 @@ bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_keys_t *sec_keys, uint8_t index)
         return false;
     }
 
-    if (sec_keys->gtkl & (1u << index)) {
+    if (sec_keys->gtks->gtkl & (1u << index)) {
         return true;
     }
 
@@ -365,7 +365,7 @@ int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_keys_t *sec_keys, uint8_t index)
         return -1;
     }
 
-    sec_keys->gtkl |= (1u << index);
+    sec_keys->gtks->gtkl |= (1u << index);
 
     return 0;
 }
