@@ -74,7 +74,8 @@ void sec_prot_timer_timeout_handle(sec_prot_t *prot, sec_prot_common_t *data, co
     if (data->ticks > ticks) {
         data->ticks -= ticks;
     } else {
-        tr_debug("prot timeout, state: %i", data->state);
+        if (data->state != SEC_STATE_FINISHED)
+            tr_info("prot timeout, state: %i", data->state);
         data->ticks = 0;
         sec_prot_result_set(data, SEC_RESULT_TIMEOUT);
         if (data->state == SEC_STATE_INIT) {
