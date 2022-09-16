@@ -146,6 +146,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
  * \return >= 0 success
  */
 int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *sec_gtk_keys);
+int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *sec_lgtk_keys);
 
 /**
  * sec_prot_lib_mic_validate validates MIC

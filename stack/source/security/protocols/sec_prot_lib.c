@@ -432,6 +432,44 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t
     return 0;
 }
 
+int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *sec_lgtk_keys)
+{
+    int8_t gtk_index = -1;
+
+    uint8_t key_id;
+    uint8_t gtk[GTK_LEN];
+
+    if (kde_lgtk_read(kde, kde_len, &key_id, gtk) >= 0) {
+        uint32_t lifetime = 0;
+        if (kde_lifetime_read(kde, kde_len, &lifetime) >= 0) {
+
+        }
+
+        // A new GTK value
+        if (sec_prot_keys_gtk_set(sec_lgtk_keys, key_id, gtk, lifetime) >= 0) {
+            gtk_index = (int8_t) key_id; // Insert
+        }
+    }
+    uint8_t gtkl;
+    if (kde_lgtkl_read(kde, kde_len, &gtkl) >= 0) {
+        sec_prot_keys_gtkl_set(sec_lgtk_keys, gtkl);
+    } else {
+        tr_error("No LGTKL");
+        return -1;
+    }
+
+    // Sanity checks
+    if (gtk_index >= 0) {
+        if (!sec_prot_keys_gtkl_gtk_is_live(sec_lgtk_keys, gtk_index)) {
+            tr_error("mismatch between LGTK and LGTKL");
+        }
+    }
+
+    tr_info("LGTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_lgtk_keys, gtk_index));
+
+    return 0;
+}
+
 int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8_t pdu_size)
 {
     uint8_t recv_mic[EAPOL_KEY_MIC_LEN];
