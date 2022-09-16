@@ -42,9 +42,9 @@
 
 int ws_test_version_set(int8_t interface_id, uint8_t version)
 {
-    test_pan_version = version;
-
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+
+    test_pan_version = version;
     if (cur) {
         if (!ws_info(cur)) {
             return -1;
@@ -61,7 +61,6 @@ int ws_test_version_set(int8_t interface_id, uint8_t version)
 
 int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size)
 {
-
     (void) interface_id;
 #ifdef HAVE_WS_BORDER_ROUTER
     test_pan_size_override = pan_size;
@@ -74,25 +73,17 @@ int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size)
 
 int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count)
 {
-
-    (void) interface_id;
     test_max_child_count_override = child_count;
     return 0;
 }
 
 int ws_test_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 {
-    (void) interface_id;
-    (void) gtk;
-
     return ws_pae_controller_gtk_update(interface_id, gtk);
 }
 
 int ws_test_active_key_set(int8_t interface_id, uint8_t index)
 {
-    (void) interface_id;
-    (void) index;
-
     return ws_pae_controller_active_key_update(interface_id, index);
 }
 
@@ -171,9 +162,8 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
 {
-    protocol_interface_info_entry_t *cur;
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
     }
@@ -184,10 +174,9 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
 
 int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, void *parameters)
 {
-    (void) parameters;
-
     protocol_interface_info_entry_t *cur = NULL;;
 
+    (void) parameters;
     if (interface_id > 0) {
         cur = protocol_stack_interface_info_get_by_id(interface_id);
         if (!cur || !ws_info(cur)) {
