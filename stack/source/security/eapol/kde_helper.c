@@ -213,99 +213,101 @@ uint8_t *kde_node_role_write(uint8_t *ptr, uint8_t node_role)
 int8_t kde_gtk_read(const uint8_t *ptr, uint16_t len, uint8_t *key_id, uint8_t *gtk)
 {
     ptr = kde_search(ptr, len, IEEE_802_11_OUI, KDE_GTK, KDE_GTK_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *key_id = (uint8_t)-1;
+        memset(gtk, -1, GTK_LEN);
         return -1;
+    } else {
+        *key_id = *ptr++ & 0x03;
+        ptr++;
+        memcpy(gtk, ptr, GTK_LEN);
+        return 0;
     }
-
-    *key_id = *ptr++ & 0x03;
-    ptr++;
-    memcpy(gtk, ptr, GTK_LEN);
-
-    return 0;
 }
 
 int8_t kde_lgtk_read(const uint8_t *ptr, uint16_t len, uint8_t *key_id, uint8_t *lgtk)
 {
     ptr = kde_search(ptr, len, WISUN_OUI, KDE_LGTK, KDE_LGTK_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *key_id = (uint8_t)-1;
+        memset(lgtk, -1, LGTK_LEN);
         return -1;
+    } else {
+        *key_id = *ptr++ & 0x03;
+        ptr++;
+        memcpy(lgtk, ptr, LGTK_LEN);
+        return 0;
     }
-
-    *key_id = *ptr++ & 0x03;
-    ptr++;
-    memcpy(lgtk, ptr, LGTK_LEN);
-
-    return 0;
 }
 
 int8_t kde_pmkid_read(const uint8_t *ptr, uint16_t len, uint8_t *pmkid)
 {
     ptr = kde_search(ptr, len, IEEE_802_11_OUI, KDE_PMKID, KDE_PMKID_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        memset(pmkid, -1, PMKID_LEN);
         return -1;
+    } else {
+        memcpy(pmkid, ptr, PMKID_LEN);
+        return 0;
     }
-
-    memcpy(pmkid, ptr, PMKID_LEN);
-
-    return 0;
 }
 
 int8_t kde_ptkid_read(const uint8_t *ptr, uint16_t len, uint8_t *ptkid)
 {
     ptr = kde_search(ptr, len, WISUN_OUI, KDE_PTKID, KDE_PTKID_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        memset(ptkid, -1, PTKID_LEN);
         return -1;
+    } else {
+        memcpy(ptkid, ptr, PTKID_LEN);
+        return 0;
     }
-
-    memcpy(ptkid, ptr, PTKID_LEN);
-
-    return 0;
 }
 
 int8_t kde_lifetime_read(const uint8_t *ptr, uint16_t len, uint32_t *lifetime)
 {
     ptr = kde_search(ptr, len, IEEE_802_11_OUI, KDE_LIFETIME, KDE_LIFETIME_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *lifetime = (uint32_t)-1;
         return -1;
+    } else {
+        *lifetime = common_read_32_bit(ptr);
+        return 0;
     }
-
-    *lifetime = common_read_32_bit(ptr);
-
-    return 0;
 }
 
 int8_t kde_gtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *gtkl)
 {
     ptr = kde_search(ptr, len, WISUN_OUI, KDE_GTKL, KDE_GTKL_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *gtkl = (uint8_t)-1;
         return -1;
+    } else {
+        *gtkl = *ptr;
+        return 0;
     }
-
-    *gtkl = *ptr;
-
-    return 0;
 }
 
 int8_t kde_lgtkl_read(const uint8_t *ptr, uint16_t len, uint8_t *lgtkl)
 {
     ptr = kde_search(ptr, len, WISUN_OUI, KDE_LGTKL, KDE_LGTKL_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *lgtkl = (uint8_t)-1;
         return -1;
+    } else {
+        *lgtkl = *ptr;
+        return 0;
     }
-
-    *lgtkl = *ptr;
-
-    return 0;
 }
 
 int8_t kde_node_role_read(const uint8_t *ptr, uint16_t len, uint8_t *node_role)
 {
     ptr = kde_search(ptr, len, WISUN_OUI, KDE_NR, KDE_NR_LEN);
-    if (ptr == NULL) {
+    if (!ptr) {
+        *node_role = (uint8_t)-1;
         return -1;
+    } else {
+        *node_role = *ptr;
+        return 0;
     }
-
-    *node_role = *ptr;
-
-    return 0;
 }
