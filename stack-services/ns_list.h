@@ -17,7 +17,7 @@
 #define NS_LIST_H_
 #include <stdint.h>
 #include <stddef.h>
-#include "common/utils.h"
+#include <assert.h>
 
 /** \defgroup ns_list Linked list support library.
  *

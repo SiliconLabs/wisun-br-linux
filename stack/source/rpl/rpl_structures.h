@@ -26,6 +26,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "common/trickle.h"
 #include "stack-services/ns_list.h"
 

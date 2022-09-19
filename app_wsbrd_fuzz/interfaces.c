@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <assert.h>
 #include <unistd.h>
 
 #include "nsconfig.h"

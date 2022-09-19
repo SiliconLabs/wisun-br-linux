@@ -15,6 +15,7 @@
  */
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "common/log.h"
 #include "common/utils.h"
 #include "common/hal_interrupt.h"

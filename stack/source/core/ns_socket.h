@@ -29,6 +29,7 @@
 #define _NS_SOCKET_H
 
 #include <sys/socket.h>
+#include <assert.h>
 #include "common/int24.h"
 #include "core/ns_error_types.h"
 #include "core/ns_buffer.h"
