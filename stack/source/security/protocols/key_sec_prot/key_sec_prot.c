@@ -168,7 +168,7 @@ static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e res
 static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys)
 {
     uint8_t result = 0;
-    uint16_t kde_len = KDE_GTKL_LEN;
+    uint16_t kde_len = KDE_GTKL_LEN + KDE_NR_LEN + KDE_LGTKL_LEN;
 
     uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
     uint8_t pmkid[PMKID_LEN];
@@ -205,8 +205,19 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
         kde_end = kde_ptkid_write(kde_end, ptkid);
     }
 
-    uint8_t gtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->gtks);
-    kde_end = kde_gtkl_write(kde_end, gtkl);
+    uint8_t gtkl = 0;
+    if (sec_keys->node_role != WS_NR_ROLE_LFN) {
+        gtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->gtks);
+        kde_end = kde_gtkl_write(kde_end, gtkl);
+    }
+
+    uint8_t lgtkl = 0;
+    if (sec_keys->node_role != WS_NR_ROLE_UNKNOWN) {
+        kde_end = kde_node_role_write(kde_end, sec_keys->node_role);
+
+        lgtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->lgtks);
+        kde_end = kde_lgtkl_write(kde_end, lgtkl);
+    }
 
     kde_len = kde_end - kde_start;
 
