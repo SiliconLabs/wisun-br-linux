@@ -560,7 +560,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
-    config->ws_regional_regulation = 0,
+    config->ws_regional_regulation = 0;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
