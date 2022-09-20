@@ -271,11 +271,11 @@ static void wsbr_tasklet(struct arm_event_s *event)
             wsbr_configure_ws(ctxt);
             get_global_unicast_addr(ctxt->config.tun_dev, ipv6);
             if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
-                 FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
+                FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
             if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
-                 WARN("arm_nwk_interface_up RCP");
+                WARN("arm_nwk_interface_up RCP");
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
-                 WARN("ws_bbr_start");
+                WARN("ws_bbr_start");
             if (ctxt->config.internal_dhcp)
                 ws_bbr_internal_dhcp_server_start(ctxt->rcp_if_id, ipv6);
             if (strlen(ctxt->config.radius_secret) != 0)
