@@ -45,6 +45,7 @@
 #include "security/protocols/radius_sec_prot/radius_client_sec_prot.h"
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
@@ -79,6 +80,7 @@
 
 // Short GTK lifetime value, for GTK install check
 #define SHORT_GTK_LIFETIME                     10 * 3600  // 10 hours
+#define SHORT_LGTK_LIFETIME                    10 * 3600  // 10 hours
 
 // Frame counter exhaust check timer
 #define FRAME_CNT_TIMER                        3600
@@ -1503,26 +1505,47 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
             next_type = IEEE_802_1X_MKA;
         }
         tr_info("PAE: start EAP-TLS, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
-    } else if (sec_keys->ptk_mismatch) {
+        return next_type;
+    }
+    if (sec_keys->ptk_mismatch) {
         // start 4WH towards supplicant
         next_type = IEEE_802_11_4WH;
         tr_info("PAE: start 4WH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
     }
 
     int8_t gtk_index = -1;
-    if (next_type != IEEE_802_1X_MKA && next_type != RADIUS_IEEE_802_1X_MKA) {
-        // Checks if GTK needs to be inserted
+    if (sec_keys->node_role == WS_NR_ROLE_LFN) {
+        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->lgtks);
+
+        // For 4WH insert always a key, in case no other then active
+        if (next_type == IEEE_802_11_4WH && gtk_index < 0) {
+            gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->lgtks);
+        }
+        if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
+            /* Check if the PTK has been already used to install GTK to specific index and if it
+             * has been, trigger 4WH to update also the PTK. This prevents writing multiple
+             * GTK keys to same index using same PTK.
+             */
+            if (pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset > SHORT_LGTK_LIFETIME &&
+                sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys->lgtks, gtk_index)) {
+                // start 4WH towards supplicant
+                next_type = IEEE_802_11_4WH;
+                sec_keys->ptk_mismatch = true;
+                tr_info("PAE: start 4WH due to LGTK index re-use, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+            } else {
+                // Update just LGTK
+                next_type = IEEE_802_11_GKH;
+                tr_info("PAE: start GKH for LGTK index %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
+            }
+        }
+    } else {
         gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->gtks);
 
         // For 4WH insert always a key, in case no other then active
         if (next_type == IEEE_802_11_4WH && gtk_index < 0) {
             gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->gtks);
         }
-    }
-
-    if (gtk_index >= 0) {
         if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
-
             /* Check if the PTK has been already used to install GTK to specific index and if it
              * has been, trigger 4WH to update also the PTK. This prevents writing multiple
              * GTK keys to same index using same PTK.
@@ -1536,12 +1559,20 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
             } else {
                 // Update just GTK
                 next_type = IEEE_802_11_GKH;
-                tr_info("PAE: start GKH, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+                tr_info("PAE: start GKH for GTK index %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
             }
         }
-
-        tr_info("PAE: update GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
+        if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER) {
+            gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->lgtks);
+            if (gtk_index >= 0) {
+                // Update just LGTK (do not when target is a FAN1.0 router)
+                next_type = IEEE_802_11_GKH;
+                tr_info("PAE: start GKH for LGTK index %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
+            }
+        }
     }
+    if (gtk_index >= 0)
+        tr_info("PAE: update (L)GTK index: %i, eui-64: %s", gtk_index, trace_array(supp_entry->addr.eui_64, 8));
 
     if (next_type == KMP_TYPE_NONE) {
         tr_info("PAE: authenticated, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
