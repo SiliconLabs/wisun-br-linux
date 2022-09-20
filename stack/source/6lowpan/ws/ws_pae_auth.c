@@ -524,34 +524,34 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
     if (!pae_auth) {
         return -1;
     }
+    sec_timer_gtk_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg.gtk;
+    sec_prot_gtk_keys_t *key_nw_info = pae_auth->sec_keys_nw_info->gtks;
+    sec_prot_gtk_keys_t *key_nw_info_next = pae_auth->gtks.next_gtks;
 
     // Gets active GTK
-    int8_t active_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
+    int8_t active_index = sec_prot_keys_gtk_status_active_get(key_nw_info);
 
     if (active_index >= 0) {
         // As default removes other keys than active
         int8_t not_removed_index = active_index;
-
-        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(&pae_auth->sec_cfg->timer_cfg.gtk);
-
-        uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, active_index);
-
+        uint32_t revocation_lifetime = ws_pae_timers_gtk_revocation_lifetime_get(timer_cfg);
+        uint32_t active_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, active_index);
         uint64_t current_time = ws_pae_current_time_get();
 
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
-            sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, active_index, current_time, active_lifetime - revocation_lifetime, true);
+            sec_prot_keys_gtk_lifetime_decrement(key_nw_info, active_index, current_time, active_lifetime - revocation_lifetime, true);
             tr_info("Access revocation start, GTK active index: %i, revoked lifetime: %"PRIu32"", active_index, revocation_lifetime);
         } else {
             // Otherwise decrements lifetime of the GTK to be installed after the active one
-            int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(pae_auth->sec_keys_nw_info->gtks);
+            int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(key_nw_info);
             if (second_index >= 0) {
                 // Second GTK revocation lifetime is the active GTK lifetime added with revocation time
                 uint32_t second_revocation_lifetime = active_lifetime + revocation_lifetime;
 
-                uint32_t second_lifetime = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, second_index);
+                uint32_t second_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, second_index);
                 if (second_lifetime > second_revocation_lifetime) {
-                    sec_prot_keys_gtk_lifetime_decrement(pae_auth->sec_keys_nw_info->gtks, second_index, current_time, second_lifetime - second_revocation_lifetime, true);
+                    sec_prot_keys_gtk_lifetime_decrement(key_nw_info, second_index, current_time, second_lifetime - second_revocation_lifetime, true);
                     tr_info("Access revocation start, GTK second active index: %i, revoked lifetime: %"PRIu32"", second_index, second_revocation_lifetime);
                 }
                 // Removes other keys than active and GTK to be installed next
@@ -560,16 +560,16 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
         }
 
         // Deletes other GTKs
-        int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(pae_auth->sec_keys_nw_info->gtks);
+        int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(key_nw_info);
         while (last_index >= 0 && last_index != not_removed_index) {
             tr_info("Access revocation GTK clear index: %i", last_index);
-            sec_prot_keys_gtk_clear(pae_auth->sec_keys_nw_info->gtks, last_index);
-            last_index = sec_prot_keys_gtk_install_order_last_index_get(pae_auth->sec_keys_nw_info->gtks);
+            sec_prot_keys_gtk_clear(key_nw_info, last_index);
+            last_index = sec_prot_keys_gtk_install_order_last_index_get(key_nw_info);
         }
     }
 
     // Adds new GTK
-    ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
+    ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset);
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
 
     // Update keys to NVM as needed
