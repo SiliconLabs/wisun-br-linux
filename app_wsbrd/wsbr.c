@@ -216,7 +216,11 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_test_key_lifetime_set(ctxt->rcp_if_id, ctxt->config.ws_gtk_expire_offset, ctxt->config.ws_pmk_lifetime, ctxt->config.ws_ptk_lifetime);
     WARN_ON(ret);
 
-    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id, ctxt->config.ws_revocation_lifetime_reduction, ctxt->config.ws_gtk_new_activation_time, ctxt->config.ws_gtk_new_install_required, ctxt->config.ws_gtk_max_mismatch);
+    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id,
+                                        ctxt->config.ws_ffn_revocation_lifetime_reduction,
+                                        ctxt->config.ws_gtk_new_activation_time,
+                                        ctxt->config.ws_gtk_new_install_required,
+                                        ctxt->config.ws_gtk_max_mismatch);
     WARN_ON(ret);
 
     ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
