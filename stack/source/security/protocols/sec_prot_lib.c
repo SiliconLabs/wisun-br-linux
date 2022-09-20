@@ -416,7 +416,7 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t
     if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
         sec_prot_keys_gtkl_set(sec_gtk_keys, gtkl);
     } else {
-        tr_error("No GTKL");
+        tr_info("No GTKL");
         return -1;
     }
 
@@ -454,7 +454,7 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_
     if (kde_lgtkl_read(kde, kde_len, &gtkl) >= 0) {
         sec_prot_keys_gtkl_set(sec_lgtk_keys, gtkl);
     } else {
-        tr_error("No LGTKL");
+        tr_info("No LGTKL");
         return -1;
     }
 
