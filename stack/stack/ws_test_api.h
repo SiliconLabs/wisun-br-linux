@@ -164,6 +164,13 @@ int ws_test_gtk_time_settings_set(
     uint8_t new_install_req,
     uint32_t max_mismatch
 );
+int ws_test_lgtk_time_settings_set(
+    int8_t interface_id,
+    uint8_t revocat_lifetime_reduct,
+    uint8_t new_activation_time,
+    uint8_t new_install_req,
+    uint32_t max_mismatch
+);
 
 /**
  * Sets Next Group Transient Keys used during GTK life cycle
