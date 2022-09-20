@@ -142,36 +142,6 @@ static const ws_cfg_cb_t cfg_cb[] = {
 // Wisun configuration storage
 ws_cfg_t ws_cfg;
 
-static void ws_cfg_trace(ws_cfgs_t *cfg, ws_cfgs_t *new_cfg, uint8_t size, char *name)
-{
-    uint8_t *start = 0;
-    uint8_t *end = 0;
-
-    tr_debug("config set: %s, changed fields:", name);
-
-    bool print_index = true;
-    for (uint8_t i = 0; i < size; i++) {
-        if (((uint8_t *) cfg)[i] != ((uint8_t *) new_cfg)[i]) {
-            if (print_index) {
-                start = &((uint8_t *) new_cfg)[i];
-                print_index = false;
-            }
-            end = &((uint8_t *) new_cfg)[i];
-        } else {
-            if (start && end) {
-                tr_debug("i: %p v: %s ", (void *)(start - ((uint8_t *) new_cfg)), trace_array(start, end - start + 1));
-            }
-            start = NULL;
-            end = NULL;
-            print_index = true;
-        }
-    }
-
-    if (start && end) {
-        tr_debug("i: %p v: %s ", (void *)(start - ((uint8_t *) new_cfg)), trace_array(start, end - start + 1));
-    }
-}
-
 static int8_t ws_cfg_network_size_default_set(ws_gen_cfg_t *cfg)
 {
     cfg->network_size = NETWORK_SIZE_MEDIUM;
@@ -552,8 +522,6 @@ int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cf
 
     ws_gen_cfg_t *cfg = &ws_cfg.gen;
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_gen_cfg_t), "gen");
-
     cfg->network_size = new_cfg->network_size;
     if (&cfg->network_name != &new_cfg->network_name) {
         strncpy(cfg->network_name, new_cfg->network_name, 32);
@@ -661,8 +629,6 @@ int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *new_cf
 
     ws_phy_cfg_t *cfg = &ws_cfg.phy;
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_phy_cfg_t), "phy");
-
     *cfg = *new_cfg;
 
     if (cur && !(flags & CFG_FLAGS_BOOTSTRAP_RESTART_DISABLE)) {
@@ -744,8 +710,6 @@ int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *
 
     ws_timing_cfg_t *cfg = &ws_cfg.timing;
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_timing_cfg_t), "timing");
-
     *cfg = *new_cfg;
 
     return CFG_SETTINGS_OK;
@@ -814,8 +778,6 @@ int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *new_cf
     }
 
     ws_bbr_cfg_t *cfg = &ws_cfg.bbr;
-
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_bbr_cfg_t), "rpl");
 
     *cfg = *new_cfg;
 
@@ -898,8 +860,6 @@ int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *new_cf
 
     ws_mpl_cfg_t *cfg = &ws_cfg.mpl;
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_mpl_cfg_t), "mpl");
-
     *cfg = *new_cfg;
 
     return CFG_SETTINGS_OK;
@@ -977,8 +937,6 @@ int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *new_
     }
 
     ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
-
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_fhss_cfg_t), "fhss");
 
     *cfg = *new_cfg;
 
@@ -1067,8 +1025,6 @@ int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_c
 
     ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
 
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_sec_timer_cfg_t), "sec_timer");
-
     *cfg = *new_cfg;
 
     return CFG_SETTINGS_OK;
@@ -1135,8 +1091,6 @@ int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg
     }
 
     ws_sec_prot_cfg_t *cfg = &ws_cfg.sec_prot;
-
-    ws_cfg_trace((ws_cfgs_t *) cfg, (ws_cfgs_t *) new_cfg, sizeof(ws_sec_prot_cfg_t), "sec_prot");
 
     *cfg = *new_cfg;
 
