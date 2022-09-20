@@ -223,6 +223,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                         ctxt->config.ws_gtk_max_mismatch);
     WARN_ON(ret);
 
+    ret = ws_test_lgtk_time_settings_set(ctxt->rcp_if_id,
+                                         ctxt->config.ws_lfn_revocation_lifetime_reduction,
+                                         ctxt->config.ws_lgtk_new_activation_time,
+                                         ctxt->config.ws_lgtk_new_install_required,
+                                         ctxt->config.ws_lgtk_max_mismatch);
+    WARN_ON(ret);
+
     ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 
