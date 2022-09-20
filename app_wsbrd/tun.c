@@ -51,7 +51,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
+static int tun_addr_get(char *if_name, uint8_t ip[static 16], bool gua)
 {
     struct sockaddr_in6 *ipv6;
     struct ifaddrs *ifaddr, *ifa;
@@ -74,7 +74,7 @@ int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
 
             ipv6 = (struct sockaddr_in6 *)ifa->ifa_addr;
 
-            if (IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
+            if (gua == IN6_IS_ADDR_LINKLOCAL(&ipv6->sin6_addr))
                 continue;
 
             memcpy(ip, ipv6->sin6_addr.s6_addr, 16);
@@ -84,6 +84,16 @@ int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
 
     freeifaddrs(ifaddr);
     return -2;
+}
+
+int tun_addr_get_link_local(char *if_name, uint8_t ip[static 16])
+{
+    return tun_addr_get(if_name, ip, false);
+}
+
+int tun_addr_get_global_unicast(char *if_name, uint8_t ip[static 16])
+{
+    return tun_addr_get(if_name, ip, true);
 }
 
 void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, uint8_t address[16])

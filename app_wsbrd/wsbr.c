@@ -269,7 +269,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                                                                   NET_6LOWPAN_WS);
             WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
             wsbr_configure_ws(ctxt);
-            get_global_unicast_addr(ctxt->config.tun_dev, ipv6);
+            tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
             if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
                 FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
             if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))

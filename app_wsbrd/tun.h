@@ -20,7 +20,8 @@ struct wsbr_ctxt;
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);
-int get_global_unicast_addr(char *if_name, uint8_t ip[static 16]);
+int tun_addr_get_link_local(char *if_name, uint8_t ip[static 16]);
+int tun_addr_get_global_unicast(char *if_name, uint8_t ip[static 16]);
 void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, uint8_t address[16]);
 void tun_add_ipv6_direct_route(protocol_interface_info_entry_t *if_entry, uint8_t address[16]);
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len);
