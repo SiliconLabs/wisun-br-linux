@@ -455,7 +455,7 @@ int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64);
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id);
+int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_lgtk);
 
 /**
  * ws_pae_controller_node_limit_set set node limit

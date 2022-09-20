@@ -514,8 +514,11 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
     return ret_value;
 }
 
-int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk)
 {
+    sec_timer_gtk_cfg_t *timer_cfg;
+    sec_prot_gtk_keys_t *key_nw_info, *key_nw_info_next;
+
     if (!interface_ptr) {
         return -1;
     }
@@ -524,9 +527,16 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
     if (!pae_auth) {
         return -1;
     }
-    sec_timer_gtk_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg.gtk;
-    sec_prot_gtk_keys_t *key_nw_info = pae_auth->sec_keys_nw_info->gtks;
-    sec_prot_gtk_keys_t *key_nw_info_next = pae_auth->gtks.next_gtks;
+
+    if (is_lgtk) {
+        timer_cfg = &pae_auth->sec_cfg->timer_cfg.lgtk;
+        key_nw_info= pae_auth->sec_keys_nw_info->lgtks;
+        key_nw_info_next = pae_auth->lgtks.next_gtks;
+    } else {
+        timer_cfg = &pae_auth->sec_cfg->timer_cfg.gtk;
+        key_nw_info= pae_auth->sec_keys_nw_info->gtks;
+        key_nw_info_next = pae_auth->gtks.next_gtks;
+    }
 
     // Gets active GTK
     int8_t active_index = sec_prot_keys_gtk_status_active_get(key_nw_info);
@@ -570,7 +580,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
 
     // Adds new GTK
     ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset);
-    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, false);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 
     // Update keys to NVM as needed
     pae_auth->nw_info_updated(pae_auth->interface_ptr);

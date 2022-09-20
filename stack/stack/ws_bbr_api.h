@@ -212,7 +212,7 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64);
  * \return 0, Revocation started OK.
  * \return <0 Revocation start failed.
  */
-int ws_bbr_node_access_revoke_start(int8_t interface_id);
+int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk);
 
 /**
  * Set EAPOL node limit

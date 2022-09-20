@@ -205,7 +205,10 @@ static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *re
     struct wsbr_ctxt *ctxt = userdata;
     int ret;
 
-    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id);
+    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, false);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, true);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);
