@@ -223,6 +223,56 @@ static int route_info_compare(const void *obj_a, const void *obj_b)
     return ret;
 }
 
+static int sd_bus_message_append_node(
+    sd_bus_message *m,
+    const char *property,
+    const uint8_t self[8],
+    const uint8_t parent[8],
+    const uint8_t ipv6[16])
+{
+    int ret;
+
+    ret = sd_bus_message_open_container(m, 'r', "aya{sv}");
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_append_array(m, 'y', self, 8);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_open_container(m, 'a', "{sv}");
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    {
+        if (parent) {
+            ret = sd_bus_message_open_container(m, 'e', "sv");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append(m, "s", "parent");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_open_container(m, 'v', "ay");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append_array(m, 'y', parent, 8);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(m);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(m);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        }
+        ret = sd_bus_message_open_container(m, 'e', "sv");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_append(m, "s", "ipv6");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_open_container(m, 'v', "ay");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_append_array(m, 'y', ipv6, 16);
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_close_container(m);
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        ret = sd_bus_message_close_container(m);
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    }
+    ret = sd_bus_message_close_container(m);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_close_container(m);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    return ret;
+}
+
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
@@ -248,46 +298,10 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     for (i = 0; i < len; i++) {
-        ret = sd_bus_message_open_container(reply, 'r', "aya{sv}");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_append_array(reply, 'y', table[i].target, ARRAY_SIZE(table[i].target));
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_open_container(reply, 'a', "{sv}");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        {
-            ret = sd_bus_message_open_container(reply, 'e', "sv");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_append(reply, "s", "parent");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_open_container(reply, 'v', "ay");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_append_array(reply, 'y', table[i].parent, ARRAY_SIZE(table[i].parent));
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(reply);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(reply);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-
-            ret = sd_bus_message_open_container(reply, 'e', "sv");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_append(reply, "s", "ipv6");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_open_container(reply, 'v', "ay");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            memcpy(ipv6 + 0, br_info.prefix, 8);
-            memcpy(ipv6 + 8, table[i].target, 8);
-            ipv6[8] ^= 0x02;
-            ret = sd_bus_message_append_array(reply, 'y', ipv6, ARRAY_SIZE(ipv6));
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(reply);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(reply);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        }
-        ret = sd_bus_message_close_container(reply);
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_close_container(reply);
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        memcpy(ipv6 + 0, br_info.prefix, 8);
+        memcpy(ipv6 + 8, table[i].target, 8);
+        ipv6[8] ^= 0x02;
+        ret = sd_bus_message_append_node(reply, property, table[i].target, table[i].parent, ipv6);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
