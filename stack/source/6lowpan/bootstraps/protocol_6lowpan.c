@@ -86,7 +86,6 @@ static uint8_t protocol_buffer_valid(buffer_t *b, protocol_interface_info_entry_
 
 void protocol_init(void)
 {
-    tr_debug("P.Init");
     protocol_6lowpan_rpl_domain = rpl_control_create_domain();
     ws_cfg_settings_init();
 }

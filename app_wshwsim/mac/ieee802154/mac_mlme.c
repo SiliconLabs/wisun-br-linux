@@ -177,7 +177,7 @@ int8_t mac_mlme_reset(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlm
     rf_mac_setup->mac_ack_tx_active = false;
     //Clean MAC
     if (reset->SetDefaultPIB) {
-        tr_debug("RESET MAC PIB");
+        tr_debug("Reset MAC PIB");
         rf_mac_setup->mac_short_address = 0xffff;
         rf_mac_setup->pan_id = 0xffff;
         rf_mac_setup->macCapRxOnIdle = true;

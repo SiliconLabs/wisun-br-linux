@@ -253,10 +253,8 @@ void ws_bootstrap_configure_data_request_restart(protocol_interface_info_entry_t
 
 static int ws_bootstrap_tasklet_init(protocol_interface_info_entry_t *cur)
 {
-    if (cur->bootStrapId < 0) {
+    if (cur->bootStrapId < 0)
         cur->bootStrapId = eventOS_event_handler_create(&ws_bootstrap_event_handler, WS_INIT_EVENT);
-        tr_info("WS tasklet init");
-    }
 
     if (cur->bootStrapId < 0) {
         tr_error("tasklet init failed");
@@ -1930,12 +1928,10 @@ static void ws_bootstrap_mac_activate(protocol_interface_info_entry_t *cur, uint
 
 void ws_bootstrap_fhss_activate(protocol_interface_info_entry_t *cur)
 {
-    tr_debug("FHSS activate");
     ws_bootstrap_fhss_enable(cur);
     ws_llc_hopping_schedule_config(cur, &cur->ws_info->hopping_schedule);
     // Only supporting fixed channel
 
-    tr_debug("MAC init");
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     ws_bootstrap_mac_security_enable(cur);
@@ -1945,7 +1941,6 @@ void ws_bootstrap_fhss_activate(protocol_interface_info_entry_t *cur)
 
 void ws_bootstrap_ip_stack_reset(protocol_interface_info_entry_t *cur)
 {
-    tr_debug("ip stack reset");
     // Delete all temporary cached information
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
     lowpan_context_list_free(&cur->lowpan_contexts);
@@ -1953,7 +1948,6 @@ void ws_bootstrap_ip_stack_reset(protocol_interface_info_entry_t *cur)
 
 void ws_bootstrap_ip_stack_activate(protocol_interface_info_entry_t *cur)
 {
-    tr_debug("ip stack init");
     clear_power_state(ICMP_ACTIVE);
     cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     ws_bootstrap_ip_stack_reset(cur);

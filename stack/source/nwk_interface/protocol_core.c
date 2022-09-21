@@ -137,10 +137,6 @@ void protocol_root_tasklet(arm_event_t *event)
     event_type = (arm_internal_event_type_e)event->event_type;
 
     switch (event_type) {
-        case ARM_LIB_TASKLET_INIT_EVENT:
-            tr_debug("NS Root task Init");
-            break;
-
         case ARM_IN_INTERFACE_BOOTSTRAP_CB:
             net_bootstrap_cb_run(event->event_id);
             break;
@@ -149,6 +145,7 @@ void protocol_root_tasklet(arm_event_t *event)
             protocol_buffer_poll(buf);
             break;
         }
+        case ARM_LIB_TASKLET_INIT_EVENT:
         case ARM_IN_SECURITY_ECC_CALLER:
         default:
             break;
@@ -201,7 +198,6 @@ void update_reachable_time(int seconds)
 void protocol_core_init(void)
 {
     protocol_root_tasklet_ID = eventOS_event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
-    tr_debug("Allocate Root Tasklet");
 
     timer_start(TIMER_MONOTONIC_TIME);
     timer_start(TIMER_MPL_SLOW);

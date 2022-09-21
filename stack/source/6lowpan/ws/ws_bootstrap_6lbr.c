@@ -383,7 +383,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
 
     switch (event_type) {
         case WS_INIT_EVENT:
-            tr_debug("tasklet init");
+            tr_debug("Tasklet init");
             break;
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
@@ -403,9 +403,6 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             ws_bootstrap_asynch_trickle_stop(cur);
             //Init Packet congestion
             ws_bootstrap_packet_congestion_init(cur);
-
-            tr_info("Border router start network");
-
 
             if (!ws_bbr_ready_to_start(cur)) {
                 // Wi-SUN not started yet we wait for Border router permission
@@ -497,10 +494,10 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             break;
 
         case WS_CONFIGURATION_START:
-            tr_info("6LBR Configuration start");
+            tr_info("Configuration start");
             break;
         case WS_OPERATION_START:
-            tr_info("operation start");
+            tr_info("Operation start");
             // Advertisements stopped during the RPL scan
             ws_bootstrap_asynch_trickle_stop(cur);
             // Activate RPL

@@ -111,7 +111,7 @@ void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
 
     switch (event_type) {
         case WS_INIT_EVENT:
-            tr_debug("tasklet init");
+            tr_debug("Tasklet init");
             break;
         /*       case WS_DISCOVERY_START:
                  case WS_CONFIGURATION_START:

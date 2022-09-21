@@ -743,7 +743,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
 
     switch (event_type) {
         case WS_INIT_EVENT:
-            tr_debug("tasklet init");
+            tr_debug("Tasklet init");
             break;
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
@@ -790,7 +790,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
             ws_bootstrap_ffn_start_configuration_learn(cur);
             break;
         case WS_OPERATION_START:
-            tr_info("operation start");
+            tr_info("Operation start");
             // Advertisements stopped during the RPL scan
             ws_bootstrap_asynch_trickle_stop(cur);
             // Activate RPL
