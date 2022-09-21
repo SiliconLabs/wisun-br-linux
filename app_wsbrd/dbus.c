@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
+#include "app_wsbrd/tun.h"
 #include "common/named_values.h"
 #include "common/utils.h"
 #include "common/log.h"
@@ -297,6 +298,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     qsort(table, len, sizeof(table[0]), route_info_compare);
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6);
+    ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6);
     for (i = 0; i < len; i++) {
         memcpy(ipv6 + 0, br_info.prefix, 8);
         memcpy(ipv6 + 8, table[i].target, 8);
