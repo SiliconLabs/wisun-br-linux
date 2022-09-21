@@ -847,7 +847,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
 
     // For GTK lifetime and frame counter space calculate the percent that has been used
     uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
-    uint32_t gtk_lifetime = timer_cfg->gtk_expire_offset;
+    uint32_t gtk_lifetime = timer_cfg->gtk.expire_offset;
     uint32_t gtk_lifetime_left_percent = gtk_lifetime_left * 100 / gtk_lifetime;
 
     uint32_t frame_cnt_left_percent = ((uint64_t)((UINT32_MAX - frame_cnt))) * 100 / UINT32_MAX;
@@ -859,7 +859,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
      * so that we have data from longer time period. As sanity check, validate that GTK lifetime
      * is not more than 105% of the GTK lifetime.
      */
-    uint32_t gtk_new_install_req_seconds = timer_cfg->gtk_expire_offset - timer_cfg->gtk_new_install_req * timer_cfg->gtk_expire_offset / 100;
+    uint32_t gtk_new_install_req_seconds = timer_cfg->gtk.expire_offset - timer_cfg->gtk.new_install_req * timer_cfg->gtk.expire_offset / 100;
     if ((frame_cnt_left_percent < gtk_lifetime_left_percent && frame_cnt_left_percent < 80) ||
             gtk_lifetime_left_percent > 105) {
         // If not yet on GTK update period
@@ -902,7 +902,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     /* Calculates an estimate for how much free frame counter space is needed for the GTK activation and
      * initiates it faster if needed (default length of GTK activation is 60 minutes).
      */
-    uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk_expire_offset / timer_cfg->gtk_new_act_time;
+    uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk.expire_offset / timer_cfg->gtk.new_act_time;
     // Calculates the estimated maximum value for frame counter during GTK update
     max_needed_frame_counters =
         pae_auth->gtks.frame_counters->counter[gtk_index].max_frame_counter_chg * gtk_new_activation_time_seconds / 3600;
@@ -959,7 +959,7 @@ static uint32_t ws_pae_auth_lifetime_system_time_check(pae_auth_t *pae_auth, int
 
         uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
         sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
-        uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk_expire_offset / timer_cfg->gtk_new_act_time;
+        uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk.expire_offset / timer_cfg->gtk.new_act_time;
 
         // If there is GTK lifetime left
         if (gtk_lifetime_left > (seconds + dec_extra_seconds + time_diff)) {
@@ -1005,7 +1005,7 @@ static void ws_pae_auth_gtk_key_insert(pae_auth_t *pae_auth)
     }
 
     // Gets latest installed key lifetime and adds GTK expire offset to it
-    uint32_t lifetime = pae_auth->sec_cfg->timer_cfg.gtk_expire_offset;
+    uint32_t lifetime = pae_auth->sec_cfg->timer_cfg.gtk.expire_offset;
     int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(pae_auth->sec_keys_nw_info->gtks);
     if (last_index >= 0) {
         lifetime += sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, last_index);
@@ -1465,7 +1465,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * has been, trigger 4WH to update also the PTK. This prevents writing multiple
              * GTK keys to same index using same PTK.
              */
-            if (pae_auth->sec_cfg->timer_cfg.gtk_expire_offset > SHORT_GTK_LIFETIME &&
+            if (pae_auth->sec_cfg->timer_cfg.gtk.expire_offset > SHORT_GTK_LIFETIME &&
                     sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;

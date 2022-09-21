@@ -922,8 +922,8 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations)
 {
     // Starts trickle for the key update
-    pae_supp->gtk_req_trickle_params.Imin = pae_supp->sec_cfg->timer_cfg.gtk_request_imin;
-    pae_supp->gtk_req_trickle_params.Imax = pae_supp->sec_cfg->timer_cfg.gtk_request_imax;
+    pae_supp->gtk_req_trickle_params.Imin = pae_supp->sec_cfg->timer_cfg.gtk.request_imin;
+    pae_supp->gtk_req_trickle_params.Imax = pae_supp->sec_cfg->timer_cfg.gtk.request_imax;
     pae_supp->gtk_req_trickle_params.k = 0;
     pae_supp->gtk_req_trickle_params.TimerExpirations = timer_expirations;
 

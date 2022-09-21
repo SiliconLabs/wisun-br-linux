@@ -1540,7 +1540,7 @@ int8_t ws_pae_controller_gtk_update(int8_t interface_id, uint8_t *gtk[GTK_NUM])
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtk[i]) {
             uint32_t lifetime = sec_prot_keys_gtk_install_order_last_lifetime_get(&controller->gtks.gtks);
-            lifetime += controller->sec_cfg.timer_cfg.gtk_expire_offset;
+            lifetime += controller->sec_cfg.timer_cfg.gtk.expire_offset;
             if (sec_prot_keys_gtk_set(&controller->gtks.gtks, i, gtk[i], lifetime) >= 0) {
                 controller->gtks.gtks_set = true;
                 tr_info("GTK set index: %i, lifetime %"PRIu32", system time: %"PRIu32"", i, lifetime, g_monotonic_time_100ms / 10);
