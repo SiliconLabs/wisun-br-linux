@@ -967,15 +967,20 @@ int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *new_
 
 static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg)
 {
-    cfg->gtk_expire_offset = DEFAULT_GTK_EXPIRE_OFFSET;
     cfg->pmk_lifetime = DEFAULT_PMK_LIFETIME;
     cfg->ptk_lifetime = DEFAULT_PTK_LIFETIME;
+    cfg->gtk_expire_offset = DEFAULT_GTK_EXPIRE_OFFSET;
     cfg->gtk_new_act_time = DEFAULT_GTK_NEW_ACTIVATION_TIME;
-    cfg->revocat_lifetime_reduct = DEFAULT_REVOCATION_LIFETIME_REDUCTION;
     cfg->gtk_request_imin = DEFAULT_GTK_REQUEST_IMIN;
     cfg->gtk_request_imax = DEFAULT_GTK_REQUEST_IMAX;
     cfg->gtk_max_mismatch = DEFAULT_GTK_MAX_MISMATCH;
     cfg->gtk_new_install_req = DEFAULT_GTK_NEW_INSTALL_REQUIRED;
+    cfg->ffn_revocat_lifetime_reduct = DEFAULT_FFN_REVOCATION_LIFETIME_REDUCTION;
+    cfg->lgtk_expire_offset = DEFAULT_LGTK_EXPIRE_OFFSET;
+    cfg->lgtk_new_act_time = DEFAULT_LGTK_NEW_ACTIVATION_TIME;
+    cfg->lgtk_max_mismatch = DEFAULT_LGTK_MAX_MISMATCH;
+    cfg->lgtk_new_install_req = DEFAULT_LGTK_NEW_INSTALL_REQUIRED;
+    cfg->lfn_revocat_lifetime_reduct = DEFAULT_LFN_REVOCATION_LIFETIME_REDUCTION;
 
     return CFG_SETTINGS_OK;
 }
@@ -990,15 +995,20 @@ int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg)
 {
     ws_sec_timer_cfg_t *cfg = &ws_cfg.sec_timer;
 
-    if (cfg->gtk_expire_offset != new_cfg->gtk_expire_offset ||
-            cfg->pmk_lifetime != new_cfg->pmk_lifetime ||
-            cfg->ptk_lifetime != new_cfg->ptk_lifetime ||
-            cfg->gtk_new_act_time != new_cfg->gtk_new_act_time ||
-            cfg->revocat_lifetime_reduct != new_cfg->revocat_lifetime_reduct ||
-            cfg->gtk_request_imin != new_cfg->gtk_request_imin ||
-            cfg->gtk_request_imax != new_cfg->gtk_request_imax ||
-            cfg->gtk_max_mismatch != new_cfg->gtk_max_mismatch ||
-            cfg->gtk_new_install_req != new_cfg->gtk_new_install_req) {
+    if (cfg->pmk_lifetime != new_cfg->pmk_lifetime ||
+        cfg->ptk_lifetime != new_cfg->ptk_lifetime ||
+        cfg->gtk_expire_offset != new_cfg->gtk_expire_offset ||
+        cfg->gtk_new_act_time != new_cfg->gtk_new_act_time ||
+        cfg->gtk_request_imin != new_cfg->gtk_request_imin ||
+        cfg->gtk_request_imax != new_cfg->gtk_request_imax ||
+        cfg->gtk_max_mismatch != new_cfg->gtk_max_mismatch ||
+        cfg->gtk_new_install_req != new_cfg->gtk_new_install_req ||
+        cfg->ffn_revocat_lifetime_reduct != new_cfg->ffn_revocat_lifetime_reduct ||
+        cfg->lgtk_expire_offset != new_cfg->lgtk_expire_offset ||
+        cfg->lgtk_new_act_time != new_cfg->lgtk_new_act_time ||
+        cfg->lgtk_max_mismatch != new_cfg->lgtk_max_mismatch ||
+        cfg->lgtk_new_install_req != new_cfg->lgtk_new_install_req ||
+        cfg->lfn_revocat_lifetime_reduct != new_cfg->lfn_revocat_lifetime_reduct) {
 
         return CFG_SETTINGS_CHANGED;
     }

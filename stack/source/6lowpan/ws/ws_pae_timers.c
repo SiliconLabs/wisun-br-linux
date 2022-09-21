@@ -54,9 +54,17 @@ void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_c
     timer_settings->gtk.new_act_time = new_timer_settings->gtk_new_act_time;
     timer_settings->gtk.max_mismatch = new_timer_settings->gtk_max_mismatch * SECONDS_IN_MINUTE;
     timer_settings->gtk.new_install_req = new_timer_settings->gtk_new_install_req;
-    timer_settings->gtk.revocat_lifetime_reduct = new_timer_settings->revocat_lifetime_reduct;
+    timer_settings->gtk.revocat_lifetime_reduct = new_timer_settings->ffn_revocat_lifetime_reduct;
+    timer_settings->lgtk.request_imin = 0;
+    timer_settings->lgtk.request_imax = 0;
+    timer_settings->lgtk.expire_offset = new_timer_settings->lgtk_expire_offset * SECONDS_IN_MINUTE;
+    timer_settings->lgtk.new_act_time = new_timer_settings->lgtk_new_act_time;
+    timer_settings->lgtk.max_mismatch = new_timer_settings->lgtk_max_mismatch * SECONDS_IN_MINUTE;
+    timer_settings->lgtk.new_install_req = new_timer_settings->lgtk_new_install_req;
+    timer_settings->lgtk.revocat_lifetime_reduct = new_timer_settings->lfn_revocat_lifetime_reduct;
 
     ws_pae_timers_calculate(&timer_settings->gtk);
+    ws_pae_timers_calculate(&timer_settings->lgtk);
 }
 
 void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)

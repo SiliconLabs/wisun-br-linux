@@ -50,6 +50,7 @@ typedef struct sec_timer_cfg {
     uint32_t pmk_lifetime;                           /* PMK lifetime (seconds) */
     uint32_t ptk_lifetime;                           /* PTK lifetime (seconds) */
     struct sec_timer_gtk_cfg gtk;
+    struct sec_timer_gtk_cfg lgtk;
 } sec_timer_cfg_t;
 
 /* Security radius configuration settings */

@@ -133,7 +133,7 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
     }
 
     if (revocat_lifetime_reduct > 0) {
-        cfg.revocat_lifetime_reduct = revocat_lifetime_reduct;
+        cfg.ffn_revocat_lifetime_reduct = revocat_lifetime_reduct;
     }
     if (new_activation_time > 0) {
         cfg.gtk_new_act_time = new_activation_time;

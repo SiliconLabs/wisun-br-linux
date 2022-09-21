@@ -263,15 +263,21 @@ extern uint8_t DEVICE_MIN_SENS;
  *  Security protocol timer configuration parameters
  */
 #define MINUTES_IN_DAY   24 * 60
-#define DEFAULT_GTK_EXPIRE_OFFSET               43200                    // 30 days
 #define DEFAULT_PMK_LIFETIME                    4 * 30 * MINUTES_IN_DAY  // 4 months
 #define DEFAULT_PTK_LIFETIME                    2 * 30 * MINUTES_IN_DAY  // 2 months
+#define DEFAULT_GTK_EXPIRE_OFFSET               43200                    // 30 days
 #define DEFAULT_GTK_NEW_ACTIVATION_TIME         720                      // default 1/720 * 30 days --> 60 minutes
-#define DEFAULT_REVOCATION_LIFETIME_REDUCTION   30                       // default 1/30 * 30 days --> 1 day
 #define DEFAULT_GTK_REQUEST_IMIN                4                        // 4 minutes
 #define DEFAULT_GTK_REQUEST_IMAX                64                       // 64 minutes
 #define DEFAULT_GTK_MAX_MISMATCH                64                       // 64 minutes
 #define DEFAULT_GTK_NEW_INSTALL_REQUIRED        80                       // 80 percent of GTK lifetime --> 24 days
+#define DEFAULT_FFN_REVOCATION_LIFETIME_REDUCTION 30                     // default 1/30 * 30 days --> 1 day
+#define DEFAULT_LGTK_EXPIRE_OFFSET              129600                   // 90 days
+#define DEFAULT_LGTK_NEW_ACTIVATION_TIME        180                      // default 1/180 * 90 days --> 12 hours
+#define DEFAULT_LGTK_MAX_MISMATCH               60                       // 60 minutes
+#define DEFAULT_LGTK_NEW_INSTALL_REQUIRED       90                       // 90 percent of LGTK lifetime --> 81 days
+#define DEFAULT_LFN_REVOCATION_LIFETIME_REDUCTION 30                     // default 1/30 * 90 days --> 3 days
+
 
 /*
  *  Security protocol initial EAPOL-key parameters
