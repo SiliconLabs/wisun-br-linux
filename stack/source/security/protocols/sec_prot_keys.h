@@ -130,7 +130,7 @@ typedef struct sec_prot_keys_storage {
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
-    sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
+    gtkhash_t              ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
     uint16_t               pmk_key_replay_cnt;        /**< Pairwise Master Key replay counter */
     uint16_t               pmk_lifetime;              /**< PMK lifetime (short time format) */
     uint16_t               ptk_lifetime;              /**< PTK lifetime (short time format) */
