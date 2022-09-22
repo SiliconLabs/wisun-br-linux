@@ -347,7 +347,7 @@ static void ws_bootstrap_6lbr_print_config(protocol_interface_info_entry_t *cur)
     else
         INFO("  mode: 0x%x", hopping_schedule->operating_mode);
 
-    INFO("  channel 0 frequency: %" PRIu24 "MHz", hopping_schedule->ch0_freq / 1000000);
+    INFO("  channel 0 frequency: %.1fMHz", hopping_schedule->ch0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", ws_regdb_chan_spacing_value(hopping_schedule->channel_spacing) / 1000);
     INFO("  channel count: %d", hopping_schedule->number_of_channels);
     INFO("  channel masks:");
