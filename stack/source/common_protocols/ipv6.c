@@ -1359,6 +1359,10 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         if (!buf) {
             return NULL;
         }
+#ifdef HAVE_WS_BORDER_ROUTER
+        if (is_for_linux(*nh_ptr, ptr))
+            return ipv6_tun_up(buf);
+#endif
     } else { /* unicast */
         if (!for_us) {
             if (cur->if_common_forwarding_out_cb) {
