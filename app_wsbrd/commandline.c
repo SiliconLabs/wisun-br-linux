@@ -61,31 +61,31 @@ struct number_limit {
     int max;
 };
 
-struct number_limit valid_unsigned = {
+static const struct number_limit valid_unsigned = {
     0, INT_MAX
 };
 
-struct number_limit valid_positive = {
+static const struct number_limit valid_positive = {
     1, INT_MAX
 };
 
-struct number_limit valid_int8 = {
+static const struct number_limit valid_int8 = {
     INT8_MIN, INT8_MAX
 };
 
-struct number_limit valid_gtk_new_install_required = {
+static const struct number_limit valid_gtk_new_install_required = {
     0, 100
 };
 
-struct number_limit valid_unicast_dwell_interval = {
+static const struct number_limit valid_unicast_dwell_interval = {
     15, 0xFF
 };
 
-struct number_limit valid_broadcast_dwell_interval = {
+static const struct number_limit valid_broadcast_dwell_interval = {
     100, 0xFF
 };
 
-struct number_limit valid_broadcast_interval = {
+static const struct number_limit valid_broadcast_interval = {
     100, 0xFFFFFF
 };
 
