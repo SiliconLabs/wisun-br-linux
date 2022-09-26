@@ -483,6 +483,8 @@ int wsbr_main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     ns_file_system_set_root_path(ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL);
+    if (ctxt->config.lowpan_mtu)
+        ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;

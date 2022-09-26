@@ -35,6 +35,7 @@
 #include "stack/ws_management_api.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/6lowpan/lowpan_mtu.h"
 #include "stack/source/core/ns_address_internal.h"
 
 #include "commandline_values.h"
@@ -87,6 +88,10 @@ static const struct number_limit valid_broadcast_dwell_interval = {
 
 static const struct number_limit valid_broadcast_interval = {
     100, 0xFFFFFF
+};
+
+static const struct number_limit valid_lowpan_mtu = {
+    LOWPAN_MTU_MIN, LOWPAN_MTU_MAX
 };
 
 static const int valid_ws_modes[] = {
@@ -461,6 +466,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "gtk_max_mismatch",              &config->ws_gtk_max_mismatch,              conf_set_number,      &valid_unsigned },
         { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
+        { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
     };
     char garbage; // detect garbage at end of the line
     char fmt[256];
