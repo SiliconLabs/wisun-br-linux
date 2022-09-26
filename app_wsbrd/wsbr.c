@@ -38,6 +38,7 @@
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/core/ns_address_internal.h"
+#include "stack/source/nwk_interface/protocol_abstract.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 #include "stack/source/dhcpv6_client/dhcpv6_client_api.h"
 #include "stack/source/libdhcpv6/libdhcpv6.h"
@@ -241,6 +242,25 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 }
 
+static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
+{
+    protocol_interface_info_entry_t *interface;
+    uint8_t addr_ws0[16];
+    uint8_t addr_tun[16];
+    bool cmp;
+
+    tun_addr_get_link_local(ctxt->config.tun_dev, addr_tun);
+    if (!memcmp(addr_tun, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "no link-local address found on %s", ctxt->config.tun_dev);
+
+    interface = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    addr_interface_get_ll_address(interface, addr_ws0, 0);
+
+    cmp = memcmp(addr_ws0, addr_tun, 16);
+    FATAL_ON(cmp, 1, "address mismatch: expected %s but found %s on %s",
+        tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->config.tun_dev);
+}
+
 static void wsbr_tasklet(struct arm_event_s *event)
 {
     const char *const nwk_events[] = {
@@ -274,6 +294,7 @@ static void wsbr_tasklet(struct arm_event_s *event)
                 FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
             if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
                 WARN("arm_nwk_interface_up RCP");
+            wsbr_check_link_local_addr(ctxt);
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
                 WARN("ws_bbr_start");
             if (ctxt->config.internal_dhcp)
