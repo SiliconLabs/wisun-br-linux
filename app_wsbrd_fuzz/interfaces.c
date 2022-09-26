@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "nsconfig.h"
+#include "stack/source/core/ns_address_internal.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 #include "stack/dhcp_service_api.h"
 #include "stack/ws_bbr_api.h"
@@ -82,19 +83,33 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
     FATAL_ON(ret < 0, 2, "pipe: %m");
     ctxt->tun_fd = g_fuzz_ctxt.tun_pipe[0];
 
-    memcpy(g_fuzz_ctxt.tun_addr, g_ctxt.config.ipv6_prefix, 8);
-    memcpy(g_fuzz_ctxt.tun_addr + 8, g_ctxt.hw_mac, 8);
-    g_fuzz_ctxt.tun_addr[8] ^= 2;
+    memcpy(g_fuzz_ctxt.tun_gua, g_ctxt.config.ipv6_prefix, 8);
+    memcpy(g_fuzz_ctxt.tun_gua + 8, g_ctxt.hw_mac, 8);
+    g_fuzz_ctxt.tun_gua[8] ^= 2;
+    memcpy(g_fuzz_ctxt.tun_lla, ADDR_LINK_LOCAL_PREFIX, 8);
+    memcpy(g_fuzz_ctxt.tun_lla + 8, g_ctxt.hw_mac, 8);
+    g_fuzz_ctxt.tun_lla[8] ^= 2;
 }
 
 int __real_tun_addr_get_global_unicast(char* if_name, uint8_t ip[static 16]);
 int __wrap_tun_addr_get_global_unicast(char* if_name, uint8_t ip[static 16])
 {
     if (g_fuzz_ctxt.replay_count) {
-        memcpy(ip, g_fuzz_ctxt.tun_addr, 16);
+        memcpy(ip, g_fuzz_ctxt.tun_gua, 16);
         return 0;
     } else {
         return __real_tun_addr_get_global_unicast(if_name, ip);
+    }
+}
+
+int __real_tun_addr_get_link_local(char* if_name, uint8_t ip[static 16]);
+int __wrap_tun_addr_get_link_local(char* if_name, uint8_t ip[static 16])
+{
+    if (g_fuzz_ctxt.replay_count) {
+        memcpy(ip, g_fuzz_ctxt.tun_lla, 16);
+        return 0;
+    } else {
+        return __real_tun_addr_get_link_local(if_name, ip);
     }
 }
 

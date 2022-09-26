@@ -574,6 +574,7 @@ if(COMPILE_SIMULATION_TOOLS)
         -Wl,--wrap=spinel_prop_is_valid
         -Wl,--wrap=wsbr_tun_init
         -Wl,--wrap=tun_addr_get_global_unicast
+        -Wl,--wrap=tun_addr_get_link_local
         -Wl,--wrap=wsbr_spinel_replay_interface
         -Wl,--wrap=wsbr_common_timer_init
         -Wl,--wrap=wsbr_spinel_replay_timers
