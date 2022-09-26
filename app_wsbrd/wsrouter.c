@@ -65,7 +65,7 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
     .mac_api.mcps_purge_req = wsbr_mcps_purge,
 
-    .mac_api.phyMTU = 2043,
+    .mac_api.mtu = 2043,
 };
 
 // See warning in common/os_types.h

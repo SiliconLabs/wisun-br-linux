@@ -101,12 +101,12 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
 
     // Set default MTU size to 127 unless it is too much for PHY driver
     if (driver->phy_driver->phy_MTU > MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
-        this->phyMTU = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE;
+        this->mtu = MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE;
     } else {
-        this->phyMTU = driver->phy_driver->phy_MTU;
+        this->mtu = driver->phy_driver->phy_MTU;
     }
 
-    mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes, this->phyMTU);
+    mac_store.setup = mac_mlme_data_base_allocate(mac_store.dev_driver->phy_driver->PHY_MAC, mac_store.dev_driver, storage_sizes, this->mtu);
 
     if (!mac_store.setup) {
         free(this);

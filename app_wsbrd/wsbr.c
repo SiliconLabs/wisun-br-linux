@@ -84,8 +84,8 @@ struct wsbr_ctxt g_ctxt = {
 
     // FIXME: retrieve from RCP. Normally, MAC layer set this value when it
     // receive the mac802_15_4Mode request.
-    // .mac_api.phyMTU = MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE,
-    .mac_api.phyMTU = 2043,
+    // .mac_api.mtu = MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE,
+    .mac_api.mtu = 2043,
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,

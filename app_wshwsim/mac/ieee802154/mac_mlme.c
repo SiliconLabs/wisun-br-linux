@@ -473,9 +473,9 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
             }
             mac_api_t *mac_api = get_sw_mac_api(rf_mac_setup);
             if (rf_mac_setup->dev_driver->phy_driver->phy_MTU > new_mtu_size) {
-                mac_api->phyMTU = rf_mac_setup->phy_mtu_size = new_mtu_size;
+                mac_api->mtu = rf_mac_setup->phy_mtu_size = new_mtu_size;
             } else {
-                mac_api->phyMTU = rf_mac_setup->phy_mtu_size = rf_mac_setup->dev_driver->phy_driver->phy_MTU;
+                mac_api->mtu = rf_mac_setup->phy_mtu_size = rf_mac_setup->dev_driver->phy_driver->phy_MTU;
             }
             if (mac_mlme_allocate_tx_buffers(rf_mac_setup, rf_mac_setup->dev_driver, rf_mac_setup->phy_mtu_size)) {
                 tr_err("Failed to reallocate TX buffers");

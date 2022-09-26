@@ -308,7 +308,7 @@ struct mac_api_s {
     mac_storage_description_sizes_get    *mac_storage_sizes_get;         /**< Getter function to query data storage sizes from MAC */
 
     int8_t                              parent_id;                      /**< Upper layer id */
-    uint16_t                            phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
+    uint16_t                            mtu;                            /**< Maximum Transmission Unit(MTU) used by MAC*/
 };
 
 /**

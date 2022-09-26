@@ -453,7 +453,7 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
         return NULL;
     }
 
-    if (lowpan_adaptation_interface_init(entry->id, api->phyMTU) != 0) {
+    if (lowpan_adaptation_interface_init(entry->id, api->mtu) != 0) {
         goto interface_failure;
     }
 

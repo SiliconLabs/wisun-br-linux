@@ -1199,9 +1199,9 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
     if (fragmented_needed) {
         // If fragmentation TX buffer not allocated, do it now.
         if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
-            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_api->phyMTU);
+            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_api->mtu);
             if (interface_ptr->fragment_indirect_tx_buffer) {
-                interface_ptr->mtu_size = cur->mac_api->phyMTU;
+                interface_ptr->mtu_size = cur->mac_api->mtu;
             } else {
                 tr_error("Failed to allocate fragmentation buffer");
                 goto tx_error_handler;

@@ -380,7 +380,7 @@ int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const ui
  */
 uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast16_t frame_overhead)
 {
-    return cur->mac_api->phyMTU - frame_overhead;
+    return cur->mac_api->mtu - frame_overhead;
 }
 
 /*
