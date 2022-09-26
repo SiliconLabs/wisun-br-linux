@@ -29,8 +29,6 @@ struct ns_sockaddr;
 struct buffer;
 struct mac_api_s;
 
-extern uint16_t test_6lowpan_fragmentation_mtu_size_override;
-
 void mac_helper_panid_set(struct protocol_interface_info_entry *interface, uint16_t panId);
 
 void mac_helper_mac16_address_set(struct protocol_interface_info_entry *interface, uint16_t mac16);

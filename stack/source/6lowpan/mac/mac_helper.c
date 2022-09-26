@@ -32,8 +32,6 @@
 
 static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0, 0};
 
-uint16_t test_6lowpan_fragmentation_mtu_size_override = 0;
-
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
@@ -382,13 +380,7 @@ int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const ui
  */
 uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast16_t frame_overhead)
 {
-    uint16_t max;
-
-    if (test_6lowpan_fragmentation_mtu_size_override == 0) {
-        max = cur->mac_api->phyMTU - frame_overhead;
-    } else {
-        max = test_6lowpan_fragmentation_mtu_size_override - frame_overhead;
-    }
+    uint16_t max = cur->mac_api->phyMTU - frame_overhead;
 
     /* But if we want IEEE 802.15.4-2003 compatibility (and it looks like a
      * standard PHY), limit ourselves to the 2003 maximum */

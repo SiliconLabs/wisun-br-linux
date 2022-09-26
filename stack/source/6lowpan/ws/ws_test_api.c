@@ -169,19 +169,6 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
     return ws_pae_controller_next_gtk_update(interface_id, gtk);
 }
 
-int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu_size)
-{
-    protocol_interface_info_entry_t *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !ws_info(cur)) {
-        return -1;
-    }
-
-    test_6lowpan_fragmentation_mtu_size_override = mtu_size;
-    return 0;
-}
-
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
 {
     protocol_interface_info_entry_t *cur;

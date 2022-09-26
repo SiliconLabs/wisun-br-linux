@@ -180,17 +180,6 @@ int ws_test_gtk_time_settings_set(
 int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4]);
 
 /**
- * Sets 6LoWPAN fragmentation MTU size to test fragmentation
- *
- * \param interface_id Network interface ID.
- * \param mtu_size Size of 6LoWPAN MTU when fragmentation occurs.
- *
- * \return 0                        Success
- * \return <0                       Failure
- */
-int ws_test_6lowpan_fragmentation_mtu_size_set(int8_t interface_id, uint16_t mtu_size);
-
-/**
  * Disable First EDFE data packet send.
  *
  * Made only for test purpose for test EDFE client Data wait timeout.
