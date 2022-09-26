@@ -154,7 +154,6 @@ typedef struct arm_15_4_mac_parameters_t {
     /* MAC PIB boolean */
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
-    bool MacUnsusecured_2003_cab: 1;
     /* MAC PIB boolean */
     channel_list_s mac_channel_list;
     uint8_t mac_channel;

@@ -462,7 +462,6 @@ static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_ge
     }
 
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
-    entry->mac_parameters.MacUnsusecured_2003_cab = mac_unsecured_2003_compatibility;
     entry->mac_parameters.mac_short_address = 0xffff;
     entry->mac_parameters.pan_id = 0xffff;
     entry->mac_parameters.mac_in_direct_entry_timeout = 7000; //default timeout

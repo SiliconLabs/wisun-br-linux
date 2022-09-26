@@ -380,16 +380,7 @@ int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const ui
  */
 uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast16_t frame_overhead)
 {
-    uint16_t max = cur->mac_api->phyMTU - frame_overhead;
-
-    /* But if we want IEEE 802.15.4-2003 compatibility (and it looks like a
-     * standard PHY), limit ourselves to the 2003 maximum */
-    if (cur->mac_parameters.MacUnsusecured_2003_cab && max > MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE &&
-            cur->mac_api->phyMTU == MAC_IEEE_802_15_4_MAX_PHY_PACKET_SIZE) {
-        max = MAC_IEEE_802_15_4_MAX_MAC_SAFE_PAYLOAD_SIZE;
-    }
-
-    return max;
+    return cur->mac_api->phyMTU - frame_overhead;
 }
 
 /*
