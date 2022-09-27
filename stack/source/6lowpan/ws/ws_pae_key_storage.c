@@ -619,19 +619,23 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     memcpy(sec_keys->ptk, key_storage->ptk, PTK_LEN);
     sec_keys->ptk_set = key_storage->ptk_set;
 
-    field_set |= ((uint16_t)sec_keys->ptk_set) << PTK_SET;
+    if (sec_keys->ptk_set)
+        field_set |= 1u << PTK_SET;
 
     memcpy(sec_keys->ptk_eui_64, key_storage->ptk_eui_64, 8);
     sec_keys->ptk_eui_64_set = key_storage->ptk_eui_64_set;
 
-    field_set |= ((uint16_t) sec_keys->ptk_eui_64_set) << PTKEUI64_SET;
+    if (sec_keys->ptk_eui_64_set)
+        field_set |= 1u << PTKEUI64_SET;
 
     memcpy(sec_keys->ins_gtk_hash, key_storage->ins_gtk_hash, sizeof(sec_keys->ins_gtk_hash));
     sec_keys->ins_gtk_hash_set = key_storage->ins_gtk_hash_set;
     sec_keys->ins_gtk_4wh_hash_set = sec_keys->ins_gtk_hash_set;
 
-    field_set |= ((uint16_t) sec_keys->ins_gtk_hash_set) << GTKHASH_SET;
-    field_set |= ((uint16_t) sec_keys->ins_gtk_4wh_hash_set) << GTKHASH4WH_SET;
+    if (sec_keys->ins_gtk_hash_set)
+        field_set |= 1u << GTKHASH_SET;
+    if (sec_keys->ins_gtk_4wh_hash_set)
+        field_set |= 1u << GTKHASH4WH_SET;
 
     sec_keys->ptk_lifetime = ptk_lifetime;
 
