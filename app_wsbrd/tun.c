@@ -270,15 +270,13 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     return fd;
 }
 
-static void wsbr_tun_accept_ra(char *devname)
+static void wbsr_dev_enable_option(char *devname, char *option, char wanted_value)
 {
     char buf[256];
     char content;
     int fd;
 
-    // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
-    // but this API is not mapped in libnl-route.
-    snprintf(buf, sizeof(buf), "/proc/sys/net/ipv6/conf/%s/accept_ra", devname);
+    snprintf(buf, sizeof(buf), "/proc/sys/net/ipv6/conf/%s/%s", devname, option);
     fd = open(buf, O_RDONLY);
     if (fd < 0)
         FATAL(2, "open %s: %m", buf);
@@ -287,14 +285,14 @@ static void wsbr_tun_accept_ra(char *devname)
     close(fd);
     // Don't try to write the file if not necessary so wsrbd can launched
     // without root permissions.
-    if (content != '0') {
+    if (content != wanted_value) {
         fd = open(buf, O_WRONLY);
         if (fd < 0) {
-            WARN("%s: cannot disable SLAAC (%m)", devname);
+            WARN("%s: cannot set %s to %c (%m)", devname, option, wanted_value);
             close(fd);
             return;
         }
-        if (write(fd, "0", 1) <= 0)
+        if (write(fd, &wanted_value, 1) <= 0)
             FATAL(2, "write %s: %m", buf);
         close(fd);
     }
@@ -305,7 +303,9 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac,
                                  ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf,
                                  strlen(ctxt->config.neighbor_proxy));
-    wsbr_tun_accept_ra(ctxt->config.tun_dev);
+    // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
+    // but this API is not mapped in libnl-route.
+    wbsr_dev_enable_option(ctxt->config.tun_dev, "accept_ra", '0');
 }
 
 static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
