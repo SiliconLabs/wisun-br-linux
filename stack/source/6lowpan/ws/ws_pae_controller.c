@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mbedtls/sha256.h>
+#include "common/log.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "service_libs/utils/ns_time.h"
@@ -55,7 +56,7 @@ typedef int8_t ws_pae_br_addr_write(protocol_interface_info_entry_t *interface_p
 typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
 typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
 typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
-typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 typedef struct nw_key {
@@ -657,8 +658,9 @@ int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *in
         return -1;
     }
 
+    BUG_ON(index > GTK_NUM);
     if (controller->pae_nw_key_index_update) {
-        controller->pae_nw_key_index_update(interface_ptr, index);
+        controller->pae_nw_key_index_update(interface_ptr, index, false);
     }
 
     return 0;
@@ -1102,7 +1104,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         // If application has set GTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr, false);
         if (controller->gtks.gtk_index >= 0) {
-            controller->pae_nw_key_index_update(interface_ptr, controller->gtks.gtk_index);
+            controller->pae_nw_key_index_update(interface_ptr, controller->gtks.gtk_index, false);
         }
         sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
     }
@@ -1742,7 +1744,7 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
     controller->gtks.gtk_index = index;
 
     if (controller->pae_nw_key_index_update) {
-        controller->pae_nw_key_index_update(controller->interface_ptr, index);
+        controller->pae_nw_key_index_update(controller->interface_ptr, index, false);
     }
 
     return 0;

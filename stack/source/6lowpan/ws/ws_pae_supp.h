@@ -153,7 +153,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  *  ws_pae_supp_gtks_set set supplicant GTKs

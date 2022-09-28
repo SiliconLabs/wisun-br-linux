@@ -153,7 +153,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bo
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_auth_node_keys_remove removes nodes keys

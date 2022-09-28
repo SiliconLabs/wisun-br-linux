@@ -462,19 +462,20 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bo
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 }
 
-int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
+int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
 {
-    if (!interface_ptr) {
-        return -1;
-    }
-
     pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
-    if (!pae_auth) {
-        return -1;
-    }
+    sec_prot_gtk_keys_t *gtks;
 
-    ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, index);
-    ws_pae_auth_network_key_index_set(pae_auth, index, false);
+    if (!pae_auth)
+        return -1;
+    if (is_lgtk)
+        gtks = pae_auth->sec_keys_nw_info->lgtks;
+    else
+        gtks = pae_auth->sec_keys_nw_info->gtks;
+
+    ws_pae_auth_active_gtk_set(gtks, index);
+    ws_pae_auth_network_key_index_set(pae_auth, index, is_lgtk);
     return 0;
 }
 
