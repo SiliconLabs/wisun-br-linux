@@ -38,32 +38,8 @@
 #define PAE_NVM_FIELD_NOT_SET            0   // Field is not present
 #define PAE_NVM_FIELD_SET                1   // Field is present
 
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed)
+static uint8_t *ws_pae_nvm_store_gtk_tlv_create(uint8_t *tlv, sec_prot_gtk_keys_t *gtks, uint64_t stored_time)
 {
-    int len;
-    tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
-    tlv_entry->len = PAE_NVM_NW_INFO_LEN;
-
-    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
-
-    tlv = common_write_16_bit(pan_id, tlv);
-
-    memset(tlv, 0, 33);
-    // use strnlen & memset instead of strncpy to avoid gcc warning:
-    // call to __builtin___strncpy_chk will always overflow destination buffer [-Werror]
-    len = strlen(nw_name);
-    if (len > 32) {
-        len = 32;
-    }
-    memcpy((char *)tlv, nw_name, len);
-    tlv += 33;
-
-    memcpy((char *)tlv, gtk_eui64, 8);
-    tlv += 8;
-
-    *tlv++ = time_changed;
-    tlv = common_write_64_bit(stored_time, tlv);
-
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (gtks && sec_prot_keys_gtk_is_set(gtks, i)) {
             *tlv++ = PAE_NVM_FIELD_SET; // GTK is set
@@ -89,6 +65,38 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
             tlv += 8 + 1 + 1 + GTK_LEN;
         }
     }
+    return tlv;
+}
+
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id,
+                                         char *nw_name, uint8_t *gtk_eui64,
+                                         sec_prot_gtk_keys_t *gtks,
+                                         uint64_t stored_time, uint8_t time_changed)
+{
+    int len;
+    tlv_entry->tag = PAE_NVM_NW_INFO_TAG;
+    tlv_entry->len = PAE_NVM_NW_INFO_LEN;
+
+    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
+
+    tlv = common_write_16_bit(pan_id, tlv);
+
+    memset(tlv, 0, 33);
+    // use strnlen & memset instead of strncpy to avoid gcc warning:
+    // call to __builtin___strncpy_chk will always overflow destination buffer [-Werror]
+    len = strlen(nw_name);
+    if (len > 32) {
+        len = 32;
+    }
+    memcpy((char *)tlv, nw_name, len);
+    tlv += 33;
+
+    memcpy((char *)tlv, gtk_eui64, 8);
+    tlv += 8;
+
+    *tlv++ = time_changed;
+    tlv = common_write_64_bit(stored_time, tlv);
+    tlv = ws_pae_nvm_store_gtk_tlv_create(tlv, gtks, stored_time);
 
     tr_info("NVM NW_INFO write PAN ID: %i name: %s stored time: %"PRIu64, pan_id, nw_name, stored_time);
 
