@@ -137,7 +137,7 @@ static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_e
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold);
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 #ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
@@ -654,19 +654,26 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
 
     /* Stores frame counters if incremented by threshold and removes network keys from PAE
        controller and MAC */
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true);
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, false);
 }
 
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold)
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
 {
+    pae_controller_gtk_t *gtks;
+
+    if (is_lgtk)
+        gtks = &controller->lgtks;
+    else
+        gtks = &controller->gtks;
+
     /* Checks if frame counters needs to be stored when keys are removed */
-    ws_pae_controller_frame_counter_store(controller, use_threshold, false);
+    ws_pae_controller_frame_counter_store(controller, use_threshold, is_lgtk);
 
     tr_info("NW keys remove");
 
-    controller->gtks.gtk_index = -1;
+    gtks->gtk_index = -1;
 
-    nw_key_t *nw_key = controller->gtks.nw_key;
+    nw_key_t *nw_key = gtks->nw_key;
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         // Deletes the key if it is set
         if (nw_key[i].set) {
@@ -1086,7 +1093,7 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
     }
 
     // Stores frame counters and removes network keys from PAE controller and MAC
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false);
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, false);
 
     // Store security key network info if it has been modified
     ws_pae_controller_nw_info_updated_check(interface_ptr);
