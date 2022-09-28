@@ -306,6 +306,8 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
     wbsr_dev_enable_option(ctxt->config.tun_dev, "accept_ra", '0');
+    if (strlen(ctxt->config.neighbor_proxy))
+        wbsr_dev_enable_option(ctxt->config.neighbor_proxy, "proxy_ndp", '1');
 }
 
 static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
