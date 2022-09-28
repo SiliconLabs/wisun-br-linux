@@ -168,7 +168,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
         ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, interface_specific ? cur->id : -1, predicate);
         if (!ip_route) {
-            tr_debug("XXX ipv6_buffer_route no route to %s!", trace_ipv6(buf->dst_sa.address));
             goto no_route;
         }
 
