@@ -94,7 +94,49 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
 
 }
 
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed)
+static uint8_t *ws_pae_nvm_store_gtk_tlv_read(uint8_t *tlv, sec_prot_gtk_keys_t *gtks, uint64_t current_time)
+{
+    if (gtks && sec_prot_keys_gtk_count(gtks) == 0) {
+        // If application has not set GTKs read them from NVM
+        for (uint8_t i = 0; i < GTK_NUM; i++) {
+            if (*tlv++ == PAE_NVM_FIELD_SET) { /* GTK is set */
+                uint64_t expirytime = common_read_64_bit(tlv);
+                uint32_t lifetime = 0;
+                // Calculate lifetime
+                if (ws_pae_time_diff_calc(current_time, expirytime, &lifetime, true) < 0) {
+                    tlv += 8 + 1 + 1 + GTK_LEN;
+                    tr_info("GTK index %i, expired expiry time: %"PRIi64", lifetime: %"PRIi32, i, expirytime, lifetime);
+                    continue;
+                }
+                tlv += 8;
+
+                uint8_t status = *tlv++;
+
+                uint8_t install_order = *tlv++;
+
+                tr_info("GTK index: %i, status: %i, install order %i, expiry time: %"PRIi64", lifetime: %"PRIi32, i, status, install_order, expirytime, lifetime);
+
+                sec_prot_keys_gtk_set(gtks, i, tlv, lifetime);
+                sec_prot_keys_gtk_expirytime_set(gtks, i, expirytime);
+                tlv += GTK_LEN;
+                sec_prot_keys_gtk_status_set(gtks, i, status);
+                sec_prot_keys_gtk_install_order_set(gtks, i, install_order);
+            } else {
+                tlv += 8 + 1 + 1 + GTK_LEN;
+            }
+        }
+        sec_prot_keys_gtks_updated_reset(gtks);
+    }
+    return tlv;
+}
+
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry,
+                                         uint16_t *pan_id,
+                                         char *nw_name,
+                                         uint8_t *gtk_eui64,
+                                         sec_prot_gtk_keys_t *gtks,
+                                         uint64_t current_time,
+                                         uint8_t *time_changed)
 {
     if (!tlv_entry || !pan_id || !nw_name) {
         return -1;
@@ -136,39 +178,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
     }
 
     tr_info("NVM NW_INFO current time: %"PRIi64" stored time: %"PRIi64, current_time, stored_time);
-
-    if (gtks && sec_prot_keys_gtk_count(gtks) == 0) {
-        // If application has not set GTKs read them from NVM
-        for (uint8_t i = 0; i < GTK_NUM; i++) {
-            if (*tlv++ == PAE_NVM_FIELD_SET) { /* GTK is set */
-                uint64_t expirytime = common_read_64_bit(tlv);
-                uint32_t lifetime = 0;
-                // Calculate lifetime
-                if (ws_pae_time_diff_calc(current_time, expirytime, &lifetime, true) < 0) {
-                    tlv += 8 + 1 + 1 + GTK_LEN;
-                    tr_info("GTK index %i, expired expiry time: %"PRIi64", lifetime: %"PRIi32, i, expirytime, lifetime);
-                    continue;
-                }
-                tlv += 8;
-
-                uint8_t status = *tlv++;
-
-                uint8_t install_order = *tlv++;
-
-                tr_info("GTK index: %i, status: %i, install order %i, expiry time: %"PRIi64", lifetime: %"PRIi32, i, status, install_order, expirytime, lifetime);
-
-                sec_prot_keys_gtk_set(gtks, i, tlv, lifetime);
-                sec_prot_keys_gtk_expirytime_set(gtks, i, expirytime);
-                tlv += GTK_LEN;
-                sec_prot_keys_gtk_status_set(gtks, i, status);
-                sec_prot_keys_gtk_install_order_set(gtks, i, install_order);
-            } else {
-                tlv += 8 + 1 + 1 + GTK_LEN;
-            }
-        }
-        sec_prot_keys_gtks_updated_reset(gtks);
-    }
-
+    tlv = ws_pae_nvm_store_gtk_tlv_read(tlv, gtks, current_time);
     tr_info("NVM NW_INFO read PAN ID %i name: %s", *pan_id, nw_name);
 
     return 0;
