@@ -335,9 +335,37 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
     tr_info("NVM FRAME COUNTER write; stored time: %"PRIu64, stored_time);
 }
 
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters)
+static uint8_t *ws_pae_nvm_store_frame_counter_tlv_read_counter(uint8_t *tlv,
+                                                                frame_counters_t *counters)
 {
-    if (!tlv_entry || !counters) {
+    for (uint8_t index = 0; index < GTK_NUM; index++) {
+        // Frame counter not set
+        if (*tlv++ == PAE_NVM_FIELD_NOT_SET) {
+            counters->counter[index].set = false;
+            tlv += GTK_LEN + 4 + 4;
+            continue;
+        }
+        // Frame counter is set, read GTK key and counter values
+        counters->counter[index].set = true;
+        memcpy(counters->counter[index].gtk, tlv, GTK_LEN);
+        tlv += GTK_LEN;
+        counters->counter[index].frame_counter = common_read_32_bit(tlv);
+        tlv += 4;
+        counters->counter[index].max_frame_counter_chg = common_read_32_bit(tlv);
+        tlv += 4;
+    }
+    return tlv;
+}
+
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry,
+                                               uint32_t *restart_cnt,
+                                               uint64_t *stored_time,
+                                               uint16_t *pan_version,
+                                               uint16_t *lpan_version,
+                                               frame_counters_t *gtk_counters,
+                                               frame_counters_t *lgtk_counters)
+{
+    if (!tlv_entry || !gtk_counters || !lgtk_counters) {
         return -1;
     }
 
@@ -356,22 +384,11 @@ int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, u
     *pan_version = common_read_16_bit(tlv);
     tlv += 2;
 
-    for (uint8_t index = 0; index < GTK_NUM; index++) {
-        // Frame counter not set
-        if (*tlv++ == PAE_NVM_FIELD_NOT_SET) {
-            counters->counter[index].set = false;
-            tlv += GTK_LEN + 4 + 4;
-            continue;
-        }
-        // Frame counter is set, read GTK key and counter values
-        counters->counter[index].set = true;
-        memcpy(counters->counter[index].gtk, tlv, GTK_LEN);
-        tlv += GTK_LEN;
-        counters->counter[index].frame_counter = common_read_32_bit(tlv);
-        tlv += 4;
-        counters->counter[index].max_frame_counter_chg = common_read_32_bit(tlv);
-        tlv += 4;
-    }
+    *lpan_version = common_read_16_bit(tlv);
+    tlv += 2;
+
+    tlv = ws_pae_nvm_store_frame_counter_tlv_read_counter(tlv, gtk_counters);
+    tlv = ws_pae_nvm_store_frame_counter_tlv_read_counter(tlv, lgtk_counters);
 
     tr_info("NVM FRAME COUNTER read; stored time: %"PRIu64, *stored_time);
 

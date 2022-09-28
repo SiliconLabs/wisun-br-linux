@@ -190,7 +190,13 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
+int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry,
+                                               uint32_t *restart_cnt,
+                                               uint64_t *stored_time,
+                                               uint16_t *pan_version,
+                                               uint16_t *lpan_version,
+                                               frame_counters_t *gtk_counters,
+                                               frame_counters_t *lgtk_counters);
 
 /**
  * ws_pae_nvm_store_key_storage_index_tlv_create create NVM key storage index TLV

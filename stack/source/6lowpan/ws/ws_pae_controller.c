@@ -134,7 +134,10 @@ static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry);
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time,
+                                                       uint16_t *pan_version, uint16_t *lpan_version,
+                                                       frame_counters_t *gtk_counters,
+                                                       frame_counters_t *lgtk_counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
@@ -887,7 +890,7 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
     uint64_t stored_time = 0;
 
     // Read frame counters
-    if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->sec_keys_nw_info.pan_version, &controller->gtks.frame_counters) >= 0) {
+    if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->sec_keys_nw_info.pan_version, &controller->sec_keys_nw_info.lpan_version, &controller->gtks.frame_counters, &controller->lgtks.frame_counters) >= 0) {
         // Check if stored time is not valid
         if (ws_pae_stored_time_check_and_set(stored_time) < 0) {
             ret_value = -1;
@@ -2003,7 +2006,10 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     }
 }
 
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters)
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time,
+                                                       uint16_t *pan_version, uint16_t *lpan_version,
+                                                       frame_counters_t *gtk_counters,
+                                                       frame_counters_t *lgtk_counters)
 {
     frame_cnt_nvm_tlv_t *tlv = (frame_cnt_nvm_tlv_t *) ws_pae_nvm_store_generic_tlv_allocate_and_create(
                                    PAE_NVM_FRAME_COUNTER_TAG, PAE_NVM_FRAME_COUNTER_LEN);
@@ -2016,7 +2022,7 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, ui
         return -1;
     }
 
-    if (ws_pae_nvm_store_frame_counter_tlv_read(tlv, restart_cnt, stored_time, pan_version, counters) < 0) {
+    if (ws_pae_nvm_store_frame_counter_tlv_read(tlv, restart_cnt, stored_time, pan_version, lpan_version, gtk_counters, lgtk_counters) < 0) {
         ws_pae_nvm_store_generic_tlv_free((nvm_tlv_t *) tlv);
         return -1;
     }
