@@ -1094,40 +1094,56 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
     controller->pae_nw_info_set = ws_pae_auth_nw_info_set;
 
     sec_prot_gtk_keys_t *read_gtks_to = controller->sec_keys_nw_info.gtks;
+    sec_prot_gtk_keys_t *read_lgtks_to = controller->sec_keys_nw_info.lgtks;
     if (ws_pae_controller_frame_counter_read(controller) < 0) {
         tr_error("Stored key material invalid");
         // Key material invalid, do not read GTKs or any other security data
         read_gtks_to = NULL;
+        read_lgtks_to = NULL;
     }
 
-    if (sec_prot_keys_gtks_are_updated(&controller->gtks.gtks)) {
+    if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // If application has set GTK keys prepare those for use
         ws_pae_auth_gtks_updated(interface_ptr, false);
         if (controller->gtks.gtk_index >= 0) {
             controller->pae_nw_key_index_update(interface_ptr, controller->gtks.gtk_index, false);
         }
-        sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
+        sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
     }
-    if (read_gtks_to && ws_pae_controller_nw_info_read(controller, read_gtks_to, NULL) >= 0) {
+    if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.lgtks)) {
+        // If application has set LGTK keys prepare those for use
+        ws_pae_auth_gtks_updated(interface_ptr, true);
+        if (controller->lgtks.gtk_index >= 0) {
+            controller->pae_nw_key_index_update(interface_ptr, controller->lgtks.gtk_index, true);
+        }
+        sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
+    }
+
+    if (ws_pae_controller_nw_info_read(controller, read_gtks_to, read_lgtks_to) >= 0) {
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {
-            controller->nw_info_updated(interface_ptr, controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.pan_version, controller->sec_keys_nw_info.lpan_version, controller->sec_keys_nw_info.network_name);
+            controller->nw_info_updated(interface_ptr,
+                                        controller->sec_keys_nw_info.key_pan_id,
+                                        controller->sec_keys_nw_info.pan_version,
+                                        controller->sec_keys_nw_info.lpan_version,
+                                        controller->sec_keys_nw_info.network_name);
         }
-        if (sec_prot_keys_gtk_count(read_gtks_to) == 0) {
-            // Key material invalid or GTKs are expired, delete GTKs from NVM
+        if (!read_gtks_to || sec_prot_keys_gtk_count(read_gtks_to) == 0 ||
+            !read_lgtks_to || sec_prot_keys_gtk_count(read_lgtks_to) == 0) {
+            // Key material invalid or (L)GTKs are expired, delete (L)GTKs from NVM
             uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
             uint64_t system_time = ws_pae_current_time_get();
             ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
                                                 controller->sec_keys_nw_info.key_pan_id,
                                                 controller->sec_keys_nw_info.network_name,
-                                                gtk_eui64, NULL, NULL, system_time,
+                                                gtk_eui64, read_gtks_to, read_lgtks_to, system_time,
                                                 controller->sec_keys_nw_info.system_time_changed);
         }
     }
-    ws_pae_key_storage_init();
 
-    if (read_gtks_to) {
+    ws_pae_key_storage_init();
+    if (read_gtks_to && read_lgtks_to) {
         ws_pae_key_storage_read(controller->restart_cnt);
     } else {
         // Key material invalid, delete key storage
