@@ -35,6 +35,7 @@ struct wsbrd_conf {
     bool uart_rtscts;
 
     char tun_dev[IFNAMSIZ];
+    char neighbor_proxy[IFNAMSIZ];
     bool tun_autoconf;
     bool internal_dhcp;
 

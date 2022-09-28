@@ -422,6 +422,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "cpc_instance",                  config->cpc_instance,                      conf_set_string,      (void *)sizeof(config->cpc_instance) },
         { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
+        { "neighbor_proxy",                config->neighbor_proxy,                    conf_set_string,      (void *)sizeof(config->neighbor_proxy) },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "use_tap",                       NULL,                                      conf_deprecated,      NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
