@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
+#include "app_wsbrd/tun.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -805,6 +806,12 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
+
+#if defined HAVE_6LOWPAN_BORDER_ROUTER
+        // FIXME: we shouldn't call functions from app_wsbrd inside the stack
+        tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
+        tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
+#endif
 
         /* We need to know peer is a host before publishing - this needs MLE. Not yet established
          * what to do without MLE - might need special external/non-external prioritisation at root.
