@@ -276,6 +276,39 @@ above:
 
 Finally, you can run `wsbrd`.
 
+# Using IPv6 transparent proxy
+
+Transparent IPv6 proxy allows provide IPv6 connectivity to the Wi-SUN
+network without changing configuration of existing IPv6 infrastructure.
+Once enabled:
+   - the Wi-SUN nodes will be seen like classical hosts on the network
+   - the other hosts on the network will be able to reach them
+   - the Wi-SUN nodes will be able to reach internet through the gateway
+     of the host
+   - if the upstream gateway provide global addresses and there is no
+     firewall on the way (which is uncommon), hosts on the Internet can
+     reach the Wi-SUN nodes
+
+To enable this feature:
+   - The `neighbor_proxy` parameter must be set to the name of the
+     upstream network interface.
+   - The `ipv6_prefix` parameter must be set to the same prefix than
+     the hosting network.
+   - IPv6 forward must be enabled on the host (with
+     `sysctl net.ipv6.conf.all.forwarding=1`). Note that [enabling
+     forwarding per interface does not work][1].
+
+
+Under the hood, when `neighbor_proxy` is in use:
+   - NDP proxy (`/proc/sys/net/ipv6/conf/*/proxy_ndp`) is enabled
+   - Wi-SUN nodes are automatically added to neighbor proxy list
+     (user can dump them with `ip -6 neigh show proxy`)
+   - IPv6 routes are automatically added for the Wi-SUN nodes (user can
+     dump them with `ip -6 route show`).
+
+
+[1]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
+
 # Bugs and Limitations
 
 ## Should I use CPC and plain UART?
