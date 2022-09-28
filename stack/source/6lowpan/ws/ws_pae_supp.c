@@ -348,7 +348,7 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
     }
 
     if (sec_prot_keys_gtk_status_active_set(pae_supp->sec_keys_nw_info->gtks, index) >= 0) {
-        pae_supp->nw_key_index_set(interface_ptr, index);
+        pae_supp->nw_key_index_set(interface_ptr, index, false);
     } else {
         tr_info("NW send key index: %i, no changes", index + 1);
     }

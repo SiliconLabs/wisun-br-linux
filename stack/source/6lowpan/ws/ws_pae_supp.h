@@ -199,7 +199,7 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
  * \param index network send key index
  *
  */
-typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_supp_auth_completed authentication completed callback

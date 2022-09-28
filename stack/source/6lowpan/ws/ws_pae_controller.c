@@ -746,22 +746,28 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
 #endif
 
 #ifdef HAVE_PAE_SUPP
-static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index)
+static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(cur);
+    int key_offset;
     if (!controller) {
         return;
     }
 
     if (controller->nw_send_key_index_set) {
-        controller->gtks.gtk_index = index;
+        if (is_lgtk) {
+            controller->lgtks.gtk_index = index;
+            key_offset = GTK_NUM;
+        } else {
+            controller->gtks.gtk_index = index;
+            key_offset = 0;
+        }
         /* Checks if frame counters needs to be stored for the new GTK that is taken into
            use; this is the last check that stored counters are in sync before activating key */
-        ws_pae_controller_frame_counter_store(controller, true, false);
+        ws_pae_controller_frame_counter_store(controller, true, is_lgtk);
         // Activates key on MAC
-        controller->nw_send_key_index_set(controller->interface_ptr, index);
-        tr_info("NW send key index set: %i", index + 1);
-
+        controller->nw_send_key_index_set(controller->interface_ptr, index + key_offset);
+        tr_info("NW send key index set: %i", index + key_offset + 1);
     }
 }
 #endif
