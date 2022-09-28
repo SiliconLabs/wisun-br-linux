@@ -181,6 +181,14 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     if (!controller) {
         return -1;
     }
+    // In case LGTKs are set uses those
+    if (controller->lgtks.gtks_set) {
+        if (sec_prot_keys_gtks_are_updated(&controller->lgtks.gtks)) {
+            ws_pae_controller_nw_key_check_and_insert(controller->interface_ptr, &controller->lgtks.gtks, false, true);
+            sec_prot_keys_gtks_updated_reset(&controller->lgtks.gtks);
+            ws_pae_supp_gtks_set(controller->interface_ptr, &controller->lgtks.gtks, true);
+        }
+    }
 
     // In case test keys are set uses those and does not initiate authentication
     if (controller->gtks.gtks_set) {
