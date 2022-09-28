@@ -28,7 +28,7 @@
  */
 
 // file names
-#define NW_INFO_FILE_NAME               "pae_nw_info"
+#define NW_INFO_FILE_NAME               "pae_nw_info_1.1"
 #define KEYS_FILE_NAME                  "pae_keys"
 #define FRAME_COUNTER_FILE_NAME         "pae_frame_counter"
 
@@ -39,7 +39,7 @@
 #define PAE_NVM_KEY_STORAGE_TAG          5
 
 // pan_id (2) + network name (33) + GTK EUI-64 (own EUI-64) (8) + stored time (8) + time changed (1) + (GTK set (1) + GTK expiry timestamp (8) + status (1) + install order (1) + GTK (16)) * 4
-#define PAE_NVM_NW_INFO_LEN              2 + 33 + 8 + 8 + 1 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM
+#define PAE_NVM_NW_INFO_LEN              2 + 33 + 8 + 8 + 1 + (1 + 8 + 1 + 1 + GTK_LEN) * GTK_NUM * 2
 
 // PTK EUI-64 set (1) + PTK EUI-64 (8) + PMK set (1) + PMK lifetime (4) + PMK (32) + PMK replay counter (8) + PTK set (1) + PTK lifetime (4) + PTK (48)
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
@@ -108,7 +108,13 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
  * \return TLV entry or NULL
  *
  */
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t stored_time, uint8_t time_changed);
+void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry,
+                                         uint16_t pan_id, char *nw_name,
+                                         uint8_t *gtk_eui64,
+                                         sec_prot_gtk_keys_t *gtks,
+                                         sec_prot_gtk_keys_t *lgtks,
+                                         uint64_t stored_time,
+                                         uint8_t time_changed);
 
 /**
  * ws_pae_nvm_store_nw_info_tlv_read read from NVM network info TLV

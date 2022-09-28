@@ -71,6 +71,7 @@ static uint8_t *ws_pae_nvm_store_gtk_tlv_create(uint8_t *tlv, sec_prot_gtk_keys_
 void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t pan_id,
                                          char *nw_name, uint8_t *gtk_eui64,
                                          sec_prot_gtk_keys_t *gtks,
+                                         sec_prot_gtk_keys_t *lgtks,
                                          uint64_t stored_time, uint8_t time_changed)
 {
     int len;
@@ -97,6 +98,7 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry, uint16_t 
     *tlv++ = time_changed;
     tlv = common_write_64_bit(stored_time, tlv);
     tlv = ws_pae_nvm_store_gtk_tlv_create(tlv, gtks, stored_time);
+    tlv = ws_pae_nvm_store_gtk_tlv_create(tlv, lgtks, stored_time);
 
     tr_info("NVM NW_INFO write PAN ID: %i name: %s stored time: %"PRIu64, pan_id, nw_name, stored_time);
 
