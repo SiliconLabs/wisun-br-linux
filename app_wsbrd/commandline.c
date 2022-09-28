@@ -359,21 +359,23 @@ static int read_cert(const char *filename, const uint8_t **ptr)
 static void conf_set_cert(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
     arm_certificate_entry_s *dest = raw_dest;
+    int ret;
 
     BUG_ON(raw_param);
-    dest->cert_len = read_cert(raw_value, &dest->cert);
-    if (dest->cert_len < 0)
-        FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    ret = read_cert(raw_value, &dest->cert);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    dest->cert_len = ret;
 }
 
 static void conf_set_key(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
     arm_certificate_entry_s *dest = raw_dest;
+    int ret;
 
     BUG_ON(raw_param);
-    dest->key_len = read_cert(raw_value, &dest->key);
-    if (dest->key_len < 0)
-        FATAL(1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    ret = read_cert(raw_value, &dest->key);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    dest->key_len = ret;
 }
 
 static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
