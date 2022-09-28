@@ -103,6 +103,8 @@ void sec_prot_keys_gtks_init(sec_prot_gtk_keys_t *gtks)
 
 void sec_prot_keys_gtks_clear(sec_prot_gtk_keys_t *gtks)
 {
+    if (!gtks)
+        return;
     for (uint8_t i = 0; i < GTK_NUM; i++) {
         if (sec_prot_keys_gtk_is_set(gtks, i)) {
             gtks->updated = true;
