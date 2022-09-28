@@ -132,7 +132,7 @@ static int8_t  ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_i
 #endif
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold);
+static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
 static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry);
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time, uint16_t *pan_version, frame_counters_t *counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
@@ -660,7 +660,7 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold)
 {
     /* Checks if frame counters needs to be stored when keys are removed */
-    ws_pae_controller_frame_counter_store(controller, use_threshold);
+    ws_pae_controller_frame_counter_store(controller, use_threshold, false);
 
     tr_info("NW keys remove");
 
@@ -696,7 +696,7 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
         controller->gtks.gtk_index = index;
         /* Checks if frame counters needs to be stored for the new GTK that is taken into
            use; this is the last check that stored counters are in sync before activating key */
-        ws_pae_controller_frame_counter_store(controller, true);
+        ws_pae_controller_frame_counter_store(controller, true, false);
         tr_info("NW send key index set: %i", index + 1);
         controller->nw_send_key_index_set(interface_ptr, index);
     }
@@ -724,7 +724,7 @@ static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t 
         controller->gtks.gtk_index = index;
         /* Checks if frame counters needs to be stored for the new GTK that is taken into
            use; this is the last check that stored counters are in sync before activating key */
-        ws_pae_controller_frame_counter_store(controller, true);
+        ws_pae_controller_frame_counter_store(controller, true, false);
         // Activates key on MAC
         controller->nw_send_key_index_set(controller->interface_ptr, index);
         tr_info("NW send key index set: %i", index + 1);
@@ -1860,20 +1860,30 @@ static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controll
         entry->frame_cnt_store_timer -= seconds;
     } else {
         entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
-        ws_pae_controller_frame_counter_store(entry, true);
+        ws_pae_controller_frame_counter_store(entry, true, false);
     }
 
     if (entry->frame_cnt_store_force_timer > seconds) {
         entry->frame_cnt_store_force_timer -= seconds;
     } else {
         entry->frame_cnt_store_force_timer = 0;
-        ws_pae_controller_frame_counter_store(entry, true);
+        ws_pae_controller_frame_counter_store(entry, true, false);
     }
 }
 
-static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold)
+static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk)
 {
     bool update_needed = false;
+    pae_controller_gtk_t *gtks;
+    int key_offset;
+
+    if (is_lgtk) {
+        gtks = &entry->lgtks;
+        key_offset = GTK_NUM;
+    } else {
+        gtks = &entry->gtks;
+        key_offset = 0;
+    }
 
     for (int i = 0; i < GTK_NUM; i++) {
         /* If network key is set, checks if frame counter needs to be updated to NVM
@@ -1882,47 +1892,47 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
          *       de-crypted during a bootstrap. If BR later installs previous keys using 4WH/GKH, the
          *       frame counters will be still valid.
          */
-        if (entry->gtks.nw_key[i].installed) {
+        if (gtks->nw_key[i].installed) {
             // Reads MAC frame counter for the key
             uint32_t curr_frame_counter;
-            entry->nw_frame_counter_read(entry->interface_ptr, &curr_frame_counter, i);
+            entry->nw_frame_counter_read(entry->interface_ptr, &curr_frame_counter, i + key_offset);
 
             // If frame counter for the network key has already been stored
-            if (entry->gtks.frame_counters.counter[i].set &&
-                    memcmp(entry->gtks.nw_key[i].gtk, entry->gtks.frame_counters.counter[i].gtk, GTK_LEN) == 0) {
+            if (gtks->frame_counters.counter[i].set &&
+                    memcmp(gtks->nw_key[i].gtk, gtks->frame_counters.counter[i].gtk, GTK_LEN) == 0) {
 
-                if (curr_frame_counter > entry->gtks.frame_counters.counter[i].frame_counter) {
-                    entry->gtks.frame_counters.counter[i].frame_counter = curr_frame_counter;
+                if (curr_frame_counter > gtks->frame_counters.counter[i].frame_counter) {
+                    gtks->frame_counters.counter[i].frame_counter = curr_frame_counter;
                 }
-                uint32_t frame_counter = entry->gtks.frame_counters.counter[i].frame_counter;
+                uint32_t frame_counter = gtks->frame_counters.counter[i].frame_counter;
 
                 /* If threshold check is disabled or frame counter has advanced for the threshold value, stores the new value.
                    If frame counter is at maximum at storage, do not initiate storing */
                 if (!use_threshold || (
-                            (frame_counter > entry->gtks.frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) &&
-                            !(entry->gtks.frame_counters.counter[i].stored_frame_counter == UINT32_MAX &&
+                            (frame_counter > gtks->frame_counters.counter[i].stored_frame_counter + FRAME_COUNTER_STORE_THRESHOLD) &&
+                            !(gtks->frame_counters.counter[i].stored_frame_counter == UINT32_MAX &&
                               frame_counter >= UINT32_MAX - FRAME_COUNTER_STORE_THRESHOLD))) {
-                    entry->gtks.frame_counters.counter[i].stored_frame_counter = frame_counter;
+                    gtks->frame_counters.counter[i].stored_frame_counter = frame_counter;
                     update_needed = true;
                     tr_debug("Stored updated frame counter: index %i value %"PRIu32"", i, frame_counter);
                 }
             } else {
                 // New or modified network key
-                entry->gtks.frame_counters.counter[i].set = true;
-                memcpy(entry->gtks.frame_counters.counter[i].gtk, entry->gtks.nw_key[i].gtk, GTK_LEN);
-                entry->gtks.frame_counters.counter[i].frame_counter = curr_frame_counter;
-                entry->gtks.frame_counters.counter[i].stored_frame_counter = curr_frame_counter;
+                gtks->frame_counters.counter[i].set = true;
+                memcpy(gtks->frame_counters.counter[i].gtk, gtks->nw_key[i].gtk, GTK_LEN);
+                gtks->frame_counters.counter[i].frame_counter = curr_frame_counter;
+                gtks->frame_counters.counter[i].stored_frame_counter = curr_frame_counter;
                 tr_debug("Pending to store new frame counter: index %i value %"PRIu32"", i, curr_frame_counter);
             }
 
             /* If currently active key is changed or active key is set for the first time,
                stores the frame counter value */
-            if (entry->gtks.gtk_index == i && entry->gtks.frame_counters.active_gtk_index != i) {
-                entry->gtks.frame_counters.active_gtk_index = entry->gtks.gtk_index;
+            if (gtks->gtk_index == i && gtks->frame_counters.active_gtk_index != i) {
+                gtks->frame_counters.active_gtk_index = gtks->gtk_index;
                 update_needed = true;
                 // Updates MAC frame counter for the key
-                entry->nw_frame_counter_set(entry->interface_ptr, entry->gtks.frame_counters.counter[i].frame_counter, i);
-                tr_debug("Stored frame counters, active key set: index %i value %"PRIu32"", i, entry->gtks.frame_counters.counter[i].frame_counter);
+                entry->nw_frame_counter_set(entry->interface_ptr, gtks->frame_counters.counter[i].frame_counter, i + key_offset);
+                tr_debug("Stored frame counters, active key set: index %i value %"PRIu32"", i, gtks->frame_counters.counter[i].frame_counter);
             }
         }
     }
