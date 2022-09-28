@@ -21,6 +21,8 @@
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 #include <netlink/route/addr.h>
+#include <netlink/route/route.h>
+#include <netlink/route/neighbour.h>
 #include <netlink/route/link/inet6.h>
 #include <arpa/inet.h>
 #include "common/log.h"
@@ -84,7 +86,88 @@ int get_global_unicast_addr(char* if_name, uint8_t ip[static 16])
     return -2;
 }
 
-static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8])
+void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, uint8_t address[16])
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    char ipv6_addr_to_str[128] = { };
+    struct rtnl_neigh *nl_neigh;
+    struct rtnl_link *link;
+    struct nl_addr *src_ipv6_nl_addr;
+    struct nl_cache *cache;
+    struct nl_sock *sock;
+    int ifindex;
+
+    if (strlen(ctxt->config.neighbor_proxy) == 0)
+        return;
+
+    inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
+
+    sock = nl_socket_alloc();
+    if (nl_connect(sock, NETLINK_ROUTE))
+        FATAL(2, "nl_connect");
+    if (rtnl_link_get_kernel(sock, 0, ctxt->config.neighbor_proxy, &link)) {
+        ERROR("rtnl_link_get_kernel %s", ctxt->config.neighbor_proxy);
+        return;
+    }
+
+    ifindex = rtnl_link_get_ifindex(link);
+    rtnl_link_put(link);
+    link = rtnl_link_alloc();
+    rtnl_link_set_ifindex(link, ifindex);
+    rtnl_neigh_alloc_cache(sock, &cache);
+    nl_addr_parse(ipv6_addr_to_str, AF_INET6, &src_ipv6_nl_addr);
+    nl_neigh = rtnl_neigh_get(cache, ifindex, src_ipv6_nl_addr);
+
+    if (nl_neigh != NULL)
+        return;
+
+    nl_neigh = rtnl_neigh_alloc();
+    rtnl_neigh_set_ifindex(nl_neigh, ifindex);
+    rtnl_neigh_set_dst(nl_neigh, src_ipv6_nl_addr);
+    rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
+    rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
+    rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
+    rtnl_neigh_put(nl_neigh);
+}
+
+void tun_add_ipv6_direct_route(protocol_interface_info_entry_t *if_entry, uint8_t address[16])
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    char ipv6_addr_to_str[128] = { };
+    struct rtnl_nexthop* nl_nexthop;
+    struct rtnl_route *nl_route;
+    struct rtnl_link *link;
+    struct nl_addr *ipv6_nl_addr;
+    struct nl_sock *sock;
+    int ifindex;
+
+    if (strlen(ctxt->config.neighbor_proxy) == 0)
+        return;
+
+    inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
+
+    sock = nl_socket_alloc();
+    if (nl_connect(sock, NETLINK_ROUTE))
+        FATAL(2, "nl_connect");
+    if (rtnl_link_get_kernel(sock, 0, ctxt->config.tun_dev, &link)){
+        ERROR("rtnl_link_get_kernel %s", ctxt->config.tun_dev);
+        return;
+    }
+    ifindex = rtnl_link_get_ifindex(link);
+    rtnl_link_put(link);
+    link = rtnl_link_alloc();
+    rtnl_link_set_ifindex(link, ifindex);
+    nl_addr_parse(ipv6_addr_to_str, AF_INET6, &ipv6_nl_addr);
+    nl_route = rtnl_route_alloc();
+    rtnl_route_set_iif(nl_route, AF_INET6);
+    rtnl_route_set_dst(nl_route, ipv6_nl_addr);
+    nl_nexthop = rtnl_route_nh_alloc();
+    rtnl_route_nh_set_ifindex(nl_nexthop, ifindex);
+    rtnl_route_add_nexthop(nl_route, nl_nexthop);
+    rtnl_route_add(sock, nl_route, 0);
+}
+
+static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8], bool register_proxy_ndp)
 {
     int err = 0;
     char ipv6_addr_str[128] = { };
@@ -95,7 +178,12 @@ static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_p
     memcpy(ipv6_addr_buf, ipv6_prefix, 8);
     memcpy(ipv6_addr_buf + 8, hw_mac_addr, 8);
     inet_ntop(AF_INET6, ipv6_addr_buf, ipv6_addr_str, INET6_ADDRSTRLEN);
-    strcat(ipv6_addr_str, "/64");
+    if (register_proxy_ndp) {
+        tun_add_node_to_proxy_neightbl(NULL, ipv6_addr_buf);
+        strcat(ipv6_addr_str, "/128");
+    } else {
+        strcat(ipv6_addr_str, "/64");
+    }
     err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr);
     if (err < 0)
         FATAL(2, "nl_addr_parse %s: %s", ipv6_addr_str, nl_geterror(err));
@@ -112,7 +200,7 @@ static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_p
     rtnl_addr_put(ipv6_addr);
 }
 
-static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf)
+static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t ipv6_prefix[static 16], bool tun_autoconf, bool register_proxy_ndp)
 {
     struct rtnl_link *link;
     struct nl_sock *sock;
@@ -167,8 +255,8 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     }
     // Addresses must be set after set_addr_gen_mode() and before IFF_UP.
     if (tun_autoconf) {
-        tun_addr_add(sock, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac);
-        tun_addr_add(sock, ifindex, ipv6_prefix, hw_mac_slaac);
+        tun_addr_add(sock, ifindex, ADDR_LINK_LOCAL_PREFIX, hw_mac_slaac, false);
+        tun_addr_add(sock, ifindex, ipv6_prefix, hw_mac_slaac, register_proxy_ndp);
     }
     if (!is_user_configured) {
         rtnl_link_set_operstate(link, IF_OPER_UP);
@@ -214,7 +302,9 @@ static void wsbr_tun_accept_ra(char *devname)
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac, ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf);
+    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac,
+                                 ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf,
+                                 strlen(ctxt->config.neighbor_proxy));
     wsbr_tun_accept_ra(ctxt->config.tun_dev);
 }
 
