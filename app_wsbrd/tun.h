@@ -13,6 +13,7 @@
 #ifndef TUN_H
 #define TUN_H
 #include <stdint.h>
+#include <sys/types.h>
 
 struct wsbr_ctxt;
 
