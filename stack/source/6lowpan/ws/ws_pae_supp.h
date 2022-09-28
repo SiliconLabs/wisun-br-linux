@@ -165,7 +165,7 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks);
+int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 
 /**
  * ws_pae_supp_eapol_target_remove remove EAPOL target set using authentication start

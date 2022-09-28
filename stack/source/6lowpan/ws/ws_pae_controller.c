@@ -187,7 +187,7 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
         if (sec_prot_keys_gtks_are_updated(&controller->gtks.gtks)) {
             ws_pae_controller_nw_key_check_and_insert(controller->interface_ptr, &controller->gtks.gtks, false, false);
             sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
-            ws_pae_supp_gtks_set(controller->interface_ptr, &controller->gtks.gtks);
+            ws_pae_supp_gtks_set(controller->interface_ptr, &controller->gtks.gtks, false);
         }
         controller->auth_completed(interface_ptr, AUTH_RESULT_OK, NULL);
         return 0;
