@@ -146,12 +146,16 @@ static void ws_pae_controller_data_init(pae_controller_t *controller);
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller);
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
-static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks);
+static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
+                                             sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
                                                   uint64_t stored_time, uint8_t time_changed);
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed);
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
+                                                 uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
+                                                 sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
+                                                 uint64_t current_time, uint8_t *time_changed);
 
 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
@@ -927,13 +931,18 @@ static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_
     memset(&frame_counters->counter[index], 0, sizeof(frame_counters->counter[index]));
 }
 
-static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_prot_gtk_keys_t *gtks)
+static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
+                                             sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
     uint8_t nvm_gtk_eui64[8];
     uint64_t system_time = ws_pae_current_time_get();
 
     uint8_t system_time_changed = controller->sec_keys_nw_info.system_time_changed;
-    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr, &controller->sec_keys_nw_info.key_pan_id, controller->sec_keys_nw_info.network_name, nvm_gtk_eui64, gtks, system_time, &controller->sec_keys_nw_info.system_time_changed) < 0) {
+    if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr,
+                                           &controller->sec_keys_nw_info.key_pan_id,
+                                           controller->sec_keys_nw_info.network_name,
+                                           nvm_gtk_eui64, gtks, lgtks, system_time,
+                                           &controller->sec_keys_nw_info.system_time_changed) < 0) {
         // If no stored GTKs and network info (pan_id and network name) exits
         return -1;
     }
@@ -952,6 +961,7 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller, sec_p
     if (memcmp(nvm_gtk_eui64, gtk_eui64, 8) != 0) {
         tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", trace_array(gtk_eui64, 8), trace_array(nvm_gtk_eui64, 8));
         sec_prot_keys_gtks_clear(gtks);
+        sec_prot_keys_gtks_clear(lgtks);
     }
 
     // Sets also new pan_id used for pan_id set by bootstrap
@@ -977,7 +987,10 @@ static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr, uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed)
+static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
+                                                 uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
+                                                 sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
+                                                 uint64_t current_time, uint8_t *time_changed)
 {
     nw_info_nvm_tlv_t *tlv_entry = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
     if (!tlv_entry) {
@@ -990,7 +1003,7 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
         return -1;
     }
 
-    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks, current_time, time_changed) < 0) {
+    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks, lgtks, current_time, time_changed) < 0) {
         return -1;
     }
 
@@ -1027,10 +1040,12 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
                             ws_pae_controller_nw_info_updated_check);
 
     ws_pae_controller_frame_counter_read(controller);
-    ws_pae_controller_nw_info_read(controller, controller->sec_keys_nw_info.gtks);
+    ws_pae_controller_nw_info_read(controller, controller->sec_keys_nw_info.gtks, controller->sec_keys_nw_info.lgtks);
     // Set active key back to fresh so that it can be used again after re-start
     sec_prot_keys_gtk_status_active_to_fresh_set(&controller->gtks.gtks);
+    sec_prot_keys_gtk_status_active_to_fresh_set(&controller->lgtks.gtks);
     sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
+    sec_prot_keys_gtks_updated_reset(&controller->lgtks.gtks);
 
     return 0;
 }
@@ -1080,7 +1095,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         }
         sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
     }
-    if (read_gtks_to && ws_pae_controller_nw_info_read(controller, read_gtks_to) >= 0) {
+    if (read_gtks_to && ws_pae_controller_nw_info_read(controller, read_gtks_to, NULL) >= 0) {
         /* If network information i.e pan_id and network name exists updates bootstrap with it,
            (in case already configured by application then no changes are made) */
         if (controller->nw_info_updated) {

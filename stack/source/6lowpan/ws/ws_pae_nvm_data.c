@@ -145,6 +145,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry,
                                          char *nw_name,
                                          uint8_t *gtk_eui64,
                                          sec_prot_gtk_keys_t *gtks,
+                                         sec_prot_gtk_keys_t *lgtks,
                                          uint64_t current_time,
                                          uint8_t *time_changed)
 {
@@ -189,6 +190,7 @@ int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry,
 
     tr_info("NVM NW_INFO current time: %"PRIi64" stored time: %"PRIi64, current_time, stored_time);
     tlv = ws_pae_nvm_store_gtk_tlv_read(tlv, gtks, current_time);
+    tlv = ws_pae_nvm_store_gtk_tlv_read(tlv, lgtks, current_time);
     tr_info("NVM NW_INFO read PAN ID %i name: %s", *pan_id, nw_name);
 
     return 0;

@@ -130,7 +130,13 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry,
  * \return >= 0 success
  *
  */
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry, uint16_t *pan_id, char *nw_name, uint8_t *gtk_eui64, sec_prot_gtk_keys_t *gtks, uint64_t current_time, uint8_t *time_changed);
+int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry,
+                                         uint16_t *pan_id, char *nw_name,
+                                         uint8_t *gtk_eui64,
+                                         sec_prot_gtk_keys_t *gtks,
+                                         sec_prot_gtk_keys_t *lgtks,
+                                         uint64_t current_time,
+                                         uint8_t *time_changed);
 
 /**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV
