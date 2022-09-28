@@ -671,6 +671,7 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
     /* Stores frame counters if incremented by threshold and removes network keys from PAE
        controller and MAC */
     ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, false);
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, true);
 }
 
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
@@ -864,6 +865,7 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->restart_cnt = 0;
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
+    ws_pae_controller_frame_counter_reset(&controller->lgtks.frame_counters);
     sec_prot_keys_gtks_init(&controller->gtks.gtks);
     sec_prot_keys_gtks_init(&controller->lgtks.gtks);
     sec_prot_keys_gtks_init(&controller->gtks.next_gtks);
@@ -1134,6 +1136,7 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
 
     // Stores frame counters and removes network keys from PAE controller and MAC
     ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, false);
+    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, false, true);
 
     // Store security key network info if it has been modified
     ws_pae_controller_nw_info_updated_check(interface_ptr);
@@ -1908,6 +1911,7 @@ static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controll
     } else {
         entry->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
         ws_pae_controller_frame_counter_store(entry, true, false);
+        ws_pae_controller_frame_counter_store(entry, true, true);
     }
 
     if (entry->frame_cnt_store_force_timer > seconds) {
@@ -1915,6 +1919,7 @@ static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controll
     } else {
         entry->frame_cnt_store_force_timer = 0;
         ws_pae_controller_frame_counter_store(entry, true, false);
+        ws_pae_controller_frame_counter_store(entry, true, true);
     }
 }
 
@@ -1988,7 +1993,9 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
         tr_debug("Write frame counters: system time %"PRIu32"", g_monotonic_time_100ms / 10);
         uint64_t system_time = ws_pae_current_time_get();
         // Writes modified frame counters
-        ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt, entry->sec_keys_nw_info.pan_version, &entry->gtks.frame_counters, system_time);
+        ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt,
+                                                  entry->sec_keys_nw_info.pan_version, entry->sec_keys_nw_info.lpan_version,
+                                                  &entry->gtks.frame_counters, &entry->lgtks.frame_counters, system_time);
         ws_pae_controller_nvm_frame_counter_write((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer);
 
         // Reset force interval when ever values are stored

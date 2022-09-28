@@ -30,7 +30,7 @@
 // file names
 #define NW_INFO_FILE_NAME               "pae_nw_info_1.1"
 #define KEYS_FILE_NAME                  "pae_keys"
-#define FRAME_COUNTER_FILE_NAME         "pae_frame_counter"
+#define FRAME_COUNTER_FILE_NAME         "pae_frame_counter_1.1"
 
 #define PAE_NVM_NW_INFO_TAG              1
 #define PAE_NVM_KEYS_TAG                 2
@@ -45,7 +45,7 @@
 #define PAE_NVM_KEYS_LEN                 1 + 8 + 1 + 4 + PMK_LEN + 8 + 1 + 4 + PTK_LEN
 
 // restart counter + stored time + pan version + (frame counter set (1) + GTK (16) + frame counter (4) + max frame counter change (4)) * 4
-#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + 2 + (1 + GTK_LEN + 4 + 4) * GTK_NUM
+#define PAE_NVM_FRAME_COUNTER_LEN        4 + 8 + 2 + (1 + GTK_LEN + 4 + 4) * GTK_NUM * 2
 
 #if (PAE_NVM_NW_INFO_LEN >= PAE_NVM_KEYS_LEN) && (PAE_NVM_NW_INFO_LEN >= PAE_NVM_FRAME_COUNTER_LEN)
 #define PAE_NVM_LARGEST_FILE             PAE_NVM_NW_INFO_LEN
@@ -169,7 +169,13 @@ int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t
  * \param stored_time stored timestampt
  *
  */
-void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry, uint32_t restart_cnt, uint16_t pan_version, frame_counters_t *counters, uint64_t stored_time);
+void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
+                                               uint32_t restart_cnt,
+                                               uint16_t pan_version,
+                                               uint16_t lpan_version,
+                                               frame_counters_t *gtk_counters,
+                                               frame_counters_t *lgtk_counters,
+                                               uint64_t stored_time);
 
 /**
  * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
