@@ -2509,9 +2509,14 @@ static void ws_bootstrap_nw_key_clear(protocol_interface_info_entry_t *cur, uint
 
 static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, uint8_t index)
 {
+    if (index >= GTK_NUM)
+        /* FIXME: update the advertised key the LPAN Configs */
+        return;
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (cur->mac_parameters.mac_default_key_index != 0 && cur->mac_parameters.mac_default_key_index  != index + 1) {
+        if (cur->mac_parameters.mac_default_key_index != 0 &&
+            cur->mac_parameters.mac_default_key_index != index + 1) {
+            /* Update the active key in the PAN Configs */
             tr_info("New Pending key Request %u", index + 1);
             cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
             cur->ws_info->pending_key_index_info.index = index;
@@ -2519,7 +2524,8 @@ static void ws_bootstrap_nw_key_index_set(protocol_interface_info_entry_t *cur, 
         }
     }
 
-    /* Deprecated: Unused by the RCP. */
+    /* Update the default key to use */
+    /* Deprecated: Unused by the EFR. */
     mac_helper_security_auto_request_key_index_set(cur, index, index + 1);
 }
 

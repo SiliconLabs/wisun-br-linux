@@ -692,30 +692,36 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_in
 static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    pae_controller_gtk_t *gtks;
+    int key_offset;
     if (!controller) {
         return;
     }
     if (is_lgtk) {
-        tr_warn("LGTK are still not yet supported");
-        return;
+        gtks = &controller->lgtks;
+        key_offset = GTK_NUM;
+    } else {
+        gtks = &controller->gtks;
+        key_offset = 0;
     }
 
     if (controller->nw_send_key_index_set) {
-        controller->gtks.gtk_index = index;
+        gtks->gtk_index = index;
         /* Checks if frame counters needs to be stored for the new GTK that is taken into
            use; this is the last check that stored counters are in sync before activating key */
-        ws_pae_controller_frame_counter_store(controller, true, false);
-        tr_info("NW send key index set: %i", index + 1);
-        controller->nw_send_key_index_set(interface_ptr, index);
+        ws_pae_controller_frame_counter_store(controller, true, is_lgtk);
+        tr_info("NW send key index set: %i", index + key_offset + 1);
+        controller->nw_send_key_index_set(interface_ptr, index + key_offset);
     }
 
     // Do not update PAN version for initial key index set
-    if (controller->gtks.key_index_set) {
-        if (controller->pan_ver_increment) {
+    if (gtks->key_index_set) {
+        if (!is_lgtk && controller->pan_ver_increment)
             controller->pan_ver_increment(interface_ptr);
-        }
+        if (is_lgtk && controller->lpan_ver_increment)
+            controller->lpan_ver_increment(interface_ptr);
     } else {
-        controller->gtks.key_index_set = true;
+        gtks->key_index_set = true;
     }
 }
 #endif
