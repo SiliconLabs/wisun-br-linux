@@ -373,9 +373,7 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     memcpy(buffer_to_6lowpan->dst_sa.address, buf + 24, 16);
 
     if (addr_is_ipv6_multicast(buffer_to_6lowpan->dst_sa.address)) {
-        // silently discard if is ff01::* or ff02::*
-        if (!memcmp(buffer_to_6lowpan->dst_sa.address, ADDR_IF_LOCAL_ALL_NODES, 2) ||
-            !memcmp(buffer_to_6lowpan->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 2) ) {
+        if(!addr_am_group_member_on_interface(cur, buffer_to_6lowpan->dst_sa.address)) {
             buffer_free(buffer_to_6lowpan);
             return;
         }
