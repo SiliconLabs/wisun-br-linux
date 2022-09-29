@@ -194,7 +194,6 @@ static void ws_bootstrap_ffn_start_discovery(struct net_if *cur)
         // we have sent bootstrap ready event and now
         // restarted discovery so bootstrap down event is sent
         cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
-        ws_bootstrap_network_down(cur);
     }
 
     // Start advertisement solicit trickle and calculate when we are checking the status

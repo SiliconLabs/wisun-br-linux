@@ -145,8 +145,6 @@ void ws_bootstrap_event_disconnect(struct net_if *cur, ws_bootstrap_event_type_e
 
 void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_procedure_e procedure);
 
-void ws_bootstrap_network_down(struct net_if *cur);
-
 // Bootstrap state machine state Functions
 bool ws_bootstrap_state_discovery(struct net_if *cur);
 bool ws_bootstrap_state_authenticate(struct net_if *cur);

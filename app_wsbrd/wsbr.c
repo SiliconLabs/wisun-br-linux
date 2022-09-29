@@ -297,19 +297,6 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_tasklet(struct arm_event *event)
 {
-    const char *const nwk_events[] = {
-        "ARM_NWK_BOOTSTRAP_READY",
-        "ARM_NWK_RPL_INSTANCE_FLOODING_READY",
-        "ARM_NWK_SET_DOWN_COMPLETE",
-        "ARM_NWK_NWK_SCAN_FAIL",
-        "ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL",
-        "ARM_NWK_DUPLICATE_ADDRESS_DETECTED",
-        "ARM_NWK_AUHTENTICATION_START_FAIL",
-        "ARM_NWK_AUHTENTICATION_FAIL",
-        "ARM_NWK_NWK_CONNECTION_DOWN",
-        "ARM_NWK_NWK_PARENT_POLL_FAIL",
-        "ARM_NWK_PHY_CONNECTION_DOWN"
-    };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t ipv6[16];
     int ret;
@@ -341,13 +328,6 @@ static void wsbr_tasklet(struct arm_event *event)
                     WARN("ws_bbr_radius_address_set");
             // Artificially add wsbrd to the DHCP lease list
             wsbr_dhcp_lease_update(ctxt, ctxt->hw_mac, ipv6);
-            break;
-        case ARM_LIB_NWK_INTERFACE_EVENT:
-            if (event->event_id == ctxt->rcp_if_id) {
-                DEBUG("get event for ws interface: %s", nwk_events[event->event_data]);
-            } else {
-                WARN("received unknown network event: %d", event->event_id);
-            }
             break;
         default:
             WARN("received unknown event: %d", event->event_type);

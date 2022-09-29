@@ -263,22 +263,6 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
     return 0;
 }
 
-static void ws_nwk_event_post(struct net_if *cur, arm_nwk_interface_status_type_e posted_event)
-{
-    arm_event_t event = {
-        .receiver = cur->net_start_tasklet,
-        .sender = protocol_read_tasklet_id(), /**< Event sender Tasklet ID */
-        .event_type = ARM_LIB_NWK_INTERFACE_EVENT,
-        .event_data = posted_event,
-        .event_id = (int8_t) cur->id,
-        .data_ptr = NULL,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-    };
-    if (eventOS_event_send(&event) != 0) {
-        tr_error("nwk_net_event_post(): event send failed");
-    }
-}
-
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
 {
     arm_event_t event = {
@@ -2127,7 +2111,6 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
         if (ws_bootstrap_state_active(cur)) {
             tr_info("Move state 4 to wait parent connection confirmation");
             ws_bootstrap_rpl_scan_start(cur);
-            ws_bootstrap_network_down(cur);
         }
     } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
         ws_address_parent_update(cur);
@@ -2937,11 +2920,6 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 {
     cur->bootstrap_state_machine_cnt = 1;
     cur->nwk_bootstrap_state = nwk_bootstrap_state;
-}
-
-void ws_bootstrap_network_down(struct net_if *cur)
-{
-    ws_nwk_event_post(cur, ARM_NWK_NWK_CONNECTION_DOWN);
 }
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)

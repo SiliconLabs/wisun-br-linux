@@ -45,9 +45,6 @@ typedef enum arm_nwk_interface_status_type_e {
 /** Event library type. */
 typedef enum arm_library_event_type_e {
     ARM_LIB_TASKLET_INIT_EVENT = 0, /**< Tasklet init occurs always when generating a tasklet. */
-    ARM_LIB_NWK_INTERFACE_EVENT,    /**< Interface bootstrap or state update event. */
-    ARM_LIB_SYSTEM_TIMER_EVENT, /*!*< System timer event. */
-    APPLICATION_EVENT, /**< Application-specific event. */
 } arm_library_event_type_e;
 
 

@@ -88,8 +88,6 @@ static void protocol_buffer_poll(buffer_t *b);
 
 static int8_t net_interface_get_free_id(void);
 
-static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int8_t net_tasklet, int8_t nwk_id);
-
 int8_t protocol_read_tasklet_id(void)
 {
     return protocol_root_tasklet_ID;
@@ -594,28 +592,11 @@ error:
     socket_tx_buffer_event_and_free(b, SOCKET_TX_FAIL);
 }
 
-static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int8_t net_tasklet, int8_t nwk_id)
-{
-    arm_event_t event = {
-        .receiver = net_tasklet,
-        .sender = protocol_read_tasklet_id(), /**< Event sender Tasklet ID */
-        .event_type = ARM_LIB_NWK_INTERFACE_EVENT,
-        .event_data = posted_event,
-        .event_id = (int8_t) nwk_id,
-        .data_ptr = NULL,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-    };
-    if (eventOS_event_send(&event) != 0) {
-        tr_error("nwk_net_event_post(): event send failed");
-    }
-}
-
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur)
 {
     //Clear Bootstrap Active Bit always
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->bootstrap_state_machine_cnt = 0;
-    nwk_net_event_post(posted_event, cur->net_start_tasklet, cur->id);
 
     if (posted_event == ARM_NWK_BOOTSTRAP_READY) {
 
