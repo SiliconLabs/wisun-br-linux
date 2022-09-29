@@ -568,7 +568,6 @@ int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address)
         return -5;
     }
 
-    cur->net_start_tasklet = eventOS_scheduler_get_active_tasklet();
     ret_val = cur->if_up(cur, ipv6_address);
 
 

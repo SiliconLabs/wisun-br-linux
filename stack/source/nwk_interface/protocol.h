@@ -218,7 +218,6 @@ struct net_if {
     int8_t id;
     int8_t bootStrapId;
     uint8_t zone_index[16];
-    int8_t net_start_tasklet;
     const char *interface_name;
     ns_list_link_t link;
     arm_nwk_bootstrap_mode_e bootstrap_mode;
