@@ -212,6 +212,14 @@ static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *re
     return 0;
 }
 
+void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
+{
+    sd_bus_emit_properties_changed(ctxt->dbus,
+                       "/com/silabs/Wisun/BorderRouter",
+                       "com.silabs.Wisun.BorderRouter",
+                       "Nodes", NULL);
+}
+
 static int route_info_compare(const void *obj_a, const void *obj_b)
 {
     const bbr_route_info_t *a = obj_a, *b = obj_b;
@@ -423,7 +431,7 @@ static const sd_bus_vtable dbus_vtable[] = {
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
-                        0),
+                        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, hw_mac),
                         0),

@@ -81,6 +81,8 @@
 #include <stdlib.h>
 #include "common/bits.h"
 #include "common/rand.h"
+#include "app_wsbrd/dbus.h"
+#include "app_wsbrd/wsbr.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
@@ -1478,6 +1480,8 @@ void rpl_downward_paths_invalidate(rpl_instance_t *instance)
 {
     instance->root_paths_valid = false;
     rpl_data_sr_invalidate();
+    // FIXME: do not include app_wsbrd
+    dbus_emit_nodes_change(&g_ctxt);
 }
 #endif // HAVE_RPL_ROOT
 
