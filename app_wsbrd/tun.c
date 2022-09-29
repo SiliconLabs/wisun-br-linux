@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <net/if.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
 #include <netlink/netlink.h>
@@ -306,6 +307,16 @@ static void wbsr_dev_enable_option(char *devname, char *option, char wanted_valu
             FATAL(2, "write %s: %m", buf);
         close(fd);
     }
+}
+
+void wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
+{
+    struct ipv6_mreq mreq;
+
+    mreq.ipv6mr_interface = if_nametoindex(if_name);
+    memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
+    if (setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq)) < 0)
+        WARN("ipv6 join group %s: %m", tr_ipv6(mcast_group));
 }
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
