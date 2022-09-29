@@ -295,44 +295,34 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
         tr_ipv6(addr_ws0), tr_ipv6(addr_tun), ctxt->config.tun_dev);
 }
 
-static void wsbr_tasklet(struct arm_event *event)
+static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
-    struct wsbr_ctxt *ctxt = &g_ctxt;
     uint8_t ipv6[16];
     int ret;
 
-    switch (event->event_type) {
-        case ARM_LIB_TASKLET_INIT_EVENT:
-            // The tasklet that call arm_nwk_interface_configure_*_bootstrap_set()
-            // will be used to receive ARM_LIB_NWK_INTERFACE_EVENT.
-            ret = arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
-                                                                  NET_6LOWPAN_BORDER_ROUTER,
-                                                                  NET_6LOWPAN_WS);
-            WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
-            wsbr_configure_ws(ctxt);
-            tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
-            if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
-                FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
-            if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
-                WARN("arm_nwk_interface_up RCP");
-            wsbr_check_link_local_addr(ctxt);
-            if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
-                WARN("ws_bbr_start");
-            if (ctxt->config.internal_dhcp)
-                dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->hw_mac, ipv6);
-            if (strlen(ctxt->config.radius_secret) != 0)
-                if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
-                    WARN("ws_bbr_radius_shared_secret_set");
-            if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
-                if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
-                    WARN("ws_bbr_radius_address_set");
-            // Artificially add wsbrd to the DHCP lease list
-            wsbr_dhcp_lease_update(ctxt, ctxt->hw_mac, ipv6);
-            break;
-        default:
-            WARN("received unknown event: %d", event->event_type);
-            break;
-    }
+    ret = arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
+                                                          NET_6LOWPAN_BORDER_ROUTER,
+                                                          NET_6LOWPAN_WS);
+    WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
+    wsbr_configure_ws(ctxt);
+    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
+    if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
+        FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
+    if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
+        WARN("arm_nwk_interface_up RCP");
+    wsbr_check_link_local_addr(ctxt);
+    if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
+        WARN("ws_bbr_start");
+    if (ctxt->config.internal_dhcp)
+        dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->hw_mac, ipv6);
+    if (strlen(ctxt->config.radius_secret) != 0)
+        if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
+            WARN("ws_bbr_radius_shared_secret_set");
+    if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
+        if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
+            WARN("ws_bbr_radius_address_set");
+    // Artificially add wsbrd to the DHCP lease list
+    wsbr_dhcp_lease_update(ctxt, ctxt->hw_mac, ipv6);
 }
 
 static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
@@ -557,8 +547,7 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
-    if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
-        BUG("eventOS_event_handler_create");
+    wsbr_network_init(ctxt);
     eventOS_scheduler_run_until_idle();
 
     dbus_register(ctxt);
