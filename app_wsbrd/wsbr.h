@@ -45,6 +45,7 @@ struct wsbr_ctxt {
 
     int  tun_if_id;
     int  tun_fd;
+    int  sock_mcast;
 
     uint32_t rcp_init_state;
     uint8_t hw_mac[8];

@@ -309,6 +309,16 @@ static void wbsr_dev_enable_option(char *devname, char *option, char wanted_valu
     }
 }
 
+static void wsbr_tun_mcast_init(int * sock_ptr, const char * if_name)
+{
+    *sock_ptr = socket(AF_INET6, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+    // ff02::1 and ff02::2 are automatically joined by Linux when the interface is brought up
+    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_LINK_LOCAL_ALL_RPL_NODES);   // ff02::1a
+    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_REALM_LOCAL_ALL_NODES);      // ff03::1
+    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_REALM_LOCAL_ALL_ROUTERS);    // ff03::2
+    wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_ALL_MPL_FORWARDERS);         // ff03::fc
+}
+
 void wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
 {
     struct ipv6_mreq mreq;
@@ -329,6 +339,7 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
     wbsr_dev_enable_option(ctxt->config.tun_dev, "accept_ra", '0');
     if (strlen(ctxt->config.neighbor_proxy))
         wbsr_dev_enable_option(ctxt->config.neighbor_proxy, "proxy_ndp", '1');
+    wsbr_tun_mcast_init(&ctxt->sock_mcast, ctxt->config.tun_dev);
 }
 
 static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
