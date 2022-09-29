@@ -704,8 +704,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
             WARN("ignore certificates and key since an external radius server is in use");
     }
 #ifdef HAVE_WS_BORDER_ROUTER
-    if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-        FATAL(1, "You must specify a ipv6_prefix");
+    if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && config->tun_autoconf)
+        FATAL(1, "missing \"ipv6_prefix\" parameter");
+    if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && !config->tun_autoconf)
+        FATAL(1, "\"ipv6_prefix\" is only available when \"tun_autoconf\" is set");
 #else
     if (!config->uart_dev[0])
         FATAL(1, "missing \"uart_device\" parameter");
