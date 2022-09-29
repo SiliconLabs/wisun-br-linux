@@ -140,6 +140,7 @@ extern const uint8_t ADDR_REALM_LOCAL_ALL_ROUTERS[16];              // ff03::2
 extern const uint8_t ADDR_SITE_LOCAL_ALL_ROUTERS[16];               // ff05::2
 extern const uint8_t ADDR_ALL_MPL_FORWARDERS[16];                   // ff03::fc
 extern const uint8_t ADDR_ALL_DHCP_RELAY_AGENTS_AND_SERVERS[16];    // ff02::1:2
+extern const uint8_t ADDR_LINK_LOCAL_ALL_RPL_NODES[16];             // ff02::1a
 extern const uint8_t ADDR_LOOPBACK[16];                             // ::1
 extern const uint8_t ADDR_UNSPECIFIED[16];                          // ::
 extern const uint8_t ADDR_6TO4[16];                                 // 2002::

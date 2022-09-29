@@ -82,6 +82,4 @@
 
 #define RPL_RANK_INFINITE       0xffff
 
-extern const uint8_t ADDR_LINK_LOCAL_ALL_RPL_NODES[16];
-
 #endif
