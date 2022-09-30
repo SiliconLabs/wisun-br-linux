@@ -438,6 +438,10 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
                 cur->ws_info->pan_information.pan_version = rand_get_random_in_range(0, 0xffff);
                 cur->ws_info->pan_information.pan_version_set = true;
             }
+            if (!cur->ws_info->pan_information.lpan_version_set) {
+                cur->ws_info->pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
+                cur->ws_info->pan_information.lpan_version_set = true;
+            }
             cur->ws_info->pan_information.pan_size = 0;
             cur->ws_info->pan_information.routing_cost = 0;
             cur->ws_info->pan_information.rpl_routing_method = true;

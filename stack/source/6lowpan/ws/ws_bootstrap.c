@@ -2869,6 +2869,7 @@ int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_in
     cur->ws_info->pan_information.routing_cost = parent_ptr->pan_information.routing_cost;
     cur->ws_info->pan_information.use_parent_bs = parent_ptr->pan_information.use_parent_bs;
     cur->ws_info->pan_information.pan_version = 0; // This is learned from actual configuration
+    cur->ws_info->pan_information.lpan_version = 0; // This is learned from actual configuration
 
     // If PAN ID changes, clear learned neighbors and activate FHSS
     if (pan_id != cur->ws_info->network_pan_id) {
