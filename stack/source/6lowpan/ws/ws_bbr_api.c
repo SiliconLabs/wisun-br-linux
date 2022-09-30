@@ -756,7 +756,10 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
     ws_bootstrap_configuration_trickle_reset(cur);
 
     // Indicate new pan version to PAE controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
+    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
+                                  cur->ws_info->pan_information.pan_version,
+                                  cur->ws_info->pan_information.lpan_version,
+                                  cur->ws_info->cfg->gen.network_name);
 }
 
 void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)

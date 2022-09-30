@@ -2134,7 +2134,10 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
             // Set both own port and border router port to 10253
             ws_eapol_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, dodag_info.dodag_id, EAPOL_RELAY_SOCKET_PORT);
             // Set network information to PAE
-            ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id, cur->ws_info->pan_information.pan_version, cur->ws_info->cfg->gen.network_name);
+            ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
+                                          cur->ws_info->pan_information.pan_version,
+                                          cur->ws_info->pan_information.lpan_version,
+                                          cur->ws_info->cfg->gen.network_name);
             // Network key is valid, indicate border router IID to controller
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
             //Update here Suplikant target by validated Primary Parent

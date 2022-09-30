@@ -343,7 +343,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     sec_keys_nw_info->updated = false;
 }
 
-int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name)
+int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
 {
     (void) pan_id;
     (void) network_name;
@@ -375,6 +375,7 @@ int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_
 
     // Store pan version
     controller->sec_keys_nw_info.pan_version = pan_version;
+    controller->sec_keys_nw_info.lpan_version = lpan_version;
 
     if (controller->pae_nw_info_set) {
         controller->pae_nw_info_set(interface_ptr, pan_id, network_name, updated);

@@ -341,7 +341,7 @@ int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, struct bbr_
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, char *network_name);
+int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 
 /**
  * ws_pae_controller_nw_key_valid network key is valid i.e. used successfully on bootstrap
