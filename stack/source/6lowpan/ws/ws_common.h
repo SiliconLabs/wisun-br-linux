@@ -130,7 +130,6 @@ typedef struct ws_info {
     ws_nud_table_list_t active_nud_process;
     ws_nud_table_list_t free_nud_entries;
     ws_test_proc_trg_t test_proc_trg;
-    unsigned active_key_index;
     struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information pan_information;
     ws_hopping_schedule_t hopping_schedule;

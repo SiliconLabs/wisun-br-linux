@@ -513,6 +513,8 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *i
  */
 gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
 
+int8_t ws_pae_controller_lgtk_active_index_get(protocol_interface_info_entry_t *interface_ptr);
+
 /**
  * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
  *

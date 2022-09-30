@@ -2097,7 +2097,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
             }
 
             if (request->wp_requested_nested_ie_list.lgtkhash_ie) {
-                ptr = ws_wp_nested_lgtkhash_write(ptr, base->ie_params.lgtkhash, base->interface_ptr->ws_info->active_key_index);
+                ptr = ws_wp_nested_lgtkhash_write(ptr, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));
             }
 
             if (request->wp_requested_nested_ie_list.lbats_ie) {

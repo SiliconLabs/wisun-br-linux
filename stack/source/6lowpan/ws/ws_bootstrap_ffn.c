@@ -433,9 +433,8 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
     cur->ws_info->pan_information.lpan_version_set = true;
 
     //Set Active key index and hash inline bits
-    cur->ws_info->active_key_index = active_lgtk_index;
-
     ws_pae_controller_lgtk_hash_update(cur, lgtkhash);
+    ws_pae_controller_nw_key_index_update(cur, active_lgtk_index + GTK_NUM);
     //TODO Analyze HASH's and set LFN group key index
 }
 

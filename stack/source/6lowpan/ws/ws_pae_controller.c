@@ -668,9 +668,11 @@ int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *in
         return -1;
     }
 
-    BUG_ON(index > GTK_NUM);
     if (controller->pae_nw_key_index_update) {
-        controller->pae_nw_key_index_update(interface_ptr, index, false);
+        if (index > GTK_NUM)
+            controller->pae_nw_key_index_update(interface_ptr, index - GTK_NUM, true);
+        else
+            controller->pae_nw_key_index_update(interface_ptr, index, false);
     }
 
     return 0;
@@ -1767,6 +1769,7 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
         return -1;
     }
 
+    BUG_ON(index >= GTK_NUM);
     controller->gtks.gtk_index = index;
 
     if (controller->pae_nw_key_index_update) {
@@ -1890,6 +1893,16 @@ gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *
     }
 
     return controller->lgtks.gtkhash;
+}
+
+int8_t ws_pae_controller_lgtk_active_index_get(protocol_interface_info_entry_t *interface_ptr)
+{
+    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
+    if (!controller) {
+        return 0;
+    }
+
+    return controller->lgtks.gtk_index;
 }
 
 int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
