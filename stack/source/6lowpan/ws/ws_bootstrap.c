@@ -100,6 +100,7 @@ static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_
 static const uint8_t *ws_bootstrap_authentication_next_target(protocol_interface_info_entry_t *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
 static bool ws_bootstrap_eapol_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *cur);
+static void ws_bootstrap_lpan_version_increment(protocol_interface_info_entry_t *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(protocol_interface_info_entry_t *cur, void *neighbor);
 static void ws_nud_entry_remove(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
@@ -1734,6 +1735,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
                                       ws_bootstrap_nw_frame_counter_set,
                                       ws_bootstrap_nw_frame_counter_read,
                                       ws_bootstrap_pan_version_increment,
+                                      ws_bootstrap_lpan_version_increment,
                                       ws_bootstrap_nw_info_updated,
                                       ws_bootstrap_eapol_congestion_get) < 0) {
         ret_val =  -4;
@@ -2489,6 +2491,12 @@ static void ws_bootstrap_pan_version_increment(protocol_interface_info_entry_t *
 {
     (void)cur;
     ws_bbr_pan_version_increase(cur);
+}
+
+static void ws_bootstrap_lpan_version_increment(protocol_interface_info_entry_t *cur)
+{
+    (void)cur;
+    ws_bbr_lpan_version_increase(cur);
 }
 
 static void ws_bootstrap_mac_security_enable(protocol_interface_info_entry_t *cur)

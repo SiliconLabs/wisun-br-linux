@@ -762,6 +762,23 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
                                   cur->ws_info->cfg->gen.network_name);
 }
 
+void ws_bbr_lpan_version_increase(protocol_interface_info_entry_t *cur)
+{
+    if (!cur) {
+        return;
+    }
+    tr_debug("Border router LFN version number update");
+    cur->ws_info->pan_information.lpan_version++;
+    // Inconsistent for border router to make information distribute faster
+    ws_bootstrap_configuration_trickle_reset(cur);
+
+    // Indicate new pan version to PAE controller
+    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
+                                  cur->ws_info->pan_information.pan_version,
+                                  cur->ws_info->pan_information.lpan_version,
+                                  cur->ws_info->cfg->gen.network_name);
+}
+
 void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
 {
     (void)seconds;
@@ -983,6 +1000,7 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
         // Already active needs to restart
         ws_bbr_routing_stop(cur);
         ws_bbr_pan_version_increase(cur);
+        ws_bbr_lpan_version_increase(cur);
     }
     return 0;
 #else

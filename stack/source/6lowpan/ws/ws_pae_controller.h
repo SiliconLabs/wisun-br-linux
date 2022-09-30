@@ -685,6 +685,7 @@ int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_
                                      ws_pae_controller_nw_frame_counter_set *nw_frame_counter_set,
                                      ws_pae_controller_nw_frame_counter_read *nw_frame_counter_read,
                                      ws_pae_controller_pan_ver_increment *pan_ver_increment,
+                                     ws_pae_controller_pan_ver_increment *lpan_ver_increment,
                                      ws_pae_controller_nw_info_updated *nw_info_updated,
                                      ws_pae_controller_congestion_get *congestion_get);
 

@@ -462,6 +462,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             ws_llc_set_gtkhash(cur, gtkhash);
             ws_llc_set_lgtkhash(cur, lgtkhash);
             ws_bbr_pan_version_increase(cur);
+            ws_bbr_lpan_version_increase(cur);
 
             // Set default parameters for FHSS when starting a discovery
             ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule);
