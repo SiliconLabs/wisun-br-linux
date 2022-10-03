@@ -832,6 +832,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
 
         bool key_expired = false;
 
+        // FIXME: The code below does not support LGTK
         if (pae_supp->initial_key_retry_timer > seconds) {
             pae_supp->initial_key_retry_timer -= seconds;
         } else if (pae_supp->initial_key_retry_timer != 0) {
@@ -914,6 +915,15 @@ void ws_pae_supp_slow_timer(uint16_t seconds)
             }
             uint64_t current_time = ws_pae_current_time_get();
             sec_prot_keys_gtk_lifetime_decrement(pae_supp->sec_keys_nw_info->gtks, i, current_time, seconds, false);
+        }
+
+        // Decrements LGTK lifetimes
+        for (uint8_t i = 0; i < LGTK_NUM; i++) {
+            if (!sec_prot_keys_gtk_is_set(pae_supp->sec_keys_nw_info->lgtks, i)) {
+                continue;
+            }
+            uint64_t current_time = ws_pae_current_time_get();
+            sec_prot_keys_gtk_lifetime_decrement(pae_supp->sec_keys_nw_info->lgtks, i, current_time, seconds, false);
         }
 
         if (pae_supp->initial_key_timer > 0) {
