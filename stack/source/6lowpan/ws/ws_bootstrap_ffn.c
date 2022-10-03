@@ -424,6 +424,8 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
         }
     }
 
+    tr_info("Updated LFN PAN configuration own:%d, heard:%d",
+            cur->ws_info->pan_information.lpan_version, lfn_version.lfn_version);
     cur->ws_info->pan_information.lpan_version = lfn_version.lfn_version;
     cur->ws_info->pan_information.lpan_version_set = true;
 
