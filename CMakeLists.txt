@@ -274,8 +274,16 @@ install(FILES misc/com.silabs.Wisun.BorderRouter.conf
         DESTINATION /etc/dbus-1/system.d)
 install(FILES CHANGES.md README.md
         DESTINATION ${CMAKE_INSTALL_DOCDIR})
-install(FILES examples/wsbrd.conf examples/br_cert.pem examples/br_key.pem
+install(FILES examples/br_cert.pem examples/br_key.pem
               examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
+        DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
+
+add_custom_command(OUTPUT wsbrd.conf
+        COMMAND sed 's: examples/: ${CMAKE_INSTALL_FULL_DOCDIR}/examples/:'
+                ${CMAKE_CURRENT_SOURCE_DIR}/examples/wsbrd.conf > wsbrd.conf
+        DEPENDS examples/wsbrd.conf)
+add_custom_target(examples-wsbrd.conf ALL DEPENDS wsbrd.conf)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wsbrd.conf
         DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
 
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
