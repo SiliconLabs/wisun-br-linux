@@ -229,7 +229,7 @@ static int sd_bus_message_append_node(
     const char *property,
     const uint8_t self[8],
     const uint8_t parent[8],
-    const uint8_t ipv6[16],
+    const uint8_t ipv6[][16],
     bool is_br)
 {
     int ret;
@@ -273,9 +273,15 @@ static int sd_bus_message_append_node(
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
         ret = sd_bus_message_append(m, "s", "ipv6");
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_open_container(m, 'v', "ay");
+        ret = sd_bus_message_open_container(m, 'v', "aay");
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_append_array(m, 'y', ipv6, 16);
+        ret = sd_bus_message_open_container(m, 'a', "ay");
+        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        for (; memcmp(*ipv6, ADDR_UNSPECIFIED, 16); ipv6++) {
+            ret = sd_bus_message_append_array(m, 'y', *ipv6, 16);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        }
+        ret = sd_bus_message_close_container(m);
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
         ret = sd_bus_message_close_container(m);
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
@@ -295,8 +301,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 {
     int rcp_if_id = *(int *)userdata;
     bbr_route_info_t table[4096];
+    uint8_t ipv6[3][16] = { 0 };
     bbr_information_t br_info;
-    uint8_t ipv6[16];
     int ret, len, i;
 
     ret = ws_bbr_info_get(rcp_if_id, &br_info);
@@ -313,12 +319,16 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     qsort(table, len, sizeof(table[0]), route_info_compare);
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6);
+    tun_addr_get_link_local(g_ctxt.config.tun_dev, ipv6[0]);
+    tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6[1]);
     ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6, true);
     for (i = 0; i < len; i++) {
-        memcpy(ipv6 + 0, br_info.prefix, 8);
-        memcpy(ipv6 + 8, table[i].target, 8);
-        ipv6[8] ^= 0x02;
+        memcpy(ipv6[0] + 0, ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(ipv6[0] + 8, table[i].target, 8);
+        ipv6[0][8] ^= 0x02;
+        memcpy(ipv6[1] + 0, br_info.prefix, 8);
+        memcpy(ipv6[1] + 8, table[i].target, 8);
+        ipv6[1][8] ^= 0x02;
         sd_bus_message_append_node(
             reply, property, table[i].target, table[i].parent,
             ipv6, false
