@@ -258,9 +258,11 @@ add_executable(wsbrd app_wsbrd/wsbrd.c)
 add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
 # the code
-install(DIRECTORY DESTINATION /var/lib/wsbrd)
+install(DIRECTORY DESTINATION /var/lib/wsbrd
+        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 install(FILES misc/com.silabs.Wisun.BorderRouter.service
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
 # systemd does not document /usr/local/lib/systemd/system, but it seems to work
