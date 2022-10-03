@@ -51,7 +51,7 @@ ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
     return ret;
 }
 
-static int tun_addr_get(char *if_name, uint8_t ip[static 16], bool gua)
+static int tun_addr_get(const char *if_name, uint8_t ip[static 16], bool gua)
 {
     struct sockaddr_in6 *ipv6;
     struct ifaddrs *ifaddr, *ifa;
@@ -86,12 +86,12 @@ static int tun_addr_get(char *if_name, uint8_t ip[static 16], bool gua)
     return -2;
 }
 
-int tun_addr_get_link_local(char *if_name, uint8_t ip[static 16])
+int tun_addr_get_link_local(const char *if_name, uint8_t ip[static 16])
 {
     return tun_addr_get(if_name, ip, false);
 }
 
-int tun_addr_get_global_unicast(char *if_name, uint8_t ip[static 16])
+int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16])
 {
     return tun_addr_get(if_name, ip, true);
 }
