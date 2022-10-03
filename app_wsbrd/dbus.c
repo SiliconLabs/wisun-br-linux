@@ -344,18 +344,6 @@ int wsbrd_get_ws_size(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
-int dbus_get_int(sd_bus *bus, const char *path, const char *interface,
-                 const char *property, sd_bus_message *reply,
-                 void *userdata, sd_bus_error *ret_error)
-{
-    int *val = userdata;
-    int ret;
-
-    ret = sd_bus_message_append(reply, "u", (uint32_t)*val);
-    WARN_ON(ret < 0, "%s", strerror(-ret));
-    return 0;
-}
-
 int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
                const char *property, sd_bus_message *reply,
                void *userdata, sd_bus_error *ret_error)
@@ -403,10 +391,10 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_PROPERTY("WisunDomain", "s", wsbrd_get_ws_domain,
                         offsetof(struct wsbr_ctxt, config.ws_domain),
                         SD_BUS_VTABLE_PROPERTY_CONST),
-        SD_BUS_PROPERTY("WisunMode", "u", dbus_get_int,
+        SD_BUS_PROPERTY("WisunMode", "u", NULL,
                         offsetof(struct wsbr_ctxt, config.ws_mode),
                         SD_BUS_VTABLE_PROPERTY_CONST),
-        SD_BUS_PROPERTY("WisunClass", "u", dbus_get_int,
+        SD_BUS_PROPERTY("WisunClass", "u", NULL,
                         offsetof(struct wsbr_ctxt, config.ws_class),
                         SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_PROPERTY("WisunPanId", "q", dbus_get_ws_pan_id,
