@@ -35,6 +35,14 @@ fn is_parent(node: &(Vec<u8>, PropMap), target: &Vec<u8>) -> bool {
     }
 }
 
+fn is_border_router(node: &(Vec<u8>, PropMap)) -> bool {
+    let is_br: Option<&bool> = prop_cast(&node.1, "is_border_router");
+    match is_br {
+        Some(&x) => x,
+        None => false,
+    }
+}
+
 fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, parents: &Vec<&Vec<u8>>, cur: &Vec<u8>, indent: &str) -> () {
     let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
     children.sort();
@@ -89,11 +97,10 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
         println!("GTK[{}]: {}", i, format_byte_array(g));
     }
 
-    let mac_br = dbus_proxy.hw_address().unwrap_or(vec![0; 8]);
-    println!("{}", format_byte_array(&mac_br));
-
-    let links = dbus_proxy.nodes().unwrap_or(vec![]);
-    print_rpl_tree(&links, &vec![], &mac_br, "  ");
+    let nodes = dbus_proxy.nodes().unwrap();
+    let node_br = nodes.iter().find(|n| is_border_router(n)).unwrap();
+    println!("{}", format_byte_array(&node_br.0));
+    print_rpl_tree(&nodes, &vec![], &node_br.0, "  ");
     Ok(())
 }
 
