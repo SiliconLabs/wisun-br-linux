@@ -259,33 +259,6 @@ add_dependencies(wsbrd libwsbrd)
 target_link_libraries(wsbrd libwsbrd)
 install(TARGETS wsbrd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-# FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
-# the code
-install(DIRECTORY DESTINATION /var/lib/wsbrd
-        DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-install(FILES misc/com.silabs.Wisun.BorderRouter.service
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
-# systemd does not document /usr/local/lib/systemd/system, but it seems to work
-install(FILES misc/wisun-borderrouter.service
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system)
-# We try to avoid PATH hardcoding, but dbus does not watch
-# /usr/local/share/dbus-1/system.d
-install(FILES misc/com.silabs.Wisun.BorderRouter.conf
-        DESTINATION /etc/dbus-1/system.d)
-install(FILES CHANGES.md README.md
-        DESTINATION ${CMAKE_INSTALL_DOCDIR})
-install(FILES examples/br_cert.pem examples/br_key.pem
-              examples/ca_cert.pem examples/node_cert.pem examples/node_key.pem
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
-
-add_custom_command(OUTPUT wsbrd.conf
-        COMMAND sed 's: examples/: ${CMAKE_INSTALL_FULL_DOCDIR}/examples/:'
-                ${CMAKE_CURRENT_SOURCE_DIR}/examples/wsbrd.conf > wsbrd.conf
-        DEPENDS examples/wsbrd.conf)
-add_custom_target(examples-wsbrd.conf ALL DEPENDS wsbrd.conf)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wsbrd.conf
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
-
 if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 
     string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
@@ -603,3 +576,28 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 endif()
+
+add_custom_command(OUTPUT wsbrd.conf
+    COMMAND sed 's: examples/: ${CMAKE_INSTALL_FULL_DOCDIR}/examples/:'
+            ${CMAKE_CURRENT_SOURCE_DIR}/examples/wsbrd.conf > wsbrd.conf
+    DEPENDS examples/wsbrd.conf)
+add_custom_target(examples-wsbrd.conf ALL DEPENDS wsbrd.conf)
+install(FILES examples/br_cert.pem examples/br_key.pem examples/ca_cert.pem
+              examples/node_cert.pem examples/node_key.pem
+              ${CMAKE_CURRENT_BINARY_DIR}/wsbrd.conf
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}/examples)
+install(FILES CHANGES.md README.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES misc/com.silabs.Wisun.BorderRouter.service
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/system-services)
+# systemd does not document /usr/local/lib/systemd/system, but it seems to work
+install(FILES misc/wisun-borderrouter.service
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system)
+# We try to avoid PATH hardcoding, but dbus does not watch
+# /usr/local/share/dbus-1/system.d
+install(FILES misc/com.silabs.Wisun.BorderRouter.conf
+    DESTINATION /etc/dbus-1/system.d)
+# FIXME: use ${CMAKE_INSTALL_LOCALSTATEDIR}/lib/wsbrd and report this value in
+# the code
+install(DIRECTORY DESTINATION /var/lib/wsbrd
+    DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
