@@ -229,7 +229,8 @@ static int sd_bus_message_append_node(
     const char *property,
     const uint8_t self[8],
     const uint8_t parent[8],
-    const uint8_t ipv6[16])
+    const uint8_t ipv6[16],
+    bool is_br)
 {
     int ret;
 
@@ -240,6 +241,20 @@ static int sd_bus_message_append_node(
     ret = sd_bus_message_open_container(m, 'a', "{sv}");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     {
+        if (is_br) {
+            ret = sd_bus_message_open_container(m, 'e', "sv");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append(m, "s", "is_border_router");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_open_container(m, 'v', "b");
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_append(m, "b", true);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(m);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            ret = sd_bus_message_close_container(m);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        }
         if (parent) {
             ret = sd_bus_message_open_container(m, 'e', "sv");
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
@@ -299,12 +314,15 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6);
-    ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6);
+    ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6, true);
     for (i = 0; i < len; i++) {
         memcpy(ipv6 + 0, br_info.prefix, 8);
         memcpy(ipv6 + 8, table[i].target, 8);
         ipv6[8] ^= 0x02;
-        ret = sd_bus_message_append_node(reply, property, table[i].target, table[i].parent, ipv6);
+        sd_bus_message_append_node(
+            reply, property, table[i].target, table[i].parent,
+            ipv6, false
+        );
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
