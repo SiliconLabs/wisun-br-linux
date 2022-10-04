@@ -334,6 +334,15 @@ void wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_
         WARN("ipv6 join group %s: %m", tr_ipv6(mcast_group));
 }
 
+void wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
+{
+    struct ipv6_mreq mreq;
+    mreq.ipv6mr_interface = if_nametoindex(if_name);
+    memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
+    if (setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq)) < 0)
+        WARN("setsockopt IPV6_LEAVE_GROUP %s on if %d: %m", tr_ipv6((uint8_t *) &mreq.ipv6mr_multiaddr), mreq.ipv6mr_interface);
+}
+
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
     ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac,

@@ -25,6 +25,7 @@ int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16]);
 void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, uint8_t address[16]);
 void tun_add_ipv6_direct_route(protocol_interface_info_entry_t *if_entry, uint8_t address[16]);
 void wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16]);
+void wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16]);
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len);
 
 #endif
