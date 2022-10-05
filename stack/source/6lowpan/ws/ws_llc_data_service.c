@@ -182,7 +182,9 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
+#ifndef HAVE_WS_BORDER_ROUTER
 static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
+#endif
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
@@ -1627,6 +1629,7 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
 
 
 
+#ifndef HAVE_WS_BORDER_ROUTER
 static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
 
@@ -1655,6 +1658,7 @@ static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_
     ws_init_temporary_neigh_data(entry, mac64);
     return entry;
 }
+#endif
 
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
