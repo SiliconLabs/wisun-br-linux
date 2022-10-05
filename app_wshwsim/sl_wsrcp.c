@@ -92,9 +92,10 @@ void configure_pcap_output(struct wsmac_ctxt *ctxt, const char *filename)
 static void invoke_wireshark(struct wsmac_ctxt *ctxt)
 {
     int ret;
-    char file[] = "/tmp/wireshark-ws-XXXXXX";
+    char file[] = "/tmp/wireshark-ws-XXXXXX\0fifo";
 
-    mktemp(file);
+    mkdtemp(file);
+    file[strlen(file)] = '/';
     mkfifo(file, 0600);
     ret = fork();
     FATAL_ON(ret < 0, 2);
