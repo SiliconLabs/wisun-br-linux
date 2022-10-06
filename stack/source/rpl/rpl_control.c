@@ -34,6 +34,7 @@
 #include "nsconfig.h"
 #include <string.h>
 #include <stdlib.h>
+#include "app_wsbrd/tun.h"
 #include "common/bits.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
@@ -1780,6 +1781,9 @@ bool reply_ok = rpl_instance_dao_received(instance, buf->src_sa.address, buf->in
 /* Ack if requested or non-zero status */
 if (reply_ok && ((flags &RPL_DAO_FLAG_ACK_REQ) || status != 0))
 {
+    // FIXME: we shouldn't call functions from app_wsbrd inside the stack
+    tun_add_node_to_proxy_neightbl(cur, buf->src_sa.address);
+    tun_add_ipv6_direct_route(cur, buf->src_sa.address);
     rpl_control_transmit_dao_ack(domain, cur, instance_id, dao_sequence, status, dodagid, buf->src_sa.address);
 }
 return buffer_free(buf);
