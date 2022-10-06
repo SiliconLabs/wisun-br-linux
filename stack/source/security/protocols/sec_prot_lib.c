@@ -394,7 +394,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
     return NULL;
 }
 
-int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_gtk_keys)
+int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_gtks)
 {
     int8_t gtk_index = -1;
 
@@ -408,13 +408,13 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec
         }
 
         // A new GTK value
-        if (sec_prot_keys_gtk_set(sec_gtk_keys->keys, key_id, gtk, lifetime) >= 0) {
+        if (sec_prot_keys_gtk_set(sec_gtks->keys, key_id, gtk, lifetime) >= 0) {
             gtk_index = (int8_t) key_id; // Insert
         }
     }
     uint8_t gtkl;
     if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-        sec_prot_keys_gtkl_set(sec_gtk_keys, gtkl);
+        sec_prot_keys_gtkl_set(sec_gtks, gtkl);
     } else {
         tr_info("No GTKL");
         return -1;
@@ -422,17 +422,17 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec
 
     // Sanity checks
     if (gtk_index >= 0) {
-        if (!sec_prot_keys_gtkl_gtk_is_live(sec_gtk_keys, gtk_index)) {
+        if (!sec_prot_keys_gtkl_gtk_is_live(sec_gtks, gtk_index)) {
             tr_error("mismatch between GTK and GTKL");
         }
     }
 
-    tr_info("GTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_gtk_keys->keys, gtk_index));
+    tr_info("GTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_gtks->keys, gtk_index));
 
     return 0;
 }
 
-int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_lgtk_keys)
+int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_lgtks)
 {
     int8_t gtk_index = -1;
 
@@ -446,13 +446,13 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *se
         }
 
         // A new GTK value
-        if (sec_prot_keys_gtk_set(sec_lgtk_keys->keys, key_id, gtk, lifetime) >= 0) {
+        if (sec_prot_keys_gtk_set(sec_lgtks->keys, key_id, gtk, lifetime) >= 0) {
             gtk_index = (int8_t) key_id; // Insert
         }
     }
     uint8_t gtkl;
     if (kde_lgtkl_read(kde, kde_len, &gtkl) >= 0) {
-        sec_prot_keys_gtkl_set(sec_lgtk_keys, gtkl);
+        sec_prot_keys_gtkl_set(sec_lgtks, gtkl);
     } else {
         tr_info("No LGTKL");
         return -1;
@@ -460,12 +460,12 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *se
 
     // Sanity checks
     if (gtk_index >= 0) {
-        if (!sec_prot_keys_gtkl_gtk_is_live(sec_lgtk_keys, gtk_index)) {
+        if (!sec_prot_keys_gtkl_gtk_is_live(sec_lgtks, gtk_index)) {
             tr_error("mismatch between LGTK and LGTKL");
         }
     }
 
-    tr_info("LGTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_lgtk_keys->keys, gtk_index));
+    tr_info("LGTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_lgtks->keys, gtk_index));
 
     return 0;
 }
