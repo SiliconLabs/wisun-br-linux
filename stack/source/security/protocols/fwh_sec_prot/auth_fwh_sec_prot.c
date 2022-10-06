@@ -247,28 +247,28 @@ static int8_t auth_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
         }
         break;
         case FWH_MESSAGE_3: {
-            sec_prot_gtk_keys_t *sec_gtks_keys;
+            sec_prot_gtk_t *sec_gtks_keys;
             uint8_t gtk_index, gtkl;
             uint32_t gtk_lifetime;
             uint8_t *gtk;
 
             if (prot->sec_keys->node_role == WS_NR_ROLE_LFN)
-                sec_gtks_keys = prot->sec_keys->lgtks;
+                sec_gtks_keys = &prot->sec_keys->lgtks;
             else
-                sec_gtks_keys = prot->sec_keys->gtks;
+                sec_gtks_keys = &prot->sec_keys->gtks;
             gtk = sec_prot_keys_get_gtk_to_insert(sec_gtks_keys, &gtk_index);
             if (!gtk) {
                 // 4WH MUST contain a GTK, get active one
-                gtk_index = sec_prot_keys_gtk_status_active_get(sec_gtks_keys);
-                gtk = sec_prot_keys_gtk_get(sec_gtks_keys, gtk_index);
+                gtk_index = sec_prot_keys_gtk_status_active_get(sec_gtks_keys->keys);
+                gtk = sec_prot_keys_gtk_get(sec_gtks_keys->keys, gtk_index);
             }
             if (prot->sec_keys->node_role == WS_NR_ROLE_LFN)
                 kde_end = kde_lgtk_write(kde_end, gtk_index, gtk);
             else
                 kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
-            gtk_lifetime = sec_prot_keys_gtk_lifetime_get(sec_gtks_keys, gtk_index);
+            gtk_lifetime = sec_prot_keys_gtk_lifetime_get(sec_gtks_keys->keys, gtk_index);
             kde_end = kde_lifetime_write(kde_end, gtk_lifetime);
-            gtkl = sec_prot_keys_fresh_gtkl_get(sec_gtks_keys);
+            gtkl = sec_prot_keys_fresh_gtkl_get(sec_gtks_keys->keys);
             if (prot->sec_keys->node_role == WS_NR_ROLE_LFN)
                 kde_end = kde_lgtkl_write(kde_end, gtkl);
             else
@@ -355,7 +355,7 @@ static void auth_fwh_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
 {
     fwh_sec_prot_int_t *data = fwh_sec_prot_get(prot);
-    sec_prot_gtk_keys_t *sec_gtks_keys;
+    sec_prot_gtk_t *sec_gtks_keys;
 
     // 4WH authenticator state machine
     switch (sec_prot_state_get(&data->common)) {
@@ -434,9 +434,9 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
                 if (prot->sec_keys->node_role == WS_NR_ROLE_LFN)
-                    sec_gtks_keys = prot->sec_keys->lgtks;
+                    sec_gtks_keys = &prot->sec_keys->lgtks;
                 else
-                    sec_gtks_keys = prot->sec_keys->gtks;
+                    sec_gtks_keys = &prot->sec_keys->gtks;
                 // PTK is fresh for installing any GTKs
                 sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_gtks_keys);
                 /* Store the hash for to-be installed GTK as used for the PTK, on 4WH

@@ -207,7 +207,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
 
     uint8_t gtkl = 0;
     if (sec_keys->node_role != WS_NR_ROLE_LFN) {
-        gtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->gtks);
+        gtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->gtks.keys);
         kde_end = kde_gtkl_write(kde_end, gtkl);
     }
 
@@ -215,7 +215,7 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
     if (sec_keys->node_role != WS_NR_ROLE_UNKNOWN) {
         kde_end = kde_node_role_write(kde_end, sec_keys->node_role);
 
-        lgtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->lgtks);
+        lgtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->lgtks.keys);
         kde_end = kde_lgtkl_write(kde_end, lgtkl);
     }
 
@@ -307,7 +307,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         // Get the GTKL that supplicant indicates
         uint8_t gtkl;
         if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
-            prot->sec_keys->gtks->gtkl = gtkl;
+            prot->sec_keys->gtks.gtkl = gtkl;
         } else {
             tr_error("no GTKL");
             return -1;
@@ -324,9 +324,9 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         // Get the LGTKL that supplicant indicates (if any)
         uint8_t lgtkl;
         if (kde_lgtkl_read(kde, kde_len, &lgtkl) >= 0) {
-            prot->sec_keys->lgtks->gtkl = lgtkl;
+            prot->sec_keys->lgtks.gtkl = lgtkl;
         } else {
-            prot->sec_keys->lgtks->gtkl = 0;
+            prot->sec_keys->lgtks.gtkl = 0;
         }
 
         tr_debug("PMK %s PTK %s NR %d GTKL %x LGTKL %x",

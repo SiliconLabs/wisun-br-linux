@@ -1261,7 +1261,7 @@ static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
     if ((type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result == KMP_RESULT_OK) {
         if (sec_keys) {
             sec_prot_keys_t *keys = sec_keys;
-            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks, false, false);
+            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks.keys, false, false);
         }
 
         ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_OK);

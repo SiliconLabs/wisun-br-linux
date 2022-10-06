@@ -85,13 +85,17 @@ typedef struct sec_prot_gtk_hash {
 
 typedef struct sec_prot_gtk_keys {
     gtk_key_t              gtk[GTK_NUM];              /**< 4 Group Transient Keys */
+    bool                   updated: 1;                /**< Group Transient Keys has been updated */
+} sec_prot_gtk_keys_t;
+
+typedef struct sec_prot_gtk {
+    sec_prot_gtk_keys_t    *keys;
     sec_prot_gtk_hash_t    ins_gtk_hash[GTK_NUM];     /**< Hashes for inserted GTKs for a PTK */
     uint8_t                gtkl;                      /**< Remote GTKL information */
     int8_t                 gtk_set_index;             /**< Index of GTK to set */
     unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
     unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
-    bool                   updated: 1;                /**< Group Transient Keys has been updated */
-} sec_prot_gtk_keys_t;
+} sec_prot_gtk_t;
 
 // Security key data
 typedef struct sec_prot_keys {
@@ -99,8 +103,8 @@ typedef struct sec_prot_keys {
     uint8_t                pmk[PMK_LEN];              /**< Pairwise Master Key (256 bits) */
     uint8_t                ptk[PTK_LEN];              /**< Pairwise Transient Key (384 bits) */
     uint8_t                ptk_eui_64[8];             /**< Remote EUI-64 used to derive PTK or NULL */
-    sec_prot_gtk_keys_t    *gtks;                     /**< Group Transient Keys */
-    sec_prot_gtk_keys_t    *lgtks;                    /**< Group Transient Keys */
+    sec_prot_gtk_t         gtks;                      /**< Group Transient Keys */
+    sec_prot_gtk_t         lgtks;                     /**< Group Transient Keys */
     const sec_prot_certs_t *certs;                    /**< Certificates */
     uint32_t               pmk_lifetime;              /**< PMK lifetime in seconds */
     uint32_t               ptk_lifetime;              /**< PTK lifetime in seconds */
@@ -490,7 +494,7 @@ uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks);
  * \param gtkl bit field indicating GTK liveness
  *
  */
-void sec_prot_keys_gtkl_set(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t gtkl);
+void sec_prot_keys_gtkl_set(sec_prot_gtk_t *sec_gtks_keys, uint8_t gtkl);
 
 /**
  * sec_prot_keys_gtkl_set checks whether GTK is live on GTK liveness storage
@@ -501,7 +505,7 @@ void sec_prot_keys_gtkl_set(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t gtkl);
  * \return TRUE GTK is live, FALSE GTK is not live
  *
  */
-bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t index);
+bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_t *sec_gtks_keys, uint8_t index);
 
 /**
  * sec_prot_keys_gtkl_gtk_live_set sets that GTK is live to GTK liveness storage
@@ -513,7 +517,7 @@ bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t 
  * \return >= 0 success
  *
  */
-int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t index);
+int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_gtk_t *sec_gtks_keys, uint8_t index);
 
 /**
  * sec_prot_keys_gtk_insert_index_set sets index of GTK to be inserted
@@ -525,7 +529,7 @@ int8_t sec_prot_keys_gtkl_gtk_live_set(sec_prot_gtk_keys_t *sec_gtks_keys, uint8
  * \return >= 0 success
  *
  */
-int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t index);
+int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_gtk_t *sec_gtks_keys, uint8_t index);
 
 /**
  * sec_prot_keys_gtk_insert_index_get gets index of GTK to be inserted
@@ -536,7 +540,7 @@ int8_t sec_prot_keys_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtks_keys, ui
  * \return < 0 no GTK to be inserted
  *
  */
-int8_t sec_prot_keys_gtk_insert_index_get(sec_prot_gtk_keys_t *sec_gtks_keys);
+int8_t sec_prot_keys_gtk_insert_index_get(sec_prot_gtk_t *sec_gtks_keys);
 
 /**
  * sec_prot_keys_gtk_insert_index_clear clears the index of GTK to be inserted
@@ -544,7 +548,7 @@ int8_t sec_prot_keys_gtk_insert_index_get(sec_prot_gtk_keys_t *sec_gtks_keys);
  * \param sec_keys security keys
  *
  */
-void sec_prot_keys_gtk_insert_index_clear(sec_prot_gtk_keys_t *sec_gtks_keys);
+void sec_prot_keys_gtk_insert_index_clear(sec_prot_gtk_t *sec_gtks_keys);
 
 /**
  * sec_prot_keys_gtkl_from_gtk_insert_index_set sets inserted GTK as live to GTK liveness storage
@@ -552,7 +556,7 @@ void sec_prot_keys_gtk_insert_index_clear(sec_prot_gtk_keys_t *sec_gtks_keys);
  * \param sec_keys security keys
  *
  */
-void sec_prot_keys_gtkl_from_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtks_keys);
+void sec_prot_keys_gtkl_from_gtk_insert_index_set(sec_prot_gtk_t *sec_gtks_keys);
 
 /**
  * sec_prot_keys_gtk_insert_index_from_gtkl_get gets inserted GTK based on GTK liveness storage
@@ -563,7 +567,7 @@ void sec_prot_keys_gtkl_from_gtk_insert_index_set(sec_prot_gtk_keys_t *sec_gtks_
  * \return < 0 no GTK to be inserted
  *
  */
-int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_gtk_keys_t *sec_gtks_keys);
+int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_gtk_t *sec_gtks_keys);
 
 /**
  * sec_prot_keys_get_gtk_to_insert gets GTK that is marked to be inserted
@@ -574,7 +578,7 @@ int8_t sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_prot_gtk_keys_t *sec_gtk
  * \return GTK or NULL
  *
  */
-uint8_t *sec_prot_keys_get_gtk_to_insert(sec_prot_gtk_keys_t *sec_gtks_keys, uint8_t *index);
+uint8_t *sec_prot_keys_get_gtk_to_insert(sec_prot_gtk_t *sec_gtks_keys, uint8_t *index);
 
 /**
  * sec_prot_keys_gtk_set sets Group Transient Key
@@ -948,7 +952,7 @@ uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks);
  * \param sec_keys security keys
  *
  */
-void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_keys_t *sec_gtk_keys);
+void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_t *sec_gtk_keys);
 
 /**
  * sec_prot_keys_ptk_installed_gtk_hash_set set GTK hash of the GTK that has been installed
@@ -958,7 +962,7 @@ void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_keys_t *sec_gtk
  * \param is_4wh set by 4WH
  *
  */
-void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_keys_t *sec_gtk_keys, bool is_4wh);
+void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_t *sec_gtk_keys, bool is_4wh);
 
 /**
  * sec_prot_keys_ptk_installed_gtk_hash_set check if PTK is being used to store new GTK for the index
@@ -967,6 +971,6 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_keys_t *sec_gtk_keys,
  * \param sec_keys security keys
  *
  */
-bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_gtk_keys_t *sec_gtk_keys, uint8_t gtk_index);
+bool sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_prot_gtk_t *sec_gtk_keys, uint8_t gtk_index);
 
 #endif

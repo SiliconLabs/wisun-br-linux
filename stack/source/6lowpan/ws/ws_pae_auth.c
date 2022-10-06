@@ -1526,11 +1526,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
 
     int8_t gtk_index = -1;
     if (sec_keys->node_role == WS_NR_ROLE_LFN) {
-        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->lgtks);
+        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
 
         // For 4WH insert always a key, in case no other then active
         if (next_type == IEEE_802_11_4WH && gtk_index < 0) {
-            gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->lgtks);
+            gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->lgtks.keys);
         }
         if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
             /* Check if the PTK has been already used to install GTK to specific index and if it
@@ -1538,7 +1538,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * GTK keys to same index using same PTK.
              */
             if (pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset > SHORT_LGTK_LIFETIME &&
-                sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys->lgtks, gtk_index)) {
+                sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(&sec_keys->lgtks, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
                 sec_keys->ptk_mismatch = true;
@@ -1550,11 +1550,11 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
             }
         }
     } else {
-        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->gtks);
+        gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->gtks);
 
         // For 4WH insert always a key, in case no other then active
         if (next_type == IEEE_802_11_4WH && gtk_index < 0) {
-            gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->gtks);
+            gtk_index = sec_prot_keys_gtk_status_active_get(sec_keys->gtks.keys);
         }
         if (next_type == KMP_TYPE_NONE && gtk_index >= 0) {
             /* Check if the PTK has been already used to install GTK to specific index and if it
@@ -1562,7 +1562,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
              * GTK keys to same index using same PTK.
              */
             if (pae_auth->sec_cfg->timer_cfg.gtk.expire_offset > SHORT_GTK_LIFETIME &&
-                    sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(sec_keys->gtks, gtk_index)) {
+                    sec_prot_keys_ptk_installed_gtk_hash_mismatch_check(&sec_keys->gtks, gtk_index)) {
                 // start 4WH towards supplicant
                 next_type = IEEE_802_11_4WH;
                 sec_keys->ptk_mismatch = true;
@@ -1574,7 +1574,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
             }
         }
         if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER) {
-            gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(sec_keys->lgtks);
+            gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
             if (gtk_index >= 0) {
                 // Update just LGTK (do not when target is a FAN1.0 router)
                 next_type = IEEE_802_11_GKH;

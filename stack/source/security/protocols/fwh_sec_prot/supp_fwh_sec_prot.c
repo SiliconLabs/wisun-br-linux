@@ -582,7 +582,7 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
 
         case FWH_MESSAGE_3:
             // If a valid new GTK value present, insert it
-            if (sec_prot_lib_gtk_read(kde, kde_len, prot->sec_keys->gtks) < 0 && sec_prot_lib_lgtk_read(kde, kde_len, prot->sec_keys->lgtks) < 0) {
+            if (sec_prot_lib_gtk_read(kde, kde_len, &prot->sec_keys->gtks) < 0 && sec_prot_lib_lgtk_read(kde, kde_len, &prot->sec_keys->lgtks) < 0) {
                 goto error;
             }
             break;

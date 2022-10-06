@@ -209,20 +209,20 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
     switch (msg) {
         case GKH_MESSAGE_1: {
             uint8_t gtk_index, lgtk_index;
-            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys->gtks, &gtk_index);
-            uint8_t *lgtk = sec_prot_keys_get_gtk_to_insert(prot->sec_keys->lgtks, &lgtk_index);
+            uint8_t *gtk = sec_prot_keys_get_gtk_to_insert(&prot->sec_keys->gtks, &gtk_index);
+            uint8_t *lgtk = sec_prot_keys_get_gtk_to_insert(&prot->sec_keys->lgtks, &lgtk_index);
             if (gtk) {
                 WARN_ON(prot->sec_keys->node_role == WS_NR_ROLE_LFN);
                 kde_end = kde_gtk_write(kde_end, gtk_index, gtk);
-                uint32_t gtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->gtks, gtk_index);
+                uint32_t gtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->gtks.keys, gtk_index);
                 kde_end = kde_lifetime_write(kde_end, gtk_lifetime);
-                uint8_t gtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->gtks);
+                uint8_t gtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->gtks.keys);
                 kde_end = kde_gtkl_write(kde_end, gtkl);
             } else if (lgtk) {
                 kde_end = kde_lgtk_write(kde_end, lgtk_index, lgtk);
-                uint32_t lgtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->lgtks, lgtk_index);
+                uint32_t lgtk_lifetime = sec_prot_keys_gtk_lifetime_get(prot->sec_keys->lgtks.keys, lgtk_index);
                 kde_end = kde_lifetime_write(kde_end, lgtk_lifetime);
-                uint8_t lgtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->lgtks);
+                uint8_t lgtkl = sec_prot_keys_fresh_gtkl_get(prot->sec_keys->lgtks.keys);
                 kde_end = kde_lgtkl_write(kde_end, lgtkl);
             }
             kde_padding_write(kde_end, kde_start + kde_len);
@@ -320,8 +320,8 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             sec_prot_state_set(prot, &data->common, GKH_STATE_MESSAGE_2);
 
             // Store the hash for to-be installed GTK as used for the PTK
-            sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys->gtks, false);
-            sec_prot_keys_ptk_installed_gtk_hash_set(prot->sec_keys->lgtks, false);
+            sec_prot_keys_ptk_installed_gtk_hash_set(&prot->sec_keys->gtks, false);
+            sec_prot_keys_ptk_installed_gtk_hash_set(&prot->sec_keys->lgtks, false);
             break;
 
         // Wait GKH message 2
@@ -335,9 +335,9 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
                     return;
                 }
                 // Set inserted GTK valid
-                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys->gtks);
+                sec_prot_keys_gtkl_from_gtk_insert_index_set(&prot->sec_keys->gtks);
                 // Set inserted LGTK valid
-                sec_prot_keys_gtkl_from_gtk_insert_index_set(prot->sec_keys->lgtks);
+                sec_prot_keys_gtkl_from_gtk_insert_index_set(&prot->sec_keys->lgtks);
 
                 sec_prot_state_set(prot, &data->common, GKH_STATE_FINISH);
             }

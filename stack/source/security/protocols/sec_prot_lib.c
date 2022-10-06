@@ -394,7 +394,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
     return NULL;
 }
 
-int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *sec_gtk_keys)
+int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_gtk_keys)
 {
     int8_t gtk_index = -1;
 
@@ -408,7 +408,7 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t
         }
 
         // A new GTK value
-        if (sec_prot_keys_gtk_set(sec_gtk_keys, key_id, gtk, lifetime) >= 0) {
+        if (sec_prot_keys_gtk_set(sec_gtk_keys->keys, key_id, gtk, lifetime) >= 0) {
             gtk_index = (int8_t) key_id; // Insert
         }
     }
@@ -427,12 +427,12 @@ int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t
         }
     }
 
-    tr_info("GTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_gtk_keys, gtk_index));
+    tr_info("GTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_gtk_keys->keys, gtk_index));
 
     return 0;
 }
 
-int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_t *sec_lgtk_keys)
+int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_lgtk_keys)
 {
     int8_t gtk_index = -1;
 
@@ -446,7 +446,7 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_
         }
 
         // A new GTK value
-        if (sec_prot_keys_gtk_set(sec_lgtk_keys, key_id, gtk, lifetime) >= 0) {
+        if (sec_prot_keys_gtk_set(sec_lgtk_keys->keys, key_id, gtk, lifetime) >= 0) {
             gtk_index = (int8_t) key_id; // Insert
         }
     }
@@ -465,7 +465,7 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_keys_
         }
     }
 
-    tr_info("LGTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_lgtk_keys, gtk_index));
+    tr_info("LGTK recv index %i lifetime %"PRIu32"", gtk_index, sec_prot_keys_gtk_lifetime_get(sec_lgtk_keys->keys, gtk_index));
 
     return 0;
 }
