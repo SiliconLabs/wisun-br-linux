@@ -59,7 +59,7 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 {
     struct wsbr_ctxt *ctxt = userdata;
     int ret;
-    bool unicast_and_broadcast;
+    int unicast_and_broadcast;
     uint8_t phy_mode_id;
 
     ret = sd_bus_message_read(m, "yb", &phy_mode_id, &unicast_and_broadcast);
