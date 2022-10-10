@@ -943,7 +943,6 @@ void sec_prot_keys_ptk_installed_gtk_hash_clear_all(sec_prot_gtk_t *sec_gtks)
         memset(sec_gtks->ins_gtk_hash[index].hash, 0, INS_GTK_HASH_LEN);
     }
     sec_gtks->ins_gtk_hash_set = 0;
-    sec_gtks->ins_gtk_4wh_hash_set = 0;
 }
 
 void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_t *sec_gtks, bool is_4wh)
@@ -963,14 +962,6 @@ void sec_prot_keys_ptk_installed_gtk_hash_set(sec_prot_gtk_t *sec_gtks, bool is_
          */
         memcpy(sec_gtks->ins_gtk_hash[sec_gtks->gtk_set_index].hash, gtk_hash, INS_GTK_HASH_LEN);
         sec_gtks->ins_gtk_hash_set |= (1u << sec_gtks->gtk_set_index);
-        /* If used on 4WH will store the hash in case GKH is initiated later for the
-         * same index as 4WH (likely to happen if just GTK update is made). This allows
-         * that NVM storage does not need to be updated since hash is already stored. */
-        if (is_4wh) {
-            sec_gtks->ins_gtk_4wh_hash_set |= (1u << sec_gtks->gtk_set_index);
-        } else {
-            sec_gtks->ins_gtk_4wh_hash_set &= ~(1u << sec_gtks->gtk_set_index);
-        }
     }
 }
 

@@ -94,7 +94,6 @@ typedef struct sec_prot_gtk {
     uint8_t                gtkl;                      /**< Remote GTKL information */
     int8_t                 gtk_set_index;             /**< Index of GTK to set */
     unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
-    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
 } sec_prot_gtk_t;
 
 // Security key data
@@ -143,9 +142,7 @@ typedef struct sec_prot_keys_storage {
     uint16_t               pmk_lifetime;              /**< PMK lifetime (short time format) */
     uint16_t               ptk_lifetime;              /**< PTK lifetime (short time format) */
     unsigned               ins_gtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
-    unsigned               ins_gtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
     unsigned               ins_lgtk_hash_set: 4;       /**< Hash for inserted GTKs for a PTK set */
-    unsigned               ins_lgtk_4wh_hash_set: 4;   /**< Hash for inserted GTKs for a PTK set for a 4WH */
     bool                   pmk_set: 1;                /**< Pairwise Master Key set */
     bool                   ptk_set: 1;                /**< Pairwise Transient Key set */
     bool                   pmk_lifetime_set: 1;       /**< PMK lifetime (short time format) */

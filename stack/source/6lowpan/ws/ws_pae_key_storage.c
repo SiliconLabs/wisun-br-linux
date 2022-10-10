@@ -71,8 +71,6 @@ typedef enum {
     PTKEUI64_SET,
     GTKHASH_SET,
     LGTKHASH_SET,
-    GTKHASH4WH_SET,
-    LGTKHASH4WH_SET,
     PMKLTIME_SET,
     PTKLTIME_SET,
 } field_set_e;
@@ -478,14 +476,6 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         memcpy(key_storage->ins_lgtk_hash, sec_keys->lgtks.ins_gtk_hash, sizeof(sec_keys->lgtks.ins_gtk_hash));
         field_set |= 1u << LGTKHASH_SET;
     }
-    if (key_storage->ins_gtk_4wh_hash_set != sec_keys->gtks.ins_gtk_hash_set) {
-        key_storage->ins_gtk_4wh_hash_set = sec_keys->gtks.ins_gtk_hash_set;
-        field_set |= 1u << GTKHASH4WH_SET;
-    }
-    if (key_storage->ins_lgtk_4wh_hash_set != sec_keys->lgtks.ins_gtk_hash_set) {
-        key_storage->ins_lgtk_4wh_hash_set = sec_keys->lgtks.ins_gtk_hash_set;
-        field_set |= 1u << LGTKHASH4WH_SET;
-    }
 
     if (sec_keys->pmk_set) {
         // PMK lifetime is: time difference between reference and current time + lifetime
@@ -643,21 +633,15 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
 
     memcpy(sec_keys->gtks.ins_gtk_hash, key_storage->ins_gtk_hash, sizeof(sec_keys->gtks.ins_gtk_hash));
     sec_keys->gtks.ins_gtk_hash_set = key_storage->ins_gtk_hash_set;
-    sec_keys->gtks.ins_gtk_4wh_hash_set = sec_keys->gtks.ins_gtk_hash_set;
 
     if (sec_keys->gtks.ins_gtk_hash_set)
         field_set |= 1u << GTKHASH_SET;
-    if (sec_keys->gtks.ins_gtk_4wh_hash_set)
-        field_set |= 1u << GTKHASH4WH_SET;
 
     memcpy(sec_keys->lgtks.ins_gtk_hash, key_storage->ins_lgtk_hash, sizeof(sec_keys->lgtks.ins_gtk_hash));
     sec_keys->lgtks.ins_gtk_hash_set = key_storage->ins_lgtk_hash_set;
-    sec_keys->lgtks.ins_gtk_4wh_hash_set = sec_keys->lgtks.ins_gtk_hash_set;
 
     if (sec_keys->lgtks.ins_gtk_hash_set)
         field_set |= 1u << LGTKHASH_SET;
-    if (sec_keys->lgtks.ins_gtk_4wh_hash_set)
-        field_set |= 1u << LGTKHASH4WH_SET;
 
     sec_keys->ptk_lifetime = ptk_lifetime;
 
@@ -670,7 +654,7 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
 
 static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t *key_storage, key_storage_array_t *key_storage_array)
 {
-    tr_info("KeyS %s %s%"PRIi64" %"PRIi64" %s%s%i %s%s%s%s%s %s%s %s%s%s%i %i %s%i %i",
+    tr_info("KeyS %s %s%"PRIi64" %"PRIi64" %s%s%i %s%s%s%s%s %s%s %s%i %i %s%i %i",
             FIELD_IS_SET(WRITE_SET) ? "write" : "read",
             FIELD_IS_SET(TIME_SET) ? "TIME " : "", FIELD_IS_SET(TIME_SET) ? ws_pae_current_time_get() : 0, FIELD_IS_SET(TIME_SET) ? key_storage_array->storage_array_handle->reference_time : 0,
             FIELD_IS_SET(PMK_SET) ? "PMK " : "",
@@ -680,8 +664,6 @@ static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t
             FIELD_IS_SET(PTKEUI64_SET) ? "PTKEUI64 " : "",
             FIELD_IS_SET(GTKHASH_SET) ? "GTKHASH " : "", trace_array((uint8_t *)key_storage->ins_gtk_hash, 8),
             FIELD_IS_SET(LGTKHASH_SET) ? "LGTKHASH " : "", trace_array((uint8_t *)key_storage->ins_lgtk_hash, 8),
-            FIELD_IS_SET(GTKHASH4WH_SET) ? "GTKHASH4WH " : "",
-            FIELD_IS_SET(LGTKHASH4WH_SET) ? "LGTKHASH4WH " : "",
             FIELD_IS_SET(PMKLTIME_SET) ? "PMKLTIME " : "", STIME_TIME_GET(key_storage->pmk_lifetime), STIME_FORMAT_GET(key_storage->pmk_lifetime),
             FIELD_IS_SET(PTKLTIME_SET) ? "PTKLTIME " : "", STIME_TIME_GET(key_storage->ptk_lifetime), STIME_FORMAT_GET(key_storage->ptk_lifetime)
            );
@@ -1035,9 +1017,6 @@ static int8_t ws_pae_key_storage_array_counters_check_and_update_all(key_storage
         if (!storage_array[index].eui_64_set) {
             continue;
         }
-
-        // GTK 4WH hash information is not stored to NVM and might be obsolete (changing it does not trigger NVM write)
-        storage_array[index].ins_gtk_4wh_hash_set = 0;
 
         if (!storage_array[index].pmk_key_replay_cnt_set) {
             continue;
