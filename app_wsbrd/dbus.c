@@ -431,7 +431,7 @@ static const sd_bus_vtable dbus_vtable[] = {
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
-                        SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+                        SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, hw_mac),
                         0),
