@@ -60,7 +60,7 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
     int ret;
 
     FATAL_ON(ctxt->replay_count > ARRAY_SIZE(ctxt->replay_fds), 1,
-        "--replay used too many times (max %ld)", ARRAY_SIZE(ctxt->replay_fds));
+        "--replay used too many times (max %zu)", ARRAY_SIZE(ctxt->replay_fds));
     FATAL_ON(ctxt->capture_enabled, 1, "using --capture and --replay at the same time");
     ret = open(arg, O_RDONLY);
     FATAL_ON(ret < 0, 2, "open '%s': %m", arg);
