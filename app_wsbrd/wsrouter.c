@@ -33,6 +33,7 @@
 #include "stack/mac/sw_mac.h"
 #include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
+#include "stack/ns_time_api.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/core/ns_address_internal.h"
@@ -226,6 +227,14 @@ void kill_handler(int signal)
     exit(0);
 }
 
+long unsigned int wsbr_time_read(void)
+{
+    struct timespec tp;
+
+    clock_gettime(CLOCK_REALTIME, &tp);
+    return tp.tv_sec;
+}
+
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 {
     fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
@@ -283,6 +292,7 @@ int main(int argc, char *argv[])
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
     ns_file_system_set_root_path(ctxt->config.storage_prefix);
+    ns_time_api_system_time_callback_set(wsbr_time_read);
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
