@@ -429,30 +429,22 @@ static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct pars
 
 static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
-    int index;
+    int max_key_index = (raw_dest == config->ws_lgtk) ? 3 : 4;
+    uint8_t (*dest)[16] = raw_dest;
+    unsigned int index;
 
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_gtk && raw_dest != config->ws_lgtk);
-    if (raw_dest == config->ws_gtk) {
-        if (sscanf(info->line, " gtk[%d]", &index) != 1)
-            FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
-    } else {
-        if (sscanf(info->line, " lgtk[%d]", &index) != 1)
-            FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
-    }
-    if (raw_dest == config->ws_gtk) {
-        if (index < 0 || index >= ARRAY_SIZE(config->ws_gtk))
-            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
-        if (parse_byte_array(config->ws_gtk[index], 16, raw_value))
-            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    if (sscanf(info->line, " %*[^[][%u]", &index) != 1)
+        FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
+    if (index >= max_key_index)
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
+    if (parse_byte_array(dest[index], 16, raw_value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    if (raw_dest == config->ws_gtk)
         config->ws_gtk_force[index] = true;
-    } else {
-        if (index < 0 || index >= ARRAY_SIZE(config->ws_lgtk))
-            FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
-        if (parse_byte_array(config->ws_lgtk[index], 16, raw_value))
-            FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+    if (raw_dest == config->ws_lgtk)
         config->ws_lgtk_force[index] = true;
-    }
 }
 
 static void parse_config_line(struct wsbrd_conf *config, struct parser_info *info)
