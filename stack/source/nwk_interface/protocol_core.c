@@ -396,7 +396,7 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->ip_multicast_as_mac_unicast_to_parent = false;
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;
-    entry->send_na = true; /* Default to on for now... */
+    entry->send_na = false; /* Default to on for now... */
     entry->ip_forwarding = true; /* Default to on for now... */
     entry->ip_multicast_forwarding = true; /* Default to on for now... */
     entry->recv_ra_routes = true;
