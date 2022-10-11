@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fnmatch.h>
+#include <glob.h>
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/parsers.h"
@@ -559,35 +560,21 @@ void ws_pae_key_storage_read(uint32_t restart_cnt)
 
 void ws_pae_key_storage_remove(void)
 {
-    nvm_tlv_t *tlv = ws_pae_nvm_store_generic_tlv_allocate_and_create(
-                         PAE_NVM_KEY_STORAGE_INDEX_TAG, PAE_NVM_KEY_STORAGE_INDEX_LEN);
+    glob_t globbuf;
+    char filename[256];
+    int i;
 
-    uint64_t store_bitfield = 0;
-    if (ws_pae_nvm_store_tlv_file_read(KEY_STORAGE_INDEX_FILE, tlv) >= 0) {
-        ws_pae_nvm_store_key_storage_index_tlv_read(tlv, &store_bitfield);
-    }
-    ws_pae_nvm_store_generic_tlv_free(tlv);
-
-    ws_pae_nvm_store_tlv_file_remove(KEY_STORAGE_INDEX_FILE);
-
-    tr_info("KeyS remove store bitf: %"PRIx64, store_bitfield);
-
-    if (store_bitfield == 0) {
+    if (!g_storage_prefix)
+        return;
+    snprintf(filename, sizeof(filename), "%skeys-*:*:*:*:*:*:*:*", g_storage_prefix);
+    if (glob(filename, 0, NULL, &globbuf)) {
+        WARN("glob %s returned an error", filename);
         return;
     }
-
-    for (uint8_t entry_offset = 0; entry_offset < 64; entry_offset++) {
-        // If set on bitfield delete
-        if ((store_bitfield & (((uint64_t) 1) << entry_offset)) == 0) {
-            continue;
-        }
-
-        char filename[KEY_STORAGE_FILE_LEN];
-        ws_pae_key_storage_filename_set(filename, entry_offset);
-
-        tr_info("KeyS remove file: %s", filename);
-        ws_pae_nvm_store_tlv_file_remove(filename);
-    }
+    for (i = 0; globbuf.gl_pathv[i]; i++)
+        if (unlink(globbuf.gl_pathv[i]))
+            WARN("unlink %s: %m", globbuf.gl_pathv[i]);
+    globfree(&globbuf);
 }
 
 void ws_pae_key_storage_timer(uint16_t seconds)
