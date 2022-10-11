@@ -84,17 +84,6 @@ void ws_pae_key_storage_init(void);
 void ws_pae_key_storage_delete(void);
 
 /**
- * ws_pae_key_storage_store store to NVM
- *
- * Checks whether key storage data has been updated and stores to NVM.
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_key_storage_store(void);
-
-/**
  * ws_pae_key_storage_read read from NVM
  *
  * Reads key storage data from NVM.

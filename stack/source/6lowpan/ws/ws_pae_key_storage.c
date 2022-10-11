@@ -369,60 +369,6 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     return pae_supp;
 }
 
-int8_t ws_pae_key_storage_store(void)
-{
-    uint8_t entry_offset = 0;
-    uint64_t store_bitfield = 0;
-    bool start_scatter_timer = false;
-
-    ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
-        // Bitfield is set for all entries (also that are non-modified in this write)
-        store_bitfield |= ((uint64_t) 1) << entry_offset;
-
-        /* Checks whether array reference time needs to be updated */
-        int8_t ret_value = ws_pae_key_storage_array_time_check_and_update_all(entry, entry->modified);
-        if (ret_value == 1) {
-            entry->modified = true;
-        } else if (ret_value < 0) {
-            // On error clears the whole array
-            ws_pae_key_storage_clear(entry);
-            entry->modified = true;
-        }
-
-        /* On large network there could be different time thresholds for entries full / all updated
-           and half empty entries/not all updated where it is likely that data will still be modified */
-        if (!entry->modified) {
-            entry_offset++;
-            // If not pending for storing; skips file write
-            continue;
-        }
-
-        entry->pending_storing = true;
-        start_scatter_timer = true;
-
-        // Item is pending for storing, reset modified flag
-        entry->modified = false;
-        entry_offset++;
-    }
-
-    tr_info("KeyS storage store, bitf: %"PRIx64, store_bitfield);
-
-    if (start_scatter_timer) {
-        ws_pae_key_storage_fast_timer_start();
-    }
-
-    if (key_storage_params.store_bitfield != store_bitfield) {
-        key_storage_params.store_bitfield = store_bitfield;
-        nvm_tlv_t *tlv = ws_pae_nvm_store_generic_tlv_allocate_and_create(
-                             PAE_NVM_KEY_STORAGE_INDEX_TAG, PAE_NVM_KEY_STORAGE_INDEX_LEN);
-        ws_pae_nvm_store_key_storage_index_tlv_create(tlv, key_storage_params.store_bitfield);
-        ws_pae_nvm_store_tlv_file_write(KEY_STORAGE_INDEX_FILE, tlv);
-        ws_pae_nvm_store_generic_tlv_free(tlv);
-    }
-
-    return 0;
-}
-
 static void ws_pae_key_storage_scatter_timer_timeout(void)
 {
     uint8_t entry_offset = 0;
@@ -583,7 +529,6 @@ void ws_pae_key_storage_timer(uint16_t seconds)
         key_storage_params.store_timer -= seconds;
     } else {
         key_storage_params.store_timer = key_storage_params.store_timer_timeout;
-        ws_pae_key_storage_store();
     }
 }
 

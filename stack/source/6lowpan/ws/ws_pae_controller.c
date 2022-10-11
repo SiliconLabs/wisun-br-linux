@@ -1274,9 +1274,6 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
     // Store security key network info if it has been modified
     ws_pae_controller_nw_info_updated_check(interface_ptr);
 
-    // Store key storage if it has been modified
-    ws_pae_key_storage_store();
-
     // Delete key storage
     ws_pae_key_storage_delete();
 
