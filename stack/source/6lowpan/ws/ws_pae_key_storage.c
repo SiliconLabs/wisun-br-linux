@@ -114,9 +114,6 @@ static NS_LIST_DEFINE(key_storage_array_list, key_storage_array_t, link);
 static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_storage_size, void *storage);
 static void ws_pae_key_storage_clear(key_storage_array_t *key_storage_array);
 static void ws_pae_key_storage_list_all_free(void);
-static sec_prot_keys_storage_t *ws_pae_key_storage_get(const void *instance, const uint8_t *eui64, key_storage_array_t **key_storage_array, bool return_free);
-static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance, key_storage_array_t **key_storage_array);
-static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t *key_storage, key_storage_array_t *key_storage_array);
 static void ws_pae_key_storage_scatter_timer_timeout(void);
 static void ws_pae_key_storage_fast_timer_start(void);
 static void ws_pae_key_storage_timer_expiry_set(void);
@@ -242,52 +239,6 @@ static void ws_pae_key_storage_list_all_free(void)
     }
 }
 
-static sec_prot_keys_storage_t *ws_pae_key_storage_get(const void *instance, const uint8_t *eui64, key_storage_array_t **key_storage_array, bool return_free)
-{
-    sec_prot_keys_storage_t *free_key_storage = NULL;
-    *key_storage_array = NULL;
-    uint16_t free_index = 0;
-
-    ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
-        // Checks whether storage is for this authenticator
-        if (entry->instance != NULL && entry->instance != instance) {
-            tr_info("KeyS get instance other");
-            continue;
-        }
-        // Checks entries in storage array
-        sec_prot_keys_storage_t *storage_array = (sec_prot_keys_storage_t *) entry->storage_array;
-        for (uint16_t index = 0; index < entry->entries; index++) {
-            if (!storage_array[index].eui_64_set) {
-                // Stores free array entry and initiates data on it to zero
-                if (return_free && free_key_storage == NULL) {
-                    *key_storage_array = entry;
-                    free_key_storage = &storage_array[index];
-                    memset(&storage_array[index], 0, sizeof(sec_prot_keys_storage_t));
-                    free_index = index;
-                }
-                continue;
-            }
-            // Searches for matching entry
-            if (memcmp(&storage_array[index].ptk_eui_64, eui64, 8) == 0) {
-                *key_storage_array = entry;
-                // If not already reserved for authenticator instance, reserve array for it
-                entry->instance = instance;
-                tr_info("KeyS get array: %p i: %i eui64: %s", (void *) entry->storage_array, index, trace_array(eui64, 8));
-                return &storage_array[index];
-            }
-        }
-    }
-
-    // If not already reserved for authenticator instance, reserve array for it
-    if (free_key_storage != NULL && (*key_storage_array)->instance == NULL) {
-        (*key_storage_array)->instance = instance;
-    }
-
-    tr_info("KeyS get array %s: %p i: %i free: %p eui64: %s", *key_storage_array ? "" : "(not alloc)", *key_storage_array ? (void *)(*key_storage_array)->storage_array : NULL, *key_storage_array ? free_index : 0, (void *)free_key_storage, trace_array(eui64, 8));
-    // If matching entry is not found, returns free entry
-    return free_key_storage;
-}
-
 bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
 {
     (void) instance;
@@ -319,66 +270,11 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
     return deleted;
 }
 
-static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance, key_storage_array_t **key_storage_array)
-{
-    uint16_t replace_index = key_storage_params.replace_index;
-    sec_prot_keys_storage_t *storage_array = NULL;
-    uint16_t storage_array_index = 0;
-
-    ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
-        // Checks whether storage is for this authenticator
-        if (entry->instance != instance) {
-            continue;
-        }
-        // Finds correct key storage array
-        if (replace_index >= entry->entries) {
-            replace_index -= entry->entries;
-            continue;
-        }
-        if (key_storage_array) {
-            *key_storage_array = entry;
-        }
-        // Sets array and index and sets replace index to next
-        storage_array = (sec_prot_keys_storage_t *) entry->storage_array;
-        storage_array_index = replace_index;
-        key_storage_params.replace_index++;
-
-        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) entry->storage_array, replace_index, trace_array(storage_array[replace_index].ptk_eui_64, 8));
-        break;
-    }
-
-    // If replace index is not found it means that index has gone past the last entry
-    if (storage_array == NULL) {
-        tr_info("KeyS replace array first index");
-
-        /* Gets first key storage array and sets the array and sets index to zero and sets
-           (next) replace index to first */
-        key_storage_array_t *key_storage_array_entry = ns_list_get_first(&key_storage_array_list);
-        if (key_storage_array_entry == NULL) {
-            return NULL;
-        }
-        if (key_storage_array) {
-            *key_storage_array = key_storage_array_entry;
-        }
-        storage_array = (sec_prot_keys_storage_t *) key_storage_array_entry->storage_array;
-        storage_array_index = 0;
-        key_storage_params.replace_index = 1;
-
-        tr_info("KeyS replace array: %p i: %i eui64: %s", (void *) key_storage_array_entry->storage_array, storage_array_index, trace_array(key_storage_array_entry->storage_array[storage_array_index].ptk_eui_64, 8));
-    }
-
-    // Deletes any previous data
-    memset(&storage_array[storage_array_index], 0, sizeof(sec_prot_keys_storage_t));
-
-    return &storage_array[storage_array_index];
-}
-
 int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_supp)
 {
     uint64_t current_time = ws_pae_current_time_get();
     struct storage_parse_info *info;
     char str_buf[256];
-    uint8_t *eui_64 = pae_supp->addr.eui_64;
     int i;
 
     WARN_ON(!pae_supp->sec_keys.ptk_eui_64_set);
@@ -416,151 +312,6 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
         }
     }
     storage_close(info);
-
-    key_storage_array_t *key_storage_array;
-    // Check if entry exists
-    sec_prot_keys_storage_t *key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, false);
-    if (key_storage == NULL) {
-        // Do not allocate new storage if PMK and PTK are not set
-        if (!pae_supp->sec_keys.pmk_set && !pae_supp->sec_keys.ptk_set) {
-            tr_info("KeyS PMK and PTK not set, skip storing, eui64: %s", trace_array(eui_64, 8));
-            return -1;
-        }
-        // Allocate new empty entry
-        key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, true);
-    }
-
-    // If cannot find existing or empty storage and there is room for storages tries to allocate more storage
-    if (key_storage == NULL && key_storage_params.storages_empty > 0) {
-        if (ws_pae_key_storage_allocate(instance, key_storage_params.storage_default_size, NULL) >= 0) {
-            key_storage_params.storages_empty--;
-            key_storage = ws_pae_key_storage_get(instance, eui_64, &key_storage_array, true);
-        }
-    }
-
-    // If still cannot find empty storage, replaces old one
-    if (key_storage == NULL) {
-        key_storage = ws_pae_key_storage_replace(instance, &key_storage_array);
-    }
-
-    // On failure exit
-    if (key_storage == NULL) {
-        return -1;
-    }
-
-    // Calculate time difference between storage array reference time and current time
-    uint32_t time_difference;
-    if (ws_pae_time_diff_calc(ws_pae_current_time_get(), key_storage_array->storage_array_handle->reference_time, &time_difference, false) < 0) {
-        tr_error("KeyS write time err: %"PRIi64", ref: %"PRIi64", diff: %"PRIi32, ws_pae_current_time_get(), key_storage_array->storage_array_handle->reference_time, time_difference);
-        return -1;
-    }
-
-    sec_prot_keys_t *sec_keys = &pae_supp->sec_keys;
-
-    // If replay counter is near to exhaust delete PMK and PTK to refresh the counter
-    if (sec_keys->pmk_key_replay_cnt_set && (sec_keys->pmk_key_replay_cnt & PMK_KEY_REPLAY_CNT_LIMIT_MASK) >= PMK_KEY_REPLAY_CNT_LIMIT) {
-        tr_error("KeyS write PMK cnt limit eui64: %s", trace_array(eui_64, 8));
-        sec_prot_keys_ptk_delete(&pae_supp->sec_keys);
-        sec_prot_keys_pmk_delete(&pae_supp->sec_keys);
-    }
-
-    uint16_t field_set = 1u << WRITE_SET;
-
-    if (key_storage->pmk_key_replay_cnt_set != sec_keys->pmk_key_replay_cnt_set ||
-            key_storage->pmk_key_replay_cnt != sec_keys->pmk_key_replay_cnt) {
-        /* Does not set modified variable since counter updates are never stored to NVM.
-           Instead counter is increased on re-start. */
-        key_storage->pmk_key_replay_cnt = sec_keys->pmk_key_replay_cnt & PMK_KEY_REPLAY_CNT_LIMIT_MASK;
-        key_storage->pmk_key_replay_cnt_set = sec_keys->pmk_key_replay_cnt_set;
-        field_set |= 1u << PMK_CNT_SET;
-    }
-
-    if (key_storage->pmk_set != sec_keys->pmk_set ||
-            memcmp(key_storage->pmk, sec_keys->pmk, PMK_LEN) != 0) {
-        key_storage_array->modified = true;
-        key_storage->pmk_set = sec_keys->pmk_set;
-        memcpy(key_storage->pmk, sec_keys->pmk, PMK_LEN);
-        field_set |= 1u << PMK_SET;
-    }
-
-    if (key_storage->ptk_set != sec_keys->ptk_set ||
-            memcmp(key_storage->ptk, sec_keys->ptk, PTK_LEN) != 0) {
-        key_storage_array->modified = true;
-        key_storage->ptk_set = sec_keys->ptk_set;
-        memcpy(key_storage->ptk, sec_keys->ptk, PTK_LEN);
-        field_set |= 1u << PTK_SET;
-    }
-
-    if (key_storage->eui_64_set != true ||
-            memcmp(key_storage->ptk_eui_64, eui_64, 8) != 0) {
-        key_storage_array->modified = true;
-        key_storage->eui_64_set = true;
-        memcpy(key_storage->ptk_eui_64, eui_64, 8);
-        field_set |= 1u << EUI64_SET;
-    }
-
-    if (key_storage->ptk_eui_64_set != sec_keys->ptk_eui_64_set) {
-        key_storage_array->modified = true;
-        key_storage->ptk_eui_64_set = sec_keys->ptk_eui_64_set;
-        field_set |= 1u << PTKEUI64_SET;
-    }
-
-    if (key_storage->ins_gtk_hash_set != sec_keys->gtks.ins_gtk_hash_set ||
-            memcmp(key_storage->ins_gtk_hash, sec_keys->gtks.ins_gtk_hash, sizeof(sec_keys->gtks.ins_gtk_hash)) != 0) {
-        key_storage_array->modified = true;
-        key_storage->ins_gtk_hash_set = sec_keys->gtks.ins_gtk_hash_set;
-        memcpy(key_storage->ins_gtk_hash, sec_keys->gtks.ins_gtk_hash, sizeof(sec_keys->gtks.ins_gtk_hash));
-        field_set |= 1u << GTKHASH_SET;
-    }
-    if (key_storage->ins_lgtk_hash_set != sec_keys->lgtks.ins_gtk_hash_set ||
-            memcmp(key_storage->ins_lgtk_hash, sec_keys->lgtks.ins_gtk_hash, sizeof(sec_keys->lgtks.ins_gtk_hash)) != 0) {
-        key_storage_array->modified = true;
-        key_storage->ins_lgtk_hash_set = sec_keys->lgtks.ins_gtk_hash_set;
-        memcpy(key_storage->ins_lgtk_hash, sec_keys->lgtks.ins_gtk_hash, sizeof(sec_keys->lgtks.ins_gtk_hash));
-        field_set |= 1u << LGTKHASH_SET;
-    }
-
-    if (sec_keys->pmk_set) {
-        // PMK lifetime is: time difference between reference and current time + lifetime
-        uint64_t pmk_lifetime = time_difference + sec_keys->pmk_lifetime;
-        if (pmk_lifetime > SEC_MAXIMUM_LIFETIME) {
-            pmk_lifetime = 0;
-        }
-        uint16_t short_time = ws_pae_time_to_short_convert(pmk_lifetime);
-        // Compares the time from active supplicant entry to stored one, and if time
-        if (!key_storage->pmk_lifetime_set || !ws_pae_time_from_short_time_compare(key_storage->pmk_lifetime, short_time)) {
-            key_storage_array->modified = true;
-            key_storage->pmk_lifetime_set = true;
-            key_storage->pmk_lifetime = short_time;
-            field_set |= 1u << PMKLTIME_SET;
-        }
-    } else {
-        key_storage->pmk_lifetime_set = false;
-        key_storage->pmk_lifetime = 0;
-        field_set |= 1u << PMKLTIME_SET;
-    }
-
-    if (sec_keys->ptk_set) {
-        // PTK lifetime is: time difference between reference and current time + lifetime
-        uint64_t ptk_lifetime = time_difference + sec_keys->ptk_lifetime;
-        if (ptk_lifetime > SEC_MAXIMUM_LIFETIME) {
-            ptk_lifetime = 0;
-        }
-        uint16_t short_time = ws_pae_time_to_short_convert(ptk_lifetime);
-        if (!key_storage->ptk_lifetime_set || !ws_pae_time_from_short_time_compare(key_storage->ptk_lifetime, short_time)) {
-            key_storage_array->modified = true;
-            key_storage->ptk_lifetime_set = true;
-            key_storage->ptk_lifetime = short_time;
-            field_set |= 1u << PTKLTIME_SET;
-        }
-    } else {
-        key_storage->ptk_lifetime_set = false;
-        key_storage->ptk_lifetime = 0;
-        field_set |= 1u << PTKLTIME_SET;
-    }
-
-    ws_pae_key_storage_trace(field_set, key_storage, key_storage_array);
-
     return 0;
 }
 
@@ -631,23 +382,6 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     if (!pae_supp->sec_keys.pmk_set)
         pae_supp->sec_keys.ptk_set = false;
     return pae_supp;
-}
-
-static void ws_pae_key_storage_trace(uint16_t field_set, sec_prot_keys_storage_t *key_storage, key_storage_array_t *key_storage_array)
-{
-    tr_info("KeyS %s %s%"PRIi64" %"PRIi64" %s%s%i %s%s%s%s%s %s%s %s%i %i %s%i %i",
-            FIELD_IS_SET(WRITE_SET) ? "write" : "read",
-            FIELD_IS_SET(TIME_SET) ? "TIME " : "", FIELD_IS_SET(TIME_SET) ? ws_pae_current_time_get() : 0, FIELD_IS_SET(TIME_SET) ? key_storage_array->storage_array_handle->reference_time : 0,
-            FIELD_IS_SET(PMK_SET) ? "PMK " : "",
-            FIELD_IS_SET(PMK_CNT_SET) ? "PMK CNT " : "", key_storage->pmk_key_replay_cnt,
-            FIELD_IS_SET(PTK_SET) ? "PTK " : "",
-            FIELD_IS_SET(EUI64_SET) ? "EUI64 " : "",
-            FIELD_IS_SET(PTKEUI64_SET) ? "PTKEUI64 " : "",
-            FIELD_IS_SET(GTKHASH_SET) ? "GTKHASH " : "", trace_array((uint8_t *)key_storage->ins_gtk_hash, 8),
-            FIELD_IS_SET(LGTKHASH_SET) ? "LGTKHASH " : "", trace_array((uint8_t *)key_storage->ins_lgtk_hash, 8),
-            FIELD_IS_SET(PMKLTIME_SET) ? "PMKLTIME " : "", STIME_TIME_GET(key_storage->pmk_lifetime), STIME_FORMAT_GET(key_storage->pmk_lifetime),
-            FIELD_IS_SET(PTKLTIME_SET) ? "PTKLTIME " : "", STIME_TIME_GET(key_storage->ptk_lifetime), STIME_FORMAT_GET(key_storage->ptk_lifetime)
-           );
 }
 
 int8_t ws_pae_key_storage_store(void)
