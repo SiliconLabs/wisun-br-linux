@@ -18,6 +18,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/key_value_storage.h"
 #include "stack-services/ns_list.h"
@@ -372,7 +374,47 @@ static sec_prot_keys_storage_t *ws_pae_key_storage_replace(const void *instance,
 
 int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_supp)
 {
+    uint64_t current_time = ws_pae_current_time_get();
+    struct storage_parse_info *info;
+    char str_buf[256];
     uint8_t *eui_64 = pae_supp->addr.eui_64;
+    int i;
+
+    WARN_ON(!pae_supp->sec_keys.ptk_eui_64_set);
+    strcpy(str_buf, "keys-");
+    str_key(pae_supp->addr.eui_64, 8, str_buf + strlen(str_buf), sizeof(str_buf) - strlen(str_buf));
+    info = storage_open_prefix(str_buf, "w");
+    if (!info)
+        return -1;
+    if (pae_supp->sec_keys.pmk_set) {
+        str_key(pae_supp->sec_keys.pmk, sizeof(pae_supp->sec_keys.pmk), str_buf, sizeof(str_buf));
+        fprintf(info->file, "pmk = %s\n", str_buf);
+        fprintf(info->file, "pmk.lifetime = %" PRIu64 "\n", current_time + pae_supp->sec_keys.pmk_lifetime);
+    }
+    if (pae_supp->sec_keys.pmk_key_replay_cnt_set)
+        fprintf(info->file, "pmk.replay_counter = %" PRIu64 "\n", pae_supp->sec_keys.pmk_key_replay_cnt);
+    if (pae_supp->sec_keys.ptk_set) {
+        str_key(pae_supp->sec_keys.ptk, sizeof(pae_supp->sec_keys.ptk), str_buf, sizeof(str_buf));
+        fprintf(info->file, "ptk = %s\n", str_buf);
+        fprintf(info->file, "ptk.lifetime = %" PRIu64 "\n", current_time + pae_supp->sec_keys.ptk_lifetime);
+    }
+    for (i = 0; i < GTK_NUM; i++) {
+        if (pae_supp->sec_keys.gtks.ins_gtk_hash_set & (1 << i)) {
+            str_key(pae_supp->sec_keys.gtks.ins_gtk_hash[i].hash,
+                      sizeof(pae_supp->sec_keys.gtks.ins_gtk_hash[i].hash),
+                      str_buf, sizeof(str_buf));
+            fprintf(info->file, "gtk[%d].installed_hash = %s\n", i, str_buf);
+        }
+    }
+    for (i = 0; i < LGTK_NUM; i++) {
+        if (pae_supp->sec_keys.lgtks.ins_gtk_hash_set & (1 << i)) {
+            str_key(pae_supp->sec_keys.lgtks.ins_gtk_hash[i].hash,
+                      sizeof(pae_supp->sec_keys.lgtks.ins_gtk_hash[i].hash),
+                      str_buf, sizeof(str_buf));
+            fprintf(info->file, "lgtk[%d].installed_hash = %s\n", i, str_buf);
+        }
+    }
+    storage_close(info);
 
     key_storage_array_t *key_storage_array;
     // Check if entry exists
