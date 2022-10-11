@@ -798,9 +798,6 @@ void ws_pae_auth_fast_timer(uint16_t ticks)
             ws_pae_auth_timer_stop(pae_auth);
         }
     }
-
-    // Update key storage fast timer
-    ws_pae_key_storage_fast_timer(ticks);
 }
 
 void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, bool is_lgtk, uint16_t seconds)
