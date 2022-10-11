@@ -241,33 +241,17 @@ static void ws_pae_key_storage_list_all_free(void)
 
 bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
 {
-    (void) instance;
+    char filename[256];
+    char str_buf[24];
+    int ret;
 
-    bool deleted = false;
+    if (g_storage_prefix)
+        return true;
+    str_key(eui64, 8, str_buf, sizeof(str_buf));
+    snprintf(filename, sizeof(filename), "%skeys-%s", g_storage_prefix, str_buf);
+    ret = unlink(filename);
 
-    ns_list_foreach(key_storage_array_t, entry, &key_storage_array_list) {
-        // Checks entries in storage array
-        sec_prot_keys_storage_t *storage_array = (sec_prot_keys_storage_t *) entry->storage_array;
-        for (uint16_t index = 0; index < entry->entries; index++) {
-            if (!storage_array[index].eui_64_set) {
-                continue;
-            }
-            // Searches for matching entry
-            if (memcmp(&storage_array[index].ptk_eui_64, eui64, 8) == 0) {
-                memset(&storage_array[index], 0, sizeof(sec_prot_keys_storage_t));
-                tr_info("KeyS delete array: %p i: %i eui64: %s", (void *) entry->storage_array, index, trace_array(eui64, 8));
-                entry->modified = true;
-                deleted = true;
-            }
-        }
-    }
-
-    if (deleted) {
-        // Trigger storing to NVM right away to keep the stored data in sync
-        ws_pae_key_storage_timer_expiry_set();
-    }
-
-    return deleted;
+    return !ret;
 }
 
 int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_supp)
