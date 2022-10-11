@@ -25,12 +25,6 @@
  *
  */
 
-// Number of storages i.e. records in NVM
-#define DEFAULT_NUMBER_OF_STORAGES                 50
-
-// Number of entries stored in a storage i.e. one record in NVM
-#define DEFAULT_NUMBER_OF_ENTRIES_IN_ONE_STORAGE   100
-
 // Interval to check if storage has been modified and needs to be updated to NVM
 #define DEFAULT_STORING_INTERVAL                   3600
 

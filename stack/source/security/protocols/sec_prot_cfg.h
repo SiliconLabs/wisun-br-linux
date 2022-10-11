@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
+#include "common/trickle.h"
 
 /* Security protocol configuration settings */
 

@@ -18,6 +18,7 @@
 #ifndef KMP_ADDR_H_
 #define KMP_ADDR_H_
 #include <stdint.h>
+#include "stack/source/core/ns_address_internal.h"
 
 typedef enum kmp_addr_type {
     KMP_ADDR_EUI_64 = 0,
