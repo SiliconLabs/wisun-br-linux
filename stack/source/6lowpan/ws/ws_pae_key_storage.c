@@ -131,48 +131,6 @@ static void ws_pae_key_storage_filename_set(char *file_name, uint8_t file_number
     file_name[13] = (file_number % 10) + 'A'; // same as above
 }
 
-int8_t ws_pae_key_storage_memory_set(uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages)
-{
-    for (uint8_t index = 0; index < key_storages_number; index++) {
-        if (ws_pae_key_storage_allocate(NULL, key_storage_size[index], (sec_prot_keys_storage_t *) key_storages[index]) < 0) {
-            return -1;
-        }
-    }
-
-    key_storage_params.storages_empty = 0;
-
-    return 0;
-}
-
-int8_t ws_pae_key_storage_settings_set(uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval)
-{
-    key_storage_params.settings_set = true;
-    key_storage_params.storages_empty = alloc_max_number;
-    key_storage_params.storage_default_size = alloc_size;
-    key_storage_params.store_timer = storing_interval;
-    key_storage_params.store_timer_timeout = storing_interval;
-
-    return 0;
-}
-
-void ws_pae_key_storage_init(void)
-{
-    if (!key_storage_params.settings_set) {
-        key_storage_params.storages_empty = DEFAULT_NUMBER_OF_STORAGES;
-        key_storage_params.storage_default_size = STORAGE_ARRAY_HEADER_LEN + (sizeof(sec_prot_keys_storage_t) * DEFAULT_NUMBER_OF_ENTRIES_IN_ONE_STORAGE);
-        key_storage_params.store_timer = DEFAULT_STORING_INTERVAL;
-        key_storage_params.store_timer_timeout = DEFAULT_STORING_INTERVAL;
-    }
-    key_storage_params.replace_index = 0;
-    key_storage_params.store_bitfield = 0,
-    key_storage_params.restart_cnt = 0;
-}
-
-void ws_pae_key_storage_delete(void)
-{
-    ws_pae_key_storage_list_all_free();
-}
-
 static int8_t ws_pae_key_storage_allocate(const void *instance, uint16_t key_storage_size, void *new_storage_array)
 {
     key_storage_array_t *key_storage_array = malloc(sizeof(key_storage_array_t));
@@ -401,7 +359,7 @@ static void ws_pae_key_storage_timer_expiry_set(void)
 
 uint16_t ws_pae_key_storage_storing_interval_get(void)
 {
-    return key_storage_params.store_timer_timeout;
+    return DEFAULT_STORING_INTERVAL;
 }
 
 static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_difference, sec_prot_keys_storage_t *storage_array_entry)

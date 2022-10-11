@@ -353,43 +353,6 @@ int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id);
  */
 int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi);
 
-/**
- * Sets memory used for key storages
- *
- * This functions can be used to set memory used by EAPOL key storage. When memory
- * areas are set, module does not allocate memory internally from heap.
- *
- * \param interface_id Network interface ID.
- * \param key_storages_number number of memory areas.
- * \param key_storage_size array of memory area sizes.
- * \param key_storages array of memory area start pointers.
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages);
-
-/**
- * Sets key storage settings
- *
- * This functions can be used to set the settings of EAPOL key storage.
- * Allocation max number and allocation size sets the settings that are used when key storage
- * memory is allocated dynamically from heap. These settings must be set before (first) interface
- * up and shall not be set if key storage memory is set by ws_pae_key_storage_memory_set() call.
- *
- * \param interface_id Network interface ID.
- * \param alloc_max_number maximum number of allocation made to dynamic memory.
- * \param alloc_size size of each allocation.
- * \param storing_interval interval in which the check to store to NVM is made.
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval);
-
-
 int ws_bbr_eapol_relay_get_socket_fd();
 int ws_bbr_eapol_auth_relay_get_socket_fd();
 void ws_bbr_eapol_relay_socket_cb(int fd);

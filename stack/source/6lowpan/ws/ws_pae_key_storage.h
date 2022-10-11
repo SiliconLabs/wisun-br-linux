@@ -39,51 +39,6 @@ struct sec_prot_gtk_keys;
 struct sec_prot_certs;
 
 /**
- * ws_pae_key_storage_memory_set sets memory used for key storages
- *
- * This functions can be used to set memory used by key storage. When memory areas
- * are set, module does not allocate memory internally from heap.
- *
- * \param key_storages_number number of memory areas
- * \param key_storage_size array of memory area sizes
- * \param key_storages array of memory area start pointers
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_key_storage_memory_set(uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages);
-
-/**
- * ws_pae_key_storage_memory_set sets key storage settings
- *
- * Allocation max number and allocation size sets the settings that are used when key storage
- * memory is allocated dynamically from heap. These settings must be set before (first) interface
- * up and shall not be set if key storage memory is set by ws_pae_key_storage_memory_set() call.
- *
- * \param alloc_max_number maximum number of allocation made to dynamic memory
- * \param alloc_size size of each allocation
- * \param storing_interval interval in which the check to store to NVM is made
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_key_storage_settings_set(uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval);
-
-/**
- * ws_pae_key_storage_init init key storage
- *
- */
-void ws_pae_key_storage_init(void);
-
-/**
- * ws_pae_key_storage_init delete key storage
- *
- */
-void ws_pae_key_storage_delete(void);
-
-/**
  * ws_pae_key_storage_remove remove storage from NVM
  *
  * Removes key storage data from NVM.

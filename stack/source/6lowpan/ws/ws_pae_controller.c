@@ -1248,7 +1248,6 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         }
     }
 
-    ws_pae_key_storage_init();
     if (!read_gtks_to || !read_lgtks_to)
         // Key material invalid, delete key storage
         ws_pae_key_storage_remove();
@@ -1270,9 +1269,6 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
 
     // Store security key network info if it has been modified
     ws_pae_controller_nw_info_updated_check(interface_ptr);
-
-    // Delete key storage
-    ws_pae_key_storage_delete();
 
     // If PAE has been initialized, deletes it
     if (controller->pae_delete) {

@@ -1267,32 +1267,6 @@ int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
 #endif
 }
 
-int ws_bbr_key_storage_memory_set(int8_t interface_id, uint8_t key_storages_number, const uint16_t *key_storage_size, void **key_storages)
-{
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
-    return ws_pae_key_storage_memory_set(key_storages_number, key_storage_size, key_storages);
-#else
-    (void) key_storages_number;
-    (void) key_storage_size;
-    (void) key_storages;
-    return -1;
-#endif
-}
-
-int ws_bbr_key_storage_settings_set(int8_t interface_id, uint8_t alloc_max_number, uint16_t alloc_size, uint16_t storing_interval)
-{
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
-    return ws_pae_key_storage_settings_set(alloc_max_number, alloc_size, storing_interval);
-#else
-    (void) alloc_max_number;
-    (void) alloc_size;
-    (void) storing_interval;
-    return -1;
-#endif
-}
-
 int ws_bbr_eapol_relay_get_socket_fd()
 {
     return ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
