@@ -895,9 +895,6 @@ void ws_pae_auth_slow_timer(uint16_t seconds)
 
         ws_pae_lib_shared_comp_list_timeout(&pae_auth->shared_comp_list, seconds);
     }
-
-    // Update key storage timer
-    ws_pae_key_storage_timer(seconds);
 }
 
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds)

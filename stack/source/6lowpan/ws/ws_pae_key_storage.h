@@ -84,14 +84,6 @@ struct supp_entry *ws_pae_key_storage_supp_read(const void *instance, const uint
 bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64);
 
 /**
- * ws_pae_key_storage_timer key storage timers
- *
- * \param seconds Seconds passed
- *
- */
-void ws_pae_key_storage_timer(uint16_t seconds);
-
-/**
  * ws_pae_key_storage_storing_interval_get gets key storage storing interval
  *
  * \return storing interval in seconds

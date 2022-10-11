@@ -103,7 +103,6 @@ typedef struct key_storage_params {
     uint16_t replace_index;                             /**< Index to replace when storages are full */
     uint64_t store_bitfield;                            /**< Bitfield of stored files */
     uint16_t store_timer_timeout;                       /**< Storing timing timeout */
-    uint16_t store_timer;                               /**< Storing timer */
     uint32_t restart_cnt;                               /**< Re-start counter */
 } key_storage_params_t;
 
@@ -340,21 +339,6 @@ void ws_pae_key_storage_remove(void)
         if (unlink(globbuf.gl_pathv[i]))
             WARN("unlink %s: %m", globbuf.gl_pathv[i]);
     globfree(&globbuf);
-}
-
-void ws_pae_key_storage_timer(uint16_t seconds)
-{
-    if (key_storage_params.store_timer > seconds) {
-        key_storage_params.store_timer -= seconds;
-    } else {
-        key_storage_params.store_timer = key_storage_params.store_timer_timeout;
-    }
-}
-
-static void ws_pae_key_storage_timer_expiry_set(void)
-{
-    // Expire in 30 seconds
-    key_storage_params.store_timer = 30;
 }
 
 uint16_t ws_pae_key_storage_storing_interval_get(void)
