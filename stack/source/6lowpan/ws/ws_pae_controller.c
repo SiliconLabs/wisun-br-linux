@@ -1249,12 +1249,9 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
     }
 
     ws_pae_key_storage_init();
-    if (read_gtks_to && read_lgtks_to) {
-        ws_pae_key_storage_read(controller->restart_cnt);
-    } else {
+    if (!read_gtks_to || !read_lgtks_to)
         // Key material invalid, delete key storage
         ws_pae_key_storage_remove();
-    }
 
     return 0;
 }

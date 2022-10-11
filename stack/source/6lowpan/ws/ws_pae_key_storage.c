@@ -117,7 +117,6 @@ static void ws_pae_key_storage_clear(key_storage_array_t *key_storage_array);
 static void ws_pae_key_storage_list_all_free(void);
 static void ws_pae_key_storage_scatter_timer_timeout(void);
 static void ws_pae_key_storage_fast_timer_start(void);
-static void ws_pae_key_storage_timer_expiry_set(void);
 static void ws_pae_key_storage_fast_timer_ticks_set(void);
 static int8_t ws_pae_key_storage_array_time_update_entry(uint64_t time_difference, sec_prot_keys_storage_t *storage_array_entry);
 static int8_t ws_pae_key_storage_array_time_check_and_update_all(key_storage_array_t *key_storage_array, bool modified);
@@ -399,109 +398,6 @@ static void ws_pae_key_storage_scatter_timer_timeout(void)
     }
 
     tr_info("KeyS all pending entries stored");
-}
-
-void ws_pae_key_storage_read(uint32_t restart_cnt)
-{
-    key_storage_params.store_bitfield = 0;
-    key_storage_params.restart_cnt = restart_cnt;
-
-    nvm_tlv_t *tlv = ws_pae_nvm_store_generic_tlv_allocate_and_create(
-                         PAE_NVM_KEY_STORAGE_INDEX_TAG, PAE_NVM_KEY_STORAGE_INDEX_LEN);
-
-    if (ws_pae_nvm_store_tlv_file_read(KEY_STORAGE_INDEX_FILE, tlv) < 0) {
-        ws_pae_nvm_store_generic_tlv_free(tlv);
-        return;
-    }
-
-    uint64_t store_bitfield;
-    if (ws_pae_nvm_store_key_storage_index_tlv_read(tlv, &store_bitfield) >= 0) {
-        key_storage_params.store_bitfield = store_bitfield;
-    }
-
-    ws_pae_nvm_store_generic_tlv_free(tlv);
-
-    if (key_storage_params.store_bitfield == 0) {
-        return;
-    }
-
-    tr_info("KeyS init store bitf: %"PRIx64, store_bitfield);
-
-    key_storage_array_t *key_storage_array = ns_list_get_first(&key_storage_array_list);
-    key_storage_array_t *key_storage_array_prev = NULL;
-
-    for (uint8_t entry_offset = 0; entry_offset < 64; entry_offset++) {
-        // There are no more fields
-        if (store_bitfield == 0) {
-            break;
-        }
-
-        if (key_storage_array == NULL && key_storage_params.storages_empty > 0) {
-            if (ws_pae_key_storage_allocate(NULL, key_storage_params.storage_default_size, NULL) >= 0) {
-                key_storage_params.storages_empty--;
-            }
-        }
-
-        if (key_storage_array_prev != NULL) {
-            key_storage_array = ns_list_get_next(&key_storage_array_list, key_storage_array_prev);
-        } else if (key_storage_array == NULL) {
-            key_storage_array = ns_list_get_first(&key_storage_array_list);
-        }
-
-        if (key_storage_array == NULL) {
-            break;
-        }
-        key_storage_array_prev = key_storage_array;
-
-        // If set on bitfield read
-        if ((store_bitfield & (((uint64_t) 1) << entry_offset)) == 0) {
-            continue;
-        }
-        store_bitfield &= ~(((uint64_t) 1) << entry_offset);
-
-        tlv = (nvm_tlv_t *) key_storage_array->storage_array_handle;
-        ws_pae_nvm_store_key_storage_tlv_create(tlv, key_storage_array->size);
-
-        char filename[KEY_STORAGE_FILE_LEN];
-        ws_pae_key_storage_filename_set(filename, entry_offset);
-
-        tr_info("KeyS init read array: %p file: %s", (void *) key_storage_array->storage_array, filename);
-        if (ws_pae_nvm_store_tlv_file_read(filename, tlv) < 0) {
-            ws_pae_key_storage_clear(key_storage_array);
-            // On error, re-use current one
-            key_storage_array_prev = NULL;
-            continue;
-        }
-
-        bool read_error = false;
-        if (ws_pae_nvm_store_key_storage_tlv_read(tlv, key_storage_array->size) < 0) {
-            ws_pae_key_storage_clear(key_storage_array);
-            read_error = true;
-        }
-
-        if (read_error) {
-            // On error, re-use current one
-            key_storage_array_prev = NULL;
-            continue;
-        }
-
-        // Calculate time difference between storage array reference time and current time
-        uint32_t time_difference;
-        if (ws_pae_time_diff_calc(ws_pae_current_time_get(), key_storage_array->storage_array_handle->reference_time, &time_difference, false) < 0) {
-            tr_error("KeyS read array time err: %"PRIi64", ref: %"PRIi64", diff: %"PRIi32, ws_pae_current_time_get(), key_storage_array->storage_array_handle->reference_time, time_difference);
-            ws_pae_key_storage_clear(key_storage_array);
-        }
-
-        // Checks and updates PMK counters
-        if (ws_pae_key_storage_array_counters_check_and_update_all(key_storage_array) < 0) {
-            tr_error("KeyS read array cnt err");
-            // On error clears the whole array
-            ws_pae_key_storage_clear(key_storage_array);
-        }
-
-        // Entry set, go to next
-        key_storage_array = NULL;
-    }
 }
 
 void ws_pae_key_storage_remove(void)

@@ -84,14 +84,6 @@ void ws_pae_key_storage_init(void);
 void ws_pae_key_storage_delete(void);
 
 /**
- * ws_pae_key_storage_read read from NVM
- *
- * Reads key storage data from NVM.
- *
- */
-void ws_pae_key_storage_read(uint32_t restart_cnt);
-
-/**
  * ws_pae_key_storage_remove remove storage from NVM
  *
  * Removes key storage data from NVM.
