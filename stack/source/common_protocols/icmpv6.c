@@ -23,7 +23,6 @@
 #include "common/named_values.h"
 #include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -520,10 +519,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         proxy = true;
         //Filter Link Local scope
         if (addr_is_ipv6_link_local(target)) {
-            goto drop;
-        }
-
-        if (!nd_proxy_enabled_for_downstream(cur->id) || !nd_proxy_target_address_validation(cur->id, target)) {
             goto drop;
         }
     }

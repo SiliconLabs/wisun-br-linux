@@ -26,7 +26,6 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "stack-scheduler/eventOS_event.h"

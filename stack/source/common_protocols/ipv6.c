@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

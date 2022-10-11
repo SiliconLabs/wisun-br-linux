@@ -25,7 +25,6 @@
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
 #include "stack/net_socket.h"
@@ -271,33 +270,6 @@ static void ws_bbr_rpl_root_stop(void)
         rpl_control_delete_dodag_root(protocol_6lowpan_rpl_domain, protocol_6lowpan_rpl_root_dodag);
         protocol_6lowpan_rpl_root_dodag = NULL;
     }
-}
-
-static int ws_border_router_proxy_validate(int8_t interface_id, uint8_t *address)
-{
-
-    /* Could also check route type, but I don't think it really matters */
-    ipv6_route_t *route;
-    route = ipv6_route_choose_next_hop(address, interface_id, NULL);
-    if (!route || route->prefix_len < 128) {
-        return -1;
-    }
-
-    return 0;
-}
-
-int ws_border_router_proxy_state_update(int8_t caller_interface_id, int8_t handler_interface_id, bool status)
-{
-    (void)caller_interface_id;
-
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(handler_interface_id);
-    if (!cur) {
-        tr_error("No Interface");
-        return -1;
-    }
-
-    tr_debug("Border router Backhaul link %s", status ? "ready" : "down");
-    return 0;
 }
 
 static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
@@ -582,8 +554,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         }
         memcpy(current_global_prefix, global_prefix, 8);
         ws_bbr_rpl_version_increase(cur);
-
-        nd_proxy_downstream_interface_register(cur->id, ws_border_router_proxy_validate, ws_border_router_proxy_state_update);
     } else if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
         /*
          *  This is a keep alive validation RPL is updated to hold the real info.

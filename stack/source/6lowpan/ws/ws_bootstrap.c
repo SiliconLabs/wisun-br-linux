@@ -26,7 +26,6 @@
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "stack-scheduler/eventOS_event.h"
@@ -927,9 +926,6 @@ static int8_t ws_bootstrap_down(protocol_interface_info_entry_t *cur)
     // Reset WS information
     ws_bootstrap_asynch_trickle_stop(cur);
     ws_llc_reset(cur);
-    if (nd_proxy_downstream_interface_unregister(cur->id) != 0) {
-        tr_warn("nd proxy unregister failed");
-    }
     ws_nud_table_reset(cur);
     dhcp_client_delete(cur->id);
     dhcp_relay_agent_disable(cur->id);

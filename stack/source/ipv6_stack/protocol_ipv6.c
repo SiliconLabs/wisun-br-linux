@@ -23,7 +23,6 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
-#include "service_libs/nd_proxy/nd_proxy.h"
 #include "stack/ethernet_mac_api.h"
 
 #include "core/ns_socket.h"
@@ -555,8 +554,6 @@ int8_t ipv6_interface_down(protocol_interface_info_entry_t *cur)
     cur->ipv6_configure.wb_table_ttl = 0;
     cur->lowpan_info &= ~INTERFACE_NWK_ACTIVE;
     cur->global_address_available = false;
-    //Clear all generated proxies
-    nd_proxy_upstream_interface_unregister(cur->id);
 
     return 0;
 }
@@ -804,8 +801,6 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                         interface->global_address_available = true;
                         if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
                             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
-                            /* We will need proxy both mode currently future static mode should not need proxy */
-                            nd_proxy_upstream_interface_register(interface->id, ipv6_interface_route_validate);
                         }
                     }
 
@@ -828,8 +823,6 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
                             nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, interface);
                             tr_debug("Learn Real Global Scope");
                             interface->ipv6_configure.temporaryUlaAddressState = false;
-                            /* We will need proxy both mode currently future static mode should not need proxy */
-                            nd_proxy_upstream_interface_register(interface->id, ipv6_interface_route_validate);
                         }
                     }
                     break;
