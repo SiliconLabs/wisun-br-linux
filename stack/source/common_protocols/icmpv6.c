@@ -42,7 +42,6 @@
 
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
-#include "common_protocols/mld.h"
 #include "common_protocols/icmpv6_prefix.h"
 #include "common_protocols/icmpv6_radv.h"
 
@@ -1173,14 +1172,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 /* Put back ICMP header */
                 buffer_data_reserve_header(buf, 4);
             }
-            break;
-
-        case ICMPV6_TYPE_INFO_MCAST_LIST_REPORT:
-            buf = mld_report_handler(buf, cur);
-            break;
-
-        case ICMPV6_TYPE_INFO_MCAST_LIST_QUERY:
-            buf = mld_query_handler(buf, cur);
             break;
 
 #ifdef HAVE_IPV6_PMTUD

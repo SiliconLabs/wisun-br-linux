@@ -6,7 +6,6 @@
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
-#include "stack/source/common_protocols/mld.h"
 #include "stack/source/common_protocols/ipv6_fragmentation_rx.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
@@ -47,8 +46,6 @@ static struct {
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                                          true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                                         true),
     timer_entry(DHCPV6_SOCKET,          dhcp_service_timer_cb,                      100,                                          false),
-    timer_entry(6LOWPAN_MLD_FAST,       mld_fast_timer,                             100,                                          true),
-    timer_entry(6LOWPAN_MLD_SLOW,       mld_slow_timer,                             125000,                                       true),
     timer_entry(6LOWPAN_ADDR_FAST,      addr_fast_timer,                            100,                                          true),
     timer_entry(6LOWPAN_ADDR_SLOW,      addr_slow_timer,                            1000,                                         true),
     timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                                          true),

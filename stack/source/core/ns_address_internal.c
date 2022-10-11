@@ -35,7 +35,6 @@
 
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/mld.h"
 
 #include "rpl/rpl_control.h"
 #include "nwk_interface/protocol.h"
@@ -483,8 +482,6 @@ if_group_entry_t *addr_add_group(protocol_interface_info_entry_t *interface, con
     entry->ref_count = 1;
     ns_list_add_to_end(&interface->ip_groups, entry);
 
-    mld_start_listening(interface, entry);
-
     return entry;
 }
 
@@ -504,7 +501,6 @@ void addr_remove_group(protocol_interface_info_entry_t *interface, const uint8_t
 /* This does NOT reference count - it actually deletes the entry */
 void addr_delete_group_entry(protocol_interface_info_entry_t *interface, if_group_entry_t *entry)
 {
-    mld_stop_listening(interface, entry);
     ns_list_remove(&interface->ip_groups, entry);
     free(entry);
 }
