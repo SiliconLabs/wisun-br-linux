@@ -41,7 +41,6 @@
 #include "common_protocols/ip.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6_prefix.h"
-#include "common_protocols/icmpv6_radv.h"
 
 #include "common_protocols/icmpv6.h"
 
@@ -626,251 +625,6 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
     return address_entry;
 }
 
-static buffer_t *icmpv6_ra_handler(buffer_t *buf)
-{
-    protocol_interface_info_entry_t *cur;
-    uint8_t flags, hoplimit;
-    uint32_t reachable_time, retrans_timer;
-    uint16_t data_len, router_lifetime;
-    uint8_t *dptr;
-    ipv6_neighbour_t *ncache_entry = NULL;
-    int_fast8_t preference = 0;
-    uint32_t longest_route_lifetime = 0;
-
-    if (!buf) {
-        return NULL;
-    }
-
-    cur = buf->interface;
-
-    // If both route and prefix receive are disabled do not process any RA options
-    if (!cur->recv_ra_routes && !cur->recv_ra_prefixes) {
-        return buffer_free(buf);
-    }
-
-    // Drop RA If LL address generation is not ready
-    if (addr_interface_get_ll_address(cur, NULL, 0) < 0) {
-        return buffer_free(buf);
-    }
-
-    if (cur->nwk_id == IF_6LoWPAN) {
-        // XXX this check needs to be for host bootstrap only
-        if ((cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) == 0) {
-            if (protocol_6lowpan_interface_compare_cordinator_netid(cur, &(buf->src_sa.address[8])) != 0) {
-                return buffer_free(buf);
-            }
-        }
-    }
-
-    if (!addr_is_ipv6_link_local(buf->src_sa.address) || buf->options.hop_limit != 255 || buf->options.code != 0) {
-        return buffer_free(buf);
-    }
-
-    if (!icmpv6_options_well_formed_in_buffer(buf, 12)) {
-        tr_debug("Malformed RA");
-        return buffer_free(buf);
-    }
-
-    /* Token-bucket rate limiting */
-    if (!cur->icmp_ra_tokens) {
-        return buffer_free(buf);
-    }
-    cur->icmp_ra_tokens--;
-
-    data_len = buffer_data_length(buf);
-    dptr = buffer_data_pointer(buf);
-    //tr_debug("RX RA: %s", tr_ipv6(buf->src_sa.address));
-
-    /* XXX we always set variables based on RAs; fine for a host,
-     * but wrong/iffy for a router. But then so is doing SLAAC as a
-     * router...
-     */
-    hoplimit = *dptr++;
-    if (hoplimit) {
-        cur->cur_hop_limit = hoplimit;
-    }
-
-    //Read Flags
-    flags = *dptr++;
-    router_lifetime = common_read_16_bit(dptr);
-    dptr += 2;
-
-    reachable_time = common_read_32_bit(dptr);
-    dptr += 4;
-    if (reachable_time != 0 && reachable_time != cur->base_reachable_time) {
-        protocol_stack_interface_set_reachable_time(cur, reachable_time);
-    }
-
-    retrans_timer = common_read_32_bit(dptr);
-    dptr += 4;
-    if (retrans_timer != 0) {
-        cur->ipv6_neighbour_cache.retrans_timer = retrans_timer;
-    }
-
-    const uint8_t *mtu_option = icmpv6_find_option_in_buffer(buf, 12, ICMPV6_OPT_MTU, 1);
-    uint32_t mtu = mtu_option ? common_read_32_bit(mtu_option + 4) : 0;
-
-    sockaddr_t ll_addr = { .addr_type = ADDR_NONE };
-    const uint8_t *sllao = icmpv6_find_option_in_buffer(buf, 12, ICMPV6_OPT_SRC_LL_ADDR, 0);
-    if (sllao) {
-        if (cur->if_llao_parse(cur, sllao, &ll_addr)) {
-            ncache_entry = ipv6_neighbour_update_unsolicited(&cur->ipv6_neighbour_cache, buf->src_sa.address, ll_addr.addr_type, ll_addr.address);
-        }
-    }
-
-    buffer_data_strip_header(buf, 12);
-    data_len -= 12;
-
-    if (cur->nwk_id == IF_6LoWPAN) {
-        const uint8_t *abro;
-        bool uptodate;
-
-        /* ABRO processing - aiming to separate this from standard processing; only 6LRs need to use ABROs */
-        abro = icmpv6_find_option_in_buffer(buf, 0, ICMPV6_OPT_AUTHORITATIVE_BORDER_RTR, 3);
-        if (abro) {
-            uptodate = nd_ra_process_abro(cur, buf, abro + 2, flags, router_lifetime);
-            /* If ABRO processing indicated stale info, skip normal processing */
-            if (!uptodate) {
-                goto drop;
-            }
-            if (hoplimit != 0) {
-                cur->adv_cur_hop_limit = hoplimit;
-            }
-            if (reachable_time != 0) {
-                cur->adv_reachable_time = reachable_time;
-            }
-            if (retrans_timer != 0) {
-                cur->adv_retrans_timer = retrans_timer;
-            }
-            if (mtu != 0) {
-                cur->adv_link_mtu = mtu;
-            }
-        }
-    }
-    if (cur->recv_ra_routes) {
-        if (router_lifetime) {
-            tr_debug("Possible Default Router");
-            switch (flags & RA_PRF_MASK) {
-                case RA_PRF_LOW:
-                    preference = -1;
-                    break;
-                case RA_PRF_HIGH:
-                    preference = +1;
-                    break;
-                default:
-                    preference =  0;
-                    break; // invalid is treated as 0
-            }
-            if (router_lifetime > longest_route_lifetime) {
-                longest_route_lifetime = router_lifetime;
-            }
-        }
-        ipv6_route_add(NULL, 0, cur->id, buf->src_sa.address, ROUTE_RADV, router_lifetime, preference);
-    }
-
-    if (mtu >= IPV6_MIN_LINK_MTU && mtu <= cur->max_link_mtu) {
-        cur->ipv6_neighbour_cache.link_mtu = mtu;
-    }
-
-    //Scan All options
-    while (data_len) {
-        uint8_t type = *dptr++;
-        uint16_t length = *dptr++ * 8;
-
-        if (type == ICMPV6_OPT_PREFIX_INFO && cur->recv_ra_prefixes && length == 32) {
-            uint8_t *ptr = dptr;
-            uint8_t prefix_length = *ptr++;
-            uint8_t prefix_flags = *ptr++;
-
-            uint32_t valid_lifetime = common_read_32_bit(ptr);
-            ptr += 4;
-            uint32_t preferred_lifetime = common_read_32_bit(ptr);
-            ptr += 8; //Update 32-bit time and reserved 32-bit
-            const uint8_t *prefix_ptr = ptr;
-
-            //Check is L Flag active
-            if (prefix_flags & PIO_L) {
-                //define ONLink Route Information
-                //tr_debug("Register On Link Prefix to routing table");
-                ipv6_route_add(prefix_ptr, prefix_length, cur->id, NULL, ROUTE_RADV, valid_lifetime, 0);
-            }
-
-            //Check if A-Flag
-            if (prefix_flags & PIO_A) {
-                icmpv6_slaac_prefix_update(cur, prefix_ptr, prefix_length, valid_lifetime, preferred_lifetime);
-                //tr_debug("Prefix: %s", tr_ipv6(prefix_ptr));
-            }
-
-            // If the R flag is set and we have SLLAO, let's add a neighbour cache entry.
-            // This helps reduce RPL noise with source routing - may otherwise be good.
-            // Note that existence of a neighbour cache entry doesn't affect routing - we
-            // won't use it unless we otherwise decide they're on-link, eg from a source
-            // routing header directing to them
-            if ((prefix_flags & PIO_R) && ll_addr.addr_type != ADDR_NONE) {
-                ipv6_neighbour_update_unsolicited(&cur->ipv6_neighbour_cache, prefix_ptr, ll_addr.addr_type, ll_addr.address);
-            }
-        } else if (type == ICMPV6_OPT_ROUTE_INFO && cur->recv_ra_routes) {
-            uint8_t prefix_length = dptr[0];
-            uint8_t route_flags = dptr[1];
-            uint32_t route_lifetime = common_read_32_bit(dptr + 2);
-            uint8_t *prefix_ptr = dptr + 6;
-            // Check option is long enough for prefix
-            if (length < 8 + (prefix_length + 7u) / 8) {
-                goto next_option;
-            }
-            switch (route_flags & RA_PRF_MASK) {
-                case RA_PRF_LOW:
-                    preference = -1;
-                    break;
-                case RA_PRF_MEDIUM:
-                    preference =  0;
-                    break;
-                case RA_PRF_HIGH:
-                    preference = +1;
-                    break;
-                default:
-                    goto next_option; // invalid not accepted
-            }
-            if (route_lifetime > longest_route_lifetime) {
-                longest_route_lifetime = route_lifetime;
-            }
-
-            //Call route Update
-            tr_info("Route: %s Lifetime: %lu Pref: %d", tr_ipv6_prefix(prefix_ptr, prefix_length), (unsigned long) route_lifetime, preference);
-            if (route_lifetime) {
-                ipv6_route_add(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV, route_lifetime, preference);
-            } else {
-                ipv6_route_delete(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV);
-            }
-        } else if (type == ICMPV6_OPT_6LOWPAN_CONTEXT) {
-            nd_ra_process_lowpan_context_option(cur, dptr - 2);
-        }
-next_option:
-        //UPdate length and
-        data_len -= length;
-        dptr += length - 2;
-    }
-
-    /* RFC 4861 says to always set IsRouter on receipt of any RA, but this
-     * seems to make more sense - a shutting-down router (sending the final
-     * MAX_FINAL_RTR_ADVERTISEMENTS), or a router advertising only prefixes
-     * shouldn't really be marked as a router. So only set IsRouter if
-     * a route was advertised (with non-0 lifetime).
-     */
-    if (longest_route_lifetime) {
-        if (!ncache_entry) {
-            ncache_entry = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, buf->src_sa.address);
-        }
-
-        if (ncache_entry) {
-            ncache_entry->is_router = true;
-        }
-    }
-
-drop:
-    return buffer_free(buf);
-}
-
 void icmpv6_recv_ra_routes(protocol_interface_info_entry_t *cur, bool enable)
 {
     if (cur->recv_ra_routes != enable) {
@@ -1118,14 +872,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
     }
 
     switch (buf->options.type) {
-        case ICMPV6_TYPE_INFO_RS:
-            buf = icmpv6_rs_handler(buf, cur);
-            break;
-
-        case ICMPV6_TYPE_INFO_RA:
-            buf = icmpv6_ra_handler(buf);
-            break;
-
         case ICMPV6_TYPE_INFO_NS:
             buf = icmpv6_ns_handler(buf);
             break;
@@ -1654,11 +1400,7 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     buf->options.type = ICMPV6_TYPE_INFO_NA;
     buf->options.code = 0x00;
 
-    // If we're sending RAs, then we have to set the Router bit here
-    // (RFC 4861 makes host trigger action when they see the IsRouter flag
-    // go from true to false - RAs from us imply "IsRouter", apparently even if
-    // Router Lifetime is 0. So keep R set as long as we're sending RAs)
-    flags = icmpv6_radv_is_enabled(cur) ? NA_R : 0;
+    flags = 0;
 
     if (override) {
         flags |= NA_O;

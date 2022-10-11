@@ -28,7 +28,6 @@
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "core/ns_address_internal.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
@@ -167,7 +166,6 @@ void nd_router_base_init(nd_router_t *new_entry)
 static void nd_router_remove(nd_router_t *router, protocol_interface_info_entry_t *interface)
 {
     tr_debug("route remove");
-    icmpv6_stop_router_advertisements(interface, router->border_router);
     ns_list_remove(&nd_router_list, router);
     icmp_nd_router_object_release(router);
 
@@ -1112,7 +1110,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
             icmp_nd_prefixs_parse(buf, router, cur);
             router->trig_address_reg = false;
             icmp_nd_context_parse(buf, router);
-            icmpv6_restart_router_advertisements(cur, router->border_router);
         } else if (router->default_hop.LQI < buf->options.lqi) {
             /* XXX another zero-hysteresis parent swap */
             if (new_router) {
@@ -1311,12 +1308,7 @@ void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_inte
 void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nwk_id == cur_interface->nwk_id) {
-            if (icmp_nd_router_prefix_valid(cur)) {
-                //Allocate
-                icmpv6_trigger_ra_from_rs(cur_interface, unicast_adr, cur->border_router);
-            }
-        } else {
+        if (cur->nwk_id != cur_interface->nwk_id) {
             tr_error("BIND_CONFIRM FAIL!!");
         }
     }

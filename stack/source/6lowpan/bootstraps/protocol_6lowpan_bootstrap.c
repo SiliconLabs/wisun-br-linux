@@ -34,7 +34,6 @@
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/udp.h"
 #include "rpl/rpl_control.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
@@ -98,8 +97,6 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
     if (cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
         addr_add_router_groups(cur_interface);
         addr_add_group(cur_interface, ADDR_REALM_LOCAL_ALL_ROUTERS);
-        icmpv6_radv_enable(cur_interface);
-        icmpv6_restart_router_advertisements(cur_interface, cur->border_router);
         /* Stop the ND revalidate timer - this means we don't do RS again */
         cur->nd_re_validate = 0;
     }

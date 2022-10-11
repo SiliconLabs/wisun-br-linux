@@ -143,7 +143,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_test_api.c
     stack/source/common_protocols/icmpv6.c
     stack/source/common_protocols/icmpv6_prefix.c
-    stack/source/common_protocols/icmpv6_radv.c
     stack/source/common_protocols/ipv6.c
     stack/source/common_protocols/ipv6_flow.c
     stack/source/common_protocols/ipv6_resolution.c
@@ -336,7 +335,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/ws/ws_test_api.c
         stack/source/common_protocols/icmpv6.c
         stack/source/common_protocols/icmpv6_prefix.c
-        stack/source/common_protocols/icmpv6_radv.c
         stack/source/common_protocols/ipv6.c
         stack/source/common_protocols/ipv6_flow.c
         stack/source/common_protocols/ipv6_fragmentation_tx.c

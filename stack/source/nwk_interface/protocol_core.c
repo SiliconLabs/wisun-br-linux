@@ -39,7 +39,6 @@
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/udp.h"
 #include "mpl/mpl.h"
@@ -226,8 +225,6 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
 {
     if (entry) {
         entry->global_address_available = false;
-        icmpv6_radv_disable(entry);
-        icmpv6_stop_router_advertisements(entry, NULL);
         lowpan_context_list_free(&entry->lowpan_contexts);
         ipv6_neighbour_cache_flush(&entry->ipv6_neighbour_cache);
         entry->if_stack_buffer_handler = 0;

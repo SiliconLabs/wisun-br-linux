@@ -46,7 +46,6 @@
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_policy.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
 #include "legacy/dhcpv6_utils.h"

@@ -38,7 +38,6 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"

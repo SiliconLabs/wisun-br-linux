@@ -34,7 +34,6 @@
 #include "common_protocols/udp.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/icmpv6_radv.h"
 #include "rpl/rpl_control.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/cipv6.h"
