@@ -59,8 +59,6 @@
 
 #define RPL_INSTANCE_ID 1
 
-#ifdef HAVE_WS_BORDER_ROUTER
-
 static uint8_t current_instance_id = RPL_INSTANCE_ID;
 
 #define WS_ULA_LIFETIME 24*3600
@@ -779,16 +777,12 @@ uint16_t ws_bbr_pan_id_get(protocol_interface_info_entry_t *interface)
     return ws_bbr_pan_id;
 }
 
-#endif //HAVE_WS_BORDER_ROUTER
-
 /* Public APIs
  *
  */
 
 int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
-
     (void)interface_id;
     protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(bb_interface_id);
 
@@ -800,30 +794,19 @@ int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
     backbone_interface_id = bb_interface_id;
 
     return 0;
-#else
-    (void)interface_id;
-    (void)bb_interface_id;
-    return -1;
-#endif
 }
+
 void ws_bbr_stop(int8_t interface_id)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
-
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     ws_bbr_routing_stop(cur);
     backbone_interface_id = -1;
     current_instance_id++;
-
-#else
-    (void)interface_id;
-#endif
 }
+
 int ws_bbr_configure(int8_t interface_id, uint16_t options)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
-
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (options == configuration) {
@@ -838,16 +821,10 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
         ws_bbr_lpan_version_increase(cur);
     }
     return 0;
-#else
-    (void)interface_id;
-    (void)options;
-    return -1;
-#endif
 }
+
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
-
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     rpl_dodag_info_t dodag_info;
 
@@ -890,20 +867,13 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
     // consider DTSN included It can also be added for getting device information
     // Consider own device API to get DTSN, DHCP lifetime values
     return 0;
-
-#else
-    (void) interface_id;
-    (void) info_ptr;
-
-    return -1;
-#endif
 }
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     int length;
+
     if (!cur || !protocol_6lowpan_rpl_root_dodag) {
         return -1;
     }
@@ -921,69 +891,37 @@ int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, u
     length = rpl_control_route_table_get(instance, current_global_prefix, (rpl_route_info_t *)table_ptr, table_len);
 
     return length;
-#else
-    (void) interface_id;
-    (void) table_ptr;
-    (void) table_len;
-
-    return -1;
-#endif
 }
 
 int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
 {
-    (void) interface_id;
-    (void) eui64;
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_node_keys_remove(interface_id, eui64);
-#else
-    return -1;
-#endif
 }
 
 int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk);
-#else
-    return -1;
-#endif
 }
 
 int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_node_limit_set(interface_id, limit);
-#else
-    (void) limit;
-    return -1;
-#endif
 }
 
 int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validation)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     bool enabled = false;
     if (validation & BBR_CRT_EXT_VALID_WISUN) {
         enabled = true;
     }
     return ws_pae_controller_ext_certificate_validation_set(interface_id, enabled);
-#else
-    (void) validation;
-    return -1;
-#endif
 }
 
 int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
     ws_bbr_cfg_t cfg;
+
     if (ws_cfg_bbr_get(&cfg) < 0) {
         return -1;
     }
@@ -1003,23 +941,17 @@ int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uin
     }
 
     return 0;
-#else
-    (void) dio_interval_min;
-    (void) dio_interval_doublings;
-    (void) dio_redundancy_constant;
-    return -1;
-#endif
 }
 
 int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, uint8_t *dio_interval_doublings, uint8_t *dio_redundancy_constant)
 {
+    ws_bbr_cfg_t cfg;
+
     (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     if (!dio_interval_min || !dio_interval_doublings || !dio_redundancy_constant) {
         return -1;
     }
 
-    ws_bbr_cfg_t cfg;
     if (ws_cfg_bbr_get(&cfg) < 0) {
         return -2;
     }
@@ -1029,19 +961,13 @@ int ws_bbr_rpl_parameters_get(int8_t interface_id, uint8_t *dio_interval_min, ui
     *dio_redundancy_constant = cfg.dio_redundancy_constant;
 
     return 0;
-#else
-    (void) dio_interval_min;
-    (void) dio_interval_doublings;
-    (void) dio_redundancy_constant;
-    return -1;
-#endif
 }
 
 int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     ws_bbr_cfg_t cfg;
+
+    (void) interface_id;
     if (ws_cfg_bbr_get(&cfg) < 0) {
         return -2;
     }
@@ -1061,19 +987,10 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
     }
 
     return 0;
-#else
-    (void) dio_interval_min;
-    (void) dio_interval_doublings;
-    (void) dio_redundancy_constant;
-    return -1;
-#endif
 }
 
 int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
-
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     //Check if new value is different than current active
@@ -1088,16 +1005,10 @@ int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
     ws_bbr_nvm_info_write(ws_bbr_fhss_bsi, ws_bbr_pan_id);
     ws_bbr_fhss_bsi = new_bsi;
     return 0;
-#else
-    (void) new_bsi;
-    return -1;
-#endif
 }
 
 int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
 {
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     if (ws_bbr_pan_id != pan_id) {
         ws_bbr_pan_id = pan_id;
         // Store to NVM and restart bootstrap
@@ -1105,16 +1016,11 @@ int ws_bbr_pan_configuration_set(int8_t interface_id, uint16_t pan_id)
         ws_bootstrap_restart_delayed(interface_id);
     }
     return 0;
-#else
-    (void) pan_id;
-    return -1;
-#endif
 }
 
 int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id)
 {
     (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     if (!pan_id) {
         return -1;
     }
@@ -1122,21 +1028,13 @@ int ws_bbr_pan_configuration_get(int8_t interface_id, uint16_t *pan_id)
     *pan_id = ws_bbr_pan_id;
 
     return 0;
-#else
-    (void) pan_id;
-    return -1;
-#endif
 }
 
 int ws_bbr_pan_configuration_validate(int8_t interface_id, uint16_t pan_id)
 {
     (void) interface_id;
     (void) pan_id;
-#ifdef HAVE_WS_BORDER_ROUTER
     return 0;
-#else
-    return -1;
-#endif
 }
 
 int ws_bbr_eapol_relay_get_socket_fd()
@@ -1147,6 +1045,7 @@ int ws_bbr_eapol_relay_get_socket_fd()
 int ws_bbr_eapol_auth_relay_get_socket_fd()
 {
     return ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
+
 }
 
 void ws_bbr_eapol_relay_socket_cb(int fd)
@@ -1161,81 +1060,37 @@ void ws_bbr_eapol_auth_relay_socket_cb(int fd)
 
 int ws_bbr_radius_address_set(int8_t interface_id, const struct sockaddr_storage *address)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_address_set(interface_id, address);
-#else
-    (void) interface_id;
-    (void) address;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_address_get(int8_t interface_id, struct sockaddr_storage *address)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_address_get(interface_id, address);
-#else
-    (void) interface_id;
-    (void) address;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_shared_secret_set(int8_t interface_id, const uint16_t shared_secret_len, const uint8_t *shared_secret)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_shared_secret_set(interface_id, shared_secret_len, shared_secret);
-#else
-    (void) interface_id;
-    (void) shared_secret_len;
-    (void) shared_secret;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_shared_secret_get(int8_t interface_id, uint16_t *shared_secret_len, uint8_t *shared_secret)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_shared_secret_get(interface_id, shared_secret_len, shared_secret);
-#else
-    (void) interface_id;
-    (void) shared_secret_len;
-    (void) shared_secret;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_timing_set(int8_t interface_id, bbr_radius_timing_t *timing)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_timing_set(interface_id, timing);
-#else
-    (void) interface_id;
-    (void) timing;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_timing_get(int8_t interface_id, bbr_radius_timing_t *timing)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_timing_get(interface_id, timing);
-#else
-    (void) interface_id;
-    (void) timing;
-    return -1;
-#endif
 }
 
 int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timing)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return ws_pae_controller_radius_timing_validate(interface_id, timing);
-#else
-    (void) interface_id;
-    (void) timing;
-    return -1;
-#endif
 }
 
 uint8_t *ws_bbr_get_phy_operating_modes()
