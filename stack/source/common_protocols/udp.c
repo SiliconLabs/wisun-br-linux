@@ -21,7 +21,6 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "6lowpan/bootstraps/network_lib.h" // for nwk_udp_rx_security_check
 #include "core/ns_socket.h"
 
 #include "common_protocols/ipv6_constants.h"
@@ -30,6 +29,43 @@
 #include "common_protocols/udp.h"
 
 #define TRACE_GROUP "udp"
+
+static buffer_t *udp_rx_security_check(buffer_t *buf)
+{
+    protocol_interface_info_entry_t *cur = buf->interface;
+    uint8_t drop_unsecured = 0;
+
+    // Hack for PANA and MLE. PANA socket is not unsecured, need to allow unsecured link local traffic.
+    // MLE need to allow joiner request, that is not secured.
+    // TODO: Check if there is better fix for these.
+    if (buf->src_sa.port == UDP_PORT_PANA || buf->dst_sa.port == UDP_PORT_PANA) {
+        if ((buf->dst_sa.address[0] != 0xfe)  && (buf->options.ll_security_bypass_rx)) {
+            drop_unsecured = 1;
+        }
+    } else if (buf->dst_sa.port == UDP_PORT_MLE) {
+        // OK
+    } else if (buf->options.ll_security_bypass_rx) {
+        if (addr_ipv6_scope(buf->src_sa.address, cur) > IPV6_SCOPE_LINK_LOCAL) {
+            drop_unsecured = 1;
+        } else {
+            if (!buf->socket) {
+                buffer_socket_set(buf, socket_lookup_ipv6(IPV6_NH_UDP, &buf->dst_sa, &buf->src_sa, true));
+            }
+            if (buf->socket && buf->socket->inet_pcb->link_layer_security == 0) {
+                // non-secure okay if it's for a socket whose security flag is clear.
+            } else {
+                drop_unsecured = 1;
+            }
+        }
+    }
+
+    if (drop_unsecured) {
+        tr_warn("Drop UDP Unsecured");
+        buf = buffer_free(buf);
+    }
+
+    return buf;
+}
 
 static buffer_t *udp_checksum_check(buffer_t *buf)
 {
@@ -119,7 +155,7 @@ buffer_t *udp_up(buffer_t *buf)
     buf->dst_sa.port = common_read_16_bit(udp_hdr + 2);
     uint16_t udp_len = common_read_16_bit(udp_hdr + 4);
 
-    buf = nwk_udp_rx_security_check(buf);
+    buf = udp_rx_security_check(buf);
     if (!buf) {
         return NULL;
     }
