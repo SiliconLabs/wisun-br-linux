@@ -19,7 +19,7 @@
 
 struct spinel_buffer {
     int len; // Length of the data in frame or size of the frame buffer
-    int cnt; // Index of the already hanled data or pointer to end of frame
+    int cnt; // Index of the already handled data or pointer to end of frame
     bool err;
     uint8_t frame[];
 };
