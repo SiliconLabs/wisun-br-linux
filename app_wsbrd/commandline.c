@@ -661,6 +661,12 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
     if (optind != argc)
         FATAL(1, "unexpected argument: %s", argv[optind]);
+    if (!config->uart_dev[0] && !config->cpc_instance[0])
+        FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
+    if (config->uart_dev[0] && config->cpc_instance[0])
+        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
+    if (config->list_rf_configs)
+        return;
     if (!config->ws_name[0])
         FATAL(1, "missing \"network_name\" parameter");
     if (config->ws_chan0_freq || config->ws_chan_spacing || config->ws_chan_count) {
@@ -692,10 +698,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
-    if (!config->uart_dev[0] && !config->cpc_instance[0])
-        FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
-    if (config->uart_dev[0] && config->cpc_instance[0])
-        FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
     if (!strcmp(config->storage_prefix, "-"))
         config->storage_prefix[0]= '\0';
     if (check_storage_access(config->storage_prefix))
