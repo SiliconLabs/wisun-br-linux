@@ -160,7 +160,7 @@ typedef struct ws_hopping_schedule_s {
  */
 typedef struct ws_utt_ie {
     uint8_t message_type;
-    uint24_t ufsi;
+    uint24_t ufsi; // Filled by MAC
 } ws_utt_ie_t;
 
 /**
