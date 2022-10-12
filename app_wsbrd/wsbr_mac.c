@@ -11,7 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
-/* MAC API imlementation */
+/* MAC API implementation */
 #include "nsconfig.h"
 #include <time.h>
 #include <stdio.h>
