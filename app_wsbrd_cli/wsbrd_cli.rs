@@ -25,11 +25,11 @@ use clap::AppSettings;
 use clap::SubCommand;
 
 
-fn format_byte_array(input: &Vec<u8>) -> String {
-    input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<String>>().join(":")
+fn format_byte_array(input: &[u8]) -> String {
+    input.iter().map(|n| format!("{:02x}", n)).collect::<Vec<_>>().join(":")
 }
 
-fn is_parent(node: &(Vec<u8>, PropMap), target: &Vec<u8>) -> bool {
+fn is_parent(node: &(Vec<u8>, PropMap), target: &[u8]) -> bool {
     let parent: Option<&Vec<u8>> = prop_cast(&node.1, "parent");
     match parent {
         Some(x) if x == target => true,
@@ -46,11 +46,11 @@ fn is_border_router(node: &(Vec<u8>, PropMap)) -> bool {
     }
 }
 
-fn print_rpl_tree(links: &Vec<(Vec<u8>, PropMap)>, parents: &Vec<&Vec<u8>>, cur: &Vec<u8>, indent: &str) -> () {
-    let mut children: Vec<&Vec<u8>> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
+fn print_rpl_tree(links: &[(Vec<u8>, PropMap)], parents: &[Vec<u8>], cur: &[u8], indent: &str) -> () {
+    let mut children: Vec<_> = links.iter().filter(|n| is_parent(n, cur)).map(|n| &n.0).collect();
     children.sort();
-    let mut new_parents = parents.clone();
-    new_parents.push(cur);
+    let mut new_parents = parents.to_vec();
+    new_parents.push(cur.to_vec());
     if let Some((last_child, first_childs)) = children.split_last() {
         for c in first_childs {
             if new_parents.contains(c) {
