@@ -217,7 +217,7 @@ void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 
 void kill_handler(int signal)
 {
-    exit(3);
+    exit(0);
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
