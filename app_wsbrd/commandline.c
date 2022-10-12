@@ -104,11 +104,28 @@ static const int valid_ws_modes[] = {
     INT_MIN
 };
 
+static const int valid_ws_phy_mode_ids[] = {
+     1,  2,  3,  4,  5,  6,  7,  8, // FSK
+    17, 18, 19, 20, 21, 22, 23, 24, // FSK w/ FEC
+    34, 35, 36, 37, 38,             // OFDM 1
+    51, 52, 53, 54,                 // OFDM 2
+    68, 69, 70,                     // OFDM 3
+    84, 85, 86,                     // OFDM 4
+    INT_MIN
+};
+
 static const int valid_ws_classes[] = {
     0x01, 0x02, 0x03, 0x04,                         // Legacy
     0x81, 0x82, 0x83, 0x84, 0x85,                   // ChanPlanIDs NA/BZ
     0x95, 0x96, 0x97, 0x98,                         // ChanPlanIDs JP
     0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, // ChanPlanIDs EU
+    INT_MIN
+};
+
+static const int valid_ws_chan_plan_ids[] = {
+     1,  2,  3,  4,  5,     // NA/BZ
+    21, 22, 23, 24,         // JP
+    32, 33, 34, 35, 36, 37, // EU
     INT_MIN
 };
 
@@ -460,7 +477,9 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "size",                          &config->ws_size,                          conf_set_enum,        &valid_ws_size },
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
+        { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
+        { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "regional_regulation",           &config->ws_regional_regulation,           conf_set_enum,        &valid_ws_regional_regulations },
         { "chan0_freq",                    &config->ws_chan0_freq,                    conf_set_number,      NULL },
         { "chan_spacing",                  &config->ws_chan_spacing,                  conf_set_enum_int,    &valid_ws_chan_spacing },
@@ -691,8 +710,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (!config->ws_name[0])
         FATAL(1, "missing \"network_name\" parameter");
     if (config->ws_chan0_freq || config->ws_chan_spacing || config->ws_chan_count) {
-        if (config->ws_domain != REG_DOMAIN_UNDEF || config->ws_class)
-            FATAL(1, "custom channel plan is exclusive with \"domain\" and \"class\"");
+        if (config->ws_domain != REG_DOMAIN_UNDEF || config->ws_class || config->ws_chan_plan_id)
+            FATAL(1, "custom channel plan is exclusive with \"class\", \"chan_plan_id\" and \"domain\"");
         if (!config->ws_chan0_freq)
             FATAL(1, "custom channel plan need \"chan0_freq\"");
         if (!config->ws_chan_spacing)
@@ -702,15 +721,19 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     } else {
         if (config->ws_domain == REG_DOMAIN_UNDEF)
             FATAL(1, "missing \"domain\" parameter");
-        if (!config->ws_class)
-            FATAL(1, "missing \"class\" parameter");
+        if (!config->ws_class && !config->ws_chan_plan_id)
+            FATAL(1, "missing \"chan_plan_id\" parameter");
     }
     if (config->ws_domain == REG_DOMAIN_JP && config->ws_regional_regulation != REG_REGIONAL_ARIB)
         WARN("Japanese regulation domain used without ARIB regional regulation");
     if (config->ws_domain != REG_DOMAIN_JP && config->ws_regional_regulation == REG_REGIONAL_ARIB)
         FATAL(1, "ARIB is only supported with Japanese regulation domain");
-    if (!config->ws_mode)
-        FATAL(1, "missing \"mode\" parameter");
+    if (!config->ws_mode && !config->ws_phy_mode_id)
+        FATAL(1, "missing \"phy_mode_id\" parameter");
+    if (config->ws_mode && config->ws_phy_mode_id)
+        FATAL(1, "\"phy_mode_id\" and \"mode\" are mutually exclusive");
+    if (config->ws_class && config->ws_chan_plan_id)
+        FATAL(1, "\"chan_plan_id\" and \"class\" are mutually exclusive");
     if (config->ws_mode & OPERATING_MODE_PHY_MODE_ID_BIT)
         config->ws_phy_mode_id = config->ws_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
     if (config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
