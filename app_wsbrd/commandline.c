@@ -138,7 +138,7 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
-    fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from teh RCP then exit. Most\n");
+    fprintf(stream, "  -l, --list-rf-configs Retrieve the possible RF configurations from the RCP then exit. Most\n");
     fprintf(stream, "                          of parameters are ignored in this mode\n");
     fprintf(stream, "  -n, --network=NAME    Set Wi-SUN network name\n");
     fprintf(stream, "  -d, --domain=COUNTRY  Set Wi-SUN regulatory domain. Valid values: WW, EU, NA, JP...\n");
