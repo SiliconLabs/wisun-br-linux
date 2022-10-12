@@ -48,7 +48,7 @@ typedef struct eth_data_req_s {
     uint8_t *msdu;              /**< Service data unit */
     uint8_t *srcAddress;        /**< Source address */
     uint8_t *dstAddress;        /**< Destination address */
-    uint16_t etehernet_type;    /**< Ethernet type */
+    uint16_t ethernet_type;     /**< Ethernet type */
     uint8_t msduHandle;         /**< Handle associated with MSDU */
 } eth_data_req_t;
 
@@ -60,7 +60,7 @@ typedef struct eth_data_ind_s {
     uint8_t *msdu;              /**< Service data unit */
     uint8_t srcAddress[6];      /**< Source address */
     uint8_t dstAddress[6];      /**< Destination address */
-    uint16_t etehernet_type;    /**< Ethernet type */
+    uint16_t ethernet_type;     /**< Ethernet type */
     uint8_t link_quality;       /**< Link quality */
     int8_t dbm;                 /**< measured dBm */
 } eth_data_ind_t;

@@ -229,7 +229,7 @@ static void data_req(const eth_mac_api_t *api, const eth_data_req_t *data)
             data_length = data->msduLength + ETHERNET_HDRLEN;
             memcpy(data_ptr + ETHERNET_HDROFF_DST_ADDR, data->dstAddress, 6);
             memcpy(data_ptr + ETHERNET_HDROFF_SRC_ADDR, data->srcAddress, 6);
-            common_write_16_bit(data->etehernet_type, data_ptr + ETHERNET_HDROFF_TYPE);
+            common_write_16_bit(data->ethernet_type, data_ptr + ETHERNET_HDROFF_TYPE);
             memcpy(data_ptr + ETHERNET_HDRLEN, data->msdu, data->msduLength);
             break;
 
@@ -244,7 +244,7 @@ static void data_req(const eth_mac_api_t *api, const eth_data_req_t *data)
              * replace flags with e.g. IFF_TUN and packet is converted to TUN frame
              */
             common_write_16_bit(0, data_ptr);
-            common_write_16_bit(data->etehernet_type, data_ptr + 2);
+            common_write_16_bit(data->ethernet_type, data_ptr + 2);
             memcpy(data_ptr + 4, data->msdu, data->msduLength);
             data_length = data->msduLength + 4;
             break;
@@ -285,7 +285,7 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
         memcpy(data_ind->dstAddress, data_ptr +  ETHERNET_HDROFF_DST_ADDR, 6);
         memcpy(data_ind->srcAddress, data_ptr +  ETHERNET_HDROFF_SRC_ADDR, 6);
 
-        data_ind->etehernet_type = common_read_16_bit(data_ptr + ETHERNET_HDROFF_TYPE);
+        data_ind->ethernet_type = common_read_16_bit(data_ptr + ETHERNET_HDROFF_TYPE);
 
         data_ptr += ETHERNET_HDRLEN;
         data_len -= ETHERNET_HDRLEN;
@@ -299,12 +299,12 @@ static int8_t eth_mac_net_phy_rx(const uint8_t *data_ptr, uint16_t data_len, uin
          * [ TUN FLAGS 2B | PROTOCOL 2B | PAYLOAD ]
          * Protocol is ether-type id.
          */
-        data_ind->etehernet_type = common_read_16_bit(data_ptr + 2);
+        data_ind->ethernet_type = common_read_16_bit(data_ptr + 2);
 
         data_len -= 4;
         data_ptr += 4;
     } else if (driver->phy_driver->link_type == PHY_LINK_SLIP || driver->phy_driver->link_type == PHY_LINK_PPP) {
-        data_ind->etehernet_type = ETHERTYPE_IPV6;
+        data_ind->ethernet_type = ETHERTYPE_IPV6;
     }
 
     data_ind->msdu = malloc(data_len);

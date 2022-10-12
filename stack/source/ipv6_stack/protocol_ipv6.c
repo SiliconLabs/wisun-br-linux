@@ -108,7 +108,7 @@ static void ethernet_data_ind_cb(const eth_mac_api_t *api, const eth_data_ind_t 
     /* Fast exit for Ethernet - we will tend to get quite a lot of broadcast
      * IPv4 traffic, so filter frame type before allocating a buffer.
      */
-    if (data->etehernet_type != ETHERTYPE_IPV6 || data->msduLength == 0) {
+    if (data->ethernet_type != ETHERTYPE_IPV6 || data->msduLength == 0) {
         return;
     }
 
@@ -199,7 +199,7 @@ static buffer_t *ethernet_header_build_push(buffer_t *buf, uint16_t ethernet_typ
         req.msdu = buffer_data_pointer(buf);
         req.srcAddress = buf->src_sa.address;
         req.dstAddress = buf->dst_sa.address;
-        req.etehernet_type = ethernet_type;
+        req.ethernet_type = ethernet_type;
         if (cur->eth_mac_api) {
             cur->eth_mac_api->data_req(cur->eth_mac_api, &req);
             *status = 0;
