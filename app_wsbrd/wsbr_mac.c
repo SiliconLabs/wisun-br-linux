@@ -755,11 +755,10 @@ static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, u
 
 void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 4);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3);
 
     spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_uint(buf, SPINEL_CMD_RESET);
-    spinel_push_u32(buf, version_daemon_api);
     rcp_tx(ctxt, buf);
 }
 
@@ -895,6 +894,7 @@ static void wsbr_mlme_start(const struct mac_api_s *api, const void *data)
 
 static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
 {
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1 + 4);
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     const mlme_reset_t *req = data;
 
@@ -902,7 +902,10 @@ static void wsbr_mlme_reset(const struct mac_api_s *api, const void *data)
     BUG_ON(ctxt != &g_ctxt);
     // SPINEL_CMD_RESET or SPINEL_PROP_PHY_ENABLED
     // It seems that SPINEL_CMD_RESET is too wide. It reset the whole device
-    wsbr_spinel_set_bool(ctxt, SPINEL_PROP_WS_RESET, &req->SetDefaultPIB, sizeof(bool));
+    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_RESET);
+    spinel_push_bool(buf, req->SetDefaultPIB);
+    spinel_push_u32(buf, version_daemon_api);
+    rcp_tx(ctxt, buf);
 }
 
 int8_t wsbr_mlme(const struct mac_api_s *api, mlme_primitive_e id, const void *data)
