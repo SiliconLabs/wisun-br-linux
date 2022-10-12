@@ -279,7 +279,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     datagram_size = common_read_16_bit(ptr) & 0x07FF;
 
     if (datagram_size == 0) {
-        goto resassembly_error;
+        goto reassembly_error;
     }
 
     ptr += 2;
@@ -301,14 +301,14 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
 
         frag_ptr = lowpan_adaptation_reassembly_get(interface_ptr);
         if (!frag_ptr) {
-            goto resassembly_error;
+            goto reassembly_error;
         }
 
         buffer_t *reassembly_buffer = buffer_get(1 + ((datagram_size + 7) & ~7));
         if (!reassembly_buffer) {
             //Put allocated back to free
             reassembly_entry_free(interface_ptr, frag_ptr);
-            goto resassembly_error;
+            goto reassembly_error;
         }
 
         // Allocate the reassembly buffer.
@@ -359,12 +359,12 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     // RFC4944: All link fragments for a datagram except the last one MUST be
     // multiples of eight bytes in length.
     if (ipv6_size % 8 && fragment_last + 1 != datagram_size)
-        goto resassembly_error;
+        goto reassembly_error;
     if (fragment_last >= datagram_size) {
         tr_err("Frag out-of-range: last=%u, size=%u", fragment_last, datagram_size);
         //Free Current entry
         reassembly_entry_free(interface_ptr, frag_ptr);
-        goto resassembly_error;
+        goto reassembly_error;
     }
 
     /* Hole-filling algorithm, basically as per RFC 815, but with added
@@ -450,7 +450,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_FRAGMENTATION | B_TO_IPV6_TXRX);
     return buf;
 
-resassembly_error:
+reassembly_error:
     protocol_stats_update(STATS_FRAG_RX_ERROR, 1);
     return buffer_free(buf);
 }
