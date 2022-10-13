@@ -117,28 +117,6 @@ void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry,
                                          uint8_t time_changed);
 
 /**
- * ws_pae_nvm_store_nw_info_tlv_read read from NVM network info TLV
- *
- * \param tlv_entry TLV
- * \param pan_id PAN ID
- * \param nw_name network name
- * \param gtks GTK keys
- * \param current_time current timestampt
- * \param time_changed stored time has changed
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_nvm_store_nw_info_tlv_read(nw_info_nvm_tlv_t *tlv_entry,
-                                         uint16_t *pan_id, char *nw_name,
-                                         uint8_t *gtk_eui64,
-                                         sec_prot_gtk_keys_t *gtks,
-                                         sec_prot_gtk_keys_t *lgtks,
-                                         uint64_t current_time,
-                                         uint8_t *time_changed);
-
-/**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV
  *
  * \param tlv_entry TLV

@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdint.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fnmatch.h>
 #include <mbedtls/sha256.h>
 #include "common/log.h"
 #include "common/named_values.h"
 #include "common/key_value_storage.h"
+#include "common/parsers.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "service_libs/utils/ns_time.h"
@@ -1082,21 +1084,65 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
                                                  uint64_t current_time, uint8_t *time_changed)
 {
-    nw_info_nvm_tlv_t *tlv_entry = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
-    if (!tlv_entry) {
+    struct storage_parse_info *info = storage_open_prefix("network-keys", "r");
+    gtk_key_t new_gtks[GTK_NUM] = { };
+    gtk_key_t new_lgtks[LGTK_NUM] = { };
+    int ret, i;
+
+    if (!info)
         return -1;
+    for (;;) {
+        // This function does not support case where only some keys attributes
+        // are set (eg install_order with gtk value, etc...)
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret) {
+            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
+        } else if (!fnmatch("pan_id", info->key, 0)) {
+            *pan_id = strtoull(info->value, NULL, 0);
+        } else if (!fnmatch("network_name", info->key, 0)) {
+            if (parse_escape_sequences(network_name, info->value, 33))
+                WARN("%s:%d: invalid escape sequence", info->filename, info->linenr);
+        } else if (!fnmatch("eui64", info->key, 0)) {
+            if (parse_byte_array(gtk_eui64, 8, info->value))
+                WARN("%s:%d: invalid EUI64: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("gtk\\[*]", info->key, 0) && info->key_array_index < 4) {
+            if (!parse_byte_array(new_gtks[info->key_array_index].key, GTK_LEN, info->value))
+                new_gtks[info->key_array_index].set = true;
+            else
+                WARN("%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("lgtk\\[*]", info->key, 0) && info->key_array_index < 3) {
+            if (!parse_byte_array(new_lgtks[info->key_array_index].key, GTK_LEN, info->value))
+                new_lgtks[info->key_array_index].set = true;
+            else
+                WARN("%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("gtk\\[*].install_order", info->key, 0) && info->key_array_index < 4) {
+            new_gtks[info->key_array_index].install_order = strtoull(info->value, NULL, 0);
+        } else if (!fnmatch("lgtk\\[*].install_order", info->key, 0) && info->key_array_index < 3) {
+            new_lgtks[info->key_array_index].install_order = strtoull(info->value, NULL, 0);
+        } else if (!fnmatch("gtk\\[*].status", info->key, 0) && info->key_array_index < 4) {
+            new_gtks[info->key_array_index].status = str_to_val(info->value, valid_gtk_status);
+        } else if (!fnmatch("lgtk\\[*].status", info->key, 0) && info->key_array_index < 3) {
+            new_lgtks[info->key_array_index].status = str_to_val(info->value, valid_gtk_status);
+        } else if (!fnmatch("gtk\\[*].lifetime", info->key, 0) && info->key_array_index < 4) {
+            new_gtks[info->key_array_index].expirytime = strtoull(info->value, NULL, 0);
+            new_gtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+        } else if (!fnmatch("lgtk\\[*].lifetime", info->key, 0) && info->key_array_index < 3) {
+            new_lgtks[info->key_array_index].expirytime = strtoull(info->value, NULL, 0);
+            new_lgtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+        } else {
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+        }
     }
+    storage_close(info);
 
-    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) tlv_entry, PAE_NVM_NW_INFO_TAG, PAE_NVM_NW_INFO_LEN);
-
-    if (ws_pae_nvm_store_tlv_file_read(NW_INFO_FILE, (nvm_tlv_t *) tlv_entry) < 0) {
-        return -1;
-    }
-
-    if (ws_pae_nvm_store_nw_info_tlv_read(tlv_entry, pan_id, network_name, gtk_eui64, gtks, lgtks, current_time, time_changed) < 0) {
-        return -1;
-    }
-
+    for (i = 0; i < GTK_NUM; i++)
+        if (gtks && !gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].expirytime > current_time)
+            memcpy(&gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
+    for (i = 0; i < LGTK_NUM; i++)
+        if (lgtks && !lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].expirytime > current_time)
+            memcpy(&lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
     return 0;
 }
 
