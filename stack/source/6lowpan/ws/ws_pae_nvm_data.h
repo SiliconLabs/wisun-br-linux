@@ -105,7 +105,6 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
  *
  */
 void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
-                                               uint32_t restart_cnt,
                                                uint16_t pan_version,
                                                uint16_t lpan_version,
                                                frame_counters_t *gtk_counters,

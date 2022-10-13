@@ -91,7 +91,6 @@ typedef struct pae_controller {
     uint16_t frame_cnt_store_timer;                                  /**< Timer to check if storing of frame counter value is needed */
     uint32_t frame_cnt_store_force_timer;                            /**< Timer to force storing of frame counter, if no other updates */
     sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
-    uint32_t restart_cnt;                                            /**< Re-start counter */
     protocol_interface_info_entry_t *interface_ptr;                  /**< List link entry */
     ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
@@ -135,7 +134,7 @@ static int8_t  ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_i
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time,
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
                                                        uint16_t *pan_version, uint16_t *lpan_version,
                                                        frame_counters_t *gtk_counters,
                                                        frame_counters_t *lgtk_counters);
@@ -883,7 +882,6 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
     controller->lgtks.gtk_index = -1;
     controller->frame_cnt_store_timer = FRAME_COUNTER_STORE_INTERVAL;
     controller->frame_cnt_store_force_timer = FRAME_COUNTER_STORE_FORCE_INTERVAL;
-    controller->restart_cnt = 0;
     controller->auth_started = false;
     ws_pae_controller_frame_counter_reset(&controller->gtks.frame_counters);
     ws_pae_controller_frame_counter_reset(&controller->lgtks.frame_counters);
@@ -908,13 +906,11 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
     uint64_t stored_time = 0;
 
     // Read frame counters
-    if (ws_pae_controller_nvm_frame_counter_read(&controller->restart_cnt, &stored_time, &controller->sec_keys_nw_info.pan_version, &controller->sec_keys_nw_info.lpan_version, &controller->gtks.frame_counters, &controller->lgtks.frame_counters) >= 0) {
+    if (ws_pae_controller_nvm_frame_counter_read(&stored_time, &controller->sec_keys_nw_info.pan_version, &controller->sec_keys_nw_info.lpan_version, &controller->gtks.frame_counters, &controller->lgtks.frame_counters) >= 0) {
         // Check if stored time is not valid
         if (ws_pae_stored_time_check_and_set(stored_time) < 0) {
             ret_value = -1;
         }
-        // This is used to ensure that PMK replay counters are fresh after each re-start.
-        controller->restart_cnt++;
 
         // Increments PAN version to ensure that it is fresh
         controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
@@ -2137,7 +2133,6 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
         //        and ws_info->pan_information.lpan_version
         fprintf(info->file, "pan_version = %d\n", entry->sec_keys_nw_info.pan_version);
         fprintf(info->file, "lpan_version = %d\n", entry->sec_keys_nw_info.lpan_version);
-        fprintf(info->file, "restart_counter = %u\n", entry->restart_cnt);
         for (i = 0; i < GTK_NUM; i++) {
             if (entry->gtks.frame_counters.counter[i].set) {
                 str_key(entry->gtks.frame_counters.counter[i].gtk, GTK_LEN, str_buf, sizeof(str_buf));
@@ -2162,7 +2157,7 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     }
 }
 
-static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time,
+static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
                                                        uint16_t *pan_version, uint16_t *lpan_version,
                                                        frame_counters_t *gtk_counters,
                                                        frame_counters_t *lgtk_counters)
@@ -2185,8 +2180,6 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, ui
             *pan_version = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("lpan_version", info->key, 0)) {
             *lpan_version = strtoul(info->value, NULL, 0);
-        } else if (!fnmatch("restart_counter", info->key, 0)) {
-            *restart_cnt = strtoul(info->value, NULL, 0);
         } else if (!fnmatch("gtk\\[*]", info->key, 0) && info->key_array_index < 4) {
             if (parse_byte_array(gtk_counters->counter[info->key_array_index].gtk, GTK_LEN, info->value))
                 WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
