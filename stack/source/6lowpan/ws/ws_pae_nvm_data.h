@@ -28,7 +28,6 @@
  */
 
 // file names
-#define NW_INFO_FILE_NAME               "pae_nw_info_1.1"
 #define KEYS_FILE_NAME                  "pae_keys"
 #define FRAME_COUNTER_FILE_NAME         "pae_frame_counter_1.1"
 
@@ -94,27 +93,6 @@ void ws_pae_nvm_store_generic_tlv_create(nvm_tlv_t *tlv_entry, uint16_t tag, uin
 nvm_tlv_t *ws_pae_nvm_store_generic_tlv_allocate_and_create(uint16_t tag, uint16_t length);
 
 void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
-
-/**
- * ws_pae_nvm_store_nw_info_tlv_create create NVM network info TLV
- *
- * \param tlv_entry TLV
- * \param pan_id PAN ID
- * \param nw_name network name
- * \param gtks GTK keys
- * \param stored_time stored timestampt
- * \param time_changed stored time has changed
- *
- * \return TLV entry or NULL
- *
- */
-void ws_pae_nvm_store_nw_info_tlv_create(nw_info_nvm_tlv_t *tlv_entry,
-                                         uint16_t pan_id, char *nw_name,
-                                         uint8_t *gtk_eui64,
-                                         sec_prot_gtk_keys_t *gtks,
-                                         sec_prot_gtk_keys_t *lgtks,
-                                         uint64_t stored_time,
-                                         uint8_t time_changed);
 
 /**
  * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV

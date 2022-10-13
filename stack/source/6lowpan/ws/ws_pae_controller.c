@@ -167,7 +167,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
 
 
 static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
-static const char *NW_INFO_FILE = NW_INFO_FILE_NAME;
 
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
@@ -1066,16 +1065,6 @@ static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_
         }
     }
     storage_close(info);
-
-    nw_info_nvm_tlv_t *tlv = (nw_info_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(interface_ptr);
-    if (!tlv) {
-        return -1;
-    }
-
-    ws_pae_nvm_store_nw_info_tlv_create(tlv, pan_id, network_name, gtk_eui64, gtks, lgtks, stored_time, time_changed);
-
-    ws_pae_nvm_store_tlv_file_write(NW_INFO_FILE, (nvm_tlv_t *) tlv);
-
     return 0;
 }
 
