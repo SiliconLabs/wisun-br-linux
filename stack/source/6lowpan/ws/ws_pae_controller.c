@@ -2140,8 +2140,45 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
     }
 
     if (update_needed || entry->frame_cnt_store_force_timer == 0) {
+        struct storage_parse_info *info = storage_open_prefix("counters", "w");
+        char str_buf[256];
+        int i;
+
+        if (!info)
+            return;
+        fprintf(info->file, "# stored time: %" PRIu64 "\n", ws_pae_current_time_get());
+        // FIXME: It seems harmless, but entry->sec_keys_nw_info.pan_version and
+        //        entry->sec_keys_nw_info.lpan_version are not set on wsnode.
+        //        They could be replaced by ws_info->pan_information.pan_version
+        //        and ws_info->pan_information.lpan_version
+        fprintf(info->file, "pan_version = %d\n", entry->sec_keys_nw_info.pan_version);
+        fprintf(info->file, "lpan_version = %d\n", entry->sec_keys_nw_info.lpan_version);
+        fprintf(info->file, "restart_counter = %u\n", entry->restart_cnt);
+        for (i = 0; i < GTK_NUM; i++) {
+            if (entry->gtks.frame_counters.counter[i].set) {
+                str_key(entry->gtks.frame_counters.counter[i].gtk, GTK_LEN, str_buf, sizeof(str_buf));
+                fprintf(info->file, "gtk[%d] = %s\n", i, str_buf);
+                fprintf(info->file, "gtk[%d].frame_counter = %d\n", i,
+                        entry->gtks.frame_counters.counter[i].frame_counter);
+                fprintf(info->file, "gtk[%d].max_frame_counter = %d\n", i,
+                        entry->gtks.frame_counters.counter[i].max_frame_counter_chg);
+            }
+        }
+        for (i = 0; i < LGTK_NUM; i++) {
+            if (entry->lgtks.frame_counters.counter[i].set) {
+                str_key(entry->lgtks.frame_counters.counter[i].gtk, GTK_LEN, str_buf, sizeof(str_buf));
+                fprintf(info->file, "lgtk[%d] = %s\n", i, str_buf);
+                fprintf(info->file, "lgtk[%d].frame_counter = %d\n", i,
+                        entry->lgtks.frame_counters.counter[i].frame_counter);
+                fprintf(info->file, "lgtk[%d].max_frame_counter = %d\n", i,
+                        entry->lgtks.frame_counters.counter[i].max_frame_counter_chg);
+            }
+        }
+        storage_close(info);
+
         tr_debug("Write frame counters: system time %"PRIu32"", g_monotonic_time_100ms / 10);
         uint64_t system_time = ws_pae_current_time_get();
+
         // Writes modified frame counters
         ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt,
                                                   entry->sec_keys_nw_info.pan_version, entry->sec_keys_nw_info.lpan_version,
