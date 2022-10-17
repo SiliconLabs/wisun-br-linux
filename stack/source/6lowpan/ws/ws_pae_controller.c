@@ -138,7 +138,6 @@ static int8_t  ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_i
 static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
-static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry);
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, uint64_t *stored_time,
                                                        uint16_t *pan_version, uint16_t *lpan_version,
                                                        frame_counters_t *gtk_counters,
@@ -165,8 +164,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
                                                  uint64_t current_time, uint8_t *time_changed);
 
-
-static const char *FRAME_COUNTER_FILE = FRAME_COUNTER_FILE_NAME;
 
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
 
@@ -2175,18 +2172,6 @@ static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool 
             }
         }
         storage_close(info);
-
-        tr_debug("Write frame counters: system time %"PRIu32"", g_monotonic_time_100ms / 10);
-        uint64_t system_time = ws_pae_current_time_get();
-
-        // Writes modified frame counters
-        ws_pae_nvm_store_frame_counter_tlv_create((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer, entry->restart_cnt,
-                                                  entry->sec_keys_nw_info.pan_version, entry->sec_keys_nw_info.lpan_version,
-                                                  &entry->gtks.frame_counters, &entry->lgtks.frame_counters, system_time);
-        ws_pae_controller_nvm_frame_counter_write((frame_cnt_nvm_tlv_t *) &entry->pae_nvm_buffer);
-
-        // Reset force interval when ever values are stored
-        entry->frame_cnt_store_force_timer = FRAME_COUNTER_STORE_FORCE_INTERVAL;
     }
 }
 
@@ -2279,12 +2264,6 @@ nvm_tlv_t *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *interf
     }
 
     return (nvm_tlv_t *) &controller->pae_nvm_buffer;
-}
-
-static void ws_pae_controller_nvm_frame_counter_write(frame_cnt_nvm_tlv_t *tlv_entry)
-{
-    ws_pae_nvm_store_tlv_file_write(FRAME_COUNTER_FILE, (nvm_tlv_t *) tlv_entry);
-
 }
 
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)

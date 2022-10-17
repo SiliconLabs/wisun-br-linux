@@ -134,48 +134,6 @@ int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t
     return 0;
 }
 
-static uint8_t *ws_pae_nvm_store_frame_counter_tlv_create_counter(uint8_t *tlv,
-                                                           frame_counters_t *counters)
-{
-    for (uint8_t index = 0; index < GTK_NUM; index++) {
-        if (!counters->counter[index].set) {
-            *tlv++ = PAE_NVM_FIELD_NOT_SET;
-            memset(tlv, 0, GTK_LEN + 4 + 4);
-            tlv += GTK_LEN + 4 + 4;
-            continue;
-        }
-        *tlv++ = PAE_NVM_FIELD_SET;
-        memcpy(tlv, counters->counter[index].gtk, GTK_LEN);
-        tlv += GTK_LEN;
-        tlv = common_write_32_bit(counters->counter[index].frame_counter, tlv);
-        tlv = common_write_32_bit(counters->counter[index].max_frame_counter_chg, tlv);
-    }
-    return tlv;
-}
-
-void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
-                                               uint32_t restart_cnt,
-                                               uint16_t pan_version,
-                                               uint16_t lpan_version,
-                                               frame_counters_t *gtk_counters,
-                                               frame_counters_t *lgtk_counters,
-                                               uint64_t stored_time)
-{
-    tlv_entry->tag = PAE_NVM_FRAME_COUNTER_TAG;
-    tlv_entry->len = PAE_NVM_FRAME_COUNTER_LEN;
-
-    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
-
-    tlv = common_write_32_bit(restart_cnt, tlv);
-    tlv = common_write_64_bit(stored_time, tlv);
-    tlv = common_write_16_bit(pan_version, tlv);
-    tlv = common_write_16_bit(lpan_version, tlv);
-    tlv = ws_pae_nvm_store_frame_counter_tlv_create_counter(tlv, gtk_counters);
-    tlv = ws_pae_nvm_store_frame_counter_tlv_create_counter(tlv, lgtk_counters);
-
-    tr_info("NVM FRAME COUNTER write; stored time: %"PRIu64, stored_time);
-}
-
 void ws_pae_nvm_store_key_storage_index_tlv_create(nvm_tlv_t *tlv_entry, uint64_t bitfield)
 {
     tlv_entry->tag = PAE_NVM_KEY_STORAGE_INDEX_TAG;
@@ -228,8 +186,5 @@ int8_t ws_pae_nvm_store_key_storage_tlv_read(nvm_tlv_t *tlv_entry, uint16_t leng
     }
 
     tr_debug("NVM KEY STORAGE read");
-
     return 0;
 }
-
-
