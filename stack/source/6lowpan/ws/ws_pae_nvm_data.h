@@ -134,27 +134,6 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
                                                uint64_t stored_time);
 
 /**
- * ws_pae_nvm_store_frame_counter_tlv_read read from NVM frame counter TLV
- *
- * \param tlv_entry TLV
- * \param restart_cnt re-start counter
- * \param stored_time stored timestampt
- * \param pan_version PAN version
- * \param counters frame counters
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_nvm_store_frame_counter_tlv_read(frame_cnt_nvm_tlv_t *tlv_entry,
-                                               uint32_t *restart_cnt,
-                                               uint64_t *stored_time,
-                                               uint16_t *pan_version,
-                                               uint16_t *lpan_version,
-                                               frame_counters_t *gtk_counters,
-                                               frame_counters_t *lgtk_counters);
-
-/**
  * ws_pae_nvm_store_key_storage_index_tlv_create create NVM key storage index TLV
  *
  * \param tlv_entry TLV entry

@@ -2195,24 +2195,49 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint32_t *restart_cnt, ui
                                                        frame_counters_t *gtk_counters,
                                                        frame_counters_t *lgtk_counters)
 {
-    frame_cnt_nvm_tlv_t *tlv = (frame_cnt_nvm_tlv_t *) ws_pae_nvm_store_generic_tlv_allocate_and_create(
-                                   PAE_NVM_FRAME_COUNTER_TAG, PAE_NVM_FRAME_COUNTER_LEN);
-    if (!tlv) {
+    struct storage_parse_info *info = storage_open_prefix("counters", "r");
+    int ret;
+
+    if (!info)
         return -1;
+
+    // Wednesday, January 1, 2020 0:00:00 GMT
+    *stored_time = 1577836800;
+    for (;;) {
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret) {
+            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
+        } else if (!fnmatch("pan_version", info->key, 0)) {
+            *pan_version = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("lpan_version", info->key, 0)) {
+            *lpan_version = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("restart_counter", info->key, 0)) {
+            *restart_cnt = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("gtk\\[*]", info->key, 0) && info->key_array_index < 4) {
+            if (parse_byte_array(gtk_counters->counter[info->key_array_index].gtk, GTK_LEN, info->value))
+                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
+            else
+                gtk_counters->counter[info->key_array_index].set = true;
+        } else if (!fnmatch("lgtk\\[*]", info->key, 0) && info->key_array_index < 3) {
+            if (parse_byte_array(lgtk_counters->counter[info->key_array_index].gtk, GTK_LEN, info->value))
+                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
+            else
+                lgtk_counters->counter[info->key_array_index].set = true;
+        } else if (!fnmatch("gtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 4) {
+            gtk_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("lgtk\\[*].frame_counter", info->key, 0) && info->key_array_index < 3) {
+            lgtk_counters->counter[info->key_array_index].frame_counter = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("gtk\\[*].max_frame_counter", info->key, 0) && info->key_array_index < 4) {
+            gtk_counters->counter[info->key_array_index].max_frame_counter_chg = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("lgtk\\[*].max_frame_counter", info->key, 0) && info->key_array_index < 3) {
+            lgtk_counters->counter[info->key_array_index].max_frame_counter_chg = strtoul(info->value, NULL, 0);
+        } else {
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+        }
     }
-
-    if (ws_pae_nvm_store_tlv_file_read(FRAME_COUNTER_FILE, (nvm_tlv_t *) tlv) < 0) {
-        ws_pae_nvm_store_generic_tlv_free((nvm_tlv_t *) tlv);
-        return -1;
-    }
-
-    if (ws_pae_nvm_store_frame_counter_tlv_read(tlv, restart_cnt, stored_time, pan_version, lpan_version, gtk_counters, lgtk_counters) < 0) {
-        ws_pae_nvm_store_generic_tlv_free((nvm_tlv_t *) tlv);
-        return -1;
-    }
-
-    ws_pae_nvm_store_generic_tlv_free((nvm_tlv_t *) tlv);
-
+    storage_close(info);
     return 0;
 }
 
