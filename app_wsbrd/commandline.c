@@ -532,7 +532,7 @@ static void parse_config_file(struct wsbrd_conf *config, const char *filename)
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
-    static const char *opts_short = "u:sF:o:t:T:n:d:m:c:S:K:C:A:b:Hhv";
+    static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:Hhv";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
