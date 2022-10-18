@@ -14,11 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fnmatch.h>
+#include "common/parsers.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/key_value_storage.h"
@@ -443,15 +445,60 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 
 static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
 {
-    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
-    if (!tlv) {
+    struct storage_parse_info *info = storage_open_prefix("pairwise-keys", "r");
+    sec_prot_keys_t *sec_keys = &pae_supp->entry.sec_keys;
+    uint64_t current_time = ws_pae_current_time_get();
+    int ret;
+
+    if (!info)
         return -1;
+    sec_keys->pmk_lifetime = 0;
+    sec_keys->ptk_lifetime = 0;
+    for (;;) {
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret) {
+            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
+        } else if (!fnmatch("authenticator_eui64", info->key, 0)) {
+            if (parse_byte_array(sec_keys->ptk_eui_64, 8, info->value))
+                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
+            else
+                sec_keys->ptk_eui_64_set = true;
+        } else if (!fnmatch("pmk", info->key, 0)) {
+            if (parse_byte_array(sec_keys->pmk, PMK_LEN, info->value))
+                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
+            else
+                sec_keys->pmk_set = true;
+        } else if (!fnmatch("ptk", info->key, 0)) {
+            if (parse_byte_array(sec_keys->ptk, PTK_LEN, info->value))
+                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
+            else
+                sec_keys->ptk_set = true;
+        } else if (!fnmatch("pmk.lifetime", info->key, 0)) {
+            if (current_time < strtoull(info->value, NULL, 0))
+                sec_keys->pmk_lifetime = strtoull(info->value, NULL, 0) - current_time;
+            else
+                WARN("%s:%d: expired PMK lifetime: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("ptk.lifetime", info->key, 0)) {
+            if (current_time < strtoull(info->value, NULL, 0))
+                sec_keys->ptk_lifetime = strtoull(info->value, NULL, 0) - current_time;
+            else
+                WARN("%s:%d: expired PTK lifetime: %s", info->filename, info->linenr, info->value);
+        } else if (!fnmatch("pmk.replay_counter", info->key, 0)) {
+            sec_keys->pmk_key_replay_cnt = strtoull(info->value, NULL, 0);
+            sec_keys->pmk_key_replay_cnt_set = true;
+        } else {
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+        }
     }
-    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) tlv, PAE_NVM_KEYS_TAG, PAE_NVM_KEYS_LEN);
-    if (ws_pae_nvm_store_tlv_file_read(KEYS_FILE_NAME, (nvm_tlv_t *) tlv) < 0) {
-        return -1;
-    }
-    ws_pae_nvm_store_keys_tlv_read(tlv, &pae_supp->entry.sec_keys);
+    sec_keys->updated = false;
+    if (!sec_keys->ptk_lifetime)
+        sec_keys->ptk_set = false;
+    if (!sec_keys->pmk_lifetime)
+        sec_keys->pmk_set = false;
+    storage_close(info);
+
     return 0;
 }
 

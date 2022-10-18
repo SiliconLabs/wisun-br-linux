@@ -104,18 +104,6 @@ void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
 void ws_pae_nvm_store_keys_tlv_create(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
 
 /**
- * ws_pae_nvm_store_nw_info_tlv_read read from NVM keys TLV
- *
- * \param tlv_entry TLV
- * \param sec_keys security keys
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_nvm_store_keys_tlv_read(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
-
-/**
  * ws_pae_nvm_store_frame_counter_tlv_create create NVM frame counter TLV
  *
  * \param tlv_entry TLV buffer pointer
