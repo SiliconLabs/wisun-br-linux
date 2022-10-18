@@ -131,6 +131,11 @@ char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, 
     return out;
 }
 
+char *str_key(const uint8_t *in, int in_len, char *out, int out_len)
+{
+    return str_bytes(in, in_len, NULL, out, out_len, DELIM_COLON);
+}
+
 char *str_eui48(const uint8_t in[static 6], char out[static STR_MAX_LEN_EUI48])
 {
     return str_bytes(in, 6, NULL, out, STR_MAX_LEN_EUI64, DELIM_COLON);
@@ -254,6 +259,18 @@ const char *tr_bytes_ascii(const void *in, int len, int opt)
     char *out = trace_buffer + trace_idx;
 
     str_bytes_ascii(in, len, out, sizeof(trace_buffer) - trace_idx, opt);
+    trace_idx += strlen(out) + 1;
+    BUG_ON(trace_idx > sizeof(trace_buffer));
+    return out;
+}
+
+const char *tr_key(const uint8_t in[], int in_len)
+{
+    char *out = trace_buffer + trace_idx;
+
+    if (trace_idx + in_len * 3 > sizeof(trace_buffer))
+        return "[OVERFLOW]";
+    str_key(in, in_len, out, in_len * 3);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;
