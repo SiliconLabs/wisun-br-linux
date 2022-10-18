@@ -170,21 +170,21 @@ several dozen of seconds) or [create the interface before launching
 
 ### Using `dnsmasq` as DHCP server
 
-`dnsmasq` does not need any specific options. A classical invocation can be used:
+`dnsmasq` does not need any specific options. A classical invocation can be
+used. We suggest to increase the lease time (`336h`) and disable DNS server
+(`-p 0`):
 
-    sudo dnsmasq -d -C /dev/null -i tun0 --dhcp-range ::,constructor:tun0,64,336h
-
-You can also add `-p 0` to disable the DNS capabilities of `dnsmasq`.
+    sudo dnsmasq -d -C /dev/null -p 0 -i tun0 --dhcp-range 2001:db8::,2001:db8::ffff,64,336h
 
 ### Using `dnsmasq` as DHCP relay
 
 To start the DHCP relay, you have to bind the `Wi-SUN` and the upstream network
 interfaces (`tun0` and `eth0`). Then specify the IP addresses of the DHCP server
-(`2001:db8::1`) and of the `wsbrd` interface (`fd01:db8::acde:4823:4567:019f`)
-to the `--dhcp-relay` option. You can also disable the DNS server (which is
-useless in this case) with `-p 0`;
+(`2001:db8:a::1`) and of the `wsbrd` interface (`2001:db8:b::1`) to the
+`--dhcp-relay` option. You can also disable the DNS server (which is useless in
+this case) with `-p 0`;
 
-    sudo dnsmasq -d -C /dev/null -i tun0,eth0 --dhcp-relay fd01:db8::acde:4823:4567:019f,2001:db8::1 -p 0
+    sudo dnsmasq -d -C /dev/null -p 0 -i tun0,eth0 --dhcp-relay 2001:db8:a::1,2001:db8:b::1
 
 ## Using `isc-dhcp`
 
@@ -203,7 +203,7 @@ for details:
 ### Using `isc-dhcrelay` as DHCP relay
 
 To start the DHCP relay, you have to provide the `wsbrd` network interface
-(`tun0`), the address of the DHCP server (`2001:0db8::1` in the example below)
+(`tun0`), the address of the DHCP server (`2001:db8::1` in the example below)
 and the network interface associated with this address (see [dhcprelay
 manpage][8]):
 
@@ -253,8 +253,8 @@ to do it by yourself.
 Disable the `tun_autoconf` parameter in `wsbrd`'s configuration. Then add IP
 addresses by yourself:
 
-    sudo ip addr add dev tun0 fe80::acde:4823:4567:019f/64
-    sudo ip addr add dev tun0 2001:db8::acde:4823:4567:019f/64
+    sudo ip addr add dev tun0 fe80::200:5eef:1000:1/64
+    sudo ip addr add dev tun0 2001:db8::200:5eef:1000:1/64
 
 The 64 least significant bits of these addresses must match with the EUI-64 of
 the RCP (you can check logs of `wsbrd` to find it).
