@@ -55,7 +55,6 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
-#include "6lowpan/ws/ws_pae_nvm_store.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
@@ -72,20 +71,6 @@ static uint8_t current_instance_id = RPL_INSTANCE_ID;
 #define WS_ROUTE_LIFETIME WS_ULA_LIFETIME
 #define BBR_CHECK_INTERVAL 60
 #define BBR_BACKUP_ULA_DELAY 300
-
-//TAG ID This must be update if NVM_BBR_INFO_LEN or data structure
-#define NVM_BBR_INFO_TAG        1
-// BSI 2 bytes
-#define NVM_BBR_INFO_LEN        4
-
-typedef struct bbr_info_nvm_tlv {
-    uint16_t tag;                         /**< Unique tag */
-    uint16_t len;                         /**< Number of the bytes after the length field */
-    uint8_t data[NVM_BBR_INFO_LEN];       /**< Data */
-} bbr_info_nvm_tlv_t;
-
-//NVM file name
-static const char *BBR_INFO_FILE = "pae_bbr_info";
 
 /* when creating BBR make ULA dodag ID always and when network becomes available add prefix to DHCP
  *
@@ -118,28 +103,8 @@ static rpl_dodag_conf_t rpl_conf = {
     .dio_redundancy_constant = WS_RPL_DIO_REDUNDANCY_SMALL
 };
 
-//BBR NVM info buffer
-
-#define BBR_NVM_BSI_OFFSET 0
-static bbr_info_nvm_tlv_t bbr_info_nvm_tlv = {
-    .tag = NVM_BBR_INFO_TAG,
-    .len = 0,
-    .data = {0}
-};
-
 static uint16_t ws_bbr_fhss_bsi = 0;
 static uint16_t ws_bbr_pan_id = 0xffff;
-
-static void ws_bbr_info_tlv_write(bbr_info_nvm_tlv_t *tlv_entry, uint16_t bsi, uint16_t pan_id)
-{
-    tlv_entry->tag = NVM_BBR_INFO_TAG;
-    tlv_entry->len = NVM_BBR_INFO_LEN;
-
-    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
-
-    tlv = common_write_16_bit(bsi, tlv);
-    common_write_16_bit(pan_id, tlv);
-}
 
 static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 {
@@ -169,10 +134,6 @@ static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
 {
     struct storage_parse_info *info = storage_open_prefix("br-info", "w");
-
-    ws_bbr_info_tlv_write(&bbr_info_nvm_tlv, bsi, pan_id);
-    ws_pae_nvm_store_tlv_file_write(BBR_INFO_FILE, (nvm_tlv_t *) &bbr_info_nvm_tlv);
-    tr_debug("BBR info NVM update");
 
     if (!info)
         return;
