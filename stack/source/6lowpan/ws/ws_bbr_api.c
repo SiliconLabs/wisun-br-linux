@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <fnmatch.h>
 #include "app_wsbrd/wsbr.h"
 #include "common/rand.h"
 #include "common/bits.h"
@@ -129,21 +130,6 @@ static bbr_info_nvm_tlv_t bbr_info_nvm_tlv = {
 static uint16_t ws_bbr_fhss_bsi = 0;
 static uint16_t ws_bbr_pan_id = 0xffff;
 
-static int8_t ws_bbr_info_tlv_read(bbr_info_nvm_tlv_t *tlv_entry, uint16_t *bsi, uint16_t *pan_id)
-{
-    if (tlv_entry->tag != NVM_BBR_INFO_TAG || tlv_entry->len != NVM_BBR_INFO_LEN) {
-        return -1;
-    }
-
-    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
-
-    *bsi = common_read_16_bit(tlv);
-    tlv += 2;
-    *pan_id = common_read_16_bit(tlv);
-
-    return 0;
-}
-
 static void ws_bbr_info_tlv_write(bbr_info_nvm_tlv_t *tlv_entry, uint16_t bsi, uint16_t pan_id)
 {
     tlv_entry->tag = NVM_BBR_INFO_TAG;
@@ -157,18 +143,26 @@ static void ws_bbr_info_tlv_write(bbr_info_nvm_tlv_t *tlv_entry, uint16_t bsi, u
 
 static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 {
-    ws_pae_nvm_store_generic_tlv_create((nvm_tlv_t *) &bbr_info_nvm_tlv, NVM_BBR_INFO_TAG, NVM_BBR_INFO_LEN);
+    struct storage_parse_info *info = storage_open_prefix("br-info", "r");
+    int ret;
 
-    if (ws_pae_nvm_store_tlv_file_read(BBR_INFO_FILE, (nvm_tlv_t *) &bbr_info_nvm_tlv) < 0) {
-        ws_pae_nvm_store_tlv_file_remove(BBR_INFO_FILE);
+    if (!info)
         return -1;
+    for (;;) {
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret) {
+            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
+        } else if (!fnmatch("bsi", info->key, 0)) {
+            *bsi = strtoul(info->value, NULL, 0);
+        } else if (!fnmatch("pan_id", info->key, 0)) {
+            *pan_id = strtoul(info->value, NULL, 0);
+        } else {
+            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
+        }
     }
-
-    if (ws_bbr_info_tlv_read(&bbr_info_nvm_tlv, bsi, pan_id) < 0) {
-        ws_pae_nvm_store_tlv_file_remove(BBR_INFO_FILE);
-        return -1;
-    }
-
+    storage_close(info);
     return 0;
 }
 
