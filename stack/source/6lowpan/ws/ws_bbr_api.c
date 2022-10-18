@@ -174,10 +174,18 @@ static int8_t ws_bbr_nvm_info_read(uint16_t *bsi, uint16_t *pan_id)
 
 static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
 {
-    ws_bbr_info_tlv_write(&bbr_info_nvm_tlv, bsi, pan_id);
+    struct storage_parse_info *info = storage_open_prefix("br-info", "w");
 
+    ws_bbr_info_tlv_write(&bbr_info_nvm_tlv, bsi, pan_id);
     ws_pae_nvm_store_tlv_file_write(BBR_INFO_FILE, (nvm_tlv_t *) &bbr_info_nvm_tlv);
     tr_debug("BBR info NVM update");
+
+    if (!info)
+        return;
+    fprintf(info->file, "# Broadcast Schedule Identifier\n");
+    fprintf(info->file, "bsi = %d\n", bsi);
+    fprintf(info->file, "pan_id = %#04x\n", pan_id);
+    storage_close(info);
 }
 
 static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur, uint8_t version)
