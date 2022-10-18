@@ -18,6 +18,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/key_value_storage.h"
 #include "stack-services/ns_list.h"
@@ -403,13 +405,38 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
 {
-    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *) ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+    struct storage_parse_info *info = storage_open_prefix("pairwise-keys", "w");
+    sec_prot_keys_t *sec_keys = &pae_supp->entry.sec_keys;
+    uint64_t current_time = ws_pae_current_time_get();
+    char str_buf[256];
+    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *)ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
+
     if (!tlv) {
         return -1;
     }
 
-    ws_pae_nvm_store_keys_tlv_create(tlv, &pae_supp->entry.sec_keys);
+    ws_pae_nvm_store_keys_tlv_create(tlv, sec_keys);
     ws_pae_nvm_store_tlv_file_write(KEYS_FILE, (nvm_tlv_t *) tlv);
+
+    if (!info)
+        return -1;
+    if (sec_keys->ptk_eui_64_set) {
+        str_key(sec_keys->ptk_eui_64, 8, str_buf, sizeof(str_buf));
+        fprintf(info->file, "authenticator_eui64 = %s\n", str_buf);
+    }
+    if (sec_keys->pmk_set) {
+        str_key(sec_keys->pmk, sizeof(sec_keys->pmk), str_buf, sizeof(str_buf));
+        fprintf(info->file, "pmk = %s\n", str_buf);
+        fprintf(info->file, "pmk.lifetime = %" PRIu64 "\n", current_time + pae_supp->entry.sec_keys.pmk_lifetime);
+    }
+    if (sec_keys->pmk_key_replay_cnt_set)
+        fprintf(info->file, "pmk.replay_counter = %" PRIu64 "\n", sec_keys->pmk_key_replay_cnt);
+    if (sec_keys->ptk_set) {
+        str_key(sec_keys->ptk, sizeof(sec_keys->ptk), str_buf, sizeof(str_buf));
+        fprintf(info->file, "ptk = %s\n", str_buf);
+        fprintf(info->file, "ptk.lifetime = %" PRIu64 "\n", current_time + sec_keys->ptk_lifetime);
+    }
+    storage_close(info);
 
     return 0;
 }
