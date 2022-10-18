@@ -96,14 +96,15 @@ const char *spinel_prop_str(int prop)
         prop_name(WS_MULTI_CSMA_PARAMETERS),
         prop_name(WS_REQUEST_RESTART),
         prop_name(WS_RESET),
-        prop_name(WS_RF_CONFIGURATION),
         prop_name(WS_RX_ON_WHEN_IDLE),
         prop_name(WS_SECURITY_ENABLED),
         prop_name(WS_START),
         prop_name(WS_MAC_FILTER_START),
         prop_name(WS_MAC_FILTER_CLEAR),
         prop_name(WS_MAC_FILTER_ADD_LONG),
-        prop_name(WS_MAC_FILTER_STOP)
+        prop_name(WS_MAC_FILTER_STOP),
+        prop_name(WS_RF_CONFIGURATION),
+        prop_name(WS_RF_CONFIGURATION_LIST),
     };
 
     for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)
