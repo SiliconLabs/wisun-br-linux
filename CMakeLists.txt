@@ -133,7 +133,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_pae_controller.c
     stack/source/6lowpan/ws/ws_pae_key_storage.c
     stack/source/6lowpan/ws/ws_pae_lib.c
-    stack/source/6lowpan/ws/ws_pae_nvm_store.c
     # stack/source/6lowpan/ws/ws_pae_supp.c
     stack/source/6lowpan/ws/ws_pae_time.c
     stack/source/6lowpan/ws/ws_pae_timers.c
@@ -343,7 +342,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/ws/ws_pae_controller.c
         stack/source/6lowpan/ws/ws_pae_key_storage.c
         stack/source/6lowpan/ws/ws_pae_lib.c
-        stack/source/6lowpan/ws/ws_pae_nvm_store.c
         stack/source/6lowpan/ws/ws_pae_supp.c
         stack/source/6lowpan/ws/ws_pae_time.c
         stack/source/6lowpan/ws/ws_pae_timers.c
