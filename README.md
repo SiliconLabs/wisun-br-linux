@@ -150,11 +150,7 @@ Web site][7] (restricted access).
 an external DHCPv6 server. If the DHCP server run on a remote host, you need to
 launch a DHCPv6 relay.
 `wsbrd` has been tested with ISC DHCP and dnsmasq. Both projects provide DHCP
-server and DHCP relay implementations. Note there are some restrictions:
-
-  - ISC DHCP needs to be patched (for relay and server). You will find patches
-    in `misc/`.
-  - DHCP relay provided by dnsmasq < 2.87 has some issues.
+server and DHCP relay implementations.
 
 First you have to deactivate the internal dhcp server of `wsbrd` in wbsrd.conf:
 
@@ -167,6 +163,10 @@ several dozen of seconds) or [create the interface before launching
 `wsbrd`](#running-wsbrd-without-root-privilege).
 
 ## Using `dnsmasq`
+
+Because of [this issue][9], `dnsmasq` is supported from the version 2.87.
+
+[9]: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg16394.html
 
 ### Using `dnsmasq` as DHCP server
 
@@ -187,6 +187,9 @@ this case) with `-p 0`;
     sudo dnsmasq -d -C /dev/null -p 0 -i tun0,eth0 --dhcp-relay 2001:db8:a::1,2001:db8:b::1
 
 ## Using `isc-dhcp`
+
+Note that ISC DHCP needs to be patched to comply with Wi-SUN specification (for
+relay and server). We provide the needed patches in `misc/`.
 
 ### Using `isc-dhcpd` as DHCP server
 
