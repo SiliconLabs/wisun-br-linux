@@ -45,8 +45,6 @@
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_supp.h"
 #include "6lowpan/ws/ws_pae_auth.h"
-#include "6lowpan/ws/ws_pae_nvm_store.h"
-#include "6lowpan/ws/ws_pae_nvm_data.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
 
@@ -116,7 +114,6 @@ typedef struct pae_controller {
     ws_pae_gtk_hash_update *pae_gtk_hash_update;                     /**< PAE GTK HASH update */
     ws_pae_nw_key_index_update *pae_nw_key_index_update;             /**< PAE NW key index update */
     ws_pae_nw_info_set *pae_nw_info_set;                             /**< PAE security key network info set */
-    uint8_t pae_nvm_buffer[PAE_NVM_DEFAULT_BUFFER_SIZE];             /**< Buffer for PAE NVM read and write operations */
     bool frame_counter_read : 1;                                     /**< Frame counters has been read */
     bool auth_started : 1;                                           /**< Authenticator has been started */
 } pae_controller_t;
@@ -2254,16 +2251,6 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
     }
 
     return controller;
-}
-
-nvm_tlv_t *ws_pae_controller_nvm_tlv_get(protocol_interface_info_entry_t *interface_ptr)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return NULL;
-    }
-
-    return (nvm_tlv_t *) &controller->pae_nvm_buffer;
 }
 
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)

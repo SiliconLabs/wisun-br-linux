@@ -95,15 +95,6 @@ nvm_tlv_t *ws_pae_nvm_store_generic_tlv_allocate_and_create(uint16_t tag, uint16
 void ws_pae_nvm_store_generic_tlv_free(nvm_tlv_t *tlv_entry);
 
 /**
- * ws_pae_nvm_store_keys_tlv_create create NVM keys TLV
- *
- * \param tlv_entry TLV
- * \param sec_keys security keys
- *
- */
-void ws_pae_nvm_store_keys_tlv_create(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys);
-
-/**
  * ws_pae_nvm_store_frame_counter_tlv_create create NVM frame counter TLV
  *
  * \param tlv_entry TLV buffer pointer

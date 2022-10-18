@@ -56,8 +56,6 @@
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_lib.h"
 #include "6lowpan/ws/ws_pae_time.h"
-#include "6lowpan/ws/ws_pae_nvm_store.h"
-#include "6lowpan/ws/ws_pae_nvm_data.h"
 #include "6lowpan/ws/ws_eapol_pdu.h"
 
 #include "6lowpan/ws/ws_pae_supp.h"
@@ -163,8 +161,6 @@ static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .addr_check = ws_pae_supp_eapol_pdu_address_check,
     .receive = kmp_eapol_pdu_if_receive
 };
-
-static const char *KEYS_FILE = KEYS_FILE_NAME;
 
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_supp_list, pae_supp_t, link);
@@ -411,14 +407,6 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
     sec_prot_keys_t *sec_keys = &pae_supp->entry.sec_keys;
     uint64_t current_time = ws_pae_current_time_get();
     char str_buf[256];
-    keys_nvm_tlv_t *tlv = (keys_nvm_tlv_t *)ws_pae_controller_nvm_tlv_get(pae_supp->interface_ptr);
-
-    if (!tlv) {
-        return -1;
-    }
-
-    ws_pae_nvm_store_keys_tlv_create(tlv, sec_keys);
-    ws_pae_nvm_store_tlv_file_write(KEYS_FILE, (nvm_tlv_t *) tlv);
 
     if (!info)
         return -1;

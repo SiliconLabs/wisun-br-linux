@@ -37,53 +37,6 @@
 #define PAE_NVM_FIELD_NOT_SET            0   // Field is not present
 #define PAE_NVM_FIELD_SET                1   // Field is present
 
-void ws_pae_nvm_store_keys_tlv_create(keys_nvm_tlv_t *tlv_entry, sec_prot_keys_t *sec_keys)
-{
-    tlv_entry->tag = PAE_NVM_KEYS_TAG;
-    tlv_entry->len = PAE_NVM_KEYS_LEN;
-
-    uint8_t *tlv = (uint8_t *) &tlv_entry->data[0];
-
-    uint8_t *eui_64 = sec_prot_keys_ptk_eui_64_get(sec_keys);
-    if (eui_64) {
-        *tlv++ = PAE_NVM_FIELD_SET;
-        memcpy(tlv, eui_64, 8);
-    } else {
-        *tlv++ = PAE_NVM_FIELD_NOT_SET;
-        memset(tlv, 0, 8);
-    }
-    tlv += 8;
-
-    uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
-    if (pmk) {
-        *tlv++ = PAE_NVM_FIELD_SET;
-        uint32_t lifetime = sec_prot_keys_pmk_lifetime_get(sec_keys);
-        tlv = common_write_32_bit(lifetime, tlv);
-        memcpy(tlv, pmk, PMK_LEN);
-    } else {
-        *tlv++ = PAE_NVM_FIELD_NOT_SET;
-        memset(tlv, 0, 4 + PMK_LEN);
-    }
-    tlv += PMK_LEN;
-
-    uint64_t counter = sec_prot_keys_pmk_replay_cnt_get(sec_keys);
-    tlv = common_write_64_bit(counter, tlv);
-
-    uint8_t *ptk = sec_prot_keys_ptk_get(sec_keys);
-    if (ptk) {
-        *tlv++ = PAE_NVM_FIELD_SET;
-        uint32_t lifetime = sec_prot_keys_ptk_lifetime_get(sec_keys);
-        tlv = common_write_32_bit(lifetime, tlv);
-        memcpy(tlv, ptk, PTK_LEN);
-    } else {
-        *tlv++ = PAE_NVM_FIELD_NOT_SET;
-        memset(tlv, 0, 4 + PTK_LEN);
-    }
-    tlv += PTK_LEN;
-
-    tr_info("NVM KEYS write");
-}
-
 void ws_pae_nvm_store_key_storage_index_tlv_create(nvm_tlv_t *tlv_entry, uint64_t bitfield)
 {
     tlv_entry->tag = PAE_NVM_KEY_STORAGE_INDEX_TAG;
