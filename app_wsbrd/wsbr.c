@@ -537,8 +537,8 @@ int wsbr_main(int argc, char *argv[])
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
-    ns_file_system_set_root_path(ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL);
     ns_time_api_system_time_callback_set(wsbr_time_read);
+    g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.pan_size >= 0)

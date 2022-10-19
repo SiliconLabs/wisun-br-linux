@@ -1,18 +1,14 @@
 /*
- * Copyright (c) 2017-2020, Pelion and affiliates.
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2022 Silicon Laboratories Inc. (www.silabs.com)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 
 #include <string.h>
@@ -22,33 +18,4 @@
 
 #include "key_value_storage.h"
 
-static char *file_system_root;
-
-int ns_file_system_set_root_path(const char *root_path)
-{
-    char *new_root_path;
-
-    if (root_path == NULL || !root_path[0]) {
-        // File system usage disabled
-        free(file_system_root);
-        file_system_root = NULL;
-        return 0;
-    }
-
-    new_root_path = malloc(strlen(root_path) + 1);
-    if (!new_root_path) {
-        // mem alloc failed
-        return -2;
-    }
-
-    free(file_system_root);
-    file_system_root = new_root_path;
-    strcpy(file_system_root, root_path);
-
-    return 0;
-}
-
-char *ns_file_system_get_root_path(void)
-{
-    return file_system_root;
-}
+const char *g_storage_prefix = NULL;

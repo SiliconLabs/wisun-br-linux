@@ -1,48 +1,22 @@
 /*
- * Copyright (c) 2017, 2019-2020, Pelion and affiliates.
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2022 Silicon Laboratories Inc. (www.silabs.com)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #ifndef KEY_VALUE_STORAGE_H
 #define KEY_VALUE_STORAGE_H
 
 /**
- * \file ns_file_system.h
- * \brief Nanostack file system API.
+ * Helpers to read and write files.
  */
 
-/**
- * \brief Set file system root path.
- *
- *  Allow stack to store information to the location provided.
- *  Setting root path to NULL will prevent file system usage.
- *
- * \param root_path Path to location where networking files can be stored. Path must exists in the file system
- *   and path must end to "/" character. Path can be NULL to disable file system usage.
- *
- * \return 0 in success, negative value in case of error.
- *
- */
-
-int ns_file_system_set_root_path(const char *root_path);
-
-/**
- * \brief Get file system root path.
- *
- * \return Root path to stack storage location.
- *
- */
-char *ns_file_system_get_root_path(void);
+extern const char *g_storage_prefix;
 
 #endif

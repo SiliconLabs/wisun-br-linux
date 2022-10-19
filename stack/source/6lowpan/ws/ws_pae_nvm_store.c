@@ -120,7 +120,7 @@ int8_t ws_pae_nvm_store_tlv_file_remove(const char *file)
 
 static const char *ws_pae_nvm_store_get_root_path(void)
 {
-    char *path = ns_file_system_get_root_path();
+    const char *path = g_storage_prefix;
 
     if (NULL == path) {
         return "";
@@ -130,7 +130,7 @@ static const char *ws_pae_nvm_store_get_root_path(void)
 
 static int8_t ws_pae_nvm_store_root_path_valid(void)
 {
-    if (NULL == ns_file_system_get_root_path()) {
+    if (NULL == g_storage_prefix) {
         return 0;
     }
     int path_len = strlen(ws_pae_nvm_store_get_root_path());
