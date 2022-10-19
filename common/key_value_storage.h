@@ -19,4 +19,6 @@
 
 extern const char *g_storage_prefix;
 
+int storage_check_access(const char *storage_prefix);
+
 #endif

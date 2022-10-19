@@ -10,12 +10,26 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <unistd.h>
+#include <libgen.h>
 
 #include "key_value_storage.h"
 
 const char *g_storage_prefix = NULL;
+
+int storage_check_access(const char *storage_prefix)
+{
+    char *tmp;
+
+    if (!storage_prefix || !strlen(storage_prefix))
+        return 0;
+    if (storage_prefix[strlen(storage_prefix) - 1] == '/') {
+        return access(storage_prefix, W_OK);
+    } else {
+        tmp = strdupa(storage_prefix);
+        return access(dirname(tmp), W_OK);
+    }
+}

@@ -552,18 +552,6 @@ static void parse_config_file(struct wsbrd_conf *config, const char *filename)
     fclose(f);
 }
 
-int check_storage_access(const char *storage_prefix)
-{
-    char *tmp;
-
-    if (!strlen(storage_prefix))
-        return 0;
-    if (storage_prefix[strlen(storage_prefix) - 1] == '/')
-        return access(storage_prefix, W_OK);
-    tmp = strdupa(storage_prefix);
-    return access(dirname(tmp), W_OK);
-}
-
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
@@ -742,7 +730,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
     if (!strcmp(config->storage_prefix, "-"))
         config->storage_prefix[0]= '\0';
-    if (check_storage_access(config->storage_prefix))
+    if (storage_check_access(config->storage_prefix))
         FATAL(1, "%s: %m", config->storage_prefix);
     if (config->radius_server.ss_family == AF_UNSPEC) {
         if (!config->tls_own.key)
