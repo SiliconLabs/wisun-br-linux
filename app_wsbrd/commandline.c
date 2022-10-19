@@ -45,7 +45,7 @@
 
 struct parser_info {
     const char *filename;
-    int line_no;
+    int linenr;
     char line[256];
     char key[256];
 };
@@ -223,7 +223,7 @@ void print_help_node(FILE *stream) {
 
 static void conf_deprecated(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
 {
-    FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->line_no, info->key);
+    FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->linenr, info->key);
 }
 
 static void conf_set_bool(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -251,12 +251,12 @@ static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct parser
 
     *dest = strtol(raw_value, &end, 16);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
 
     for (i = 0; specs[i] != INT_MIN; i++)
         if (specs[i] == *dest)
             return;
-    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->line_no, raw_value);
+    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->linenr, raw_value);
 }
 
 static void conf_set_enum_int(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -268,12 +268,12 @@ static void conf_set_enum_int(struct wsbrd_conf *config, const struct parser_inf
 
     *dest = strtol(raw_value, &end, 0);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
 
     for (i = 0; specs[i] != INT_MIN; i++)
         if (specs[i] == *dest)
             return;
-    FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->line_no, info->key, raw_value);
+    FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
 }
 
 static void conf_set_number(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -284,9 +284,9 @@ static void conf_set_number(struct wsbrd_conf *config, const struct parser_info 
 
     *dest = strtol(raw_value, &end, 0);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
     if (specs && (specs->min > *dest || specs->max < *dest))
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->line_no, info->key, raw_value);
+        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
 }
 
 static void conf_set_string(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -295,7 +295,7 @@ static void conf_set_string(struct wsbrd_conf *config, const struct parser_info 
     char *dest = raw_dest;
 
     if (parse_escape_sequences(dest, raw_value, max_len))
-        FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->line_no);
+        FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->linenr);
 }
 
 static void conf_set_netmask(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -305,11 +305,11 @@ static void conf_set_netmask(struct wsbrd_conf *config, const struct parser_info
 
     BUG_ON(raw_param);
     if (sscanf(raw_value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->line_no, info->key, raw_value);
+        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
     if (len != 64)
-        FATAL(1, "%s:%d: invalid mask length: %d", info->filename, info->line_no, len);
+        FATAL(1, "%s:%d: invalid mask length: %d", info->filename, info->linenr, len);
     if (inet_pton(AF_INET6, mask, raw_dest) != 1)
-        FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->line_no, mask);
+        FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->linenr, mask);
 }
 
 static void conf_set_netaddr(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -321,7 +321,7 @@ static void conf_set_netaddr(struct wsbrd_conf *config, const struct parser_info
     BUG_ON(raw_param);
     err = getaddrinfo(raw_value, NULL, NULL, &results);
     if (err != 0)
-        FATAL(1, "%s:%d: %s: %s", info->filename, info->line_no, raw_value, gai_strerror(err));
+        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, raw_value, gai_strerror(err));
     BUG_ON(!results);
     memcpy(dest, results->ai_addr, results->ai_addrlen);
     freeaddrinfo(results);
@@ -333,7 +333,7 @@ static void conf_set_bitmask(struct wsbrd_conf *config, const struct parser_info
     BUG_ON(raw_dest != config->ws_allowed_channels);
     BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 8);
     if (parse_bitmask(config->ws_allowed_channels, 8, raw_value) < 0)
-        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, raw_value);
 }
 
 static void conf_set_flags(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
@@ -391,7 +391,7 @@ static void conf_set_cert(struct wsbrd_conf *config, const struct parser_info *i
 
     BUG_ON(raw_param);
     ret = read_cert(raw_value, &dest->cert);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, raw_value);
     dest->cert_len = ret;
 }
 
@@ -402,7 +402,7 @@ static void conf_set_key(struct wsbrd_conf *config, const struct parser_info *in
 
     BUG_ON(raw_param);
     ret = read_cert(raw_value, &dest->key);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->line_no, raw_value);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, raw_value);
     dest->key_len = ret;
 }
 
@@ -411,9 +411,9 @@ static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct par
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_allowed_mac_addresses);
     if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
-        FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->line_no);
+        FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->linenr);
     if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
     config->ws_allowed_mac_address_count++;
 }
 
@@ -422,9 +422,9 @@ static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct pars
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_denied_mac_addresses);
     if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
-        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->line_no);
+        FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
     if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
     config->ws_denied_mac_address_count++;
 }
 
@@ -437,11 +437,11 @@ static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *in
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_gtk && raw_dest != config->ws_lgtk);
     if (sscanf(info->line, " %*[^[][%u]", &index) != 1)
-        FATAL(1, "%s:%d: invalid key index", info->filename, info->line_no);
+        FATAL(1, "%s:%d: invalid key index", info->filename, info->linenr);
     if (index >= max_key_index)
-        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->line_no, index);
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, index);
     if (parse_byte_array(dest[index], 16, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->line_no, raw_value);
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
     if (raw_dest == config->ws_gtk)
         config->ws_gtk_force[index] = true;
     if (raw_dest == config->ws_lgtk)
@@ -524,7 +524,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
             return options[i].fn(config, info, options[i].dest_hint, options[i].param, val);
         }
     }
-    FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->line_no, info->line);
+    FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
 }
 
 static void parse_config_file(struct wsbrd_conf *config, const char *filename)
@@ -538,7 +538,7 @@ static void parse_config_file(struct wsbrd_conf *config, const char *filename)
     if (!f)
         FATAL(1, "%s: %m", info.filename);
     while (fgets(info.line, sizeof(info.line), f)) {
-        info.line_no++;
+        info.linenr++;
         len = strlen(info.line);
         if (len > 0 && info.line[len - 1] == '\n')
             info.line[--len] = '\0';
