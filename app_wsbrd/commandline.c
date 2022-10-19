@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 #include <limits.h>
 #include <getopt.h>
 #include <libgen.h>
@@ -43,17 +44,10 @@
 
 #include "commandline.h"
 
-struct parser_info {
-    const char *filename;
-    int linenr;
-    char line[256];
-    char key[256];
-};
-
 struct option_struct {
     const char *key;
     void *dest_hint;
-    void (*fn)(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value);
+    void (*fn)(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param);
     const void *param;
 };
 
@@ -221,128 +215,128 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "  wsnode -u /dev/ttyUSB0 -n Wi-SUN -d EU -C cert.pem -A ca.pem -K key.pem\n");
 }
 
-static void conf_deprecated(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_deprecated(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     FATAL(1, "%s:%d \"%s\" is deprecated", info->filename, info->linenr, info->key);
 }
 
-static void conf_set_bool(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_bool(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     bool *dest = raw_dest;
 
     BUG_ON(raw_param);
-    *dest = str_to_val(raw_value, valid_booleans);
+    *dest = str_to_val(info->value, valid_booleans);
 }
 
-static void conf_set_enum(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_enum(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct name_value *specs = raw_param;
     int *dest = raw_dest;
 
-    *dest = str_to_val(raw_value, specs);
+    *dest = str_to_val(info->value, specs);
 }
 
-static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_enum_int_hex(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const int *specs = raw_param;
     int *dest = raw_dest;
     char *end;
     int i;
 
-    *dest = strtol(raw_value, &end, 16);
+    *dest = strtol(info->value, &end, 16);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
 
     for (i = 0; specs[i] != INT_MIN; i++)
         if (specs[i] == *dest)
             return;
-    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->linenr, raw_value);
+    FATAL(1, "%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
 }
 
-static void conf_set_enum_int(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_enum_int(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const int *specs = raw_param;
     int *dest = raw_dest;
     char *end;
     int i;
 
-    *dest = strtol(raw_value, &end, 0);
+    *dest = strtol(info->value, &end, 0);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
 
     for (i = 0; specs[i] != INT_MIN; i++)
         if (specs[i] == *dest)
             return;
-    FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
+    FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
-static void conf_set_number(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_number(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct number_limit *specs = raw_param;
     int *dest = raw_dest;
     char *end;
 
-    *dest = strtol(raw_value, &end, 0);
+    *dest = strtol(info->value, &end, 0);
     if (*end)
-        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, raw_value);
+        FATAL(1, "%s:%d: invalid number: %s", info->filename, info->linenr, info->value);
     if (specs && (specs->min > *dest || specs->max < *dest))
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
+        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
 }
 
-static void conf_set_string(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_string(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     uintptr_t max_len = (uintptr_t)raw_param;
     char *dest = raw_dest;
 
-    if (parse_escape_sequences(dest, raw_value, max_len))
+    if (parse_escape_sequences(dest, info->value, max_len))
         FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->linenr);
 }
 
-static void conf_set_netmask(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_netmask(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     char mask[STR_MAX_LEN_IPV6];
     int len;
 
     BUG_ON(raw_param);
-    if (sscanf(raw_value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
-        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, raw_value);
+    if (sscanf(info->value, "%[0-9a-zA-Z:]/%d", mask, &len) != 2)
+        FATAL(1, "%s:%d: invalid %s: %s", info->filename, info->linenr, info->key, info->value);
     if (len != 64)
         FATAL(1, "%s:%d: invalid mask length: %d", info->filename, info->linenr, len);
     if (inet_pton(AF_INET6, mask, raw_dest) != 1)
         FATAL(1, "%s:%d: invalid mask: %s", info->filename, info->linenr, mask);
 }
 
-static void conf_set_netaddr(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_netaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     struct sockaddr *dest = raw_dest;
     struct addrinfo *results;
     int err;
 
     BUG_ON(raw_param);
-    err = getaddrinfo(raw_value, NULL, NULL, &results);
+    err = getaddrinfo(info->value, NULL, NULL, &results);
     if (err != 0)
-        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, raw_value, gai_strerror(err));
+        FATAL(1, "%s:%d: %s: %s", info->filename, info->linenr, info->value, gai_strerror(err));
     BUG_ON(!results);
     memcpy(dest, results->ai_addr, results->ai_addrlen);
     freeaddrinfo(results);
 }
 
-static void conf_set_bitmask(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_bitmask(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_allowed_channels);
     BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 8);
-    if (parse_bitmask(config->ws_allowed_channels, 8, raw_value) < 0)
-        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, raw_value);
+    if (parse_bitmask(config->ws_allowed_channels, 8, info->value) < 0)
+        FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, info->value);
 }
 
-static void conf_set_flags(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct name_value *specs = raw_param;
     unsigned int *dest = raw_dest;
     char *tmp, *substr;
 
-    tmp = strdup(raw_value);
+    tmp = strdup(info->value);
     substr = strtok(tmp, ",");
     do {
         *dest |= str_to_val(substr, specs);
@@ -384,71 +378,68 @@ static int read_cert(const char *filename, const uint8_t **ptr)
         return st.st_size;
 }
 
-static void conf_set_cert(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_cert(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     arm_certificate_entry_s *dest = raw_dest;
     int ret;
 
     BUG_ON(raw_param);
-    ret = read_cert(raw_value, &dest->cert);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, raw_value);
+    ret = read_cert(info->value, &dest->cert);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
     dest->cert_len = ret;
 }
 
-static void conf_set_key(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_key(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     arm_certificate_entry_s *dest = raw_dest;
     int ret;
 
     BUG_ON(raw_param);
-    ret = read_cert(raw_value, &dest->key);
-    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, raw_value);
+    ret = read_cert(info->value, &dest->key);
+    FATAL_ON(ret < 0, 1, "%s:%d: %s: %m", info->filename, info->linenr, info->value);
     dest->key_len = ret;
 }
 
-static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_allowed_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_allowed_mac_addresses);
     if (config->ws_allowed_mac_address_count >= ARRAY_SIZE(config->ws_allowed_mac_addresses))
         FATAL(1, "%s:%d: maximum number of allowed MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
+    if (parse_byte_array(config->ws_allowed_mac_addresses[config->ws_allowed_mac_address_count], 8, info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
     config->ws_allowed_mac_address_count++;
 }
 
-static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_denied_macaddr(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_denied_mac_addresses);
     if (config->ws_denied_mac_address_count >= ARRAY_SIZE(config->ws_denied_mac_addresses))
         FATAL(1, "%s:%d: maximum number of denied MAC addresses reached", info->filename, info->linenr);
-    if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
+    if (parse_byte_array(config->ws_denied_mac_addresses[config->ws_denied_mac_address_count], 8, info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
     config->ws_denied_mac_address_count++;
 }
 
-static void conf_set_gtk(struct wsbrd_conf *config, const struct parser_info *info, void *raw_dest, const void *raw_param, const char *raw_value)
+static void conf_set_gtk(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     int max_key_index = (raw_dest == config->ws_lgtk) ? 3 : 4;
     uint8_t (*dest)[16] = raw_dest;
-    unsigned int index;
 
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_gtk && raw_dest != config->ws_lgtk);
-    if (sscanf(info->line, " %*[^[][%u]", &index) != 1)
-        FATAL(1, "%s:%d: invalid key index", info->filename, info->linenr);
-    if (index >= max_key_index)
-        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, index);
-    if (parse_byte_array(dest[index], 16, raw_value))
-        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, raw_value);
+    if (info->key_array_index < 0 || info->key_array_index >= max_key_index)
+        FATAL(1, "%s:%d: invalid key index: %d", info->filename, info->linenr, info->key_array_index);
+    if (parse_byte_array(dest[info->key_array_index], 16, info->value))
+        FATAL(1, "%s:%d: invalid key: %s", info->filename, info->linenr, info->value);
     if (raw_dest == config->ws_gtk)
-        config->ws_gtk_force[index] = true;
+        config->ws_gtk_force[info->key_array_index] = true;
     if (raw_dest == config->ws_lgtk)
-        config->ws_lgtk_force[index] = true;
+        config->ws_lgtk_force[info->key_array_index] = true;
 }
 
-static void parse_config_line(struct wsbrd_conf *config, struct parser_info *info)
+static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_info *info)
 {
     const struct option_struct options[] = {
         { "uart_device",                   config->uart_dev,                          conf_set_string,      (void *)sizeof(config->uart_dev) },
@@ -483,8 +474,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "allowed_channels",              config->ws_allowed_channels,               conf_set_bitmask,     NULL },
         { "pan_id",                        &config->ws_pan_id,                        conf_set_number,      NULL },
         { "fan_version",                   &config->ws_fan_version,                   conf_set_enum,        &valid_fan_versions },
-        { "gtk[%*d]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
-        { "lgtk[%*d]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
+        { "gtk\\[*]",                      config->ws_gtk,                            conf_set_gtk,         NULL },
+        { "lgtk\\[*]",                     config->ws_lgtk,                           conf_set_gtk,         NULL },
         { "tx_power",                      &config->tx_power,                         conf_set_number,      &valid_int8 },
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
@@ -507,49 +498,30 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
         { "pcap_file",                     config->pcap_file,                         conf_set_string,      (void *)sizeof(config->pcap_file) },
     };
-    char garbage; // detect garbage at end of the line
-    char fmt[256];
-    char val[256];
     int i;
 
-    static_assert(sizeof(info->key) >= sizeof(options[0].key), "possible overflow in strcpy()");
-    static_assert(sizeof(val) >= 256, "possible overflow in sscanf()");
-    /* blank line */
-    if (sscanf(info->line, " %c", &garbage) == EOF)
-        return;
-    for (i = 0; i < ARRAY_SIZE(options); i++) {
-        snprintf(fmt, sizeof(fmt), " %s = %%256s %%c", options[i].key);
-        if (sscanf(info->line, fmt, val, &garbage) == 1) {
-            strcpy(info->key, options[i].key);
-            return options[i].fn(config, info, options[i].dest_hint, options[i].param, val);
-        }
-    }
-    FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
+    for (i = 0; i < ARRAY_SIZE(options); i++)
+        if (!fnmatch(options[i].key, info->key, 0))
+            return options[i].fn(config, info, options[i].dest_hint, options[i].param);
+    FATAL(1, "%s:%d: unknown key: '%s'", info->filename, info->linenr, info->line);
 }
 
 static void parse_config_file(struct wsbrd_conf *config, const char *filename)
 {
-    struct parser_info info = {
-        .filename = filename
-    };
-    FILE *f = fopen(filename, "r");
-    int len;
+    struct storage_parse_info *info = storage_open(filename, "r");
+    int ret;
 
-    if (!f)
-        FATAL(1, "%s: %m", info.filename);
-    while (fgets(info.line, sizeof(info.line), f)) {
-        info.linenr++;
-        len = strlen(info.line);
-        if (len > 0 && info.line[len - 1] == '\n')
-            info.line[--len] = '\0';
-        if (len > 0 && info.line[len - 1] == '\r')
-            info.line[--len] = '\0';
-        if (len <= 0)
-            continue;
-        *(strchrnul(info.line, '#')) = '\0';
-        parse_config_line(config, &info);
+    if (!info)
+        FATAL(1, "%s: %m", filename);
+    for (;;) {
+        ret = storage_parse_line(info);
+        if (ret == EOF)
+            break;
+        if (ret)
+            FATAL(1, "%s:%d: syntax error: '%s'", info->filename, info->linenr, info->line);
+        parse_config_line(config, info);
     }
-    fclose(f);
+    storage_close(info);
 }
 
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
@@ -577,7 +549,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "version",     no_argument,       0,  'v' },
         { 0,             0,                 0,   0  }
     };
-    struct parser_info info = {
+    struct storage_parse_info info = {
         .filename = "command line",
     };
     int opt;
@@ -616,6 +588,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
     optind = 1; /* reset getopt */
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {
+        if (optarg)
+            strcpy(info.value, optarg);
         switch (opt) {
             case 'F':
                 break;
@@ -624,6 +598,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'o':
                 snprintf(info.line, sizeof(info.line), "%s", optarg); // safe strncpy()
+                if (sscanf(info.line, " %256[^= ] = %256s", info.key, info.value) != 2)
+                    FATAL(1, "%s:%d: syntax error: '%s'", info.filename, info.linenr, info.line);
+                if (sscanf(info.key, "%*[^[][%u]", &info.key_array_index) != 1)
+                    info.key_array_index = UINT_MAX;
                 parse_config_line(config, &info);
                 break;
             case 'l':
@@ -634,38 +612,38 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'T':
                 strcpy(info.key, "trace");
-                conf_set_flags(config, &info, &g_enabled_traces, valid_traces, optarg);
+                conf_set_flags(config, &info, &g_enabled_traces, valid_traces);
                 break;
             case 'n':
                 snprintf(config->ws_name, sizeof(config->ws_name), "%s", optarg); // safe strncpy()
                 break;
             case 'd':
                 strcpy(info.key, "domain");
-                conf_set_enum(config, &info, &config->ws_domain, valid_ws_domains, optarg);
+                conf_set_enum(config, &info, &config->ws_domain, valid_ws_domains);
                 break;
             case 'm':
                 strcpy(info.key, "mode");
-                conf_set_enum_int_hex(config, &info, &config->ws_mode, valid_ws_modes, optarg);
+                conf_set_enum_int_hex(config, &info, &config->ws_mode, valid_ws_modes);
                 break;
             case 'c':
                 strcpy(info.key, "class");
-                conf_set_enum_int(config, &info, &config->ws_class, valid_ws_classes, optarg);
+                conf_set_enum_int(config, &info, &config->ws_class, valid_ws_classes);
                 break;
             case 'S':
                 strcpy(info.key, "size");
-                conf_set_enum(config, &info, &config->ws_size, valid_ws_size, optarg);
+                conf_set_enum(config, &info, &config->ws_size, valid_ws_size);
                 break;
             case 'K':
                 strcpy(info.key, "key");
-                conf_set_key(config, &info, &config->tls_own, NULL, optarg);
+                conf_set_key(config, &info, &config->tls_own, NULL);
                 break;
             case 'C':
                 strcpy(info.key, "cert");
-                conf_set_cert(config, &info, &config->tls_own, NULL, optarg);
+                conf_set_cert(config, &info, &config->tls_own, NULL);
                 break;
             case 'A':
                 strcpy(info.key, "authority");
-                conf_set_cert(config, &info, &config->tls_ca, NULL, optarg);
+                conf_set_cert(config, &info, &config->tls_ca, NULL);
                 break;
             case 'b':
                 FATAL(1, "deprecated option: -b/--baudrate");
