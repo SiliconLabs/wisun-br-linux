@@ -1,7 +1,6 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 
-#include "stack/source/service_libs/utils/ns_file_system.h"
 #include "stack/timers.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -11,6 +10,7 @@
 #include "common/log.h"
 #include "common/os_types.h"
 #include "common/spinel_buffer.h"
+#include "common/key_value_storage.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 #include "capture.h"

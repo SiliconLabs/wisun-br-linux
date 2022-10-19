@@ -21,6 +21,7 @@
 #include "app_wsbrd/wsbr.h"
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/key_value_storage.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"

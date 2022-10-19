@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <mbedtls/sha256.h>
 #include "common/log.h"
+#include "common/key_value_storage.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "service_libs/utils/ns_time.h"

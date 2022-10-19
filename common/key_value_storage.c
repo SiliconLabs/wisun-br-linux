@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "ns_file_system.h"
+#include "key_value_storage.h"
 
 static char *file_system_root;
 

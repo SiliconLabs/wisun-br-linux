@@ -19,10 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "common/key_value_storage.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/utils/ns_file_system.h"
 
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"

@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _NS_FILE_SYSTEM_H_
-#define _NS_FILE_SYSTEM_H_
+#ifndef KEY_VALUE_STORAGE_H
+#define KEY_VALUE_STORAGE_H
 
 /**
  * \file ns_file_system.h

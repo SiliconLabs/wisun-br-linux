@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/rand.h"
+#include "common/key_value_storage.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "stack/mac/fhss_config.h"

@@ -97,6 +97,7 @@ add_library(libwsbrd STATIC
     common/spinel_buffer.c
     common/trickle.c
     common/ws_regdb.c
+    common/key_value_storage.c
     stack/source/timers.c
     stack/source/6lowpan/adaptation_interface.c
     stack/source/6lowpan/bootstraps/network_lib.c
@@ -213,7 +214,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/nd_proxy/nd_proxy.c
     stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
-    stack/source/service_libs/utils/ns_file_system.c
     stack/source/service_libs/utils/ns_time.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
@@ -309,6 +309,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/spinel_buffer.c
         common/trickle.c
         common/ws_regdb.c
+        common/key_value_storage.c
         stack/source/timers.c
         stack/source/6lowpan/adaptation_interface.c
         stack/source/6lowpan/bootstraps/network_lib.c
@@ -422,7 +423,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/nd_proxy/nd_proxy.c
         stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         stack/source/service_libs/random_early_detection/random_early_detection.c
-        stack/source/service_libs/utils/ns_file_system.c
         stack/source/service_libs/utils/ns_time.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
