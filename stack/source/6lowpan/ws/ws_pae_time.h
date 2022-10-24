@@ -30,22 +30,4 @@
  */
 uint64_t ws_pae_current_time_get(void);
 
-/**
- * ws_pae_current_time_update updates current time
- *
- * \param seconds seconds to be added to current time
- *
- */
-void ws_pae_current_time_update(uint16_t seconds);
-
-/**
- * ws_pae_stored_time_check_and_set stored time check and set current time
- *
- * \param stored_time stored time
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time);
-
 #endif

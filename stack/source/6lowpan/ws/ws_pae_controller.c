@@ -907,11 +907,6 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 
     // Read frame counters
     if (ws_pae_controller_nvm_frame_counter_read(&stored_time, &controller->sec_keys_nw_info.pan_version, &controller->sec_keys_nw_info.lpan_version, &controller->gtks.frame_counters, &controller->lgtks.frame_counters) >= 0) {
-        // Check if stored time is not valid
-        if (ws_pae_stored_time_check_and_set(stored_time) < 0) {
-            ret_value = -1;
-        }
-
         // Increments PAN version to ensure that it is fresh
         controller->sec_keys_nw_info.pan_version += PAN_VERSION_STORAGE_READ_INCREMENT;
 
@@ -2027,8 +2022,6 @@ void ws_pae_controller_slow_timer(int seconds)
         }
         ws_pae_controller_frame_counter_timer(seconds, entry);
     }
-
-    ws_pae_current_time_update(seconds);
 }
 
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry)
