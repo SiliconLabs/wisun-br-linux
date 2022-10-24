@@ -68,7 +68,6 @@
 
 typedef struct gtk_key {
     uint8_t                key[GTK_LEN];              /**< Group Transient Key (128 bits) */
-    uint64_t               expirytime;                /**< GTK expiry time on storage */
     uint32_t               lifetime;                  /**< GTK lifetime in seconds */
     unsigned               status : 2;                /**< Group Transient Key status */
     unsigned               install_order : 2;         /**< Order in which GTK keys are added */
@@ -644,19 +643,6 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
  *
  */
 uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint32_t seconds, bool gtk_update_enable);
-
-/**
- * sec_prot_keys_gtk_expirytime_set sets GTK expiry time
- *
- * \param gtks GTK keys
- * \param index index for GTK
- * \param expirytime expiry time
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t sec_prot_keys_gtk_expirytime_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t expirytime);
 
 /**
  * sec_prot_keys_gtks_are_updated returns GTKs have been updated flag

@@ -1087,11 +1087,15 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
         } else if (!fnmatch("lgtk\\[*].status", info->key, 0) && info->key_array_index < 3) {
             new_lgtks[info->key_array_index].status = str_to_val(info->value, valid_gtk_status);
         } else if (!fnmatch("gtk\\[*].lifetime", info->key, 0) && info->key_array_index < 4) {
-            new_gtks[info->key_array_index].expirytime = strtoull(info->value, NULL, 0);
-            new_gtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+            if (strtoull(info->value, NULL, 0) > current_time)
+                new_gtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+            else
+                WARN("%s:%d: expired lifetime: %s", info->filename, info->linenr, info->value);
         } else if (!fnmatch("lgtk\\[*].lifetime", info->key, 0) && info->key_array_index < 3) {
-            new_lgtks[info->key_array_index].expirytime = strtoull(info->value, NULL, 0);
-            new_lgtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+            if (strtoull(info->value, NULL, 0) > current_time)
+                new_lgtks[info->key_array_index].lifetime = strtoull(info->value, NULL, 0) - current_time;
+            else
+                WARN("%s:%d: expired lifetime: %s", info->filename, info->linenr, info->value);
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }
@@ -1099,10 +1103,10 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
     storage_close(info);
 
     for (i = 0; i < GTK_NUM; i++)
-        if (!gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].expirytime > current_time)
+        if (!gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].lifetime)
             memcpy(&gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
     for (i = 0; i < LGTK_NUM; i++)
-        if (!lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].expirytime > current_time)
+        if (!lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].lifetime)
             memcpy(&lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
     return 0;
 }

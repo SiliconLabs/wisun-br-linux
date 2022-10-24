@@ -521,33 +521,7 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
         gtks->gtk[index].lifetime = 0;
     }
 
-    // Calculates expiration timestamp for GTK from current time and lifetime
-    uint64_t expirytime = current_time + gtks->gtk[index].lifetime;
-    uint64_t diff;
-    // Compares calculated timestamp to stored one
-    if (gtks->gtk[index].expirytime >= expirytime) {
-        diff = gtks->gtk[index].expirytime - expirytime;
-    } else {
-        diff = expirytime - gtks->gtk[index].expirytime;
-    }
-    // If timestamps differ for more than 5 minutes marks field as updated (and stores to NVM)
-    if (diff > 300 && gtk_update_enable) {
-        gtks->updated = true;
-        sec_prot_keys_gtk_expirytime_set(gtks, index, expirytime);
-    }
-
     return gtks->gtk[index].lifetime;
-}
-
-int8_t sec_prot_keys_gtk_expirytime_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t expirytime)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return -1;
-    }
-
-    gtks->gtk[index].expirytime = expirytime;
-
-    return 0;
 }
 
 bool sec_prot_keys_gtks_are_updated(sec_prot_gtk_keys_t *gtks)
