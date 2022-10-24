@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fnmatch.h>
-#include <glob.h>
 #include <inttypes.h>
 #include "common/log.h"
 #include "common/rand.h"
@@ -160,25 +159,6 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     if (!pae_supp->sec_keys.pmk_set)
         pae_supp->sec_keys.ptk_set = false;
     return pae_supp;
-}
-
-void ws_pae_key_storage_remove(void)
-{
-    glob_t globbuf;
-    char filename[256];
-    int i;
-
-    if (!g_storage_prefix)
-        return;
-    snprintf(filename, sizeof(filename), "%skeys-*:*:*:*:*:*:*:*", g_storage_prefix);
-    if (glob(filename, 0, NULL, &globbuf)) {
-        WARN("glob %s returned an error", filename);
-        return;
-    }
-    for (i = 0; globbuf.gl_pathv[i]; i++)
-        if (unlink(globbuf.gl_pathv[i]))
-            WARN("unlink %s: %m", globbuf.gl_pathv[i]);
-    globfree(&globbuf);
 }
 
 uint16_t ws_pae_key_storage_storing_interval_get(void)

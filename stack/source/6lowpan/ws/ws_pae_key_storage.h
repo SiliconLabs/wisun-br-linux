@@ -33,14 +33,6 @@ struct sec_prot_gtk_keys;
 struct sec_prot_certs;
 
 /**
- * ws_pae_key_storage_remove remove storage from NVM
- *
- * Removes key storage data from NVM.
- *
- */
-void ws_pae_key_storage_remove(void);
-
-/**
  * ws_pae_key_storage_supp_write writes supplicant entry to key storage
  *
  * \param instance instance

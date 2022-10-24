@@ -891,10 +891,8 @@ static void ws_pae_controller_data_init(pae_controller_t *controller)
 
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
 {
-    int8_t ret_value = 0;
-
     if (controller->frame_counter_read) {
-        return ret_value;
+        return 0;
     }
     controller->frame_counter_read = true;
 
@@ -924,7 +922,7 @@ static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller)
         }
     }
 
-    return ret_value;
+    return 0;
 }
 
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters)
@@ -1101,10 +1099,10 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
     storage_close(info);
 
     for (i = 0; i < GTK_NUM; i++)
-        if (gtks && !gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].expirytime > current_time)
+        if (!gtks->gtk[i].set && new_gtks[i].set && new_gtks[i].expirytime > current_time)
             memcpy(&gtks->gtk[i], &new_gtks[i], sizeof(new_gtks[i]));
     for (i = 0; i < LGTK_NUM; i++)
-        if (lgtks && !lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].expirytime > current_time)
+        if (!lgtks->gtk[i].set && new_lgtks[i].set && new_lgtks[i].expirytime > current_time)
             memcpy(&lgtks->gtk[i], &new_lgtks[i], sizeof(new_lgtks[i]));
     return 0;
 }
@@ -1178,12 +1176,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
 
     sec_prot_gtk_keys_t *read_gtks_to = controller->sec_keys_nw_info.gtks;
     sec_prot_gtk_keys_t *read_lgtks_to = controller->sec_keys_nw_info.lgtks;
-    if (ws_pae_controller_frame_counter_read(controller) < 0) {
-        tr_error("Stored key material invalid");
-        // Key material invalid, do not read GTKs or any other security data
-        read_gtks_to = NULL;
-        read_lgtks_to = NULL;
-    }
+    ws_pae_controller_frame_counter_read(controller);
 
     if (sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // If application has set GTK keys prepare those for use
@@ -1212,8 +1205,8 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
                                         controller->sec_keys_nw_info.lpan_version,
                                         controller->sec_keys_nw_info.network_name);
         }
-        if (!read_gtks_to || sec_prot_keys_gtk_count(read_gtks_to) == 0 ||
-            !read_lgtks_to || sec_prot_keys_gtk_count(read_lgtks_to) == 0) {
+        if (sec_prot_keys_gtk_count(read_gtks_to) == 0 ||
+            sec_prot_keys_gtk_count(read_lgtks_to) == 0) {
             // Key material invalid or (L)GTKs are expired, delete (L)GTKs from NVM
             uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
             ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
@@ -1222,10 +1215,6 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
                                                 gtk_eui64, read_gtks_to, read_lgtks_to);
         }
     }
-
-    if (!read_gtks_to || !read_lgtks_to)
-        // Key material invalid, delete key storage
-        ws_pae_key_storage_remove();
 
     return 0;
 }
