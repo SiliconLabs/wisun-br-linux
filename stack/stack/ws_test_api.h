@@ -52,21 +52,6 @@
  */
 
 int ws_test_version_set(int8_t interface_id, uint8_t version);
-/**
- * \brief Set Pan size.
- *
- * Pan size is reported to advertisement. Using this function
- * actual value can be overridden.
- *
- * Set pan_size to 0xffff to stop override
- *
- * \param interface_id               Network Interface
- * \param pan_size                   Pan size reported in advertisements
- *
- * \return 0                         OK
- * \return <0                        Failure
- */
-int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size);
 
 /**
  * \brief Set maximum child count.

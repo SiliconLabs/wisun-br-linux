@@ -57,18 +57,6 @@ int ws_test_version_set(int8_t interface_id, uint8_t version)
     return 0;
 }
 
-int ws_test_pan_size_set(int8_t interface_id, uint16_t pan_size)
-{
-    (void) interface_id;
-#ifdef HAVE_WS_BORDER_ROUTER
-    test_pan_size_override = pan_size;
-    return 0;
-#else
-    (void) pan_size;
-    return -1;
-#endif
-}
-
 int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count)
 {
     test_max_child_count_override = child_count;
