@@ -854,7 +854,8 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive_e id, const 
             break;
         }
         case MLME_COMM_STATUS: {
-            DEBUG("dataInd MLME_COMM_STATUS");
+            mlme_comm_status_t *status = (mlme_comm_status_t *)data;
+            DEBUG("dataInd: Cannot decrypt frame: (key %d == %s)", status->Key.KeyIdMode, tr_key(status->Key.Keysource, 8));
             data_len = sizeof(mlme_comm_status_t);
             break;
         }
