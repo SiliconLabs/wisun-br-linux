@@ -36,37 +36,12 @@
 
 static uint64_t ws_pae_current_time = CURRENT_TIME_INIT_VALUE;
 
-uint64_t ws_pae_time_old_or_new_select(uint64_t old_time, uint64_t new_time)
-{
-    // If current time is more than one week in the past use the stored time
-    if (old_time > SECONDS_IN_WEEK && new_time < old_time - SECONDS_IN_WEEK) {
-        return old_time;
-    }
-
-    return new_time;
-}
-
-bool ws_pae_time_old_and_new_validate(uint64_t old_time, uint64_t new_time)
-{
-    /* If new time is more than one week in the past or more than a month in the
-       future the old time is not valid */
-    if ((old_time > SECONDS_IN_WEEK && new_time < old_time - SECONDS_IN_WEEK) ||
-            new_time > (old_time + SYSTEM_TIME_MAXIMUM_DIFF)) {
-        return false;
-    }
-
-    return true;
-}
-
 uint64_t ws_pae_current_time_get(void)
 {
     uint64_t new_time;
-    if (ns_time_system_time_read(&new_time) == 0) {
-        new_time = ws_pae_time_old_or_new_select(ws_pae_current_time, new_time);
-        return new_time;
-    }
 
-    return ws_pae_current_time;
+    ns_time_system_time_read(&new_time);
+    return new_time;
 }
 
 void ws_pae_current_time_update(uint16_t seconds)
@@ -78,9 +53,7 @@ int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time)
 {
     uint64_t new_system_time;
 
-    if (ns_time_system_time_read(&new_system_time) == 0) {
-        // Use either stored time or current time as reference when calculating lifetimes
-        ws_pae_current_time = ws_pae_time_old_or_new_select(stored_time, new_system_time);
-    }
+    ns_time_system_time_read(&new_system_time);
+    ws_pae_current_time = new_system_time;
     return 0;
 }

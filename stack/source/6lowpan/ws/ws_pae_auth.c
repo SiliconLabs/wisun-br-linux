@@ -1015,17 +1015,6 @@ static uint32_t ws_pae_auth_lifetime_system_time_check(pae_auth_t *pae_auth, int
     uint32_t new_dec_extra_seconds = dec_extra_seconds;
 
     if (time_diff > 0) {
-        /* If the system time has made a large jump then use the stored time to calculate the lifetime
-           (this implies e.g. that new time has been received from NTP and old time was not valid) */
-        if (!ws_pae_time_old_and_new_validate(current_time, current_time + time_diff)) {
-            // Allow one jump without invalidating active GTK
-            if (pae_auth->sec_keys_nw_info->system_time_changed == SYSTEM_TIME_NOT_CHANGED) {
-                pae_auth->sec_keys_nw_info->system_time_changed = SYSTEM_TIME_CHANGED;
-                tr_info("System time large change ignored; difference: %"PRIu64, time_diff);
-                time_diff = 0;
-            }
-        }
-
         uint32_t gtk_lifetime_left = sec_prot_keys_gtk_lifetime_get(pae_auth->sec_keys_nw_info->gtks, gtk_index);
         sec_timer_cfg_t *timer_cfg = &pae_auth->sec_cfg->timer_cfg;
         uint32_t gtk_new_activation_time_seconds = timer_cfg->gtk.expire_offset / timer_cfg->gtk.new_act_time;

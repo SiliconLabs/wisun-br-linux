@@ -22,29 +22,6 @@
 
 // Maximum difference in stored and indicated system time
 #define SYSTEM_TIME_MAXIMUM_DIFF   (60 * 60 * 24 * 30) // One month
-
-/**
- * ws_pae_time_old_or_new_select selected old or new time (based on difference)
- *
- * \param old_time old time
- * \param new_time new time
- *
- * \return old or new time
- *
- */
-uint64_t ws_pae_time_old_or_new_select(uint64_t old_time, uint64_t new_time);
-
-/**
- * ws_pae_time_old_and_new_validate validate old and new time (based on difference)
- *
- * \param old_time old time
- * \param new_time new time
- *
- * \return TRUE old time is valid, FALSE old time is not valid
- *
- */
-bool ws_pae_time_old_and_new_validate(uint64_t old_time, uint64_t new_time);
-
 /**
  * ws_pae_current_time_get gets current time
  *
