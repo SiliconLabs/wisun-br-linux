@@ -32,7 +32,6 @@
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
 #include "stack/dhcp_service_api.h"
-#include "stack/ns_time_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
@@ -393,14 +392,6 @@ void kill_handler(int signal)
     exit(0);
 }
 
-long unsigned int wsbr_time_read(void)
-{
-    struct timespec tp;
-
-    clock_gettime(CLOCK_REALTIME, &tp);
-    return tp.tv_sec;
-}
-
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
@@ -537,7 +528,6 @@ int wsbr_main(int argc, char *argv[])
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();
-    ns_time_api_system_time_callback_set(wsbr_time_read);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;

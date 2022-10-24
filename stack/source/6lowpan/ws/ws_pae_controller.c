@@ -1185,9 +1185,6 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
         return -1;
     }
 
-    // For Border Router enable the time acquired as default
-    ns_time_system_time_acquired_set();
-
     controller->pae_delete = ws_pae_auth_delete;
     controller->pae_fast_timer = ws_pae_auth_fast_timer;
     controller->pae_slow_timer = ws_pae_auth_slow_timer;

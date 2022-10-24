@@ -20,7 +20,6 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
 #include "service_libs/utils/ns_time.h"
-#include "stack/ns_time_api.h"
 
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
@@ -61,10 +60,6 @@ bool ws_pae_time_old_and_new_validate(uint64_t old_time, uint64_t new_time)
 
 uint64_t ws_pae_current_time_get(void)
 {
-    if (!ns_time_system_time_acquired_get()) {
-        return ws_pae_current_time;
-    }
-
     uint64_t new_time;
     if (ns_time_system_time_read(&new_time) == 0) {
         new_time = ws_pae_time_old_or_new_select(ws_pae_current_time, new_time);
@@ -82,13 +77,6 @@ void ws_pae_current_time_update(uint16_t seconds)
 int8_t ws_pae_stored_time_check_and_set(uint64_t stored_time)
 {
     uint64_t new_system_time;
-
-    tr_debug("Stored time check and set: %"PRIi64, stored_time);
-
-    if (!ns_time_system_time_acquired_get()) {
-        ws_pae_current_time = stored_time;
-        return stored_time;
-    }
 
     if (ns_time_system_time_read(&new_system_time) == 0) {
         // Use either stored time or current time as reference when calculating lifetimes
