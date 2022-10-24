@@ -118,8 +118,8 @@ char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, 
         } else if (!print_direct && out_len - j > 4) {
             out[j++] = '\\';
             out[j++] = 'x';
-            out[j++] = hex[in[i] / 8];
-            out[j++] = hex[in[i] % 8];
+            out[j++] = hex[in[i] / 16];
+            out[j++] = hex[in[i] % 16];
         } else {
             fit = false;
             break;
