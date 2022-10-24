@@ -73,6 +73,10 @@ static const struct number_limit valid_int8 = {
     INT8_MIN, INT8_MAX
 };
 
+static const struct number_limit valid_uint16 = {
+    0, UINT16_MAX
+};
+
 static const struct number_limit valid_gtk_new_install_required = {
     0, 100
 };
@@ -507,6 +511,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
+        { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
     };
     char garbage; // detect garbage at end of the line
     char fmt[256];
@@ -611,6 +616,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
+    config->pan_size = -1;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));
     while ((opt = getopt_long(argc, argv, opts_short, opts_long, NULL)) != -1) {

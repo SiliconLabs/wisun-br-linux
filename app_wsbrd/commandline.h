@@ -89,6 +89,7 @@ struct wsbrd_conf {
     uint8_t ws_denied_mac_address_count;
 
     int lowpan_mtu;
+    int pan_size;
 };
 
 void print_help_br(FILE *stream);

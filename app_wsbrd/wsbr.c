@@ -34,6 +34,7 @@
 #include "stack/dhcp_service_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
+#include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/core/ns_address_internal.h"
@@ -525,6 +526,8 @@ int wsbr_main(int argc, char *argv[])
     ns_file_system_set_root_path(ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL);
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
+    if (ctxt->config.pan_size >= 0)
+        test_pan_size_override = ctxt->config.pan_size;
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;
