@@ -152,8 +152,7 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
                                              sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                  uint64_t stored_time);
+                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
@@ -418,14 +417,12 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
         if (arm_nwk_mac_address_read(interface_ptr->id, &mac_params) >= 0) {
             memcpy(gtk_eui64, mac_params.mac_long, 8);
         }
-        uint64_t system_time = ws_pae_current_time_get();
         ws_pae_controller_nvm_nw_info_write(interface_ptr,
                                             controller->sec_keys_nw_info.key_pan_id,
                                             controller->sec_keys_nw_info.network_name,
                                             gtk_eui64,
                                             controller->sec_keys_nw_info.gtks,
-                                            controller->sec_keys_nw_info.lgtks,
-                                            system_time);
+                                            controller->sec_keys_nw_info.lgtks);
         controller->sec_keys_nw_info.updated = false;
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
@@ -987,8 +984,7 @@ const struct name_value valid_gtk_status[] = {
 
 static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
-                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                  uint64_t stored_time)
+                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
     unsigned long long current_time = ws_pae_current_time_get();
     struct storage_parse_info *info = storage_open_prefix("network-keys", "w");
@@ -1220,11 +1216,10 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
             !read_lgtks_to || sec_prot_keys_gtk_count(read_lgtks_to) == 0) {
             // Key material invalid or (L)GTKs are expired, delete (L)GTKs from NVM
             uint8_t gtk_eui64[8] = {0}; // Set GTK EUI-64 to zero
-            uint64_t system_time = ws_pae_current_time_get();
             ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
                                                 controller->sec_keys_nw_info.key_pan_id,
                                                 controller->sec_keys_nw_info.network_name,
-                                                gtk_eui64, read_gtks_to, read_lgtks_to, system_time);
+                                                gtk_eui64, read_gtks_to, read_lgtks_to);
         }
     }
 
