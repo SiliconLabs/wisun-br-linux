@@ -654,18 +654,6 @@ uint32_t sec_prot_keys_gtk_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index
 uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time, uint32_t seconds, bool gtk_update_enable);
 
 /**
- * sec_prot_keys_gtk_exptime_from_lifetime_get converts GTK lifetime to expiry time.
- *
- * \param gtks GTK keys
- * \param index index for GTK
- * \param current_time current time
- *
- * \return expiry time
- *
- */
-uint64_t sec_prot_keys_gtk_exptime_from_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time);
-
-/**
  * sec_prot_keys_gtk_expirytime_set sets GTK expiry time
  *
  * \param gtks GTK keys

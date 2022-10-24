@@ -539,16 +539,6 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
     return gtks->gtk[index].lifetime;
 }
 
-uint64_t sec_prot_keys_gtk_exptime_from_lifetime_get(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t current_time)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return 0;
-    }
-
-    uint32_t lifetime = gtks->gtk[index].lifetime;
-    return current_time + lifetime;
-}
-
 int8_t sec_prot_keys_gtk_expirytime_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint64_t expirytime)
 {
     if (index >= GTK_NUM || !gtks->gtk[index].set) {
