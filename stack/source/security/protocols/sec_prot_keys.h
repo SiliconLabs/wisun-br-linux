@@ -66,10 +66,6 @@
 
 #define SEC_MAXIMUM_LIFETIME   (60 * 60 * 24 * 30 * 24)   // Maximum life time for PMK, PTK, GTKs etc. is two years
 
-// System time changed
-#define SYSTEM_TIME_NOT_CHANGED     0
-#define SYSTEM_TIME_CHANGED         1
-
 typedef struct gtk_key {
     uint8_t                key[GTK_LEN];              /**< Group Transient Key (128 bits) */
     uint64_t               expirytime;                /**< GTK expiry time on storage */
@@ -161,7 +157,6 @@ typedef struct sec_prot_keys_nw_info {
     uint16_t key_pan_id;                                   /**< PAN ID for keys */
     uint16_t pan_version;                                  /**< PAN version for keys */
     uint16_t lpan_version;                                 /**< LFN PAN version for keys */
-    uint8_t system_time_changed;                           /**< System time changed */
     bool updated : 1;                                      /**< Network info has been updated */
 } sec_prot_keys_nw_info_t;
 

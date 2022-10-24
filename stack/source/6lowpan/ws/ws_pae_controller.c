@@ -153,11 +153,11 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
 static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                  uint64_t stored_time, uint8_t time_changed);
+                                                  uint64_t stored_time);
 static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                 uint64_t current_time, uint8_t *time_changed);
+                                                 uint64_t current_time);
 
 
 static NS_LIST_DEFINE(pae_controller_list, pae_controller_t, link);
@@ -425,8 +425,7 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
                                             gtk_eui64,
                                             controller->sec_keys_nw_info.gtks,
                                             controller->sec_keys_nw_info.lgtks,
-                                            system_time,
-                                            controller->sec_keys_nw_info.system_time_changed);
+                                            system_time);
         controller->sec_keys_nw_info.updated = false;
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.gtks);
         sec_prot_keys_gtks_updated_reset(controller->sec_keys_nw_info.lgtks);
@@ -950,17 +949,12 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
     uint8_t nvm_gtk_eui64[8];
     uint64_t system_time = ws_pae_current_time_get();
 
-    uint8_t system_time_changed = controller->sec_keys_nw_info.system_time_changed;
     if (ws_pae_controller_nvm_nw_info_read(controller->interface_ptr,
                                            &controller->sec_keys_nw_info.key_pan_id,
                                            controller->sec_keys_nw_info.network_name,
-                                           nvm_gtk_eui64, gtks, lgtks, system_time,
-                                           &controller->sec_keys_nw_info.system_time_changed) < 0) {
+                                           nvm_gtk_eui64, gtks, lgtks, system_time) < 0) {
         // If no stored GTKs and network info (pan_id and network name) exits
         return -1;
-    }
-    if (system_time_changed != controller->sec_keys_nw_info.system_time_changed) {
-        controller->sec_keys_nw_info.updated = true;
     }
 
     /* Get own EUI-64 and compare to the one read from the NVM. In case of mismatch delete GTKs and make
@@ -994,7 +988,7 @@ const struct name_value valid_gtk_status[] = {
 static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                  uint64_t stored_time, uint8_t time_changed)
+                                                  uint64_t stored_time)
 {
     unsigned long long current_time = ws_pae_current_time_get();
     struct storage_parse_info *info = storage_open_prefix("network-keys", "w");
@@ -1055,7 +1049,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_
 static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
-                                                 uint64_t current_time, uint8_t *time_changed)
+                                                 uint64_t current_time)
 {
     struct storage_parse_info *info = storage_open_prefix("network-keys", "r");
     gtk_key_t new_gtks[GTK_NUM] = { };
@@ -1230,8 +1224,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
             ws_pae_controller_nvm_nw_info_write(controller->interface_ptr,
                                                 controller->sec_keys_nw_info.key_pan_id,
                                                 controller->sec_keys_nw_info.network_name,
-                                                gtk_eui64, read_gtks_to, read_lgtks_to, system_time,
-                                                controller->sec_keys_nw_info.system_time_changed);
+                                                gtk_eui64, read_gtks_to, read_lgtks_to, system_time);
         }
     }
 
