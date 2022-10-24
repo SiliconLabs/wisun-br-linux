@@ -16,14 +16,14 @@
  */
 
 #include <stdint.h>
-#include "service_libs/utils/ns_time.h"
+#include <time.h>
 
 #define SECONDS_IN_WEEK                (7 * 24 * 60 * 60)
 
 uint64_t ws_pae_current_time_get(void)
 {
-    uint64_t new_time;
+    struct timespec tp;
 
-    ns_time_system_time_read(&new_time);
-    return new_time;
+    clock_gettime(CLOCK_REALTIME, &tp);
+    return tp.tv_sec;
 }

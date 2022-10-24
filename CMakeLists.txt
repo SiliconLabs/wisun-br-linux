@@ -212,7 +212,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/nd_proxy/nd_proxy.c
     stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
-    stack/source/service_libs/utils/ns_time.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
     stack-services/common_functions.c
@@ -419,7 +418,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/nd_proxy/nd_proxy.c
         stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         stack/source/service_libs/random_early_detection/random_early_detection.c
-        stack/source/service_libs/utils/ns_time.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
         stack-services/common_functions.c

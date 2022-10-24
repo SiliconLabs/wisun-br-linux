@@ -26,7 +26,6 @@
 #include "common/named_values.h"
 #include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
-#include "service_libs/utils/ns_time.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/nd_proxy/nd_proxy.h"

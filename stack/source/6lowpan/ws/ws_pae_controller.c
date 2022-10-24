@@ -28,7 +28,6 @@
 #include "common/parsers.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/ns_trace.h"
-#include "service_libs/utils/ns_time.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ns_address.h"
 #include "stack/ws_management_api.h"
