@@ -305,6 +305,8 @@ Under the hood, when `neighbor_proxy` is in use:
      (user can dump them with `ip -6 neigh show proxy`)
    - IPv6 routes are automatically added for the Wi-SUN nodes (user can
      dump them with `ip -6 route show`).
+   - The delay before answering multicast neighbor solicitations
+     (`/proc/sys/net/ipv6/neigh/*/proxy_delay`) is set to 0.
 
 
 [1]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
