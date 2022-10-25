@@ -602,7 +602,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_domain = REG_DOMAIN_UNDEF;
     config->ws_mode = 0;
     config->ws_size = NETWORK_SIZE_SMALL;
-    config->ws_fan_version = WS_FAN_VERSION_1_1;
     config->ws_pan_id = -1;
     config->color_output = -1;
     config->tx_power = 20;

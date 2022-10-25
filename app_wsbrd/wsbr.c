@@ -406,6 +406,20 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
             i++;
     } while (ret < 1);
 
+    while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+        rcp_rx(ctxt);
+
+    if (fw_api_older_than(ctxt, 0, 15, 0)) {
+        if (ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+            FATAL(1, "RCP does not support FAN 1.1");
+        if (!ctxt->config.ws_fan_version)
+            WARN("RCP does not support FAN 1.1");
+        ctxt->config.ws_fan_version = WS_FAN_VERSION_1_0;
+    } else {
+        if (!ctxt->config.ws_fan_version)
+            ctxt->config.ws_fan_version = WS_FAN_VERSION_1_1;
+    }
+
     while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
