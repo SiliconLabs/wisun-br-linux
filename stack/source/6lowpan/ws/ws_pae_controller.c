@@ -36,6 +36,7 @@
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_supp.h"
@@ -569,7 +570,8 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_
             uint8_t gak[GTK_LEN];
             if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) >= 0) {
                 // Install the new network key derived from GTK and network name (GAK) to MAC
-                controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
+                if (!(is_lgtk && ws_version_1_0(interface_ptr)))
+                    controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
                 nw_key[i].installed = true;
                 ret = 0;
 #ifdef EXTRA_DEBUG_INFO
