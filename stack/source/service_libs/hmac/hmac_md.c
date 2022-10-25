@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <stdint.h>
 #include "common/rand.h"
 #include "stack-services/ns_trace.h"

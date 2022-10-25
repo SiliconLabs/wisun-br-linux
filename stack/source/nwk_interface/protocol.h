@@ -26,9 +26,6 @@
 #ifndef _NS_PROTOCOL_H
 #define _NS_PROTOCOL_H
 
-#ifndef _NANOSTACK_SOURCE_CONFIG_H
-#error "Why haven't you included config.h before all other headers?"
-#endif
 #include "common/trickle.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/channel_list.h"

@@ -24,7 +24,6 @@
  * rpl_instance_t, rpl_dodag_t, rpl_dodag_version_t, rpl_neighbour_t are all accessible.
  */
 
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

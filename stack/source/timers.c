@@ -1,4 +1,3 @@
-#include "nsconfig.h"
 #include <assert.h>
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/6lowpan/fragmentation/cipv6_fragmenter.h"

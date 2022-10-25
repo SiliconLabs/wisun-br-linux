@@ -20,7 +20,6 @@
  * \brief Add short description about this file!!!
  *
  */
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

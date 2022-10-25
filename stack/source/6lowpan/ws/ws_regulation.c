@@ -15,7 +15,6 @@
  *
  ******************************************************************************/
 
-#include "nsconfig.h"
 #include <string.h>
 
 #include "6lowpan/mac/mac_helper.h"

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include <stdlib.h>
 #include "stack-services/common_functions.h"

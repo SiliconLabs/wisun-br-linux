@@ -30,7 +30,6 @@
  * DAO-SR route instead of the /64 on-link prefix for the Ethernet backbone.
  *
  */
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>

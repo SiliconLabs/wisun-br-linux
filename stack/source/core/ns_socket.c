@@ -20,7 +20,6 @@
  *
  * The socket API functions
  */
-#include "nsconfig.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>

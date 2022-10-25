@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include "stack/net_6lowpan_parameter.h"

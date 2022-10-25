@@ -16,7 +16,6 @@
  */
 
 #include <string.h>
-#include "nsconfig.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/rand.h"

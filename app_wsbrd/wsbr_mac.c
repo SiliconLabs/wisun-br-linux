@@ -12,7 +12,6 @@
  */
 
 /* MAC API implementation */
-#include "nsconfig.h"
 #include <time.h>
 #include <stdio.h>
 #include <string.h>

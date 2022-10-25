@@ -19,7 +19,6 @@
  * \file protocol_6lowpan_bootstrap.c
  *
  */
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

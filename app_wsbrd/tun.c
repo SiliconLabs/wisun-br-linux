@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "nsconfig.h"
 #include <ifaddrs.h>
 #include <string.h>
 #include <unistd.h>

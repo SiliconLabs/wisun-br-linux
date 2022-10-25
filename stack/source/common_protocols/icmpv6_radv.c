@@ -37,7 +37,6 @@
  * per-ABRO multicast transmissions will be independently randomly scheduled.
  */
 
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

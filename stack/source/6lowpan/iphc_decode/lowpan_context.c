@@ -20,7 +20,6 @@
  * \brief API for Add,Remove and update timeouts for lowpan context's
  *
  */
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

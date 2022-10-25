@@ -75,7 +75,6 @@
  * just AND together parent and target path control bits.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "nsconfig.h"
 #include <string.h>
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_trace.h"

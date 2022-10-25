@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -190,7 +189,7 @@ void protocol_6lowpan_stack(buffer_t *b)
                 b = 0;
             }
         }
-#endif 
+#endif
     }
 }
 

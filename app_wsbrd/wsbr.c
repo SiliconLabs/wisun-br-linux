@@ -10,7 +10,6 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include "nsconfig.h"
 #include <poll.h>
 #include <unistd.h>
 #include <signal.h>

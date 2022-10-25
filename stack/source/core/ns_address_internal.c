@@ -21,7 +21,6 @@
  * This file contains all the utility functions that can be used to
  * check, manipulate etc. addresses.
  */
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

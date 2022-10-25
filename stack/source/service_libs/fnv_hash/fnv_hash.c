@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include "service_libs/fnv_hash/fnv_hash.h"
 
 #if 0

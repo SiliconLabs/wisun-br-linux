@@ -28,7 +28,6 @@
  * RFC 8200   Internet Protocol, Version 6 (IPv6) Specification
  * RFC 8201   Path MTU Discovery for IP version 6
  */
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

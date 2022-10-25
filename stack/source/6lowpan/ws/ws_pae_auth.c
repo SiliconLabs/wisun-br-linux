@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-#include "nsconfig.h"
 #include <string.h>
 #include "common/rand.h"
 #include <stdint.h>

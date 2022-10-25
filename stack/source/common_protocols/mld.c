@@ -28,7 +28,6 @@
  * than the presence of an MLDv2 Any-Source-Multicast host for that group.
  */
 
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include "common/rand.h"

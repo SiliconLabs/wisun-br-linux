@@ -227,7 +227,7 @@ target_include_directories(libwsbrd PRIVATE
     stack-scheduler/
     stack/
 )
-target_compile_definitions(libwsbrd PRIVATE NSCONFIG=ws_border_router)
+target_compile_options(libwsbrd PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_libraries(libwsbrd PRIVATE Threads::Threads)
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
@@ -433,7 +433,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-scheduler/
         stack/
     )
-    target_compile_definitions(wsnode PRIVATE NSCONFIG=ws_router)
+    target_compile_options(wsnode PRIVATE -include stack/source/configs/cfg_ws_router.h)
     # target_compile_definitions(wsnode PRIVATE EXTRA_DEBUG_INFO)
     target_link_libraries(wsnode PRIVATE Threads::Threads)
     target_link_libraries(wsnode PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
@@ -535,7 +535,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd_fuzz/capture.c
         app_wsbrd_fuzz/rand.c
     )
-    target_compile_definitions(wsbrd-fuzz PRIVATE NSCONFIG=ws_border_router)
+    target_compile_options(wsbrd-fuzz PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
     target_include_directories(wsbrd-fuzz PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/

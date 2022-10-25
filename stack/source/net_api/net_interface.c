@@ -20,7 +20,6 @@
  *
  * The network API functions for library model
  */
-#include "nsconfig.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>

@@ -27,9 +27,6 @@
 #ifndef _NS_BUFFER_H
 #define _NS_BUFFER_H
 
-#ifndef _NANOSTACK_SOURCE_CONFIG_H
-#error "Why haven't you included config.h before all other headers?"
-#endif
 
 #include <stdint.h>
 #include <stdbool.h>

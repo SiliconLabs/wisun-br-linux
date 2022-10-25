@@ -31,7 +31,6 @@
  * to establish which instances "count" for triggering an overall system (or
  * domain) state machine.
  */
-#include "nsconfig.h"
 #include <string.h>
 #include <stdlib.h>
 #include "app_wsbrd/tun.h"
