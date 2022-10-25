@@ -755,6 +755,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         if (config->tls_own.cert_len != 0 || config->tls_own.key_len != 0 || config->tls_ca.cert_len != 0)
             WARN("ignore certificates and key since an external radius server is in use");
     }
+    if (config->ws_fan_version == WS_FAN_VERSION_1_0) {
+        if (config->ws_lgtk_force[0] || config->ws_lgtk_force[1] || config->ws_lgtk_force[2])
+            FATAL(1, "\"lgtk[i]\" is incompatible with \"fan_version = 1.0\"");
+    }
 #ifdef HAVE_WS_BORDER_ROUTER
     if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
