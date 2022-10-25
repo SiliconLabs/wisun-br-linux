@@ -281,13 +281,18 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     return fd;
 }
 
-static void wbsr_dev_enable_option(char *devname, char *option, char wanted_value)
+static void wbsr_sysctl_set(const char *path, const char *devname, const char *option, char wanted_value)
 {
     char buf[256];
     char content;
     int fd;
 
-    snprintf(buf, sizeof(buf), "/proc/sys/net/ipv6/conf/%s/%s", devname, option);
+    BUG_ON(!path || !option);
+
+    if (devname)
+        snprintf(buf, sizeof(buf), "%s/%s/%s", path, devname, option);
+    else
+        snprintf(buf, sizeof(buf), "%s/%s", path, option);
     fd = open(buf, O_RDONLY);
     if (fd < 0)
         FATAL(2, "open %s: %m", buf);
@@ -299,7 +304,7 @@ static void wbsr_dev_enable_option(char *devname, char *option, char wanted_valu
     if (content != wanted_value) {
         fd = open(buf, O_WRONLY);
         if (fd < 0) {
-            WARN("%s: cannot set %s to %c (%m)", devname, option, wanted_value);
+            WARN("%s: cannot set %s to %c (%m)", devname ? devname : "ipv6", option, wanted_value);
             close(fd);
             return;
         }
@@ -336,9 +341,11 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
                                  strlen(ctxt->config.neighbor_proxy));
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
-    wbsr_dev_enable_option(ctxt->config.tun_dev, "accept_ra", '0');
-    if (strlen(ctxt->config.neighbor_proxy))
-        wbsr_dev_enable_option(ctxt->config.neighbor_proxy, "proxy_ndp", '1');
+    wbsr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
+    if (strlen(ctxt->config.neighbor_proxy)) {
+        wbsr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
+        wbsr_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
+    }
     wsbr_tun_mcast_init(&ctxt->sock_mcast, ctxt->config.tun_dev);
 }
 
