@@ -70,7 +70,7 @@ static struct {
     timer_entry(6LOWPAN_NEIGHBOR_FAST,  ipv6_neighbour_cache_fast_timer,            100,                                          true),
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                                          true),
     timer_entry(6LOWPAN_BOOTSTRAP,      nwk_bootstrap_timer,                        100,                                          true),
-    timer_entry(6LOWPAN_REACHABLE_TIME, nwk_bootstrap_timer,                        100,                                          true),
+    timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                                         true),
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 
