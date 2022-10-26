@@ -124,7 +124,6 @@ typedef struct ws_info {
     bool trickle_pa_running: 1;
     bool trickle_pcs_running: 1;
     bool trickle_pc_running: 1;
-    uint16_t trickle_pc_consistency_block_period;
     ws_pending_key_index_t pending_key_index_info;
     ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;

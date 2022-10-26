@@ -2481,7 +2481,6 @@ void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur)
     cur->ws_info->trickle_pa_running = true;
     trickle_start(&cur->ws_info->trickle_pan_advertisement, "ADV", &cur->ws_info->trickle_params_pan_discovery);
     cur->ws_info->trickle_pc_running = true;
-    cur->ws_info->trickle_pc_consistency_block_period = 0;
     trickle_start(&cur->ws_info->trickle_pan_config, "CFG", &cur->ws_info->trickle_params_pan_discovery);
 }
 
@@ -3035,15 +3034,6 @@ void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t t
         ws_bootstrap_pan_advert(cur);
     }
     if (cur->ws_info->trickle_pc_running) {
-
-        if (cur->ws_info->trickle_pc_consistency_block_period) {
-            if (ticks >= cur->ws_info->trickle_pc_consistency_block_period) {
-                cur->ws_info->trickle_pc_consistency_block_period = 0;
-            } else {
-                cur->ws_info->trickle_pc_consistency_block_period -= ticks;
-            }
-        }
-
         if (trickle_timer(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
             // send PAN Configuration
             ws_bootstrap_pan_config(cur);
@@ -3057,7 +3047,6 @@ void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur)
     cur->ws_info->trickle_pa_running = false;
     cur->ws_info->trickle_pcs_running = false;
     cur->ws_info->trickle_pc_running = false;
-    cur->ws_info->trickle_pc_consistency_block_period = 0;
 }
 
 

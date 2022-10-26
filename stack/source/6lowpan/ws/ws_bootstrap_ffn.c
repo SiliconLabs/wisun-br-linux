@@ -426,17 +426,6 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
         tr_warn("BT-IE");
         return;
     }
-
-    /*
-     * A consistent transmission is defined as a PAN Configuration with a PAN-ID matching that of the receiving node and
-     * a PANVER-IE / PAN Version greater than or equal to the receiving node’s current PAN version.
-     *
-     * A inconsistent transmission is defined as:
-     *
-     *  A PAN Configuration with PAN-ID matching that of the receiving node and a
-     *  PANVER-IE / PAN Version that is less than the receiving node’s current PAN version.
-     */
-
     // TODO Add this to neighbor table
     // TODO save all information from config message if version number has changed
 
@@ -511,11 +500,8 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
 
     if (cur->ws_info->configuration_learned) {
         if (cur->ws_info->pan_information.pan_version == pan_version) {
-            //Check if Trgigle have been resetted in short time skip this then
-            if (cur->ws_info->trickle_pc_consistency_block_period == 0) {
-                // Same version heard so it is consistent
-                trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
-            }
+            // Same version heard so it is consistent
+            trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
 
             if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_SOFT_SYNCH);
@@ -533,7 +519,6 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
                 // older version heard ignoring the message
                 return;
             }
-            cur->ws_info->trickle_pc_consistency_block_period = WS_CONFIG_CONSISTENT_FILTER_PERIOD;
         }
     }
 
