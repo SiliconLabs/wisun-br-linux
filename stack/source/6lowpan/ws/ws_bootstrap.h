@@ -197,4 +197,6 @@ void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
 
 void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur);
 
+uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
+
 #endif

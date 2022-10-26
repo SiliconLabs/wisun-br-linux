@@ -257,37 +257,10 @@ static void ws_bootstrap_ffn_network_configuration_learn(protocol_interface_info
 
 static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct protocol_interface_info_entry *cur, ws_pan_information_t *pan_information)
 {
-    /* In Active state
-     *
-     * A consistent transmission is defined as a PAN Advertisement received by a node with PAN ID and
-     * NETNAME-IE / Network Name matching that of the receiving node, and with a PAN-IE / Routing Cost
-     * the same or worse than (bigger than or equal to) that of the receiving node.
-     *
-     * Inconsistent:
-     *
-     * Received Routing Cost is smaller than stored one
-     *
-     * A PAN Advertisement received by a node with PAN ID and NETNAME-IE / Network name matching
-     * that of the receiving node, and PAN-IE / Routing Cost better than (smaller than) that of the receiving node.
-     *
-     */
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        //Border router never set consistent that will guarantee that BR will send advertisment
-        return;
-    }
-#ifdef WISUN_1_0_ERRATA_FIX
-    if (pan_information->pan_size == cur->ws_info->pan_information.pan_size) {
-        //If same pan size information then set consistent value
+    if (pan_information->routing_cost != 0xFFFF &&
+        pan_information->routing_cost >= ws_bootstrap_routing_cost_calculate(cur)) {
         trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
     }
-#else
-    // Wi-SUN 1.0 specified functionality, causes extra inconsistencies when we hear higher rank advertisements
-    if (pan_information->routing_cost >= ws_bootstrap_routing_cost_calculate(cur)) {
-        trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
-    } else {
-        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
-    }
-#endif
 }
 
 static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)

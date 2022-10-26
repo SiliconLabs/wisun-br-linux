@@ -233,12 +233,6 @@ extern uint8_t DEVICE_MIN_SENS;
 #define WS_CONGESTION_BR_MAX_QUEUE_SIZE 600000 / WS_CONGESTION_PACKET_SIZE
 #define WS_CONGESTION_NODE_MIN_QUEUE_SIZE 10000 / WS_CONGESTION_PACKET_SIZE
 #define WS_CONGESTION_NODE_MAX_QUEUE_SIZE 85000 / WS_CONGESTION_PACKET_SIZE
-/*
- * Modifications for base specification.
- *
- * ERRATA changes after 1.0 specification release.
- */
-#define WISUN_1_0_ERRATA_FIX
 
 /*
  * Security protocol message retry configuration parameters

@@ -85,7 +85,6 @@
 
 static void ws_bootstrap_event_handler(arm_event_s *event);
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
-static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_rank_get(protocol_interface_info_entry_t *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(protocol_interface_info_entry_t *cur);
 static void ws_bootstrap_mac_security_enable(protocol_interface_info_entry_t *cur);
@@ -2357,7 +2356,7 @@ neigh_create_ok:
 #endif
     return create_ok;
 }
-static uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur)
+uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur)
 {
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
     if (!mac_neighbor) {
