@@ -112,54 +112,6 @@ void ws_pae_nvm_store_frame_counter_tlv_create(frame_cnt_nvm_tlv_t *tlv_entry,
                                                frame_counters_t *lgtk_counters,
                                                uint64_t stored_time);
 
-/**
- * ws_pae_nvm_store_key_storage_index_tlv_create create NVM key storage index TLV
- *
- * \param tlv_entry TLV entry
- * \param bitfield index of filenames
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-void ws_pae_nvm_store_key_storage_index_tlv_create(nvm_tlv_t *tlv_entry, uint64_t bitfield);
-
-/**
- * ws_pae_nvm_store_key_storage_index_tlv_read read NVM key storage index TLV
- *
- * \param tlv_entry TLV entry
- * \param bitfield index of filenames
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_nvm_store_key_storage_index_tlv_read(nvm_tlv_t *tlv_entry, uint64_t *bitfield);
-
-/**
- * ws_pae_nvm_store_key_storage_tlv_create create NVM key storage TLV
- *
- * \param tlv_entry TLV entry
- * \param length length of the (whole) entry
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-void ws_pae_nvm_store_key_storage_tlv_create(nvm_tlv_t *tlv_entry, uint16_t length);
-
-/**
- * ws_pae_nvm_store_key_storage_tlv_read read NVM key storage TLV
- *
- * \param tlv_entry TLV entry
- * \param length length of the (whole) entry
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_nvm_store_key_storage_tlv_read(nvm_tlv_t *tlv_entry, uint16_t length);
-
 nvm_tlv_t *ws_pae_buffer_allocate(void);
 
 #endif
