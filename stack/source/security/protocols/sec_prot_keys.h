@@ -898,30 +898,6 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks);
 int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks);
 
 /**
- * sec_prot_keys_gtk_install_order_get gets GTK install order
- *
- * \param gtks GTK keys
- * \param index index
- *
- * \return GTK install order
- *
- */
-uint8_t sec_prot_keys_gtk_install_order_get(sec_prot_gtk_keys_t *gtks, uint8_t gtk_index);
-
-/**
- * sec_prot_keys_gtk_install_order_set sets GTK install order
- *
- * \param gtks GTK keys
- * \param index index
- * \param install_order GTK install order
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t sec_prot_keys_gtk_install_order_set(sec_prot_gtk_keys_t *gtks, uint8_t gtk_index, uint8_t install_order);
-
-/**
  * sec_prot_keys_gtk_count counts GTK keys
  *
  * \param gtks GTK keys

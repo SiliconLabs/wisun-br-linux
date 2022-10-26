@@ -901,29 +901,6 @@ int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks)
     return install_index;
 }
 
-uint8_t sec_prot_keys_gtk_install_order_get(sec_prot_gtk_keys_t *gtks, uint8_t index)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return 0;
-    }
-
-    return gtks->gtk[index].install_order;
-}
-
-int8_t sec_prot_keys_gtk_install_order_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t install_order)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return -1;
-    }
-    if (gtks->gtk[index].install_order != install_order) {
-        gtks->updated = true;
-    }
-
-    gtks->gtk[index].install_order = install_order;
-    return 0;
-}
-
-
 uint8_t sec_prot_keys_gtk_count(sec_prot_gtk_keys_t *gtks)
 {
     uint8_t count = 0;
