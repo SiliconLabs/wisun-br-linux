@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/log.h"
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "stack-services/ns_trace.h"
@@ -417,37 +418,30 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     uint16_t pan_version;
     ws_bs_ie_t ws_bs_ie;
     gtkhash_t *gtkhash_ptr;
-
-    if (data->SrcPANId != cur->ws_info->network_pan_id) {
-        return;
-    }
     ws_bt_ie_t ws_bt_ie;
+
+    if (data->SrcPANId != cur->ws_info->network_pan_id)
+        return;
     if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt_ie)) {
-        tr_warn("BT-IE");
+        WARN("Received corrupted PAN config: no broadcast timing information");
         return;
     }
+    if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
+        WARN("Received corrupted PAN config: no broadcast schedule information");
+        return;
+    }
+    if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_version)) {
+        WARN("Received corrupted PAN config: no PAN version");
+        return;
+    }
+    gtkhash_ptr = ws_wp_nested_gtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength);
+    if (!gtkhash_ptr) {
+        WARN("Received corrupted PAN config: no GTK hash");
+        return;
+    }
+
     // TODO Add this to neighbor table
     // TODO save all information from config message if version number has changed
-
-    if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_version)) {
-        // Corrupted
-        tr_warn("no version");
-        return;
-    }
-
-    gtkhash_ptr = ws_wp_nested_gtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength);
-
-    if (!gtkhash_ptr) {
-        // Corrupted
-        tr_error("No gtk hash");
-        return;
-    }
-
-    if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
-        // Corrupted
-        tr_error("No broadcast schedule");
-        return;
-    }
 
     llc_neighbour_req_t neighbor_info;
     bool neighbour_pointer_valid;
