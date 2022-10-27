@@ -200,6 +200,22 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interfa
     }
 }
 
+static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext)
+{
+    ws_pan_information_t pan_information;
+
+    if (data->SrcPANId != cur->ws_info->network_pan_id)
+        return;
+    if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
+        WARN("Received corrupted PAN advertisement: no pan information");
+        return;
+    }
+    // Border router routing cost is 0, so "Routing Cost the same or worse" is
+    // always true
+    if (pan_information.routing_cost != 0xFFFF)
+        trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
+}
+
 void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     ws_pom_ie_t pom_ie;
@@ -266,8 +282,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
         case WS_FT_PAN_ADVERT:
             // Analyse Advertisement
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
-            // Border routers do not do any analysing on the Advertisements heard from others
-            // in future if we need PANID conflict detection we could use this
+            ws_bootstrap_6lbr_pan_advertisement_analyse(cur, data, ie_ext);
             break;
         case WS_FT_PAN_ADVERT_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
