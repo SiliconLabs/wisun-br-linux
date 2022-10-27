@@ -159,6 +159,7 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
 {
     ws_bs_ie_t ws_bs_ie;
     ws_bt_ie_t ws_bt_ie;
+    uint16_t ws_pan_version;
     llc_neighbour_req_t neighbor_info;
 
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
@@ -175,7 +176,15 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
         return;
     }
 
-    //If we are border router or learned configuration we only update already learned neighbours.
+    if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
+        WARN("Received corrupted PAN config: no PAN version");
+        return;
+    }
+
+    if (cur->ws_info->pan_information.pan_version == ws_pan_version)
+        trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
+    else
+        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
 
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         //Update Neighbor Broadcast and Unicast Parameters
