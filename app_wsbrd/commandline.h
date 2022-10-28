@@ -90,6 +90,7 @@ struct wsbrd_conf {
 
     int lowpan_mtu;
     int pan_size;
+    char pcap_file[PATH_MAX];
 };
 
 void print_help_br(FILE *stream);

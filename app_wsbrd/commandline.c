@@ -512,6 +512,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct parser_info *inf
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
         { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
+        { "pcap_file",                     config->pcap_file,                         conf_set_string,      (void *)sizeof(config->pcap_file) },
     };
     char garbage; // detect garbage at end of the line
     char fmt[256];
