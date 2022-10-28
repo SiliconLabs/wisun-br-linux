@@ -103,13 +103,35 @@ static const struct {
     { true,  true,  true,  IEEE802154_IE_HT1, IEEE802154_IE_PT },
 };
 
+static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt);
+
 static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct pcapng_buf *buf)
 {
     int ret;
 
+    // recover if other process stopped reading from FIFO
+    if (ctxt->pcapng_fd < 0) {
+        ctxt->pcapng_fd = open(ctxt->config.pcap_file, O_WRONLY | O_NONBLOCK);
+        if (ctxt->pcapng_fd < 0)
+            return;
+        WARN("restarted pcapng capture");
+        wsbr_pcapng_write_start(ctxt);
+    }
+
     ret = write(ctxt->pcapng_fd, buf->buf, buf->cnt);
-    if (ret < 0 && !(ret == -EAGAIN && ctxt->pcapng_type == S_IFIFO))
+    if (ret >= 0)
+        return;
+    if (ctxt->pcapng_type != S_IFIFO)
         FATAL(2, "write pcapng: %m");
+    if (errno == EAGAIN)
+        return;
+    if (errno != EPIPE)
+        FATAL(2, "write pcapng: %m");
+
+    WARN("stopped pcapng capture");
+    ret = close(ctxt->pcapng_fd);
+    FATAL_ON(ret < 0, 2, "close pcapng: %m");
+    ctxt->pcapng_fd = -1;
 }
 
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt)
