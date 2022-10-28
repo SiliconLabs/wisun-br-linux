@@ -16,10 +16,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "common/log.h"
 #include "common/os_types.h"
 #include "common/named_values.h"
 #include "common/parsers.h"
+#include "common/pcapng.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/utils.h"

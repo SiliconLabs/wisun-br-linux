@@ -66,6 +66,9 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.mcps_purge_req = wsbr_mcps_purge,
 
     .mac_api.mtu = 2043,
+
+    // avoid initializating to 0 = STDIN_FILENO
+    .pcapng_fd = -1,
 };
 
 // See warning in common/os_types.h

@@ -73,6 +73,9 @@ struct wsbr_ctxt {
 
     // For DebugPing dbus interface
     int ping_socket_fd;
+
+    int pcapng_fd;
+    mode_t pcapng_type;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this

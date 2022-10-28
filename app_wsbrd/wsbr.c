@@ -47,6 +47,7 @@
 #include "commandline.h"
 #include "version.h"
 #include "wsbr_mac.h"
+#include "wsbr_pcapng.h"
 #include "libwsbrd.h"
 #include "wsbr.h"
 #include "timers.h"
@@ -90,6 +91,7 @@ struct wsbr_ctxt g_ctxt = {
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,
     .tun_fd = -1,
+    .pcapng_fd = -1,
 };
 
 // See warning in common/os_types.h
@@ -528,6 +530,8 @@ int wsbr_main(int argc, char *argv[])
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.pan_size >= 0)
         test_pan_size_override = ctxt->config.pan_size;
+    if (ctxt->config.pcap_file[0])
+        wsbr_pcapng_init(ctxt);
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp_tx = wsbr_uart_tx;
         ctxt->rcp_rx = uart_rx;

@@ -75,6 +75,7 @@ add_library(libwsbrd STATIC
     version.c
     app_wsbrd/wsbr.c
     app_wsbrd/wsbr_mac.c
+    app_wsbrd/wsbr_pcapng.c
     app_wsbrd/wsbr_fhss_mac.c
     app_wsbrd/wsbr_fhss_net.c
     app_wsbrd/timers.c
@@ -289,6 +290,7 @@ if(COMPILE_SIMULATION_TOOLS)
         version.c
         app_wsbrd/wsrouter.c
         app_wsbrd/wsbr_mac.c
+        app_wsbrd/wsbr_pcapng.c
         app_wsbrd/wsbr_fhss_mac.c
         app_wsbrd/wsbr_fhss_net.c
         app_wsbrd/timers.c
