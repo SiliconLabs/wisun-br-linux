@@ -39,6 +39,7 @@
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "wsbr_pcapng.h"
 #include "timers.h"
 #include "tun.h"
 #include "dbus.h"
@@ -394,6 +395,8 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
             req.TxAckReq           = spinel_pop_bool(buf);
             req.PendingBit         = spinel_pop_bool(buf);
             req.PanIdSuppressed    = spinel_pop_bool(buf);
+            if (ctxt->config.pcap_file[0])
+                wsbr_pcapng_write_frame(ctxt, &req, &ie_ext);
         }
         if (!spinel_prop_is_valid(buf, prop))
             return;
