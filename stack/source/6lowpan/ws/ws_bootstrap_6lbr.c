@@ -162,20 +162,17 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
     uint16_t ws_pan_version;
     llc_neighbour_req_t neighbor_info;
 
-    if (data->SrcPANId != cur->ws_info->network_pan_id) {
+    if (data->SrcPANId != cur->ws_info->network_pan_id)
         return;
-    }
+
     if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt_ie)) {
-        tr_warn("BT-IE");
+        WARN("Received corrupted PAN config: no broadcast timing information");
         return;
     }
-
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
-        // Corrupted
-        tr_error("No broadcast schedule");
+        WARN("Received corrupted PAN config: no broadcast schedule information");
         return;
     }
-
     if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
         WARN("Received corrupted PAN config: no PAN version");
         return;
@@ -187,7 +184,6 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
         trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
 
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
-        //Update Neighbor Broadcast and Unicast Parameters
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
         ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
