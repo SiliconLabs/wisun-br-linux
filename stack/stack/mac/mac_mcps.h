@@ -89,6 +89,9 @@ typedef struct mcps_data_ind {
     uint8_t SrcAddr[8];         /**< Source address */
     unsigned DstAddrMode: 2;    /**< Destination address mode */
     bool DSN_suppressed: 1;     /**< Indicate when DSN not include valid sequency id */
+    bool TxAckReq: 1;           /**< Is ACK needed */
+    bool PendingBit: 1;         /**< Are there more fragments to be sent */
+    bool PanIdSuppressed: 1;    /**< Suppress PAN-ID if possible. 2015 extension only */
     uint16_t DstPANId;          /**< Destination PAN ID */
     uint8_t DstAddr[8];         /**< Destination address */
     uint8_t mpduLinkQuality;    /**< LQI value measured during reception of the MPDU */
