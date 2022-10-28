@@ -92,6 +92,7 @@ add_library(libwsbrd STATIC
     common/rand.c
     common/named_values.c
     common/parsers.c
+    common/pcapng.c
     common/spinel_buffer.c
     common/trickle.c
     common/ws_regdb.c
@@ -302,6 +303,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/rand.c
         common/named_values.c
         common/parsers.c
+        common/pcapng.c
         common/spinel_buffer.c
         common/trickle.c
         common/ws_regdb.c
