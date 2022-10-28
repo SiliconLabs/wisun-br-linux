@@ -334,6 +334,33 @@ COMMON_FUNCTIONS_FN uint64_t common_read_64_bit(const uint8_t data_buf[static 8]
     return temp_64;
 }
 
+COMMON_FUNCTIONS_FN uint8_t *common_write_64_bit_inverse(uint64_t value, uint8_t ptr[static 8])
+{
+    *ptr++ = value;
+    *ptr++ = value >> 8;
+    *ptr++ = value >> 16;
+    *ptr++ = value >> 24;
+    *ptr++ = value >> 32;
+    *ptr++ = value >> 40;
+    *ptr++ = value >> 48;
+    *ptr++ = value >> 56;
+    return ptr;
+}
+
+COMMON_FUNCTIONS_FN uint64_t common_read_64_bit_inverse(const uint8_t data_buf[static 8])
+{
+    uint64_t temp_64;
+    temp_64 = *data_buf++;
+    temp_64 += (uint64_t)(*data_buf++) << 8;
+    temp_64 += (uint64_t)(*data_buf++) << 16;
+    temp_64 += (uint64_t)(*data_buf++) << 24;
+    temp_64 += (uint64_t)(*data_buf++) << 32;
+    temp_64 += (uint64_t)(*data_buf++) << 40;
+    temp_64 += (uint64_t)(*data_buf++) << 48;
+    temp_64 += (uint64_t)(*data_buf++) << 56;
+    return temp_64;
+}
+
 COMMON_FUNCTIONS_FN uint8_t *common_write_32_bit(uint32_t value, uint8_t ptr[static 4])
 {
     *ptr++ = value >> 24;
