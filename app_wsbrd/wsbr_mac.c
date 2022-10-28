@@ -390,6 +390,11 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
         ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
         ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
+        if (spinel_remaining_size(buf)) {
+            req.TxAckReq           = spinel_pop_bool(buf);
+            req.PendingBit         = spinel_pop_bool(buf);
+            req.PanIdSuppressed    = spinel_pop_bool(buf);
+        }
         if (!spinel_prop_is_valid(buf, prop))
             return;
         adjust_rcp_time_diff(ctxt, req.timestamp);
