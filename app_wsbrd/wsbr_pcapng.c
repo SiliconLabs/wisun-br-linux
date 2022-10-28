@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "stack-services/common_functions.h"
 #include "common/log.h"
 #include "common/pcapng.h"
 #include "wsbr.h"
@@ -159,4 +160,87 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
     }
 
     wsbr_pcapng_write_start(ctxt);
+}
+
+static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
+{
+    uint8_t *start = frame;
+    uint16_t fcf;
+    int i;
+
+    fcf = FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA)
+        | FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   false)
+        | FIELD_PREP(IEEE802154_FCF_FRAME_PENDING,      ind->PendingBit)
+        | FIELD_PREP(IEEE802154_FCF_ACK_REQ,            ind->TxAckReq)
+        | FIELD_PREP(IEEE802154_FCF_PAN_ID_COMPRESSION, ind->PanIdSuppressed)
+        | FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      ind->DSN_suppressed)
+        | FIELD_PREP(IEEE802154_FCF_SEQ_IE_PRESENT,     ie->headerIeListLength || ie->payloadIeListLength)
+        | FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      ind->DstAddrMode)
+        | FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      MAC_FRAME_VERSION_2015)
+        | FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      ind->SrcAddrMode);
+    frame = common_write_16_bit_inverse(fcf, frame);
+    if (!ind->DSN_suppressed)
+        *frame++ = ind->DSN;
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_comp); i++)
+        if (ieee802154_table_pan_id_comp[i].dst_addr_mode      == ind->DstAddrMode &&
+            ieee802154_table_pan_id_comp[i].src_addr_mode      == ind->SrcAddrMode &&
+            ieee802154_table_pan_id_comp[i].pan_id_compression == ind->PanIdSuppressed)
+            break;
+    BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
+    if (ieee802154_table_pan_id_comp[i].dst_pan_id)
+        frame = common_write_16_bit_inverse(ind->DstPANId, frame);
+    if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+        memcpy(frame, ind->DstAddr, 8);
+        frame += 8;
+    } else if (ind->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
+        memcpy(frame, ind->DstAddr, 2);
+        frame += 2;
+    }
+    if (ieee802154_table_pan_id_comp[i].src_pan_id)
+        frame = common_write_16_bit_inverse(ind->SrcPANId, frame);
+    if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+        memcpy(frame, ind->SrcAddr, 8);
+        frame += 8;
+    } else if (ind->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
+        memcpy(frame, ind->SrcAddr, 2);
+        frame += 2;
+    }
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_term_ie); i++)
+        if (ieee802154_table_term_ie[i].header_ie    == (bool)ie->headerIeListLength  &&
+            ieee802154_table_term_ie[i].payload_ie   == (bool)ie->payloadIeListLength &&
+            ieee802154_table_term_ie[i].data_payload == (bool)ind->msduLength)
+            break;
+    memcpy(frame, ie->headerIeList, ie->headerIeListLength);
+    frame += ie->headerIeListLength;
+    if (ieee802154_table_term_ie[i].ie_ht)
+        frame = common_write_16_bit_inverse(ieee802154_table_term_ie[i].ie_ht, frame);
+    memcpy(frame, ie->payloadIeList, ie->payloadIeListLength);
+    frame += ie->payloadIeListLength;
+    if (ieee802154_table_term_ie[i].ie_pt)
+        frame = common_write_16_bit_inverse(ieee802154_table_term_ie[i].ie_pt, frame);
+    memcpy(frame, ind->msdu_ptr, ind->msduLength);
+    frame += ind->msduLength;
+
+    return frame - start;
+}
+
+void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
+{
+    uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
+    struct pcapng_buf *buf;
+    struct pcapng_epb epb = {
+        .if_id = 0, // only one interface is used
+        // ind->timestamp is in µs
+        .timestamp.tv_sec  =  ind->timestamp / 1000000,
+        .timestamp.tv_nsec = (ind->timestamp % 1000000) * 1000,
+    };
+
+    epb.pkt_len    = wsbr_mac_rebuild(frame, ind, ie);
+    epb.pkt_len_og = epb.pkt_len;
+    epb.pkt        = frame;
+    buf = ALLOC_STACK_PCAPNG_BUF(PCAPNG_EPB_SIZE_MIN + epb.pkt_len + 3);
+    pcapng_write_epb(buf, &epb);
+    wsbr_pcapng_write(ctxt, buf);
 }
