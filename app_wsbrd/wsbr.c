@@ -92,6 +92,7 @@ struct wsbr_ctxt g_ctxt = {
     .timerfd = -1,
     .tun_fd = -1,
     .pcapng_fd = -1,
+    .dhcp_server.fd = -1,
 };
 
 // See warning in common/os_types.h
@@ -327,7 +328,7 @@ static void wsbr_tasklet(struct arm_event *event)
             if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
                 WARN("ws_bbr_start");
             if (ctxt->config.internal_dhcp)
-                ws_bbr_internal_dhcp_server_start(ctxt->rcp_if_id, ipv6);
+                dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->hw_mac, ipv6);
             if (strlen(ctxt->config.radius_secret) != 0)
                 if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
                     WARN("ws_bbr_radius_shared_secret_set");
@@ -456,7 +457,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_EVENT].events = POLLIN;
     fds[POLLFD_TIMER].fd = ctxt->timerfd;
     fds[POLLFD_TIMER].events = POLLIN;
-    fds[POLLFD_DHCP_SERVER].fd = dhcp_service_get_server_socket_fd();
+    fds[POLLFD_DHCP_SERVER].fd = ctxt->dhcp_server.fd;
     fds[POLLFD_DHCP_SERVER].events = POLLIN;
     fds[POLLFD_BR_EAPOL_RELAY].fd = ws_bbr_eapol_relay_get_socket_fd();
     fds[POLLFD_BR_EAPOL_RELAY].events = POLLIN;
@@ -482,7 +483,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_DBUS].revents & POLLIN)
         dbus_process(ctxt);
     if (fds[POLLFD_DHCP_SERVER].revents & POLLIN)
-        recv_dhcp_server_msg();
+        dhcp_recv(&ctxt->dhcp_server);
     if (fds[POLLFD_BR_EAPOL_RELAY].revents & POLLIN)
         ws_bbr_eapol_relay_socket_cb(fds[POLLFD_BR_EAPOL_RELAY].fd);
     if (fds[POLLFD_EAPOL_RELAY].revents & POLLIN)

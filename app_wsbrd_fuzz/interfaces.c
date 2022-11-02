@@ -14,12 +14,17 @@
 #include "wsbrd_fuzz.h"
 #include "capture.h"
 
+static int fuzz_dhcp_get_socket_id()
+{
+    return g_ctxt.dhcp_server.fd;
+}
+
 static struct {
     int interface;
     int (*get_capture_fd)();
     int replay_write_fd;
 } s_sockets[] = {
-    { IF_DHCP_SERVER,    dhcp_service_get_server_socket_fd,     -1 },
+    { IF_DHCP_SERVER,    fuzz_dhcp_get_socket_id,               -1 },
     { IF_EAPOL_RELAY,    ws_bbr_eapol_auth_relay_get_socket_fd, -1 },
     { IF_BR_EAPOL_RELAY, ws_bbr_eapol_relay_get_socket_fd,      -1 },
     { IF_PAE_AUTH,       kmp_socket_if_get_pae_socket_fd,       -1 },

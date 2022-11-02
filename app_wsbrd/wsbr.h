@@ -24,6 +24,7 @@ typedef struct sd_bus sd_bus;
 #include "common/bits.h"
 #include "common/utils.h"
 #include "common/version.h"
+#include "common/dhcp_server.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/net_interface.h"
@@ -39,6 +40,7 @@ struct fhss_api;
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
     struct wsbrd_conf config;
+    struct dhcp_server dhcp_server;
     sd_bus *dbus;
 
     int timerfd;
