@@ -422,6 +422,8 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         if (!ctxt->config.ws_fan_version)
             ctxt->config.ws_fan_version = WS_FAN_VERSION_1_1;
     }
+    if (fw_api_older_than(ctxt, 0, 16, 0) && ctxt->config.pcap_file[0])
+        FATAL(1, "pcap_file requires RCP >= 0.16.0");
 
     while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
