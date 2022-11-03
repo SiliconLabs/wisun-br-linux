@@ -341,7 +341,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
                                                                  addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_DEFAULT) == 0) {
                                 return;
                             } else {
-                                tr_warning("Secondary Address allocate fail");
+                                tr_warn("Secondary Address allocate fail");
                             }
                         }
 

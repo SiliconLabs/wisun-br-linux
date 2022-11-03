@@ -113,10 +113,8 @@
 #endif
 
 #if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_WARN
-#define tr_warning(...)         mbed_tracef(TRACE_LEVEL_WARN,    TRACE_GROUP, __VA_ARGS__)   //!< Print warning message
-#define tr_warn(...)            mbed_tracef(TRACE_LEVEL_WARN,    TRACE_GROUP, __VA_ARGS__)   //!< Alternative warning message
+#define tr_warn(...)            mbed_tracef(TRACE_LEVEL_WARN,    TRACE_GROUP, __VA_ARGS__)   //!< Print warning message
 #else
-#define tr_warning(...)
 #define tr_warn(...)
 #endif
 

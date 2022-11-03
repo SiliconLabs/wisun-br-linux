@@ -1795,7 +1795,7 @@ buffer_t *rpl_control_handler(buffer_t *buf)
     protocol_interface_info_entry_t *cur = buf->interface;
     rpl_domain_t *domain = cur ? cur->rpl_domain : NULL;
     if (!domain) {
-        tr_warning("RPL control on non-RPL interface");
+        tr_warn("RPL control on non-RPL interface");
         return buffer_free(buf);
     }
     bool multicast = addr_is_ipv6_multicast(buf->dst_sa.address);
@@ -1817,7 +1817,7 @@ buffer_t *rpl_control_handler(buffer_t *buf)
         case ICMPV6_CODE_RPL_DAO_ACK:
             return rpl_control_dao_ack_handler(cur, domain, buf);
         default:
-            tr_warning("Unknown code 0x%02x", buf->options.code);
+            tr_warn("Unknown code 0x%02x", buf->options.code);
             protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
             return buffer_free(buf);
     }
