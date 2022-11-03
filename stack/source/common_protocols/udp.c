@@ -39,7 +39,7 @@ static buffer_t *udp_checksum_check(buffer_t *buf)
     // We refuse checksum field 0000, as per IPv6 (RFC 2460). Would have
     // to accept this if handling IPv4.
     if (check == 0 || buffer_ipv6_fcf(buf, IPV6_NH_UDP)) {
-        tr_err("CKSUM ERROR - src=%s", trace_ipv6(buf->src_sa.address));
+        tr_error("CKSUM ERROR - src=%s", trace_ipv6(buf->src_sa.address));
         protocol_stats_update(STATS_IP_CKSUM_ERROR, 1);
         buf = buffer_free(buf);
     }
@@ -140,7 +140,7 @@ buffer_t *udp_up(buffer_t *buf)
     buffer_data_pointer_set(buf, udp_hdr + 8);
 
     if (buf->dst_sa.port == 0) {
-        tr_err("UDP port 0");
+        tr_error("UDP port 0");
         protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }

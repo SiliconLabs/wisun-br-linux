@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
-        tr_err("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
+        tr_error("%s: arm_net_phy_register: %d", __func__, ctxt->rcp_driver_id);
     ctxt->rf_driver = arm_net_phy_driver_pointer(ctxt->rcp_driver_id);
     BUG_ON(!ctxt->rf_driver);
     arm_net_phy_mac64_set(ctxt->eui64, ctxt->rcp_driver_id);

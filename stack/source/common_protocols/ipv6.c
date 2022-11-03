@@ -114,7 +114,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(buf->dst_sa.address, cur ? cur->id : -1);
     if (!dest_entry) {
-        tr_err("ipv6_buffer_route no destination entry %s", trace_ipv6(buf->dst_sa.address));
+        tr_error("ipv6_buffer_route no destination entry %s", trace_ipv6(buf->dst_sa.address));
         goto no_route;
     }
 
@@ -125,7 +125,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     if (next_hop && next_if) {
         if (interface_specific && next_if != buf->interface) {
-            tr_err("Next hop interface mismatch %s%%%d vs %s%%%d", trace_ipv6(buf->dst_sa.address), buf->interface->id,
+            tr_error("Next hop interface mismatch %s%%%d vs %s%%%d", trace_ipv6(buf->dst_sa.address), buf->interface->id,
                    trace_ipv6(next_hop), next_if->id);
         }
         memcpy(route->route_info.next_hop_addr, next_hop, 16);
@@ -437,7 +437,7 @@ drop:
     *ptr++ = buf->options.hop_limit;
 
     if (addr_is_ipv6_multicast(buf->src_sa.address)) {
-        tr_err("Illegal source %s", trace_ipv6(ptr));
+        tr_error("Illegal source %s", trace_ipv6(ptr));
         goto drop;
     }
     // Copy the source address (IPv6)
@@ -451,7 +451,7 @@ drop:
     // Last-minute enforcement of a couple of rules on destination from RFC 4291
     if (addr_is_ipv6_unspecified(ptr) ||
             (addr_is_ipv6_multicast(ptr) && addr_ipv6_multicast_scope(ptr) == 0)) {
-        tr_err("Illegal destination %s", trace_ipv6(ptr));
+        tr_error("Illegal destination %s", trace_ipv6(ptr));
         goto drop;
     }
     ptr += 16;

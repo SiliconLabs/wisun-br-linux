@@ -965,7 +965,7 @@ void ws_bootstrap_configuration_reset(protocol_interface_info_entry_t *cur)
             break;
 
         default:
-            tr_err("Invalid bootstrap_mode");
+            tr_error("Invalid bootstrap_mode");
     }
 
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
@@ -1620,7 +1620,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     }
 
     if (buffer.key_description_table_size < 4) {
-        tr_err("MAC key_description_table_size too short %d<4", buffer.key_description_table_size);
+        tr_error("MAC key_description_table_size too short %d<4", buffer.key_description_table_size);
         return -2;
     }
 
@@ -1645,7 +1645,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     etx_max_set(WS_ETX_MAX);
 
     if (blacklist_init() != 0) {
-        tr_err("MLE blacklist init failed.");
+        tr_error("MLE blacklist init failed.");
         return -1;
     }
 

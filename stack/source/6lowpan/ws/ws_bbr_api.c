@@ -263,7 +263,7 @@ static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t 
 
     protocol_6lowpan_rpl_root_dodag = rpl_control_create_dodag_root(protocol_6lowpan_rpl_domain, current_instance_id, dodag_id, &rpl_conf, rpl_conf.min_hop_rank_increase, RPL_GROUNDED | RPL_MODE_NON_STORING | RPL_DODAG_PREF(0));
     if (!protocol_6lowpan_rpl_root_dodag) {
-        tr_err("RPL dodag init failed");
+        tr_error("RPL dodag init failed");
         return;
     }
     // RPL memory limits set larger for Border router
@@ -326,7 +326,7 @@ static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t
         add_entry = icmpv6_slaac_address_add(cur, ula_prefix, 64, 0xffffffff, 0xffffffff, true, SLAAC_IID_FIXED);
     }
     if (!add_entry) {
-        tr_err("ula create failed");
+        tr_error("ula create failed");
         return NULL;
     }
     // Set the timeouts for this address and policy
@@ -390,7 +390,7 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
     // This address is only used if no other address available.
     if_address_entry_t *add_entry = ws_bbr_slaac_generate(cur, static_dodag_id_prefix);
     if (!add_entry) {
-        tr_err("dodagid create failed");
+        tr_error("dodagid create failed");
         return -1;
     }
     memcpy(current_dodag_id, add_entry->address, 16);
@@ -560,7 +560,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 
     if (!protocol_6lowpan_rpl_root_dodag) {
         // Failed to start
-        tr_err("BBR failed to start");
+        tr_error("BBR failed to start");
         return;
     }
 
@@ -659,7 +659,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
             // Enable default routing to backbone
             if (backbone_interface_id >= 0) {
                 if (ipv6_route_add_with_info(global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0xffffffff, 0) == NULL) {
-                    tr_err("global route add failed");
+                    tr_error("global route add failed");
                     return;
                 }
             }

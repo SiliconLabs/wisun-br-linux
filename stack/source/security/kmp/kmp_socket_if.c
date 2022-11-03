@@ -117,7 +117,7 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             socket_if->kmp_socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
             setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
             if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-                tr_err("could not create socket_if->kmp_socket_id socket: %m");
+                tr_error("could not create socket_if->kmp_socket_id socket: %m");
             }
             if (socket_if->kmp_socket_id < 0) {
                 free(socket_if);
@@ -226,7 +226,7 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->remote_sockaddr, sizeof(socket_if->remote_sockaddr));
 
     if (ret < 0 || ret != size) {
-        tr_err("kmp_socket_if_send, instance_id = %d sendto: %m", instance_id);
+        tr_error("kmp_socket_if_send, instance_id = %d sendto: %m", instance_id);
         return -1;
     }
 

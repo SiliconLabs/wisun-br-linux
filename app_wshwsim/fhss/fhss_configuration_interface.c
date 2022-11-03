@@ -38,7 +38,7 @@ fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration,
     // Create FHSS object
     fhss_structure_t *fhss_struct = fhss_ws_enable(this, fhss_configuration, fhss_timer);
     if (!fhss_struct) {
-        tr_err("Failed to enable FHSS");
+        tr_error("Failed to enable FHSS");
         free(this);
         return NULL;
     }

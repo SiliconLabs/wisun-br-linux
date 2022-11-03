@@ -1237,7 +1237,7 @@ buffer_t *icmpv6_down(buffer_t *buf)
 
         if (buf->src_sa.addr_type != ADDR_IPV6) {
             if (addr_interface_select_source(cur, buf->src_sa.address, buf->dst_sa.address, 0) != 0) {
-                tr_err("ICMP:InterFace Address Get Fail--> free Buffer");
+                tr_error("ICMP:InterFace Address Get Fail--> free Buffer");
                 return buffer_free(buf);
             } else {
                 buf->src_sa.addr_type = ADDR_IPV6;

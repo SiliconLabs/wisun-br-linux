@@ -360,7 +360,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     if (ipv6_size % 8 && fragment_last + 1 != datagram_size)
         goto reassembly_error;
     if (fragment_last >= datagram_size) {
-        tr_err("Frag out-of-range: last=%u, size=%u", fragment_last, datagram_size);
+        tr_error("Frag out-of-range: last=%u, size=%u", fragment_last, datagram_size);
         //Free Current entry
         reassembly_entry_free(interface_ptr, frag_ptr);
         goto reassembly_error;
@@ -392,7 +392,7 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
          * first fragment of a new reassembly (RFC 4944).
          */
         if (fragment_first < hole_first || fragment_last > hole_last) {
-            tr_err("Frag overlap: hole %"PRIuFAST16"-%"PRIuFAST16", frag %"PRIu16"-%"PRIu16, hole_first, hole_last, fragment_first, fragment_last);
+            tr_error("Frag overlap: hole %"PRIuFAST16"-%"PRIuFAST16", frag %"PRIu16"-%"PRIu16, hole_first, hole_last, fragment_first, fragment_last);
             protocol_stats_update(STATS_FRAG_RX_ERROR, 1);
             /* Forget previous data by marking as "all hole" */
             frag_ptr->offset = 0xffff;

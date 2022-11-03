@@ -694,7 +694,7 @@ buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cu
 
     while (ptr < end) {
         if (end - ptr < 2) {
-            tr_err("MPL control error");
+            tr_error("MPL control error");
             break;
         }
         uint8_t min_seqno = ptr[0];
@@ -704,7 +704,7 @@ buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cu
         ptr += 2;
         /* Sequence number is 8-bit, so bitmask should never be bigger than 32 bytes */
         if (bm_len > 32 || end - ptr < seed_id_len + bm_len) {
-            tr_err("MPL control error");
+            tr_error("MPL control error");
             break;
         }
         const uint8_t *seed_id;
@@ -1023,7 +1023,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
             uint8_t *iphdr = buffer_data_pointer(buf);
             uint8_t *ext = iphdr + IPV6_HDRLEN;
             if (iphdr[IPV6_HDROFF_NH] != IPV6_NH_HOP_BY_HOP || ext[2] != IPV6_OPTION_MPL) {
-                tr_err("modify");
+                tr_error("modify");
                 return buffer_free(buf);
             }
             /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
@@ -1084,7 +1084,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
         }
 
     if (!seed_id) {
-        tr_err("No MPL Seed ID");
+        tr_error("No MPL Seed ID");
         return buffer_free(buf);
     }
 

@@ -565,7 +565,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
             break;
 
         default:
-            tr_err("Invalid event received");
+            tr_error("Invalid event received");
             break;
     }
 }

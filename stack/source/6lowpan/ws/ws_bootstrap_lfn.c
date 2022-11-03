@@ -118,7 +118,7 @@ void ws_bootstrap_lfn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
                  case WS_NORMAL_DISCONNECT:
          */
         default:
-            tr_err("Invalid event received");
+            tr_error("Invalid event received");
             break;
     }
 }

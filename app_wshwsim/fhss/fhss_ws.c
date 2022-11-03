@@ -127,7 +127,7 @@ void fhss_ws_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (
 fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer)
 {
     if (!fhss_api || !fhss_configuration || !fhss_timer) {
-        tr_err("Invalid FHSS enable configuration");
+        tr_error("Invalid FHSS enable configuration");
         return NULL;
     }
     int domain_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
@@ -719,7 +719,7 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
             if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
                 tx_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, destination_address, fhss_structure->ws->fhss_configuration.bsi, neighbor_timing_info->uc_timing_info.unicast_number_of_channels);
             } else {
-                tr_err("FHSS: vendor defined configuration failed");
+                tr_error("FHSS: vendor defined configuration failed");
                 return -1;
             }
         }

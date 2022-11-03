@@ -91,7 +91,7 @@ void sockbuf_drop(sockbuf_t *sb, uint32_t len)
     while (len) {
         buffer_t *buf = ns_list_get_first(&sb->bufs);
         if (!buf) {
-            tr_err("sockbuf_drop");
+            tr_error("sockbuf_drop");
             return;
         }
         if ((uint32_t) buffer_data_length(buf) > len) {
@@ -159,7 +159,7 @@ void sockbuf_check(sockbuf_t *sb)
     }
 
     if (sb->data_bytes != data || sb->buf_overhead_bytes != overhead) {
-        tr_err("data=%"PRIu32" actual=%"PRIu32", overhead=%"PRIu32" actual=%"PRIu32,
+        tr_error("data=%"PRIu32" actual=%"PRIu32", overhead=%"PRIu32" actual=%"PRIu32,
                sb->data_bytes, data, sb->buf_overhead_bytes, overhead);
         sb->data_bytes = data;
         sb->buf_overhead_bytes = overhead;

@@ -886,7 +886,7 @@ void rpl_dodag_set_version_number_as_root(rpl_dodag_t *dodag, uint8_t number)
      */
     ns_list_foreach(rpl_neighbour_t, n, &dodag->instance->candidate_neighbours) {
         if (n->dodag_version == version) {
-            tr_err("Root DODAG version had neighbour");
+            tr_error("Root DODAG version had neighbour");
             break;
         }
     }

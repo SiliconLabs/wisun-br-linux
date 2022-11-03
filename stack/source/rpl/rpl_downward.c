@@ -1283,7 +1283,7 @@ static void rpl_downward_topo_sort_edge_removed(rpl_dao_root_transit_t *transit,
     if (child->info.root.cost > 0) {
         child->info.root.cost--;
     } else {
-        tr_err("topo sort count error");
+        tr_error("topo sort count error");
     }
     /* If this child has no more incoming, move it onto the "top nodes" list */
     if (child->info.root.cost == 0) {

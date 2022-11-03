@@ -774,7 +774,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
             break;
 
         default:
-            tr_err("Invalid event received");
+            tr_error("Invalid event received");
             break;
     }
 }

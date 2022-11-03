@@ -478,7 +478,7 @@ int8_t mac_mlme_set_req(protocol_interface_rf_mac_setup_s *rf_mac_setup, const m
                 mac_api->mtu = rf_mac_setup->phy_mtu_size = rf_mac_setup->dev_driver->phy_driver->phy_MTU;
             }
             if (mac_mlme_allocate_tx_buffers(rf_mac_setup, rf_mac_setup->dev_driver, rf_mac_setup->phy_mtu_size)) {
-                tr_err("Failed to reallocate TX buffers");
+                tr_error("Failed to reallocate TX buffers");
                 return -1;
             }
             tr_debug("Set MAC mode to %s, MTU size: %u", *pu8 == IEEE_802_15_4G_2012 ? "IEEE 802.15.4G-2012" : "IEEE 802.15.4-2011", rf_mac_setup->phy_mtu_size);

@@ -600,7 +600,7 @@ buffer_t *iphc_decompress(const lowpan_context_list_t *context_list, buffer_t *b
         }
 
         if (ds.out != buffer_data_pointer(buf) + ip_size) {
-            tr_err("IPHC decompression bug");
+            tr_error("IPHC decompression bug");
             goto decomp_error;
         }
     }

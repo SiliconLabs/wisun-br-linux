@@ -320,10 +320,10 @@ void socket_release(socket_t *socket)
 static void socket_free(socket_t *socket)
 {
     if (socket->refcount != 0) {
-        tr_err("free refed");
+        tr_error("free refed");
     }
     if (socket->flags & SOCKET_FLAG_PENDING) {
-        tr_err("free pending");
+        tr_error("free pending");
     }
     ns_list_remove(&socket_list, socket);
     sockbuf_flush(&socket->rcvq);
@@ -606,7 +606,7 @@ socket_t *socket_new_incoming_connection(socket_t *listen_socket)
 void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t reason)
 {
     if (!(socket->flags & (SOCKET_FLAG_CONNECTING | SOCKET_FLAG_CONNECTED))) {
-        tr_err("abandoned: not connecting/connected");
+        tr_error("abandoned: not connecting/connected");
         return;
     }
     socket->flags &= ~ SOCKET_FLAG_CONNECTING;
@@ -628,11 +628,11 @@ void socket_connection_abandoned(socket_t *socket, int8_t interface_id, uint8_t 
 void socket_connection_complete(socket_t *socket, int8_t interface_id)
 {
     if (!(socket->flags & SOCKET_FLAG_CONNECTING)) {
-        tr_err("complete: not connecting");
+        tr_error("complete: not connecting");
         return;
     }
     if (socket->flags & SOCKET_FLAG_CONNECTED) {
-        tr_err("complete: already connected");
+        tr_error("complete: already connected");
         return;
     }
     socket->flags &= ~ SOCKET_FLAG_CONNECTING;
@@ -648,7 +648,7 @@ void socket_connection_complete(socket_t *socket, int8_t interface_id)
 void socket_leave_pending_state(socket_t *socket, void (*fptr)(void *))
 {
     if (!(socket->flags & SOCKET_FLAG_PENDING)) {
-        tr_err("not pending");
+        tr_error("not pending");
         return;
     }
     ns_list_remove(&socket->u.pending.listen_head->u.live.queue, socket);
@@ -805,12 +805,12 @@ void socket_list_print(route_print_fn_t *print_fn, char sep)
     /* Chuck in a consistency check */
     for (int i = 0; i < SOCKETS_MAX; i++) {
         if (socket_instance[i] && socket_instance[i]->id != i) {
-            tr_err("ID %d points to %p with id %d", i, (void *)socket_instance[i], socket_instance[i]->id);
+            tr_error("ID %d points to %p with id %d", i, (void *)socket_instance[i], socket_instance[i]->id);
         }
     }
     ns_list_foreach(socket_t, socket, &socket_list) {
         if (socket->id != -1 && socket_pointer_get(socket->id) != socket) {
-            tr_err("Socket %p has invalid ID %d", (void *)socket, socket->id);
+            tr_error("Socket %p has invalid ID %d", (void *)socket, socket->id);
         }
         sockbuf_check(&socket->rcvq);
         sockbuf_check(&socket->sndq);

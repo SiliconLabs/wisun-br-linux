@@ -108,7 +108,7 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
     eapol_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
     setsockopt(eapol_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
     if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-        tr_err("could not create eapol_auth_relay->socket_id socket: %m");
+        tr_error("could not create eapol_auth_relay->socket_id socket: %m");
     }
 #else
     eapol_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_relay_socket_cb);

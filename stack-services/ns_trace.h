@@ -120,10 +120,8 @@
 
 #if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_ERROR
 #define tr_error(...)           mbed_tracef(TRACE_LEVEL_ERROR,   TRACE_GROUP, __VA_ARGS__)   //!< Print Error Message
-#define tr_err(...)             mbed_tracef(TRACE_LEVEL_ERROR,   TRACE_GROUP, __VA_ARGS__)   //!< Alternative error message
 #else
 #define tr_error(...)
-#define tr_err(...)
 #endif
 
 #define tr_cmdline(...)         mbed_tracef(TRACE_LEVEL_CMD,     TRACE_GROUP, __VA_ARGS__)   //!< Special print for cmdline. See more from TRACE_LEVEL_CMD -level

@@ -774,7 +774,7 @@ static void protocol_buffer_poll(buffer_t *b)
     if (protocol_core_buffers_in_event_queue == 0) {
         ipv6_route_table_source_invalidated_reset();
     } else if (protocol_core_buffers_in_event_queue < 0) {
-        tr_err("protocol_core_buffers_in_event_queue negative");
+        tr_error("protocol_core_buffers_in_event_queue negative");
     }
 
     // Call the actual handler
