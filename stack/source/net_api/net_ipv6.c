@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack/net_ipv6.h"
 
 #include "core/ns_address_internal.h"

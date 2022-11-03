@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/rand.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "stack/dhcp_service_api.h"

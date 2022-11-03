@@ -23,7 +23,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/key_value_storage.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/nd_proxy/nd_proxy.h"
 #include "stack-scheduler/eventOS_event.h"

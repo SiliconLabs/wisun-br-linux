@@ -35,10 +35,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/log_legacy.h"
 #include "stack-services/ip6string.h"
-#include "stack-services/ns_trace.h"
 #include "service_libs/etx/etx.h"
 
 #include "core/ns_address_internal.h"
@@ -1264,13 +1265,13 @@ void trace_debug_print(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vtracef(TRACE_LEVEL_DEBUG, TRACE_GROUP, fmt, ap);
+    vtracef(0, TRACE_GROUP, fmt, ap);
     va_end(ap);
 }
 
 static void ipv6_route_entry_remove(ipv6_route_t *route)
 {
-    tr_debug("Deleted route:");
+    tr_info("Deleted route:");
     ipv6_route_print(route, trace_debug_print);
     if (route->info_autofree) {
         free(route->info.info);
@@ -1664,7 +1665,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
     }
 
     if (changed_info != UNCHANGED) {
-        tr_debug("%s route:", changed_info == NEW ? "Added" : "Updated");
+        tr_info("%s route:", changed_info == NEW ? "Added" : "Updated");
         ipv6_route_print(route, trace_debug_print);
     }
 

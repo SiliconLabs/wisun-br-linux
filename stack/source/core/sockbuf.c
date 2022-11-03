@@ -16,7 +16,8 @@
  */
 
 #include <string.h>
-#include "stack-services/ns_trace.h"
+#include <inttypes.h>
+#include "common/log_legacy.h"
 
 #include "core/sockbuf.h"
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack/ws_management_api.h"
 
 #include "nwk_interface/protocol.h"

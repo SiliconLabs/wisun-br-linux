@@ -25,7 +25,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack-scheduler/eventOS_scheduler.h"
@@ -859,7 +859,7 @@ static void trace_cmd_print(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vtracef(TRACE_LEVEL_CMD, TRACE_GROUP, fmt, ap);
+    vtracef(1, TRACE_GROUP, fmt, ap);
     va_end(ap);
 }
 void arm_print_routing_table(void)

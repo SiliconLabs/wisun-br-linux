@@ -18,11 +18,12 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <mbedtls/sha256.h>
 #include "common/rand.h"
 #include "common/trickle.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 #include "service_libs/nist_aes_kw/nist_aes_kw.h"

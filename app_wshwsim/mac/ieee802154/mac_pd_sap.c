@@ -19,8 +19,8 @@
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
 #include "common/rand.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
-#include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mac_api.h"

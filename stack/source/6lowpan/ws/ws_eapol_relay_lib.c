@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack/net_socket.h"
 
 #include "6lowpan/ws/ws_config.h"

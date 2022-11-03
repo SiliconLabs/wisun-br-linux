@@ -27,9 +27,9 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
+#include "common/log_legacy.h"
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_sha256.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/net_socket.h"
 
@@ -1453,7 +1453,7 @@ void addr_policy_remove_by_label(uint8_t label)
 }
 
 // This last function must always be compiled with tracing enabled
-char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix)
+const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix)
 {
     uint8_t length = addr_len_from_type(addr->addr_type);
 

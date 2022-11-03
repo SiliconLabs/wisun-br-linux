@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "stack/nwk_stats_api.h"
 

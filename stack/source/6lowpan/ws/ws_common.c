@@ -23,7 +23,7 @@
 #include "common/parsers.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
 #include "service_libs/etx/etx.h"

@@ -22,7 +22,7 @@
 #include "common/log.h"
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/net_multicast.h"
@@ -378,11 +378,6 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
-static void mbed_trace_print_function(const char *str)
-{
-    INFO("%s", str);
-}
-
 void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 {
     WARN("%s: not implemented", __func__);
@@ -523,9 +518,6 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
-    mbed_trace_init();
-    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | (g_enable_color_traces ? TRACE_MODE_COLOR : 0));
-    mbed_trace_print_function_set(mbed_trace_print_function);
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();

@@ -32,7 +32,7 @@
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/sw_mac.h"
 
@@ -288,11 +288,6 @@ struct mac_api *init_mac_api(int rcp_driver_id)
     return rcp_mac_api;
 }
 
-static void mbed_trace_print_function(const char *str)
-{
-    INFO("%s", str);
-}
-
 void kill_handler(int signal)
 {
     exit(3);
@@ -313,9 +308,6 @@ int main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
-    mbed_trace_init();
-    mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL | (g_enable_color_traces ? TRACE_MODE_COLOR : 0));
-    mbed_trace_print_function_set(mbed_trace_print_function);
     platform_critical_init();
     eventOS_scheduler_os_init(ctxt->os_ctxt);
     eventOS_scheduler_init();

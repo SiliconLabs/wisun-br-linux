@@ -17,14 +17,14 @@
 
 #include <string.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/ns_address.h"
 #include "stack/net_socket.h"

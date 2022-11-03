@@ -22,8 +22,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"

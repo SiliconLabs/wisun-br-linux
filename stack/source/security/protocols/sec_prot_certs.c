@@ -18,8 +18,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack/net_socket.h"
 
 #include "nwk_interface/protocol.h"

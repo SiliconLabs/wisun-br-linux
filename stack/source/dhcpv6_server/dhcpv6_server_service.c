@@ -24,7 +24,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "stack-services/ns_trace.h"
+#include <inttypes.h>
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "stack/dhcp_service_api.h"
 #include "stack/timers.h"

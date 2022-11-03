@@ -22,7 +22,7 @@
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"

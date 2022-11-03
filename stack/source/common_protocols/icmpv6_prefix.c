@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/bits.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
 
 #include "common_protocols/icmpv6_prefix.h"

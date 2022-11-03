@@ -27,11 +27,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <inttypes.h>
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/trickle.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/ip6string.h"
 #include "stack/net_interface.h"
 #include "stack/net_rpl.h"
@@ -1430,7 +1432,7 @@ static void trace_info_print(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vtracef(TRACE_LEVEL_INFO, TRACE_GROUP, fmt, ap);
+    vtracef(1, TRACE_GROUP, fmt, ap);
     va_end(ap);
 }
 

@@ -16,11 +16,12 @@
  */
 
 #include <string.h>
-#include "common/rand.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
+#include "common/rand.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/fhss_config.h"

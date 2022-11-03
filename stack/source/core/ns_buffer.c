@@ -16,12 +16,13 @@
  */
 
 #include <string.h>
-#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <sys/socket.h>
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack/net_interface.h"
 
 #include "nwk_interface/protocol_stats.h"

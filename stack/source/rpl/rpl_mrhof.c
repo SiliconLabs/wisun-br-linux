@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 #include <stdint.h>
-#include "stack-services/ns_trace.h"
+#include <inttypes.h>
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "stack/net_rpl.h"

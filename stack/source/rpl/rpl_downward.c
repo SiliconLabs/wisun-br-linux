@@ -78,13 +78,14 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "common/bits.h"
 #include "common/rand.h"
+#include "common/log_legacy.h"
 #include "app_wsbrd/dbus.h"
 #include "app_wsbrd/wsbr.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/ip6string.h"
 #include "stack/net_rpl.h"
 #include "stack/timers.h"

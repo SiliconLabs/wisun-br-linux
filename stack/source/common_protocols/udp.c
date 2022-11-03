@@ -16,7 +16,7 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 
 #include "nwk_interface/protocol.h"

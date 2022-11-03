@@ -33,9 +33,10 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "app_wsbrd/tun.h"
 #include "common/bits.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h" /* slight ick */
 #include "stack/net_rpl.h"
@@ -1862,7 +1863,7 @@ static void trace_info_print(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vtracef(TRACE_LEVEL_INFO, TRACE_GROUP, fmt, ap);
+    vtracef(1, TRACE_GROUP, fmt, ap);
     va_end(ap);
 }
 #endif

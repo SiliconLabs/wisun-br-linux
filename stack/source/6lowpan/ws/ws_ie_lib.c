@@ -19,8 +19,8 @@
 #include <stdint.h>
 #include "common/bits.h"
 #include "common/string_extra.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/ws_management_api.h"

@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "service_libs/ieee_802_11/ieee_802_11.h"
 

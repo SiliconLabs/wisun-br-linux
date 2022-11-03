@@ -17,7 +17,8 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "stack-services/ns_trace.h"
+#include <inttypes.h>
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_common_defines.h"

@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -1497,7 +1497,7 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
                     cur->nd_timer = nd_params.rs_retry_interval_min;
                     cur->nd_timer += rand_get_16bit() & nd_params.timer_random_max;
                     cur->ns_retry--;
-                    tr_debug(cur->nd_state == ND_RS_UNCAST ? "RS" : "RS+");
+                    tr_debug("%s", cur->nd_state == ND_RS_UNCAST ? "RS" : "RS+");
                 } else {
                     cur->nd_timer = 2;
                 }

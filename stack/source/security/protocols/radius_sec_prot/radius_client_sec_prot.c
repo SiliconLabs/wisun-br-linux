@@ -22,8 +22,8 @@
 #include <mbedtls/md5.h>
 #include "common/rand.h"
 #include "common/trickle.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "stack/mac/fhss_config.h"

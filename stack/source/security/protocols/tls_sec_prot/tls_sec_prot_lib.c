@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <mbedtls/version.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/error.h>
@@ -30,8 +31,8 @@
 #include <mbedtls/oid.h>
 #include "common/rand.h"
 #include "common/trickle.h"
+#include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ns_trace.h"
 #include "stack-services/common_functions.h"
 
 #include "security/protocols/sec_prot_cfg.h"

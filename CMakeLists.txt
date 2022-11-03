@@ -219,7 +219,6 @@ add_library(libwsbrd STATIC
     stack-services/common_functions.c
     stack-services/ip6string.c
     stack-services/ns_list.c
-    stack-services/ns_trace.c
     # Excluded stack-services/nvmHelper
 )
 target_include_directories(libwsbrd PRIVATE
@@ -425,7 +424,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-services/common_functions.c
         stack-services/ip6string.c
         stack-services/ns_list.c
-        stack-services/ns_trace.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -462,7 +460,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack-services/common_functions.c
         stack-services/ip6string.c
         stack-services/ns_list.c
-        stack-services/ns_trace.c
         stack-scheduler/source/event.c
         app_wshwsim/timer_sys_stub.c
         app_wshwsim/sl_wsrcp.c

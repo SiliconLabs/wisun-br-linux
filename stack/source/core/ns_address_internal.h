@@ -172,7 +172,7 @@ void addr_lifetime_update(struct protocol_interface_info_entry *interface, if_ad
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label);
 int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len);
 uint8_t addr_len_from_type(addrtype_e addr_type);
-char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
+const char *trace_sockaddr(const sockaddr_t *addr, bool panid_prefix);
 
 const uint8_t *addr_select_source(struct protocol_interface_info_entry *interface, const uint8_t dest[static 16], uint32_t addr_preferences);
 const uint8_t *addr_select_with_prefix(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences);

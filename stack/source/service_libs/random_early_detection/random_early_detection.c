@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "service_libs/random_early_detection/random_early_detection.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 

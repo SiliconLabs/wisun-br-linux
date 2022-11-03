@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "common/bits.h"
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack-scheduler/eventOS_event.h"

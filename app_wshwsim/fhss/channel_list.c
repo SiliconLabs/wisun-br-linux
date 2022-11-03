@@ -16,8 +16,8 @@
  */
 #include <stdint.h>
 #include <string.h>
+#include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
-#include "stack-services/ns_trace.h"
 
 #include "channel_list.h"
 

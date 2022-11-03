@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stack-services/ns_trace.h"
+#include "common/log_legacy.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
