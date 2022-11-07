@@ -79,6 +79,32 @@ void iobuf_push_le32(struct iobuf_write *buf, uint32_t val) {
     buf->len += 4;
 }
 
+void iobuf_push_be64(struct iobuf_write *buf, uint64_t val) {
+    iobuf_enlarge_buffer(buf, sizeof(uint64_t));
+    buf->data[buf->len + 0] = val >> 56;
+    buf->data[buf->len + 1] = val >> 48;
+    buf->data[buf->len + 2] = val >> 40;
+    buf->data[buf->len + 3] = val >> 32;
+    buf->data[buf->len + 4] = val >> 24;
+    buf->data[buf->len + 5] = val >> 16;
+    buf->data[buf->len + 6] = val >> 8;
+    buf->data[buf->len + 7] = val >> 0;
+    buf->len += sizeof(uint64_t);
+}
+
+void iobuf_push_le64(struct iobuf_write *buf, uint64_t val) {
+    iobuf_enlarge_buffer(buf, sizeof(uint64_t));
+    buf->data[buf->len + 0] = val >> 0;
+    buf->data[buf->len + 1] = val >> 8;
+    buf->data[buf->len + 2] = val >> 16;
+    buf->data[buf->len + 3] = val >> 24;
+    buf->data[buf->len + 4] = val >> 32;
+    buf->data[buf->len + 5] = val >> 40;
+    buf->data[buf->len + 6] = val >> 48;
+    buf->data[buf->len + 7] = val >> 56;
+    buf->len += sizeof(uint64_t);
+}
+
 void iobuf_push_data(struct iobuf_write *buf, const uint8_t *val, int num)
 {
     iobuf_enlarge_buffer(buf, num);
@@ -189,6 +215,40 @@ uint32_t iobuf_pop_le32(struct iobuf_read *buf) {
     val |= buf->data[buf->cnt + 2] << 16;
     val |= buf->data[buf->cnt + 3] << 24;
     buf->cnt += 4;
+    return val;
+}
+
+uint64_t iobuf_pop_be64(struct iobuf_read *buf) {
+    uint64_t val = 0;
+
+    if (!iobuf_validate(buf, sizeof(uint64_t)))
+        return 0;
+    val |= (uint64_t)buf->data[buf->cnt + 0] << 56;
+    val |= (uint64_t)buf->data[buf->cnt + 1] << 48;
+    val |= (uint64_t)buf->data[buf->cnt + 2] << 40;
+    val |= (uint64_t)buf->data[buf->cnt + 3] << 32;
+    val |= (uint64_t)buf->data[buf->cnt + 4] << 24;
+    val |= (uint64_t)buf->data[buf->cnt + 5] << 16;
+    val |= (uint64_t)buf->data[buf->cnt + 6] << 8;
+    val |= (uint64_t)buf->data[buf->cnt + 7] << 0;
+    buf->cnt += sizeof(uint64_t);
+    return val;
+}
+
+uint64_t iobuf_pop_le64(struct iobuf_read *buf) {
+    uint64_t val = 0;
+
+    if (!iobuf_validate(buf, sizeof(uint64_t)))
+        return 0;
+    val |= (uint64_t)buf->data[buf->cnt + 0] << 0;
+    val |= (uint64_t)buf->data[buf->cnt + 1] << 8;
+    val |= (uint64_t)buf->data[buf->cnt + 2] << 16;
+    val |= (uint64_t)buf->data[buf->cnt + 3] << 24;
+    val |= (uint64_t)buf->data[buf->cnt + 4] << 32;
+    val |= (uint64_t)buf->data[buf->cnt + 5] << 40;
+    val |= (uint64_t)buf->data[buf->cnt + 6] << 48;
+    val |= (uint64_t)buf->data[buf->cnt + 7] << 56;
+    buf->cnt += sizeof(uint64_t);
     return val;
 }
 
