@@ -327,6 +327,9 @@ easier integration for simple setups. However, CPC offers some features:
 
 ## I cannot connect to DBus interface
 
+First of all, check you have followed the installation process. Especially,
+check you have run `ninja install`.
+
 There are several DBus instances on your system:
   - One system instance
   - An instance for each user
