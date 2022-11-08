@@ -82,51 +82,51 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
-    int ret;
-    char *ipv6_addr_str;
-    uint8_t ipv6_addr[16];
     struct wsbr_ctxt *ctxt = userdata;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const uint8_t *ipv6;
+    size_t len;
+    int ret;
 
     if (!cur)
         return sd_bus_error_set_errno(ret_error, EFAULT);
 
-    ret = sd_bus_message_read_basic(m, 's', &ipv6_addr_str);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-
-    if (inet_pton(AF_INET6, ipv6_addr_str, ipv6_addr) <= 0)
+    if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    wsbr_tun_join_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6_addr);
-    addr_add_group(cur, ipv6_addr);
+    ret = wsbr_tun_join_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, errno);
+    addr_add_group(cur, ipv6);
     sd_bus_reply_method_return(m, NULL);
-
     return 0;
 }
 
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
-    int ret;
-    char *ipv6_addr_str;
-    uint8_t ipv6_addr[16];
     struct wsbr_ctxt *ctxt = userdata;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const uint8_t *ipv6;
+    size_t len;
+    int ret;
 
     if (!cur)
         return sd_bus_error_set_errno(ret_error, EFAULT);
 
-    ret = sd_bus_message_read_basic(m, 's', &ipv6_addr_str);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&ipv6, &len);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
-
-    if (inet_pton(AF_INET6, ipv6_addr_str, ipv6_addr) <= 0)
+    if (len != 16)
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
-    wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6_addr);
-    addr_remove_group(cur, ipv6_addr);
+    wsbr_tun_leave_mcast_group(ctxt->sock_mcast, ctxt->config.tun_dev, ipv6);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, errno);
+    addr_remove_group(cur, ipv6);
     sd_bus_reply_method_return(m, NULL);
-
     return 0;
 }
 
@@ -464,9 +464,9 @@ int dbus_get_string(sd_bus *bus, const char *path, const char *interface,
 
 static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_VTABLE_START(0),
-        SD_BUS_METHOD("JoinMulticastGroup", "s", NULL,
+        SD_BUS_METHOD("JoinMulticastGroup", "ay", NULL,
                       dbus_join_multicast_group, 0),
-        SD_BUS_METHOD("LeaveMulticastGroup", "s", NULL,
+        SD_BUS_METHOD("LeaveMulticastGroup", "ay", NULL,
                       dbus_leave_multicast_group, 0),
         SD_BUS_METHOD("SetModeSwitch", "yb", NULL,
                       dbus_set_mode_switch, 0),
