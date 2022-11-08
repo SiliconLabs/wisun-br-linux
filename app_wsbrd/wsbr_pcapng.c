@@ -7,6 +7,7 @@
 #include "stack-services/common_functions.h"
 #include "common/log.h"
 #include "common/pcapng.h"
+#include "common/string_extra.h"
 #include "wsbr.h"
 
 // Figure 7-2 Format of the Frame Control field
@@ -213,19 +214,19 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
         frame = common_write_16_bit_inverse(ind->DstPANId, frame);
     if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
-        memcpy(frame, ind->DstAddr, 8);
+        memrcpy(frame, ind->DstAddr, 8);
         frame += 8;
     } else if (ind->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
-        memcpy(frame, ind->DstAddr, 2);
+        memrcpy(frame, ind->DstAddr, 2);
         frame += 2;
     }
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         frame = common_write_16_bit_inverse(ind->SrcPANId, frame);
     if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
-        memcpy(frame, ind->SrcAddr, 8);
+        memrcpy(frame, ind->SrcAddr, 8);
         frame += 8;
     } else if (ind->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
-        memcpy(frame, ind->SrcAddr, 2);
+        memrcpy(frame, ind->SrcAddr, 2);
         frame += 2;
     }
 
