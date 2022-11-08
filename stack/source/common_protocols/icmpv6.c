@@ -846,7 +846,7 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
             }
 
             //Call route Update
-            tr_info("Route: %s Lifetime: %lu Pref: %d", trace_ipv6_prefix(prefix_ptr, prefix_length), (unsigned long) route_lifetime, preference);
+            tr_info("Route: %s Lifetime: %lu Pref: %d", tr_ipv6_prefix(prefix_ptr, prefix_length), (unsigned long) route_lifetime, preference);
             if (route_lifetime) {
                 ipv6_route_add(prefix_ptr, prefix_length, cur->id, buf->src_sa.address, ROUTE_RADV, route_lifetime, preference);
             } else {

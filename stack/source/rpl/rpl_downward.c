@@ -275,7 +275,7 @@ rpl_dao_target_t *rpl_create_dao_target(rpl_instance_t *instance, const uint8_t 
 {
     rpl_dao_target_t *target = rpl_alloc(sizeof(rpl_dao_target_t));
     if (!target) {
-        tr_warn("RPL DAO overflow (target=%s)", trace_ipv6_prefix(prefix, prefix_len));
+        tr_warn("RPL DAO overflow (target=%s)", tr_ipv6_prefix(prefix, prefix_len));
         return NULL;
     }
     memset(target, 0, sizeof * target);
@@ -378,7 +378,7 @@ void rpl_instance_publish_dao_target(rpl_instance_t *instance, const uint8_t *pr
     }
     target = rpl_create_dao_target(instance, prefix, prefix_len, false);
     if (!target) {
-        tr_warn("Failed to publish DAO target %s", trace_ipv6_prefix(prefix, prefix_len));
+        tr_warn("Failed to publish DAO target %s", tr_ipv6_prefix(prefix, prefix_len));
         return;
     }
     target->interface_id = -1;
@@ -978,7 +978,7 @@ static rpl_dao_root_transit_t *rpl_downward_add_root_transit(rpl_dao_target_t *t
     if (!transit) {
         transit = rpl_alloc(sizeof(rpl_dao_root_transit_t));
         if (!transit) {
-            tr_warn("RPL DAO overflow (target=%s,transit=%s)", trace_ipv6_prefix(target->prefix, target->prefix_len), trace_ipv6(parent));
+            tr_warn("RPL DAO overflow (target=%s,transit=%s)", tr_ipv6_prefix(target->prefix, target->prefix_len), trace_ipv6(parent));
             goto out;
         }
         transit->path_control = 0;
@@ -1093,7 +1093,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
                     }
                     /* No-Paths are special: version number isn't significant */
                     if (path_lifetime == 0) {
-                        tr_info("No-Path %s->%s", parent ? trace_ipv6(parent) : "", trace_ipv6_prefix(prefix, prefix_len));
+                        tr_info("No-Path %s->%s", parent ? trace_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len));
                         if (storing) {
                             ipv6_route_delete_with_info(prefix, prefix_len, interface_id, src, ROUTE_RPL_DAO, target, 0);
                             /* If we have no DAO routes left for this target, kill it (we don't track who sends individual
@@ -1144,7 +1144,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
                         }
                     }
                     if (!accept) {
-                        tr_info("Ignoring stale path %s->%s (seq=%d vs %d)", parent ? trace_ipv6(parent) : "", trace_ipv6_prefix(prefix, prefix_len), path_sequence, target->path_sequence);
+                        tr_info("Ignoring stale path %s->%s (seq=%d vs %d)", parent ? trace_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len), path_sequence, target->path_sequence);
                         break;
                     }
                     /* If path sequence is different, we clear existing transits for this target */
@@ -1617,7 +1617,7 @@ void rpl_instance_dao_acked(rpl_instance_t *instance, const uint8_t src[16], int
             continue;
         }
         tr_debug("tgt %s - pc %02x, assigned %02x, assigning %02x, life %02x, rfr %"PRIu32,
-                 trace_ipv6_prefix(target->prefix, target->prefix_len),
+                 tr_ipv6_prefix(target->prefix, target->prefix_len),
                  target->path_control,
                  target->info.non_root.pc_assigned,
                  target->info.non_root.pc_assigning,

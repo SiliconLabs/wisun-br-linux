@@ -477,7 +477,7 @@ static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8
     memcpy(&ll[8], cur->mac, 8);
     ll[8] ^= 2;
 
-    tr_debug("DHCP server activate %s", trace_ipv6_prefix(global_id, 64));
+    tr_debug("DHCP server activate %s", tr_ipv6_prefix(global_id, 64));
 
     if (dhcpv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
         tr_error("DHCPv6 Server create fail");
@@ -603,7 +603,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
                 return;
             }
 
-            tr_info("RPL Local prefix activate %s", trace_ipv6_prefix(local_prefix, 64));
+            tr_info("RPL Local prefix activate %s", tr_ipv6_prefix(local_prefix, 64));
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, local_prefix, 64, PIO_A, WS_ULA_LIFETIME, WS_ULA_LIFETIME, false);
             memcpy(current_local_prefix, local_prefix, 8);
         }
@@ -624,7 +624,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
 
         if (global_prefix_unavailable_timer >= prefix_wait_time) {
             if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) == 0) {
-                tr_info("start using backup prefix %s", trace_ipv6_prefix(local_prefix, 64));
+                tr_info("start using backup prefix %s", tr_ipv6_prefix(local_prefix, 64));
             }
             memcpy(global_prefix, local_prefix, 8);
         }
@@ -640,7 +640,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         // Global prefix changed
         if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
             // TODO remove old global prefix
-            tr_info("RPL global prefix deactivate %s", trace_ipv6_prefix(current_global_prefix, 64));
+            tr_info("RPL global prefix deactivate %s", tr_ipv6_prefix(current_global_prefix, 64));
 
             // Old backbone information is deleted after 120 seconds
             rpl_control_update_dodag_prefix(protocol_6lowpan_rpl_root_dodag, current_global_prefix, 64, 0, 0, 0, true);
@@ -654,7 +654,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         }
         // TODO add global prefix
         if (memcmp(global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-            tr_info("RPL global prefix activate %s", trace_ipv6_prefix(global_prefix, 64));
+            tr_info("RPL global prefix activate %s", tr_ipv6_prefix(global_prefix, 64));
             // Add default route to RPL
             // Enable default routing to backbone
             if (backbone_interface_id >= 0) {

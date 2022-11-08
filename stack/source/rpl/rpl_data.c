@@ -746,14 +746,14 @@ static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_tar
             return true;
         }
         if (!parent->connected) {
-            tr_error("Parent %s disconnected", trace_ipv6_prefix(parent->prefix, parent->prefix_len));
+            tr_error("Parent %s disconnected", tr_ipv6_prefix(parent->prefix, parent->prefix_len));
             return false;
         }
         /* Check transit address isn't already in table. Should not be possible */
         for (int i = 16 * rpl_data_sr->ihops; i >= 0; i -= 16) {
             if (addr_ipv6_equal(rpl_data_sr->final_dest + i, transit->transit)) {
                 protocol_stats_update(STATS_RPL_ROUTELOOP, 1);
-                tr_error("SR loop %s->%s", trace_ipv6_prefix(t->prefix, t->prefix_len), trace_ipv6(transit->transit));
+                tr_error("SR loop %s->%s", tr_ipv6_prefix(t->prefix, t->prefix_len), trace_ipv6(transit->transit));
                 return false;
             }
         }
