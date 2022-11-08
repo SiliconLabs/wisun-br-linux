@@ -228,7 +228,7 @@ static void addr_multicast_fwd_adjust_upstream(protocol_interface_info_entry_t *
     }
     uint8_t group_scope = addr_ipv6_multicast_scope(group);
     if (downstream->zone_index[group_scope] == upstream->zone_index[group_scope]) {
-        tr_debug("Multicast proxy %s %s", add ? "add" : "remove", trace_ipv6(group));
+        tr_debug("Multicast proxy %s %s", add ? "add" : "remove", tr_ipv6(group));
         if (add) {
             addr_add_group(upstream, group);
         } else {
@@ -289,7 +289,7 @@ bool addr_multicast_fwd_add(protocol_interface_info_entry_t *interface, const ui
     ns_list_add_to_end(&interface->ip_groups_fwd, entry);
     addr_multicast_fwd_adjust_upstream(interface, protocol_core_multicast_upstream, group, true);
     entry->lifetime = lifetime;
-    tr_debug("MC fwd added to IF %d: %s", interface->id, trace_ipv6(group));
+    tr_debug("MC fwd added to IF %d: %s", interface->id, tr_ipv6(group));
     return true;
 }
 
@@ -307,7 +307,7 @@ bool addr_multicast_fwd_remove(protocol_interface_info_entry_t *interface, const
         return false;
     }
 
-    tr_debug("MC fwd removed from IF %d: %s", interface->id, trace_ipv6(group));
+    tr_debug("MC fwd removed from IF %d: %s", interface->id, tr_ipv6(group));
     addr_multicast_fwd_delete_entry(interface, entry);
 
     return true;
@@ -851,7 +851,7 @@ void addr_fast_timer(int ticks)
                  */
                 addr->tentative = false;
                 addr->count = 0;
-                tr_info("DAD passed on IF %d: %s", cur->id, trace_ipv6(addr->address));
+                tr_info("DAD passed on IF %d: %s", cur->id, tr_ipv6(addr->address));
                 addr_cb(cur, addr, ADDR_CALLBACK_DAD_COMPLETE);
             } else {
                 buffer_t *ns_buf = icmpv6_build_ns(cur, addr->address, NULL, false, true, NULL);
@@ -883,7 +883,7 @@ void addr_slow_timer(int seconds)
             if (addr->preferred_lifetime > seconds) {
                 addr->preferred_lifetime -= seconds;
             } else {
-                tr_info("Address deprecated: %s", trace_ipv6(addr->address));
+                tr_info("Address deprecated: %s", tr_ipv6(addr->address));
                 addr->preferred_lifetime = 0;
                 addr_cb(cur, addr, ADDR_CALLBACK_DEPRECATED);
             }
@@ -893,7 +893,7 @@ void addr_slow_timer(int seconds)
             if (addr->valid_lifetime > seconds) {
                 addr->valid_lifetime -= seconds;
             } else {
-                tr_info("Address invalidated: %s", trace_ipv6(addr->address));
+                tr_info("Address invalidated: %s", tr_ipv6(addr->address));
                 addr->valid_lifetime = 0;
                 addr_cb(cur, addr, ADDR_CALLBACK_INVALIDATED);
                 /* Give them the chance to revalidate */
@@ -910,7 +910,7 @@ void addr_slow_timer(int seconds)
             if (group->lifetime > seconds) {
                 group->lifetime -= seconds;
             } else {
-                tr_debug("MC fwd expired: %s", trace_ipv6(group->group));
+                tr_debug("MC fwd expired: %s", tr_ipv6(group->group));
                 addr_multicast_fwd_delete_entry(cur, group);
             }
         }
@@ -1000,7 +1000,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
         entry->state_timer = rand_get_random_in_range(1, 10); // MAX_RTR_SOLICITATION_DELAY (1s) in ticks
     }
 
-    tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, trace_ipv6(address));
+    tr_info("%sAddress added to IF %d: %s", (entry->tentative ? "Tentative " : ""), cur->id, tr_ipv6(address));
 
     ns_list_add_to_end(&cur->ip_addresses, entry);
     notify_user_if_ready();
@@ -1024,7 +1024,7 @@ int_fast8_t addr_deprecate(protocol_interface_info_entry_t *cur, const uint8_t a
 {
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (memcmp(e->address, address, 16) == 0) {
-            tr_debug("Deprecate address %s", trace_ipv6(e->address));
+            tr_debug("Deprecate address %s", tr_ipv6(e->address));
             addr_lifetime_update(cur, e, 0, 0, 30 * 60); //Accept max 30 min lifetime
             return 0;
         }
@@ -1061,7 +1061,7 @@ void addr_duplicate_detected(struct protocol_interface_info_entry *interface, co
         return;
     }
 
-    tr_warn("DAD failed: %s", trace_ipv6(addr));
+    tr_warn("DAD failed: %s", tr_ipv6(addr));
 
     interface->dad_failures++;
     addr_cb(interface, entry, ADDR_CALLBACK_DAD_FAILED);

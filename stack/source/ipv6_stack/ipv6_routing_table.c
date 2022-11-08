@@ -183,7 +183,7 @@ int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_
 /* Called when we determine a neighbour is no longer a router */
 void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
-    tr_debug("Router gone: %s", trace_ipv6(entry->ip_address));
+    tr_debug("Router gone: %s", tr_ipv6(entry->ip_address));
     entry->is_router = false;
     /* Only delete RA routes to satisfy RFC 4861. We should have a callback to
      * other route providers here - eg RPL might want to know, and delete from
@@ -209,7 +209,7 @@ static void ipv6_neighbour_appeared(ipv6_neighbour_cache_t *cache, uint8_t addre
 static void ipv6_neighbour_gone(ipv6_neighbour_cache_t *cache, uint8_t address[static 16])
 {
     (void) cache;
-    tr_debug("Lost contact with neighbour: %s", trace_ipv6(address));
+    tr_debug("Lost contact with neighbour: %s", tr_ipv6(address));
     // We can keep trying to talk directly to that neighbour, but should
     // avoid using it any more as a router, if there's an alternative.
     ipv6_destination_cache_forget_router(cache, address);
@@ -619,9 +619,9 @@ void ipv6_neighbour_reachability_confirmation(const uint8_t ip_address[static 16
     ipv6_neighbour_t *next_hop = dest->last_neighbour;
 #if 0
     if (next_hop) {
-        tr_debug("%s rconf: mark %s reachable", trace_ipv6(ip_address), trace_ipv6(next_hop->ip_address));
+        tr_debug("%s rconf: mark %s reachable", tr_ipv6(ip_address), tr_ipv6(next_hop->ip_address));
     } else {
-        tr_debug("%s rconf: next hop unknown", trace_ipv6(ip_address));
+        tr_debug("%s rconf: next hop unknown", tr_ipv6(ip_address));
     }
 #endif
     if (!next_hop) {
@@ -1041,7 +1041,7 @@ void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_a
         /* We're being sent to a different router */
         to_router = true;
     } else {
-        tr_debug("Invalid redirection: %s", trace_ipv6(redirect_addr));
+        tr_debug("Invalid redirection: %s", tr_ipv6(redirect_addr));
         return;
     }
 
@@ -1072,9 +1072,9 @@ void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_a
     }
 
     tr_debug("Redirection added");
-    tr_debug("Iface %d destination: %s", interface_id, trace_ipv6(dest_addr));
-    tr_debug("Old next hop: %s", trace_ipv6(sender_addr));
-    tr_debug("New next hop: %s", trace_ipv6(redirect_addr));
+    tr_debug("Iface %d destination: %s", interface_id, tr_ipv6(dest_addr));
+    tr_debug("Old next hop: %s", tr_ipv6(sender_addr));
+    tr_debug("New next hop: %s", tr_ipv6(redirect_addr));
 }
 
 void ipv6_destination_cache_clean(int8_t interface_id)
@@ -1090,7 +1090,7 @@ static bool ipv6_destination_release(ipv6_destination_t *dest)
 {
     if (--dest->refcount == 0) {
         ns_list_remove(&ipv6_destination_cache, dest);
-        tr_debug("Destination cache remove: %s", trace_ipv6(dest->destination));
+        tr_debug("Destination cache remove: %s", tr_ipv6(dest->destination));
         free(dest);
         return true;
     }
@@ -1109,7 +1109,7 @@ static void ipv6_destination_cache_gc_periodic(void)
         /* Purge old PMTU values */
         if (entry->pmtu_lifetime) {
             if (entry->pmtu_lifetime <= DCACHE_GC_PERIOD) {
-                tr_info("Resetting PMTU for: %s", trace_ipv6(entry->destination));
+                tr_info("Resetting PMTU for: %s", tr_ipv6(entry->destination));
                 entry->pmtu_lifetime = 0;
                 uint16_t old_mtu = entry->pmtu;
                 if (entry->interface_id >= 0) {

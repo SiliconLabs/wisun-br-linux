@@ -266,7 +266,7 @@ static bool icmpv6_identify_final_destination(buffer_t *buf, uint8_t *dest)
 
 buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
 {
-    tr_info("ICMP packet too big from: %s", trace_ipv6(buf->src_sa.address));
+    tr_info("ICMP packet too big from: %s", tr_ipv6(buf->src_sa.address));
 
     /* Need 4 for MTU, plus at least the IP header */
     if (buffer_data_length(buf) < 4 + 40) {
@@ -299,7 +299,7 @@ buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
 
     if (dest && mtu < dest->pmtu) {
 
-        tr_info("Reducing PMTU to %"PRIu32" for: %s", mtu, trace_ipv6(final_dest));
+        tr_info("Reducing PMTU to %"PRIu32" for: %s", mtu, tr_ipv6(final_dest));
         dest->pmtu = mtu;
         dest->pmtu_lifetime = cur->pmtu_lifetime;
     }
@@ -516,7 +516,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
      * interface, which we should only do in the whiteboard case.
      */
     if (addr_interface_address_compare(cur, target) != 0) {
-        //tr_debug("Received  NS for proxy %s", trace_ipv6(target));
+        //tr_debug("Received  NS for proxy %s", tr_ipv6(target));
 
         proxy = true;
         //Filter Link Local scope
@@ -624,7 +624,7 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
             return NULL;
     }
 
-    //tr_debug("Add add: %s", trace_ipv6(ipv6_address));
+    //tr_debug("Add add: %s", tr_ipv6(ipv6_address));
 
     address_entry = addr_add(cur, ipv6_address, 64, ADDR_SOURCE_SLAAC, valid_lifetime, preferred_lifetime, skip_dad);
     if (address_entry) {
@@ -686,7 +686,7 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
 
     data_len = buffer_data_length(buf);
     dptr = buffer_data_pointer(buf);
-    //tr_debug("RX RA: %s", trace_ipv6(buf->src_sa.address));
+    //tr_debug("RX RA: %s", tr_ipv6(buf->src_sa.address));
 
     /* XXX we always set variables based on RAs; fine for a host,
      * but wrong/iffy for a router. But then so is doing SLAAC as a
@@ -808,7 +808,7 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
                     ipv6_interface_slaac_handler(cur, prefix_ptr, prefix_length, valid_lifetime, preferred_lifetime);
                 }
 
-                //tr_debug("Prefix: %s", trace_ipv6(prefix_ptr));
+                //tr_debug("Prefix: %s", tr_ipv6(prefix_ptr));
             }
 
             // If the R flag is set and we have SLLAO, let's add a neighbour cache entry.
@@ -985,7 +985,7 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
             tr_debug("Received NA for our tentative address");
             addr_duplicate_detected(cur, target);
         } else {
-            tr_debug("NA received for our own address: %s", trace_ipv6(target));
+            tr_debug("NA received for our own address: %s", tr_ipv6(target));
         }
         goto drop;
     }

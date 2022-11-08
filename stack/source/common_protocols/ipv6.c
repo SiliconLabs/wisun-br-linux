@@ -114,7 +114,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     ipv6_destination_t *dest_entry = ipv6_destination_lookup_or_create(buf->dst_sa.address, cur ? cur->id : -1);
     if (!dest_entry) {
-        tr_error("ipv6_buffer_route no destination entry %s", trace_ipv6(buf->dst_sa.address));
+        tr_error("ipv6_buffer_route no destination entry %s", tr_ipv6(buf->dst_sa.address));
         goto no_route;
     }
 
@@ -125,8 +125,8 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     if (next_hop && next_if) {
         if (interface_specific && next_if != buf->interface) {
-            tr_error("Next hop interface mismatch %s%%%d vs %s%%%d", trace_ipv6(buf->dst_sa.address), buf->interface->id,
-                   trace_ipv6(next_hop), next_if->id);
+            tr_error("Next hop interface mismatch %s%%%d vs %s%%%d", tr_ipv6(buf->dst_sa.address), buf->interface->id,
+                   tr_ipv6(next_hop), next_if->id);
         }
         memcpy(route->route_info.next_hop_addr, next_hop, 16);
         route->route_info.interface_id = next_if->id;
@@ -144,7 +144,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
             /* Choose interface (only) from routing table */
             ipv6_route_t *ip_route = ipv6_route_choose_next_hop(buf->dst_sa.address, -1, NULL);
             if (!ip_route) {
-                tr_debug("No route for multicast %s", trace_ipv6(buf->dst_sa.address));
+                tr_debug("No route for multicast %s", tr_ipv6(buf->dst_sa.address));
                 goto no_route;
             }
             route->route_info.interface_id = ip_route->info.interface_id;
@@ -217,7 +217,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     if (!addr_is_ipv6_multicast(dest_entry->destination)) {
         dest_entry->last_neighbour = ipv6_neighbour_lookup_or_create(&outgoing_if->ipv6_neighbour_cache, route->route_info.next_hop_addr);
     }
-    //tr_debug("%s->last_neighbour := %s", trace_ipv6(dest_entry->destination), trace_ipv6(route->route_info.next_hop_addr));
+    //tr_debug("%s->last_neighbour := %s", tr_ipv6(dest_entry->destination), tr_ipv6(route->route_info.next_hop_addr));
 
     if (!cur || route->route_info.interface_id != cur->id) {
         protocol_interface_info_entry_t *new_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
@@ -437,7 +437,7 @@ drop:
     *ptr++ = buf->options.hop_limit;
 
     if (addr_is_ipv6_multicast(buf->src_sa.address)) {
-        tr_error("Illegal source %s", trace_ipv6(ptr));
+        tr_error("Illegal source %s", tr_ipv6(ptr));
         goto drop;
     }
     // Copy the source address (IPv6)
@@ -451,7 +451,7 @@ drop:
     // Last-minute enforcement of a couple of rules on destination from RFC 4291
     if (addr_is_ipv6_unspecified(ptr) ||
             (addr_is_ipv6_multicast(ptr) && addr_ipv6_multicast_scope(ptr) == 0)) {
-        tr_error("Illegal destination %s", trace_ipv6(ptr));
+        tr_error("Illegal destination %s", tr_ipv6(ptr));
         goto drop;
     }
     ptr += 16;
@@ -905,7 +905,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
-        tr_warn("IP Forward: Security check fail dst %s", trace_ipv6(buf->dst_sa.address));
+        tr_warn("IP Forward: Security check fail dst %s", tr_ipv6(buf->dst_sa.address));
         protocol_stats_update(STATS_IP_RX_DROP, 1);
         return buffer_free(buf);
     }

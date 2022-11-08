@@ -667,13 +667,13 @@ void socket_cant_recv_more(socket_t *socket, int8_t interface_id)
 
 socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards)
 {
-    //tr_debug("socket_lookup() local=%s [%d] remote=%s [%d]", trace_ipv6(local_addr->address), local_addr->port, trace_ipv6(remote_addr->address), remote_addr->port);
+    //tr_debug("socket_lookup() local=%s [%d] remote=%s [%d]", tr_ipv6(local_addr->address), local_addr->port, tr_ipv6(remote_addr->address), remote_addr->port);
     ns_list_foreach(socket_t, socket, &socket_list) {
         if (!socket_is_ipv6(cur)) {
             continue;
         }
         inet_pcb_t *cur = socket->inet_pcb;
-        //tr_debug("cur local=%s [%d] remote=%s [%d]", trace_ipv6(cur->local_address), cur->local_port, trace_ipv6(cur->remote_address), cur->remote_port);
+        //tr_debug("cur local=%s [%d] remote=%s [%d]", tr_ipv6(cur->local_address), cur->local_port, tr_ipv6(cur->remote_address), cur->remote_port);
         /* Protocol must match */
         if (cur->protocol != protocol) {
             continue;
@@ -1244,7 +1244,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
      * */
     if (buf->src_sa.addr_type == ADDR_IPV6 &&
             protocol_interface_address_compare(buf->src_sa.address) != 0) {
-        tr_warn("Specified source address %s is not valid", trace_ipv6(buf->src_sa.address));
+        tr_warn("Specified source address %s is not valid", tr_ipv6(buf->src_sa.address));
         ret_val = -3;
         goto fail;
     }

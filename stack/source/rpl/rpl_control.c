@@ -1107,7 +1107,7 @@ malformed:
     if (!instance) {
         /* Policy can gate at this point, by instance ID and DODAG ID */
         if (!rpl_policy_join_instance(domain, instance_id, dodagid)) {
-            tr_info("Policy ignoring instance (%d,%s)", instance_id, trace_ipv6(dodagid));
+            tr_info("Policy ignoring instance (%d,%s)", instance_id, tr_ipv6(dodagid));
             return buffer_free(buf);
         }
 
@@ -1130,7 +1130,7 @@ malformed:
 
     /* Policy can gate by DODAGID and other bits */
     if (!rpl_policy_join_dodag(domain, g_mop_prf, instance_id, dodagid)) {
-        tr_info("Policy ignoring DODAG (%02x,%s)", g_mop_prf, trace_ipv6(dodagid));
+        tr_info("Policy ignoring DODAG (%02x,%s)", g_mop_prf, tr_ipv6(dodagid));
         goto invalid_parent;
     }
 
@@ -1139,7 +1139,7 @@ malformed:
     if (!dodag) {
         /* Policy can gate by DODAGID and other bits */
         if (!rpl_policy_join_dodag(domain, g_mop_prf, instance_id, dodagid)) {
-            tr_info("Policy ignoring DODAG (%02x,%s)", g_mop_prf, trace_ipv6(dodagid));
+            tr_info("Policy ignoring DODAG (%02x,%s)", g_mop_prf, tr_ipv6(dodagid));
             goto invalid_parent;
         }
         dodag = rpl_create_dodag(instance, dodagid, g_mop_prf);
@@ -1163,7 +1163,7 @@ malformed:
 
     /* Even if we're not currently rooting - what if it's our address? Ignore stale info on network */
     if (addr_interface_address_compare(cur, dodagid) == 0) {
-        tr_info("DIO our DODAGID %s", trace_ipv6(dodagid));
+        tr_info("DIO our DODAGID %s", tr_ipv6(dodagid));
         /* Should we transmit poison? */
         goto invalid_parent;
     }
@@ -1256,7 +1256,7 @@ malformed:
     rpl_neighbour_update_dodag_version(neighbour, version, rank, g_mop_prf);
 
     if (rpl_neighbour_update_dtsn(neighbour, dtsn)) {
-        tr_info("Parent %s incremented DTSN", trace_ipv6(buf->src_sa.address));
+        tr_info("Parent %s incremented DTSN", tr_ipv6(buf->src_sa.address));
         rpl_control_dao_trigger_request(instance, dodag, neighbour);
     }
 
@@ -1835,7 +1835,7 @@ buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, protocol_interfa
     const uint8_t *target = buffer_data_pointer(buf) + 4 + 24; // Dest in IP header in ICMP invoking packet payload
     const uint8_t *transit = buf->src_sa.address; // Source in IP header of ICMP packet
 
-    tr_warn("Source route error: %s->%s", trace_ipv6(transit), trace_ipv6(target));
+    tr_warn("Source route error: %s->%s", tr_ipv6(transit), tr_ipv6(target));
     /* We can't identify the instance - logically though it's instance-independent.
      * If transit can't reach target, that applies to all instances.
      */

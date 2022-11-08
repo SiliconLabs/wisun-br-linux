@@ -763,7 +763,7 @@ static bool lowpan_adaptation_indirect_cache_sanity_check(protocol_interface_inf
 
         if (active_tx_entry == NULL) {
             // entry is in cache and is not sent to mac => trigger this
-            tr_debug_extra("sanity check, push seq %d to addr %s", fragmenter_tx_entry->buf->seq, trace_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
+            tr_debug_extra("sanity check, push seq %d to addr %s", fragmenter_tx_entry->buf->seq, tr_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
             fragmenter_tx_entry->indirect_data_cached = false;
             lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry, interface_ptr);
             return true;
@@ -785,7 +785,7 @@ static bool lowpan_adaptation_indirect_cache_trigger(protocol_interface_info_ent
     ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
         if (fragmenter_tx_entry->indirect_data_cached) {
             if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
-                tr_debug_extra("Pushing seq %d to addr %s", fragmenter_tx_entry->buf->seq, trace_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
+                tr_debug_extra("Pushing seq %d to addr %s", fragmenter_tx_entry->buf->seq, tr_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
                 fragmenter_tx_entry->indirect_data_cached = false;
                 lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry, interface_ptr);
                 return true;
@@ -1276,7 +1276,7 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
             buf->link_specific.ieee802_15_4.indirectTTL = cur->mac_parameters.mac_in_direct_entry_timeout;
         }
 
-        tr_debug_extra("indirect seq: %d, addr=%s", tx_ptr->buf->seq, trace_ipv6(buf->dst_sa.address));
+        tr_debug_extra("indirect seq: %d, addr=%s", tx_ptr->buf->seq, tr_ipv6(buf->dst_sa.address));
 
         // Make room for new message if needed */
         if (buffer_data_length(buf) <= interface_ptr->indirect_big_packet_threshold) {

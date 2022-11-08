@@ -1290,7 +1290,7 @@ bool rpl_instance_purge(rpl_instance_t *instance)
      */
     rpl_neighbour_t *neighbour = rpl_instance_choose_worst_neighbour(instance);
     if (neighbour && neighbour->considered && !neighbour->dodag_parent && neighbour->dao_path_control == 0) {
-        tr_debug("Candidate Purge: Remove %s", trace_ipv6(neighbour->ll_address));
+        tr_debug("Candidate Purge: Remove %s", tr_ipv6(neighbour->ll_address));
         rpl_delete_neighbour(instance, neighbour);
         return true;
     }
@@ -1462,7 +1462,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     ns_list_foreach_safe(rpl_neighbour_t, n, &instance->candidate_neighbours) {
         //Remove a Parent candidates which are not heared a long time ago and not slected ones
         if (!n->dodag_parent && (rpl_aged_lifetime(rpl_default_lifetime(n->dodag_version->dodag), n->dio_timestamp) == 0)) {
-            tr_debug("Candidate timeout: Remove %s", trace_ipv6(n->ll_address));
+            tr_debug("Candidate timeout: Remove %s", tr_ipv6(n->ll_address));
             rpl_delete_neighbour(instance, n);
             continue;
         }
@@ -1479,7 +1479,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
 
     ns_list_foreach(rpl_neighbour_t, n, &instance->candidate_neighbours) {
         if (n->was_dodag_parent != n->dodag_parent) {
-            tr_info("%s parent %s", n->dodag_parent ? "Added" : "Removed", trace_ipv6(n->ll_address));
+            tr_info("%s parent %s", n->dodag_parent ? "Added" : "Removed", tr_ipv6(n->ll_address));
             parent_set_change = true;
             /* Remove routes through a deselected parent */
             if (!n->dodag_parent) {
@@ -1556,7 +1556,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
             continue;
         }
         if (!instance->of->neighbour_acceptable(instance, n)) {
-            tr_debug("Candidate not acceptable: Remove %s", trace_ipv6(n->ll_address));
+            tr_debug("Candidate not acceptable: Remove %s", tr_ipv6(n->ll_address));
             rpl_delete_neighbour(instance, n);
         }
     }

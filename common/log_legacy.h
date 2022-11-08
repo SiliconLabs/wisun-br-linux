@@ -19,7 +19,6 @@
 #define tr_warn(MSG, ...)  __PRINT(33, "[WARN][%-4s]: " MSG, TRACE_GROUP, ##__VA_ARGS__)
 #define tr_error(MSG, ...) __PRINT(31, "[ERR ][%-4s]: " MSG, TRACE_GROUP, ##__VA_ARGS__)
 
-#define trace_ipv6        tr_ipv6
 #define trace_array       tr_key
 
 static inline void vtracef(uint8_t dlevel, const char *grp, const char *fmt, va_list ap)

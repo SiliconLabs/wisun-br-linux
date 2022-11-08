@@ -972,7 +972,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         } else {
             TRACE(TR_DHCP, "tx-dhcp %-9s dst:%s",
                   val_to_str(*(char *)(msghdr.msg_iov[0].iov_base), dhcp_frames, "[UNK]"),
-                  trace_ipv6(msg_tr_ptr->addr.address));
+                  tr_ipv6(msg_tr_ptr->addr.address));
 #ifdef HAVE_WS_BORDER_ROUTER
             retval = sendmsg(msg_tr_ptr->socket, &msghdr, 0);
 #else

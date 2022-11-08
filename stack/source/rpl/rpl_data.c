@@ -106,10 +106,10 @@ static bool rpl_data_is_rpl_downward_route(ipv6_route_src_t source)
 static bool rpl_data_handle_fwd_error(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *opt, const sockaddr_t *ll_src)
 {
     if (!ll_src) {
-        tr_warn("Forwarding-Error - dst=%s, neighbour unknown", trace_ipv6(buf->dst_sa.address));
+        tr_warn("Forwarding-Error - dst=%s, neighbour unknown", tr_ipv6(buf->dst_sa.address));
         return false;
     } else {
-        tr_warn("Forwarding-Error - dst=%s, neighbour=%s", trace_ipv6(buf->dst_sa.address), trace_sockaddr(ll_src, true));
+        tr_warn("Forwarding-Error - dst=%s, neighbour=%s", tr_ipv6(buf->dst_sa.address), trace_sockaddr(ll_src, true));
     }
 
     rpl_instance_t *instance = rpl_lookup_instance(cur->rpl_domain, opt[1], rpl_data_get_dodagid(buf));
@@ -478,7 +478,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
                 } else if (addr_ipv6_equal(dodag->id, buf->src_sa.address)) {
                     opt[3] &= ~ RPL_INSTANCE_DEST;
                 } else {
-                    tr_error("Local instance invalid %s[%d]: %s -> %s", trace_ipv6(dodag->id), instance->id, trace_ipv6(buf->src_sa.address), trace_ipv6(buf->dst_sa.address));
+                    tr_error("Local instance invalid %s[%d]: %s -> %s", tr_ipv6(dodag->id), instance->id, tr_ipv6(buf->src_sa.address), tr_ipv6(buf->dst_sa.address));
                     *result = -1;
                     return buf;
                 }
@@ -753,7 +753,7 @@ static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_tar
         for (int i = 16 * rpl_data_sr->ihops; i >= 0; i -= 16) {
             if (addr_ipv6_equal(rpl_data_sr->final_dest + i, transit->transit)) {
                 protocol_stats_update(STATS_RPL_ROUTELOOP, 1);
-                tr_error("SR loop %s->%s", tr_ipv6_prefix(t->prefix, t->prefix_len), trace_ipv6(transit->transit));
+                tr_error("SR loop %s->%s", tr_ipv6_prefix(t->prefix, t->prefix_len), tr_ipv6(transit->transit));
                 return false;
             }
         }

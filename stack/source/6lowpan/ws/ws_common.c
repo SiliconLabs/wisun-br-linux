@@ -263,13 +263,13 @@ void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status
 
 void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
 {
-    tr_warn("ARO registration Failure %s", trace_ipv6(ll_address));
+    tr_warn("ARO registration Failure %s", tr_ipv6(ll_address));
     ws_bootstrap_aro_failure(cur, ll_address);
 }
 
 void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
 {
-    tr_debug("neighbor remove %s", trace_ipv6(ll_address));
+    tr_debug("neighbor remove %s", tr_ipv6(ll_address));
     ws_bootstrap_neighbor_remove(cur, ll_address);
 }
 

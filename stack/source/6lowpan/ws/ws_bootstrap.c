@@ -189,7 +189,7 @@ static void ws_bootstrap_address_notification_cb(struct protocol_interface_info_
         if (addr->source != ADDR_SOURCE_DHCP) {
             //Trigger Address Registration only when Bootstrap is ready
             if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-                tr_debug("Address registration %s", trace_ipv6(addr->address));
+                tr_debug("Address registration %s", tr_ipv6(addr->address));
                 ws_address_registration_update(interface, addr->address);
             }
             ws_address_reregister_trig(interface);
@@ -824,7 +824,7 @@ bool ws_bootstrap_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neig
         return false;
     }
     // Fail the resolution
-    tr_warn("Link address lost for %s", trace_ipv6(entry->ip_address));
+    tr_warn("Link address lost for %s", tr_ipv6(entry->ip_address));
     ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, entry);
     // True means we skip the message sending
     return true;
@@ -1992,7 +1992,7 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
     (void)prefix;
     (void)interface;
     //TODO add handler for negative status
-    tr_info("DHCPv6 %s status %u with link %s", trace_ipv6(prefix), register_status, trace_ipv6(dhcp_addr));
+    tr_info("DHCPv6 %s status %u with link %s", tr_ipv6(prefix), register_status, tr_ipv6(dhcp_addr));
     if (register_status) {
         protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
         if (cur) {
@@ -2227,7 +2227,7 @@ static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t
             ws_dhcp_client_address_request(cur, prefix->prefix, parent_link_local);
         } else {
             /* Deprecate address and remove client */
-            tr_debug("Prefix invalidation %s", trace_ipv6(prefix->prefix));
+            tr_debug("Prefix invalidation %s", tr_ipv6(prefix->prefix));
             dhcp_client_global_address_delete(cur->id, NULL, prefix->prefix);
         }
     }
@@ -2350,7 +2350,7 @@ neigh_create_ok:
 
     if (create_ok && replace_ok) {
         //Try remove here when accepted new better one possible
-        tr_debug("Remove %s by %s", trace_ipv6(replacing), trace_ipv6(ll_parent_address));
+        tr_debug("Remove %s by %s", tr_ipv6(replacing), tr_ipv6(ll_parent_address));
         rpl_control_neighbor_delete_from_instance(cur, instance, replacing);
     }
 #endif

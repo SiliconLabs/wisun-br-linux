@@ -887,7 +887,7 @@ static void ipv6_stack(buffer_t *b)
 
 static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
-    tr_debug("Interface ID: %i, ipv6: %s", interface->id, trace_ipv6(addr->address));
+    tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
 
     switch (reason) {
         case ADDR_CALLBACK_DAD_COMPLETE:

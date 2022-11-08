@@ -60,7 +60,7 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
     }
 
     tr_debug("Sending %s NS for: %s",
-             (unicast ? "unicast" : "multicast"), trace_ipv6(entry->ip_address));
+             (unicast ? "unicast" : "multicast"), tr_ipv6(entry->ip_address));
 
     buffer_t *prompting_packet = ns_list_get_first(&entry->queue);
     buffer_t *buf = icmpv6_build_ns(cur_interface, entry->ip_address,
@@ -74,7 +74,7 @@ void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighb
 {
     protocol_interface_info_entry_t *cur_interface = container_of(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
 
-    tr_warn("LL addr of %s not found", trace_ipv6(entry->ip_address));
+    tr_warn("LL addr of %s not found", tr_ipv6(entry->ip_address));
     ns_list_foreach_safe(buffer_t, buf, &entry->queue) {
         ns_list_remove(&entry->queue, buf);
         uint8_t code;
@@ -131,7 +131,7 @@ static void ipv6_trigger_resolve_query(protocol_interface_info_entry_t *cur_inte
         socket_tx_buffer_event_and_free(b, SOCKET_NO_ROUTE);
         count--;
     }
-    tr_debug("Queueing for: %s", trace_ipv6(n->ip_address));
+    tr_debug("Queueing for: %s", tr_ipv6(n->ip_address));
     ns_list_add_to_end(&n->queue, buf);
 
     if (n->state == IP_NEIGHBOUR_NEW) {

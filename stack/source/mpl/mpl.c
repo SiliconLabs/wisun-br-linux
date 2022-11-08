@@ -761,10 +761,10 @@ buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cu
 
     if (they_have_new_data || we_have_new_data) {
         if (they_have_new_data) {
-            tr_info("%s has new MPL data", trace_ipv6(buf->src_sa.address));
+            tr_info("%s has new MPL data", tr_ipv6(buf->src_sa.address));
         }
         if (we_have_new_data) {
-            tr_info("We have new MPL data for %s", trace_ipv6(buf->src_sa.address));
+            tr_info("We have new MPL data for %s", tr_ipv6(buf->src_sa.address));
         }
         mpl_domain_inconsistent(domain);
     } else {
@@ -852,7 +852,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     if (!domain) {
         domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
         if (!domain) {
-            tr_debug("No domain %s  %s", trace_ipv6(domain->address), trace_array(seed_id, seed_id_len));
+            tr_debug("No domain %s  %s", tr_ipv6(domain->address), trace_array(seed_id, seed_id_len));
             return false;
         }
     }
@@ -867,7 +867,7 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     if (!seed) {
         seed = mpl_seed_create(domain, seed_id_len, seed_id, sequence);
         if (!seed) {
-            tr_debug("No seed %s  %s", trace_ipv6(domain->address), trace_array(seed_id, seed_id_len));
+            tr_debug("No seed %s  %s", tr_ipv6(domain->address), trace_array(seed_id, seed_id_len));
             return false;
         }
     }

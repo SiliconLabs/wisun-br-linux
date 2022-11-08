@@ -223,7 +223,7 @@ int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, con
     ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(if_id);
     ipv6_neighbour_t *n = ncache ? ipv6_neighbour_lookup(ncache, next_hop) : NULL;
     if (n && n->state == IP_NEIGHBOUR_UNREACHABLE) {
-        tr_warn("Rejecting SRH to %s: neighbour unreachable", trace_ipv6(next_hop));
+        tr_warn("Rejecting SRH to %s: neighbour unreachable", tr_ipv6(next_hop));
         goto reject;
     }
 
@@ -231,7 +231,7 @@ int8_t rpl_policy_srh_next_hop_interface(rpl_domain_t *domain, int8_t if_id, con
 
     //Validate Link ETX and play poker game if ETX is over optimistic value
     if (rpl_policy_link_forward_policy(etx) == RPL_POLICY_DROP) {
-        tr_warn("Rejecting SRH to %s: etx = %x", trace_ipv6(next_hop), etx);
+        tr_warn("Rejecting SRH to %s: etx = %x", tr_ipv6(next_hop), etx);
         goto reject;
     }
 

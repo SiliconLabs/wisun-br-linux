@@ -399,7 +399,7 @@ void rpl_instance_publish_dao_target(rpl_instance_t *instance, const uint8_t *pr
     target->trig_confirmation_state = true;
     //Activate always registration
     instance->pending_neighbour_confirmation = rpl_policy_parent_confirmation_requested();
-    tr_debug("New Target %s", trace_ipv6(target->prefix));
+    tr_debug("New Target %s", tr_ipv6(target->prefix));
     /* Path lifetime left as 0 for now - will be filled in on transmission, along with refresh timer */
     rpl_instance_dao_trigger(instance, 0);
 
@@ -978,7 +978,7 @@ static rpl_dao_root_transit_t *rpl_downward_add_root_transit(rpl_dao_target_t *t
     if (!transit) {
         transit = rpl_alloc(sizeof(rpl_dao_root_transit_t));
         if (!transit) {
-            tr_warn("RPL DAO overflow (target=%s,transit=%s)", tr_ipv6_prefix(target->prefix, target->prefix_len), trace_ipv6(parent));
+            tr_warn("RPL DAO overflow (target=%s,transit=%s)", tr_ipv6_prefix(target->prefix, target->prefix_len), tr_ipv6(parent));
             goto out;
         }
         transit->path_control = 0;
@@ -1093,7 +1093,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
                     }
                     /* No-Paths are special: version number isn't significant */
                     if (path_lifetime == 0) {
-                        tr_info("No-Path %s->%s", parent ? trace_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len));
+                        tr_info("No-Path %s->%s", parent ? tr_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len));
                         if (storing) {
                             ipv6_route_delete_with_info(prefix, prefix_len, interface_id, src, ROUTE_RPL_DAO, target, 0);
                             /* If we have no DAO routes left for this target, kill it (we don't track who sends individual
@@ -1144,7 +1144,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
                         }
                     }
                     if (!accept) {
-                        tr_info("Ignoring stale path %s->%s (seq=%d vs %d)", parent ? trace_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len), path_sequence, target->path_sequence);
+                        tr_info("Ignoring stale path %s->%s (seq=%d vs %d)", parent ? tr_ipv6(parent) : "", tr_ipv6_prefix(prefix, prefix_len), path_sequence, target->path_sequence);
                         break;
                     }
                     /* If path sequence is different, we clear existing transits for this target */
@@ -1595,7 +1595,7 @@ void rpl_instance_dao_acked(rpl_instance_t *instance, const uint8_t src[16], int
     bool retry = false;
     if (status) {
         if (src) {
-            tr_warn("DAO rejection from %s: status=%d", trace_ipv6(src), status);
+            tr_warn("DAO rejection from %s: status=%d", tr_ipv6(src), status);
         } else {
             tr_warn("DAO timeout");
             retry = true;
@@ -1951,7 +1951,7 @@ void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint
             return;
         }
 
-        tr_debug("Register Address to parent %s", trace_ipv6(dao_target->prefix));
+        tr_debug("Register Address to parent %s", tr_ipv6(dao_target->prefix));
     }
 
     if (instance->wait_response) {
@@ -2002,7 +2002,7 @@ bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *int
         return false;
     }
 
-    tr_debug("Address %s register to %s", trace_ipv6(dao_target->prefix), trace_ipv6(neighbour->ll_address));
+    tr_debug("Address %s register to %s", tr_ipv6(dao_target->prefix), tr_ipv6(neighbour->ll_address));
 
     if (status != SOCKET_TX_DONE) {
         if (neighbour->addr_reg_failures > 0) {

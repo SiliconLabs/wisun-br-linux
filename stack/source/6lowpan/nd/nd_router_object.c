@@ -318,7 +318,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
 {
     nd_router_t *cur = NULL;
     bool g16_address;
-    tr_debug("Interface ID: %i, ipv6: %s", interface->id, trace_ipv6(addr->address));
+    tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
 
     if (memcmp(&addr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
         g16_address = true;
@@ -329,7 +329,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
     switch (reason) {
         case ADDR_CALLBACK_DAD_COMPLETE:
             if (addr_ipv6_equal(interface->if_6lowpan_dad_process.address, addr->address)) {
-                tr_info("Address REG OK: %s", trace_ipv6(interface->if_6lowpan_dad_process.address));
+                tr_info("Address REG OK: %s", tr_ipv6(interface->if_6lowpan_dad_process.address));
                 interface->if_6lowpan_dad_process.active = false;
                 interface->global_address_available = true;
                 //Check If GP16 Address Add LL16 Address
@@ -773,7 +773,7 @@ buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_inter
     /* EUI-64 */
     eui64 = dptr;
     dptr += 8;
-    tr_debug("DAR adr: %s, from %s", trace_ipv6(dptr), trace_ipv6(buf->src_sa.address));
+    tr_debug("DAR adr: %s, from %s", tr_ipv6(dptr), tr_ipv6(buf->src_sa.address));
 
     //SET White board
     wb = whiteboard_table_update(dptr, eui64, &status);

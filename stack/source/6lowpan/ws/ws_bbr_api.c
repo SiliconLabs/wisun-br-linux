@@ -383,7 +383,7 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
     uint8_t *static_address_ptr = ws_bbr_bb_static_prefix_get(NULL);
     if (static_address_ptr) {
         memcpy(current_dodag_id, static_address_ptr, 16);
-        tr_info("BBR Static DODAGID %s", trace_ipv6(current_dodag_id));
+        tr_info("BBR Static DODAGID %s", tr_ipv6(current_dodag_id));
         return 0;
     }
 
@@ -394,7 +394,7 @@ static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
         return -1;
     }
     memcpy(current_dodag_id, add_entry->address, 16);
-    tr_info("BBR generate DODAGID %s", trace_ipv6(current_dodag_id));
+    tr_info("BBR generate DODAGID %s", tr_ipv6(current_dodag_id));
 
     return 0;
 }
@@ -419,7 +419,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     if (!addr_entry || addr_entry->preferred_lifetime == 0) {
         return;
     }
-    //tr_debug("BBR address %s lifetime %d pref %d", trace_ipv6(addr_entry->address), addr_entry->valid_lifetime, addr_entry->preferred_lifetime);
+    //tr_debug("BBR address %s lifetime %d pref %d", tr_ipv6(addr_entry->address), addr_entry->valid_lifetime, addr_entry->preferred_lifetime);
 
     if (memcmp(global_address, local_prefix_ptr, 8) == 0) {
         // static prefix is same
@@ -507,7 +507,7 @@ static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_
     uint8_t temp_address[16];
     memcpy(temp_address, global_id, 8);
     memset(temp_address + 8, 0, 8);
-    tr_debug("DHCP server deactivate %s", trace_ipv6(temp_address));
+    tr_debug("DHCP server deactivate %s", tr_ipv6(temp_address));
     dhcpv6_server_service_delete(cur->id, global_id, false);
     //Delete Client
     dhcp_client_global_address_delete(cur->id, NULL, temp_address);
