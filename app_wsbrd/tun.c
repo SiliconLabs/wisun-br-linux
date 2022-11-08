@@ -323,23 +323,28 @@ static void wsbr_tun_mcast_init(int * sock_ptr, const char * if_name)
     wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_ALL_MPL_FORWARDERS);         // ff03::fc
 }
 
-void wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
+int wsbr_tun_join_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
 {
     struct ipv6_mreq mreq;
+    int ret;
 
     mreq.ipv6mr_interface = if_nametoindex(if_name);
     memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
-    if (setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq)) < 0)
-        WARN("ipv6 join group %s: %m", tr_ipv6(mcast_group));
+    ret = setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq));
+    WARN_ON(ret < 0, "ipv6 join group \"%s\": %m", tr_ipv6(mcast_group));
+    return ret;
 }
 
-void wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
+int wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_t mcast_group[16])
 {
     struct ipv6_mreq mreq;
+    int ret;
+
     mreq.ipv6mr_interface = if_nametoindex(if_name);
     memcpy(&mreq.ipv6mr_multiaddr, mcast_group, 16);
-    if (setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq)) < 0)
-        WARN("setsockopt IPV6_LEAVE_GROUP %s on if %d: %m", tr_ipv6((uint8_t *) &mreq.ipv6mr_multiaddr), mreq.ipv6mr_interface);
+    ret = setsockopt(sock_mcast, IPPROTO_IPV6, IPV6_LEAVE_GROUP, &mreq, sizeof(mreq));
+    WARN_ON(ret < 0, "ipv6 leave group \"%s\": %m", tr_ipv6(mcast_group));
+    return ret;
 }
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
