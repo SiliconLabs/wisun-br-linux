@@ -277,7 +277,7 @@ int8_t sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const u
     memcpy(ptk, result, PTK_LEN);
 
 #ifdef EXTRA_DEBUG_INFO
-    tr_debug("PTK EUI: %s %s", trace_array(eui64_1, 8), trace_array(eui64_2, 8));
+    tr_debug("PTK EUI: %s %s", tr_eui64(eui64_1), tr_eui64(eui64_2));
     tr_debug("PTK NONCE: %s %s", trace_array(nonce1, 32), trace_array(nonce2, 32));
     tr_debug("PTK: %s:%s", trace_array(ptk, PTK_LEN / 2), trace_array(ptk + PTK_LEN / 2, PTK_LEN / 2));
 #endif
@@ -303,7 +303,7 @@ int8_t sec_prot_lib_pmkid_calc(const uint8_t *pmk, const uint8_t *auth_eui64, co
         return -1;
     }
 
-    tr_debug("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
+    tr_debug("PMKID %s EUI-64 %s %s", trace_array(pmkid, PMKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
     return 0;
 }
 
@@ -325,7 +325,7 @@ int8_t sec_prot_lib_ptkid_calc(const uint8_t *ptk, const uint8_t *auth_eui64, co
         return -1;
     }
 
-    tr_info("PTKID %s EUI-64 %s %s", trace_array(ptkid, PTKID_LEN), trace_array(auth_eui64, 8), trace_array(supp_eui64, 8));
+    tr_info("PTKID %s EUI-64 %s %s", trace_array(ptkid, PTKID_LEN), tr_eui64(auth_eui64), tr_eui64(supp_eui64));
     return 0;
 }
 

@@ -1085,7 +1085,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait EAP response, Identity (starts RADIUS Client protocol)
         case RADIUS_STATE_STATE_RESPONSE_ID:
-            tr_debug("Radius: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -1115,7 +1115,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case RADIUS_STATE_SEND_INITIAL_ACCESS_REQUEST:
-            tr_debug("Radius: send initial access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: send initial access request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
                 tr_error("Radius: msg send error");
@@ -1131,14 +1131,14 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                tr_info("Radius: retry access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("Radius: retry access request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                 if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
                     tr_error("Radius: retry msg send error");
                 }
                 return;
             }
 
-            tr_debug("Radius: received access accept/reject/challenge, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: received access accept/reject/challenge, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Free radius access-request buffer since answer received and retries not needed
             radius_client_sec_prot_radius_msg_free(prot);
@@ -1179,7 +1179,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                tr_info("Radius: retry access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("Radius: retry access request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                 if (radius_client_sec_prot_radius_msg_send(prot) < 0) {
                     tr_error("Radius: retry msg send error");
                 }
@@ -1196,7 +1196,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            tr_debug("Radius: send access request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: send access request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             radius_client_sec_prot_allocate_and_create_radius_message(prot);
 
@@ -1211,7 +1211,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case RADIUS_STATE_FINISH:
-            tr_debug("Radius: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             if (sec_prot_result_ok_check(&data->common)) {
                 sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->sec_cfg->timer_cfg.pmk_lifetime);
@@ -1229,7 +1229,7 @@ static void radius_client_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case RADIUS_STATE_FINISHED: {
-            tr_debug("Radius: finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Radius: finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             radius_client_sec_prot_identifier_free(prot);
 

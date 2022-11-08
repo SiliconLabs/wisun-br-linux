@@ -725,7 +725,7 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
             }
         }
 #ifdef FHSS_CHANNEL_DEBUG
-        tr_debug("TX channel: %u %u %s", tx_channel, destination_slot + 1, trace_array(destination_address, 8));
+        tr_debug("TX channel: %u %u %s", tx_channel, destination_slot + 1, tr_eui64(destination_address));
 #endif /*FHSS_CHANNEL_DEBUG*/
         fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, tx_channel);
     }
@@ -1162,7 +1162,7 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
 #endif
             fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval)));
         }
-        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", trace_array(eui64, 8), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
+        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", tr_eui64(eui64), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
     platform_exit_critical();
     fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));

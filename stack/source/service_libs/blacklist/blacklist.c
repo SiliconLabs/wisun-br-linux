@@ -87,7 +87,7 @@ bool blacklist_reject(const uint8_t *ll64_address)
     if (blacklist_entry) {
         // If address is blacklisted rejects
         if (blacklist_entry->ttl > blacklist_data->blacklist_entry_lifetime) {
-            tr_info("blacklist reject: %s", trace_array(ll64_address + 8, 8));
+            tr_info("blacklist reject: %s", tr_eui64(ll64_address + 8));
             return true;
             // Neighbor heard; updates blacklist entry TTL to full lifetime
         } else {
@@ -209,7 +209,7 @@ void blacklist_ttl_update(uint16_t ticks)
         if (blacklist_entry->ttl > ticks) {
             blacklist_entry->ttl -= ticks;
         } else {
-            tr_info("Blacklist remove entry: %s", trace_array(blacklist_entry->eui64, 8));
+            tr_info("Blacklist remove entry: %s", tr_eui64(blacklist_entry->eui64));
             blacklist_entry_free(blacklist_entry);
         }
     }

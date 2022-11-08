@@ -137,18 +137,18 @@ static int8_t auth_gkh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
         // Get message
         if (auth_gkh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys) != GKH_MESSAGE_UNKNOWN) {
             TRACE(TR_EAP, "rx-eap  %-9s src:%s", "2wh-2",
-                  trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                  tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Call state machine
             data->recv_pdu = pdu;
             data->recv_size = size;
             prot->state_machine(prot);
         } else {
-            tr_error("GKH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_error("GKH: recv error, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
         }
         ret_val = 0;
     } else {
-        tr_error("GKH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+        tr_error("GKH: recv error, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
     }
 
     memset(&data->recv_eapol_pdu, 0, sizeof(eapol_pdu_t));
@@ -260,7 +260,7 @@ static int8_t auth_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
     }
 
     TRACE(TR_EAP, "tx-eap  %-9s dst:%s%s", "2wh-1",
-          trace_array(sec_prot_remote_eui_64_addr_get(prot), 8),
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)),
           retry ? " (retry)" : "");
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
@@ -302,7 +302,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case GKH_STATE_CREATE_REQ:
-            tr_debug("GKH start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("GKH start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -343,7 +343,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISH:
-            tr_debug("GKH finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("GKH finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // KMP-FINISHED.indication,
             if (prot->finished_ind(prot, sec_prot_result_get(&data->common), 0)) {
@@ -355,7 +355,7 @@ static void auth_gkh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case GKH_STATE_FINISHED: {
-            tr_debug("GKH finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("GKH finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

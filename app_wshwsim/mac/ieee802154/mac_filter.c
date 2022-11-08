@@ -91,7 +91,7 @@ static filter_instance_t *filter_instance_find(int8_t interface_id)
 static filter_t *filter_find_long(filter_instance_t *instance_ptr, uint8_t mac64[8])
 {
     filter_t *this = NULL;
-    tr_debug_extra("mac_filter_find_long %s", trace_array(mac64, 8));
+    tr_debug_extra("mac_filter_find_long %s", tr_eui64(mac64));
 
     ns_list_foreach(filter_t, cur_ptr, &instance_ptr->long_filter_list) {
         if (memcmp(cur_ptr->address.mac64, mac64, 8) == 0) {
@@ -274,7 +274,7 @@ int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t l
 {
     filter_instance_t *this = filter_instance_find(interface_id);
     filter_t *filter_ptr;
-    tr_debug_extra("mac_filter_add_long mac %s filter found lqi_m %d lqi_add %d dbm_m %d dbm_add %d", trace_array(mac64, 8), lqi_m, lqi_add, dbm_m, dbm_add);
+    tr_debug_extra("mac_filter_add_long mac %s filter found lqi_m %d lqi_add %d dbm_m %d dbm_add %d", tr_eui64(mac64), lqi_m, lqi_add, dbm_m, dbm_add);
     if (!this || !mac64) {
         return -1;
     }

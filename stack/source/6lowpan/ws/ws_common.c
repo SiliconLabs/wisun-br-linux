@@ -300,7 +300,7 @@ static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_
         if (mac_neighbor->link_lifetime < link_lifetime) {
             //Set Stable timeout for temporary entry here
             if (link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME && mac_neighbor->link_lifetime  < WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
-                tr_info("Added new neighbor %s : index:%u", trace_array(eui64, 8), mac_neighbor->index);
+                tr_info("Added new neighbor %s : index:%u", tr_eui64(eui64), mac_neighbor->index);
             }
             mac_neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
 

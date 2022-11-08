@@ -529,7 +529,7 @@ static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
         return -1;
     }
 
-    tr_info("EAPOL target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
+    tr_info("EAPOL target: %s", tr_eui64(kmp_address_eui_64_get(&pae_supp->entry.addr)));
 
     kmp_api_create_request(kmp, IEEE_802_1X_MKA_KEY, &pae_supp->entry.addr, &pae_supp->entry.sec_keys);
 
@@ -1333,7 +1333,7 @@ static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e
     /* If initial EAPOL-key message sending fails to tx no acknowledge, indicates failure so
        that bootstrap can decide if EAPOL target should be changed */
     else if (type > IEEE_802_1X_INITIAL_KEY && (result == KMP_RESULT_ERR_TX_NO_ACK || result == KMP_RESULT_ERR_TX_UNSPEC)) {
-        tr_info("Initial EAPOL-Key TX failure, target: %s", trace_array(kmp_address_eui_64_get(&pae_supp->entry.addr), 8));
+        tr_info("Initial EAPOL-Key TX failure, target: %s", tr_eui64(kmp_address_eui_64_get(&pae_supp->entry.addr)));
         /* Fails authentication only if other authentication protocols are not yet
            started by authenticator */
         if (ws_pae_lib_kmp_list_count(&pae_supp->entry.kmp_list) <= 1) {

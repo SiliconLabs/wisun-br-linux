@@ -196,7 +196,7 @@ static int8_t radius_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint1
              * missed the original identity request.
              */
             if (data->burst_filt_timer == 0 && data->init_key_cnt < INITIAL_EAPOL_KEY_MAX_COUNT) {
-                tr_info("EAP-TLS: initial EAPOL-key recv, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("EAP-TLS: initial EAPOL-key recv, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                 sec_prot_result_set(&data->common, SEC_RESULT_TIMEOUT);
                 // Call state machine
                 prot->state_machine(prot);
@@ -431,7 +431,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case EAP_TLS_STATE_CREATE_REQ:
-            tr_debug("EAP-TLS: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS: start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -466,7 +466,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            tr_debug("EAP-TLS: EAP response id, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS: EAP response id, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             if (radius_eap_tls_sec_prot_init_radius_client(prot) < 0) {
                 tr_error("EAP-TLS: radius client init failed");
@@ -497,7 +497,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
                 return;
             }
 
-            tr_debug("EAP-TLS: EAP request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS: EAP request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             uint8_t eap_code;
             if (radius_eap_tls_sec_prot_radius_eap_message_forward(prot, &eap_code) < 0) {
@@ -524,14 +524,14 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
             // On timeout
             if (sec_prot_result_timeout_check(&data->common)) {
-                tr_info("EAP-TLS: retry EAP request, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("EAP-TLS: retry EAP request, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                 if (radius_eap_tls_sec_prot_radius_eap_message_retry(prot) < 0) {
                     tr_error("EAP-TLS: retry msg send error");
                 }
                 return;
             }
 
-            tr_debug("EAP-TLS: EAP response, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS: EAP response, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Handle EAP response
             if (radius_eap_tls_sec_prot_message_handle(prot, data_ptr, &length) != EAP_TLS_MSG_CONTINUE) {
@@ -554,7 +554,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISH:
-            tr_debug("EAP-TLS finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
@@ -563,7 +563,7 @@ static void radius_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISHED: {
-            tr_debug("EAP-TLS finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Indicate to radius client peer protocol that radius EAP-TLS has been deleted
             if (data->radius_client_deleted) {

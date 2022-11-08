@@ -524,7 +524,7 @@ static uint8_t mac_data_interface_decrypt_packet(mac_pre_parsed_frame_t *b, mlme
     if (key_device_description) {
         //validate BlackList status
         if (key_device_description->Blacklisted) {
-            tr_debug("Blacklisted key for device %s", trace_array(b->neigh_info->ExtAddress, 8));
+            tr_debug("Blacklisted key for device %s", tr_eui64(b->neigh_info->ExtAddress));
             return MLME_UNAVAILABLE_KEY;
         }
 

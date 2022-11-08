@@ -252,10 +252,10 @@ void ws_pae_lib_supp_list_slow_timer_update(supp_list_t *supp_list, uint16_t sec
 {
     ns_list_foreach(supp_entry_t, entry, supp_list) {
         if (sec_prot_keys_pmk_lifetime_decrement(&entry->sec_keys, seconds)) {
-            tr_info("PMK and PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), g_monotonic_time_100ms / 10);
+            tr_info("PMK and PTK expired, eui-64: %s, system time: %"PRIu32"", tr_eui64(entry->addr.eui_64), g_monotonic_time_100ms / 10);
         }
         if (sec_prot_keys_ptk_lifetime_decrement(&entry->sec_keys, seconds)) {
-            tr_info("PTK expired, eui-64: %s, system time: %"PRIu32"", trace_array(entry->addr.eui_64, 8), g_monotonic_time_100ms / 10);
+            tr_info("PTK expired, eui-64: %s, system time: %"PRIu32"", tr_eui64(entry->addr.eui_64), g_monotonic_time_100ms / 10);
         }
     }
 }
@@ -298,7 +298,7 @@ bool ws_pae_lib_supp_timer_update(void *instance, supp_entry_t *entry, uint16_t 
         entry->waiting_ticks -= ticks;
     } else {
         if (entry->waiting_ticks > 0) {
-            tr_info("Waiting supplicant timeout eui-64: %s", trace_array(entry->addr.eui_64, 8));
+            tr_info("Waiting supplicant timeout eui-64: %s", tr_eui64(entry->addr.eui_64));
         }
         entry->waiting_ticks = 0;
     }
@@ -344,7 +344,7 @@ void ws_pae_lib_supp_list_to_active(supp_list_t *active_supp_list, supp_list_t *
         return;
     }
 
-    tr_debug("PAE: to active, eui-64: %s", trace_array(entry->addr.eui_64, 8));
+    tr_debug("PAE: to active, eui-64: %s", tr_eui64(entry->addr.eui_64));
 
     ns_list_remove(inactive_supp_list, entry);
     ns_list_add_to_start(active_supp_list, entry);
@@ -362,10 +362,10 @@ void ws_pae_lib_supp_list_to_inactive(void *instance, supp_list_t *active_supp_l
         return;
     }
 
-    tr_debug("PAE: to inactive, eui-64: %s", trace_array(entry->addr.eui_64, 8));
+    tr_debug("PAE: to inactive, eui-64: %s", tr_eui64(entry->addr.eui_64));
 
     if (entry->access_revoked) {
-        tr_info("Access revoked; deleted, eui-64: %s", trace_array(entry->addr.eui_64, 8));
+        tr_info("Access revoked; deleted, eui-64: %s", tr_eui64(entry->addr.eui_64));
         ws_pae_lib_supp_list_remove(instance, active_supp_list, entry, supp_deleted);
         return;
     }
@@ -390,7 +390,7 @@ void ws_pae_lib_supp_list_purge(void *instance, supp_list_t *active_supp_list, u
         // Remove entries from active list if there are no active KMPs ongoing for the entry
         ns_list_foreach_safe(supp_entry_t, entry, active_supp_list) {
             if (remove_count > 0 && ws_pae_lib_kmp_list_empty(&entry->kmp_list)) {
-                tr_info("Active supplicant removed, eui-64: %s", trace_array(kmp_address_eui_64_get(&entry->addr), 8));
+                tr_info("Active supplicant removed, eui-64: %s", tr_eui64(kmp_address_eui_64_get(&entry->addr)));
                 ws_pae_lib_supp_list_remove(instance, active_supp_list, entry, supp_deleted);
                 remove_count--;
             } else {

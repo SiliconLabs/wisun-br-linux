@@ -140,7 +140,7 @@ void ws_bootstrap_neighbor_set_stable(struct protocol_interface_info_entry *inte
     if (neighbor && neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
         neighbor->lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
         neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        tr_info("Added new neighbor %s : index:%u", trace_array(src64, 8), neighbor->index);
+        tr_info("Added new neighbor %s : index:%u", tr_eui64(src64), neighbor->index);
     }
 }
 
@@ -152,7 +152,7 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_ent
         //mlme_device_descriptor_t device_desc;
         neighbor->lifetime = valid_time;
         neighbor->link_lifetime = valid_time;
-        tr_debug("Set short response neighbor %s : index:%u", trace_array(src64, 8), neighbor->index);
+        tr_debug("Set short response neighbor %s : index:%u", tr_eui64(src64), neighbor->index);
     }
 }
 
@@ -751,7 +751,7 @@ static void ws_bootstrap_ll_address_validate(struct protocol_interface_info_entr
 
         tr_info("Generated random MAC address");
     }
-    tr_info("MAC address: %s", trace_array(mac64, 8));
+    tr_info("MAC address: %s", tr_eui64(mac64));
     mac_helper_mac64_set(cur, mac64);
 
     memcpy(cur->iid_eui64, mac64, 8);
@@ -1080,7 +1080,7 @@ void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcp
 parent_info_t *ws_bootstrap_candidate_parent_get_best(protocol_interface_info_entry_t *cur)
 {
     ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, trace_array(entry->addr, 8), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
+        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, tr_eui64(entry->addr), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
     }
 
     return ns_list_get_first(&cur->ws_info->parent_list_reserved);
@@ -1426,7 +1426,7 @@ static void ws_bootstrap_neighbor_table_clean(struct protocol_interface_info_ent
         }
     }
     if (neighbor_entry_ptr) {
-        tr_info("dropped oldest neighbour %s", trace_array(neighbor_entry_ptr->mac64, 8));
+        tr_info("dropped oldest neighbour %s", tr_eui64(neighbor_entry_ptr->mac64));
         mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_entry_ptr);
     }
 
@@ -2581,7 +2581,7 @@ static void ws_bootstrap_nw_info_updated(protocol_interface_info_entry_t *cur, u
 static void ws_bootstrap_authentication_completed(protocol_interface_info_entry_t *cur, auth_result_e result, uint8_t *target_eui_64)
 {
     if (result == AUTH_RESULT_OK) {
-        tr_info("authentication success eui64:%s", trace_array(target_eui_64, 8));
+        tr_info("authentication success eui64:%s", tr_eui64(target_eui_64));
         if (target_eui_64) {
             // Authentication was made contacting the authenticator
             cur->ws_info->authentication_time = cur->ws_info->uptime;

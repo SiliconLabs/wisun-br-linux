@@ -139,7 +139,7 @@ static int8_t supp_gkh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
         // Get message
         if (supp_gkh_sec_prot_message_get(&data->recv_eapol_pdu, prot->sec_keys) != GKH_MESSAGE_UNKNOWN) {
             TRACE(TR_EAP, "rx-eap  %-9s src:%s", "2wh-1",
-                  trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                  tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Call state machine
             data->recv_pdu = pdu;
@@ -213,7 +213,7 @@ static int8_t supp_gkh_sec_prot_message_send(sec_prot_t *prot, gkh_sec_prot_msg_
     }
 
     TRACE(TR_EAP, "tx-eap  %-9s dst:%s", "2wh-2",
-          trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;

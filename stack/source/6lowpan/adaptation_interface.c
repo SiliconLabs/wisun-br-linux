@@ -1489,7 +1489,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
         if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
             tr_info("Dest addr: %x", common_read_16_bit(buf->dst_sa.address + 2));
         } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
-            tr_info("Dest addr: %s", trace_array(buf->dst_sa.address + 2, 8));
+            tr_info("Dest addr: %s", tr_eui64(buf->dst_sa.address + 2));
         }
 
         if (confirm->status == MLME_TX_NO_ACK || confirm->status == MLME_UNAVAILABLE_KEY) {
@@ -1551,7 +1551,7 @@ void lowpan_adaptation_interface_data_ind(protocol_interface_info_entry_t *cur, 
     }
     uint8_t *ptr;
     buffer_data_add(buf, data_ind->msdu_ptr, data_ind->msduLength);
-    //tr_debug("MAC Paylod size %u %s",data_ind->msduLength, trace_array(data_ind->msdu_ptr, 8));
+    //tr_debug("MAC Paylod size %u %s",data_ind->msduLength, tr_eui64(data_ind->msdu_ptr));
     buf->options.lqi = data_ind->mpduLinkQuality;
     buf->options.dbm = data_ind->signal_dbm;
     buf->src_sa.addr_type = (addrtype_e)data_ind->SrcAddrMode;

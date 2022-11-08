@@ -420,7 +420,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait EAP request, Identity (starts handshake on supplicant)
         case TLS_STATE_CLIENT_HELLO:
-            tr_debug("TLS: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("TLS: start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
 #ifdef SERVER_TLS_EC_CALC_QUEUE
             client_hello = true;
@@ -481,7 +481,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
 
             if (result != TLS_SEC_PROT_LIB_CONTINUE) {
                 if (result == TLS_SEC_PROT_LIB_ERROR) {
-                    tr_error("TLS: error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                    tr_error("TLS: error, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                     sec_prot_result_set(&data->common, SEC_RESULT_ERROR);
                 }
                 sec_prot_state_set(prot, &data->common, TLS_STATE_FINISH);
@@ -489,7 +489,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case TLS_STATE_FINISH:
-            tr_debug("TLS: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("TLS: finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             data->calculating = false;
 
@@ -507,7 +507,7 @@ static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case TLS_STATE_FINISHED: {
-            tr_debug("TLS: finished, eui-64: %s free %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8), data->library_init ? "T" : "F");
+            tr_debug("TLS: finished, eui-64: %s free %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)), data->library_init ? "T" : "F");
             if (data->library_init) {
                 tls_sec_prot_lib_free((tls_security_t *) &data->tls_sec_inst);
                 data->library_init = false;
@@ -688,7 +688,7 @@ static bool tls_sec_prot_queue_check(sec_prot_t *prot)
 
     // Adds entry to queue if not there already
     if (queue_add) {
-        tr_debug("TLS QUEUE add index: %i, eui-64: %s", entry_index, trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+        tr_debug("TLS QUEUE add index: %i, eui-64: %s", entry_index, tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
         tls_sec_prot_queue_t *entry = malloc(sizeof(tls_sec_prot_queue_t));
         if (entry) {
             entry->prot = prot;
@@ -725,7 +725,7 @@ static void tls_sec_prot_queue_remove(sec_prot_t *prot)
         if (entry->prot == prot) {
             ns_list_remove(&tls_sec_prot_queue, entry);
             free(entry);
-            tr_debug("TLS QUEUE remove%s, eui-64: %s", ns_list_is_empty(&tls_sec_prot_queue) ? " last" : "", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("TLS QUEUE remove%s, eui-64: %s", ns_list_is_empty(&tls_sec_prot_queue) ? " last" : "", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
         }
     }
 }

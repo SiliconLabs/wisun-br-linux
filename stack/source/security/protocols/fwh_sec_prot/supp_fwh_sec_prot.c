@@ -179,7 +179,7 @@ static int8_t supp_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
         if (data->recv_msg != FWH_MESSAGE_UNKNOWN) {
             TRACE(TR_EAP, "rx-eap  %-9s src:%s",
                   (data->recv_msg == FWH_MESSAGE_1) ? "4wh-1" : "4wh-3",
-                  trace_array(data->remote_eui64, 8));
+                  tr_eui64(data->remote_eui64));
 
             // Call state machine
             data->recv_pdu = pdu;
@@ -280,7 +280,7 @@ static int8_t supp_fwh_sec_prot_message_send(sec_prot_t *prot, fwh_sec_prot_msg_
 
     TRACE(TR_EAP, "tx-eap  %-9s src:%s",
           (msg == FWH_MESSAGE_2) ? "4wh-2" : "4wh-4",
-          trace_array(data->remote_eui64, 8));
+          tr_eui64(data->remote_eui64));
 
     if (prot->send(prot, eapol_pdu_frame, eapol_pdu_size + prot->header_size) < 0) {
         return -1;
@@ -566,14 +566,14 @@ static int8_t supp_fwh_kde_handle(sec_prot_t *prot)
             }
             // If PMKID is not valid
             if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
-                tr_info("PMKID mismatch, 1st EUI-64: %s", trace_array(data->remote_eui64, 8));
+                tr_info("PMKID mismatch, 1st EUI-64: %s", tr_eui64(data->remote_eui64));
                 // Try alternate EUI-64 (e.g. received during security handshake)
                 if (sec_prot_lib_pmkid_generate(prot, calc_pmkid, false, true, data->remote_eui64) < 0) {
                     goto error;
                 }
                 // If PMKID is not valid, fail
                 if (memcmp(recv_pmkid, calc_pmkid, PMKID_LEN) != 0) {
-                    tr_error("PMKID mismatch, 2nd EUI-64: %s", trace_array(data->remote_eui64, 8));
+                    tr_error("PMKID mismatch, 2nd EUI-64: %s", tr_eui64(data->remote_eui64));
                     goto error;
                 }
             }

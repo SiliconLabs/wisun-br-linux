@@ -289,10 +289,10 @@ int8_t mac_sec_mib_device_description_set(uint8_t atribute_index, mlme_device_de
     if (memcmp(device_ptr->ExtAddress, device_descriptor->ExtAddress, 8)) {
         //Remove last handles key user's
         mac_sec_mib_device_description_remove(rf_mac_setup, atribute_index);
-        //tr_debug("Over write %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_ptr->ShortAddress, trace_array(device_ptr->ExtAddress, 8), device_ptr->FrameCounter);
+        //tr_debug("Over write %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_ptr->ShortAddress, tr_eui64(device_ptr->ExtAddress), device_ptr->FrameCounter);
     }
 
-    //tr_debug("Set %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_descriptor->ShortAddress, trace_array(device_descriptor->ExtAddress, 8), device_descriptor->FrameCounter);
+    //tr_debug("Set %u, mac16 %x mac64: %s, %"PRIu32, atribute_index, device_descriptor->ShortAddress, tr_eui64(device_descriptor->ExtAddress), device_descriptor->FrameCounter);
 
     *device_ptr = *device_descriptor;
 

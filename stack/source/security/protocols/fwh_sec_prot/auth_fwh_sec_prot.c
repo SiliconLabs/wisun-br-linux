@@ -162,11 +162,11 @@ static int8_t auth_fwh_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t si
             data->recv_size = size;
             prot->state_machine(prot);
         } else {
-            tr_error("4WH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_error("4WH: recv error, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
         }
         ret_val = 0;
     } else {
-        tr_error("4WH: recv error, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+        tr_error("4WH: recv error, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
     }
 
     memset(&data->recv_eapol_pdu, 0, sizeof(eapol_pdu_t));
@@ -366,7 +366,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case FWH_STATE_CREATE_REQ:
-            tr_debug("4WH: start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("4WH: start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -453,7 +453,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISH:
-            tr_debug("4WH: finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("4WH: finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // KMP-FINISHED.indication,
             if (prot->finished_ind(prot, sec_prot_result_get(&data->common), 0)) {
@@ -465,7 +465,7 @@ static void auth_fwh_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case FWH_STATE_FINISHED: {
-            tr_debug("4WH: finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("4WH: finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
             prot->timer_stop(prot);
             prot->finished(prot);
             break;

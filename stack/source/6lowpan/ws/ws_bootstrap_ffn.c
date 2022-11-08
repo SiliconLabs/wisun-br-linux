@@ -102,7 +102,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_inf
      */
 
     // Discovery state processing
-    //tr_info("neighbour: addr:%s panid:%x signal:%d", trace_array(data->SrcAddr, 8), data->SrcPANId, data->signal_dbm);
+    //tr_info("neighbour: addr:%s panid:%x signal:%d", tr_eui64(data->SrcAddr), data->SrcPANId, data->signal_dbm);
 
     // Clean old entries
     ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
@@ -117,7 +117,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_inf
     if (!new_entry->link_acceptable) {
         // This entry is either poor quality or changed to poor quality link so we will remove this
         // Todo in future possibility to try poor link parents if we have not found any good link parents
-        tr_info("neighbour not accepted: addr:%s panid:%x rsl:%d device_min_sens: %d", trace_array(new_entry->addr, 8), new_entry->pan_id, ws_neighbor_class_rsl_from_dbm_calculate(new_entry->signal_dbm), DEVICE_MIN_SENS);
+        tr_info("neighbour not accepted: addr:%s panid:%x rsl:%d device_min_sens: %d", tr_eui64(new_entry->addr), new_entry->pan_id, ws_neighbor_class_rsl_from_dbm_calculate(new_entry->signal_dbm), DEVICE_MIN_SENS);
         ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
         ns_list_add_to_end(&cur->ws_info->parent_list_free, new_entry);
         return;
@@ -809,7 +809,7 @@ select_best_candidate:
         tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
         return;
     }
-    tr_info("selected parent:%s panid %u", trace_array(selected_parent_ptr->addr, 8), selected_parent_ptr->pan_id);
+    tr_info("selected parent:%s panid %u", tr_eui64(selected_parent_ptr->addr), selected_parent_ptr->pan_id);
 
     if (ws_bootstrap_neighbor_set(cur, selected_parent_ptr, false) < 0) {
         goto select_best_candidate;

@@ -189,7 +189,7 @@ static int8_t auth_eap_tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_
              * missed the original identity request.
              */
             if (data->burst_filt_timer == 0 && data->init_key_cnt < INITIAL_EAPOL_KEY_MAX_COUNT) {
-                tr_info("EAP-TLS: initial EAPOL-key recv, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+                tr_info("EAP-TLS: initial EAPOL-key recv, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
                 sec_prot_result_set(&data->common, SEC_RESULT_TIMEOUT);
                 // Call state machine
                 prot->state_machine(prot);
@@ -410,7 +410,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
 
         // Wait KMP-CREATE.request
         case EAP_TLS_STATE_CREATE_REQ:
-            tr_debug("EAP-TLS start, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS start, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // Set default timeout for the total maximum length of the negotiation
             sec_prot_default_timeout_set(&data->common);
@@ -552,7 +552,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISH:
-            tr_debug("EAP-TLS finish, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS finish, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
 
             // KMP-FINISHED.indication,
             prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
@@ -561,7 +561,7 @@ static void auth_eap_tls_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case EAP_TLS_STATE_FINISHED: {
-            tr_debug("EAP-TLS finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("EAP-TLS finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
             auth_eap_tls_sec_prot_delete_tls(prot);
             prot->timer_stop(prot);
             prot->finished(prot);

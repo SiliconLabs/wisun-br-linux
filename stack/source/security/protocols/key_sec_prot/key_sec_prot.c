@@ -454,7 +454,7 @@ static void auth_key_sec_prot_state_machine(sec_prot_t *prot)
             break;
 
         case KEY_STATE_FINISHED: {
-            tr_debug("Initial-key finished, eui-64: %s", trace_array(sec_prot_remote_eui_64_addr_get(prot), 8));
+            tr_debug("Initial-key finished, eui-64: %s", tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
             prot->finished(prot);
             break;
         }
