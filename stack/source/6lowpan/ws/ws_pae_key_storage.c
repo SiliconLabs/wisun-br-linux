@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <fnmatch.h>
 #include <inttypes.h>
 #include "common/log.h"
