@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef DHCPV6_CLIENT_API_H_
-#define DHCPV6_CLIENT_API_H_
+#ifndef LEGACY_DHCPV6_CLIENT_H
+#define LEGACY_DHCPV6_CLIENT_H
 
 #ifdef HAVE_LEGACY_DHCP
 #include <stdint.h>

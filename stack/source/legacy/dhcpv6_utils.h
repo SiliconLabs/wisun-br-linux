@@ -15,14 +15,8 @@
  * limitations under the License.
  */
 
-/*
- * \file libdhcpv6.h
- * \brief Add short description about this file!!!
- *
- */
-
-#ifndef LIBDHCPV6_H_
-#define LIBDHCPV6_H_
+#ifndef LEGACY_DHCPV6_UTILS_H
+#define LEGACY_DHCPV6_UTILS_H
 #include <stdint.h>
 #include <stdbool.h>
 

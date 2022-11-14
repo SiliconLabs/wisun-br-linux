@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-#ifndef DHCP_SERVICE_API_H_
-#define DHCP_SERVICE_API_H_
+#ifndef LEGACY_DHCPV6_SERVICE_H
+#define LEGACY_DHCPV6_SERVICE_H
 
 #ifdef HAVE_LEGACY_DHCP
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdbool.h>
 /**
- * \file dhcp_service_api.h
  * \brief DHCP server connection interfaces
  *
  * \section dhcp-service DHCP Service Instance

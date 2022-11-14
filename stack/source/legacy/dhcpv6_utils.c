@@ -14,12 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * \file libdhcpv6.c
- * \brief Add short description about this file!!!
- *
- */
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -28,7 +22,7 @@
 #include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
 
-#include "libdhcpv6/libdhcpv6.h"
+#include "dhcpv6_utils.h"
 
 #define TRACE_GROUP "dhcp"
 

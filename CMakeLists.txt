@@ -357,11 +357,11 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/core/ns_buffer.c
         stack/source/core/ns_socket.c
         stack/source/core/sockbuf.c
-        stack/source/dhcpv6_client/dhcpv6_client_service.c
         stack/source/ipv6_stack/ipv6_routing_table.c
         stack/source/ipv6_stack/protocol_ipv6.c
-        stack/source/libdhcpv6/dhcp_service_api.c
-        stack/source/libdhcpv6/libdhcpv6.c
+        stack/source/legacy/dhcpv6_client.c
+        stack/source/legacy/dhcpv6_service.c
+        stack/source/legacy/dhcpv6_utils.c
         stack/source/net_api/net_multicast.c
         stack/source/net_api/net_6lowpan_parameter.c
         stack/source/net_api/net_rpl.c

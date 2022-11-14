@@ -30,13 +30,14 @@
 #include "stack-services/common_functions.h"
 #include "stack/net_socket.h"
 #include "stack/net_interface.h"
-#include "stack/dhcp_service_api.h"
 #include "stack/timers.h"
 
-#include "libdhcpv6/libdhcpv6.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
+
+#include "dhcpv6_utils.h"
+#include "dhcpv6_service.h"
 
 #define TRACE_GROUP    "dhcp"
 

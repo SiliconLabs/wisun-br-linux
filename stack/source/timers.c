@@ -12,7 +12,7 @@
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl_control.h"
 #include "stack/source/service_libs/etx/etx.h"
-#include "stack/dhcp_service_api.h"
+#include "stack/source/legacy/dhcpv6_service.h"
 #include "stack/timers.h"
 #include "common/utils.h"
 #include "common/log.h"
