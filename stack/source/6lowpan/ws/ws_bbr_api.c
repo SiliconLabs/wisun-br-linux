@@ -41,7 +41,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ip.h"
-#include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

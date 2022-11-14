@@ -4,7 +4,6 @@
 
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
-#include "stack/dhcp_service_api.h"
 #include "stack/ws_bbr_api.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"

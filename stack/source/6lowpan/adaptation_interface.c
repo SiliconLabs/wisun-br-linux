@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
+#include "common/dhcp_server.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
@@ -38,7 +39,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
 #include "rpl/rpl_data.h"
-#include "libdhcpv6/libdhcpv6.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
@@ -825,12 +825,11 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_first_cached_request_ge
 
 static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
 {
-    // dhcp messages
-    if (buf->dst_sa.port == DHCPV6_SERVER_PORT || buf->src_sa.port == DHCPV6_SERVER_PORT) {
-        return true;
-    }
-
-    if (buf->dst_sa.port == DHCPV6_CLIENT_PORT || buf->src_sa.port == DHCPV6_CLIENT_PORT) {
+    // DHCP messages
+    if (buf->dst_sa.port == DHCPV6_SERVER_PORT ||
+        buf->dst_sa.port == DHCPV6_SERVER_PORT ||
+        buf->src_sa.port == DHCPV6_CLIENT_PORT ||
+        buf->src_sa.port == DHCPV6_CLIENT_PORT) {
         return true;
     }
 

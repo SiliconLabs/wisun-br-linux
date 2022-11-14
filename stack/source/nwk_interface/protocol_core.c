@@ -45,7 +45,6 @@
 #include "common_protocols/udp.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
-#include "libdhcpv6/libdhcpv6.h"
 #include "ipv6_stack/protocol_ipv6.h"
 
 #include "nwk_interface/protocol_stats.h"

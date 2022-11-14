@@ -32,7 +32,6 @@
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
-#include "stack/dhcp_service_api.h"
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
@@ -41,8 +40,6 @@
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol_abstract.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
-#include "stack/source/dhcpv6_client/dhcpv6_client_api.h"
-#include "stack/source/libdhcpv6/libdhcpv6.h"
 
 #include "mbedtls_config_check.h"
 #include "commandline.h"
