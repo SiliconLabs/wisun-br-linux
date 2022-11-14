@@ -17,13 +17,6 @@
 #include "common/utils.h"
 #include "common/log.h"
 
-#ifdef HAVE_DHCPV6_SERVER
-#include "stack/source/dhcpv6_server/dhcpv6_server_service.h"
-#else
-#define dhcpv6_server_service_timer_cb NULL
-#define DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS 0
-#endif
-
 int g_monotonic_time_100ms = 0;
 
 static void timer_update_monotonic_time(int ticks)
@@ -53,7 +46,6 @@ static struct {
     timer_entry(ICMP_SLOW,              icmp_slow_timer,                            1000,                                         true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                                          true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                                         true),
-    timer_entry(DHCPV6_SERVER,          dhcpv6_server_service_timer_cb,             DHCPV6_TIMER_UPDATE_PERIOD_IN_SECONDS * 1000, true),
     timer_entry(DHCPV6_SOCKET,          dhcp_service_timer_cb,                      100,                                          false),
     timer_entry(6LOWPAN_MLD_FAST,       mld_fast_timer,                             100,                                          true),
     timer_entry(6LOWPAN_MLD_SLOW,       mld_slow_timer,                             125000,                                       true),

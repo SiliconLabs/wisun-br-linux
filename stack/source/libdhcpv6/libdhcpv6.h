@@ -289,11 +289,7 @@ uint16_t libdhcpv6_vendor_option_size(uint16_t vendor_data_length);
 
 uint16_t libdhcpv6_solicitation_message_length(uint16_t clientDUIDLength, bool addressDefined, uint8_t requestOptionCount);
 uint16_t libdhcpv6_address_request_message_len(uint16_t clientDUIDLength, uint16_t serverDUIDLength, uint8_t requstOptionCnt, bool add_address);
-#ifdef HAVE_DHCPV6_SERVER
-uint16_t libdhcpv6_address_reply_message_len(uint16_t clientDUIDLength, uint16_t serverDUIDLength, uint16_t vendorDataLen, bool rapidCommon, bool status);
-#else
 #define libdhcpv6_address_reply_message_len(clientDUIDLength, serverDUIDLength, vendorDataLen, rapidCommon, status) 0
-#endif
 
 uint8_t *libdhcpv6_generic_nontemporal_address_message_write(uint8_t *ptr, dhcpv6_solicitation_base_packet_s *packet, dhcpv6_ia_non_temporal_address_s *nonTemporalAddress, dhcp_duid_options_params_t *serverLink);
 uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_limit,  uint8_t *peer_addres, uint8_t *link_address);
@@ -368,13 +364,8 @@ uint8_t *libdhcpv6_prefix_delegation_info_option_write(uint8_t *ptr, uint32_t ia
 
 int libdhcpv6_reply_message_option_validate(dhcp_duid_options_params_t *clientId, dhcp_duid_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length);
 
-#ifdef HAVE_DHCPV6_SERVER
-int libdhcpv6_renew_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_duid_options_params_t *clientLinkData, dhcp_duid_options_params_t *serverLinkData, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params);
-int libdhcpv6_solicitation_message_options_validate(uint8_t *ptr, uint16_t data_length, dhcp_duid_options_params_t *clientLink, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params);
-#else
 #define libdhcpv6_renew_message_options_validate(ptr, data_length, clientLinkData, serverLinkData, dhcp_ia_non_temporal_params) -1
 #define libdhcpv6_solicitation_message_options_validate(ptr, data_length, clientLink, dhcp_ia_non_temporal_params) -1
-#endif
 int libdhcpv6_advertisment_message_option_validate(dhcp_duid_options_params_t *clientId, dhcp_duid_options_params_t *serverId, dhcp_ia_non_temporal_params_t *dhcp_ia_non_temporal_params, uint8_t *ptr, uint16_t data_length);
 bool libdhcpv6_rapid_commit_option_at_packet(uint8_t *ptr, uint16_t length);
 bool libdhcpv6_time_elapsed_option_at_packet(uint8_t *ptr, uint16_t length);

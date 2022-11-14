@@ -33,7 +33,6 @@ enum timer_id {
     TIMER_PAE_FAST,
     TIMER_PAE_SLOW,
     TIMER_DHCPV6_SOCKET,
-    TIMER_DHCPV6_SERVER,
     TIMER_COUNT,
 };
 
