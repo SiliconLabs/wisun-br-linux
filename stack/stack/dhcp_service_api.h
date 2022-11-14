@@ -17,6 +17,8 @@
 
 #ifndef DHCP_SERVICE_API_H_
 #define DHCP_SERVICE_API_H_
+
+#ifdef HAVE_LEGACY_DHCP
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -272,4 +274,20 @@ int dhcp_service_link_local_rx_cb_set(int8_t interface_id, dhcp_relay_neighbour_
 
 void dhcp_service_timer_cb(int ticks);
 
-#endif //DHCP_SERVICE_API_H_
+#else
+#include <stdint.h>
+#include "common/log.h"
+
+static inline int dhcp_service_link_local_rx_cb_set(int8_t interface_id, void *notify_cb)
+{
+    WARN();
+    return -1;
+}
+
+static inline void dhcp_service_timer_cb(int ticks)
+{
+}
+
+#endif /* HAVE_LEGACY_DHCP */
+
+#endif

@@ -17,6 +17,8 @@
 
 #ifndef DHCPV6_CLIENT_API_H_
 #define DHCPV6_CLIENT_API_H_
+
+#ifdef HAVE_LEGACY_DHCP
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -148,6 +150,58 @@ void dhcp_relay_agent_interface_id_option_enable(int8_t interface, bool enable);
 
 int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16]);
 
+#else
+#include <stdint.h>
+#include <stdbool.h>
+#include "common/log.h"
 
+static inline void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uint8_t prefix[static 16])
+{
+    WARN();
+}
 
-#endif /* DHCPV6_CLIENT_API_H_ */
+static inline int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], void *error_cb)
+{
+    WARN();
+    return -1;
+}
+
+static inline void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16])
+{
+    WARN();
+}
+
+static inline void dhcp_relay_agent_disable(int8_t interface)
+{
+    WARN();
+}
+
+static inline void dhcp_client_init(int8_t interface, uint16_t link_type)
+{
+    WARN();
+}
+
+static inline void dhcp_client_delete(int8_t interface)
+{
+    WARN();
+}
+
+static inline int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16])
+{
+    WARN();
+    return -1;
+}
+
+static inline void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc, uint8_t max_delay)
+{
+    WARN();
+}
+
+static inline void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_client_for_this_interface, bool no_address_hint)
+{
+    WARN();
+}
+
+#endif /* HAVE_LEGACY_DHCP */
+
+#endif

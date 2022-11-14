@@ -17,5 +17,6 @@
 #define HAVE_WS_HOST
 
 #define HAVE_PAE_SUPP
+#define HAVE_LEGACY_DHCP
 
 #define EXTRA_CONSISTENCY_CHECKS
