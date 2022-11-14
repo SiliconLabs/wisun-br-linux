@@ -105,6 +105,7 @@ const char *spinel_prop_str(int prop)
         prop_name(WS_MAC_FILTER_STOP),
         prop_name(WS_RF_CONFIGURATION),
         prop_name(WS_RF_CONFIGURATION_LIST),
+        prop_name(WS_ASYNC_FRAGMENTATION),
     };
 
     for (int i = 0; i < ARRAY_SIZE(spinel_props); i++)

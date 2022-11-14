@@ -230,6 +230,7 @@ typedef enum {
     macAutoRequestKeyIndex = 0x7b,  /*<The index of the key used for automatic data. Unused by the RCP. */
     macDefaultKeySource = 0x7c,      /*<Default key source*/
     //NON standard extension
+    macAsyncFragmentation = 0xe7,   /*< Asynchronous TX fragmentation */
     macGlobalTxDuration = 0xe8,     /*< Global transmission duration. */
     macRegionalRegulation = 0xe9,   /*< Regional regulation. */
     macRxSensitivity = 0xea,        /*< Receiver sensitivity of the configured phy. */

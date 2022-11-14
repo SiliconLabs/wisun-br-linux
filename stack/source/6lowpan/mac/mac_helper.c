@@ -749,3 +749,17 @@ int8_t mac_helper_set_regional_regulation(const struct protocol_interface_info_e
 
     return 0;
 }
+
+int8_t mac_helper_set_async_fragmentation(int8_t interface_id, uint32_t fragment_duration_ms)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    mlme_set_t set_req;
+
+    if (!cur || !cur->mac_api)
+        return -1;
+
+    set_req.attr = macAsyncFragmentation;
+    set_req.value_pointer = &fragment_duration_ms;
+    set_req.value_size = sizeof(fragment_duration_ms);
+    return cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+}
