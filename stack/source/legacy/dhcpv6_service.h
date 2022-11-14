@@ -31,7 +31,6 @@
  *
  * \section dhcp-msg DHCP Service Messages
  * - dhcp_service_send_req(), Sends out DHCP request messages.
- * - dhcp_service_send_resp(), Sends out DHCP response messages.
  *
  * \section dhcp-tim DHCP Service Timers (retry timers)
  * - dhcp_service_send_req(), Sends out DHCP request messages.
@@ -162,20 +161,6 @@ uint8_t *dhcp_service_relay_global_addres_get(uint16_t instance);
 * \param instance The instance ID of the registered server.
 */
 void dhcp_service_delete(uint16_t instance);
-
-/**
-* \brief Sends a DHCP response message.
-*
-* \param msg_tr_id The message transaction ID.
-* \param options Options for this request.
-* \param msg_ptr An allocated message pointer. Should not deallocate unless RET_MSG_ACCEPTED returned (then responsibility of client).
-* \param msg_len The length of the message.
-*
-* \return 0, if everything went fine.
-* \return -1, if error occurred.
-*/
-int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len);
-
 
 /**
  * \brief Sends DHCP request message.

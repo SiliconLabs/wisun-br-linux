@@ -744,34 +744,6 @@ void dhcp_service_delete(uint16_t instance)
     }
     return;
 }
-
-int dhcp_service_send_resp(uint32_t msg_tr_id, uint8_t options, uint8_t *msg_ptr, uint16_t msg_len)
-{
-    msg_tr_t *msg_tr_ptr;
-    server_instance_t *srv_instance;
-    msg_tr_ptr = dhcp_tr_find(msg_tr_id);
-    if (msg_tr_ptr == NULL) {
-        tr_error("msg_tr_id not found");
-        return -1;
-    }
-    srv_instance = dhcp_service_client_find(msg_tr_ptr->instance_id);
-    if (srv_instance == NULL) {
-        tr_error("Srv Instance not found");
-        return -1;
-    }
-    free(msg_tr_ptr->msg_ptr);
-
-    msg_tr_ptr->msg_ptr = msg_ptr;
-    msg_tr_ptr->msg_len = msg_len;
-    msg_tr_ptr->options = options;
-    // set the received transaction id to message.
-    common_write_24_bit(msg_tr_ptr->message_tr_id, &msg_tr_ptr->msg_ptr[1]);
-
-    dhcp_service_send_message(msg_tr_ptr);
-    msg_tr_ptr->msg_ptr = NULL; // pointer is the responsibility of client
-    dhcp_tr_delete(msg_tr_ptr);
-    return 0;
-}
 uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr, const uint8_t addr[static 16], uint8_t *msg_ptr, uint16_t msg_len, dhcp_service_receive_resp_cb *receive_resp_cb, uint16_t delay_tx)
 {
     msg_tr_t *msg_tr_ptr;
