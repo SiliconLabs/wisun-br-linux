@@ -1932,6 +1932,17 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
         return -1;
     }
 
+    if (request->message_type == WS_FT_PAN_ADVERT) {
+        if (interface->pan_advert_running)
+            return -1;
+        else
+            interface->pan_advert_running = true;
+    } else if (request->message_type == WS_FT_PAN_CONF) {
+        if (interface->pan_config_running)
+            return -1;
+        else
+            interface->pan_config_running = true;
+    }
 
     //Calculate IE Buffer size
     request->wh_requested_ie_list.fc_ie = false; //Never should not be a part Asynch message

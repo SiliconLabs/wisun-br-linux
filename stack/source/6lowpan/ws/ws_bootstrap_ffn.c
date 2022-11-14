@@ -678,7 +678,10 @@ void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, cons
 
 void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
 {
-    (void)asynch_message;
+    if (asynch_message == WS_FT_PAN_ADVERT)
+        interface->pan_advert_running = false;
+    else if (asynch_message == WS_FT_PAN_CONF)
+        interface->pan_config_running = false;
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
 

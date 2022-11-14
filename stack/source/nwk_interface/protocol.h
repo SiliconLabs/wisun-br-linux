@@ -262,6 +262,8 @@ struct protocol_interface_info_entry {
     uint8_t iid_eui64[8]; // IID based on EUI-64 - used for link-local address
     uint8_t iid_slaac[8]; // IID to use for SLAAC addresses - may or may not be same as iid_eui64
     uint16_t max_link_mtu;
+    bool pan_advert_running: 1;
+    bool pan_config_running: 1;
     /* RFC 4861 Host Variables */
     uint8_t cur_hop_limit;
     uint16_t reachable_time_ttl;        // s
