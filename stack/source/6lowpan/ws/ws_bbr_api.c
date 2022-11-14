@@ -41,7 +41,6 @@
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_radv.h"
 #include "common_protocols/ip.h"
-#include "dhcpv6_server/dhcpv6_server_service.h"
 #include "dhcpv6_client/dhcpv6_client_api.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
@@ -226,15 +225,6 @@ void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8
         rpl_control_update_dodag_config(protocol_6lowpan_rpl_root_dodag, &rpl_conf);
         ws_bbr_rpl_version_increase(cur);
     }
-}
-
-void ws_bbr_dhcp_address_lifetime_set(protocol_interface_info_entry_t *cur, uint32_t dhcp_address_lifetime)
-{
-    if (!cur) {
-        return;
-    }
-    // Change the setting if the border router is active
-    dhcpv6_server_service_set_address_validlifetime(cur->id, current_global_prefix, dhcp_address_lifetime);
 }
 
 bool ws_bbr_backbone_address_get(uint8_t *address)
@@ -429,90 +419,6 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     return;
 }
 
-static void wisun_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return;
-    }
-    // Send NA only if it is enabled for the backhaul
-    if (!cur->send_na) {
-        return;
-    }
-
-    whiteboard_os_modify(target, ADD);
-
-    buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
-    protocol_push(buffer);
-    return;
-
-}
-
-static bool wisun_dhcp_address_add_cb(int8_t interfaceId, dhcp_address_cache_update_t *address_info, void *route_src)
-{
-    (void)route_src;
-    protocol_interface_info_entry_t *curPtr = protocol_stack_interface_info_get_by_id(interfaceId);
-    if (!curPtr) {
-        return false;
-    }
-
-    // When address is allocated we send NA to backbone to notify the new address and flush from other BBRs
-    wisun_bbr_na_send(backbone_interface_id, address_info->allocatedAddress);
-    return true;
-}
-
-static void wisun_dhcp_address_remove_cb(int8_t interfaceId, uint8_t *targetAddress, void *prefix_info)
-{
-    (void) interfaceId;
-    (void) prefix_info;
-    if (targetAddress) {
-        whiteboard_os_modify(targetAddress, REMOVE);
-    }
-}
-
-static void ws_bbr_dhcp_server_start(protocol_interface_info_entry_t *cur, uint8_t *global_id, uint32_t dhcp_address_lifetime)
-{
-    uint8_t ll[16];
-    memcpy(ll, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(&ll[8], cur->mac, 8);
-    ll[8] ^= 2;
-
-    tr_debug("DHCP server activate %s", tr_ipv6_prefix(global_id, 64));
-
-    if (dhcpv6_server_service_init(cur->id, global_id, cur->mac, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE) != 0) {
-        tr_error("DHCPv6 Server create fail");
-        return;
-    }
-    dhcpv6_server_service_callback_set(cur->id, global_id, wisun_dhcp_address_remove_cb, wisun_dhcp_address_add_cb);
-    //Check for anonymous mode
-    bool anonymous = (configuration & BBR_DHCP_ANONYMOUS) ? true : false;
-
-    dhcpv6_server_service_set_address_generation_anonymous(cur->id, global_id, anonymous, false);
-    dhcpv6_server_service_set_address_validlifetime(cur->id, global_id, dhcp_address_lifetime);
-    //SEt max value for not limiting address allocation
-    dhcpv6_server_service_set_max_clients_accepts_count(cur->id, global_id, MAX_SUPPORTED_ADDRESS_LIST_SIZE);
-}
-
-void ws_bbr_internal_dhcp_server_start(int8_t interface_id, uint8_t *global_id)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    ws_bbr_dhcp_server_start(cur, global_id, cur->ws_info->cfg->bbr.dhcp_address_lifetime);
-}
-
-static void ws_bbr_dhcp_server_stop(protocol_interface_info_entry_t *cur, uint8_t *global_id)
-{
-    if (!cur) {
-        return;
-    }
-    uint8_t temp_address[16];
-    memcpy(temp_address, global_id, 8);
-    memset(temp_address + 8, 0, 8);
-    tr_debug("DHCP server deactivate %s", tr_ipv6(temp_address));
-    dhcpv6_server_service_delete(cur->id, global_id, false);
-    //Delete Client
-    dhcp_client_global_address_delete(cur->id, NULL, temp_address);
-}
-
 static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
 {
     tr_info("BBR routing stop");
@@ -522,7 +428,6 @@ static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
     }
 
     if (memcmp(current_global_prefix, ADDR_UNSPECIFIED, 8) != 0) {
-        ws_bbr_dhcp_server_stop(cur, current_global_prefix);
         if (backbone_interface_id >= 0) {
             // Delete route to backbone if it exists
             ipv6_route_add_with_info(current_global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 0, 0);
@@ -650,7 +555,6 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
             if (backbone_interface_id >= 0) {
                 ipv6_route_add_with_info(current_global_prefix, 64, backbone_interface_id, NULL, ROUTE_THREAD_BBR, NULL, 0, 120, 0);
             }
-            ws_bbr_dhcp_server_stop(cur, current_global_prefix);
         }
         // TODO add global prefix
         if (memcmp(global_prefix, ADDR_UNSPECIFIED, 8) != 0) {

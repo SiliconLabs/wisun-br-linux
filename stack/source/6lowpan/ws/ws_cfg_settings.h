@@ -63,7 +63,6 @@ typedef struct ws_bbr_cfg {
     uint8_t dio_redundancy_constant;    /**< DIO redundancy constant; DEFAULT_DIO_REDUNDANCY_CONSTANT; range 0-10; default */
     uint16_t dag_max_rank_increase;
     uint16_t min_hop_rank_increase;
-    uint32_t dhcp_address_lifetime;     /**< DHCP address lifetime in seconds minimum 2 hours and maximum as days hours*/
     uint32_t rpl_default_lifetime;      /**< RPL default lifetime value minimum from 30 minutes to 16 hours*/
 } ws_bbr_cfg_t;
 

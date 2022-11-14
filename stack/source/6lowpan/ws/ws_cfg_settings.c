@@ -285,7 +285,6 @@ static void ws_cfg_network_size_config_set_small(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
     cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME;
-    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -328,7 +327,6 @@ static void ws_cfg_network_size_config_set_medium(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
     cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_MEDIUM;
-    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -370,7 +368,6 @@ static void ws_cfg_network_size_config_set_large(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
     cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_LARGE;
-    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_LARGE_IMIN;
@@ -412,7 +409,6 @@ static void ws_cfg_network_size_config_set_xlarge(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
     cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_XLARGE;
-    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_LARGE;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_LARGE_IMIN;
@@ -454,7 +450,6 @@ static void ws_cfg_network_size_config_set_certificate(ws_cfg_nw_size_t *cfg)
     cfg->bbr.dag_max_rank_increase = WS_CERTIFICATE_RPL_MAX_HOP_RANK_INCREASE;
     cfg->bbr.min_hop_rank_increase = WS_CERTIFICATE_RPL_MIN_HOP_RANK_INCREASE;
     cfg->bbr.rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME;
-    cfg->bbr.dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_SMALL;
 
     // EAPOL configuration
     cfg->sec_prot.sec_prot_trickle_imin = SEC_PROT_SMALL_IMIN;
@@ -728,7 +723,6 @@ static int8_t ws_cfg_bbr_default_set(ws_bbr_cfg_t *cfg)
     cfg->dag_max_rank_increase = WS_RPL_MAX_HOP_RANK_INCREASE;
     cfg->min_hop_rank_increase = WS_RPL_MIN_HOP_RANK_INCREASE;
     cfg->rpl_default_lifetime = WS_RPL_DEFAULT_LIFETIME_MEDIUM;
-    cfg->dhcp_address_lifetime = WS_DHCP_ADDRESS_LIFETIME_MEDIUM;
 
     return CFG_SETTINGS_OK;
 }
@@ -747,7 +741,6 @@ int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg)
             cfg->dio_redundancy_constant != new_cfg->dio_redundancy_constant ||
             cfg->dag_max_rank_increase != new_cfg->dag_max_rank_increase ||
             cfg->min_hop_rank_increase != new_cfg->min_hop_rank_increase ||
-            cfg->dhcp_address_lifetime != new_cfg->dhcp_address_lifetime ||
             cfg->rpl_default_lifetime != new_cfg->rpl_default_lifetime) {
         return CFG_SETTINGS_CHANGED;
     }
@@ -769,7 +762,6 @@ int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *new_cf
         ws_bbr_rpl_config(cur, new_cfg->dio_interval_min, new_cfg->dio_interval_doublings,
                           new_cfg->dio_redundancy_constant, new_cfg->dag_max_rank_increase,
                           new_cfg->min_hop_rank_increase, new_cfg->rpl_default_lifetime);
-        ws_bbr_dhcp_address_lifetime_set(cur, new_cfg->dhcp_address_lifetime);
     }
 
     if (flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) {
