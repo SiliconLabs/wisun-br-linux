@@ -123,8 +123,6 @@ typedef void (dhcp_client_options_notify_cb)(int8_t interface, dhcp_option_notif
 
 int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], dhcp_client_global_adress_cb *error_cb);
 
-int dhcp_client_option_notification_cb_set(int8_t interface, dhcp_client_options_notify_cb *notify_cb);
-
 /* Renew all leased adddresses might be used when short address changes
  *
  * /param interface interface where address is got

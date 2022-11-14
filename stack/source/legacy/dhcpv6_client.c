@@ -484,14 +484,6 @@ int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t
     return 0;
 }
 
-
-
-void dhcp_client_global_address_renew(int8_t interface)
-{
-    (void)interface;
-    return;
-}
-
 void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uint8_t prefix[static 16])
 {
     protocol_interface_info_entry_t *cur;
