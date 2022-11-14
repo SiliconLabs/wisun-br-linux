@@ -155,7 +155,6 @@ add_library(libwsbrd STATIC
     stack/source/core/ns_socket.c
     stack/source/core/sockbuf.c
     stack/source/ipv6_stack/ipv6_routing_table.c
-    stack/source/ipv6_stack/protocol_ipv6.c
     stack/source/net_api/net_multicast.c
     stack/source/net_api/net_6lowpan_parameter.c
     stack/source/net_api/net_rpl.c
