@@ -765,13 +765,6 @@ uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_
     return ptr;
 }
 
-uint8_t *libdhcpv6_option_interface_id_write(uint8_t *ptr, int8_t interface_id)
-{
-    ptr = libdhcpv6_dhcp_option_header_write(ptr, DHCPV6_OPTION_INTERFACE_ID, 1);
-    *ptr++ = interface_id;
-    return ptr;
-}
-
 uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t option_type, uint16_t length)
 {
     ptr = common_write_16_bit(option_type, ptr);

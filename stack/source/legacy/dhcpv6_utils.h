@@ -335,9 +335,6 @@ uint8_t *libdhcpv6_rapid_commit_option_write(uint8_t *ptr);
  */
 uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_t *optionPtr);
 
-uint8_t *libdhcpv6_option_interface_id_write(uint8_t *ptr, int8_t interface_id);
-
-
 
 /**
  * This Function for Client / Server DUID write for specific link type

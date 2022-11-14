@@ -64,7 +64,6 @@ typedef struct relay_instance {
     int8_t interface_id;
     uint8_t server_address[16];
     bool    relay_activated;
-    bool    add_interface_id_option;
     ns_list_link_t link;
 } relay_instance_t;
 typedef NS_LIST_HEAD(relay_instance_t, link) relay_instance_list_t;
@@ -507,9 +506,6 @@ void recv_dhcp_relay_msg(void *cb_res)
         msg_iov[1].iov_len = msg_len;
 
         ptr = libdhcpv6_dhcp_relay_msg_write(ptr, DHCPV6_RELAY_FORWARD, 0, src_address.address, gp_address);
-        if (relay_srv->add_interface_id_option) {
-            ptr = libdhcpv6_option_interface_id_write(ptr, sckt_data->interface_id);
-        }
         ptr = libdhcpv6_dhcp_option_header_write(ptr, DHCPV6_OPTION_RELAY, msg_len);
         //Update length of relay vector
         msg_iov[0].iov_len = ptr - relay_frame;
@@ -669,8 +665,6 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
         relay_srv->instance_id = id;
         relay_srv->interface_id = interface_id;
         relay_srv->relay_activated = false;
-        relay_srv->add_interface_id_option = false;
-
     }
 
     ns_list_add_to_start(&dhcp_service->srv_list, srv_ptr);
@@ -687,14 +681,6 @@ void dhcp_service_relay_instance_enable(uint16_t instance, uint8_t *server_addre
     if (relay_srv) {
         relay_srv->relay_activated = true;
         memcpy(relay_srv->server_address, server_address, 16);
-    }
-}
-
-void dhcp_service_relay_interface_id_option_enable(uint16_t instance, bool enable)
-{
-    relay_instance_t *relay_srv = dhcp_service_relay_find(instance);
-    if (relay_srv) {
-        relay_srv->add_interface_id_option = enable;
     }
 }
 

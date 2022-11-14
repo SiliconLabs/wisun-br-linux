@@ -145,8 +145,6 @@ void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[sta
 
 void dhcp_relay_agent_disable(int8_t interface);
 
-void dhcp_relay_agent_interface_id_option_enable(int8_t interface, bool enable);
-
 int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16]);
 
 #else
