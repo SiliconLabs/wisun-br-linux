@@ -79,6 +79,7 @@ struct wsbrd_conf {
     int  ws_lgtk_new_install_required;
     int  ws_lgtk_max_mismatch;
     int  ws_lfn_revocation_lifetime_reduction;
+    int  ws_async_frag_duration;
     int  uc_dwell_interval;
     int  bc_dwell_interval;
     int  bc_interval;

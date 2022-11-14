@@ -76,6 +76,10 @@ static const struct number_limit valid_gtk_new_install_required = {
     0, 100
 };
 
+static const struct number_limit valid_async_frag_duration = {
+    500, UINT32_MAX
+};
+
 static const struct number_limit valid_unicast_dwell_interval = {
     15, 0xFF
 };
@@ -494,6 +498,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
         { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
+        { "async_frag_duration",           &config->ws_async_frag_duration,           conf_set_number,      &valid_async_frag_duration },
         { "lowpan_mtu",                    &config->lowpan_mtu,                       conf_set_number,      &valid_lowpan_mtu },
         { "pan_size",                      &config->pan_size,                         conf_set_number,      &valid_uint16 },
         { "pcap_file",                     config->pcap_file,                         conf_set_string,      (void *)sizeof(config->pcap_file) },
@@ -570,6 +575,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
+    config->ws_async_frag_duration = 500;
     config->pan_size = -1;
     strcpy(config->storage_prefix, "/var/lib/wsbrd/");
     memset(config->ws_allowed_channels, 0xFF, sizeof(config->ws_allowed_channels));

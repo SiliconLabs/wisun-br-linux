@@ -270,6 +270,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->config.ws_regional_regulation);
         WARN_ON(ret);
     }
+
+    if (!fw_api_older_than(ctxt, 0, 17, 0))
+        mac_helper_set_async_fragmentation(ctxt->rcp_if_id, ctxt->config.ws_async_frag_duration);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
