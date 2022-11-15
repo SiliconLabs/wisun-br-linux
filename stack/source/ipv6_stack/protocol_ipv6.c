@@ -39,8 +39,6 @@
 
 #include "ipv6_stack/protocol_ipv6.h"
 
-#ifdef HAVE_ETHERNET
-
 #define TRACE_GROUP "pIP6"
 
 typedef struct ipv6_interface_prefix_on_link {
@@ -1020,5 +1018,3 @@ int8_t ipv6_interface_accept_ra(int8_t interface_id, net_ipv6_accept_ra_e accept
 
     return 0;
 }
-
-#endif
