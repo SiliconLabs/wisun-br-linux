@@ -54,7 +54,6 @@
  * generate fragment headers. (Even if our only link has the minimum 1280-byte
  * MTU, we may still need to insert a fragment header).
  */
-#ifdef IP_FRAGMENT_TX
 buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
 {
     uint8_t *ip_ptr = buffer_data_pointer(dgram_buf);
@@ -166,4 +165,3 @@ failed:
     socket_tx_buffer_event_and_free(dgram_buf, SOCKET_NO_RAM);
     return NULL;
 }
-#endif /* IP_FRAGMENT_TX */

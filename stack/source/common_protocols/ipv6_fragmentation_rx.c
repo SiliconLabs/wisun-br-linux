@@ -53,8 +53,6 @@
  * This would violate RFC 2460 and RFC 6434 - all IPv6 nodes must be able to
  * process fragment headers and reassemble 1500-octet datagrams.
  */
-#ifdef IP_FRAGMENT_RX
-
 static uint16_t ipv6_frag_mru = IPV6_FRAG_MRU;
 
 typedef struct ip_fragmented_datagram {
@@ -615,4 +613,3 @@ fail:
     dgram_buf->info = (buffer_info_t)(B_DIR_UP | B_TO_IPV6_FWD | B_FROM_IPV6_FWD);
     return dgram_buf;
 }
-#endif /* IP_FRAGMENT_RX */
