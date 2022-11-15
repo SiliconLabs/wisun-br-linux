@@ -728,7 +728,7 @@ static int8_t ipv6_setsockopt(socket_t *socket_ptr, uint8_t opt_name, const void
             return 0;
         }
 #endif
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
         case SOCKET_IPV6_DONTFRAG: {
             if (opt_len != sizeof(int8_t)) {
                 return -3;
@@ -960,7 +960,7 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
             break;
         }
 #endif
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
         case SOCKET_IPV6_DONTFRAG: {
             const int8_t *p = &inet_pcb->dontfrag;
             *value = p;

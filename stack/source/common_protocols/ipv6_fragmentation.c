@@ -53,7 +53,7 @@
  * This would violate RFC 2460 and RFC 6434 - all IPv6 nodes must be able to
  * process fragment headers and reassemble 1500-octet datagrams.
  */
-#ifndef NO_IP_FRAGMENT_RX
+#ifdef IP_FRAGMENT_RX
 
 static uint16_t ipv6_frag_mru = IPV6_FRAG_MRU;
 
@@ -615,7 +615,7 @@ fail:
     dgram_buf->info = (buffer_info_t)(B_DIR_UP | B_TO_IPV6_FWD | B_FROM_IPV6_FWD);
     return dgram_buf;
 }
-#endif /* NO_IP_FRAGMENT_RX */
+#endif /* IP_FRAGMENT_RX */
 
 
 /*                         FRAGMENT CREATION
@@ -625,7 +625,7 @@ fail:
  * generate fragment headers. (Even if our only link has the minimum 1280-byte
  * MTU, we may still need to insert a fragment header).
  */
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
 buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
 {
     uint8_t *ip_ptr = buffer_data_pointer(dgram_buf);
@@ -737,4 +737,4 @@ failed:
     socket_tx_buffer_event_and_free(dgram_buf, SOCKET_NO_RAM);
     return NULL;
 }
-#endif /* NO_IP_FRAGMENT_TX */
+#endif /* IP_FRAGMENT_TX */

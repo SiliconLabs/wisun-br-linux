@@ -21,6 +21,9 @@
 #define HAVE_LEGACY_DHCP
 
 #define HAVE_IPV6_PMTUD
+#define IP_FRAGMENT_RX
+#define IP_FRAGMENT_TX
 #define HAVE_UDP
+
 
 #define EXTRA_CONSISTENCY_CHECKS

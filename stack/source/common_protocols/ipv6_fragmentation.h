@@ -17,7 +17,7 @@
 #ifndef IPV6_FRAGMENTATION_H_
 #define IPV6_FRAGMENTATION_H_
 
-#ifndef NO_IP_FRAGMENT_RX
+#ifdef IP_FRAGMENT_RX
 
 #include "common_protocols/ipv6_constants.h"
 #include "core/ns_buffer.h"
@@ -53,12 +53,12 @@ buffer_t *ipv6_frag_up(buffer_t *buf, const uint8_t *ptr, uint8_t *nh_ptr, uint1
 #else
 #define ipv6_set_frag_mru(frag_mru) 0
 #define ipv6_frag_timer(secs) ((void) 0)
-#endif /* NO_IP_FRAGMENT_RX */
+#endif
 
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
 buffer_t *ipv6_frag_down(buffer_t *dgram_buf);
 #else
 #define ipv6_frag_down(buf) buffer_free(buf)
-#endif /* NO_IP_FRAGMENT_TX */
+#endif
 
 #endif /* IPV6_FRAGMENTATION_H_ */

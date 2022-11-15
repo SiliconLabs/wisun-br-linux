@@ -174,7 +174,7 @@ typedef struct inet_pcb {
 #ifdef HAVE_IPV6_PMTUD
     int8_t      use_min_mtu;        /*!< RFC 3542 socket option */
 #endif
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
     int8_t      dontfrag;
 #endif
     uint8_t     tclass;

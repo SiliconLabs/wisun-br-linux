@@ -314,10 +314,10 @@ uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit)
     return frag_size - ip_size;
 }
 
-#ifdef NO_IP_FRAGMENT_TX
-#define ipv6_dontfrag(buf) true
-#else
+#ifdef IP_FRAGMENT_TX
 #define ipv6_dontfrag(buf) buf->options.ipv6_dontfrag
+#else
+#define ipv6_dontfrag(buf) true
 #endif
 #ifdef HAVE_IPV6_PMTUD
 #define ipv6_use_min_mtu(buf) buf->options.ipv6_use_min_mtu
@@ -1389,7 +1389,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buf = ipv6_handle_options(buf, cur, ptr, IPV6_NH_DEST_OPT, payload_length, &hdrlen, &ll_src, ptr - buffer_data_pointer(buf) < frag_offset);
                 nh_ptr = ptr;
                 break;
-#ifndef NO_IP_FRAGMENT_RX
+#ifdef IP_FRAGMENT_RX
             case IPV6_NH_FRAGMENT:
                 return ipv6_frag_up(buf, ptr, nh_ptr, payload_length);
 #endif

@@ -396,7 +396,7 @@ inet_pcb_t *socket_inet_pcb_allocate(void)
 #ifdef HAVE_IPV6_PMTUD
     inet_pcb->use_min_mtu = -1;
 #endif
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
     inet_pcb->dontfrag = 0;
 #endif
     inet_pcb->tclass = SOCKET_IPV6_TCLASS_DEFAULT;
@@ -1170,7 +1170,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
                         break;
                     }
 #endif
-#ifndef NO_IP_FRAGMENT_TX
+#ifdef IP_FRAGMENT_TX
                     case SOCKET_IPV6_DONTFRAG: {
                         if (cmsg->cmsg_len != NS_CMSG_LEN(sizeof(int8_t))) {
                             ret_val = -1;
