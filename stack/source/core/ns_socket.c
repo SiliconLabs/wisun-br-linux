@@ -1069,7 +1069,9 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
      * Set socket configured parameters
      */
     buf->options.traffic_class = inet_pcb->tclass;
+#ifdef HAVE_IPV6_PMTUD
     buf->options.ipv6_use_min_mtu = inet_pcb->use_min_mtu;
+#endif
 #ifdef HAVE_IPV6_FRAGMENT
     buf->options.ipv6_dontfrag = inet_pcb->dontfrag;
 #endif
