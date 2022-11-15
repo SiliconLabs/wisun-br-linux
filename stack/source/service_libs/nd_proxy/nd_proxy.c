@@ -25,8 +25,6 @@
 
 #define TRACE_GROUP "prox"
 
-#ifdef HAVE_ND_PROXY
-
 /**
  * Downstream Interface list
  */
@@ -471,5 +469,3 @@ bool nd_proxy_upstream_route_onlink(int8_t downstream_id, uint8_t *address)
     }
     return false;
 }
-#endif /* HAVE_ND_PROXY */
-
