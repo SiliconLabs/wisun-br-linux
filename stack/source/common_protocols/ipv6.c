@@ -1031,30 +1031,6 @@ void ipv6_transmit_multicast_on_interface(buffer_t *buf, protocol_interface_info
     protocol_push(buf);
 }
 
-#ifdef MULTICAST_FORWARDING
-static void ipv6_forward_multicast_onto_interface(buffer_t *buf, protocol_interface_info_entry_t *cur)
-{
-    if (!buf) {
-        return;
-    }
-
-    if (buf->ip_routed_up) {
-        buffer_data_pointer(buf)[IPV6_HDROFF_HOP_LIMIT] = --buf->options.hop_limit;
-    }
-    buf->ip_routed_up = true;
-    // Make sure we receive a copy if we are a member on this interface
-    buf->options.multicast_loop = true;
-    // Setting direction to DOWN indicates to special forwarding that hop limit is appropriate for outgoing interface
-    buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
-
-    if (cur->if_special_multicast_forwarding) {
-        cur->if_special_multicast_forwarding(cur, buf);
-    }
-
-    ipv6_transmit_multicast_on_interface(buf, cur);
-}
-#endif
-
 /* Traditional multicast forwarding - from one interface to other(s).
  * Used for example for ff05::1 across the border router. This is limited to
  * scop values 4 and up, as we assume realms don't cross interfaces.
@@ -1093,81 +1069,11 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protoc
         goto no_forward;
     }
 
-    if (cur->if_special_multicast_forwarding) {
-        cur->if_special_multicast_forwarding(cur, buf);
-    }
-
     /* MPL does its own thing - we do not perform any "native" forwarding */
     if (buf->options.ip_extflags & IPEXT_HBH_MPL) {
         goto no_forward;
     }
 
-#ifdef MULTICAST_FORWARDING
-    uint_fast8_t group_scope = addr_ipv6_multicast_scope(buf->dst_sa.address);
-    uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address, cur);
-
-    /* Look at reverse path - check our route to the source address */
-    ipv6_route_t *route = ipv6_route_choose_next_hop(buf->src_sa.address, cur->id, NULL);
-
-    /* Only forward if it came from the interface leading to the source address */
-    if (!route || route->info.interface_id != cur->id) {
-        goto no_forward;
-    }
-
-    /* Mess around to minimise copies - initially no interface needs a packet */
-    protocol_interface_info_entry_t *fwd_interface = NULL;
-    uint16_t ptb_mtu = 0xFFFF;
-
-    ns_list_foreach(protocol_interface_info_entry_t, interface, &protocol_interface_info_list) {
-        if (interface != cur &&
-                interface->ip_multicast_forwarding &&
-                interface->zone_index[group_scope] == cur->zone_index[group_scope] &&
-                interface->zone_index[src_scope] == cur->zone_index[src_scope] &&
-                (group_scope >= interface->ip_mcast_fwd_for_scope ||
-                 addr_multicast_fwd_check(interface, buf->dst_sa.address))) {
-
-            /* This interface seems to want a packet. Couple more checks first */
-            if (buffer_data_length(buf) > interface->ipv6_neighbour_cache.link_mtu) {
-                if (interface->ipv6_neighbour_cache.link_mtu < ptb_mtu) {
-                    ptb_mtu = interface->ipv6_neighbour_cache.link_mtu;
-                }
-                continue;
-            }
-            /* If we already have a previous interface to forward to, give them a clone now */
-            if (fwd_interface) {
-                ipv6_forward_multicast_onto_interface(buffer_clone(buf), fwd_interface);
-            }
-            /* And remember this interface */
-            fwd_interface = interface;
-        }
-    }
-
-    /* We may need to report "packet too big" */
-    if (ptb_mtu != 0xFFFF && cur->icmp_tokens) {
-        if (for_us || fwd_interface) {
-            /* Someone else still needs a packet - clone for the error */
-            buffer_t *clone = buffer_clone(buf);
-            if (clone) {
-                protocol_push(icmpv6_error(clone, cur, ICMPV6_TYPE_ERROR_PACKET_TOO_BIG, 0, ptb_mtu));
-            }
-        } else {
-            /* Noone else needs a packet - consume for the error */
-            protocol_push(icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PACKET_TOO_BIG, 0, ptb_mtu));
-            return NULL;
-        }
-    }
-
-    if (fwd_interface) {
-        /* We have 1 remaining interface to forward onto - clone or not depending on whether we need it */
-        if (for_us) {
-            ipv6_forward_multicast_onto_interface(buffer_clone(buf), fwd_interface);
-            return buf;
-        } else {
-            ipv6_forward_multicast_onto_interface(buf, fwd_interface);
-            return NULL;
-        }
-    }
-#endif
 no_forward:
     /* Base functionality - if it's for us, return it, else bin it */
     if (for_us) {

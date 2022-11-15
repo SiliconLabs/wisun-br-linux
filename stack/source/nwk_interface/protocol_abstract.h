@@ -35,8 +35,6 @@ typedef enum nwk_interface_id {
 
 typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
 
-extern protocol_interface_info_entry_t *protocol_core_multicast_upstream;
-
 extern int protocol_core_buffers_in_event_queue;
 
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_id(int8_t nwk_id);

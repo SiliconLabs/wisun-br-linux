@@ -203,115 +203,6 @@ void address_module_init(void)
     //mac_reset_short_address();
 }
 
-#ifdef MULTICAST_FORWARDING
-static if_group_fwd_entry_t *addr_multicast_fwd_list_lookup(if_group_fwd_list_t *list, const uint8_t group[16])
-{
-    ns_list_foreach(if_group_fwd_entry_t, e, list) {
-        if (addr_ipv6_equal(e->group, group)) {
-            return e;
-        }
-    }
-    return NULL;
-}
-
-bool addr_multicast_fwd_check(protocol_interface_info_entry_t *interface, const uint8_t group[16])
-{
-    return addr_multicast_fwd_list_lookup(&interface->ip_groups_fwd, group) != NULL;
-}
-
-static void addr_multicast_fwd_adjust_upstream(protocol_interface_info_entry_t *downstream, protocol_interface_info_entry_t *upstream, const uint8_t group[16], bool add)
-{
-    if (!upstream || downstream == upstream || !downstream->ip_multicast_forwarding) {
-        return;
-    }
-    uint8_t group_scope = addr_ipv6_multicast_scope(group);
-    if (downstream->zone_index[group_scope] == upstream->zone_index[group_scope]) {
-        tr_debug("Multicast proxy %s %s", add ? "add" : "remove", tr_ipv6(group));
-        if (add) {
-            addr_add_group(upstream, group);
-        } else {
-            addr_remove_group(upstream, group);
-        }
-    }
-}
-
-void addr_multicast_fwd_adjust_upstream_full(protocol_interface_info_entry_t *upstream, bool add)
-{
-    ns_list_foreach(protocol_interface_info_entry_t, interface, &protocol_interface_info_list) {
-        ns_list_foreach(if_group_fwd_entry_t, group, &interface->ip_groups_fwd) {
-            addr_multicast_fwd_adjust_upstream(interface, upstream, group->group, add);
-        }
-    }
-}
-
-void addr_multicast_fwd_set_forwarding(struct protocol_interface_info_entry *interface, bool enable)
-{
-    /* Do nothing if enable state isn't changing */
-    if (interface->ip_multicast_forwarding == enable) {
-        return;
-    }
-
-    /* If we disable forwarding on upstream, clear it out to avoid maintenance confusion */
-    if (!enable && interface == protocol_core_multicast_upstream) {
-        multicast_fwd_set_proxy_upstream(-1);
-    }
-
-    /* Adjust routine checks that forwarding is on before doing any processing. So make sure it's on
-     * now, then we'll set requested state afterwards. */
-    interface->ip_multicast_forwarding = true;
-
-    /* Add or remove all groups on changing downstream interface to upstream */
-    if (protocol_core_multicast_upstream) {
-        ns_list_foreach(if_group_fwd_entry_t, group, &interface->ip_groups_fwd) {
-            addr_multicast_fwd_adjust_upstream(interface, protocol_core_multicast_upstream, group->group, enable);
-        }
-    }
-
-    interface->ip_multicast_forwarding = enable;
-}
-
-bool addr_multicast_fwd_add(protocol_interface_info_entry_t *interface, const uint8_t group[16], uint32_t lifetime)
-{
-    if_group_fwd_entry_t *entry = addr_multicast_fwd_list_lookup(&interface->ip_groups_fwd, group);
-    if (entry) {
-        if (entry->lifetime < lifetime) {
-            entry->lifetime = lifetime;
-        }
-        return true;
-    }
-    entry = malloc(sizeof * entry);
-    if (!entry) {
-        return false;
-    }
-    memcpy(entry->group, group, 16);
-    ns_list_add_to_end(&interface->ip_groups_fwd, entry);
-    addr_multicast_fwd_adjust_upstream(interface, protocol_core_multicast_upstream, group, true);
-    entry->lifetime = lifetime;
-    tr_debug("MC fwd added to IF %d: %s", interface->id, tr_ipv6(group));
-    return true;
-}
-
-static void addr_multicast_fwd_delete_entry(protocol_interface_info_entry_t *interface, if_group_fwd_entry_t *entry)
-{
-    addr_multicast_fwd_adjust_upstream(interface, protocol_core_multicast_upstream, entry->group, false);
-    ns_list_remove(&interface->ip_groups_fwd, entry);
-    free(entry);
-}
-
-bool addr_multicast_fwd_remove(protocol_interface_info_entry_t *interface, const uint8_t group[16])
-{
-    if_group_fwd_entry_t *entry = addr_multicast_fwd_list_lookup(&interface->ip_groups_fwd, group);
-    if (!entry) {
-        return false;
-    }
-
-    tr_debug("MC fwd removed from IF %d: %s", interface->id, tr_ipv6(group));
-    addr_multicast_fwd_delete_entry(interface, entry);
-
-    return true;
-}
-#endif // MULTICAST_FORWARDING
-
 int_fast8_t addr_policy_table_add_entry(const uint8_t *prefix, uint8_t len, uint8_t precedence, uint8_t label)
 {
     addr_policy_table_entry_t *entry = malloc(sizeof(addr_policy_table_entry_t));
@@ -898,19 +789,6 @@ void addr_slow_timer(int seconds)
             }
         }
     }
-
-#ifdef MULTICAST_FORWARDING
-    ns_list_foreach_safe(if_group_fwd_entry_t, group, &cur->ip_groups_fwd) {
-        if (group->lifetime != 0xffffffff) {
-            if (group->lifetime > seconds) {
-                group->lifetime -= seconds;
-            } else {
-                tr_debug("MC fwd expired: %s", tr_ipv6(group->group));
-                addr_multicast_fwd_delete_entry(cur, group);
-            }
-        }
-    }
-#endif
 }
 
 void notify_user_if_ready()

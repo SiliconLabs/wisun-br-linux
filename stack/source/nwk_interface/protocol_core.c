@@ -74,8 +74,6 @@ static int8_t protocol_root_tasklet_ID = -1;
 
 int protocol_core_buffers_in_event_queue;
 
-protocol_interface_info_entry_t *protocol_core_multicast_upstream;
-
 typedef struct lowpan_core_timer_structures {
     uint8_t core_timer_ticks;
     bool core_timer_event;
@@ -238,11 +236,6 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
         ns_list_foreach_safe(if_address_entry_t, addr, &entry->ip_addresses) {
             addr_delete_entry(entry, addr);
         }
-#ifdef MULTICAST_FORWARDING
-        ns_list_foreach_safe(if_group_fwd_entry_t, group, &entry->ip_groups_fwd) {
-            addr_multicast_fwd_remove(entry, group->group);
-        }
-#endif
         /* This is done after address deletion, so RPL can act on them */
         rpl_control_remove_domain_from_interface(entry);
     }
@@ -336,10 +329,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_init(&entry->lowpan_contexts);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
-#ifdef MULTICAST_FORWARDING
-    ns_list_init(&entry->ip_groups_fwd);
-    entry->ip_mcast_fwd_for_scope = IPV6_SCOPE_SITE_LOCAL; // Default for backwards compatibility
-#endif
     ns_list_init(&entry->ipv6_neighbour_cache.list);
 }
 

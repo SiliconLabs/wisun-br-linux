@@ -58,11 +58,6 @@ struct protocol_interface_info_entry;
 struct if_address_entry;
 struct socket;
 
-typedef struct addr_multicast_fwd {
-    uint8_t group[16];
-    ns_list_link_t link;
-} addr_multicast_fwd_t;
-
 /** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
 ///@{
 #define SOCKET_IPV6_PREFER_SRC_TMP              0x00000001 /**< Prefer temporary address (RFC 4941); default. */
@@ -200,12 +195,6 @@ void addr_delete_group(struct protocol_interface_info_entry *interface, const ui
 void addr_delete_group_entry(struct protocol_interface_info_entry *interface, if_group_entry_t *entry);
 
 void addr_add_router_groups(struct protocol_interface_info_entry *interface);
-
-bool addr_multicast_fwd_add(struct protocol_interface_info_entry *interface, const uint8_t group[16], uint32_t lifetime);
-bool addr_multicast_fwd_remove(struct protocol_interface_info_entry *interface, const uint8_t group[16]);
-bool addr_multicast_fwd_check(struct protocol_interface_info_entry *interface, const uint8_t group[16]);
-void addr_multicast_fwd_adjust_upstream_full(struct protocol_interface_info_entry *upstream, bool add);
-void addr_multicast_fwd_set_forwarding(struct protocol_interface_info_entry *interface, bool enable);
 
 #define addr_is_ipv6_unspecified(addr) (memcmp(addr, ADDR_UNSPECIFIED, 16) == 0)
 #define addr_is_ipv6_loopback(addr) (memcmp(addr, ADDR_LOOPBACK, 16) == 0)
