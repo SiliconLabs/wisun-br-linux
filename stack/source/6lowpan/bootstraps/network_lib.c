@@ -37,8 +37,6 @@
 
 #define TRACE_GROUP "nw"
 
-#define MAC_MLME_SACN_PERIO_PARAM 5
-
 /**
  * \brief Check That Network Have IPv6 Address Ready.
  *

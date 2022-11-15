@@ -17,15 +17,31 @@
 
 #ifndef UDP_H_
 #define UDP_H_
+#include "common/log.h"
+
+typedef struct buffer buffer_t;
+
+#ifdef HAVE_UDP
 
 void udp_checksum_write(buffer_t *buf);
 buffer_t *udp_down(buffer_t *buf);
 buffer_t *udp_up(buffer_t *buf);
 
-/* The network stack has some inbuilt special behaviour for these known ports */
+#else
 
-#define UDP_PORT_ECHO              7        /* Echo Protocol - RFC 862 */
-#define UDP_PORT_PANA              716      /* Protocol for carrying Authentication for Network Access - RFC 5191 */
-#define UDP_PORT_MLE               19788    /* Mesh Link Establishment - draft */
+static inline buffer_t *udp_down(buffer_t *buf)
+{
+    WARN("6lbr shouldn't reach this point");
+    return NULL;
+}
+
+static inline buffer_t *udp_up(buffer_t *buf)
+{
+    WARN("6lbr shouldn't reach this point");
+    return NULL;
+}
+
+#endif
+
 
 #endif

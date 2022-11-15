@@ -19,6 +19,9 @@
 #define LEGACY_DHCPV6_SERVICE_H
 
 #ifdef HAVE_LEGACY_DHCP
+#ifndef HAVE_UDP
+#error "LEGACY_DHCP depends on UDP"
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdbool.h>

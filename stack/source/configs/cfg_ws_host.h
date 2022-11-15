@@ -19,4 +19,5 @@
 #define HAVE_PAE_SUPP
 #define HAVE_LEGACY_DHCP
 
+#define HAVE_UDP
 #define EXTRA_CONSISTENCY_CHECKS

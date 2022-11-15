@@ -57,11 +57,13 @@ int8_t socket_open(uint8_t protocol, uint16_t identifier, void (*passed_fptr)(vo
             type = SOCKET_TYPE_RAW;
             protocol = IPV6_NH_ICMPV6;
             break;
+#ifdef HAVE_UDP
         case SOCKET_UDP:
             family = SOCKET_FAMILY_IPV6;
             type = SOCKET_TYPE_DGRAM;
             protocol = IPV6_NH_UDP;
             break;
+#endif
         case SOCKET_RAW:
             if (identifier > 0xff) {
                 return -1;

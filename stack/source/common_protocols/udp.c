@@ -28,6 +28,12 @@
 
 #include "common_protocols/udp.h"
 
+/* The network stack has some inbuilt special behaviour for these known ports */
+
+#define UDP_PORT_ECHO              7        /* Echo Protocol - RFC 862 */
+#define UDP_PORT_PANA              716      /* Protocol for carrying Authentication for Network Access - RFC 5191 */
+#define UDP_PORT_MLE               19788    /* Mesh Link Establishment - draft */
+
 #define TRACE_GROUP "udp"
 
 static buffer_t *udp_rx_security_check(buffer_t *buf)
