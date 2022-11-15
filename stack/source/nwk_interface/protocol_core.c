@@ -30,7 +30,6 @@
 #include "stack/timers.h"
 
 #include "core/ns_socket.h"
-#include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

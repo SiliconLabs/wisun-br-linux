@@ -41,7 +41,6 @@
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
-#include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

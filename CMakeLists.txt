@@ -102,7 +102,6 @@ add_library(libwsbrd STATIC
     common/key_value_storage.c
     stack/source/timers.c
     stack/source/6lowpan/adaptation_interface.c
-    stack/source/6lowpan/bootstraps/network_lib.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c
@@ -295,7 +294,6 @@ if(COMPILE_SIMULATION_TOOLS)
         common/key_value_storage.c
         stack/source/timers.c
         stack/source/6lowpan/adaptation_interface.c
-        stack/source/6lowpan/bootstraps/network_lib.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan_interface.c

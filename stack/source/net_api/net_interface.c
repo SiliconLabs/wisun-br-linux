@@ -42,7 +42,6 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
-#include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/nd/nd_router_object.h"
@@ -765,7 +764,9 @@ int8_t net_init_core(void)
     // XXX application should call these!
     rpl_of0_init();
     rpl_mrhof_init();
-    network_library_init();
+    socket_init();
+    address_module_init();
+    protocol_init();
     addr_notification_register(net_automatic_loopback_route_update);
     return 0;
 }

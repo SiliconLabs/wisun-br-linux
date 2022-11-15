@@ -32,7 +32,6 @@
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "6lowpan/iphc_decode/cipv6.h"
-#include "6lowpan/bootstraps/network_lib.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/mac/mac_helper.h"
