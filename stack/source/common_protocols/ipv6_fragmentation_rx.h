@@ -17,7 +17,7 @@
 #ifndef IPV6_FRAGMENTATION_RX_H
 #define IPV6_FRAGMENTATION_RX_H
 
-#ifdef IP_FRAGMENT_RX
+#ifdef HAVE_IPV6_FRAGMENT
 
 #include "common_protocols/ipv6_constants.h"
 #include "core/ns_buffer.h"

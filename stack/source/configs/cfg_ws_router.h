@@ -21,8 +21,7 @@
 #define HAVE_LEGACY_DHCP
 
 #define HAVE_IPV6_PMTUD
-#define IP_FRAGMENT_RX
-#define IP_FRAGMENT_TX
+#define HAVE_IPV6_FRAGMENT
 #define HAVE_UDP
 
 

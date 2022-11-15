@@ -967,7 +967,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         entry->pmtu = 0xffff;
         entry->pmtu_lifetime = 0;
 #endif
-#ifdef IP_FRAGMENT_TX
+#ifdef HAVE_IPV6_FRAGMENT
         entry->fragment_id = rand_get_32bit();
 #endif
         if (interface_specific) {

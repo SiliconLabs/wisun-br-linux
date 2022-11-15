@@ -17,7 +17,7 @@
 #ifndef IPV6_FRAGMENTATION_TX_H
 #define IPV6_FRAGMENTATION_TX_H
 
-#ifdef IP_FRAGMENT_TX
+#ifdef HAVE_IPV6_FRAGMENT
 
 buffer_t *ipv6_frag_down(buffer_t *dgram_buf);
 
