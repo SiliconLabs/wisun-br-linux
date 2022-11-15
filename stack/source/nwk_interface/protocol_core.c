@@ -27,7 +27,6 @@
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mac_api.h"
-#include "stack/ethernet_mac_api.h"
 #include "stack/timers.h"
 
 #include "core/ns_socket.h"

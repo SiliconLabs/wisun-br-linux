@@ -156,7 +156,6 @@ add_library(libwsbrd STATIC
     stack/source/net_api/net_interface.c
     stack/source/net_api/net_ipv6.c
     stack/source/mac/rf_driver_storage.c
-    stack/source/mac/ethernet/ethernet_mac_api.c
     # Excluded stack/source/mac/ieee802154
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
@@ -360,7 +359,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/net_api/net_socket.c
         stack/source/net_api/net_ipv6.c
         stack/source/mac/rf_driver_storage.c
-        stack/source/mac/ethernet/ethernet_mac_api.c
         # Excluded stack/source/mac/ieee802154
         stack/source/mpl/mpl.c
         stack/source/nwk_interface/protocol_core.c
