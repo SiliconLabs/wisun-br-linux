@@ -141,14 +141,30 @@ bool nd_proxy_upstream_route_onlink(int8_t downstream_id, uint8_t *address);
 
 #else
 
-#define nd_proxy_downstream_interface_register(interface_id, nd_proxy_req, bridge_state_update) -1
-#define nd_proxy_downstream_interface_unregister(interface_id) (-1)
-#define nd_proxy_upstream_interface_register(interface_id, route_validation_req) (-1)
-#define nd_proxy_upstream_interface_unregister(interface_id) (-1)
-#define nd_proxy_enabled_for_downstream(interface_id) false
-#define nd_proxy_enabled_for_upstream(interface_id) false
-#define nd_proxy_target_address_validation(upstream_id, address) false
-#define nd_proxy_upstream_route_onlink(downstream_id, address) false
+static inline int nd_proxy_downstream_interface_register(int8_t interface_id, void *nd_proxy_req, void *bridge_state_update)
+{
+    return -1;
+}
+
+static inline int nd_proxy_downstream_interface_unregister(int8_t interface_id)
+{
+    return -1;
+}
+
+static inline bool nd_proxy_enabled_for_downstream(int8_t interface_id)
+{
+    return false;
+}
+
+static inline bool nd_proxy_enabled_for_upstream(int8_t interface_id)
+{
+    return false;
+}
+
+static inline bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address)
+{
+    return false;
+}
 
 #endif /* HAVE_ND_PROXY */
 

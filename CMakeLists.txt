@@ -205,7 +205,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/hmac/hmac_md.c
     stack/source/service_libs/ieee_802_11/ieee_802_11.c
     stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
-    stack/source/service_libs/nd_proxy/nd_proxy.c
     stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
