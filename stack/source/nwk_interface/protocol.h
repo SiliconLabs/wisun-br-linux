@@ -253,7 +253,6 @@ struct protocol_interface_info_entry {
     bool is_dhcp_relay_agent_enabled;
 
     uint16_t icmp_tokens; /* Token bucket for ICMP rate limiting */
-    uint16_t icmp_ra_tokens; /* Token bucket for RA receive rate limiting */
     uint8_t iid_eui64[8]; // IID based on EUI-64 - used for link-local address
     uint8_t iid_slaac[8]; // IID to use for SLAAC addresses - may or may not be same as iid_eui64
     uint16_t max_link_mtu;

@@ -1186,35 +1186,6 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
     return uptodate;
 }
 
-/* This processes the 6CO for the interface itself - separate from the ABRO
- * multihop relay storage.
- *
- *  0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |     Type      |     Length    |Context Length | Res |C|  CID  |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |            Reserved           |         Valid Lifetime        |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * .                                                               .
- * .                       Context Prefix                          .
- * .                                                               .
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *
- */
-void nd_ra_process_lowpan_context_option(protocol_interface_info_entry_t *cur, const uint8_t *opt)
-{
-    uint8_t opt_len = opt[1];
-    uint8_t ctx_len = opt[2];
-    uint8_t cid_flags = opt[3];
-    uint16_t lifetime = common_read_16_bit(opt + 6);
-
-    if (ctx_len > 128 || ctx_len > (opt_len - 1) * 64) {
-        return;
-    }
-
-    lowpan_context_update(&cur->lowpan_contexts, cid_flags, lifetime, opt + 8, ctx_len, true);
-}
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface)
 {
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {

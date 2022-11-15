@@ -156,16 +156,6 @@ void nwk_bootstrap_timer(int ticks)
         net_bootstrap_cb_run(cur->id);
 }
 
-void icmp_slow_timer(int seconds)
-{
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
-
-    cur->icmp_ra_tokens += seconds;
-    if (cur->icmp_ra_tokens > 3) {
-        cur->icmp_ra_tokens = 3;
-    }
-}
-
 void icmp_fast_timer(int ticks)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
@@ -203,7 +193,6 @@ void protocol_core_init(void)
     timer_start(TIMER_IPV6_FRAG);
     timer_start(TIMER_CIPV6_FRAG);
     timer_start(TIMER_ICMP_FAST);
-    timer_start(TIMER_ICMP_SLOW);
     timer_start(TIMER_6LOWPAN_MLD_FAST);
     timer_start(TIMER_6LOWPAN_MLD_SLOW);
     timer_start(TIMER_6LOWPAN_ADDR_FAST);

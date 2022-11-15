@@ -42,7 +42,6 @@ static struct {
     timer_entry(IPV6_FRAG,              ipv6_frag_timer,                            1000,                                         true),
     timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                                         true),
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                                          true),
-    timer_entry(ICMP_SLOW,              icmp_slow_timer,                            1000,                                         true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                                          true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                                         true),
     timer_entry(DHCPV6_SOCKET,          dhcp_service_timer_cb,                      100,                                          false),

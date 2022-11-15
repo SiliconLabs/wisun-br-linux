@@ -54,7 +54,6 @@ int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cu
 
 void protocol_6lowpan_allocate_mac16(struct protocol_interface_info_entry *cur);
 
-int8_t protocol_6lowpan_interface_compare_cordinator_netid(struct protocol_interface_info_entry *cur, uint8_t *adr_ptr);
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct protocol_interface_info_entry *cur, struct ns_sockaddr *adr_ptr);
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void);

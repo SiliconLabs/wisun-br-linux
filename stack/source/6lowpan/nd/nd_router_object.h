@@ -76,23 +76,6 @@ bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uin
 void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 nd_router_t *nd_get_pana_address(void);
-/* This processes the 6CO for the interface itself - separate from the ABRO
- * multihop relay storage.
- *
- *  0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |     Type      |     Length    |Context Length | Res |C|  CID  |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |            Reserved           |         Valid Lifetime        |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * .                                                               .
- * .                       Context Prefix                          .
- * .                                                               .
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *
- */
-void nd_ra_process_lowpan_context_option(struct protocol_interface_info_entry *cur, const uint8_t *opt);
 
 /** ND Routing Part */
 uint8_t nd_prefix_dst_check(uint8_t *ptr);

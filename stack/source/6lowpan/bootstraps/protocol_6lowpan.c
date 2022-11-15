@@ -497,29 +497,6 @@ void protocol_6lowpan_interface_common_init(protocol_interface_info_entry_t *cur
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 }
 
-int8_t protocol_6lowpan_interface_compare_cordinator_netid(protocol_interface_info_entry_t *cur, uint8_t *adr_ptr)
-{
-    int8_t ret_val = -1;
-
-    if (cur) {
-        addrtype_e addrType;
-        uint8_t tempAddress[8];
-        addrType = mac_helper_coordinator_address_get(cur, tempAddress);
-
-        if (addrType == ADDR_802_15_4_LONG) {
-            tempAddress[0] ^= 2;
-            if (memcmp(adr_ptr, tempAddress, 8) == 0) {
-                ret_val = 0;
-            }
-        } else if (addrType == ADDR_802_15_4_SHORT) {
-            if (adr_ptr[6] == tempAddress[0] && adr_ptr[7] == tempAddress[1]) {
-                ret_val = 0;
-            }
-        }
-    }
-    return ret_val;
-}
-
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, sockaddr_t *adr_ptr)
 {
     common_write_16_bit(cur->mac_parameters.pan_id, adr_ptr->address + 0);
