@@ -482,7 +482,6 @@ socket_t *socket_dereference(socket_t *socket_ptr)
     return NULL;
 }
 
-
 /**
  * Allocate a socket
  *

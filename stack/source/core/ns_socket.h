@@ -14,19 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- * \file socket.h
- * \brief Socket API definitions.
- *
- *  Socket API functions and relevant structures.
- *
- *
- */
-
-
 #ifndef _NS_SOCKET_H
 #define _NS_SOCKET_H
+
+#ifdef HAVE_SOCKET_API
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -241,4 +233,63 @@ struct protocol_interface_info_entry *socket_interface_determine(const socket_t 
 
 uint16_t socket_generate_random_port(uint8_t protocol);
 
-#endif /*_NS_SOCKET_H*/
+#else /* HAVE_SOCKET_API */
+
+#include "common/log.h"
+#include "core/ns_buffer.h"
+#include "core/ns_error_types.h"
+
+typedef struct socket socket_t;
+
+// FIXME: this enum is referenced, but the purpose is not clear
+typedef enum socket_family {
+    SOCKET_FAMILY_NONE,
+    SOCKET_FAMILY_IPV6,
+} socket_family_e;
+
+static inline void socket_init(void)
+{
+}
+
+static inline socket_error_e socket_up(buffer_t *buf)
+{
+    WARN();
+    return 0;
+}
+
+static inline void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status)
+{
+    WARN();
+}
+
+static inline void socket_list_print(route_print_fn_t *print_fn, char sep)
+{
+    WARN();
+}
+
+static inline buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
+{
+    WARN();
+    return buf;
+}
+
+static inline socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards)
+{
+    WARN();
+    return NULL;
+}
+
+static inline socket_t *socket_reference(socket_t *socket)
+{
+    WARN();
+    return NULL;
+}
+static inline socket_t *socket_dereference(socket_t *socket)
+{
+    WARN();
+    return NULL;
+}
+
+#endif /* HAVE_SOCKET_API */
+
+#endif

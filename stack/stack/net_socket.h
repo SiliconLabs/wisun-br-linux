@@ -16,6 +16,9 @@
  */
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
+
+#ifdef HAVE_SOCKET_API
+
 #include <stdint.h>
 #include <sys/socket.h>
 #include "stack/ns_address.h"
@@ -671,14 +674,6 @@ int8_t socket_getsockname(int8_t socket, ns_address_t *address);
  */
 int8_t socket_getpeername(int8_t socket, ns_address_t *address);
 
-/** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
-///@{
-#define SOCKET_IPV6_PREFER_SRC_TMP              0x00000001 /**< Prefer temporary address (RFC 4941); default. */
-#define SOCKET_IPV6_PREFER_SRC_PUBLIC           0x00010000 /**< Prefer public address (RFC 4941). */
-#define SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT    0x00000100 /**< Prefer 6LoWPAN short address. */
-#define SOCKET_IPV6_PREFER_SRC_6LOWPAN_LONG     0x01000000 /**< Prefer 6LoWPAN long address. */
-///@}
-
 /** \name Options for SOCKET_IPV6_ADDRESS_SELECT. */
 ///@{
 #define SOCKET_SRC_ADDRESS_MODE_PRIMARY     0 /**< Default value always. */
@@ -844,4 +839,10 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
  */
 int8_t socket_getsockopt(int8_t socket, uint8_t level, uint8_t opt_name, void *opt_value, uint16_t *opt_len);
 
-#endif /*_NS_SOCKET_H*/
+#else /* HAVE_SOCKET_API */
+
+/* Empty */
+
+#endif /* HAVE_SOCKET_API */
+
+#endif

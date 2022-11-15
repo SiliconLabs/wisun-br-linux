@@ -63,6 +63,14 @@ typedef struct addr_multicast_fwd {
     ns_list_link_t link;
 } addr_multicast_fwd_t;
 
+/** \name Flags for SOCKET_IPV6_ADDR_PREFERENCES - opposites 16 bits apart. */
+///@{
+#define SOCKET_IPV6_PREFER_SRC_TMP              0x00000001 /**< Prefer temporary address (RFC 4941); default. */
+#define SOCKET_IPV6_PREFER_SRC_PUBLIC           0x00010000 /**< Prefer public address (RFC 4941). */
+#define SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT    0x00000100 /**< Prefer 6LoWPAN short address. */
+#define SOCKET_IPV6_PREFER_SRC_6LOWPAN_LONG     0x01000000 /**< Prefer 6LoWPAN long address. */
+///@}
+
 typedef enum if_address_source {
     ADDR_SOURCE_UNKNOWN,
     ADDR_SOURCE_SLAAC,

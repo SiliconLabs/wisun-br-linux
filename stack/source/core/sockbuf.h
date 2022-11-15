@@ -14,9 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef SOCKBUF_H_
 #define SOCKBUF_H_
+
+#ifdef HAVE_SOCKET_API
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -42,5 +44,11 @@ void sockbuf_flush(sockbuf_t *sb);
 bool sockbuf_reserve(sockbuf_t *sb, uint32_t space);
 int32_t sockbuf_space(const sockbuf_t *sb);
 void sockbuf_check(sockbuf_t *sb);
+
+#else /* HAVE_SOCKET_API */
+
+/* Empty */
+
+#endif /* HAVE_SOCKET_API */
 
 #endif

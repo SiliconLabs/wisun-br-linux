@@ -27,6 +27,7 @@
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
+#include "stack/ns_address.h"
 #include "stack/net_socket.h"
 
 #include "nwk_interface/protocol.h"
