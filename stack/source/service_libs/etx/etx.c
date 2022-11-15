@@ -29,9 +29,6 @@
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 
-//TODO: Refactor this away!
-#include "mac/rf_driver_storage.h"
-
 #define TRACE_GROUP "etx"
 
 typedef struct ext_neigh_info {

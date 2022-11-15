@@ -33,6 +33,7 @@
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/channel_list.h"
+#include "stack/mac/mlme.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
 

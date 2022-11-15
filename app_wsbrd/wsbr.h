@@ -28,7 +28,6 @@ typedef struct sd_bus sd_bus;
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/net_interface.h"
-#include "stack/source/mac/rf_driver_storage.h"
 
 #include "commandline.h"
 
