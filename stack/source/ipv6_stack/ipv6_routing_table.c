@@ -1779,15 +1779,6 @@ void ipv6_route_table_ttl_update(int seconds)
     }
 }
 
-void ipv6_route_table_set_max_entries(int8_t interface_id, ipv6_route_src_t source, uint8_t max_entries)
-{
-    ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);
-
-    if (ncache) {
-        ncache->route_if_info.sources[source] = max_entries;
-    }
-}
-
 static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source)
 {
     ipv6_neighbour_cache_t *ncache = ipv6_neighbour_cache_by_interface_id(interface_id);

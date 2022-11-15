@@ -61,7 +61,6 @@ static NS_LIST_DEFINE(addr_policy_table, addr_policy_table_entry_t, link);
 uint32_t addr_preferences_default = SOCKET_IPV6_PREFER_SRC_TMP | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
 
 static void addr_policy_table_reset(void);
-static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_e source);
 
 const uint8_t ADDR_LINK_LOCAL_PREFIX[8]         = { 0xfe, 0x80 };
 const uint8_t ADDR_SHORT_ADR_SUFFIC[6]          = { 0x00, 0x00, 0x00, 0xff, 0xfe, 0x00};
@@ -914,36 +913,6 @@ void addr_slow_timer(int seconds)
 #endif
 }
 
-static void addr_max_entries_check(protocol_interface_info_entry_t *cur, if_address_source_e source)
-{
-    // Limit only auto configuration addresses
-    if (source != ADDR_SOURCE_SLAAC || cur->ip_addresses_max_slaac_entries == 0) {
-        return;
-    }
-
-    uint8_t count = 0;
-    if_address_entry_t *first_slaac_entry = NULL;
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_SLAAC) {
-            if (!first_slaac_entry) {
-                first_slaac_entry = e;
-            }
-            if (++count == 0xff) {
-                break;
-            }
-        }
-    }
-
-    if (count > cur->ip_addresses_max_slaac_entries) {
-        addr_delete_entry(cur, first_slaac_entry);
-    }
-}
-
-void addr_max_slaac_entries_set(protocol_interface_info_entry_t *cur, uint8_t max_slaac_entries)
-{
-    cur->ip_addresses_max_slaac_entries = max_slaac_entries;
-}
-
 void notify_user_if_ready()
 {
     bool had_global_address;
@@ -965,8 +934,6 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
     if (addr_get_entry(cur, address)) {
         return NULL;
     }
-
-    addr_max_entries_check(cur, source);
 
     if_address_entry_t *entry = malloc(sizeof(if_address_entry_t));
     if (!entry) {

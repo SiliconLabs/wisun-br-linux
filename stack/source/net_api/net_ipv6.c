@@ -69,8 +69,3 @@ int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable)
     cur->opaque_slaac_iids = enable;
     return 0;
 }
-
-int8_t arm_nwk_ipv6_default_route_enable(int8_t interface_id, bool enable)
-{
-    return -1;
-}

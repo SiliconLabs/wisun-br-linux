@@ -131,18 +131,4 @@ int8_t arm_nwk_ipv6_opaque_iid_key(const void *secret_key, uint8_t key_len);
  */
 int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable);
 
-/**
- * \brief Enable/disable default route in Router advertisements
- *
- * Enable or disable RFC 4861 Default router configuration in router advertisements.
- * This makes the device a default router in the interface.
- *
- * \param interface_id Interface ID.
- * \param enable True to enable.
- * \return 0 enabled/disabled OK.
- * \return <0 failed (for example invalid interface ID).
- *
- */
-int8_t arm_nwk_ipv6_default_route_enable(int8_t interface_id, bool enable);
-
 #endif /* NET_IPV6_API_H_ */

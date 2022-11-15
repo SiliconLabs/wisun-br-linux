@@ -494,16 +494,6 @@ int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, const uin
     return ipv6_route_delete(prefix, prefix_len, interface_id, next_hop, ROUTE_USER);
 }
 
-int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface_name_ptr)
-{
-    return -2;
-}
-
-int8_t arm_nwk_interface_ppp_init(struct eth_mac_api *api, const char *interface_name_ptr)
-{
-    return -2;
-}
-
 int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
 {
     if (!api) {
@@ -651,16 +641,6 @@ int8_t arm_network_certificate_revocation_list_add(const arm_cert_revocation_lis
 int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_list_entry_s *crl)
 {
     return ws_pae_controller_certificate_revocation_list_remove(crl);
-}
-
-int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)
-{
-    return -1;
-}
-
-int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra)
-{
-    return -1;
 }
 
 int8_t arm_6lowpan_bootstrap_set_for_selected_interface(int8_t interface_id)

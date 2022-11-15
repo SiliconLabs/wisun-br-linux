@@ -314,7 +314,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     entry->ip_multicast_as_mac_unicast_to_parent = false;
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;
-    entry->send_na = false; /* Default to on for now... */
     entry->ip_forwarding = true; /* Default to on for now... */
     entry->ip_multicast_forwarding = true; /* Default to on for now... */
     entry->recv_ra_routes = true;
@@ -335,7 +334,6 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_link_init(entry, link);
     entry->if_stack_buffer_handler = NULL;
     entry->interface_name = 0;
-    entry->ip_addresses_max_slaac_entries = 0;
     ns_list_init(&entry->lowpan_contexts);
     ns_list_init(&entry->ip_addresses);
     ns_list_init(&entry->ip_groups);
@@ -419,29 +417,12 @@ static void protocol_6lowpan_mac_set(protocol_interface_info_entry_t *cur, const
     mac_helper_mac64_set(cur, mac);
 }
 
-protocol_interface_info_entry_t *protocol_core_interface_ethernet_entry_get(eth_mac_api_t *api)
-{
-    return NULL;
-}
-
-static void protocol_ethernet_mac_set(protocol_interface_info_entry_t *cur, const uint8_t *mac)
-{
-}
-
 static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_entry_t *cur, const uint8_t *mac)
 {
-    if (cur->nwk_id == IF_6LoWPAN) {
-        protocol_6lowpan_mac_set(cur, mac);
-    } else {
-        protocol_ethernet_mac_set(cur, mac);
-    }
+    BUG_ON(cur->nwk_id != IF_6LoWPAN);
+    protocol_6lowpan_mac_set(cur, mac);
     //By default use this EUI-64-based IID for SLAAC
     memcpy(cur->iid_slaac, cur->iid_eui64, 8);
-}
-
-protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void)
-{
-    return NULL;
 }
 
 void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn)
@@ -553,80 +534,6 @@ static int8_t net_interface_get_free_id(void)
     }
 
     return -1;
-}
-
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(eth_mac_api_t *api)
-{
-    if (!api) {
-        return NULL;
-    }
-
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->eth_mac_api == api) {
-            return cur;
-        }
-    }
-
-    protocol_interface_info_entry_t *new_entry = protocol_core_interface_ethernet_entry_get(api);
-
-    if (!new_entry) {
-        return NULL;
-    }
-
-    ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
-    addr_max_slaac_entries_set(new_entry, 16);
-    uint8_t mac[6];
-    int8_t error = api->mac48_get(api, mac);
-    if (error) {
-        tr_error("mac_ext_mac64_address_get failed: %d", error);
-        return NULL;
-    }
-
-    protocol_stack_interface_iid_eui64_generate(new_entry, mac);
-    ns_list_add_to_start(&protocol_interface_info_list, new_entry);
-
-    (void) ipv6_route_table_set_max_entries(new_entry->id, ROUTE_RADV, 16);
-
-    return new_entry;
-}
-
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(eth_mac_api_t *api)
-{
-    if (!api) {
-        return NULL;
-    }
-
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->eth_mac_api == api) {
-            return cur;
-        }
-    }
-
-    protocol_interface_info_entry_t *new_entry = protocol_core_interface_ethernet_entry_get(api);
-
-    if (!new_entry) {
-        return NULL;
-    }
-
-    ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
-    addr_max_slaac_entries_set(new_entry, 16);
-    uint8_t iid64[8];
-    int8_t error = api->iid64_get(api, iid64);
-    if (error) {
-        tr_error("iid64_get failed: %d", error);
-        return NULL;
-    }
-    memcpy(new_entry->iid_slaac, iid64, 8);
-    memcpy(new_entry->iid_eui64, iid64, 8);
-    new_entry->send_mld = false;                 // No mld for PPP
-    new_entry->dup_addr_detect_transmits = 0;    // No duplicate detection for PPP
-    new_entry->send_na = false;                  // No neighbor advertisements for PPP
-
-    ns_list_add_to_start(&protocol_interface_info_list, new_entry);
-
-    (void) ipv6_route_table_set_max_entries(new_entry->id, ROUTE_RADV, 16);
-
-    return new_entry;
 }
 
 protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_api_t *api)

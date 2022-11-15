@@ -232,7 +232,6 @@ struct protocol_interface_info_entry {
     uint16_t bootstrap_state_machine_cnt;
     icmp_state_e nwk_bootstrap_state;
     if_address_list_t ip_addresses;
-    uint8_t ip_addresses_max_slaac_entries;
     if_group_list_t ip_groups;
 #ifdef MULTICAST_FORWARDING /* Conventional (non-MPL) forwarding */
     if_group_fwd_list_t ip_groups_fwd;
@@ -272,7 +271,6 @@ struct protocol_interface_info_entry {
     bool recv_ra_prefixes: 1;
     bool send_mld: 1;
     bool mpl_seed: 1;
-    bool send_na : 1;
     /* RFC 4861 Router Variables */
     bool ip_forwarding : 1;
     bool ip_multicast_forwarding : 1;
@@ -310,7 +308,6 @@ struct protocol_interface_info_entry {
 
     struct eth_mac_api *eth_mac_api;
 
-    struct arm_device_driver_list *dev_driver;
     int8_t (*if_down)(struct protocol_interface_info_entry *cur);
     int8_t (*if_up)(struct protocol_interface_info_entry *cur, const uint8_t * ipv6_address);
     void (*if_stack_buffer_handler)(buffer_t *);
@@ -332,7 +329,6 @@ typedef NS_LIST_HEAD(protocol_interface_info_entry_t, link) protocol_interface_l
 
 extern protocol_interface_list_t protocol_interface_info_list;
 
-protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void);
 void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn);
 void nwk_interface_flush_neigh_cache(void);
 
@@ -346,8 +342,6 @@ uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
 
 protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
 bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ethernet(struct eth_mac_api *api);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_ppp(struct eth_mac_api *api);
 protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api *api);
 uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);

@@ -168,7 +168,6 @@ int_fast8_t addr_deprecate(struct protocol_interface_info_entry *cur, const uint
 void addr_delete_matching(struct protocol_interface_info_entry *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct protocol_interface_info_entry *cur, if_address_entry_t *addr);
 void addr_set_non_preferred(struct protocol_interface_info_entry *cur, if_address_source_e source);
-void addr_max_slaac_entries_set(struct protocol_interface_info_entry *cur, uint8_t max_slaac_entries);
 
 void addr_notification_register(if_address_notification_fn fn);
 void addr_cb(struct protocol_interface_info_entry *interface, if_address_entry_t *addr, if_address_callback_e reason);

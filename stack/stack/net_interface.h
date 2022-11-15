@@ -275,20 +275,6 @@ int8_t net_init_core(void);
 
 /**
  * \brief Create network interface base to IDLE state.
- * \param api Generates interface with ethernet MAC.
- * \param interface_name_ptr String pointer to interface name. Need to end to '\0' character.
- *        Max length 32 characters including NULL at end. Note: the given name is not copied,
- *        so it must remain valid as long as the interface is.
- *
- * \return >=0 Interface ID (0-127). Application needs to save this information.
- * \return -1 api was NULL.
- * \return -2 Ethernet is not supported at this build.
- * \return -3 No memory for the interface.
- */
-int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api *api, const char *interface_name_ptr);
-
-/**
- * \brief Create network interface base to IDLE state.
  * \param api Generates interface with 802.15.4 MAC.
  * \param interface_name_ptr String pointer to interface name. Need to end to '\0' character.
  *        Max length 32 characters including NULL at end. Note: the given name is not copied,
@@ -299,46 +285,6 @@ int8_t arm_nwk_interface_ethernet_init(struct eth_mac_api *api, const char *inte
  * \return -3 No memory for the interface.
  */
 int8_t arm_nwk_interface_lowpan_init(struct mac_api *api, char *interface_name_ptr);
-
-/**
- * \brief Create network interface base to IDLE state.
- * \param api Generates interface with PPP.
- * \param interface_name_ptr String pointer to interface name. Need to end to '\0' character.
- *        Max length 32 characters including NULL at end. Note: the given name is not copied,
- *        so it must remain valid as long as the interface is.
- *
- * \return >=0 Interface ID (0-127). Application needs to save this information.
- * \return -1 api was NULL.
- * \return -2 PPP is not supported at this build.
- * \return -3 No memory for the interface.
- */
-int8_t arm_nwk_interface_ppp_init(struct eth_mac_api *api, const char *interface_name_ptr);
-
-/**
- * \brief Set IPv6 interface setup.
- *
- * \param interface_id Network interface ID.
- * \param bootstrap_mode Selected bootstrap mode:
- *      * NET_IPV6_BOOTSTRAP_STATIC, Application defines the IPv6 prefix.
- * \param ipv6_prefix_pointer Pointer to 64 bit IPv6 prefix. The data is copied, so it can be invalidated after function call.
- *
- * \return >=0 Bootstrap mode set OK.
- * \return -1 Unknown network ID.
- */
-int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer);
-
-/**
- * \brief Accept Router Advertisements setting.
- *
- * Accept Router Advertisements setting. Setting can be changed after an interface is created.
- * If setting is changed it must be done before the bootstrap is started.
- *
- * \param interface_id The network interface ID.
- * \param accept_ra Router Advertisements handling mode.
- * \return 0 Setting done.
- * \return <0 Failed (for example an invalid interface ID).
- */
-int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra);
 
 /**
  * \brief Set network interface bootstrap setup.
