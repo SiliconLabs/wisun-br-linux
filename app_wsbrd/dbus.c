@@ -198,49 +198,6 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
-
-static int dbus_root_certificate_add(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
-{
-    arm_certificate_entry_s cert = { };
-    const char *content;
-    int ret;
-
-    ret = sd_bus_message_read(m, "s", &content);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-    cert.cert = (uint8_t *)strdup(content);
-    /* mbedtls expects a \0 at the end of PEM certificate (but not on end of DER
-     * certificates). Since this API use a string as input the argument cannot
-     * be in DER format. So, add '\0' unconditionally.
-     */
-    cert.cert_len = strlen(content) + 1;
-    ret = arm_network_trusted_certificate_add(&cert);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
-static int dbus_root_certificate_remove(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
-{
-    arm_certificate_entry_s cert = { };
-    int ret;
-
-    ret = sd_bus_message_read(m, "s", &cert.cert);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, -ret);
-    /* See comment in dbus_root_certificate_add() */
-    cert.cert_len = strlen((char *)cert.cert) + 1;
-    // FIXME: I think that the removed cert is not freed
-    ret = arm_network_trusted_certificate_remove(&cert);
-    if (ret < 0)
-        return sd_bus_error_set_errno(ret_error, EINVAL);
-
-    sd_bus_reply_method_return(m, NULL);
-    return 0;
-}
-
 static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
@@ -494,10 +451,6 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_set_mode_switch, 0),
         SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
                       dbus_set_slot_algorithm, 0),
-        SD_BUS_METHOD("AddRootCertificate", "s", NULL,
-                      dbus_root_certificate_add, 0),
-        SD_BUS_METHOD("RemoveRootCertificate", "s", NULL,
-                      dbus_root_certificate_remove, 0),
         SD_BUS_METHOD("RevokeNode", "ay", NULL,
                       dbus_revoke_node, 0),
         SD_BUS_METHOD("RevokeApply", NULL, NULL,
