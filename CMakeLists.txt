@@ -304,6 +304,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/named_values.c
         common/parsers.c
         common/pcapng.c
+        common/iobuf.c
         common/spinel_buffer.c
         common/trickle.c
         common/ws_regdb.c

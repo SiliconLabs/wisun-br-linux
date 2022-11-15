@@ -6,6 +6,7 @@
 
 #include "stack-services/common_functions.h"
 #include "common/log.h"
+#include "common/iobuf.h"
 #include "common/pcapng.h"
 #include "common/string_extra.h"
 #include "wsbr.h"
@@ -106,7 +107,7 @@ static const struct {
 
 static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt);
 
-static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct pcapng_buf *buf)
+static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct iobuf_write *buf)
 {
     int ret;
 
@@ -119,7 +120,7 @@ static void wsbr_pcapng_write(struct wsbr_ctxt *ctxt, const struct pcapng_buf *b
         wsbr_pcapng_write_start(ctxt);
     }
 
-    ret = write(ctxt->pcapng_fd, buf->buf, buf->cnt);
+    ret = write(ctxt->pcapng_fd, buf->data, buf->len);
     if (ret >= 0)
         return;
     if (ctxt->pcapng_type != S_IFIFO)
@@ -146,13 +147,12 @@ static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt)
         .link_type = LINKTYPE_IEEE802_15_4_NOFCS,
         .snap_len = 0, // no packet size restriction
     };
-    struct pcapng_buf *buf = ALLOC_STACK_PCAPNG_BUF(
-        PCAPNG_SHB_SIZE_MIN + PCAPNG_IDB_SIZE_MIN
-    );
+    struct iobuf_write buf = { 0 };
 
-    pcapng_write_shb(buf, &shb);
-    pcapng_write_idb(buf, &idb);
-    wsbr_pcapng_write(ctxt, buf);
+    pcapng_write_shb(&buf, &shb);
+    pcapng_write_idb(&buf, &idb);
+    wsbr_pcapng_write(ctxt, &buf);
+    iobuf_free(&buf);
 }
 
 void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
@@ -252,7 +252,7 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
 void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
 {
     uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
-    struct pcapng_buf *buf;
+    struct iobuf_write buf = { 0 };
     struct pcapng_epb epb = {
         .if_id = 0, // only one interface is used
         // ind->timestamp is in µs
@@ -263,7 +263,7 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_
     epb.pkt_len    = wsbr_mac_rebuild(frame, ind, ie);
     epb.pkt_len_og = epb.pkt_len;
     epb.pkt        = frame;
-    buf = ALLOC_STACK_PCAPNG_BUF(PCAPNG_EPB_SIZE_MIN + epb.pkt_len + 3);
-    pcapng_write_epb(buf, &epb);
-    wsbr_pcapng_write(ctxt, buf);
+    pcapng_write_epb(&buf, &epb);
+    wsbr_pcapng_write(ctxt, &buf);
+    iobuf_free(&buf);
 }

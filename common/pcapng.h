@@ -45,18 +45,7 @@
     4   /* Block Total Length     */ \
 )
 
-struct pcapng_buf {
-    int cnt;
-    int len;
-    uint8_t buf[];
-};
-
-#define ALLOC_STACK_PCAPNG_BUF(size) ({                     \
-    struct pcapng_buf *_tmp = alloca(size + sizeof(*_tmp)); \
-    _tmp->cnt = 0;                                          \
-    _tmp->len = size;                                       \
-    _tmp;                                                   \
-})
+struct iobuf_write;
 
 struct pcapng_shb {
     uint16_t version_maj;
@@ -80,8 +69,8 @@ struct pcapng_epb {
     // options not supported
 };
 
-void pcapng_write_shb(struct pcapng_buf *buf, const struct pcapng_shb *shb);
-void pcapng_write_idb(struct pcapng_buf *buf, const struct pcapng_idb *idb);
-void pcapng_write_epb(struct pcapng_buf *buf, const struct pcapng_epb *epb);
+void pcapng_write_shb(struct iobuf_write *buf, const struct pcapng_shb *shb);
+void pcapng_write_idb(struct iobuf_write *buf, const struct pcapng_idb *idb);
+void pcapng_write_epb(struct iobuf_write *buf, const struct pcapng_epb *epb);
 
 #endif
