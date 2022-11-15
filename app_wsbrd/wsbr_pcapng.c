@@ -255,9 +255,7 @@ void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_
     struct iobuf_write buf = { 0 };
     struct pcapng_epb epb = {
         .if_id = 0, // only one interface is used
-        // ind->timestamp is in µs
-        .timestamp.tv_sec  =  ind->timestamp / 1000000,
-        .timestamp.tv_nsec = (ind->timestamp % 1000000) * 1000,
+        .timestamp = ind->timestamp, // ind->timestamp is in us
     };
 
     epb.pkt_len    = wsbr_mac_rebuild(frame, ind, ie);

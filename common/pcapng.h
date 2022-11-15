@@ -62,7 +62,7 @@ struct pcapng_idb {
 
 struct pcapng_epb {
     uint32_t if_id;
-    struct timespec timestamp; // only ns resolution supported
+    uint64_t timestamp; // only us resolution supported (default)
     uint32_t pkt_len;
     uint32_t pkt_len_og;
     const uint8_t *pkt;

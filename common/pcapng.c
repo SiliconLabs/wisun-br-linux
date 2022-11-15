@@ -46,8 +46,8 @@ void pcapng_write_epb(struct iobuf_write *buf, const struct pcapng_epb *epb)
     iobuf_push_le32(buf, PCAPNG_BLOCK_TYPE_EPB);
     iobuf_push_le32(buf, len);
     iobuf_push_le32(buf, epb->if_id);
-    iobuf_push_le32(buf, epb->timestamp.tv_sec);
-    iobuf_push_le32(buf, epb->timestamp.tv_nsec);
+    iobuf_push_le32(buf, epb->timestamp >> 32);
+    iobuf_push_le32(buf, epb->timestamp & 0xffffffff);
     iobuf_push_le32(buf, epb->pkt_len);
     iobuf_push_le32(buf, epb->pkt_len_og);
     iobuf_push_data(buf, epb->pkt, epb->pkt_len);
