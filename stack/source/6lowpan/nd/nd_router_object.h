@@ -38,7 +38,7 @@ extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 struct aro;
 
-#ifdef HAVE_6LOWPAN_BORDER_ROUTER
+#ifdef HAVE_WS_BORDER_ROUTER
 int8_t icmp_nd_router_prefix_proxy_update(uint8_t *dptr, nd_router_setup_t *nd_router_object);
 int8_t nd_set_br(nd_router_t *br);
 #else

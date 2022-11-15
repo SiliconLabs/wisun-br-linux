@@ -1197,7 +1197,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
             buf = mpl_control_handler(buf, cur);
             break;
 
-#ifdef HAVE_6LOWPAN_BORDER_ROUTER
+#ifdef HAVE_WS_BORDER_ROUTER
         case ICMPV6_TYPE_INFO_DAR:
 
             if (cur->nwk_id == IF_6LoWPAN) {

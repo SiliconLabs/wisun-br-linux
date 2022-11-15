@@ -83,7 +83,7 @@ nd_parameters_s nd_params = {
     .ns_forward_timeout = 300,
 };
 
-#ifdef HAVE_6LOWPAN_BORDER_ROUTER
+#ifdef HAVE_WS_BORDER_ROUTER
 int8_t nd_set_br(nd_router_t *br)
 {
     if (ns_list_is_empty(&nd_router_list)) {
@@ -221,7 +221,7 @@ void icmp_nd_router_object_reset(nd_router_t *router_object)
         router_object->secondaty_hop = 0;
     }
 }
-#ifdef HAVE_6LOWPAN_BORDER_ROUTER
+#ifdef HAVE_WS_BORDER_ROUTER
 int8_t icmp_nd_router_prefix_proxy_update(uint8_t *dptr, nd_router_setup_t *nd_router_object)
 {
     prefix_entry_t *new_entry = 0;
@@ -748,7 +748,7 @@ static bool nd_dar_dac_valid(buffer_t *buf)
 
 buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface)
 {
-#if defined WHITEBOARD && defined HAVE_6LOWPAN_BORDER_ROUTER
+#if defined WHITEBOARD && defined HAVE_WS_BORDER_ROUTER
     uint8_t *dptr = buffer_data_pointer(buf);
     buffer_t *retbuf;
     uint8_t status;

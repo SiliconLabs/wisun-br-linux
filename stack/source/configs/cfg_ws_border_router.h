@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 #define HAVE_WS_BORDER_ROUTER
-#define HAVE_6LOWPAN_BORDER_ROUTER
 
 #define HAVE_PAE_AUTH
 #define HAVE_EAPOL_RELAY
