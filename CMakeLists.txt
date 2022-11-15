@@ -151,14 +151,11 @@ add_library(libwsbrd STATIC
     stack/source/common_protocols/ipv6_resolution.c
     stack/source/core/ns_address_internal.c
     stack/source/core/ns_buffer.c
-    stack/source/core/ns_socket.c
-    stack/source/core/sockbuf.c
     stack/source/ipv6_stack/ipv6_routing_table.c
     stack/source/net_api/net_multicast.c
     stack/source/net_api/net_6lowpan_parameter.c
     stack/source/net_api/net_rpl.c
     stack/source/net_api/net_interface.c
-    stack/source/net_api/net_socket.c
     stack/source/net_api/net_ipv6.c
     stack/source/mac/rf_driver_storage.c
     stack/source/mac/ethernet/ethernet_mac_api.c
