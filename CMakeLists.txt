@@ -358,7 +358,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/core/ns_socket.c
         stack/source/core/sockbuf.c
         stack/source/ipv6_stack/ipv6_routing_table.c
-        stack/source/ipv6_stack/protocol_ipv6.c
         stack/source/legacy/dhcpv6_client.c
         stack/source/legacy/dhcpv6_service.c
         stack/source/legacy/dhcpv6_utils.c
