@@ -146,7 +146,8 @@ add_library(libwsbrd STATIC
     stack/source/common_protocols/icmpv6_radv.c
     stack/source/common_protocols/ipv6.c
     stack/source/common_protocols/ipv6_flow.c
-    stack/source/common_protocols/ipv6_fragmentation.c
+    stack/source/common_protocols/ipv6_fragmentation_rx.c
+    stack/source/common_protocols/ipv6_fragmentation_tx.c
     stack/source/common_protocols/ipv6_resolution.c
     stack/source/common_protocols/mld.c
     stack/source/common_protocols/udp.c
@@ -349,7 +350,8 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/common_protocols/icmpv6_radv.c
         stack/source/common_protocols/ipv6.c
         stack/source/common_protocols/ipv6_flow.c
-        stack/source/common_protocols/ipv6_fragmentation.c
+        stack/source/common_protocols/ipv6_fragmentation_tx.c
+        stack/source/common_protocols/ipv6_fragmentation_rx.c
         stack/source/common_protocols/ipv6_resolution.c
         stack/source/common_protocols/mld.c
         stack/source/common_protocols/udp.c

@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IPV6_FRAGMENTATION_H_
-#define IPV6_FRAGMENTATION_H_
+#ifndef IPV6_FRAGMENTATION_RX_H
+#define IPV6_FRAGMENTATION_RX_H
 
 #ifdef IP_FRAGMENT_RX
 
@@ -50,15 +50,12 @@ uint16_t ipv6_frag_set_mru(uint16_t frag_mru);
 
 void ipv6_frag_timer(int secs);
 buffer_t *ipv6_frag_up(buffer_t *buf, const uint8_t *ptr, uint8_t *nh_ptr, uint16_t payload_length);
+
 #else
+
 #define ipv6_set_frag_mru(frag_mru) 0
 #define ipv6_frag_timer(secs) ((void) 0)
+
 #endif
 
-#ifdef IP_FRAGMENT_TX
-buffer_t *ipv6_frag_down(buffer_t *dgram_buf);
-#else
-#define ipv6_frag_down(buf) buffer_free(buf)
 #endif
-
-#endif /* IPV6_FRAGMENTATION_H_ */

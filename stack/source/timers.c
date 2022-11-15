@@ -7,7 +7,7 @@
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
 #include "stack/source/common_protocols/mld.h"
-#include "stack/source/common_protocols/ipv6_fragmentation.h"
+#include "stack/source/common_protocols/ipv6_fragmentation_rx.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl_control.h"
