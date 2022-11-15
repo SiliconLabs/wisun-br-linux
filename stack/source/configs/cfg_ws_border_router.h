@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define HAVE_EAPOL_RELAY
+#define HAVE_WS_BORDER_ROUTER
+#define HAVE_6LOWPAN_BORDER_ROUTER
 
+#define HAVE_PAE_AUTH
+#define HAVE_EAPOL_RELAY
 #define HAVE_RPL_ROOT
 #define HAVE_RPL_DAO_HANDLING
-#define HAVE_6LOWPAN_BORDER_ROUTER
 #define HAVE_ND_PROXY
 #define MULTICAST_FORWARDING
-#define HAVE_PAE_AUTH
-
-#define HAVE_WS_BORDER_ROUTER
-
 #define HAVE_ETHERNET
+
 #define EXTRA_CONSISTENCY_CHECKS

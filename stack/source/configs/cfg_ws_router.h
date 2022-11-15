@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define HAVE_EAPOL_RELAY
 #define HAVE_WS_ROUTER
 
 #define HAVE_PAE_SUPP
+#define HAVE_EAPOL_RELAY
 #define HAVE_LEGACY_DHCP
 
 #define EXTRA_CONSISTENCY_CHECKS
