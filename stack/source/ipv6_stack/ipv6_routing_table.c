@@ -881,7 +881,7 @@ void ipv6_destination_cache_print(route_print_fn_t *print_fn)
         if (entry->redirected) {
             print_fn("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
         }
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         print_fn("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
 #endif
     }
@@ -963,7 +963,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         entry->refcount = 1;
         entry->redirected = false;
         entry->last_neighbour = NULL;
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         entry->pmtu = 0xffff;
         entry->pmtu_lifetime = 0;
 #endif
@@ -1105,7 +1105,7 @@ static void ipv6_destination_cache_gc_periodic(void)
             entry->lifetime--;
         }
         gc_count++;
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         /* Purge old PMTU values */
         if (entry->pmtu_lifetime) {
             if (entry->pmtu_lifetime <= DCACHE_GC_PERIOD) {

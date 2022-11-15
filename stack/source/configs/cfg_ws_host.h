@@ -19,5 +19,7 @@
 #define HAVE_PAE_SUPP
 #define HAVE_LEGACY_DHCP
 
+#define HAVE_IPV6_PMTUD
 #define HAVE_UDP
+
 #define EXTRA_CONSISTENCY_CHECKS

@@ -171,7 +171,7 @@ typedef struct inet_pcb {
     uint32_t    addr_preferences;
     uint8_t     protocol;           /*!< IP type IPV6_NH_TCP, IPV6_NH_UDP, IPV6_NH_ICMPV6... */
     int8_t      link_layer_security;
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
     int8_t      use_min_mtu;        /*!< RFC 3542 socket option */
 #endif
 #ifndef NO_IP_FRAGMENT_TX

@@ -197,7 +197,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         route->route_info.source = ROUTE_MPL;
     }
 
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
     /* Update PMTU with first-hop link MTU (for initialisation, and may need to
      * reduce an existing entry if route has changed) */
     if (dest_entry->pmtu > outgoing_if->ipv6_neighbour_cache.link_mtu) {
@@ -319,10 +319,10 @@ uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit)
 #else
 #define ipv6_dontfrag(buf) buf->options.ipv6_dontfrag
 #endif
-#ifdef NO_IPV6_PMTUD
-#define ipv6_use_min_mtu(buf) 1
-#else
+#ifdef HAVE_IPV6_PMTUD
 #define ipv6_use_min_mtu(buf) buf->options.ipv6_use_min_mtu
+#else
+#define ipv6_use_min_mtu(buf) 1
 #endif
 
 /* Return the IPV6 MTU to use for a buffer to a specified final destination.

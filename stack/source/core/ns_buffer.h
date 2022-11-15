@@ -129,7 +129,7 @@ typedef struct buffer_options {
 #ifndef NO_IP_FRAGMENT_TX
     bool    ipv6_dontfrag: 1;           /*!< Don't IPv6 fragment (RFC 3542) */
 #endif
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
     signed  ipv6_use_min_mtu: 2;        /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */
 #endif
     uint8_t traffic_class;              /*!< Traffic class */

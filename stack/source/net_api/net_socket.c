@@ -712,7 +712,7 @@ static int8_t ipv6_setsockopt(socket_t *socket_ptr, uint8_t opt_name, const void
 
             return 0;
         }
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         case SOCKET_IPV6_USE_MIN_MTU: {
             if (opt_len != sizeof(int8_t)) {
                 return -3;
@@ -952,7 +952,7 @@ static int8_t ipv6_getsockopt(const socket_t *socket_ptr, uint8_t opt_name, cons
             *len = sizeof * p;
             break;
         }
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         case SOCKET_IPV6_USE_MIN_MTU: {
             const int8_t *p = &inet_pcb->use_min_mtu;
             *value = p;

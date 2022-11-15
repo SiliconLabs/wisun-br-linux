@@ -393,7 +393,7 @@ inet_pcb_t *socket_inet_pcb_allocate(void)
     inet_pcb->edfe_mode = false;
 
     inet_pcb->link_layer_security = -1;
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
     inet_pcb->use_min_mtu = -1;
 #endif
 #ifndef NO_IP_FRAGMENT_TX
@@ -1155,7 +1155,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
                         }
                         break;
                     }
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
                     case SOCKET_IPV6_USE_MIN_MTU: {
                         if (cmsg->cmsg_len != NS_CMSG_LEN(sizeof(int8_t))) {
                             ret_val = -1;

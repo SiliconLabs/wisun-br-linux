@@ -201,7 +201,7 @@ buffer_t *icmpv6_error(buffer_t *buf, protocol_interface_info_entry_t *cur, uint
     return (buf);
 }
 
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
 /* Look at a (potentially-partial) packet that should be a copy of
  * something we sent from an ICMP error. Identify final destination if we can.
  */
@@ -1183,7 +1183,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
             buf = mld_query_handler(buf, cur);
             break;
 
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         case ICMPV6_TYPE_ERROR_PACKET_TOO_BIG:
             buf = icmpv6_packet_too_big_handler(buf);
             break;

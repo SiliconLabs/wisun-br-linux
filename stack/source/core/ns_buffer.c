@@ -116,7 +116,7 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
         buf->options.hop_limit = 255;
         buf->options.mpl_permitted = true;
         buf->link_specific.ieee802_15_4.useDefaultPanId = true;
-#ifndef NO_IPV6_PMTUD
+#ifdef HAVE_IPV6_PMTUD
         buf->options.ipv6_use_min_mtu = -1;
 #endif
         buf->size = total_size;
