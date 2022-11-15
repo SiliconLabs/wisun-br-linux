@@ -52,9 +52,16 @@ void ipv6_frag_timer(int secs);
 buffer_t *ipv6_frag_up(buffer_t *buf, const uint8_t *ptr, uint8_t *nh_ptr, uint16_t payload_length);
 
 #else
+#include <stdint.h>
 
-#define ipv6_set_frag_mru(frag_mru) 0
-#define ipv6_frag_timer(secs) ((void) 0)
+static inline uint16_t ipv6_frag_set_mru(uint16_t frag_mru)
+{
+    return 0;
+}
+
+static inline void ipv6_frag_timer(int secs)
+{
+}
 
 #endif
 

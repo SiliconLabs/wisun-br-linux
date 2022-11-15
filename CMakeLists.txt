@@ -146,8 +146,6 @@ add_library(libwsbrd STATIC
     stack/source/common_protocols/icmpv6_radv.c
     stack/source/common_protocols/ipv6.c
     stack/source/common_protocols/ipv6_flow.c
-    stack/source/common_protocols/ipv6_fragmentation_rx.c
-    stack/source/common_protocols/ipv6_fragmentation_tx.c
     stack/source/common_protocols/ipv6_resolution.c
     stack/source/core/ns_address_internal.c
     stack/source/core/ns_buffer.c

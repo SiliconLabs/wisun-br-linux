@@ -1070,7 +1070,9 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
      */
     buf->options.traffic_class = inet_pcb->tclass;
     buf->options.ipv6_use_min_mtu = inet_pcb->use_min_mtu;
+#ifdef HAVE_IPV6_FRAGMENT
     buf->options.ipv6_dontfrag = inet_pcb->dontfrag;
+#endif
     buf->options.multicast_loop = inet_pcb->multicast_loop;
     buf->options.edfe_mode = inet_pcb->edfe_mode;
 
