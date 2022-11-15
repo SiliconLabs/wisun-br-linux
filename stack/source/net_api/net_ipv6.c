@@ -25,7 +25,6 @@
 #include "common_protocols/ipv6_flow.h"
 #include "common_protocols/ipv6_fragmentation_rx.h"
 #include "nwk_interface/protocol.h"
-#include "ipv6_stack/protocol_ipv6.h"
 
 #define TRACE_GROUP "nip6"
 
@@ -73,17 +72,5 @@ int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable)
 
 int8_t arm_nwk_ipv6_default_route_enable(int8_t interface_id, bool enable)
 {
-#ifdef HAVE_ETHERNET
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    ipv6_stack_route_advert_default_route(cur, enable);
-    return 0;
-#else
-    (void)interface_id;
-    (void)enable;
     return -1;
-#endif
 }

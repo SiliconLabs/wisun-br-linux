@@ -50,7 +50,6 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-#include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 
@@ -497,48 +496,12 @@ int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, const uin
 
 int8_t arm_nwk_interface_ethernet_init(eth_mac_api_t *api, const char *interface_name_ptr)
 {
-#ifdef HAVE_ETHERNET
-    if (!api) {
-        return -1;
-    }
-
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_generate_ethernet(api);
-    if (!cur) {
-        return -3;
-    }
-
-    cur->if_up = ipv6_interface_up;
-    cur->if_down = ipv6_interface_down;
-    cur->interface_name = interface_name_ptr;
-    return cur->id;
-#else
-    (void)api;
-    (void)interface_name_ptr;
     return -2;
-#endif
 }
 
 int8_t arm_nwk_interface_ppp_init(struct eth_mac_api *api, const char *interface_name_ptr)
 {
-#ifdef HAVE_ETHERNET
-    if (!api) {
-        return -1;
-    }
-
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_generate_ppp(api);
-    if (!cur) {
-        return -3;
-    }
-
-    cur->if_up = ipv6_interface_up;
-    cur->if_down = ipv6_interface_down;
-    cur->interface_name = interface_name_ptr;
-    return cur->id;
-#else
-    (void)api;
-    (void)interface_name_ptr;
     return -2;
-#endif
 }
 
 int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
@@ -692,21 +655,12 @@ int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_
 
 int8_t arm_nwk_interface_configure_ipv6_bootstrap_set(int8_t interface_id, net_ipv6_mode_e bootstrap_mode, const uint8_t *ipv6_prefix_pointer)
 {
-#ifndef HAVE_ETHERNET
-    (void)interface_id;
-    (void)bootstrap_mode;
-    (void)ipv6_prefix_pointer;
-#endif
-    return ipv6_interface_configure_ipv6_bootstrap_set(interface_id, bootstrap_mode, ipv6_prefix_pointer);
+    return -1;
 }
 
 int8_t arm_nwk_interface_accept_ipv6_ra(int8_t interface_id, net_ipv6_accept_ra_e accept_ra)
 {
-#ifndef HAVE_ETHERNET
-    (void)interface_id;
-    (void)accept_ra;
-#endif
-    return ipv6_interface_accept_ra(interface_id, accept_ra);
+    return -1;
 }
 
 int8_t arm_6lowpan_bootstrap_set_for_selected_interface(int8_t interface_id)

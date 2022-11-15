@@ -45,7 +45,6 @@
 #include "common_protocols/udp.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
-#include "ipv6_stack/protocol_ipv6.h"
 
 #include "nwk_interface/protocol_stats.h"
 
@@ -420,66 +419,14 @@ static void protocol_6lowpan_mac_set(protocol_interface_info_entry_t *cur, const
     mac_helper_mac64_set(cur, mac);
 }
 
-#ifdef HAVE_ETHERNET
-static bool protocol_ipv6_setup_allocate(protocol_interface_info_entry_t *entry)
-{
-    entry->lowpan_info = INTERFACE_NWK_ROUTER_DEVICE;
-    memset(&entry->ipv6_configure, 0, sizeof(ipv6_interface_info_t));
-    entry->ipv6_configure.temporaryUlaAddressState = false;
-    return true;
-}
-
-static protocol_interface_info_entry_t *protocol_core_interface_ethernet_entry_get(eth_mac_api_t *api)
-{
-    protocol_interface_info_entry_t *entry = protocol_interface_class_allocate(IF_IPV6);
-    if (!entry) {
-        return NULL;
-    }
-    if (!protocol_ipv6_setup_allocate(entry)) {
-        entry = NULL;
-    } else {
-        entry->eth_mac_api = api;
-        ipv6_interface_phy_sap_register(entry);
-        protocol_core_base_finish_init(entry);
-    }
-
-    return entry;
-}
-
-static void protocol_ethernet_mac_set(protocol_interface_info_entry_t *cur, const uint8_t *mac)
-{
-    if (!cur || !cur->eth_mac_api) {
-        return;
-    }
-
-    memcpy(cur->mac, mac, 6);
-    cur->mac[6] = 0;
-    cur->mac[7] = 0;
-    cur->iid_eui64[0] = mac[0] ^ 2;
-    cur->iid_eui64[1] = mac[1];
-    cur->iid_eui64[2] = mac[2];
-    cur->iid_eui64[3] = 0xff;
-    cur->iid_eui64[4] = 0xfe;
-    cur->iid_eui64[5] = mac[3];
-    cur->iid_eui64[6] = mac[4];
-    cur->iid_eui64[7] = mac[5];
-
-    cur->eth_mac_api->mac48_set(cur->eth_mac_api, cur->mac);
-}
-
-#else
 protocol_interface_info_entry_t *protocol_core_interface_ethernet_entry_get(eth_mac_api_t *api)
 {
-    (void)api;
     return NULL;
 }
 
 static void protocol_ethernet_mac_set(protocol_interface_info_entry_t *cur, const uint8_t *mac)
 {
-    (void)cur;
-    (void)mac;
 }
-#endif
 
 static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_entry_t *cur, const uint8_t *mac)
 {
@@ -494,14 +441,6 @@ static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_
 
 protocol_interface_info_entry_t *nwk_interface_get_ipv6_ptr(void)
 {
-#ifdef HAVE_ETHERNET
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
-        if (cur->nwk_id == IF_IPV6) {
-            return cur;
-        }
-    }
-#endif
-
     return NULL;
 }
 
@@ -817,12 +756,6 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
             case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST:
             case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER:
-#ifdef HAVE_ETHERNET
-                cur->ipv6_configure.IPv6_ND_state = IPV6_READY;
-                if (cur->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
-                    addr_add_router_groups(cur);
-                }
-#endif
                 break;
 
             default:
@@ -859,13 +792,9 @@ void net_bootstrap_cb_run(uint8_t event)
 
 void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix)
 {
-    ipv6_stack_route_advert_remove(guaPrefix, 64);
     //Delete Address & Routes
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (e->source == ADDR_SOURCE_DHCP && (e->prefix_len == 64) && !bitcmp(e->address, guaPrefix, 64)) {
-
-            ipv6_stack_route_advert_remove(e->address, 128);
-
             ns_list_remove(&cur->ip_addresses, e);
             free(e);
             tr_debug("Delete DHCPv6 Allocated Address");

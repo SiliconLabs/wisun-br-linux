@@ -31,7 +31,6 @@
 #include "rpl/rpl_protocol.h"
 #include "mpl/mpl.h"
 #include "core/ns_socket.h"
-#include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/nd/nd_router_object.h"
@@ -798,10 +797,7 @@ static buffer_t *icmpv6_ra_handler(buffer_t *buf)
 
             //Check if A-Flag
             if (prefix_flags & PIO_A) {
-                if (icmpv6_slaac_prefix_update(cur, prefix_ptr, prefix_length, valid_lifetime, preferred_lifetime) != 0) {
-                    ipv6_interface_slaac_handler(cur, prefix_ptr, prefix_length, valid_lifetime, preferred_lifetime);
-                }
-
+                icmpv6_slaac_prefix_update(cur, prefix_ptr, prefix_length, valid_lifetime, preferred_lifetime);
                 //tr_debug("Prefix: %s", tr_ipv6(prefix_ptr));
             }
 

@@ -41,7 +41,6 @@
 
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
-#include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_protocol.h"

@@ -49,7 +49,6 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
-#include "ipv6_stack/protocol_ipv6.h"
 
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_upward.h"

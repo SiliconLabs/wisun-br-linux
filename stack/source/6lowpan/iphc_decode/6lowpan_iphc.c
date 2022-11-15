@@ -25,7 +25,6 @@
 #include "common_protocols/ipv6_resolution.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "ipv6_stack/protocol_ipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 

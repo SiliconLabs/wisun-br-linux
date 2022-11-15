@@ -40,7 +40,6 @@
 #include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
-#include "ipv6_stack/protocol_ipv6.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_protocol.h"
@@ -2204,7 +2203,6 @@ static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t
 
         if (parent_link_local) {
             if (icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, prefix->lifetime, prefix->preftime) != 0) {
-                ipv6_interface_slaac_handler(cur, prefix->prefix, prefix->prefix_len, prefix->lifetime, prefix->preftime);
                 /*
                  * Give SLAAC addresses a different label and low precedence to indicate that
                  * they probably shouldn't be used for external traffic. SLAAC use in Wi-SUN is non-standard,
