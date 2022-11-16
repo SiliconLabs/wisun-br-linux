@@ -359,7 +359,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
-    int rcp_if_id = *(int *)userdata;
+    struct wsbr_ctxt *ctxt = userdata;
     bbr_route_info_t table[4096];
     uint8_t ipv6[3][16] = { 0 };
     uint8_t eui64_pae[4096][8];
@@ -367,11 +367,11 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     int len_pae, len_rpl, ret;
     uint8_t *parent;
 
-    len_pae = ws_pae_auth_supp_list(rcp_if_id, eui64_pae, sizeof(eui64_pae));
-    ret = ws_bbr_info_get(rcp_if_id, &br_info);
+    len_pae = ws_pae_auth_supp_list(ctxt->rcp_if_id, eui64_pae, sizeof(eui64_pae));
+    ret = ws_bbr_info_get(ctxt->rcp_if_id, &br_info);
     if (ret)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    len_rpl = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
+    len_rpl = ws_bbr_routing_table_get(ctxt->rcp_if_id, table, ARRAY_SIZE(table));
     if (len_rpl < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
     // Convert IPv6 IID into EUI64 (only works with specific DHCPv6 configurations)
@@ -382,9 +382,9 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
 
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    tun_addr_get_link_local(g_ctxt.config.tun_dev, ipv6[0]);
-    tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6[1]);
-    ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6, true);
+    tun_addr_get_link_local(ctxt->config.tun_dev, ipv6[0]);
+    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6[1]);
+    sd_bus_message_append_node(reply, property, ctxt->hw_mac, NULL, ipv6, true);
 
     for (int i = 0; i < len_pae; i++) {
         memcpy(ipv6[0] + 0, ADDR_LINK_LOCAL_PREFIX, 8);
@@ -496,8 +496,7 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_PROPERTY("Gaks", "aay", dbus_get_gaks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
-        SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes,
-                        offsetof(struct wsbr_ctxt, rcp_if_id),
+        SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes, 0,
                         SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
                         offsetof(struct wsbr_ctxt, hw_mac),
