@@ -44,7 +44,6 @@ volatile unsigned int buffer_count = 0;
 
 uint8_t *buffer_corrupt_check(buffer_t *buf)
 {
-#ifdef EXTRA_CONSISTENCY_CHECKS
     if (buf == NULL) {
         return NULL;
     }
@@ -52,9 +51,8 @@ uint8_t *buffer_corrupt_check(buffer_t *buf)
     if (buf->buf_ptr > buf->buf_end || buf->buf_end > buf->size) {
         tr_error("Invalid buffer, size=%"PRIu16", buf_ptr=%"PRIu16", buf_end=%"PRIu16"", buf->size, buf->buf_ptr, buf->buf_end);
         tr_error("Data: %s", trace_array(buffer_data_pointer(buf), 56));
-        while (1);
+        BUG();
     }
-#endif
 
     return buffer_data_pointer(buf);
 }

@@ -882,7 +882,6 @@ void rpl_dodag_set_version_number_as_root(rpl_dodag_t *dodag, uint8_t number)
     rpl_dodag_version_t *version = dodag->instance->current_dodag_version;
     version->number = number;
     rpl_dodag_inconsistency(dodag);
-#ifdef EXTRA_CONSISTENCY_CHECKS
     /* Sanity check that the above assertion is true - as root we shouldn't have
      * any neighbours referring to this version.
      */
@@ -892,7 +891,6 @@ void rpl_dodag_set_version_number_as_root(rpl_dodag_t *dodag, uint8_t number)
             break;
         }
     }
-#endif
     protocol_stats_update(STATS_RPL_GLOBAL_REPAIR, 1);
 }
 
