@@ -54,7 +54,7 @@ typedef struct eapol_relay {
 static eapol_relay_t *ws_eapol_relay_get(protocol_interface_info_entry_t *interface_ptr);
 static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
-#ifndef HAVE_WS_BORDER_ROUTER
+#ifdef HAVE_SOCKET_API
 static void ws_eapol_relay_socket_cb(void *cb);
 #endif
 
@@ -101,7 +101,7 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
     memcpy(&eapol_relay->remote_addr.address, remote_addr, 16);
     eapol_relay->remote_addr.identifier = remote_port;
 
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(local_port) };
     eapol_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
@@ -116,7 +116,7 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
         free(eapol_relay);
         return -1;
     }
-#ifndef HAVE_WS_BORDER_ROUTER
+#ifdef HAVE_SOCKET_API
     int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     socket_setsockopt(eapol_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));
 #endif
@@ -142,7 +142,7 @@ int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
         return -1;
     }
 
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     close(eapol_relay->socket_id);
 #else
     socket_close(eapol_relay->socket_id);
@@ -181,7 +181,7 @@ static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *
     return 0;
 }
 
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
 void ws_eapol_relay_socket_cb(int fd)
 #else
 static void ws_eapol_relay_socket_cb(void *cb)
@@ -189,7 +189,7 @@ static void ws_eapol_relay_socket_cb(void *cb)
 {
     uint8_t *socket_pdu = NULL;
     ssize_t data_len;
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     uint8_t data[2048];
 
     data_len = recv(fd, data, sizeof(data), 0);
@@ -215,7 +215,7 @@ static void ws_eapol_relay_socket_cb(void *cb)
     if (!socket_pdu)
         return;
 
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     memcpy(socket_pdu, data, data_len);
 #else
     if (socket_recvfrom(cb_data->socket_id, socket_pdu, cb_data->d_len, 0, &src_addr) != cb_data->d_len) {

@@ -31,7 +31,7 @@
 
 int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *eui_64, const ns_address_t *dest_addr, const void *data, uint16_t data_len)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_port = htons(dest_addr->identifier) };
     memcpy(&sockaddr.sin6_addr, dest_addr->address, 16);
 #else
@@ -41,7 +41,7 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
     struct iovec msg_iov[2];
     struct msghdr msghdr = { };
     //Set messages name buffer
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     msghdr.msg_name = &sockaddr;
     msghdr.msg_namelen = sizeof(struct sockaddr_in6);
 #else
@@ -56,7 +56,7 @@ int8_t ws_eapol_relay_lib_send_to_relay(const uint8_t socket_id, const uint8_t *
     msg_iov[0].iov_len = 8;
     msg_iov[1].iov_base = (void *)data;
     msg_iov[1].iov_len = data_len;
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
     if(sendmsg(socket_id, &msghdr, 0) <= 0)
         tr_debug("ws_eapol_relay_lib_send_to_relay: %m");
 #else

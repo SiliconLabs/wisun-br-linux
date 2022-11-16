@@ -37,7 +37,7 @@
  */
 
 int ws_eapol_relay_get_socket_fd();
-#ifdef HAVE_WS_BORDER_ROUTER
+#ifndef HAVE_SOCKET_API
 void ws_eapol_relay_socket_cb(int fd);
 #endif
 
