@@ -109,6 +109,26 @@ static int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, str
     return -ENOENT;
 }
 
+static int dhcp_get_client_ipv6(const uint8_t *req, size_t req_len, const uint8_t **ipv6)
+{
+    struct iobuf_read opt_ia_na, opt_ia_addr;
+
+    dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt_ia_na);
+    iobuf_pop_be32(&opt_ia_na); // IAID
+    iobuf_pop_be32(&opt_ia_na); // T1
+    iobuf_pop_be32(&opt_ia_na); // T2
+    if (opt_ia_na.err)
+        return -EINVAL;
+
+    dhcp_get_option(iobuf_ptr(&opt_ia_na), iobuf_remaining_size(&opt_ia_na),
+                    DHCPV6_OPT_IA_ADDRESS, &opt_ia_addr);
+    *ipv6 = iobuf_pop_data_ptr(&opt_ia_addr, 16);
+    if(opt_ia_addr.err)
+        return -EINVAL;
+
+    return 0;
+}
+
 static int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr)
 {
     struct iobuf_read opt;
