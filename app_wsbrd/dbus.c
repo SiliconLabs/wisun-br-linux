@@ -355,55 +355,68 @@ static int sd_bus_message_append_node(
     return ret;
 }
 
+static uint8_t *dhcp_eui64_to_ipv6(struct wsbr_ctxt *ctxt, const uint8_t eui64[8])
+{
+    for (int i = 0; i < ctxt->dhcp_leases_len; i++)
+        if (!memcmp(eui64, ctxt->dhcp_leases[i].eui64, 8))
+            return ctxt->dhcp_leases[i].ipv6;
+    return NULL;
+}
+
+static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16])
+{
+    for (int i = 0; i < ctxt->dhcp_leases_len; i++)
+        if (!memcmp(ipv6, ctxt->dhcp_leases[i].ipv6, 16))
+            return ctxt->dhcp_leases[i].eui64;
+    return NULL;
+}
+
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
+    uint8_t node_ipv6[3][16] = { 0 };
     bbr_route_info_t table[4096];
-    uint8_t ipv6[3][16] = { 0 };
+    uint8_t *parent, *ucast_addr;
+    int len_pae, len_rpl, ret, j;
     uint8_t eui64_pae[4096][8];
     bbr_information_t br_info;
-    int len_pae, len_rpl, ret;
-    uint8_t *parent;
+    uint8_t ipv6[16];
 
-    len_pae = ws_pae_auth_supp_list(ctxt->rcp_if_id, eui64_pae, sizeof(eui64_pae));
     ret = ws_bbr_info_get(ctxt->rcp_if_id, &br_info);
     if (ret)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
+    len_pae = ws_pae_auth_supp_list(ctxt->rcp_if_id, eui64_pae, sizeof(eui64_pae));
     len_rpl = ws_bbr_routing_table_get(ctxt->rcp_if_id, table, ARRAY_SIZE(table));
     if (len_rpl < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    // Convert IPv6 IID into EUI64 (only works with specific DHCPv6 configurations)
-    for (int i = 0; i < len_rpl; i++) {
-        table[i].parent[0] ^= 0x02;
-        table[i].target[0] ^= 0x02;
-    }
 
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-    tun_addr_get_link_local(ctxt->config.tun_dev, ipv6[0]);
-    tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6[1]);
-    sd_bus_message_append_node(reply, property, ctxt->hw_mac, NULL, ipv6, true);
+    tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
+    tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
+    sd_bus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true);
 
     for (int i = 0; i < len_pae; i++) {
-        memcpy(ipv6[0] + 0, ADDR_LINK_LOCAL_PREFIX, 8);
-        memcpy(ipv6[0] + 8, eui64_pae[i], 8);
-        memcpy(ipv6[1], ADDR_UNSPECIFIED, 16);
+        memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(node_ipv6[0] + 8, eui64_pae[i], 8);
+        memcpy(node_ipv6[1], ADDR_UNSPECIFIED, 16);
         parent = NULL;
-        for (int j = 0; j < len_rpl; j++) {
-            // If the IID (IPv6 suffix) wasn't derived from the node's EUI64,
-            // the RPL tree cannot be associated with the EUI64 registered by
-            // the PAE.
-            if (!memcmp(table[j].target, eui64_pae[i], 8)) {
-                parent = table[j].parent;
-                memcpy(ipv6[1] + 0, br_info.prefix, 8);
-                memcpy(ipv6[1] + 8, table[i].target, 8);
-                ipv6[1][8] ^= 0x02;
-                break;
+        ucast_addr = dhcp_eui64_to_ipv6(ctxt, eui64_pae[i]);
+        if (ucast_addr) {
+            memcpy(node_ipv6[1], ucast_addr, 16);
+            for (j = 0; j < len_rpl; j++)
+                if (!memcmp(table[j].target, node_ipv6[1] + 8, 8))
+                    break;
+            if (j != len_rpl) {
+                memcpy(ipv6, br_info.prefix, 8);
+                memcpy(ipv6 + 8, table[j].parent, 8);
+                parent = dhcp_ipv6_to_eui64(ctxt, ipv6);
+                WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
             }
         }
-        sd_bus_message_append_node(reply, property, eui64_pae[i], parent, ipv6, false);
+        sd_bus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
