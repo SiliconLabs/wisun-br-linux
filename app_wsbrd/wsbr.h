@@ -78,6 +78,12 @@ struct wsbr_ctxt {
 
     int pcapng_fd;
     mode_t pcapng_type;
+
+    struct {
+        uint8_t eui64[8];
+        uint8_t ipv6[16];
+    } *dhcp_leases;
+    int dhcp_leases_len;
 };
 
 // This global variable is necessary for various API of nanostack. Beside this
@@ -97,6 +103,7 @@ static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
 }
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
+void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16]);
 
 void wsbr_spinel_replay_interface(struct spinel_buffer *buf);
 

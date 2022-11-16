@@ -16,6 +16,7 @@
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
+#include "common/dhcp_server.h"
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
@@ -338,6 +339,8 @@ static void wsbr_tasklet(struct arm_event *event)
             if (ctxt->config.radius_server.ss_family != AF_UNSPEC)
                 if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
                     WARN("ws_bbr_radius_address_set");
+            // Artificially add wsbrd to the DHCP lease list
+            wsbr_dhcp_lease_update(ctxt, ctxt->hw_mac, ipv6);
             break;
         case ARM_LIB_NWK_INTERFACE_EVENT:
             if (event->event_id == ctxt->rcp_if_id) {
@@ -389,6 +392,32 @@ void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 void kill_handler(int signal)
 {
     exit(0);
+}
+
+void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16])
+{
+    int i;
+
+    // delete entries that use the same IPv6
+    for (i = 0; i < ctxt->dhcp_leases_len; i++) {
+        if (!memcmp(ctxt->dhcp_leases[i].ipv6, ipv6, 16)) {
+            memmove(ctxt->dhcp_leases + i, ctxt->dhcp_leases + i + 1, ctxt->dhcp_leases_len - i - 1);
+            ctxt->dhcp_leases_len--;
+            i--;
+        }
+    }
+
+    if (i == ctxt->dhcp_leases_len)
+        for (i = 0; i < ctxt->dhcp_leases_len; i++)
+            if (!memcmp(ctxt->dhcp_leases[i].eui64, eui64, 8))
+                break;
+    if (i == ctxt->dhcp_leases_len) {
+        ctxt->dhcp_leases_len++;
+        ctxt->dhcp_leases = realloc(ctxt->dhcp_leases, ctxt->dhcp_leases_len * sizeof(*ctxt->dhcp_leases));
+        BUG_ON(!ctxt->dhcp_leases);
+    }
+    memcpy(ctxt->dhcp_leases[i].eui64, eui64, 8);
+    memcpy(ctxt->dhcp_leases[i].ipv6, ipv6, 16);
 }
 
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
