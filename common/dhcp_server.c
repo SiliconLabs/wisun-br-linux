@@ -109,7 +109,7 @@ static int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, str
     return -ENOENT;
 }
 
-static const int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, uint8_t *hwaddr)
+static int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr)
 {
     struct iobuf_read opt;
     uint16_t duid_type, ll_type;
@@ -124,7 +124,7 @@ static const int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, uint
         WARN("only stateless address association is supported");
         return -ENOTSUP;
     }
-    iobuf_pop_data(&opt, hwaddr, 8);
+    *hwaddr = iobuf_pop_data_ptr(&opt, 8);
     if (opt.err)
         return -EINVAL;
     return ll_type;
@@ -282,7 +282,7 @@ static void dhcp_handle_request(struct dhcp_server *dhcp, struct sockaddr_in6 *s
     struct iobuf_write reply = { };
     uint24_t transaction;
     uint32_t iaid;
-    uint8_t hwaddr[8];
+    const uint8_t *hwaddr;
     int hwaddr_type;
 
     if (iobuf_pop_u8(req) != DHCPV6_MSG_SOLICIT) {
@@ -297,7 +297,7 @@ static void dhcp_handle_request(struct dhcp_server *dhcp, struct sockaddr_in6 *s
     if (dhcp_check_elapsed_time(iobuf_ptr(req), iobuf_remaining_size(req)))
         return;
     iaid = dhcp_get_identity_association_id(iobuf_ptr(req), iobuf_remaining_size(req));
-    hwaddr_type = dhcp_get_client_hwaddr(iobuf_ptr(req), iobuf_remaining_size(req), hwaddr);
+    hwaddr_type = dhcp_get_client_hwaddr(iobuf_ptr(req), iobuf_remaining_size(req), &hwaddr);
     if (hwaddr_type < 0)
         return;
 
