@@ -94,7 +94,7 @@ void mac_neighbor_table_neighbor_list_clean(mac_neighbor_table_t *table_class)
 
 void mac_neighbor_table_neighbor_timeout_update(int time_update)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
     mac_neighbor_table_t *table_class;
 
     if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))

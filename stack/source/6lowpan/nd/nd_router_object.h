@@ -45,8 +45,8 @@ int8_t nd_set_br(nd_router_t *br);
 #define icmp_nd_router_prefix_proxy_update(dptr, nd_router_object) -1
 #define nd_set_br(br) -1
 #endif
-void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
-int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface);
+void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, struct net_if *cur_interface);
+int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, struct net_if *cur_interface);
 void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16]);
 void gp_address_list_free(gp_ipv6_address_list_t *list);
 uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
@@ -58,10 +58,10 @@ void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 
 
 /** 6LoWPAN specific ICMP message Handler */
-buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
-buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur);
-void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint8_t *address_ptr);
-int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_info_entry_t *cur_interface);
+buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
+buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur);
+void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
+int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, struct net_if *cur_interface);
 
 void nd_router_base_init(nd_router_t *new_entry);
 
@@ -69,11 +69,11 @@ void nd_router_base_init(nd_router_t *new_entry);
 void icmp_nd_routers_init(void);
 
 ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16]);
-void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_interface_info_entry_t *cur_interface);
-void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface);
+void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, struct net_if *cur_interface);
+void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, struct net_if *cur_interface);
 /** 6LoWPAN specific ICMP message Handler */
-bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
-void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
+bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
+void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 nd_router_t *nd_get_pana_address(void);
 
@@ -82,11 +82,11 @@ uint8_t nd_prefix_dst_check(uint8_t *ptr);
 nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id_e nwk_id);
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
-bool nd_ra_process_abro(struct protocol_interface_info_entry *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
+bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
 void nd_object_timer(int ticks_update);
 uint32_t nd_object_time_to_next_nd_reg(void);
 
 void icmp_nd_router_object_reset(nd_router_t *router_object);
 void icmp_nd_border_router_release(nd_router_t *router_object);
-void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface);
+void nd_6lowpan_set_radv_params(struct net_if *cur_interface);
 #endif

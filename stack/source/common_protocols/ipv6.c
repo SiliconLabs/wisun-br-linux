@@ -40,11 +40,11 @@
 
 #define TRACE_GROUP "ipv6"
 
-static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protocol_interface_info_entry_t *cur, bool for_us);
+static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct net_if *cur, bool for_us);
 
 static bool ipv6_packet_is_for_us(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     if (buf->dst_sa.addr_type != ADDR_IPV6) {
         return false;
     }
@@ -89,7 +89,7 @@ void ipv6_set_exthdr_provider(ipv6_route_src_t src, ipv6_exthdr_provider_fn_t *f
 
 
 /* If next_if != NULL, this sends to next_hop on that interface */
-buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, protocol_interface_info_entry_t *next_if)
+buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct net_if *next_if)
 {
     buffer_routing_info_t *route;
     if (buf->route) {
@@ -106,7 +106,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
 
     /* Realm-or-lower scope addresses must have interface specified */
     bool interface_specific = addr_ipv6_scope(buf->dst_sa.address, buf->interface) <= IPV6_SCOPE_REALM_LOCAL;
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     if (cur == NULL && interface_specific) {
         goto no_route;
     }
@@ -178,7 +178,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         }
     }
 
-    protocol_interface_info_entry_t *outgoing_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
+    struct net_if *outgoing_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
     if (!outgoing_if) {
         goto no_route;      // Shouldn't happen - internal error
     }
@@ -219,7 +219,7 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
     //tr_debug("%s->last_neighbour := %s", tr_ipv6(dest_entry->destination), tr_ipv6(route->route_info.next_hop_addr));
 
     if (!cur || route->route_info.interface_id != cur->id) {
-        protocol_interface_info_entry_t *new_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
+        struct net_if *new_if = protocol_stack_interface_info_get_by_id(route->route_info.interface_id);
         if (!new_if) {
             goto no_route;
         }
@@ -366,7 +366,7 @@ static bool ipv6_fragmentation_needed(buffer_t *buf)
 buffer_t *ipv6_down(buffer_t *buf)
 {
     uint8_t *ptr;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
 
     buffer_routing_info_t *route = ipv6_buffer_route(buf);
     /* Note ipv6_buffer_route can change interface */
@@ -628,7 +628,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
 
         /* Provide tunnel source, unless already set */
         if (buf->src_sa.addr_type == ADDR_NONE) {
-            protocol_interface_info_entry_t *cur = buf->interface;
+            struct net_if *cur = buf->interface;
             if (!cur) {
                 goto drop;
             }
@@ -770,7 +770,7 @@ drop:
     return buffer_free(buf);
 }
 
-static buffer_t *ipv6_handle_options(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint8_t nh, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
+static buffer_t *ipv6_handle_options(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint8_t nh, uint16_t payload_length, uint16_t *hdrlen_out, const sockaddr_t *ll_src, bool pre_fragment)
 {
     (void) nh;
     if (payload_length < 2) {
@@ -847,7 +847,7 @@ len_err:
     return buf;
 }
 
-static buffer_t *ipv6_handle_routing_header(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, bool *forward_out, bool pre_fragment)
+static buffer_t *ipv6_handle_routing_header(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t payload_length, uint16_t *hdrlen_out, bool *forward_out, bool pre_fragment)
 {
     if (buf->options.ll_security_bypass_rx) {
         tr_warn("Routing header: Security check fail");
@@ -900,7 +900,7 @@ static buffer_t *ipv6_tun_up(buffer_t *b)
 }
 #endif
 
-static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol_interface_info_entry_t *cur, const sockaddr_t *ll_src)
+static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct net_if *cur, const sockaddr_t *ll_src)
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
@@ -953,7 +953,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
 #endif
     }
 
-    protocol_interface_info_entry_t *out_interface;
+    struct net_if *out_interface;
     out_interface = buf->interface;
 
     /* We must not let RPL-bearing packets out of or into a RPL domain */
@@ -1017,7 +1017,7 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, protocol
     return buf;
 }
 
-void ipv6_transmit_multicast_on_interface(buffer_t *buf, protocol_interface_info_entry_t *cur)
+void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct net_if *cur)
 {
     /* Mess with routing to get this to go out the correct interface */
     buf->interface = cur;
@@ -1047,7 +1047,7 @@ void ipv6_transmit_multicast_on_interface(buffer_t *buf, protocol_interface_info
 
 /* "For us" tells us that we need to return the buffer (or a copy) - if false, we don't */
 /* This controls copying logic. */
-static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protocol_interface_info_entry_t *cur, bool for_us)
+static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, struct net_if *cur, bool for_us)
 {
     /* Security checks needed here before forwarding */
     if (buf->options.ll_security_bypass_rx) {
@@ -1100,7 +1100,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
     uint8_t *ptr = buffer_data_pointer(buf);
     uint16_t len = buffer_data_length(buf);
     uint8_t *nh_ptr;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     bool intercept = false;
 
     /* When processing a reassembled packet, we don't reprocess headers from before the fragment header */

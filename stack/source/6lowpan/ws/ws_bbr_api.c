@@ -135,7 +135,7 @@ static void ws_bbr_nvm_info_write(uint16_t bsi, uint16_t pan_id)
     storage_close(info);
 }
 
-static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur, uint8_t version)
+static void ws_bbr_rpl_version_timer_start(struct net_if *cur, uint8_t version)
 {
     // Set the next timeout value for version update
     if (version < 128) {
@@ -155,7 +155,7 @@ static void ws_bbr_rpl_version_timer_start(protocol_interface_info_entry_t *cur,
     }
 }
 
-static void ws_bbr_rpl_version_increase(protocol_interface_info_entry_t *cur)
+static void ws_bbr_rpl_version_increase(struct net_if *cur)
 {
     if (!protocol_6lowpan_rpl_root_dodag) {
         return;
@@ -168,7 +168,7 @@ int ws_bbr_get_backbone_id()
     return backbone_interface_id;
 }
 
-void ws_bbr_rpl_config(protocol_interface_info_entry_t *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
+void ws_bbr_rpl_config(struct net_if *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime)
 {
     if (imin == 0 || doubling == 0) {
         // use default values
@@ -235,7 +235,7 @@ bool ws_bbr_backbone_address_get(uint8_t *address)
     return true;
 }
 
-static void ws_bbr_rpl_root_start(protocol_interface_info_entry_t *cur, uint8_t *dodag_id)
+static void ws_bbr_rpl_root_start(struct net_if *cur, uint8_t *dodag_id)
 {
     tr_info("RPL root start");
     rpl_data_init_root();
@@ -268,7 +268,7 @@ static void ws_bbr_rpl_root_stop(void)
     }
 }
 
-static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
+static if_address_entry_t *ws_bbr_slaac_generate(struct net_if *cur, uint8_t *ula_prefix)
 {
     if_address_entry_t *add_entry = NULL;
     const uint8_t *address;
@@ -292,7 +292,7 @@ static if_address_entry_t *ws_bbr_slaac_generate(protocol_interface_info_entry_t
     return add_entry;
 }
 
-static void ws_bbr_slaac_remove(protocol_interface_info_entry_t *cur, uint8_t *ula_prefix)
+static void ws_bbr_slaac_remove(struct net_if *cur, uint8_t *ula_prefix)
 {
     if (cur) {
         icmpv6_slaac_prefix_update(cur, ula_prefix, 64, 0, 0);
@@ -313,7 +313,7 @@ static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
      * If there is no address we can use our own generated ULA as a backup ULA
      */
 
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
+    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
 
     if (bb_interface && bb_interface->ipv6_configure.ipv6_stack_mode == NET_IPV6_BOOTSTRAP_STATIC) {
         ns_list_foreach(if_address_entry_t, addr, &bb_interface->ip_addresses) {
@@ -330,7 +330,7 @@ static uint8_t *ws_bbr_bb_static_prefix_get(uint8_t *dodag_id_ptr)
 }
 
 
-static int ws_bbr_static_dodagid_create(protocol_interface_info_entry_t *cur)
+static int ws_bbr_static_dodagid_create(struct net_if *cur)
 {
     if (memcmp(current_dodag_id, ADDR_UNSPECIFIED, 16) != 0) {
         // address generated
@@ -370,7 +370,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
         // No global prefix available
         return;
     }
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
+    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(backbone_interface_id);
     if_address_entry_t *addr_entry = addr_get_entry(bb_interface, global_address);
 
     if (!addr_entry || addr_entry->preferred_lifetime == 0) {
@@ -386,7 +386,7 @@ static void ws_bbr_dodag_get(uint8_t *local_prefix_ptr, uint8_t *global_prefix_p
     return;
 }
 
-static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
+static void ws_bbr_routing_stop(struct net_if *cur)
 {
     tr_info("BBR routing stop");
     if (memcmp(current_local_prefix, ADDR_UNSPECIFIED, 8) != 0) {
@@ -410,7 +410,7 @@ static void ws_bbr_routing_stop(protocol_interface_info_entry_t *cur)
     ws_bbr_rpl_root_stop();
 }
 
-static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
+static void ws_bbr_rpl_status_check(struct net_if *cur)
 {
 
     uint8_t local_prefix[8] = {0};
@@ -568,7 +568,7 @@ static void ws_bbr_rpl_status_check(protocol_interface_info_entry_t *cur)
         }
     }
 }
-void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
+void ws_bbr_pan_version_increase(struct net_if *cur)
 {
     if (!cur) {
         return;
@@ -593,7 +593,7 @@ void ws_bbr_pan_version_increase(protocol_interface_info_entry_t *cur)
                                   cur->ws_info->cfg->gen.network_name);
 }
 
-void ws_bbr_lpan_version_increase(protocol_interface_info_entry_t *cur)
+void ws_bbr_lpan_version_increase(struct net_if *cur)
 {
     if (!cur) {
         return;
@@ -610,7 +610,7 @@ void ws_bbr_lpan_version_increase(protocol_interface_info_entry_t *cur)
                                   cur->ws_info->cfg->gen.network_name);
 }
 
-void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     (void)seconds;
 
@@ -679,7 +679,7 @@ void ws_bbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds
 
 uint16_t test_pan_size_override = 0xffff;
 
-uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
+uint16_t ws_bbr_pan_size(struct net_if *cur)
 {
     uint16_t result = 0;
 
@@ -708,7 +708,7 @@ uint16_t ws_bbr_pan_size(protocol_interface_info_entry_t *cur)
     return result;
 }
 
-bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
+bool ws_bbr_ready_to_start(struct net_if *cur)
 {
 
     (void)cur;
@@ -732,7 +732,7 @@ bool ws_bbr_ready_to_start(protocol_interface_info_entry_t *cur)
     return true;
 }
 
-static void ws_bbr_forwarding_cb(protocol_interface_info_entry_t *interface, buffer_t *buf)
+static void ws_bbr_forwarding_cb(struct net_if *interface, buffer_t *buf)
 {
     uint8_t traffic_class = buf->options.traffic_class >> IP_TCLASS_DSCP_SHIFT;
 
@@ -742,7 +742,7 @@ static void ws_bbr_forwarding_cb(protocol_interface_info_entry_t *interface, buf
     }
 }
 
-void ws_bbr_init(protocol_interface_info_entry_t *interface)
+void ws_bbr_init(struct net_if *interface)
 {
     (void) interface;
     //Read From NVM
@@ -757,7 +757,7 @@ void ws_bbr_init(protocol_interface_info_entry_t *interface)
     interface->if_common_forwarding_out_cb = &ws_bbr_forwarding_cb;
 }
 
-uint16_t ws_bbr_bsi_generate(protocol_interface_info_entry_t *interface)
+uint16_t ws_bbr_bsi_generate(struct net_if *interface)
 {
     (void) interface;
     //Give current one
@@ -769,7 +769,7 @@ uint16_t ws_bbr_bsi_generate(protocol_interface_info_entry_t *interface)
     return bsi;
 }
 
-uint16_t ws_bbr_pan_id_get(protocol_interface_info_entry_t *interface)
+uint16_t ws_bbr_pan_id_get(struct net_if *interface)
 {
     (void) interface;
     return ws_bbr_pan_id;
@@ -782,7 +782,7 @@ uint16_t ws_bbr_pan_id_get(protocol_interface_info_entry_t *interface)
 int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
 {
     (void)interface_id;
-    protocol_interface_info_entry_t *bb_interface = protocol_stack_interface_info_get_by_id(bb_interface_id);
+    struct net_if *bb_interface = protocol_stack_interface_info_get_by_id(bb_interface_id);
 
     if (!bb_interface) {
         return -1;
@@ -796,7 +796,7 @@ int ws_bbr_start(int8_t interface_id, int8_t bb_interface_id)
 
 void ws_bbr_stop(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     ws_bbr_routing_stop(cur);
     backbone_interface_id = -1;
@@ -805,7 +805,7 @@ void ws_bbr_stop(int8_t interface_id)
 
 int ws_bbr_configure(int8_t interface_id, uint16_t options)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (options == configuration) {
         return 0;
@@ -823,7 +823,7 @@ int ws_bbr_configure(int8_t interface_id, uint16_t options)
 
 int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     rpl_dodag_info_t dodag_info;
 
     if (!info_ptr) {
@@ -869,7 +869,7 @@ int ws_bbr_info_get(int8_t interface_id, bbr_information_t *info_ptr)
 
 int ws_bbr_routing_table_get(int8_t interface_id, bbr_route_info_t *table_ptr, uint16_t table_len)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     int length;
 
     if (!cur || !protocol_6lowpan_rpl_root_dodag) {
@@ -917,7 +917,7 @@ int ws_bbr_ext_certificate_validation_set(int8_t interface_id, uint8_t validatio
 
 int ws_bbr_rpl_parameters_set(int8_t interface_id, uint8_t dio_interval_min, uint8_t dio_interval_doublings, uint8_t dio_redundancy_constant)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     ws_bbr_cfg_t cfg;
 
     if (ws_cfg_bbr_get(&cfg) < 0) {
@@ -989,7 +989,7 @@ int ws_bbr_rpl_parameters_validate(int8_t interface_id, uint8_t dio_interval_min
 
 int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     //Check if new value is different than current active
     if (cur && cur->ws_info && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
@@ -1099,7 +1099,7 @@ uint8_t *ws_bbr_get_phy_operating_modes()
 
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
-    struct protocol_interface_info_entry *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface == NULL)
         return -1;
 

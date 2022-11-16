@@ -24,7 +24,7 @@
 
 int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !ws_info(cur))
         return -1;

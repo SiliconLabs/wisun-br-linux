@@ -51,7 +51,7 @@ struct ws_timing_cfg;
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_set_target(protocol_interface_info_entry_t *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64);
+int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64);
 
 /**
  * ws_pae_controller_authenticate start PAE supplicant authentication
@@ -62,7 +62,7 @@ int8_t ws_pae_controller_set_target(protocol_interface_info_entry_t *interface_p
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_authenticate(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_bootstrap_done indicates to PAE controller that bootstrap is ready
@@ -73,7 +73,7 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_bootstrap_done(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_authenticator_start start PAE authenticator
@@ -87,7 +87,7 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
 /**
  * ws_pae_controller_init initializes PAE controller
@@ -98,7 +98,7 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_init(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_config_set sets PAE controller configuration
@@ -112,7 +112,7 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr);
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg);
+int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg);
 
 /**
  * ws_pae_controller_init initializes PAE supplicant
@@ -123,7 +123,7 @@ int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_pt
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_supp_init(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_init initializes PAE authenticator
@@ -134,7 +134,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_stop stop PAE controller (e.g. on interface down)
@@ -145,7 +145,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_stop(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_delete delete PAE controller (e.g. failure to create interface)
@@ -156,7 +156,7 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr);
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_controller_delete(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_certificate_chain_set set certificate chain
@@ -340,7 +340,7 @@ int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, struct bbr_
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 
 /**
  * ws_pae_controller_nw_key_valid network key is valid i.e. used successfully on bootstrap
@@ -352,7 +352,7 @@ int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid);
+int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid);
 
 /**
  * ws_pae_controller_border_router_addr_write write border router address
@@ -364,7 +364,7 @@ int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
+int8_t ws_pae_controller_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
 
 /**
  * ws_pae_controller_border_router_addr_read read border router address
@@ -376,7 +376,7 @@ int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_border_router_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *iid);
+int8_t ws_pae_controller_border_router_addr_read(struct net_if *interface_ptr, uint8_t *iid);
 
 /**
  * ws_pae_controller_gtk_update update GTKs (test interface)
@@ -500,7 +500,7 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index);
  * \return pointer to GTK has storage or NULL
  *
  */
-gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_lgtk_hash_ptr_get get pointer to LFN-GTK hash storage
@@ -510,21 +510,9 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *i
  * \return pointer to LFN-GTK has storage or NULL
  *
  */
-gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr);
 
-int8_t ws_pae_controller_lgtk_active_index_get(protocol_interface_info_entry_t *interface_ptr);
-
-/**
- * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
- *
- * \param interface_ptr interface
- * \param gtkhash new GTK hash
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
+int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
@@ -536,7 +524,19 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_lgtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash);
+int8_t ws_pae_controller_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash);
+
+/**
+ * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
+ *
+ * \param interface_ptr interface
+ * \param gtkhash new GTK hash
+ *
+ * \return < 0 failure
+ * \return >= 0 success
+ *
+ */
+int8_t ws_pae_controller_lgtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash);
 
 /**
  * ws_pae_controller_nw_key_index_update key index been updated (on PAN configuration)
@@ -548,7 +548,7 @@ int8_t ws_pae_controller_lgtk_hash_update(protocol_interface_info_entry_t *inter
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+int8_t ws_pae_controller_nw_key_index_update(struct net_if *interface_ptr, uint8_t index);
 
 /**
  * ws_pae_controller_nw_keys_remove remove network keys
@@ -556,7 +556,7 @@ int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *in
  * \param interface_ptr interface
  *
  */
-void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr);
+void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_nw_key_insert network key insert callback
@@ -567,7 +567,7 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
  * \param key new key
  *
  */
-typedef void ws_pae_controller_nw_key_set(protocol_interface_info_entry_t *interface_ptr, uint8_t slot, uint8_t index, uint8_t *key);
+typedef void ws_pae_controller_nw_key_set(struct net_if *interface_ptr, uint8_t slot, uint8_t index, uint8_t *key);
 
 /**
  * ws_pae_controller_nw_key_clear network key clear callback
@@ -576,7 +576,7 @@ typedef void ws_pae_controller_nw_key_set(protocol_interface_info_entry_t *inter
  * \param slot key slot (MAC key descriptor), from 0 to 4
  *
  */
-typedef void ws_pae_controller_nw_key_clear(protocol_interface_info_entry_t *interface_ptr, uint8_t slot);
+typedef void ws_pae_controller_nw_key_clear(struct net_if *interface_ptr, uint8_t slot);
 
 /**
  * ws_pae_controller_nw_send_key_index_set network send key index set callback
@@ -585,7 +585,7 @@ typedef void ws_pae_controller_nw_key_clear(protocol_interface_info_entry_t *int
  * \param index index of the key to be used on sending
  *
  */
-typedef void ws_pae_controller_nw_send_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index);
+typedef void ws_pae_controller_nw_send_key_index_set(struct net_if *interface_ptr, uint8_t index);
 
 /**
  * ws_pae_controller_nw_frame_counter_set network frame counter set callback
@@ -595,7 +595,7 @@ typedef void ws_pae_controller_nw_send_key_index_set(protocol_interface_info_ent
  * \param slot key slot (MAC key descriptor), from 0 to 4
  *
  */
-typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entry_t *interface_ptr, uint32_t counter, uint8_t slot);
+typedef void ws_pae_controller_nw_frame_counter_set(struct net_if *interface_ptr, uint32_t counter, uint8_t slot);
 
 /**
  * ws_pae_controller_nw_frame_counter_read network frame counter read callback
@@ -604,7 +604,7 @@ typedef void ws_pae_controller_nw_frame_counter_set(protocol_interface_info_entr
  * \param counter frame counter
  *
  */
-typedef void ws_pae_controller_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t slot);
+typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t slot);
 
 /**
  * ws_pae_controller_auth_completed authentication completed callback
@@ -614,7 +614,7 @@ typedef void ws_pae_controller_nw_frame_counter_read(protocol_interface_info_ent
  * \param target_eui_64 EAPOL target in case of failure or NULL
  *
  */
-typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
+typedef void ws_pae_controller_auth_completed(struct net_if *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
 
 /**
  * ws_pae_controller_auth_next_target get next target to attempt authentication
@@ -626,7 +626,7 @@ typedef void ws_pae_controller_auth_completed(protocol_interface_info_entry_t *i
  * \return EUI-64 of the next target or previous target if new one not available
  *
  */
-typedef const uint8_t *ws_pae_controller_auth_next_target(protocol_interface_info_entry_t *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
+typedef const uint8_t *ws_pae_controller_auth_next_target(struct net_if *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
 
 /**
  * ws_pae_controller_pan_ver_increment PAN version increment callback
@@ -634,7 +634,7 @@ typedef const uint8_t *ws_pae_controller_auth_next_target(protocol_interface_inf
  * \param interface_ptr interface
  *
  */
-typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t *interface_ptr);
+typedef void ws_pae_controller_pan_ver_increment(struct net_if *interface_ptr);
 
 /**
  * ws_pae_controller_nw_info_updated network information is updated (read from memory)
@@ -645,7 +645,7 @@ typedef void ws_pae_controller_pan_ver_increment(protocol_interface_info_entry_t
  * \param network_name network name
  *
  */
-typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
+typedef void ws_pae_controller_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 
 /**
  * ws_pae_controller_congestion_get get congestion information
@@ -656,7 +656,7 @@ typedef void ws_pae_controller_nw_info_updated(protocol_interface_info_entry_t *
  * \return TRUE reject, FALSE accept
  *
  */
-typedef bool ws_pae_controller_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
+typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 
 /**
  * ws_pae_controller_cb_register register controller callbacks
@@ -677,7 +677,7 @@ typedef bool ws_pae_controller_congestion_get(protocol_interface_info_entry_t *i
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr,
+int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_auth_completed *completed,
                                      ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
@@ -700,7 +700,7 @@ int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_controller_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
+typedef int8_t ws_pae_controller_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 
 /**
  * ws_pae_controller_auth_cb_register register authenticator callbacks
@@ -712,7 +712,7 @@ typedef int8_t ws_pae_controller_ip_addr_get(protocol_interface_info_entry_t *in
  * \return >= 0 success
  *
  */
-int8_t ws_pae_controller_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get);
+int8_t ws_pae_controller_auth_cb_register(struct net_if *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get);
 
 /**
  * ws_pae_controller_fast_timer PAE controller fast timer call

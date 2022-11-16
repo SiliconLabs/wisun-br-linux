@@ -52,14 +52,14 @@
 
 #define TRACE_GROUP "wspc"
 
-typedef int8_t ws_pae_delete(protocol_interface_info_entry_t *interface_ptr);
+typedef int8_t ws_pae_delete(struct net_if *interface_ptr);
 typedef void ws_pae_timer(uint16_t ticks);
-typedef int8_t ws_pae_br_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
-typedef int8_t ws_pae_br_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
-typedef void ws_pae_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
-typedef int8_t ws_pae_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
-typedef int8_t ws_pae_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
-typedef int8_t ws_pae_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
+typedef int8_t ws_pae_br_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
+typedef int8_t ws_pae_br_addr_read(struct net_if *interface_ptr, uint8_t *eui_64);
+typedef void ws_pae_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
+typedef int8_t ws_pae_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
+typedef int8_t ws_pae_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
+typedef int8_t ws_pae_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 typedef struct nw_key {
     uint8_t gtk[GTK_LEN];                                            /**< GTK key */
@@ -91,7 +91,7 @@ typedef struct pae_controller {
     uint16_t frame_cnt_store_timer;                                  /**< Timer to check if storing of frame counter value is needed */
     uint32_t frame_cnt_store_force_timer;                            /**< Timer to force storing of frame counter, if no other updates */
     sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
-    protocol_interface_info_entry_t *interface_ptr;                  /**< List link entry */
+    struct net_if *interface_ptr;                  /**< List link entry */
     ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
     ws_pae_controller_nw_key_clear *nw_key_clear;                    /**< Key clear callback */
@@ -125,13 +125,13 @@ typedef struct pae_controller_config {
 } pae_controller_config_t;
 
 static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
-static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entry_t *interface_ptr);
+static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr);
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
-static bool ws_pae_controller_auth_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
-static int8_t  ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t gtk_index);
+static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
+static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
+static int8_t  ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index);
 #endif
-static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr);
+static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
 static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
@@ -139,11 +139,11 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
                                                        frame_counters_t *gtk_counters,
                                                        frame_counters_t *lgtk_counters);
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
-static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
+static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
-static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
+static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
+static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 #endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller);
@@ -151,10 +151,10 @@ static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counte
 static void ws_pae_controller_frame_counter_index_reset(frame_counters_t *frame_counters, uint8_t index);
 static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
                                              sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
+static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
+static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
                                                  uint64_t current_time);
@@ -170,7 +170,7 @@ pae_controller_config_t pae_controller_config = {
 };
 
 #ifdef HAVE_PAE_SUPP
-int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_authenticate(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -203,7 +203,7 @@ int8_t ws_pae_controller_authenticate(protocol_interface_info_entry_t *interface
     return 0;
 }
 
-int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_bootstrap_done(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -222,7 +222,7 @@ int8_t ws_pae_controller_bootstrap_done(protocol_interface_info_entry_t *interfa
 #endif
 
 #ifdef HAVE_PAE_AUTH
-int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
+int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     (void) local_port;
     (void) remote_port;
@@ -276,7 +276,7 @@ int8_t ws_pae_controller_authenticator_start(protocol_interface_info_entry_t *in
 }
 #endif
 
-int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_ptr,
+int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_auth_completed *completed,
                                      ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
@@ -312,7 +312,7 @@ int8_t ws_pae_controller_cb_register(protocol_interface_info_entry_t *interface_
     return 0;
 }
 
-int8_t ws_pae_controller_auth_cb_register(protocol_interface_info_entry_t *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get)
+int8_t ws_pae_controller_auth_cb_register(struct net_if *interface_ptr, ws_pae_controller_ip_addr_get *ip_addr_get)
 {
     if (!interface_ptr) {
         return -1;
@@ -327,7 +327,7 @@ int8_t ws_pae_controller_auth_cb_register(protocol_interface_info_entry_t *inter
     return 0;
 }
 
-int8_t ws_pae_controller_set_target(protocol_interface_info_entry_t *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64)
+int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64)
 {
     if (!interface_ptr) {
         return -1;
@@ -359,7 +359,7 @@ static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_key
     sec_keys_nw_info->updated = false;
 }
 
-int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
+int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name)
 {
     (void) pan_id;
     (void) network_name;
@@ -400,7 +400,7 @@ int8_t ws_pae_controller_nw_info_set(protocol_interface_info_entry_t *interface_
     return 0;
 }
 
-static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entry_t *interface_ptr)
+static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return;
@@ -431,7 +431,7 @@ static void ws_pae_controller_nw_info_updated_check(protocol_interface_info_entr
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address)
+static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
 {
     if (!interface_ptr) {
         return;
@@ -445,7 +445,7 @@ static void ws_pae_controller_auth_ip_addr_get(protocol_interface_info_entry_t *
     controller->ip_addr_get(interface_ptr, address);
 }
 
-static bool ws_pae_controller_auth_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp)
+static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp)
 {
     if (!interface_ptr) {
         return 0;
@@ -459,7 +459,7 @@ static bool ws_pae_controller_auth_congestion_get(protocol_interface_info_entry_
     return controller->congestion_get(interface_ptr, active_supp);
 }
 
-static int8_t ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t gtk_index)
+static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index)
 {
     if (!interface_ptr) {
         return -1;
@@ -475,7 +475,7 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(protocol_interface_in
 }
 #endif
 
-int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
+int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
 #ifdef HAVE_PAE_SUPP
     if (!interface_ptr) {
@@ -493,7 +493,7 @@ int8_t ws_pae_controller_nw_key_valid(protocol_interface_info_entry_t *interface
 #endif
 }
 
-static int8_t ws_pae_controller_nw_key_check_and_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
+static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
 {
     // Adds, removes and updates network keys to MAC based on new GTKs
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -654,7 +654,7 @@ error:
     return ret_val;
 }
 
-int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index)
+int8_t ws_pae_controller_nw_key_index_update(struct net_if *interface_ptr, uint8_t index)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -671,7 +671,7 @@ int8_t ws_pae_controller_nw_key_index_update(protocol_interface_info_entry_t *in
     return 0;
 }
 
-void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr)
+void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -684,7 +684,7 @@ void ws_pae_controller_nw_keys_remove(protocol_interface_info_entry_t *interface
     ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, true);
 }
 
-static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
+static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
 {
     pae_controller_gtk_t *gtks;
 
@@ -715,7 +715,7 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(protocol_in
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
+static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     pae_controller_gtk_t *gtks;
@@ -753,7 +753,7 @@ static void ws_pae_controller_nw_key_index_check_and_set(protocol_interface_info
 #endif
 
 #ifdef HAVE_PAE_SUPP
-static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t *cur, uint8_t index, bool is_lgtk)
+static void ws_pae_controller_active_nw_key_set(struct net_if *cur, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(cur);
     int key_offset;
@@ -779,7 +779,7 @@ static void ws_pae_controller_active_nw_key_set(protocol_interface_info_entry_t 
 }
 #endif
 
-int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_init(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -816,7 +816,7 @@ int8_t ws_pae_controller_init(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_configure(protocol_interface_info_entry_t *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg)
+int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (controller == NULL) {
@@ -981,7 +981,7 @@ const struct name_value valid_gtk_status[] = {
     { NULL },
 };
 
-static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_t *interface_ptr,
+static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
                                                   uint16_t pan_id, char *network_name, uint8_t *gtk_eui64,
                                                   sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
@@ -1041,7 +1041,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(protocol_interface_info_entry_
     return 0;
 }
 
-static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t *interface_ptr,
+static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
                                                  uint16_t *pan_id, char *network_name, uint8_t *gtk_eui64,
                                                  sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks,
                                                  uint64_t current_time)
@@ -1113,7 +1113,7 @@ static int8_t ws_pae_controller_nvm_nw_info_read(protocol_interface_info_entry_t
 }
 
 #ifdef HAVE_PAE_SUPP
-int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_supp_init(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1154,7 +1154,7 @@ int8_t ws_pae_controller_supp_init(protocol_interface_info_entry_t *interface_pt
 #endif
 
 #ifdef HAVE_PAE_AUTH
-int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1225,7 +1225,7 @@ int8_t ws_pae_controller_auth_init(protocol_interface_info_entry_t *interface_pt
 }
 #endif
 
-int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1253,7 +1253,7 @@ int8_t ws_pae_controller_stop(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-int8_t ws_pae_controller_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -1643,7 +1643,7 @@ int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, bbr_radius_
     return 0;
 }
 
-int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+int8_t ws_pae_controller_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     if (!eui_64) {
         return -1;
@@ -1663,7 +1663,7 @@ int8_t ws_pae_controller_border_router_addr_write(protocol_interface_info_entry_
     return 0;
 }
 
-int8_t ws_pae_controller_border_router_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
+int8_t ws_pae_controller_border_router_addr_read(struct net_if *interface_ptr, uint8_t *eui_64)
 {
     if (!eui_64) {
         return -1;
@@ -1898,7 +1898,7 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
 }
 
 #ifdef HAVE_PAE_AUTH
-static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk)
+static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1928,7 +1928,7 @@ static void ws_pae_controller_gtk_hash_set(protocol_interface_info_entry_t *inte
 }
 #endif
 
-gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
+gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1938,7 +1938,7 @@ gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(protocol_interface_info_entry_t *i
     return controller->gtks.gtkhash;
 }
 
-gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr)
+gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1948,7 +1948,7 @@ gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(protocol_interface_info_entry_t *
     return controller->lgtks.gtkhash;
 }
 
-int8_t ws_pae_controller_lgtk_active_index_get(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1958,7 +1958,7 @@ int8_t ws_pae_controller_lgtk_active_index_get(protocol_interface_info_entry_t *
     return controller->lgtks.gtk_index;
 }
 
-int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
+int8_t ws_pae_controller_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -1974,7 +1974,7 @@ int8_t ws_pae_controller_gtk_hash_update(protocol_interface_info_entry_t *interf
     return 0;
 }
 
-int8_t ws_pae_controller_lgtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash)
+int8_t ws_pae_controller_lgtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
     if (!controller) {
@@ -2177,7 +2177,7 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
     return 0;
 }
 
-static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *interface_ptr)
+static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
         if (entry->interface_ptr == interface_ptr) {
@@ -2190,7 +2190,7 @@ static pae_controller_t *ws_pae_controller_get(protocol_interface_info_entry_t *
 
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return NULL;
     }
@@ -2209,7 +2209,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
 
 sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     pae_controller_t *controller = ws_pae_controller_get(cur);
 
     if (!cur)

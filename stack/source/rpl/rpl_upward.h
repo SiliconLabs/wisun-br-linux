@@ -23,7 +23,7 @@
 #include "rpl/rpl_control.h"
 
 /* Structures are abstract for outer control layer */
-struct protocol_interface_info_entry;
+struct net_if;
 typedef struct rpl_neighbour rpl_neighbour_t;
 typedef struct rpl_dodag_version rpl_dodag_version_t;
 typedef struct rpl_dodag rpl_dodag_t;
@@ -83,7 +83,7 @@ void rpl_instance_poison(rpl_instance_t *instance, uint8_t count);
 void rpl_instance_force_leaf(rpl_instance_t *instance);
 void rpl_instance_trigger_parent_selection(rpl_instance_t *instance, uint16_t delay, rpl_dodag_t *dodag);
 void rpl_instance_remove_interface(rpl_instance_t *instance, int8_t if_id);
-void rpl_instance_dio_trigger(rpl_instance_t *instance, struct protocol_interface_info_entry *cur, const uint8_t *addr);
+void rpl_instance_dio_trigger(rpl_instance_t *instance, struct net_if *cur, const uint8_t *addr);
 void rpl_instance_set_local_repair(rpl_instance_t *instance, bool repair);
 bool rpl_instance_local_repair(const rpl_instance_t *instance);
 uint16_t rpl_instance_current_rank(const rpl_instance_t *instance);

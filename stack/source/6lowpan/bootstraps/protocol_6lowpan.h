@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct route_info_entry;
 struct ns_sockaddr;
 struct rpl_domain;
@@ -41,20 +41,20 @@ typedef enum {
     PRIORITY_2ND,
 } neighbor_priority_e;
 
-void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
-void protocol_6lowpan_configure_core(struct protocol_interface_info_entry *cur);
+void protocol_6lowpan_interface_common_init(struct net_if *cur);
+void protocol_6lowpan_configure_core(struct net_if *cur);
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, enum addrtype addr_type, const uint8_t *addr_ptr);
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority);
 
 
-int8_t protocol_6lowpan_neighbor_address_state_synch(struct protocol_interface_info_entry *cur, const uint8_t eui64[8], const uint8_t iid[8]);
-int8_t protocol_6lowpan_neighbor_remove(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, enum addrtype type);
+int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8]);
+int8_t protocol_6lowpan_neighbor_remove(struct net_if *cur, uint8_t *address_ptr, enum addrtype type);
 
-void protocol_6lowpan_allocate_mac16(struct protocol_interface_info_entry *cur);
+void protocol_6lowpan_allocate_mac16(struct net_if *cur);
 
-int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct protocol_interface_info_entry *cur, struct ns_sockaddr *adr_ptr);
+int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct net_if *cur, struct ns_sockaddr *adr_ptr);
 
 int16_t protocol_6lowpan_rpl_global_priority_get(void);
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);

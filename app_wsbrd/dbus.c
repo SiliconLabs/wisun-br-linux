@@ -93,7 +93,7 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     const uint8_t *ipv6;
     size_t len;
     int ret;
@@ -118,7 +118,7 @@ int dbus_join_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *r
 int dbus_leave_multicast_group(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     const uint8_t *ipv6;
     size_t len;
     int ret;
@@ -178,7 +178,7 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
                          void *userdata, sd_bus_error *ret_error)
 {
     int interface_id = *(int *)userdata;
-    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
     sec_prot_gtk_keys_t *gtks = ws_pae_controller_get_gtks(interface_id);
     uint8_t gak[16];
     int ret, i;
@@ -395,7 +395,7 @@ int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
-    protocol_interface_info_entry_t *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
     int ret;
 
     if (!net_if || !net_if->ws_info)

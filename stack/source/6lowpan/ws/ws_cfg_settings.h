@@ -166,51 +166,51 @@ typedef enum {
 
 int8_t ws_cfg_settings_init(void);
 int8_t ws_cfg_settings_default_set(void);
-int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur);
+int8_t ws_cfg_settings_interface_set(struct net_if *cur);
 int8_t ws_cfg_settings_get(ws_cfg_t *cfg);
 int8_t ws_cfg_settings_validate(struct ws_cfg *new_cfg);
-int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_cfg);
+int8_t ws_cfg_settings_set(struct net_if *cur, ws_cfg_t *new_cfg);
 
-cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur);
+cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur);
 
 int8_t ws_cfg_network_size_get(ws_gen_cfg_t *cfg);
 int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *new_cfg);
-int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_gen_get(ws_gen_cfg_t *cfg);
 int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg);
-int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_phy_default_set(ws_phy_cfg_t *cfg);
 int8_t ws_cfg_phy_get(ws_phy_cfg_t *cfg);
 int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg);
-int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_timing_default_set(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_get(ws_timing_cfg_t *cfg);
 int8_t ws_cfg_timing_validate(ws_timing_cfg_t *new_cfg);
-int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_bbr_get(ws_bbr_cfg_t *cfg);
 int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg);
-int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_bbr_set(struct net_if *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_mpl_get(ws_mpl_cfg_t *cfg);
 int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg);
-int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg);
 int8_t ws_cfg_fhss_get(ws_fhss_cfg_t *cfg);
 int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg);
-int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_sec_timer_get(ws_sec_timer_cfg_t *cfg);
 int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg);
-int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_sec_timer_set(struct net_if *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags);
 
 int8_t ws_cfg_sec_prot_get(ws_sec_prot_cfg_t *cfg);
 int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg);
-int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags);
+int8_t ws_cfg_sec_prot_set(struct net_if *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags);
 
 uint32_t ws_cfg_neighbour_temporary_lifetime_get(void);
 void ws_cfg_neighbour_temporary_lifetime_set(uint32_t lifetime);

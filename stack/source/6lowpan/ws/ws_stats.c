@@ -31,7 +31,7 @@ int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
     if (!stats_ptr) {
         return -1;
     }
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
     }
@@ -41,7 +41,7 @@ int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
 
 int ws_statistics_stop(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
     }
@@ -49,7 +49,7 @@ int ws_statistics_stop(int8_t interface_id)
     return 0;
 }
 
-void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_e type, uint32_t update_val)
+void ws_stats_update(struct net_if *cur, ws_stats_type_e type, uint32_t update_val)
 {
     if (!cur || !ws_info(cur) || !cur->ws_info->stored_stats_ptr) {
         return;

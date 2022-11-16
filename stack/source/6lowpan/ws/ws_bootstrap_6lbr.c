@@ -76,7 +76,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-static int8_t ws_bootstrap_6lbr_fhss_configure(protocol_interface_info_entry_t *cur)
+static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
     // Read configuration of existing FHSS and start using the default values for any network
     fhss_ws_configuration_t fhss_configuration = ws_common_get_current_fhss_configuration(cur);
@@ -93,7 +93,7 @@ static int8_t ws_bootstrap_6lbr_fhss_configure(protocol_interface_info_entry_t *
     return 0;
 }
 
-static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address)
+static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
 {
     (void) interface_ptr;
     (void) address;
@@ -105,7 +105,7 @@ static int8_t ws_bootstrap_6lbr_backbone_ip_addr_get(protocol_interface_info_ent
     return -1;
 }
 
-static void ws_bootstrap_6lbr_eapol_congestion_init(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_6lbr_eapol_congestion_init(struct net_if *cur)
 {
     random_early_detection_free(cur->llc_random_early_detection);
     cur->llc_random_early_detection = NULL;
@@ -148,7 +148,7 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
     ws_eapol_auth_relay_socket_cb(fd);
 }
 
-static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_6lbr_pan_config_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     ws_bs_ie_t ws_bs_ie;
     ws_bt_ie_t ws_bt_ie;
@@ -184,7 +184,7 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct protocol_interface_info_
     }
 }
 
-static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     llc_neighbour_req_t neighbor_info;
 
@@ -198,7 +198,7 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct protocol_interfa
     }
 }
 
-static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext)
+static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext)
 {
     ws_pan_information_t pan_information;
 
@@ -214,7 +214,7 @@ static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct protocol_interfac
         trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
 }
 
-void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     ws_pom_ie_t pom_ie;
     mac_neighbor_table_entry_t *neighbor;
@@ -307,7 +307,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, con
     }
 }
 
-void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
+void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
     if (asynch_message == WS_FT_PAN_ADVERT)
         interface->pan_advert_running = false;
@@ -351,7 +351,7 @@ static const char *tr_excl_channel_mask(const uint32_t *chan_mask, int num_chans
     return tr_bytes(tmp, num_bytes, NULL, 96, DELIM_COLON);
 }
 
-static void ws_bootstrap_6lbr_print_config(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
     const struct fhss_ws_configuration *fhss_configuration = ns_fhss_ws_configuration_get(cur->ws_info->fhss_api);
@@ -401,7 +401,7 @@ static void ws_bootstrap_6lbr_print_config(protocol_interface_info_entry_t *cur)
              length, tr_channel_mask(fhss_configuration->unicast_channel_mask, hopping_schedule->number_of_channels));
 }
 
-void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
+void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_s *event)
 {
     ws_bootstrap_event_type_e event_type;
     event_type = (ws_bootstrap_event_type_e)event->event_type;
@@ -568,7 +568,7 @@ void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_e
     }
 }
 
-void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur)
+void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
 {
 
     switch (cur->nwk_bootstrap_state) {
@@ -602,7 +602,7 @@ void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur)
     }
 }
 
-void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+void ws_bootstrap_6lbr_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     (void)cur;
     (void)seconds;

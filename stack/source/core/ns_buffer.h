@@ -202,7 +202,7 @@ typedef struct buffer {
     sockaddr_t          dst_sa;                 /*!< Destination sockaddr */
     sockaddr_t          src_sa;                 /*!< Source sockaddr */
     sockaddr_t          *predecessor;           /*!< Predecessor - used by RPL */
-    protocol_interface_info_entry_t *interface; /*!< Pointer to interface */
+    struct net_if *interface; /*!< Pointer to interface */
     struct socket       *socket;                /*!< Indicate is data came trough socket */
     buffer_info_t       info;                   /*!< Protocol information */
     uint8_t             seq;                    /*!< Packet MAC header sequence number */

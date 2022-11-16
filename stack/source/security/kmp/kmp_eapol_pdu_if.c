@@ -42,16 +42,16 @@ typedef struct eapol_kmp_pdu {
 
 typedef struct kmp_eapol_pdu_if {
     kmp_service_t *kmp_service;                       /**< KMP service */
-    protocol_interface_info_entry_t *interface_ptr;   /**< Interface pointer */
+    struct net_if *interface_ptr;   /**< Interface pointer */
     ns_list_link_t link;                              /**< Link */
 } kmp_eapol_pdu_if_t;
 
 static NS_LIST_DEFINE(kmp_eapol_pdu_if_list, kmp_eapol_pdu_if_t, link);
 
 static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags);
-static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
+static int8_t kmp_eapol_pdu_if_tx_status(struct net_if *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
 
-int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info_entry_t *interface_ptr)
+int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interface_ptr)
 {
     if (!service || !interface_ptr) {
         return -1;
@@ -107,7 +107,7 @@ static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id,
         return -1;
     }
 
-    protocol_interface_info_entry_t *interface_ptr = NULL;
+    struct net_if *interface_ptr = NULL;
 
     ns_list_foreach(kmp_eapol_pdu_if_t, entry, &kmp_eapol_pdu_if_list) {
         if (entry->kmp_service == service) {
@@ -133,7 +133,7 @@ static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id,
     return ret;
 }
 
-int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size)
+int8_t kmp_eapol_pdu_if_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size)
 {
     kmp_service_t *service = NULL;
 
@@ -165,7 +165,7 @@ int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, 
     return ret;
 }
 
-static int8_t kmp_eapol_pdu_if_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier)
+static int8_t kmp_eapol_pdu_if_tx_status(struct net_if *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier)
 {
     kmp_service_t *service = NULL;
 

@@ -51,7 +51,7 @@ typedef struct dhcp_client_class {
 static NS_LIST_DEFINE(dhcp_client_list, dhcp_client_class_t, link);
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr);
-void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
+void dhcpv6_renew(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 
 
@@ -92,7 +92,7 @@ static dhcp_client_class_t *dhcpv6_client_entry_discover(int8_t interface)
 
 void dhcp_client_init(int8_t interface, uint16_t link_type)
 {
-    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get_by_id(interface);
     if (!interface_ptr) {
         return;
     }
@@ -162,7 +162,7 @@ void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[sta
         return;
     }
 
-    protocol_interface_info_entry_t * rcp_if_entry = protocol_stack_interface_info_get_by_id(interface);
+    struct net_if * rcp_if_entry = protocol_stack_interface_info_get_by_id(interface);
     rcp_if_entry->is_dhcp_relay_agent_enabled = true;
 
     dhcp_client->relay_instance = dhcp_service_init(interface, DHCP_INTANCE_RELAY_AGENT, NULL);
@@ -181,7 +181,7 @@ void dhcp_relay_agent_disable(int8_t interface)
 
 void dhcp_client_delete(int8_t interface)
 {
-    protocol_interface_info_entry_t *cur = NULL;
+    struct net_if *cur = NULL;
     dhcpv6_client_server_data_t *srv_data_ptr;
     uint8_t temporary_address[16];
     dhcp_client_class_t *dhcp_client = dhcpv6_client_entry_discover(interface);
@@ -313,7 +313,7 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
 
     if (dhcp_client->one_instance_interface && memcmp(srv_data_ptr->iaNontemporalAddress.addressPrefix, dhcp_ia_non_temporal_params.nonTemporalAddress, 16)) {
 
-        protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(dhcp_client->interface);
+        struct net_if *cur = protocol_stack_interface_info_get_by_id(dhcp_client->interface);
         if (cur) {
             addr_deprecate(cur, srv_data_ptr->iaNontemporalAddress.addressPrefix);
         }
@@ -365,7 +365,7 @@ int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16
                         return 0;
                     }
 
-                    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface);
+                    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface);
                     if (!cur) {
                         return -1;
                     }
@@ -486,7 +486,7 @@ int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t
 
 void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uint8_t prefix[static 16])
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     dhcpv6_client_server_data_t *srv_data_ptr;
     dhcp_client_class_t *dhcp_client;
     (void) dhcp_addr;
@@ -509,7 +509,7 @@ void dhcp_client_global_address_delete(int8_t interface, uint8_t *dhcp_addr, uin
     libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
 }
 
-void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
+void dhcpv6_renew(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
 
     uint8_t *payload_ptr;
@@ -616,7 +616,7 @@ void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t
 
 static bool dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr)
 {
-    protocol_interface_info_entry_t *cur = NULL;
+    struct net_if *cur = NULL;
     if_address_entry_t *address_entry = NULL;
     uint32_t renewTimer;
     cur = protocol_stack_interface_info_get_by_id(interface_id);

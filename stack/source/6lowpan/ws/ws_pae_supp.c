@@ -86,7 +86,7 @@
 typedef struct pae_supp {
     ns_list_link_t link;                                   /**< Link */
     kmp_service_t *kmp_service;                            /**< KMP service */
-    protocol_interface_info_entry_t *interface_ptr;        /**< Interface */
+    struct net_if *interface_ptr;        /**< Interface */
     ws_pae_supp_auth_completed *auth_completed;            /**< Authentication completed callback, continue bootstrap */
     ws_pae_supp_auth_next_target *auth_next_target;        /**< Authentication next target callback */
     ws_pae_supp_nw_key_insert *nw_key_insert;              /**< Key insert callback */
@@ -131,7 +131,7 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
-static pae_supp_t *ws_pae_supp_get(protocol_interface_info_entry_t *interface_ptr);
+static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
 static void ws_pae_supp_tasklet_handler(arm_event_s *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
@@ -146,8 +146,8 @@ static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_ap
 static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
-static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
-static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
+static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
+static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
 static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
@@ -182,7 +182,7 @@ static bool ws_pae_supp_address_is_set(pae_supp_t *pae_supp)
     return pae_supp->entry_address_active;
 }
 
-int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name)
+int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -230,7 +230,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
     return 1;
 }
 
-int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+int8_t ws_pae_supp_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -244,7 +244,7 @@ int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *int
     return 0;
 }
 
-int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
+int8_t ws_pae_supp_border_router_addr_read(struct net_if *interface_ptr, uint8_t *eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -266,7 +266,7 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
     return 0;
 }
 
-int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid)
+int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
     (void) br_iid;
 
@@ -303,7 +303,7 @@ static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
     return 0;
 }
 
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
+int8_t ws_pae_supp_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -341,7 +341,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
     return 0;
 }
 
-int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
+int8_t ws_pae_supp_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
 {
     sec_prot_gtk_keys_t *gtks;
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
@@ -362,7 +362,7 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
     return 0;
 }
 
-int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk)
+int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -377,7 +377,7 @@ int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_
     return 0;
 }
 
-int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_supp_eapol_target_remove(struct net_if *interface_ptr)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -579,7 +579,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
-int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
+int8_t ws_pae_supp_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
     (void) pan_id;
     (void) network_name;
@@ -606,7 +606,7 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
     return 0;
 }
 
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr,
+void ws_pae_supp_cb_register(struct net_if *interface_ptr,
                              ws_pae_supp_auth_completed *completed,
                              ws_pae_supp_auth_next_target *auth_next_target,
                              ws_pae_supp_nw_key_insert *nw_key_insert,
@@ -627,7 +627,7 @@ void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr,
     pae_supp->nw_info_updated = nw_info_updated;
 }
 
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
+int8_t ws_pae_supp_init(struct net_if *interface_ptr, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info)
 {
     if (!interface_ptr) {
         return -1;
@@ -759,7 +759,7 @@ error:
     return -1;
 }
 
-int8_t ws_pae_supp_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_supp_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -792,7 +792,7 @@ static void ws_pae_supp_free(pae_supp_t *pae_supp)
     free(pae_supp);
 }
 
-static pae_supp_t *ws_pae_supp_get(protocol_interface_info_entry_t *interface_ptr)
+static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
 {
     ns_list_foreach(pae_supp_t, entry, &pae_supp_list) {
         if (entry->interface_ptr == interface_ptr) {
@@ -1079,7 +1079,7 @@ static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp)
     return pae_supp->timer_running;
 }
 
-static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
     if (!pae_supp) {
@@ -1107,7 +1107,7 @@ static int8_t ws_pae_supp_eapol_pdu_address_check(protocol_interface_info_entry_
     return -1;
 }
 
-static int8_t ws_pae_supp_parent_eui_64_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
+static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64)
 {
     rpl_dodag_info_t dodag_info;
     if (!interface_ptr->rpl_domain) {

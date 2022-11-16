@@ -22,11 +22,11 @@
 
 #ifdef HAVE_WS_BORDER_ROUTER
 
-void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
-void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message);
-void ws_bootstrap_6lbr_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event);
-void ws_bootstrap_6lbr_state_machine(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_6lbr_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
+void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
+void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
+void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_s *event);
+void ws_bootstrap_6lbr_state_machine(struct net_if *cur);
+void ws_bootstrap_6lbr_seconds_timer(struct net_if *cur, uint32_t seconds);
 int ws_bootstrap_6lbr_eapol_relay_get_socket_fd();
 int ws_bootstrap_6lbr_eapol_auth_relay_get_socket_fd();
 void ws_bootstrap_6lbr_eapol_relay_socket_cb(int fd);
@@ -34,12 +34,12 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd);
 
 #else
 
-static inline void ws_bootstrap_6lbr_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+static inline void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     BUG("not compiled with HAVE_WS_BORDER_ROUTER");
 }
 
-static inline void ws_bootstrap_6lbr_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
+static inline void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
     BUG("not compiled with HAVE_WS_BORDER_ROUTER");
 }

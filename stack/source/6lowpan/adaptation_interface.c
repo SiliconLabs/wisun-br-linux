@@ -49,7 +49,7 @@
 
 #define TRACE_GROUP "6lAd"
 
-typedef void (adaptation_etx_update_cb)(protocol_interface_info_entry_t *cur, buffer_t *buf, const mcps_data_conf_t *confirm);
+typedef void (adaptation_etx_update_cb)(struct net_if *cur, buffer_t *buf, const mcps_data_conf_t *confirm);
 
 // #define EXTRA_DEBUG_EXTRA
 #ifdef EXTRA_DEBUG_EXTRA
@@ -121,20 +121,20 @@ static NS_LIST_DEFINE(fragmenter_interface_list, fragmenter_interface_t, link);
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId);
 
 /* Interface direct message pending queue functions */
-static void lowpan_adaptation_tx_queue_write(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf);
-static buffer_t *lowpan_adaptation_tx_queue_read(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr);
+static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf);
+static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_interface_t *interface_ptr);
 
 /* Data direction and message length validation */
 static bool lowpan_adaptation_indirect_data_request(mac_neighbor_table_entry_t *entry_ptr);
-static bool lowpan_adaptation_request_longer_than_mtu(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr);
+static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr);
 
 /* Common data tx request process functions */
 static void lowpan_active_buffer_state_reset(fragmenter_tx_entry_t *tx_buffer);
 static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *interface_ptr);
 static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_buffer_size);
 static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_interface_t *interface_ptr, bool indirect, bool fragmented, bool is_unicast);
-static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur);
-static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr);
+static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur);
+static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr);
 
 /* Tx confirmation local functions */
 static bool lowpan_active_tx_handle_verify(uint8_t handle, buffer_t *buf);
@@ -144,14 +144,14 @@ static uint8_t map_mlme_status_to_socket_event(uint8_t mlme_status);
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
 
 /* Fragmentation local functions */
-static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr);
+static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, struct net_if *cur, fragmenter_interface_t *interface_ptr);
 static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry_t *frag_entry, mcps_data_req_t *dataReq);
-static bool lowpan_adaptation_indirect_queue_free_message(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
+static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 static bool lowpan_buffer_tx_allowed(fragmenter_interface_t *interface_ptr, buffer_t *buf);
-static bool lowpan_adaptation_purge_from_mac(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
+static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle);
 
 //Discover
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId)
@@ -166,7 +166,7 @@ static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t inter
     return NULL;
 }
 
-static struct protocol_interface_info_entry *lowpan_adaptation_network_interface_discover(const mpx_api_t *api)
+static struct net_if *lowpan_adaptation_network_interface_discover(const mpx_api_t *api)
 {
 
     ns_list_foreach(fragmenter_interface_t, interface_ptr, &fragmenter_interface_list) {
@@ -179,7 +179,7 @@ static struct protocol_interface_info_entry *lowpan_adaptation_network_interface
 }
 
 
-static void lowpan_adaptation_tx_queue_level_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+static void lowpan_adaptation_tx_queue_level_update(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     random_early_detection_aq_calc(cur->random_early_detection, interface_ptr->directTxQueue_size);
     protocol_stats_update(STATS_AL_TX_QUEUE_SIZE, interface_ptr->directTxQueue_size);
@@ -192,7 +192,7 @@ static void lowpan_adaptation_tx_queue_level_update(protocol_interface_info_entr
 }
 
 
-static void lowpan_adaptation_tx_queue_write(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
+static void lowpan_adaptation_tx_queue_write(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
     buffer_t *lower_priority_buf = NULL;
 
@@ -213,7 +213,7 @@ static void lowpan_adaptation_tx_queue_write(protocol_interface_info_entry_t *cu
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
 }
 
-static void lowpan_adaptation_tx_queue_write_to_front(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
+static void lowpan_adaptation_tx_queue_write_to_front(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_t *buf)
 {
     buffer_t *lower_priority_buf = NULL;
 
@@ -234,7 +234,7 @@ static void lowpan_adaptation_tx_queue_write_to_front(protocol_interface_info_en
     lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
 }
 
-static buffer_t *lowpan_adaptation_tx_queue_read(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+static buffer_t *lowpan_adaptation_tx_queue_read(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     // Currently this function is called only when data confirm is received for previously sent packet.
     if (!interface_ptr->directTxQueue_size) {
@@ -259,7 +259,7 @@ static buffer_t *lowpan_adaptation_tx_queue_read(protocol_interface_info_entry_t
 
 //fragmentation needed
 
-static bool lowpan_adaptation_request_longer_than_mtu(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr)
+static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer_t *buf, fragmenter_interface_t *interface_ptr)
 {
     uint_fast16_t overhead = mac_helper_frame_overhead(cur, buf);
 
@@ -447,14 +447,14 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
 
 static void lowpan_adaptation_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data)
 {
-    protocol_interface_info_entry_t *interface = lowpan_adaptation_network_interface_discover(api);
+    struct net_if *interface = lowpan_adaptation_network_interface_discover(api);
 
     lowpan_adaptation_interface_tx_confirm(interface, data);
 }
 
 static void lowpan_adaptation_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data)
 {
-    protocol_interface_info_entry_t *interface = lowpan_adaptation_network_interface_discover(api);
+    struct net_if *interface = lowpan_adaptation_network_interface_discover(api);
     lowpan_adaptation_interface_data_ind(interface, data);
 }
 
@@ -521,7 +521,7 @@ static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_b
     return indirec_entry;
 }
 
-static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     uint8_t *ptr;
     uint16_t uncompressed_size;
@@ -644,7 +644,7 @@ static fragmenter_tx_entry_t *lowpan_adaptation_tx_process_init(fragmenter_inter
     return tx_entry;
 }
 
-buffer_t *lowpan_adaptation_data_process_tx_preprocess(protocol_interface_info_entry_t *cur, buffer_t *buf)
+buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffer_t *buf)
 {
     mac_neighbor_table_entry_t *neigh_entry_ptr = NULL;
 
@@ -705,7 +705,7 @@ tx_error_handler:
 
 }
 
-static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur)
+static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur)
 {
     memset(dataReq, 0, sizeof(mcps_data_req_t));
 
@@ -749,7 +749,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     }
 }
 
-static bool lowpan_adaptation_indirect_cache_sanity_check(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+static bool lowpan_adaptation_indirect_cache_sanity_check(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
     fragmenter_tx_entry_t *active_tx_entry;
     ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
@@ -773,7 +773,7 @@ static bool lowpan_adaptation_indirect_cache_sanity_check(protocol_interface_inf
     return false;
 }
 
-static bool lowpan_adaptation_indirect_cache_trigger(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
+static bool lowpan_adaptation_indirect_cache_trigger(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     tr_debug_extra("lowpan_adaptation_indirect_cache_trigger()");
 
@@ -843,7 +843,7 @@ static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
     return false;
 }
 
-static bool lowpan_adaptation_make_room_for_small_packet(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, mac_neighbor_table_entry_t *neighbour_to_count, fragmenter_tx_entry_t *new_entry)
+static bool lowpan_adaptation_make_room_for_small_packet(struct net_if *cur, fragmenter_interface_t *interface_ptr, mac_neighbor_table_entry_t *neighbour_to_count, fragmenter_tx_entry_t *new_entry)
 {
     if (interface_ptr->max_indirect_small_packets_per_child == 0) {
         // this means there is always space for small packets - no need to check further
@@ -882,7 +882,7 @@ static bool lowpan_adaptation_make_room_for_small_packet(protocol_interface_info
     return true;
 }
 
-static bool lowpan_adaptation_make_room_for_big_packet(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *new_entry)
+static bool lowpan_adaptation_make_room_for_big_packet(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *new_entry)
 {
     if (interface_ptr->max_indirect_big_packets_total == 0) {
         // this means there is always space for big packets - no need to check further
@@ -920,7 +920,7 @@ static bool lowpan_adaptation_make_room_for_big_packet(struct protocol_interface
     return true;
 }
 
-static void lowpan_data_request_to_mac(protocol_interface_info_entry_t *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
+static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
 {
     mcps_data_req_t dataReq;
 
@@ -1050,7 +1050,7 @@ static bool lowpan_adaptation_high_priority_state_exit(fragmenter_interface_t *i
     return true;
 }
 
-static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+static void lowpan_adaptation_high_priority_state_enable(struct net_if *cur, fragmenter_interface_t *interface_ptr)
 {
 
     if (!interface_ptr->last_rx_high_priority) {
@@ -1081,7 +1081,7 @@ static void lowpan_adaptation_high_priority_state_enable(protocol_interface_info
 }
 
 
-static void lowpan_adaptation_priority_status_update(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
+static void lowpan_adaptation_priority_status_update(struct net_if *cur, fragmenter_interface_t *interface_ptr, buffer_priority_e priority)
 {
     if (priority == QOS_EXPEDITE_FORWARD) {
         lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
@@ -1091,7 +1091,7 @@ static void lowpan_adaptation_priority_status_update(protocol_interface_info_ent
     }
 }
 
-void lowpan_adaptation_expedite_forward_enable(protocol_interface_info_entry_t *cur)
+void lowpan_adaptation_expedite_forward_enable(struct net_if *cur)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
     if (!interface_ptr) {
@@ -1100,7 +1100,7 @@ void lowpan_adaptation_expedite_forward_enable(protocol_interface_info_entry_t *
     lowpan_adaptation_high_priority_state_enable(cur, interface_ptr);
 }
 
-bool lowpan_adaptation_expedite_forward_state_get(protocol_interface_info_entry_t *cur)
+bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
     if (!interface_ptr || !interface_ptr->last_rx_high_priority) {
@@ -1111,7 +1111,7 @@ bool lowpan_adaptation_expedite_forward_state_get(protocol_interface_info_entry_
 
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
     fragmenter_interface_t *interface_ptr;
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
@@ -1156,7 +1156,7 @@ int lowpan_adaptation_queue_size(int8_t interface_id)
     return interface_ptr->directTxQueue_size;
 }
 
-int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buffer_t *buf)
+int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
 {
     bool is_room_for_new_message;
     if (!buf) {
@@ -1390,7 +1390,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
 }
 
 
-int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *cur, const mcps_data_conf_t *confirm)
+int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_data_conf_t *confirm)
 {
     if (!cur || !confirm) {
         return -1;
@@ -1525,7 +1525,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
            (addr->address[2] == 0xFF && addr->address[3] == 0xFF);
 }
 
-static bool mcps_data_indication_neighbor_validate(protocol_interface_info_entry_t *cur, const sockaddr_t *addr)
+static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const sockaddr_t *addr)
 {
     if (ws_info(cur)) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
@@ -1542,7 +1542,7 @@ static bool mcps_data_indication_neighbor_validate(protocol_interface_info_entry
 
 }
 
-void lowpan_adaptation_interface_data_ind(protocol_interface_info_entry_t *cur, const mcps_data_ind_t *data_ind)
+void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)
 {
     buffer_t *buf = buffer_get(data_ind->msduLength);
     if (!buf || !cur) {
@@ -1641,7 +1641,7 @@ static bool lowpan_tx_buffer_address_compare(sockaddr_t *dst_sa, uint8_t *addres
     return true;
 }
 
-static bool lowpan_adaptation_purge_from_mac(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle)
+static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_interface_t *interface_ptr,  uint8_t msduhandle)
 {
     mcps_purge_t purge_req;
     purge_req.msduHandle = msduhandle;
@@ -1661,7 +1661,7 @@ static bool lowpan_adaptation_purge_from_mac(struct protocol_interface_info_entr
     return mac_purge_success;
 }
 
-static bool lowpan_adaptation_indirect_queue_free_message(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
+static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     tr_debug("Purge from indirect handle %u, cached %d", tx_ptr->buf->seq, tx_ptr->indirect_data_cached);
     if (tx_ptr->indirect_data_cached == false) {
@@ -1676,7 +1676,7 @@ static bool lowpan_adaptation_indirect_queue_free_message(struct protocol_interf
     return true;
 }
 
-void lowpan_adaptation_neigh_remove_free_tx_tables(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *entry_ptr)
+void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, mac_neighbor_table_entry_t *entry_ptr)
 {
     //Free first by defined short address
     if (entry_ptr->mac16 < 0xfffe) {
@@ -1688,7 +1688,7 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(protocol_interface_info_entry
 }
 
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_e adr_type)
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, addrtype_e adr_type)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 
@@ -1726,7 +1726,7 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_in
     return 0;
 }
 
-int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child)
+int8_t lowpan_adaptation_indirect_queue_params_set(struct net_if *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child)
 {
     fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
 

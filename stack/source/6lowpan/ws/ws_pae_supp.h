@@ -50,7 +50,7 @@
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
+int8_t ws_pae_supp_init(struct net_if *interface_ptr, const sec_prot_certs_t *certs, sec_cfg_t *sec_cfg, sec_prot_keys_nw_info_t *sec_keys_nw_info);
 
 /**
  * ws_pae_supp_delete deletes PAE supplicant
@@ -61,7 +61,7 @@ int8_t ws_pae_supp_init(protocol_interface_info_entry_t *interface_ptr, const se
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_delete(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_supp_delete(struct net_if *interface_ptr);
 
 /**
  * ws_pae_supp_fast_timer PAE supplicant fast timer call
@@ -92,7 +92,7 @@ void ws_pae_supp_slow_timer(uint16_t seconds);
  * \return > 0 authentication started
  *
  */
-int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name);
+int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name);
 
 /**
  * ws_pae_supp_border_router_addr_write write border router address
@@ -104,7 +104,7 @@ int8_t ws_pae_supp_authenticate(protocol_interface_info_entry_t *interface_ptr, 
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
+int8_t ws_pae_supp_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
 
 /**
  * ws_pae_supp_border_router_addr_read read border router address
@@ -116,7 +116,7 @@ int8_t ws_pae_supp_border_router_addr_write(protocol_interface_info_entry_t *int
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64);
+int8_t ws_pae_supp_border_router_addr_read(struct net_if *interface_ptr, uint8_t *eui_64);
 
 /**
  * ws_pae_supp_nw_key_valid network key is valid i.e. used successfully on bootstrap
@@ -128,7 +128,7 @@ int8_t ws_pae_supp_border_router_addr_read(protocol_interface_info_entry_t *inte
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, uint8_t *br_iid);
+int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid);
 
 /**
  * ws_pae_supp_gtk_hash_update GTK hash has been updated (on PAN configuration)
@@ -141,7 +141,7 @@ int8_t ws_pae_supp_nw_key_valid(protocol_interface_info_entry_t *interface_ptr, 
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
+int8_t ws_pae_supp_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
  * ws_pae_supp_nw_key_index_update key index been updated (on PAN configuration)
@@ -153,7 +153,7 @@ int8_t ws_pae_supp_gtk_hash_update(protocol_interface_info_entry_t *interface_pt
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
+int8_t ws_pae_supp_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  *  ws_pae_supp_gtks_set set supplicant GTKs
@@ -165,7 +165,7 @@ int8_t ws_pae_supp_nw_key_index_update(protocol_interface_info_entry_t *interfac
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
+int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 
 /**
  * ws_pae_supp_eapol_target_remove remove EAPOL target set using authentication start
@@ -176,7 +176,7 @@ int8_t ws_pae_supp_gtks_set(protocol_interface_info_entry_t *interface_ptr, sec_
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_supp_eapol_target_remove(struct net_if *interface_ptr);
 
 /**
  * ws_pae_auth_nw_info_set set network information
@@ -190,7 +190,7 @@ int8_t ws_pae_supp_eapol_target_remove(protocol_interface_info_entry_t *interfac
  * \return >= 0 success
  *
  */
-int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
+int8_t ws_pae_supp_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 /**
  * ws_pae_supp_nw_key_index_set network send key index set callback
@@ -199,7 +199,7 @@ int8_t ws_pae_supp_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
  * \param index network send key index
  *
  */
-typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
+typedef void ws_pae_supp_nw_key_index_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_supp_auth_completed authentication completed callback
@@ -209,7 +209,7 @@ typedef void ws_pae_supp_nw_key_index_set(protocol_interface_info_entry_t *inter
  * \param target_eui_64 EAPOL target in case of failure or NULL
  *
  */
-typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
+typedef void ws_pae_supp_auth_completed(struct net_if *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
 
 /**
  * ws_pae_supp_auth_next_target get next target to attempt authentication
@@ -220,7 +220,7 @@ typedef void ws_pae_supp_auth_completed(protocol_interface_info_entry_t *interfa
  * \return EUI-64 of the next target or previous target if new one not available
  *
  */
-typedef const uint8_t *ws_pae_supp_auth_next_target(protocol_interface_info_entry_t *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
+typedef const uint8_t *ws_pae_supp_auth_next_target(struct net_if *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
 
 /**
  * ws_pae_supp_nw_key_insert network key insert callback
@@ -233,7 +233,7 @@ typedef const uint8_t *ws_pae_supp_auth_next_target(protocol_interface_info_entr
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
+typedef int8_t ws_pae_supp_nw_key_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 
 /**
  * ws_pae_supp_gtk_hash_ptr_get get pointer to GTK hash storage callback
@@ -243,7 +243,7 @@ typedef int8_t ws_pae_supp_nw_key_insert(protocol_interface_info_entry_t *interf
  * \return pointer to GTK has storage or NULL
  *
  */
-typedef gtkhash_t *ws_pae_supp_gtk_hash_ptr_get(protocol_interface_info_entry_t *interface_ptr);
+typedef gtkhash_t *ws_pae_supp_gtk_hash_ptr_get(struct net_if *interface_ptr);
 
 /**
  * ws_pae_supp_nw_info_updated security keys network information updated
@@ -251,7 +251,7 @@ typedef gtkhash_t *ws_pae_supp_gtk_hash_ptr_get(protocol_interface_info_entry_t 
  * \param interface_ptr interface
  *
  */
-typedef void ws_pae_supp_nw_info_updated(protocol_interface_info_entry_t *interface_ptr);
+typedef void ws_pae_supp_nw_info_updated(struct net_if *interface_ptr);
 
 /**
  * ws_pae_supp_cb_register register PEA supplicant callbacks
@@ -263,7 +263,7 @@ typedef void ws_pae_supp_nw_info_updated(protocol_interface_info_entry_t *interf
  * \param nw_info_updated security keys network information updated callback
  *
  */
-void ws_pae_supp_cb_register(protocol_interface_info_entry_t *interface_ptr,
+void ws_pae_supp_cb_register(struct net_if *interface_ptr,
                              ws_pae_supp_auth_completed *completed,
                              ws_pae_supp_auth_next_target *auth_next_target,
                              ws_pae_supp_nw_key_insert *nw_key_insert,

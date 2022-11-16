@@ -42,15 +42,15 @@
 #define TRACE_GROUP "loND"
 
 void icmp_nd_router_object_release(nd_router_t *router_object);
-uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface, uint16_t seconds);
-static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t ticks);
-static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface);
+uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds);
+static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks);
+static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if *cur_interface);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id_e nwk_id);
 
-static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason);
-uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface);
+static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
+uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface);
 bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds);
 
@@ -123,7 +123,7 @@ void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
     }
 }
 
-void nd_ns_trig(nd_router_t *router_object, protocol_interface_info_entry_t *cur)
+void nd_ns_trig(nd_router_t *router_object, struct net_if *cur)
 {
     //
     ns_list_foreach(prefix_entry_t, prefix, &router_object->prefix_list) {
@@ -162,7 +162,7 @@ void nd_router_base_init(nd_router_t *new_entry)
     new_entry->trig_address_reg = false;
 }
 
-static void nd_router_remove(nd_router_t *router, protocol_interface_info_entry_t *interface)
+static void nd_router_remove(nd_router_t *router, struct net_if *interface)
 {
     tr_debug("route remove");
     ns_list_remove(&nd_router_list, router);
@@ -252,7 +252,7 @@ uint8_t icmp_nd_router_prefix_valid(nd_router_t *nd_router_object)
 }
 
 /* Returns 1 if the router object has been removed */
-uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface, uint16_t seconds)
+uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds)
 {
     ns_list_foreach(prefix_entry_t, cur, &nd_router_object->prefix_list) {
         if (cur->preftime != 0xffffffff && cur->preftime) {
@@ -282,7 +282,7 @@ uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, protocol
     return 0;
 }
 
-static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
+static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry = NULL;
     address_entry = icmpv6_slaac_address_add(cur_interface, prefix, prefix_len, lifetime, preftime, true, slaac_src);
@@ -311,7 +311,7 @@ static int icmp_nd_slaac_prefix_address_gen(protocol_interface_info_entry_t *cur
 }
 
 
-static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
+static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     nd_router_t *cur = NULL;
     bool g16_address;
@@ -431,7 +431,7 @@ static void lowpan_nd_address_cb(protocol_interface_info_entry_t *interface, if_
     }
 }
 
-int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface)
+int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, struct net_if *cur_interface)
 {
     slaac_src_e slaac_src;
     prefix_entry_t *new_entry = 0;
@@ -566,7 +566,7 @@ static void icmp_nd_context_parse(buffer_t *buf, nd_router_t *nd_router_object)
     }
 }
 
-void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, protocol_interface_info_entry_t *cur_interface)
+void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, struct net_if *cur_interface)
 {
     uint8_t *dptr;
     uint16_t data_len = buffer_data_length(buf);
@@ -636,7 +636,7 @@ bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr)
     return true;
 }
 
-uint8_t nd_rs_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface)
+uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
 {
     buffer_t *buf;
 
@@ -663,7 +663,7 @@ static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
 /* Neighbor Solicitation (RFC4861) with Address Registration Option (RFC6775)
  * and Source Link-Layer Address Option (RFC4861)
  */
-void nd_ns_build(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint8_t *address_ptr)
+void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr)
 {
     uint8_t router[16];
     aro_t aro;
@@ -743,7 +743,7 @@ static bool nd_dar_dac_valid(buffer_t *buf)
     return true;
 }
 
-buffer_t *nd_dar_parse(buffer_t *buf, protocol_interface_info_entry_t *cur_interface)
+buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface)
 {
 #if defined WHITEBOARD && defined HAVE_WS_BORDER_ROUTER
     uint8_t *dptr = buffer_data_pointer(buf);
@@ -795,7 +795,7 @@ drop:
     return buffer_free(buf);
 }
 
-static void nd_update_registration(protocol_interface_info_entry_t *cur_interface, ipv6_neighbour_t *neigh, const aro_t *aro)
+static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const aro_t *aro)
 {
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
@@ -830,7 +830,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
     }
 }
 
-void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
+void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, const uint8_t *ll_address)
 {
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cur_interface->ipv6_neighbour_cache.list) {
         if ((cur->type == IP_NEIGHBOUR_REGISTERED
@@ -846,7 +846,7 @@ void nd_remove_registration(protocol_interface_info_entry_t *cur_interface, addr
 }
 
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775) ARO. */
-bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *aro_opt, const uint8_t *slla_opt, const uint8_t *src_addr, aro_t *aro_out)
+bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slla_opt, const uint8_t *src_addr, aro_t *aro_out)
 {
     /* Ignore any ARO if source is link-local */
     if (addr_is_ipv6_link_local(src_addr)) {
@@ -989,7 +989,7 @@ RESPONSE:
     }
 }
 
-buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
+buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 {
     uint8_t *dptr, target_address[16], *reg_address;
     aro_t aro;
@@ -1042,7 +1042,7 @@ buffer_t *nd_dac_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
 
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
-bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime)
+bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime)
 {
     nd_router_t *router;
     uint32_t abro_ver_num;
@@ -1185,7 +1185,7 @@ bool nd_ra_process_abro(protocol_interface_info_entry_t *cur, buffer_t *buf, con
     return uptodate;
 }
 
-static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_interface_info_entry_t *cur_interface)
+static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if *cur_interface)
 {
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
         return;
@@ -1265,7 +1265,7 @@ static void nd_ra_build(nd_router_t *cur, const uint8_t *address, protocol_inter
 
 }
 
-void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_interface_info_entry_t *cur_interface)
+void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, struct net_if *cur_interface)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
         if (addr_ipv6_equal(cur->border_router, abro)) {
@@ -1275,7 +1275,7 @@ void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, protocol_inte
 }
 
 
-void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, protocol_interface_info_entry_t *cur_interface)
+void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, struct net_if *cur_interface)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
         if (cur->nwk_id != cur_interface->nwk_id) {
@@ -1299,7 +1299,7 @@ void nd_ns_forward_timer_reset(uint8_t *root_adr)
 
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
 {
-    protocol_interface_info_entry_t *cur_interface;
+    struct net_if *cur_interface;
     if (!(cur->ns_forward_timer)) {
         return;
     }
@@ -1369,7 +1369,7 @@ void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[s
 }
 
 /* Returns 1 if the router object has been removed */
-static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t ticks_update)
+static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks_update)
 {
     if (!cur->nd_timer) {
         return 0;
@@ -1418,7 +1418,7 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, protocol_interface_info_e
 }
 
 /* Returns 1 if the router object has been removed, or we want no further processing on this tick */
-static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_info_entry_t *cur_interface, uint16_t ticks)
+static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks)
 {
     uint16_t scaled_ticks;
     /*
@@ -1490,7 +1490,7 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
 
 void nd_object_timer(int ticks_update)
 {
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur_interface = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -1537,7 +1537,7 @@ uint8_t nd_prefix_dst_check(uint8_t *ptr)
 }
 
 
-int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, protocol_interface_info_entry_t *cur_interface)
+int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, struct net_if *cur_interface)
 {
     int8_t ret_val = -1;
     addrtype_e adr_type = ADDR_802_15_4_LONG;
@@ -1609,7 +1609,7 @@ nd_router_t *nd_get_pana_address(void)
     return ns_list_get_first(&nd_router_list);
 }
 
-void nd_6lowpan_set_radv_params(protocol_interface_info_entry_t *cur_interface)
+void nd_6lowpan_set_radv_params(struct net_if *cur_interface)
 {
     cur_interface->max_ra_delay_time = 20;
     cur_interface->min_delay_between_ras = 100;

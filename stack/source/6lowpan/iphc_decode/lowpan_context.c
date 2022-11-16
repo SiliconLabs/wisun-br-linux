@@ -128,7 +128,7 @@ void lowpan_context_list_free(lowpan_context_list_t *list)
 /* ticks is in 1/10s */
 void lowpan_context_timer(int ticks)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
     lowpan_context_list_t *list = &interface->lowpan_contexts;
 
     if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))

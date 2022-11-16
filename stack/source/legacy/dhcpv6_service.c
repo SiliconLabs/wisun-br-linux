@@ -398,7 +398,7 @@ void recv_dhcp_relay_msg(void *cb_res)
         return;
     }
 
-    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(sckt_data->interface_id);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get_by_id(sckt_data->interface_id);
 
     relay_instance_t *relay_srv = dhcp_service_relay_interface(sckt_data->interface_id);
 

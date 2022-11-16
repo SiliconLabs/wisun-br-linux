@@ -257,7 +257,7 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8])
+void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8])
 {
     ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->chan_plan.channel_function;
     if (ws_us->chan_plan.channel_function == WS_FIXED_CHANNEL) {
@@ -332,7 +332,7 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 }
 
 
-void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct protocol_interface_info_entry *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
+void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
 {
     ws_neighbor->broadcast_schedule_info_stored = true;
     ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->chan_plan.channel_function;

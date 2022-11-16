@@ -35,7 +35,7 @@ static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0,
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface, mlme_attr_e attribute, uint8_t value)
+static int8_t mac_helper_pib_8bit_set(struct net_if *interface, mlme_attr_e attribute, uint8_t value)
 {
     /* Deprecated: Unused by the RCP. */
     switch (attribute) {
@@ -64,7 +64,7 @@ static int8_t mac_helper_pib_8bit_set(protocol_interface_info_entry_t *interface
     return 0;
 }
 
-void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t panId)
+void mac_helper_panid_set(struct net_if *interface, uint16_t panId)
 {
     interface->mac_parameters.pan_id = panId;
     mlme_set_t set_req;
@@ -75,7 +75,7 @@ void mac_helper_panid_set(protocol_interface_info_entry_t *interface, uint16_t p
     interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
 }
 
-void mac_helper_mac16_address_set(protocol_interface_info_entry_t *interface, uint16_t mac16)
+void mac_helper_mac16_address_set(struct net_if *interface, uint16_t mac16)
 {
     interface->mac_parameters.mac_short_address = mac16;
     if (mac16 < 0xfffe) {
@@ -91,7 +91,7 @@ void mac_helper_mac16_address_set(protocol_interface_info_entry_t *interface, ui
     interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
 }
 
-uint16_t mac_helper_mac16_address_get(const protocol_interface_info_entry_t *interface)
+uint16_t mac_helper_mac16_address_get(const struct net_if *interface)
 {
     uint16_t shortAddress = 0xfffe;
     if (interface) {
@@ -100,7 +100,7 @@ uint16_t mac_helper_mac16_address_get(const protocol_interface_info_entry_t *int
     return shortAddress;
 }
 
-uint16_t mac_helper_panid_get(const protocol_interface_info_entry_t *interface)
+uint16_t mac_helper_panid_get(const struct net_if *interface)
 {
     uint16_t panId = 0xffff;
     if (interface) {
@@ -109,17 +109,17 @@ uint16_t mac_helper_panid_get(const protocol_interface_info_entry_t *interface)
     return panId;
 }
 
-void mac_helper_default_key_index_set(protocol_interface_info_entry_t *interface, uint8_t keyIndex)
+void mac_helper_default_key_index_set(struct net_if *interface, uint8_t keyIndex)
 {
     interface->mac_parameters.mac_default_key_index = keyIndex;
 }
 
-uint8_t mac_helper_default_key_index_get(protocol_interface_info_entry_t *interface)
+uint8_t mac_helper_default_key_index_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_default_key_index;
 }
 
-void mac_helper_set_default_key_source(protocol_interface_info_entry_t *interface)
+void mac_helper_set_default_key_source(struct net_if *interface)
 {
     mlme_set_t set_req;
     set_req.attr_index = 0;
@@ -134,7 +134,7 @@ void mac_helper_set_default_key_source(protocol_interface_info_entry_t *interfac
 
 }
 
-void mac_helper_default_security_level_set(protocol_interface_info_entry_t *interface, uint8_t securityLevel)
+void mac_helper_default_security_level_set(struct net_if *interface, uint8_t securityLevel)
 {
     bool security_enabled;
     if (securityLevel) {
@@ -146,17 +146,17 @@ void mac_helper_default_security_level_set(protocol_interface_info_entry_t *inte
     mac_helper_pib_boolean_set(interface, macSecurityEnabled, security_enabled);
 }
 
-uint8_t mac_helper_default_security_level_get(protocol_interface_info_entry_t *interface)
+uint8_t mac_helper_default_security_level_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_security_level;
 }
 
-void mac_helper_default_security_key_id_mode_set(protocol_interface_info_entry_t *interface, uint8_t keyIdMode)
+void mac_helper_default_security_key_id_mode_set(struct net_if *interface, uint8_t keyIdMode)
 {
     mac_helper_pib_8bit_set(interface, macAutoRequestKeyIdMode,  keyIdMode);
 }
 
-uint8_t mac_helper_default_security_key_id_mode_get(protocol_interface_info_entry_t *interface)
+uint8_t mac_helper_default_security_key_id_mode_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_key_id_mode;
 }
@@ -191,7 +191,7 @@ static void mac_helper_keytable_descriptor_set(struct mac_api *api, const uint8_
     api->mlme_req(api, MLME_SET, &set_req);
 }
 
-int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
+int8_t mac_helper_security_default_key_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
 {
     if (id == 0 || keyid_mode > 3) {
         return -1;
@@ -202,7 +202,7 @@ int8_t mac_helper_security_default_key_set(protocol_interface_info_entry_t *inte
     return 0;
 }
 
-int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_entry_t *interface, uint8_t key_attibute_index, uint8_t id)
+int8_t mac_helper_security_auto_request_key_index_set(struct net_if *interface, uint8_t key_attibute_index, uint8_t id)
 {
     /* Deprecated: Unused by the RCP. */
     if (id == 0) {
@@ -213,7 +213,7 @@ int8_t mac_helper_security_auto_request_key_index_set(protocol_interface_info_en
     return 0;
 }
 
-int8_t mac_helper_security_key_to_descriptor_set(protocol_interface_info_entry_t *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
+int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
 {
     if (id == 0) {
         return -1;
@@ -223,7 +223,7 @@ int8_t mac_helper_security_key_to_descriptor_set(protocol_interface_info_entry_t
     return 0;
 }
 
-int8_t mac_helper_security_key_descriptor_clear(protocol_interface_info_entry_t *interface, uint8_t descriptor)
+int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor)
 {
     if (!interface->mac_api) {
         return -1;
@@ -241,7 +241,7 @@ int8_t mac_helper_security_key_descriptor_clear(protocol_interface_info_entry_t 
     return 0;
 }
 
-void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interface, addrtype_e adr_type, uint8_t *adr_ptr)
+void mac_helper_coordinator_address_set(struct net_if *interface, addrtype_e adr_type, uint8_t *adr_ptr)
 {
     uint16_t short_addr;
     mlme_set_t set_req;
@@ -267,7 +267,7 @@ void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interfa
     }
 }
 
-addrtype_e mac_helper_coordinator_address_get(protocol_interface_info_entry_t *interface, uint8_t *adr_ptr)
+addrtype_e mac_helper_coordinator_address_get(struct net_if *interface, uint8_t *adr_ptr)
 {
     addrtype_e ret = ADDR_NONE;
     if (!interface) {
@@ -284,7 +284,7 @@ addrtype_e mac_helper_coordinator_address_get(protocol_interface_info_entry_t *i
     return ret;
 }
 
-int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, mlme_attr_e attribute, bool value)
+int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribute, bool value)
 {
 
     switch (attribute) {
@@ -311,7 +311,7 @@ int8_t mac_helper_pib_boolean_set(protocol_interface_info_entry_t *interface, ml
     return 0;
 }
 
-int8_t mac_helper_mac_channel_set(protocol_interface_info_entry_t *interface, uint8_t new_channel)
+int8_t mac_helper_mac_channel_set(struct net_if *interface, uint8_t new_channel)
 {
 
     if (interface->mac_parameters.mac_channel != new_channel) {
@@ -341,7 +341,7 @@ static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
  * odd cases.
  * "Odd" is currently defined as PAN ID == 0xffff, or short address > 0xfffd.
  */
-bool mac_helper_write_our_addr(protocol_interface_info_entry_t *interface, sockaddr_t *ptr)
+bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
 {
     bool normal = true;
 
@@ -365,7 +365,7 @@ bool mac_helper_write_our_addr(protocol_interface_info_entry_t *interface, socka
     return normal;
 }
 
-int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const uint8_t *mac64)
+int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64)
 {
     memcpy(interface->mac, mac64, 8);
     if (interface->mac_api) {
@@ -379,7 +379,7 @@ int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const ui
  * Given a buffer, with address and security flags set, compute the maximum
  * MAC payload that could be put in that buffer.
  */
-uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast16_t frame_overhead)
+uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead)
 {
     return cur->mac_api->mtu - frame_overhead;
 }
@@ -390,7 +390,7 @@ uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, 
  * May not be accurate if MAC_MAX_PHY_PACKET_SIZE isn't set, implying a
  * non-standard MAC.
  */
-uint_fast8_t mac_helper_frame_overhead(protocol_interface_info_entry_t *cur, const buffer_t *buf)
+uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
 {
     uint_fast8_t length = 15;
 
@@ -469,7 +469,7 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode)
 
 int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api || !seq_ptr) {
         return -1;
@@ -480,7 +480,7 @@ int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr
 
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api || !seq_ptr) {
         return -1;
@@ -496,7 +496,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
 
 int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api) {
         return -1;
@@ -532,7 +532,7 @@ void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, 
     mac_api->mlme_req(mac_api, MLME_SET, &set_req);
 }
 
-void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
+void mac_helper_device_description_write(struct net_if *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
 {
     memcpy(device_desc->ExtAddress, mac64, 8);
     device_desc->ShortAddress = mac16;
@@ -541,7 +541,7 @@ void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, m
     device_desc->FrameCounter = frame_counter;
 }
 
-void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
+void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, struct net_if *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
 {
     if (!force_set && cur->mac_parameters.SecurityEnabled && cur->mac_parameters.mac_default_key_index != keyID) {
         tr_debug("Do not set counter by index %u != %u", cur->mac_parameters.mac_default_key_index, keyID);
@@ -568,7 +568,7 @@ void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_devic
 
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api) {
         return -1;
@@ -585,7 +585,7 @@ int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_
 
 int8_t mac_helper_mac_mlme_max_csma_backoffs_set(int8_t interface_id, uint8_t csma_backoffs)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api) {
         return -1;
@@ -602,7 +602,7 @@ int8_t mac_helper_mac_mlme_max_csma_backoffs_set(int8_t interface_id, uint8_t cs
 
 int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t max_be)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api) {
         return -1;
@@ -625,7 +625,7 @@ int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t m
 
 int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_request_restart_config_t *request_restart_config)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !cur->mac_api) {
         return -1;
@@ -642,7 +642,7 @@ int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_re
 
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->mac_api) {
         return -1;
@@ -662,7 +662,7 @@ int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_o
 
 int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mlme_set_t set_req;
     mlme_request_mac_filter_start_t args = {
         .lqi_m = lqi_m,
@@ -684,7 +684,7 @@ int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int1
 
 int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mlme_set_t set_req;
 
     if (!cur || !cur->mac_api) {
@@ -700,7 +700,7 @@ int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id)
 
 int8_t mac_helper_mac_mlme_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mlme_set_t set_req;
     mlme_request_mac_filter_add_long_t args = {
         .mac64 = { 0 },
@@ -724,7 +724,7 @@ int8_t mac_helper_mac_mlme_filter_add_long(int8_t interface_id, uint8_t mac64[8]
 
 int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mlme_set_t set_req;
 
     if (!cur || !cur->mac_api) {
@@ -738,7 +738,7 @@ int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id)
     return 0;
 }
 
-int8_t mac_helper_set_regional_regulation(const struct protocol_interface_info_entry *cur, uint32_t regulation)
+int8_t mac_helper_set_regional_regulation(const struct net_if *cur, uint32_t regulation)
 {
     mlme_set_t set_req;
 
@@ -752,7 +752,7 @@ int8_t mac_helper_set_regional_regulation(const struct protocol_interface_info_e
 
 int8_t mac_helper_set_async_fragmentation(int8_t interface_id, uint32_t fragment_duration_ms)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mlme_set_t set_req;
 
     if (!cur || !cur->mac_api)

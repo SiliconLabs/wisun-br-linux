@@ -216,7 +216,7 @@ typedef struct ipv6_ra_timing {
     uint8_t initial_rtr_adv_count;
 } ipv6_ra_timing_t;
 
-struct protocol_interface_info_entry {
+struct net_if {
     nwk_interface_id_e nwk_id;
     int8_t id;
     int8_t bootStrapId;
@@ -303,23 +303,23 @@ struct protocol_interface_info_entry {
 
     struct eth_mac_api *eth_mac_api;
 
-    int8_t (*if_down)(struct protocol_interface_info_entry *cur);
-    int8_t (*if_up)(struct protocol_interface_info_entry *cur, const uint8_t * ipv6_address);
+    int8_t (*if_down)(struct net_if *cur);
+    int8_t (*if_up)(struct net_if *cur, const uint8_t * ipv6_address);
     void (*if_stack_buffer_handler)(buffer_t *);
-    void (*if_common_forwarding_out_cb)(struct protocol_interface_info_entry *, buffer_t *);
-    bool (*if_ns_transmit)(struct protocol_interface_info_entry *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);
-    bool (*if_map_ip_to_link_addr)(struct protocol_interface_info_entry *cur, const uint8_t *ip_addr, enum addrtype *ll_type, const uint8_t **ll_addr_out);
-    bool (*if_map_link_addr_to_ip)(struct protocol_interface_info_entry *cur, enum addrtype ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);
-    buffer_t *(*if_special_forwarding)(struct protocol_interface_info_entry *cur, buffer_t *buf, const sockaddr_t *ll_src, bool *bounce);
-    buffer_t *(*if_snoop)(struct protocol_interface_info_entry *cur, buffer_t *buf, const sockaddr_t *ll_dst, const sockaddr_t *ll_src, bool *bounce);
-    buffer_t *(*if_icmp_handler)(struct protocol_interface_info_entry *cur, buffer_t *buf, bool *bounce);
-    uint8_t (*if_llao_parse)(struct protocol_interface_info_entry *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
-    uint8_t (*if_llao_write)(struct protocol_interface_info_entry *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
-    void (*mac_security_key_usage_update_cb)(struct protocol_interface_info_entry *cur, const struct mlme_security *security_params);
-    uint16_t (*etx_read_override)(struct protocol_interface_info_entry *cur, enum addrtype addr_type, const uint8_t *addr_ptr);
+    void (*if_common_forwarding_out_cb)(struct net_if *, buffer_t *);
+    bool (*if_ns_transmit)(struct net_if *cur, ipv6_neighbour_t *neighCacheEntry, bool unicast, uint8_t seq);
+    bool (*if_map_ip_to_link_addr)(struct net_if *cur, const uint8_t *ip_addr, enum addrtype *ll_type, const uint8_t **ll_addr_out);
+    bool (*if_map_link_addr_to_ip)(struct net_if *cur, enum addrtype ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out);
+    buffer_t *(*if_special_forwarding)(struct net_if *cur, buffer_t *buf, const sockaddr_t *ll_src, bool *bounce);
+    buffer_t *(*if_snoop)(struct net_if *cur, buffer_t *buf, const sockaddr_t *ll_dst, const sockaddr_t *ll_src, bool *bounce);
+    buffer_t *(*if_icmp_handler)(struct net_if *cur, buffer_t *buf, bool *bounce);
+    uint8_t (*if_llao_parse)(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
+    uint8_t (*if_llao_write)(struct net_if *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
+    void (*mac_security_key_usage_update_cb)(struct net_if *cur, const struct mlme_security *security_params);
+    uint16_t (*etx_read_override)(struct net_if *cur, enum addrtype addr_type, const uint8_t *addr_ptr);
 };
 
-typedef NS_LIST_HEAD(protocol_interface_info_entry_t, link) protocol_interface_list_t;
+typedef NS_LIST_HEAD(struct net_if, link) protocol_interface_list_t;
 
 extern protocol_interface_list_t protocol_interface_info_list;
 
@@ -328,28 +328,28 @@ void nwk_interface_flush_neigh_cache(void);
 
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);
 
-void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry);
+void protocol_core_interface_info_reset(struct net_if *entry);
 
-void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface);
+void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface);
 
-uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur);
+uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
-bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
-protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(struct mac_api *api);
-uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time);
+struct net_if *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
+bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
+struct net_if *protocol_stack_interface_generate_lowpan(struct mac_api *api);
+uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);
 
 int8_t protocol_read_tasklet_id(void);
 void protocol_6lowpan_stack(buffer_t *b);
-void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur);
-void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint16_t shortAddress);
-void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64);
-void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix);
+void protocol_6lowpan_register_handlers(struct net_if *cur);
+void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress);
+void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64);
+void protocol_core_dhcpv6_allocated_address_remove(struct net_if *cur, uint8_t *guaPrefix);
 
-void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur);
-void bootstrap_next_state_kick(icmp_state_e new_state, protocol_interface_info_entry_t *cur);
+void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur);
+void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur);
 int8_t protocol_interface_address_compare(const uint8_t *addr);
-bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len);
+bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len);
 bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len);
 #endif /* _NS_PROTOCOL_H */

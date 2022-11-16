@@ -33,14 +33,12 @@ typedef enum nwk_interface_id {
     IF_IPV6,
 } nwk_interface_id_e;
 
-typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
-
 extern int protocol_core_buffers_in_event_queue;
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_id(int8_t nwk_id);
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id);
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id);
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api);
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(void);
+struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id);
+struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id);
+struct net_if *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id);
+struct net_if *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api);
+struct net_if *protocol_stack_interface_info_get_wisun_mesh(void);
 
 #endif

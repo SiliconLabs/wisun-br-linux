@@ -57,7 +57,7 @@ typedef struct ws_cfg_nw_size {
 static uint32_t ws_test_temporary_entry_lifetime = 0;
 typedef int8_t (*ws_cfg_default_set)(void *cfg);
 typedef int8_t (*ws_cfg_validate)(void *new_cfg);
-typedef int8_t (*ws_cfg_set)(protocol_interface_info_entry_t *cur, void *new_cfg, uint8_t flags);
+typedef int8_t (*ws_cfg_set)(struct net_if *cur, void *new_cfg, uint8_t flags);
 
 typedef struct ws_cfg_cb {
     ws_cfg_default_set default_set;
@@ -166,7 +166,7 @@ int8_t ws_cfg_network_size_validate(ws_gen_cfg_t *new_cfg)
 
 typedef void (*ws_cfg_network_size_config_set_size)(ws_cfg_nw_size_t *cfg);
 
-int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_network_size_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -214,7 +214,7 @@ int8_t ws_cfg_network_size_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_
     return CFG_SETTINGS_OK;
 }
 
-static uint8_t ws_cfg_config_get_by_size(protocol_interface_info_entry_t *cur, uint8_t network_size)
+static uint8_t ws_cfg_config_get_by_size(struct net_if *cur, uint8_t network_size)
 {
     (void)cur;
 
@@ -247,7 +247,7 @@ static uint8_t ws_cfg_config_get_by_size(protocol_interface_info_entry_t *cur, u
     return CONFIG_XLARGE;
 }
 
-cfg_network_size_type_e ws_cfg_network_config_get(protocol_interface_info_entry_t *cur)
+cfg_network_size_type_e ws_cfg_network_config_get(struct net_if *cur)
 {
     // Get size of the network Amount of devices in the network
     // Get the data rate of the network
@@ -503,7 +503,7 @@ int8_t ws_cfg_gen_validate(ws_gen_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_gen_set(protocol_interface_info_entry_t *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_gen_set(struct net_if *cur, ws_gen_cfg_t *new_cfg, uint8_t flags)
 {
     int8_t ret = ws_cfg_gen_validate(new_cfg);
     if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
@@ -579,7 +579,7 @@ int8_t ws_cfg_phy_validate(ws_phy_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_phy_set(protocol_interface_info_entry_t *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
 {
     int8_t ret = ws_cfg_phy_validate(new_cfg);
     if (!(flags & CFG_FLAGS_BOOTSTRAP_SET_VALUES) && ret != CFG_SETTINGS_CHANGED) {
@@ -681,7 +681,7 @@ int8_t ws_cfg_timing_validate(ws_timing_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_timing_set(protocol_interface_info_entry_t *cur, ws_timing_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -748,7 +748,7 @@ int8_t ws_cfg_bbr_validate(ws_bbr_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_bbr_set(protocol_interface_info_entry_t *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_bbr_set(struct net_if *cur, ws_bbr_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -809,7 +809,7 @@ int8_t ws_cfg_mpl_validate(ws_mpl_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_mpl_set(protocol_interface_info_entry_t *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -914,7 +914,7 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_fhss_set(protocol_interface_info_entry_t *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_fhss_set(struct net_if *cur, ws_fhss_cfg_t *new_cfg, uint8_t flags)
 {
     (void) cur;
 
@@ -1007,7 +1007,7 @@ int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_timer_set(protocol_interface_info_entry_t *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_sec_timer_set(struct net_if *cur, ws_sec_timer_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -1074,7 +1074,7 @@ int8_t ws_cfg_sec_prot_validate(ws_sec_prot_cfg_t *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_sec_prot_set(protocol_interface_info_entry_t *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags)
+int8_t ws_cfg_sec_prot_set(struct net_if *cur, ws_sec_prot_cfg_t *new_cfg, uint8_t flags)
 {
     (void) flags;
 
@@ -1131,7 +1131,7 @@ int8_t ws_cfg_settings_default_set(void)
     return ret_value;
 }
 
-int8_t ws_cfg_settings_interface_set(protocol_interface_info_entry_t *cur)
+int8_t ws_cfg_settings_interface_set(struct net_if *cur)
 {
     int8_t ret_value = 0;
 
@@ -1177,7 +1177,7 @@ int8_t ws_cfg_settings_validate(struct ws_cfg *new_cfg)
     return CFG_SETTINGS_OK;
 }
 
-int8_t ws_cfg_settings_set(protocol_interface_info_entry_t *cur, ws_cfg_t *new_cfg)
+int8_t ws_cfg_settings_set(struct net_if *cur, ws_cfg_t *new_cfg)
 {
     int8_t ret_value = CFG_SETTINGS_OK;
 

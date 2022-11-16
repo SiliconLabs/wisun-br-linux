@@ -275,7 +275,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 {
-    protocol_interface_info_entry_t *interface;
+    struct net_if *interface;
     uint8_t addr_ws0[16];
     uint8_t addr_tun[16];
     bool cmp;

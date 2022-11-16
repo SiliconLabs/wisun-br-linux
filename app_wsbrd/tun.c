@@ -105,7 +105,7 @@ int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16])
     return tun_addr_get(if_name, ip, true);
 }
 
-void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, uint8_t address[16])
+void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     char ipv6_addr_to_str[128] = { };
@@ -149,7 +149,7 @@ void tun_add_node_to_proxy_neightbl(protocol_interface_info_entry_t *if_entry, u
     rtnl_neigh_put(nl_neigh);
 }
 
-void tun_add_ipv6_direct_route(protocol_interface_info_entry_t *if_entry, uint8_t address[16])
+void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     char ipv6_addr_to_str[128] = { };
@@ -389,7 +389,7 @@ static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
 
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     uint8_t buf[1504]; // Max ethernet frame size + TUN header
     struct iobuf_read iobuf = { .data = buf };
     uint8_t ip_version, nxthdr;

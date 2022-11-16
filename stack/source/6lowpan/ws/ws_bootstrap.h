@@ -78,51 +78,51 @@ extern uint16_t test_pan_version;
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
-void ws_bootstrap_state_machine(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_state_machine(struct net_if *cur);
 
 int ws_bootstrap_restart(int8_t interface_id);
 
 int ws_bootstrap_restart_delayed(int8_t interface_id);
 
-int ws_bootstrap_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+int ws_bootstrap_neighbor_remove(struct net_if *cur, const uint8_t *ll_address);
 
-int ws_bootstrap_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+int ws_bootstrap_aro_failure(struct net_if *cur, const uint8_t *ll_address);
 
-void ws_bootstrap_configuration_trickle_reset(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_configuration_trickle_reset(struct net_if *cur);
 
-void ws_bootstrap_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds);
+void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds);
 
-void ws_bootstrap_trickle_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_bootstrap_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
+void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor);
 
-void ws_bootstrap_secondary_parent_update(protocol_interface_info_entry_t *interface);
+void ws_bootstrap_secondary_parent_update(struct net_if *interface);
 
-void ws_nud_entry_remove_active(protocol_interface_info_entry_t *cur, void *neighbor);
+void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor);
 
-void ws_nud_active_timer(protocol_interface_info_entry_t *cur, uint16_t ticks);
+void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_dhcp_client_address_request(protocol_interface_info_entry_t *cur, uint8_t *prefix, uint8_t *parent_link_local);
+void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t *parent_link_local);
 
-void ws_dhcp_client_address_delete(protocol_interface_info_entry_t *cur, uint8_t *prefix);
+void ws_dhcp_client_address_delete(struct net_if *cur, uint8_t *prefix);
 
-bool ws_eapol_relay_state_active(protocol_interface_info_entry_t *cur);
+bool ws_eapol_relay_state_active(struct net_if *cur);
 
-void ws_bootstrap_eapol_parent_synch(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info);
+void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
-bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs, struct protocol_interface_info_entry *cur);
+bool ws_bootstrap_validate_channel_plan(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs, struct net_if *cur);
 
 bool ws_bootstrap_validate_channel_function(struct ws_us_ie *ws_us, struct ws_bs_ie *ws_bs);
 
-void ws_bootstrap_neighbor_set_stable(struct protocol_interface_info_entry *interface, const uint8_t *src64);
+void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64);
 
-int ws_bootstrap_stack_info_get(protocol_interface_info_entry_t *cur, struct ws_stack_info *info_ptr);
+int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr);
 
-int ws_bootstrap_neighbor_info_get(protocol_interface_info_entry_t *cur, struct ws_neighbour_info *neighbor_ptr, uint16_t table_max);
+int ws_bootstrap_neighbor_info_get(struct net_if *cur, struct ws_neighbour_info *neighbor_ptr, uint16_t table_max);
 
-void ws_bootstrap_mac_neighbor_short_time_set(struct protocol_interface_info_entry *interface, const uint8_t *src64, uint32_t valid_time);
+void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time);
 
-int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure);
+int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedure_e procedure);
 
 /*
  * Functions shared with different bootstrap modes
@@ -131,72 +131,72 @@ int ws_bootstrap_test_procedure_trigger(protocol_interface_info_entry_t *cur, ws
 bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr);
 
 /*State machine transactions*/
-void ws_bootstrap_event_discovery_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_event_discovery_start(struct net_if *cur);
 
-void ws_bootstrap_event_configuration_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_event_configuration_start(struct net_if *cur);
 
-void ws_bootstrap_event_authentication_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_event_authentication_start(struct net_if *cur);
 
-void ws_bootstrap_event_operation_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_event_operation_start(struct net_if *cur);
 
-void ws_bootstrap_event_routing_ready(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_event_routing_ready(struct net_if *cur);
 
-void ws_bootstrap_event_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
+void ws_bootstrap_event_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type);
 
-void ws_bootstrap_test_procedure_trigger_exec(protocol_interface_info_entry_t *cur, ws_bootstrap_procedure_e procedure);
+void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_procedure_e procedure);
 
-void ws_bootstrap_network_down(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_network_down(struct net_if *cur);
 
 // Bootstrap state machine state Functions
-bool ws_bootstrap_state_discovery(struct protocol_interface_info_entry *cur);
-bool ws_bootstrap_state_authenticate(struct protocol_interface_info_entry *cur);
-bool ws_bootstrap_state_configure(struct protocol_interface_info_entry *cur);
-bool ws_bootstrap_state_wait_rpl(struct protocol_interface_info_entry *cur);
-bool ws_bootstrap_state_active(struct protocol_interface_info_entry *cur);
-void ws_bootstrap_state_disconnect(protocol_interface_info_entry_t *cur, ws_bootstrap_event_type_e event_type);
-void ws_bootstrap_state_change(protocol_interface_info_entry_t *cur, icmp_state_e nwk_bootstrap_state);
+bool ws_bootstrap_state_discovery(struct net_if *cur);
+bool ws_bootstrap_state_authenticate(struct net_if *cur);
+bool ws_bootstrap_state_configure(struct net_if *cur);
+bool ws_bootstrap_state_wait_rpl(struct net_if *cur);
+bool ws_bootstrap_state_active(struct net_if *cur);
+void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type);
+void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
 
-void ws_bootstrap_candidate_list_clean(struct protocol_interface_info_entry *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
+void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
 void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information);
-void ws_bootstrap_candidate_table_reset(protocol_interface_info_entry_t *cur);
-parent_info_t *ws_bootstrap_candidate_parent_get(struct protocol_interface_info_entry *cur, const uint8_t *addr, bool create);
-void ws_bootstrap_candidate_parent_sort(struct protocol_interface_info_entry *cur, parent_info_t *new_entry);
-parent_info_t *ws_bootstrap_candidate_parent_get_best(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_candidate_table_reset(struct net_if *cur);
+parent_info_t *ws_bootstrap_candidate_parent_get(struct net_if *cur, const uint8_t *addr, bool create);
+void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry);
+parent_info_t *ws_bootstrap_candidate_parent_get_best(struct net_if *cur);
 
-void ws_bootstrap_primary_parent_set(struct protocol_interface_info_entry *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
-void ws_bootstrap_parent_confirm(protocol_interface_info_entry_t *cur, struct rpl_instance *instance);
-bool ws_bootstrap_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
-void ws_bootstrap_neighbor_list_clean(struct protocol_interface_info_entry *interface);
-int8_t ws_bootstrap_neighbor_set(protocol_interface_info_entry_t *cur, parent_info_t *parent_ptr, bool clear_list);
-void ws_nud_table_reset(protocol_interface_info_entry_t *cur);
-void ws_address_registration_update(protocol_interface_info_entry_t *interface, const uint8_t addr[16]);
+void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
+void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);
+bool ws_bootstrap_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
+void ws_bootstrap_neighbor_list_clean(struct net_if *interface);
+int8_t ws_bootstrap_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list);
+void ws_nud_table_reset(struct net_if *cur);
+void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16]);
 
 
-void ws_bootstrap_configure_csma_ca_backoffs(protocol_interface_info_entry_t *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be);
-void ws_bootstrap_fhss_configure_channel_masks(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration);
-int8_t ws_bootstrap_fhss_set_defaults(protocol_interface_info_entry_t *cur, fhss_ws_configuration_t *fhss_configuration);
-void ws_bootstrap_fhss_activate(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be);
+void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
+int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
+void ws_bootstrap_fhss_activate(struct net_if *cur);
 uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint32_t *channel_mask);
-int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_configure_max_retries(protocol_interface_info_entry_t *cur, uint8_t max_mac_retries);
-void ws_bootstrap_configure_data_request_restart(protocol_interface_info_entry_t *cur, uint8_t cca_failure_restart_max, uint8_t tx_failure_restart_max, uint16_t blacklist_min_ms, uint16_t blacklist_max_ms);
+int ws_bootstrap_set_domain_rf_config(struct net_if *cur);
+void ws_bootstrap_configure_max_retries(struct net_if *cur, uint8_t max_mac_retries);
+void ws_bootstrap_configure_data_request_restart(struct net_if *cur, uint8_t cca_failure_restart_max, uint8_t tx_failure_restart_max, uint16_t blacklist_min_ms, uint16_t blacklist_max_ms);
 
 
-void ws_bootstrap_llc_hopping_update(struct protocol_interface_info_entry *cur, const fhss_ws_configuration_t *fhss_configuration);
+void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration);
 
-void ws_bootstrap_rpl_activate(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_rpl_scan_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_rpl_activate(struct net_if *cur);
+void ws_bootstrap_rpl_scan_start(struct net_if *cur);
 
-void ws_bootstrap_ip_stack_reset(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_ip_stack_activate(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_ip_stack_reset(struct net_if *cur);
+void ws_bootstrap_ip_stack_activate(struct net_if *cur);
 
-void ws_bootstrap_packet_congestion_init(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_packet_congestion_init(struct net_if *cur);
 
-void ws_bootstrap_asynch_trickle_stop(protocol_interface_info_entry_t *cur);
-void ws_bootstrap_advertise_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_asynch_trickle_stop(struct net_if *cur);
+void ws_bootstrap_advertise_start(struct net_if *cur);
 
-void ws_bootstrap_network_start(protocol_interface_info_entry_t *cur);
+void ws_bootstrap_network_start(struct net_if *cur);
 
-uint16_t ws_bootstrap_routing_cost_calculate(protocol_interface_info_entry_t *cur);
+uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur);
 
 #endif

@@ -46,7 +46,7 @@ void ws_eapol_auth_relay_socket_cb(int fd);
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
 /**
  *  ws_eapol_auth_relay_delete delete authenticator relay
@@ -57,7 +57,7 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_eapol_auth_relay_delete(struct net_if *interface_ptr);
 
 #else
 

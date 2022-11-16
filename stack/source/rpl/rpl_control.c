@@ -137,7 +137,7 @@ void rpl_control_event(struct rpl_domain *domain, rpl_event_e event)
 static void rpl_control_publish_own_addresses(rpl_domain_t *domain, rpl_instance_t *instance)
 {
     int8_t last_id = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     while ((cur = protocol_stack_interface_info_get_by_rpl_domain(domain, last_id)) != NULL) {
         ns_list_foreach(if_address_entry_t, addr, &cur->ip_addresses) {
             if (!addr->tentative && !addr_is_ipv6_link_local(addr->address)) {
@@ -210,7 +210,7 @@ void rpl_control_set_force_tunnel(bool requested)
 }
 
 /* Send address registration to either specified address, or to non-registered address */
-void rpl_control_register_address(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
+void rpl_control_register_address(struct net_if *interface, const uint8_t addr[16])
 {
     if (!interface->rpl_domain) {
         return;
@@ -223,7 +223,7 @@ void rpl_control_register_address(protocol_interface_info_entry_t *interface, co
     }
 }
 
-bool rpl_control_address_register_done(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint8_t status)
+bool rpl_control_address_register_done(struct net_if *interface, const uint8_t ll_addr[16], uint8_t status)
 {
     bool blacklist_neighbour = false;
     if (!interface->rpl_domain) {
@@ -242,7 +242,7 @@ bool rpl_control_address_register_done(protocol_interface_info_entry_t *interfac
     return blacklist_neighbour;
 }
 
-bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+bool rpl_control_is_dodag_parent(struct net_if *interface, const uint8_t ll_addr[16])
 {
     if (!interface->rpl_domain) {
         return false;
@@ -256,7 +256,7 @@ bool rpl_control_is_dodag_parent(protocol_interface_info_entry_t *interface, con
     return false;
 }
 
-bool rpl_control_is_dodag_parent_candidate(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter)
+bool rpl_control_is_dodag_parent_candidate(struct net_if *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter)
 {
     if (!interface->rpl_domain) {
         return false;
@@ -270,7 +270,7 @@ bool rpl_control_is_dodag_parent_candidate(protocol_interface_info_entry_t *inte
     return false;
 }
 
-uint16_t rpl_control_candidate_list_size(protocol_interface_info_entry_t *interface, rpl_instance_t *rpl_instance)
+uint16_t rpl_control_candidate_list_size(struct net_if *interface, rpl_instance_t *rpl_instance)
 {
     if (!interface->rpl_domain) {
         return 0;
@@ -280,7 +280,7 @@ uint16_t rpl_control_candidate_list_size(protocol_interface_info_entry_t *interf
 
 }
 
-uint16_t rpl_control_selected_parent_count(protocol_interface_info_entry_t *interface, rpl_instance_t *rpl_instance)
+uint16_t rpl_control_selected_parent_count(struct net_if *interface, rpl_instance_t *rpl_instance)
 {
     if (!interface->rpl_domain) {
         return 0;
@@ -291,7 +291,7 @@ uint16_t rpl_control_selected_parent_count(protocol_interface_info_entry_t *inte
 }
 
 
-bool rpl_control_probe_parent_candidate(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+bool rpl_control_probe_parent_candidate(struct net_if *interface, const uint8_t ll_addr[16])
 {
     if (!interface->rpl_domain) {
         return false;
@@ -305,7 +305,7 @@ bool rpl_control_probe_parent_candidate(protocol_interface_info_entry_t *interfa
     return false;
 }
 
-uint16_t rpl_control_neighbor_info_get(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t *global_address)
+uint16_t rpl_control_neighbor_info_get(struct net_if *interface, const uint8_t ll_addr[16], uint8_t *global_address)
 {
 
     if (!interface->rpl_domain) {
@@ -324,7 +324,7 @@ uint16_t rpl_control_neighbor_info_get(struct protocol_interface_info_entry *int
     return 0xffff;
 }
 
-bool rpl_possible_better_candidate(struct protocol_interface_info_entry *interface, rpl_instance_t *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx)
+bool rpl_possible_better_candidate(struct net_if *interface, rpl_instance_t *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx)
 {
     if (!interface->rpl_domain) {
         return false;
@@ -340,7 +340,7 @@ bool rpl_possible_better_candidate(struct protocol_interface_info_entry *interfa
 }
 
 
-uint16_t rpl_control_parent_candidate_list_size(protocol_interface_info_entry_t *interface, bool parent_list)
+uint16_t rpl_control_parent_candidate_list_size(struct net_if *interface, bool parent_list)
 {
     if (!interface->rpl_domain) {
         return 0;
@@ -358,7 +358,7 @@ uint16_t rpl_control_parent_candidate_list_size(protocol_interface_info_entry_t 
     return parent_list_size;
 }
 
-void rpl_control_neighbor_delete_from_instance(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, const uint8_t ll_addr[16])
+void rpl_control_neighbor_delete_from_instance(struct net_if *interface, rpl_instance_t *instance, const uint8_t ll_addr[16])
 {
     rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
     if (neighbour) {
@@ -366,7 +366,7 @@ void rpl_control_neighbor_delete_from_instance(protocol_interface_info_entry_t *
     }
 }
 
-void rpl_control_neighbor_delete(protocol_interface_info_entry_t *interface, const uint8_t ll_addr[16])
+void rpl_control_neighbor_delete(struct net_if *interface, const uint8_t ll_addr[16])
 {
     if (!interface->rpl_domain) {
         return;
@@ -377,7 +377,7 @@ void rpl_control_neighbor_delete(protocol_interface_info_entry_t *interface, con
     }
 }
 
-bool rpl_control_find_worst_neighbor(protocol_interface_info_entry_t *interface, rpl_instance_t *rpl_instance, uint8_t ll_addr[static 16])
+bool rpl_control_find_worst_neighbor(struct net_if *interface, rpl_instance_t *rpl_instance, uint8_t ll_addr[static 16])
 {
     if (!interface->rpl_domain) {
         return false;
@@ -394,7 +394,7 @@ bool rpl_control_find_worst_neighbor(protocol_interface_info_entry_t *interface,
 
 
 /* Address changes need to trigger DAO target re-evaluation */
-static void rpl_control_addr_notifier(struct protocol_interface_info_entry *interface, const if_address_entry_t *addr, if_address_callback_e reason)
+static void rpl_control_addr_notifier(struct net_if *interface, const if_address_entry_t *addr, if_address_callback_e reason)
 {
     /* Don't care about link-local addresses */
     if (addr_is_ipv6_link_local(addr->address)) {
@@ -419,7 +419,7 @@ static void rpl_control_addr_notifier(struct protocol_interface_info_entry *inte
 static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index, const uint8_t *mac64)
 {
 
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
     if (!cur || !cur->rpl_domain) {
         return;
     }
@@ -491,7 +491,7 @@ void rpl_control_delete_domain(rpl_domain_t *domain)
     rpl_free(domain, sizeof * domain);
 }
 
-static void rpl_control_remove_interface_from_domain(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, bool free_instances)
+static void rpl_control_remove_interface_from_domain(struct net_if *cur, rpl_domain_t *domain, bool free_instances)
 {
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
         rpl_instance_remove_interface(instance, cur->id);
@@ -514,7 +514,7 @@ static void rpl_control_remove_interface_from_domain(protocol_interface_info_ent
     }
 }
 
-void rpl_control_set_domain_on_interface(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, bool downstream)
+void rpl_control_set_domain_on_interface(struct net_if *cur, rpl_domain_t *domain, bool downstream)
 {
     if (cur->rpl_domain != domain) {
         rpl_control_remove_domain_from_interface(cur);
@@ -530,7 +530,7 @@ void rpl_control_set_domain_on_interface(protocol_interface_info_entry_t *cur, r
     etx_value_change_callback_register(cur->nwk_id, cur->id,  rpl_policy_etx_hysteresis(domain), rpl_control_etx_change_callback);
 }
 
-void rpl_control_remove_domain_from_interface(protocol_interface_info_entry_t *cur)
+void rpl_control_remove_domain_from_interface(struct net_if *cur)
 {
     if (cur->rpl_domain) {
         rpl_control_remove_interface_from_domain(cur, cur->rpl_domain, false);
@@ -539,7 +539,7 @@ void rpl_control_remove_domain_from_interface(protocol_interface_info_entry_t *c
     }
 }
 
-void rpl_control_free_domain_instances_from_interface(protocol_interface_info_entry_t *cur)
+void rpl_control_free_domain_instances_from_interface(struct net_if *cur)
 {
     if (cur->rpl_domain) {
         rpl_control_remove_interface_from_domain(cur, cur->rpl_domain, true);
@@ -564,7 +564,7 @@ void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callba
 void rpl_control_disable_ra_routes(struct rpl_domain *domain)
 {
     int8_t last_id = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     while ((cur = protocol_stack_interface_info_get_by_rpl_domain(domain, last_id)) != NULL) {
         icmpv6_recv_ra_routes(cur, false);
         last_id = cur->id;
@@ -584,7 +584,7 @@ bool rpl_control_have_dodag(rpl_domain_t *domain)
 typedef void rpl_control_predicate_loop_fn_t(rpl_instance_t *instance, rpl_dodag_version_t *version, void *arg);
 
 typedef struct rpl_loopfn_trigger_unicast_dio_arg {
-    struct protocol_interface_info_entry *interface;
+    struct net_if *interface;
     const uint8_t *dst;
 } rpl_loopfn_trigger_unicast_dio_arg_t;
 
@@ -898,7 +898,7 @@ static uint_fast8_t rpl_control_conf_length(void)
  *
  *       Figure 29: Format of the Prefix Information Option
  */
-static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *cur, rpl_instance_t *instance, rpl_dodag_t *dodag, rpl_neighbour_t *neighbour, const uint8_t *start, const uint8_t *end)
+static void rpl_control_process_prefix_options(struct net_if *cur, rpl_instance_t *instance, rpl_dodag_t *dodag, rpl_neighbour_t *neighbour, const uint8_t *start, const uint8_t *end)
 {
     (void)cur;
 
@@ -960,7 +960,7 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
     }
 }
 
-void rpl_control_process_prefix_option(prefix_entry_t *prefix, protocol_interface_info_entry_t *cur)
+void rpl_control_process_prefix_option(prefix_entry_t *prefix, struct net_if *cur)
 {
     //Check is L Flag active
     if (prefix->options & PIO_L) {
@@ -1074,7 +1074,7 @@ static void rpl_control_dao_trigger_request(rpl_instance_t *instance, rpl_dodag_
  *
  *                 Figure 14: The DIO Base Object
  */
-static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf)
+static buffer_t *rpl_control_dio_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf)
 {
     if (!rpl_control_options_well_formed_in_buffer(buf, 24)) {
 malformed:
@@ -1281,7 +1281,7 @@ invalid_parent:
     return buffer_free(buf);
 }
 
-static void rpl_control_transmit_one_interface(protocol_interface_info_entry_t *cur, buffer_t *buf)
+static void rpl_control_transmit_one_interface(struct net_if *cur, buffer_t *buf)
 {
     /* If destination is global, this will end up routed, regardless of original interface */
     /* (But we do currently need an interface specified anyway?) */
@@ -1300,7 +1300,7 @@ static void rpl_control_transmit_one_interface(protocol_interface_info_entry_t *
 
 static void rpl_control_transmit_all_interfaces(rpl_domain_t *domain, buffer_t *buf)
 {
-    protocol_interface_info_entry_t *first_if = NULL, *cur;
+    struct net_if *first_if = NULL, *cur;
     int8_t last_id = -1;
 
     while ((cur = protocol_stack_interface_info_get_by_rpl_domain(domain, last_id)) != NULL) {
@@ -1326,7 +1326,7 @@ static void rpl_control_transmit_all_interfaces(rpl_domain_t *domain, buffer_t *
 }
 
 /* Complete and send a RPL control message - all interfaces multicast if dst+cur are NULL, else unicast */
-void rpl_control_transmit(rpl_domain_t *domain, protocol_interface_info_entry_t *cur, uint8_t code, buffer_t *buf, const uint8_t *dst)
+void rpl_control_transmit(rpl_domain_t *domain, struct net_if *cur, uint8_t code, buffer_t *buf, const uint8_t *dst)
 {
     buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
     buf->options.type = ICMPV6_TYPE_INFO_RPL_CONTROL;
@@ -1358,14 +1358,14 @@ void rpl_control_transmit(rpl_domain_t *domain, protocol_interface_info_entry_t 
 
 
 /* Transmit a DIO (unicast or multicast); cur may be NULL if multicast */
-void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entry_t *cur, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, rpl_dodag_t *dodag, const uint8_t dodagid[16], const rpl_dodag_conf_t *conf, const uint8_t *dst)
+void rpl_control_transmit_dio(rpl_domain_t *domain, struct net_if *cur, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, rpl_dodag_t *dodag, const uint8_t dodagid[16], const rpl_dodag_conf_t *conf, const uint8_t *dst)
 {
     uint16_t length;
 
     const rpl_dio_route_list_t *routes = rpl_dodag_get_route_list(dodag);
     const prefix_list_t *prefixes = rpl_dodag_get_prefix_list(dodag);
 
-    protocol_interface_info_entry_t *downstream_if = protocol_stack_interface_info_get_by_id(domain->non_storing_downstream_interface);
+    struct net_if *downstream_if = protocol_stack_interface_info_get_by_id(domain->non_storing_downstream_interface);
     length = 24;
     if (conf) {
         length += rpl_control_conf_length();
@@ -1503,7 +1503,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, protocol_interface_info_entr
  *
  *      Figure 28: Format of the Solicited Information Option
  */
-static buffer_t *rpl_control_dis_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
+static buffer_t *rpl_control_dis_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
 {
     if (!rpl_control_options_well_formed_in_buffer(buf, 2)) {
         protocol_stats_update(STATS_RPL_MALFORMED_MESSAGE, 1);
@@ -1545,7 +1545,7 @@ static buffer_t *rpl_control_dis_handler(protocol_interface_info_entry_t *cur, r
     return buffer_free(buf);
 }
 
-void rpl_control_transmit_dio_trigger(protocol_interface_info_entry_t *cur, struct rpl_domain *domain)
+void rpl_control_transmit_dio_trigger(struct net_if *cur, struct rpl_domain *domain)
 {
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
         rpl_instance_dio_trigger(instance, cur, NULL);
@@ -1559,7 +1559,7 @@ void rpl_control_parent_selection_trigger(struct rpl_domain *domain)
     }
 }
 
-void rpl_control_transmit_dis(rpl_domain_t *domain, protocol_interface_info_entry_t *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst)
+void rpl_control_transmit_dis(rpl_domain_t *domain, struct net_if *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst)
 {
     uint16_t length = 2;
     if (pred) {
@@ -1620,7 +1620,7 @@ void rpl_control_transmit_dis(rpl_domain_t *domain, protocol_interface_info_entr
  *                   Figure 17: The DAO ACK Base Object
  */
 
-static void rpl_control_transmit_dao_ack(rpl_domain_t *domain, protocol_interface_info_entry_t *cur, uint8_t instance_id, uint8_t dao_sequence, uint8_t status, const uint8_t dodagid[16], const uint8_t *dst)
+static void rpl_control_transmit_dao_ack(rpl_domain_t *domain, struct net_if *cur, uint8_t instance_id, uint8_t dao_sequence, uint8_t status, const uint8_t dodagid[16], const uint8_t *dst)
 {
     buffer_t *buf = buffer_get(dodagid ? 4 + 20 : 4);
     if (!buf) {
@@ -1641,7 +1641,7 @@ static void rpl_control_transmit_dao_ack(rpl_domain_t *domain, protocol_interfac
 }
 #endif // HAVE_RPL_DAO_HANDLING
 
-static buffer_t *rpl_control_dao_ack_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf)
+static buffer_t *rpl_control_dao_ack_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf)
 {
     (void)cur;
 
@@ -1694,7 +1694,7 @@ format_error:
  *
  *               Figure 16: The DAO Base Object
  */
-bool rpl_control_transmit_dao(rpl_domain_t *domain, protocol_interface_info_entry_t *cur, rpl_instance_t *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst)
+bool rpl_control_transmit_dao(rpl_domain_t *domain, struct net_if *cur, rpl_instance_t *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst)
 {
     uint8_t dodagid_flag = 0;
     if (rpl_instance_id_is_local(instance_id)) {
@@ -1726,7 +1726,7 @@ bool rpl_control_transmit_dao(rpl_domain_t *domain, protocol_interface_info_entr
 }
 
 #ifdef HAVE_RPL_DAO_HANDLING
-static buffer_t *rpl_control_dao_handler(protocol_interface_info_entry_t *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
+static buffer_t *rpl_control_dao_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
 {
     if (buffer_data_length(buf) < 4) {
 format_error:
@@ -1792,7 +1792,7 @@ return buffer_free(buf);
 
 buffer_t *rpl_control_handler(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     rpl_domain_t *domain = cur ? cur->rpl_domain : NULL;
     if (!domain) {
         tr_warn("RPL control on non-RPL interface");
@@ -1825,7 +1825,7 @@ buffer_t *rpl_control_handler(buffer_t *buf)
 
 #ifdef HAVE_RPL_ROOT
 /* Buffer contains ICMP payload, so 4 bytes unused, followed by invoking packet */
-buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
+buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, struct net_if *cur)
 {
     if (buffer_data_length(buf) < 40 || !cur->rpl_domain) {
         return buf;
@@ -1887,7 +1887,7 @@ void rpl_control_slow_timer(int seconds)
     if ((rpl_print_timer += seconds) >= 50) {
         rpl_print_timer = 0;
         void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...));
-        protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+        struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
         if (cur) {
             ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache, trace_info_print);
         }

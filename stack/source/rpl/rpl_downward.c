@@ -118,8 +118,8 @@ static void rpl_downward_topo_sort_invalidate(rpl_instance_t *instance);
 /* The PCS mask */
 #define PCSMASK(pcs) ((uint8_t)(0x100 - PCBIT(pcs)))
 
-static bool rpl_instance_push_address_registration(protocol_interface_info_entry_t *interface, rpl_neighbour_t *neighbour, if_address_entry_t *addr);
-static if_address_entry_t *rpl_interface_addr_get(protocol_interface_info_entry_t *interface, const uint8_t addr[16]);
+static bool rpl_instance_push_address_registration(struct net_if *interface, rpl_neighbour_t *neighbour, if_address_entry_t *addr);
+static if_address_entry_t *rpl_interface_addr_get(struct net_if *interface, const uint8_t addr[16]);
 
 /*
  *                                 0 1 2 3 4 5 6 7
@@ -861,7 +861,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     }
 
     const uint8_t *dst;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     if (storing) {
         dst = parent->ll_address;
         cur = protocol_stack_interface_info_get_by_id(parent->interface_id);
@@ -873,7 +873,7 @@ void rpl_instance_send_dao_update(rpl_instance_t *instance)
     if (instance->dao_attempt > 0) {
         // Start informing problem in routing. This will cause us to select secondary routes when sending the DAO
         tr_info("DAO reachability problem");
-        protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
+        struct net_if *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
         if (interface) {
             ipv6_neighbour_reachability_problem(dst, interface->id);
         }
@@ -1566,7 +1566,7 @@ bool rpl_instance_dao_received(rpl_instance_t *instance, const uint8_t src[16], 
 static uint16_t rpl_instance_address_registration_start(rpl_instance_t *instance, rpl_dao_target_t *pending_target)
 {
     rpl_neighbour_t *pref_parent = rpl_instance_preferred_parent(instance);
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
+    struct net_if *interface = protocol_stack_interface_info_get_by_rpl_domain(instance->domain, -1);
     if (!interface || !pref_parent) {
         return 1;
     }
@@ -1876,7 +1876,7 @@ static rpl_neighbour_t *rpl_instance_get_unconfirmed_parent_info(rpl_instance_t 
     return NULL;
 }
 
-static bool rpl_instance_push_address_registration(protocol_interface_info_entry_t *interface, rpl_neighbour_t *neighbour, if_address_entry_t *addr)
+static bool rpl_instance_push_address_registration(struct net_if *interface, rpl_neighbour_t *neighbour, if_address_entry_t *addr)
 {
     aro_t aro;
 
@@ -1896,7 +1896,7 @@ static bool rpl_instance_push_address_registration(protocol_interface_info_entry
     protocol_push(buf);
     return true;
 }
-static if_address_entry_t *rpl_interface_addr_get(protocol_interface_info_entry_t *interface, const uint8_t addr[16])
+static if_address_entry_t *rpl_interface_addr_get(struct net_if *interface, const uint8_t addr[16])
 {
     ns_list_foreach(if_address_entry_t, entry, &interface->ip_addresses) {
         if (memcmp(entry->address, addr, 16) == 0) {
@@ -1972,7 +1972,7 @@ void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint
     }
 
     //Get address and buffer
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(neighbour->interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(neighbour->interface_id);
     if (!interface) {
         rpl_instance_address_registration_cancel(instance);
         return;
@@ -1991,7 +1991,7 @@ void rpl_instance_parent_address_reg_timer_update(rpl_instance_t *instance, uint
 
 }
 
-bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, rpl_neighbour_t *neighbour, uint8_t status)
+bool rpl_instance_address_registration_done(struct net_if *interface, rpl_instance_t *instance, rpl_neighbour_t *neighbour, uint8_t status)
 {
     if (!instance->pending_neighbour_confirmation) {
         return false;

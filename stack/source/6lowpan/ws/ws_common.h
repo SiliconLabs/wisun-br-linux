@@ -140,15 +140,15 @@ typedef struct ws_info {
 } ws_info_t;
 
 
-int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur, uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
+int8_t ws_common_generate_channel_list(const struct net_if *cur, uint32_t *channel_mask, uint16_t number_of_channels, uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
 uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels);
 
-int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schedule);
+int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule);
 
 uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operating_class, uint8_t channel_plan_id);
 
-int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur);
+int8_t ws_common_allocate_and_init(struct net_if *cur);
 
 void ws_common_seconds_timer(int seconds);
 
@@ -156,47 +156,47 @@ void ws_common_fast_timer(int ticks);
 
 void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64);
 
-void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address);
 
 void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status);
 
-void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address);
 
-void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address);
+void ws_common_neighbor_remove(struct net_if *cur, const uint8_t *ll_address);
 
-uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *cur, const uint8_t *eui64, uint16_t aro_timeout);
+uint8_t ws_common_allow_child_registration(struct net_if *cur, const uint8_t *eui64, uint16_t aro_timeout);
 
-bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64);
+bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64);
 
 uint32_t ws_common_version_timeout_get(uint8_t config);
 
-uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_latency_estimate_get(struct net_if *cur);
 
 uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t operating_mode);
 
-uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_datarate_get(struct net_if *cur);
 
-uint32_t ws_common_usable_application_datarate_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_usable_application_datarate_get(struct net_if *cur);
 
-uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_network_size_estimate_get(struct net_if *cur);
 
-uint32_t ws_common_connected_time_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_connected_time_get(struct net_if *cur);
 
-uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur);
+uint32_t ws_common_authentication_time_get(struct net_if *cur);
 
-void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor);
+void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor);
 
-void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface);
+void ws_common_secondary_parent_update(struct net_if *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 
-void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface);
+void ws_common_border_router_alive_update(struct net_if *interface);
 
 int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
-void ws_common_state_machine(protocol_interface_info_entry_t *cur);
+void ws_common_state_machine(struct net_if *cur);
 
-fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interface_info_entry_t *cur);
+fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur);
 
 #define ws_info(cur) ((cur)->ws_info)
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)

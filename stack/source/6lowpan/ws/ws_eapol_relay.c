@@ -45,15 +45,15 @@
 #define TRACE_GROUP "wser"
 
 typedef struct eapol_relay {
-    protocol_interface_info_entry_t *interface_ptr;         /**< Interface pointer */
+    struct net_if *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address (border router address) */
     int8_t socket_id;                                       /**< Socket ID for relay */
     ns_list_link_t link;                                    /**< Link */
 } eapol_relay_t;
 
-static eapol_relay_t *ws_eapol_relay_get(protocol_interface_info_entry_t *interface_ptr);
-static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
-static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
+static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr);
+static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
+static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
 #ifdef HAVE_SOCKET_API
 static void ws_eapol_relay_socket_cb(void *cb);
 #endif
@@ -69,7 +69,7 @@ static eapol_relay_t * g_eapol_relay = NULL;
 
 int ws_eapol_relay_get_socket_fd()
 {
-    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
     eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
     if (eapol_relay)
         return eapol_relay->socket_id;
@@ -77,7 +77,7 @@ int ws_eapol_relay_get_socket_fd()
         return -1;
 }
 
-int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
+int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     if (!interface_ptr || !remote_addr) {
         return -1;
@@ -131,7 +131,7 @@ int8_t ws_eapol_relay_start(protocol_interface_info_entry_t *interface_ptr, uint
     return 0;
 }
 
-int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_eapol_relay_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -156,12 +156,12 @@ int8_t ws_eapol_relay_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-static eapol_relay_t *ws_eapol_relay_get(protocol_interface_info_entry_t *interface_ptr)
+static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr)
 {
     return g_eapol_relay;
 }
 
-static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     (void) eui_64;
     (void) interface_ptr;
@@ -170,7 +170,7 @@ static int8_t ws_eapol_relay_eapol_pdu_address_check(protocol_interface_info_ent
     return 0;
 }
 
-static int8_t ws_eapol_relay_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size)
+static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size)
 {
     eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
     if (!eapol_relay) {

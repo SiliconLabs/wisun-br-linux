@@ -28,7 +28,7 @@ int8_t multicast_mpl_domain_subscribe(int8_t interface_id,
                                       multicast_mpl_seed_id_mode_e seed_id_mode,
                                       const void *seed_id)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }
@@ -52,7 +52,7 @@ int8_t multicast_mpl_domain_subscribe_with_parameters
  uint8_t control_message_k,
  uint8_t control_message_timer_expirations)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }
@@ -84,7 +84,7 @@ int_fast8_t multicast_mpl_set_default_parameters(int8_t interface_id,
                                                  uint8_t control_message_k,
                                                  uint8_t control_message_timer_expirations)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }
@@ -107,7 +107,7 @@ int_fast8_t multicast_mpl_set_default_seed_id(int8_t interface_id,
                                               multicast_mpl_seed_id_mode_e seed_id_mode,
                                               const void *seed_id)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }
@@ -136,7 +136,7 @@ int_fast8_t multicast_mpl_set_default_seed_id(int8_t interface_id,
 int8_t multicast_mpl_domain_unsubscribe(int8_t interface_id,
                                         const uint8_t address[16])
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }
@@ -146,7 +146,7 @@ int8_t multicast_mpl_domain_unsubscribe(int8_t interface_id,
 
 void multicast_set_parameters(uint8_t i_min, uint8_t i_doublings, uint8_t k, uint8_t timer_expirations, uint16_t window_expiration)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
     if (!cur) {
         return;
     }
@@ -202,8 +202,8 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle)
     //    1) Make sure MPL is enabled on 6LoWPAN by creating the ff03::fc domain
     //    2) Subscribe to that MPL domain if Realm Local and not acting as single domain
     //       (If larger scope, then we don't create a domain, we tunnel in ff03::fc)
-    protocol_interface_info_entry_t *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
-    protocol_interface_info_entry_t *ethernet = protocol_stack_interface_info_get(IF_IPV6);
+    struct net_if *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *ethernet = protocol_stack_interface_info_get(IF_IPV6);
 
     if (lowpan && ethernet &&
             lowpan->zone_index[scope] == ethernet->zone_index[scope]) {
@@ -233,7 +233,7 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle)
 uint8_t multicast_free_address(const uint8_t *address_ptr)
 {
     // Hacky hack
-    protocol_interface_info_entry_t *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
     if (lowpan) {
         /* First try to delete from MPL - if that fails, delete as plain group */
         if (multicast_mpl_domain_unsubscribe(lowpan->id, address_ptr) < 0)
@@ -242,7 +242,7 @@ uint8_t multicast_free_address(const uint8_t *address_ptr)
         }
     }
 
-    protocol_interface_info_entry_t *ethernet = protocol_stack_interface_info_get(IF_IPV6);
+    struct net_if *ethernet = protocol_stack_interface_info_get(IF_IPV6);
     if (ethernet) {
         addr_remove_group(ethernet, address_ptr);
     }

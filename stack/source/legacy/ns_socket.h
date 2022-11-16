@@ -229,7 +229,7 @@ int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, co
 /**
  * Determine interface based on socket_id and address
  */
-struct protocol_interface_info_entry *socket_interface_determine(const socket_t *socket, buffer_t *buf);
+struct net_if *socket_interface_determine(const socket_t *socket, buffer_t *buf);
 
 uint16_t socket_generate_random_port(uint8_t protocol);
 

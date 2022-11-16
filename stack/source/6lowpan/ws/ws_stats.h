@@ -41,7 +41,7 @@ typedef enum {
     STATS_WS_CHILD_REMOVE,
 } ws_stats_type_e;
 
-void ws_stats_update(protocol_interface_info_entry_t *cur, ws_stats_type_e type, uint32_t update_val);
+void ws_stats_update(struct net_if *cur, ws_stats_type_e type, uint32_t update_val);
 
 
 #endif // WS_STATS_H_

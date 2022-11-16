@@ -93,7 +93,7 @@ typedef struct mpl_seed {
 
 /* For simplicity, we assume each MPL domain is on exactly 1 interface */
 struct mpl_domain {
-    protocol_interface_info_entry_t *interface;
+    struct net_if *interface;
     uint8_t address[16];
     uint8_t sequence;
     bool colour;
@@ -138,7 +138,7 @@ static uint16_t mpl_buffer_size(const mpl_buffered_message_t *message)
     return IPV6_HDRLEN + common_read_16_bit(message->message + IPV6_HDROFF_PAYLOAD_LENGTH);
 }
 
-mpl_domain_t *mpl_domain_lookup(protocol_interface_info_entry_t *cur, const uint8_t address[16])
+mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16])
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
         if (domain->interface == cur && addr_ipv6_equal(domain->address, address)) {
@@ -148,7 +148,7 @@ mpl_domain_t *mpl_domain_lookup(protocol_interface_info_entry_t *cur, const uint
     return NULL;
 }
 
-mpl_domain_t *mpl_domain_lookup_with_realm_check(protocol_interface_info_entry_t *cur, const uint8_t address[16])
+mpl_domain_t *mpl_domain_lookup_with_realm_check(struct net_if *cur, const uint8_t address[16])
 {
     if (!addr_is_ipv6_multicast(address)) {
         return NULL;
@@ -159,7 +159,7 @@ mpl_domain_t *mpl_domain_lookup_with_realm_check(protocol_interface_info_entry_t
 
 /* Look up domain by address, ignoring the scop field, so ff22::1 matches ff23::1 */
 /* We assume all addresses are multicast, so don't bother checking the first byte */
-static mpl_domain_t *mpl_domain_lookup_ignoring_scop(protocol_interface_info_entry_t *cur, const uint8_t address[16])
+static mpl_domain_t *mpl_domain_lookup_ignoring_scop(struct net_if *cur, const uint8_t address[16])
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
         if (domain->interface == cur &&
@@ -171,7 +171,7 @@ static mpl_domain_t *mpl_domain_lookup_ignoring_scop(protocol_interface_info_ent
     return NULL;
 }
 
-static int mpl_domain_count_on_interface(protocol_interface_info_entry_t *cur)
+static int mpl_domain_count_on_interface(struct net_if *cur)
 {
     int count = 0;
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
@@ -182,7 +182,7 @@ static int mpl_domain_count_on_interface(protocol_interface_info_entry_t *cur)
     return count;
 }
 
-mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint8_t address[16],
+mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_mode,
                                 int_fast8_t proactive_forwarding,
                                 uint16_t seed_set_entry_lifetime,
@@ -258,7 +258,7 @@ mpl_domain_t *mpl_domain_create(protocol_interface_info_entry_t *cur, const uint
     return domain;
 }
 
-bool mpl_domain_delete(protocol_interface_info_entry_t *cur, const uint8_t address[16])
+bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16])
 {
     mpl_domain_t *domain = mpl_domain_lookup(cur, address);
     if (!domain) {
@@ -661,7 +661,7 @@ static void mpl_send_control(mpl_domain_t *domain)
  * This means we drop out-of-order packets at the edge of a hop limit boundary,
  * but this isn't a huge deal.
  */
-buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
+buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur)
 {
     if (!addr_is_ipv6_multicast(buf->dst_sa.address) || addr_ipv6_multicast_scope(buf->dst_sa.address) != IPV6_SCOPE_LINK_LOCAL || buf->options.hop_limit != 255) {
         tr_warn("Invalid control");
@@ -803,7 +803,7 @@ bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len)
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
-bool mpl_process_hbh(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *opt_data)
+bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data)
 {
     if ((buf->options.ip_extflags & IPEXT_HBH_MPL) || buf->options.ll_security_bypass_rx) {
         tr_warn("Bad MPL");
@@ -992,7 +992,7 @@ void mpl_slow_timer(int seconds)
     }
 }
 
-void mpl_clear_realm_scope_seeds(protocol_interface_info_entry_t *cur)
+void mpl_clear_realm_scope_seeds(struct net_if *cur)
 {
     ns_list_foreach(mpl_domain_t, domain, &mpl_domains) {
         if (domain->interface == cur && addr_ipv6_multicast_scope(domain->address) <= IPV6_SCOPE_REALM_LOCAL) {

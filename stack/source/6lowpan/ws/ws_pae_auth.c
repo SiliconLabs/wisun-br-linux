@@ -103,7 +103,7 @@ typedef struct pae_auth {
     uint16_t pan_id;                                         /**< PAN ID */
     char network_name[33];                                   /**< Network name */
     kmp_service_t *kmp_service;                              /**< KMP service */
-    protocol_interface_info_entry_t *interface_ptr;          /**< Interface pointer */
+    struct net_if *interface_ptr;          /**< Interface pointer */
     ws_pae_auth_gtk_hash_set *hash_set;                      /**< GTK hash set callback */
     ws_pae_auth_nw_key_insert *nw_key_insert;                /**< Key insert callback */
     ws_pae_auth_nw_keys_remove *nw_keys_remove;              /**< Network keys remove callback */
@@ -132,7 +132,7 @@ static int8_t ws_pae_auth_network_keys_from_gtks_set(pae_auth_t *pae_auth, bool 
 static int8_t ws_pae_auth_active_gtk_set(sec_prot_gtk_keys_t *gtks, uint8_t index);
 static int8_t ws_pae_auth_network_key_index_set(pae_auth_t *pae_auth, uint8_t index, bool is_lgtk);
 static void ws_pae_auth_free(pae_auth_t *pae_auth);
-static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_ptr);
+static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(arm_event_s *event);
@@ -164,7 +164,7 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth);
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_auth_list, pae_auth_t, link);
 
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr,
+int8_t ws_pae_auth_init(struct net_if *interface_ptr,
                         sec_prot_gtk_keys_t *next_gtks,
                         sec_prot_gtk_keys_t *next_lgtks,
                         const sec_prot_certs_t *certs,
@@ -312,7 +312,7 @@ error:
     return -1;
 }
 
-int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
+int8_t ws_pae_auth_addresses_set(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     if (!interface_ptr || !remote_addr) {
         return -1;
@@ -333,7 +333,7 @@ int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr,
     return 0;
 }
 
-int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const struct sockaddr_storage *remote_addr)
+int8_t ws_pae_auth_radius_address_set(struct net_if *interface_ptr, const struct sockaddr_storage *remote_addr)
 {
     pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
     if (!pae_auth) {
@@ -350,7 +350,7 @@ int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface
     return 0;
 }
 
-int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_pae_auth_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -365,7 +365,7 @@ int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
+void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_gtk_hash_set *hash_set,
                              ws_pae_auth_nw_key_insert *nw_key_insert,
                              ws_pae_auth_nw_key_index_set *nw_key_index_set,
@@ -392,7 +392,7 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
     pae_auth->nw_frame_cnt_read = nw_frame_cnt_read;
 }
 
-void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
+void ws_pae_auth_start(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return;
@@ -437,7 +437,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr)
     ws_pae_auth_network_key_index_set(pae_auth, lgtk_index, true);
 }
 
-void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk)
+void ws_pae_auth_gtks_updated(struct net_if *interface_ptr, bool is_lgtk)
 {
     if (!interface_ptr) {
         return;
@@ -451,7 +451,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bo
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 }
 
-int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk)
+int8_t ws_pae_auth_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
 {
     pae_auth_t *pae_auth = ws_pae_auth_get(interface_ptr);
     sec_prot_gtk_keys_t *gtks;
@@ -468,7 +468,7 @@ int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interfac
     return 0;
 }
 
-int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui_64)
+int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui_64)
 {
     int8_t ret_value = -1;
 
@@ -504,7 +504,7 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
     return ret_value;
 }
 
-int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk)
+int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk)
 {
     sec_timer_gtk_cfg_t *timer_cfg;
     sec_prot_gtk_keys_t *key_nw_info, *key_nw_info_next;
@@ -578,7 +578,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
     return 0;
 }
 
-int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr, uint16_t limit)
+int8_t ws_pae_auth_node_limit_set(struct net_if *interface_ptr, uint16_t limit)
 {
     if (!interface_ptr) {
         return -1;
@@ -594,7 +594,7 @@ int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr
     return 0;
 }
 
-int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
 {
     (void) updated;
 
@@ -709,7 +709,7 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth)
     free(pae_auth);
 }
 
-static pae_auth_t *ws_pae_auth_get(protocol_interface_info_entry_t *interface_ptr)
+static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr)
 {
     ns_list_foreach(pae_auth_t, entry, &pae_auth_list) {
         if (entry->interface_ptr == interface_ptr) {
@@ -1594,7 +1594,7 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth_ptr)
 
 int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len)
 {
-    protocol_interface_info_entry_t *interface_ptr;
+    struct net_if *interface_ptr;
     supp_list_t *supp_lists[2];
     pae_auth_t *pae_auth;
     int len_ret, j;

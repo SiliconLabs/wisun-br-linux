@@ -302,7 +302,7 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
  */
 uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!addr_ptr || !interface) {
         return 0;
@@ -643,7 +643,7 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uin
 
 void etx_cache_timer(int seconds_update)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (!etx_info.cache_sample_requested) {
         return;

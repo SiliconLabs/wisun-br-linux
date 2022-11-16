@@ -25,7 +25,7 @@
 
 #include "6lowpan/ws/ws_neighbor_class.h"
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct mcps_data_ind;
 struct mcps_data_ie_list;
 struct channel_list;
@@ -124,7 +124,7 @@ typedef NS_LIST_HEAD(ws_neighbor_temp_class_t, link) ws_neighbor_temp_list_t;
  * @param data MCPS-DATA.indication specific values
  * @param ie_ext Information element list
  */
-typedef void ws_asynch_ind(struct protocol_interface_info_entry *interface, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
+typedef void ws_asynch_ind(struct net_if *interface, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 
 /**
  * @brief ws_asynch_confirm ws asynch data confirmation to asynch message request
@@ -132,7 +132,7 @@ typedef void ws_asynch_ind(struct protocol_interface_info_entry *interface, cons
  * @param data MCPS-DATA.confirm specific values
  * @param user_id MPX user ID
  */
-typedef void ws_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message);
+typedef void ws_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 
 /**
  * @brief ws_asynch_confirm ws asynch data confirmation to asynch message request
@@ -144,7 +144,7 @@ typedef void ws_asynch_confirm(struct protocol_interface_info_entry *interface, 
  * @return true when neighbor info is available
  * @return false when no neighbor info
  */
-typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
+typedef bool ws_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
 
 /**
  * @brief ws_llc_create ws LLC module create
@@ -154,21 +154,21 @@ typedef bool ws_neighbor_info_request(struct protocol_interface_info_entry *inte
  *
  * Function allocate and init LLC class and init it 2 supported 2 API: ws asynch and MPX user are internally registered.
  */
-int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb);
+int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb);
 
 /**
  * @brief ws_llc_reset Reset ws LLC parametrs and clean messages
  * @param interface Interface pointer
  *
  */
-void ws_llc_reset(struct protocol_interface_info_entry *interface);
+void ws_llc_reset(struct net_if *interface);
 
 /**
  * @brief ws_llc_delete Delete LLC interface. ONLY for Test purpose.
  * @param interface Interface pointer
  *
  */
-int8_t ws_llc_delete(struct protocol_interface_info_entry *interface);
+int8_t ws_llc_delete(struct net_if *interface);
 
 /**
  * @brief ws_llc_mpx_api_get Get MPX api for registration purpose.
@@ -178,7 +178,7 @@ int8_t ws_llc_delete(struct protocol_interface_info_entry *interface);
  * @return Pointer to MPX API
  *
  */
-struct mpx_api *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface);
+struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
 
 /**
  * @brief ws_llc_asynch_request ws asynch message request to all giving channels
@@ -190,7 +190,7 @@ struct mpx_api *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interfa
  * @return -2 Parameter problem
  *
  */
-int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, asynch_request_t *request);
+int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request);
 
 
 /**
@@ -200,7 +200,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
  * @param vendor_header_length configured vendor header length
  *
  */
-void ws_llc_set_vendor_header_data(struct protocol_interface_info_entry *interface, uint8_t *vendor_header, uint8_t vendor_header_length);
+void ws_llc_set_vendor_header_data(struct net_if *interface, uint8_t *vendor_header, uint8_t vendor_header_length);
 
 /**
  * @brief ws_llc_set_vendor_payload_data Configure WS vendor payload data information (Data of WP_PAYLOAD_IE_VP_TYPE IE element)
@@ -209,7 +209,7 @@ void ws_llc_set_vendor_header_data(struct protocol_interface_info_entry *interfa
  * @param vendor_payload_length configured vendor payload length
  *
  */
-void ws_llc_set_vendor_payload_data(struct protocol_interface_info_entry *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length);
+void ws_llc_set_vendor_payload_data(struct net_if *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length);
 
 /**
  * @brief ws_llc_set_network_name Configure WS Network name (Data of WP_PAYLOAD_IE_NETNAME_TYPE IE element)
@@ -218,7 +218,7 @@ void ws_llc_set_vendor_payload_data(struct protocol_interface_info_entry *interf
  * @param name pointer to network name this pointer must keep alive when it is configured to LLC
  *
  */
-void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, uint8_t *name, uint8_t name_length);
+void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length);
 
 /**
  * @brief ws_llc_set_gtkhash Configure WS GTK hash information (Data of WP_PAYLOAD_IE_GTKHASH_TYPE IE element)
@@ -226,7 +226,7 @@ void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, ui
  * @param gtkhash pointer to GTK hash which length is 32 bytes this pointer must keep alive when it is configured to LLC
  *
  */
-void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *gtkhash);
+void  ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash);
 
 /**
  * @brief ws_llc_set_lgtkhash Configure WS LFN GTK hash information (Data of WP_PAYLOAD_IE_LGTKHASH_TYPE IE element)
@@ -234,7 +234,7 @@ void  ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhas
  * @param gtkhash pointer to LGTK hashes. This pointer must keep alive when it is configured to LLC
  *
  */
-void  ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *lgtkhash);
+void  ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash);
 
 /**
  * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WP_PAYLOAD_IE_PAN_TYPE IE element)
@@ -242,7 +242,7 @@ void  ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkha
  * @param pan_information_pointer pointer to Pan information this pointer must keep alive when it is configured to LLC
  *
  */
-void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information *pan_information_pointer);
+void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_information *pan_information_pointer);
 
 /**
  * @brief ws_llc_hopping_schedule_config Configure channel hopping
@@ -250,23 +250,23 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
  * @param hopping_schedule pointer to Channel hopping schedule
  *
  */
-void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule *hopping_schedule);
+void ws_llc_hopping_schedule_config(struct net_if *interface, struct ws_hopping_schedule *hopping_schedule);
 
-void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update);
+void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
-void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t ticks);
+void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);
 
-bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp);
+bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp);
 
-ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
+ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct net_if *interface, const uint8_t *mac64);
 
-ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
+ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64);
 
 
 
-void ws_llc_free_multicast_temp_entry(struct protocol_interface_info_entry *interface, ws_neighbor_temp_class_t *neighbor);
+void ws_llc_free_multicast_temp_entry(struct net_if *interface, ws_neighbor_temp_class_t *neighbor);
 
-void ws_llc_set_base_phy_mode_id(struct protocol_interface_info_entry *interface, uint8_t phy_mode_id);
+void ws_llc_set_base_phy_mode_id(struct net_if *interface, uint8_t phy_mode_id);
 
 /**
  * @brief Configure WS POM information (Data of WP_PAYLOAD_IE_POM_TYPE IE element)
@@ -275,8 +275,8 @@ void ws_llc_set_base_phy_mode_id(struct protocol_interface_info_entry *interface
  * @param phy_operating_modes pointer to phy_operating_modes array. This pointer must be kept alive when it is configured to LLC
  *
  */
-void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes);
+void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes);
 
-int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
+int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 
 #endif

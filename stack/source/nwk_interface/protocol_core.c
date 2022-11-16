@@ -79,7 +79,7 @@ typedef struct lowpan_core_timer_structures {
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
 // maximum value of nwk_interface_id_e is 1
-protocol_interface_info_entry_t protocol_interface_info[2];
+struct net_if protocol_interface_info[2];
 
 /** Cores Power Save Varibale whic indicate States  */
 volatile uint8_t power_save_state =  0;
@@ -112,7 +112,7 @@ void clear_power_state(uint8_t mode)
     power_save_state &= ~mode;
 }
 
-void arm_net_protocol_packet_handler(buffer_t *buf, protocol_interface_info_entry_t *cur_interface)
+void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface)
 {
     if (cur_interface->if_stack_buffer_handler) {
         cur_interface->if_stack_buffer_handler(buf);
@@ -145,7 +145,7 @@ void protocol_root_tasklet(arm_event_t *event)
 
 void nwk_bootstrap_timer(int ticks)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -156,7 +156,7 @@ void nwk_bootstrap_timer(int ticks)
 
 void icmp_fast_timer(int ticks)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
     cur->icmp_tokens += ticks;
@@ -167,7 +167,7 @@ void icmp_fast_timer(int ticks)
 
 void update_reachable_time(int seconds)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (cur->reachable_time_ttl > seconds) {
         cur->reachable_time_ttl -= seconds;
@@ -208,7 +208,7 @@ void protocol_core_init(void)
     timer_start(TIMER_WS_COMMON_SLOW);
 }
 
-void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
+void protocol_core_interface_info_reset(struct net_if *entry)
 {
     if (entry) {
         entry->global_address_available = false;
@@ -225,7 +225,7 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
     }
 }
 
-void bootstrap_next_state_kick(icmp_state_e new_state, protocol_interface_info_entry_t *cur)
+void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur)
 {
     cur->bootstrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;
@@ -242,7 +242,7 @@ void bootstrap_next_state_kick(icmp_state_e new_state, protocol_interface_info_e
     }
 }
 
-uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_entry_t *cur, uint32_t base_reachable_time)
+uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time)
 {
     cur->base_reachable_time = base_reachable_time;
     cur->reachable_time_ttl = REACHABLE_TIME_UPDATE_SECONDS;
@@ -251,7 +251,7 @@ uint32_t protocol_stack_interface_set_reachable_time(protocol_interface_info_ent
 }
 
 
-static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_interface_id_e nwk_id)
+static void protocol_core_base_init(struct net_if *entry, nwk_interface_id_e nwk_id)
 {
     entry->nwk_id = nwk_id;
     switch (nwk_id) {
@@ -279,7 +279,7 @@ static void protocol_core_base_init(protocol_interface_info_entry_t *entry, nwk_
     entry->if_up = NULL;
 }
 
-static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entry)
+static void protocol_core_base_finish_init(struct net_if *entry)
 {
     entry->configure_flags = 0;
     entry->bootstrap_state_machine_cnt = 0;
@@ -316,12 +316,12 @@ static void protocol_core_base_finish_init(protocol_interface_info_entry_t *entr
     ns_list_init(&entry->ipv6_neighbour_cache.list);
 }
 
-static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_interface_id_e nwk_id)
+static struct net_if *protocol_interface_class_allocate(nwk_interface_id_e nwk_id)
 {
-    protocol_interface_info_entry_t *entry = &protocol_interface_info[nwk_id];
+    struct net_if *entry = &protocol_interface_info[nwk_id];
     int id = net_interface_get_free_id();
 
-    memset(entry, 0, sizeof(protocol_interface_info_entry_t));
+    memset(entry, 0, sizeof(struct net_if));
     /* We assume for now zone indexes for interface, link and realm all equal interface id */
     entry->id = id;
     entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
@@ -331,12 +331,12 @@ static protocol_interface_info_entry_t *protocol_interface_class_allocate(nwk_in
     return entry;
 }
 
-static protocol_interface_info_entry_t *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api_t *api)
+static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api_t *api)
 {
     if (!api) {
         return NULL;
     }
-    protocol_interface_info_entry_t *entry = protocol_interface_class_allocate(IF_6LoWPAN);
+    struct net_if *entry = protocol_interface_class_allocate(IF_6LoWPAN);
     if (!entry) {
         return NULL;
     }
@@ -380,7 +380,7 @@ interface_failure:
     return NULL;
 }
 
-static void protocol_6lowpan_mac_set(protocol_interface_info_entry_t *cur, const uint8_t *mac)
+static void protocol_6lowpan_mac_set(struct net_if *cur, const uint8_t *mac)
 {
     memcpy(cur->iid_eui64, mac, 8);
     /* Invert U/L Bit */
@@ -389,7 +389,7 @@ static void protocol_6lowpan_mac_set(protocol_interface_info_entry_t *cur, const
     mac_helper_mac64_set(cur, mac);
 }
 
-static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_entry_t *cur, const uint8_t *mac)
+static void protocol_stack_interface_iid_eui64_generate(struct net_if *cur, const uint8_t *mac)
 {
     BUG_ON(cur->nwk_id != IF_6LoWPAN);
     protocol_6lowpan_mac_set(cur, mac);
@@ -399,21 +399,21 @@ static void protocol_stack_interface_iid_eui64_generate(protocol_interface_info_
 
 void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache, print_fn);
     }
 }
 
 void nwk_interface_flush_neigh_cache(void)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
     }
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id)
+struct net_if *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list)
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
     if (cur->nwk_id == nwk_id) {
         return cur;
     }
@@ -421,9 +421,9 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get(nwk_interface
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_id(int8_t nwk_id)
+struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list)
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
     if (cur->id == nwk_id) {
         return cur;
     }
@@ -431,9 +431,9 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_id(int8_t 
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id)
+struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list)
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
     if (cur->bootStrapId == id) {
         return cur;
     }
@@ -441,9 +441,9 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_bootstrap_
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id)
+struct net_if *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         if (cur->id > last_id && cur->rpl_domain == domain) {
             return cur;
         }
@@ -452,9 +452,9 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api)
+struct net_if *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         if (cur->ws_info && (cur->ws_info->fhss_api == fhss_api)) {
             return cur;
         }
@@ -462,9 +462,9 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(c
     return NULL;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(void)
+struct net_if *protocol_stack_interface_info_get_wisun_mesh(void)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         if (cur->ws_info) {
             return cur;
         }
@@ -472,7 +472,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_wisun_mesh(vo
     return NULL;
 }
 
-uint8_t nwk_bootstrap_ready(protocol_interface_info_entry_t *cur)
+uint8_t nwk_bootstrap_ready(struct net_if *cur)
 {
     int8_t ret_val = 0;
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) == 0) {
@@ -491,7 +491,7 @@ static int8_t net_interface_get_free_id(void)
         bool in_use = false;
         /* interface index == default zone index for link, interface and realm, so
          * ensure selected ID is not in use for any of those scopes */
-        ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
             if (cur->id == (int8_t) id ||
                     cur->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] == id ||
                     cur->zone_index[IPV6_SCOPE_LINK_LOCAL] == id ||
@@ -508,18 +508,18 @@ static int8_t net_interface_get_free_id(void)
     return -1;
 }
 
-protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_api_t *api)
+struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api)
 {
     if (!api) {
         return NULL;
     }
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         if (cur->mac_api == api) {
             return cur;
         }
     }
 
-    protocol_interface_info_entry_t *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(api);
+    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(api);
 
     if (new_entry) {
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
@@ -537,7 +537,7 @@ protocol_interface_info_entry_t *protocol_stack_interface_generate_lowpan(mac_ap
     return NULL;
 }
 
-bool nwk_interface_compare_mac_address(protocol_interface_info_entry_t *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/])
+bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/])
 {
     if (!cur) {
         return false;
@@ -595,7 +595,7 @@ static void protocol_buffer_poll(buffer_t *b)
     }
 
     // Call the actual handler
-    protocol_interface_info_entry_t *cur = b->interface;
+    struct net_if *cur = b->interface;
     if (cur && cur->if_stack_buffer_handler) {
         cur->if_stack_buffer_handler(b);
         return;
@@ -621,7 +621,7 @@ static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int
     }
 }
 
-void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, protocol_interface_info_entry_t *cur)
+void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur)
 {
     //Clear Bootstrap Active Bit always
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
@@ -657,7 +657,7 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, pr
 void net_bootstrap_cb_run(uint8_t event)
 {
     int8_t nwk_id = (int8_t) event;
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
 
     if (cur) {
         if (cur->nwk_id == IF_6LoWPAN) {
@@ -669,7 +669,7 @@ void net_bootstrap_cb_run(uint8_t event)
     }
 }
 
-void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry_t *cur, uint8_t *guaPrefix)
+void protocol_core_dhcpv6_allocated_address_remove(struct net_if *cur, uint8_t *guaPrefix)
 {
     //Delete Address & Routes
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
@@ -686,7 +686,7 @@ void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry
  * link local addresses on any interface - you may want addr_interface_address_compare */
 int8_t protocol_interface_address_compare(const uint8_t *addr)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         if (addr_is_assigned_to_interface(cur, addr)) {
             return 0;
         }
@@ -695,7 +695,7 @@ int8_t protocol_interface_address_compare(const uint8_t *addr)
     return -1;
 }
 
-bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len)
+bool protocol_address_prefix_cmp(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len)
 {
     ns_list_foreach(if_address_entry_t, adr, &cur->ip_addresses) {
         if (!bitcmp(adr->address, prefix, prefix_len)) {
@@ -708,7 +708,7 @@ bool protocol_address_prefix_cmp(protocol_interface_info_entry_t *cur, const uin
 
 bool protocol_interface_any_address_match(const uint8_t *prefix, uint8_t prefix_len)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
 
         if (protocol_address_prefix_cmp(cur, prefix, prefix_len)) {
             return true;

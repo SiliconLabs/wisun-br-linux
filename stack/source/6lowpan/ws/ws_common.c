@@ -64,7 +64,7 @@ uint8_t DEVICE_MIN_SENS = 174 - 93;
 
 uint16_t test_max_child_count_override = 0xffff;
 
-int8_t ws_common_generate_channel_list(const struct protocol_interface_info_entry *cur,
+int8_t ws_common_generate_channel_list(const struct net_if *cur,
                                        uint32_t *channel_mask,
                                        uint16_t number_of_channels,
                                        uint8_t regulatory_domain,
@@ -109,7 +109,7 @@ uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_
     return active_channels;
 }
 
-int8_t ws_common_regulatory_domain_config(protocol_interface_info_entry_t *cur, ws_hopping_schedule_t *hopping_schedule)
+int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule)
 {
     const struct chan_params *chan_params;
 
@@ -148,7 +148,7 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
     return params->chan_count;
 }
 
-int8_t ws_common_allocate_and_init(protocol_interface_info_entry_t *cur)
+int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
 
     if (!cur->ws_info) {
@@ -196,7 +196,7 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     return ws_bootstrap_init(interface_id, bootstrap_mode);
 }
 
-void ws_common_state_machine(protocol_interface_info_entry_t *cur)
+void ws_common_state_machine(struct net_if *cur)
 {
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
         // Configure for LFN device
@@ -213,7 +213,7 @@ void ws_common_state_machine(protocol_interface_info_entry_t *cur)
 
 void ws_common_seconds_timer(int seconds)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -228,7 +228,7 @@ void ws_common_seconds_timer(int seconds)
 
 void ws_common_fast_timer(int ticks)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -245,7 +245,7 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
     ll_address[8] ^= 2;
 }
 
-void ws_common_neighbor_update(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
+void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address)
 {
     //Neighbor connectected update
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), ll_address, false, NULL);
@@ -261,13 +261,13 @@ void ws_common_black_list_neighbour(const uint8_t *ll_address, uint8_t nd_status
     }
 }
 
-void ws_common_aro_failure(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
+void ws_common_aro_failure(struct net_if *cur, const uint8_t *ll_address)
 {
     tr_warn("ARO registration Failure %s", tr_ipv6(ll_address));
     ws_bootstrap_aro_failure(cur, ll_address);
 }
 
-void ws_common_neighbor_remove(protocol_interface_info_entry_t *cur, const uint8_t *ll_address)
+void ws_common_neighbor_remove(struct net_if *cur, const uint8_t *ll_address)
 {
     tr_debug("neighbor remove %s", tr_ipv6(ll_address));
     ws_bootstrap_neighbor_remove(cur, ll_address);
@@ -286,7 +286,7 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
     return 0;
 }
 
-static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_entry_t *interface, const uint8_t *eui64, uint32_t link_lifetime)
+static void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime)
 {
     if (link_lifetime > WS_NEIGHBOR_LINK_TIMEOUT) {
         link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
@@ -310,7 +310,7 @@ static void ws_common_neighbour_address_reg_link_update(protocol_interface_info_
     }
 }
 
-uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *interface, const uint8_t *eui64, uint16_t aro_timeout)
+uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     uint8_t child_count = 0;
     uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - ws_common_temporary_entry_size(mac_neighbor_info(interface)->list_total_size);
@@ -359,7 +359,7 @@ uint8_t ws_common_allow_child_registration(protocol_interface_info_entry_t *inte
     return ARO_SUCCESS;
 }
 
-bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, const uint8_t *eui64)
+bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
     mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_address_discover(mac_neighbor_info(interface), eui64, ADDR_802_15_4_LONG);
     if (!neighbour) {
@@ -370,7 +370,7 @@ bool ws_common_negative_aro_mark(protocol_interface_info_entry_t *interface, con
     return true;
 }
 
-uint32_t ws_common_latency_estimate_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_latency_estimate_get(struct net_if *cur)
 {
     uint32_t latency = 0;
 
@@ -398,12 +398,12 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
     return phy_params->datarate;
 }
 
-uint32_t ws_common_datarate_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_datarate_get(struct net_if *cur)
 {
     return ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schedule.phy_mode_id, cur->ws_info->hopping_schedule.operating_mode);
 }
 
-uint32_t ws_common_usable_application_datarate_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_usable_application_datarate_get(struct net_if *cur)
 {
     /* Usable data rate is a available data rate when removed ACK and wait times required to send a packet
      *
@@ -418,7 +418,7 @@ uint32_t ws_common_usable_application_datarate_get(protocol_interface_info_entry
 }
 
 
-uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_network_size_estimate_get(struct net_if *cur)
 {
     uint32_t network_size_estimate = 100;
 
@@ -430,7 +430,7 @@ uint32_t ws_common_network_size_estimate_get(protocol_interface_info_entry_t *cu
     return network_size_estimate;
 }
 
-uint32_t ws_common_connected_time_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_connected_time_get(struct net_if *cur)
 {
     if (!ws_info(cur)) {
         return 0;
@@ -442,7 +442,7 @@ uint32_t ws_common_connected_time_get(protocol_interface_info_entry_t *cur)
     return cur->ws_info->uptime - cur->ws_info->connected_time;
 }
 
-uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur)
+uint32_t ws_common_authentication_time_get(struct net_if *cur)
 {
     if (!ws_info(cur)) {
         return 0;
@@ -454,17 +454,17 @@ uint32_t ws_common_authentication_time_get(protocol_interface_info_entry_t *cur)
     return cur->ws_info->uptime - cur->ws_info->authentication_time;
 }
 
-void ws_common_primary_parent_update(protocol_interface_info_entry_t *interface, mac_neighbor_table_entry_t *neighbor)
+void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
     ws_bootstrap_primary_parent_update(interface, neighbor);
 }
 
-void ws_common_secondary_parent_update(protocol_interface_info_entry_t *interface)
+void ws_common_secondary_parent_update(struct net_if *interface)
 {
     ws_bootstrap_secondary_parent_update(interface);
 }
 
-void ws_common_border_router_alive_update(protocol_interface_info_entry_t *interface)
+void ws_common_border_router_alive_update(struct net_if *interface)
 {
     if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
@@ -474,7 +474,7 @@ void ws_common_border_router_alive_update(protocol_interface_info_entry_t *inter
     interface->ws_info->pan_timeout_timer = interface->ws_info->cfg->timing.pan_timeout;
 }
 
-fhss_ws_configuration_t ws_common_get_current_fhss_configuration(protocol_interface_info_entry_t *cur)
+fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur)
 {
     fhss_ws_configuration_t fhss_configuration;
     memset(&fhss_configuration, 0, sizeof(fhss_ws_configuration_t));

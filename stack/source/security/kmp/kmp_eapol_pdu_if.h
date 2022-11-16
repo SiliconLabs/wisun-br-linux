@@ -33,7 +33,7 @@
  * \return >= 0 success
  *
  */
-int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, protocol_interface_info_entry_t *interface_ptr);
+int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interface_ptr);
 
 /**
  * kmp_eapol_pdu_if_unregister unregister EAPOL PDU interface from KMP service
@@ -58,6 +58,6 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service);
  * \return >= 0 success
  *
  */
-int8_t kmp_eapol_pdu_if_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
+int8_t kmp_eapol_pdu_if_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
 
 #endif

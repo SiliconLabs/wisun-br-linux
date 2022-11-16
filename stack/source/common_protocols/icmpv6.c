@@ -116,7 +116,7 @@ static bool is_icmpv6_msg(buffer_t *buf)
     return false;
 }
 
-buffer_t *icmpv6_error(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t type, uint8_t code, uint32_t aux)
+buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t code, uint32_t aux)
 {
     uint8_t *ptr;
 
@@ -269,7 +269,7 @@ buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
         return buffer_free(buf);
     }
 
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
 
     const uint8_t *ptr = buffer_data_pointer(buf);
     uint32_t mtu = common_read_32_bit(ptr);
@@ -306,7 +306,7 @@ buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
 
 static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     if (!cur) {
         return buffer_free(buf);
     }
@@ -333,7 +333,7 @@ static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
 }
 
 
-static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
+static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint8_t *dptr, const uint8_t *src_addr)
 {
     (void) src_addr;
     dptr += 2;
@@ -353,7 +353,7 @@ static void icmpv6_na_wisun_aro_handler(protocol_interface_info_entry_t *cur_int
     }
 }
 
-static void icmpv6_na_aro_handler(protocol_interface_info_entry_t *cur_interface, const uint8_t *dptr, const uint8_t *dst_addr)
+static void icmpv6_na_aro_handler(struct net_if *cur_interface, const uint8_t *dptr, const uint8_t *dst_addr)
 {
     (void)dst_addr;
     dptr += 2;
@@ -433,7 +433,7 @@ static void icmpv6_na_aro_handler(protocol_interface_info_entry_t *cur_interface
  */
 static buffer_t *icmpv6_ns_handler(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     uint8_t target[16];
     uint8_t dummy_sllao[16];
     bool proxy = false;
@@ -552,7 +552,7 @@ drop:
 
 }
 
-int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime)
+int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime)
 {
     int ret_val = -1;
 
@@ -567,7 +567,7 @@ int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const 
     return ret_val;
 }
 
-void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len)
+void icmpv6_slaac_prefix_register_trig(struct net_if *cur, uint8_t *prefix_ptr, uint8_t prefix_len)
 {
 
     //Validate first current list If prefix is already defined adress
@@ -578,7 +578,7 @@ void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur
     }
 }
 
-if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src)
+if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry;
     uint8_t ipv6_address[16];
@@ -625,7 +625,7 @@ if_address_entry_t *icmpv6_slaac_address_add(protocol_interface_info_entry_t *cu
     return address_entry;
 }
 
-void icmpv6_recv_ra_routes(protocol_interface_info_entry_t *cur, bool enable)
+void icmpv6_recv_ra_routes(struct net_if *cur, bool enable)
 {
     if (cur->recv_ra_routes != enable) {
         cur->recv_ra_routes = enable;
@@ -635,7 +635,7 @@ void icmpv6_recv_ra_routes(protocol_interface_info_entry_t *cur, bool enable)
     }
 }
 
-void icmpv6_recv_ra_prefixes(protocol_interface_info_entry_t *cur, bool enable)
+void icmpv6_recv_ra_prefixes(struct net_if *cur, bool enable)
 {
     if (cur->recv_ra_prefixes != enable) {
         cur->recv_ra_prefixes = enable;
@@ -645,7 +645,7 @@ void icmpv6_recv_ra_prefixes(protocol_interface_info_entry_t *cur, bool enable)
     }
 }
 
-static buffer_t *icmpv6_redirect_handler(buffer_t *buf, protocol_interface_info_entry_t *cur)
+static buffer_t *icmpv6_redirect_handler(buffer_t *buf, struct net_if *cur)
 {
     const uint8_t *ptr = buffer_data_pointer(buf);
     const uint8_t *tgt = ptr + 4;
@@ -686,7 +686,7 @@ drop:
 
 static buffer_t *icmpv6_na_handler(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     uint8_t *dptr = buffer_data_pointer(buf);
     uint8_t flags;
     const uint8_t *target;
@@ -824,7 +824,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
 
 buffer_t *icmpv6_up(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = NULL;
+    struct net_if *cur = NULL;
     uint8_t *dptr = buffer_data_pointer(buf);
     uint16_t data_len = buffer_data_length(buf);
 
@@ -955,7 +955,7 @@ drop:
 
 buffer_t *icmpv6_down(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
 
     trace_icmp(buf, false);
     buf = buffer_headroom(buf, 4);
@@ -985,7 +985,7 @@ buffer_t *icmpv6_down(buffer_t *buf)
     return (buf);
 }
 
-buffer_t *icmpv6_build_rs(protocol_interface_info_entry_t *cur, const uint8_t *dest)
+buffer_t *icmpv6_build_rs(struct net_if *cur, const uint8_t *dest)
 {
 
     buffer_t *buf = buffer_get(127);
@@ -1023,7 +1023,7 @@ buffer_t *icmpv6_build_rs(protocol_interface_info_entry_t *cur, const uint8_t *d
     return buf;
 }
 
-uint8_t *icmpv6_write_icmp_lla(protocol_interface_info_entry_t *cur, uint8_t *dptr, uint8_t icmp_opt, bool must, const uint8_t *ip_addr)
+uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_opt, bool must, const uint8_t *ip_addr)
 {
     dptr += cur->if_llao_write(cur, dptr, icmp_opt, must, ip_addr);
 
@@ -1035,7 +1035,7 @@ uint8_t *icmpv6_write_icmp_lla(protocol_interface_info_entry_t *cur, uint8_t *dp
  * (RFC4861+6275), or an RPL Prefix Information Option (RFC6550).
  * Same payload, different type/len.
  */
-uint8_t *icmpv6_write_prefix_option(const prefix_list_t *prefixes,  uint8_t *dptr, uint8_t rpl_prefix, protocol_interface_info_entry_t *cur)
+uint8_t *icmpv6_write_prefix_option(const prefix_list_t *prefixes,  uint8_t *dptr, uint8_t rpl_prefix, struct net_if *cur)
 {
     uint8_t flags;
 
@@ -1164,7 +1164,7 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
     }
 }
 
-buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
+buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
         return NULL;
@@ -1268,7 +1268,7 @@ buffer_t *icmpv6_build_ns(protocol_interface_info_entry_t *cur, const uint8_t ta
     return buf;
 }
 
-void icmpv6_build_echo_req(protocol_interface_info_entry_t *cur, const uint8_t target_addr[16])
+void icmpv6_build_echo_req(struct net_if *cur, const uint8_t target_addr[16])
 {
     const uint8_t *src;
     buffer_t *buf = buffer_get(127);
@@ -1302,7 +1302,7 @@ void icmpv6_build_echo_req(protocol_interface_info_entry_t *cur, const uint8_t t
     protocol_push(buf);
 }
 
-buffer_t *icmpv6_build_dad(protocol_interface_info_entry_t *cur, buffer_t *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime)
+buffer_t *icmpv6_build_dad(struct net_if *cur, buffer_t *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime)
 {
     if (!cur) {
         return NULL;
@@ -1372,7 +1372,7 @@ buffer_t *icmpv6_build_dad(protocol_interface_info_entry_t *cur, buffer_t *buf, 
  *    O              Override flag.
  */
 
-buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16])
+buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16])
 {
     uint8_t *ptr;
     uint8_t flags;

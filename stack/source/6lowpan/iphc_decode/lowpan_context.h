@@ -37,7 +37,7 @@
 #define LOWPAN_CONTEXT_CID_MASK 0x0F        // Context ID MASK
 #define LOWPAN_MAX_CONTEXT_COUNT 16
 
-struct protocol_interface_info_entry;
+struct net_if;
 
 typedef struct lowpan_context {
     uint32_t lifetime;      // Remaining lifetime (100ms ticks)

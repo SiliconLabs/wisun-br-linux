@@ -24,7 +24,7 @@
 
 #include "ipv6_stack/ipv6_routing_table.h"
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct prefix_entry;
 struct rpl_instance;
 struct rpl_dodag_conf;
@@ -111,13 +111,13 @@ typedef NS_LIST_HEAD(rpl_dio_route_t, link) rpl_dio_route_list_t;
 void *rpl_alloc(uint16_t size);
 void *rpl_realloc(void *p, uint16_t old_size, uint16_t new_size);
 void rpl_free(void *p, uint16_t size);
-void rpl_control_transmit(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, uint8_t code, struct buffer *buf, const uint8_t *dst);
+void rpl_control_transmit(struct rpl_domain *domain, struct net_if *cur, uint8_t code, struct buffer *buf, const uint8_t *dst);
 void rpl_control_transmit_multicast_dio(struct rpl_domain *domain, struct rpl_instance *instance, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, const uint8_t dodagid[16], const struct rpl_dodag_conf *conf);
-void rpl_control_transmit_dio(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, struct rpl_dodag *dodag, const uint8_t dodagid[16], const struct rpl_dodag_conf *conf, const uint8_t *dst);
-bool rpl_control_transmit_dao(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, struct rpl_instance *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst);
+void rpl_control_transmit_dio(struct rpl_domain *domain, struct net_if *cur, uint8_t instance_id, uint8_t dodag_version, uint16_t rank, uint8_t g_mop_prf, uint8_t dtsn, struct rpl_dodag *dodag, const uint8_t dodagid[16], const struct rpl_dodag_conf *conf, const uint8_t *dst);
+bool rpl_control_transmit_dao(struct rpl_domain *domain, struct net_if *cur, struct rpl_instance *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst);
 void rpl_control_disable_ra_routes(struct rpl_domain *domain);
 void rpl_control_event(struct rpl_domain *domain, rpl_event_e event);
-void rpl_control_process_prefix_option(struct prefix_entry *prefix, struct protocol_interface_info_entry *cur);
+void rpl_control_process_prefix_option(struct prefix_entry *prefix, struct net_if *cur);
 
 /*********************** RPL control API to rest of system *******************/
 
@@ -130,12 +130,12 @@ void rpl_control_slow_timer(int seconds);
 
 /* Packet handlers, and other data flow callback indications */
 struct buffer *rpl_control_handler(struct buffer *buf);
-struct buffer *rpl_control_source_route_error_handler(struct buffer *buf, struct protocol_interface_info_entry *cur);
+struct buffer *rpl_control_source_route_error_handler(struct buffer *buf, struct net_if *cur);
 
 /* Manually send DIS packets for bootstrap */
-void rpl_control_transmit_dis(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst);
+void rpl_control_transmit_dis(struct rpl_domain *domain, struct net_if *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst);
 /* Manually send DIO packets for bootstrap */
-void rpl_control_transmit_dio_trigger(struct protocol_interface_info_entry *cur, struct rpl_domain *domain);
+void rpl_control_transmit_dio_trigger(struct net_if *cur, struct rpl_domain *domain);
 /* Manually trigger RPL parent selection */
 void rpl_control_parent_selection_trigger(struct rpl_domain *domain);
 
@@ -165,25 +165,25 @@ void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds);
 /* APIs to create domains and map them to interfaces */
 rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
-void rpl_control_set_domain_on_interface(struct protocol_interface_info_entry *cur, rpl_domain_t *domain, bool downstream);
-void rpl_control_remove_domain_from_interface(struct protocol_interface_info_entry *cur);
-void rpl_control_free_domain_instances_from_interface(struct protocol_interface_info_entry *cur);
+void rpl_control_set_domain_on_interface(struct net_if *cur, rpl_domain_t *domain, bool downstream);
+void rpl_control_remove_domain_from_interface(struct net_if *cur);
+void rpl_control_free_domain_instances_from_interface(struct net_if *cur);
 void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, rpl_parent_dis_callback_t parent_dis, void *cb_handle);
 
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16]);
-bool rpl_control_is_dodag_parent(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
-bool rpl_control_is_dodag_parent_candidate(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter);
-bool rpl_control_probe_parent_candidate(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
-uint16_t rpl_control_neighbor_info_get(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t *global_address);
-bool rpl_possible_better_candidate(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx);
-uint16_t rpl_control_parent_candidate_list_size(struct protocol_interface_info_entry *interface, bool parent_list);
-uint16_t rpl_control_candidate_list_size(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance);
-uint16_t rpl_control_selected_parent_count(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance);
-void rpl_control_neighbor_delete(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16]);
-void rpl_control_neighbor_delete_from_instance(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16]);
-bool rpl_control_find_worst_neighbor(struct protocol_interface_info_entry *interface, struct rpl_instance *rpl_instance, uint8_t ll_addr[16]);
+bool rpl_control_is_dodag_parent(struct net_if *interface, const uint8_t ll_addr[16]);
+bool rpl_control_is_dodag_parent_candidate(struct net_if *interface, const uint8_t ll_addr[16], uint16_t candidate_cmp_limiter);
+bool rpl_control_probe_parent_candidate(struct net_if *interface, const uint8_t ll_addr[16]);
+uint16_t rpl_control_neighbor_info_get(struct net_if *interface, const uint8_t ll_addr[16], uint8_t *global_address);
+bool rpl_possible_better_candidate(struct net_if *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx);
+uint16_t rpl_control_parent_candidate_list_size(struct net_if *interface, bool parent_list);
+uint16_t rpl_control_candidate_list_size(struct net_if *interface, struct rpl_instance *rpl_instance);
+uint16_t rpl_control_selected_parent_count(struct net_if *interface, struct rpl_instance *rpl_instance);
+void rpl_control_neighbor_delete(struct net_if *interface, const uint8_t ll_addr[16]);
+void rpl_control_neighbor_delete_from_instance(struct net_if *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16]);
+bool rpl_control_find_worst_neighbor(struct net_if *interface, struct rpl_instance *rpl_instance, uint8_t ll_addr[16]);
 
 /* Parent link confirmation API extension */
 void rpl_control_request_parent_link_confirmation(bool requested);
@@ -194,8 +194,8 @@ void rpl_control_set_dao_retry_count(uint8_t count);
 void rpl_control_set_minimum_dao_target_refresh(uint16_t seconds);
 void rpl_control_set_initial_dao_ack_wait(uint16_t timeout_in_ms);
 void rpl_control_set_mrhof_parent_set_size(uint16_t parent_set_size);
-void rpl_control_register_address(struct protocol_interface_info_entry *interface, const uint8_t addr[16]);
-bool rpl_control_address_register_done(struct protocol_interface_info_entry *interface, const uint8_t ll_addr[16], uint8_t status);
+void rpl_control_register_address(struct net_if *interface, const uint8_t addr[16]);
+bool rpl_control_address_register_done(struct net_if *interface, const uint8_t ll_addr[16], uint8_t status);
 
 /* Configure and return the routing lookup predicate for a specified RPL instance ID */
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);
@@ -212,7 +212,7 @@ const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
-void rpl_control_instant_poison(struct protocol_interface_info_entry *cur, rpl_domain_t *domain);
+void rpl_control_instant_poison(struct net_if *cur, rpl_domain_t *domain);
 
 
 #endif

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct mcps_data_conf;
 struct mcps_data_ind;
 struct buffer;
@@ -42,27 +42,27 @@ int lowpan_adaptation_queue_size(int8_t interface_id);
 /**
  * \brief call this before normal TX. This function prepare buffer link specific metadata and verify packet destination
  */
-struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct protocol_interface_info_entry *cur, struct buffer *buf);
+struct buffer *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, struct buffer *buf);
 
-int8_t lowpan_adaptation_interface_tx(struct protocol_interface_info_entry *cur, struct buffer *buf);
+int8_t lowpan_adaptation_interface_tx(struct net_if *cur, struct buffer *buf);
 
-int8_t lowpan_adaptation_interface_tx_confirm(struct protocol_interface_info_entry *cur, const struct mcps_data_conf *confirm);
+int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const struct mcps_data_conf *confirm);
 
-void lowpan_adaptation_interface_data_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data_ind);
+void lowpan_adaptation_interface_data_ind(struct net_if *cur, const struct mcps_data_ind *data_ind);
 
-struct buffer *lowpan_adaptation_reassembly(struct protocol_interface_info_entry *cur, struct buffer *buf);
+struct buffer *lowpan_adaptation_reassembly(struct net_if *cur, struct buffer *buf);
 
 bool lowpan_adaptation_tx_active(int8_t interface_id);
 
-void lowpan_adaptation_neigh_remove_free_tx_tables(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
+void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
-int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, enum addrtype adr_type);
+int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
 
-int8_t lowpan_adaptation_indirect_queue_params_set(struct protocol_interface_info_entry *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
+int8_t lowpan_adaptation_indirect_queue_params_set(struct net_if *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
 
-void lowpan_adaptation_expedite_forward_enable(struct protocol_interface_info_entry *cur);
+void lowpan_adaptation_expedite_forward_enable(struct net_if *cur);
 
-bool lowpan_adaptation_expedite_forward_state_get(struct protocol_interface_info_entry *cur);
+bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur);
 
 void lowpan_adaptation_interface_slow_timer(int seconds);
 

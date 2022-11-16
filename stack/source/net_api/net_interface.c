@@ -81,7 +81,7 @@ static int arm_channel_list_validation(const channel_list_t *scan_list)
  */
 int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_params)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     addrtype_e addrType = mac_helper_coordinator_address_get(cur, network_params->address);
     if (addrType == ADDR_NONE) {
         return -2;
@@ -107,7 +107,7 @@ int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_para
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params)
 {
     int8_t ret_val = -2;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         ret_val = 0;
@@ -130,7 +130,7 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
     (void)interface_id;
     (void)nd_addr_info;
     int8_t ret_val = -2;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
@@ -154,7 +154,7 @@ int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_
 int16_t arm_net_get_current_channel(int8_t interface_id)
 {
     int16_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
@@ -195,7 +195,7 @@ Border Router Device will not check that part.
  */
 int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return -1;
@@ -227,7 +227,7 @@ int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_addre
 int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     const uint8_t *addr;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -275,7 +275,7 @@ int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *
 int8_t arm_net_interface_address_list_size(int8_t interface_id, uint16_t *address_count)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     *address_count = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
@@ -299,7 +299,7 @@ int8_t arm_net_interface_address_list_size(int8_t interface_id, uint16_t *addres
 int8_t arm_net_interface_set_metric(int8_t interface_id, uint16_t metric)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (cur) {
@@ -319,7 +319,7 @@ int8_t arm_net_interface_set_metric(int8_t interface_id, uint16_t metric)
 int8_t arm_net_interface_get_metric(int8_t interface_id, uint16_t *metric)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (cur) {
@@ -342,7 +342,7 @@ int8_t arm_net_interface_get_metric(int8_t interface_id, uint16_t *metric)
 int8_t arm_net_address_list_get(int8_t interface_id, uint8_t address_buf_size, uint8_t *address_buffer, int *writed_address_count)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     int address_count = 0;
 
 
@@ -394,7 +394,7 @@ int8_t arm_net_address_list_get(int8_t interface_id, uint8_t address_buf_size, u
 int8_t arm_net_address_list_get_next(int8_t interface_id, int *n, uint8_t address_buffer[16])
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     int address_count = 0;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -436,7 +436,7 @@ int8_t arm_net_address_list_get_next(int8_t interface_id, int *n, uint8_t addres
 
 int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_t address[16], uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     if_address_entry_t *entry;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -456,7 +456,7 @@ int8_t arm_net_address_add_to_interface(int8_t interface_id, const uint8_t addre
 
 int8_t arm_net_address_delete_from_interface(int8_t interface_id, const uint8_t address[16])
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur) {
@@ -498,7 +498,7 @@ int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
         return -1;
     }
 
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_generate_lowpan(api);
+    struct net_if *cur = protocol_stack_interface_generate_lowpan(api);
     if (!cur) {
         return -3;
     }
@@ -526,7 +526,7 @@ int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, char *interface_name_ptr)
 int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_list_t *nwk_channel_list, network_driver_setup_t *link_setup)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
 
     if (arm_channel_list_validation(nwk_channel_list)) {
         tr_debug("Given channel mask is empty!");
@@ -554,7 +554,7 @@ int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const channel_l
 int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return -1;
@@ -579,7 +579,7 @@ int8_t arm_nwk_interface_down(int8_t interface_id)
 {
 
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
 
@@ -643,7 +643,7 @@ int8_t arm_network_certificate_revocation_list_remove(const arm_cert_revocation_
 
 int8_t arm_6lowpan_bootstrap_set_for_selected_interface(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -699,7 +699,7 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_t *nwk_channel_list)
 {
     int8_t ret_val = -1;
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur) {
         return -1;
@@ -728,7 +728,7 @@ int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_t *nwk_c
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */
-static void net_automatic_loopback_route_update(protocol_interface_info_entry_t *interface, const if_address_entry_t *addr, if_address_callback_e reason)
+static void net_automatic_loopback_route_update(struct net_if *interface, const if_address_entry_t *addr, if_address_callback_e reason)
 {
     /* Don't care about link-local addresses - we know they're on-link */
     if (addr_is_ipv6_link_local(addr->address)) {
@@ -774,7 +774,7 @@ int8_t net_init_core(void)
 int8_t net_nvm_data_clean(int8_t interface_id)
 {
     int8_t ret_val = -2; // Not ative
-    protocol_interface_info_entry_t *cur = 0;
+    struct net_if *cur = 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
@@ -835,7 +835,7 @@ void arm_ncache_flush(void)
 
 int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
@@ -847,7 +847,7 @@ int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t b
 
 int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->mac_api || (cca_threshold > 100)) {
         return -1;
@@ -863,7 +863,7 @@ int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold)
 
 int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->mac_api) {
         return -1;
@@ -879,7 +879,7 @@ int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
 
 const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     // Interface or MAC parameters not initialized
     if (!cur) {

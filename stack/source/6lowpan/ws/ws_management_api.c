@@ -37,7 +37,7 @@ int ws_management_node_init(
     char *network_name_ptr,
     fhss_timer_t *fhss_timer_ptr)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
 
@@ -82,7 +82,7 @@ int ws_management_network_name_set(
     int8_t interface_id,
     char *network_name_ptr)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -109,7 +109,7 @@ int ws_management_network_name_get(
     int8_t interface_id,
     char *network_name_ptr)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -132,7 +132,7 @@ int ws_management_network_name_validate(
     int8_t interface_id,
     char *network_name_ptr)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -161,7 +161,7 @@ int ws_management_domain_configuration_set(
     uint8_t phy_mode_id,
     uint8_t channel_plan_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -208,7 +208,7 @@ int ws_management_domain_configuration_get(
     uint8_t *phy_mode_id,
     uint8_t *channel_plan_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -238,7 +238,7 @@ int ws_management_domain_configuration_validate(
     uint8_t phy_mode_id,
     uint8_t channel_plan_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -268,7 +268,7 @@ int ws_management_regulatory_domain_set(
     uint8_t phy_mode_id,
     uint8_t channel_plan_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -299,7 +299,7 @@ int ws_management_regulatory_domain_get(
     uint8_t *operating_class,
     uint8_t *operating_mode)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -326,7 +326,7 @@ int ws_management_regulatory_domain_validate(
     uint8_t operating_class,
     uint8_t operating_mode)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -352,7 +352,7 @@ int ws_management_network_size_set(
     int8_t interface_id,
     uint8_t network_size)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -377,7 +377,7 @@ int ws_management_network_size_get(
     int8_t interface_id,
     uint8_t *network_size)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -400,7 +400,7 @@ int ws_management_network_size_validate(
     int8_t interface_id,
     uint8_t network_size)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -424,7 +424,7 @@ int ws_management_channel_mask_set(
     int8_t interface_id,
     uint32_t channel_mask[8])
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -460,7 +460,7 @@ int ws_management_channel_mask_get(
     int8_t interface_id,
     uint32_t *channel_mask)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -483,7 +483,7 @@ int ws_management_channel_mask_validate(
     int8_t interface_id,
     uint32_t channel_mask[8])
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -511,7 +511,7 @@ int ws_management_channel_plan_set(
     uint8_t channel_spacing,// Stack can not modify this
     uint8_t number_of_channels)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
@@ -534,7 +534,7 @@ int ws_management_fhss_timing_configure(
     uint32_t fhss_broadcast_interval,
     uint8_t fhss_bc_dwell_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -582,7 +582,7 @@ int ws_management_fhss_unicast_channel_function_configure(
     uint16_t fixed_channel,
     uint8_t dwell_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -629,7 +629,7 @@ int ws_management_fhss_unicast_channel_function_get(
     uint16_t *fixed_channel,
     uint8_t *dwell_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -656,7 +656,7 @@ int ws_management_fhss_unicast_channel_function_validate(
     uint16_t fixed_channel,
     uint8_t dwell_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -685,7 +685,7 @@ int ws_management_fhss_broadcast_channel_function_configure(
     uint8_t dwell_interval,
     uint32_t broadcast_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -739,7 +739,7 @@ int ws_management_fhss_broadcast_channel_function_get(
     uint8_t *dwell_interval,
     uint32_t *broadcast_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -768,7 +768,7 @@ int ws_management_fhss_broadcast_channel_function_validate(
     uint8_t dwell_interval,
     uint32_t broadcast_interval)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -798,7 +798,7 @@ int ws_management_timing_parameters_set(
     uint8_t disc_trickle_k,
     uint16_t pan_timeout)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
@@ -853,7 +853,7 @@ int ws_management_timing_parameters_get(
     uint8_t *disc_trickle_k,
     uint16_t *pan_timeout)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -882,7 +882,7 @@ int ws_management_timing_parameters_validate(
     uint8_t disc_trickle_k,
     uint16_t pan_timeout)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface_id >= 0 && (!cur || !ws_info(cur))) {
         return -1;
@@ -907,7 +907,7 @@ int ws_management_timing_parameters_validate(
 
 int ws_stack_info_get(int8_t interface_id, ws_stack_info_t *info_ptr)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur) || !info_ptr) {
         return -1;
@@ -920,7 +920,7 @@ int ws_neighbor_info_get(
     ws_neighbour_info_t *neighbor_ptr,
     uint16_t count)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
@@ -932,7 +932,7 @@ int ws_device_min_sens_set(
     int8_t interface_id,
     uint8_t device_min_sens)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;

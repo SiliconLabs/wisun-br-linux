@@ -32,7 +32,7 @@
 
 #define TRACE_GROUP "MRsH"
 
-static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+static void mac_mlme_device_table_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
 {
     if (confirmation->value_size != sizeof(mlme_device_descriptor_t)) {
         return;
@@ -66,7 +66,7 @@ static void mac_mlme_device_table_confirmation_handle(protocol_interface_info_en
     }
 }
 
-static void mac_mlme_frame_counter_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+static void mac_mlme_frame_counter_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
 {
     if (confirmation->value_size != 4) {
         return;
@@ -75,7 +75,7 @@ static void mac_mlme_frame_counter_confirmation_handle(protocol_interface_info_e
     info_entry->mac_parameters.security_frame_counter = *temp_ptr;
 }
 
-static void mac_mlme_cca_threshold_confirmation_handle(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+static void mac_mlme_cca_threshold_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
 {
     if (confirmation->value_size < 1) {
         return;
@@ -84,7 +84,7 @@ static void mac_mlme_cca_threshold_confirmation_handle(protocol_interface_info_e
     info_entry->mac_parameters.cca_thr_table.cca_threshold_table = (int8_t *)confirmation->value_pointer;
 }
 
-static void mac_mlme_get_confirmation_handler(protocol_interface_info_entry_t *info_entry, mlme_get_conf_t *confirmation)
+static void mac_mlme_get_confirmation_handler(struct net_if *info_entry, mlme_get_conf_t *confirmation)
 {
 
     if (!confirmation) {
@@ -112,7 +112,7 @@ static void mac_mlme_get_confirmation_handler(protocol_interface_info_entry_t *i
 
 void mcps_data_confirm_handler(const mac_api_t *api, const mcps_data_conf_t *data)
 {
-    protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
+    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     //TODO: create buffer_t and call correct function
     //Update protocol_status
     lowpan_adaptation_interface_tx_confirm(info_entry, data);
@@ -120,7 +120,7 @@ void mcps_data_confirm_handler(const mac_api_t *api, const mcps_data_conf_t *dat
 
 void mcps_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *data_ind)
 {
-    protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
+    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     lowpan_adaptation_interface_data_ind(info_entry, data_ind);
 }
 
@@ -133,7 +133,7 @@ void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
 
 void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
-    protocol_interface_info_entry_t *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
+    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
     if (!info_entry) {
         return;
     }

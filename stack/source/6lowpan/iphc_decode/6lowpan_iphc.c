@@ -43,7 +43,7 @@
  */
 buffer_t *lowpan_down(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
 
     buf->options.type = 0;
 
@@ -136,7 +136,7 @@ buffer_t *lowpan_down(buffer_t *buf)
 
 buffer_t *lowpan_up(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
 
     /* Reject:
      *    Packets without address

@@ -60,7 +60,7 @@ typedef struct eapol_pdu_data {
     eapol_pdu_recv_cb_list_t recv_cb_list;                 /**< List of receive callbacks */
     eapol_pdu_msdu_list_t msdu_list;                       /**< MSDU list */
     ws_eapol_pdu_receive *receive;                         /**< data receive callback */
-    protocol_interface_info_entry_t *interface_ptr;        /**< Interface pointer */
+    struct net_if *interface_ptr;        /**< Interface pointer */
     mpx_api_t *mpx_api;                                    /**< MPX api */
     uint16_t mpx_user_id;                                  /**< MPX user identifier */
     uint8_t msdu_handle;                                   /**< MSDU handle */
@@ -69,12 +69,12 @@ typedef struct eapol_pdu_data {
 
 static void ws_eapol_pdu_mpx_data_confirm(const mpx_api_t *api, const struct mcps_data_conf *data);
 static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct mcps_data_ind *data);
-static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur);
-static eapol_pdu_data_t *ws_eapol_pdu_data_get(protocol_interface_info_entry_t *interface_ptr);
+static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, struct net_if *cur);
+static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr);
 
 static NS_LIST_DEFINE(eapol_pdu_data_list, eapol_pdu_data_t, link);
 
-int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_eapol_pdu_init(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -99,7 +99,7 @@ int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-int8_t ws_eapol_pdu_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -127,7 +127,7 @@ int8_t ws_eapol_pdu_delete(protocol_interface_info_entry_t *interface_ptr)
     return 0;
 }
 
-int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
+int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
 {
     if (!interface_ptr || !cb_data) {
         return -1;
@@ -160,7 +160,7 @@ int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, 
     return 0;
 }
 
-int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
+int8_t ws_eapol_pdu_cb_unregister(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data)
 {
     if (!interface_ptr || !cb_data) {
         return -1;
@@ -183,7 +183,7 @@ int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr
     return -1;
 }
 
-int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status *tx_status, uint8_t tx_identifier)
+int8_t ws_eapol_pdu_send_to_mpx(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status *tx_status, uint8_t tx_identifier)
 {
     eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
 
@@ -216,7 +216,7 @@ int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, 
     return 0;
 }
 
-int8_t ws_eapol_pdu_mpx_eui64_purge(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64)
+int8_t ws_eapol_pdu_mpx_eui64_purge(struct net_if *interface_ptr, const uint8_t *eui_64)
 {
     eapol_pdu_data_t *eapol_pdu_data = ws_eapol_pdu_data_get(interface_ptr);
     if (!eapol_pdu_data) {
@@ -228,7 +228,7 @@ int8_t ws_eapol_pdu_mpx_eui64_purge(protocol_interface_info_entry_t *interface_p
     return 0;
 }
 
-static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, protocol_interface_info_entry_t *cur)
+static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, struct net_if *cur)
 {
     memset(dataReq, 0, sizeof(mcps_data_req_t));
 
@@ -239,7 +239,7 @@ static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, pro
     dataReq->DstPANId = mac_helper_panid_get(cur);
 }
 
-int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
+int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id)
 {
     if (!interface_ptr) {
         return -1;
@@ -334,7 +334,7 @@ static void ws_eapol_pdu_mpx_data_indication(const mpx_api_t *api, const struct 
     }
 }
 
-static eapol_pdu_data_t *ws_eapol_pdu_data_get(protocol_interface_info_entry_t *interface_ptr)
+static eapol_pdu_data_t *ws_eapol_pdu_data_get(struct net_if *interface_ptr)
 {
     eapol_pdu_data_t *eapol_pdu_data = NULL;
 

@@ -40,7 +40,7 @@
 
 int ws_test_version_set(int8_t interface_id, uint8_t version)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     test_pan_version = version;
     if (cur) {
@@ -80,7 +80,7 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index)
 
 int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
@@ -111,7 +111,7 @@ int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, ui
 
 int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
@@ -145,7 +145,7 @@ int ws_test_gtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_
 
 int ws_test_lgtk_time_settings_set(int8_t interface_id, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
@@ -189,7 +189,7 @@ int ws_test_next_lgtk_set(int8_t interface_id, uint8_t *lgtk[3])
 
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !ws_info(cur)) {
         return -1;
@@ -201,7 +201,7 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
 
 int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, void *parameters)
 {
-    protocol_interface_info_entry_t *cur = NULL;;
+    struct net_if *cur = NULL;;
 
     (void) parameters;
     if (interface_id > 0) {

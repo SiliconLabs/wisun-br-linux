@@ -23,7 +23,7 @@
 
 #include "ipv6_stack/ipv6_routing_table.h"
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct rpl_route_info;
 struct rpl_instance;
 struct rpl_dodag;
@@ -51,7 +51,7 @@ void rpl_instance_dao_trigger(struct rpl_instance *instance, uint16_t delay);
 void rpl_instance_dao_acked(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, uint8_t dao_sequence, uint8_t status);
 void rpl_instance_parent_address_reg_timer_update(struct rpl_instance *instance, uint16_t seconds);
 void rpl_instance_send_address_registration(struct rpl_instance *instance, const uint8_t addr[16]);
-bool rpl_instance_address_registration_done(struct protocol_interface_info_entry *interface, struct rpl_instance *instance, struct rpl_neighbour *neighbour, uint8_t status);
+bool rpl_instance_address_registration_done(struct net_if *interface, struct rpl_instance *instance, struct rpl_neighbour *neighbour, uint8_t status);
 struct rpl_dao_target *rpl_instance_get_active_target_confirmation(struct rpl_instance *instance);
 bool rpl_instance_parent_selection_ready(struct rpl_instance *instance);
 

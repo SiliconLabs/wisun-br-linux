@@ -25,7 +25,7 @@ uint16_t ipv6_header_size_required(buffer_t *buf);
 uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit);
 uint16_t ipv6_mtu(buffer_t *buf);
 
-buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct protocol_interface_info_entry *next_if);
+buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_hop, struct net_if *next_if);
 buffer_routing_info_t *ipv6_buffer_route(buffer_t *buf);
 
 typedef enum ipv6_exthdr_stage {
@@ -73,6 +73,6 @@ buffer_t *ipv6_down(buffer_t *buf);
 buffer_t *ipv6_forwarding_down(buffer_t *buf);
 buffer_t *ipv6_forwarding_up(buffer_t *buf);
 
-void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct protocol_interface_info_entry *cur);
+void ipv6_transmit_multicast_on_interface(buffer_t *buf, struct net_if *cur);
 
 #endif /* _IPV6_H */

@@ -47,7 +47,7 @@
 
 void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, bool unicast, uint_fast8_t seq)
 {
-    protocol_interface_info_entry_t *cur_interface = container_of(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
+    struct net_if *cur_interface = container_of(cache, struct net_if, ipv6_neighbour_cache);
 
     if (cur_interface->if_ns_transmit) {
         /* Thread uses DHCP Leasequery (!) instead of NS for address resolution */
@@ -70,7 +70,7 @@ void ipv6_interface_resolve_send_ns(ipv6_neighbour_cache_t *cache, ipv6_neighbou
 /* Entry has already been removed from cache, and is about to be freed. Hence entry->queue can't change while we process it */
 void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry)
 {
-    protocol_interface_info_entry_t *cur_interface = container_of(cache, protocol_interface_info_entry_t, ipv6_neighbour_cache);
+    struct net_if *cur_interface = container_of(cache, struct net_if, ipv6_neighbour_cache);
 
     tr_warn("LL addr of %s not found", tr_ipv6(entry->ip_address));
     ns_list_foreach_safe(buffer_t, buf, &entry->queue) {
@@ -100,7 +100,7 @@ void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighb
  */
 ipv6_neighbour_cache_t *ipv6_neighbour_cache_by_interface_id(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     return interface ? &interface->ipv6_neighbour_cache : NULL;
 }
@@ -114,7 +114,7 @@ void ipv6_send_queued(ipv6_neighbour_t *entry)
     }
 }
 
-static void ipv6_trigger_resolve_query(protocol_interface_info_entry_t *cur_interface, buffer_t *buf, ipv6_neighbour_t *n)
+static void ipv6_trigger_resolve_query(struct net_if *cur_interface, buffer_t *buf, ipv6_neighbour_t *n)
 {
     if (n->state != IP_NEIGHBOUR_NEW && n->state != IP_NEIGHBOUR_INCOMPLETE) {
         tr_debug("ipv6_resolve_query");
@@ -147,7 +147,7 @@ static void ipv6_trigger_resolve_query(protocol_interface_info_entry_t *cur_inte
  * If we have an incomplete Neighbour Cache entry, start address resolution
  * and queue the buffer, returning NULL.
  */
-ipv6_neighbour_t *ipv6_interface_resolve_new(protocol_interface_info_entry_t *cur, buffer_t *buf)
+ipv6_neighbour_t *ipv6_interface_resolve_new(struct net_if *cur, buffer_t *buf)
 {
     buffer_routing_info_t *route = ipv6_buffer_route(buf);
     if (!route) {
@@ -194,7 +194,7 @@ ipv6_neighbour_t *ipv6_interface_resolve_new(protocol_interface_info_entry_t *cu
 }
 
 /* Attempt a mapping from current information (neighbour cache, hard mappings) */
-bool ipv6_map_ip_to_ll(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *n, const uint8_t ip_addr[16], addrtype_e *ll_type, const uint8_t **ll_addr_out)
+bool ipv6_map_ip_to_ll(struct net_if *cur, ipv6_neighbour_t *n, const uint8_t ip_addr[16], addrtype_e *ll_type, const uint8_t **ll_addr_out)
 {
     if (!n) {
         n = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, ip_addr);
@@ -214,7 +214,7 @@ bool ipv6_map_ip_to_ll(protocol_interface_info_entry_t *cur, ipv6_neighbour_t *n
 }
 
 /* Attempt a mapping from current information (neighbour cache, hard mappings) */
-bool ipv6_map_ll_to_ip_link_local(protocol_interface_info_entry_t *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16])
+bool ipv6_map_ll_to_ip_link_local(struct net_if *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t ip_addr_out[16])
 {
     if (cur->if_map_link_addr_to_ip &&
             cur->if_map_link_addr_to_ip(cur, ll_type, ll_addr, ip_addr_out)) {
@@ -232,7 +232,7 @@ bool ipv6_map_ll_to_ip_link_local(protocol_interface_info_entry_t *cur, addrtype
 }
 
 /* To comply with ETX returns 0xFFFF when neighbor doesn't exist and 0 when neighbor is currently unknown. */
-uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(protocol_interface_info_entry_t *cur, int8_t interface_id, ipv6_neighbour_t *n, const uint8_t ipaddr[16], ll_addr_handler_t *ll_addr_handler_ptr)
+uint16_t ipv6_map_ip_to_ll_and_call_ll_addr_handler(struct net_if *cur, int8_t interface_id, ipv6_neighbour_t *n, const uint8_t ipaddr[16], ll_addr_handler_t *ll_addr_handler_ptr)
 {
     addrtype_e ll_type;
     const uint8_t *ll_addr;

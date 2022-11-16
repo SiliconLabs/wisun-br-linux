@@ -103,7 +103,7 @@ static bool rpl_data_is_rpl_downward_route(ipv6_route_src_t source)
     }
 }
 
-static bool rpl_data_handle_fwd_error(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *opt, const sockaddr_t *ll_src)
+static bool rpl_data_handle_fwd_error(buffer_t *buf, struct net_if *cur, uint8_t *opt, const sockaddr_t *ll_src)
 {
     if (!ll_src) {
         tr_warn("Forwarding-Error - dst=%s, neighbour unknown", tr_ipv6(buf->dst_sa.address));
@@ -132,7 +132,7 @@ static bool rpl_data_handle_fwd_error(buffer_t *buf, protocol_interface_info_ent
 #endif
 }
 
-bool rpl_data_process_hbh(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *opt, const sockaddr_t *ll_src)
+bool rpl_data_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt, const sockaddr_t *ll_src)
 {
     buf->rpl_instance = opt[1];
     buf->rpl_instance_known = true;
@@ -531,7 +531,7 @@ static buffer_t *rpl_data_exthdr_provider_fwd_error_hbh(buffer_t *buf, ipv6_exth
  * to link-layer without an existing entry. Could conceivably get a false positive if we have
  * a stale entry and MAC addresses have been reassigned, but very unlikely.
  */
-static bool rpl_downward_ip_addr_matches_ll_addr(protocol_interface_info_entry_t *cur, const uint8_t ip_addr_a[static 16], const sockaddr_t *ll_addr_b)
+static bool rpl_downward_ip_addr_matches_ll_addr(struct net_if *cur, const uint8_t ip_addr_a[static 16], const sockaddr_t *ll_addr_b)
 {
     if (!ll_addr_b) {
         return false;
@@ -569,7 +569,7 @@ static bool rpl_data_route_predicate_specific_instance(const ipv6_route_info_t *
 {
     /* We will permit forwarding out of RPL into a non-RPL interface (eg border routers) */
     /* XXX - what if we're the boundary between two RPL domains? */
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(route->interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(route->interface_id);
     if (!cur || !cur->rpl_domain) {
         return valid;
     }
@@ -646,7 +646,7 @@ bool rpl_data_forwarding_error(buffer_t *buf)
         return false;
     }
 
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     if (!cur) {
         return false;
     }
@@ -1042,7 +1042,7 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_e
 }
 #endif // HAVE_RPL_ROOT
 
-buffer_t *rpl_data_process_routing_header(buffer_t *buf, protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t *hdrlen_out, bool *forward_out)
+buffer_t *rpl_data_process_routing_header(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t *hdrlen_out, bool *forward_out)
 {
     /* Handling procedures based on RFC 6554 4.2 */
 
@@ -1166,7 +1166,7 @@ drop:
      */
 
     /* Policy gets to decide whether we will take this - it can do neighbour state checks */
-    protocol_interface_info_entry_t *next_if =
+    struct net_if *next_if =
         protocol_stack_interface_info_get_by_id(
             rpl_policy_srh_next_hop_interface(cur->rpl_domain, cur->id,
                                               buf->dst_sa.address));

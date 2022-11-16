@@ -163,7 +163,7 @@ typedef struct llc_data_base {
     uint8_t                         ms_mode;
     uint8_t                         ms_tx_phy_mode_id;
     uint8_t                         base_phy_mode_id;
-    protocol_interface_info_entry_t *interface_ptr;                 /**< List link entry */
+    struct net_if *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
 static NS_LIST_DEFINE(llc_data_base_list, llc_data_base_t, link);
@@ -180,7 +180,7 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
 static llc_message_t *llc_message_allocate(uint16_t ie_buffer_size, llc_data_base_t *llc_base);
 
 /** LLC interface sepesific local functions */
-static llc_data_base_t *ws_llc_discover_by_interface(struct protocol_interface_info_entry *interface);
+static llc_data_base_t *ws_llc_discover_by_interface(struct net_if *interface);
 static llc_data_base_t *ws_llc_discover_by_mac(const mac_api_t *api);
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
@@ -214,7 +214,7 @@ static uint8_t test_drop_data_message = 0;
 
 int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
     }
@@ -224,7 +224,7 @@ int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 
 int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !ws_info(cur)) {
         return -1;
     }
@@ -326,7 +326,7 @@ static llc_message_t *llc_message_allocate(uint16_t ie_buffer_size, llc_data_bas
     return message;
 }
 
-static llc_data_base_t *ws_llc_discover_by_interface(struct protocol_interface_info_entry *interface)
+static llc_data_base_t *ws_llc_discover_by_interface(struct net_if *interface)
 {
     ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
         if (base->interface_ptr == interface) {
@@ -560,7 +560,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
     if (!base)
         return;
 
-    protocol_interface_info_entry_t *interface = base->interface_ptr;
+    struct net_if *interface = base->interface_ptr;
     llc_message_t *message = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
     if (!message)
         return;
@@ -711,7 +711,7 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, 
         return NULL;
     }
 
-    protocol_interface_info_entry_t *interface = base->interface_ptr;
+    struct net_if *interface = base->interface_ptr;
 
     if (interface->mac_parameters.pan_id != 0xffff && data->SrcPANId != interface->mac_parameters.pan_id) {
         //Drop wrong PAN-id messages in this phase.
@@ -778,7 +778,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         pom_ie_inline = ws_wp_nested_pom_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &pom_ie);
     }
 
-    protocol_interface_info_entry_t *interface = base->interface_ptr;
+    struct net_if *interface = base->interface_ptr;
 
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
@@ -913,7 +913,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
         bs_ie_inline = ws_wp_nested_bs_read(ws_wp_nested.content_ptr, ws_wp_nested.length, &ws_bs_ie);
     }
 
-    protocol_interface_info_entry_t *interface = base->interface_ptr;
+    struct net_if *interface = base->interface_ptr;
 
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
@@ -1130,7 +1130,7 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
     return header_size;
 }
 
-static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, protocol_interface_info_entry_t *cur)
+static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct net_if *cur)
 {
     if (!ws_eapol_relay_state_active(cur)) {
         return false;
@@ -1706,7 +1706,7 @@ static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_co
     }
 }
 
-ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(protocol_interface_info_entry_t *interface, const uint8_t *mac64)
+ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(struct net_if *interface, const uint8_t *mac64)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1716,7 +1716,7 @@ ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(protocol_interface_inf
     return ws_llc_discover_temp_entry(&base->temp_entries->active_multicast_temp_neigh, mac64);
 }
 
-ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct protocol_interface_info_entry *interface, const uint8_t *mac64)
+ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct net_if *interface, const uint8_t *mac64)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1794,7 +1794,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
     return entry;
 }
 
-void ws_llc_free_multicast_temp_entry(protocol_interface_info_entry_t *cur, ws_neighbor_temp_class_t *neighbor)
+void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class_t *neighbor)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(cur);
     if (!base) {
@@ -1902,7 +1902,7 @@ static void ws_llc_mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t 
     }
 }
 
-int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
+int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
@@ -1929,7 +1929,7 @@ int8_t ws_llc_create(struct protocol_interface_info_entry *interface, ws_asynch_
     return 0;
 }
 
-int8_t ws_llc_delete(struct protocol_interface_info_entry *interface)
+int8_t ws_llc_delete(struct net_if *interface)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1948,7 +1948,7 @@ int8_t ws_llc_delete(struct protocol_interface_info_entry *interface)
 
 
 
-void ws_llc_reset(struct protocol_interface_info_entry *interface)
+void ws_llc_reset(struct net_if *interface)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1957,7 +1957,7 @@ void ws_llc_reset(struct protocol_interface_info_entry *interface)
     ws_llc_clean(base);
 }
 
-mpx_api_t *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface)
+mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -1966,7 +1966,7 @@ mpx_api_t *ws_llc_mpx_api_get(struct protocol_interface_info_entry *interface)
     return &base->mpx_data_base.mpx_api;
 }
 
-int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, asynch_request_t *request)
+int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base || !base->ie_params.hopping_schedule) {
@@ -2169,7 +2169,7 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     return 0;
 }
 
-int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
+int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
     llc_neighbour_req_t neighbor_info;
@@ -2241,7 +2241,7 @@ int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, i
     return 0;
 }
 
-void ws_llc_set_vendor_header_data(struct protocol_interface_info_entry *interface, uint8_t *vendor_header, uint8_t vendor_header_length)
+void ws_llc_set_vendor_header_data(struct net_if *interface, uint8_t *vendor_header, uint8_t vendor_header_length)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2252,7 +2252,7 @@ void ws_llc_set_vendor_header_data(struct protocol_interface_info_entry *interfa
 }
 
 
-void ws_llc_set_vendor_payload_data(struct protocol_interface_info_entry *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length)
+void ws_llc_set_vendor_payload_data(struct net_if *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2264,7 +2264,7 @@ void ws_llc_set_vendor_payload_data(struct protocol_interface_info_entry *interf
 }
 
 
-void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, uint8_t *name, uint8_t name_length)
+void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2275,7 +2275,7 @@ void ws_llc_set_network_name(struct protocol_interface_info_entry *interface, ui
     base->ie_params.network_name_length = name_length;
 }
 
-void ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *gtkhash)
+void ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2290,7 +2290,7 @@ void ws_llc_set_gtkhash(struct protocol_interface_info_entry *interface, gtkhash
     }
 }
 
-void ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkhash_t *lgtkhash)
+void ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2300,7 +2300,7 @@ void ws_llc_set_lgtkhash(struct protocol_interface_info_entry *interface, gtkhas
     base->ie_params.lgtkhash = lgtkhash;
 }
 
-void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *interface, struct ws_pan_information *pan_information_pointer)
+void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_information *pan_information_pointer)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2310,7 +2310,7 @@ void ws_llc_set_pan_information_pointer(struct protocol_interface_info_entry *in
     base->ie_params.pan_configuration = pan_information_pointer;
 }
 
-void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interface, struct ws_hopping_schedule *hopping_schedule)
+void ws_llc_hopping_schedule_config(struct net_if *interface, struct ws_hopping_schedule *hopping_schedule)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2319,7 +2319,7 @@ void ws_llc_hopping_schedule_config(struct protocol_interface_info_entry *interf
     base->ie_params.hopping_schedule = hopping_schedule;
 }
 
-void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes)
+void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     int i;
@@ -2334,7 +2334,7 @@ void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interfa
         base->ie_params.phy_operating_modes = phy_operating_modes;
 }
 
-void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t ticks)
+void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base || !base->edfe_rx_wait_timer) {
@@ -2367,7 +2367,7 @@ void ws_llc_fast_timer(struct protocol_interface_info_entry *interface, uint16_t
     }
 }
 
-void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint16_t seconds_update)
+void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2396,7 +2396,7 @@ void ws_llc_timer_seconds(struct protocol_interface_info_entry *interface, uint1
     }
 }
 
-bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp)
+bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *joiner_eui64, uint8_t mac_sequency, uint32_t rx_timestamp)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base) {
@@ -2422,7 +2422,7 @@ bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *int
 
 }
 
-void ws_llc_set_base_phy_mode_id(struct protocol_interface_info_entry *interface, uint8_t phy_mode_id)
+void ws_llc_set_base_phy_mode_id(struct net_if *interface, uint8_t phy_mode_id)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
 

@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include "security/protocols/sec_prot.h"
 
-typedef struct protocol_interface_info_entry protocol_interface_info_entry_t;
+struct net_if;
 struct sec_prot_gtk_keys;
 struct sec_prot_certs;
 struct sec_prot_keys_nw_info;
@@ -65,7 +65,7 @@ struct frame_counters;
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr,
+int8_t ws_pae_auth_init(struct net_if *interface_ptr,
                         struct sec_prot_gtk_keys *next_gtks,
                         struct sec_prot_gtk_keys *next_lgtks,
                         const struct sec_prot_certs *certs,
@@ -86,7 +86,7 @@ int8_t ws_pae_auth_init(protocol_interface_info_entry_t *interface_ptr,
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
+int8_t ws_pae_auth_addresses_set(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port);
 
 /**
  * ws_pae_auth_radius_address_set set radius address
@@ -98,7 +98,7 @@ int8_t ws_pae_auth_addresses_set(protocol_interface_info_entry_t *interface_ptr,
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface_ptr, const struct sockaddr_storage *remote_addr);
+int8_t ws_pae_auth_radius_address_set(struct net_if *interface_ptr, const struct sockaddr_storage *remote_addr);
 
 /**
  * ws_pae_auth_delete deletes PAE authenticator
@@ -109,7 +109,7 @@ int8_t ws_pae_auth_radius_address_set(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_delete(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_pae_auth_delete(struct net_if *interface_ptr);
 
 /**
  * ws_pae_auth_fast_timer PAE authenticator fast timer call
@@ -133,7 +133,7 @@ void ws_pae_auth_slow_timer(uint16_t seconds);
  * \param interface_ptr interface
  *
  */
-void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr);
+void ws_pae_auth_start(struct net_if *interface_ptr);
 
 /**
  * ws_pae_auth_gtks_updated indicates that GTKs has been updated
@@ -141,7 +141,7 @@ void ws_pae_auth_start(protocol_interface_info_entry_t *interface_ptr);
  * \param interface_ptr interface
  *
  */
-void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
+void ws_pae_auth_gtks_updated(struct net_if *interface_ptr, bool is_lgtk);
 
 /**
  * ws_pae_auth_gtks_updated indicates that key index has been updated
@@ -153,7 +153,7 @@ void ws_pae_auth_gtks_updated(protocol_interface_info_entry_t *interface_ptr, bo
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
+int8_t ws_pae_auth_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_auth_node_keys_remove removes nodes keys
@@ -165,7 +165,7 @@ int8_t ws_pae_auth_nw_key_index_update(protocol_interface_info_entry_t *interfac
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_ptr, uint8_t *eui64);
+int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui64);
 
 /**
  * ws_pae_auth_node_access_revoke_start start node's access revoke
@@ -176,7 +176,7 @@ int8_t ws_pae_auth_node_keys_remove(protocol_interface_info_entry_t *interface_p
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *interface_ptr, bool is_lgtk);
+int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk);
 
 /**
  * ws_pae_auth_node_limit_set set node limit
@@ -188,7 +188,7 @@ int8_t ws_pae_auth_node_access_revoke_start(protocol_interface_info_entry_t *int
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr, uint16_t limit);
+int8_t ws_pae_auth_node_limit_set(struct net_if *interface_ptr, uint16_t limit);
 
 /**
  * ws_pae_auth_nw_info_set set network information
@@ -202,7 +202,7 @@ int8_t ws_pae_auth_node_limit_set(protocol_interface_info_entry_t *interface_ptr
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
+int8_t ws_pae_auth_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
 
 /**
  * ws_pae_auth_gtk_hash_set GTK hash set callback
@@ -211,7 +211,7 @@ int8_t ws_pae_auth_nw_info_set(protocol_interface_info_entry_t *interface_ptr, u
  * \param gtkhash GTK hash, 32 bytes
  *
  */
-typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
+typedef void ws_pae_auth_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_key_insert network key insert callback
@@ -224,7 +224,7 @@ typedef void ws_pae_auth_gtk_hash_set(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
+typedef int8_t ws_pae_auth_nw_key_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_keys_remove remove network keys callback
@@ -232,7 +232,7 @@ typedef int8_t ws_pae_auth_nw_key_insert(protocol_interface_info_entry_t *interf
  * \param interface_ptr interface
  *
  */
-typedef void ws_pae_auth_nw_keys_remove(protocol_interface_info_entry_t *interface_ptr);
+typedef void ws_pae_auth_nw_keys_remove(struct net_if *interface_ptr);
 
 /**
  * ws_pae_auth_nw_key_index_set network send key index set callback
@@ -241,7 +241,7 @@ typedef void ws_pae_auth_nw_keys_remove(protocol_interface_info_entry_t *interfa
  * \param index network send key index
  *
  */
-typedef void ws_pae_auth_nw_key_index_set(protocol_interface_info_entry_t *interface_ptr, uint8_t index, bool is_lgtk);
+typedef void ws_pae_auth_nw_key_index_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
 
 /**
  * ws_pae_auth_nw_info_updated security keys network information updated
@@ -249,7 +249,7 @@ typedef void ws_pae_auth_nw_key_index_set(protocol_interface_info_entry_t *inter
  * \param interface_ptr interface
  *
  */
-typedef void ws_pae_auth_nw_info_updated(protocol_interface_info_entry_t *interface_ptr);
+typedef void ws_pae_auth_nw_info_updated(struct net_if *interface_ptr);
 
 /**
  * ws_pae_auth_ip_addr_get gets IP addressing information related to KMP
@@ -258,7 +258,7 @@ typedef void ws_pae_auth_nw_info_updated(protocol_interface_info_entry_t *interf
  * \param address IP address
  *
  */
-typedef void ws_pae_auth_ip_addr_get(protocol_interface_info_entry_t *interface_ptr, uint8_t *address);
+typedef void ws_pae_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 
 /**
  * ws_pae_auth_congestion_get get congestion information
@@ -269,7 +269,7 @@ typedef void ws_pae_auth_ip_addr_get(protocol_interface_info_entry_t *interface_
  * \return TRUE reject, FALSE accept
  *
  */
-typedef bool ws_pae_auth_congestion_get(protocol_interface_info_entry_t *interface_ptr, uint16_t active_supp);
+typedef bool ws_pae_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 
 /**
  * ws_pae_auth_nw_frame_counter_read network frame counter read callback
@@ -282,7 +282,7 @@ typedef bool ws_pae_auth_congestion_get(protocol_interface_info_entry_t *interfa
  * \return >= 0 success
  *
  */
-typedef int8_t ws_pae_auth_nw_frame_counter_read(protocol_interface_info_entry_t *interface_ptr, uint32_t *counter, uint8_t gtk_index);
+typedef int8_t ws_pae_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index);
 
 /**
  *  ws_pae_auth_cb_register register PAE authenticator callbacks
@@ -297,7 +297,7 @@ typedef int8_t ws_pae_auth_nw_frame_counter_read(protocol_interface_info_entry_t
  * \param nw_frame_cnt_read network frame counter read callback
  *
  */
-void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
+void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_gtk_hash_set *hash_set,
                              ws_pae_auth_nw_key_insert *nw_key_insert,
                              ws_pae_auth_nw_key_index_set *nw_key_index_set,

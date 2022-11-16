@@ -37,7 +37,7 @@
 
 static buffer_t *udp_rx_security_check(buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     uint8_t drop_unsecured = 0;
 
     // Hack for PANA and MLE. PANA socket is not unsecured, need to allow unsecured link local traffic.
@@ -187,7 +187,7 @@ buffer_t *udp_up(buffer_t *buf)
     }
 
     if (buf->dst_sa.port == UDP_PORT_ECHO && buf->src_sa.port != UDP_PORT_ECHO) {
-        protocol_interface_info_entry_t *cur;
+        struct net_if *cur;
         tr_debug("UDP echo msg from %s", tr_ipv6(buf->src_sa.address));
 
         cur = buf->interface;

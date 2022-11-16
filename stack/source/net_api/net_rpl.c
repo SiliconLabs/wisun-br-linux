@@ -91,7 +91,7 @@ int8_t arm_nwk_6lowpan_rpl_memory_limit_set(size_t soft_limit, size_t hard_limit
 
 int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain) {
         return -1;
@@ -105,7 +105,7 @@ int8_t arm_nwk_6lowpan_rpl_dodag_remove(int8_t interface_id)
 
 int8_t arm_nwk_6lowpan_rpl_dodag_start(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain) {
         return -1;
@@ -145,7 +145,7 @@ int8_t arm_nwk_6lowpan_rpl_dodag_prefix_update(int8_t interface_id, uint8_t *pre
 
 int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id)
 {
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain) {
         return -1;
@@ -159,7 +159,7 @@ int8_t arm_nwk_6lowpan_rpl_dodag_poison(int8_t interface_id)
 int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id)
 {
     /* New code version - specifying interface ID makes no sense - fudge to let it increase main RPL root */
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain || cur->rpl_domain != protocol_6lowpan_rpl_domain || !protocol_6lowpan_rpl_root_dodag) {
         return -1;
@@ -173,7 +173,7 @@ int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id)
 int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id)
 {
     /* New code version - specifying interface ID makes no sense - fudge to let it increase main RPL root */
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain || cur->rpl_domain != protocol_6lowpan_rpl_domain || !protocol_6lowpan_rpl_root_dodag) {
         return -1;
@@ -187,7 +187,7 @@ int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id)
 int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preference)
 {
     /* New code version - specifying interface ID makes no sense - fudge to let it increase main RPL root */
-    protocol_interface_info_entry_t *cur;
+    struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->rpl_domain || cur->rpl_domain != protocol_6lowpan_rpl_domain || !protocol_6lowpan_rpl_root_dodag) {
         return -1;

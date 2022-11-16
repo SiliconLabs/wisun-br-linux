@@ -942,7 +942,7 @@ void socket_inet_pcb_set_buffer_hop_limit(const inet_pcb_t *inet_pcb, buffer_t *
 
     /* User didn't specify a unicast hop limit, get the per-interface default */
     /* At the moment we can only rely on if_index in the down direction, not id */
-    protocol_interface_info_entry_t *cur = buf->interface;
+    struct net_if *cur = buf->interface;
     buf->options.hop_limit = cur->cur_hop_limit;
 }
 
@@ -1255,7 +1255,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct msghdr *ms
     /**
      * Select outgoing interface for this message
      */
-    protocol_interface_info_entry_t *cur_interface;
+    struct net_if *cur_interface;
     if (interface_id > 0) {
         cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
     } else {
@@ -1347,7 +1347,7 @@ buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
         return buf;
     }
 
-    protocol_interface_info_entry_t *cur_interface = buf->interface;
+    struct net_if *cur_interface = buf->interface;
 
     socket_event_push(status, buf->socket, cur_interface ? cur_interface->id : -1, buf->session_ptr, buf->payload_length);
 
@@ -1356,7 +1356,7 @@ buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
 
 static void mc_group_free(inet_pcb_t *inet_pcb, inet_group_t *mc)
 {
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(mc->interface_id);
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(mc->interface_id);
     if (cur_interface) {
         addr_delete_group(cur_interface, mc->group_addr);
     }
@@ -1405,7 +1405,7 @@ int8_t socket_inet_pcb_join_group(inet_pcb_t *inet_pcb, int8_t interface_id, con
         }
         interface_id = route->info.interface_id;
     }
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur_interface) {
         return -3;
     }
@@ -1444,9 +1444,9 @@ int8_t socket_inet_pcb_leave_group(inet_pcb_t *inet_pcb, int8_t interface_id, co
     return 0;
 }
 
-struct protocol_interface_info_entry *socket_interface_determine(const socket_t *socket_ptr, buffer_t *buf)
+struct net_if *socket_interface_determine(const socket_t *socket_ptr, buffer_t *buf)
 {
-    protocol_interface_info_entry_t *cur_interface;
+    struct net_if *cur_interface;
 
     /* Link or realm-local scope uses default interface id if set (as if dest scope id), else multicast if, else choose 6lowpan, else IPv6(Ethernet) */
     /* Also for packets addressed to ourself (not needed any more - have loopback routes? */

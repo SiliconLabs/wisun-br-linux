@@ -175,7 +175,7 @@ static bool addr_is_ipv4_mapped(const uint8_t addr[static 16])
 }
 
 /* Scope(A), as defined in RFC 6724 plus RFC 4007 */
-uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const protocol_interface_info_entry_t *interface)
+uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const struct net_if *interface)
 {
     (void)interface;
     if (addr_is_ipv6_multicast(addr)) {
@@ -322,7 +322,7 @@ static uint_fast8_t addr_common_prefix_len(const uint8_t src[static 16], uint_fa
     return common;
 }
 
-if_address_entry_t *addr_get_entry(const protocol_interface_info_entry_t *interface, const uint8_t addr[static 16])
+if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16])
 {
     ns_list_foreach(if_address_entry_t, entry, &interface->ip_addresses) {
         if (addr_ipv6_equal(entry->address, addr)) {
@@ -333,19 +333,19 @@ if_address_entry_t *addr_get_entry(const protocol_interface_info_entry_t *interf
     return NULL;
 }
 
-bool addr_is_assigned_to_interface(const protocol_interface_info_entry_t *interface, const uint8_t addr[static 16])
+bool addr_is_assigned_to_interface(const struct net_if *interface, const uint8_t addr[static 16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);
     return entry && !entry->tentative;
 }
 
-bool addr_is_tentative_for_interface(const protocol_interface_info_entry_t *interface, const uint8_t addr[static 16])
+bool addr_is_tentative_for_interface(const struct net_if *interface, const uint8_t addr[static 16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);
     return entry && entry->tentative;
 }
 
-if_group_entry_t *addr_add_group(protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
+if_group_entry_t *addr_add_group(struct net_if *interface, const uint8_t group[static 16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);
     if (entry) {
@@ -375,7 +375,7 @@ if_group_entry_t *addr_add_group(protocol_interface_info_entry_t *interface, con
 }
 
 /* This does reference count */
-void addr_remove_group(protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
+void addr_remove_group(struct net_if *interface, const uint8_t group[static 16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);
     if (entry) {
@@ -388,13 +388,13 @@ void addr_remove_group(protocol_interface_info_entry_t *interface, const uint8_t
 }
 
 /* This does NOT reference count - it actually deletes the entry */
-void addr_delete_group_entry(protocol_interface_info_entry_t *interface, if_group_entry_t *entry)
+void addr_delete_group_entry(struct net_if *interface, if_group_entry_t *entry)
 {
     ns_list_remove(&interface->ip_groups, entry);
     free(entry);
 }
 
-void addr_delete_group(protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
+void addr_delete_group(struct net_if *interface, const uint8_t group[static 16])
 {
     if_group_entry_t *entry = addr_get_group_entry(interface, group);
     if (entry) {
@@ -402,7 +402,7 @@ void addr_delete_group(protocol_interface_info_entry_t *interface, const uint8_t
     }
 }
 
-if_group_entry_t *addr_get_group_entry(const protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
+if_group_entry_t *addr_get_group_entry(const struct net_if *interface, const uint8_t group[static 16])
 {
     ns_list_foreach(if_group_entry_t, entry, &interface->ip_groups) {
         if (addr_ipv6_equal(entry->group, group)) {
@@ -419,21 +419,21 @@ static void addr_generate_solicited_node_group(uint8_t group[static 16], const u
     memcpy(group + 13, addr + 13, 3);
 }
 
-static if_group_entry_t *addr_add_solicited_node_group(protocol_interface_info_entry_t *interface, const uint8_t address[static 16])
+static if_group_entry_t *addr_add_solicited_node_group(struct net_if *interface, const uint8_t address[static 16])
 {
     uint8_t group[16];
     addr_generate_solicited_node_group(group, address);
     return addr_add_group(interface, group);
 }
 
-static void addr_remove_solicited_node_group(protocol_interface_info_entry_t *interface, const uint8_t address[static 16])
+static void addr_remove_solicited_node_group(struct net_if *interface, const uint8_t address[static 16])
 {
     uint8_t group[16];
     addr_generate_solicited_node_group(group, address);
     addr_remove_group(interface, group);
 }
 
-void addr_add_router_groups(protocol_interface_info_entry_t *interface)
+void addr_add_router_groups(struct net_if *interface)
 {
     /* The standard IPv6 ones, but not "Realm-Local-All-Routers"
      * which is ZigBee IP / Thread-specific (and not IANA registered)
@@ -444,7 +444,7 @@ void addr_add_router_groups(protocol_interface_info_entry_t *interface)
     /* We only want to join the site address on one interface per site zone,
      * or we'd get multiple copies of packets. Exit if we're already a member.
      */
-    ns_list_foreach(protocol_interface_info_entry_t, i, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, i, &protocol_interface_info_list) {
         if (i->zone_index[IPV6_SCOPE_SITE_LOCAL] == interface->zone_index[IPV6_SCOPE_SITE_LOCAL] &&
                 addr_get_group_entry(i, ADDR_SITE_LOCAL_ALL_ROUTERS)) {
             return;
@@ -453,13 +453,13 @@ void addr_add_router_groups(protocol_interface_info_entry_t *interface)
     addr_add_group(interface, ADDR_SITE_LOCAL_ALL_ROUTERS);
 }
 
-bool addr_am_group_member_on_interface(const protocol_interface_info_entry_t *interface, const uint8_t group[static 16])
+bool addr_am_group_member_on_interface(const struct net_if *interface, const uint8_t group[static 16])
 {
     return addr_am_implicit_group_member(group) || addr_get_group_entry(interface, group);
 }
 
 /* RFC 6724 Default source address selection */
-const uint8_t *addr_select_source(protocol_interface_info_entry_t *interface, const uint8_t dest[static 16], uint32_t addr_preferences)
+const uint8_t *addr_select_source(struct net_if *interface, const uint8_t dest[static 16], uint32_t addr_preferences)
 {
     /* Let's call existing preferred address "SA" and new candidate "SB", to
      * make it look like a bit like RFC 6724
@@ -589,7 +589,7 @@ const uint8_t *addr_select_source(protocol_interface_info_entry_t *interface, co
  * source address rules don't apply, but some are handled similarly. See
  * comments in addr_select_source.
  */
-const uint8_t *addr_select_with_prefix(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences)
+const uint8_t *addr_select_with_prefix(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, uint32_t addr_preferences)
 {
     if_address_entry_t *SA = NULL;
 
@@ -681,7 +681,7 @@ const uint8_t *addr_select_with_prefix(protocol_interface_info_entry_t *cur, con
 #undef PREFER_SA
 #undef PREFER_SB
 
-void addr_delete_entry(protocol_interface_info_entry_t *cur, if_address_entry_t *addr)
+void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr)
 {
     if (addr->group_added) {
         addr_remove_solicited_node_group(cur, addr->address);
@@ -694,7 +694,7 @@ void addr_delete_entry(protocol_interface_info_entry_t *cur, if_address_entry_t 
 /* ticks is in 1/10s */
 void addr_fast_timer(int ticks)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     /* Fast timers only run while the interface is active. */
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
@@ -760,7 +760,7 @@ void addr_fast_timer(int ticks)
 
 void addr_slow_timer(int seconds)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
 
     /* Slow (lifetime) timers run whether the interface is active or not */
     ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
@@ -794,7 +794,7 @@ void notify_user_if_ready()
 {
     bool had_global_address;
 
-    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
         had_global_address = false;
         ns_list_foreach(if_address_entry_t, entry, &cur->ip_addresses) {
             if (!addr_is_ipv6_link_local(entry->address))
@@ -806,7 +806,7 @@ void notify_user_if_ready()
     INFO("Wi-SUN Border Router is ready");
 }
 
-if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
+if_address_entry_t *addr_add(struct net_if *cur, const uint8_t address[static 16], uint_fast8_t prefix_len, if_address_source_e source, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad)
 {
     if (addr_get_entry(cur, address)) {
         return NULL;
@@ -848,7 +848,7 @@ if_address_entry_t *addr_add(protocol_interface_info_entry_t *cur, const uint8_t
     return entry;
 }
 
-int_fast8_t addr_delete(protocol_interface_info_entry_t *cur, const uint8_t address[static 16])
+int_fast8_t addr_delete(struct net_if *cur, const uint8_t address[static 16])
 {
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (memcmp(e->address, address, 16) == 0) {
@@ -860,7 +860,7 @@ int_fast8_t addr_delete(protocol_interface_info_entry_t *cur, const uint8_t addr
     return -1;
 }
 
-int_fast8_t addr_deprecate(protocol_interface_info_entry_t *cur, const uint8_t address[static 16])
+int_fast8_t addr_deprecate(struct net_if *cur, const uint8_t address[static 16])
 {
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (memcmp(e->address, address, 16) == 0) {
@@ -873,7 +873,7 @@ int_fast8_t addr_deprecate(protocol_interface_info_entry_t *cur, const uint8_t a
     return -1;
 }
 
-void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source)
+void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if ((source == ADDR_SOURCE_UNKNOWN || e->source == source) &&
@@ -884,7 +884,7 @@ void addr_delete_matching(protocol_interface_info_entry_t *cur, const uint8_t *p
 
 }
 
-void addr_set_non_preferred(protocol_interface_info_entry_t *cur, if_address_source_e source)
+void addr_set_non_preferred(struct net_if *cur, if_address_source_e source)
 {
     ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
         if (e->source == source) {
@@ -894,7 +894,7 @@ void addr_set_non_preferred(protocol_interface_info_entry_t *cur, if_address_sou
     }
 }
 
-void addr_duplicate_detected(struct protocol_interface_info_entry *interface, const uint8_t addr[static 16])
+void addr_duplicate_detected(struct net_if *interface, const uint8_t addr[static 16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);
     if (!entry) {
@@ -929,7 +929,7 @@ void addr_notification_register(if_address_notification_fn *fn)
     ns_list_add_to_end(&addr_notifications, n);
 }
 
-void addr_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_e reason)
+void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
     ns_list_foreach(addr_notification_t, n, &addr_notifications) {
         n->fn(interface, addr, reason);
@@ -939,7 +939,7 @@ void addr_cb(protocol_interface_info_entry_t *interface, if_address_entry_t *add
     }
 }
 
-void addr_set_valid_lifetime(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, uint32_t valid_lifetime)
+void addr_set_valid_lifetime(struct net_if *interface, if_address_entry_t *addr, uint32_t valid_lifetime)
 {
     if (valid_lifetime != addr->valid_lifetime) {
         addr->valid_lifetime = valid_lifetime;
@@ -947,7 +947,7 @@ void addr_set_valid_lifetime(protocol_interface_info_entry_t *interface, if_addr
     }
 }
 
-void addr_set_preferred_lifetime(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, uint32_t preferred_lifetime)
+void addr_set_preferred_lifetime(struct net_if *interface, if_address_entry_t *addr, uint32_t preferred_lifetime)
 {
     if (preferred_lifetime != addr->preferred_lifetime) {
         addr->preferred_lifetime = preferred_lifetime;
@@ -962,7 +962,7 @@ void addr_set_preferred_lifetime(protocol_interface_info_entry_t *interface, if_
     }
 }
 
-void addr_lifetime_update(protocol_interface_info_entry_t *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold)
+void addr_lifetime_update(struct net_if *interface, if_address_entry_t *address, uint32_t valid_lifetime, uint32_t preferred_lifetime, uint32_t threshold)
 {
     //Update Current lifetimes (see RFC 4862 for rules detail)
     if (valid_lifetime > threshold || valid_lifetime > address->valid_lifetime) {
@@ -1091,7 +1091,7 @@ bool addr_opaque_iid_key_is_set(void)
 }
 
 /* RFC 7217 generation: addr must be prepopulated with 8-byte prefix, and secret key must be set */
-void addr_generate_opaque_iid(protocol_interface_info_entry_t *cur, uint8_t addr[static 16])
+void addr_generate_opaque_iid(struct net_if *cur, uint8_t addr[static 16])
 {
 opaque_retry:
 
@@ -1158,7 +1158,7 @@ bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in)
     return true;
 }
 
-int addr_interface_set_ll64(protocol_interface_info_entry_t *cur, if_address_callback_fn *cb)
+int addr_interface_set_ll64(struct net_if *cur, if_address_callback_fn *cb)
 {
     int ret_val = -1;
     if_address_entry_t *address_entry = NULL;
@@ -1180,7 +1180,7 @@ int addr_interface_set_ll64(protocol_interface_info_entry_t *cur, if_address_cal
 
 /* address_type 0 means "any" address - we return short by preference */
 /* address_type 1 means long address - we ignore short addresses */
-int8_t addr_interface_get_ll_address(protocol_interface_info_entry_t *cur, uint8_t *address_ptr, uint8_t address_type)
+int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, uint8_t address_type)
 {
     const uint8_t *short_addr = NULL;
     const uint8_t *long_addr = NULL;
@@ -1218,7 +1218,7 @@ int8_t addr_interface_get_ll_address(protocol_interface_info_entry_t *cur, uint8
     }
 }
 
-bool addr_interface_all_address_ready(protocol_interface_info_entry_t *cur)
+bool addr_interface_all_address_ready(struct net_if *cur)
 {
     if (!cur) {
         return false;
@@ -1232,7 +1232,7 @@ bool addr_interface_all_address_ready(protocol_interface_info_entry_t *cur)
     return true;
 }
 
-int8_t addr_interface_gp_prefix_compare(protocol_interface_info_entry_t *cur, const uint8_t *prefix)
+int8_t addr_interface_gp_prefix_compare(struct net_if *cur, const uint8_t *prefix)
 {
     if (cur->global_address_available) {
         ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
@@ -1244,7 +1244,7 @@ int8_t addr_interface_gp_prefix_compare(protocol_interface_info_entry_t *cur, co
     return -1;
 }
 
-int8_t addr_interface_address_compare(protocol_interface_info_entry_t *cur, const uint8_t *addr)
+int8_t addr_interface_address_compare(struct net_if *cur, const uint8_t *addr)
 {
     /* First check the specified interface */
     if (addr_is_assigned_to_interface(cur, addr)) {
@@ -1253,7 +1253,7 @@ int8_t addr_interface_address_compare(protocol_interface_info_entry_t *cur, cons
 
     /* Then check other interfaces, enforcing scope zones */
     uint_fast8_t scope = addr_ipv6_scope(addr, cur);
-    ns_list_foreach(protocol_interface_info_entry_t, other, &protocol_interface_info_list) {
+    ns_list_foreach(struct net_if, other, &protocol_interface_info_list) {
         if (other != cur &&
                 other->zone_index[scope] == cur->zone_index[scope] &&
                 addr_is_assigned_to_interface(other, addr)) {
@@ -1264,7 +1264,7 @@ int8_t addr_interface_address_compare(protocol_interface_info_entry_t *cur, cons
     return -1;
 }
 
-int8_t addr_interface_select_source(protocol_interface_info_entry_t *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences)
+int8_t addr_interface_select_source(struct net_if *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences)
 {
     int8_t ret_val = -1;
     if (cur) {

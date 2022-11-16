@@ -47,21 +47,21 @@
 #define TRACE_GROUP "wsar"
 
 typedef struct eapol_auth_relay {
-    protocol_interface_info_entry_t *interface_ptr;         /**< Interface pointer */
+    struct net_if *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address and port */
     ns_address_t relay_addr;                                /**< Relay address */
     int8_t socket_id;                                       /**< Socket ID for relay */
     ns_list_link_t link;                                    /**< Link */
 } eapol_auth_relay_t;
 
-static eapol_auth_relay_t *ws_eapol_auth_relay_get(protocol_interface_info_entry_t *interface_ptr);
+static eapol_auth_relay_t *ws_eapol_auth_relay_get(struct net_if *interface_ptr);
 static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_relay, const uint8_t *eui_64, const uint8_t *ip_addr, uint16_t port, const void *data, uint16_t data_len);
 
 static eapol_auth_relay_t *g_eapol_auth_relay;
 
 int ws_eapol_auth_relay_get_socket_fd()
 {
-    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
     eapol_auth_relay_t *eapol_auth_relay = ws_eapol_auth_relay_get(interface_ptr);
     if (eapol_auth_relay)
         return eapol_auth_relay->socket_id;
@@ -69,7 +69,7 @@ int ws_eapol_auth_relay_get_socket_fd()
         return -1;
 }
 
-int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
+int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     if (!interface_ptr || !remote_addr) {
         return -1;
@@ -107,7 +107,7 @@ int8_t ws_eapol_auth_relay_start(protocol_interface_info_entry_t *interface_ptr,
     return 0;
 }
 
-int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr)
+int8_t ws_eapol_auth_relay_delete(struct net_if *interface_ptr)
 {
     if (!interface_ptr) {
         return -1;
@@ -126,7 +126,7 @@ int8_t ws_eapol_auth_relay_delete(protocol_interface_info_entry_t *interface_ptr
     return 0;
 }
 
-static eapol_auth_relay_t *ws_eapol_auth_relay_get(protocol_interface_info_entry_t *interface_ptr)
+static eapol_auth_relay_t *ws_eapol_auth_relay_get(struct net_if *interface_ptr)
 {
     return g_eapol_auth_relay;
 }

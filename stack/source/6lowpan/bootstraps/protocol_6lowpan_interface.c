@@ -45,7 +45,7 @@
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 
-void protocol_mac_reset(protocol_interface_info_entry_t *cur)
+void protocol_mac_reset(struct net_if *cur)
 {
     if (cur->mac_api) {
         mlme_reset_t reset;
@@ -56,7 +56,7 @@ void protocol_mac_reset(protocol_interface_info_entry_t *cur)
 
 
 
-static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
+static int8_t set_6lowpan_nwk_down(struct net_if *cur)
 {
     int8_t ret_val = -1;
     // Check first current state
@@ -89,7 +89,7 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
     return ret_val;
 }
 
-static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
+static int8_t set_6lowpan_nwk_up(struct net_if *cur)
 {
     int8_t ret_val = 1;
 
@@ -111,7 +111,7 @@ static int8_t set_6lowpan_nwk_up(protocol_interface_info_entry_t *cur)
     return ret_val;
 }
 
-int8_t nwk_6lowpan_up(protocol_interface_info_entry_t *cur)
+int8_t nwk_6lowpan_up(struct net_if *cur)
 {
     int8_t ret_val;
 
@@ -125,7 +125,7 @@ int8_t nwk_6lowpan_up(protocol_interface_info_entry_t *cur)
     return ret_val;
 }
 
-int8_t nwk_6lowpan_down(protocol_interface_info_entry_t *cur)
+int8_t nwk_6lowpan_down(struct net_if *cur)
 {
     int8_t ret_val;
     ret_val = set_6lowpan_nwk_down(cur);

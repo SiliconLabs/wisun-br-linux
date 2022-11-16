@@ -346,7 +346,7 @@ void rpl_instance_poison(rpl_instance_t *instance, uint8_t count)
     rpl_instance_inconsistency(instance);
 }
 
-void rpl_control_instant_poison(protocol_interface_info_entry_t *cur, rpl_domain_t *domain)
+void rpl_control_instant_poison(struct net_if *cur, rpl_domain_t *domain)
 {
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
         rpl_instance_poison(instance, 1);
@@ -1564,7 +1564,7 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
         //learn Routes an Prefixes
         if (preferred_parent && instance->current_dodag_version) {
             rpl_dodag_t *dodag = instance->current_dodag_version->dodag;
-            protocol_interface_info_entry_t *rpl_interface = protocol_stack_interface_info_get_by_id(preferred_parent->interface_id);
+            struct net_if *rpl_interface = protocol_stack_interface_info_get_by_id(preferred_parent->interface_id);
             if (rpl_interface) {
                 ns_list_foreach(prefix_entry_t, prefix, &dodag->prefixes) {
                     rpl_control_process_prefix_option(prefix, rpl_interface);
@@ -1642,7 +1642,7 @@ static bool rpl_instance_dao_route_registered(rpl_instance_t *instance)
 }
 
 /* Trigger DIO transmission - all interfaces multicast if addr+cur are NULL, else unicast */
-void rpl_instance_dio_trigger(rpl_instance_t *instance, protocol_interface_info_entry_t *cur, const uint8_t *addr)
+void rpl_instance_dio_trigger(rpl_instance_t *instance, struct net_if *cur, const uint8_t *addr)
 {
     uint16_t rank = instance->current_rank;
     rpl_dodag_version_t *dodag_version = instance->current_dodag_version;

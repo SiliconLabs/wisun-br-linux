@@ -53,11 +53,11 @@
 #define TRACE_GROUP_LOWPAN_BOOT "6Bo"
 #define TRACE_GROUP "6Bo"
 
-static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *cur_interface);
+static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface);
 
 #define MAX_MC_DIS_COUNT 3
 
-void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
+void arm_6lowpan_bootstrap_init(struct net_if *cur)
 {
     //Init 6LoWPAN Bootstrap
     icmp_nd_routers_init();
@@ -67,7 +67,7 @@ void arm_6lowpan_bootstrap_init(protocol_interface_info_entry_t *cur)
     mac_helper_mac16_address_set(cur, 0xffff);
 }
 
-static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
+static void protocol_6lowpan_nd_ready(struct net_if *cur)
 {
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
         tr_debug("ND BS ready");
@@ -80,7 +80,7 @@ static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
     }
 }
 
-static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *cur_interface)
+static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
 {
     nd_router_t *cur;
     cur = nd_get_object_by_nwk_id(cur_interface->nwk_id);
@@ -101,7 +101,7 @@ static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *
     }
 }
 
-void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_interface)
+void protocol_6lowpan_bootstrap_nd_ready(struct net_if *cur_interface)
 {
 
     tr_debug("ND Ready");
@@ -119,7 +119,7 @@ void protocol_6lowpan_bootstrap_nd_ready(protocol_interface_info_entry_t *cur_in
 
 }
 
-void protocol_6lowpan_nd_borderrouter_connection_down(protocol_interface_info_entry_t *interface)
+void protocol_6lowpan_nd_borderrouter_connection_down(struct net_if *interface)
 {
     /*if (rpl_object_poisons() == 0) ??? */ {
         mac_helper_mac16_address_set(interface, 0xffff);
@@ -129,7 +129,7 @@ void protocol_6lowpan_nd_borderrouter_connection_down(protocol_interface_info_en
     }
 }
 
-void protocol_6lowpan_bootstrap_re_start(protocol_interface_info_entry_t *interface)
+void protocol_6lowpan_bootstrap_re_start(struct net_if *interface)
 {
     mac_helper_mac16_address_set(interface, 0xffff);
     arm_6lowpan_bootstrap_init(interface);
@@ -159,7 +159,7 @@ uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi)
     return i;
 }
 
-int protocol_6lowpan_del_ll16(protocol_interface_info_entry_t *cur, uint16_t mac_short_address)
+int protocol_6lowpan_del_ll16(struct net_if *cur, uint16_t mac_short_address)
 {
     uint8_t address[16];
     memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
@@ -172,7 +172,7 @@ int protocol_6lowpan_del_ll16(protocol_interface_info_entry_t *cur, uint16_t mac
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address)
 {
 
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
         return false;
     }

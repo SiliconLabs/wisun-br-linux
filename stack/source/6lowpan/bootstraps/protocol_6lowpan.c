@@ -62,7 +62,7 @@ rpl_domain_t *protocol_6lowpan_rpl_domain;
 /* Having to sidestep old rpl_dodag_t type for the moment */
 struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
-static uint8_t protocol_buffer_valid(buffer_t *b, protocol_interface_info_entry_t *cur)
+static uint8_t protocol_buffer_valid(buffer_t *b, struct net_if *cur)
 {
     uint8_t valid = 1;
     if (cur) {
@@ -92,7 +92,7 @@ void protocol_init(void)
 
 void protocol_6lowpan_stack(buffer_t *b)
 {
-    protocol_interface_info_entry_t *cur = b->interface;
+    struct net_if *cur = b->interface;
     if (protocol_buffer_valid(b, cur) == 0) {
         tr_debug("Drop Packets");
         buffer_free(b);
@@ -194,7 +194,7 @@ void protocol_6lowpan_stack(buffer_t *b)
 }
 
 /* Return length of option always, and write option if opt_out != NULL */
-static uint8_t protocol_6lowpan_llao_write(protocol_interface_info_entry_t *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr)
+static uint8_t protocol_6lowpan_llao_write(struct net_if *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr)
 {
     /* Don't bother including optional LLAO if it's a link-local address -
      * they should be mapping anyway.
@@ -225,7 +225,7 @@ static uint8_t protocol_6lowpan_llao_write(protocol_interface_info_entry_t *cur,
 }
 
 /* Parse, and return actual size, or 0 if error */
-static uint8_t protocol_6lowpan_llao_parse(protocol_interface_info_entry_t *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out)
+static uint8_t protocol_6lowpan_llao_parse(struct net_if *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out)
 {
     common_write_16_bit(cur->mac_parameters.pan_id, ll_addr_out->address + 0);
 
@@ -243,7 +243,7 @@ static uint8_t protocol_6lowpan_llao_parse(protocol_interface_info_entry_t *cur,
     }
 }
 
-static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t *cur, const uint8_t *ip_addr, addrtype_e *ll_type, const uint8_t **ll_addr_out)
+static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8_t *ip_addr, addrtype_e *ll_type, const uint8_t **ll_addr_out)
 {
     static uint8_t ll_addr[10];
     *ll_type = ADDR_NONE;
@@ -272,7 +272,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(protocol_interface_info_entry_t
 
 }
 
-static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out)
+static bool protocol_6lowpan_map_link_addr_to_ip(struct net_if *cur, addrtype_e ll_type, const uint8_t *ll_addr, uint8_t *ip_addr_out)
 {
     (void)cur;
 
@@ -295,7 +295,7 @@ static bool protocol_6lowpan_map_link_addr_to_ip(protocol_interface_info_entry_t
     }
 }
 
-void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
+void protocol_6lowpan_configure_core(struct net_if *cur)
 {
     cur->dup_addr_detect_transmits = 0;
     cur->ipv6_neighbour_cache.max_ll_len = 2 + 8;
@@ -309,7 +309,7 @@ void protocol_6lowpan_configure_core(protocol_interface_info_entry_t *cur)
     nd_6lowpan_set_radv_params(cur);
 }
 
-void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur)
+void protocol_6lowpan_register_handlers(struct net_if *cur)
 {
     cur->if_stack_buffer_handler = protocol_6lowpan_stack;
     cur->if_llao_parse = protocol_6lowpan_llao_parse;
@@ -329,7 +329,7 @@ void protocol_6lowpan_register_handlers(protocol_interface_info_entry_t *cur)
     cur->ipv6_neighbour_cache.recv_na_aro = true;
     cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro = false;
 }
-void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint16_t shortAddress)
+void protocol_6lowpan_release_short_link_address_from_neighcache(struct net_if *cur, uint16_t shortAddress)
 {
     uint8_t temp_ll[4];
     uint8_t *ptr = temp_ll;
@@ -340,7 +340,7 @@ void protocol_6lowpan_release_short_link_address_from_neighcache(protocol_interf
     nd_remove_registration(cur, ADDR_802_15_4_SHORT, temp_ll);
 }
 
-void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interface_info_entry_t *cur, uint8_t *mac64)
+void protocol_6lowpan_release_long_link_address_from_neighcache(struct net_if *cur, uint8_t *mac64)
 {
     uint8_t temp_ll[10];
     uint8_t *ptr = temp_ll;
@@ -354,7 +354,7 @@ void protocol_6lowpan_release_long_link_address_from_neighcache(protocol_interfa
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !addr_ptr) {
         return 0;
@@ -394,7 +394,7 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e 
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr_ptr)
 {
 
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur || !addr_ptr) {
         return 0;
@@ -426,7 +426,7 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
 
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority_e priority)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur) {
         return;
@@ -448,7 +448,7 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 
 
 
-int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_entry_t *cur, const uint8_t eui64[8], const uint8_t iid[8])
+int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8])
 {
     int8_t ret_val = -1;
 
@@ -471,7 +471,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(protocol_interface_info_ent
     return ret_val;
 }
 
-int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, uint8_t *address_ptr, addrtype_e type)
+int8_t protocol_6lowpan_neighbor_remove(struct net_if *cur, uint8_t *address_ptr, addrtype_e type)
 {
     mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address_ptr, type);
     if (entry) {
@@ -480,14 +480,14 @@ int8_t protocol_6lowpan_neighbor_remove(protocol_interface_info_entry_t *cur, ui
     return 0;
 }
 
-void protocol_6lowpan_allocate_mac16(protocol_interface_info_entry_t *cur)
+void protocol_6lowpan_allocate_mac16(struct net_if *cur)
 {
     if (cur) {
         cur->lowpan_desired_short_address = (rand_get_16bit() & 0x7fff);
     }
 }
 
-void protocol_6lowpan_interface_common_init(protocol_interface_info_entry_t *cur)
+void protocol_6lowpan_interface_common_init(struct net_if *cur)
 {
     cur->lowpan_info |= INTERFACE_NWK_ACTIVE;
     protocol_6lowpan_register_handlers(cur);
@@ -497,7 +497,7 @@ void protocol_6lowpan_interface_common_init(protocol_interface_info_entry_t *cur
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 }
 
-int8_t protocol_6lowpan_interface_get_mac_coordinator_address(protocol_interface_info_entry_t *cur, sockaddr_t *adr_ptr)
+int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct net_if *cur, sockaddr_t *adr_ptr)
 {
     common_write_16_bit(cur->mac_parameters.pan_id, adr_ptr->address + 0);
 
@@ -556,7 +556,7 @@ int16_t protocol_6lowpan_rpl_global_priority_get(void)
 
 bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
 {
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
     uint32_t latency_estimate = 0;
 
     if (!cur_interface) {
@@ -586,7 +586,7 @@ bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_am
     size_t network_size;
     uint32_t datarate;
     uint32_t stagger_value;
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
 
     if (!cur_interface) {
         return false;

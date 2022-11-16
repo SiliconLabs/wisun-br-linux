@@ -506,7 +506,7 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
 
 int8_t socket_bind2addrsel(int8_t socket, const ns_address_t *dst_address)
 {
-    protocol_interface_info_entry_t *if_info;
+    struct net_if *if_info;
 
     socket_t *socket_ptr = socket_pointer_get(socket);
     if (!dst_address || !socket_ptr || !socket_is_ipv6(socket_ptr)) {

@@ -24,7 +24,7 @@
 
 #include "stack/net_multicast.h"
 
-struct protocol_interface_info_entry;
+struct net_if;
 struct trickle_params;
 typedef struct buffer buffer_t;
 
@@ -39,24 +39,24 @@ extern const struct trickle_params rfc7731_default_control_message_trickle_param
 
 typedef struct mpl_domain mpl_domain_t;
 bool mpl_hbh_len_check(const uint8_t *opt_data, uint8_t opt_data_len);
-bool mpl_process_hbh(buffer_t *buf, struct protocol_interface_info_entry *cur, uint8_t *opt_data);
+bool mpl_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt_data);
 
-buffer_t *mpl_control_handler(buffer_t *buf, struct protocol_interface_info_entry *cur);
+buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur);
 
 bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool decrement_hop_limit);
 
 void mpl_slow_timer(int seconds);
 
-void mpl_clear_realm_scope_seeds(struct protocol_interface_info_entry *cur);
+void mpl_clear_realm_scope_seeds(struct net_if *cur);
 
 /* Time units for trickle parameters is 50 ms (1/20 s) ticks */
-mpl_domain_t *mpl_domain_create(struct protocol_interface_info_entry *cur, const uint8_t address[16],
+mpl_domain_t *mpl_domain_create(struct net_if *cur, const uint8_t address[16],
                                 const uint8_t *seed_id, multicast_mpl_seed_id_mode_e seed_id_type,
                                 int_fast8_t proactive_forwarding, uint16_t seed_set_entry_lifetime,
                                 const struct trickle_params *data_trickle_params,
                                 const struct trickle_params *control_trickle_params);
-mpl_domain_t *mpl_domain_lookup(struct protocol_interface_info_entry *cur, const uint8_t address[16]);
-bool mpl_domain_delete(struct protocol_interface_info_entry *cur, const uint8_t address[16]);
+mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16]);
+bool mpl_domain_delete(struct net_if *cur, const uint8_t address[16]);
 
 /* Back door to implement deprecated multicast_set_parameters() API */
 void mpl_domain_change_timing(mpl_domain_t *domain, const struct trickle_params *data_trickle_params, uint16_t seed_set_entry_lifetime);

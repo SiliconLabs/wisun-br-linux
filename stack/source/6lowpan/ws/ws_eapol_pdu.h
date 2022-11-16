@@ -44,7 +44,7 @@
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_eapol_pdu_init(struct net_if *interface_ptr);
 
 /**
  *  ws_eapol_pdu_mpx_register register EAPOL PDU module to MPX
@@ -57,7 +57,7 @@ int8_t ws_eapol_pdu_init(protocol_interface_info_entry_t *interface_ptr);
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id);
+int8_t ws_eapol_pdu_mpx_register(struct net_if *interface_ptr, struct mpx_api *mpx_api, uint16_t mpx_user_id);
 
 /**
  *  ws_eapol_pdu_delete delete EAPOL PDU module
@@ -68,7 +68,7 @@ int8_t ws_eapol_pdu_mpx_register(protocol_interface_info_entry_t *interface_ptr,
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_delete(protocol_interface_info_entry_t *interface_ptr);
+int8_t ws_eapol_pdu_delete(struct net_if *interface_ptr);
 
 /**
  *  ws_eapol_pdu_address_check check incoming EAPOL PDU address
@@ -80,7 +80,7 @@ int8_t ws_eapol_pdu_delete(protocol_interface_info_entry_t *interface_ptr);
  * \return >= 0 address matches, call the PDU receive callback
  *
  */
-typedef int8_t ws_eapol_pdu_address_check(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
+typedef int8_t ws_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 
 /**
  *  ws_eapol_pdu_receive receive EAPOL PDU
@@ -94,7 +94,7 @@ typedef int8_t ws_eapol_pdu_address_check(protocol_interface_info_entry_t *inter
  * \return >= 0 success
  *
  */
-typedef int8_t ws_eapol_pdu_receive(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size);
+typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size);
 
 typedef enum eapol_pdu_recv_prior {
     EAPOL_PDU_RECV_HIGH_PRIORITY = 0,
@@ -119,7 +119,7 @@ typedef struct eapol_pdu_recv_cb_data {
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
+int8_t ws_eapol_pdu_cb_register(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
 
 /**
  *  ws_eapol_pdu_cb_unregister unregister an incoming EAPOL PDU callback
@@ -131,7 +131,7 @@ int8_t ws_eapol_pdu_cb_register(protocol_interface_info_entry_t *interface_ptr, 
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_cb_unregister(protocol_interface_info_entry_t *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
+int8_t ws_eapol_pdu_cb_unregister(struct net_if *interface_ptr, const eapol_pdu_recv_cb_data_t *cb_data);
 
 typedef enum {
     EAPOL_PDU_TX_OK = 0,                 // Successful
@@ -147,7 +147,7 @@ typedef enum {
  * \param tx_identifier tx identifier
  *
  */
-typedef int8_t ws_eapol_pdu_tx_status(protocol_interface_info_entry_t *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
+typedef int8_t ws_eapol_pdu_tx_status(struct net_if *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier);
 
 /**
  *  ws_eapol_pdu_send_to_mpx send EAPOL PDU to MPX
@@ -164,7 +164,7 @@ typedef int8_t ws_eapol_pdu_tx_status(protocol_interface_info_entry_t *interface
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status tx_status, uint8_t tx_identifier);
+int8_t ws_eapol_pdu_send_to_mpx(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size, void *buffer, ws_eapol_pdu_tx_status tx_status, uint8_t tx_identifier);
 
 /**
  *  ws_eapol_pdu_mpx_eui64_purge purge EUI-64 from MPX
@@ -176,6 +176,6 @@ int8_t ws_eapol_pdu_send_to_mpx(protocol_interface_info_entry_t *interface_ptr, 
  * \return >= 0 success
  *
  */
-int8_t ws_eapol_pdu_mpx_eui64_purge(protocol_interface_info_entry_t *interface_ptr, const uint8_t *eui_64);
+int8_t ws_eapol_pdu_mpx_eui64_purge(struct net_if *interface_ptr, const uint8_t *eui_64);
 
 #endif

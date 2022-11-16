@@ -75,7 +75,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_ffn_ip_stack_addr_clear(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_ip_stack_addr_clear(struct net_if *cur)
 {
     tr_debug("ip stack address clear");
     ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
@@ -87,7 +87,7 @@ static void ws_bootstrap_ffn_ip_stack_addr_clear(protocol_interface_info_entry_t
     }
 }
 
-static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
+static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
 
     parent_info_t *new_entry;
@@ -125,7 +125,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct protocol_interface_inf
     return;
 }
 
-static int8_t ws_bootstrap_ffn_fhss_configure(protocol_interface_info_entry_t *cur, bool discovery)
+static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery)
 {
     // Read configuration of existing FHSS and start using the default values for any network
     fhss_ws_configuration_t fhss_configuration = ws_common_get_current_fhss_configuration(cur);
@@ -151,7 +151,7 @@ static int8_t ws_bootstrap_ffn_fhss_configure(protocol_interface_info_entry_t *c
     return 0;
 }
 
-void ws_bootstrap_ffn_network_discovery_configure(protocol_interface_info_entry_t *cur)
+void ws_bootstrap_ffn_network_discovery_configure(struct net_if *cur)
 {
     // Reset information to defaults
     cur->ws_info->network_pan_id = 0xffff;
@@ -165,7 +165,7 @@ void ws_bootstrap_ffn_network_discovery_configure(protocol_interface_info_entry_
 }
 
 // Start network scan
-static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_start_discovery(struct net_if *cur)
 {
     tr_debug("router discovery start");
     // Remove network keys from MAC
@@ -219,7 +219,7 @@ static void ws_bootstrap_ffn_start_discovery(protocol_interface_info_entry_t *cu
 }
 
 // Start configuration learning
-static void ws_bootstrap_ffn_start_configuration_learn(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
 {
     tr_debug("router configuration learn start");
     ws_bootstrap_state_change(cur, ER_SCAN);
@@ -238,7 +238,7 @@ static void ws_bootstrap_ffn_start_configuration_learn(protocol_interface_info_e
     trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery);
 }
 
-static void ws_bootstrap_ffn_network_configuration_learn(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_network_configuration_learn(struct net_if *cur)
 {
     tr_debug("Start using PAN configuration");
 
@@ -253,7 +253,7 @@ static void ws_bootstrap_ffn_network_configuration_learn(protocol_interface_info
     return;
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct protocol_interface_info_entry *cur, ws_pan_information_t *pan_information)
+static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct net_if *cur, ws_pan_information_t *pan_information)
 {
     if (pan_information->routing_cost != 0xFFFF &&
         pan_information->routing_cost >= ws_bootstrap_routing_cost_calculate(cur)) {
@@ -261,7 +261,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct protocol_in
     }
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_advertisement_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     //Validate Pan Conrfirmation is at packet
@@ -328,7 +328,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct protocol_interface
     }
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     (void)data;
@@ -364,7 +364,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct protocol_i
     }
 }
 
-static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_info_entry *cur, const struct mcps_data_ie_list *ie_ext)
+static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const struct mcps_data_ie_list *ie_ext)
 {
     if (!ws_version_1_1(cur) || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
@@ -409,7 +409,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct protocol_interface_in
 }
 
 
-static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
 
     uint16_t pan_version;
@@ -551,7 +551,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct protocol_interface_info_e
     }
 }
 
-static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
+static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     if (data->SrcPANId != cur->ws_info->network_pan_id) {
         return;
@@ -594,7 +594,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct protocol_interfac
 }
 
 
-void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     // Store weakest heard packet RSSI
     if (cur->ws_info->weakest_received_rssi > data->signal_dbm) {
@@ -673,7 +673,7 @@ void ws_bootstrap_ffn_asynch_ind(struct protocol_interface_info_entry *cur, cons
     }
 }
 
-void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *interface, uint8_t asynch_message)
+void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
     if (asynch_message == WS_FT_PAN_ADVERT)
         interface->pan_advert_running = false;
@@ -682,7 +682,7 @@ void ws_bootstrap_ffn_asynch_confirm(struct protocol_interface_info_entry *inter
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
 
-void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_event_s *event)
+void ws_bootstrap_ffn_event_handler(struct net_if *cur, arm_event_s *event)
 {
     ws_bootstrap_event_type_e event_type;
     event_type = (ws_bootstrap_event_type_e)event->event_type;
@@ -784,7 +784,7 @@ void ws_bootstrap_ffn_event_handler(protocol_interface_info_entry_t *cur, arm_ev
  * Statemachine state functions
  * */
 
-static void ws_bootstrap_ffn_network_scan_process(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_network_scan_process(struct net_if *cur)
 {
 
     parent_info_t *selected_parent_ptr;
@@ -820,7 +820,7 @@ select_best_candidate:
     return;
 }
 
-static void ws_bootstrap_ffn_configure_process(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_configure_process(struct net_if *cur)
 {
 
     if (cur->ws_info->configuration_learned) {
@@ -831,7 +831,7 @@ static void ws_bootstrap_ffn_configure_process(protocol_interface_info_entry_t *
     return;
 }
 
-void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
+void ws_bootstrap_ffn_rpl_wait_process(struct net_if *cur)
 {
 
     if (cur->ws_info->rpl_state == RPL_EVENT_DAO_DONE) {
@@ -850,7 +850,7 @@ void ws_bootstrap_ffn_rpl_wait_process(protocol_interface_info_entry_t *cur)
     return;
 }
 
-static void ws_bootstrap_ffn_start_authentication(protocol_interface_info_entry_t *cur)
+static void ws_bootstrap_ffn_start_authentication(struct net_if *cur)
 {
     // Set PAN ID and network name to controller
     ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
@@ -865,7 +865,7 @@ static void ws_bootstrap_ffn_start_authentication(protocol_interface_info_entry_
  * State machine
  */
 
-void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur)
+void ws_bootstrap_ffn_state_machine(struct net_if *cur)
 {
 
     switch (cur->nwk_bootstrap_state) {
@@ -911,7 +911,7 @@ void ws_bootstrap_ffn_state_machine(protocol_interface_info_entry_t *cur)
     }
 }
 
-void ws_bootstrap_ffn_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     /* Border router keep alive check
      */

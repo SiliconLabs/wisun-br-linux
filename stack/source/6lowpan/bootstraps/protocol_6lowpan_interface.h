@@ -25,13 +25,13 @@
 /**
  * 6LoWPAN interface activate
  */
-int8_t nwk_6lowpan_up(struct protocol_interface_info_entry *cur);
+int8_t nwk_6lowpan_up(struct net_if *cur);
 /**
  * 6LoWPAN interface deactivate
  */
-int8_t nwk_6lowpan_down(struct protocol_interface_info_entry *cur);
+int8_t nwk_6lowpan_down(struct net_if *cur);
 
-void protocol_mac_reset(struct protocol_interface_info_entry *cur);
+void protocol_mac_reset(struct net_if *cur);
 
 
 #endif /* PROTOCOL_6LOWPAN_INTERFACE_H_ */
