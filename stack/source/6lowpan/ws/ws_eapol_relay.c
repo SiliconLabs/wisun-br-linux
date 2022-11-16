@@ -41,8 +41,6 @@
 #include "6lowpan/ws/ws_eapol_relay.h"
 #include "app_wsbrd/wsbr.h"
 
-#ifdef HAVE_EAPOL_RELAY
-
 #define TRACE_GROUP "wser"
 
 typedef struct eapol_relay {
@@ -237,6 +235,4 @@ static void ws_eapol_relay_socket_cb(void *cb)
         free(socket_pdu);
     }
 }
-
-#endif /* HAVE_EAPOL_RELAY */
 
