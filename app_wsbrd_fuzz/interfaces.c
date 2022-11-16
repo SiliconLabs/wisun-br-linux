@@ -23,6 +23,8 @@ static struct {
     int interface;
     int (*get_capture_fd)();
     int replay_write_fd;
+    uint8_t src_addr[16];
+    uint16_t src_port;
 } s_sockets[] = {
     { IF_DHCP_SERVER,    fuzz_dhcp_get_socket_id,               -1 },
     { IF_EAPOL_RELAY,    ws_bbr_eapol_auth_relay_get_socket_fd, -1 },
@@ -34,6 +36,8 @@ static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries 
 void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 {
     static bool init = false;
+    uint8_t src_addr[16];
+    uint16_t src_port;
     uint8_t interface;
     uint8_t *data;
     size_t size;
@@ -49,6 +53,8 @@ void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
     }
 
     interface = spinel_pop_u8(buf);
+    spinel_pop_fixed_u8_array(buf, src_addr, 16);
+    src_port = spinel_pop_u16(buf);
     if (buf->err)
         return;
 
@@ -58,6 +64,8 @@ void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
         for (i = 0; i < ARRAY_SIZE(s_sockets); i++) {
             if (interface == s_sockets[i].interface) {
                 fd = s_sockets[i].replay_write_fd;
+                memcpy(s_sockets[i].src_addr, src_addr, 16);
+                s_sockets[i].src_port = src_port;
                 break;
             }
         }
@@ -142,7 +150,7 @@ void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt)
     }
 }
 
-static void fuzz_capture_socket(int fd, void *buf, size_t size)
+static void fuzz_capture_socket(int fd, const uint8_t src_addr[16], uint16_t src_port, const void *buf, size_t size)
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     int i;
@@ -152,7 +160,7 @@ static void fuzz_capture_socket(int fd, void *buf, size_t size)
 
     fuzz_capture_timers(ctxt);
     i = fuzz_find_socket_index(fd);
-    fuzz_capture_interface(ctxt, s_sockets[i].interface, buf, size);
+    fuzz_capture_interface(ctxt, s_sockets[i].interface, src_addr, src_port, buf, size);
 }
 
 ssize_t __real_recv(int sockfd, void *buf, size_t len, int flags);
@@ -165,7 +173,7 @@ ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
 
     size = __real_recv(sockfd, buf, len, flags);
     if (g_fuzz_ctxt.capture_enabled)
-        fuzz_capture_socket(sockfd, buf, size);
+        fuzz_capture_socket(sockfd, ADDR_UNSPECIFIED, 0, buf, size);
 
     return size;
 }
@@ -173,14 +181,33 @@ ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
 ssize_t __real_recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
 ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
+    struct sockaddr_in6 *src_ipv6 = (struct sockaddr_in6 *)src_addr;
     ssize_t size;
+    int i;
 
-    if (g_fuzz_ctxt.replay_count)
+    if (g_fuzz_ctxt.replay_count) {
+        if (src_addr) {
+            BUG_ON(*addrlen < sizeof(struct sockaddr_in6));
+            *addrlen = sizeof(struct sockaddr_in6);
+            i = fuzz_find_socket_index(sockfd);
+            src_ipv6->sin6_family = AF_INET6;
+            src_ipv6->sin6_port = htons(s_sockets[i].src_port);
+            memcpy(src_ipv6->sin6_addr.s6_addr, s_sockets[i].src_addr, 16);
+        }
         return read(sockfd, buf, len);
+    }
 
     size = __real_recvfrom(sockfd, buf, len, flags, src_addr, addrlen);
-    if (g_fuzz_ctxt.capture_enabled)
-        fuzz_capture_socket(sockfd, buf, size);
+    if (g_fuzz_ctxt.capture_enabled) {
+        if (src_addr) {
+            BUG_ON(src_addr->sa_family != AF_INET6);
+            fuzz_capture_socket(sockfd,
+                                src_ipv6->sin6_addr.s6_addr, ntohs(src_ipv6->sin6_port),
+                                buf, size);
+        } else {
+            fuzz_capture_socket(sockfd, ADDR_UNSPECIFIED, 0, buf, size);
+        }
+    }
 
     return size;
 }
