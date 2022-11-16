@@ -22,6 +22,7 @@
 
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "stack/source/6lowpan/ws/ws_pae_auth.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/protocols/sec_prot_keys.h"
@@ -283,18 +284,6 @@ void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
                        "Nodes", NULL);
 }
 
-static int route_info_compare(const void *obj_a, const void *obj_b)
-{
-    const bbr_route_info_t *a = obj_a, *b = obj_b;
-    int ret;
-
-    ret = memcmp(a->parent, b->parent, sizeof(a->parent));
-    if (ret)
-        return ret;
-    ret = memcmp(a->target, b->target, sizeof(a->target));
-    return ret;
-}
-
 static int sd_bus_message_append_node(
     sd_bus_message *m,
     const char *property,
@@ -373,37 +362,48 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     int rcp_if_id = *(int *)userdata;
     bbr_route_info_t table[4096];
     uint8_t ipv6[3][16] = { 0 };
+    uint8_t eui64_pae[4096][8];
     bbr_information_t br_info;
-    int ret, len, i;
+    int len_pae, len_rpl, ret;
+    uint8_t *parent;
 
+    len_pae = ws_pae_auth_supp_list(rcp_if_id, eui64_pae, sizeof(eui64_pae));
     ret = ws_bbr_info_get(rcp_if_id, &br_info);
     if (ret)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    len = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
-    if (len < 0)
+    len_rpl = ws_bbr_routing_table_get(rcp_if_id, table, ARRAY_SIZE(table));
+    if (len_rpl < 0)
         return sd_bus_error_set_errno(ret_error, EAGAIN);
-    // Dirty hack to retrive the MAC from the EUI64
-    for (i = 0; i < len; i++) {
+    // Convert IPv6 IID into EUI64 (only works with specific DHCPv6 configurations)
+    for (int i = 0; i < len_rpl; i++) {
         table[i].parent[0] ^= 0x02;
         table[i].target[0] ^= 0x02;
     }
-    qsort(table, len, sizeof(table[0]), route_info_compare);
+
     ret = sd_bus_message_open_container(reply, 'a', "(aya{sv})");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_link_local(g_ctxt.config.tun_dev, ipv6[0]);
     tun_addr_get_global_unicast(g_ctxt.config.tun_dev, ipv6[1]);
     ret = sd_bus_message_append_node(reply, property, g_ctxt.hw_mac, NULL, ipv6, true);
-    for (i = 0; i < len; i++) {
+
+    for (int i = 0; i < len_pae; i++) {
         memcpy(ipv6[0] + 0, ADDR_LINK_LOCAL_PREFIX, 8);
-        memcpy(ipv6[0] + 8, table[i].target, 8);
-        ipv6[0][8] ^= 0x02;
-        memcpy(ipv6[1] + 0, br_info.prefix, 8);
-        memcpy(ipv6[1] + 8, table[i].target, 8);
-        ipv6[1][8] ^= 0x02;
-        sd_bus_message_append_node(
-            reply, property, table[i].target, table[i].parent,
-            ipv6, false
-        );
+        memcpy(ipv6[0] + 8, eui64_pae[i], 8);
+        memcpy(ipv6[1], ADDR_UNSPECIFIED, 16);
+        parent = NULL;
+        for (int j = 0; j < len_rpl; j++) {
+            // If the IID (IPv6 suffix) wasn't derived from the node's EUI64,
+            // the RPL tree cannot be associated with the EUI64 registered by
+            // the PAE.
+            if (!memcmp(table[j].target, eui64_pae[i], 8)) {
+                parent = table[j].parent;
+                memcpy(ipv6[1] + 0, br_info.prefix, 8);
+                memcpy(ipv6[1] + 8, table[i].target, 8);
+                ipv6[1][8] ^= 0x02;
+                break;
+            }
+        }
+        sd_bus_message_append_node(reply, property, eui64_pae[i], parent, ipv6, false);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
