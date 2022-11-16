@@ -18,6 +18,9 @@
 #include <net/if.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#include <netinet/icmp6.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 #include <netlink/route/addr.h>
@@ -25,7 +28,9 @@
 #include <netlink/route/neighbour.h>
 #include <netlink/route/link/inet6.h>
 #include <arpa/inet.h>
+#include "common/bits.h"
 #include "common/log.h"
+#include "common/iobuf.h"
 #include "common_protocols/icmpv6.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ethernet_mac_api.h"
@@ -37,6 +42,10 @@
 #include "tun.h"
 #include "wsbr.h"
 
+// IPv6 header (RFC8200 section 3)
+#define IPV6_VERSION_MASK       0b11110000000000000000000000000000
+#define IPV6_TRAFFIC_CLASS_MASK 0b00001111111100000000000000000000
+#define IPV6_FLOW_LABEL_MASK    0b00000000000011111111111111111111
 
 ssize_t wsbr_tun_write(uint8_t *buf, uint16_t len)
 {
@@ -380,58 +389,53 @@ static bool is_icmpv6_type_supported_by_wisun(uint8_t iv6t)
 
 void wsbr_tun_read(struct wsbr_ctxt *ctxt)
 {
-    uint8_t buf[1504]; // Max ethernet frame size + TUN header
-    ssize_t len;
-    uint8_t ip_version, next_header, icmpv6_type;
-    buffer_t * buffer_to_6lowpan = NULL;
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    uint8_t buf[1504]; // Max ethernet frame size + TUN header
+    struct iobuf_read iobuf = { .data = buf };
+    uint8_t ip_version, nxthdr;
+    buffer_t *buf_6lowpan;
 
     if (lowpan_adaptation_queue_size(ctxt->rcp_if_id) > 2)
         return;
-    len = read(ctxt->tun_fd, buf, sizeof(buf));
-    ip_version = ((unsigned char) buf[0]) >> 4;
+    iobuf.data_size = read(ctxt->tun_fd, buf, sizeof(buf));
 
+    ip_version = FIELD_GET(IPV6_VERSION_MASK, iobuf_pop_be32(&iobuf));
     if (ip_version != 6) {
-        WARN("unsupported ip version (received packet was not IPv6)");
+        WARN("tun-rx: unsupported ip version %d", ip_version);
         return;
     }
 
-    buffer_to_6lowpan = buffer_get_minimal(len);
-    if (!buffer_to_6lowpan)
+    buf_6lowpan = buffer_get_minimal(iobuf.data_size);
+    if (!buf_6lowpan)
         FATAL(1,"could not allocate tun buffer_t");
+    buf_6lowpan->interface = cur;
+    buffer_data_add(buf_6lowpan, iobuf.data, iobuf.data_size);
 
-    buffer_to_6lowpan->interface = cur;
+    buf_6lowpan->payload_length    = iobuf_pop_be16(&iobuf);
+    nxthdr                         = iobuf_pop_u8(&iobuf);
+    buf_6lowpan->options.hop_limit = iobuf_pop_u8(&iobuf);
+    buf_6lowpan->src_sa.addr_type = ADDR_IPV6;
+    iobuf_pop_data(&iobuf, buf_6lowpan->src_sa.address, 16);
+    buf_6lowpan->dst_sa.addr_type = ADDR_IPV6;
+    iobuf_pop_data(&iobuf, buf_6lowpan->dst_sa.address, 16);
 
-    buffer_data_add(buffer_to_6lowpan, buf, len);
-    buffer_to_6lowpan->payload_length = len;
-
-    next_header = buf[6];
-    buffer_to_6lowpan->options.hop_limit = buf[7];
-
-    buffer_to_6lowpan->src_sa.addr_type = ADDR_IPV6;
-    memcpy(buffer_to_6lowpan->src_sa.address, buf + 8, 16);
-
-    buffer_to_6lowpan->dst_sa.addr_type = ADDR_IPV6;
-    memcpy(buffer_to_6lowpan->dst_sa.address, buf + 24, 16);
-
-    if (addr_is_ipv6_multicast(buffer_to_6lowpan->dst_sa.address)) {
-        if(!addr_am_group_member_on_interface(cur, buffer_to_6lowpan->dst_sa.address)) {
-            buffer_free(buffer_to_6lowpan);
+    if (addr_is_ipv6_multicast(buf_6lowpan->dst_sa.address)) {
+        if(!addr_am_group_member_on_interface(cur, buf_6lowpan->dst_sa.address)) {
+            buffer_free(buf_6lowpan);
             return;
         }
     }
 
-    if (next_header == 6 || next_header == 17) { // is next_header TCP/UDP ?
-        buffer_to_6lowpan->src_sa.port = common_read_16_bit(buf + 40);
-        buffer_to_6lowpan->dst_sa.port = common_read_16_bit(buf + 42);
-    } else if (next_header == 58) { // is next_header IMCPv6 ?
-        icmpv6_type = buf[40];
-        if (!is_icmpv6_type_supported_by_wisun(icmpv6_type)) {
-            buffer_free(buffer_to_6lowpan);
+    if (nxthdr == SOL_TCP || nxthdr == SOL_UDP) {
+        buf_6lowpan->src_sa.port = iobuf_pop_be16(&iobuf);
+        buf_6lowpan->dst_sa.port = iobuf_pop_be16(&iobuf);
+    } else if (nxthdr == SOL_ICMPV6) {
+        if (!is_icmpv6_type_supported_by_wisun(iobuf_pop_u8(&iobuf))) {
+            buffer_free(buf_6lowpan);
             return;
         }
     }
 
-    buffer_to_6lowpan->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
-    protocol_push(buffer_to_6lowpan);
+    buf_6lowpan->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
+    protocol_push(buf_6lowpan);
 }
