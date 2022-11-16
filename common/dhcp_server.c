@@ -346,7 +346,7 @@ void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, 
     struct sockaddr_in6 sockaddr = {
         .sin6_family = AF_INET6,
         .sin6_addr = IN6ADDR_ANY_INIT,
-        .sin6_port = htons(547),
+        .sin6_port = htons(DHCPV6_SERVER_PORT),
     };
 
     if (!dhcp->valid_lifetime)

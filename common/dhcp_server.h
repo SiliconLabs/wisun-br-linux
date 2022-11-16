@@ -25,6 +25,9 @@
  * dhcp_server->fd is ready.
  */
 
+#define DHCPV6_SERVER_PORT 547
+#define DHCPV6_CLIENT_PORT 546
+
 struct dhcp_server {
     int fd;
     int tun_if_id;
