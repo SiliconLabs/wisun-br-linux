@@ -28,8 +28,8 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/ns_address.h"
-#include "stack/net_socket.h"
 
+#include "legacy/net_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"

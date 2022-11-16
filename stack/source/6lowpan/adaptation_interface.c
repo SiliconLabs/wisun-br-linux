@@ -33,7 +33,7 @@
 #include "stack/timers.h"
 
 #include "core/ns_address_internal.h"
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/icmpv6.h"

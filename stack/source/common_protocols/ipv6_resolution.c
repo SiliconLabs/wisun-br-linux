@@ -26,7 +26,7 @@
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
 
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?
@@ -35,7 +35,7 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
-#include "common_protocols/udp.h"
+#include "legacy/udp.h"
 
 #include "common_protocols/ipv6_resolution.h"
 

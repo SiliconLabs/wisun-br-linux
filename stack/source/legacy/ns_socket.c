@@ -31,13 +31,13 @@
 #include "stack-services/common_functions.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "stack/net_socket.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 
-#include "core/ns_socket.h"
+#include "net_socket.h"
+#include "ns_socket.h"
 
 #define TRACE_GROUP "sck"
 

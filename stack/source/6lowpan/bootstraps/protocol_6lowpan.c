@@ -27,10 +27,10 @@
 #include "stack/net_rpl.h"
 #include "stack/mac/sw_mac.h"
 
-#include "core/ns_socket.h"
+#include "legacy/udp.h"
+#include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "common_protocols/udp.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "rpl/rpl_control.h"

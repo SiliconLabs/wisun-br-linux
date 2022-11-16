@@ -23,13 +23,13 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
 
-#include "common_protocols/ipv6_fragmentation_rx.h"
-#include "common_protocols/ipv6_fragmentation_tx.h"
+#include "legacy/ipv6_fragmentation_rx.h"
+#include "legacy/ipv6_fragmentation_tx.h"
 #include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"

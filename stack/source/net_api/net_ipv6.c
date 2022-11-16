@@ -23,7 +23,7 @@
 
 #include "core/ns_address_internal.h"
 #include "common_protocols/ipv6_flow.h"
-#include "common_protocols/ipv6_fragmentation_rx.h"
+#include "legacy/ipv6_fragmentation_rx.h"
 #include "nwk_interface/protocol.h"
 
 #define TRACE_GROUP "nip6"

@@ -29,7 +29,6 @@
 #include "stack/mac/mac_api.h"
 #include "stack/timers.h"
 
-#include "core/ns_socket.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
@@ -39,7 +38,7 @@
 #include "6lowpan/ws/ws_common.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "common_protocols/udp.h"
+#include "legacy/ns_socket.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
 

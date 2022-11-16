@@ -35,7 +35,7 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 
@@ -43,7 +43,7 @@
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 
-#include "common_protocols/ipv6_fragmentation_tx.h"
+#include "legacy/ipv6_fragmentation_tx.h"
 
 #define TRACE_GROUP "Ifrg"
 

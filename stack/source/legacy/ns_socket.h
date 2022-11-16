@@ -26,7 +26,7 @@
 #include "common/int24.h"
 #include "core/ns_error_types.h"
 #include "core/ns_buffer.h"
-#include "core/sockbuf.h"
+#include "legacy/sockbuf.h"
 
 #ifndef SOCKET_RX_LIMIT
 #define SOCKET_RX_LIMIT 3

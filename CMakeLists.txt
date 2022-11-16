@@ -335,23 +335,23 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/common_protocols/icmpv6_prefix.c
         stack/source/common_protocols/ipv6.c
         stack/source/common_protocols/ipv6_flow.c
-        stack/source/common_protocols/ipv6_fragmentation_tx.c
-        stack/source/common_protocols/ipv6_fragmentation_rx.c
         stack/source/common_protocols/ipv6_resolution.c
-        stack/source/common_protocols/udp.c
         stack/source/core/ns_address_internal.c
         stack/source/core/ns_buffer.c
-        stack/source/core/ns_socket.c
-        stack/source/core/sockbuf.c
         stack/source/ipv6_stack/ipv6_routing_table.c
         stack/source/legacy/dhcpv6_client.c
         stack/source/legacy/dhcpv6_service.c
         stack/source/legacy/dhcpv6_utils.c
+        stack/source/legacy/ipv6_fragmentation_tx.c
+        stack/source/legacy/ipv6_fragmentation_rx.c
+        stack/source/legacy/net_socket.c
+        stack/source/legacy/ns_socket.c
+        stack/source/legacy/sockbuf.c
+        stack/source/legacy/udp.c
         stack/source/net_api/net_multicast.c
         stack/source/net_api/net_6lowpan_parameter.c
         stack/source/net_api/net_rpl.c
         stack/source/net_api/net_interface.c
-        stack/source/net_api/net_socket.c
         stack/source/net_api/net_ipv6.c
         # Excluded stack/source/mac/ieee802154
         stack/source/mpl/mpl.c

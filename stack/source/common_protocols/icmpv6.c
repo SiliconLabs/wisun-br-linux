@@ -30,7 +30,7 @@
 #include "rpl/rpl_data.h"
 #include "rpl/rpl_protocol.h"
 #include "mpl/mpl.h"
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "6lowpan/nd/nd_router_object.h"

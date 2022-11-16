@@ -32,7 +32,7 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "core/ns_socket.h"
+#include "legacy/ns_socket.h"
 #include "6lowpan/iphc_decode/cipv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/iphc_decode/iphc_decompress.h"

@@ -27,7 +27,6 @@
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
 #include "stack/ns_address.h"
-#include "stack/net_socket.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"

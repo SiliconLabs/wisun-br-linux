@@ -31,7 +31,6 @@
 #include "stack-services/ip6string.h"
 #include "stack-services/ns_sha256.h"
 #include "stack-services/common_functions.h"
-#include "stack/net_socket.h"
 
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"

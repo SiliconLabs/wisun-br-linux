@@ -19,7 +19,7 @@
 #include <inttypes.h>
 #include "common/log_legacy.h"
 
-#include "core/sockbuf.h"
+#include "sockbuf.h"
 
 #define TRACE_GROUP "sbuf"
 

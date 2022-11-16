@@ -28,10 +28,10 @@
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
-#include "stack/net_socket.h"
 #include "stack/net_interface.h"
 #include "stack/timers.h"
 
+#include "legacy/net_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ip.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"

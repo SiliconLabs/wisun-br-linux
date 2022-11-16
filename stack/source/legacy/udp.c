@@ -21,12 +21,11 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "core/ns_socket.h"
-
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 
-#include "common_protocols/udp.h"
+#include "ns_socket.h"
+#include "udp.h"
 
 /* The network stack has some inbuilt special behaviour for these known ports */
 
