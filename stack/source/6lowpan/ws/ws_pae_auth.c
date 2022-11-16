@@ -19,8 +19,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "common/rand.h"
 #include "common/log_legacy.h"
+#include "common/rand.h"
+#include "common/utils.h"
 #include "stack-services/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
@@ -1589,6 +1590,42 @@ static void ws_pae_auth_waiting_supp_deleted(void *pae_auth_ptr)
 {
     pae_auth_t *pae_auth = pae_auth_ptr;
     pae_auth->waiting_supp_list_size--;
+}
+
+int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len)
+{
+    protocol_interface_info_entry_t *interface_ptr;
+    supp_list_t *supp_lists[2];
+    pae_auth_t *pae_auth;
+    int len_ret, j;
+
+    interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!interface_ptr)
+        return 0;
+
+    pae_auth = ws_pae_auth_get(interface_ptr);
+    if (!pae_auth)
+        return 0;
+    supp_lists[0] = &pae_auth->active_supp_list;
+    supp_lists[1] = &pae_auth->waiting_supp_list;
+
+    len_ret = ws_pae_key_storage_list(eui64, len);
+    if (len_ret == len)
+        return len_ret;
+
+    for (int i = 0; i < ARRAY_SIZE(supp_lists); i++) {
+        ns_list_foreach(supp_entry_t, cur, supp_lists[i]) {
+            for (j = 0; j < len_ret; j++)
+                if (!memcmp(cur->addr.eui_64, eui64[j], 8))
+                    break;
+            if (j != len_ret)
+                continue;
+            memcpy(eui64[len_ret++], cur->addr.eui_64, 8);
+            if (len_ret == len)
+                return len_ret;
+        }
+    }
+    return len_ret;
 }
 
 #endif /* HAVE_PAE_AUTH */

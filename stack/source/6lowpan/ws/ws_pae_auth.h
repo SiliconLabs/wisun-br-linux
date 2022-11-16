@@ -306,6 +306,8 @@ void ws_pae_auth_cb_register(protocol_interface_info_entry_t *interface_ptr,
                              ws_pae_auth_congestion_get *congestion_get,
                              ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read);
 
+int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len);
+
 #else
 
 #define ws_pae_auth_init(interface_ptr, next_gtks, certs, sec_cfg, sec_keys_nw_info, frame_counters) 1
