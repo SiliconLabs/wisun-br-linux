@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <glob.h>
 #include <fnmatch.h>
 #include <inttypes.h>
 #include "common/log.h"
@@ -160,6 +161,28 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     if (!pae_supp->sec_keys.pmk_set)
         pae_supp->sec_keys.ptk_set = false;
     return pae_supp;
+}
+
+int ws_pae_key_storage_list(uint8_t eui64[][8], int len)
+{
+    char filename[PATH_MAX];
+    glob_t globbuf;
+    int i, ret;
+
+    if (!g_storage_prefix) {
+        WARN("storage disabled, cannot retrieve EUI64");
+        return 0;
+    }
+    snprintf(filename, sizeof(filename), "%skeys-*:*:*:*:*:*:*:*", g_storage_prefix);
+    ret = glob(filename, 0, NULL, &globbuf);
+    if (ret) {
+        WARN_ON(ret != GLOB_NOMATCH, "glob %s returned an error", filename);
+        return 0;
+    }
+    for (i = 0; globbuf.gl_pathv[i] && i < len; i++)
+        parse_byte_array(eui64[i], 8, strrchr(globbuf.gl_pathv[i], '-') + 1);
+    globfree(&globbuf);
+    return i;
 }
 
 uint16_t ws_pae_key_storage_storing_interval_get(void)

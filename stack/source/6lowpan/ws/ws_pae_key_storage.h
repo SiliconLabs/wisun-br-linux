@@ -77,4 +77,6 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64);
  */
 uint16_t ws_pae_key_storage_storing_interval_get(void);
 
+int ws_pae_key_storage_list(uint8_t eui64[][8], int len);
+
 #endif
