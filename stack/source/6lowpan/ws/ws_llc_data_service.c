@@ -203,6 +203,7 @@ static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *b
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
 static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_conf_t *data, struct mac_neighbor_table_entry *neighbor);
 
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message);
@@ -552,16 +553,23 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
 {
     (void) conf_data;
+    llc_neighbour_req_t neighbor_info = { };
+    neighbor_info.ws_neighbor = NULL;
+    neighbor_info.neighbor = NULL;
     llc_data_base_t *base = ws_llc_discover_by_mac(api);
-    if (!base) {
+    if (!base)
         return;
-    }
 
     protocol_interface_info_entry_t *interface = base->interface_ptr;
     llc_message_t *message = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
-    if (!message) {
+    if (!message)
         return;
-    }
+
+    if (message->dst_address_type == MAC_ADDR_MODE_64_BIT)
+        base->ws_neighbor_info_request_cb(interface, message->dst_address, &neighbor_info, false);
+
+    if (neighbor_info.neighbor)
+        ws_llc_rate_handle_tx_conf(base, data, neighbor_info.neighbor);
 
     uint8_t message_type = message->message_type;
     uint8_t mpx_user_handle = message->mpx_user_handle;
@@ -577,9 +585,6 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
         }
     }
     //ETX update
-    llc_neighbour_req_t neighbor_info;
-    neighbor_info.ws_neighbor = NULL;
-    neighbor_info.neighbor = NULL;
     if (message->ack_requested && message_type == WS_FT_DATA) {
 
         bool success = false;
@@ -1661,6 +1666,44 @@ static void ws_llc_release_eapol_temp_entry(temp_entriest_t *base, const uint8_t
     ns_list_remove(&base->active_eapol_temp_neigh, neighbor);
     ws_llc_temp_entry_free(base, neighbor);
 
+}
+
+#define MS_FALLBACK_MIN_SAMPLE 50
+#define MS_FALLBACK_MAX_SAMPLE 1000
+// Mode Switch rate management function
+static void ws_llc_rate_handle_tx_conf(llc_data_base_t *base, const mcps_data_conf_t *data, struct mac_neighbor_table_entry *neighbor)
+{
+    uint8_t i;
+
+    if (data->success_phy_mode_id == base->base_phy_mode_id)
+        neighbor->ms_tx_count++;
+
+    if (data->tx_retries) {
+        // Look for mode switch retries
+        for (i = 0; i < MAX_PHY_MODE_ID_PER_FRAME; i++) {
+            if (data->retry_per_rate[i].phy_mode_id == base->base_phy_mode_id) {
+                neighbor->ms_retries_count += data->retry_per_rate[i].retries;
+            }
+        }
+    }
+
+    // Mode switch fallback management
+    if (neighbor->ms_tx_count + neighbor->ms_retries_count > MS_FALLBACK_MIN_SAMPLE) {
+        if (neighbor->ms_retries_count > 4 * neighbor->ms_tx_count) {
+            // Fallback: disable mode switch
+            base->ms_mode = SL_WISUN_MODE_SWITCH_DISABLED;
+
+            WARN("mode switch disabled for %s with phy_mode_id %d", tr_eui64(neighbor->mac64), neighbor->ms_phy_mode_id);
+
+            neighbor->ms_tx_count = 0;
+            neighbor->ms_retries_count = 0;
+        }
+    }
+
+    if (neighbor->ms_tx_count + neighbor->ms_retries_count > MS_FALLBACK_MAX_SAMPLE) {
+        neighbor->ms_tx_count = 0;
+        neighbor->ms_retries_count = 0;
+    }
 }
 
 ws_neighbor_temp_class_t *ws_llc_get_multicast_temp_entry(protocol_interface_info_entry_t *interface, const uint8_t *mac64)
