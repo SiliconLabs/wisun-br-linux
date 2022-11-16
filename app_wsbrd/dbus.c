@@ -59,19 +59,29 @@ int dbus_set_mode_switch(sd_bus_message *m, void *userdata, sd_bus_error *ret_er
 {
     struct wsbr_ctxt *ctxt = userdata;
     int ret;
-    int unicast_and_broadcast;
-    uint8_t phy_mode_id;
+    uint8_t *eui64;
+    size_t eui64_len;
+    int phy_mode_id;
 
-    ret = sd_bus_message_read(m, "yb", &phy_mode_id, &unicast_and_broadcast);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&eui64, &eui64_len);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, -ret);
 
-    if (phy_mode_id && unicast_and_broadcast)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 2, phy_mode_id); // mode switch enabled on unicast and broadcast
-    else if (phy_mode_id && !unicast_and_broadcast)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 1, phy_mode_id); // mode switch enabled on unicast only
+    ret = sd_bus_message_read_basic(m, 'i', &phy_mode_id);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+
+    if (eui64_len == 0)
+        eui64 = NULL;
+    else if (eui64_len != 8)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    if (phy_mode_id > 0)
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 1, phy_mode_id, eui64); // mode switch enabled
+    else if (phy_mode_id == -1)
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, -1, 0, eui64); // mode switch disabled
     else if (phy_mode_id == 0)
-        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 0, 0); // mode switch disabled
+        ret = ws_bbr_set_mode_switch(ctxt->rcp_if_id, 0, 0, eui64); // mode switch back to default
 
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
@@ -468,7 +478,7 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_join_multicast_group, 0),
         SD_BUS_METHOD("LeaveMulticastGroup", "ay", NULL,
                       dbus_leave_multicast_group, 0),
-        SD_BUS_METHOD("SetModeSwitch", "yb", NULL,
+        SD_BUS_METHOD("SetModeSwitch", "ayi", NULL,
                       dbus_set_mode_switch, 0),
         SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
                       dbus_set_slot_algorithm, 0),
