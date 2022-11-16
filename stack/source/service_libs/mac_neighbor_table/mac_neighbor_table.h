@@ -40,10 +40,14 @@ typedef struct mac_neighbor_table_entry {
     uint16_t        mac16;                  /*!< MAC16 address for neighbor 0xffff when no 16-bit address is unknown */
     uint32_t        lifetime;               /*!< Life time in seconds which goes down */
     uint32_t        link_lifetime;          /*!< Configured link timeout*/
-    uint8_t         phy_mode_ids[16]; // TODO define
-    uint8_t         phy_mode_id_count;
-    bool            mdr_capable:1;
-    bool            rx_on_idle: 1;          /*!< True, RX on idle always at idle state, false disable radio */
+    uint8_t         phy_mode_ids[16];       /*!< List of PhyModeId supported by this neighbor */
+    uint8_t         phy_mode_id_count;      /*!< Number of PhyModeId in phy_mode_ids */
+    uint8_t         ms_phy_mode_id;         /*!< PhyModeId selected for Mode Switch with this neighbor */
+    uint8_t         ms_mode;                /*!< Mode switch mode */
+    uint32_t        ms_tx_count;            /*!< Mode switch Tx success count */ // TODO: implement fallback mechanism in wbsrd
+    uint32_t        ms_retries_count;       /*!< Mode switch Tx retries */ // TODO: implement fallback mechanism in wsbrd
+    bool            mdr_capable:1;          /*!< Indicate if the neighbor supports MAC Mode Switch */
+    bool            rx_on_idle: 1;          /*!< True, RX on idle allways at idle state, false disable radio */
     bool            ffd_device: 1;          /*!< True FFD device, false for RFD */
     bool            advertisment: 1;
     bool            connected_device: 1;    /*!< True Link is connected and data rx is accepted , False RX data is not accepted*/

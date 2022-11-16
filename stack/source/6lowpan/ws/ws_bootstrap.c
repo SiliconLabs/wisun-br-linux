@@ -1907,6 +1907,7 @@ int ws_bootstrap_set_domain_rf_config(protocol_interface_info_entry_t *cur)
         rf_config.number_of_channels = chan_params->chan_count;
     }
 
+    ws_llc_set_base_phy_mode_id(cur, phy_params ? phy_params->phy_mode_id : 0);
     ws_bootstrap_set_rf_config(cur, rf_config);
     return 0;
 }

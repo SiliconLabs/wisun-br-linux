@@ -100,9 +100,9 @@ typedef struct llc_ie_params {
 
 /// Enumeration for Mode Switch mode
 typedef enum {
-    SL_WISUN_MODE_SWITCH_DISABLED     = 0,     /// Mode switch is not allowed
-    SL_WISUN_MODE_SWITCH_ALL_UNICAST  = 1,     /// Mode switch is allowed for all unicast data frames
-    SL_WISUN_MODE_SWITCH_ALWAYS       = 2,     /// Mode switch is allowed for all data frames
+    SL_WISUN_MODE_SWITCH_DISABLED     = -1,    /// Mode switch is not allowed
+    SL_WISUN_MODE_SWITCH_ENABLED      = 1,     /// Mode switch is allowed for all unicast data frames. PhyModeId is neighbor specific
+    SL_WISUN_MODE_SWITCH_DEFAULT      = 0,     /// Mode switch is allowed for all unicast data frames. PhyModeId is global.
 } sl_wisun_mode_switch_mode_t;
 
 typedef struct llc_message {
@@ -162,6 +162,7 @@ typedef struct llc_data_base {
     bool                            high_priority_mode;
     uint8_t                         ms_mode;
     uint8_t                         ms_tx_phy_mode_id;
+    uint8_t                         base_phy_mode_id;
     protocol_interface_info_entry_t *interface_ptr;                 /**< List link entry */
 } llc_data_base_t;
 
@@ -1175,15 +1176,17 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
         return 0;
 
     llc_neighbour_req_t neighbor_info;
+    uint8_t neighbor_ms_phy_mode_id = 0;
 
-    if (!base->ms_mode)
-        return 0;
-    if (!data->TxAckReq && base->ms_mode == SL_WISUN_MODE_SWITCH_ALWAYS)
-        return base->ms_tx_phy_mode_id;
     if (data->TxAckReq &&
         base->ie_params.phy_operating_modes &&
-        base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false))
-        return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, base->ms_tx_phy_mode_id);
+        base->ws_neighbor_info_request_cb(base->interface_ptr, data->DstAddr, &neighbor_info, false)) {
+        if (neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
+            neighbor_ms_phy_mode_id = neighbor_info.neighbor->ms_phy_mode_id;
+        else if ((neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_DEFAULT) && (base->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED))
+            neighbor_ms_phy_mode_id = base->ms_tx_phy_mode_id;
+        return mac_neighbor_find_phy_mode_id(neighbor_info.neighbor, neighbor_ms_phy_mode_id);
+    }
     return 0;
 }
 
@@ -2123,25 +2126,32 @@ int8_t ws_llc_asynch_request(struct protocol_interface_info_entry *interface, as
     return 0;
 }
 
-int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, uint8_t mode, uint8_t phy_mode_id)
+int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
-    if (!llc) {
-        // Invalid LLC context
+    llc_neighbour_req_t neighbor_info;
+    uint8_t peer_phy_mode_id;
+    uint8_t wisun_broadcast_mac_addr[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+    neighbor_info.ws_neighbor = NULL;
+    neighbor_info.neighbor = NULL;
+
+    if (!llc) // Invalid LLC context
         return -1;
-    }
 
-    BUG_ON((mode != SL_WISUN_MODE_SWITCH_DISABLED) && (mode != SL_WISUN_MODE_SWITCH_ALL_UNICAST) && (mode != SL_WISUN_MODE_SWITCH_ALWAYS));
+    if (mode != SL_WISUN_MODE_SWITCH_DISABLED &&
+        mode != SL_WISUN_MODE_SWITCH_ENABLED &&
+        mode != SL_WISUN_MODE_SWITCH_DEFAULT)
+        BUG();
 
-    if (mode != SL_WISUN_MODE_SWITCH_DISABLED) {
+    if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
         bool found = false;
         uint8_t i;
 
-        if (llc->ie_params.phy_operating_modes == NULL) {
+        if (!llc->ie_params.phy_operating_modes)
             return -2;
-        }
 
-        // Check Mode Switch PhyModeId is valid
+        // Check Mode Switch PhyModeId is valid in our own phy list
         for (i = 0; i < llc->ie_params.phy_op_mode_number; i++) {
             if (phy_mode_id == llc->ie_params.phy_operating_modes[i]) {
                 found = true;
@@ -2149,14 +2159,41 @@ int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, u
             }
         }
 
-        if (!found) {
-            // Invalid PhyModeId
+        if (!found) // Invalid PhyModeId
             return -3;
-        }
     }
 
-    llc->ms_tx_phy_mode_id = phy_mode_id;
-    llc->ms_mode = mode;
+    if (!memcmp(neighbor_mac_address, wisun_broadcast_mac_addr, 8)) {
+        if (mode == SL_WISUN_MODE_SWITCH_DEFAULT)
+            return -6;
+
+        // Configure default mode switch rate
+        llc->ms_tx_phy_mode_id = phy_mode_id;
+        llc->ms_mode = mode;
+    } else {
+        // Specific neighbor address
+        if (llc->ws_neighbor_info_request_cb(llc->interface_ptr, neighbor_mac_address, &neighbor_info, false) == false) {
+            // Wrong peer
+            return -5;
+        } else {
+            if (mode == SL_WISUN_MODE_SWITCH_ENABLED) {
+                // Check Mode Switch PhyModeId is valid in the neighbor list
+                peer_phy_mode_id = mac_neighbor_find_phy_mode_id(neighbor_info.neighbor,
+                                                                 phy_mode_id);
+                if (peer_phy_mode_id != phy_mode_id) // Invalid PhyModeId
+                    return -4;
+                neighbor_info.neighbor->ms_phy_mode_id = phy_mode_id;
+            } else {
+                neighbor_info.neighbor->ms_phy_mode_id = 0;
+            }
+
+            neighbor_info.neighbor->ms_mode = mode;
+
+            // Reset counters
+            neighbor_info.neighbor->ms_tx_count = 0;
+            neighbor_info.neighbor->ms_retries_count = 0;
+        }
+    }
 
     return 0;
 }
@@ -2340,6 +2377,14 @@ bool ws_llc_eapol_relay_forward_filter(struct protocol_interface_info_entry *int
     neighbor->eapol_temp_info.eapol_rx_relay_filter = 6; //Activate 5-5.99 seconds filter time
     return true;
 
+}
+
+void ws_llc_set_base_phy_mode_id(struct protocol_interface_info_entry *interface, uint8_t phy_mode_id)
+{
+    llc_data_base_t *llc = ws_llc_discover_by_interface(interface);
+
+    if (llc)
+        llc->base_phy_mode_id = phy_mode_id;
 }
 
 

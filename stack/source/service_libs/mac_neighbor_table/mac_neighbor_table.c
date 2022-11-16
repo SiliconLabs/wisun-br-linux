@@ -154,6 +154,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     entry->lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->link_lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
     entry->link_role = NORMAL_NEIGHBOUR;
+    entry->ms_mode = 0;
     topo_trace(TOPOLOGY_MLE, mac64, TOPO_ADD);
     return entry;
 }

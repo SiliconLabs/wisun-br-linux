@@ -266,6 +266,8 @@ ws_neighbor_temp_class_t *ws_llc_get_eapol_temp_entry(struct protocol_interface_
 
 void ws_llc_free_multicast_temp_entry(struct protocol_interface_info_entry *interface, ws_neighbor_temp_class_t *neighbor);
 
+void ws_llc_set_base_phy_mode_id(struct protocol_interface_info_entry *interface, uint8_t phy_mode_id);
+
 /**
  * @brief Configure WS POM information (Data of WP_PAYLOAD_IE_POM_TYPE IE element)
  * @param interface Interface pointer
@@ -275,6 +277,6 @@ void ws_llc_free_multicast_temp_entry(struct protocol_interface_info_entry *inte
  */
 void ws_llc_set_phy_operating_mode(struct protocol_interface_info_entry *interface, uint8_t *phy_operating_modes);
 
-int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, uint8_t mode, uint8_t phy_mode_id);
+int8_t ws_llc_set_mode_switch(struct protocol_interface_info_entry *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 
 #endif

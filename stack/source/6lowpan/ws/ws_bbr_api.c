@@ -1371,11 +1371,16 @@ uint8_t *ws_bbr_get_phy_operating_modes()
     return ctxt->phy_operating_modes;
 }
 
-int ws_bbr_set_mode_switch(int8_t interface_id, uint8_t mode, uint8_t phy_mode_id)
+int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     struct protocol_interface_info_entry *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (interface == NULL)
         return -1;
 
-    return ws_llc_set_mode_switch(interface, mode, phy_mode_id);;
+    uint8_t all_nodes[8] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; //only for wsbrd-v1.5-rc1
+
+    if (neighbor_mac_address)
+        return ws_llc_set_mode_switch(interface, mode, phy_mode_id, neighbor_mac_address);
+    return ws_llc_set_mode_switch(interface, mode, phy_mode_id, all_nodes);
+
 }
