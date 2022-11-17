@@ -158,7 +158,7 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
     struct rtnl_link *link;
     struct nl_addr *ipv6_nl_addr;
     struct nl_sock *sock;
-    int ifindex;
+    int ifindex, err;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
@@ -166,24 +166,36 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
     inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
 
     sock = nl_socket_alloc();
-    if (nl_connect(sock, NETLINK_ROUTE))
-        FATAL(2, "nl_connect");
-    if (rtnl_link_get_kernel(sock, 0, ctxt->config.tun_dev, &link)){
-        ERROR("rtnl_link_get_kernel %s", ctxt->config.tun_dev);
-        return;
+    BUG_ON(!sock);
+    err = nl_connect(sock, NETLINK_ROUTE);
+    FATAL_ON(err < 0, 2, "nl_connect: %s", nl_geterror(err));
+    err = rtnl_link_get_kernel(sock, 0, ctxt->config.tun_dev, &link);
+    if (err) {
+        ERROR("rtnl_link_get_kernel %s: %s", ctxt->config.tun_dev, nl_geterror(err));
+        goto ret_free_sock;
     }
     ifindex = rtnl_link_get_ifindex(link);
     rtnl_link_put(link);
-    link = rtnl_link_alloc();
-    rtnl_link_set_ifindex(link, ifindex);
-    nl_addr_parse(ipv6_addr_to_str, AF_INET6, &ipv6_nl_addr);
+
+    err = nl_addr_parse(ipv6_addr_to_str, AF_INET6, &ipv6_nl_addr);
+    FATAL_ON(err < 0, 2, "nl_addr_parse: %s", nl_geterror(err));
     nl_route = rtnl_route_alloc();
-    rtnl_route_set_iif(nl_route, AF_INET6);
-    rtnl_route_set_dst(nl_route, ipv6_nl_addr);
+    BUG_ON(!nl_route);
     nl_nexthop = rtnl_route_nh_alloc();
+    BUG_ON(!nl_nexthop);
+
+    rtnl_route_set_iif(nl_route, AF_INET6);
+    err = rtnl_route_set_dst(nl_route, ipv6_nl_addr);
+    FATAL_ON(err < 0, 2, "rtnl_route_set_dst: %s", nl_geterror(err));
     rtnl_route_nh_set_ifindex(nl_nexthop, ifindex);
     rtnl_route_add_nexthop(nl_route, nl_nexthop);
-    rtnl_route_add(sock, nl_route, 0);
+    err = rtnl_route_add(sock, nl_route, 0);
+    FATAL_ON(err < 0, 2, "rtnl_route_add: %s", nl_geterror(err));
+
+    rtnl_route_put(nl_route);
+    nl_addr_put(ipv6_nl_addr);
+ret_free_sock:
+    nl_socket_free(sock);
 }
 
 static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_prefix[static 8], const uint8_t hw_mac_addr[static 8], bool register_proxy_ndp)
