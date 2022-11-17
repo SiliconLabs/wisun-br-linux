@@ -114,7 +114,7 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, uint8_t address[16]
     struct nl_addr *src_ipv6_nl_addr;
     struct nl_cache *cache;
     struct nl_sock *sock;
-    int ifindex;
+    int ifindex, err;
 
     if (strlen(ctxt->config.neighbor_proxy) == 0)
         return;
@@ -122,31 +122,38 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, uint8_t address[16]
     inet_ntop(AF_INET6, address, ipv6_addr_to_str, INET6_ADDRSTRLEN);
 
     sock = nl_socket_alloc();
-    if (nl_connect(sock, NETLINK_ROUTE))
-        FATAL(2, "nl_connect");
-    if (rtnl_link_get_kernel(sock, 0, ctxt->config.neighbor_proxy, &link)) {
-        ERROR("rtnl_link_get_kernel %s", ctxt->config.neighbor_proxy);
-        return;
+    BUG_ON(!sock);
+    err = nl_connect(sock, NETLINK_ROUTE);
+    FATAL_ON(err < 0, 2, "nl_connect: %s", nl_geterror(err));
+    err = rtnl_link_get_kernel(sock, 0, ctxt->config.neighbor_proxy, &link);
+    if (err < 0) {
+        ERROR("rtnl_link_get_kernel %s: %s", ctxt->config.neighbor_proxy, nl_geterror(err));
+        goto ret_free_sock;
     }
-
     ifindex = rtnl_link_get_ifindex(link);
     rtnl_link_put(link);
-    link = rtnl_link_alloc();
-    rtnl_link_set_ifindex(link, ifindex);
-    rtnl_neigh_alloc_cache(sock, &cache);
-    nl_addr_parse(ipv6_addr_to_str, AF_INET6, &src_ipv6_nl_addr);
+
+    err = rtnl_neigh_alloc_cache(sock, &cache);
+    FATAL_ON(err < 0, 2, "rtnl_neigh_alloc_cache: %s", nl_geterror(err));
+    err = nl_addr_parse(ipv6_addr_to_str, AF_INET6, &src_ipv6_nl_addr);
+    FATAL_ON(err < 0, 2, "nl_addr_parse: %s", nl_geterror(err));
     nl_neigh = rtnl_neigh_get(cache, ifindex, src_ipv6_nl_addr);
-
-    if (nl_neigh != NULL)
-        return;
-
+    if (nl_neigh)
+        goto ret_free_addr;
     nl_neigh = rtnl_neigh_alloc();
+    BUG_ON(!nl_neigh);
+
     rtnl_neigh_set_ifindex(nl_neigh, ifindex);
     rtnl_neigh_set_dst(nl_neigh, src_ipv6_nl_addr);
     rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
     rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
     rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
+
     rtnl_neigh_put(nl_neigh);
+ret_free_addr:
+    nl_addr_put(src_ipv6_nl_addr);
+ret_free_sock:
+    nl_socket_free(sock);
 }
 
 void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
