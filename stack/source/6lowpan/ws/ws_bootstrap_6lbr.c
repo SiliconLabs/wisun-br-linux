@@ -355,6 +355,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
     const struct fhss_ws_configuration *fhss_configuration = ns_fhss_ws_configuration_get(cur->ws_info->fhss_api);
+    uint32_t async_chan_mask[8];
     int length;
 
     if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)
@@ -394,11 +395,17 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
              length, tr_excl_channel_mask(hopping_schedule->bc_excluded_channels.channel_mask, hopping_schedule->number_of_channels),
              length, tr_channel_mask(fhss_configuration->broadcast_channel_mask, hopping_schedule->number_of_channels));
 
-    if (!hopping_schedule->uc_channel_function)
+    if (!hopping_schedule->uc_channel_function) {
         INFO("     async     %*s BIT(%d)", length, "--", hopping_schedule->uc_fixed_channel);
-    else
+    } else {
+        ws_common_generate_channel_list(cur, async_chan_mask,
+                                        hopping_schedule->number_of_channels,
+                                        hopping_schedule->regulatory_domain,
+                                        hopping_schedule->operating_class,
+                                        hopping_schedule->channel_plan_id);
         INFO("     async     %*s %*s", length, "--",
-             length, tr_channel_mask(fhss_configuration->unicast_channel_mask, hopping_schedule->number_of_channels));
+             length, tr_channel_mask(async_chan_mask, hopping_schedule->number_of_channels));
+    }
 }
 
 void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_s *event)
