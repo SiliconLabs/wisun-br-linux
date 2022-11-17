@@ -2740,8 +2740,6 @@ static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_requ
         async_req->channel_list.channel_mask[channel_number / 32] = 1u << (channel_number % 32);
     } else {
         ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
-        for (uint8_t n = 0; n < 8; n++)
-            async_req->channel_list.channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
         async_req->channel_list.next_channel_number = 0;
     }
 
