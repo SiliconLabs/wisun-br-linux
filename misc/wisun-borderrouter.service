@@ -10,6 +10,8 @@ After=freeradius.service
 BusName=com.silabs.Wisun.BorderRouter
 ExecStart=/usr/local/bin/wsbrd -F /etc/wsbrd.conf
 Restart=on-failure
+# Files created by wsbrd contain secrets, so remove read permissions
+UMask=0066
 
 [Install]
 WantedBy=multi-user.target
