@@ -523,7 +523,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
             // Removes key from MAC if installed
             if (nw_key[i].installed) {
-                controller->nw_key_clear(interface_ptr, i);
+                controller->nw_key_clear(interface_ptr, i + key_offset);
             }
             nw_key[i].installed = false;
             nw_key[i].set = false;
