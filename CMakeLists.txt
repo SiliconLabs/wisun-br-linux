@@ -113,9 +113,7 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/mac/mac_helper.c
     stack/source/6lowpan/mac/mac_ie_lib.c
     stack/source/6lowpan/mac/mac_response_handler.c
-    # Excluded stack/source/6lowpan/Mesh
     stack/source/6lowpan/nd/nd_router_object.c
-    # Excluded stack/source/6lowpan/Thread
     stack/source/6lowpan/ws/ws_bbr_api.c
     stack/source/6lowpan/ws/ws_bootstrap.c
     stack/source/6lowpan/ws/ws_bootstrap_6lbr.c
@@ -134,7 +132,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_pae_controller.c
     stack/source/6lowpan/ws/ws_pae_key_storage.c
     stack/source/6lowpan/ws/ws_pae_lib.c
-    # stack/source/6lowpan/ws/ws_pae_supp.c
     stack/source/6lowpan/ws/ws_pae_time.c
     stack/source/6lowpan/ws/ws_pae_timers.c
     stack/source/6lowpan/ws/ws_regulation.c
@@ -153,7 +150,6 @@ add_library(libwsbrd STATIC
     stack/source/net_api/net_rpl.c
     stack/source/net_api/net_interface.c
     stack/source/net_api/net_ipv6.c
-    # Excluded stack/source/mac/ieee802154
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
@@ -175,11 +171,8 @@ add_library(libwsbrd STATIC
     stack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
     stack/source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
     stack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
-    # stack/source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
     stack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
-    # stack/source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
     stack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
-    # stack/source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
     stack/source/security/protocols/key_sec_prot/key_sec_prot.c
     stack/source/security/protocols/msg_sec_prot/msg_sec_prot.c
     stack/source/security/protocols/radius_sec_prot/avp_helper.c
@@ -202,7 +195,6 @@ add_library(libwsbrd STATIC
     stack-services/common_functions.c
     stack-services/ip6string.c
     stack-services/ns_list.c
-    # Excluded stack-services/nvmHelper
 )
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -305,9 +297,7 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/mac/mac_helper.c
         stack/source/6lowpan/mac/mac_ie_lib.c
         stack/source/6lowpan/mac/mac_response_handler.c
-        # Excluded stack/source/6lowpan/Mesh
         stack/source/6lowpan/nd/nd_router_object.c
-        # Excluded stack/source/6lowpan/Thread
         stack/source/6lowpan/ws/ws_bootstrap.c
         stack/source/6lowpan/ws/ws_bootstrap_ffn.c
         stack/source/6lowpan/ws/ws_cfg_settings.c
@@ -321,7 +311,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/ws/ws_management_api.c
         stack/source/6lowpan/ws/ws_mpx_header.c
         stack/source/6lowpan/ws/ws_neighbor_class.c
-        # stack/source/6lowpan/ws/ws_pae_auth.c
         stack/source/6lowpan/ws/ws_pae_controller.c
         stack/source/6lowpan/ws/ws_pae_key_storage.c
         stack/source/6lowpan/ws/ws_pae_lib.c
@@ -353,7 +342,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/net_api/net_rpl.c
         stack/source/net_api/net_interface.c
         stack/source/net_api/net_ipv6.c
-        # Excluded stack/source/mac/ieee802154
         stack/source/mpl/mpl.c
         stack/source/nwk_interface/protocol_core.c
         stack/source/nwk_interface/protocol_stats.c
@@ -374,11 +362,8 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/security/pana/pana_eap_header.c
         stack/source/security/protocols/eap_tls_sec_prot/eap_tls_sec_prot_lib.c
         stack/source/security/protocols/eap_tls_sec_prot/radius_eap_tls_sec_prot.c
-        # stack/source/security/protocols/eap_tls_sec_prot/auth_eap_tls_sec_prot.c
         stack/source/security/protocols/eap_tls_sec_prot/supp_eap_tls_sec_prot.c
-        # stack/source/security/protocols/fwh_sec_prot/auth_fwh_sec_prot.c
         stack/source/security/protocols/fwh_sec_prot/supp_fwh_sec_prot.c
-        # stack/source/security/protocols/gkh_sec_prot/auth_gkh_sec_prot.c
         stack/source/security/protocols/gkh_sec_prot/supp_gkh_sec_prot.c
         stack/source/security/protocols/key_sec_prot/key_sec_prot.c
         stack/source/security/protocols/msg_sec_prot/msg_sec_prot.c
