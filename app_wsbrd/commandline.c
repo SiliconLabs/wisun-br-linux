@@ -704,10 +704,22 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "\"phy_mode_id\" and \"mode\" are mutually exclusive");
     if (config->ws_class && config->ws_chan_plan_id)
         FATAL(1, "\"chan_plan_id\" and \"class\" are mutually exclusive");
-    if (config->ws_mode & OPERATING_MODE_PHY_MODE_ID_BIT)
+    if (config->ws_mode & OPERATING_MODE_PHY_MODE_ID_BIT) {
         config->ws_phy_mode_id = config->ws_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
-    if (config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+        config->ws_mode = 0;
+    }
+    if (config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT) {
         config->ws_chan_plan_id = config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
+        config->ws_class = 0;
+    }
+    if (config->ws_class && config->ws_phy_mode_id)
+        WARN("mix FAN 1.1 PHY mode with FAN1.0 class");
+    if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
+        WARN("mix FAN 1.0 mode with FAN1.1 channel plan");
+    if (config->ws_class && config->ws_fan_version == WS_FAN_VERSION_1_1)
+        WARN("mix FAN 1.1 advertisements with a FAN 1.0 class");
+    if (config->ws_chan_plan_id && config->ws_fan_version == WS_FAN_VERSION_1_0)
+        WARN("mix FAN 1.0 advertisements with a FAN 1.1 channel plan");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
