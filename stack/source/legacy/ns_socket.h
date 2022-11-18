@@ -259,7 +259,6 @@ static inline socket_error_e socket_up(buffer_t *buf)
 
 static inline void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status)
 {
-    WARN();
 }
 
 static inline void socket_list_print(route_print_fn_t *print_fn, char sep)
@@ -269,7 +268,6 @@ static inline void socket_list_print(route_print_fn_t *print_fn, char sep)
 
 static inline buffer_t *socket_tx_buffer_event(buffer_t *buf, uint8_t status)
 {
-    WARN();
     return buf;
 }
 
@@ -281,12 +279,11 @@ static inline socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *l
 
 static inline socket_t *socket_reference(socket_t *socket)
 {
-    WARN();
     return NULL;
 }
+
 static inline socket_t *socket_dereference(socket_t *socket)
 {
-    WARN();
     return NULL;
 }
 
