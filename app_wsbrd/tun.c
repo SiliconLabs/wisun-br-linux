@@ -289,7 +289,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     return fd;
 }
 
-static void wbsr_sysctl_set(const char *path, const char *devname, const char *option, char wanted_value)
+static void wsbr_sysctl_set(const char *path, const char *devname, const char *option, char wanted_value)
 {
     char buf[256];
     char content;
@@ -363,10 +363,10 @@ void wsbr_tun_init(struct wsbr_ctxt *ctxt)
                                  strlen(ctxt->config.neighbor_proxy));
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA
     // but this API is not mapped in libnl-route.
-    wbsr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
+    wsbr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.tun_dev, "accept_ra", '0');
     if (strlen(ctxt->config.neighbor_proxy)) {
-        wbsr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
-        wbsr_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
+        wsbr_sysctl_set("/proc/sys/net/ipv6/conf", ctxt->config.neighbor_proxy, "proxy_ndp", '1');
+        wsbr_sysctl_set("/proc/sys/net/ipv6/neigh", ctxt->config.neighbor_proxy, "proxy_delay", '0');
     }
     wsbr_tun_mcast_init(&ctxt->sock_mcast, ctxt->config.tun_dev);
 }
