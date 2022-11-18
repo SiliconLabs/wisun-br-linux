@@ -78,8 +78,9 @@ const struct name_value valid_traces[] = {
     { "15.4-mngt", TR_15_4_MNGT },
     { "15.4",      TR_15_4_MNGT | TR_15_4_DATA },
     { "eap",       TR_EAP },
-    { "icmp-rf",   TR_ICMP_RF },
-    { "icmp-tun",  TR_ICMP_TUN },
+    { "icmp",      TR_ICMP },
+    { "icmp-rf",   TR_ICMP }, // legacy name
+    { "icmp-tun",  0 },       // legacy name
     { "dhcp",      TR_DHCP },
     { "timers",    TR_TIMERS },
     { NULL },

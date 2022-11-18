@@ -807,9 +807,9 @@ void trace_icmp(buffer_t *buf, bool is_rx)
             strncat(frame_type, " w/ aro",
                     sizeof(frame_type) - strlen(frame_type) - 1);
     if (is_rx)
-        TRACE(TR_ICMP_RF, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
+        TRACE(TR_ICMP, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
     else
-        TRACE(TR_ICMP_RF, "tx-icmp %-9s dst:%s", frame_type, tr_ipv6(buf->dst_sa.address));
+        TRACE(TR_ICMP, "tx-icmp %-9s dst:%s", frame_type, tr_ipv6(buf->dst_sa.address));
 }
 
 buffer_t *icmpv6_up(buffer_t *buf)
