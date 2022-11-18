@@ -126,9 +126,7 @@ typedef struct buffer_options {
     bool    multicast_loop: 1;          /*!< We want loopback if we're a group member (TX), or this IS the loopback if RX */
     bool    mpl_permitted: 1;           /*!< MPL will be used if enabled on interface and scope >=3 */
     bool    edfe_mode: 1;               /*!< Use Extended Directed Frame Exchange pattern in MAC layer */
-#ifdef HAVE_IPV6_FRAGMENT
     bool    ipv6_dontfrag: 1;           /*!< Don't IPv6 fragment (RFC 3542) */
-#endif
     signed  ipv6_use_min_mtu: 2;        /*!< Use minimum 1280-byte MTU (RFC 3542) - three settings +1, 0, -1 */
     uint8_t traffic_class;              /*!< Traffic class */
     int_least24_t flow_label;           /*!< IPv6 flow label; -1 means unspecified (may auto-generate); -2 means auto-generate required */

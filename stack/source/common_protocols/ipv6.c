@@ -313,11 +313,6 @@ uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit)
     return frag_size - ip_size;
 }
 
-#ifdef HAVE_IPV6_FRAGMENT
-#define ipv6_dontfrag(buf) buf->options.ipv6_dontfrag
-#else
-#define ipv6_dontfrag(buf) true
-#endif
 #ifdef HAVE_IPV6_PMTUD
 #define ipv6_use_min_mtu(buf) buf->options.ipv6_use_min_mtu
 #else
@@ -346,8 +341,7 @@ uint16_t ipv6_mtu(buffer_t *buf)
         return IPV6_MIN_LINK_MTU;
     }
 
-    bool dontfrag = ipv6_dontfrag(buf);
-    if (dontfrag) {
+    if (buf->options.ipv6_dontfrag) {
         return buf->interface->ipv6_neighbour_cache.link_mtu;
     } else {
         return buf->route->route_info.pmtu;
@@ -356,7 +350,11 @@ uint16_t ipv6_mtu(buffer_t *buf)
 
 static bool ipv6_fragmentation_needed(buffer_t *buf)
 {
+#ifdef HAVE_WS_BORDER_ROUTER
+    return false;
+#else
     return buffer_data_length(buf) > ipv6_mtu(buf);
+#endif
 }
 
 /* Input: IP payload. dst/src as source and final destination, type=NH, tclass set.
@@ -522,7 +520,7 @@ drop:
 
     /* Divert to fragmentation if necessary */
     if (ipv6_fragmentation_needed(buf)) {
-        if (ipv6_dontfrag(buf)) {
+        if (buf->options.ipv6_dontfrag) {
             tr_debug("Packet too big");
             goto drop;
         } else {
