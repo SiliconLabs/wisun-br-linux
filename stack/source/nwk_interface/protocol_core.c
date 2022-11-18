@@ -622,8 +622,6 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, st
         switch (cur->bootstrap_mode) {
 
             case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
-            case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_HOST:
-            case ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER:
                 break;
 
             default:
