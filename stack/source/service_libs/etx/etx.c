@@ -402,9 +402,9 @@ static uint16_t etx_current_calc(uint16_t etx, uint8_t accumulated_failures)
  * \return 0 not 6LowPAN interface
  * \return 1 success
  */
-uint8_t etx_value_change_callback_register(nwk_interface_id_e nwk_id, int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr)
+uint8_t etx_value_change_callback_register(int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr)
 {
-    if ((nwk_id == IF_6LoWPAN) && hysteresis && callback_ptr) {
+    if (hysteresis && callback_ptr) {
         etx_info.hysteresis = hysteresis << 4;
         etx_info.callback_ptr = callback_ptr;
         etx_info.interface_id = interface_id;
@@ -640,7 +640,7 @@ void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index, const uin
 
 void etx_cache_timer(int seconds_update)
 {
-    struct net_if *interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface = protocol_stack_interface_info_get();
 
     if (!etx_info.cache_sample_requested) {
         return;

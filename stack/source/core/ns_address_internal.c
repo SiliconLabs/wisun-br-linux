@@ -694,7 +694,7 @@ void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr)
 /* ticks is in 1/10s */
 void addr_fast_timer(int ticks)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     /* Fast timers only run while the interface is active. */
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
@@ -760,7 +760,7 @@ void addr_fast_timer(int ticks)
 
 void addr_slow_timer(int seconds)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     /* Slow (lifetime) timers run whether the interface is active or not */
     ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
@@ -1191,7 +1191,7 @@ int8_t addr_interface_get_ll_address(struct net_if *cur, uint8_t *address_ptr, u
 
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
         if (!e->tentative && addr_is_ipv6_link_local(e->address)) {
-            if (cur->nwk_id == IF_6LoWPAN && memcmp(e->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
+            if (memcmp(e->address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
                 short_addr = e->address;
             } else {
                 long_addr = e->address;

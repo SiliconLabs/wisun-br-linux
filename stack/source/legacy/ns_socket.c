@@ -1478,7 +1478,7 @@ struct net_if *socket_interface_determine(const socket_t *socket_ptr, buffer_t *
 
     /* Realm-local scope or lower now chooses an interface - 6LoWPAN default */
     if (addr_ipv6_scope(buf->dst_sa.address, NULL) <= IPV6_SCOPE_REALM_LOCAL) {
-        buf->interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+        buf->interface = protocol_stack_interface_info_get();
         if (buf->interface) {
             return buf->interface;
         }

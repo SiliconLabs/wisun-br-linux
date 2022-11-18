@@ -83,7 +83,7 @@ static void protocol_6lowpan_nd_ready(struct net_if *cur)
 static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
 {
     nd_router_t *cur;
-    cur = nd_get_object_by_nwk_id(cur_interface->nwk_id);
+    cur = nd_get_object_by_nwk_id();
 
     if (!cur) {
         return;
@@ -136,9 +136,9 @@ void protocol_6lowpan_bootstrap_re_start(struct net_if *interface)
     tr_info("-->Bootstrap");
 }
 
-uint8_t *protocol_6lowpan_nd_border_router_address_get(nwk_interface_id_e nwk_id)
+uint8_t *protocol_6lowpan_nd_border_router_address_get()
 {
-    nd_router_t   *object = nd_get_object_by_nwk_id(nwk_id);
+    nd_router_t   *object = nd_get_object_by_nwk_id();
     if (object) {
         return object->border_router;
     }

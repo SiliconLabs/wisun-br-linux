@@ -60,7 +60,6 @@ typedef struct nd_router_next_hop {
 // ourselves as a border router, with some confusing effects on lifetimes
 // (we're in danger of timing ourselves out as a border router)
 typedef struct nd_router {
-    nwk_interface_id_e nwk_id;
     uint8_t border_router[16];
     uint8_t flags;
     uint16_t life_time;

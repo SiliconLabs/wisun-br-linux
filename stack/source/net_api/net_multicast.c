@@ -146,7 +146,7 @@ int8_t multicast_mpl_domain_unsubscribe(int8_t interface_id,
 
 void multicast_set_parameters(uint8_t i_min, uint8_t i_doublings, uint8_t k, uint8_t timer_expirations, uint16_t window_expiration)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
     if (!cur) {
         return;
     }
@@ -202,7 +202,7 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle)
     //    1) Make sure MPL is enabled on 6LoWPAN by creating the ff03::fc domain
     //    2) Subscribe to that MPL domain if Realm Local and not acting as single domain
     //       (If larger scope, then we don't create a domain, we tunnel in ff03::fc)
-    struct net_if *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *lowpan = protocol_stack_interface_info_get();
 
     if (lowpan) {
         if (use_trickle && !lowpan->mpl_seed) {
@@ -223,7 +223,7 @@ uint8_t multicast_add_address(const uint8_t *address_ptr, uint8_t use_trickle)
 uint8_t multicast_free_address(const uint8_t *address_ptr)
 {
     // Hacky hack
-    struct net_if *lowpan = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *lowpan = protocol_stack_interface_info_get();
     if (lowpan) {
         /* First try to delete from MPL - if that fails, delete as plain group */
         if (multicast_mpl_domain_unsubscribe(lowpan->id, address_ptr) < 0)

@@ -752,7 +752,7 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
 
 void ipv6_neighbour_cache_slow_timer(int seconds)
 {
-    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get(IF_6LoWPAN)->ipv6_neighbour_cache;
+    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
         if (cur->lifetime == 0 || cur->lifetime == 0xffffffff) {
@@ -793,7 +793,7 @@ void ipv6_neighbour_cache_slow_timer(int seconds)
 
 void ipv6_neighbour_cache_fast_timer(int ticks)
 {
-    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get(IF_6LoWPAN)->ipv6_neighbour_cache;
+    ipv6_neighbour_cache_t *cache = &protocol_stack_interface_info_get()->ipv6_neighbour_cache;
     uint32_t ms = (uint32_t) ticks * 100;
 
     ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {

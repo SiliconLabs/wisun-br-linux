@@ -47,7 +47,7 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_in
 static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if *cur_interface);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix, nwk_interface_id_e nwk_id);
+static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface);
@@ -173,16 +173,14 @@ static void nd_router_remove(nd_router_t *router, struct net_if *interface)
     }
 }
 
-nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interface_id_e nwk_id)
+nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router)
 {
     nd_router_t *new_entry = 0;
     uint_fast8_t count = 0;
 
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nwk_id == nwk_id) {
-            if (memcmp(cur->border_router, border_router, 16) == 0) {
-                return cur;
-            }
+        if (memcmp(cur->border_router, border_router, 16) == 0) {
+            return cur;
         }
         ++count;
     }
@@ -198,7 +196,6 @@ nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router, nwk_interfa
     }
 
     new_entry->nd_state = ND_READY;
-    new_entry->nwk_id = nwk_id;
     nd_router_base_init(new_entry);
     memcpy(new_entry->border_router, border_router, 16);
     new_entry->trig_address_reg = false;
@@ -354,12 +351,12 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
             tr_debug("State Timer CB");
             if (interface->if_6lowpan_dad_process.active) {
                 if (memcmp(addr->address, interface->if_6lowpan_dad_process.address, 16) == 0) {
-                    cur = nd_get_object_by_nwk_id(interface->nwk_id);
+                    cur = nd_get_object_by_nwk_id();
                 } else {
                     addr->state_timer = 5;
                 }
             } else {
-                cur = nd_get_object_by_nwk_id(interface->nwk_id);
+                cur = nd_get_object_by_nwk_id();
                 if (cur) {
                     interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
                     interface->if_6lowpan_dad_process.active = true;
@@ -967,7 +964,7 @@ RESPONSE:
     } else { /* Non-border router and multihop DAD: relay as DAR to Border Router */
         nd_router_t *nd_router_obj = 0;
 
-        nd_router_obj = nd_router_object_scan_by_prefix(src_addr, cur_interface->nwk_id);
+        nd_router_obj = nd_router_object_scan_by_prefix(src_addr);
         if (!nd_router_obj) {
             /* Don't know where to send this. Do we say "yay" or "nay"? */
             /* For now, ignore ARO, as with old code; don't set aro_out.present */
@@ -1060,7 +1057,7 @@ bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, 
     dptr += 4;
     //If Border Router boot is state
 
-    router = icmp_nd_router_object_get(dptr, buf->interface->nwk_id);
+    router = icmp_nd_router_object_get(dptr);
     if (!router) {
         return true;
     }
@@ -1274,16 +1271,6 @@ void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, struct net_if
     }
 }
 
-
-void nd_trigger_ras_from_rs(const uint8_t *unicast_adr, struct net_if *cur_interface)
-{
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nwk_id != cur_interface->nwk_id) {
-            tr_error("BIND_CONFIRM FAIL!!");
-        }
-    }
-}
-
 void nd_ns_forward_timer_reset(uint8_t *root_adr)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
@@ -1310,7 +1297,7 @@ static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
     }
 
     cur->ns_forward_timer = 0;
-    cur_interface = protocol_stack_interface_info_get(cur->nwk_id);
+    cur_interface = protocol_stack_interface_info_get();
     if (cur_interface) {
         if (cur->nd_re_validate > 10) {
             tr_debug("TRIG NS/ND");
@@ -1334,13 +1321,11 @@ ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16])
     return NULL;
 }
 
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr, nwk_interface_id_e nwk_id)
+static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nwk_id == nwk_id) {
-            if (icmpv6_prefix_compare(&cur->prefix_list, ptr, 64)) {
-                return cur;
-            }
+        if (icmpv6_prefix_compare(&cur->prefix_list, ptr, 64)) {
+            return cur;
         }
     }
 
@@ -1490,24 +1475,21 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_in
 
 void nd_object_timer(int ticks_update)
 {
-    struct net_if *cur_interface = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur_interface = protocol_stack_interface_info_get();
 
     if (!(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
 
     ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {
         /* This may nd_router_remove(cur), so need to use safe loop */
-        if (cur_interface->nwk_id == cur->nwk_id) {
+        nd_router_forward_timer(cur, ticks_update);
 
-            nd_router_forward_timer(cur, ticks_update);
-
-            if (nd_is_ready_state(cur->nd_state)) {
-                nd_router_ready_timer(cur, cur_interface, ticks_update);
-            } else {
-                nd_router_bootstrap_timer(cur, cur_interface, ticks_update);
-            }
-            return;
+        if (nd_is_ready_state(cur->nd_state)) {
+            nd_router_ready_timer(cur, cur_interface, ticks_update);
+        } else {
+            nd_router_bootstrap_timer(cur, cur_interface, ticks_update);
         }
+        return;
     }
 }
 
@@ -1593,15 +1575,12 @@ int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, struct net_if *cur_int
     return -1;
 }
 
-nd_router_t *nd_get_object_by_nwk_id(nwk_interface_id_e nwk_id)
+nd_router_t *nd_get_object_by_nwk_id()
 {
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nwk_id == nwk_id) {
-            return cur;
-        }
-    }
+    ns_list_foreach(nd_router_t, cur, &nd_router_list)
+        return cur;
 
-    return 0;
+    return NULL;
 }
 
 nd_router_t *nd_get_pana_address(void)

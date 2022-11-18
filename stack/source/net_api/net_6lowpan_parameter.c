@@ -41,7 +41,7 @@
  */
 int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *p)
 {
-    if (protocol_stack_interface_info_get(IF_6LoWPAN)) {
+    if (protocol_stack_interface_info_get()) {
         return -2;
     }
 

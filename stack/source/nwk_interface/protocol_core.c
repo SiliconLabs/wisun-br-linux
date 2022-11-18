@@ -79,7 +79,7 @@ typedef struct lowpan_core_timer_structures {
 protocol_interface_list_t NS_LIST_NAME_INIT(protocol_interface_info_list);
 
 // maximum value of nwk_interface_id_e is 1
-struct net_if protocol_interface_info[2];
+struct net_if protocol_interface_info;
 
 /** Cores Power Save Varibale whic indicate States  */
 volatile uint8_t power_save_state =  0;
@@ -145,7 +145,7 @@ void protocol_root_tasklet(arm_event_t *event)
 
 void nwk_bootstrap_timer(int ticks)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -156,7 +156,7 @@ void nwk_bootstrap_timer(int ticks)
 
 void icmp_fast_timer(int ticks)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     /* This gives us the RFC 4443 default (10 tokens/s, bucket size 10) */
     cur->icmp_tokens += ticks;
@@ -167,7 +167,7 @@ void icmp_fast_timer(int ticks)
 
 void update_reachable_time(int seconds)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     if (cur->reachable_time_ttl > seconds) {
         cur->reachable_time_ttl -= seconds;
@@ -251,14 +251,9 @@ uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_
 }
 
 
-static void protocol_core_base_init(struct net_if *entry, nwk_interface_id_e nwk_id)
+static void protocol_core_base_init(struct net_if *entry)
 {
-    entry->nwk_id = nwk_id;
-    switch (nwk_id) {
-        default:
-            entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
-            break;
-    }
+    entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
     entry->bootStrapId = -1;
     entry->lowpan_address_mode = NET_6LOWPAN_GP64_ADDRESS;
     entry->if_ns_transmit = NULL;
@@ -313,9 +308,9 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     ns_list_init(&entry->ipv6_neighbour_cache.list);
 }
 
-static struct net_if *protocol_interface_class_allocate(nwk_interface_id_e nwk_id)
+static struct net_if *protocol_interface_class_allocate()
 {
-    struct net_if *entry = &protocol_interface_info[nwk_id];
+    struct net_if *entry = &protocol_interface_info;
     int id = net_interface_get_free_id();
 
     memset(entry, 0, sizeof(struct net_if));
@@ -324,7 +319,7 @@ static struct net_if *protocol_interface_class_allocate(nwk_interface_id_e nwk_i
     entry->zone_index[IPV6_SCOPE_INTERFACE_LOCAL] = id;
     entry->zone_index[IPV6_SCOPE_LINK_LOCAL] = id;
     entry->zone_index[IPV6_SCOPE_REALM_LOCAL] = id;
-    protocol_core_base_init(entry, nwk_id);
+    protocol_core_base_init(entry);
     return entry;
 }
 
@@ -333,7 +328,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     if (!api) {
         return NULL;
     }
-    struct net_if *entry = protocol_interface_class_allocate(IF_6LoWPAN);
+    struct net_if *entry = protocol_interface_class_allocate();
     if (!entry) {
         return NULL;
     }
@@ -388,7 +383,6 @@ static void protocol_6lowpan_mac_set(struct net_if *cur, const uint8_t *mac)
 
 static void protocol_stack_interface_iid_eui64_generate(struct net_if *cur, const uint8_t *mac)
 {
-    BUG_ON(cur->nwk_id != IF_6LoWPAN);
     protocol_6lowpan_mac_set(cur, mac);
     //By default use this EUI-64-based IID for SLAAC
     memcpy(cur->iid_slaac, cur->iid_eui64, 8);
@@ -408,12 +402,10 @@ void nwk_interface_flush_neigh_cache(void)
     }
 }
 
-struct net_if *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id)
+struct net_if *protocol_stack_interface_info_get()
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-    if (cur->nwk_id == nwk_id) {
         return cur;
-    }
 
     return NULL;
 }
@@ -657,10 +649,8 @@ void net_bootstrap_cb_run(uint8_t event)
     struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
 
     if (cur) {
-        if (cur->nwk_id == IF_6LoWPAN) {
-            //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
-            ws_common_state_machine(cur);
-        }
+        //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
+        ws_common_state_machine(cur);
     }
 }
 

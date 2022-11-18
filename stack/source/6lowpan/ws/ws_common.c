@@ -201,7 +201,7 @@ void ws_common_state_machine(struct net_if *cur)
 
 void ws_common_seconds_timer(int seconds)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
@@ -216,7 +216,7 @@ void ws_common_seconds_timer(int seconds)
 
 void ws_common_fast_timer(int ticks)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;

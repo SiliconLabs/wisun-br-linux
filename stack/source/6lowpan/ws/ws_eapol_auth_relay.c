@@ -61,7 +61,7 @@ static eapol_auth_relay_t *g_eapol_auth_relay;
 
 int ws_eapol_auth_relay_get_socket_fd()
 {
-    struct net_if *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get();
     eapol_auth_relay_t *eapol_auth_relay = ws_eapol_auth_relay_get(interface_ptr);
     if (eapol_auth_relay)
         return eapol_auth_relay->socket_id;

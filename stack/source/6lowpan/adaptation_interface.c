@@ -1111,7 +1111,7 @@ bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur)
 
 void lowpan_adaptation_interface_slow_timer(int seconds)
 {
-    struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *cur = protocol_stack_interface_info_get();
     fragmenter_interface_t *interface_ptr;
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE))

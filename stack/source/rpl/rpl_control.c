@@ -527,7 +527,7 @@ void rpl_control_set_domain_on_interface(struct net_if *cur, rpl_domain_t *domai
     }
     /* This is a bit icky - why assume that our Objective Functions use ETX? */
     /* But this is the easiest place to add an interface registration */
-    etx_value_change_callback_register(cur->nwk_id, cur->id,  rpl_policy_etx_hysteresis(domain), rpl_control_etx_change_callback);
+    etx_value_change_callback_register(cur->id, rpl_policy_etx_hysteresis(domain), rpl_control_etx_change_callback);
 }
 
 void rpl_control_remove_domain_from_interface(struct net_if *cur)
@@ -1887,7 +1887,7 @@ void rpl_control_slow_timer(int seconds)
     if ((rpl_print_timer += seconds) >= 50) {
         rpl_print_timer = 0;
         void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...));
-        struct net_if *cur = protocol_stack_interface_info_get(IF_6LoWPAN);
+        struct net_if *cur = protocol_stack_interface_info_get();
         if (cur) {
             ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache, trace_info_print);
         }

@@ -217,7 +217,6 @@ typedef struct ipv6_ra_timing {
 } ipv6_ra_timing_t;
 
 struct net_if {
-    nwk_interface_id_e nwk_id;
     int8_t id;
     int8_t bootStrapId;
     uint8_t zone_index[16];
@@ -334,7 +333,7 @@ void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface
 
 uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
-struct net_if *protocol_stack_interface_info_get(nwk_interface_id_e nwk_id);
+struct net_if *protocol_stack_interface_info_get();
 bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
 struct net_if *protocol_stack_interface_generate_lowpan(struct mac_api *api);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);

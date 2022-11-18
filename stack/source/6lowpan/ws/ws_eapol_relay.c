@@ -69,7 +69,7 @@ static eapol_relay_t * g_eapol_relay = NULL;
 
 int ws_eapol_relay_get_socket_fd()
 {
-    struct net_if *interface_ptr = protocol_stack_interface_info_get(IF_6LoWPAN);
+    struct net_if *interface_ptr = protocol_stack_interface_info_get();
     eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
     if (eapol_relay)
         return eapol_relay->socket_id;

@@ -605,9 +605,6 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
             addr_generate_opaque_iid(cur, ipv6_address);
             break;
         case SLAAC_IID_6LOWPAN_SHORT:
-            if (cur->nwk_id != IF_6LoWPAN) {
-                return NULL;
-            }
             memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
             common_write_16_bit(cur->lowpan_desired_short_address, ipv6_address + 14);
             break;
@@ -798,14 +795,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { NULL },
     };
     char frame_type[40] = "";
-    int trace_domain;
 
-    if (buf->interface->nwk_id == IF_6LoWPAN) {
-        trace_domain = TR_ICMP_RF;
-    } else {
-        strncat(frame_type, "(tun) ", sizeof(frame_type) - strlen(frame_type) - 1);
-        trace_domain = TR_ICMP_TUN;
-    }
     strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"),
             sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL)
@@ -817,9 +807,9 @@ void trace_icmp(buffer_t *buf, bool is_rx)
             strncat(frame_type, " w/ aro",
                     sizeof(frame_type) - strlen(frame_type) - 1);
     if (is_rx)
-        TRACE(trace_domain, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
+        TRACE(TR_ICMP_RF, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
     else
-        TRACE(trace_domain, "tx-icmp %-9s dst:%s", frame_type, tr_ipv6(buf->dst_sa.address));
+        TRACE(TR_ICMP_RF, "tx-icmp %-9s dst:%s", frame_type, tr_ipv6(buf->dst_sa.address));
 }
 
 buffer_t *icmpv6_up(buffer_t *buf)
@@ -928,20 +918,16 @@ buffer_t *icmpv6_up(buffer_t *buf)
 #ifdef HAVE_WS_BORDER_ROUTER
         case ICMPV6_TYPE_INFO_DAR:
 
-            if (cur->nwk_id == IF_6LoWPAN) {
-                if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                    buf = nd_dar_parse(buf, cur);
-                    break;
-                }
+            if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+                buf = nd_dar_parse(buf, cur);
+                break;
             }
             goto drop;
 #endif
         case ICMPV6_TYPE_INFO_DAC:
-            if (cur->nwk_id == IF_6LoWPAN) {
-                if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) {
-                    buf = nd_dac_handler(buf, cur);
-                    break;
-                }
+            if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) {
+                buf = nd_dac_handler(buf, cur);
+                break;
             }
             goto drop;
 
