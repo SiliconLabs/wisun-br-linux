@@ -314,9 +314,6 @@ uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr
     }
 
     uint8_t attribute_index;
-    if (interface->nwk_id == IF_IPV6) {
-        return 1;
-    }
 
     //Must Support old MLE table and new still same time
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), addr_ptr + PAN_ID_LEN, addr_type);

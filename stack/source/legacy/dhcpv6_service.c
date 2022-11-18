@@ -310,7 +310,6 @@ void recv_dhcp_server_msg()
     uint8_t msg_type;
     struct sockaddr_in6 src_addr;
     socklen_t src_addr_len = sizeof(struct sockaddr_in6);
-    relay_notify_t *neigh_notify = NULL;
 
     msg_tr_ptr = dhcp_tr_create();
     msg_ptr = msg;
@@ -343,9 +342,6 @@ void recv_dhcp_server_msg()
     } else if (msg_type == DHCPV6_RELAY_REPLY) {
         tr_error("Relay reply drop at server");
         goto cleanup;
-    } else {
-        //Search only for direct messages here
-        neigh_notify = dhcp_service_notify_find(IF_IPV6);
     }
 
     //TODO use real function from lib also call validity check
@@ -356,25 +352,7 @@ void recv_dhcp_server_msg()
         goto cleanup;
     }
 
-    if (neigh_notify && neigh_notify->recv_notify_cb) {
-        neigh_notify->recv_notify_cb(IF_IPV6, msg_tr_ptr->addr.address);
-    }
-
     msg_tr_ptr->socket = dhcp_service->dhcp_server_socket;
-    // call all receivers until found.
-    ns_list_foreach(server_instance_t, cur_ptr, &dhcp_service->srv_list) {
-        if (cur_ptr->interface_id == IF_IPV6 && cur_ptr->recv_req_cb != NULL) {
-            msg_tr_ptr->instance_id = cur_ptr->instance_id;
-            msg_tr_ptr->interface_id = IF_IPV6;
-            if ((RET_MSG_ACCEPTED ==
-                    cur_ptr->recv_req_cb(cur_ptr->instance_id, msg_tr_ptr->msg_tr_id, msg_type, msg_ptr + 4, msg_len - 4))) {
-                // should not modify pointers but library requires.
-                msg_tr_ptr = NULL;
-                srv_ptr = cur_ptr;
-                break;
-            }
-        }
-    }
 
 cleanup:
     dhcp_tr_delete(msg_tr_ptr);

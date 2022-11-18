@@ -1482,10 +1482,6 @@ struct net_if *socket_interface_determine(const socket_t *socket_ptr, buffer_t *
         if (buf->interface) {
             return buf->interface;
         }
-        buf->interface = protocol_stack_interface_info_get(IF_IPV6);
-        if (buf->interface) {
-            return buf->interface;
-        }
         return NULL;
     }
 

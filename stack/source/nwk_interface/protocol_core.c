@@ -255,9 +255,6 @@ static void protocol_core_base_init(struct net_if *entry, nwk_interface_id_e nwk
 {
     entry->nwk_id = nwk_id;
     switch (nwk_id) {
-        case IF_IPV6:
-            entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_ETHERNET_ROUTER;
-            break;
         default:
             entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
             break;
@@ -663,8 +660,6 @@ void net_bootstrap_cb_run(uint8_t event)
         if (cur->nwk_id == IF_6LoWPAN) {
             //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
             ws_common_state_machine(cur);
-        } else if (cur->nwk_id == IF_IPV6) {
-            //IPV6 Bootstrap Run
         }
     }
 }

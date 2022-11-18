@@ -30,7 +30,6 @@ struct fhss_api;
 /** Network interface IDs. */
 typedef enum nwk_interface_id {
     IF_6LoWPAN,
-    IF_IPV6,
 } nwk_interface_id_e;
 
 extern int protocol_core_buffers_in_event_queue;
