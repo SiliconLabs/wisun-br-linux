@@ -83,6 +83,17 @@ file provided in `examples/mbedtls-config.h`:
 > This configuration file has been written for `mbedtls` 3.0. Adapt it if
 > necessary.
 
+Optionally, `wsbrd` can be compiled with supports for [Silabs
+CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC
+library:
+
+    git clone https://github.com/SiliconLabs/cpc_daemon.git
+    cd cpc_daemon
+    cmake -S . -B build -G Ninja
+    ninja -C build
+    sudo ninja -C build install
+    sudo ldconfig
+
 Then, you can compile `wsbrd` with:
 
     cd wisun-br-linux/
@@ -296,11 +307,11 @@ Under the hood, when `neighbor_proxy` is in use:
      (`/proc/sys/net/ipv6/neigh/*/proxy_delay`) is set to 0.
 
 
-[1]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
+[9]: https://docs.kernel.org/networking/ip-sysctl.html#proc-sys-net-ipv6-variables
 
 # Bugs and Limitations
 
-## Should I use CPC and plain UART?
+## Should I use CPC or plain UART?
 
 CPC protocol relies on an external service (CPCd). So plain UART allows an
 easier integration for simple setups. However, CPC offers some features:
