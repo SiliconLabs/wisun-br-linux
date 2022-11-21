@@ -1,5 +1,35 @@
 # D-Bus API documentation
 
+## Methods
+
+### `SetModeSwitch` (`ayi`)
+
+There are 2 ways to configure mode switch, either global or per neighbor. Each
+neighbor can either use the global config, or a node-specific setting.
+
+- `ay`: EUI-64 of a neighbor node on which to configure mode switch, or empty
+  array to set the global config
+- `i`: one of
+  - PHY mode ID (positive value)
+  - `0` to use the global mode switch config (only makes sense when an EUI-64
+    is specified)
+  - `-1` to disable mode switch
+
+Example:
+
+    # Configure global mode switch config with PHY mode ID 84
+    SetModeSwitch 0 84
+
+    # Configure neighbor 00:00:5e:ef:10:00:00:00 to use PHY mode ID 85 instead
+    # of global config
+    SetModeSwitch 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 85
+
+    # Disable mode switch on neighbor 00:00:5e:ef:10:00:00:01
+    SetModeSwitch 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x01 -1
+
+    # Reset neighbor 00:00:5e:ef:10:00:00:00 mode switch to global
+    SetModeSwitch 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 0
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)
