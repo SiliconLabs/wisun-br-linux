@@ -38,6 +38,15 @@ disabled by default.
 
 - `y`: `0` for disabled, `1` for enabled
 
+### `JoinMulticastGroup` and `LeaveMulticastGroup` (`ay`)
+
+In order to send or receive multicast traffic from outside the Wi-SUN network,
+this API must be used to join the appropriate multicast group (appart for the
+mandatory Wi-SUN multicast group subscriptions `ff02::1`, `ff02::2`,
+`ff02::1a`, `ff03::1`, `ff03::2` and `ff03::fc`)
+
+- `ay`: IPv6 multicast address
+
 ### `RevokeNode` (`ay`)
 
 Remove the Pairwise Transient Key (PTK) and Pairwise Master Key (PMK)
