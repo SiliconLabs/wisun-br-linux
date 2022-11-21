@@ -116,24 +116,11 @@ Finally, launch `wsbrd` with:
 
 `wsbrd` lists the useful options in the output of `wsbrd --help`.
 
-# Using `wsbrd_cli` and the DBus Interface
+# Using `wsbrd_cli` and the D-Bus Interface
 
-`wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network. Its
-usage is described in output of `wsbrd_cli --help`.
-
-`wsbrd_cli` relies on the DBus interface provided by `wsbrd`. You can use a
-generic DBus tool like [`busctl`][3] to communicate with `wsbrd`. Typically, the
-following command gives an overview of the DBus interface:
-
-    busctl introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
-
-DBus bindings are available in [all][4] [common][5] [languages][6].
-
-[3]: https://www.freedesktop.org/software/systemd/man/busctl.html
-[4]: https://www.freedesktop.org/software/systemd/man/sd-bus.html
-[5]: https://python-sdbus.readthedocs.io/
-[6]: https://www.npmjs.com/package/dbus-next
-
+`wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network.
+Its usage is described in output of `wsbrd_cli --help`. The tool relies relies on
+the D-Bus interface provided by `wsbrd`, which is described in `DBUS.md`.
 
 # Generating the Wi-SUN Public Key Infrastructure
 

@@ -1,5 +1,19 @@
 # D-Bus API documentation
 
+`wsbrd` provides a D-Bus API to allow other processes to interact with it. A
+generic tool like [`busctl`][3] can be used to communicate. Typically, the
+following command gives an overview of the D-Bus interface:
+
+    busctl introspect com.silabs.Wisun.BorderRouter /com/silabs/Wisun/BorderRouter
+
+D-Bus bindings are available in [all][4] [common][5] [languages][6] to build an
+application.
+
+[3]: https://www.freedesktop.org/software/systemd/man/busctl.html
+[4]: https://www.freedesktop.org/software/systemd/man/sd-bus.html
+[5]: https://python-sdbus.readthedocs.io/
+[6]: https://www.npmjs.com/package/dbus-next
+
 ## Methods
 
 ### `SetModeSwitch` (`ayi`)
