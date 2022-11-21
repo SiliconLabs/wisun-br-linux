@@ -24,6 +24,10 @@ Returns a list of the 4 Group Transient (or Temporal) Keys (GTKs) or Group AES
 Keys (GAKs) used in the network. A signal is emitted upon change. Refer to the
 Wi-SUN FAN and IEEE 802.11 specifications for more details.
 
+### `HwAddress` (`ay`)
+
+EUI64 (MAC address) of the RCP
+
 ### Wi-SUN configuration
 
 The following properties return the corresponding value set during
