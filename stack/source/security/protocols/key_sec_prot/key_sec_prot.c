@@ -308,8 +308,7 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
         if (kde_gtkl_read(kde, kde_len, &gtkl) >= 0) {
             prot->sec_keys->gtks.gtkl = gtkl;
         } else {
-            tr_error("no GTKL");
-            return -1;
+            prot->sec_keys->gtks.gtkl = 0;
         }
 
         // Get the Node Role that supplicant indicates
