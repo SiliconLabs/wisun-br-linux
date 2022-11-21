@@ -313,11 +313,7 @@ uint16_t ipv6_max_unfragmented_payload(buffer_t *buf, uint16_t mtu_limit)
     return frag_size - ip_size;
 }
 
-#ifdef HAVE_IPV6_PMTUD
 #define ipv6_use_min_mtu(buf) buf->options.ipv6_use_min_mtu
-#else
-#define ipv6_use_min_mtu(buf) 1
-#endif
 
 /* Return the IPV6 MTU to use for a buffer to a specified final destination.
  * Gives result of Path MTU discovery, unless this is deactivated by
