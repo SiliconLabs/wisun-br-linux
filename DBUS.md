@@ -30,6 +30,14 @@ Example:
     # Reset neighbor 00:00:5e:ef:10:00:00:00 mode switch to global
     SetModeSwitch 8 0x00 0x00 0x5e 0xef 0x10 0x00 0x00 0x00 0
 
+### `SetSlotAlgorithm` (`y`)
+
+The slot algorithm is an experimental feature that tries to avoid collisions
+during radio transmission at the expense of additional latency. It is
+disabled by default.
+
+- `y`: `0` for disabled, `1` for enabled
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)
