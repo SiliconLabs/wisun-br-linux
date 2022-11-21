@@ -38,6 +38,19 @@ disabled by default.
 
 - `y`: `0` for disabled, `1` for enabled
 
+### `RevokeNode` (`ay`)
+
+Remove the Pairwise Transient Key (PTK) and Pairwise Master Key (PMK)
+associated with the node. Call `RevokeApply` to complete the revocation
+process.
+
+- `ay`: 64 bit MAC address of the node to be revoked
+
+### `RevokeApply`
+
+Transition to a new Group Transient Key (GTK) as described in Wi-SUN FAN
+specification section 6.5.2.5.
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)
