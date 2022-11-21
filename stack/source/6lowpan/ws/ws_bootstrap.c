@@ -1230,83 +1230,50 @@ void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_e
     ns_list_add_to_end(&cur->ws_info->parent_list_reserved, new_entry);
 }
 
-static bool ws_channel_plan_zero_compare(ws_channel_plan_zero_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
+static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
+                                    ws_hopping_schedule_t *hopping_schedule)
 {
-    const struct chan_params *chan_params;
-    uint8_t channel_plan_id;
+    ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
+    ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
+    ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
+    int plan_nr = rx_plan->channel_plan;
+    const struct chan_params *parms = NULL;
 
-    // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
-    // non standard extension
-    if (rx_plan->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
-        channel_plan_id = rx_plan->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
-    else
-        channel_plan_id = 255;
-
-    chan_params = ws_regdb_chan_params(rx_plan->regulatory_domain, channel_plan_id, rx_plan->operating_class);
-    if (chan_params) {
-        return chan_params->chan0_freq == hopping_schedule->ch0_freq
-            && ws_regdb_chan_spacing_id(chan_params->chan_spacing) == hopping_schedule->channel_spacing
-            && chan_params->chan_count == hopping_schedule->number_of_channels;
-    } else {
-        return rx_plan->regulatory_domain == hopping_schedule->regulatory_domain
-            && rx_plan->operating_class == hopping_schedule->operating_class;
+    if (plan_nr == 1)
+        return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
+               plan1->channel_spacing == hopping_schedule->channel_spacing &&
+               plan1->number_of_channel == hopping_schedule->number_of_channels;
+    if (plan_nr == 0) {
+        // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
+        // non standard extension
+        if (plan0->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
+            parms = ws_regdb_chan_params(plan0->regulatory_domain,
+                                         plan0->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK, 0);
+        else
+            parms = ws_regdb_chan_params(plan0->regulatory_domain,
+                                         0, plan0->operating_class);
     }
-}
-
-static bool ws_channel_plan_one_compare(ws_channel_plan_one_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
-{
-    return rx_plan->ch0 * 1000 == hopping_schedule->ch0_freq
-        && rx_plan->channel_spacing == hopping_schedule->channel_spacing
-        && rx_plan->number_of_channel == hopping_schedule->number_of_channels;
-}
-
-static bool ws_channel_plan_two_compare(ws_channel_plan_two_t *rx_plan, ws_hopping_schedule_t *hopping_schedule)
-{
-    if (rx_plan->channel_plan_id != hopping_schedule->channel_plan_id) {
-        return false;
-    } else if (rx_plan->regulatory_domain != hopping_schedule->regulatory_domain) {
+    if (plan_nr == 2)
+        parms = ws_regdb_chan_params(plan2->regulatory_domain,
+                                     plan2->channel_plan_id, 0);
+    if (!parms) {
+        ERROR("invalid channel plan");
         return false;
     }
-    return true;
+    return parms->chan0_freq == hopping_schedule->ch0_freq &&
+           parms->chan_count == hopping_schedule->number_of_channels &&
+           ws_regdb_chan_spacing_id(parms->chan_spacing) == hopping_schedule->channel_spacing;
 }
 
 bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, struct net_if *cur)
 {
-    if (ws_us) {
-        if (ws_us->chan_plan.channel_plan == 0) {
-            if (!ws_channel_plan_zero_compare(&ws_us->chan_plan.plan.zero, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else if (ws_us->chan_plan.channel_plan == 1) {
-            if (!ws_channel_plan_one_compare(&ws_us->chan_plan.plan.one, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else if (ws_us->chan_plan.channel_plan == 2) {
-            if (!ws_channel_plan_two_compare(&ws_us->chan_plan.plan.two, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else {
+    if (ws_us)
+        if (!ws_channel_plan_compare(&ws_us->chan_plan, &cur->ws_info->hopping_schedule))
             return false;
-        }
-    }
 
-    if (ws_bs) {
-        if (ws_bs->chan_plan.channel_plan == 0) {
-            if (!ws_channel_plan_zero_compare(&ws_bs->chan_plan.plan.zero, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else if (ws_bs->chan_plan.channel_plan == 1) {
-            if (!ws_channel_plan_one_compare(&ws_bs->chan_plan.plan.one, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else if (ws_bs->chan_plan.channel_plan == 2) {
-            if (!ws_channel_plan_two_compare(&ws_bs->chan_plan.plan.two, &cur->ws_info->hopping_schedule)) {
-                return false;
-            }
-        } else {
+    if (ws_bs)
+        if (!ws_channel_plan_compare(&ws_bs->chan_plan, &cur->ws_info->hopping_schedule))
             return false;
-        }
-    }
 
     return true;
 }
