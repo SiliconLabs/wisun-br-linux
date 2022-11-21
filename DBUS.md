@@ -18,6 +18,12 @@ the routing graph is refreshed.
 |`ipv6`            |`aay`    |Array of IPv6 addresses (usually link-local and GUA)        |
 |`parent`          |`ay`     |EUI64 of the preferred parent (only absent if border router)|
 
+### `Gtks` and `Gaks` (`aay`)
+
+Returns a list of the 4 Group Transient (or Temporal) Keys (GTKs) or Group AES
+Keys (GAKs) used in the network. A signal is emitted upon change. Refer to the
+Wi-SUN FAN and IEEE 802.11 specifications for more details.
+
 ### Wi-SUN configuration
 
 The following properties return the corresponding value set during
