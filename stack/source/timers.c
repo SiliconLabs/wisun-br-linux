@@ -24,7 +24,7 @@ static void timer_update_monotonic_time(int ticks)
 }
 
 #define timer_entry(name, callback, period_ms, is_periodic) \
-    [TIMER_##name] { #name, callback, period_ms, is_periodic, 0 }
+    [TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
 static struct {
     const char *trace_name;
     void (*callback)(int);
