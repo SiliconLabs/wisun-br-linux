@@ -17,6 +17,7 @@
 
 #ifndef AUTH_FWH_SEC_PROT_H_
 #define AUTH_FWH_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * Authenticator Four Way Handshake (4WH) security protocol. 4WH protocol is

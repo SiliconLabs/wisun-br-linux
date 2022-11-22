@@ -14,14 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * \file protocol_6lowpan_interface.h
- *
- */
-
 #ifndef PROTOCOL_6LOWPAN_INTERFACE_H_
 #define PROTOCOL_6LOWPAN_INTERFACE_H_
+#include <stdint.h>
+
 /**
  * 6LoWPAN interface activate
  */

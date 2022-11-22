@@ -17,6 +17,7 @@
 
 #ifndef SUPP_GKH_SEC_PROT_H_
 #define SUPP_GKH_SEC_PROT_H_
+#include <stdint.h>
 
 /**
  * supp_gkh_sec_prot_register register supplicant GKH protocol to KMP service

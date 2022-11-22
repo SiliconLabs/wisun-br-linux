@@ -17,7 +17,7 @@
 
 #ifndef AUTH_EAP_TLS_SEC_PROT_H_
 #define AUTH_EAP_TLS_SEC_PROT_H_
-
+#include <stdint.h>
 /*
  * Authenticator EAP-TLS security protocol. Specified in RFC 5216.
  *

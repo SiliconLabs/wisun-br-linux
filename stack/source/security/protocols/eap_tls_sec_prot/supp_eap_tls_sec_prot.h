@@ -17,6 +17,7 @@
 
 #ifndef SUPP_EAP_TLS_SEC_PROT_H_
 #define SUPP_EAP_TLS_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * Supplicant (peer) EAP-TLS security protocol. Specified in RFC 5216.

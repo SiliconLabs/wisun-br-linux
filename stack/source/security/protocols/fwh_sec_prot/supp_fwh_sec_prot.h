@@ -17,6 +17,7 @@
 
 #ifndef SUPP_FWH_SEC_PROT_H_
 #define SUPP_FWH_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * Supplicant Four Way Handshake (4WH) security protocol. 4WH protocol is

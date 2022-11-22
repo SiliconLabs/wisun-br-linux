@@ -17,6 +17,7 @@
 
 #ifndef RADIUS_EAP_TLS_SEC_PROT_H_
 #define RADIUS_EAP_TLS_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * Authenticator RADIUS EAP-TLS security protocol. Specified in RFC 5216.

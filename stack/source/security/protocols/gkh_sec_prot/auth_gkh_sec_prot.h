@@ -17,6 +17,7 @@
 
 #ifndef AUTH_GKH_SEC_PROT_H_
 #define AUTH_GKH_SEC_PROT_H_
+#include <stdint.h>
 
 /**
  * auth_gkh_sec_prot_register register authenticator GKH protocol to KMP service

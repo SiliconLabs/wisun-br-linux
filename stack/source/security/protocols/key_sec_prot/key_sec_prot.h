@@ -17,6 +17,7 @@
 
 #ifndef KEY_SEC_PROT_H_
 #define KEY_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * EAPOL-Key security protocol. Protocol is used for sending and receiving

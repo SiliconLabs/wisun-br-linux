@@ -17,6 +17,7 @@
 #ifndef _NS_RPL_H
 #define _NS_RPL_H
 #include <stdint.h>
+#include <stddef.h>
 
 /**
  * \file net_rpl.h

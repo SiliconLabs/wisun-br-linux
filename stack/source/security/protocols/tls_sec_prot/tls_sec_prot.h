@@ -17,6 +17,7 @@
 
 #ifndef TLS_SEC_PROT_H_
 #define TLS_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * TLS security protocol

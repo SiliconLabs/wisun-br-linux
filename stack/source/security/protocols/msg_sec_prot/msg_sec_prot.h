@@ -17,6 +17,7 @@
 
 #ifndef MSG_SEC_PROT_H_
 #define MSG_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * Message security protocol. Protocol can be used for sending messages from

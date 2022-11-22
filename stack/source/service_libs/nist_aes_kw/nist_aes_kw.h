@@ -17,6 +17,8 @@
 
 #ifndef NIST_AES_KW_
 #define NIST_AES_KW_
+#include <stdint.h>
+#include <stddef.h>
 
 /**
  * \brief NIST AES Key Wrap encode

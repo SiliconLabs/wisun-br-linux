@@ -17,7 +17,7 @@
 
 #ifndef WS_CONFIG_H_
 #define WS_CONFIG_H_
-
+#include <stdint.h>
 
 /*RPL parameters for DIO messages
  *

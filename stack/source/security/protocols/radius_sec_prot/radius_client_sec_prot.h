@@ -17,6 +17,7 @@
 
 #ifndef RADIUS_CLIENT_SEC_PROT_H_
 #define RADIUS_CLIENT_SEC_PROT_H_
+#include <stdint.h>
 
 /*
  * RADIUS client security protocol
