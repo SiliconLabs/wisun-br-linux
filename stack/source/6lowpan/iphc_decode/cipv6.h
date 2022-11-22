@@ -17,6 +17,8 @@
 #ifndef _CIPV6_H
 #define _CIPV6_H
 
+typedef struct buffer buffer_t;
+
 /* MTU defined in RFC 4944 */
 #ifndef LOWPAN_MTU
 #define LOWPAN_MTU 1280

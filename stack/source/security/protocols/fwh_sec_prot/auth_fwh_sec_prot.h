@@ -19,6 +19,8 @@
 #define AUTH_FWH_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /*
  * Authenticator Four Way Handshake (4WH) security protocol. 4WH protocol is
  * specified in IEEE 802.11 and Wi-SUN FANWG-FANTPS.
@@ -33,7 +35,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t auth_fwh_sec_prot_register(kmp_service_t *service);
+int8_t auth_fwh_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_fwh_sec_prot_timing_adjust Adjust retries and timings of the 4WH protocol

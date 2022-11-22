@@ -19,6 +19,11 @@
 #define WS_BOOTSTRAP_FFN_H_
 #include <stdint.h>
 #include "common/log.h"
+#include "stack-scheduler/eventOS_event.h"
+
+struct net_if;
+struct mcps_data_ind;
+struct mcps_data_ie_list;
 
 #ifdef HAVE_WS_ROUTER
 

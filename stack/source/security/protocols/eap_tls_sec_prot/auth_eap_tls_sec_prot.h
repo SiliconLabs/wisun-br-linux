@@ -18,6 +18,9 @@
 #ifndef AUTH_EAP_TLS_SEC_PROT_H_
 #define AUTH_EAP_TLS_SEC_PROT_H_
 #include <stdint.h>
+
+struct kmp_service;
+
 /*
  * Authenticator EAP-TLS security protocol. Specified in RFC 5216.
  *
@@ -31,7 +34,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t auth_eap_tls_sec_prot_register(kmp_service_t *service);
+int8_t auth_eap_tls_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_eap_tls_sec_prot_timing_adjust Adjust retries and timings of the EAP-TLS protocol

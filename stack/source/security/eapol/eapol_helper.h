@@ -19,6 +19,7 @@
 #define EAPOL_HELPER_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "security/pana/pana_eap_header.h"
 
 #define EAPOL_PROTOCOL_VERSION      3
 #define EAPOL_EAP_TYPE              0
@@ -30,8 +31,6 @@
 #define EAPOL_BASE_LENGTH           4 //Protocol version 1 byte, Packet type 1 byte, packet length 2 byte
 
 #define EAPOL_KEY_FRAME_BASE_SIZE   95
-
-struct eap_header;
 
 typedef struct eapol_key_information {
     unsigned description_version: 3;

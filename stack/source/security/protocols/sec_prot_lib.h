@@ -19,8 +19,10 @@
 #define SEC_PROT_LIB_H_
 #include <stdint.h>
 #include <stdbool.h>
-
+#include "common/trickle.h"
 #include "security/protocols/sec_prot_keys.h"
+
+struct eapol_pdu;
 
 /*
  * Library functions used by security protocols. These include helper functions
@@ -121,7 +123,7 @@ int8_t sec_prot_lib_ptk_calc(const uint8_t *pmk, const uint8_t *eui64_1, const u
  * \return < 0 failure
  * \return >= 0 success
  */
-uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len, eapol_pdu_t *eapol_pdu, uint16_t eapol_pdu_size, uint8_t header_size);
+uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len, struct eapol_pdu *eapol_pdu, uint16_t eapol_pdu_size, uint8_t header_size);
 
 /**
  * sec_prot_lib_message_handle handles a message
@@ -133,7 +135,7 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
  * \return pointer to start of the KDEs
  * \return NULL failure
  */
-uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_t *eapol_pdu);
+uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, struct eapol_pdu *eapol_pdu);
 
 /**
  * sec_prot_lib_gtk_read reads GTK, GTKL and lifetime KDEs

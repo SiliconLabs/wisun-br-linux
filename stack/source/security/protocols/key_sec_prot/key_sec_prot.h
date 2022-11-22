@@ -19,6 +19,8 @@
 #define KEY_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /*
  * EAPOL-Key security protocol. Protocol is used for sending and receiving
  * initial EAPOL-Key message that is used to start the supplicant
@@ -34,7 +36,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t supp_key_sec_prot_register(kmp_service_t *service);
+int8_t supp_key_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_key_sec_prot_register register authenticator EAPOL-Key protocol to KMP service
@@ -44,6 +46,6 @@ int8_t supp_key_sec_prot_register(kmp_service_t *service);
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t auth_key_sec_prot_register(kmp_service_t *service);
+int8_t auth_key_sec_prot_register(struct kmp_service *service);
 
 #endif

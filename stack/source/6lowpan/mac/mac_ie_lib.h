@@ -21,6 +21,7 @@
 #include <stdbool.h>
 
 struct mac_payload_IE;
+struct mac_header_IE;
 
 /**
  * @brief struct mac_nested_payload_IE_t Mac Nested IE Payload information element structure for parsing or write operation
@@ -57,6 +58,6 @@ uint16_t mac_ie_nested_tagged_discover(const uint8_t *payload_ptr, uint16_t leng
 uint8_t mac_ie_header_discover(const uint8_t *header_ptr, uint16_t length, struct mac_header_IE *header_ie);
 
 /** Header IE elemnt discover with sub id */
-uint8_t mac_ie_header_sub_id_discover(const uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie, uint8_t sub_id);
+uint8_t mac_ie_header_sub_id_discover(const uint8_t *header_ptr, uint16_t length, struct mac_header_IE *header_ie, uint8_t sub_id);
 
 #endif

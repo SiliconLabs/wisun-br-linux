@@ -19,6 +19,8 @@
 #define TLS_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /*
  * TLS security protocol
  *
@@ -40,7 +42,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t client_tls_sec_prot_register(kmp_service_t *service);
+int8_t client_tls_sec_prot_register(struct kmp_service *service);
 
 /**
  * server_tls_sec_prot_register register server TLS protocol to KMP service
@@ -50,7 +52,7 @@ int8_t client_tls_sec_prot_register(kmp_service_t *service);
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t server_tls_sec_prot_register(kmp_service_t *service);
+int8_t server_tls_sec_prot_register(struct kmp_service *service);
 
 
 #endif

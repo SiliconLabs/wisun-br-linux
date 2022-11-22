@@ -19,6 +19,8 @@
 
 #ifdef HAVE_IPV6_FRAGMENT
 
+typedef struct buffer buffer_t;
+
 buffer_t *ipv6_frag_down(buffer_t *dgram_buf);
 
 #else

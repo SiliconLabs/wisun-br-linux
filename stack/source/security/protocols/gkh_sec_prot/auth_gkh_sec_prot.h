@@ -19,6 +19,8 @@
 #define AUTH_GKH_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /**
  * auth_gkh_sec_prot_register register authenticator GKH protocol to KMP service
  *
@@ -27,7 +29,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t auth_gkh_sec_prot_register(kmp_service_t *service);
+int8_t auth_gkh_sec_prot_register(struct kmp_service *service);
 
 /**
  * auth_gkh_sec_prot_timing_adjust Adjust retries and timings of the GKH protocol

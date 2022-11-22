@@ -19,6 +19,8 @@
 #define MSG_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /*
  * Message security protocol. Protocol can be used for sending messages from
  * authenticator EAPOL components to lower layers on authenticator.
@@ -33,6 +35,6 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t msg_sec_prot_register(kmp_service_t *service);
+int8_t msg_sec_prot_register(struct kmp_service *service);
 
 #endif

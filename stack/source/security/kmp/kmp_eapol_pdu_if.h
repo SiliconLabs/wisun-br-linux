@@ -19,6 +19,9 @@
 #define KMP_EAPOL_PDU_IF_H_
 #include <stdint.h>
 
+struct net_if;
+struct kmp_service;
+
 /*
  * Supplicant KMP interface to/from EAPOL PDU interface (to MPX).
  */
@@ -33,7 +36,7 @@
  * \return >= 0 success
  *
  */
-int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interface_ptr);
+int8_t kmp_eapol_pdu_if_register(struct kmp_service *service, struct net_if *interface_ptr);
 
 /**
  * kmp_eapol_pdu_if_unregister unregister EAPOL PDU interface from KMP service
@@ -44,7 +47,7 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interfac
  * \return >= 0 success
  *
  */
-int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service);
+int8_t kmp_eapol_pdu_if_unregister(struct kmp_service *service);
 
 /**
  * kmp_eapol_pdu_if_receive receive EAPOL PDU to KMP service

@@ -19,11 +19,14 @@
 #define RPL_DATA_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "ipv6_stack/ipv6_routing_table.h"
 
 struct rpl_domain;
 struct rpl_instance;
 struct ipv6_route_info;
 struct ns_sockaddr;
+struct net_if;
+typedef struct buffer buffer_t;
 
 /* Internal API */
 void rpl_data_sr_invalidate(void);

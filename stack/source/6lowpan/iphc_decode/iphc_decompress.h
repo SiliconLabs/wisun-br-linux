@@ -17,6 +17,9 @@
 #ifndef IPHC_DECOMPRESS_H_
 #define IPHC_DECOMPRESS_H_
 #include <stdint.h>
+#include "6lowpan/iphc_decode/lowpan_context.h"
+
+typedef struct buffer buffer_t;
 
 uint16_t iphc_header_scan(buffer_t *buf, uint16_t *uncompressed_size);
 

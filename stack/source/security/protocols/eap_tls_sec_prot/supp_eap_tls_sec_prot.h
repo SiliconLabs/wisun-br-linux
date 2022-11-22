@@ -19,6 +19,8 @@
 #define SUPP_EAP_TLS_SEC_PROT_H_
 #include <stdint.h>
 
+struct kmp_service;
+
 /*
  * Supplicant (peer) EAP-TLS security protocol. Specified in RFC 5216.
  *
@@ -32,7 +34,7 @@
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t supp_eap_tls_sec_prot_register(kmp_service_t *service);
+int8_t supp_eap_tls_sec_prot_register(struct kmp_service *service);
 
 #endif
 
