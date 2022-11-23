@@ -223,6 +223,8 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&sockaddr, sizeof(struct sockaddr_in6));
     else if (instance_id == KMP_RADIUS_INSTANCE_INDEX)
         ret = sendto(socket_if->kmp_socket_id, pdu, size, 0, (struct sockaddr *)&socket_if->remote_sockaddr, sizeof(socket_if->remote_sockaddr));
+    else
+        ret = -1;
 
     if (ret < 0 || ret != size) {
         tr_error("kmp_socket_if_send, instance_id = %d sendto: %m", instance_id);
