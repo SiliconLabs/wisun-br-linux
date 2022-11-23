@@ -407,7 +407,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     }
 }
 
-void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_s *event)
+void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_t *event)
 {
     ws_bootstrap_event_type_e event_type;
     event_type = (ws_bootstrap_event_type_e)event->event_type;

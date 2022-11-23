@@ -44,7 +44,7 @@
  * @enduml
  *
  * Events are send to a specific tasklet, identified by its ID.
- * Each event is coded into a \ref arm_event_s structure which is then pushed into event loop by calling eventOS_event_send().
+ * Each event is coded into a \ref arm_event_t structure which is then pushed into event loop by calling eventOS_event_send().
  *
  * @startuml
  *      partition tasklet1.cpp {
@@ -87,7 +87,7 @@
  *      }
  * \endcode
  *
- * Each event is basically a \ref arm_event_s structure. You need to fill in the arm_event_s::receiver field.
+ * Each event is basically a \ref arm_event_t structure. You need to fill in the arm_event_s::receiver field.
  * Rest of the fields are optional, and used only by the receiving callback. So you have different options to
  * deliver data to a receiving tasklet. The structure is copied by the event system, so temporary storage may be used,
  * and the structure may be freed after it has been pushed into event system.
@@ -182,9 +182,6 @@ typedef struct arm_event {
     uintptr_t event_data;
 } arm_event_t;
 
-/* Backwards compatibility */
-typedef arm_event_t arm_event_s;
-
 /**
  * \struct arm_event_storage
  * \brief Event structure storage, including list link.
@@ -205,7 +202,7 @@ partition "system_timer.c" {
 
  */
 typedef struct arm_event_storage {
-    arm_event_s data;
+    arm_event_t data;
     enum {
         ARM_LIB_EVENT_STARTUP_POOL,
         ARM_LIB_EVENT_DYNAMIC,

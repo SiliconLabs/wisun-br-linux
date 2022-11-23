@@ -116,7 +116,7 @@ socket_t *socket_pointer_get(int8_t socket)
 static void socket_data_event_push(buffer_t *buf)
 {
     buf->socket = socket_reference(buf->socket);
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = socket_event_handler,
         .sender = 0,
         .event_type = ARM_SOCKET_DATA_CB,
@@ -131,7 +131,7 @@ static void socket_data_event_push(buffer_t *buf)
 
 bool socket_data_queued_event_push(socket_t *socket)
 {
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = socket_event_handler,
         .sender = 0,
         .event_type = ARM_SOCKET_DATA_QUEUED_CB,
@@ -207,7 +207,7 @@ void socket_cb_run(socket_t *socket)
     socket->u.live.fptr(&socket_cb_structure);
 }
 
-void socket_tasklet_event_handler(arm_event_s *event)
+void socket_tasklet_event_handler(arm_event_t *event)
 {
     switch (event->event_type) {
         case ARM_SOCKET_INIT:
@@ -904,7 +904,7 @@ void socket_event_push(uint8_t sock_event, socket_t *socket, int8_t interface_id
         cb_event->session_ptr = session_ptr;
         cb_event->interface_id = interface_id;
         cb_event->length = length;
-        arm_event_s event = {
+        arm_event_t event = {
             .receiver = socket_event_handler,
             .sender = 0,
             .data_ptr = cb_event,

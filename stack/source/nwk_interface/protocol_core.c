@@ -229,7 +229,7 @@ void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur)
 {
     cur->bootstrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = protocol_root_tasklet_ID,
         .sender = 0,
         .event_id = (uint8_t)cur->id,
@@ -596,7 +596,7 @@ error:
 
 static void nwk_net_event_post(arm_nwk_interface_status_type_e posted_event, int8_t net_tasklet, int8_t nwk_id)
 {
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = net_tasklet,
         .sender = protocol_read_tasklet_id(), /**< Event sender Tasklet ID */
         .event_type = ARM_LIB_NWK_INTERFACE_EVENT,

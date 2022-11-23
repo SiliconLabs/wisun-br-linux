@@ -1013,7 +1013,7 @@ static void mac_pd_data_ack_handler(mac_pre_parsed_frame_t *buf)
 }
 
 
-static void mac_mcps_sap_data_tasklet(arm_event_s *event)
+static void mac_mcps_sap_data_tasklet(arm_event_t *event)
 {
     uint8_t event_type = event->event_type;
 
@@ -2307,7 +2307,7 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer)
         return -1;
     }
 
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2324,7 +2324,7 @@ int8_t mcps_sap_pd_confirm(void *mac_ptr)
     if (mac_tasklet_event_handler < 0  || !mac_ptr) {
         return -2;
     }
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2341,7 +2341,7 @@ int8_t mcps_sap_pd_confirm_failure(void *mac_ptr)
     if (mac_tasklet_event_handler < 0  || !mac_ptr) {
         return -2;
     }
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2373,7 +2373,7 @@ int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_p
         return 0;
     }
 
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2393,7 +2393,7 @@ void mcps_sap_trig_tx(void *mac_ptr)
     if (mac_read_active_event(mac_ptr, MAC_SAP_TRIG_TX) == true) {
         return;
     }
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2414,7 +2414,7 @@ void mac_cca_threshold_event_send(protocol_interface_rf_mac_setup_s *rf_ptr, uin
         return;
     }
     uint16_t data = channel << 8 | (uint8_t) dbm;
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2435,7 +2435,7 @@ void mac_generic_event_trig(uint8_t event_type, void *mac_ptr, bool low_latency)
     } else {
         priority = ARM_LIB_HIGH_PRIORITY_EVENT;
     }
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,

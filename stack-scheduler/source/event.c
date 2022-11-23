@@ -26,7 +26,7 @@
 
 typedef struct arm_core_tasklet {
     int8_t id; /**< Event handler Tasklet ID */
-    void (*func_ptr)(arm_event_s *);
+    void (*func_ptr)(arm_event_t *);
     ns_list_link_t link;
 } arm_core_tasklet_t;
 
@@ -76,7 +76,7 @@ static int8_t tasklet_get_free_id(void)
 }
 
 
-int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_s *), uint8_t init_event_type)
+int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type)
 {
     arm_event_storage_t *event_tmp;
 

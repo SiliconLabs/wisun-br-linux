@@ -136,7 +136,7 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth);
 static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
-static void ws_pae_auth_tasklet_handler(arm_event_s *event);
+static void ws_pae_auth_tasklet_handler(arm_event_t *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
@@ -739,7 +739,7 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
         return -1;
     }
 
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = tasklet_id,
         .sender = 0,
         .event_id = pae_auth->interface_ptr->id,
@@ -755,7 +755,7 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
     return 0;
 }
 
-static void ws_pae_auth_tasklet_handler(arm_event_s *event)
+static void ws_pae_auth_tasklet_handler(arm_event_t *event)
 {
     if (event->event_type == PAE_TASKLET_INIT) {
 

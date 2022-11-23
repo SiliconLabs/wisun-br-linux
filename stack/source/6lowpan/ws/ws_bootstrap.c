@@ -81,7 +81,7 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_event_handler(arm_event_s *event);
+static void ws_bootstrap_event_handler(arm_event_t *event);
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
 static uint16_t ws_bootstrap_rank_get(struct net_if *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(struct net_if *cur);
@@ -264,7 +264,7 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
 
 static void ws_nwk_event_post(struct net_if *cur, arm_nwk_interface_status_type_e posted_event)
 {
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = cur->net_start_tasklet,
         .sender = protocol_read_tasklet_id(), /**< Event sender Tasklet ID */
         .event_type = ARM_LIB_NWK_INTERFACE_EVENT,
@@ -280,7 +280,7 @@ static void ws_nwk_event_post(struct net_if *cur, arm_nwk_interface_status_type_
 
 static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
 {
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = interface_id,
         .sender = 0,
         .event_type = event_type,
@@ -2808,7 +2808,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
     ws_llc_asynch_request(cur, &async_req);
 }
 
-static void ws_bootstrap_event_handler(arm_event_s *event)
+static void ws_bootstrap_event_handler(arm_event_t *event)
 {
     struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_bootstrap_id(event->receiver);

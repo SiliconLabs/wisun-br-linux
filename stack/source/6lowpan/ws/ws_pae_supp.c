@@ -133,7 +133,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
-static void ws_pae_supp_tasklet_handler(arm_event_s *event);
+static void ws_pae_supp_tasklet_handler(arm_event_t *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
@@ -821,7 +821,7 @@ static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data)
         return -1;
     }
 
-    arm_event_s event = {
+    arm_event_t event = {
         .receiver = tasklet_id,
         .sender = 0,
         .event_id = pae_supp->interface_ptr->id,
@@ -837,7 +837,7 @@ static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data)
     return 0;
 }
 
-static void ws_pae_supp_tasklet_handler(arm_event_s *event)
+static void ws_pae_supp_tasklet_handler(arm_event_t *event)
 {
     if (event->event_type == PAE_TASKLET_INIT) {
 

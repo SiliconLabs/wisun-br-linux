@@ -683,7 +683,7 @@ void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_me
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
 
-void ws_bootstrap_ffn_event_handler(struct net_if *cur, arm_event_s *event)
+void ws_bootstrap_ffn_event_handler(struct net_if *cur, arm_event_t *event)
 {
     ws_bootstrap_event_type_e event_type;
     event_type = (ws_bootstrap_event_type_e)event->event_type;
