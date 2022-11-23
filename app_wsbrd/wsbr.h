@@ -21,20 +21,14 @@
 typedef struct sd_bus sd_bus;
 #endif
 
-#include "common/bits.h"
-#include "common/utils.h"
 #include "common/version.h"
 #include "common/dhcp_server.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/net_interface.h"
 
 #include "commandline.h"
 
 struct iobuf_read;
-struct phy_device_driver;
-struct eth_mac_api;
-struct fhss_api;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;

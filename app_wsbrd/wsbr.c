@@ -21,6 +21,7 @@
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
 #include "common/log.h"
+#include "common/utils.h"
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"

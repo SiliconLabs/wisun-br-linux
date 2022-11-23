@@ -6,6 +6,7 @@
 
 #include "common/endian.h"
 #include "common/log.h"
+#include "common/utils.h"
 #include "common/iobuf.h"
 #include "common/pcapng.h"
 #include "common/string_extra.h"

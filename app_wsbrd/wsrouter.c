@@ -24,6 +24,7 @@
 #include "common/os_scheduler.h"
 #include "common/os_types.h"
 #include "common/key_value_storage.h"
+#include "common/utils.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
 #include "stack-scheduler/eventOS_event.h"

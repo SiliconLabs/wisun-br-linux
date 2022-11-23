@@ -21,6 +21,7 @@
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"
 #include "common/iobuf.h"
+#include "common/utils.h"
 #include "common/spinel_buffer.h"
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"
