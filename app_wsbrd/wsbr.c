@@ -383,7 +383,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     wsbr_rcp_get_hw_addr(ctxt);
 }
 
-void wsbr_spinel_replay_interface(struct spinel_buffer *buf)
+void wsbr_spinel_replay_interface(struct iobuf_read *buf)
 {
     WARN("%s: not implemented", __func__);
 }

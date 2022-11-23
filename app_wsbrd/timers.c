@@ -31,7 +31,7 @@ void wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
     timer_global_tick();
 }
 
-void wsbr_spinel_replay_timers(struct spinel_buffer *buf)
+void wsbr_spinel_replay_timers(struct iobuf_read *buf)
 {
     WARN("%s: not implemented", __func__);
 }

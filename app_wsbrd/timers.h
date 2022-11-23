@@ -2,11 +2,11 @@
 #define TIMERS_H
 
 struct wsbr_ctxt;
-struct spinel_buffer;
+struct iobuf_read;
 
 void wsbr_common_timer_init(struct wsbr_ctxt *ctxt);
 void wsbr_common_timer_process(struct wsbr_ctxt *ctxt);
 
-void wsbr_spinel_replay_timers(struct spinel_buffer *buf);
+void wsbr_spinel_replay_timers(struct iobuf_read *buf);
 
 #endif

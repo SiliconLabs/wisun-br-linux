@@ -22,6 +22,7 @@
 #include "common/bus_uart.h"
 #include "common/log.h"
 #include "common/os_types.h"
+#include "common/iobuf.h"
 #include "common/spinel_buffer.h"
 #include "common/key_value_storage.h"
 #include "wsbrd_fuzz.h"
@@ -92,8 +93,8 @@ bool __wrap_crc_check(const uint8_t *data, int len, uint16_t expected_crc)
         return __real_crc_check(data, len, expected_crc);
 }
 
-bool __real_spinel_prop_is_valid(struct spinel_buffer *buf, int prop);
-bool __wrap_spinel_prop_is_valid(struct spinel_buffer *buf, int prop)
+bool __real_spinel_prop_is_valid(struct iobuf_read *buf, int prop);
+bool __wrap_spinel_prop_is_valid(struct iobuf_read *buf, int prop)
 {
     if (!g_fuzz_ctxt.fuzzing_enabled)
         return __real_spinel_prop_is_valid(buf, prop);
@@ -124,7 +125,7 @@ static void fuzz_trigger_timer()
     FATAL_ON(ret < 0, 2, "write: %m");
 }
 
-void __wrap_wsbr_spinel_replay_timers(struct spinel_buffer *buf)
+void __wrap_wsbr_spinel_replay_timers(struct iobuf_read *buf)
 {
     FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");

@@ -142,7 +142,7 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
 }
 
 
-static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
+static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
 {
     const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
     const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
@@ -161,7 +161,7 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     if (!chan_params || !phy_params)
         return;
 
-    while (spinel_remaining_size(buf)) {
+    while (iobuf_remaining_size(buf)) {
         chan0_freq = spinel_pop_u32(buf);
         chan_spacing = spinel_pop_u32(buf);
         chan_count = spinel_pop_u16(buf);
@@ -189,7 +189,7 @@ static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
     }
 }
 
-static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *buf)
+static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
 {
     uint32_t chan0_freq;
     uint32_t chan_spacing;
@@ -201,7 +201,7 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct spinel_buffer *b
 
     INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans  chans");
     INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        allowed");
-    while (spinel_remaining_size(buf)) {
+    while (iobuf_remaining_size(buf)) {
         BUG_ON(k >= ARRAY_SIZE(tmp_buf));
         chan0_freq = spinel_pop_u32(buf);
         chan_spacing = spinel_pop_u32(buf);
@@ -285,7 +285,7 @@ static void handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t fram
          irq_err_counter, frame_len, header, crc);
 }
 
-static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffer *buf)
+static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *buf)
 {
     switch (prop) {
     case SPINEL_PROP_WS_DEVICE_TABLE: {
@@ -365,7 +365,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList);
         conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
         conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
-        if (spinel_remaining_size(buf)) {
+        if (iobuf_remaining_size(buf)) {
             spinel_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(mcps_data_retry_t) * MAX_PHY_MODE_ID_PER_FRAME);
             req.success_phy_mode_id = spinel_pop_u8(buf);
         }
@@ -398,7 +398,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
         spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
         ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
         ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
-        if (spinel_remaining_size(buf)) {
+        if (iobuf_remaining_size(buf)) {
             req.TxAckReq           = spinel_pop_bool(buf);
             req.PendingBit         = spinel_pop_bool(buf);
             req.PanIdSuppressed    = spinel_pop_bool(buf);
@@ -429,7 +429,7 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
     }
     case SPINEL_PROP_WS_RF_CONFIGURATION_LIST: {
         store_rf_config_list(ctxt, buf);
-        spinel_reset(buf);
+        buf->cnt = 0;
         spinel_pop_u8(buf); // header
         spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
         spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
@@ -482,56 +482,59 @@ static bool wsbr_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
 
 void rcp_rx(struct wsbr_ctxt *ctxt)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(4096);
+    static uint8_t rx_buf[4096];
+    struct iobuf_read buf = {
+        .data = rx_buf,
+    };
     int cmd, prop;
 
-    buf->len = ctxt->rcp_rx(ctxt->os_ctxt, buf->frame, buf->len);
-    if (!buf->len)
+    buf.data_size = ctxt->rcp_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
+    if (!buf.data_size)
         return;
-    spinel_trace(buf, "hif rx: ");
-    spinel_pop_u8(buf); /* packet header */
-    cmd = spinel_pop_uint(buf);
+    spinel_trace_rx(&buf);
+    spinel_pop_u8(&buf); /* packet header */
+    cmd = spinel_pop_uint(&buf);
 
     switch (cmd) {
     case SPINEL_CMD_NOOP:
         /* empty */
         break;
     case SPINEL_CMD_PROP_IS:
-        prop = spinel_pop_uint(buf);
+        prop = spinel_pop_uint(&buf);
         if (!wsbr_init_state_is_valid(ctxt, prop)) {
             WARN("ignoring unexpected boot-up sequence");
             return;
         }
-        wsbr_spinel_is(ctxt, prop, buf);
+        wsbr_spinel_is(ctxt, prop, &buf);
         break;
     case SPINEL_CMD_RESET: {
         const char *version_fw_str;
 
-        if (spinel_remaining_size(buf) < 16)
+        if (iobuf_remaining_size(&buf) < 16)
             FATAL(1, "unknown RESET format (bad firmware?)");
         // FIXME: CMD_RESET should reply with SPINEL_PROP_LAST_STATUS ==
         // STATUS_RESET_SOFTWARE
-        ctxt->rcp_version_api = spinel_pop_u32(buf);
-        ctxt->rcp_version_fw = spinel_pop_u32(buf);
-        version_fw_str = spinel_pop_str(buf);
-        spinel_pop_bool(buf); // is_hw_reset is no more used
-        ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
+        ctxt->rcp_version_api = spinel_pop_u32(&buf);
+        ctxt->rcp_version_fw = spinel_pop_u32(&buf);
+        version_fw_str = spinel_pop_str(&buf);
+        spinel_pop_bool(&buf); // is_hw_reset is no more used
+        ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(&buf);
         if (ctxt->storage_sizes.device_description_table_size <= MAX_NEIGH_TEMPORARY_EAPOL_SIZE
                         + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES)
             FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)", MAX_NEIGH_TEMPORARY_EAPOL_SIZE
                         + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES);
         ctxt->storage_sizes.device_description_table_size -= MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
-        ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
-        ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
-        ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
+        ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(&buf);
+        ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(&buf);
+        ctxt->storage_sizes.key_usage_size = spinel_pop_u8(&buf);
         wsbr_handle_reset(ctxt, version_fw_str);
         break;
     }
     case SPINEL_CMD_REPLAY_TIMERS:
-        wsbr_spinel_replay_timers(buf);
+        wsbr_spinel_replay_timers(&buf);
         break;
     case SPINEL_CMD_REPLAY_INTERFACE:
-        wsbr_spinel_replay_interface(buf);
+        wsbr_spinel_replay_interface(&buf);
         break;
     default:
         WARN("%s: not implemented: %02x", __func__, cmd);

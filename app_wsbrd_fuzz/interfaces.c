@@ -20,6 +20,7 @@
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"
+#include "common/iobuf.h"
 #include "common/spinel_buffer.h"
 #include "interfaces.h"
 #include "wsbrd_fuzz.h"
@@ -44,7 +45,7 @@ static struct {
 };
 static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries for capture/replay");
 
-void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
+void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
 {
     static bool init = false;
     uint8_t src_addr[16];

@@ -17,26 +17,8 @@
 
 #include "log.h"
 
+struct iobuf_read;
 struct iobuf_write;
-
-struct spinel_buffer {
-    int len; // Length of the data in frame or size of the frame buffer
-    int cnt; // Index of the already handled data or pointer to end of frame
-    bool err;
-    uint8_t frame[];
-};
-
-#define ALLOC_STACK_SPINEL_BUF(SIZE) ({                        \
-    struct spinel_buffer *_tmp = alloca(SIZE + sizeof(*_tmp)); \
-    _tmp->cnt = 0;                                             \
-    _tmp->len = SIZE;                                          \
-    _tmp->err = false;                                         \
-    _tmp;                                                      \
-})
-
-int spinel_remaining_size(const struct spinel_buffer *buf);
-uint8_t *spinel_ptr(struct spinel_buffer *buf);
-void spinel_reset(struct spinel_buffer *buf);
 
 void spinel_push_bool(struct iobuf_write *buf, bool val);
 void spinel_push_uint(struct iobuf_write *buf, unsigned int val);
@@ -53,27 +35,27 @@ void spinel_push_fixed_u32_array(struct iobuf_write *buf, const uint32_t *val, i
 void spinel_push_data(struct iobuf_write *buf, const uint8_t *val, size_t size);
 void spinel_push_raw(struct iobuf_write *buf, const uint8_t *val, size_t size);
 
-bool spinel_pop_bool(struct spinel_buffer *buf);
-unsigned int spinel_pop_uint(struct spinel_buffer *buf);
-uint8_t spinel_pop_u8(struct spinel_buffer *buf);
-uint16_t spinel_pop_u16(struct spinel_buffer *buf);
-uint32_t spinel_pop_u32(struct spinel_buffer *buf);
-int8_t spinel_pop_i8(struct spinel_buffer *buf);
-int16_t spinel_pop_i16(struct spinel_buffer *buf);
-int32_t spinel_pop_i32(struct spinel_buffer *buf);
-const char *spinel_pop_str(struct spinel_buffer *buf);
-void spinel_pop_fixed_u8_array(struct spinel_buffer *buf, uint8_t *val, int num);
-void spinel_pop_fixed_u16_array(struct spinel_buffer *buf, uint16_t *val, int num);
-void spinel_pop_fixed_u32_array(struct spinel_buffer *buf, uint32_t *val, int num);
-unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int size);
-unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, const uint8_t **val);
-unsigned int spinel_pop_raw(struct spinel_buffer *buf, uint8_t *val, unsigned int size);
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, const uint8_t **val);
+bool spinel_pop_bool(struct iobuf_read *buf);
+unsigned int spinel_pop_uint(struct iobuf_read *buf);
+uint8_t spinel_pop_u8(struct iobuf_read *buf);
+uint16_t spinel_pop_u16(struct iobuf_read *buf);
+uint32_t spinel_pop_u32(struct iobuf_read *buf);
+int8_t spinel_pop_i8(struct iobuf_read *buf);
+int16_t spinel_pop_i16(struct iobuf_read *buf);
+int32_t spinel_pop_i32(struct iobuf_read *buf);
+const char *spinel_pop_str(struct iobuf_read *buf);
+void spinel_pop_fixed_u8_array(struct iobuf_read *buf, uint8_t *val, int num);
+void spinel_pop_fixed_u16_array(struct iobuf_read *buf, uint16_t *val, int num);
+void spinel_pop_fixed_u32_array(struct iobuf_read *buf, uint32_t *val, int num);
+unsigned int spinel_pop_data(struct iobuf_read *buf, uint8_t *val, unsigned int size);
+unsigned int spinel_pop_data_ptr(struct iobuf_read *buf, const uint8_t **val);
+unsigned int spinel_pop_raw(struct iobuf_read *buf, uint8_t *val, unsigned int size);
+unsigned int spinel_pop_raw_ptr(struct iobuf_read *buf, const uint8_t **val);
 
 const char *spinel_cmd_str(int cmd);
 const char *spinel_prop_str(int prop);
-bool spinel_prop_is_valid(struct spinel_buffer *buf, int prop);
-void spinel_trace(struct spinel_buffer *buf, const char *prefix);
+bool spinel_prop_is_valid(struct iobuf_read *buf, int prop);
 void spinel_trace_tx(struct iobuf_write *buf);
+void spinel_trace_rx(struct iobuf_read *buf);
 
 #endif
