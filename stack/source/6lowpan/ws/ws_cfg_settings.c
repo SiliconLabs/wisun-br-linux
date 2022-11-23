@@ -25,6 +25,7 @@
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
+#include "stack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
 #include "mpl/mpl.h"

@@ -22,23 +22,16 @@
 
 #include "stack-services/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/mac/fhss_config.h"
 #include "stack/mac/net_fhss.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
-#include "6lowpan/ws/ws_regulation.h"
 
 extern uint16_t test_max_child_count_override;
 
-struct ws_pan_information;
-struct ws_neighbor_class;
-struct ws_excluded_channel_data;
 struct ws_cfg;
-struct ws_neighbor_class_entry;
-struct mcps_data_ie_list;
 
 typedef struct parent_info {
     uint16_t             pan_id;             /**< PAN ID */

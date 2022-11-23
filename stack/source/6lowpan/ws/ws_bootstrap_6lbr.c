@@ -38,6 +38,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
+#include "stack/mac/fhss_config.h"
 
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"

@@ -30,9 +30,10 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "stack-scheduler/eventOS_event.h"
-#include "stack/mac/mac_common_defines.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
+#include "stack/mac/fhss_config.h"
+#include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_api.h"
 
 #include "common_protocols/icmpv6.h"

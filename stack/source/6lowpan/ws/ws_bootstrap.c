@@ -35,6 +35,7 @@
 #include "stack/net_rpl.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/mac_common_defines.h"
+#include "stack/mac/fhss_config.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/ccm.h"
