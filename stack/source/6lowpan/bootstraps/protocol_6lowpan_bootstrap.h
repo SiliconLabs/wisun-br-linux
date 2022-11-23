@@ -26,7 +26,6 @@
 #include <stdbool.h>
 
 struct net_if;
-struct nd_router;
 enum nwk_interface_id;
 
 #define LOWPAN_MAX_FRAME_RETRIES 4

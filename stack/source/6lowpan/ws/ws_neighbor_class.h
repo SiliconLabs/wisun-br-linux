@@ -22,7 +22,6 @@
 
 #include "6lowpan/ws/ws_common_defines.h"
 
-struct mcps_data_ie_list;
 struct net_if;
 
 #define RSL_UNITITIALIZED 0x7fff

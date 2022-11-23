@@ -14,9 +14,9 @@
 #define TUN_H
 #include <stdint.h>
 #include <sys/types.h>
-#include "source/nwk_interface/protocol_abstract.h"
 
 struct wsbr_ctxt;
+struct net_if;
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt);
 void wsbr_tun_read(struct wsbr_ctxt *ctxt);

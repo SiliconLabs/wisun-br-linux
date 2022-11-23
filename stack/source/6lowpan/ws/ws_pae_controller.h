@@ -24,8 +24,6 @@
 
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_keys.h"
-#include "nwk_interface/protocol_abstract.h"
-
 
 typedef enum {
     AUTH_RESULT_OK = 0,                    // Successful
@@ -34,6 +32,7 @@ typedef enum {
     AUTH_RESULT_ERR_UNSPEC = -3            // Other reason
 } auth_result_e;
 
+struct net_if;
 struct nvm_tlv_entry;
 struct ws_sec_timer_cfg;
 struct ws_sec_prot_cfg;

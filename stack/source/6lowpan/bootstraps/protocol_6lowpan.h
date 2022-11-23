@@ -26,11 +26,9 @@
 #include <stdbool.h>
 
 struct net_if;
-struct route_info_entry;
 struct ns_sockaddr;
 struct rpl_domain;
 struct rpl_dodag;
-struct mlme_pan_descriptor;
 enum addrtype;
 
 extern struct rpl_domain *protocol_6lowpan_rpl_domain;

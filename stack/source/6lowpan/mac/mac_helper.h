@@ -19,8 +19,6 @@
 
 #include "stack/mac/mlme.h"
 
-struct channel_list;
-struct nwk_pan_descriptor;
 struct net_if;
 struct ns_sockaddr;
 struct buffer;

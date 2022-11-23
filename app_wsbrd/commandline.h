@@ -16,10 +16,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
-#include <linux/limits.h>
 #include <linux/if.h>
-#include <netinet/in.h>
 
 #include "stack/net_interface.h"
 
