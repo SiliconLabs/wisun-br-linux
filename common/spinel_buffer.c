@@ -16,6 +16,7 @@
 #include "spinel_buffer.h"
 #include "spinel_defs.h"
 #include "utils.h"
+#include "iobuf.h"
 #include "log.h"
 
 const char *spinel_cmd_str(int cmd)
@@ -129,190 +130,98 @@ void spinel_reset(struct spinel_buffer *buf)
     buf->cnt = 0;
 }
 
-static void __spinel_push_bool(struct spinel_buffer *buf, bool val)
+void spinel_push_bool(struct iobuf_write *buf, bool val)
 {
-    buf->frame[buf->cnt + 0] = val;
-    buf->cnt += 1;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_bool(struct spinel_buffer *buf, bool val)
-{
-    __spinel_push_bool(buf, val);
+    iobuf_push_u8(buf, val);
     TRACE(TR_HIF_EXTRA, "hif tx:     bool: %s", val ? "true" : "false");
 }
 
-static void __spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
+void spinel_push_uint(struct iobuf_write *buf, unsigned int val)
 {
     do {
-        buf->frame[buf->cnt++] = (val & 0x7F) | 0x80;
+        iobuf_push_u8(buf, (val & 0x7F) | 0x80);
         val >>= 7;
-    } while(val);
-    buf->frame[buf->cnt - 1] &= ~0x80;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_uint(struct spinel_buffer *buf, unsigned int val)
-{
-    __spinel_push_uint(buf, val);
+    } while (val);
+    buf->data[buf->len - 1] &= ~0x80;
     TRACE(TR_HIF_EXTRA, "hif tx:     uint: %u", val);
 }
 
-static void __spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
+void spinel_push_u8(struct iobuf_write *buf, uint8_t val)
 {
-    buf->frame[buf->cnt] = val;
-    buf->cnt += 1;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_u8(struct spinel_buffer *buf, uint8_t val)
-{
-    __spinel_push_u8(buf, val);
+    iobuf_push_u8(buf, val);
     TRACE(TR_HIF_EXTRA, "hif tx:       u8: %u", val);
 }
 
-static void __spinel_push_i8(struct spinel_buffer *buf, int8_t val)
+void spinel_push_i8(struct iobuf_write *buf, int8_t val)
 {
-    __spinel_push_u8(buf, (uint8_t)val);
-}
-
-void spinel_push_i8(struct spinel_buffer *buf, int8_t val)
-{
-    __spinel_push_i8(buf, val);
+    iobuf_push_u8(buf, (uint8_t)val);
     TRACE(TR_HIF_EXTRA, "hif tx:       i8: %i", val);
 }
 
-static void __spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
+void spinel_push_fixed_u8_array(struct iobuf_write *buf, const uint8_t *val, int num)
 {
-    for (int i = 0; i < num; i++)
-        __spinel_push_u8(buf, val[i]);
-}
-
-void spinel_push_fixed_u8_array(struct spinel_buffer *buf, const uint8_t *val, int num)
-{
-    __spinel_push_fixed_u8_array(buf, val, num);
+    iobuf_push_data(buf, val, num);
     TRACE(TR_HIF_EXTRA, "hif tx:   u8[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+        tr_bytes(buf->data + buf->len - num, num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-static void __spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
+void spinel_push_u16(struct iobuf_write *buf, uint16_t val)
 {
-    buf->frame[buf->cnt + 0] = val >> 0;
-    buf->frame[buf->cnt + 1] = val >> 8;
-    buf->cnt += 2;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_u16(struct spinel_buffer *buf, uint16_t val)
-{
-    __spinel_push_u16(buf, val);
+    iobuf_push_le16(buf, val);
     TRACE(TR_HIF_EXTRA, "hif tx:      u16: %u", val);
 }
 
-static void __spinel_push_i16(struct spinel_buffer *buf, int16_t val)
+void spinel_push_i16(struct iobuf_write *buf, int16_t val)
 {
-    __spinel_push_u16(buf, (uint16_t)val);
-}
-
-void spinel_push_i16(struct spinel_buffer *buf, int16_t val)
-{
-    __spinel_push_i16(buf, val);
+    iobuf_push_le16(buf, (uint16_t)val);
     TRACE(TR_HIF_EXTRA, "hif tx:      i16: %i", val);
 }
 
-static void __spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
+void spinel_push_fixed_u16_array(struct iobuf_write *buf, const uint16_t *val, int num)
 {
     for (int i = 0; i < num; i++)
-        __spinel_push_u16(buf, val[i]);
-}
-
-void spinel_push_fixed_u16_array(struct spinel_buffer *buf, const uint16_t *val, int num)
-{
-    __spinel_push_fixed_u16_array(buf, val, num);
+        iobuf_push_le16(buf, val[i]);
     TRACE(TR_HIF_EXTRA, "hif tx:  u16[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+        tr_bytes(buf->data + buf->len - 2 * num, 2 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-static void __spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
+void spinel_push_u32(struct iobuf_write *buf, uint32_t val)
 {
-    buf->frame[buf->cnt + 0] = val >> 0;
-    buf->frame[buf->cnt + 1] = val >> 8;
-    buf->frame[buf->cnt + 2] = val >> 16;
-    buf->frame[buf->cnt + 3] = val >> 24;
-    buf->cnt += 4;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_u32(struct spinel_buffer *buf, uint32_t val)
-{
-    __spinel_push_u32(buf, val);
+    iobuf_push_le32(buf, val);
     TRACE(TR_HIF_EXTRA, "hif tx:      u32: %u", val);
 }
 
-static void __spinel_push_i32(struct spinel_buffer *buf, int32_t val)
+void spinel_push_i32(struct iobuf_write *buf, int32_t val)
 {
-    __spinel_push_u32(buf, (uint32_t)val);
-}
-
-void spinel_push_i32(struct spinel_buffer *buf, int32_t val)
-{
-    __spinel_push_i32(buf, val);
+    iobuf_push_le32(buf, (uint32_t)val);
     TRACE(TR_HIF_EXTRA, "hif tx:      i32: %i", val);
 }
 
-static void __spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
+void spinel_push_fixed_u32_array(struct iobuf_write *buf, const uint32_t *val, int num)
 {
     for (int i = 0; i < num; i++)
-        __spinel_push_u32(buf, val[i]);
-}
-
-void spinel_push_fixed_u32_array(struct spinel_buffer *buf, const uint32_t *val, int num)
-{
-    __spinel_push_fixed_u32_array(buf, val, num);
+        iobuf_push_le32(buf, val[i]);
     TRACE(TR_HIF_EXTRA, "hif tx:  u32[%2d]: %s", num,
-        tr_bytes(spinel_ptr(buf) - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
+        tr_bytes(buf->data + buf->len - 4 * num, 4 * num, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR));
 }
 
-static void __spinel_push_str(struct spinel_buffer *buf, const char *val)
+void spinel_push_str(struct iobuf_write *buf, const char *val)
 {
-    int size = strlen(val) + 1; // include final '\0'
-
-    memcpy(buf->frame + buf->cnt, val, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_str(struct spinel_buffer *buf, const char *val)
-{
-    __spinel_push_str(buf, val);
+    iobuf_push_data(buf, (const uint8_t *)val, strlen(val) + 1);
     TRACE(TR_HIF_EXTRA, "hif tx:   string: %s", val);
 }
 
-static void __spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
+void spinel_push_data(struct iobuf_write *buf, const uint8_t *val, size_t size)
 {
-    __spinel_push_u16(buf, size);
-    memcpy(buf->frame + buf->cnt, val, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_data(struct spinel_buffer *buf, const uint8_t *val, size_t size)
-{
-    __spinel_push_data(buf, val, size);
+    iobuf_push_le16(buf, size);
+    iobuf_push_data(buf, val, size);
     TRACE(TR_HIF_EXTRA, "hif tx:     data: %s (%zu bytes)",
         tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
 }
 
-static void __spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
+void spinel_push_raw(struct iobuf_write *buf, const uint8_t *val, size_t size)
 {
-    memcpy(buf->frame + buf->cnt, val, size);
-    buf->cnt += size;
-    BUG_ON(buf->cnt > buf->len);
-}
-
-void spinel_push_raw(struct spinel_buffer *buf, const uint8_t *val, size_t size)
-{
-    __spinel_push_raw(buf, val, size);
+    iobuf_push_data(buf, val, size);
     TRACE(TR_HIF_EXTRA, "hif tx:      raw: %s (%zu bytes)",
         tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), size);
 }
@@ -672,4 +581,12 @@ void spinel_trace(struct spinel_buffer *buf, const char *prefix)
     TRACE(TR_HIF, "%s%s/%s %s (%d bytes)", prefix, cmd_str, prop_str,
           tr_bytes(spinel_ptr(buf), spinel_remaining_size(buf), NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), buf->len);
     buf->cnt = cnt_bkp; // reset buffer
+}
+
+void spinel_trace_tx(struct iobuf_write *buf)
+{
+    struct spinel_buffer *sbuf = ALLOC_STACK_SPINEL_BUF(min(1 + 4 + 4, buf->len));
+
+    memcpy(sbuf->frame, buf->data, sbuf->len);
+    spinel_trace(sbuf, "hif tx: ");
 }

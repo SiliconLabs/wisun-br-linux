@@ -147,7 +147,7 @@ static void wsbr_pcapng_write_start(struct wsbr_ctxt *ctxt)
         .link_type = LINKTYPE_IEEE802_15_4_NOFCS,
         .snap_len = 0, // no packet size restriction
     };
-    struct iobuf_write buf = { 0 };
+    struct iobuf_write buf = { };
 
     pcapng_write_shb(&buf, &shb);
     pcapng_write_idb(&buf, &idb);
@@ -252,7 +252,7 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
 void wsbr_pcapng_write_frame(struct wsbr_ctxt *ctxt, mcps_data_ind_t *ind, mcps_data_ie_list_t *ie)
 {
     uint8_t frame[MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE];
-    struct iobuf_write buf = { 0 };
+    struct iobuf_write buf = { };
     struct pcapng_epb epb = {
         .if_id = 0, // only one interface is used
         .timestamp = ind->timestamp, // ind->timestamp is in us

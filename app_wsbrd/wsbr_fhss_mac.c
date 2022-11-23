@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "common/iobuf.h"
 #include "common/utils.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
@@ -33,13 +34,14 @@
 int ns_sw_mac_fhss_register(struct mac_api *mac_api, struct fhss_api *fhss_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
+    struct iobuf_write buf = { };
 
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_REGISTER);
-    rcp_tx(ctxt, buf);
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_REGISTER);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
     // The original function initialize of the callback. But it useless now.
     ctxt->fhss_api = fhss_api;
     return 0;
@@ -55,12 +57,13 @@ struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api *mac_api)
 int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3);
+    struct iobuf_write buf = { };
 
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
-    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
-    rcp_tx(ctxt, buf);
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
     ctxt->fhss_api = NULL;
     return 0;
 }
@@ -81,13 +84,14 @@ int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api *mac_api,
                                               bool enable_feature)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 1);
+    struct iobuf_write buf = { };
 
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
-    spinel_push_hdr_set_prop(ctxt, buf, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY);
-    spinel_push_bool(buf, enable_feature);
-    rcp_tx(ctxt, buf);
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY);
+    spinel_push_bool(&buf, enable_feature);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
 
     return 0;
 }

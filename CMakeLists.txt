@@ -418,6 +418,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/log.c
         common/bits.c
         common/rand.c
+        common/iobuf.c
         common/slist.c
         common/spinel_buffer.c
         stack-services/common_functions.c
