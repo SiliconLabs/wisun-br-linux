@@ -224,6 +224,7 @@ void __tr_exit();
             __PRINT_WITH_LINE(91, "bug");                            \
         backtrace_show();                                            \
         raise(SIGTRAP);                                              \
+        __builtin_unreachable();                                     \
     } while (0)
 
 #define __BUG_ON(COND, MSG, ...) \
@@ -235,6 +236,7 @@ void __tr_exit();
                 __PRINT_WITH_LINE(91, "bug: \"%s\"", #COND);         \
             backtrace_show();                                        \
             raise(SIGTRAP);                                          \
+            __builtin_unreachable();                                 \
         }                                                            \
     } while (0)
 
