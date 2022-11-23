@@ -18,10 +18,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "stack-services/ns_list.h"
-#include "service_libs/whiteboard/whiteboard.h"
 
 #include "common_protocols/icmpv6.h"
-#include "platform/os_whiteboard.h"
+#include "whiteboard.h"
 
 #ifdef WHITEBOARD
 static uint16_t whiteboard_device_limit = 0;
