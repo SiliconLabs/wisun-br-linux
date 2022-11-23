@@ -636,7 +636,7 @@ uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie)
     return ptr;
 }
 
-bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
+bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
     mac_header_IE_t utt_ie_data;
 
@@ -651,7 +651,7 @@ bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
     return true;
 }
 
-bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
+bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
 {
     mac_header_IE_t btt_ie_data;
 
@@ -665,7 +665,7 @@ bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
     return true;
 }
 
-bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
+bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
 {
     mac_header_IE_t fc_ie_data;
 
@@ -679,7 +679,7 @@ bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
     return true;
 }
 
-bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl)
+bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl)
 {
     mac_header_IE_t rsl_ie_data;
 
@@ -692,7 +692,7 @@ bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl)
     return true;
 }
 
-bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64)
+bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t *eui64)
 {
     mac_header_IE_t rsl_ie_data;
 
@@ -705,7 +705,7 @@ bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64)
     return true;
 }
 
-bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie)
+bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie)
 {
     mac_header_IE_t lutt_ie_data;
 
@@ -721,7 +721,7 @@ bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie)
     return true;
 }
 
-bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie)
+bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie)
 {
     mac_header_IE_t lus_ie_data;
 
@@ -737,7 +737,7 @@ bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie)
     return true;
 }
 
-bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie)
+bool ws_wh_flus_read(const uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie)
 {
     mac_header_IE_t flus_ie_data;
 
@@ -752,7 +752,7 @@ bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie)
     return true;
 }
 
-bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie)
+bool ws_wh_lbt_read(const uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie)
 {
     mac_header_IE_t lbt_ie_data;
 
@@ -767,7 +767,7 @@ bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie)
     return true;
 }
 
-bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie)
+bool ws_wh_lbs_read(const uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie)
 {
     mac_header_IE_t lbs_ie_data;
 
@@ -786,7 +786,7 @@ bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie)
     return true;
 }
 
-bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
+bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 {
     mac_header_IE_t nr_ie_data;
 
@@ -817,7 +817,7 @@ bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
     return true;
 }
 
-bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie)
+bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie)
 {
     mac_header_IE_t lnd_ie_data;
 
@@ -836,7 +836,7 @@ bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie)
     return true;
 }
 
-bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie)
+bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie)
 {
     mac_header_IE_t lto_ie_data;
 
@@ -851,7 +851,7 @@ bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie)
     return true;
 }
 
-bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie)
+bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie)
 {
     mac_header_IE_t panid_ie_data;
 
@@ -864,7 +864,7 @@ bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *panid_
     return true;
 }
 
-bool ws_wh_lbc_read(uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie)
+bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie)
 {
     mac_header_IE_t lbc_ie_data;
 
@@ -879,14 +879,14 @@ bool ws_wh_lbc_read(uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie)
     return true;
 }
 
-static uint8_t *ws_channel_plan_zero_read(uint8_t *ptr, ws_channel_plan_zero_t *plan)
+static const uint8_t *ws_channel_plan_zero_read(const uint8_t *ptr, ws_channel_plan_zero_t *plan)
 {
     plan->regulatory_domain = *ptr++;
     plan->operating_class = *ptr++;
     return ptr;
 }
 
-static uint8_t *ws_channel_plan_one_read(uint8_t *ptr, ws_channel_plan_one_t *plan)
+static const uint8_t *ws_channel_plan_one_read(const uint8_t *ptr, ws_channel_plan_one_t *plan)
 {
     plan->ch0 = common_read_24_bit_inverse(ptr);
     ptr += 3;
@@ -896,27 +896,27 @@ static uint8_t *ws_channel_plan_one_read(uint8_t *ptr, ws_channel_plan_one_t *pl
     return ptr;
 }
 
-static uint8_t *ws_channel_plan_two_read(uint8_t *ptr, ws_channel_plan_two_t *plan)
+static const uint8_t *ws_channel_plan_two_read(const uint8_t *ptr, ws_channel_plan_two_t *plan)
 {
     plan->regulatory_domain = *ptr++;
     plan->channel_plan_id = *ptr++;
     return ptr;
 }
 
-static uint8_t *ws_channel_function_zero_read(uint8_t *ptr, ws_channel_function_zero_t *plan)
+static const uint8_t *ws_channel_function_zero_read(const uint8_t *ptr, ws_channel_function_zero_t *plan)
 {
     plan->fixed_channel = common_read_16_bit_inverse(ptr);
     return ptr + 2;
 }
 
-static uint8_t *ws_channel_function_three_read(uint8_t *ptr, ws_channel_function_three_t *plan)
+static const uint8_t *ws_channel_function_three_read(const uint8_t *ptr, ws_channel_function_three_t *plan)
 {
     plan->channel_hop_count = *ptr++;
     plan->channel_list = ptr;
     return ptr;
 }
 
-bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie)
+bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1023,7 +1023,7 @@ bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie
     return true;
 }
 
-bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie)
+bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1130,7 +1130,7 @@ bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie
     return true;
 }
 
-bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration)
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1155,7 +1155,7 @@ bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_informa
     return true;
 }
 
-bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan_version)
+bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1169,7 +1169,7 @@ bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan
     return true;
 }
 
-gtkhash_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
+gtkhash_t *ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1182,7 +1182,7 @@ gtkhash_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length)
     return (gtkhash_t *)nested_payload_ie.content_ptr;
 }
 
-bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)
+bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1199,7 +1199,7 @@ bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_networ
     return true;
 }
 
-bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie)
+bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1221,7 +1221,7 @@ bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom
     return true;
 }
 
-bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
+bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1235,7 +1235,7 @@ bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfn
     return true;
 }
 
-bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, gtkhash_t *lgtkhash, unsigned *active_lgtk_index)
+bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t *lgtkhash, unsigned *active_lgtk_index)
 {
     mac_nested_payload_IE_t nested_payload_ie;
     unsigned valid_hashs;
@@ -1268,7 +1268,7 @@ bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, gtkhash_t *lgtkh
     return true;
 }
 
-bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie)
+bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
@@ -1283,7 +1283,7 @@ bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie 
     return true;
 }
 
-bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
+bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
 {
     mac_nested_payload_IE_t nested_payload_ie;
     uint16_t info_length;

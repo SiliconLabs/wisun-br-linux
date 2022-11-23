@@ -94,7 +94,7 @@ typedef int8_t ws_eapol_pdu_address_check(struct net_if *interface_ptr, const ui
  * \return >= 0 success
  *
  */
-typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *data, uint16_t size);
+typedef int8_t ws_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *data, uint16_t size);
 
 typedef enum eapol_pdu_recv_prior {
     EAPOL_PDU_RECV_HIGH_PRIORITY = 0,

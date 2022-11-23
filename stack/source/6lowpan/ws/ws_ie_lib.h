@@ -34,7 +34,7 @@ struct ws_pom_ie;
  */
 typedef struct ws_wp_network_name {
     uint8_t network_name_length;
-    uint8_t *network_name;
+    const uint8_t *network_name;
 } ws_wp_network_name_t;
 
 
@@ -68,22 +68,22 @@ uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie);
 #define ws_wh_lbc_length() 4
 
 
-bool ws_wh_utt_read(uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
-bool ws_wh_bt_read(uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
-bool ws_wh_fc_read(uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
-bool ws_wh_rsl_read(uint8_t *data, uint16_t length, int8_t *rsl);
-bool ws_wh_ea_read(uint8_t *data, uint16_t length, uint8_t *eui64);
+bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
+bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
+bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
+bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl);
+bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t *eui64);
 /*Wi-SUN FAN 1.1 */
-bool ws_wh_lutt_read(uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie);
-bool ws_wh_lus_read(uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie);
-bool ws_wh_flus_read(uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie);
-bool ws_wh_lbt_read(uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie);
-bool ws_wh_lbs_read(uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie);
-bool ws_wh_lbc_read(uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie);
-bool ws_wh_nr_read(uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie);
-bool ws_wh_lnd_read(uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie);
-bool ws_wh_lto_read(uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie);
-bool ws_wh_panid_read(uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
+bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie);
+bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie);
+bool ws_wh_flus_read(const uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie);
+bool ws_wh_lbt_read(const uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie);
+bool ws_wh_lbs_read(const uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie);
+bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie);
+bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie);
+bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie);
+bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie);
+bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
 uint8_t *ws_wp_base_write(uint8_t *ptr, uint16_t length);
@@ -107,18 +107,18 @@ uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_lcp_ie *ws_
 uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp);
 
 
-bool ws_wp_nested_us_read(uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
-bool ws_wp_nested_bs_read(uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
-bool ws_wp_nested_pan_read(uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration);
-bool ws_wp_nested_pan_version_read(uint8_t *data, uint16_t length, uint16_t *pan_version);
-bool ws_wp_nested_network_name_read(uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name);
-gtkhash_t *ws_wp_nested_gtkhash_read(uint8_t *data, uint16_t length);
+bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
+bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
+bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration);
+bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
+bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name);
+gtkhash_t *ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length);
 /* Wi-SUN FAN 1.1 */
-bool ws_wp_nested_pom_read(uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
-bool ws_wp_nested_lbats_read(uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
-bool ws_wp_nested_lfn_version_read(uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
-bool ws_wp_nested_lgtkhash_read(uint8_t *data, uint16_t length, gtkhash_t *lgtkhash, unsigned *active_lgtk_index);
-bool ws_wp_nested_lfn_channel_plan_read(uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
+bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
+bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
+bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
+bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t *lgtkhash, unsigned *active_lgtk_index);
+bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
 
 
 #endif

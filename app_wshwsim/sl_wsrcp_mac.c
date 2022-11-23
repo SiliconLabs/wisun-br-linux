@@ -446,8 +446,8 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
     struct mcps_data_req_ie_list ie_ext = { };
     struct channel_list async_channel_list;
     struct msdu_malloc_info *malloc_info;
+    const uint8_t *ptr;
     uint16_t prio;
-    uint8_t *ptr;
     int len;
 
     data.msduLength                 = spinel_pop_data_ptr(buf, &ptr);

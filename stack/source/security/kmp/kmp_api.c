@@ -577,7 +577,7 @@ int8_t kmp_service_msg_if_register(kmp_service_t *service, uint8_t instance_id, 
     return 0;
 }
 
-int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t connection_num)
+int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size, uint8_t connection_num)
 {
     if (!service) {
         return -1;

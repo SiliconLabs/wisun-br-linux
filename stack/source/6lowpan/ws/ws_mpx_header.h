@@ -32,11 +32,11 @@ typedef struct mpx_msg {
     uint8_t     fragment_number;
     uint16_t    total_upper_layer_size;
     uint16_t    multiplex_id;
-    uint8_t     *frame_ptr;
+    const uint8_t *frame_ptr;
     uint16_t    frame_length;
 } mpx_msg_t;
 
-bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg);
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg);
 uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg);
 
 

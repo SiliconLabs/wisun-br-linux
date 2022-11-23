@@ -20,7 +20,7 @@
 
 #include "security/pana/pana_eap_header.h"
 
-bool eap_header_parse(uint8_t *data_ptr, uint16_t length, eap_header_t *header)
+bool eap_header_parse(const uint8_t *data_ptr, uint16_t length, eap_header_t *header)
 {
     if (length < 4) {
         return false;

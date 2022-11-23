@@ -369,7 +369,7 @@ uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, eapol_pdu_
         return NULL;
     }
 
-    uint8_t *key_data = eapol_pdu->msg.key.key_data;
+    const uint8_t *key_data = eapol_pdu->msg.key.key_data;
     uint16_t key_data_len = eapol_pdu->msg.key.key_data_length;
 
     uint8_t *kde = malloc(key_data_len);
@@ -470,7 +470,7 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *se
     return 0;
 }
 
-int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8_t pdu_size)
+int8_t sec_prot_lib_mic_validate(uint8_t *ptk, const uint8_t *mic, uint8_t *pdu, uint8_t pdu_size)
 {
     uint8_t recv_mic[EAPOL_KEY_MIC_LEN];
     memcpy(recv_mic, mic, EAPOL_KEY_MIC_LEN);

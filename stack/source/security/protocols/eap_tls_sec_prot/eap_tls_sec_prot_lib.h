@@ -115,7 +115,7 @@ void eap_tls_sec_prot_lib_message_init(tls_data_t *data);
  * \return >= 0 success
  *
  */
-int8_t eap_tls_sec_prot_lib_message_handle(uint8_t *data, uint16_t length, bool new_seq_id, tls_data_t *tls_send, tls_data_t *tls_recv);
+int8_t eap_tls_sec_prot_lib_message_handle(const uint8_t *data, uint16_t length, bool new_seq_id, tls_data_t *tls_send, tls_data_t *tls_recv);
 
 /**
  * eap_tls_sec_prot_lib_message_build builds EAP-TLS message

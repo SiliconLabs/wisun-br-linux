@@ -80,9 +80,9 @@ typedef struct mcps_data_conf {
  *
  */
 typedef struct mcps_data_conf_payload {
-    uint8_t *headerIeList;              /**< Header information IE's list without terminator*/
-    uint8_t *payloadIeList;             /**< Payload information IE's list without terminator*/
-    uint8_t *payloadPtr;                /**< Ack payload pointer */
+    const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
+    const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
+    const uint8_t *payloadPtr;          /**< Ack payload pointer */
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
     uint16_t payloadLength;             /**< Payload length in bytes */
@@ -111,7 +111,7 @@ typedef struct mcps_data_ind {
     uint8_t DSN;                /**< Data sequence number */
     mlme_security_t Key;        /**< Security key */
     uint16_t msduLength;        /**< Data unit length */
-    uint8_t *msdu_ptr;          /**< Data unit */
+    const uint8_t *msdu_ptr;    /**< Data unit */
 } mcps_data_ind_t;
 
 /**
@@ -120,8 +120,8 @@ typedef struct mcps_data_ind {
  * Structure for IEEE 802.15.4-2015 MCPS data extension to Indication
  */
 typedef struct mcps_data_ie_list {
-    uint8_t *headerIeList;              /**< Header information IE's list without terminator*/
-    uint8_t *payloadIeList;             /**< Payload information IE's list without terminator*/
+    const uint8_t *headerIeList;        /**< Header information IE's list without terminator*/
+    const uint8_t *payloadIeList;       /**< Payload information IE's list without terminator*/
     uint16_t headerIeListLength;        /**< Header information IE's list length in bytes */
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
 } mcps_data_ie_list_t;

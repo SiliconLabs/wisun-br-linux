@@ -48,9 +48,9 @@ void __wrap_wsbr_spinel_replay_interface(struct spinel_buffer *buf)
 {
     static bool init = false;
     uint8_t src_addr[16];
+    const uint8_t *data;
     uint16_t src_port;
     uint8_t interface;
-    uint8_t *data;
     size_t size;
     int ret, i;
     int fd = -1;

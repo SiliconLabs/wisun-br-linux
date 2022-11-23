@@ -41,7 +41,7 @@
 
 static int8_t eap_tls_sec_prot_lib_ack_update(tls_data_t *tls);
 static uint8_t *eap_tls_sec_prot_lib_fragment_write(uint8_t *data, uint16_t total_len, uint16_t handled_len, uint16_t *message_len, uint8_t *flags);
-static int8_t eap_tls_sec_prot_lib_fragment_read(tls_data_t *tls, uint8_t *data, uint16_t len);
+static int8_t eap_tls_sec_prot_lib_fragment_read(tls_data_t *tls, const uint8_t *data, uint16_t len);
 
 const uint8_t eap_msg_trace[4][10] = { "req", "rply", "succ", "fail"};
 
@@ -91,7 +91,7 @@ void eap_tls_sec_prot_lib_message_init(tls_data_t *data)
     data->total_len = 0;
 }
 
-int8_t eap_tls_sec_prot_lib_message_handle(uint8_t *data, uint16_t length, bool new_seq_id, tls_data_t *tls_send, tls_data_t *tls_recv)
+int8_t eap_tls_sec_prot_lib_message_handle(const uint8_t *data, uint16_t length, bool new_seq_id, tls_data_t *tls_send, tls_data_t *tls_recv)
 {
     int8_t result = EAP_TLS_MSG_CONTINUE;
 
@@ -209,7 +209,7 @@ static int8_t eap_tls_sec_prot_lib_ack_update(tls_data_t *tls)
     return true;
 }
 
-static int8_t eap_tls_sec_prot_lib_fragment_read(tls_data_t *tls, uint8_t *data, uint16_t len)
+static int8_t eap_tls_sec_prot_lib_fragment_read(tls_data_t *tls, const uint8_t *data, uint16_t len)
 {
     if (tls->handled_len + len > tls->total_len) {
         return true;

@@ -79,9 +79,9 @@ typedef struct mlme_security {
  * This structure encapsulates security related variables,
  */
 typedef struct mac_header_IE {
-    uint8_t *content_ptr;   /**< Content data */
-    unsigned length: 7;     /**< Element length 0- 127 */
-    uint8_t id;             /**< Element ID */
+    const uint8_t *content_ptr; /**< Content data */
+    unsigned length: 7;         /**< Element length 0- 127 */
+    uint8_t id;                 /**< Element ID */
 } mac_header_IE_t;
 
 #define MAC_PAYLOAD_IE_ESDU_GROUP_ID            0x00    /**< Encapsulated Service Data Unit (ESDU) Payload IE element's */
@@ -95,9 +95,9 @@ typedef struct mac_header_IE {
  * This structure encapsulates security related variables,
  */
 typedef struct mac_payload_IE {
-    uint8_t *content_ptr;   /**< Content data */
-    unsigned length: 11;    /**< Element length 0- 2047 */
-    unsigned id: 4;         /**< Group ID */
+    const uint8_t *content_ptr; /**< Content data */
+    unsigned length: 11;        /**< Element length 0- 2047 */
+    unsigned id: 4;             /**< Group ID */
 } mac_payload_IE_t;
 
 #endif

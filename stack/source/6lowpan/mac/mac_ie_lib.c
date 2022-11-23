@@ -33,7 +33,7 @@
 #define MAC_NESTED_SHORT_IE_PAYLOAD_ID_MASK 0x7f00
 #define MAC_NESTED_IE_TYPE_LONG_MASK 0x8000
 
-static void mac_ie_header_parse(mac_header_IE_t *header_element, uint8_t *ptr)
+static void mac_ie_header_parse(mac_header_IE_t *header_element, const uint8_t *ptr)
 {
     uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
     header_element->length = (ie_dummy & MAC_IE_HEADER_LENGTH_MASK);
@@ -41,7 +41,7 @@ static void mac_ie_header_parse(mac_header_IE_t *header_element, uint8_t *ptr)
     header_element->content_ptr = ptr + 2;
 }
 
-static void mac_ie_payload_parse(mac_payload_IE_t *payload_element, uint8_t *ptr)
+static void mac_ie_payload_parse(mac_payload_IE_t *payload_element, const uint8_t *ptr)
 {
     uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
     payload_element->length = (ie_dummy & MAC_IE_PAYLOAD_LENGTH_MASK);
@@ -49,7 +49,7 @@ static void mac_ie_payload_parse(mac_payload_IE_t *payload_element, uint8_t *ptr
     payload_element->content_ptr = ptr + 2;
 }
 
-static void mac_ie_nested_id_parse(mac_nested_payload_IE_t *element, uint8_t *ptr)
+static void mac_ie_nested_id_parse(mac_nested_payload_IE_t *element, const uint8_t *ptr)
 {
     uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
 
@@ -102,7 +102,7 @@ uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_
     return common_write_16_bit_inverse(ie_dummy, ptr);
 }
 
-uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, mac_payload_IE_t *payload_ie)
+uint16_t mac_ie_payload_discover(const uint8_t *payload_ptr, uint16_t length, mac_payload_IE_t *payload_ie)
 {
     mac_payload_IE_t ie_element;
     int32_t remaining_length = length;
@@ -121,7 +121,7 @@ uint16_t mac_ie_payload_discover(uint8_t *payload_ptr, uint16_t length, mac_payl
     return 0;
 }
 
-uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie)
+uint16_t mac_ie_nested_discover(const uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie)
 {
     mac_nested_payload_IE_t ie_element;
     while (length >= 2) {
@@ -144,10 +144,10 @@ uint16_t mac_ie_nested_discover(uint8_t *payload_ptr, uint16_t length, mac_neste
     return 0;
 }
 
-uint16_t mac_ie_nested_tagged_discover(uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie, uint8_t sub_tag_id)
+uint16_t mac_ie_nested_tagged_discover(const uint8_t *payload_ptr, uint16_t length, mac_nested_payload_IE_t *nested_ie, uint8_t sub_tag_id)
 {
     mac_nested_payload_IE_t ie_element;
-    uint8_t *sub_tag_ptr;
+    const uint8_t *sub_tag_ptr;
     while (length >= 2) {
         mac_ie_nested_id_parse(&ie_element, payload_ptr);
 
@@ -171,7 +171,7 @@ uint16_t mac_ie_nested_tagged_discover(uint8_t *payload_ptr, uint16_t length, ma
     return 0;
 }
 
-uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie)
+uint8_t mac_ie_header_discover(const uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie)
 {
     mac_header_IE_t ie_element;
     int32_t remaining_length = length;
@@ -190,10 +190,10 @@ uint8_t mac_ie_header_discover(uint8_t *header_ptr, uint16_t length, mac_header_
     return 0;
 }
 
-uint8_t mac_ie_header_sub_id_discover(uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie, uint8_t sub_id)
+uint8_t mac_ie_header_sub_id_discover(const uint8_t *header_ptr, uint16_t length, mac_header_IE_t *header_ie, uint8_t sub_id)
 {
     mac_header_IE_t ie_element;
-    uint8_t *sub_id_ptr;
+    const uint8_t *sub_id_ptr;
     int32_t remaining_length = length;
     while (remaining_length > 2) {
         mac_ie_header_parse(&ie_element, header_ptr);

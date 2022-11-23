@@ -91,7 +91,7 @@ static int8_t server_tls_sec_prot_init(sec_prot_t *prot);
 static void tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static void tls_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void tls_sec_prot_delete(sec_prot_t *prot);
-static int8_t tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
+static int8_t tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void tls_sec_prot_finished_send(sec_prot_t *prot);
 
 static void client_tls_sec_prot_state_machine(sec_prot_t *prot);
@@ -248,14 +248,14 @@ static void tls_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e res
     prot->state_machine_call(prot);
 }
 
-static int8_t tls_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size)
+static int8_t tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size)
 {
     tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
 
     // Discards old data
     eap_tls_sec_prot_lib_message_free(&data->tls_recv);
 
-    data->tls_recv.data = pdu;
+    data->tls_recv.data = (uint8_t *)pdu; // FIXME
     data->tls_recv.total_len = size;
 
     prot->state_machine(prot);

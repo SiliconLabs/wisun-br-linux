@@ -62,7 +62,7 @@ static uint8_t *eapol_key_information_write(eapol_key_information_t *key_informa
     return common_write_16_bit(key_info, ptr);
 }
 
-static uint8_t *eapol_key_information_read(eapol_key_information_t *key_information, uint8_t *ptr)
+static const uint8_t *eapol_key_information_read(eapol_key_information_t *key_information, const uint8_t *ptr)
 {
     uint16_t key_info = common_read_16_bit(ptr);
     key_information->description_version = ((key_info & KEY_INFO_VERSION_BIT_MASK) >> KEY_INFO_VERSION_BIT_SHIFT);
@@ -90,7 +90,7 @@ static bool eapol_parse_key_packet(eapol_pdu_t *eapol_pdu)
     if (eapol_pdu->packet_length < EAPOL_KEY_FRAME_BASE_SIZE) {
         return false;
     }
-    uint8_t *ptr = eapol_pdu->packet_body;
+    const uint8_t *ptr = eapol_pdu->packet_body;
     eapol_key_frame_t *key_frame = &eapol_pdu->msg.key;
     key_frame->key_description = *ptr++;
     if (key_frame->key_description != EAPOL_RSN_KEY_DESCRIPTION) {
@@ -138,7 +138,7 @@ void eapol_write_key_packet_mic(uint8_t *eapol_pdu, uint8_t *mic)
     }
 }
 
-bool eapol_parse_pdu_header(uint8_t *ptr, uint16_t data_length, eapol_pdu_t *eapol_pdu)
+bool eapol_parse_pdu_header(const uint8_t *ptr, uint16_t data_length, eapol_pdu_t *eapol_pdu)
 {
     //Validate MIN length
     if (data_length < EAPOL_BASE_LENGTH) {

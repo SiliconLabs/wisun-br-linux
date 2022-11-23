@@ -25,7 +25,7 @@
 
 #include "6lowpan/ws/ws_mpx_header.h"
 
-bool ws_llc_mpx_header_frame_parse(uint8_t *ptr, uint16_t length, mpx_msg_t *msg)
+bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg)
 {
     if (!length) {
         return false;

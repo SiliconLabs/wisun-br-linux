@@ -149,7 +149,7 @@ typedef void sec_prot_finished_send(sec_prot_t *prot);
  * \return >= 0 success
  *
  */
-typedef int8_t sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size);
+typedef int8_t sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 
 /**
  * sec_prot_send send a message
@@ -176,7 +176,7 @@ typedef int8_t sec_prot_send(sec_prot_t *prot, void *pdu, uint16_t size);
  * \return >= 0 success
  *
  */
-typedef int8_t sec_prot_conn_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
+typedef int8_t sec_prot_conn_receive(sec_prot_t *prot, const void *pdu, uint16_t size, uint8_t conn_number);
 
 /**
  * sec_prot_conn_send send a message for a connection number and/or with flags

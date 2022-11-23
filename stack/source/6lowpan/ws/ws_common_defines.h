@@ -266,7 +266,7 @@ typedef struct ws_pom_ie {
     uint8_t phy_op_mode_number: 4; /**< Number of PHY Operating Modes */
     uint8_t mdr_command_capable: 1;/**< Indicate if the transmitter supports MDR Command */
     uint8_t reserved: 3;           /**< Reserved, set to 0. */
-    uint8_t *phy_op_mode_id;       /**< Pointer to PHY Operating Modes List */
+    const uint8_t *phy_op_mode_id; /**< Pointer to PHY Operating Modes List */
 } ws_pom_ie_t;
 
 /**
@@ -343,7 +343,7 @@ typedef struct ws_channel_function_zero {
  */
 typedef struct ws_channel_function_three {
     uint8_t channel_hop_count;
-    uint8_t *channel_list;
+    const uint8_t *channel_list;
 } ws_channel_function_three_t;
 
 /**
@@ -351,14 +351,14 @@ typedef struct ws_channel_function_three {
  */
 typedef struct ws_excluded_channel_range {
     uint8_t number_of_range;
-    uint8_t *range_start;
+    const uint8_t *range_start;
 } ws_excluded_channel_range_t;
 
 /**
  * @brief ws_excluded_channel_mask_t WS excluded channel mask
  */
 typedef struct ws_excluded_channel_mask {
-    uint_rev8_t *channel_mask;
+    const uint_rev8_t *channel_mask;
     uint8_t mask_len_inline;
 } ws_excluded_channel_mask_t;
 

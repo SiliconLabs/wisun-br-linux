@@ -159,7 +159,7 @@ int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *se
  * \return < 0 failure
  * \return >= 0 success
  */
-int8_t sec_prot_lib_mic_validate(uint8_t *ptk, uint8_t *mic, uint8_t *pdu, uint8_t pdu_size);
+int8_t sec_prot_lib_mic_validate(uint8_t *ptk, const uint8_t *mic, uint8_t *pdu, uint8_t pdu_size);
 
 /**
  *  sec_prot_lib_pmkid_generate generate PMK ID from PMK

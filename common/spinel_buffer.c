@@ -459,7 +459,7 @@ const char *spinel_pop_str(struct spinel_buffer *buf)
     return val;
 }
 
-static unsigned int __spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
+static unsigned int __spinel_pop_data_ptr(struct spinel_buffer *buf, const uint8_t **val)
 {
     unsigned int size;
 
@@ -472,7 +472,7 @@ static unsigned int __spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **v
     return size;
 }
 
-unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
+unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, const uint8_t **val)
 {
     unsigned int size = __spinel_pop_data_ptr(buf, val);
 
@@ -484,8 +484,8 @@ unsigned int spinel_pop_data_ptr(struct spinel_buffer *buf, uint8_t **val)
 
 static unsigned int __spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned int val_size)
 {
+    const uint8_t *ptr;
     unsigned int size;
-    uint8_t *ptr;
 
     size = __spinel_pop_data_ptr(buf, &ptr);
     memcpy(val, ptr, size);
@@ -502,7 +502,7 @@ unsigned int spinel_pop_data(struct spinel_buffer *buf, uint8_t *val, unsigned i
     return size;
 }
 
-static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val)
+static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, const uint8_t **val)
 {
     unsigned int size = spinel_remaining_size(buf);
 
@@ -512,7 +512,7 @@ static unsigned int __spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **va
     return size;
 }
 
-unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, uint8_t **val)
+unsigned int spinel_pop_raw_ptr(struct spinel_buffer *buf, const uint8_t **val)
 {
     unsigned int size = __spinel_pop_raw_ptr(buf, val);
 

@@ -390,7 +390,7 @@ int8_t kmp_service_cb_register(kmp_service_t *service,
  * \return >= 0 success
  *
  */
-int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t conn_number);
+int8_t kmp_service_msg_if_receive(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, const void *pdu, uint16_t size, uint8_t conn_number);
 
 /**
  * kmp_service_msg_if_send send a message

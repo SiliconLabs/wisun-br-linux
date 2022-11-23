@@ -130,8 +130,8 @@ static int8_t radius_client_sec_prot_receive_check(sec_prot_t *prot, const void 
 static int8_t radius_client_sec_prot_init_radius_eap_tls(sec_prot_t *prot);
 static void radius_client_sec_prot_radius_eap_tls_deleted(sec_prot_t *prot);
 static uint16_t radius_client_sec_prot_eap_avps_handle(uint16_t avp_length, uint8_t *avp_ptr, uint8_t *copy_to_ptr);
-static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number);
-static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, void *pdu, uint16_t size);
+static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size, uint8_t conn_number);
+static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t *prot);
 static int8_t radius_client_sec_prot_radius_msg_send(sec_prot_t *prot);
 static void radius_client_sec_prot_radius_msg_free(sec_prot_t *prot);
@@ -140,8 +140,8 @@ static void radius_client_sec_prot_identifier_free(sec_prot_t *prot);
 static uint8_t radius_client_sec_prot_hex_to_ascii(uint8_t value);
 static int8_t radius_client_sec_prot_eui_64_hash_generate(uint8_t *eui_64, uint8_t *hashed_eui_64);
 static void radius_client_sec_prot_station_id_generate(uint8_t *eui_64, uint8_t *station_id_ptr);
-static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr);
-static int8_t radius_client_sec_prot_response_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr);
+static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, const uint8_t *msg_ptr, uint8_t *auth_ptr);
+static int8_t radius_client_sec_prot_response_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, const uint8_t *msg_ptr, uint8_t *auth_ptr);
 static int8_t radius_client_sec_prot_ms_mppe_recv_key_pmk_decrypt(sec_prot_t *prot, uint8_t *recv_key, uint8_t recv_key_len, uint8_t *request_authenticator, uint8_t *pmk_ptr);
 static void radius_client_sec_prot_finished_send(sec_prot_t *prot);
 static void radius_client_sec_prot_state_machine(sec_prot_t *prot);
@@ -367,7 +367,7 @@ static uint16_t radius_client_sec_prot_eap_avps_handle(uint16_t avp_length, uint
     return eap_len;
 }
 
-static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16_t size, uint8_t conn_number)
+static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size, uint8_t conn_number)
 {
     (void) conn_number;
 
@@ -377,7 +377,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
         return -1;
     }
 
-    uint8_t *radius_msg_ptr = pdu;
+    uint8_t *radius_msg_ptr = (uint8_t *)pdu; // FIXME
 
     uint8_t code = *radius_msg_ptr++;
     if (code != RADIUS_ACCESS_ACCEPT && code != RADIUS_ACCESS_REJECT && code != RADIUS_ACCESS_CHALLENGE) {
@@ -530,12 +530,12 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, void *pdu, uint16
     return 0;
 }
 
-static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, void *pdu, uint16_t size)
+static int8_t radius_client_sec_prot_radius_eap_receive(sec_prot_t *prot, const void *pdu, uint16_t size)
 {
     radius_client_sec_prot_int_t *data = radius_client_sec_prot_get(prot);
 
     data->recv_eap_msg_len = size;
-    data->recv_eap_msg = pdu;
+    data->recv_eap_msg = (uint8_t *)pdu; // FIXME
 
     prot->state_machine(prot);
 
@@ -710,7 +710,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
 
     // Write eap fragments
     eap_len = eap_hdr->msg.eap.length;
-    uint8_t *eap_ptr = eap_hdr->packet_body;
+    const uint8_t *eap_ptr = eap_hdr->packet_body;
     while (true) {
         if (eap_len > AVP_VALUE_MAX_LEN) {
             eap_len -= AVP_VALUE_MAX_LEN;
@@ -844,7 +844,7 @@ static void radius_client_sec_prot_station_id_generate(uint8_t *eui_64, uint8_t 
     }
 }
 
-static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr)
+static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, const uint8_t *msg_ptr, uint8_t *auth_ptr)
 {
     if (prot->sec_cfg->radius_cfg->radius_shared_secret == NULL || prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {
         return -1;
@@ -864,7 +864,7 @@ static int8_t radius_client_sec_prot_message_authenticator_calc(sec_prot_t *prot
     return 0;
 }
 
-static int8_t radius_client_sec_prot_response_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, uint8_t *msg_ptr, uint8_t *auth_ptr)
+static int8_t radius_client_sec_prot_response_authenticator_calc(sec_prot_t *prot, uint16_t msg_len, const uint8_t *msg_ptr, uint8_t *auth_ptr)
 {
 #ifdef MBEDTLS_MD5_C
     if (prot->sec_cfg->radius_cfg->radius_shared_secret == NULL || prot->sec_cfg->radius_cfg->radius_shared_secret_len == 0) {

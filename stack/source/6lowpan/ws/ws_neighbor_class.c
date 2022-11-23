@@ -169,7 +169,7 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
-    uint8_t *range_ptr = range_info->range_start;
+    const uint8_t *range_ptr = range_info->range_start;
 
     for (int i = 0; i < range_info->number_of_range; i++) {
         range_start = common_read_16_bit_inverse(range_ptr);
@@ -261,7 +261,6 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, w
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
     ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
 }
-
 
 void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_bt_ie_t *ws_bt_ie, uint32_t timestamp)
 {

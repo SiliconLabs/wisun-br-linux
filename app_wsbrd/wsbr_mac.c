@@ -327,15 +327,15 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct spinel_buffe
             .attr = macCCAThreshold,
         };
 
-        req.value_size = spinel_pop_data_ptr(buf, (uint8_t **)&req.value_pointer);
+        req.value_size = spinel_pop_data_ptr(buf, (const uint8_t **)&req.value_pointer);
         if (!spinel_prop_is_valid(buf, prop))
             return;
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
     case SPINEL_PROP_WS_MLME_IND: {
+        const uint8_t *data;
         int id;
-        uint8_t *data;
 
         id = spinel_pop_uint(buf);
         spinel_pop_data_ptr(buf, &data);

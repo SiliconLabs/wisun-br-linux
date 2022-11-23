@@ -53,7 +53,7 @@ typedef struct eapol_relay {
 
 static eapol_relay_t *ws_eapol_relay_get(struct net_if *interface_ptr);
 static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
-static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
+static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size);
 #ifdef HAVE_SOCKET_API
 static void ws_eapol_relay_socket_cb(void *cb);
 #endif
@@ -170,7 +170,7 @@ static int8_t ws_eapol_relay_eapol_pdu_address_check(struct net_if *interface_pt
     return 0;
 }
 
-static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size)
+static int8_t ws_eapol_relay_eapol_pdu_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size)
 {
     eapol_relay_t *eapol_relay = ws_eapol_relay_get(interface_ptr);
     if (!eapol_relay) {

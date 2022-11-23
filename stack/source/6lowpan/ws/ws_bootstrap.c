@@ -986,7 +986,7 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
     uint16_t range_start, range_stop;
     uint8_t mask_index = 0;
     //uint8_t channel_index = 0;
-    uint8_t *range_ptr = range_info->range_start;
+    const uint8_t *range_ptr = range_info->range_start;
     uint32_t *mask_ptr = mask_buffer;
     while (range_info->number_of_range) {
         range_start = common_read_16_bit_inverse(range_ptr);

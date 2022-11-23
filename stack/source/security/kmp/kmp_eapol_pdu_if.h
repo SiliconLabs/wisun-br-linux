@@ -58,6 +58,6 @@ int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service);
  * \return >= 0 success
  *
  */
-int8_t kmp_eapol_pdu_if_receive(struct net_if *interface_ptr, const uint8_t *eui_64, void *pdu, uint16_t size);
+int8_t kmp_eapol_pdu_if_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size);
 
 #endif
