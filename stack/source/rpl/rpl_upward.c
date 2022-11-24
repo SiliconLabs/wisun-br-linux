@@ -1923,16 +1923,14 @@ void rpl_upward_print_neighbour(const rpl_neighbour_t *neighbour)
         path_cost = 0xFFFF;
     }
 
-    ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str_ll);
-    ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str_global);
     tr_debug("   %2.0d%c%04x %04x %02x %s%%%d (%s)",
              neighbour->dodag_parent ? neighbour->dodag_pref + 1 : 0,
              neighbour->dodag_version && rpl_instance_preferred_parent(neighbour->dodag_version->dodag->instance) == neighbour ? '*' : ' ',
              neighbour->rank,
              path_cost,
              neighbour->dao_path_control,
-             ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_ll, neighbour->ll_address), neighbour->interface_id,
-             ROUTE_PRINT_ADDR_STR_FORMAT(addr_str_global, neighbour->global_address));
+             tr_ipv6(neighbour->ll_address), neighbour->interface_id,
+             tr_ipv6(neighbour->global_address));
 }
 
 void rpl_upward_print_neighbours_in_version(const rpl_neighbour_list_t *list, const rpl_dodag_version_t *version)
@@ -1947,8 +1945,7 @@ void rpl_upward_print_neighbours_in_version(const rpl_neighbour_list_t *list, co
 void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag)
 {
     /* Summary */
-    ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-    tr_debug("DODAG %s", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, dodag->id));
+    tr_debug("DODAG %s", tr_ipv6(dodag->id));
     tr_debug("  G=%d MOP=%d Prf=%d", dodag->g_mop_prf & RPL_GROUNDED ? 1 : 0,
              (dodag->g_mop_prf & RPL_MODE_MASK) >> RPL_MODE_SHIFT,
              (dodag->g_mop_prf & RPL_DODAG_PREF_MASK));
@@ -1972,12 +1969,12 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag)
         }
         bitcpy(addr, route->prefix, route->prefix_len);
         if (route->lifetime == 0xFFFFFFFF) {
-            tr_debug("%24s/%-3u lifetime:infinite pref:%"PRIdFAST8,
-                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, pref);
+            tr_debug("%24s lifetime:infinite pref:%"PRIdFAST8,
+                     tr_ipv6_prefix(addr, route->prefix_len), pref);
 
         } else {
-            tr_debug("%24s/%-3u lifetime:%"PRIu32" pref:%"PRIdFAST8,
-                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->lifetime, pref);
+            tr_debug("%24s lifetime:%"PRIu32" pref:%"PRIdFAST8,
+                     tr_ipv6_prefix(addr, route->prefix_len), route->lifetime, pref);
         }
     }
     /* Prefixes */
@@ -1985,15 +1982,15 @@ void rpl_upward_print_dodag(rpl_instance_t *instance, rpl_dodag_t *dodag)
         uint8_t addr[16] = { 0 } ;
         bitcpy(addr, prefix->prefix, prefix->prefix_len);
         if (prefix->lifetime == 0xFFFFFFFF) {
-            tr_debug("%24s/%-3u lifetime:infinite flags:%c%c%c",
-                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len,
+            tr_debug("%24s lifetime:infinite flags:%c%c%c",
+                     tr_ipv6_prefix(addr, prefix->prefix_len),
                      prefix->options & PIO_L ? 'L' : '-',
                      prefix->options & PIO_A ? 'A' : '-',
                      prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '
                     );
         } else {
-            tr_debug("%24s/%-3u lifetime:%"PRIu32" flags:%c%c%c",
-                     ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), prefix->prefix_len, prefix->lifetime,
+            tr_debug("%24s lifetime:%"PRIu32" flags:%c%c%c",
+                     tr_ipv6_prefix(addr, prefix->prefix_len), prefix->lifetime,
                      prefix->options & PIO_L ? 'L' : '-',
                      prefix->options & PIO_A ? 'A' : '-',
                      prefix->options & RPL_PIO_PUBLISHED ? '*' : ' '

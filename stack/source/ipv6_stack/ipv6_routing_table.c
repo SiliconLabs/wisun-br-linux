@@ -682,36 +682,17 @@ static const char *type_names[] = {
     [IP_NEIGHBOUR_TENTATIVE]            = "TENTATIVE",
 };
 
-static void sprint_array(char *s, const uint8_t *ptr, uint_fast8_t len)
-{
-    if (len == 0) {
-        *s = '\0';
-        return;
-    }
-
-    for (uint_fast8_t i = 0; i < len; i++) {
-        s += sprintf(s, "%02x:", *ptr++);
-    }
-    // Replace last ':' with '\0'
-    *(s - 1) = '\0';
-}
-
 void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
 {
     tr_debug("Neighbour Cache %d", cache->interface_id);
     tr_debug("Reachable Time: %"PRIu32"   Retrans Timer: %"PRIu32"   MTU: %"PRIu16"", cache->reachable_time, cache->retrans_timer, cache->link_mtu);
     ns_list_foreach(const ipv6_neighbour_t, cur, &cache->list) {
-        ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-        tr_debug("%sIP Addr: %s", cur->is_router ? "Router " : "", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, cur->ip_address));
-        // Reusing addr_str for the array prints as it's no longer needed and 41 bytes is more than enough.
-        sprint_array(addr_str, cur->ll_address, addr_len_from_type(cur->ll_type));
-        tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, addr_str);
-        if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8)) {
-            sprint_array(addr_str, ipv6_neighbour_eui64(cache, cur), 8);
-            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, addr_str);
-        } else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
+        tr_debug("%sIP Addr: %s", cur->is_router ? "Router " : "", tr_ipv6(cur->ip_address));
+        tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, tr_key(cur->ll_address, addr_len_from_type(cur->ll_type)));
+        if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8))
+            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, tr_eui64(ipv6_neighbour_eui64(cache, cur)));
+        else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE)
             tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime);
-        }
     }
 }
 
@@ -875,10 +856,9 @@ void ipv6_destination_cache_print()
 {
     tr_debug("Destination Cache:");
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-        tr_debug(" %s (%d id) (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->interface_id, entry->lifetime);
+        tr_debug(" %s (%d id) (life %u)", tr_ipv6(entry->destination), entry->interface_id, entry->lifetime);
         if (entry->redirected) {
-            tr_debug("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
+            tr_debug("     Redirect %s%%%u", tr_ipv6(entry->redirect_addr), entry->interface_id);
         }
 #ifdef HAVE_IPV6_PMTUD
         tr_debug("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
@@ -1213,22 +1193,21 @@ static void ipv6_route_print(const ipv6_route_t *route)
     // Route prefix is variable-length, so need to zero pad for str_ipv6
     uint8_t addr[16] = { 0 };
     bitcpy(addr, route->prefix, route->prefix_len);
-    ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
     if (route->lifetime != 0xFFFFFFFF) {
-        tr_debug(" %24s/%-3u if:%u src:'%s' id:%d lifetime:%"PRIu32,
-                 ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
+        tr_debug(" %24s if:%u src:'%s' id:%d lifetime:%"PRIu32,
+                 tr_ipv6_prefix(addr, route->prefix_len), route->info.interface_id,
                  route_src_names[route->info.source], route->info.source_id, route->lifetime
                 );
     } else {
-        tr_debug(" %24s/%-3u if:%u src:'%s' id:%d lifetime:infinite",
-                 ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
+        tr_debug(" %24s if:%u src:'%s' id:%d lifetime:infinite",
+                 tr_ipv6_prefix(addr, route->prefix_len), route->info.interface_id,
                  route_src_names[route->info.source], route->info.source_id
                 );
     }
     if (route->on_link) {
         tr_debug("     On-link (met %d)", total_metric(route));
     } else {
-        tr_debug("     next-hop %s (met %d)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, route->info.next_hop_addr), total_metric(route));
+        tr_debug("     next-hop %s (met %d)", tr_ipv6(route->info.next_hop_addr), total_metric(route));
     }
 }
 

@@ -249,11 +249,9 @@ int_fast8_t addr_policy_table_delete_entry(const uint8_t *prefix, uint8_t len)
 /// @TODO do we need this test print anymore ?
 void addr_policy_table_print(void)
 {
-    ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
-        char addr[40];
-        str_ipv6(entry->prefix, addr);
-        tr_debug("%3d %3d %s/%u", entry->precedence, entry->label, addr, entry->prefix_len);
-    }
+    ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table)
+        tr_debug("%3d %3d %s", entry->precedence, entry->label,
+                 tr_ipv6_prefix(entry->prefix, entry->prefix_len));
 }
 
 static void addr_policy_table_reset(void)

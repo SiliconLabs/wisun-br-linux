@@ -1778,27 +1778,23 @@ void rpl_downward_print_instance(rpl_instance_t *instance)
         rpl_downward_compute_paths(instance);
     }
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
-
-        char str_buf[44];
-        str_ipv6_prefix(target->prefix, target->prefix_len, str_buf);
 #ifdef HAVE_RPL_ROOT
         if (target->root) {
             tr_debug("  %-40s %02x seq=%d%s cost=%"PRIu32"%s%s%s",
-                     str_buf,
+                     tr_ipv6_prefix(target->prefix, target->prefix_len),
                      target->path_control, target->path_sequence, target->need_seq_inc ? "+" : "",
                      target->info.root.cost,
                      target->published ? " (pub)" : "",
                      target->external ? " (E)" : "",
                      target->connected ? "" : " (disconnected)");
             ns_list_foreach(rpl_dao_root_transit_t, transit, &target->info.root.transits) {
-                // Reuse str_buf as it's no longer needed and it's large enough for ROUTE_PRINT_ADDR_STR_FORMAT.
-                tr_debug("    ->%-36s %02x cost=%"PRIu16, ROUTE_PRINT_ADDR_STR_FORMAT(str_buf, transit->transit), transit->path_control, transit->cost);
+                tr_debug("    ->%-36s %02x cost=%"PRIu16, tr_ipv6(transit->transit), transit->path_control, transit->cost);
             }
         } else
 #endif
         {
             tr_debug("  %-40s %02x seq=%d%s%s%s",
-                     str_buf,
+                     tr_ipv6_prefix(target->prefix, target->prefix_len),
                      target->path_control, target->path_sequence, target->need_seq_inc ? "+" : "",
                      target->published ? " (pub)" : "",
                      target->external ? " (E)" : "");

@@ -141,12 +141,6 @@ typedef struct ipv6_neighbour_cache {
     NS_LIST_HEAD(ipv6_neighbour_t, link)    list;
 } ipv6_neighbour_cache_t;
 
-/* Macros for formatting ipv6 addresses into strings for route printing. */
-/* Initialize a string buffer for the ipv6 address */
-#define ROUTE_PRINT_ADDR_STR_BUFFER_INIT(str) char str[41] = "<null>"
-/* Format and store ipv6 'addr' into 'str', and evaluate 'str' */
-#define ROUTE_PRINT_ADDR_STR_FORMAT(str, addr) (str_ipv6(addr, str), str)
-
 void ipv6_neighbour_cache_init(ipv6_neighbour_cache_t *cache, int8_t interface_id);
 void ipv6_neighbour_cache_flush(ipv6_neighbour_cache_t *cache);
 ipv6_neighbour_t *ipv6_neighbour_update(ipv6_neighbour_cache_t *cache, const uint8_t *address, bool solicited);
