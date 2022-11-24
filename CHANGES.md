@@ -1,3 +1,46 @@
+v1.5
+----
+
+  - Introduce phy_mode_id and chan_plan_id to select a PHY FAN1.1. Also add the
+    DBus properties WisunPhyModeId and WisunChanPlanId.
+  - By default wsbrd now advertise FAN1.1 PAN (in the field "FAN TPS Version").
+    The fan version can still be enforced with the fan_version parameter.
+  - The advertised FAN version in independent of the chosen PHY. It is possible
+    to advertise FAN1.1 protocol with PHY FAN1.0 and vice-versa.
+  - Add support for LGTKs (for LFN authentication). The existing API for GTK
+    (values, timings, etc...) is also available for LGTKs.
+  - Change DBus API to enable "mode switch". It is now possible to set mode
+    switch setting for each neighbor.
+  - Add needed features to act as TBU for the Wi-SUN certification:
+    * Add support for customizable 6LoWPAN MTU
+    * Allow to forward received frames to Wireshark
+    * Add pan_size parameter to simulate a busy network
+    * Fix EUI64 exposed on DBus when an external DHCP is in use
+  - Change the file format of the stored data (aka NVM). The new format is human
+    readable. Several interesting information can now be easily retrieved (GAK,
+    GTK, PMK, PTK, active keys, etc...).
+  - By default, the storage folder is no more readable by other users.
+  - Add a DBus API to subscribe the network to external multicast frames. This
+    API is mandatory by the Wi-SUN specification. It replaces the MLDv2 (=
+    IGMPv3 for IPv6) protocol available on classical IPv6 networks.
+  - Drop DBus APIs AddRootCertificate and RemoveRootCertificate. We suggest to
+    rely on external Radius server for production usage.
+  - Allow to mix channel plans. We now compare the compatibility of set of RF
+    parameters.
+  - Remove 10sec delay on start.
+  - Time was lost when the server restarted.
+  - Increase precision of "channel 0 frequency" displayed on start.
+  - Remove some useless traces.
+  - Fix possible latency when new neighbor is detected with neighbor_proxy
+    enabled.
+  - Fix PAN config and PAN advert trickles.
+  - Fix default permissions of cryptographic material
+  - Fix channel mask usage in asynchronous frames
+  - Add documentation for the DBus API
+  - Mention CPC in the compilation instructions
+  - Simplify timers handling. Also add a trace to track timers usage.
+  - Simplify internal DHCP server
+
 v1.4
 ----
 
