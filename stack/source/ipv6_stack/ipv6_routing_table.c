@@ -39,7 +39,6 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/ip6string.h"
 #include "service_libs/etx/etx.h"
 
 #include "core/ns_address_internal.h"
@@ -1211,7 +1210,7 @@ void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_
 
 static void ipv6_route_print(const ipv6_route_t *route, route_print_fn_t *print_fn)
 {
-    // Route prefix is variable-length, so need to zero pad for ip6tos
+    // Route prefix is variable-length, so need to zero pad for str_ipv6
     uint8_t addr[16] = { 0 };
     bitcpy(addr, route->prefix, route->prefix_len);
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);

@@ -34,7 +34,6 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ip6string.h"
 #include "stack/net_interface.h"
 #include "stack/net_rpl.h"
 #include "stack/timers.h"

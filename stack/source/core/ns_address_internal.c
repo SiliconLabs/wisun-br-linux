@@ -28,7 +28,6 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/ip6string.h"
 #include "stack-services/ns_sha256.h"
 #include "stack-services/common_functions.h"
 
@@ -252,7 +251,7 @@ void addr_policy_table_print(void)
 {
     ns_list_foreach(addr_policy_table_entry_t, entry, &addr_policy_table) {
         char addr[40];
-        ip6tos(entry->prefix, addr);
+        str_ipv6(entry->prefix, addr);
         tr_debug("%3d %3d %s/%u", entry->precedence, entry->label, addr, entry->prefix_len);
     }
 }

@@ -27,7 +27,6 @@
 #include <inttypes.h>
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/ip6string.h"
 #include "stack-services/common_functions.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
@@ -707,7 +706,7 @@ socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, con
 }
 
 /* Write address + port neatly to out, returning characters written */
-/* Maximum output length is 48, including the terminator, assuming ip6tos limited to 39 */
+/* Maximum output length is 48, including the terminator, assuming str_ipv6 limited to 39 */
 static int sprint_addr(char *out, const uint8_t addr[static 16], uint16_t port)
 {
     char *init_out = out;
@@ -715,7 +714,8 @@ static int sprint_addr(char *out, const uint8_t addr[static 16], uint16_t port)
         *out++ = '*';
     } else {
         *out++ = '[';
-        out += ip6tos(addr, out);
+        str_ipv6(addr, out);
+        out += strlen(out);
         *out++ = ']';
     }
 

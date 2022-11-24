@@ -11,7 +11,6 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <stack/mac/platform/os_whiteboard.h>
-#include <stack-services/ip6string.h>
 #include "common/log.h"
 
 #include "os_whiteboard.h"

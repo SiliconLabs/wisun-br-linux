@@ -86,7 +86,6 @@
 #include "app_wsbrd/wsbr.h"
 #include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/ip6string.h"
 #include "stack/net_rpl.h"
 #include "stack/timers.h"
 
@@ -1781,7 +1780,7 @@ void rpl_downward_print_instance(rpl_instance_t *instance, route_print_fn_t *pri
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
 
         char str_buf[44];
-        ip6_prefix_tos(target->prefix, target->prefix_len, str_buf);
+        str_ipv6_prefix(target->prefix, target->prefix_len, str_buf);
 #ifdef HAVE_RPL_ROOT
         if (target->root) {
             print_fn("  %-40s %02x seq=%d%s cost=%"PRIu32"%s%s%s",

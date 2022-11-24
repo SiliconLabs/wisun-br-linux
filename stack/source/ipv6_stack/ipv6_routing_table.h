@@ -145,7 +145,7 @@ typedef struct ipv6_neighbour_cache {
 /* Initialize a string buffer for the ipv6 address */
 #define ROUTE_PRINT_ADDR_STR_BUFFER_INIT(str) char str[41] = "<null>"
 /* Format and store ipv6 'addr' into 'str', and evaluate 'str' */
-#define ROUTE_PRINT_ADDR_STR_FORMAT(str, addr) (ip6tos(addr, str), str)
+#define ROUTE_PRINT_ADDR_STR_FORMAT(str, addr) (str_ipv6(addr, str), str)
 
 /* Callback type for route print */
 typedef void (route_print_fn_t)(const char *fmt, ...);

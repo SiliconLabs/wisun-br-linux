@@ -194,7 +194,6 @@ add_library(libwsbrd STATIC
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
     stack-services/common_functions.c
-    stack-services/ip6string.c
     stack-services/ns_list.c
 )
 target_include_directories(libwsbrd PRIVATE
@@ -387,7 +386,6 @@ if(COMPILE_SIMULATION_TOOLS)
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
         stack-services/common_functions.c
-        stack-services/ip6string.c
         stack-services/ns_list.c
     )
     target_include_directories(wsnode PRIVATE
@@ -425,7 +423,6 @@ if(COMPILE_SIMULATION_TOOLS)
         common/slist.c
         common/spinel_buffer.c
         stack-services/common_functions.c
-        stack-services/ip6string.c
         stack-services/ns_list.c
         stack-scheduler/source/event.c
         app_wshwsim/timer_sys_stub.c
