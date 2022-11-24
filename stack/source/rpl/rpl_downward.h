@@ -33,7 +33,7 @@ struct rpl_dao_root_transit;
 
 void rpl_downward_dao_slow_timer(struct rpl_instance *instance, uint16_t seconds);
 void rpl_downward_dao_timer(struct rpl_instance *instance, uint16_t ticks);
-void rpl_downward_print_instance(struct rpl_instance *instance, route_print_fn_t *print_fn);
+void rpl_downward_print_instance(struct rpl_instance *instance);
 uint16_t rpl_downward_route_table_get(struct rpl_instance *instance, uint8_t *prefix, struct rpl_route_info *output_table, uint16_t output_table_len);
 
 void rpl_downward_convert_dodag_preferences_to_dao_path_control(struct rpl_dodag *dodag);

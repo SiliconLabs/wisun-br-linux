@@ -696,21 +696,21 @@ static void sprint_array(char *s, const uint8_t *ptr, uint_fast8_t len)
     *(s - 1) = '\0';
 }
 
-void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache, route_print_fn_t *print_fn)
+void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache)
 {
-    print_fn("Neighbour Cache %d", cache->interface_id);
-    print_fn("Reachable Time: %"PRIu32"   Retrans Timer: %"PRIu32"   MTU: %"PRIu16"", cache->reachable_time, cache->retrans_timer, cache->link_mtu);
+    tr_debug("Neighbour Cache %d", cache->interface_id);
+    tr_debug("Reachable Time: %"PRIu32"   Retrans Timer: %"PRIu32"   MTU: %"PRIu16"", cache->reachable_time, cache->retrans_timer, cache->link_mtu);
     ns_list_foreach(const ipv6_neighbour_t, cur, &cache->list) {
         ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-        print_fn("%sIP Addr: %s", cur->is_router ? "Router " : "", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, cur->ip_address));
+        tr_debug("%sIP Addr: %s", cur->is_router ? "Router " : "", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, cur->ip_address));
         // Reusing addr_str for the array prints as it's no longer needed and 41 bytes is more than enough.
         sprint_array(addr_str, cur->ll_address, addr_len_from_type(cur->ll_type));
-        print_fn("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, addr_str);
+        tr_debug("LL Addr: (%s %"PRIu32") %s", state_names[cur->state], cur->timer, addr_str);
         if (cache->recv_addr_reg && memcmp(ipv6_neighbour_eui64(cache, cur), ADDR_EUI64_ZERO, 8)) {
             sprint_array(addr_str, ipv6_neighbour_eui64(cache, cur), 8);
-            print_fn("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, addr_str);
+            tr_debug("EUI-64:  (%s %"PRIu32") %s", type_names[cur->type], cur->lifetime, addr_str);
         } else if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-            print_fn("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime);
+            tr_debug("         (%s %"PRIu32") [no EUI-64]", type_names[cur->type], cur->lifetime);
         }
     }
 }
@@ -871,17 +871,17 @@ void ipv6_neighbour_cache_fast_timer(int ticks)
     }
 }
 
-void ipv6_destination_cache_print(route_print_fn_t *print_fn)
+void ipv6_destination_cache_print()
 {
-    print_fn("Destination Cache:");
+    tr_debug("Destination Cache:");
     ns_list_foreach(ipv6_destination_t, entry, &ipv6_destination_cache) {
         ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
-        print_fn(" %s (%d id) (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->interface_id, entry->lifetime);
+        tr_debug(" %s (%d id) (life %u)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->destination), entry->interface_id, entry->lifetime);
         if (entry->redirected) {
-            print_fn("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
+            tr_debug("     Redirect %s%%%u", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, entry->redirect_addr), entry->interface_id);
         }
 #ifdef HAVE_IPV6_PMTUD
-        print_fn("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
+        tr_debug("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
 #endif
     }
 }
@@ -1208,35 +1208,35 @@ void ipv6_route_table_set_next_hop_fn(ipv6_route_src_t src, ipv6_route_next_hop_
     ipv6_route_next_hop_computation[src] = fn;
 }
 
-static void ipv6_route_print(const ipv6_route_t *route, route_print_fn_t *print_fn)
+static void ipv6_route_print(const ipv6_route_t *route)
 {
     // Route prefix is variable-length, so need to zero pad for str_ipv6
     uint8_t addr[16] = { 0 };
     bitcpy(addr, route->prefix, route->prefix_len);
     ROUTE_PRINT_ADDR_STR_BUFFER_INIT(addr_str);
     if (route->lifetime != 0xFFFFFFFF) {
-        print_fn(" %24s/%-3u if:%u src:'%s' id:%d lifetime:%"PRIu32,
+        tr_debug(" %24s/%-3u if:%u src:'%s' id:%d lifetime:%"PRIu32,
                  ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
                  route_src_names[route->info.source], route->info.source_id, route->lifetime
                 );
     } else {
-        print_fn(" %24s/%-3u if:%u src:'%s' id:%d lifetime:infinite",
+        tr_debug(" %24s/%-3u if:%u src:'%s' id:%d lifetime:infinite",
                  ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, addr), route->prefix_len, route->info.interface_id,
                  route_src_names[route->info.source], route->info.source_id
                 );
     }
     if (route->on_link) {
-        print_fn("     On-link (met %d)", total_metric(route));
+        tr_debug("     On-link (met %d)", total_metric(route));
     } else {
-        print_fn("     next-hop %s (met %d)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, route->info.next_hop_addr), total_metric(route));
+        tr_debug("     next-hop %s (met %d)", ROUTE_PRINT_ADDR_STR_FORMAT(addr_str, route->info.next_hop_addr), total_metric(route));
     }
 }
 
-void ipv6_route_table_print(route_print_fn_t *print_fn)
+void ipv6_route_table_print()
 {
-    print_fn("Routing table:");
+    tr_debug("Routing table:");
     ns_list_foreach(ipv6_route_t, r, &ipv6_routing_table) {
-        ipv6_route_print(r, print_fn);
+        ipv6_route_print(r);
     }
 }
 
@@ -1260,18 +1260,10 @@ static uint16_t total_metric(const ipv6_route_t *route)
     return metric;
 }
 
-void trace_debug_print(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    vtracef(0, TRACE_GROUP, fmt, ap);
-    va_end(ap);
-}
-
 static void ipv6_route_entry_remove(ipv6_route_t *route)
 {
     tr_info("Deleted route:");
-    ipv6_route_print(route, trace_debug_print);
+    ipv6_route_print(route);
     if (route->info_autofree) {
         free(route->info.info);
     }
@@ -1665,7 +1657,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
 
     if (changed_info != UNCHANGED) {
         tr_info("%s route:", changed_info == NEW ? "Added" : "Updated");
-        ipv6_route_print(route, trace_debug_print);
+        ipv6_route_print(route);
     }
 
     return route;

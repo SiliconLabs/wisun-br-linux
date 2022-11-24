@@ -837,9 +837,8 @@ void arm_print_routing_table(void);
  *
  * Outputs the routing table using the given printf style function
  *
- * \param print_fn pointer to a printf style output function
  */
-void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...));
+void arm_print_routing_table2();
 
 /**
  * \brief Flush neighbor cache
@@ -859,10 +858,8 @@ void arm_print_neigh_cache(void);
  * \brief Print neighbor cache
  *
  * Outputs the neighbor cache using the given printf style function
- *
- * \param print_fn pointer to a printf style output function
  */
-void arm_print_neigh_cache2(void (*print_fn)(const char *fmt, ...));
+void arm_print_neigh_cache2();
 
 /**
  * \brief Print PCB list
@@ -876,10 +873,9 @@ void arm_print_protocols(void);
  *
  * Prints Protocol Control Block list using the given printf style function
  *
- * \param print_fn pointer to a printf style output function
  * \param sep column separator character
  */
-void arm_print_protocols2(void (*print_fn)(const char *fmt, ...), char sep);
+void arm_print_protocols2(char sep);
 
 /**
   * \brief Get the library version information.

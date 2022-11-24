@@ -388,10 +388,10 @@ static void protocol_stack_interface_iid_eui64_generate(struct net_if *cur, cons
     memcpy(cur->iid_slaac, cur->iid_eui64, 8);
 }
 
-void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn)
+void nwk_interface_print_neigh_cache()
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
-        ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache, print_fn);
+        ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache);
     }
 }
 

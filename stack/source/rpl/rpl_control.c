@@ -1857,15 +1857,6 @@ void rpl_control_fast_timer(int ticks)
 
 }
 
-#if 0
-static void trace_info_print(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    vtracef(1, TRACE_GROUP, fmt, ap);
-    va_end(ap);
-}
-#endif
 void rpl_control_slow_timer(int seconds)
 {
     bool purge = rpl_alloc_total > rpl_purge_threshold;
@@ -1882,17 +1873,16 @@ void rpl_control_slow_timer(int seconds)
         }
     }
 
-#if 0 // If including this, make sure to include the above trace_info_print helper function as well.
+#if 0
     static int rpl_print_timer;
     if ((rpl_print_timer += seconds) >= 50) {
         rpl_print_timer = 0;
-        void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...));
         struct net_if *cur = protocol_stack_interface_info_get();
         if (cur) {
-            ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache, trace_info_print);
+            ipv6_neighbour_cache_print(&cur->ipv6_neighbour_cache);
         }
-        arm_print_routing_table2(trace_info_print);
-        rpl_control_print(trace_info_print);
+        arm_print_routing_table2();
+        rpl_control_print();
     }
 #endif
 }
@@ -1956,12 +1946,12 @@ uint16_t rpl_control_current_rank(const struct rpl_instance *instance)
 }
 
 
-static void rpl_domain_print(const rpl_domain_t *domain, route_print_fn_t *print_fn)
+static void rpl_domain_print(const rpl_domain_t *domain)
 {
-    print_fn("RPL Domain %p", (void *) domain);
+    tr_debug("RPL Domain %p", (void *) domain);
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_upward_print_instance(instance, print_fn);
-        rpl_downward_print_instance(instance, print_fn);
+        rpl_upward_print_instance(instance);
+        rpl_downward_print_instance(instance);
     }
 }
 
@@ -1970,7 +1960,7 @@ uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *pre
     return rpl_downward_route_table_get(instance, prefix, output_table, output_table_len);
 }
 
-void rpl_control_print(route_print_fn_t *print_fn)
+void rpl_control_print()
 {
     unsigned t = g_monotonic_time_100ms % 10;
     unsigned s_full = g_monotonic_time_100ms / 10;
@@ -1979,9 +1969,9 @@ void rpl_control_print(route_print_fn_t *print_fn)
     unsigned h = m / 60;
     m %= 60;
     // %zu doesn't work on some Mbed toolchains
-    print_fn("Time %02u:%02u:%02u.%u (%u.%u) RPL memory usage %" PRIu32, h, m, s, t, s_full, t, (uint32_t) rpl_alloc_total);
+    tr_debug("Time %02u:%02u:%02u.%u (%u.%u) RPL memory usage %" PRIu32, h, m, s, t, s_full, t, (uint32_t) rpl_alloc_total);
     ns_list_foreach(rpl_domain_t, domain, &rpl_domains) {
-        rpl_domain_print(domain, print_fn);
+        rpl_domain_print(domain);
     }
 }
 

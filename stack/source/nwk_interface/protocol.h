@@ -320,7 +320,7 @@ typedef NS_LIST_HEAD(struct net_if, link) protocol_interface_list_t;
 
 extern protocol_interface_list_t protocol_interface_info_list;
 
-void nwk_interface_print_neigh_cache(route_print_fn_t *print_fn);
+void nwk_interface_print_neigh_cache();
 void nwk_interface_flush_neigh_cache(void);
 
 //void nwk_interface_dhcp_process_callback(int8_t interfaceID, bool status,uint8_t * routerId,  dhcpv6_client_server_data_t *server, bool reply);

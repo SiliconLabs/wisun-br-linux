@@ -201,7 +201,7 @@ bool rpl_control_address_register_done(struct net_if *interface, const uint8_t l
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);
 
 /* Diagnostic APIs */
-void rpl_control_print(route_print_fn_t *print_fn);
+void rpl_control_print();
 uint16_t rpl_control_route_table_get(struct rpl_instance *instance, uint8_t *prefix, rpl_route_info_t *output_table, uint16_t output_table_len);
 
 struct rpl_instance *rpl_control_enumerate_instances(rpl_domain_t *domain, struct rpl_instance *instance);

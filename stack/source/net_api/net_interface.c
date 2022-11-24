@@ -785,43 +785,36 @@ int8_t net_nvm_data_clean(int8_t interface_id)
     return ret_val;
 }
 
-static void trace_cmd_print(const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    vtracef(1, TRACE_GROUP, fmt, ap);
-    va_end(ap);
-}
 void arm_print_routing_table(void)
 {
-    arm_print_routing_table2(trace_cmd_print);
+    arm_print_routing_table2();
 }
 
-void arm_print_routing_table2(void (*print_fn)(const char *fmt, ...))
+void arm_print_routing_table2()
 {
-    ipv6_destination_cache_print(print_fn);
-    ipv6_route_table_print(print_fn);
-    rpl_control_print(print_fn);
+    ipv6_destination_cache_print();
+    ipv6_route_table_print();
+    rpl_control_print();
 }
 
 void arm_print_neigh_cache(void)
 {
-    arm_print_neigh_cache2(trace_cmd_print);
+    arm_print_neigh_cache2();
 }
 
-void arm_print_neigh_cache2(void (*print_fn)(const char *fmt, ...))
+void arm_print_neigh_cache2()
 {
-    nwk_interface_print_neigh_cache(print_fn);
+    nwk_interface_print_neigh_cache();
 }
 
 void arm_print_protocols(void)
 {
-    arm_print_protocols2(trace_cmd_print, ' ');
+    arm_print_protocols2(' ');
 }
 
-void arm_print_protocols2(void (*print_fn)(const char *fmt, ...), char sep)
+void arm_print_protocols2(char sep)
 {
-    socket_list_print(print_fn, sep);
+    socket_list_print(sep);
 }
 
 void arm_ncache_flush(void)
