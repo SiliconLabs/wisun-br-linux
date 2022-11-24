@@ -27,7 +27,6 @@ const char *val_to_str(int val, const struct name_value table[], const char *def
     // This function is called to print values. If val does not exists, it is a
     // bug
     BUG("invalid value: %d", val);
-    return NULL; /* never reached */
 }
 
 int str_to_val(const char *str, const struct name_value table[])
@@ -43,5 +42,4 @@ int str_to_val(const char *str, const struct name_value table[])
     // This function is called to convert user provided user. So exit with FATAL
     // in case of error
     FATAL(1, "invalid value: %s", str);
-    return -1; /* never reached */
 }

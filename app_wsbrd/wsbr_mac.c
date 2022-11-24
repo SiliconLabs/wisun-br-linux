@@ -1086,7 +1086,6 @@ int8_t wsbr_mac_addr_get(const struct mac_api *api,
         return 0;
     default:
         BUG("Unknown address_type: %d", type);
-        return -1;
     }
 }
 

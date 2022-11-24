@@ -142,7 +142,6 @@ static int fuzz_find_socket_index(int fd)
         if (fd == s_sockets[i].get_capture_fd())
             return i;
     BUG("invalid socket");
-    return -1;
 }
 
 void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt)

@@ -279,11 +279,11 @@ uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size)
         return (WS_LARGE_TEMPORARY_NEIGHBOUR_ENTRIES);
     } else if (mac_table_size >= 64) {
         return (WS_MEDIUM_TEMPORARY_NEIGHBOUR_ENTRIES);
-     } else if (mac_table_size >= WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES) {
+    } else if (mac_table_size >= WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES) {
         return WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
-     } else
+    } else {
         BUG();
-    return 0;
+    }
 }
 
 static void ws_common_neighbour_address_reg_link_update(struct net_if *interface, const uint8_t *eui64, uint32_t link_lifetime)
