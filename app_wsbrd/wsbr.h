@@ -72,9 +72,6 @@ struct wsbr_ctxt {
 
     uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 
-    // For DebugPing dbus interface
-    int ping_socket_fd;
-
     int pcapng_fd;
     mode_t pcapng_type;
 

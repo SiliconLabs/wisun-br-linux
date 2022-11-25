@@ -542,7 +542,6 @@ int wsbr_main(int argc, char *argv[])
     signal(SIGTERM, kill_handler);
     signal(SIGPIPE, SIG_IGN); // Handle writing to unread FIFO for pcapng capture
     ctxt->os_ctxt = &g_os_ctxt;
-    ctxt->ping_socket_fd = -1;
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
