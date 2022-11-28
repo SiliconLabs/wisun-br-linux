@@ -337,8 +337,8 @@ static void conf_set_bitmask(struct wsbrd_conf *config, const struct storage_par
 {
     BUG_ON(raw_param);
     BUG_ON(raw_dest != config->ws_allowed_channels);
-    BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 8);
-    if (parse_bitmask(config->ws_allowed_channels, 8, info->value) < 0)
+    BUG_ON(ARRAY_SIZE(config->ws_allowed_channels) != 32);
+    if (parse_bitmask(config->ws_allowed_channels, 32, info->value) < 0)
         FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, info->value);
 }
 

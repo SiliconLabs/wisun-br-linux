@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/utils.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
@@ -167,92 +168,34 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
-    uint8_t mask_index = 0;
-    uint32_t compare_mask_bit;
     uint8_t *range_ptr = range_info->range_start;
-    while (range_info->number_of_range) {
+
+    for (int i = 0; i < range_info->number_of_range; i++) {
         range_start = common_read_16_bit_inverse(range_ptr);
         range_ptr += 2;
-        range_stop = common_read_16_bit_inverse(range_ptr);
+        range_stop = min(common_read_16_bit_inverse(range_ptr), number_of_channels);
         range_ptr += 2;
-        range_info->number_of_range--;
-        for (uint16_t channel = 0; channel < number_of_channels; channel++) {
-
-            if (channel >= range_start && channel <= range_stop) {
+        for (int channel = range_start; channel < range_stop; channel++) {
+            if (channel_info->channel_mask[channel / 8] & (1u << (channel % 8))) {
                 //Cut channel
-                compare_mask_bit = 1u << (channel % 32);
-                mask_index = 0 + (channel / 32);
-
-                if (channel_info->channel_mask[mask_index] & compare_mask_bit) {
-                    channel_info->channel_mask[mask_index] ^= compare_mask_bit;
-                    channel_info->channel_count--;
-                }
-            } else if (channel > range_stop) {
-                break;
+                channel_info->channel_mask[channel / 8] &= ~(1u << (channel % 8));
+                channel_info->channel_count--;
             }
         }
     }
-}
-
-static uint32_t ws_reserve_order_32_bit(uint32_t value)
-{
-    uint32_t ret_val = 0;
-    for (uint8_t i = 0; i < 32; i++) {
-        if ((value & (1u << i))) {
-            ret_val |= 1u << ((32 - 1) - i);
-        }
-    }
-    return ret_val;
 }
 
 static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
 {
-    if (mask_info->mask_len_inline == 0) {
-        return;
-    }
+    int nchan = min(number_of_channels, mask_info->mask_len_inline * 8);
 
-    uint16_t channel_at_mask;
-    uint8_t mask_index = 0;
-    uint32_t channel_compare_mask, compare_mask_bit;
-    uint8_t *mask_ptr =  mask_info->channel_mask;
-
-    channel_at_mask = mask_info->mask_len_inline * 8;
-
-    for (uint16_t channel = 0; channel < number_of_channels; channel += 32) {
-        if (channel) {
-            mask_index++;
-            mask_ptr += 4;
-        }
-
-        //Read allaways 32-bit
-        if (channel_at_mask >= 32) {
-            channel_compare_mask = common_read_32_bit(mask_ptr);
-            channel_at_mask -= 32;
-        } else {
-            //Read Rest bytes seprately
-            channel_compare_mask = 0;
-            uint8_t move_mask = 0;
-            //Convert 8-24bit to 32-bit
-            while (channel_at_mask) {
-                channel_compare_mask |= (uint32_t)(*mask_ptr++ << (24 - move_mask));
-                channel_at_mask -= 8;
-                move_mask += 8;
-            }
-        }
-        //Reserve bit order for compare
-        channel_compare_mask = ws_reserve_order_32_bit(channel_compare_mask);
-        //Compare now 32-bit mask's bits one by one
-        for (uint8_t i = 0; i < 32; i++) {
-            //Start from MSB
-            compare_mask_bit = 1u << (i);
-            if ((channel_compare_mask & compare_mask_bit) && (channel_info->channel_mask[mask_index] & compare_mask_bit)) {
-                channel_info->channel_mask[mask_index] ^= compare_mask_bit;
-                channel_info->channel_count--;
-            }
-        }
-        //Stop compare if all bits in line are compared
-        if (channel_at_mask == 0) {
-            break;
+    // Clear channels that are in the mask.
+    // Bit order is reversed in the US-IE mask.
+    for (int i = 0; i < nchan; i++) {
+        if (channel_info->channel_mask[i / 8] & (1 << (i % 8))
+            && mask_info->channel_mask[i / 8] & (1 << (7 - i % 8))) {
+            channel_info->channel_mask[i / 8] &= ~(1 << (i % 8));
+            channel_info->channel_count--;
         }
     }
 }

@@ -302,7 +302,7 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
     fhss_data->clock_drift                               = spinel_pop_u8(buf);
     fhss_data->timing_accuracy                           = spinel_pop_u8(buf);
     fhss_data->uc_channel_list.channel_count             = spinel_pop_u16(buf);
-    spinel_pop_fixed_u32_array(buf, fhss_data->uc_channel_list.channel_mask, 8);
+    spinel_pop_fixed_u8_array(buf, fhss_data->uc_channel_list.channel_mask, 32);
     fhss_data->uc_timing_info.unicast_channel_function   = spinel_pop_u8(buf);
     fhss_data->uc_timing_info.unicast_dwell_interval     = spinel_pop_u8(buf);
     fhss_data->uc_timing_info.unicast_number_of_channels = spinel_pop_u16(buf);
@@ -349,8 +349,8 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_e attr, 
     config.fhss_bc_dwell_interval  = spinel_pop_u8(buf);
     config.unicast_fixed_channel   = spinel_pop_u8(buf);
     config.broadcast_fixed_channel = spinel_pop_u8(buf);
-    spinel_pop_fixed_u32_array(buf, config.domain_channel_mask, 8);
-    spinel_pop_fixed_u32_array(buf, config.unicast_channel_mask, 8);
+    spinel_pop_fixed_u8_array(buf, config.domain_channel_mask, 32);
+    spinel_pop_fixed_u8_array(buf, config.unicast_channel_mask, 32);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
     BUG_ON(spinel_remaining_size(buf));
@@ -378,8 +378,8 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_e attr
     config.fhss_bc_dwell_interval  = spinel_pop_u8(buf);
     config.unicast_fixed_channel   = spinel_pop_u8(buf);
     config.broadcast_fixed_channel = spinel_pop_u8(buf);
-    spinel_pop_fixed_u32_array(buf, config.domain_channel_mask, 8);
-    spinel_pop_fixed_u32_array(buf, config.unicast_channel_mask, 8);
+    spinel_pop_fixed_u8_array(buf, config.domain_channel_mask, 32);
+    spinel_pop_fixed_u8_array(buf, config.unicast_channel_mask, 32);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
     BUG_ON(spinel_remaining_size(buf));
@@ -468,7 +468,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
     spinel_pop_fixed_u8_array(buf, data.Key.Keysource, 8);
     prio                            = spinel_pop_u16(buf);
     async_channel_list.channel_page = spinel_pop_uint(buf);
-    spinel_pop_fixed_u32_array(buf, async_channel_list.channel_mask, 8);
+    spinel_pop_fixed_u8_array(buf, async_channel_list.channel_mask, 32);
 
     len = spinel_pop_data_ptr(buf, &ptr);
     if (len) {

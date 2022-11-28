@@ -48,7 +48,7 @@ struct wsbrd_conf {
     int  ws_chan0_freq;
     int  ws_chan_spacing;
     int  ws_chan_count;
-    uint32_t ws_allowed_channels[8];
+    uint8_t ws_allowed_channels[32];
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
 

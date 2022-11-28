@@ -33,7 +33,7 @@ typedef struct fhss_api fhss_api_t;
  */
 typedef struct ws_channel_mask {
     uint16_t channel_count;                     /**<active channels at mask */
-    uint32_t channel_mask[8];                   /**< Supported channels */
+    uint8_t channel_mask[32];                   /**< Supported channels */
 } ws_channel_mask_t;
 
 /**

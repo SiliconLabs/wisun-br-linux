@@ -65,7 +65,7 @@ uint8_t DEVICE_MIN_SENS = 174 - 93;
 uint16_t test_max_child_count_override = 0xffff;
 
 int8_t ws_common_generate_channel_list(const struct net_if *cur,
-                                       uint32_t *channel_mask,
+                                       uint8_t *channel_mask,
                                        uint16_t number_of_channels,
                                        uint8_t regulatory_domain,
                                        uint8_t operating_class,
@@ -76,9 +76,9 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     chan_params = ws_regdb_chan_params(regulatory_domain, channel_plan_id, operating_class);
     WARN_ON(chan_params && chan_params->chan_count != number_of_channels);
 
-    memset(channel_mask, 0xFF, sizeof(uint32_t) * 8);
+    memset(channel_mask, 0xFF, 32);
     if (chan_params && chan_params->chan_allowed)
-        parse_bitmask(channel_mask, 8, chan_params->chan_allowed);
+        parse_bitmask(channel_mask, 32, chan_params->chan_allowed);
     if (cur->ws_info->regulation == REG_REGIONAL_ARIB) {
         // For now, ARIB is not supported for custom channel plans
         BUG_ON(!chan_params);
@@ -97,12 +97,12 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     return 0;
 }
 
-uint16_t ws_common_active_channel_count(uint32_t *channel_mask, uint16_t number_of_channels)
+uint16_t ws_common_active_channel_count(uint8_t *channel_mask, uint16_t number_of_channels)
 {
     uint16_t active_channels = 0;
     // Set channel maks outside excluded channels
     for (uint16_t i = 0; i < number_of_channels; i++) {
-        if (channel_mask[i / 32] & (1u << (i % 32))) {
+        if (channel_mask[i / 8] & (1u << (i % 8))) {
             active_channels++;
         }
     }

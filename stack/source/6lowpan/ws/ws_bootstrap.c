@@ -497,7 +497,7 @@ void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configura
     cur->ws_info->hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 
-static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint32_t *selected_channel_mask, const uint32_t *global_channel_mask, uint16_t number_of_channels)
+static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint8_t *selected_channel_mask, const uint8_t *global_channel_mask, uint16_t number_of_channels)
 {
     bool active_range = false;
     int total_excluded_range_length = 0;
@@ -506,7 +506,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
     memset(excluded_data, 0, sizeof(ws_excluded_channel_data_t));
 
     for (uint8_t i = 0; i < number_of_channels; i++) {
-        if (!(global_channel_mask[i / 32] & (1u << (i % 32)))) {
+        if (!(global_channel_mask[i / 8] & (1u << (i % 8)))) {
             //Global excluded channel
             if (active_range) {
                 //Mark range stop here
@@ -515,7 +515,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
             continue;
         }
 
-        if (selected_channel_mask[i / 32] & (1u << (i % 32))) {
+        if (selected_channel_mask[i / 8] & (1u << (i % 8))) {
             if (active_range) {
                 //Mark range stop here
                 active_range = false;
@@ -523,7 +523,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
         } else {
             //Mark excluded channel
             //Swap Order already here
-            excluded_data->channel_mask[i / 32] |= 1u << (31 - (i % 32));
+            excluded_data->channel_mask[i / 8] |= 1u << (7 - (i % 8));
             excluded_data->excluded_channel_count++;
 
             if (!active_range) {
@@ -570,7 +570,7 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
     ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     ws_common_generate_channel_list(cur, fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
-    for (uint8_t n = 0; n < 8; n++) {
+    for (uint8_t n = 0; n < 32; n++) {
         fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
     }
     //Update Excluded channels
@@ -579,7 +579,7 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
         cur->ws_info->hopping_schedule.channel_plan = 1;
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
-        for (uint8_t n = 0; n < 8; n++) {
+        for (uint8_t n = 0; n < 32; n++) {
             fhss_configuration->broadcast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
         }
         // ws_bootstrap_generate_excluded_channel_list_from_active_channels()
@@ -626,15 +626,15 @@ int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_
     return 0;
 }
 
-static bool ws_bootstrap_channel_allowed(uint8_t channel, uint32_t *channel_mask)
+static bool ws_bootstrap_channel_allowed(uint8_t channel, uint8_t *channel_mask)
 {
-    if ((1u << (channel % 32)) & (channel_mask[channel / 32])) {
+    if ((1u << (channel % 8)) & (channel_mask[channel / 8])) {
         return true;
     }
     return false;
 }
 
-uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint32_t *channel_mask)
+uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint8_t *channel_mask)
 {
     if (configured_fixed_channel == 0xFFFF) {
         uint16_t random_channel = rand_get_random_in_range(0, number_of_channels - 1);
@@ -686,7 +686,7 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
         } else {
             ws_common_generate_channel_list(cur, fhss_configuration.broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
             // Apply primary parent channel mask to broadcast channel mask.
-            for (uint8_t n = 0; n < 8; n++) {
+            for (uint8_t n = 0; n < 32; n++) {
                 fhss_configuration.broadcast_channel_mask[n] &= neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask[n];
             }
             // Update broadcast excluded channels.
@@ -2710,7 +2710,7 @@ static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_requ
         //SET 1 Channel only
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.next_channel_number = channel_number;
-        async_req->channel_list.channel_mask[channel_number / 32] = 1u << (channel_number % 32);
+        async_req->channel_list.channel_mask[channel_number / 8] = 1u << (channel_number % 8);
     } else {
         ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
         async_req->channel_list.next_channel_number = 0;

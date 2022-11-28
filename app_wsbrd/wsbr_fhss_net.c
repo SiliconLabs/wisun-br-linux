@@ -23,6 +23,7 @@
 #include "common/spinel_buffer.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/fhss_api.h"
+#include "stack-services/common_functions.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
@@ -46,12 +47,12 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     spinel_push_u8(buf, config->fhss_bc_dwell_interval);
     spinel_push_u8(buf, config->unicast_fixed_channel);
     spinel_push_u8(buf, config->broadcast_fixed_channel);
-    spinel_push_fixed_u32_array(buf, config->domain_channel_mask, 8);
-    spinel_push_fixed_u32_array(buf, config->unicast_channel_mask, 8);
+    spinel_push_fixed_u8_array(buf, config->domain_channel_mask, 32);
+    spinel_push_fixed_u8_array(buf, config->unicast_channel_mask, 32);
     spinel_push_u16(buf, config->channel_mask_size);
     spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
     if (!fw_api_older_than(ctxt, 0, 12, 0))
-        spinel_push_fixed_u32_array(buf, config->broadcast_channel_mask, 8);
+        spinel_push_fixed_u8_array(buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, buf);
     ctxt->fhss_conf_valid = true;
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
@@ -99,12 +100,12 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     spinel_push_u8(buf, config->fhss_bc_dwell_interval);
     spinel_push_u8(buf, config->unicast_fixed_channel);
     spinel_push_u8(buf, config->broadcast_fixed_channel);
-    spinel_push_fixed_u32_array(buf, config->domain_channel_mask, 8);
-    spinel_push_fixed_u32_array(buf, config->unicast_channel_mask, 8);
+    spinel_push_fixed_u8_array(buf, config->domain_channel_mask, 32);
+    spinel_push_fixed_u8_array(buf, config->unicast_channel_mask, 32);
     spinel_push_u16(buf, config->channel_mask_size);
     spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
     if (!fw_api_older_than(ctxt, 0, 18, 0))
-        spinel_push_fixed_u32_array(buf, config->broadcast_channel_mask, 8);
+        spinel_push_fixed_u8_array(buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, buf);
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
@@ -160,7 +161,7 @@ void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
     spinel_push_u8(buf, fhss_data->clock_drift);
     spinel_push_u8(buf, fhss_data->timing_accuracy);
     spinel_push_u16(buf, fhss_data->uc_channel_list.channel_count);
-    spinel_push_fixed_u32_array(buf, fhss_data->uc_channel_list.channel_mask, 8);
+    spinel_push_fixed_u8_array(buf, fhss_data->uc_channel_list.channel_mask, 32);
     spinel_push_u8(buf, fhss_data->uc_timing_info.unicast_channel_function);
     spinel_push_u8(buf, fhss_data->uc_timing_info.unicast_dwell_interval);
     spinel_push_u16(buf, fhss_data->uc_timing_info.unicast_number_of_channels);

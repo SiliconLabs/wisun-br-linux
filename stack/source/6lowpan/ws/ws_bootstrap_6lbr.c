@@ -324,7 +324,7 @@ void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_m
     }
 }
 
-static const char *tr_channel_mask(const uint32_t *chan_mask, int num_chans)
+static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
 {
     uint8_t tmp[32] = { };
     int num_bytes = roundup(num_chans, 8) / 8;
@@ -336,15 +336,14 @@ static const char *tr_channel_mask(const uint32_t *chan_mask, int num_chans)
     return tr_bytes(tmp, num_bytes, NULL, 96, DELIM_COLON);
 }
 
-static const char *tr_excl_channel_mask(const uint32_t *chan_mask, int num_chans)
+static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
 {
-    uint32_t tmp[8] = { };
     int num_bytes = roundup(num_chans, 8) / 8;
-    int i;
+    uint8_t tmp[32] = { };
 
-    for (i = 0; i < roundup(num_chans, 32); i++)
-        if (chan_mask[i / 32] & (1u << (i % 32)))
-            tmp[i / 32] |= 1u << (31 - (i % 32));
+    for (int i = 0; i < roundup(num_chans, 8); i++)
+        if (chan_mask[i / 8] & (1u << (i % 8)))
+            tmp[i / 8] |= 1u << (7 - (i % 8));
 
     if (bitcmp0(tmp, num_chans))
         return "--";
@@ -355,7 +354,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
     const struct fhss_ws_configuration *fhss_configuration = ns_fhss_ws_configuration_get(cur->ws_info->fhss_api);
-    uint32_t async_chan_mask[8];
+    uint8_t async_chan_mask[32];
     int length;
 
     if (hopping_schedule->regulatory_domain == REG_DOMAIN_UNDEF)

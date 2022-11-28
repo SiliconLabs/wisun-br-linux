@@ -24,6 +24,6 @@
  * @param list to scan
  * @return amount of bits set in the channel masks
  */
-int channel_list_count_channels(const uint32_t *list);
+int channel_list_count_channels(const uint8_t *list);
 
 #endif // !__CHANNEL_LIST_H__

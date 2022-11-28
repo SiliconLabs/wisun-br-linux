@@ -89,13 +89,13 @@ typedef struct fhss_ws_configuration {
     uint8_t broadcast_fixed_channel;
 
     /** Domain channel mask, Wi-SUN uses it to exclure channels on US-IE and BS-IE. */
-    uint32_t domain_channel_mask[8];
+    uint8_t domain_channel_mask[32];
 
     /** Wi-SUN specific unicast channel mask */
-    uint32_t unicast_channel_mask[8];
+    uint8_t unicast_channel_mask[32];
 
     /** Wi-SUN specific broadcast channel mask */
-    uint32_t broadcast_channel_mask[8];
+    uint8_t broadcast_channel_mask[32];
 
     /** Channel mask size */
     uint16_t channel_mask_size;

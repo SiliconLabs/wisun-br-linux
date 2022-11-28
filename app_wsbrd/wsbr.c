@@ -101,16 +101,16 @@ struct os_ctxt g_os_ctxt = {
     .event_fd = { -1, -1 },
 };
 
-static int get_fixed_channel(uint32_t bitmask[static 8])
+static int get_fixed_channel(uint8_t bitmask[static 32])
 {
     int i, j, val = -1;
 
-    for (i = 0; i < 8; i++) {
-        for (j = 0; j < 32; j++) {
+    for (i = 0; i < 32; i++) {
+        for (j = 0; j < 8; j++) {
             if (bitmask[i] & (1u << j)) {
                 if (val >= 0)
                     return 0xFFFF;
-                val = i * 32 + j;
+                val = i * 8 + j;
             }
         }
     }

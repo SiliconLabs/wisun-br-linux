@@ -23,42 +23,18 @@
 
 const int CHANNEL_LIST_SIZE_IN_BITS = 8 * 32;
 
-static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number);
-static bool channel_list_bit_test(const uint32_t *list, int bit_number);
-
-// test bit by number
-static bool channel_list_bit_test32(uint32_t word, int_fast8_t bit_number)
+static bool channel_list_bit_test(const uint8_t *list, int bit_number)
 {
-    bool bitSet;
-
-    if (word & (1u << bit_number)) {
-        bitSet = true;
-    } else {
-        bitSet = false;
-    }
-    return bitSet;
-}
-
-static bool channel_list_bit_test(const uint32_t *list, int bit_number)
-{
-    const int_fast8_t word_index = bit_number / 32;
-    const int_fast8_t bit_index = bit_number % 32;
-
-    return channel_list_bit_test32(list[word_index], bit_index);
+    return list[bit_number / 8] & (1u << (bit_number % 8));
 }
 
 // count the amount of channels enabled in a list
-int channel_list_count_channels(const uint32_t *list)
+int channel_list_count_channels(const uint8_t *list)
 {
-
     int channel_count = 0;
 
-    for (int index = 0; index < CHANNEL_LIST_SIZE_IN_BITS; index++) {
-
-        if (channel_list_bit_test(list, index)) {
+    for (int i = 0; i < CHANNEL_LIST_SIZE_IN_BITS; i++)
+        if (channel_list_bit_test(list, i))
             channel_count++;
-        }
-    }
-
     return channel_count;
 }

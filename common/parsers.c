@@ -17,10 +17,10 @@
 #include "parsers.h"
 #include "log.h"
 
-static int set_bitmask(uint32_t *out, int size, int shift)
+static int set_bitmask(uint8_t *out, int size, int shift)
 {
-    int word_nr = shift / 32;
-    int bit_nr = shift % 32;
+    int word_nr = shift / 8;
+    int bit_nr = shift % 8;
 
     if (word_nr >= size)
         return -1;
@@ -28,12 +28,12 @@ static int set_bitmask(uint32_t *out, int size, int shift)
     return 0;
 }
 
-int parse_bitmask(uint32_t *out, int size, const char *str)
+int parse_bitmask(uint8_t *out, int size, const char *str)
 {
+    unsigned long int cur, end;
     char *endptr;
-    uint32_t cur, end;
 
-    memset(out, 0, size * sizeof(uint32_t));
+    memset(out, 0, size);
     do {
         if (!*str) /* empty string or string terminated by ',' */
             return -1;

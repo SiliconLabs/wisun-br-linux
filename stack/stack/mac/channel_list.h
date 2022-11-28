@@ -22,7 +22,7 @@
 /** Channel list */
 typedef struct channel_list {
     channel_page_e channel_page;    /**< Channel page */
-    uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
+    uint8_t channel_mask[32];       /**< Channel mask. Each bit defining one channel */
     uint16_t next_channel_number;   /**< Next channel to use in the list */
 } channel_list_t;
 
