@@ -20,6 +20,7 @@
 #include <inttypes.h>
 #include "common/trickle.h"
 #include "common/rand.h"
+#include "common/bits.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
 #include "stack-services/common_functions.h"
@@ -551,7 +552,7 @@ static uint8_t *mpl_write_seed_info(uint8_t *ptr, const mpl_seed_t *seed, const 
     memset(ptr, 0, bm_len);
     ns_list_foreach(mpl_buffered_message_t, buffer, &seed->messages) {
         uint8_t i = mpl_buffer_sequence(buffer) - seed->min_sequence;
-        bit_set(ptr, i);
+        bitrset(ptr, i);
     }
     ptr += bm_len;
     return ptr;
@@ -731,7 +732,7 @@ buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur)
             }
         }
         for (uint8_t i = 0; i / 8 < bm_len; i++) {
-            if (bit_test(ptr, i)) {
+            if (bitrtest(ptr, i)) {
                 mpl_buffered_message_t *message = mpl_buffer_lookup(seed, min_seqno + i);
 
                 if (!message && common_serial_number_greater_8(min_seqno + i, seed->min_sequence)) {

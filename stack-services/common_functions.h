@@ -269,39 +269,6 @@ inline bool common_serial_number_greater_16(uint16_t s1, uint16_t s2);
  */
 inline bool common_serial_number_greater_32(uint32_t s1, uint32_t s2);
 
-/*
- * Test a bit in an bit array.
- *
- * Check whether a particular bit is set in a bit string. The bit array
- * is in big-endian (network) bit order.
- *
- * \param bitset pointer to bit array
- * \param bit index of bit - 0 is the most significant bit of the first byte
- *
- * \return true if the bit is set
- */
-inline bool bit_test(const uint8_t *bitset, uint_fast8_t bit);
-
-/*
- * Set a bit in an bit array.
- *
- * Set a bit in a bit array. The array is in big-endian (network) bit order.
- *
- * \param bitset pointer to bit array
- * \param bit index of bit - 0 is the most significant bit of the first byte
- */
-inline void bit_set(uint8_t *bitset, uint_fast8_t bit);
-
-/*
- * Clear a bit in an bit array.
- *
- * Clear a bit in a bit array. The bit array is in big-endian (network) bit order.
- *
- * \param bitset pointer to bit array
- * \param bit index of bit - 0 is the most significant bit of the first byte
- */
-inline void bit_clear(uint8_t *bitset, uint_fast8_t bit);
-
 /* Provide definitions, either for inlining, or for common_functions.c */
 #ifndef COMMON_FUNCTIONS_FN
 #define COMMON_FUNCTIONS_FN inline
@@ -580,21 +547,6 @@ COMMON_FUNCTIONS_FN bool common_serial_number_greater_16(uint16_t s1, uint16_t s
 COMMON_FUNCTIONS_FN bool common_serial_number_greater_32(uint32_t s1, uint32_t s2)
 {
     return (s1 > s2 && s1 - s2 < UINT32_C(0x80000000)) || (s1 < s2 && s2 - s1 > UINT32_C(0x80000000));
-}
-
-COMMON_FUNCTIONS_FN bool bit_test(const uint8_t *bitset, uint_fast8_t bit)
-{
-    return bitset[bit >> 3] & (0x80 >> (bit & 7));
-}
-
-COMMON_FUNCTIONS_FN void bit_set(uint8_t *bitset, uint_fast8_t bit)
-{
-    bitset[bit >> 3] |= (0x80 >> (bit & 7));
-}
-
-COMMON_FUNCTIONS_FN void bit_clear(uint8_t *bitset, uint_fast8_t bit)
-{
-    bitset[bit >> 3] &= ~(0x80 >> (bit & 7));
 }
 
 #endif /*__COMMON_FUNCTIONS_H_*/
