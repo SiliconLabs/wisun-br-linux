@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "common/utils.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
@@ -176,7 +177,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
         range_stop = min(common_read_16_bit_inverse(range_ptr), number_of_channels);
         range_ptr += 2;
         for (int channel = range_start; channel < range_stop; channel++) {
-            if (channel_info->channel_mask[channel / 8] & (1u << (channel % 8))) {
+            if (bittest(channel_info->channel_mask, channel)) {
                 //Cut channel
                 channel_info->channel_mask[channel / 8] &= ~(1u << (channel % 8));
                 channel_info->channel_count--;
@@ -190,10 +191,8 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     int nchan = min(number_of_channels, mask_info->mask_len_inline * 8);
 
     // Clear channels that are in the mask.
-    // Bit order is reversed in the US-IE mask.
     for (int i = 0; i < nchan; i++) {
-        if (channel_info->channel_mask[i / 8] & (1 << (i % 8))
-            && mask_info->channel_mask[i / 8] & (1 << (7 - i % 8))) {
+        if (bittest(channel_info->channel_mask, i) && bitrtest(mask_info->channel_mask, i)) {
             channel_info->channel_mask[i / 8] &= ~(1 << (i % 8));
             channel_info->channel_count--;
         }

@@ -17,16 +17,12 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/log_legacy.h"
+#include "common/bits.h"
 #include "stack-services/common_functions.h"
 
 #include "channel_list.h"
 
 const int CHANNEL_LIST_SIZE_IN_BITS = 8 * 32;
-
-static bool channel_list_bit_test(const uint8_t *list, int bit_number)
-{
-    return list[bit_number / 8] & (1u << (bit_number % 8));
-}
 
 // count the amount of channels enabled in a list
 int channel_list_count_channels(const uint8_t *list)
@@ -34,7 +30,7 @@ int channel_list_count_channels(const uint8_t *list)
     int channel_count = 0;
 
     for (int i = 0; i < CHANNEL_LIST_SIZE_IN_BITS; i++)
-        if (channel_list_bit_test(list, i))
+        if (bittest(list, i))
             channel_count++;
     return channel_count;
 }

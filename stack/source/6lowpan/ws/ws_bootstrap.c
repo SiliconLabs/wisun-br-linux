@@ -507,7 +507,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
     memset(excluded_data, 0, sizeof(ws_excluded_channel_data_t));
 
     for (uint8_t i = 0; i < number_of_channels; i++) {
-        if (!(global_channel_mask[i / 8] & (1u << (i % 8)))) {
+        if (!bittest(global_channel_mask, i)) {
             //Global excluded channel
             if (active_range) {
                 //Mark range stop here
@@ -516,7 +516,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
             continue;
         }
 
-        if (selected_channel_mask[i / 8] & (1u << (i % 8))) {
+        if (bittest(selected_channel_mask, i)) {
             if (active_range) {
                 //Mark range stop here
                 active_range = false;
@@ -623,21 +623,12 @@ int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_
     return 0;
 }
 
-static bool ws_bootstrap_channel_allowed(uint8_t channel, uint8_t *channel_mask)
-{
-    if ((1u << (channel % 8)) & (channel_mask[channel / 8])) {
-        return true;
-    }
-    return false;
-}
-
 uint16_t ws_bootstrap_randomize_fixed_channel(uint16_t configured_fixed_channel, uint8_t number_of_channels, uint8_t *channel_mask)
 {
     if (configured_fixed_channel == 0xFFFF) {
         uint16_t random_channel = rand_get_random_in_range(0, number_of_channels - 1);
-        while (ws_bootstrap_channel_allowed(random_channel, channel_mask) == false) {
+        while (!bittest(channel_mask, random_channel))
             random_channel = rand_get_random_in_range(0, number_of_channels - 1);
-        }
         return random_channel;
     } else {
         return configured_fixed_channel;
