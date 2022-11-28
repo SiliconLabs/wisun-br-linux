@@ -19,6 +19,7 @@
 #define WS_COMMON_DEFINES_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "common/bits.h"
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h" /* gtkhash_t */
 
@@ -130,7 +131,7 @@ typedef struct ws_excluded_channel_data {
     ws_excluded_channel_range_data_t excluded_range[WS_EXCLUDED_MAX_RANGE_TO_SEND];
     uint16_t excluded_channel_count;
     uint8_t channel_mask_bytes_inline;
-    uint8_t channel_mask[32];
+    uint_rev8_t channel_mask[32];
 } ws_excluded_channel_data_t;
 
 /**
@@ -357,7 +358,7 @@ typedef struct ws_excluded_channel_range {
  * @brief ws_excluded_channel_mask_t WS excluded channel mask
  */
 typedef struct ws_excluded_channel_mask {
-    uint8_t *channel_mask;
+    uint_rev8_t *channel_mask;
     uint8_t mask_len_inline;
 } ws_excluded_channel_mask_t;
 
@@ -371,7 +372,7 @@ typedef struct ws_excluded_channel_range_out {
 typedef struct ws_excluded_channel_mask_out {
     uint16_t excluded_channel_count;
     uint8_t channel_mask_bytes_inline;
-    uint8_t *channel_mask;
+    uint_rev8_t *channel_mask;
 } ws_excluded_channel_mask_out_t;
 
 /**
