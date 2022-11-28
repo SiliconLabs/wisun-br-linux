@@ -93,7 +93,7 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
         if (chan_params->op_class == 3)
             bitfill(channel_mask, false, 0, 2); // Allowed channels: "3-255"
     }
-    bitfill(channel_mask, false, number_of_channels, 8 * 32);
+    bitfill(channel_mask, false, number_of_channels, 255);
     return 0;
 }
 
