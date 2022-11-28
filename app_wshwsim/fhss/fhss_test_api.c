@@ -25,7 +25,6 @@
 #include "fhss_ws.h"
 #include "fhss_statistics.h"
 #include "fhss_channel.h"
-#include "channel_list.h"
 
 #define TRACE_GROUP "fhta"
 

@@ -19,7 +19,6 @@
 #include "stack/mac/fhss_config.h"
 #include "fhss.h"
 #include "fhss_common.h"
-#include "channel_list.h"
 #include "channel_functions.h"
 #include "fhss_ws.h"
 #include "os_timer.h"
