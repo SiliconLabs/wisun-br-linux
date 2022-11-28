@@ -524,7 +524,7 @@ static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(
         } else {
             //Mark excluded channel
             //Swap Order already here
-            excluded_data->channel_mask[i / 8] |= 1u << (7 - (i % 8));
+            bitrset(excluded_data->channel_mask, i);
             excluded_data->excluded_channel_count++;
 
             if (!active_range) {
@@ -2696,7 +2696,7 @@ static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_requ
         //SET 1 Channel only
         uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.next_channel_number = channel_number;
-        async_req->channel_list.channel_mask[channel_number / 8] = 1u << (channel_number % 8);
+        bitset(async_req->channel_list.channel_mask, channel_number);
     } else {
         ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
         async_req->channel_list.next_channel_number = 0;

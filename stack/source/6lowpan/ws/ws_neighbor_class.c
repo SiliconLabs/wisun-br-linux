@@ -178,8 +178,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
         range_ptr += 2;
         for (int channel = range_start; channel < range_stop; channel++) {
             if (bittest(channel_info->channel_mask, channel)) {
-                //Cut channel
-                channel_info->channel_mask[channel / 8] &= ~(1u << (channel % 8));
+                bitclr(channel_info->channel_mask, channel);
                 channel_info->channel_count--;
             }
         }
@@ -190,10 +189,9 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
 {
     int nchan = min(number_of_channels, mask_info->mask_len_inline * 8);
 
-    // Clear channels that are in the mask.
     for (int i = 0; i < nchan; i++) {
         if (bittest(channel_info->channel_mask, i) && bitrtest(mask_info->channel_mask, i)) {
-            channel_info->channel_mask[i / 8] &= ~(1 << (i % 8));
+            bitclr(channel_info->channel_mask, i);
             channel_info->channel_count--;
         }
     }
