@@ -87,7 +87,7 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay);
 static bool fhss_ws_check_tx_allowed(fhss_structure_t *fhss_structure);
 static bool fhss_allow_transmitting_on_rx_slot(fhss_structure_t *fhss_structure);
-static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels);
+static int32_t fhss_channel_index_from_mask(const uint8_t *channel_mask, int32_t channel_index, uint16_t number_of_channels);
 
 // This function supports rounding up
 static int64_t divide_integer(int64_t dividend, int32_t divisor)
@@ -297,13 +297,13 @@ static uint8_t calc_own_tx_trig_slot(uint8_t own_hop)
     return (own_hop & 1);
 }
 
-static int32_t fhss_channel_index_from_mask(const uint32_t *channel_mask, int32_t channel_index, uint16_t number_of_channels)
+static int32_t fhss_channel_index_from_mask(const uint8_t *channel_mask, int32_t channel_index, uint16_t number_of_channels)
 {
     //Function will return real active channel index at list
     int32_t active_channels = 0;
     // Set channel maks outside excluded channels
     for (int32_t i = 0; i < number_of_channels; i++) {
-        if (channel_mask[i / 32] & (1u << (i % 32))) {
+        if (channel_mask[i / 8] & (1u << (i % 8))) {
             if (channel_index == active_channels) {
                 return i;
             }

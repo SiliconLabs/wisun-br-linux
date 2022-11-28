@@ -867,9 +867,8 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     cfg->fhss_uc_channel_function = WS_DH1CF;
     cfg->fhss_bc_channel_function = WS_DH1CF;
 
-    for (uint8_t n = 0; n < 8; n++) {
-        cfg->fhss_channel_mask[n] = 0xffffffff;
-    }
+    for (uint8_t n = 0; n < 32; n++)
+        cfg->fhss_channel_mask[n] = 0xff;
 
     return CFG_SETTINGS_OK;
 }
@@ -884,7 +883,7 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
 {
     ws_fhss_cfg_t *cfg = &ws_cfg.fhss;
 
-    if (memcmp(cfg->fhss_channel_mask, new_cfg->fhss_channel_mask, sizeof(uint32_t) * 8) != 0 ||
+    if (memcmp(cfg->fhss_channel_mask, new_cfg->fhss_channel_mask, 32) ||
             cfg->fhss_uc_dwell_interval != new_cfg->fhss_uc_dwell_interval ||
             cfg->fhss_bc_dwell_interval != new_cfg->fhss_bc_dwell_interval ||
             cfg->fhss_bc_interval != new_cfg->fhss_bc_interval ||

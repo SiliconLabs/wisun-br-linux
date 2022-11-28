@@ -40,6 +40,7 @@
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
+#include "wsbr_fhss_net.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
 #include "tun.h"
@@ -1001,7 +1002,7 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
     spinel_push_fixed_u8_array(buf, data->Key.Keysource, 8);
     spinel_push_u16(buf,  priority);
     spinel_push_uint(buf, async_channel_list->channel_page);
-    spinel_push_fixed_u32_array(buf, async_channel_list->channel_mask, 8);
+    spinel_push_fixed_u8_array(buf, async_channel_list->channel_mask, 32);
 
     total = 0;
     for (i = 0; i < ie_ext->payloadIovLength; i++)

@@ -441,28 +441,9 @@ static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_cha
             range_ptr++;
         }
     } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        //Set Mask
-        uint16_t channel_mask_length = generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline * 8;
-
-        for (uint8_t i = 0; i < 8; i++) {
-            uint32_t mask_value = generic_channel_info->excluded_channels.mask_out.channel_mask[i];
-            if (channel_mask_length >= 32) {
-                ptr = common_write_32_bit(mask_value, ptr);
-                channel_mask_length -= 32;
-            } else {
-                //Write MSB Bits from mask 24-8 top bits
-                uint8_t move_mask = 0;
-                while (channel_mask_length) {
-                    *ptr++ = (uint8_t)(mask_value >> (24 - move_mask));
-                    channel_mask_length -= 8;
-                    move_mask += 8;
-                }
-            }
-
-            if (channel_mask_length == 0) {
-                break;
-            }
-        }
+        memcpy(ptr, generic_channel_info->excluded_channels.mask_out.channel_mask,
+               generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline);
+        ptr += generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline;
     }
     return ptr;
 }

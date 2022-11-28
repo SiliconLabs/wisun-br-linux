@@ -73,27 +73,27 @@ static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_ma
 
 uint16_t mlme_scan_analyze_next_channel(channel_list_t *mac_channel_list, bool clear_channel)
 {
-    uint8_t i, j, k = 1, i_start;
-    uint32_t mask;
-    uint32_t *channel_mask;
+    uint8_t i, j, k = 4, i_start;
+    uint8_t *channel_mask;
+    uint8_t mask;
 
     if (mac_channel_list->channel_page == CHANNEL_PAGE_9 ||
         mac_channel_list->channel_page == CHANNEL_PAGE_10) {
-        k = 8;
+        k = 32;
     }
 
-    i_start = mac_channel_list->next_channel_number % 32;
-    for (j = mac_channel_list->next_channel_number / 32; j < k; j++) {
+    i_start = mac_channel_list->next_channel_number % 8;
+    for (j = mac_channel_list->next_channel_number / 8; j < k; j++) {
         channel_mask = &mac_channel_list->channel_mask[j];
-        for (i = i_start; i < 32; i++) {
+        for (i = i_start; i < 8; i++) {
             mask = 1u << i;
 
             if (*channel_mask & mask) {
                 if (clear_channel) {
                     *channel_mask &= ~mask;
-                    mac_channel_list->next_channel_number = (i + j * 32) + 1;
+                    mac_channel_list->next_channel_number = (i + j * 8) + 1;
                 }
-                return (i + j * 32);
+                return (i + j * 8);
             }
         }
         i_start = 0;

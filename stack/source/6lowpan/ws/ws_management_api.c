@@ -422,7 +422,7 @@ int ws_management_network_size_validate(
 
 int ws_management_channel_mask_set(
     int8_t interface_id,
-    uint32_t channel_mask[8])
+    uint8_t channel_mask[32])
 {
     struct net_if *cur;
 
@@ -442,10 +442,10 @@ int ws_management_channel_mask_set(
     }
 
     if (channel_mask) {
-        memcpy(cfg.fhss_channel_mask, channel_mask, sizeof(uint32_t) * 8);
+        memcpy(cfg.fhss_channel_mask, channel_mask, 32);
     } else {
         // Use the default
-        memcpy(cfg.fhss_channel_mask, cfg_default.fhss_channel_mask, sizeof(uint32_t) * 8);
+        memcpy(cfg.fhss_channel_mask, cfg_default.fhss_channel_mask, 32);
     }
 
 
@@ -458,7 +458,7 @@ int ws_management_channel_mask_set(
 
 int ws_management_channel_mask_get(
     int8_t interface_id,
-    uint32_t *channel_mask)
+    uint8_t *channel_mask)
 {
     struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -474,7 +474,7 @@ int ws_management_channel_mask_get(
         return -2;
     }
 
-    memcpy(channel_mask, cfg.fhss_channel_mask, sizeof(uint32_t) * 8);
+    memcpy(channel_mask, cfg.fhss_channel_mask, 32);
 
     return 0;
 }

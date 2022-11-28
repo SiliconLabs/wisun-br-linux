@@ -512,7 +512,7 @@ int ws_management_network_size_validate(
  */
 int ws_management_channel_mask_set(
     int8_t interface_id,
-    uint32_t channel_mask[8]);
+    uint8_t channel_mask[32]);
 
 /**
  * Get channel mask for FHSS operation.
@@ -525,7 +525,7 @@ int ws_management_channel_mask_set(
  */
 int ws_management_channel_mask_get(
     int8_t interface_id,
-    uint32_t *channel_mask);
+    uint8_t *channel_mask);
 
 /**
  * Validate channel mask for FHSS operation.
