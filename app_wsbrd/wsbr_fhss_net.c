@@ -85,7 +85,7 @@ const struct fhss_ws_configuration *ns_fhss_ws_configuration_get(const struct fh
 int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
                                  const struct fhss_ws_configuration *config)
 {
-    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 100);
+    struct spinel_buffer *buf = ALLOC_STACK_SPINEL_BUF(1 + 3 + 3 + 112);
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
     BUG_ON(!ctxt->fhss_conf_valid);
@@ -103,6 +103,8 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     spinel_push_fixed_u32_array(buf, config->unicast_channel_mask, 8);
     spinel_push_u16(buf, config->channel_mask_size);
     spinel_push_u8(buf, config->config_parameters.number_of_channel_retries);
+    if (!fw_api_older_than(ctxt, 0, 18, 0))
+        spinel_push_fixed_u32_array(buf, config->broadcast_channel_mask, 8);
     rcp_tx(ctxt, buf);
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
