@@ -90,6 +90,7 @@ add_library(libwsbrd STATIC
     common/os_scheduler.c
     common/log.c
     common/bits.c
+    common/endian.c
     common/rand.c
     common/named_values.c
     common/parsers.c
@@ -275,6 +276,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/os_scheduler.c
         common/log.c
         common/bits.c
+        common/endian.c
         common/rand.c
         common/named_values.c
         common/parsers.c
@@ -417,6 +419,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/os_scheduler.c
         common/log.c
         common/bits.c
+        common/endian.c
         common/rand.c
         common/iobuf.c
         common/slist.c
