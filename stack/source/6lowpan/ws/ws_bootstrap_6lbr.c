@@ -336,14 +336,14 @@ static const char *tr_channel_mask(const uint8_t *chan_mask, int num_chans)
     return tr_bytes(tmp, num_bytes, NULL, 96, DELIM_COLON);
 }
 
-static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
+static const char *tr_excl_channel_mask(const uint_rev8_t *chan_mask, int num_chans)
 {
     int num_bytes = roundup(num_chans, 8) / 8;
     uint8_t tmp[32] = { };
 
     for (int i = 0; i < roundup(num_chans, 8); i++)
-        if (bittest(chan_mask, i))
-            bitrset(tmp, i);
+        if (bitrtest(chan_mask, i))
+            bitset(tmp, i);
 
     if (bitcmp0(tmp, num_chans))
         return "--";
