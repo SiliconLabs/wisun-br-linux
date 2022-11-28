@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/bits.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
@@ -868,9 +869,7 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     cfg->fhss_bc_channel_function = WS_DH1CF;
     cfg->lfn_bc_interval = 60000; // 1min
     cfg->lfn_bc_sync_period = 5;
-
-    for (uint8_t n = 0; n < 32; n++)
-        cfg->fhss_channel_mask[n] = 0xff;
+    bitfill(cfg->fhss_channel_mask, false, 0, 255);
 
     return CFG_SETTINGS_OK;
 }
