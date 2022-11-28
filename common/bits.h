@@ -32,4 +32,10 @@ bool bittest(const uint8_t *bits, int i);
 void bitset(uint8_t *bits, int i);
 void bitclr(uint8_t *bits, int i);
 
+// Operations with reversed bit order
+typedef uint8_t uint_rev8_t;
+bool bitrtest(const uint_rev8_t *bits, int i);
+void bitrset(uint_rev8_t *bits, int i);
+void bitrclr(uint_rev8_t *bits, int i);
+
 #endif
