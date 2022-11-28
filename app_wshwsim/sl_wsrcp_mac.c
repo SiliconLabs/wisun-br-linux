@@ -17,6 +17,7 @@
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/net_fhss.h"
+#include "stack-services/common_functions.h"
 
 #include "version.h"
 #include "sl_wsrcp.h"
@@ -880,14 +881,6 @@ void wsmac_mlme_indication(const mac_api_t *mac_api, mlme_primitive_e id, const 
 // Copy-paste from stack/source/6lowpan/mac/mac_ie_lib.c
 #define MAC_IE_HEADER_LENGTH_MASK 0x007f
 #define MAC_IE_HEADER_ID_MASK     0x7f80
-
-// Copy-paste from stack-services/common_functions.h
-static uint8_t *common_write_16_bit_inverse(uint16_t value, uint8_t ptr[static 2])
-{
-    *ptr++ = value;
-    *ptr++ = value >> 8;
-    return ptr;
-}
 
 // Copy-paste from stack/source/6lowpan/ws/ws_neighbor_class.c
 static uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
