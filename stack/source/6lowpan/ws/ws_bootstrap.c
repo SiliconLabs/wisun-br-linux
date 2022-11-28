@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/ws_regdb.h"
@@ -570,18 +571,14 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
     ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     ws_common_generate_channel_list(cur, fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
-    for (uint8_t n = 0; n < 32; n++) {
-        fhss_configuration->unicast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
-    }
+    bitand(fhss_configuration->unicast_channel_mask, cur->ws_info->cfg->fhss.fhss_channel_mask, 256);
     //Update Excluded channels
     channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.uc_excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
     if (channel_plan)
         cur->ws_info->hopping_schedule.channel_plan = 1;
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
-        for (uint8_t n = 0; n < 32; n++) {
-            fhss_configuration->broadcast_channel_mask[n] &= cur->ws_info->cfg->fhss.fhss_channel_mask[n];
-        }
+        bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info->cfg->fhss.fhss_channel_mask, 256);
         // ws_bootstrap_generate_excluded_channel_list_from_active_channels()
         // will return the same value than the previous call.
         ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.bc_excluded_channels, fhss_configuration->broadcast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
@@ -686,9 +683,7 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
         } else {
             ws_common_generate_channel_list(cur, fhss_configuration.broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
             // Apply primary parent channel mask to broadcast channel mask.
-            for (uint8_t n = 0; n < 32; n++) {
-                fhss_configuration.broadcast_channel_mask[n] &= neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask[n];
-            }
+            bitand(fhss_configuration.broadcast_channel_mask, neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask, 256);
             // Update broadcast excluded channels.
             ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.bc_excluded_channels, fhss_configuration.broadcast_channel_mask, fhss_configuration.domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
         }
