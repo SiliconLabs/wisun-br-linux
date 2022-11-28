@@ -97,18 +97,6 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     return 0;
 }
 
-uint16_t ws_common_active_channel_count(uint8_t *channel_mask, uint16_t number_of_channels)
-{
-    uint16_t active_channels = 0;
-    // Set channel maks outside excluded channels
-    for (uint16_t i = 0; i < number_of_channels; i++) {
-        if (bittest(channel_mask, i)) {
-            active_channels++;
-        }
-    }
-    return active_channels;
-}
-
 int8_t ws_common_regulatory_domain_config(struct net_if *cur, ws_hopping_schedule_t *hopping_schedule)
 {
     const struct chan_params *chan_params;

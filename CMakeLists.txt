@@ -444,7 +444,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wshwsim/ccm/ccm_security.c
         app_wshwsim/ccm/mbedOS/aes_mbedtls_adapter.c
         app_wshwsim/fhss/channel_functions.c
-        app_wshwsim/fhss/channel_list.c
         app_wshwsim/fhss/fhss_common.c
         app_wshwsim/fhss/fhss_configuration_interface.c
         app_wshwsim/fhss/fhss_statistics.c

@@ -31,7 +31,6 @@
 #include "fhss.h"
 #include "fhss_common.h"
 #include "fhss_statistics.h"
-#include "channel_list.h"
 #include "channel_functions.h"
 
 #include "fhss_ws.h"
@@ -132,9 +131,9 @@ fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configurati
         tr_error("Invalid FHSS enable configuration");
         return NULL;
     }
-    int domain_channel_count = channel_list_count_channels(fhss_configuration->domain_channel_mask);
-    int uc_channel_count = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
-    int bc_channel_count = channel_list_count_channels(fhss_configuration->broadcast_channel_mask);
+    int domain_channel_count = bitcnt(fhss_configuration->domain_channel_mask, 256);
+    int uc_channel_count = bitcnt(fhss_configuration->unicast_channel_mask, 256);
+    int bc_channel_count = bitcnt(fhss_configuration->broadcast_channel_mask, 256);
 
     if (domain_channel_count <= 0) {
         // There must be at least one configured channel in channel list
@@ -1181,9 +1180,9 @@ int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[
 
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration)
 {
-    int channel_count_domain = channel_list_count_channels(fhss_configuration->domain_channel_mask);
-    int channel_count_uc = channel_list_count_channels(fhss_configuration->unicast_channel_mask);
-    int channel_count_bc = channel_list_count_channels(fhss_configuration->broadcast_channel_mask);
+    int channel_count_domain = bitcnt(fhss_configuration->domain_channel_mask, 256);
+    int channel_count_uc = bitcnt(fhss_configuration->unicast_channel_mask, 256);
+    int channel_count_bc = bitcnt(fhss_configuration->broadcast_channel_mask, 256);
     if (channel_count_domain <= 0 || fhss_configuration->channel_mask_size == 0) {
         return -1;
     }
