@@ -85,7 +85,7 @@ uint16_t mlme_scan_analyze_next_channel(channel_list_t *mac_channel_list, bool c
     for (int i = mac_channel_list->next_channel_number; i < chanmax; i++) {
         if (bittest(mac_channel_list->channel_mask, i)) {
             if (clear_channel) {
-                mac_channel_list->channel_mask[i / 8] &= ~(1 << (i % 8));
+                bitclr(mac_channel_list->channel_mask, i);
                 mac_channel_list->next_channel_number = i + 1;
             }
             return i;
