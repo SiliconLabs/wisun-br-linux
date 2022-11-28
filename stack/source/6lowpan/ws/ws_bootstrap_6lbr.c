@@ -342,7 +342,7 @@ static const char *tr_excl_channel_mask(const uint8_t *chan_mask, int num_chans)
     uint8_t tmp[32] = { };
 
     for (int i = 0; i < roundup(num_chans, 8); i++)
-        if (chan_mask[i / 8] & (1u << (i % 8)))
+        if (bittest(chan_mask, i))
             tmp[i / 8] |= 1u << (7 - (i % 8));
 
     if (bitcmp0(tmp, num_chans))

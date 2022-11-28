@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include "common/bits.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
@@ -303,7 +304,7 @@ static int32_t fhss_channel_index_from_mask(const uint8_t *channel_mask, int32_t
     int32_t active_channels = 0;
     // Set channel maks outside excluded channels
     for (int32_t i = 0; i < number_of_channels; i++) {
-        if (channel_mask[i / 8] & (1u << (i % 8))) {
+        if (bittest(channel_mask, i)) {
             if (channel_index == active_channels) {
                 return i;
             }

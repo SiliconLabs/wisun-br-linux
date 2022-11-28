@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/hal_interrupt.h"
+#include "common/bits.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "stack-services/common_functions.h"
@@ -73,30 +74,22 @@ static int mac_mlme_allocate_tx_buffers(protocol_interface_rf_mac_setup_s *rf_ma
 
 uint16_t mlme_scan_analyze_next_channel(channel_list_t *mac_channel_list, bool clear_channel)
 {
-    uint8_t i, j, k = 4, i_start;
-    uint8_t *channel_mask;
-    uint8_t mask;
+    int chanmax;
 
     if (mac_channel_list->channel_page == CHANNEL_PAGE_9 ||
-        mac_channel_list->channel_page == CHANNEL_PAGE_10) {
-        k = 32;
-    }
+        mac_channel_list->channel_page == CHANNEL_PAGE_10)
+        chanmax = 256;
+    else
+        chanmax = 32;
 
-    i_start = mac_channel_list->next_channel_number % 8;
-    for (j = mac_channel_list->next_channel_number / 8; j < k; j++) {
-        channel_mask = &mac_channel_list->channel_mask[j];
-        for (i = i_start; i < 8; i++) {
-            mask = 1u << i;
-
-            if (*channel_mask & mask) {
-                if (clear_channel) {
-                    *channel_mask &= ~mask;
-                    mac_channel_list->next_channel_number = (i + j * 8) + 1;
-                }
-                return (i + j * 8);
+    for (int i = mac_channel_list->next_channel_number; i < chanmax; i++) {
+        if (bittest(mac_channel_list->channel_mask, i)) {
+            if (clear_channel) {
+                mac_channel_list->channel_mask[i / 8] &= ~(1 << (i % 8));
+                mac_channel_list->next_channel_number = i + 1;
             }
+            return i;
         }
-        i_start = 0;
     }
     return 0xffff;
 }
