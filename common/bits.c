@@ -21,9 +21,9 @@ void *bitfill(void *dst, bool val, size_t start, size_t end)
 
     for (i = start; i <= end; i++)
         if (val)
-            dst8[i / 8] |= 1u << (i % 8);
+            bitset(dst8, i);
         else
-            dst8[i / 8] &= ~(1u << (i % 8));
+            bitclr(dst8, i);
     return dst;
 }
 
@@ -101,3 +101,35 @@ bool bitcmp0(const void *s1, size_t len)
     return true;
 }
 
+void bitand(uint8_t *dst, const uint8_t *src, int nbits)
+{
+    int nbytes = nbits / 8;
+
+    for (int i = 0; i < nbytes; i++)
+        dst[i] &= src[i];
+}
+
+int bitcnt(const uint8_t *bits, int nbits)
+{
+    int cnt = 0;
+
+    for (int i = 0; i < nbits; i++)
+        if (bittest(bits, i))
+            cnt++;
+    return cnt;
+}
+
+bool bittest(const uint8_t *bits, int i)
+{
+    return bits[i / 8] & (1 << (i % 8));
+}
+
+void bitset(uint8_t *bits, int i)
+{
+    bits[i / 8] |= 1 << i % 8;
+}
+
+void bitclr(uint8_t *bits, int i)
+{
+    bits[i / 8] &= ~(1 << i % 8);
+}
