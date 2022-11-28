@@ -3,8 +3,9 @@ v1.5
 
   - Introduce phy_mode_id and chan_plan_id to select a PHY FAN1.1. Also add the
     DBus properties WisunPhyModeId and WisunChanPlanId.
-  - By default wsbrd now advertise FAN1.1 PAN (in the field "FAN TPS Version").
-    The fan version can still be enforced with the fan_version parameter.
+  - We can now advertise FAN1.1 PAN (in the field "FAN TPS Version"). FAN1.1 is
+    automatically select if user use chan_plan_id. The fan version can still be
+    enforced with the fan_version parameter.
   - The advertised FAN version in independent of the chosen PHY. It is possible
     to advertise FAN1.1 protocol with PHY FAN1.0 and vice-versa.
   - Add support for LGTKs (for LFN authentication). The existing API for GTK
