@@ -716,10 +716,12 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("mix FAN 1.1 PHY mode with FAN1.0 class");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
         WARN("mix FAN 1.0 mode with FAN1.1 channel plan");
-    if (config->ws_class && config->ws_fan_version == WS_FAN_VERSION_1_1)
-        WARN("mix FAN 1.1 advertisements with a FAN 1.0 class");
-    if (config->ws_chan_plan_id && config->ws_fan_version == WS_FAN_VERSION_1_0)
-        WARN("mix FAN 1.0 advertisements with a FAN 1.1 channel plan");
+    if (config->ws_class && !config->ws_fan_version)
+        config->ws_fan_version = WS_FAN_VERSION_1_0;
+    if (config->ws_chan_plan_id && !config->ws_fan_version)
+        config->ws_fan_version = WS_FAN_VERSION_1_1;
+    if (!config->ws_fan_version)
+        config->ws_fan_version = WS_FAN_VERSION_1_1;
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
