@@ -25,7 +25,7 @@ static void iobuf_enlarge_buffer(struct iobuf_write *buf, size_t new_data_size) 
     }
 }
 
-void iobuf_push_u8(struct iobuf_write *buf, uint16_t val) {
+void iobuf_push_u8(struct iobuf_write *buf, uint8_t val) {
     iobuf_enlarge_buffer(buf, 1);
     buf->data[buf->len + 0] = val;
     buf->len += 1;

@@ -52,7 +52,7 @@ struct iobuf_read {
     const uint8_t *data;
 };
 
-void iobuf_push_u8(struct iobuf_write *buf, uint16_t val);
+void iobuf_push_u8(struct iobuf_write *buf, uint8_t val);
 void iobuf_push_be16(struct iobuf_write *buf, uint16_t val);
 void iobuf_push_le16(struct iobuf_write *buf, uint16_t val);
 void iobuf_push_be24(struct iobuf_write *buf, uint24_t val);
