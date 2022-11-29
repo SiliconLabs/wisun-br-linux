@@ -84,13 +84,20 @@ properties provided as key-value pairs. A D-Bus signal is emitted whenenever
 the routing graph is refreshed.
 
 - `ay`: EUI64
-- `a{sv}`: list of properties identified by a string, as described in the following table:
+- `a{sv}`: list of properties identified by a string, as described in the
+  following table. Not all properties are guarantied to be present per node
+  (ex: a node without parent has no `parent` field)
 
-| Key              |Signature| Comment                                                    |
-|------------------|---------|------------------------------------------------------------|
-|`is_border_router`|`b`      |                                                            |
-|`ipv6`            |`aay`    |Array of IPv6 addresses (usually link-local and GUA)        |
-|`parent`          |`ay`     |EUI64 of the preferred parent (only absent if border router)|
+| Key              |Signature| Comment                                                                  |
+|------------------|---------|--------------------------------------------------------------------------|
+|`is_border_router`|`b`      |                                                                          |
+|`ipv6`            |`aay`    |Array of IPv6 addresses (usually link-local and GUA)                      |
+|`parent`          |`ay`     |EUI-64 of the preferred parent                                            |
+|`is_authenticated`|`b`      |                                                                          |
+|`is_neighbor`     |`b`      |Only nodes that use direct unicast traffic to the border router are listed|
+|`rssi`            |`i`      |Received Signal Strength Indication (RSSI) of the last packet received in dBm (neighbor only)|
+|`rsl`             |`i`      |Exponentially Weighted Moving Average (EWMA) of the Received Signal Level (RSL) in dBm (neighbor only)|
+|`rsl_adv`         |`i`      |EWMA of the RSL in dBm advertised by the node in RSL-IE (neighbor only)   |
 
 ### `Gtks` and `Gaks` (`aay`)
 
