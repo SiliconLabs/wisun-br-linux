@@ -185,6 +185,14 @@ int ws_pae_key_storage_list(uint8_t eui64[][8], int len)
     return i;
 }
 
+bool ws_pae_key_storage_supp_exists(const uint8_t eui64[8])
+{
+    char filename[PATH_MAX];
+
+    snprintf(filename, sizeof(filename), "%skeys-%s", g_storage_prefix, tr_key(eui64, 8));
+    return !access(filename, F_OK);
+}
+
 uint16_t ws_pae_key_storage_storing_interval_get(void)
 {
     return DEFAULT_STORING_INTERVAL;

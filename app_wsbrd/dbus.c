@@ -21,6 +21,7 @@
 
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
 #include "stack/source/6lowpan/ws/ws_pae_auth.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/nwk_interface/protocol.h"
@@ -271,7 +272,8 @@ static int dbus_message_append_node(
     const uint8_t self[8],
     const uint8_t parent[8],
     const uint8_t ipv6[][16],
-    bool is_br)
+    bool is_br,
+    bool is_authenticated)
 {
     int ret;
 
@@ -285,6 +287,11 @@ static int dbus_message_append_node(
         if (is_br) {
             dbus_message_open_info(m, property, "is_border_router", "b");
             ret = sd_bus_message_append(m, "b", true);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
+        } else {
+            dbus_message_open_info(m, property, "is_authenticated", "b");
+            ret = sd_bus_message_append(m, "b", (int)is_authenticated);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
         }
@@ -353,7 +360,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
-    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true);
+    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true, false);
 
     for (int i = 0; i < len_pae; i++) {
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
@@ -373,7 +380,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
             }
         }
-        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false);
+        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false,
+                                 ws_pae_key_storage_supp_exists(eui64_pae[i]));
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
