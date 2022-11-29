@@ -31,7 +31,7 @@
 #include "common/bits.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/sw_mac.h"
@@ -325,7 +325,7 @@ static uint32_t mac_calc_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf
 
 static int8_t mac_mlme_set_ack_wait_duration(protocol_interface_rf_mac_setup_s *rf_mac_setup, const mlme_set_t *set_req)
 {
-    uint16_t symbols = common_read_16_bit_inverse((uint8_t *)set_req->value_pointer);
+    uint16_t symbols = read_le16((uint8_t *)set_req->value_pointer);
     uint32_t ack_wait_time_us = mac_calc_ack_wait_duration(rf_mac_setup, symbols);
     if (ack_wait_time_us < 50) {
         return -1;
@@ -833,7 +833,7 @@ static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setu
 
     uint8_t temp_8[2];
     rf_setup->pan_id = pan_id;
-    common_write_16_bit(pan_id, temp_8);
+    write_be16(temp_8, pan_id);
 
     return dev_driver->address_write(PHY_MAC_PANID, temp_8);
 }
@@ -841,7 +841,7 @@ static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setu
 static void mac_mlme_write_mac16_to_phy(phy_device_driver_s *dev_driver, uint16_t mac16)
 {
     uint8_t temp[2];
-    common_write_16_bit(mac16, temp);
+    write_be16(temp, mac16);
     if (dev_driver->address_write) {
         dev_driver->address_write(PHY_MAC_16BIT, temp);
     }
@@ -872,7 +872,7 @@ static void mac_mlme_write_mac64(protocol_interface_rf_mac_setup_s *rf_setup, ui
 
 static void mac_mlme_write_mac16(protocol_interface_rf_mac_setup_s *rf_setup, uint8_t *addrPtr)
 {
-    common_write_16_bit(rf_setup->mac_short_address, addrPtr);
+    write_be16(addrPtr, rf_setup->mac_short_address);
 }
 
 uint16_t mac_mlme_get_panid(protocol_interface_rf_mac_setup_s *rf_setup)

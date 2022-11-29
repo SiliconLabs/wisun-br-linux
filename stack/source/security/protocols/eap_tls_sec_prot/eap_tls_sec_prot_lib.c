@@ -18,9 +18,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
@@ -109,7 +109,7 @@ int8_t eap_tls_sec_prot_lib_message_handle(const uint8_t *data, uint16_t length,
                 return EAP_TLS_MSG_DECODE_ERROR;
             }
 
-            uint32_t len = common_read_32_bit(&data[1]);
+            uint32_t len = read_be32(&data[1]);
 
             //For first fragment allocates data for incoming TLS packet
             if (!tls_recv->data) {
@@ -243,7 +243,7 @@ static uint8_t *eap_tls_sec_prot_lib_fragment_write(uint8_t *data, uint16_t tota
             *message_len += 4;
             *flags |= EAP_TLS_MORE_FRAGMENTS | EAP_TLS_FRAGMENT_LENGTH;
             data_begin[0] = *flags;
-            common_write_32_bit(total_len, &data_begin[1]);
+            write_be32(&data_begin[1], total_len);
         } else {
             *flags |= EAP_TLS_MORE_FRAGMENTS;
             data_begin[0] = *flags;

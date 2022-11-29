@@ -17,10 +17,10 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/mac/fhss_config.h"

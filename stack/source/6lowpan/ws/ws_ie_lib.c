@@ -18,10 +18,10 @@
 #include <string.h>
 #include <stdint.h>
 #include "common/bits.h"
+#include "common/endian.h"
 #include "common/string_extra.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/ws_management_api.h"
 
@@ -263,7 +263,7 @@ uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type)
 uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lus_length(), WH_IE_LUS_TYPE);
-    ptr = common_write_24_bit_inverse(lus_ie->listen_interval, ptr);
+    ptr = write_le24(ptr, lus_ie->listen_interval);
     *ptr++ = lus_ie->channel_plan_tag;
     return ptr;
 }
@@ -290,8 +290,8 @@ uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie)
 uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbs_length(), WH_IE_LBS_TYPE);
-    ptr = common_write_24_bit_inverse(lbs_ie->broadcast_interval, ptr);
-    ptr = common_write_16_bit_inverse(lbs_ie->broadcast_scheduler_id, ptr);
+    ptr = write_le24(ptr, lbs_ie->broadcast_interval);
+    ptr = write_le16(ptr, lbs_ie->broadcast_scheduler_id);
     *ptr++ = lbs_ie->channel_plan_tag;
     *ptr++ = lbs_ie->broadcast_sync_period;
     return ptr;
@@ -300,7 +300,7 @@ uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie)
 uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbc_length(), WH_IE_LBC_TYPE);
-    ptr = common_write_24_bit_inverse(lbc_ie->lfn_broadcast_interval, ptr);
+    ptr = write_le24(ptr, lbc_ie->lfn_broadcast_interval);
     *ptr++ = lbc_ie->broadcast_sync_period;
     return ptr;
 }
@@ -323,8 +323,8 @@ uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie)
     *ptr++ = nr_ie->clock_drift;
     *ptr++ = nr_ie->timing_accuracy;
     if (nr_ie->node_role == WS_NR_ROLE_LFN) {
-        ptr = common_write_24_bit_inverse(nr_ie->listen_interval_min, ptr);
-        ptr = common_write_24_bit_inverse(nr_ie->listen_interval_max, ptr);
+        ptr = write_le24(ptr, nr_ie->listen_interval_min);
+        ptr = write_le24(ptr, nr_ie->listen_interval_max);
     }
     return ptr;
 }
@@ -345,15 +345,15 @@ uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ie)
 uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lto_length(), WH_IE_LTO_TYPE);
-    ptr = common_write_24_bit_inverse(lto_ie->offset, ptr);
-    ptr = common_write_24_bit_inverse(lto_ie->adjusted_listening_interval, ptr);
+    ptr = write_le24(ptr, lto_ie->offset);
+    ptr = write_le24(ptr, lto_ie->adjusted_listening_interval);
     return ptr;
 }
 
 uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_panid_length(), WH_IE_PANID_TYPE);
-    ptr = common_write_16_bit_inverse(panid_ie->panid, ptr);
+    ptr = write_le16(ptr, panid_ie->panid);
     return ptr;
 }
 
@@ -383,9 +383,9 @@ static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
-            ptr = common_write_24_bit_inverse(generic_channel_info->plan.one.ch0, ptr);
+            ptr = write_le24(ptr, generic_channel_info->plan.one.ch0);
             *ptr++ = generic_channel_info->plan.one.channel_spacing;
-            ptr = common_write_16_bit_inverse(generic_channel_info->plan.one.number_of_channel, ptr);
+            ptr = write_le16(ptr, generic_channel_info->plan.one.number_of_channel);
             break;
         case 2:
             *ptr++ = generic_channel_info->plan.two.regulatory_domain;
@@ -402,7 +402,7 @@ static uint8_t *ws_wp_channel_function_write(uint8_t *ptr, ws_generic_channel_in
     switch (generic_channel_info->channel_function) {
         case 0:
             //Fixed channel inline
-            ptr = common_write_16_bit_inverse(generic_channel_info->function.zero.fixed_channel, ptr);
+            ptr = write_le16(ptr, generic_channel_info->function.zero.fixed_channel);
             break;
         case 1:
         case 2:
@@ -435,8 +435,8 @@ static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_cha
         ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range_out.excluded_range;
         *ptr++ = range_length;
         while (range_length) {
-            ptr = common_write_16_bit_inverse(range_ptr->range_start, ptr);
-            ptr = common_write_16_bit_inverse(range_ptr->range_end, ptr);
+            ptr = write_le16(ptr, range_ptr->range_start);
+            ptr = write_le16(ptr, range_ptr->range_end);
             range_length--;
             range_ptr++;
         }
@@ -467,8 +467,8 @@ uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_sch
 
     if (!unicast_schedule) {
         ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_BS_TYPE, length);
-        ptr = common_write_32_bit_inverse(hopping_schedule->fhss_broadcast_interval, ptr);
-        ptr = common_write_16_bit_inverse(hopping_schedule->fhss_bsi, ptr);
+        ptr = write_le32(ptr, hopping_schedule->fhss_broadcast_interval);
+        ptr = write_le16(ptr, hopping_schedule->fhss_bsi);
         *ptr++ = hopping_schedule->fhss_bc_dwell_interval;
     } else {
         ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_US_TYPE, length);
@@ -503,8 +503,8 @@ uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pa
         return mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 0);
     }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 5);
-    ptr = common_write_16_bit_inverse(pan_configuration->pan_size, ptr);
-    ptr = common_write_16_bit_inverse(pan_configuration->routing_cost, ptr);
+    ptr = write_le16(ptr, pan_configuration->pan_size);
+    ptr = write_le16(ptr, pan_configuration->routing_cost);
     uint8_t temp8 = 0;
     temp8 |= (pan_configuration->use_parent_bs << 0);
     temp8 |= (pan_configuration->rpl_routing_method << 1);
@@ -535,7 +535,7 @@ uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information *pan
         return ptr;
     }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_VER_TYPE, 2);
-    ptr = common_write_16_bit_inverse(pan_configuration->pan_version, ptr);
+    ptr = write_le16(ptr, pan_configuration->pan_version);
     return ptr;
 }
 
@@ -569,7 +569,7 @@ uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_
 uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *lfnver_ie)
 {
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LFN_VER_TYPE, ws_wp_nested_lfn_version_length());
-    ptr = common_write_16_bit_inverse(lfnver_ie->lfn_version, ptr);
+    ptr = write_le16(ptr, lfnver_ie->lfn_version);
 
     return ptr;
 }
@@ -632,7 +632,7 @@ uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie)
 {
     ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_LBATS_TYPE, ws_wp_nested_lbats_length());
     *ptr++ = lbats_ie->additional_transmissions;
-    ptr = common_write_16_bit_inverse(lbats_ie->next_transmit_delay, ptr);
+    ptr = write_le16(ptr, lbats_ie->next_transmit_delay);
     return ptr;
 }
 
@@ -647,7 +647,7 @@ bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_
     }
     data = utt_ie_data.content_ptr;
     utt_ie->message_type = *data++;
-    utt_ie->ufsi = common_read_24_bit_inverse(data);
+    utt_ie->ufsi = read_le24(data);
     return true;
 }
 
@@ -660,8 +660,8 @@ bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
         return false;
     }
     data = btt_ie_data.content_ptr;
-    bt_ie->broadcast_slot_number = common_read_16_bit_inverse(data);
-    bt_ie->broadcast_interval_offset = common_read_24_bit_inverse(data + 2);
+    bt_ie->broadcast_slot_number = read_le16(data);
+    bt_ie->broadcast_interval_offset = read_le24(data + 2);
     return true;
 }
 
@@ -715,8 +715,8 @@ bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lu
     }
     data = lutt_ie_data.content_ptr;
     lutt_ie->message_type = *data++;
-    lutt_ie->slot_number = common_read_16_bit_inverse(data);
-    lutt_ie->interval_offset = common_read_24_bit_inverse(data + 2);
+    lutt_ie->slot_number = read_le16(data);
+    lutt_ie->interval_offset = read_le24(data + 2);
 
     return true;
 }
@@ -730,7 +730,7 @@ bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_
         return false;
     }
     data = lus_ie_data.content_ptr;
-    lus_ie->listen_interval = common_read_24_bit_inverse(data);
+    lus_ie->listen_interval = read_le24(data);
     data += 3;
     lus_ie->channel_plan_tag = *data;
 
@@ -761,8 +761,8 @@ bool ws_wh_lbt_read(const uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_
         return false;
     }
     data = lbt_ie_data.content_ptr;
-    lbt_ie->slot_number = common_read_16_bit_inverse(data);
-    lbt_ie->interval_offset = common_read_24_bit_inverse(data + 2);
+    lbt_ie->slot_number = read_le16(data);
+    lbt_ie->interval_offset = read_le24(data + 2);
 
     return true;
 }
@@ -776,9 +776,9 @@ bool ws_wh_lbs_read(const uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_
         return false;
     }
     data = lbs_ie_data.content_ptr;
-    lbs_ie->broadcast_interval = common_read_24_bit_inverse(data);
+    lbs_ie->broadcast_interval = read_le24(data);
     data += 3;
-    lbs_ie->broadcast_scheduler_id = common_read_16_bit_inverse(data);
+    lbs_ie->broadcast_scheduler_id = read_le16(data);
     data += 2;
     lbs_ie->channel_plan_tag = *data++;
     lbs_ie->broadcast_sync_period = *data;
@@ -807,8 +807,8 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
             if (9 > nr_ie_data.length) {
                 return false;
             }
-            nr_ie->listen_interval_min = common_read_24_bit_inverse(data);
-            nr_ie->listen_interval_max = common_read_24_bit_inverse(data + 3);
+            nr_ie->listen_interval_min = read_le24(data);
+            nr_ie->listen_interval_max = read_le24(data + 3);
             break;
         default:
             return false;
@@ -827,11 +827,11 @@ bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_
     }
     data = lnd_ie_data.content_ptr;
     lnd_ie->response_threshold = *data++;
-    lnd_ie->response_delay = common_read_24_bit_inverse(data);
+    lnd_ie->response_delay = read_le24(data);
     data += 3;
     lnd_ie->discovery_slot_time = *data++;
     lnd_ie->discovery_slots = *data++;
-    lnd_ie->discovery_first_slot = common_read_16_bit_inverse(data);
+    lnd_ie->discovery_first_slot = read_le16(data);
 
     return true;
 }
@@ -845,8 +845,8 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
         return false;
     }
     data = lto_ie_data.content_ptr;
-    lto_ie->offset = common_read_24_bit_inverse(data);
-    lto_ie->adjusted_listening_interval = common_read_24_bit_inverse(data + 3);
+    lto_ie->offset = read_le24(data);
+    lto_ie->adjusted_listening_interval = read_le24(data + 3);
 
     return true;
 }
@@ -859,7 +859,7 @@ bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *
     if (ws_wh_panid_length() > mac_ie_header_sub_id_discover(data, length, &panid_ie_data, WH_IE_PANID_TYPE)) {
         return false;
     }
-    panid_ie->panid = common_read_16_bit_inverse(panid_ie_data.content_ptr);
+    panid_ie->panid = read_le16(panid_ie_data.content_ptr);
 
     return true;
 }
@@ -873,7 +873,7 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
         return false;
     }
     data = lbc_ie_data.content_ptr;
-    lbc_ie->lfn_broadcast_interval = common_read_24_bit_inverse(data);
+    lbc_ie->lfn_broadcast_interval = read_le24(data);
     data += 3;
     lbc_ie->broadcast_sync_period = *data;
     return true;
@@ -888,10 +888,10 @@ static const uint8_t *ws_channel_plan_zero_read(const uint8_t *ptr, ws_channel_p
 
 static const uint8_t *ws_channel_plan_one_read(const uint8_t *ptr, ws_channel_plan_one_t *plan)
 {
-    plan->ch0 = common_read_24_bit_inverse(ptr);
+    plan->ch0 = read_le24(ptr);
     ptr += 3;
     plan->channel_spacing = *ptr++;
-    plan->number_of_channel = common_read_16_bit_inverse(ptr);
+    plan->number_of_channel = read_le16(ptr);
     ptr += 2;
     return ptr;
 }
@@ -905,7 +905,7 @@ static const uint8_t *ws_channel_plan_two_read(const uint8_t *ptr, ws_channel_pl
 
 static const uint8_t *ws_channel_function_zero_read(const uint8_t *ptr, ws_channel_function_zero_t *plan)
 {
-    plan->fixed_channel = common_read_16_bit_inverse(ptr);
+    plan->fixed_channel = read_le16(ptr);
     return ptr + 2;
 }
 
@@ -1033,8 +1033,8 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
         return false;
     }
     data = nested_payload_ie.content_ptr;
-    bs_ie->broadcast_interval = common_read_32_bit_inverse(data);
-    bs_ie->broadcast_schedule_identifier = common_read_16_bit_inverse(data + 4);
+    bs_ie->broadcast_interval = read_le32(data);
+    bs_ie->broadcast_schedule_identifier = read_le16(data + 4);
     data += 6;
     bs_ie->dwell_interval = *data++;
     bs_ie->clock_drift = *data++;
@@ -1140,8 +1140,8 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
         return false;
     }
 
-    pan_configuration->pan_size = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
-    pan_configuration->routing_cost = common_read_16_bit_inverse(nested_payload_ie.content_ptr + 2);
+    pan_configuration->pan_size = read_le16(nested_payload_ie.content_ptr);
+    pan_configuration->routing_cost = read_le16(nested_payload_ie.content_ptr + 2);
     pan_configuration->use_parent_bs = (nested_payload_ie.content_ptr[4] & 0x01) == 0x01;
     pan_configuration->rpl_routing_method = (nested_payload_ie.content_ptr[4] & 0x02) == 0x02;
     pan_configuration->version = (nested_payload_ie.content_ptr[4] & 0xe0) >> 5;
@@ -1164,7 +1164,7 @@ bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_
     if (2 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
         return false;
     }
-    *pan_version = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
+    *pan_version = read_le16(nested_payload_ie.content_ptr);
 
     return true;
 }
@@ -1231,7 +1231,7 @@ bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct 
         return false;
     }
 
-    ws_lfnver->lfn_version = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
+    ws_lfnver->lfn_version = read_le16(nested_payload_ie.content_ptr);
     return true;
 }
 
@@ -1278,7 +1278,7 @@ bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lba
         return false;
     }
     lbats_ie->additional_transmissions = *nested_payload_ie.content_ptr++;
-    lbats_ie->next_transmit_delay = common_read_16_bit_inverse(nested_payload_ie.content_ptr);
+    lbats_ie->next_transmit_delay = read_le16(nested_payload_ie.content_ptr);
 
     return true;
 }

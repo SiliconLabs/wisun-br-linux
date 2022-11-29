@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -75,7 +75,7 @@ static buffer_t *udp_rx_security_check(buffer_t *buf)
 static buffer_t *udp_checksum_check(buffer_t *buf)
 {
     uint8_t *ptr = buffer_data_pointer(buf) + 6;
-    uint16_t check = common_read_16_bit(ptr);
+    uint16_t check = read_be16(ptr);
 
     // We refuse checksum field 0000, as per IPv6 (RFC 2460). Would have
     // to accept this if handling IPv4.
@@ -92,12 +92,12 @@ void udp_checksum_write(buffer_t *buf)
     uint8_t *ptr = buffer_data_pointer(buf) + 6;
     uint16_t check;
 
-    common_write_16_bit(0, ptr);
+    write_be16(ptr, 0);
     check = buffer_ipv6_fcf(buf, IPV6_NH_UDP);
     if (check == 0) {
         check = 0xffff;
     }
-    common_write_16_bit(check, ptr);
+    write_be16(ptr, check);
 }
 
 
@@ -122,9 +122,9 @@ buffer_t *udp_down(buffer_t *buf)
         buf->buf_ptr -= 8;
 
         ptr = buffer_data_pointer(buf);
-        ptr = common_write_16_bit(buf->src_sa.port, ptr);
-        ptr = common_write_16_bit(buf->dst_sa.port, ptr);
-        ptr = common_write_16_bit(buffer_data_length(buf), ptr);
+        ptr = write_be16(ptr, buf->src_sa.port);
+        ptr = write_be16(ptr, buf->dst_sa.port);
+        ptr = write_be16(ptr, buffer_data_length(buf));
         udp_checksum_write(buf);
         buf->IPHC_NH = 0;
         buf->info = (buffer_info_t)(B_FROM_UDP | B_TO_IPV6 | B_DIR_DOWN);
@@ -156,9 +156,9 @@ buffer_t *udp_up(buffer_t *buf)
 
     const uint8_t *udp_hdr = buffer_data_pointer(buf);
 
-    buf->src_sa.port = common_read_16_bit(udp_hdr + 0);
-    buf->dst_sa.port = common_read_16_bit(udp_hdr + 2);
-    uint16_t udp_len = common_read_16_bit(udp_hdr + 4);
+    buf->src_sa.port = read_be16(udp_hdr + 0);
+    buf->dst_sa.port = read_be16(udp_hdr + 2);
+    uint16_t udp_len = read_be16(udp_hdr + 4);
 
     buf = udp_rx_security_check(buf);
     if (!buf) {

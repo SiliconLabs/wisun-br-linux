@@ -18,11 +18,11 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/dhcp_server.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
@@ -596,11 +596,11 @@ static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry
         ptr += frag_entry->unfrag_len;
     }
     if (frag_entry->first_fragment) {
-        ptr = common_write_16_bit(((uint16_t) LOWPAN_FRAG1 << 8) | frag_entry->size, ptr);
-        ptr = common_write_16_bit(frag_entry->tag, ptr);
+        ptr = write_be16(ptr, ((uint16_t) LOWPAN_FRAG1 << 8) | frag_entry->size);
+        ptr = write_be16(ptr, frag_entry->tag);
     } else {
-        ptr = common_write_16_bit(((uint16_t) LOWPAN_FRAGN << 8) | frag_entry->size, ptr);
-        ptr = common_write_16_bit(frag_entry->tag, ptr);
+        ptr = write_be16(ptr, ((uint16_t) LOWPAN_FRAGN << 8) | frag_entry->size);
+        ptr = write_be16(ptr, frag_entry->tag);
         *ptr++ = frag_entry->offset;
     }
     memcpy(ptr, buffer_data_pointer(frag_entry->buf), frag_entry->frag_len);
@@ -742,7 +742,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
                 case B_SECURITY_KEY_ID_2:
                     dataReq->Key.KeyIndex = 0xff;
                     dataReq->Key.KeyIdMode = MAC_KEY_ID_MODE_SRC4_IDX;
-                    common_write_32_bit(0xffffffff, dataReq->Key.Keysource);
+                    write_be32(dataReq->Key.Keysource, 0xffffffff);
                     break;
             }
         }
@@ -1486,7 +1486,7 @@ int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_dat
 
         tr_error("MCPS Data fail by status %u", confirm->status);
         if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
-            tr_info("Dest addr: %x", common_read_16_bit(buf->dst_sa.address + 2));
+            tr_info("Dest addr: %x", read_be16(buf->dst_sa.address + 2));
         } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
             tr_info("Dest addr: %s", tr_eui64(buf->dst_sa.address + 2));
         }
@@ -1554,10 +1554,10 @@ void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_in
     buf->options.lqi = data_ind->mpduLinkQuality;
     buf->options.dbm = data_ind->signal_dbm;
     buf->src_sa.addr_type = (addrtype_e)data_ind->SrcAddrMode;
-    ptr = common_write_16_bit(data_ind->SrcPANId, buf->src_sa.address);
+    ptr = write_be16(buf->src_sa.address, data_ind->SrcPANId);
     memcpy(ptr, data_ind->SrcAddr, 8);
     buf->dst_sa.addr_type = (addrtype_e)data_ind->DstAddrMode;
-    ptr = common_write_16_bit(data_ind->DstPANId, buf->dst_sa.address);
+    ptr = write_be16(buf->dst_sa.address, data_ind->DstPANId);
     memcpy(ptr, data_ind->DstAddr, 8);
     //Set Link specific stuff to seperately
     buf->link_specific.ieee802_15_4.srcPanId = data_ind->SrcPANId;
@@ -1681,7 +1681,7 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface,
     //Free first by defined short address
     if (entry_ptr->mac16 < 0xfffe) {
         uint8_t temp_address[2];
-        common_write_16_bit(entry_ptr->mac16, temp_address);
+        write_be16(temp_address, entry_ptr->mac16);
         lowpan_adaptation_free_messages_from_queues_by_address(cur_interface, temp_address, ADDR_802_15_4_SHORT);
     }
     lowpan_adaptation_free_messages_from_queues_by_address(cur_interface, entry_ptr->mac64, ADDR_802_15_4_LONG);

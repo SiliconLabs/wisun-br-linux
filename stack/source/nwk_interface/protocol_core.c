@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
@@ -534,7 +534,7 @@ bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen,
 
     switch (addrlen) {
         case 2:
-            return cur->mac_parameters.mac_short_address == common_read_16_bit(addr);
+            return cur->mac_parameters.mac_short_address == read_be16(addr);
         case 8:
             return memcmp(addr, cur->mac, 8) == 0;
         default:

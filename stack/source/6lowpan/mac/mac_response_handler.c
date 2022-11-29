@@ -16,7 +16,7 @@
  */
 #include <string.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_mcps.h"

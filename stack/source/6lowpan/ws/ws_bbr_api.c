@@ -24,7 +24,7 @@
 #include "common/bits.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"

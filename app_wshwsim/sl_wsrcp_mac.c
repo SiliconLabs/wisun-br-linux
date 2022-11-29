@@ -17,13 +17,13 @@
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/net_fhss.h"
-#include "stack-services/common_functions.h"
 
 #include "version.h"
 #include "sl_wsrcp.h"
 #include "sl_wsrcp_mac.h"
 #include "hal_fhss_timer.h"
 #include "common/bus_uart.h"
+#include "common/endian.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/utils.h"
@@ -893,7 +893,7 @@ static uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t le
     uint16_t ie_dummy = 0; //Header Type
     ie_dummy |= (length & MAC_IE_HEADER_LENGTH_MASK);
     ie_dummy |= ((type << 7) &  MAC_IE_HEADER_ID_MASK);
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 // Copy-paste from stack/source/6lowpan/ws/ws_ie_lib.c

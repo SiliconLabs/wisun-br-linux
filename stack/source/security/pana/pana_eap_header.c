@@ -16,7 +16,7 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "security/pana/pana_eap_header.h"
 
@@ -28,7 +28,7 @@ bool eap_header_parse(const uint8_t *data_ptr, uint16_t length, eap_header_t *he
 
     header->eap_code = *data_ptr++;
     header->id_seq = *data_ptr++;
-    header->length = common_read_16_bit(data_ptr);
+    header->length = read_be16(data_ptr);
     header->type = 0;
     data_ptr += 2;
     if (header->length < length || header->length > length) {
@@ -72,7 +72,7 @@ uint8_t *eap_header_build(uint8_t *ptr, uint16_t data_length, uint8_t eap_code, 
 {
     *ptr++ = eap_code;
     *ptr++ = id_seq;
-    ptr = common_write_16_bit(data_length, ptr);
+    ptr = write_be16(ptr, data_length);
     if (eap_code == EAP_REQ || eap_code == EAP_RESPONSE) {
         *ptr++ = type;
     }
@@ -93,7 +93,7 @@ bool eap_tls_header_parse(uint8_t *eap_data_ptr, uint16_t eap_datalength, eap_tl
         if (eap_datalength < 4) {
             return false;
         }
-        uint32_t temp32 = common_read_32_bit(eap_data_ptr);
+        uint32_t temp32 = read_be32(eap_data_ptr);
         eap_datalength -= 4;
         if (temp32 > 0x0000ffff) {
             return false;
@@ -119,7 +119,7 @@ uint8_t *eap_tls_header_build(uint8_t *ptr, uint16_t eap_tls_flags, uint16_t fra
     *ptr++ = eap_tls_flags;
     //Test EAP Length Field
     if (eap_tls_flags & EAP_TLS_FRAGMENT_LENGTH) {
-        ptr = common_write_32_bit(frame_length, ptr);
+        ptr = write_be32(ptr, frame_length);
     }
 
 

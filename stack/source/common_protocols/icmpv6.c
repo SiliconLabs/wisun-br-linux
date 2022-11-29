@@ -22,7 +22,7 @@
 #include "common/bits.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -67,7 +67,7 @@ static bool is_icmpv6_msg(buffer_t *buf)
     if (len < IPV6_HDRLEN) {
         return false;
     }
-    uint16_t ip_len = common_read_16_bit(ptr + IPV6_HDROFF_PAYLOAD_LENGTH);
+    uint16_t ip_len = read_be16(ptr + IPV6_HDROFF_PAYLOAD_LENGTH);
     uint8_t nh = ptr[IPV6_HDROFF_NH];
     ptr += IPV6_HDRLEN;
     len -= IPV6_HDRLEN;
@@ -187,7 +187,7 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
         return NULL;
     }
     ptr = buffer_data_reserve_header(buf, 4);
-    ptr = common_write_32_bit(aux, ptr);
+    ptr = write_be32(ptr, aux);
     buf->options.traffic_class = 0;
     buf->options.type = type;
     buf->options.code = code;
@@ -272,7 +272,7 @@ buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
     struct net_if *cur = buf->interface;
 
     const uint8_t *ptr = buffer_data_pointer(buf);
-    uint32_t mtu = common_read_32_bit(ptr);
+    uint32_t mtu = read_be32(ptr);
 
     /* RFC 8201 - ignore MTU smaller than minimum */
     if (mtu < IPV6_MIN_LINK_MTU) {
@@ -340,7 +340,7 @@ static void icmpv6_na_wisun_aro_handler(struct net_if *cur_interface, const uint
     uint16_t life_time;
     uint8_t nd_status  = *dptr;
     dptr += 4;
-    life_time = common_read_16_bit(dptr);
+    life_time = read_be16(dptr);
     dptr += 2;
     if (memcmp(dptr, cur_interface->mac, 8) != 0) {
         return;
@@ -360,7 +360,7 @@ static void icmpv6_na_aro_handler(struct net_if *cur_interface, const uint8_t *d
     uint16_t life_time;
     uint8_t nd_status  = *dptr;
     dptr += 4;
-    life_time = common_read_16_bit(dptr);
+    life_time = read_be16(dptr);
     dptr += 2;
     if (memcmp(dptr, cur_interface->mac, 8) != 0) {
         return;
@@ -606,7 +606,7 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
             break;
         case SLAAC_IID_6LOWPAN_SHORT:
             memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-            common_write_16_bit(cur->lowpan_desired_short_address, ipv6_address + 14);
+            write_be16(ipv6_address + 14, cur->lowpan_desired_short_address);
             break;
 
         default:
@@ -962,8 +962,8 @@ buffer_t *icmpv6_down(buffer_t *buf)
 
         *dptr++ = buf->options.type;
         *dptr++ = buf->options.code;
-        common_write_16_bit(0, dptr);
-        common_write_16_bit(buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6), dptr);
+        write_be16(dptr, 0);
+        write_be16(dptr, buffer_ipv6_fcf(buf, IPV6_NH_ICMPV6));
         buf->options.type = IPV6_NH_ICMPV6;
         buf->options.code = 0;
         buf->options.traffic_class &= ~IP_TCLASS_ECN_MASK;
@@ -998,7 +998,7 @@ buffer_t *icmpv6_build_rs(struct net_if *cur, const uint8_t *dest)
     buf->options.type = ICMPV6_TYPE_INFO_RS;
     buf->options.code = 0;
     buf->options.hop_limit = 255;
-    ptr = common_write_32_bit(0, ptr);
+    ptr = write_be32(ptr, 0);
 
     /* RFC 6775 mandates SLLAO in RS */
     ptr = icmpv6_write_icmp_lla(cur, ptr, ICMPV6_OPT_SRC_LL_ADDR, true, src_address);
@@ -1048,9 +1048,9 @@ uint8_t *icmpv6_write_prefix_option(const prefix_list_t *prefixes,  uint8_t *dpt
 
         *dptr++ = prefix_ptr->prefix_len; //length
         *dptr++ = flags; //Flags
-        dptr = common_write_32_bit(prefix_ptr->lifetime, dptr);
-        dptr = common_write_32_bit(prefix_ptr->preftime, dptr);
-        dptr = common_write_32_bit(0, dptr); // Reserved2
+        dptr = write_be32(dptr, prefix_ptr->lifetime);
+        dptr = write_be32(dptr, prefix_ptr->preftime);
+        dptr = write_be32(dptr, 0); // Reserved2
         memcpy(dptr, prefix_ptr->prefix, 16);
         dptr += 16;
     }
@@ -1069,8 +1069,8 @@ uint8_t *icmpv6_write_mtu_option(uint32_t mtu, uint8_t *dptr)
 {
     *dptr++ = ICMPV6_OPT_MTU;
     *dptr++ = 1; // length
-    dptr = common_write_16_bit(0, dptr);
-    dptr = common_write_32_bit(mtu, dptr);
+    dptr = write_be16(dptr, 0);
+    dptr = write_be32(dptr, mtu);
     return dptr;
 }
 
@@ -1166,7 +1166,7 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
     buf->options.hop_limit = 255;
 
     uint8_t *ptr = buffer_data_pointer(buf);
-    ptr = common_write_32_bit(0, ptr);
+    ptr = write_be32(ptr, 0);
     memcpy(ptr, target_addr, 16);
     ptr += 16;
 
@@ -1175,8 +1175,8 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
         *ptr++ = 2;
         *ptr++ = aro->status; /* Should be ARO_SUCCESS in an NS */
         *ptr++ = 0;
-        ptr = common_write_16_bit(0, ptr);
-        ptr = common_write_16_bit(aro->lifetime, ptr);
+        ptr = write_be16(ptr, 0);
+        ptr = write_be16(ptr, aro->lifetime);
         memcpy(ptr, aro->eui64, 8);
         ptr += 8;
     }
@@ -1308,7 +1308,7 @@ buffer_t *icmpv6_build_dad(struct net_if *cur, buffer_t *buf, uint8_t type, cons
 
     *ptr++ = status;
     *ptr++ = 0;
-    ptr = common_write_16_bit(lifetime, ptr);
+    ptr = write_be16(ptr, lifetime);
     memcpy(ptr, eui64, 8);
     ptr += 8;
     memcpy(ptr, reg_addr, 16);
@@ -1432,7 +1432,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     }
     buf->src_sa.addr_type = ADDR_IPV6;
 
-    ptr = common_write_32_bit((uint32_t) flags << 24, ptr);
+    ptr = write_be32(ptr, (uint32_t) flags << 24);
     // Set the target IPv6 address
     memcpy(ptr, target, 16);
     ptr += 16;
@@ -1445,8 +1445,8 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         *ptr++ = 2;
         *ptr++ = aro->status;
         *ptr++ = 0;
-        ptr = common_write_16_bit(0, ptr);
-        ptr = common_write_16_bit(aro->lifetime, ptr);
+        ptr = write_be16(ptr, 0);
+        ptr = write_be16(ptr, aro->lifetime);
         memcpy(ptr, aro->eui64, 8);
         ptr += 8;
     }

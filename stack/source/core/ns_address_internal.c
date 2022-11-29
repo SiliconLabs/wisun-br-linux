@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/bits.h"
@@ -1126,7 +1127,7 @@ opaque_retry:
 /* Write a LoWPAN IPv6 address, based on a prefix and short address */
 uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr)
 {
-    common_write_16_bit(short_addr, dst + 14);
+    write_be16(dst + 14, short_addr);
     memcpy(dst + 8, ADDR_SHORT_ADR_SUFFIC, 6);
     return memcpy(dst, prefix, 8);
 }

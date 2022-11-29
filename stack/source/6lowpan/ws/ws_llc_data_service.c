@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include "common/log.h"
 #include "common/bits.h"
+#include "common/endian.h"
 #include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/mac_common_defines.h"
@@ -1197,13 +1197,10 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
-    wh_ie_sub_list_t ie_header_mask;
-    memset(&ie_header_mask, 0, sizeof(wh_ie_sub_list_t));
+    wh_ie_sub_list_t ie_header_mask = { };
+    wp_nested_ie_sub_list_t nested_wp_id = { };
 
-    wp_nested_ie_sub_list_t nested_wp_id;
-    memset(&nested_wp_id, 0, sizeof(wp_nested_ie_sub_list_t));
     ie_header_mask.utt_ie = true;
-
     ie_header_mask.bt_ie = true;
     if (base->ie_params.vendor_header_length) {
         ie_header_mask.vh_ie = true;

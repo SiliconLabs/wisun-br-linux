@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/utils/ns_time.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

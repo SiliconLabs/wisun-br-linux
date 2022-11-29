@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "common/endian.h"
 #include "common/trickle.h"
 #include "common/rand.h"
 #include "common/bits.h"
@@ -136,7 +137,7 @@ static uint8_t mpl_buffer_sequence(const mpl_buffered_message_t *message)
 
 static uint16_t mpl_buffer_size(const mpl_buffered_message_t *message)
 {
-    return IPV6_HDRLEN + common_read_16_bit(message->message + IPV6_HDROFF_PAYLOAD_LENGTH);
+    return IPV6_HDRLEN + read_be16(message->message + IPV6_HDROFF_PAYLOAD_LENGTH);
 }
 
 mpl_domain_t *mpl_domain_lookup(struct net_if *cur, const uint8_t address[16])
@@ -1056,7 +1057,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
             case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
                 uint16_t addr = mac_helper_mac16_address_get(buf->interface);
                 if (addr < 0xfffe) {
-                    common_write_16_bit(addr, seed_id_buf);
+                    write_be16(seed_id_buf, addr);
                     seed_id = seed_id_buf;
                     seed_id_len = 2;
                     break;

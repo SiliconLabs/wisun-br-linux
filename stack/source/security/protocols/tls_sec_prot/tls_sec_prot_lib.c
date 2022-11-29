@@ -29,11 +29,11 @@
 #include <mbedtls/ssl_ciphersuites.h>
 #include <mbedtls/debug.h>
 #include <mbedtls/oid.h>
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"

@@ -80,11 +80,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/bits.h"
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "app_wsbrd/dbus.h"
 #include "app_wsbrd/wsbr.h"
-#include "stack-services/common_functions.h"
 #include "stack-services/ns_list.h"
 #include "stack/net_rpl.h"
 #include "stack/timers.h"
@@ -453,7 +453,7 @@ static uint8_t *rpl_downward_write_target(uint8_t *ptr, rpl_dao_target_t *target
     if (target->descriptor_present) {
         *ptr++ = RPL_TARGET_DESC_OPTION;
         *ptr++ = 4;
-        ptr = common_write_32_bit(target->descriptor, ptr);
+        ptr = write_be32(ptr, target->descriptor);
     }
 
     return ptr;
@@ -1213,7 +1213,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
             case RPL_TARGET_DESC_OPTION:
                 if (target_start[1] == 4 && last_target) {
                     last_target->descriptor_present = true;
-                    last_target->descriptor = common_read_32_bit(target_start + 2);
+                    last_target->descriptor = read_be32(target_start + 2);
                 }
                 break;
             case RPL_PAD1_OPTION:

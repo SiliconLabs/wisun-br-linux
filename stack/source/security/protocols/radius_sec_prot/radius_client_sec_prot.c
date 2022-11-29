@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/md5.h>
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "stack/mac/fhss_config.h"
 
@@ -392,7 +392,7 @@ static int8_t radius_client_sec_prot_receive(sec_prot_t *prot, const void *pdu, 
         return -1;
     }
 
-    uint16_t length = common_read_16_bit(radius_msg_ptr);
+    uint16_t length = read_be16(radius_msg_ptr);
     radius_msg_ptr += 2;
 
     if (length < RADIUS_MSG_FIXED_LENGTH) {
@@ -672,7 +672,7 @@ static void radius_client_sec_prot_allocate_and_create_radius_message(sec_prot_t
     *radius_msg_ptr++ = RADIUS_ACCESS_REQUEST;                                // code
     data->radius_identifier = radius_client_sec_prot_identifier_allocate(prot, data->radius_identifier);
     *radius_msg_ptr++ = data->radius_identifier;                              // identifier
-    radius_msg_ptr = common_write_16_bit(radius_msg_length, radius_msg_ptr);  // length
+    radius_msg_ptr = write_be16(radius_msg_ptr, radius_msg_length);  // length
 
     rand_get_n_bytes_random(data->request_authenticator, 16);
     memcpy(radius_msg_ptr, data->request_authenticator, 16);                  // request authenticator

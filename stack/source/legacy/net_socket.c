@@ -25,7 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ns_address.h"
 

@@ -16,7 +16,7 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/mac_common_defines.h"
 
 #include "6lowpan/mac/mac_ie_lib.h"
@@ -35,7 +35,7 @@
 
 static void mac_ie_header_parse(mac_header_IE_t *header_element, const uint8_t *ptr)
 {
-    uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
+    uint16_t ie_dummy = read_le16(ptr);
     header_element->length = (ie_dummy & MAC_IE_HEADER_LENGTH_MASK);
     header_element->id = ((ie_dummy & MAC_IE_HEADER_ID_MASK) >> 7);
     header_element->content_ptr = ptr + 2;
@@ -43,7 +43,7 @@ static void mac_ie_header_parse(mac_header_IE_t *header_element, const uint8_t *
 
 static void mac_ie_payload_parse(mac_payload_IE_t *payload_element, const uint8_t *ptr)
 {
-    uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
+    uint16_t ie_dummy = read_le16(ptr);
     payload_element->length = (ie_dummy & MAC_IE_PAYLOAD_LENGTH_MASK);
     payload_element->id = ((ie_dummy & MAC_IE_PAYLOAD_ID_MASK) >> 11);
     payload_element->content_ptr = ptr + 2;
@@ -51,7 +51,7 @@ static void mac_ie_payload_parse(mac_payload_IE_t *payload_element, const uint8_
 
 static void mac_ie_nested_id_parse(mac_nested_payload_IE_t *element, const uint8_t *ptr)
 {
-    uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
+    uint16_t ie_dummy = read_le16(ptr);
 
     if (ie_dummy & MAC_NESTED_IE_TYPE_LONG_MASK) {
         element->type_long = true;
@@ -72,16 +72,15 @@ uint8_t *mac_ie_header_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
     uint16_t ie_dummy = 0; //Header Type
     ie_dummy |= (length & MAC_IE_HEADER_LENGTH_MASK);
     ie_dummy |= ((type << 7) &  MAC_IE_HEADER_ID_MASK);
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 uint8_t *mac_ie_payload_base_write(uint8_t *ptr, uint8_t type, uint16_t length)
 {
-
     uint16_t ie_dummy = MAC_IE_TYPE_PAYLOAD_MASK; //Payload type
     ie_dummy |= (length & MAC_IE_PAYLOAD_LENGTH_MASK);
     ie_dummy |= ((type << 11) &  MAC_IE_PAYLOAD_ID_MASK);
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 uint8_t *mac_ie_nested_ie_long_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t length)
@@ -89,8 +88,7 @@ uint8_t *mac_ie_nested_ie_long_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t
     uint16_t ie_dummy = MAC_NESTED_IE_TYPE_LONG_MASK;
     ie_dummy |= (length & MAC_NESTED_LONG_IE_PAYLOAD_LENGTH_MASK);
     ie_dummy |= ((sub_id << 11) &  MAC_NESTED_LONG_IE_PAYLOAD_ID_MASK);
-
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_t length)
@@ -98,8 +96,7 @@ uint8_t *mac_ie_nested_ie_short_base_write(uint8_t *ptr, uint8_t sub_id, uint16_
     uint16_t ie_dummy = 0;
     ie_dummy |= (length & MAC_NESTED_SHORT_IE_PAYLOAD_LENGTH_MASK);
     ie_dummy |= ((sub_id << 8) &  MAC_NESTED_SHORT_IE_PAYLOAD_ID_MASK);
-
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 uint16_t mac_ie_payload_discover(const uint8_t *payload_ptr, uint16_t length, mac_payload_IE_t *payload_ie)

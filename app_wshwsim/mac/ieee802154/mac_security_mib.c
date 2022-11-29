@@ -20,7 +20,7 @@
 #include <inttypes.h>
 #include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_common_defines.h"
@@ -376,7 +376,7 @@ mlme_device_descriptor_t *mac_sec_mib_device_description_get(protocol_interface_
 {
     if (rf_mac_setup) {
         if (type == MAC_ADDR_MODE_16_BIT) {
-            uint16_t short_id = common_read_16_bit(address);
+            uint16_t short_id = read_be16(address);
             return  mac_sec_mib_device_description_get_by_mac16(rf_mac_setup, short_id, pan_id);
         } else if (type == MAC_ADDR_MODE_64_BIT) {
             return mac_sec_mib_device_description_get_by_mac64(rf_mac_setup, address, pan_id);
@@ -437,7 +437,7 @@ mlme_key_descriptor_t *mac_sec_key_description_get(protocol_interface_rf_mac_set
             if (address_mode == MAC_ADDR_MODE_64_BIT) {
                 memcpy(lookup_data, address_ptr, 8);
             } else if (address_mode == MAC_ADDR_MODE_16_BIT) {
-                common_write_16_bit(pan_id, lookup_data);
+                write_be16(lookup_data, pan_id);
                 memcpy(&lookup_data[2], address_ptr, 2);
             } else {
                 return NULL; //Not supported this yet

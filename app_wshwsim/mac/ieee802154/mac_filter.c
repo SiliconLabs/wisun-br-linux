@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "stack-services/ns_list.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_filter_api.h"
 #include "stack/mac/mac_mcps.h"
@@ -320,7 +320,7 @@ int_fast8_t mac_filter_modify_link_quality(int8_t interface_id, struct mac_fcf_s
 
 //Find filter for specific address
     if (fcf->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
-        uint16_t mac16 = common_read_16_bit(srcAddress);
+        uint16_t mac16 = read_be16(srcAddress);
         filter_ptr = filter_find_short(this, mac16);
         if (!filter_ptr && this->resolve_long_cb) {
             // Get the long mapping

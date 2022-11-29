@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"
@@ -240,7 +240,7 @@ void mac_header_security_parameter_set(mac_aux_security_header_t *header, const 
 
 const uint8_t *mac_header_parse_fcf_dsn(mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    uint16_t fcf = common_read_16_bit_inverse(ptr);
+    uint16_t fcf = read_le16(ptr);
     ptr += 2;
 
     //Read Frame Type
@@ -289,7 +289,7 @@ static uint8_t *mac_header_write_fcf_dsn(const mac_fcf_sequence_t *header, uint8
     fcf |= (header->DstAddrMode << MAC_FCF_DST_ADDR_SHIFT);
     fcf |= (header->frameVersion << MAC_FCF_VERSION_SHIFT);
     fcf |= (header->SrcAddrMode << MAC_FCF_SRC_ADDR_SHIFT);
-    ptr = common_write_16_bit_inverse(fcf, ptr);
+    ptr = write_le16(ptr, fcf);
     if (header->frameVersion < MAC_FRAME_VERSION_2015 || (header->frameVersion ==  MAC_FRAME_VERSION_2015 &&  !header->sequenceNumberSuppress)) {
         *ptr++ = header->DSN;
     }
@@ -356,14 +356,14 @@ static uint16_t mac_header_read_src_pan(const mac_fcf_sequence_t *header, const 
 
     ptr += mac_dst_address_length_with_panid(header); //Skip Dst panID & Address
 
-    return common_read_16_bit_inverse(ptr);
+    return read_le16(ptr);
 }
 
 static uint16_t mac_header_read_dst_pan(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
     ptr += mac_fcf_length(header);//Skip FCF + DSN
 
-    return common_read_16_bit_inverse(ptr);
+    return read_le16(ptr);
 }
 
 uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint16_t configured_pan_id)
@@ -496,15 +496,15 @@ uint32_t mcps_mac_security_frame_counter_read(const mac_pre_parsed_frame_t *buff
     }
 
     const uint8_t *ptr = (mac_header_message_start_pointer(buffer) + buffer->mac_header_length + 1);
-    return common_read_32_bit_inverse(ptr);
+    return read_le32(ptr);
 
 }
 
 static uint8_t *mcps_mac_frame_address_write(uint8_t *ptr, uint8_t addressType, const uint8_t *addressPtr)
 {
     if (addressType == MAC_ADDR_MODE_16_BIT) {
-        uint16_t tempMac16 = common_read_16_bit(addressPtr);
-        ptr = common_write_16_bit_inverse(tempMac16, ptr);
+        uint16_t tempMac16 = read_be16(addressPtr);
+        ptr = write_le16(ptr, tempMac16);
     } else if (addressType == MAC_ADDR_MODE_64_BIT) {
         uint8_t i;
         for (i = 0; i < 8; i++) {
@@ -520,7 +520,7 @@ static uint8_t *mac_security_interface_aux_security_header_write(uint8_t *ptr, c
     auxBaseHeader = auxHeader->securityLevel;
     auxBaseHeader |= (auxHeader->KeyIdMode << 3);
     *ptr++ = auxBaseHeader;
-    ptr = common_write_32_bit_inverse(auxHeader->frameCounter, ptr);
+    ptr = write_le32(ptr, auxHeader->frameCounter);
 
     switch (auxHeader->KeyIdMode) {
         case MAC_KEY_ID_MODE_SRC8_IDX:
@@ -547,7 +547,7 @@ uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr
     ptr = mac_header_write_fcf_dsn(&buffer->fcf_dsn, ptr);
 
     if (buffer->fcf_dsn.DstPanPresents) {
-        ptr = common_write_16_bit_inverse(buffer->DstPANId, ptr);
+        ptr = write_le16(ptr, buffer->DstPANId);
     }
 
     if (buffer->fcf_dsn.DstAddrMode) {
@@ -556,7 +556,7 @@ uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr
     }
 
     if (buffer->fcf_dsn.SrcPanPresents) {
-        ptr = common_write_16_bit_inverse(buffer->SrcPANId, ptr);
+        ptr = write_le16(ptr, buffer->SrcPANId);
     }
 
     if (buffer->fcf_dsn.SrcAddrMode) {
@@ -597,7 +597,7 @@ static uint8_t *mac_write_ie_vector_list(ns_ie_iovec_t *list, uint16_t length, u
 
 static bool mac_parse_header_ie(mac_header_IE_t *header_element, uint8_t *ptr)
 {
-    uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
+    uint16_t ie_dummy = read_le16(ptr);
     if (ie_dummy & 0x8000) {
         return false;
     }
@@ -609,7 +609,7 @@ static bool mac_parse_header_ie(mac_header_IE_t *header_element, uint8_t *ptr)
 
 static bool mac_parse_payload_ie(mac_payload_IE_t *payload_element, uint8_t *ptr)
 {
-    uint16_t ie_dummy = common_read_16_bit_inverse(ptr);
+    uint16_t ie_dummy = read_le16(ptr);
     if (!(ie_dummy & 0x8000)) {
         return false;
     }
@@ -712,7 +712,7 @@ static uint8_t *mac_header_ie_terminate(uint8_t *ptr, uint8_t type)
 {
     uint16_t ie_dummy = 0;
     ie_dummy |= (type << 7);
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 
 
 }
@@ -722,7 +722,7 @@ static uint8_t *mac_payload_ie_terminate(uint8_t *ptr)
     uint16_t ie_dummy = 0;
     ie_dummy |= (MAC_PAYLOAD_TERMINATION_IE_GROUP_ID << 11);
     ie_dummy |= (1u << 15);
-    return common_write_16_bit_inverse(ie_dummy, ptr);
+    return write_le16(ptr, ie_dummy);
 }
 
 

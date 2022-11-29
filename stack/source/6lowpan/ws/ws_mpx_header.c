@@ -18,9 +18,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_mpx_header.h"
@@ -78,7 +78,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
         if (length < 2) {
             return false;
         }
-        msg->total_upper_layer_size = common_read_16_bit_inverse(ptr);
+        msg->total_upper_layer_size = read_le16(ptr);
         ptr += 2;
         length -= 2;
     }
@@ -87,7 +87,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
         if (length < 3) {
             return false;
         }
-        msg->multiplex_id = common_read_16_bit_inverse(ptr);
+        msg->multiplex_id = read_le16(ptr);
         ptr += 2;
         length -= 2;
     }
@@ -136,11 +136,11 @@ uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg)
     }
 
     if (fragment_total_size) {
-        ptr = common_write_16_bit_inverse(msg->total_upper_layer_size, ptr);
+        ptr = write_le16(ptr, msg->total_upper_layer_size);
     }
 
     if (multiplex_id_present) {
-        ptr = common_write_16_bit_inverse(msg->multiplex_id, ptr);
+        ptr = write_le16(ptr, msg->multiplex_id);
     }
     return ptr;
 }

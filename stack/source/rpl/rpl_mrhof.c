@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include "common/log_legacy.h"
+#include "common/endian.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/etx/etx.h"
 #include "stack/net_rpl.h"

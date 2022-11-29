@@ -16,7 +16,7 @@
  */
 #include <string.h>
 #include <stdlib.h>
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"

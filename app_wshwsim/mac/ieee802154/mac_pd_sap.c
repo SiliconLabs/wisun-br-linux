@@ -20,7 +20,7 @@
 #include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mac_api.h"
@@ -271,7 +271,7 @@ static uint32_t mac_pd_sap_get_phy_rx_time(protocol_interface_rf_mac_setup_s *rf
     }
     uint8_t rx_time_buffer[4];
     rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_READ_RX_TIME, rx_time_buffer);
-    return common_read_32_bit(rx_time_buffer);
+    return read_be32(rx_time_buffer);
 }
 
 /**
@@ -816,7 +816,7 @@ static bool mac_pd_sap_addr_filter_common(const uint8_t *mac_header, const mac_f
                 return true;
             }
             uint8_t temp[2];
-            common_write_16_bit(mac_16bit_addr, temp);
+            write_be16(temp, mac_16bit_addr);
             if (!memcmp(temp, dst_addr, 2)) {
                 return true;
             }

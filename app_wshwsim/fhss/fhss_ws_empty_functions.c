@@ -23,7 +23,7 @@
 #include "fhss_ws.h"
 #include "os_timer.h"
 #include <stdlib.h>
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "common/rand.h"
 #include <string.h>
 

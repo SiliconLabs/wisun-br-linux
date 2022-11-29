@@ -24,7 +24,7 @@
 #include "common/rand.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack-services/ns_list.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"

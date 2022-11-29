@@ -18,9 +18,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <mbedtls/md.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "service_libs/hmac/hmac_md.h"
-#include "stack-services/common_functions.h"
 
 #define TRACE_GROUP "hmac"
 
@@ -43,7 +43,7 @@ int8_t hmac_md_calc(const alg_hmac_md_e md, const uint8_t *key, uint16_t key_len
     }
 #endif
 
-    uint16_t payload_length = common_read_16_bit(&data[2]);
+    uint16_t payload_length = read_be16(&data[2]);
     if (data_len > payload_length)
         data_len = payload_length + 4;
 

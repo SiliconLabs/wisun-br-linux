@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
@@ -421,10 +421,10 @@ drop:
         return (buf);
     }
     ptr = buffer_data_reserve_header(buf, ip_hdr_len);
-    ptr = common_write_32_bit((UINT32_C(6) << 28) |
-                              ((uint32_t)buf->options.traffic_class << 20) |
-                              (buf->options.flow_label & 0xfffff), ptr);
-    ptr = common_write_16_bit((ip_hdr_len - IPV6_HDRLEN) + payload_len, ptr);
+    ptr = write_be32(ptr, (UINT32_C(6) << 28)
+                        | ((uint32_t)buf->options.traffic_class << 20)
+                        | (buf->options.flow_label & 0xfffff));
+    ptr = write_be16(ptr, (ip_hdr_len - IPV6_HDRLEN) + payload_len);
     /* Remember position of Next Header octet - we'll fill it later */
     uint8_t *nh_ptr = ptr++;
     *ptr++ = buf->options.hop_limit;
@@ -466,7 +466,7 @@ drop:
         if (buf->options.ip_extflags & IPEXT_HBH_ROUTER_ALERT) {
             *ptr++ = IPV6_OPTION_ROUTER_ALERT;
             *ptr++ = 2; // Length
-            ptr = common_write_16_bit(IPV6_ROUTER_ALERT_MLD, ptr);
+            ptr = write_be16(ptr, IPV6_ROUTER_ALERT_MLD);
         }
 #if 0
         if (multicast) {
@@ -642,7 +642,7 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         if (ipv6_flow_auto_label) {
             /* Compute new flow label from inner src, dst, flow (RFC 6438) */
             const uint8_t *iphdr = buffer_data_pointer(buf);
-            uint_fast24_t flow = common_read_24_bit(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
+            uint_fast24_t flow = read_be24(iphdr + IPV6_HDROFF_FLOW_LABEL) & 0xFFFFF;
             buf->options.flow_label = ipv6_flow_2tuple_flow(iphdr + IPV6_HDROFF_SRC_ADDR, iphdr + IPV6_HDROFF_DST_ADDR, flow);
         } else {
             buf->options.flow_label = 0;
@@ -1124,7 +1124,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
     // Just skip Flow Label for now
     ptr += 4;
 
-    uint16_t payload_length = common_read_16_bit(ptr);
+    uint16_t payload_length = read_be16(ptr);
     ptr += 2;
 
     // "Parameter problem" needs this pointer to Next Header field

@@ -37,7 +37,7 @@
 #include "app_wsbrd/tun.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/etx/etx.h" /* slight ick */
 #include "stack/net_rpl.h"
 #include "stack/timers.h"
@@ -844,11 +844,11 @@ static const uint8_t *rpl_control_read_conf(rpl_dodag_conf_t *conf_out, const ui
     conf_out->dio_interval_doublings = opt[3];
     conf_out->dio_interval_min = opt[4];
     conf_out->dio_redundancy_constant = opt[5];
-    conf_out->dag_max_rank_increase = common_read_16_bit(opt + 6);
-    conf_out->min_hop_rank_increase = common_read_16_bit(opt + 8);
-    conf_out->objective_code_point = common_read_16_bit(opt + 10);
+    conf_out->dag_max_rank_increase = read_be16(opt + 6);
+    conf_out->min_hop_rank_increase = read_be16(opt + 8);
+    conf_out->objective_code_point = read_be16(opt + 10);
     conf_out->default_lifetime = opt[13];
-    conf_out->lifetime_unit = common_read_16_bit(opt + 14);
+    conf_out->lifetime_unit = read_be16(opt + 14);
     return opt + 16;
 }
 
@@ -861,12 +861,12 @@ static uint8_t *rpl_control_write_conf(uint8_t *opt_out, const rpl_dodag_conf_t 
     opt_out[3] = conf->dio_interval_doublings;
     opt_out[4] = conf->dio_interval_min;
     opt_out[5] = conf->dio_redundancy_constant;
-    common_write_16_bit(conf->dag_max_rank_increase, opt_out + 6);
-    common_write_16_bit(conf->min_hop_rank_increase, opt_out + 8);
-    common_write_16_bit(conf->objective_code_point, opt_out + 10);
+    write_be16(opt_out + 6, conf->dag_max_rank_increase);
+    write_be16(opt_out + 8, conf->min_hop_rank_increase);
+    write_be16(opt_out + 10, conf->objective_code_point);
     opt_out[12] = 0; // reserved
     opt_out[13] = conf->default_lifetime;
-    common_write_16_bit(conf->lifetime_unit, opt_out + 14);
+    write_be16(opt_out + 14, conf->lifetime_unit);
     return opt_out + 16;
 }
 
@@ -916,8 +916,8 @@ static void rpl_control_process_prefix_options(struct net_if *cur, rpl_instance_
         }
         uint8_t prefix_len = ptr[2];
         uint8_t flags = ptr[3];
-        uint32_t valid = common_read_32_bit(ptr + 4);
-        uint32_t preferred = common_read_32_bit(ptr + 8);
+        uint32_t valid = read_be32(ptr + 4);
+        uint32_t preferred = read_be32(ptr + 8);
         const uint8_t *prefix = ptr + 16;
 
         if (ws_info(cur)) {
@@ -1021,7 +1021,7 @@ static void rpl_control_process_route_options(rpl_instance_t *instance, rpl_doda
         }
         uint8_t prefix_len = ptr[2];
         uint8_t flags = ptr[3];
-        uint32_t lifetime = common_read_32_bit(ptr + 4);
+        uint32_t lifetime = read_be32(ptr + 4);
         const uint8_t *prefix = ptr + 8;
         if (opt_len < 6 + (prefix_len + 7u) / 8) {
             tr_warn("Malformed RIO");
@@ -1091,7 +1091,7 @@ malformed:
 
     instance_id = ptr[0];
     version_num = ptr[1];
-    rank = common_read_16_bit(ptr + 2);
+    rank = read_be16(ptr + 2);
     g_mop_prf = ptr[4];
     dtsn = ptr[5];
     dodagid = ptr + 8;
@@ -1411,7 +1411,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, struct net_if *cur, uint8_t 
     uint8_t *ptr = buffer_data_pointer(buf);
     ptr[0] = instance_id;
     ptr[1] = dodag_version;
-    common_write_16_bit(rank, ptr + 2);
+    write_be16(ptr + 2, rank);
     ptr[4] = g_mop_prf;
     ptr[5] = dtsn;
     ptr[6] = 0;
@@ -1437,9 +1437,9 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, struct net_if *cur, uint8_t 
         ptr[1] = 30;
         ptr[2] = prefix->prefix_len;
         ptr[3] = prefix->options & (PIO_R | PIO_A | PIO_L);
-        common_write_32_bit(prefix->lifetime, ptr + 4);
-        common_write_32_bit(prefix->preftime, ptr + 8);
-        common_write_32_bit(0, ptr + 12); // reserved
+        write_be32(ptr + 4, prefix->lifetime);
+        write_be32(ptr + 8, prefix->preftime);
+        write_be32(ptr + 12, 0); // reserved
         memcpy(ptr + 16, prefix->prefix, 16);
         ptr += 32;
         /* Transmitting a multicast DIO decrements the hold count for 0 lifetime prefixes */
@@ -1458,7 +1458,7 @@ void rpl_control_transmit_dio(rpl_domain_t *domain, struct net_if *cur, uint8_t 
         ptr[1] = 6 + prefix_bytes;
         ptr[2] = route->prefix_len;
         ptr[3] = route->flags;
-        common_write_32_bit(route->lifetime, ptr + 4);
+        write_be32(ptr + 4, route->lifetime);
         bitcpy0(ptr + 8, route->prefix, route->prefix_len);
         ptr += 8 + prefix_bytes;
         /* Transmitting a multicast DIO decrements the hold count for 0 lifetime routes */

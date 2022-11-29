@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
@@ -380,7 +380,7 @@ static bool decompress_ipv6(iphc_decompress_state_t *restrict ds)
     }
 
     /* Compute payload length */
-    ds->out = common_write_16_bit(ds->end - (ds->out + 36), ds->out);
+    ds->out = write_be16(ds->out, ds->end - (ds->out + 36));
 
     /* Next Header */
     if (iphc[0] & HC_NEXT_HEADER_MASK) {
@@ -515,7 +515,7 @@ static bool decompress_udp(iphc_decompress_state_t *ds)
     }
 
     /* Length */
-    ds->out = common_write_16_bit(ds->end - (ds->out - 4), ds->out);
+    ds->out = write_be16(ds->out, ds->end - (ds->out - 4));
 
     /* Don't currently allow checksum compression */
     if (nhc & NHC_UDP_CKSUM_COMPRESS) {

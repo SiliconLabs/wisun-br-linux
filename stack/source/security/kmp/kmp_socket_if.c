@@ -23,9 +23,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
@@ -213,7 +213,7 @@ static int8_t kmp_socket_if_send(kmp_service_t *service, uint8_t instance_id, km
         uint8_t *ptr = pdu;
         memcpy(ptr, addr->relay_address, 16);
         ptr += 16;
-        ptr = common_write_16_bit(addr->port, ptr);
+        ptr = write_be16(ptr, addr->port);
         memcpy(ptr, kmp_address_eui_64_get(addr), 8);
         ptr += 8;
         *ptr = kmp_id;
@@ -278,7 +278,7 @@ void kmp_socket_if_pae_socket_cb(int fd)
         addr.type = KMP_ADDR_EUI_64_AND_IP;
         memcpy(addr.relay_address, data_ptr, 16);
         data_ptr += 16;
-        addr.port = common_read_16_bit(data_ptr);
+        addr.port = read_be16(data_ptr);
         data_ptr += 2;
         memcpy(addr.eui_64, data_ptr, 8);
         data_ptr += 8;

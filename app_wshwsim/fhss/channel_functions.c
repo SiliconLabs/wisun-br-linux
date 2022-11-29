@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdbool.h>
 #include <stddef.h>
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #define rot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 
@@ -184,8 +185,8 @@ int32_t dh1cf_get_uc_channel_index(uint16_t slot_number, uint8_t *mac, int16_t n
     int32_t channel_number;
     uint32_t key[3];
     key[0] = (uint32_t) slot_number;
-    key[1] = common_read_32_bit(&mac[4]);
-    key[2] = common_read_32_bit(&mac[0]);
+    key[1] = read_be32(&mac[4]);
+    key[2] = read_be32(&mac[0]);
     channel_number = dh1cf_hashword(key, 3, 0) % number_of_channels;
     return channel_number;
 }

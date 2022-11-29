@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/bits.h"
+#include "common/endian.h"
 #include "common/utils.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
@@ -172,9 +172,9 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
     const uint8_t *range_ptr = range_info->range_start;
 
     for (int i = 0; i < range_info->number_of_range; i++) {
-        range_start = common_read_16_bit_inverse(range_ptr);
+        range_start = read_le16(range_ptr);
         range_ptr += 2;
-        range_stop = min(common_read_16_bit_inverse(range_ptr), number_of_channels);
+        range_stop = min(read_le16(range_ptr), number_of_channels);
         range_ptr += 2;
         for (int channel = range_start; channel < range_stop; channel++) {
             if (bittest(channel_info->channel_mask, channel)) {

@@ -20,7 +20,7 @@
 #include <inttypes.h>
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "dhcpv6_utils.h"
 
@@ -259,7 +259,7 @@ int libdhcpv6_message_malformed_check(uint8_t *ptr, uint16_t data_len)
         while (data_len) {
             if (data_len >= 4) {
 
-                length = common_read_16_bit(dptr + 2); //Skip Type
+                length = read_be16(dptr + 2); //Skip Type
                 dptr += 4;
                 data_len -= 4;
                 if (data_len >= length) {
@@ -287,33 +287,33 @@ int libdhcpv6_message_malformed_check(uint8_t *ptr, uint16_t data_len)
 uint8_t *libdhcpv6_header_write(uint8_t *ptr, uint8_t msgType, uint32_t transActionId)
 {
     *ptr++ = msgType;
-    ptr = common_write_24_bit(transActionId, ptr);
+    ptr = write_be24(ptr, transActionId);
     return ptr;
 }
 
 uint8_t *libdhcpv6_elapsed_time_option_write(uint8_t *ptr, uint16_t elapsedTime)
 {
     //Elapsed time
-    ptr = common_write_16_bit(DHCPV6_ELAPSED_TIME_OPTION, ptr);
-    ptr = common_write_16_bit(DHCPV6_ELAPSED_TIME_OPTION_LEN, ptr);
-    ptr = common_write_16_bit(elapsedTime, ptr);
+    ptr = write_be16(ptr, DHCPV6_ELAPSED_TIME_OPTION);
+    ptr = write_be16(ptr, DHCPV6_ELAPSED_TIME_OPTION_LEN);
+    ptr = write_be16(ptr, elapsedTime);
     return ptr;
 }
 
 uint8_t *libdhcpv6_rapid_commit_option_write(uint8_t *ptr)
 {
-    ptr = common_write_16_bit(DHCPV6_OPTION_RAPID_COMMIT, ptr);
-    ptr = common_write_16_bit(DHCPV6_OPTION_RAPID_COMMIT_LEN, ptr);
+    ptr = write_be16(ptr, DHCPV6_OPTION_RAPID_COMMIT);
+    ptr = write_be16(ptr, DHCPV6_OPTION_RAPID_COMMIT_LEN);
     return ptr;
 }
 
 uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_t *optionPtr)
 {
     uint16_t optionLength = libdhcvp6_request_option_size(optionCnt);
-    ptr = common_write_16_bit(DHCPV6_OPTION_REQUEST_OPTION, ptr);
-    ptr = common_write_16_bit((optionLength - 4), ptr);
+    ptr = write_be16(ptr, DHCPV6_OPTION_REQUEST_OPTION);
+    ptr = write_be16(ptr, (optionLength - 4));
     while (optionCnt) {
-        ptr = common_write_16_bit(*optionPtr++, ptr);
+        ptr = write_be16(ptr, *optionPtr++);
         optionCnt--;
     }
     return ptr;
@@ -322,9 +322,9 @@ uint8_t *libdhcvp6_request_option_write(uint8_t *ptr, uint8_t optionCnt, uint16_
 uint8_t *libdhcpv6_duid_option_write(uint8_t *ptr, uint16_t duidRole, const dhcp_duid_options_params_t *duid)
 {
     uint16_t length = duid->duid_length + 2;
-    ptr = common_write_16_bit(duidRole, ptr);
-    ptr = common_write_16_bit(length, ptr);
-    ptr = common_write_16_bit(duid->type, ptr);
+    ptr = write_be16(ptr, duidRole);
+    ptr = write_be16(ptr, length);
+    ptr = write_be16(ptr, duid->type);
     memcpy(ptr, duid->duid, duid->duid_length);
     ptr += duid->duid_length;
     return ptr;
@@ -334,31 +334,31 @@ uint8_t *libdhcpv6_identity_association_option_write(uint8_t *ptr, uint32_t iaID
 {
     uint16_t optionMsgLen = libdhcpv6_non_temporal_address_size(withAddress);
 
-    ptr = common_write_16_bit(DHCPV6_IDENTITY_ASSOCIATION_OPTION, ptr);
-    ptr = common_write_16_bit((optionMsgLen - 4), ptr);
+    ptr = write_be16(ptr, DHCPV6_IDENTITY_ASSOCIATION_OPTION);
+    ptr = write_be16(ptr, (optionMsgLen - 4));
 
-    ptr = common_write_32_bit(iaID, ptr); //iaId
-    ptr = common_write_32_bit(TimerT1, ptr); //T1
-    ptr = common_write_32_bit(TimerT2, ptr);//T2
+    ptr = write_be32(ptr, iaID); //iaId
+    ptr = write_be32(ptr, TimerT1); //T1
+    ptr = write_be32(ptr, TimerT2);//T2
     return ptr;
 }
 
 uint8_t *libdhcpv6_ia_address_option_write(uint8_t *ptr, const uint8_t *addressPtr, uint32_t preferredValidLifeTime, uint32_t validLifeTime)
 {
-    ptr = common_write_16_bit(DHCPV6_IA_ADDRESS_OPTION, ptr);
-    ptr = common_write_16_bit(DHCPV6_IA_ADDRESS_OPTION_LEN, ptr);
+    ptr = write_be16(ptr, DHCPV6_IA_ADDRESS_OPTION);
+    ptr = write_be16(ptr, DHCPV6_IA_ADDRESS_OPTION_LEN);
     memcpy(ptr, addressPtr, 16);
     ptr += 16;
-    ptr = common_write_32_bit(preferredValidLifeTime, ptr); //Preferred
-    ptr = common_write_32_bit(validLifeTime, ptr);//Valid
+    ptr = write_be32(ptr, preferredValidLifeTime); //Preferred
+    ptr = write_be32(ptr, validLifeTime);//Valid
     return ptr;
 }
 
 uint8_t *libdhcpv6_status_code_write(uint8_t *ptr, uint16_t statusCode)
 {
-    ptr = common_write_16_bit(DHCPV6_STATUS_CODE_OPTION, ptr);
-    ptr = common_write_16_bit(DHCPV6_STATUS_CODE_OPTION_LEN, ptr);
-    ptr = common_write_16_bit(statusCode, ptr);
+    ptr = write_be16(ptr, DHCPV6_STATUS_CODE_OPTION);
+    ptr = write_be16(ptr, DHCPV6_STATUS_CODE_OPTION_LEN);
+    ptr = write_be16(ptr, statusCode);
     return ptr;
 }
 
@@ -366,9 +366,9 @@ uint8_t *libdhcpv6_client_last_transaction_time_option_write(uint8_t *ptr, uint3
 {
 
     uint16_t Length = libdhcpv6_client_last_transaction_time_option_size();
-    ptr = common_write_16_bit(DHCPV6_OPTION_CLT_TIME, ptr);
-    ptr = common_write_16_bit((Length - 4), ptr);
-    ptr = common_write_32_bit(last_transaction_Time, ptr); //SET Last time we heard from this child either from mle or data packets.
+    ptr = write_be16(ptr, DHCPV6_OPTION_CLT_TIME);
+    ptr = write_be16(ptr, (Length - 4));
+    ptr = write_be32(ptr, last_transaction_Time); //SET Last time we heard from this child either from mle or data packets.
     return ptr;
 }
 
@@ -382,9 +382,9 @@ int libdhcpv6_message_option_discover(uint8_t *ptr, uint16_t data_len, uint16_t 
         return -1;
     }
     while (data_len >= 4) {
-        type = common_read_16_bit(dptr);
+        type = read_be16(dptr);
         dptr += 2;
-        length = common_read_16_bit(dptr);
+        length = read_be16(dptr);
         dptr += 2;
         data_len -= 4;
         if (data_len >= length) {
@@ -518,7 +518,7 @@ int libdhcpv6_get_duid_by_selected_type_id_opt(uint8_t *ptr, uint16_t data_lengt
     }
 
     uint8_t *t_ptr = option_msg.msg_ptr;
-    params->type = common_read_16_bit(t_ptr);
+    params->type = read_be16(t_ptr);
     t_ptr += 2;
     params->duid = t_ptr;
     params->duid_length = option_msg.len - 2;
@@ -537,7 +537,7 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
 
     if (libdhcpv6_message_option_discover(ptr, data_length, DHCPV6_STATUS_CODE_OPTION, &option_msg) == 0) {
         if (option_msg.len >= DHCPV6_STATUS_CODE_OPTION_LEN) {
-            status_code = common_read_16_bit(option_msg.msg_ptr);
+            status_code = read_be16(option_msg.msg_ptr);
             if (status_code) {
                 return -1;
             }
@@ -552,17 +552,17 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
         uint16_t length;
         t_ptr = option_msg.msg_ptr;
         length = (option_msg.len - 12);
-        params->iaId = common_read_32_bit(t_ptr);
+        params->iaId = read_be32(t_ptr);
         t_ptr += 4;
-        params->T0 = common_read_32_bit(t_ptr);
+        params->T0 = read_be32(t_ptr);
         t_ptr += 4;
-        params->T1 = common_read_32_bit(t_ptr);
+        params->T1 = read_be32(t_ptr);
         t_ptr += 4;
 
         if (length > 4) {
             if (libdhcpv6_message_option_discover(t_ptr, length, DHCPV6_STATUS_CODE_OPTION, &option_msg) == 0) {
                 if (option_msg.len >= DHCPV6_STATUS_CODE_OPTION_LEN) {
-                    status_code = common_read_16_bit(option_msg.msg_ptr);
+                    status_code = read_be16(option_msg.msg_ptr);
                     if (status_code) {
                         return -1;
                     }
@@ -574,9 +574,9 @@ int libdhcpv6_get_IA_address(uint8_t *ptr, uint16_t data_length, dhcp_ia_non_tem
                     t_ptr = option_msg.msg_ptr;
                     params->nonTemporalAddress = t_ptr;
                     t_ptr += 16;
-                    params->preferredValidLifeTime = common_read_32_bit(t_ptr);
+                    params->preferredValidLifeTime = read_be32(t_ptr);
                     t_ptr += 4;
-                    params->validLifeTime = common_read_32_bit(t_ptr);
+                    params->validLifeTime = read_be32(t_ptr);
                     return 0;
                 }
             }
@@ -661,8 +661,8 @@ uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_
 
 uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t option_type, uint16_t length)
 {
-    ptr = common_write_16_bit(option_type, ptr);
-    ptr = common_write_16_bit(length, ptr);
+    ptr = write_be16(ptr, option_type);
+    ptr = write_be16(ptr, length);
     return ptr;
 }
 

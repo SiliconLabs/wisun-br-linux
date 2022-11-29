@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/nwk_stats_api.h"
 
 #include "nwk_interface/protocol.h"
@@ -276,14 +276,14 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     uint8_t *ptr = buffer_data_pointer(buf);
 
     frag_header = ptr[0];
-    datagram_size = common_read_16_bit(ptr) & 0x07FF;
+    datagram_size = read_be16(ptr) & 0x07FF;
 
     if (datagram_size == 0) {
         goto reassembly_error;
     }
 
     ptr += 2;
-    datagram_tag = common_read_16_bit(ptr);
+    datagram_tag = read_be16(ptr);
     ptr += 2;
     if (frag_header & LOWPAN_FRAGN_BIT) {
         fragment_first = *ptr++ << 3;

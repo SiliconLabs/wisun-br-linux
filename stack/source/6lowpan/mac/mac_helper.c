@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
@@ -250,7 +250,7 @@ void mac_helper_coordinator_address_set(struct net_if *interface, addrtype_e adr
     if (adr_type == ADDR_802_15_4_SHORT) {
         memcpy(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 2);
         interface->mac_parameters.mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_16_BIT;
-        short_addr = common_read_16_bit(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address);
+        short_addr = read_be16(interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address);
         set_req.attr = macCoordShortAddress;
         set_req.value_pointer = &short_addr;
         set_req.value_size = 2;
@@ -331,7 +331,7 @@ int8_t mac_helper_mac_channel_set(struct net_if *interface, uint8_t new_channel)
 
 static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
 {
-    common_write_16_bit(temp16, addrPtr);
+    write_be16(addrPtr, temp16);
     return temp16 != 0xffff;
 }
 

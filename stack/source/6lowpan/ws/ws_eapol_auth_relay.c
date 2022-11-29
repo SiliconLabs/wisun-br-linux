@@ -22,9 +22,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
@@ -168,7 +168,7 @@ void ws_eapol_auth_relay_socket_cb(int fd)
         relay_ip_addr.type = ADDRESS_IPV6;
         memcpy(relay_ip_addr.address, ptr, 16);
         ptr += 16;
-        relay_ip_addr.identifier = common_read_16_bit(ptr);
+        relay_ip_addr.identifier = read_be16(ptr);
         ptr += 2;
         eui_64 = ptr;
         ptr += 8;
@@ -210,7 +210,7 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
     uint8_t *ptr = temp_array;
     memcpy(ptr, ip_addr, 16);
     ptr += 16;
-    ptr = common_write_16_bit(port, ptr);
+    ptr = write_be16(ptr, port);
     memcpy(ptr, eui_64, 8);
     msg_iov[0].iov_base = temp_array;
     msg_iov[0].iov_len = 26;

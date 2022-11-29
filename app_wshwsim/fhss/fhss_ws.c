@@ -23,7 +23,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/hal_interrupt.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 
@@ -861,7 +861,7 @@ static uint8_t fhss_ws_ie_header_discover(uint8_t *header_ptr, uint16_t length, 
     uint8_t *sub_id_ptr;
     uint16_t ie_dummy;
     while (length > 2) {
-        ie_dummy = common_read_16_bit_inverse(header_ptr);
+        ie_dummy = read_le16(header_ptr);
         ie_element.length = (ie_dummy & IE_HEADER_LENGTH_MASK);
         ie_element.id = ((ie_dummy & IE_HEADER_ID_MASK) >> 7);
         ie_element.content_ptr = header_ptr + 2;
@@ -890,12 +890,12 @@ static int16_t fhss_ws_write_synch_info_callback(const fhss_api_t *api, uint8_t 
     header_ie.id = WH_IE_ID;
     if (fhss_ws_ie_header_discover(ptr, length, &header_ie, WH_SUB_ID_UTT)) {
         uint32_t ufsi = fhss_ws_calculate_ufsi(fhss_structure, tx_time);
-        common_write_24_bit_inverse(ufsi, header_ie.content_ptr + 1);
+        write_le24(header_ie.content_ptr + 1, ufsi);
     }
     if (fhss_ws_ie_header_discover(ptr, length, &header_ie, WH_SUB_ID_BT)) {
         uint32_t broadcast_interval_offset = fhss_ws_calculate_broadcast_interval_offset(fhss_structure, tx_time);
-        common_write_16_bit_inverse(fhss_structure->ws->bc_slot, header_ie.content_ptr);
-        common_write_24_bit_inverse(broadcast_interval_offset, header_ie.content_ptr + 2);
+        write_le16(header_ie.content_ptr, fhss_structure->ws->bc_slot);
+        write_le24(header_ie.content_ptr + 2, broadcast_interval_offset);
     }
     platform_exit_critical();
     //TODO return destination channel here

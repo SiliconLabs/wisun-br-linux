@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "common/log_legacy.h"
+#include "common/endian.h"
 #include "stack-services/common_functions.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
@@ -223,9 +224,9 @@ int8_t icmp_nd_router_prefix_proxy_update(uint8_t *dptr, nd_router_setup_t *nd_r
     uint32_t lifeTime, prefTime;
     uint8_t prefix_len = *dptr++;
     pre_setups = *dptr++;
-    lifeTime = common_read_32_bit(dptr);
+    lifeTime = read_be32(dptr);
     dptr += 4;
-    prefTime = common_read_32_bit(dptr);
+    prefTime = read_be32(dptr);
     dptr += 4;
     pre_setups |= PIO_R;
 
@@ -404,7 +405,7 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
         case ADDR_CALLBACK_DAD_FAILED:
             if (g16_address) {
                 tr_warn("ARO Failure:Duplicate address");
-                uint16_t shortAddress = common_read_16_bit(&addr->address[14]);
+                uint16_t shortAddress = read_be16(&addr->address[14]);
                 tr_warn("Del old ll16");
                 protocol_6lowpan_del_ll16(interface, shortAddress);
                 //Check if Application not freeze new address allocartion
@@ -434,8 +435,8 @@ int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object
     prefix_entry_t *new_entry = 0;
     uint8_t prefix_len = *dptr++;
     uint8_t pre_setups = *dptr++;
-    uint32_t lifetime = common_read_32_bit(dptr);
-    uint32_t preftime = common_read_32_bit(dptr + 4);
+    uint32_t lifetime = read_be32(dptr);
+    uint32_t preftime = read_be32(dptr + 4);
 
     if (cur_interface->lowpan_address_mode == NET_6LOWPAN_GP16_ADDRESS
             || cur_interface->lowpan_address_mode == NET_6LOWPAN_MULTI_GP_ADDRESS) {
@@ -552,7 +553,7 @@ static void icmp_nd_context_parse(buffer_t *buf, nd_router_t *nd_router_object)
 
             if ((len == 16 && ctx_len <= 64) || (len == 24 && ctx_len <= 128)) {
                 uint8_t c_id = dptr[3] & 0x1f; // ignore reserved fields
-                uint16_t lifetime_mins = common_read_16_bit(dptr + 6);
+                uint16_t lifetime_mins = read_be16(dptr + 6);
 
                 lowpan_context_update(&nd_router_object->context_list, c_id, lifetime_mins, dptr + 8, ctx_len, true);
             } else {
@@ -755,7 +756,7 @@ buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface)
 
     status = *dptr;
     dptr += 2;
-    lifetime = common_read_16_bit(dptr);
+    lifetime = read_be16(dptr);
     dptr += 2;
 
     if (status != ARO_SUCCESS) {
@@ -870,7 +871,7 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
     /* icmpv6_ns_handler has already checked incoming status == 0 */
-    aro_out->lifetime = common_read_16_bit(aro_opt + 6);
+    aro_out->lifetime = read_be16(aro_opt + 6);
     memcpy(aro_out->eui64, aro_opt + 8, 8);
 
     /* Check if we are already using this address ourself */
@@ -1001,7 +1002,7 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 
     aro.status  = *dptr;
     dptr += 2;
-    aro.lifetime = common_read_16_bit(dptr);
+    aro.lifetime = read_be16(dptr);
     dptr += 2;
     /* EUI-64 */
     memcpy(aro.eui64, dptr, 8);
@@ -1047,10 +1048,10 @@ bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, 
     bool uptodate = false;
 
     /* XXX this is really a 32-bit number these days */
-    temp16 = common_read_16_bit(dptr);
+    temp16 = read_be16(dptr);
     abro_ver_num = temp16;
     dptr += 2;
-    temp16 = common_read_16_bit(dptr);
+    temp16 = read_be16(dptr);
     //SET MSB bytes to 32-bit
     abro_ver_num |= ((uint32_t)temp16 << 16);
 
@@ -1208,17 +1209,17 @@ static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if 
     uint8_t *dptr = buffer_data_pointer(db);
     *dptr++ = cur_interface->adv_cur_hop_limit;
     *dptr++ = cur->flags;
-    dptr = common_write_16_bit(cur->life_time, dptr);
-    dptr = common_write_32_bit(cur_interface->adv_reachable_time, dptr);
-    dptr = common_write_32_bit(cur_interface->adv_retrans_timer, dptr);
+    dptr = write_be16(dptr, cur->life_time);
+    dptr = write_be32(dptr, cur_interface->adv_reachable_time);
+    dptr = write_be32(dptr, cur_interface->adv_retrans_timer);
 
     //SET ABRO
     *dptr++ = ICMPV6_OPT_AUTHORITATIVE_BORDER_RTR;
     *dptr++ = 3;        //Len * 8 byte
 
-    dptr = common_write_16_bit((uint16_t)cur->abro_version_num, dptr);
-    dptr = common_write_16_bit((uint16_t)(cur->abro_version_num >> 16), dptr);
-    dptr = common_write_16_bit(0, dptr);
+    dptr = write_be16(dptr, (uint16_t)cur->abro_version_num);
+    dptr = write_be16(dptr, (uint16_t)(cur->abro_version_num >> 16));
+    dptr = write_be16(dptr, 0);
     memcpy(dptr, cur->border_router, 16);
     dptr += 16;
     //SET Prefixs
@@ -1229,8 +1230,8 @@ static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if 
         *dptr++ = (context_ptr->length <= 64) ? 2 : 3;
         *dptr++ = context_ptr->length;
         *dptr++ = context_ptr->cid | (context_ptr->compression ? LOWPAN_CONTEXT_C : 0);
-        dptr = common_write_16_bit(0, dptr);
-        dptr = common_write_16_bit((context_ptr->lifetime + 599) / 600, dptr);
+        dptr = write_be16(dptr, 0);
+        dptr = write_be16(dptr, (context_ptr->lifetime + 599) / 600);
         length = (context_ptr->length <= 64) ? 8 : 16;
         memcpy(dptr, context_ptr->prefix, length);
         dptr += length;

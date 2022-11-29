@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "security/eapol/kde_helper.h"
 
@@ -180,7 +180,7 @@ uint8_t *kde_ptkid_write(uint8_t *ptr, const uint8_t *ptkid)
 uint8_t *kde_lifetime_write(uint8_t *ptr, uint32_t lifetime)
 {
     ptr = kde_header_write(ptr, IEEE_802_11_OUI, KDE_LIFETIME, KDE_LIFETIME_LEN);
-    ptr = common_write_32_bit(lifetime, ptr);
+    ptr = write_be32(ptr, lifetime);
 
     return ptr;
 }
@@ -270,7 +270,7 @@ int8_t kde_lifetime_read(const uint8_t *ptr, uint16_t len, uint32_t *lifetime)
         *lifetime = (uint32_t)-1;
         return -1;
     } else {
-        *lifetime = common_read_32_bit(ptr);
+        *lifetime = read_be32(ptr);
         return 0;
     }
 }

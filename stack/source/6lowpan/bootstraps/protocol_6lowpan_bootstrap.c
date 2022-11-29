@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/etx/etx.h"
@@ -164,7 +164,7 @@ int protocol_6lowpan_del_ll16(struct net_if *cur, uint16_t mac_short_address)
     uint8_t address[16];
     memcpy(address, ADDR_LINK_LOCAL_PREFIX, 8);
     memcpy(address + 8, ADDR_SHORT_ADR_SUFFIC, 6);
-    common_write_16_bit(mac_short_address, &address[14]);
+    write_be16(&address[14], mac_short_address);
 
     return addr_delete(cur, address);
 }

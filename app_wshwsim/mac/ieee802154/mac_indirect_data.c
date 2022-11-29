@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
 
@@ -171,7 +171,7 @@ uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_inter
             uint16_t compare_short;
             if (b->fcf_dsn.DstAddrMode == MAC_ADDR_MODE_16_BIT) {
 
-                compare_short = common_read_16_bit(b->DstAddr);
+                compare_short = read_be16(b->DstAddr);
                 if (compare_short == buf->neigh_info->ShortAddress) {
                     address_cmp_ok = 1;
                 }

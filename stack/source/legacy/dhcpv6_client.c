@@ -18,10 +18,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 
 #include "nwk_interface/protocol.h"
 
@@ -121,7 +121,7 @@ void dhcp_client_init(int8_t interface, uint16_t link_type)
     }
 
     uint8_t *ptr = dhcp_client->duid.duid;
-    ptr = common_write_16_bit(link_type, ptr);
+    ptr = write_be16(ptr, link_type);
     memcpy(ptr, interface_ptr->mac, libdhcpv6_duid_linktype_size(link_type));
 
     //Define DUID

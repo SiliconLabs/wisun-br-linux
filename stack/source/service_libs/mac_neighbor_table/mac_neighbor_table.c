@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/fhss_ws_extension.h"
@@ -212,7 +212,7 @@ mac_neighbor_table_entry_t *mac_neighbor_table_address_discover(mac_neighbor_tab
     }
     uint16_t short_address;
     if (address_type == ADDR_802_15_4_SHORT) {
-        short_address = common_read_16_bit(address);
+        short_address = read_be16(address);
     } else if (address_type == ADDR_802_15_4_LONG) {
 
     } else {

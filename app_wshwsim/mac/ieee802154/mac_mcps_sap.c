@@ -23,12 +23,12 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
@@ -417,7 +417,7 @@ static void mac_security_interface_aux_ccm_nonce_set(uint8_t *noncePtr, uint8_t 
 {
     memcpy(noncePtr, mac64, 8);
     noncePtr += 8;
-    noncePtr = common_write_32_bit(securityFrameCounter, noncePtr);
+    noncePtr = write_be32(noncePtr, securityFrameCounter);
     *noncePtr = securityLevel;
 }
 

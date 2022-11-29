@@ -18,13 +18,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include "common/endian.h"
 #include "common/log.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/iobuf.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/fhss_api.h"
-#include "stack-services/common_functions.h"
 
 #include "wsbr.h"
 #include "wsbr_mac.h"

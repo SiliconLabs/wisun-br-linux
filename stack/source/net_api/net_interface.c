@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/nwk_stats_api.h"

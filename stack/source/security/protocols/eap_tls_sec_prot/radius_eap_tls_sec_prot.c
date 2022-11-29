@@ -18,10 +18,10 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/mac/fhss_config.h"
 
 #include "nwk_interface/protocol.h"
@@ -285,7 +285,7 @@ static int8_t radius_eap_tls_sec_prot_radius_eap_message_forward(sec_prot_t *pro
 
     *eap_code = *eap_pdu++;
     uint8_t eap_id_seq = *eap_pdu++;
-    uint16_t eap_len = common_read_16_bit(eap_pdu);
+    uint16_t eap_len = read_be16(eap_pdu);
     eap_pdu += 2;
 
     if (eap_pdu_len != eap_len) {

@@ -15,7 +15,7 @@
 #include <termios.h>
 #include <sys/file.h>
 
-#include "stack-services/common_functions.h"
+#include "endian.h"
 #include "crc.h"
 #include "log.h"
 #include "utils.h"
@@ -101,7 +101,7 @@ size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t
     frame_len = 0;
     for (int i = 0; i < in_len; i++)
         frame_len += uart_tx_append(out + frame_len, in[i]);
-    common_write_16_bit_inverse(crc, crc_bytes);
+    write_le16(crc_bytes, crc);
     frame_len += uart_tx_append(out + frame_len, crc_bytes[0]);
     frame_len += uart_tx_append(out + frame_len, crc_bytes[1]);
     out[frame_len++] = 0x7E;
@@ -204,7 +204,7 @@ size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t 
         return 0;
     } else {
         frame_len -= sizeof(uint16_t);
-        if (!crc_check(out, frame_len, common_read_16_bit_inverse(out + frame_len))) {
+        if (!crc_check(out, frame_len, read_le16(out + frame_len))) {
             WARN("bad crc, frame dropped");
             return 0;
         }

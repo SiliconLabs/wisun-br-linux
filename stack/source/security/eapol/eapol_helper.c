@@ -17,8 +17,8 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
 
 #include "security/pana/pana_eap_header.h"
 
@@ -59,12 +59,12 @@ static uint8_t *eapol_key_information_write(eapol_key_information_t *key_informa
     key_info |= (key_information->request << KEY_INFO_REQUEST_SHIFT);
     key_info |= (key_information->encrypted_key_data << KEY_INFO_ENC_KEY_DATA_SHIFT);
     key_info |= (key_information->smk_handshake << KEY_INFO_SMK_SHIFT);
-    return common_write_16_bit(key_info, ptr);
+    return write_be16(ptr, key_info);
 }
 
 static const uint8_t *eapol_key_information_read(eapol_key_information_t *key_information, const uint8_t *ptr)
 {
-    uint16_t key_info = common_read_16_bit(ptr);
+    uint16_t key_info = read_be16(ptr);
     key_information->description_version = ((key_info & KEY_INFO_VERSION_BIT_MASK) >> KEY_INFO_VERSION_BIT_SHIFT);
     key_information->pairwise_key = ((key_info & KEY_INFO_KEY_TYPE_BIT_MASK) >> KEY_INFO_KEY_TYPE_BIT_SHIFT);
     key_information->install = ((key_info & KEY_INFO_INSTALL_BIT_MASK) >> KEY_INFO_INSTALL_BIT_SHIFT);
@@ -100,10 +100,10 @@ static bool eapol_parse_key_packet(eapol_pdu_t *eapol_pdu)
     if (key_frame->key_information.description_version != KEY_DESCRIPTION_HMAC_SHA1_MIC_AES_ENC) {
         return false;
     }
-    key_frame->key_length = common_read_16_bit(ptr);
+    key_frame->key_length = read_be16(ptr);
     ptr += 2;
 
-    key_frame->replay_counter = common_read_64_bit(ptr);
+    key_frame->replay_counter = read_be64(ptr);
     ptr += 8;
 
     key_frame->key_nonce = ptr;
@@ -118,7 +118,7 @@ static bool eapol_parse_key_packet(eapol_pdu_t *eapol_pdu)
     key_frame->key_mic = ptr;
     ptr += 16;
 
-    key_frame->key_data_length = common_read_16_bit(ptr);
+    key_frame->key_data_length = read_be16(ptr);
     ptr += 2;
     key_frame->key_data = ptr;
     if (key_frame->key_data_length > (eapol_pdu->packet_length - EAPOL_KEY_FRAME_BASE_SIZE)) {
@@ -150,7 +150,7 @@ bool eapol_parse_pdu_header(const uint8_t *ptr, uint16_t data_length, eapol_pdu_
         return false;
     }
     eapol_pdu->packet_type = *ptr++;
-    eapol_pdu->packet_length = common_read_16_bit(ptr);
+    eapol_pdu->packet_length = read_be16(ptr);
     ptr += 2;
     //Validate Body Length
     if (eapol_pdu->packet_length > data_length - EAPOL_BASE_LENGTH) {
@@ -172,7 +172,7 @@ uint8_t *eapol_write_pdu_frame(uint8_t *ptr, eapol_pdu_t *eapol_pdu)
 {
     *ptr++ = EAPOL_PROTOCOL_VERSION;
     *ptr++ = eapol_pdu->packet_type;
-    ptr = common_write_16_bit(eapol_pdu->packet_length, ptr);
+    ptr = write_be16(ptr, eapol_pdu->packet_length);
     eapol_pdu->packet_body = ptr;
 
     if (eapol_pdu->packet_type == EAPOL_EAP_TYPE) {
@@ -185,8 +185,8 @@ uint8_t *eapol_write_pdu_frame(uint8_t *ptr, eapol_pdu_t *eapol_pdu)
         eapol_key_frame_t *key_frame = &eapol_pdu->msg.key;
         *ptr++ = key_frame->key_description;
         ptr = eapol_key_information_write(&key_frame->key_information, ptr);
-        ptr = common_write_16_bit(key_frame->key_length, ptr);
-        ptr = common_write_64_bit(key_frame->replay_counter, ptr);
+        ptr = write_be16(ptr, key_frame->key_length);
+        ptr = write_be64(ptr, key_frame->replay_counter);
 
         if (key_frame->key_nonce) {
             memcpy(ptr, key_frame->key_nonce, 32);
@@ -219,7 +219,7 @@ uint8_t *eapol_write_pdu_frame(uint8_t *ptr, eapol_pdu_t *eapol_pdu)
             memset(ptr, 0, 16);
         }
         ptr += 16;
-        ptr = common_write_16_bit(key_frame->key_data_length, ptr);
+        ptr = write_be16(ptr, key_frame->key_data_length);
         if (key_frame->key_data_length && key_frame->key_data) {
             memcpy(ptr, key_frame->key_data, key_frame->key_data_length);
             ptr += key_frame->key_data_length;

@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "security/protocols/radius_sec_prot/avp_helper.h"
 
@@ -107,7 +107,7 @@ static uint8_t *avp_vpa_search(uint8_t *ptr, uint16_t len, const uint32_t vendor
 
         if (ptr[0] == AVP_TYPE_VENDOR_SPECIFIC && avp_len >= 9) {
             ptr[2] = 0;
-            uint32_t avp_vendor_id = common_read_32_bit(&ptr[2]);
+            uint32_t avp_vendor_id = read_be32(&ptr[2]);
             *vendor_len = ptr[7];
             if (avp_vendor_id == vendor_id && ptr[6] == vendor_type) {
                 return &ptr[8];
@@ -142,14 +142,14 @@ uint8_t *avp_nas_ip_address_write(uint8_t *ptr, uint32_t addr)
 uint8_t *avp_nas_port_write(uint8_t *ptr, const uint32_t port)
 {
     ptr = avp_header_write(ptr, AVP_TYPE_NAS_PORT, 4);
-    ptr = common_write_32_bit(port, ptr);
+    ptr = write_be32(ptr, port);
     return ptr;
 }
 
 uint8_t *avp_framed_mtu_write(uint8_t *ptr, const uint32_t mtu)
 {
     ptr = avp_header_write(ptr, AVP_TYPE_FRAMED_MTU, 4);
-    ptr = common_write_32_bit(mtu, ptr);
+    ptr = write_be32(ptr, mtu);
     return ptr;
 }
 
@@ -184,7 +184,7 @@ uint8_t *avp_nas_identifier_write(uint8_t *ptr, const uint8_t id_len, const uint
 uint8_t *avp_nas_port_type_write(uint8_t *ptr, const uint32_t port_type)
 {
     ptr = avp_header_write(ptr, AVP_TYPE_NAS_PORT_TYPE, 4);
-    ptr = common_write_32_bit(port_type, ptr);
+    ptr = write_be32(ptr, port_type);
     return ptr;
 }
 

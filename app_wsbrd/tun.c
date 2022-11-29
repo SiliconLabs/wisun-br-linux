@@ -31,13 +31,13 @@
 #include "common/bits.h"
 #include "common/dhcp_server.h"
 #include "common/log.h"
+#include "common/endian.h"
 #include "common/iobuf.h"
 #include "common_protocols/icmpv6.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "stack-services/common_functions.h"
 
 #include "tun.h"
 #include "wsbr.h"

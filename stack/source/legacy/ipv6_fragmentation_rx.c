@@ -31,9 +31,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -149,7 +149,7 @@ void ipv6_frag_timer(int secs)
                 /* Take as much as we've got, up to first hole; icmpv6_error will limit to min MTU */
                 dgram->buf->buf_end = dgram->fragmentable + first_hole;
                 /* Fill in IP header length */
-                common_write_16_bit(buffer_data_length(dgram->buf) - 40, buffer_data_pointer(dgram->buf) + 4);
+                write_be16(buffer_data_pointer(dgram->buf) + 4, buffer_data_length(dgram->buf) - 40);
 
                 buffer_t *err = icmpv6_error(dgram->buf, NULL, ICMPV6_TYPE_ERROR_TIME_EXCEEDED, ICMPV6_CODE_TME_EXCD_FRG_REASS_TME_EXCD, 0);
                 protocol_push(err);
@@ -374,7 +374,7 @@ buffer_t *ipv6_frag_up(buffer_t *frag_buf, const uint8_t *frag_hdr, uint8_t *nh_
 
     uint8_t *ip_hdr = buffer_data_pointer(frag_buf);
     uint16_t unfrag_len = frag_hdr - ip_hdr;
-    uint16_t fragment_first = common_read_16_bit(frag_hdr + 2) & 0xFFF8;
+    uint16_t fragment_first = read_be16(frag_hdr + 2) & 0xFFF8;
     uint16_t fragment_last = fragment_first + payload_length - 1;
     bool more = frag_hdr[3] & 1;
 
@@ -413,8 +413,8 @@ buffer_t *ipv6_frag_up(buffer_t *frag_buf, const uint8_t *frag_hdr, uint8_t *nh_
             ip_hdr = buffer_data_strip_header(frag_buf, 8);
 
             /* Reduce Payload Length in IP header */
-            uint16_t len = common_read_16_bit(ip_hdr + 4);
-            common_write_16_bit(len - 8, ip_hdr + 4);
+            uint16_t len = read_be16(ip_hdr + 4);
+            write_be16(ip_hdr + 4, len - 8);
 
             frag_buf->offset = unfrag_len;
             frag_buf->options.ip_extflags |= IPEXT_FRAGMENT;
@@ -428,7 +428,7 @@ buffer_t *ipv6_frag_up(buffer_t *frag_buf, const uint8_t *frag_hdr, uint8_t *nh_
     buffer_data_pointer_set(frag_buf, frag_hdr + 8);
 
     /* Locate or create datagram assembly buffer */
-    uint32_t id = common_read_32_bit(frag_hdr + 4);
+    uint32_t id = read_be32(frag_hdr + 4);
     ip_fragmented_datagram_t *dgram = ip_frag_dgram_lookup(frag_buf, id, unfrag_len);
     if (!dgram || dgram->discard) {
         protocol_stats_update(STATS_IP_RX_DROP, 1);
@@ -603,7 +603,7 @@ fail:
     buffer_data_pointer(dgram_buf)[1] |= (dgram->ecn << 4);
 
     /* Fill in final IP header length */
-    common_write_16_bit(buffer_data_length(dgram_buf) - 40, buffer_data_pointer(dgram_buf) + 4);
+    write_be16(buffer_data_pointer(dgram_buf) + 4, buffer_data_length(dgram_buf) - 40);
 
     /* We've completed the datagram. Free the assembly structures (but not the buffer!) */
     dgram->buf = NULL;

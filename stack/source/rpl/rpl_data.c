@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 
 #include "core/ns_buffer.h"
 #include "core/ns_address_internal.h"
@@ -178,7 +178,7 @@ static void rpl_data_locate_info(buffer_t *buf, uint8_t **hbh, uint8_t **srh)
     if (len < IPV6_HDRLEN) {
         return;
     }
-    uint16_t ip_len = common_read_16_bit(ptr + IPV6_HDROFF_PAYLOAD_LENGTH);
+    uint16_t ip_len = read_be16(ptr + IPV6_HDROFF_PAYLOAD_LENGTH);
     uint8_t nh = ptr[6];
     ptr += IPV6_HDRLEN;
     len -= IPV6_HDRLEN;
@@ -401,7 +401,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
                 if (rpl_instance_id_is_local(instance->id) && !rpl_data_is_rpl_downward_route(route_info->source)) {
                     opt[3] |= RPL_INSTANCE_DEST;
                 }
-                common_write_16_bit(RPL_RANK_INFINITE, opt + 4); // SenderRank (placeholder)
+                write_be16(opt + 4, RPL_RANK_INFINITE); // SenderRank (placeholder, RPL_RANK_INFINITE)
             }
             /* Pad HbH header if necessary. */
             uint8_t pad_len = ext + ext_size - (opt + 2 + opt[1]);
@@ -444,7 +444,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
                  * reliable sibling loop detection - we require sender rank to be
                  * strictly less for Down packets and strictly greater for Up.
                  */
-                sender_rank = common_read_16_bit(opt + 4);
+                sender_rank = read_be16(opt + 4);
                 if (sender_rank != 0) {
                     rpl_cmp_t cmp = rpl_rank_compare_dagrank_rank(dodag, sender_rank, instance->current_rank);
                     rpl_cmp_t expected_cmp = (opt[2] & RPL_OPT_DOWN) ? RPL_CMP_LESS : RPL_CMP_GREATER;
@@ -493,7 +493,7 @@ static buffer_t *rpl_data_exthdr_provider_hbh_2(buffer_t *buf, rpl_instance_t *i
             } else {
                 sender_rank = RPL_RANK_INFINITE;
             }
-            common_write_16_bit(sender_rank, opt + 4);
+            write_be16(opt + 4, sender_rank);
             *result = 0;
             return buf;
         }
@@ -927,7 +927,7 @@ static uint8_t *rpl_data_sr_write_header(const rpl_srh_info_t *info, uint8_t *pt
     ptr[3] = info->segments;
     ptr[4] = (info->cmprI << 4) | info->cmprE;
     ptr[5] = (info->pad << 4);
-    common_write_16_bit(0, ptr + 6);
+    write_be16(ptr + 6, 0);
     ptr += 8;
     const uint8_t *addr = rpl_data_sr->iaddr + 16 * (rpl_data_sr->ihops - 2);
     for (int n = 0; n < info->segments - 1; n++) {

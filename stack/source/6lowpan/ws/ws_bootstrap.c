@@ -24,7 +24,7 @@
 #include "common/ws_regdb.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -989,9 +989,9 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
     const uint8_t *range_ptr = range_info->range_start;
     uint32_t *mask_ptr = mask_buffer;
     while (range_info->number_of_range) {
-        range_start = common_read_16_bit_inverse(range_ptr);
+        range_start = read_le16(range_ptr);
         range_ptr += 2;
-        range_stop = common_read_16_bit_inverse(range_ptr);
+        range_stop = read_le16(range_ptr);
         range_ptr += 2;
         range_info->number_of_range--;
         for (uint16_t channel = 0; channel < number_of_channels; channel++) {
@@ -1010,7 +1010,7 @@ static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer
     }
     // Exclusion Mask is stored most significant byte first
     for (uint16_t i = 0; i < (number_of_channels + 31) / 32; ++i) {
-        common_write_32_bit(mask_ptr[i], (uint8_t *)&mask_ptr[i]);
+        write_be32((uint8_t *)&mask_ptr[i], mask_ptr[i]);
     }
 }
 

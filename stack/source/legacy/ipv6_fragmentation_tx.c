@@ -31,9 +31,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "common/endian.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -125,13 +125,13 @@ buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
         /* Unfragmentable part */
         memcpy(ptr, ip_ptr, unfrag_len);
         /* Adjust length in IP header */
-        common_write_16_bit(unfrag_len - 40 + 8 + frag_len, ptr + 4);
+        write_be16(ptr + 4, unfrag_len - 40 + 8 + frag_len);
         /* Fragment header */
         frag_hdr = ptr + unfrag_len;
         frag_hdr[0] = nh;
         frag_hdr[1] = 0;
-        common_write_16_bit(frag_offset | (frag_len != fragmentable_len), frag_hdr + 2);
-        common_write_32_bit(dest->fragment_id, frag_hdr + 4);
+        write_be16(frag_hdr + 2, frag_offset | (frag_len != fragmentable_len));
+        write_be32(frag_hdr + 4, dest->fragment_id);
         /* Fragment data */
         memcpy(frag_hdr + 8, fragmentable + frag_offset, frag_len);
         fragmentable_len -= frag_len;

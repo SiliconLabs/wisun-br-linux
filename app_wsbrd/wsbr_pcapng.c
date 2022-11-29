@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "stack-services/common_functions.h"
+#include "common/endian.h"
 #include "common/log.h"
 #include "common/iobuf.h"
 #include "common/pcapng.h"
@@ -201,7 +201,7 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
         | FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      ind->DstAddrMode)
         | FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      MAC_FRAME_VERSION_2015)
         | FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      ind->SrcAddrMode);
-    frame = common_write_16_bit_inverse(fcf, frame);
+    frame = write_le16(frame, fcf);
     if (!ind->DSN_suppressed)
         *frame++ = ind->DSN;
 
@@ -212,7 +212,7 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
             break;
     BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
     if (ieee802154_table_pan_id_comp[i].dst_pan_id)
-        frame = common_write_16_bit_inverse(ind->DstPANId, frame);
+        frame = write_le16(frame, ind->DstPANId);
     if (ind->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
         memrcpy(frame, ind->DstAddr, 8);
         frame += 8;
@@ -221,7 +221,7 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
         frame += 2;
     }
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
-        frame = common_write_16_bit_inverse(ind->SrcPANId, frame);
+        frame = write_le16(frame, ind->SrcPANId);
     if (ind->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
         memrcpy(frame, ind->SrcAddr, 8);
         frame += 8;
@@ -238,11 +238,11 @@ static int wsbr_mac_rebuild(uint8_t frame[], mcps_data_ind_t *ind, mcps_data_ie_
     memcpy(frame, ie->headerIeList, ie->headerIeListLength);
     frame += ie->headerIeListLength;
     if (ieee802154_table_term_ie[i].ie_ht)
-        frame = common_write_16_bit_inverse(ieee802154_table_term_ie[i].ie_ht, frame);
+        frame = write_le16(frame, ieee802154_table_term_ie[i].ie_ht);
     memcpy(frame, ie->payloadIeList, ie->payloadIeListLength);
     frame += ie->payloadIeListLength;
     if (ieee802154_table_term_ie[i].ie_pt)
-        frame = common_write_16_bit_inverse(ieee802154_table_term_ie[i].ie_pt, frame);
+        frame = write_le16(frame, ieee802154_table_term_ie[i].ie_pt);
     memcpy(frame, ind->msdu_ptr, ind->msduLength);
     frame += ind->msduLength;
 

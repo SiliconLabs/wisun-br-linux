@@ -22,12 +22,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
+#include "common/endian.h"
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
 #include "stack/net_interface.h"
 #include "stack/timers.h"
 
@@ -345,7 +345,7 @@ void recv_dhcp_server_msg()
     }
 
     //TODO use real function from lib also call validity check
-    msg_tr_ptr->message_tr_id = common_read_24_bit(&msg_ptr[1]);
+    msg_tr_ptr->message_tr_id = read_be24(&msg_ptr[1]);
 
     if (0 != libdhcpv6_message_malformed_check(msg_ptr, msg_len)) {
         tr_error("Malformed packet");
@@ -536,7 +536,7 @@ void recv_dhcp_client_msg(void *cb_res)
     }
     msg_len = socket_read(sckt_data->socket_id, &address, msg_ptr, sckt_data->d_len);
 
-    tr_id = common_read_24_bit(&msg_ptr[1]);
+    tr_id = read_be24(&msg_ptr[1]);
     msg_tr_ptr = dhcp_tr_find(tr_id);
     TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
           val_to_str(*msg_ptr, dhcp_frames, "[UNK]"), tr_ipv6(address.address));
@@ -749,7 +749,7 @@ uint32_t dhcp_service_send_req(uint16_t instance_id, uint8_t options, void *ptr,
     msg_tr_ptr->first_transmit_time = 0;
     msg_tr_ptr->transmit_time = 0;
     dhcp_tr_set_retry_timers(msg_tr_ptr, msg_tr_ptr->msg_ptr[0]);
-    common_write_24_bit(msg_tr_ptr->msg_tr_id, &msg_tr_ptr->msg_ptr[1]);
+    write_be24(&msg_tr_ptr->msg_ptr[1], msg_tr_ptr->msg_tr_id);
 
     dhcp_service_send_message(msg_tr_ptr);
     return msg_tr_ptr->msg_tr_id;
@@ -821,7 +821,7 @@ void dhcp_service_send_message(msg_tr_t *msg_tr_ptr)
         } else {
             cs = (uint16_t) t * 10;
         }
-        common_write_16_bit(cs, elapsed_time.msg_ptr);
+        write_be16(elapsed_time.msg_ptr, cs);
     }
 
     if ((msg_tr_ptr->options & TX_OPT_USE_SHORT_ADDR) == TX_OPT_USE_SHORT_ADDR) {
