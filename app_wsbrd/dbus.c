@@ -240,6 +240,31 @@ void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
                        "Nodes", NULL);
 }
 
+static int dbus_message_open_info(sd_bus_message *m, const char *property,
+                                  const char *name, const char *type)
+{
+    int ret;
+
+    ret = sd_bus_message_open_container(m, 'e', "sv");
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_append(m, "s", name);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_open_container(m, 'v', type);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    return ret;
+}
+
+static int dbus_message_close_info(sd_bus_message *m, const char *property)
+{
+    int ret;
+
+    ret = sd_bus_message_close_container(m);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    ret = sd_bus_message_close_container(m);
+    WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+    return ret;
+}
+
 static int sd_bus_message_append_node(
     sd_bus_message *m,
     const char *property,
@@ -258,39 +283,18 @@ static int sd_bus_message_append_node(
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     {
         if (is_br) {
-            ret = sd_bus_message_open_container(m, 'e', "sv");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_append(m, "s", "is_border_router");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_open_container(m, 'v', "b");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_open_info(m, property, "is_border_router", "b");
             ret = sd_bus_message_append(m, "b", true);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(m);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(m);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
         }
         if (parent) {
-            ret = sd_bus_message_open_container(m, 'e', "sv");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_append(m, "s", "parent");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_open_container(m, 'v', "ay");
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_open_info(m, property, "parent", "ay");
             ret = sd_bus_message_append_array(m, 'y', parent, 8);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(m);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-            ret = sd_bus_message_close_container(m);
-            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
         }
-        ret = sd_bus_message_open_container(m, 'e', "sv");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_append(m, "s", "ipv6");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_open_container(m, 'v', "aay");
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        dbus_message_open_info(m, property, "ipv6", "aay");
         ret = sd_bus_message_open_container(m, 'a', "ay");
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
         for (; memcmp(*ipv6, ADDR_UNSPECIFIED, 16); ipv6++) {
@@ -299,10 +303,7 @@ static int sd_bus_message_append_node(
         }
         ret = sd_bus_message_close_container(m);
         WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_close_container(m);
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
-        ret = sd_bus_message_close_container(m);
-        WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+        dbus_message_close_info(m, property);
     }
     ret = sd_bus_message_close_container(m);
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
