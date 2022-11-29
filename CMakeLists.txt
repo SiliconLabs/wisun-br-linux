@@ -193,7 +193,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/random_early_detection/random_early_detection.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     stack-scheduler/source/event.c
-    stack-services/common_functions.c
     stack-services/ns_list.c
 )
 target_include_directories(libwsbrd PRIVATE
@@ -385,7 +384,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/random_early_detection/random_early_detection.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
         stack-scheduler/source/event.c
-        stack-services/common_functions.c
         stack-services/ns_list.c
     )
     target_include_directories(wsnode PRIVATE
@@ -422,7 +420,6 @@ if(COMPILE_SIMULATION_TOOLS)
         common/iobuf.c
         common/slist.c
         common/spinel_buffer.c
-        stack-services/common_functions.c
         stack-services/ns_list.c
         stack-scheduler/source/event.c
         app_wshwsim/timer_sys_stub.c
