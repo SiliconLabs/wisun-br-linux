@@ -387,6 +387,7 @@ void ws_neighbor_class_rsl_in_calculate(ws_neighbor_class_entry_t *ws_neighbor, 
         ws_neighbor->rsl_in = rsl << WS_RSL_SCALING;
     }
     ws_neighbor->rsl_in = ws_neighbor->rsl_in + rsl - (ws_neighbor->rsl_in >> WS_RSL_SCALING);
+    ws_neighbor->rssi = dbm_heard;
     ws_neighbor_class_parent_set_analyze(ws_neighbor);
     return;
 }

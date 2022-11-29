@@ -33,6 +33,7 @@ typedef struct ws_neighbor_class_entry {
     uint16_t rsl_out;                                      /*!< RSL EWMA heard by neighbour*/
     uint16_t routing_cost;                                 /*!< ETX to border Router. */
     uint8_t last_DSN;
+    int rssi;
     bool candidate_parent: 1;
     bool broadcast_timing_info_stored: 1;
     bool broadcast_schedule_info_stored: 1;
