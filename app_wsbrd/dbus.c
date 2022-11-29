@@ -11,6 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <errno.h>
+#include <limits.h>
 #include <arpa/inet.h>
 #include <systemd/sd-bus.h>
 #include "app_wsbrd/tun.h"
@@ -24,6 +25,8 @@
 #include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
 #include "stack/source/6lowpan/ws/ws_pae_auth.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
+#include "stack/source/6lowpan/ws/ws_bootstrap.h"
+#include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/protocols/sec_prot_keys.h"
 #include "stack/source/common_protocols/icmpv6.h"
@@ -266,6 +269,12 @@ static int dbus_message_close_info(sd_bus_message *m, const char *property)
     return ret;
 }
 
+struct neighbor_info {
+    int rssi;
+    int rsl;
+    int rsl_adv;
+};
+
 static int dbus_message_append_node(
     sd_bus_message *m,
     const char *property,
@@ -273,7 +282,8 @@ static int dbus_message_append_node(
     const uint8_t parent[8],
     const uint8_t ipv6[][16],
     bool is_br,
-    bool is_authenticated)
+    bool is_authenticated,
+    struct neighbor_info *neighbor)
 {
     int ret;
 
@@ -300,6 +310,29 @@ static int dbus_message_append_node(
             ret = sd_bus_message_append_array(m, 'y', parent, 8);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
+        }
+        if (neighbor) {
+            dbus_message_open_info(m, property, "is_neighbor", "b");
+            ret = sd_bus_message_append(m, "b", true);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
+
+            dbus_message_open_info(m, property, "rssi", "i");
+            ret = sd_bus_message_append_basic(m, 'i', &neighbor->rssi);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
+            if (neighbor->rsl != INT_MIN) {
+                dbus_message_open_info(m, property, "rsl", "i");
+                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rsl);
+                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                dbus_message_close_info(m, property);
+            }
+            if (neighbor->rsl_adv != INT_MIN) {
+                dbus_message_open_info(m, property, "rsl_adv", "i");
+                ret = sd_bus_message_append_basic(m, 'i', &neighbor->rsl_adv);
+                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                dbus_message_close_info(m, property);
+            }
         }
         dbus_message_open_info(m, property, "ipv6", "aay");
         ret = sd_bus_message_open_container(m, 'a', "ay");
@@ -335,10 +368,42 @@ static uint8_t *dhcp_ipv6_to_eui64(struct wsbr_ctxt *ctxt, const uint8_t ipv6[16
     return NULL;
 }
 
+static bool dbus_get_neighbor_info(struct wsbr_ctxt *ctxt, struct neighbor_info *info, const uint8_t eui64[8])
+{
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    ws_neighbor_class_entry_t *neighbor_ws = NULL;
+    ws_neighbor_temp_class_t *neighbor_ws_tmp;
+    llc_neighbour_req_t neighbor_llc;
+
+    neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(net_if, eui64);
+    if (!neighbor_ws_tmp)
+        neighbor_ws_tmp = ws_llc_get_multicast_temp_entry(net_if, eui64);
+    if (neighbor_ws_tmp) {
+        neighbor_ws = &neighbor_ws_tmp->neigh_info_list;
+        neighbor_ws->rssi = neighbor_ws_tmp->signal_dbm;
+    }
+    if (!neighbor_ws) {
+        if (ws_bootstrap_neighbor_info_request(net_if, eui64, &neighbor_llc, false))
+            neighbor_ws = neighbor_llc.ws_neighbor;
+        else
+            return false;
+    }
+    info->rssi = neighbor_ws->rssi;
+    info->rsl = neighbor_ws->rsl_in == RSL_UNITITIALIZED
+              ? INT_MIN
+              : -174 + ws_neighbor_class_rsl_in_get(neighbor_ws);
+    info->rsl_adv = neighbor_ws->rsl_in == RSL_UNITITIALIZED
+                  ? INT_MIN
+                  : -174 + ws_neighbor_class_rsl_out_get(neighbor_ws);
+    return true;
+}
+
 int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                        const char *property, sd_bus_message *reply,
                        void *userdata, sd_bus_error *ret_error)
 {
+    struct neighbor_info *neighbor_info_ptr;
+    struct neighbor_info neighbor_info;
     struct wsbr_ctxt *ctxt = userdata;
     uint8_t node_ipv6[3][16] = { 0 };
     bbr_route_info_t table[4096];
@@ -360,7 +425,8 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
-    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true, false);
+    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL,
+                             node_ipv6, true, false, NULL);
 
     for (int i = 0; i < len_pae; i++) {
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
@@ -380,8 +446,12 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
             }
         }
+        if (dbus_get_neighbor_info(ctxt, &neighbor_info, eui64_pae[i]))
+            neighbor_info_ptr = &neighbor_info;
+        else
+            neighbor_info_ptr = NULL;
         dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false,
-                                 ws_pae_key_storage_supp_exists(eui64_pae[i]));
+                                 ws_pae_key_storage_supp_exists(eui64_pae[i]), neighbor_info_ptr);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
