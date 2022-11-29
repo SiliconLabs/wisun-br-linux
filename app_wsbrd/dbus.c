@@ -265,7 +265,7 @@ static int dbus_message_close_info(sd_bus_message *m, const char *property)
     return ret;
 }
 
-static int sd_bus_message_append_node(
+static int dbus_message_append_node(
     sd_bus_message *m,
     const char *property,
     const uint8_t self[8],
@@ -353,7 +353,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
-    sd_bus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true);
+    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL, node_ipv6, true);
 
     for (int i = 0; i < len_pae; i++) {
         memcpy(node_ipv6[0], ADDR_LINK_LOCAL_PREFIX, 8);
@@ -373,7 +373,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
                 WARN_ON(!parent, "RPL parent not in DHCP leases (%s)", tr_ipv6(ipv6));
             }
         }
-        sd_bus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false);
+        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
