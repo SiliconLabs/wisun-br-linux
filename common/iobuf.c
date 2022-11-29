@@ -114,6 +114,7 @@ void iobuf_push_data(struct iobuf_write *buf, const uint8_t *val, int num)
 
 void iobuf_free(struct iobuf_write *buf) {
     free(buf->data);
+    memset(buf, 0, sizeof(struct iobuf_write));
 }
 
 static bool iobuf_validate(struct iobuf_read *buf, size_t data_size)
