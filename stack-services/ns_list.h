@@ -564,24 +564,6 @@ typedef struct ns_list_link {
 /** \privatesection
  *  Internal functions - designed to be accessed using corresponding macros above
  */
-inline void ns_list_init_(ns_list_t *list);
-inline void ns_list_link_init_(ns_list_link_t *link);
-inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
-inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
-inline void ns_list_add_before_(ns_list_offset_t link_offset, void *before, void *entry);
-inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t link_offset, void *after, void *entry);
-inline void *ns_list_get_next_(ns_list_offset_t link_offset, const void *current);
-inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t link_offset, const void *current);
-inline void *ns_list_get_last_(const ns_list_t *list,  ns_list_offset_t offset);
-inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t link_offset, void *entry);
-inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t link_offset, void *current, void *replacement);
-inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset);
-inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t link_offset);
-
-/* Provide definitions, either for inlining, or for ns_list.c */
-#ifndef NS_LIST_FN
-#define NS_LIST_FN inline
-#endif
 
 /* Pointer to the link member in entry e */
 #define NS_LIST_LINK_(e, offset) ((ns_list_link_t *)((char *)(e) + offset))
@@ -597,19 +579,19 @@ inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t link
  * as the next pointer is first in the ns_list_link_t */
 #define NS_LIST_ENTRY_(linkptr, offset) ((void *)((char *)(linkptr) - offset))
 
-NS_LIST_FN void ns_list_init_(ns_list_t *list)
+static inline void ns_list_init_(ns_list_t *list)
 {
     list->first_entry = NULL;
     list->last_nextptr = &list->first_entry;
 }
 
-NS_LIST_FN void ns_list_link_init_(ns_list_link_t *link)
+static inline void ns_list_link_init_(ns_list_link_t *link)
 {
     link->next = NS_LIST_POISON;
     link->prev = NS_LIST_POISON;
 }
 
-NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *entry)
+static inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *entry)
 {
     void *next;
 
@@ -625,7 +607,7 @@ NS_LIST_FN void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, 
     list->first_entry = entry;
 }
 
-NS_LIST_FN void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, void *current, void *entry)
+static inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, void *current, void *entry)
 {
     void *next;
 
@@ -641,7 +623,7 @@ NS_LIST_FN void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, voi
     NS_LIST_NEXT_(current, offset) = entry;
 }
 
-NS_LIST_FN void ns_list_add_before_(ns_list_offset_t offset, void *current, void *entry)
+static inline void ns_list_add_before_(ns_list_offset_t offset, void *current, void *entry)
 {
     void **prev_nextptr;
 
@@ -651,7 +633,7 @@ NS_LIST_FN void ns_list_add_before_(ns_list_offset_t offset, void *current, void
     NS_LIST_PREV_(current, offset) = &NS_LIST_NEXT_(entry, offset);
 }
 
-NS_LIST_FN void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, void *entry)
+static inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, void *entry)
 {
     void **prev_nextptr;
 
@@ -661,12 +643,12 @@ NS_LIST_FN void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, vo
     list->last_nextptr = &NS_LIST_NEXT_(entry, offset);
 }
 
-NS_LIST_FN void *ns_list_get_next_(ns_list_offset_t offset, const void *current)
+static inline void *ns_list_get_next_(ns_list_offset_t offset, const void *current)
 {
     return NS_LIST_NEXT_(current, offset);
 }
 
-NS_LIST_FN void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t offset, const void *current)
+static inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t offset, const void *current)
 {
     if (current == list->first_entry) {
         return NULL;
@@ -684,7 +666,7 @@ NS_LIST_FN void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t o
     return NS_LIST_ENTRY_(NS_LIST_PREV_(current, offset), offset);
 }
 
-NS_LIST_FN void *ns_list_get_last_(const ns_list_t *list, ns_list_offset_t offset)
+static inline void *ns_list_get_last_(const ns_list_t *list, ns_list_offset_t offset)
 {
     if (!list->first_entry) {
         return NULL;
@@ -694,7 +676,7 @@ NS_LIST_FN void *ns_list_get_last_(const ns_list_t *list, ns_list_offset_t offse
     return NS_LIST_ENTRY_(list->last_nextptr, offset);
 }
 
-NS_LIST_FN void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, void *removed)
+static inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, void *removed)
 {
     void *next;
     void **prev_nextptr;
@@ -711,7 +693,7 @@ NS_LIST_FN void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, void *
     ns_list_link_init_(NS_LIST_LINK_(removed, offset));
 }
 
-NS_LIST_FN void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void *current, void *replacement)
+static inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void *current, void *replacement)
 {
     void *next;
     void **prev_nextptr;
@@ -729,7 +711,7 @@ NS_LIST_FN void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void 
     ns_list_link_init_(NS_LIST_LINK_(current, offset));
 }
 
-NS_LIST_FN void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset)
+static inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset)
 {
     ns_list_link_t *src_first;
 
@@ -745,7 +727,7 @@ NS_LIST_FN void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_off
     ns_list_init_(src);
 }
 
-NS_LIST_FN uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t offset)
+static inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t offset)
 {
     uint_fast16_t count = 0;
 
