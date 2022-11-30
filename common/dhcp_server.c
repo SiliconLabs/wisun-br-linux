@@ -270,7 +270,6 @@ static void dhcp_send_relay_reply(struct dhcp_server *dhcp, struct sockaddr_in6 
     struct iobuf_read opt_interface_id = { };
     struct iobuf_write relay_reply = { };
     const uint8_t *linkaddr, *peeraddr;
-    uint32_t interface_id;
     uint8_t hopcount;
 
     iobuf_pop_u8(relay_req); // DHCPV6_RELAY_FORWARD
@@ -284,10 +283,9 @@ static void dhcp_send_relay_reply(struct dhcp_server *dhcp, struct sockaddr_in6 
 
     if (dhcp_get_option(iobuf_ptr(relay_req), iobuf_remaining_size(relay_req),
                         DHCPV6_OPT_INTERFACE_ID, &opt_interface_id) > 0) {
-        interface_id = iobuf_pop_be32(&opt_interface_id);
         iobuf_push_be16(&relay_reply, DHCPV6_OPT_INTERFACE_ID);
-        iobuf_push_be16(&relay_reply, 4);
-        iobuf_push_be32(&relay_reply, interface_id);
+        iobuf_push_be16(&relay_reply, opt_interface_id.data_size);
+        iobuf_push_data(&relay_reply, opt_interface_id.data, opt_interface_id.data_size);
     }
 
     iobuf_push_be16(&relay_reply, DHCPV6_OPT_RELAY);
