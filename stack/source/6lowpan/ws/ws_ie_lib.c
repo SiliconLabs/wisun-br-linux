@@ -611,7 +611,7 @@ uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, gtkhash_t *lgtkhash, unsigned
     int i;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
-    temp8 = FIELD_PREP(0x8, active_lgtk_index);
+    temp8 = FIELD_PREP(0x18, active_lgtk_index);
     for (i = 0; i < 3; i++)
         if (memzcmp(lgtkhash[i], sizeof(lgtkhash[i])))
             temp8 |= FIELD_PREP(1 << i, 1);
