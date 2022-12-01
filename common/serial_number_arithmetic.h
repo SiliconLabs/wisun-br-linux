@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef COMMON_FUNCTIONS_H_
-#define COMMON_FUNCTIONS_H_
+#ifndef SERIAL_NUMBER_ARITHMETIC_H
+#define SERIAL_NUMBER_ARITHMETIC_H
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -30,7 +30,7 @@
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-static inline bool common_serial_number_greater_8(uint8_t s1, uint8_t s2)
+static inline bool serial_number_cmp8(uint8_t s1, uint8_t s2)
 {
     return (s1 > s2 && s1 - s2 < UINT8_C(0x80)) || (s1 < s2 && s2 - s1 > UINT8_C(0x80));
 }
@@ -47,7 +47,7 @@ static inline bool common_serial_number_greater_8(uint8_t s1, uint8_t s2)
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-static inline bool common_serial_number_greater_16(uint16_t s1, uint16_t s2)
+static inline bool serial_number_cmp16(uint16_t s1, uint16_t s2)
 {
     return (s1 > s2 && s1 - s2 < UINT16_C(0x8000)) || (s1 < s2 && s2 - s1 > UINT16_C(0x8000));
 }
@@ -64,7 +64,7 @@ static inline bool common_serial_number_greater_16(uint16_t s1, uint16_t s2)
  * \return true if s1 > s2
  * \return false if s1 <= s2, or the comparison is undefined
  */
-static inline bool common_serial_number_greater_32(uint32_t s1, uint32_t s2)
+static inline bool serial_number_cmp32(uint32_t s1, uint32_t s2)
 {
     return (s1 > s2 && s1 - s2 < UINT32_C(0x80000000)) || (s1 < s2 && s2 - s1 > UINT32_C(0x80000000));
 }

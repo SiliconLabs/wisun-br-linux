@@ -24,7 +24,7 @@
 #include "common/bits.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_list.h"
-#include "stack-services/common_functions.h"
+#include "common/serial_number_arithmetic.h"
 #include "stack/timers.h"
 
 #include "core/ns_buffer.h"
@@ -346,7 +346,7 @@ static void mpl_seed_advance_min_sequence(mpl_seed_t *seed, uint8_t min_sequence
 {
     seed->min_sequence = min_sequence;
     ns_list_foreach_safe(mpl_buffered_message_t, message, &seed->messages) {
-        if (common_serial_number_greater_8(min_sequence, mpl_buffer_sequence(message))) {
+        if (serial_number_cmp8(min_sequence, mpl_buffer_sequence(message))) {
             mpl_buffer_delete(seed, message);
         }
     }
@@ -413,7 +413,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
      *    accept this message. (If we forced min_sequence to 2, we'd end up processing
      *    message 3 again).
      */
-    if (common_serial_number_greater_8(seed->min_sequence, sequence)) {
+    if (serial_number_cmp8(seed->min_sequence, sequence)) {
         tr_debug("Can no longer accept %"PRIu8" < %"PRIu8, sequence, seed->min_sequence);
         return NULL;
     }
@@ -440,7 +440,7 @@ static mpl_buffered_message_t *mpl_buffer_create(buffer_t *buf, mpl_domain_t *do
     /* Messages held ordered - eg for benefit of mpl_seed_bm_len() */
     bool inserted = false;
     ns_list_foreach_reverse(mpl_buffered_message_t, m, &seed->messages) {
-        if (common_serial_number_greater_8(sequence, mpl_buffer_sequence(m))) {
+        if (serial_number_cmp8(sequence, mpl_buffer_sequence(m))) {
             ns_list_add_after(&seed->messages, m, message);
             inserted = true;
             break;
@@ -728,7 +728,7 @@ buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur)
         seed->colour = new_colour;
         /* They are assumed to not be interested in messages lower than their min_seqno */
         ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
-            if (common_serial_number_greater_8(min_seqno, mpl_buffer_sequence(message))) {
+            if (serial_number_cmp8(min_seqno, mpl_buffer_sequence(message))) {
                 message->colour = new_colour;
             }
         }
@@ -736,7 +736,7 @@ buffer_t *mpl_control_handler(buffer_t *buf, struct net_if *cur)
             if (bitrtest(ptr, i)) {
                 mpl_buffered_message_t *message = mpl_buffer_lookup(seed, min_seqno + i);
 
-                if (!message && common_serial_number_greater_8(min_seqno + i, seed->min_sequence)) {
+                if (!message && serial_number_cmp8(min_seqno + i, seed->min_sequence)) {
                     they_have_new_data = true;
                 } else if (message) {
                     message->colour = new_colour;
@@ -877,14 +877,14 @@ bool mpl_forwarder_process_message(buffer_t *buf, mpl_domain_t *domain, bool see
     /* If the M flag is set, we report an inconsistency against any messages with higher sequences */
     if ((opt_data[0] & MPL_OPT_M)) {
         ns_list_foreach(mpl_buffered_message_t, message, &seed->messages) {
-            if (common_serial_number_greater_8(mpl_buffer_sequence(message), sequence)) {
+            if (serial_number_cmp8(mpl_buffer_sequence(message), sequence)) {
                 mpl_buffer_inconsistent(domain, message);
             }
         }
     }
 
     /* Drop old messages (sequence < MinSequence) */
-    if (common_serial_number_greater_8(seed->min_sequence, sequence)) {
+    if (serial_number_cmp8(seed->min_sequence, sequence)) {
         tr_debug("Old MPL message %"PRIu8" < %"PRIu8, sequence, seed->min_sequence);
         return false;
     }

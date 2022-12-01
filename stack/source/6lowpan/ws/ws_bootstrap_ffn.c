@@ -24,7 +24,7 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack-services/common_functions.h"
+#include "common/serial_number_arithmetic.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -392,7 +392,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
             return;
         }
 
-        if (common_serial_number_greater_16(cur->ws_info->pan_information.lpan_version, lfn_version.lfn_version)) {
+        if (serial_number_cmp16(cur->ws_info->pan_information.lpan_version, lfn_version.lfn_version)) {
             // older version heard ignoring the message
             return;
         }
@@ -507,7 +507,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
             if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_HARD_SYNCH);
             }
-            if (common_serial_number_greater_16(cur->ws_info->pan_information.pan_version, pan_version)) {
+            if (serial_number_cmp16(cur->ws_info->pan_information.pan_version, pan_version)) {
                 // older version heard ignoring the message
                 return;
             }

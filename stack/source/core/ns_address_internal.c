@@ -30,7 +30,6 @@
 #include "common/bits.h"
 #include "common/log_legacy.h"
 #include "stack-services/ns_sha256.h"
-#include "stack-services/common_functions.h"
 
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"

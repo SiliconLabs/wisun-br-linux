@@ -20,7 +20,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack-services/common_functions.h"
+#include "common/serial_number_arithmetic.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack/net_6lowpan_parameter.h"
@@ -1087,7 +1087,7 @@ bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, 
         }
 
         /* XXX this is really a 32-bit number these days */
-        if (common_serial_number_greater_32(abro_ver_num, router->abro_version_num)) {
+        if (serial_number_cmp32(abro_ver_num, router->abro_version_num)) {
             uint32_t diff_update;
             diff_update = (abro_ver_num - router->abro_version_num);
             uptodate = true;
