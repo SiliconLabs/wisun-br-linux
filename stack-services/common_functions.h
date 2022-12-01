@@ -19,18 +19,6 @@
 #include <stdbool.h>
 
 /*
- * Count leading zeros in a byte
- *
- * \param value byte to inspect
- *
- * \return number of leading zeros in byte (0-8)
- */
-static inline uint_fast8_t common_count_leading_zeros_8(uint8_t value)
-{
-    return value ? __builtin_clz((unsigned int) value << 24) : 8;
-}
-
-/*
  * Compare 8-bit serial numbers
  *
  * Compare two 8-bit serial numbers, according to RFC 1982 Serial Number

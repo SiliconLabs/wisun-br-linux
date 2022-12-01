@@ -300,24 +300,14 @@ static const addr_policy_table_entry_t *addr_get_policy(const uint8_t addr[stati
 /* RFC 6724 CommonPrefixLen(S, D) */
 static uint_fast8_t addr_common_prefix_len(const uint8_t src[static 16], uint_fast8_t src_prefix_len, const uint8_t dst[static 16])
 {
-    uint_fast8_t common = 0;
+    uint_fast8_t i = 0;
 
-    while (src_prefix_len >= 8 && *src == *dst) {
-        common += 8;
-        src_prefix_len -= 8;
-        ++src;
-        ++dst;
+    while (i < src_prefix_len) {
+        if (bittest(src, i) != bittest(dst, i))
+            return i;
+        i++;
     }
-
-    if (src_prefix_len) {
-        uint8_t trail = common_count_leading_zeros_8(*src ^ *dst);
-        if (trail > src_prefix_len) {
-            trail = src_prefix_len;
-        }
-        common += trail;
-    }
-
-    return common;
+    return i;
 }
 
 if_address_entry_t *addr_get_entry(const struct net_if *interface, const uint8_t addr[static 16])
