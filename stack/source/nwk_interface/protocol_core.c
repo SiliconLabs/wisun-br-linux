@@ -122,23 +122,8 @@ void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface
 
 void protocol_root_tasklet(arm_event_t *event)
 {
-    arm_internal_event_type_e event_type;
-    event_type = (arm_internal_event_type_e)event->event_type;
-
-    switch (event_type) {
-        case ARM_IN_INTERFACE_BOOTSTRAP_CB:
-            net_bootstrap_cb_run(event->event_id);
-            break;
-        case ARM_IN_INTERFACE_PROTOCOL_HANDLE: {
-            buffer_t *buf = event->data_ptr;
-            protocol_buffer_poll(buf);
-            break;
-        }
-        case ARM_LIB_TASKLET_INIT_EVENT:
-        case ARM_IN_SECURITY_ECC_CALLER:
-        default:
-            break;
-    }
+    BUG_ON(event->event_type != ARM_IN_INTERFACE_BOOTSTRAP_CB);
+    net_bootstrap_cb_run(event->event_id);
 }
 
 void nwk_bootstrap_timer(int ticks)
