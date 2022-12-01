@@ -84,8 +84,6 @@ struct net_if protocol_interface_info;
 /** Cores Power Save Varibale whic indicate States  */
 volatile uint8_t power_save_state =  0;
 
-static void protocol_buffer_poll(buffer_t *b);
-
 static int8_t net_interface_get_free_id(void);
 
 int8_t protocol_read_tasklet_id(void)
@@ -530,23 +528,11 @@ bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen,
  *
  * \param buf pointer to buffer. NULL is accepted and ignored.
  */
-void protocol_push(buffer_t *buf)
+void protocol_push(buffer_t *b)
 {
     /* Ignore NULL */
-    if (!buf) {
+    if (!b)
         return;
-    }
-
-    protocol_core_buffers_in_event_queue++;
-    protocol_buffer_poll(buf);
-}
-
-/*
- * A protocol poll function to be typically called from 'Event Core'. This function is registered to the call queue by using event_cb_send() from 'Event Core'.
- */
-static void protocol_buffer_poll(buffer_t *b)
-{
-    protocol_core_buffers_in_event_queue--;
 
     // Avoid the danger of with route data becoming stale (including
     // dead info pointers) while the packet is in the queue.
