@@ -1246,10 +1246,6 @@ static void ipv6_route_entry_remove(ipv6_route_t *route)
     if (route->info_autofree) {
         free(route->info.info);
     }
-    if (protocol_core_buffers_in_event_queue > 0) {
-        // Alert any buffers in the queue already routed by this source
-        ipv6_route_source_invalidated[route->info.source] = true;
-    }
     ns_list_remove(&ipv6_routing_table, route);
     free(route);
 }

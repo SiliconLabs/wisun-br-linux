@@ -69,8 +69,6 @@
  */
 static int8_t protocol_root_tasklet_ID = -1;
 
-int protocol_core_buffers_in_event_queue;
-
 typedef struct lowpan_core_timer_structures {
     uint8_t core_timer_ticks;
     bool core_timer_event;
@@ -545,12 +543,7 @@ void protocol_push(buffer_t *b)
         }
     }
 
-    // Once buffer queue is empty, clear the invalidation flags for above test
-    if (protocol_core_buffers_in_event_queue == 0) {
-        ipv6_route_table_source_invalidated_reset();
-    } else if (protocol_core_buffers_in_event_queue < 0) {
-        tr_error("protocol_core_buffers_in_event_queue negative");
-    }
+    ipv6_route_table_source_invalidated_reset();
 
     // Call the actual handler
     struct net_if *cur = b->interface;

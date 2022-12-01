@@ -23,8 +23,6 @@
 struct rpl_domain;
 struct fhss_api;
 
-extern int protocol_core_buffers_in_event_queue;
-
 struct net_if *protocol_stack_interface_info_get_by_id(int8_t nwk_id);
 struct net_if *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id);
 struct net_if *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id);
