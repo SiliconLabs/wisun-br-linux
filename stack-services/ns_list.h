@@ -153,15 +153,15 @@ typedef struct ns_list {
 union \
 { \
     ns_list_t slist; \
-    static_assert(link_offset <= (ns_list_offset_t) -1, "link offset too large"); \
+    static_assert(link_offset <= (uintptr_t) -1, "link offset too large"); \
     char (*offset)[link_offset + 1]; \
     entry_type *type; \
 }
 
 /** \brief Get offset of link field in entry.
- * \return `(ns_list_offset_t)` The offset of the link field for entries on the specified list
+ * \return `(uintptr_t)` The offset of the link field for entries on the specified list
  */
-#define NS_LIST_OFFSET_(list) ((ns_list_offset_t) (sizeof *(list)->offset - 1))
+#define NS_LIST_OFFSET_(list) ((uintptr_t) (sizeof *(list)->offset - 1))
 
 /** \brief Get the entry pointer type.
  * \def NS_LIST_PTR_TYPE_
@@ -230,14 +230,6 @@ union \
 /** \brief Internal macro to check types of input entry pointer. */
 #define NS_LIST_TYPECHECK_(list, entry) \
     (NS_PTR_MATCH_((list)->type, (entry), "incorrect entry type for list"), (entry))
-
-/** \brief Type used to pass link offset to underlying functions
- *
- * We could use size_t, but it would be unnecessarily large on 8-bit systems,
- * where we can be (pretty) confident we won't have next pointers more than
- * 256 bytes into a structure.
- */
-typedef uint_fast8_t ns_list_offset_t;
 
 /// \publicsection
 /** \brief The type for the link member in the user's entry structure.
@@ -591,7 +583,7 @@ static inline void ns_list_link_init_(ns_list_link_t *link)
     link->prev = NS_LIST_POISON;
 }
 
-static inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offset, void *entry)
+static inline void ns_list_add_to_start_(ns_list_t *list, uintptr_t offset, void *entry)
 {
     void *next;
 
@@ -607,7 +599,7 @@ static inline void ns_list_add_to_start_(ns_list_t *list, ns_list_offset_t offse
     list->first_entry = entry;
 }
 
-static inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, void *current, void *entry)
+static inline void ns_list_add_after_(ns_list_t *list, uintptr_t offset, void *current, void *entry)
 {
     void *next;
 
@@ -623,7 +615,7 @@ static inline void ns_list_add_after_(ns_list_t *list, ns_list_offset_t offset, 
     NS_LIST_NEXT_(current, offset) = entry;
 }
 
-static inline void ns_list_add_before_(ns_list_offset_t offset, void *current, void *entry)
+static inline void ns_list_add_before_(uintptr_t offset, void *current, void *entry)
 {
     void **prev_nextptr;
 
@@ -633,7 +625,7 @@ static inline void ns_list_add_before_(ns_list_offset_t offset, void *current, v
     NS_LIST_PREV_(current, offset) = &NS_LIST_NEXT_(entry, offset);
 }
 
-static inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset, void *entry)
+static inline void ns_list_add_to_end_(ns_list_t *list, uintptr_t offset, void *entry)
 {
     void **prev_nextptr;
 
@@ -643,12 +635,12 @@ static inline void ns_list_add_to_end_(ns_list_t *list, ns_list_offset_t offset,
     list->last_nextptr = &NS_LIST_NEXT_(entry, offset);
 }
 
-static inline void *ns_list_get_next_(ns_list_offset_t offset, const void *current)
+static inline void *ns_list_get_next_(uintptr_t offset, const void *current)
 {
     return NS_LIST_NEXT_(current, offset);
 }
 
-static inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_t offset, const void *current)
+static inline void *ns_list_get_previous_(const ns_list_t *list, uintptr_t offset, const void *current)
 {
     if (current == list->first_entry) {
         return NULL;
@@ -666,7 +658,7 @@ static inline void *ns_list_get_previous_(const ns_list_t *list, ns_list_offset_
     return NS_LIST_ENTRY_(NS_LIST_PREV_(current, offset), offset);
 }
 
-static inline void *ns_list_get_last_(const ns_list_t *list, ns_list_offset_t offset)
+static inline void *ns_list_get_last_(const ns_list_t *list, uintptr_t offset)
 {
     if (!list->first_entry) {
         return NULL;
@@ -676,7 +668,7 @@ static inline void *ns_list_get_last_(const ns_list_t *list, ns_list_offset_t of
     return NS_LIST_ENTRY_(list->last_nextptr, offset);
 }
 
-static inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, void *removed)
+static inline void ns_list_remove_(ns_list_t *list, uintptr_t offset, void *removed)
 {
     void *next;
     void **prev_nextptr;
@@ -693,7 +685,7 @@ static inline void ns_list_remove_(ns_list_t *list, ns_list_offset_t offset, voi
     ns_list_link_init_(NS_LIST_LINK_(removed, offset));
 }
 
-static inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, void *current, void *replacement)
+static inline void ns_list_replace_(ns_list_t *list, uintptr_t offset, void *current, void *replacement)
 {
     void *next;
     void **prev_nextptr;
@@ -711,7 +703,7 @@ static inline void ns_list_replace_(ns_list_t *list, ns_list_offset_t offset, vo
     ns_list_link_init_(NS_LIST_LINK_(current, offset));
 }
 
-static inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_offset_t offset)
+static inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, uintptr_t offset)
 {
     ns_list_link_t *src_first;
 
@@ -727,7 +719,7 @@ static inline void ns_list_concatenate_(ns_list_t *dst, ns_list_t *src, ns_list_
     ns_list_init_(src);
 }
 
-static inline uint_fast16_t ns_list_count_(const ns_list_t *list, ns_list_offset_t offset)
+static inline uint_fast16_t ns_list_count_(const ns_list_t *list, uintptr_t offset)
 {
     uint_fast16_t count = 0;
 
