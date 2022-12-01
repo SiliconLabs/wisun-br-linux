@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 typedef struct dhcp_duid_options_params {
     uint16_t type;

@@ -21,7 +21,7 @@
 #include "common/endian.h"
 #include "common/string_extra.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/ws_management_api.h"
 

@@ -28,7 +28,7 @@
 #ifndef _NS_ADDRESS_H
 #define _NS_ADDRESS_H
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #define ADDR_MULTICAST_MAX 3
 #define ADDR_SIZE 16

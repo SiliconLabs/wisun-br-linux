@@ -16,7 +16,7 @@
  */
 #ifndef FHSS_COMMON_H_
 #define FHSS_COMMON_H_
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #define FHSS_TASKLET_INIT_EVENT             0
 #define FHSS_TIMER_EVENT                    1

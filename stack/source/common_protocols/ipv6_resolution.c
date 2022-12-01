@@ -22,7 +22,7 @@
 #include "common/utils.h"
 #include "common/log_legacy.h"
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "service_libs/etx/etx.h"
 

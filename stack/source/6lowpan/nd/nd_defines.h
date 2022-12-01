@@ -19,7 +19,7 @@
 #define ND_DEFINES_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "nwk_interface/protocol.h"
 #include "core/ns_address_internal.h"

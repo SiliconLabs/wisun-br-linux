@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 struct rpl_instance;
 struct rpl_neighbour;

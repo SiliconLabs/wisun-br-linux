@@ -19,7 +19,7 @@
 #define SEC_PROT_CERTS_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 /*
  * Security protocols certificate interface. This is used by security protocols to

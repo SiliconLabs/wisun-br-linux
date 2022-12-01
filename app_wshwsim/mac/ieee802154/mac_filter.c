@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "stack/mac/mac_common_defines.h"

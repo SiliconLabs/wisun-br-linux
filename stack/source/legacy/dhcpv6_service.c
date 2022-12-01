@@ -27,7 +27,7 @@
 #include "common/rand.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/net_interface.h"
 #include "stack/timers.h"
 

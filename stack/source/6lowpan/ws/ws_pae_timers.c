@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
 

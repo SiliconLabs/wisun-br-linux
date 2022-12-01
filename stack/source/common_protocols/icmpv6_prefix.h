@@ -28,7 +28,7 @@
 
 #ifndef ICMPV6_PREFIX_DEFINITION_H_
 #define ICMPV6_PREFIX_DEFINITION_H_
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 /* Prefix Information option bits (RFC4861) */
 #define PIO_L 0x80  /* On-link flag */

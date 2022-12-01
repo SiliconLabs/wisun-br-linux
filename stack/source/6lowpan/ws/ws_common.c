@@ -25,7 +25,7 @@
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"

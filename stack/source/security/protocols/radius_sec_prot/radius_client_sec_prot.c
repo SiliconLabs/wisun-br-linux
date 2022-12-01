@@ -27,7 +27,7 @@
 #include "common/rand.h"
 #include "common/trickle.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "service_libs/hmac/hmac_md.h"
 #include "stack/mac/fhss_config.h"
 

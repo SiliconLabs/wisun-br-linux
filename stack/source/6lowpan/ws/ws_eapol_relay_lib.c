@@ -20,7 +20,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/ns_address.h"
 
 #include "legacy/net_socket.h"

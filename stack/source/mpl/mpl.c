@@ -23,7 +23,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "common/serial_number_arithmetic.h"
 #include "stack/timers.h"
 

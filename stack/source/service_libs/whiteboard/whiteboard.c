@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "common_protocols/icmpv6.h"
 #include "whiteboard.h"

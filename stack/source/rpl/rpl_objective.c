@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "rpl/rpl_objective.h"
 

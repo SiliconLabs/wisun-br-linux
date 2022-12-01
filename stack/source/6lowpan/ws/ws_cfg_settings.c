@@ -21,7 +21,7 @@
 #include "common/bits.h"
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"

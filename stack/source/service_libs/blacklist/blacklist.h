@@ -19,7 +19,7 @@
 #define BLACKLIST_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #define BLACKLIST_DEFAULT_TIMER_TIMEOUT           4
 #define BLACKLIST_DEFAULT_TIMER_MAX_TIMEOUT       40

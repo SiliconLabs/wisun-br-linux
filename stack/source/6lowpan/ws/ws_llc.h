@@ -19,7 +19,7 @@
 #define WS_LLC_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/channel_list.h"
 

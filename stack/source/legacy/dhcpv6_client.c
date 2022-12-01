@@ -21,7 +21,7 @@
 #include "common/endian.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "nwk_interface/protocol.h"
 

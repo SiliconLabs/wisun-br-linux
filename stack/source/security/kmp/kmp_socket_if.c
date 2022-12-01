@@ -25,7 +25,7 @@
 #include <net/if.h>
 #include "common/endian.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"

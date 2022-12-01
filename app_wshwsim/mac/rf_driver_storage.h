@@ -18,7 +18,7 @@
 #ifndef RF_DRIVER_STORAGE_H
 #define RF_DRIVER_STORAGE_H
 
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/platform/arm_hal_phy.h"

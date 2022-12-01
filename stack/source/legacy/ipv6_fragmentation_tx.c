@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include "common/endian.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"

@@ -24,7 +24,7 @@
 #define IPV6_ROUTING_TABLE_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "core/ns_address_internal.h"
 

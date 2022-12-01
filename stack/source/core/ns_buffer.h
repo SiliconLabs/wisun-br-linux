@@ -32,7 +32,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "common/int24.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol_abstract.h"

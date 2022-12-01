@@ -24,7 +24,7 @@
 #include "common/string_extra.h"
 #include "common/named_values.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/mac_common_defines.h"

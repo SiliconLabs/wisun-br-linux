@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "common/hal_interrupt.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 

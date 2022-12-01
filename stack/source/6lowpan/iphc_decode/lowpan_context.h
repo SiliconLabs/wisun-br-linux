@@ -30,7 +30,7 @@
 #define LOWPAN_CONTEXT_DEFINE_H_
 #include <stdint.h>
 #include <stdbool.h>
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 /* Flags for decode or encode to context's information to 8-bit data from message or to message (cid_flags)*/
 #define LOWPAN_CONTEXT_C        0x10        // Compression

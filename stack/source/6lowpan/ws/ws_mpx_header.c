@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "common/endian.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_mpx_header.h"

@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 
 #include "ipv6_stack/ipv6_routing_table.h"
 

@@ -26,7 +26,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/key_value_storage.h"
-#include "stack-services/ns_list.h"
+#include "common/ns_list.h"
 #include "stack-scheduler/eventOS_event.h"
 #include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/fhss_config.h"
