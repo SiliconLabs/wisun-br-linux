@@ -29,7 +29,6 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "stack-services/ns_sha256.h"
 
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
@@ -85,10 +84,6 @@ const uint8_t ADDR_6TO4[16]                     = { 0x20, 0x02 }; /*Can be used 
 
 #define ADDR_MULTICAST_LINK_PREFIX              ADDR_LINK_LOCAL_ALL_NODES /* ff02::xx */
 #define ADDR_MULTICAST_REALM_PREFIX             ADDR_ALL_MPL_FORWARDERS /* ff03::xx */
-
-static const uint8_t *addr_iid_secret_key;
-static const uint8_t *addr_initial_iid;
-static uint8_t addr_iid_secret_key_len;
 
 static bool addr_am_implicit_group_member(const uint8_t group[static 16])
 {
@@ -1008,109 +1003,6 @@ bool addr_iid_matches_lowpan_short(const uint8_t iid[static 8], uint16_t short_a
         }
     }
     return true;
-}
-
-bool addr_iid_reserved(const uint8_t iid[static 8])
-{
-    static const uint8_t reserved_iana[5] = { 0x02, 0x00, 0x5e, 0xff, 0xfe };
-    static const uint8_t reserved_subnet_anycast[7] = { 0xfd, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-
-    if (memcmp(iid, ADDR_UNSPECIFIED + 8, 8) == 0) {
-        return true; // subnet-router anycast
-    }
-
-    if (memcmp(iid, reserved_iana, 5) == 0) {
-        return true;
-    }
-
-    if (memcmp(iid, reserved_subnet_anycast, 7) == 0 && iid[7] >= 0x80) {
-        return true;
-    }
-
-    return false;
-}
-
-int_fast8_t addr_opaque_iid_key_set(const void *secret_key, uint8_t key_len)
-{
-    /* Delete existing info */
-    if (addr_iid_secret_key) {
-        free((void *) addr_iid_secret_key);
-        addr_iid_secret_key = NULL;
-        addr_iid_secret_key_len = 0;
-    }
-
-    /* If disabling, that's it */
-    if (secret_key == NULL) {
-        return 0;
-    }
-    /* Attempt to copy new info */
-    uint8_t *copy = malloc(key_len);
-    if (!copy) {
-        return -1;
-    }
-    addr_iid_secret_key = memcpy(copy, secret_key, key_len);
-    addr_iid_secret_key_len = key_len;
-    return 0;
-}
-
-int_fast8_t addr_opaque_initial_iid_set(const void *iid)
-{
-    /* Delete existing info */
-    if (addr_initial_iid) {
-        free((void *) addr_initial_iid);
-        addr_initial_iid = NULL;
-    }
-    if (!iid) {
-        return 0;
-    }
-    /* Attempt to copy new info */
-    uint8_t *copy = malloc(8);
-    if (!copy) {
-        return -1;
-    }
-    addr_initial_iid = memcpy(copy, iid, 8);
-    return 0;
-}
-
-bool addr_opaque_iid_key_is_set(void)
-{
-    return addr_iid_secret_key != NULL;
-}
-
-/* RFC 7217 generation: addr must be prepopulated with 8-byte prefix, and secret key must be set */
-void addr_generate_opaque_iid(struct net_if *cur, uint8_t addr[static 16])
-{
-opaque_retry:
-
-    if (addr_initial_iid && !cur->dad_failures) {
-        // This is test implementations use only normally should not need this.
-        memcpy(addr + 8, addr_initial_iid, 8);
-        return;
-    }
-    {
-        // Limit scope to try to minimise stack, given the goto
-        ns_sha256_context ctx;
-        ns_sha256_init(&ctx);
-        ns_sha256_starts(&ctx);
-        ns_sha256_update(&ctx, addr, 8);
-        if (cur->interface_name) {
-            /* This isn't ideal - there's no guarantee each instance of a driver has a distinct name */
-            ns_sha256_update(&ctx, cur->interface_name, strlen(cur->interface_name));
-        } else {
-            ns_sha256_update(&ctx, &cur->id, sizeof cur->id);
-        }
-        ns_sha256_update(&ctx, &cur->dad_failures, sizeof cur->dad_failures);
-        ns_sha256_update(&ctx, addr_iid_secret_key, addr_iid_secret_key_len);
-        ns_sha256_finish_nbits(&ctx, addr + 8, 64);
-        ns_sha256_free(&ctx);
-    }
-    /* Note that we only check for reserved IIDs - as per RFC 7217,
-     * there's no restriction on U/G bits.
-     */
-    if (addr_iid_reserved(addr + 8)) {
-        cur->dad_failures++;
-        goto opaque_retry;
-    }
 }
 
 /* Write a LoWPAN IPv6 address, based on a prefix and short address */

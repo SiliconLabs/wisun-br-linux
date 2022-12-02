@@ -237,7 +237,6 @@ struct net_if {
     bool global_address_available : 1;
     bool reallocate_short_address_if_duplicate : 1;
     bool iids_map_to_mac : 1;
-    bool opaque_slaac_iids : 1;
     bool ip_multicast_as_mac_unicast_to_parent : 1;
     uint8_t dad_failures;
     ipv6_neighbour_cache_t ipv6_neighbour_cache;

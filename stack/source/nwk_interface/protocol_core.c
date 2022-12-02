@@ -257,7 +257,6 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     entry->global_address_available = false;
     entry->reallocate_short_address_if_duplicate = true;
     entry->iids_map_to_mac = false;
-    entry->opaque_slaac_iids = true;
     entry->ip_multicast_as_mac_unicast_to_parent = false;
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;
@@ -539,7 +538,6 @@ void protocol_push(buffer_t *b)
         return;
     }
 
-error:
     socket_tx_buffer_event_and_free(b, SOCKET_TX_FAIL);
 }
 

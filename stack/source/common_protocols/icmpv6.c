@@ -588,10 +588,6 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
         return NULL;
     }
 
-    if (slaac_src == SLAAC_IID_DEFAULT && cur->opaque_slaac_iids && addr_opaque_iid_key_is_set()) {
-        slaac_src = SLAAC_IID_OPAQUE;
-    }
-
     memcpy(ipv6_address, prefix_ptr, 8);
     switch (slaac_src) {
         case SLAAC_IID_DEFAULT:
@@ -600,9 +596,6 @@ if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *
             break;
         case SLAAC_IID_EUI64:
             memcpy(ipv6_address + 8, cur->iid_eui64, 8);
-            break;
-        case SLAAC_IID_OPAQUE:
-            addr_generate_opaque_iid(cur, ipv6_address);
             break;
         case SLAAC_IID_6LOWPAN_SHORT:
             memcpy(ipv6_address + 8, ADDR_SHORT_ADR_SUFFIC, 6);

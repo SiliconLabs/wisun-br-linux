@@ -53,19 +53,3 @@ void arm_nwk_ipv6_auto_flow_label(bool auto_flow_label)
 {
     ipv6_flow_auto_label = auto_flow_label;
 }
-
-int8_t arm_nwk_ipv6_opaque_iid_key(const void *secret_key, uint8_t key_len)
-{
-    return addr_opaque_iid_key_set(secret_key, key_len);
-}
-
-int8_t arm_nwk_ipv6_opaque_iid_enable(int8_t interface_id, bool enable)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    cur->opaque_slaac_iids = enable;
-    return 0;
-}

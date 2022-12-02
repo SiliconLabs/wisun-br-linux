@@ -115,7 +115,6 @@ typedef enum slaac_src {
     SLAAC_IID_DEFAULT,      // OPAQUE if key available and enabled on interface, else FIXED
     SLAAC_IID_EUI64,        // use fixed IID based on EUI-64/MAC-64 (iid_eui64)
     SLAAC_IID_FIXED,        // use fixed IID (iid_slaac)
-    SLAAC_IID_OPAQUE,       // RFC 7217 opaque
     SLAAC_IID_6LOWPAN_SHORT // use IID based on 6LoWPAN short address
 } slaac_src_e;
 

@@ -205,11 +205,6 @@ uint_fast8_t addr_ipv6_scope(const uint8_t addr[static 16], const struct net_if 
 bool addr_ipv6_equal(const uint8_t a[static 16], const uint8_t b[static 16]);
 bool addr_iid_matches_eui64(const uint8_t iid[static 8], const uint8_t eui64[static 8]);
 bool addr_iid_matches_lowpan_short(const uint8_t iid[static 8], uint16_t short_addr);
-bool addr_iid_reserved(const uint8_t iid[static 8]);
-int_fast8_t addr_opaque_iid_key_set(const void *secret_key, uint8_t key_len);
-int_fast8_t addr_opaque_initial_iid_set(const void *iid);
-bool addr_opaque_iid_key_is_set(void);
-void addr_generate_opaque_iid(struct net_if *cur, uint8_t addr[static 16]);
 bool addr_iid_from_outer(uint8_t iid_out[static 8], const sockaddr_t *addr_in);
 
 uint8_t *addr_ipv6_write_from_lowpan_short(uint8_t dst[static 16], const uint8_t prefix[static 8], uint16_t short_addr);
