@@ -532,19 +532,6 @@ void protocol_push(buffer_t *b)
     if (!b)
         return;
 
-    // Avoid the danger of with route data becoming stale (including
-    // dead info pointers) while the packet is in the queue.
-    if (b->route && ipv6_route_table_source_was_invalidated(b->route->route_info.source)) {
-        buffer_free_route(b);
-        // Attempt re-route immediately - some layers assume routing already
-        // performed by higher layers.
-        if (!ipv6_buffer_route(b)) {
-            goto error;
-        }
-    }
-
-    ipv6_route_table_source_invalidated_reset();
-
     // Call the actual handler
     struct net_if *cur = b->interface;
     if (cur && cur->if_stack_buffer_handler) {

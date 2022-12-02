@@ -1171,10 +1171,6 @@ static const bool ipv6_route_probing[ROUTE_MAX] = {
     [ROUTE_RPL_INSTANCE] = true,
 };
 
-// Remember when a route source has deleted an entry - allows buffers still in
-// event queue to have their route info invalidated.
-static bool ipv6_route_source_invalidated[ROUTE_MAX];
-
 static ipv6_route_predicate_fn_t *ipv6_route_predicate[ROUTE_MAX];
 static ipv6_route_next_hop_fn_t *ipv6_route_next_hop_computation[ROUTE_MAX];
 
@@ -1754,15 +1750,4 @@ static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_
     }
 
     return 0;
-}
-
-bool ipv6_route_table_source_was_invalidated(ipv6_route_src_t src)
-{
-    return ipv6_route_source_invalidated[src];
-}
-
-// Called when event queue is empty - no pending buffers so can clear invalidation flags.
-void ipv6_route_table_source_invalidated_reset(void)
-{
-    memset(ipv6_route_source_invalidated, false, sizeof ipv6_route_source_invalidated);
 }
