@@ -23,6 +23,9 @@
 #include <fnmatch.h>
 #include <arpa/inet.h>
 #include <mbedtls/sha256.h>
+#if MBEDTLS_VERSION_MAJOR > 2
+#include <mbedtls/compat-2.x.h>
+#endif
 #include "common/log.h"
 #include "common/named_values.h"
 #include "common/key_value_storage.h"
@@ -615,31 +618,19 @@ int8_t ws_pae_controller_gak_from_gtk(uint8_t *gak, uint8_t *gtk, char *network_
 
     mbedtls_sha256_init(&ctx);
 
-#if (MBEDTLS_VERSION_MAJOR >= 3)
-    if (mbedtls_sha256_starts(&ctx, 0) != 0) {
-#else
     if (mbedtls_sha256_starts_ret(&ctx, 0) != 0) {
-#endif
         ret_val = -1;
         goto error;
     }
 
-#if (MBEDTLS_VERSION_MAJOR >= 3)
-    if (mbedtls_sha256_update(&ctx, input, network_name_len + GTK_LEN) != 0) {
-#else
     if (mbedtls_sha256_update_ret(&ctx, input, network_name_len + GTK_LEN) != 0) {
-#endif
         ret_val = -1;
         goto error;
     }
 
     uint8_t output[32];
 
-#if (MBEDTLS_VERSION_MAJOR >= 3)
-    if (mbedtls_sha256_finish(&ctx, output) != 0) {
-#else
     if (mbedtls_sha256_finish_ret(&ctx, output) != 0) {
-#endif
         ret_val = -1;
         goto error;
     }
