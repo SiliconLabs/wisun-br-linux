@@ -18,13 +18,11 @@
 
 struct os_ctxt;
 
-void eventOS_scheduler_os_init(struct os_ctxt *ctxt);
-
 /**
  * \brief Initialise event scheduler.
  *
  */
-void eventOS_scheduler_init(void);
+void eventOS_scheduler_init(struct os_ctxt *ctxt);
 
 /**
  * Process one event from event queue.

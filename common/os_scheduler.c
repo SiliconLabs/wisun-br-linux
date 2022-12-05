@@ -24,22 +24,6 @@
 #include "os_types.h"
 #include "log.h"
 
-void eventOS_scheduler_os_init(struct os_ctxt *ctxt)
-{
-    pipe(ctxt->event_fd);
-    fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
-    fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);
-}
-
-void eventOS_scheduler_signal(void)
-{
-    struct os_ctxt *ctxt = &g_os_ctxt;
-    uint64_t val = 'W';
-
-    write(ctxt->event_fd[1], &val, sizeof(val));
-}
-
-
 typedef struct arm_core_tasklet {
     int8_t id; /**< Event handler Tasklet ID */
     void (*func_ptr)(arm_event_t *);
@@ -257,31 +241,6 @@ arm_event_storage_t *eventOS_event_find_by_id_critical(uint8_t tasklet_id, uint8
     return NULL;
 }
 
-/**
- *
- * \brief Initialize Nanostack Core.
- *
- * Function Initialize Nanostack Core, Socket Interface,Buffer memory and Send Init event to all Tasklett which are Defined.
- *
- */
-void eventOS_scheduler_init(void)
-{
-    /* Reset Event List variables */
-    ns_list_init(&free_event_entry);
-    ns_list_init(&event_queue_active);
-    ns_list_init(&arm_core_tasklet_list);
-
-    //Add first 10 entries to "free" list
-    for (unsigned i = 0; i < (sizeof(startup_event_pool) / sizeof(startup_event_pool[0])); i++) {
-        startup_event_pool[i].allocator = ARM_LIB_EVENT_STARTUP_POOL;
-        ns_list_add_to_start(&free_event_entry, &startup_event_pool[i]);
-    }
-
-    /* Set Tasklett switcher to Idle */
-    curr_tasklet = 0;
-
-}
-
 int8_t eventOS_scheduler_get_active_tasklet(void)
 {
     return curr_tasklet;
@@ -334,6 +293,35 @@ bool eventOS_scheduler_dispatch_event(void)
 void eventOS_scheduler_run_until_idle(void)
 {
     while (eventOS_scheduler_dispatch_event());
+}
+
+void eventOS_scheduler_signal(void)
+{
+    struct os_ctxt *ctxt = &g_os_ctxt;
+    uint64_t val = 'W';
+
+    write(ctxt->event_fd[1], &val, sizeof(val));
+}
+
+void eventOS_scheduler_init(struct os_ctxt *ctxt)
+{
+    pipe(ctxt->event_fd);
+    fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
+    fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);
+
+    /* Reset Event List variables */
+    ns_list_init(&free_event_entry);
+    ns_list_init(&event_queue_active);
+    ns_list_init(&arm_core_tasklet_list);
+
+    //Add first 10 entries to "free" list
+    for (unsigned i = 0; i < (sizeof(startup_event_pool) / sizeof(startup_event_pool[0])); i++) {
+        startup_event_pool[i].allocator = ARM_LIB_EVENT_STARTUP_POOL;
+        ns_list_add_to_start(&free_event_entry, &startup_event_pool[i]);
+    }
+
+    /* Set Tasklett switcher to Idle */
+    curr_tasklet = 0;
 }
 
 void eventOS_cancel(arm_event_storage_t *event)

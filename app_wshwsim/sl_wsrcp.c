@@ -308,8 +308,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     platform_critical_init();
-    eventOS_scheduler_os_init(ctxt->os_ctxt);
-    eventOS_scheduler_init();
+    eventOS_scheduler_init(ctxt->os_ctxt);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)

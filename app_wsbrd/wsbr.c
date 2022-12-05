@@ -510,8 +510,7 @@ int wsbr_main(int argc, char *argv[])
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
     platform_critical_init();
-    eventOS_scheduler_os_init(ctxt->os_ctxt);
-    eventOS_scheduler_init();
+    eventOS_scheduler_init(ctxt->os_ctxt);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;

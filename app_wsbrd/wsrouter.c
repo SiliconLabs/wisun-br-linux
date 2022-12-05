@@ -249,8 +249,7 @@ int main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     platform_critical_init();
-    eventOS_scheduler_os_init(ctxt->os_ctxt);
-    eventOS_scheduler_init();
+    eventOS_scheduler_init(ctxt->os_ctxt);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
