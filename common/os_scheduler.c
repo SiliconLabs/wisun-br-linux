@@ -32,11 +32,6 @@ typedef struct arm_core_tasklet {
 
 static NS_LIST_DEFINE(arm_core_tasklet_list, arm_core_tasklet_t, link);
 static NS_LIST_DEFINE(event_queue_active, arm_event_storage_t, link);
-static NS_LIST_DEFINE(free_event_entry, arm_event_storage_t, link);
-
-// Statically allocate initial pool of events.
-#define STARTUP_EVENT_POOL_SIZE 10
-static arm_event_storage_t startup_event_pool[STARTUP_EVENT_POOL_SIZE];
 
 /** Curr_tasklet tell to core and platform which task_let is active, Core Update this automatic when switch Tasklet. */
 int8_t curr_tasklet = 0;
@@ -157,12 +152,7 @@ arm_event_storage_t *event_core_get(void)
 {
     arm_event_storage_t *event;
     platform_enter_critical();
-    event = ns_list_get_first(&free_event_entry);
-    if (event) {
-        ns_list_remove(&free_event_entry, event);
-    } else {
-        event = event_dynamically_allocate();
-    }
+    event = event_dynamically_allocate();
     if (event) {
         event->data.data_ptr = NULL;
         event->data.priority = ARM_LIB_LOW_PRIORITY_EVENT;
@@ -174,12 +164,6 @@ arm_event_storage_t *event_core_get(void)
 void event_core_free_push(arm_event_storage_t *storage)
 {
     switch (storage->allocator) {
-        case ARM_LIB_EVENT_STARTUP_POOL:
-            storage->state = ARM_LIB_EVENT_UNQUEUED;
-            platform_enter_critical();
-            ns_list_add_to_start(&free_event_entry, storage);
-            platform_exit_critical();
-            break;
         case ARM_LIB_EVENT_DYNAMIC:
             // storage all dynamically allocated events.
             // No need to set state to UNQUEUED - it's being freed.
@@ -309,16 +293,8 @@ void eventOS_scheduler_init(struct os_ctxt *ctxt)
     fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
     fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);
 
-    /* Reset Event List variables */
-    ns_list_init(&free_event_entry);
     ns_list_init(&event_queue_active);
     ns_list_init(&arm_core_tasklet_list);
-
-    //Add first 10 entries to "free" list
-    for (unsigned i = 0; i < (sizeof(startup_event_pool) / sizeof(startup_event_pool[0])); i++) {
-        startup_event_pool[i].allocator = ARM_LIB_EVENT_STARTUP_POOL;
-        ns_list_add_to_start(&free_event_entry, &startup_event_pool[i]);
-    }
 
     /* Set Tasklett switcher to Idle */
     curr_tasklet = 0;

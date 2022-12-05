@@ -239,7 +239,6 @@ partition "system_timer.c" {
 typedef struct arm_event_storage {
     arm_event_t data;
     enum {
-        ARM_LIB_EVENT_STARTUP_POOL,
         ARM_LIB_EVENT_DYNAMIC,
         ARM_LIB_EVENT_USER,
         ARM_LIB_EVENT_TIMER,
