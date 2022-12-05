@@ -57,23 +57,15 @@ static int8_t tasklet_get_free_id(void)
 
 static void event_core_write(arm_event_storage_t *event)
 {
-    platform_enter_critical();
-    bool added = false;
+    event->state = ARM_LIB_EVENT_QUEUED;
     ns_list_foreach(arm_event_storage_t, event_tmp, &event_queue_active) {
-        // note enum ordering means we're checking if event_tmp is LOWER priority than event
         if (event_tmp->data.priority > event->data.priority) {
             ns_list_add_before(&event_queue_active, event_tmp, event);
-            added = true;
-            break;
+            eventOS_scheduler_signal();
+            return;
         }
     }
-    if (!added) {
-        ns_list_add_to_end(&event_queue_active, event);
-    }
-    event->state = ARM_LIB_EVENT_QUEUED;
-
-    /* Wake From Idle */
-    platform_exit_critical();
+    ns_list_add_to_end(&event_queue_active, event);
     eventOS_scheduler_signal();
 }
 
