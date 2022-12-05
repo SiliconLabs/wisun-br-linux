@@ -37,8 +37,6 @@ static NS_LIST_DEFINE(event_queue_active, arm_event_storage_t, link);
 int8_t curr_tasklet = 0;
 
 
-static arm_event_storage_t *event_dynamically_allocate(void);
-static arm_event_storage_t *event_core_get(void);
 static void event_core_write(arm_event_storage_t *event);
 static void event_core_free_push(arm_event_storage_t *storage);
 
@@ -73,20 +71,16 @@ static int8_t tasklet_get_free_id(void)
 
 int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type)
 {
-    arm_event_storage_t *event_tmp;
+    arm_event_storage_t *event_tmp = malloc(sizeof(arm_event_storage_t));
     arm_core_tasklet_t *new = malloc(sizeof(arm_core_tasklet_t));
-
-    event_tmp = event_core_get();
-    if (!event_tmp) {
-        free(new);
-        return -2;
-    }
 
     new->id = tasklet_get_free_id();
     new->func_ptr = handler_func_ptr;
     ns_list_add_to_end(&arm_core_tasklet_list, new);
 
-    //Queue "init" event for the new task
+    event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
+    event_tmp->data.data_ptr = NULL;
+    event_tmp->data.priority = ARM_LIB_LOW_PRIORITY_EVENT;
     event_tmp->data.receiver = new->id;
     event_tmp->data.sender = 0;
     event_tmp->data.event_type = init_event_type;
@@ -99,15 +93,16 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uin
 
 int8_t eventOS_event_send(const arm_event_t *event)
 {
-    if (event_tasklet_handler_get(event->receiver)) {
-        arm_event_storage_t *event_tmp = event_core_get();
-        if (event_tmp) {
-            event_tmp->data = *event;
-            event_core_write(event_tmp);
-            return 0;
-        }
-    }
-    return -1;
+    arm_event_storage_t *event_tmp;
+
+    if (!event_tasklet_handler_get(event->receiver))
+        return -1;
+
+    event_tmp = malloc(sizeof(arm_event_storage_t));
+    event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
+    memcpy(&event_tmp->data, event, sizeof(arm_event_t));
+    event_core_write(event_tmp);
+    return 0;
 }
 
 void eventOS_event_send_user_allocated(arm_event_storage_t *event)
@@ -115,7 +110,6 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event)
     event->allocator = ARM_LIB_EVENT_USER;
     event_core_write(event);
 }
-
 
 void eventOS_event_cancel(arm_event_storage_t *event)
 {
@@ -141,27 +135,6 @@ void eventOS_event_cancel(arm_event_storage_t *event)
     }
 
     platform_exit_critical();
-}
-static arm_event_storage_t *event_dynamically_allocate(void)
-{
-    arm_event_storage_t *event = malloc(sizeof(arm_event_storage_t));
-    if (event) {
-        event->allocator = ARM_LIB_EVENT_DYNAMIC;
-    }
-    return event;
-}
-
-arm_event_storage_t *event_core_get(void)
-{
-    arm_event_storage_t *event;
-    platform_enter_critical();
-    event = event_dynamically_allocate();
-    if (event) {
-        event->data.data_ptr = NULL;
-        event->data.priority = ARM_LIB_LOW_PRIORITY_EVENT;
-    }
-    platform_exit_critical();
-    return event;
 }
 
 void event_core_free_push(arm_event_storage_t *storage)
