@@ -32,9 +32,7 @@ typedef struct arm_core_tasklet {
 
 static NS_LIST_DEFINE(arm_core_tasklet_list, arm_core_tasklet_t, link);
 static NS_LIST_DEFINE(event_queue_active, arm_event_storage_t, link);
-
-/** Curr_tasklet tell to core and platform which task_let is active, Core Update this automatic when switch Tasklet. */
-int8_t curr_tasklet = 0;
+static int8_t curr_tasklet = 0;
 
 static arm_core_tasklet_t *event_tasklet_handler_get(uint8_t tasklet_id)
 {
@@ -216,7 +214,4 @@ void eventOS_scheduler_init(struct os_ctxt *ctxt)
 
     ns_list_init(&event_queue_active);
     ns_list_init(&arm_core_tasklet_list);
-
-    /* Set Tasklett switcher to Idle */
-    curr_tasklet = 0;
 }
