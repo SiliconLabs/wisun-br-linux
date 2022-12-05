@@ -144,42 +144,26 @@ void eventOS_scheduler_set_active_tasklet(int8_t tasklet)
     curr_tasklet = tasklet;
 }
 
-/**
- *
- * \brief Infinite Event Read Loop.
- *
- * Function Read and handle Cores Event and switch/enable tasklet which are event receiver. WhenEvent queue is empty it goes to sleep
- *
- */
 bool eventOS_scheduler_dispatch_event(void)
 {
-    arm_event_storage_t *cur_event = ns_list_get_first(&event_queue_active);
+    arm_event_storage_t *event = ns_list_get_first(&event_queue_active);
+    arm_core_tasklet_t *tasklet;
+
     curr_tasklet = 0;
-
-    if (!cur_event)
+    if (!event)
         return false;
-
-    ns_list_remove(&event_queue_active, cur_event);
-    curr_tasklet = cur_event->data.receiver;
-
-    arm_core_tasklet_t *tasklet = event_tasklet_handler_get(curr_tasklet);
-    /* Do not bother with check for NULL - tasklets cannot be deleted,
-     * and user-facing API eventOS_event_send() has already checked the tasklet
-     * exists, so there is no possible issue there.
-     *
-     * For eventOS_event_send_user_allocated(), it would be a non-recoverable
-     * error to not deliver the message - we have to have a receiver to pass
-     * ownership to. If the lookup fails, let it crash. We want the send call
-     * itself to return void to simplify logic.
-     */
-
-    cur_event->state = ARM_LIB_EVENT_RUNNING;
-    /* Tasklet Scheduler Call */
-    tasklet->func_ptr(&cur_event->data);
-    if (cur_event->allocator == ARM_LIB_EVENT_DYNAMIC)
-        free(cur_event);
-
-    /* Set Current Tasklet to Idle state */
+    ns_list_remove(&event_queue_active, event);
+    curr_tasklet = event->data.receiver;
+    tasklet = event_tasklet_handler_get(curr_tasklet);
+    if (tasklet) {
+        event->state = ARM_LIB_EVENT_RUNNING;
+        tasklet->func_ptr(&event->data);
+    } else {
+        WARN();
+    }
+    event->state = ARM_LIB_EVENT_UNQUEUED;
+    if (event->allocator == ARM_LIB_EVENT_DYNAMIC)
+        free(event);
     curr_tasklet = 0;
 
     return true;
