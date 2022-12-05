@@ -37,7 +37,6 @@ static NS_LIST_DEFINE(event_queue_active, arm_event_storage_t, link);
 int8_t curr_tasklet = 0;
 
 
-static arm_core_tasklet_t *tasklet_dynamically_allocate(void);
 static arm_event_storage_t *event_dynamically_allocate(void);
 static arm_event_storage_t *event_core_get(void);
 static void event_core_write(arm_event_storage_t *event);
@@ -75,19 +74,7 @@ static int8_t tasklet_get_free_id(void)
 int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type)
 {
     arm_event_storage_t *event_tmp;
-
-    // XXX Do we really want to prevent multiple tasklets with same function?
-    ns_list_foreach(arm_core_tasklet_t, cur, &arm_core_tasklet_list) {
-        if (cur->func_ptr == handler_func_ptr) {
-            return -1;
-        }
-    }
-
-    //Allocate new
-    arm_core_tasklet_t *new = tasklet_dynamically_allocate();
-    if (!new) {
-        return -2;
-    }
+    arm_core_tasklet_t *new = malloc(sizeof(arm_core_tasklet_t));
 
     event_tmp = event_core_get();
     if (!event_tmp) {
@@ -95,7 +82,6 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uin
         return -2;
     }
 
-    //Fill in tasklet; add to list
     new->id = tasklet_get_free_id();
     new->func_ptr = handler_func_ptr;
     ns_list_add_to_end(&arm_core_tasklet_list, new);
@@ -163,11 +149,6 @@ static arm_event_storage_t *event_dynamically_allocate(void)
         event->allocator = ARM_LIB_EVENT_DYNAMIC;
     }
     return event;
-}
-
-static arm_core_tasklet_t *tasklet_dynamically_allocate(void)
-{
-    return malloc(sizeof(arm_core_tasklet_t));
 }
 
 arm_event_storage_t *event_core_get(void)
