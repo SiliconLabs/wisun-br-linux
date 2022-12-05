@@ -36,9 +36,6 @@ static NS_LIST_DEFINE(event_queue_active, arm_event_storage_t, link);
 /** Curr_tasklet tell to core and platform which task_let is active, Core Update this automatic when switch Tasklet. */
 int8_t curr_tasklet = 0;
 
-
-static void event_core_write(arm_event_storage_t *event);
-
 static arm_core_tasklet_t *event_tasklet_handler_get(uint8_t tasklet_id)
 {
     ns_list_foreach(arm_core_tasklet_t, cur, &arm_core_tasklet_list) {
@@ -67,6 +64,27 @@ static int8_t tasklet_get_free_id(void)
     return -1;
 }
 
+static void event_core_write(arm_event_storage_t *event)
+{
+    platform_enter_critical();
+    bool added = false;
+    ns_list_foreach(arm_event_storage_t, event_tmp, &event_queue_active) {
+        // note enum ordering means we're checking if event_tmp is LOWER priority than event
+        if (event_tmp->data.priority > event->data.priority) {
+            ns_list_add_before(&event_queue_active, event_tmp, event);
+            added = true;
+            break;
+        }
+    }
+    if (!added) {
+        ns_list_add_to_end(&event_queue_active, event);
+    }
+    event->state = ARM_LIB_EVENT_QUEUED;
+
+    /* Wake From Idle */
+    platform_exit_critical();
+    eventOS_scheduler_signal();
+}
 
 int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type)
 {
@@ -109,7 +127,6 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event)
     event->allocator = ARM_LIB_EVENT_USER;
     event_core_write(event);
 }
-
 void eventOS_event_cancel(arm_event_storage_t *event)
 {
     if (!event) {
@@ -133,27 +150,6 @@ void eventOS_event_cancel(arm_event_storage_t *event)
     platform_exit_critical();
 }
 
-void event_core_write(arm_event_storage_t *event)
-{
-    platform_enter_critical();
-    bool added = false;
-    ns_list_foreach(arm_event_storage_t, event_tmp, &event_queue_active) {
-        // note enum ordering means we're checking if event_tmp is LOWER priority than event
-        if (event_tmp->data.priority > event->data.priority) {
-            ns_list_add_before(&event_queue_active, event_tmp, event);
-            added = true;
-            break;
-        }
-    }
-    if (!added) {
-        ns_list_add_to_end(&event_queue_active, event);
-    }
-    event->state = ARM_LIB_EVENT_QUEUED;
-
-    /* Wake From Idle */
-    platform_exit_critical();
-    eventOS_scheduler_signal();
-}
 
 // Requires lock to be held
 arm_event_storage_t *eventOS_event_find_by_id_critical(uint8_t tasklet_id, uint8_t event_id)
