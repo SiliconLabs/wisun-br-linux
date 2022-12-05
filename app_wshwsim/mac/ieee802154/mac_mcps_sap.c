@@ -2478,7 +2478,7 @@ void mac_mcps_buffer_queue_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 
     if (rf_mac_setup->pd_rx_ack_buffer) {
         if (rf_mac_setup->rf_pd_ack_buffer_is_in_use) {
-            eventOS_cancel(&rf_mac_setup->mac_ack_event);
+            eventOS_event_cancel(&rf_mac_setup->mac_ack_event);
             rf_mac_setup->rf_pd_ack_buffer_is_in_use = false;
         }
         free(rf_mac_setup->pd_rx_ack_buffer);

@@ -321,6 +321,6 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uin
  *
  * \param event Pointer to event handle or NULL.
  */
-void eventOS_cancel(arm_event_storage_t *event);
+void eventOS_event_cancel(arm_event_storage_t *event);
 
 #endif

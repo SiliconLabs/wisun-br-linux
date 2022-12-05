@@ -41,6 +41,7 @@ static arm_core_tasklet_t *tasklet_dynamically_allocate(void);
 static arm_event_storage_t *event_dynamically_allocate(void);
 static arm_event_storage_t *event_core_get(void);
 static void event_core_write(arm_event_storage_t *event);
+static void event_core_free_push(arm_event_storage_t *storage);
 
 static arm_core_tasklet_t *event_tasklet_handler_get(uint8_t tasklet_id)
 {
@@ -132,6 +133,33 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event)
 void eventOS_event_cancel_critical(arm_event_storage_t *event)
 {
     ns_list_remove(&event_queue_active, event);
+}
+
+void eventOS_event_cancel(arm_event_storage_t *event)
+{
+    if (!event) {
+        return;
+    }
+
+    platform_enter_critical();
+
+    /*
+     * Remove event from the list,
+     * Only queued can be removed, unqued are either timers or stale pointers
+     * RUNNING cannot be removed, we are currenly "in" that event.
+     */
+    if (event->state == ARM_LIB_EVENT_QUEUED) {
+        eventOS_event_cancel_critical(event);
+    }
+
+    /*
+     * Push back to "free" state
+     */
+    if (event->state != ARM_LIB_EVENT_RUNNING) {
+        event_core_free_push(event);
+    }
+
+    platform_exit_critical();
 }
 
 static arm_event_storage_t *event_dynamically_allocate(void)
@@ -298,31 +326,4 @@ void eventOS_scheduler_init(struct os_ctxt *ctxt)
 
     /* Set Tasklett switcher to Idle */
     curr_tasklet = 0;
-}
-
-void eventOS_cancel(arm_event_storage_t *event)
-{
-    if (!event) {
-        return;
-    }
-
-    platform_enter_critical();
-
-    /*
-     * Remove event from the list,
-     * Only queued can be removed, unqued are either timers or stale pointers
-     * RUNNING cannot be removed, we are currenly "in" that event.
-     */
-    if (event->state == ARM_LIB_EVENT_QUEUED) {
-        eventOS_event_cancel_critical(event);
-    }
-
-    /*
-     * Push back to "free" state
-     */
-    if (event->state != ARM_LIB_EVENT_RUNNING) {
-        event_core_free_push(event);
-    }
-
-    platform_exit_critical();
 }
