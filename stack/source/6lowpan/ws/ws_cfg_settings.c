@@ -22,7 +22,7 @@
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/mac/fhss_config.h"

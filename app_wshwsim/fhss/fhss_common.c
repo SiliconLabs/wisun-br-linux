@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common/log_legacy.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
 

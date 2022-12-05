@@ -11,14 +11,14 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/log.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 
-void timer_sys_event_free(arm_event_storage_t *event)
+void timer_sys_event_free(struct event_storage *event)
 {
     BUG("Not supported");
 }
 
-void timer_sys_event_cancel_critical(struct arm_event_storage *event)
+void timer_sys_event_cancel_critical(struct event_storage *event)
 {
     BUG("Not supported");
 }

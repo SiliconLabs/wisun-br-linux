@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 #include "common/ns_list.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
 
@@ -245,8 +245,8 @@ typedef struct protocol_interface_rf_mac_setup {
     struct mac_pre_build_frame *indirect_pd_data_request_queue;
     struct mac_pre_build_frame enhanced_ack_buffer;
     uint32_t enhanced_ack_handler_timestamp;
-    arm_event_t mac_mcps_timer_event;
-    arm_event_storage_t mac_ack_event;
+    struct event_payload mac_mcps_timer_event;
+    struct event_storage mac_ack_event;
     uint16_t indirect_pending_bytes;
     arm_nwk_mlme_event_type_e mac_mlme_event;
     mac_event_e timer_mac_event;

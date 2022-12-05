@@ -27,7 +27,7 @@
 #include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
@@ -1012,7 +1012,7 @@ static void mac_pd_data_ack_handler(mac_pre_parsed_frame_t *buf)
 }
 
 
-static void mac_mcps_sap_data_tasklet(arm_event_t *event)
+static void mac_mcps_sap_data_tasklet(struct event_payload *event)
 {
     uint8_t event_type = event->event_type;
 
@@ -1059,7 +1059,7 @@ static void mac_mcps_sap_data_tasklet(arm_event_t *event)
 int8_t mac_mcps_sap_tasklet_init(void)
 {
     if (mac_tasklet_event_handler < 0) {
-        mac_tasklet_event_handler = eventOS_event_handler_create(&mac_mcps_sap_data_tasklet, 0);
+        mac_tasklet_event_handler = event_handler_create(&mac_mcps_sap_data_tasklet, 0);
     }
 
     return mac_tasklet_event_handler;
@@ -2306,7 +2306,7 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer)
         return -1;
     }
 
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2315,7 +2315,7 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer)
         .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
-    return eventOS_event_send(&event);
+    return event_send(&event);
 }
 
 int8_t mcps_sap_pd_confirm(void *mac_ptr)
@@ -2323,7 +2323,7 @@ int8_t mcps_sap_pd_confirm(void *mac_ptr)
     if (mac_tasklet_event_handler < 0  || !mac_ptr) {
         return -2;
     }
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2332,7 +2332,7 @@ int8_t mcps_sap_pd_confirm(void *mac_ptr)
         .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
-    return eventOS_event_send(&event);
+    return event_send(&event);
 }
 
 int8_t mcps_sap_pd_confirm_failure(void *mac_ptr)
@@ -2340,7 +2340,7 @@ int8_t mcps_sap_pd_confirm_failure(void *mac_ptr)
     if (mac_tasklet_event_handler < 0  || !mac_ptr) {
         return -2;
     }
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2349,7 +2349,7 @@ int8_t mcps_sap_pd_confirm_failure(void *mac_ptr)
         .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
-    return eventOS_event_send(&event);
+    return event_send(&event);
 }
 
 int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_parsed_frame_t *buffer)
@@ -2359,7 +2359,7 @@ int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_p
     }
 
     if (buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
-        arm_event_storage_t *event = &rf_ptr->mac_ack_event;
+        struct event_storage *event = &rf_ptr->mac_ack_event;
         event->data.data_ptr = buffer;
         event->data.event_data = 0;
         event->data.event_id = 0;
@@ -2367,12 +2367,12 @@ int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_p
         event->data.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
         event->data.sender = 0;
         event->data.receiver = mac_tasklet_event_handler;
-        eventOS_event_send_user_allocated(event);
+        event_send_user_allocated(event);
 
         return 0;
     }
 
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2381,7 +2381,7 @@ int8_t mcps_sap_pd_ack(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_p
         .priority = ARM_LIB_HIGH_PRIORITY_EVENT,
     };
 
-    return eventOS_event_send(&event);
+    return event_send(&event);
 }
 
 void mcps_sap_trig_tx(void *mac_ptr)
@@ -2392,7 +2392,7 @@ void mcps_sap_trig_tx(void *mac_ptr)
     if (mac_read_active_event(mac_ptr, MAC_SAP_TRIG_TX) == true) {
         return;
     }
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2401,7 +2401,7 @@ void mcps_sap_trig_tx(void *mac_ptr)
         .priority = ARM_LIB_MED_PRIORITY_EVENT,
     };
 
-    if (eventOS_event_send(&event) == 0) {
+    if (event_send(&event) == 0) {
         mac_set_active_event(mac_ptr, MAC_SAP_TRIG_TX);
     }
 }
@@ -2413,7 +2413,7 @@ void mac_cca_threshold_event_send(protocol_interface_rf_mac_setup_s *rf_ptr, uin
         return;
     }
     uint16_t data = channel << 8 | (uint8_t) dbm;
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2423,18 +2423,18 @@ void mac_cca_threshold_event_send(protocol_interface_rf_mac_setup_s *rf_ptr, uin
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
 
-    eventOS_event_send(&event);
+    event_send(&event);
 }
 
 void mac_generic_event_trig(uint8_t event_type, void *mac_ptr, bool low_latency)
 {
-    arm_library_event_priority_e priority;
+    event_priority_e priority;
     if (low_latency) {
         priority = ARM_LIB_LOW_PRIORITY_EVENT;
     } else {
         priority = ARM_LIB_HIGH_PRIORITY_EVENT;
     }
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = mac_tasklet_event_handler,
         .sender = 0,
         .event_id = 0,
@@ -2443,7 +2443,7 @@ void mac_generic_event_trig(uint8_t event_type, void *mac_ptr, bool low_latency)
         .priority = priority,
     };
 
-    eventOS_event_send(&event);
+    event_send(&event);
 }
 
 void mac_mcps_buffer_queue_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
@@ -2478,7 +2478,7 @@ void mac_mcps_buffer_queue_free(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 
     if (rf_mac_setup->pd_rx_ack_buffer) {
         if (rf_mac_setup->rf_pd_ack_buffer_is_in_use) {
-            eventOS_event_cancel(&rf_mac_setup->mac_ack_event);
+            event_cancel(&rf_mac_setup->mac_ack_event);
             rf_mac_setup->rf_pd_ack_buffer_is_in_use = false;
         }
         free(rf_mac_setup->pd_rx_ack_buffer);

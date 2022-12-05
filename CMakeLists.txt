@@ -87,7 +87,7 @@ add_library(libwsbrd STATIC
     common/crc.c
     common/bus_uart.c
     common/hal_interrupt.c
-    common/os_scheduler.c
+    common/events_scheduler.c
     common/log.c
     common/bits.c
     common/endian.c
@@ -268,7 +268,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/crc.c
         common/bus_uart.c
         common/hal_interrupt.c
-        common/os_scheduler.c
+        common/events_scheduler.c
         common/log.c
         common/bits.c
         common/endian.c
@@ -406,7 +406,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/crc.c
         common/bus_uart.c
         common/hal_interrupt.c
-        common/os_scheduler.c
+        common/events_scheduler.c
         common/log.c
         common/bits.c
         common/endian.c

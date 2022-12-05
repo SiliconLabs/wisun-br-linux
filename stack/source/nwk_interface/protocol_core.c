@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/log_legacy.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "common/endian.h"
 #include "service_libs/whiteboard/whiteboard.h"
 #include "stack/mac/platform/arm_hal_phy.h"
@@ -115,7 +115,7 @@ void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface
     }
 }
 
-void protocol_root_tasklet(arm_event_t *event)
+void protocol_root_tasklet(struct event_payload *event)
 {
     BUG_ON(event->event_type != ARM_IN_INTERFACE_BOOTSTRAP_CB);
     net_bootstrap_cb_run(event->event_id);
@@ -156,7 +156,7 @@ void update_reachable_time(int seconds)
 
 void protocol_core_init(void)
 {
-    protocol_root_tasklet_ID = eventOS_event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
+    protocol_root_tasklet_ID = event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
 
     timer_start(TIMER_MONOTONIC_TIME);
     timer_start(TIMER_MPL_SLOW);
@@ -207,7 +207,7 @@ void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur)
 {
     cur->bootstrap_state_machine_cnt = 0;
     cur->nwk_bootstrap_state = new_state;
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = protocol_root_tasklet_ID,
         .sender = 0,
         .event_id = (uint8_t)cur->id,
@@ -215,7 +215,7 @@ void bootstrap_next_state_kick(icmp_state_e new_state, struct net_if *cur)
         .data_ptr = NULL,
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
-    if (eventOS_event_send(&event) != 0) {
+    if (event_send(&event) != 0) {
         tr_error("bootstrap_next_state_kick(): event send failed");
     }
 }
@@ -576,7 +576,7 @@ void net_bootstrap_cb_run(uint8_t event)
     struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
 
     if (cur) {
-        //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
+        //event_scheduler_set_active_tasklet(protocol_read_tasklet_id());
         ws_common_state_machine(cur);
     }
 }

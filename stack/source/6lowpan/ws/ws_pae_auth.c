@@ -23,7 +23,7 @@
 #include "common/rand.h"
 #include "common/utils.h"
 #include "common/ns_list.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
@@ -115,7 +115,7 @@ typedef struct pae_auth {
     supp_list_t active_supp_list;                            /**< List of active supplicants */
     supp_list_t waiting_supp_list;                           /**< List of waiting supplicants */
     shared_comp_list_t shared_comp_list;                     /**< Shared component list */
-    arm_event_storage_t *timer;                              /**< Timer */
+    struct event_storage *timer;                              /**< Timer */
     pae_auth_gtk_t gtks;                                     /**< Material for GTKs */
     pae_auth_gtk_t lgtks;                                    /**< Material for LGTKs */
     const sec_prot_certs_t *certs;                           /**< Certificates */
@@ -135,7 +135,7 @@ static void ws_pae_auth_free(pae_auth_t *pae_auth);
 static pae_auth_t *ws_pae_auth_get(struct net_if *interface_ptr);
 static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
-static void ws_pae_auth_tasklet_handler(arm_event_t *event);
+static void ws_pae_auth_tasklet_handler(struct event_payload *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
@@ -292,7 +292,7 @@ int8_t ws_pae_auth_init(struct net_if *interface_ptr,
     }
 
     if (tasklet_id < 0) {
-        tasklet_id = eventOS_event_handler_create(ws_pae_auth_tasklet_handler, PAE_TASKLET_INIT);
+        tasklet_id = event_handler_create(ws_pae_auth_tasklet_handler, PAE_TASKLET_INIT);
         if (tasklet_id < 0) {
             goto error;
         }
@@ -738,7 +738,7 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
         return -1;
     }
 
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = tasklet_id,
         .sender = 0,
         .event_id = pae_auth->interface_ptr->id,
@@ -747,14 +747,14 @@ static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data)
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
 
-    if (eventOS_event_send(&event) != 0) {
+    if (event_send(&event) != 0) {
         return -1;
     }
 
     return 0;
 }
 
-static void ws_pae_auth_tasklet_handler(arm_event_t *event)
+static void ws_pae_auth_tasklet_handler(struct event_payload *event)
 {
     if (event->event_type == PAE_TASKLET_INIT) {
 

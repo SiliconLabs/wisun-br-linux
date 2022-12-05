@@ -30,7 +30,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
@@ -408,7 +408,7 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     }
 }
 
-void ws_bootstrap_6lbr_event_handler(struct net_if *cur, arm_event_t *event)
+void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *event)
 {
     ws_bootstrap_event_type_e event_type;
     event_type = (ws_bootstrap_event_type_e)event->event_type;

@@ -17,7 +17,7 @@
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
 #include "common/dhcp_server.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "common/os_types.h"
 #include "common/ws_regdb.h"
 #include "common/log.h"
@@ -484,7 +484,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_EVENT].revents & POLLIN) {
         read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
-        eventOS_scheduler_run_until_idle();
+        event_scheduler_run_until_idle();
     }
     if (fds[POLLFD_RCP].revents & POLLIN ||
         fds[POLLFD_RCP].revents & POLLERR ||
@@ -510,7 +510,7 @@ int wsbr_main(int argc, char *argv[])
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
     platform_critical_init();
-    eventOS_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(ctxt->os_ctxt);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
@@ -545,7 +545,7 @@ int wsbr_main(int argc, char *argv[])
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
     wsbr_network_init(ctxt);
-    eventOS_scheduler_run_until_idle();
+    event_scheduler_run_until_idle();
 
     dbus_register(ctxt);
 

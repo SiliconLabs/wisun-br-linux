@@ -32,7 +32,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_api.h"
@@ -629,7 +629,7 @@ static void mac_mcps_timer_cb(int timer_id, uint16_t slots)
         return;
     }
     rf_ptr->mac_mcps_timer_event.event_data = slots;
-    eventOS_event_send(&rf_ptr->mac_mcps_timer_event);
+    event_send(&rf_ptr->mac_mcps_timer_event);
 
 }
 

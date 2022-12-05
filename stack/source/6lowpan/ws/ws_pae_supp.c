@@ -27,7 +27,7 @@
 #include "common/log_legacy.h"
 #include "common/key_value_storage.h"
 #include "common/ns_list.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
@@ -132,7 +132,7 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
-static void ws_pae_supp_tasklet_handler(arm_event_t *event);
+static void ws_pae_supp_tasklet_handler(struct event_payload *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
@@ -736,7 +736,7 @@ int8_t ws_pae_supp_init(struct net_if *interface_ptr, const sec_prot_certs_t *ce
     }
 
     if (tasklet_id < 0) {
-        tasklet_id = eventOS_event_handler_create(ws_pae_supp_tasklet_handler, PAE_TASKLET_INIT);
+        tasklet_id = event_handler_create(ws_pae_supp_tasklet_handler, PAE_TASKLET_INIT);
         if (tasklet_id < 0) {
             goto error;
         }
@@ -820,7 +820,7 @@ static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data)
         return -1;
     }
 
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = tasklet_id,
         .sender = 0,
         .event_id = pae_supp->interface_ptr->id,
@@ -829,14 +829,14 @@ static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data)
         .priority = ARM_LIB_LOW_PRIORITY_EVENT,
     };
 
-    if (eventOS_event_send(&event) != 0) {
+    if (event_send(&event) != 0) {
         return -1;
     }
 
     return 0;
 }
 
-static void ws_pae_supp_tasklet_handler(arm_event_t *event)
+static void ws_pae_supp_tasklet_handler(struct event_payload *event)
 {
     if (event->event_type == PAE_TASKLET_INIT) {
 

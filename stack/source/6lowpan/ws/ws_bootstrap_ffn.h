@@ -19,7 +19,7 @@
 #define WS_BOOTSTRAP_FFN_H_
 #include <stdint.h>
 #include "common/log.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 
 struct net_if;
 struct mcps_data_ind;
@@ -29,7 +29,7 @@ struct mcps_data_ie_list;
 
 void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
-void ws_bootstrap_ffn_event_handler(struct net_if *cur, arm_event_t *event);
+void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *event);
 void ws_bootstrap_ffn_state_machine(struct net_if *cur);
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds);
 

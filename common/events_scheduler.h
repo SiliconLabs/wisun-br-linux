@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef OS_SCHEDULER_H
-#define OS_SCHEDULER_H
+#ifndef EVENTS_SCHEDULER_H
+#define EVENTS_SCHEDULER_H
 #include <stdbool.h>
 #include <stdint.h>
 #include "common/ns_list.h"
@@ -22,20 +22,20 @@ struct os_ctxt;
  * \brief Initialise event scheduler.
  *
  */
-void eventOS_scheduler_init(struct os_ctxt *ctxt);
+void event_scheduler_init(struct os_ctxt *ctxt);
 
 /**
  * Process one event from event queue.
  * Do not call this directly from application. Requires to be public so that simulator can call this.
- * Use eventOS_scheduler_run() or eventOS_scheduler_run_until_idle().
+ * Use event_scheduler_run() or event_scheduler_run_until_idle().
  * \return true If there was event processed, false if the event queue was empty.
  */
-bool eventOS_scheduler_dispatch_event(void);
+bool event_scheduler_dispatch_event(void);
 
 /**
  * \brief Process events until no more events to process.
  */
-void eventOS_scheduler_run_until_idle(void);
+void event_scheduler_run_until_idle(void);
 
 /**
  * \brief Read current active Tasklet ID
@@ -45,7 +45,7 @@ void eventOS_scheduler_run_until_idle(void);
  * \return curret active tasklet id
  *
  * */
-int8_t eventOS_scheduler_get_active_tasklet(void);
+int8_t event_scheduler_get_active_tasklet(void);
 
 /**
  * \brief Set manually Active Tasklet ID
@@ -53,35 +53,35 @@ int8_t eventOS_scheduler_get_active_tasklet(void);
  * \param tasklet requested tasklet ID
  *
  * */
- void eventOS_scheduler_set_active_tasklet(int8_t tasklet);
+ void event_scheduler_set_active_tasklet(int8_t tasklet);
 
 /**
  * \brief This function will be called when stack receives an event.
  */
-void eventOS_scheduler_signal(void);
+void event_scheduler_signal(void);
 
 /**
- * \enum arm_library_event_priority_e
+ * \enum event_priority_e
  * \brief Event Priority level.
  */
-typedef enum arm_library_event_priority {
+typedef enum event_priority {
     ARM_LIB_HIGH_PRIORITY_EVENT = 0, /**< High Priority Event (Function CB) */
     ARM_LIB_MED_PRIORITY_EVENT = 1, /**< Medium Priority (Timer) */
     ARM_LIB_LOW_PRIORITY_EVENT = 2, /*!*< Normal Event and ECC / Security */
-} arm_library_event_priority_e;
+} event_priority_e;
 
-typedef struct arm_event {
+struct event_payload {
     int8_t receiver; /**< Event handler Tasklet ID */
     int8_t sender; /**< Event sender Tasklet ID */
     uint8_t event_type; /**< This will be typecast arm_library_event_type_e, arm_internal_event_type_e or application specific define */
     uint8_t event_id; /**< Timer ID, NWK interface ID or application specific ID */
     void *data_ptr; /**< Application could share data pointer tasklet to tasklet */
-    arm_library_event_priority_e priority;
+    enum event_priority priority;
     uintptr_t event_data;
-} arm_event_t;
+};
 
-typedef struct arm_event_storage {
-    arm_event_t data;
+struct event_storage {
+    struct event_payload data;
     enum {
         ARM_LIB_EVENT_DYNAMIC,
         ARM_LIB_EVENT_USER,
@@ -93,7 +93,7 @@ typedef struct arm_event_storage {
         ARM_LIB_EVENT_RUNNING,
     } state;
     ns_list_link_t link;
-} arm_event_storage_t;
+};
 
 /**
  * \brief Send event to event scheduler.
@@ -107,7 +107,7 @@ typedef struct arm_event_storage {
  * \return 0 Event push OK
  * \return -1 Memory allocation Fail
  */
-int8_t eventOS_event_send(const arm_event_t *event);
+int8_t event_send(const struct event_payload *event);
 
 /**
  * \brief Send user-allocated event to event scheduler.
@@ -125,13 +125,13 @@ int8_t eventOS_event_send(const arm_event_t *event);
  * event system passes ownership to the receiving event handler, who may then
  * invalidate it, or send it again.
  *
- * The recipient receives a pointer to the arm_event_t data member of the
+ * The recipient receives a pointer to the struct event_payload data member of the
  * event - it can use container_of() to get a pointer to the original
  * event passed to this call, or to its outer container.
  *
  * It is a program error to send a user-allocated event to a non-existent task.
  */
-void eventOS_event_send_user_allocated(arm_event_storage_t *event);
+void event_send_user_allocated(struct event_storage *event);
 
 /**
  * \brief Event handler callback register
@@ -145,7 +145,7 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event);
  * \return < 0 Register fail
  *
  * */
-int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uint8_t init_event_type);
+int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *), uint8_t init_event_type);
 
 /**
  * Cancel an event.
@@ -165,6 +165,6 @@ int8_t eventOS_event_handler_create(void (*handler_func_ptr)(arm_event_t *), uin
  *
  * \param event Pointer to event handle or NULL.
  */
-void eventOS_event_cancel(arm_event_storage_t *event);
+void event_cancel(struct event_storage *event);
 
 #endif

@@ -29,7 +29,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
@@ -82,8 +82,8 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_event_handler(arm_event_t *event);
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data);
+static void ws_bootstrap_event_handler(struct event_payload *event);
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, event_priority_e priority, void *event_data);
 static uint16_t ws_bootstrap_rank_get(struct net_if *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(struct net_if *cur);
 static void ws_bootstrap_mac_security_enable(struct net_if *cur);
@@ -252,7 +252,7 @@ void ws_bootstrap_configure_data_request_restart(struct net_if *cur, uint8_t cca
 static int ws_bootstrap_tasklet_init(struct net_if *cur)
 {
     if (cur->bootStrapId < 0)
-        cur->bootStrapId = eventOS_event_handler_create(&ws_bootstrap_event_handler, WS_INIT_EVENT);
+        cur->bootStrapId = event_handler_create(&ws_bootstrap_event_handler, WS_INIT_EVENT);
 
     if (cur->bootStrapId < 0) {
         tr_error("tasklet init failed");
@@ -263,16 +263,16 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
     return 0;
 }
 
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, arm_library_event_priority_e priority, void *event_data)
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, event_priority_e priority, void *event_data)
 {
-    arm_event_t event = {
+    struct event_payload event = {
         .receiver = interface_id,
         .sender = 0,
         .event_type = event_type,
         .priority = priority,
         .data_ptr = event_data,
     };
-    return eventOS_event_send(&event);
+    return event_send(&event);
 }
 
 void ws_nud_table_reset(struct net_if *cur)
@@ -2792,7 +2792,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
     ws_llc_asynch_request(cur, &async_req);
 }
 
-static void ws_bootstrap_event_handler(arm_event_t *event)
+static void ws_bootstrap_event_handler(struct event_payload *event)
 {
     struct net_if *cur;
     cur = protocol_stack_interface_info_get_by_bootstrap_id(event->receiver);

@@ -28,7 +28,7 @@
 #endif
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "common/os_types.h"
 #include "common/slist.h"
 #include "common/log.h"
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     platform_critical_init();
-    eventOS_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(ctxt->os_ctxt);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
@@ -354,12 +354,12 @@ int main(int argc, char *argv[])
         if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
             read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
             WARN_ON(val != 'W');
-            // You may use eventOS_scheduler_run_until_idle() instead of
-            // eventOS_scheduler_dispatch_event() identify tasks that shcedule
+            // You may use event_scheduler_run_until_idle() instead of
+            // event_scheduler_dispatch_event() identify tasks that shcedule
             // themselves.
-            // eventOS_scheduler_run_until_idle();
-            if (eventOS_scheduler_dispatch_event())
-                eventOS_scheduler_signal();
+            // event_scheduler_run_until_idle();
+            if (event_scheduler_dispatch_event())
+                event_scheduler_signal();
         }
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             if (FD_ISSET(timer->fd, &rfds)) {

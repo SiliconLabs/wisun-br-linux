@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "common/os_types.h"
 #include "common/key_value_storage.h"
 #include "common/utils.h"
@@ -149,7 +149,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 }
 
-static void wsbr_tasklet(struct arm_event *event)
+static void wsbr_tasklet(struct event_payload *event)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
 
@@ -223,7 +223,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_EVENT].revents & POLLIN) {
         read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
-        eventOS_scheduler_run_until_idle();
+        event_scheduler_run_until_idle();
     }
     if (fds[POLLFD_RCP].revents & POLLIN ||
         fds[POLLFD_RCP].revents & POLLERR ||
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     platform_critical_init();
-    eventOS_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(ctxt->os_ctxt);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
@@ -268,8 +268,8 @@ int main(int argc, char *argv[])
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
-    if (eventOS_event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
-        BUG("eventOS_event_handler_create");
+    if (event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
+        BUG("event_handler_create");
 
     wsbr_fds_init(ctxt, fds);
 

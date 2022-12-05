@@ -27,7 +27,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
-#include "common/os_scheduler.h"
+#include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
@@ -92,7 +92,7 @@ void ws_bootstrap_lfn_asynch_confirm(struct net_if *interface, uint8_t asynch_me
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
 
-void ws_bootstrap_lfn_event_handler(struct net_if *cur, arm_event_t *event)
+void ws_bootstrap_lfn_event_handler(struct net_if *cur, struct event_payload *event)
 {
     (void)cur;
     ws_bootstrap_event_type_e event_type;
