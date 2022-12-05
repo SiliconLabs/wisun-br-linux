@@ -28,8 +28,7 @@
 #include "common/endian.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
+#include "common/os_scheduler.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"

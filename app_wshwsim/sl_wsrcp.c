@@ -33,7 +33,6 @@
 #include "common/slist.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
-#include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/sw_mac.h"
 
 #include "hal_fhss_timer.h"

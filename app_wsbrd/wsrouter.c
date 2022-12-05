@@ -27,8 +27,6 @@
 #include "common/utils.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
-#include "stack-scheduler/eventOS_event.h"
-#include "stack-scheduler/eventOS_scheduler.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"

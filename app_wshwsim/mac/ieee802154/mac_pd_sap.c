@@ -21,7 +21,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack-scheduler/eventOS_event.h"
+#include "common/os_scheduler.h"
 #include "stack/mac/ccm.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_api.h"

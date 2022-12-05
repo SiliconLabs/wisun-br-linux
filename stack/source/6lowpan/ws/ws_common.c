@@ -29,7 +29,7 @@
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
-#include "stack-scheduler/eventOS_event.h"
+#include "common/os_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/mac/fhss_config.h"

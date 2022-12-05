@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 #include "common/ns_list.h"
-#include "stack-scheduler/eventOS_event.h"
+#include "common/os_scheduler.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
 

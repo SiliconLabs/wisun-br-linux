@@ -11,7 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/log.h"
-#include "stack-scheduler/eventOS_event.h"
+#include "common/os_scheduler.h"
 
 void timer_sys_event_free(arm_event_storage_t *event)
 {

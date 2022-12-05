@@ -192,12 +192,10 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
     # Excluded stack/source/service_libs/whiteboard/whiteboard.c
-    stack-scheduler/source/event.c
 )
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     stack/source/
-    stack-scheduler/
     stack/
 )
 target_compile_options(libwsbrd PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
@@ -382,12 +380,10 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         stack/source/service_libs/random_early_detection/random_early_detection.c
         # Excluded stack/source/service_libs/whiteboard/whiteboard.c
-        stack-scheduler/source/event.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/source/
-        stack-scheduler/
         stack/
     )
     target_compile_options(wsnode PRIVATE -include stack/source/configs/cfg_ws_router.h)
@@ -418,7 +414,6 @@ if(COMPILE_SIMULATION_TOOLS)
         common/iobuf.c
         common/slist.c
         common/spinel_buffer.c
-        stack-scheduler/source/event.c
         app_wshwsim/timer_sys_stub.c
         app_wshwsim/sl_wsrcp.c
         app_wshwsim/sl_wsrcp_mac.c
@@ -449,7 +444,6 @@ if(COMPILE_SIMULATION_TOOLS)
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         app_wshwsim/
-        stack-scheduler/
         stack/
     )
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
@@ -494,7 +488,6 @@ if(COMPILE_SIMULATION_TOOLS)
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/
         stack/source/
-        stack-scheduler/
     )
     add_dependencies(wsbrd-fuzz libwsbrd)
     target_link_libraries(wsbrd-fuzz libwsbrd)

@@ -19,7 +19,7 @@
 #define WS_BOOTSTRAP_FFN_H_
 #include <stdint.h>
 #include "common/log.h"
-#include "stack-scheduler/eventOS_event.h"
+#include "common/os_scheduler.h"
 
 struct net_if;
 struct mcps_data_ind;
