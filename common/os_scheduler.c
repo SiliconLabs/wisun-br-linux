@@ -38,7 +38,6 @@ int8_t curr_tasklet = 0;
 
 
 static void event_core_write(arm_event_storage_t *event);
-static void event_core_free_push(arm_event_storage_t *storage);
 
 static arm_core_tasklet_t *event_tasklet_handler_get(uint8_t tasklet_id)
 {
@@ -127,33 +126,12 @@ void eventOS_event_cancel(arm_event_storage_t *event)
     if (event->state == ARM_LIB_EVENT_QUEUED)
         ns_list_remove(&event_queue_active, event);
 
-    /*
-     * Push back to "free" state
-     */
-    if (event->state != ARM_LIB_EVENT_RUNNING) {
-        event_core_free_push(event);
-    }
+    if (event->state != ARM_LIB_EVENT_RUNNING)
+        if (event->allocator ==  ARM_LIB_EVENT_DYNAMIC)
+            free(event);
 
     platform_exit_critical();
 }
-
-void event_core_free_push(arm_event_storage_t *storage)
-{
-    switch (storage->allocator) {
-        case ARM_LIB_EVENT_DYNAMIC:
-            // storage all dynamically allocated events.
-            // No need to set state to UNQUEUED - it's being freed.
-            free(storage);
-            break;
-        case ARM_LIB_EVENT_USER:
-            // *INDENT-OFF*
-            // No need set state to UNQUEUED - we forget about it.
-            // *INDENT-ON*
-        default:
-            break;
-    }
-}
-
 
 static arm_event_storage_t *event_core_read(void)
 {
@@ -242,7 +220,8 @@ bool eventOS_scheduler_dispatch_event(void)
 
     /* Tasklet Scheduler Call */
     tasklet->func_ptr(&cur_event->data);
-    event_core_free_push(cur_event);
+    if (cur_event->allocator == ARM_LIB_EVENT_DYNAMIC)
+        free(cur_event);
 
     /* Set Current Tasklet to Idle state */
     curr_tasklet = 0;
