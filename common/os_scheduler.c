@@ -130,10 +130,6 @@ void eventOS_event_send_user_allocated(arm_event_storage_t *event)
     event_core_write(event);
 }
 
-void eventOS_event_cancel_critical(arm_event_storage_t *event)
-{
-    ns_list_remove(&event_queue_active, event);
-}
 
 void eventOS_event_cancel(arm_event_storage_t *event)
 {
@@ -148,9 +144,8 @@ void eventOS_event_cancel(arm_event_storage_t *event)
      * Only queued can be removed, unqued are either timers or stale pointers
      * RUNNING cannot be removed, we are currenly "in" that event.
      */
-    if (event->state == ARM_LIB_EVENT_QUEUED) {
-        eventOS_event_cancel_critical(event);
-    }
+    if (event->state == ARM_LIB_EVENT_QUEUED)
+        ns_list_remove(&event_queue_active, event);
 
     /*
      * Push back to "free" state
@@ -161,7 +156,6 @@ void eventOS_event_cancel(arm_event_storage_t *event)
 
     platform_exit_critical();
 }
-
 static arm_event_storage_t *event_dynamically_allocate(void)
 {
     arm_event_storage_t *event = malloc(sizeof(arm_event_storage_t));
