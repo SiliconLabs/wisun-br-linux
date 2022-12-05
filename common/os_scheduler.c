@@ -133,18 +133,6 @@ void eventOS_event_cancel(arm_event_storage_t *event)
     platform_exit_critical();
 }
 
-static arm_event_storage_t *event_core_read(void)
-{
-    platform_enter_critical();
-    arm_event_storage_t *event = ns_list_get_first(&event_queue_active);
-    if (event) {
-        event->state = ARM_LIB_EVENT_RUNNING;
-        ns_list_remove(&event_queue_active, event);
-    }
-    platform_exit_critical();
-    return event;
-}
-
 void event_core_write(arm_event_storage_t *event)
 {
     platform_enter_critical();
@@ -198,13 +186,13 @@ void eventOS_scheduler_set_active_tasklet(int8_t tasklet)
  */
 bool eventOS_scheduler_dispatch_event(void)
 {
+    arm_event_storage_t *cur_event = ns_list_get_first(&event_queue_active);
     curr_tasklet = 0;
 
-    arm_event_storage_t *cur_event = event_core_read();
-    if (!cur_event) {
+    if (!cur_event)
         return false;
-    }
 
+    ns_list_remove(&event_queue_active, cur_event);
     curr_tasklet = cur_event->data.receiver;
 
     arm_core_tasklet_t *tasklet = event_tasklet_handler_get(curr_tasklet);
@@ -218,6 +206,7 @@ bool eventOS_scheduler_dispatch_event(void)
      * itself to return void to simplify logic.
      */
 
+    cur_event->state = ARM_LIB_EVENT_RUNNING;
     /* Tasklet Scheduler Call */
     tasklet->func_ptr(&cur_event->data);
     if (cur_event->allocator == ARM_LIB_EVENT_DYNAMIC)
