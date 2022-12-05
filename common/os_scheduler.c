@@ -46,13 +46,6 @@ static arm_core_tasklet_t *event_tasklet_handler_get(uint8_t tasklet_id)
     return NULL;
 }
 
-bool event_tasklet_handler_id_valid(uint8_t tasklet_id)
-{
-    return event_tasklet_handler_get(tasklet_id);
-}
-
-// XXX this can return 0, but 0 seems to mean "none" elsewhere? Or at least
-// curr_tasklet is reset to 0 in various places.
 static int8_t tasklet_get_free_id(void)
 {
     /*(Note use of uint8_t to avoid overflow if we reach 0x7F)*/
