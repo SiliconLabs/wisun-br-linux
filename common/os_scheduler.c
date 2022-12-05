@@ -151,18 +151,6 @@ void eventOS_event_cancel(arm_event_storage_t *event)
 }
 
 
-// Requires lock to be held
-arm_event_storage_t *eventOS_event_find_by_id_critical(uint8_t tasklet_id, uint8_t event_id)
-{
-    ns_list_foreach(arm_event_storage_t, cur, &event_queue_active) {
-        if (cur->data.receiver == tasklet_id && cur->data.event_id == event_id) {
-            return cur;
-        }
-    }
-
-    return NULL;
-}
-
 int8_t eventOS_scheduler_get_active_tasklet(void)
 {
     return curr_tasklet;
