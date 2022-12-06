@@ -790,7 +790,7 @@ void ws_pae_auth_fast_timer(uint16_t ticks)
     }
 }
 
-void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, bool is_lgtk, uint16_t seconds)
+void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, bool is_lgtk)
 {
     struct sec_timer_gtk_cfg *timer_gtk_cfg;
     pae_auth_gtk_t *pae_auth_gtk;
