@@ -122,6 +122,7 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index);
 int ws_test_key_lifetime_set(
     int8_t interface_id,
     uint32_t gtk_expire_offset,
+    uint32_t lgtk_expire_offset,
     uint32_t pmk_lifetime,
     uint32_t ptk_lifetime
 );

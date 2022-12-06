@@ -214,7 +214,11 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
-    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id, ctxt->config.ws_gtk_expire_offset, ctxt->config.ws_pmk_lifetime, ctxt->config.ws_ptk_lifetime);
+    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id,
+                                   ctxt->config.ws_gtk_expire_offset,
+                                   ctxt->config.ws_lgtk_expire_offset,
+                                   ctxt->config.ws_pmk_lifetime,
+                                   ctxt->config.ws_ptk_lifetime);
     WARN_ON(ret);
 
     ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id,

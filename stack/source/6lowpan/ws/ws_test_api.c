@@ -78,7 +78,7 @@ int ws_test_active_key_set(int8_t interface_id, uint8_t index)
     return ws_pae_controller_active_key_update(interface_id, index);
 }
 
-int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
+int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, uint32_t lgtk_expire_offset, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
 {
     struct net_if *cur;
 
@@ -94,6 +94,9 @@ int ws_test_key_lifetime_set(int8_t interface_id, uint32_t gtk_expire_offset, ui
 
     if (gtk_expire_offset > 0) {
         cfg.gtk_expire_offset = gtk_expire_offset;
+    }
+    if (lgtk_expire_offset > 0) {
+        cfg.lgtk_expire_offset = lgtk_expire_offset;
     }
     if (pmk_lifetime > 0) {
         cfg.pmk_lifetime = pmk_lifetime;
