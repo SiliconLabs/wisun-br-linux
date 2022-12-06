@@ -559,6 +559,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     };
     int opt;
 
+    // Keep these values in sync with examples/wsbrd.conf
     config->uart_baudrate = 115200;
     config->tun_autoconf = true;
     config->internal_dhcp = true;
@@ -569,9 +570,21 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_pan_id = -1;
     config->color_output = -1;
     config->tx_power = 20;
-    config->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
-    config->bc_interval = WS_FHSS_BC_INTERVAL;
-    config->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
+    config->uc_dwell_interval = 255;
+    config->bc_interval = 1020;
+    config->bc_dwell_interval = 255;
+    config->ws_pmk_lifetime = 172800;
+    config->ws_ptk_lifetime = 86400;
+    config->ws_gtk_expire_offset = 43200;
+    config->ws_gtk_new_activation_time = 720;
+    config->ws_gtk_new_install_required = 80;
+    config->ws_gtk_max_mismatch = 64;
+    config->ws_ffn_revocation_lifetime_reduction = 30;
+    config->ws_lgtk_expire_offset = 129600;
+    config->ws_lgtk_new_activation_time = 180;
+    config->ws_lgtk_new_install_required = 90;
+    config->ws_lgtk_max_mismatch = 60;
+    config->ws_lfn_revocation_lifetime_reduction = 30;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
