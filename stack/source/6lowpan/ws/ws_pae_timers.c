@@ -67,41 +67,6 @@ void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_c
     ws_pae_timers_calculate(&timer_settings->lgtk);
 }
 
-void ws_pae_timers_lifetime_set(sec_timer_cfg_t *timer_settings, uint32_t gtk_lifetime, uint32_t lgtk_lifetime, uint32_t pmk_lifetime, uint32_t ptk_lifetime)
-{
-    if (gtk_lifetime) {
-        timer_settings->gtk.expire_offset = gtk_lifetime * 60;
-    }
-    if (lgtk_lifetime) {
-        timer_settings->lgtk.expire_offset = lgtk_lifetime * 60;
-    }
-    if (pmk_lifetime) {
-        timer_settings->pmk_lifetime = pmk_lifetime * 60;
-    }
-    if (ptk_lifetime) {
-        timer_settings->ptk_lifetime = ptk_lifetime * 60;
-    }
-    ws_pae_timers_calculate(&timer_settings->gtk);
-    ws_pae_timers_calculate(&timer_settings->lgtk);
-}
-
-void ws_pae_timers_gtk_time_settings_set(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint8_t revocat_lifetime_reduct, uint8_t new_activation_time, uint8_t new_install_req, uint32_t max_mismatch)
-{
-    if (revocat_lifetime_reduct) {
-        timer_gtk_cfg->revocat_lifetime_reduct = revocat_lifetime_reduct;
-    }
-    if (new_activation_time) {
-        timer_gtk_cfg->new_act_time = new_activation_time;
-    }
-    if (new_install_req) {
-        timer_gtk_cfg->new_install_req = new_install_req;
-    }
-    if (max_mismatch) {
-        timer_gtk_cfg->max_mismatch = max_mismatch * 60;
-    }
-    ws_pae_timers_calculate(timer_gtk_cfg);
-}
-
 static void ws_pae_timers_calculate(struct sec_timer_gtk_cfg *timer_gtk_settings)
 {
     // Calculate GTK_NEW_INSTALL_REQUIRED < 100 * (1 - 1 / REVOCATION_LIFETIME_REDUCTION)
