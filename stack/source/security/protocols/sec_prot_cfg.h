@@ -40,11 +40,13 @@ typedef struct sec_prot_cfg {
 typedef struct sec_timer_gtk_cfg {
     uint32_t expire_offset;                     /* GTK lifetime; LGTK_EXPIRE_OFFSET (seconds) */
     uint16_t new_act_time;                      /* GTK_NEW_ACTIVATION_TIME (1/X of expire offset) */
+    uint8_t  new_install_req;                   /* GTK_NEW_INSTALL_REQUIRED (percent of LGTK lifetime) */
+    uint16_t revocat_lifetime_reduct;           /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
+#ifdef HAVE_PAE_SUPP
     uint16_t request_imin;                      /* GTK_REQUEST_IMIN (seconds) (for now, unused for LGTK, must be 0) */
     uint16_t request_imax;                      /* GTK_REQUEST_IMAX (seconds) (for now, unused for LGTK, must be 0) */
     uint16_t max_mismatch;                      /* GTK_MAX_MISMATCH (seconds) */
-    uint8_t  new_install_req;                   /* GTK_NEW_INSTALL_REQUIRED (percent of LGTK lifetime) */
-    uint16_t revocat_lifetime_reduct;           /* REVOCATION_LIFETIME_REDUCTION (reduction of lifetime) */
+#endif
 } sec_timer_gtk_cfg_t;
 
 typedef struct sec_timer_cfg {
