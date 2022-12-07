@@ -687,11 +687,15 @@ void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr)
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
 {
     pae_controller_gtk_t *gtks;
+    int key_offset;
 
-    if (is_lgtk)
+    if (is_lgtk) {
+        key_offset = GTK_NUM;
         gtks = &controller->lgtks;
-    else
+    } else {
+        key_offset = 0;
         gtks = &controller->gtks;
+    }
 
     /* Checks if frame counters needs to be stored when keys are removed */
     ws_pae_controller_frame_counter_store(controller, use_threshold, is_lgtk);
@@ -701,12 +705,12 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_
     gtks->gtk_index = -1;
 
     nw_key_t *nw_key = gtks->nw_key;
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
+    for (uint8_t i = 0; i < (is_lgtk ? LGTK_NUM : GTK_NUM); i++) {
         // Deletes the key if it is set
         if (nw_key[i].set) {
-            tr_info("NW key remove: %i", i);
+            tr_info("NW key remove: %i", i + key_offset);
             if (nw_key[i].installed) {
-                controller->nw_key_clear(interface_ptr, i);
+                controller->nw_key_clear(interface_ptr, i + key_offset);
             }
             nw_key[i].set = false;
             nw_key[i].installed = false;
