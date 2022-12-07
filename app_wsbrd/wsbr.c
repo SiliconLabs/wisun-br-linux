@@ -35,9 +35,12 @@
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/6lowpan/ws/ws_common.h"
+#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol_abstract.h"
+#include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
 
 #include "mbedtls_config_check.h"
@@ -152,6 +155,31 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     return 0;
 }
 
+static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    ws_sec_timer_cfg_t cfg;
+    int ret;
+
+    ws_cfg_sec_timer_get(&cfg);
+    cfg.pmk_lifetime = ctxt->config.ws_pmk_lifetime;
+    cfg.ptk_lifetime = ctxt->config.ws_ptk_lifetime;
+    cfg.gtk_request_imin = 4;
+    cfg.gtk_request_imax = 64;
+    cfg.gtk_expire_offset = ctxt->config.ws_gtk_expire_offset;
+    cfg.gtk_max_mismatch = ctxt->config.ws_gtk_max_mismatch;
+    cfg.gtk_new_act_time = ctxt->config.ws_gtk_new_activation_time;
+    cfg.gtk_new_install_req = ctxt->config.ws_gtk_new_install_required;
+    cfg.ffn_revocat_lifetime_reduct = ctxt->config.ws_ffn_revocation_lifetime_reduction;
+    cfg.lgtk_expire_offset = ctxt->config.ws_lgtk_expire_offset;
+    cfg.lgtk_max_mismatch = ctxt->config.ws_lgtk_max_mismatch;
+    cfg.lgtk_new_act_time = ctxt->config.ws_lgtk_new_activation_time;
+    cfg.lgtk_new_install_req = ctxt->config.ws_lgtk_new_install_required;
+    cfg.lfn_revocat_lifetime_reduct = ctxt->config.ws_lfn_revocation_lifetime_reduction;
+    ret = ws_cfg_sec_timer_set(cur, &cfg, 0x00);
+    return ret;
+}
+
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
@@ -211,25 +239,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
 
-    ret = ws_test_key_lifetime_set(ctxt->rcp_if_id,
-                                   ctxt->config.ws_gtk_expire_offset,
-                                   ctxt->config.ws_lgtk_expire_offset,
-                                   ctxt->config.ws_pmk_lifetime,
-                                   ctxt->config.ws_ptk_lifetime);
-    WARN_ON(ret);
-
-    ret = ws_test_gtk_time_settings_set(ctxt->rcp_if_id,
-                                        ctxt->config.ws_ffn_revocation_lifetime_reduction,
-                                        ctxt->config.ws_gtk_new_activation_time,
-                                        ctxt->config.ws_gtk_new_install_required,
-                                        ctxt->config.ws_gtk_max_mismatch);
-    WARN_ON(ret);
-
-    ret = ws_test_lgtk_time_settings_set(ctxt->rcp_if_id,
-                                         ctxt->config.ws_lfn_revocation_lifetime_reduction,
-                                         ctxt->config.ws_lgtk_new_activation_time,
-                                         ctxt->config.ws_lgtk_new_install_required,
-                                         ctxt->config.ws_lgtk_max_mismatch);
+    ret = wsbr_configure_ws_sect_time(ctxt);
     WARN_ON(ret);
 
     ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
