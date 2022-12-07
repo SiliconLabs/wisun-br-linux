@@ -489,12 +489,10 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "gtk_expire_offset",             &config->ws_gtk_expire_offset,             conf_set_number,      &valid_unsigned },
         { "gtk_new_activation_time",       &config->ws_gtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "gtk_new_install_required",      &config->ws_gtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
-        { "gtk_max_mismatch",              &config->ws_gtk_max_mismatch,              conf_set_number,      &valid_unsigned },
         { "ffn_revocation_lifetime_reduction", &config->ws_ffn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
         { "lgtk_expire_offset",             &config->ws_lgtk_expire_offset,             conf_set_number,      &valid_unsigned },
         { "lgtk_new_activation_time",       &config->ws_lgtk_new_activation_time,       conf_set_number,      &valid_positive },
         { "lgtk_new_install_required",      &config->ws_lgtk_new_install_required,      conf_set_number,      &valid_gtk_new_install_required },
-        { "lgtk_max_mismatch",              &config->ws_lgtk_max_mismatch,              conf_set_number,      &valid_unsigned },
         { "lfn_revocation_lifetime_reduction", &config->ws_lfn_revocation_lifetime_reduction, conf_set_number,      &valid_unsigned },
         { "allowed_mac64",                 config->ws_allowed_mac_addresses,          conf_set_allowed_macaddr, NULL },
         { "denied_mac64",                  config->ws_denied_mac_addresses,           conf_set_denied_macaddr, NULL },
@@ -578,12 +576,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_gtk_expire_offset = 43200;
     config->ws_gtk_new_activation_time = 720;
     config->ws_gtk_new_install_required = 80;
-    config->ws_gtk_max_mismatch = 64;
     config->ws_ffn_revocation_lifetime_reduction = 30;
     config->ws_lgtk_expire_offset = 129600;
     config->ws_lgtk_new_activation_time = 180;
     config->ws_lgtk_new_install_required = 90;
-    config->ws_lgtk_max_mismatch = 60;
     config->ws_lfn_revocation_lifetime_reduction = 30;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
