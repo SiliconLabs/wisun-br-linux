@@ -184,7 +184,7 @@ int ws_test_next_gtk_set(int8_t interface_id, uint8_t *gtk[4])
 
 int ws_test_next_lgtk_set(int8_t interface_id, uint8_t *lgtk[3])
 {
-    return ws_pae_controller_next_gtk_update(interface_id, lgtk);
+    return ws_pae_controller_next_lgtk_update(interface_id, lgtk);
 }
 
 int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t temporary_lifetime)
