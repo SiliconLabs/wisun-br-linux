@@ -876,7 +876,7 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks);
  * \return GTK index
  *
  */
-int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks);
+int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 
 /**
  * sec_prot_keys_gtk_count counts GTK keys

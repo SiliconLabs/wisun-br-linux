@@ -137,7 +137,7 @@ static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(arm_event_s *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
-static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime);
+static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_auth_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
@@ -407,7 +407,7 @@ void ws_pae_auth_start(struct net_if *interface_ptr)
     int gtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->gtks);
     if (gtk_index < 0) {
         // If there is no key, inserts a new one
-        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset);
+        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->gtks, pae_auth->gtks.next_gtks, pae_auth->sec_cfg->timer_cfg.gtk.expire_offset, false);
         gtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->gtks);
         ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->gtks, gtk_index);
     } else {
@@ -418,7 +418,7 @@ void ws_pae_auth_start(struct net_if *interface_ptr)
     int lgtk_index = sec_prot_keys_gtk_status_active_get(pae_auth->sec_keys_nw_info->lgtks);
     if (lgtk_index < 0) {
         // If there is no key, inserts a new one
-        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->lgtks, pae_auth->lgtks.next_gtks, pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset);
+        ws_pae_auth_gtk_key_insert(pae_auth->sec_keys_nw_info->lgtks, pae_auth->lgtks.next_gtks, pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset, true);
         lgtk_index = sec_prot_keys_gtk_install_order_first_index_get(pae_auth->sec_keys_nw_info->lgtks);
         ws_pae_auth_active_gtk_set(pae_auth->sec_keys_nw_info->lgtks, lgtk_index);
     } else {
@@ -541,7 +541,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
         // If active GTK lifetime is larger than revocation lifetime decrements active GTK lifetime
         if (active_lifetime > revocation_lifetime) {
             sec_prot_keys_gtk_lifetime_decrement(key_nw_info, active_index, current_time, active_lifetime - revocation_lifetime, true);
-            tr_info("Access revocation start, GTK active index: %i, revoked lifetime: %"PRIu32"", active_index, revocation_lifetime);
+            tr_info("Access revocation start, %s active index: %i, revoked lifetime: %"PRIu32"", is_lgtk ? "LGTK" : "GTK", active_index, revocation_lifetime);
         } else {
             // Otherwise decrements lifetime of the GTK to be installed after the active one
             int8_t second_index = sec_prot_keys_gtk_install_order_second_index_get(key_nw_info);
@@ -552,7 +552,7 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
                 uint32_t second_lifetime = sec_prot_keys_gtk_lifetime_get(key_nw_info, second_index);
                 if (second_lifetime > second_revocation_lifetime) {
                     sec_prot_keys_gtk_lifetime_decrement(key_nw_info, second_index, current_time, second_lifetime - second_revocation_lifetime, true);
-                    tr_info("Access revocation start, GTK second active index: %i, revoked lifetime: %"PRIu32"", second_index, second_revocation_lifetime);
+                    tr_info("Access revocation start, %s second active index: %i, revoked lifetime: %"PRIu32"", is_lgtk ? "LGTK" : "GTK", second_index, second_revocation_lifetime);
                 }
                 // Removes other keys than active and GTK to be installed next
                 not_removed_index = second_index;
@@ -562,14 +562,14 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
         // Deletes other GTKs
         int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(key_nw_info);
         while (last_index >= 0 && last_index != not_removed_index) {
-            tr_info("Access revocation GTK clear index: %i", last_index);
+            tr_info("Access revocation %s clear index: %i", is_lgtk ? "LGTK" : "GTK", last_index);
             sec_prot_keys_gtk_clear(key_nw_info, last_index);
             last_index = sec_prot_keys_gtk_install_order_last_index_get(key_nw_info);
         }
     }
 
     // Adds new GTK
-    ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset);
+    ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset, is_lgtk);
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 
     // Update keys to NVM as needed
@@ -831,7 +831,7 @@ void ws_pae_auth_slow_timer_key(pae_auth_t *pae_auth, int i, uint16_t seconds, b
                 if (second_index < 0) {
                     tr_info("%s new install required active index: %i, time: %"PRIu32", system time: %"PRIu32"",
                             is_lgtk ? "LGTK" : "GTK", active_index, timer_seconds, g_monotonic_time_100ms / 10);
-                    ws_pae_auth_gtk_key_insert(keys, pae_auth_gtk->next_gtks, timer_gtk_cfg->expire_offset);
+                    ws_pae_auth_gtk_key_insert(keys, pae_auth_gtk->next_gtks, timer_gtk_cfg->expire_offset, is_lgtk);
                     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
                     // Update keys to NVM as needed
                     pae_auth->nw_info_updated(pae_auth->interface_ptr);
@@ -984,10 +984,10 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     return decrement_seconds;
 }
 
-static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime)
+static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk)
 {
     // Gets index to install the key
-    uint8_t install_index = sec_prot_keys_gtk_install_index_get(gtks);
+    uint8_t install_index = sec_prot_keys_gtk_install_index_get(gtks, is_lgtk);
 
     // Key to install
     uint8_t gtk_value[GTK_LEN];

@@ -852,22 +852,24 @@ void sec_prot_keys_gtk_install_order_update(sec_prot_gtk_keys_t *gtks)
     }
 }
 
-int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks)
+int8_t sec_prot_keys_gtk_install_index_get(sec_prot_gtk_keys_t *gtks, bool is_lgtk)
 {
     // Gets the index of the last key to be installed
     int8_t install_index = sec_prot_keys_gtk_install_order_last_index_get(gtks);
+    int num_keys = is_lgtk ? LGTK_NUM : GTK_NUM;
+
     if (install_index < 0) {
         install_index = 0;
     }
 
     // Checks if there is free index, and available uses that for new GTK
-    for (uint8_t ctr = 0, i = install_index; ctr < GTK_NUM; ctr++) {
+    for (uint8_t ctr = 0, i = install_index; ctr < num_keys; ctr++) {
         if (!sec_prot_keys_gtk_is_set(gtks, i)) {
             install_index = i;
             break;
         }
         i++;
-        if (i >= GTK_NUM) {
+        if (i >= num_keys) {
             i = 0;
         }
     }
