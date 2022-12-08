@@ -742,7 +742,7 @@ static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interfac
         /* Checks if frame counters needs to be stored for the new GTK that is taken into
            use; this is the last check that stored counters are in sync before activating key */
         ws_pae_controller_frame_counter_store(controller, true, is_lgtk);
-        tr_info("NW send key index set: %i", index + key_offset + 1);
+        tr_info("NW send key index set: %i", index + key_offset);
         controller->nw_send_key_index_set(interface_ptr, index + key_offset);
     }
 
@@ -780,7 +780,7 @@ static void ws_pae_controller_active_nw_key_set(struct net_if *cur, uint8_t inde
         ws_pae_controller_frame_counter_store(controller, true, is_lgtk);
         // Activates key on MAC
         controller->nw_send_key_index_set(controller->interface_ptr, index + key_offset);
-        tr_info("NW send key index set: %i", index + key_offset + 1);
+        tr_info("NW send key index set: %i", index + key_offset);
     }
 }
 #endif

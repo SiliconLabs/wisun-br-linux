@@ -317,7 +317,7 @@ void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_m
     if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         if (asynch_message == WS_FT_PAN_CONF && interface->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
             interface->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
-            tr_info("Activate new default key %u", interface->ws_info->pending_key_index_info.index + 1);
+            tr_info("Activate new default key %u", interface->ws_info->pending_key_index_info.index);
             /* Deprecated: Unused by the RCP. */
             mac_helper_security_auto_request_key_index_set(interface, interface->ws_info->pending_key_index_info.index, interface->ws_info->pending_key_index_info.index + 1);
         }
