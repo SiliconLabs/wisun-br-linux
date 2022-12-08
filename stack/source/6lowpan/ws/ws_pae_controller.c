@@ -528,7 +528,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             }
             nw_key[i].installed = false;
             nw_key[i].set = false;
-            tr_info("NW key remove: %i", i);
+            tr_info("NW key remove: %i", i + key_offset);
         }
 
         if (force_install) {
@@ -559,7 +559,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         if (!nw_key[i].installed) {
             gtkhash_t gtkhash;
             sec_prot_keys_gtk_hash_generate(gtk, gtkhash);
-            tr_info("NW key set: %i, hash: %s", i, trace_array(gtkhash, 8));
+            tr_info("NW key set: %i, hash: %s", i + key_offset, trace_array(gtkhash, 8));
             uint8_t gak[GTK_LEN];
             if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) >= 0) {
                 // Install the new network key derived from GTK and network name (GAK) to MAC
@@ -588,7 +588,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
 
                 // If stored frame counter is greater than MAC counter
                 if (frame_counters->counter[i].frame_counter > curr_frame_counter) {
-                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i,
+                    tr_debug("Frame counter set: %i, stored %"PRIu32" current: %"PRIu32"", i + key_offset,
                              frame_counters->counter[i].frame_counter, curr_frame_counter);
                     curr_frame_counter = frame_counters->counter[i].frame_counter;
                     // Updates MAC frame counter
@@ -1914,7 +1914,8 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
 
     memcpy(gtk_struct->gtkhash, gtkhash, sizeof(gtk_struct->gtkhash));
 
-    tr_info("GTK hash set %s %s %s %s",
+    tr_info("%s hash set %s %s %s %s",
+            is_lgtk ? "LGTK" : "GTK",
             trace_array(gtkhash[0], 8),
             trace_array(gtkhash[1], 8),
             trace_array(gtkhash[2], 8),
