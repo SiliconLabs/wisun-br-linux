@@ -441,16 +441,8 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
 
-    if (fw_api_older_than(ctxt, 0, 15, 0)) {
-        if (ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
-            FATAL(1, "RCP does not support FAN 1.1");
-        if (!ctxt->config.ws_fan_version)
-            WARN("RCP does not support FAN 1.1");
-        ctxt->config.ws_fan_version = WS_FAN_VERSION_1_0;
-    } else {
-        if (!ctxt->config.ws_fan_version)
-            ctxt->config.ws_fan_version = WS_FAN_VERSION_1_1;
-    }
+    if (fw_api_older_than(ctxt, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+        FATAL(1, "RCP does not support FAN 1.1");
     if (fw_api_older_than(ctxt, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP >= 0.16.0");
 
