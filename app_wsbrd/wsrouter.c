@@ -198,6 +198,50 @@ void kill_handler(int signal)
     exit(0);
 }
 
+static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
+{
+    static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
+    struct pollfd fds = { .fd = ctxt->os_ctxt->data_fd, .events = POLLIN };
+    int ret, i;
+
+    i = 0;
+    do {
+        ret = poll(&fds, 1, timeout_values[i] * 1000);
+        if (ret < 0)
+            FATAL(2, "poll: %m");
+        if (ret == 0)
+            WARN("still waiting for RCP");
+        if (i + 1 < ARRAY_SIZE(timeout_values))
+            i++;
+    } while (ret < 1);
+
+    while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+        rcp_rx(ctxt);
+
+    if (fw_api_older_than(ctxt, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+        FATAL(1, "RCP does not support FAN 1.1");
+    if (fw_api_older_than(ctxt, 0, 16, 0) && ctxt->config.pcap_file[0])
+        FATAL(1, "pcap_file requires RCP >= 0.16.0");
+
+    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+        rcp_rx(ctxt);
+    memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
+
+    if (ctxt->config.list_rf_configs) {
+        if (fw_api_older_than(ctxt, 0, 11, 0))
+            FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
+    }
+
+    if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+        wsbr_rcp_get_rf_config_list(ctxt);
+        while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+            rcp_rx(ctxt);
+        if (ctxt->config.list_rf_configs)
+            exit(0);
+    }
+    ctxt->rcp_init_state |= RCP_INIT_DONE;
+}
+
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 {
     fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
@@ -255,10 +299,7 @@ int main(int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     wsbr_rcp_reset(ctxt);
-    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
-        rcp_rx(ctxt);
-    memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
-    ctxt->rcp_init_state |= RCP_INIT_DONE;
+    wsbr_rcp_init(ctxt);
 
     wsbr_common_timer_init(ctxt);
     if (net_init_core())
