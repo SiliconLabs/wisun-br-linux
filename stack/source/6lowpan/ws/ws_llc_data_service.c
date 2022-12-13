@@ -117,7 +117,8 @@ typedef struct llc_message {
     unsigned        src_address_type: 2; /**<  Source address type */
     uint8_t         msg_handle;         /**< LLC genetaed unique MAC handle */
     uint8_t         mpx_user_handle;    /**< This MPX user defined handle */
-    struct iovec    ie_header;
+    struct iobuf_write ie_buf_header;
+    struct iovec    ie_iov_header;
     struct iovec    ie_payload[2]; // { WP-IE and MPX-IE header, MPX payload }
     mcps_data_req_ie_list_t ie_ext;
     mac_data_priority_e priority;
@@ -274,6 +275,7 @@ static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t 
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
 {
     ns_list_remove(&llc_base->llc_message_list, message);
+    iobuf_free(&message->ie_buf_header);
     iobuf_free(&message->ie_buffer);
     free(message);
     llc_base->llc_message_list_size--;
@@ -320,6 +322,7 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     message->ack_requested = false;
     message->eapol_temporary = false;
     message->priority = MAC_DATA_NORMAL_PRIORITY;
+    memset(&message->ie_buf_header, 0, sizeof(struct iobuf_write));
     memset(&message->ie_buffer, 0, sizeof(message->ie_buffer));
     return message;
 }
@@ -1016,8 +1019,7 @@ static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct n
     return false;
 }
 
-// message->ie_header.iov_len and message->ie_payload[1].iov_len
-// must be set prior to calling this function
+// message->ie_payload[1].iov_len must be set prior to calling this function
 static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user_id)
 {
     mpx_msg_t mpx_header = {
@@ -1032,9 +1034,8 @@ static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user
     ws_llc_mpx_header_write(&message->ie_buffer, &mpx_header);
     ie_len = message->ie_buffer.len - ie_offset - 2 + message->ie_payload[1].iov_len;
     ieee802154_ie_set_len(&message->ie_buffer, ie_offset, ie_len, IEEE802154_IE_PAYLOAD_LEN_MASK);
-    message->ie_header.iov_base = message->ie_buffer.data;
-    message->ie_payload[0].iov_base = message->ie_buffer.data + message->ie_header.iov_len;
-    message->ie_payload[0].iov_len = message->ie_buffer.len - message->ie_header.iov_len;
+    message->ie_payload[0].iov_base = message->ie_buffer.data;
+    message->ie_payload[0].iov_len = message->ie_buffer.len;
 }
 
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
@@ -1113,13 +1114,16 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         fc_ie.tx_flow_ctrl = 50;//No data at initial frame
         fc_ie.rx_flow_ctrl = 255;
         //Write Flow control for 1 packet send this will be modified at real data send
-        ws_wh_fc_write(&message->ie_buffer, &fc_ie);
+        ws_wh_fc_write(&message->ie_buf_header, &fc_ie);
     }
-    ws_wh_utt_write(&message->ie_buffer, message->message_type);
-    ws_wh_bt_write(&message->ie_buffer);
+    ws_wh_utt_write(&message->ie_buf_header, message->message_type);
+    ws_wh_bt_write(&message->ie_buf_header);
     if (base->ie_params.vendor_header_length)
-        ws_wh_vh_write(&message->ie_buffer, base->ie_params.vendor_header_data, base->ie_params.vendor_header_length);
-    message->ie_header.iov_len = message->ie_buffer.len;
+        ws_wh_vh_write(&message->ie_buf_header, base->ie_params.vendor_header_data, base->ie_params.vendor_header_length);
+    message->ie_iov_header.iov_base = message->ie_buf_header.data;
+    message->ie_iov_header.iov_len = message->ie_buf_header.len;
+    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
+    message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buffer);
     ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, true);
@@ -1133,13 +1137,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_payload[1].iov_len = data->msduLength;
     ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
     ws_llc_lowpan_mpx_header_write(message, MPX_LOWPAN_ENC_USER_ID);
-    message->ie_payload[0].iov_len = message->ie_buffer.len - message->ie_header.iov_len;
-
-    message->ie_header.iov_base = message->ie_buffer.data;
-    message->ie_payload[0].iov_base = message->ie_buffer.data + message->ie_header.iov_len;
-    message->ie_ext.headerIeVectorList = &message->ie_header;
-    message->ie_ext.headerIovLength = 1;
-    message->ie_ext.payloadIeVectorList = &message->ie_payload[0];
+    message->ie_payload[0].iov_len = message->ie_buffer.len;
+    message->ie_payload[0].iov_base = message->ie_buffer.data;
+    message->ie_ext.payloadIeVectorList = message->ie_payload;
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
@@ -1221,29 +1221,28 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->pan_id = data->DstPANId;
     message->message_type = WS_FT_EAPOL;
 
-    ws_wh_utt_write(&message->ie_buffer, message->message_type);
+    ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     if (ws_eapol_relay_state_active(base->interface_ptr))
-        ws_wh_bt_write(&message->ie_buffer);
+        ws_wh_bt_write(&message->ie_buf_header);
     if (eapol_handshake_first_msg) {
         uint8_t eapol_auth_eui64[8];
         ws_pae_controller_border_router_addr_read(base->interface_ptr, eapol_auth_eui64);
-        ws_wh_ea_write(&message->ie_buffer, eapol_auth_eui64);
+        ws_wh_ea_write(&message->ie_buf_header, eapol_auth_eui64);
     }
-    message->ie_header.iov_len = message->ie_buffer.len;
+    message->ie_iov_header.iov_len = message->ie_buf_header.len;
+    message->ie_iov_header.iov_base = message->ie_buf_header.data;
+    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
+    message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buffer);
     ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, true);
     if (eapol_handshake_first_msg)
         ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, false);
     ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
-    message->ie_payload[0].iov_len = message->ie_buffer.len - message->ie_header.iov_len;
-
-    message->ie_header.iov_base = message->ie_buffer.data;
-    message->ie_payload[0].iov_base = message->ie_buffer.data + message->ie_header.iov_len;
+    message->ie_payload[0].iov_len = message->ie_buffer.len;
+    message->ie_payload[0].iov_base = message->ie_buffer.data;
     message->ie_payload[1].iov_base = data->msdu;
     message->ie_payload[1].iov_len = data->msduLength;
-    message->ie_ext.headerIeVectorList = &message->ie_header;
-    message->ie_ext.headerIovLength = 1;
     message->ie_ext.payloadIeVectorList = &message->ie_payload[0];
     message->ie_ext.payloadIovLength = 2;
 
@@ -1610,9 +1609,9 @@ static void ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t
     memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     //Write Flow control for 1 packet send this will be modified at real data send
     ws_wh_fc_write(&ie_buf, &fc_ie);
-    memcpy(message->ie_header.iov_base, ie_buf.data, ie_buf.len);
+    memcpy(message->ie_buf_header.data, ie_buf.data, ie_buf.len);
     iobuf_free(&ie_buf);
-    response_message->ie_response.headerIeVectorList = &message->ie_header;
+    response_message->ie_response.headerIeVectorList = &message->ie_iov_header;
     response_message->ie_response.headerIovLength = 1;
     response_message->ie_response.payloadIeVectorList = &message->ie_payload[0];
     response_message->ie_response.payloadIovLength = 2;
@@ -1801,30 +1800,33 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     }
 
     if (request->wh_requested_ie_list.utt_ie)
-        ws_wh_utt_write(&message->ie_buffer, message->message_type);
+        ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     if (request->wh_requested_ie_list.bt_ie)
-        ws_wh_bt_write(&message->ie_buffer);
+        ws_wh_bt_write(&message->ie_buf_header);
     if (request->wh_requested_ie_list.lutt_ie)
-        ws_wh_lutt_write(&message->ie_buffer, message->message_type);
+        ws_wh_lutt_write(&message->ie_buf_header, message->message_type);
     if (request->wh_requested_ie_list.lbt_ie)
-        ws_wh_lbt_write(&message->ie_buffer, NULL);
+        ws_wh_lbt_write(&message->ie_buf_header, NULL);
     if (request->wh_requested_ie_list.nr_ie)
-        ws_wh_nr_write(&message->ie_buffer, base->ie_params.node_role);
+        ws_wh_nr_write(&message->ie_buf_header, base->ie_params.node_role);
     if (request->wh_requested_ie_list.lus_ie)
-        ws_wh_lus_write(&message->ie_buffer, base->ie_params.lfn_us);
+        ws_wh_lus_write(&message->ie_buf_header, base->ie_params.lfn_us);
     if (request->wh_requested_ie_list.flus_ie)
-        ws_wh_flus_write(&message->ie_buffer, base->ie_params.ffn_lfn_us);
+        ws_wh_flus_write(&message->ie_buf_header, base->ie_params.ffn_lfn_us);
     if (request->wh_requested_ie_list.lbs_ie)
-        ws_wh_lbs_write(&message->ie_buffer, base->ie_params.lfn_bs);
+        ws_wh_lbs_write(&message->ie_buf_header, base->ie_params.lfn_bs);
     if (request->wh_requested_ie_list.lnd_ie)
-        ws_wh_lnd_write(&message->ie_buffer, base->ie_params.lfn_network_discovery);
+        ws_wh_lnd_write(&message->ie_buf_header, base->ie_params.lfn_network_discovery);
     if (request->wh_requested_ie_list.lto_ie)
-        ws_wh_lto_write(&message->ie_buffer, base->ie_params.lfn_timing);
+        ws_wh_lto_write(&message->ie_buf_header, base->ie_params.lfn_timing);
     if (request->wh_requested_ie_list.panid_ie)
-        ws_wh_panid_write(&message->ie_buffer, base->ie_params.pan_id);
+        ws_wh_panid_write(&message->ie_buf_header, base->ie_params.pan_id);
     if (request->wh_requested_ie_list.lbc_ie)
-        ws_wh_lbc_write(&message->ie_buffer, base->ie_params.lfn_bc);
-    message->ie_header.iov_len = message->ie_buffer.len;
+        ws_wh_lbc_write(&message->ie_buf_header, base->ie_params.lfn_bc);
+    message->ie_iov_header.iov_base = message->ie_buf_header.data;
+    message->ie_iov_header.iov_len = message->ie_buf_header.len;
+    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
+    message->ie_ext.headerIovLength = 1;
 
     if (!ws_wp_nested_is_empty(request->wp_requested_nested_ie_list)) {
         ie_offset = ws_wp_base_write(&message->ie_buffer);
@@ -1860,13 +1862,9 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
                 ws_wp_nested_lbats_write(&message->ie_buffer, base->ie_params.lbats_ie);
         }
         ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
-        message->ie_payload[0].iov_len = message->ie_buffer.len - message->ie_header.iov_len;
     }
-
-    message->ie_header.iov_base = message->ie_buffer.data;
-    message->ie_payload[0].iov_base = message->ie_buffer.data + message->ie_header.iov_len;
-    message->ie_ext.headerIeVectorList = &message->ie_header;
-    message->ie_ext.headerIovLength = 1;
+    message->ie_payload[0].iov_len = message->ie_buffer.len;
+    message->ie_payload[0].iov_base = message->ie_buffer.data;
     message->ie_ext.payloadIeVectorList = &message->ie_payload[0];
     message->ie_ext.payloadIovLength = 1;
 
