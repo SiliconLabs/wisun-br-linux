@@ -48,25 +48,15 @@ void    ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t 
 void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);
 /* Wi-SUN FAN 1.1 */
 void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
-#define ws_wh_lutt_length() 6
 void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);
-#define ws_wh_lus_length() 4
 void  ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie);
-#define ws_wh_flus_length() 2
 void   ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie);
-#define ws_wh_lbt_length() 5
 void   ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie);
-#define ws_wh_lbs_length() 7
 void    ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie);
-uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie);
 void   ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie);
-#define ws_wh_lnd_length() 8
 void   ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie);
-#define ws_wh_lto_length() 6
 void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie);
-#define ws_wh_panid_length() 2
 void   ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie);
-#define ws_wh_lbc_length() 4
 
 
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);
@@ -97,15 +87,10 @@ void          ws_wp_nested_gtkhash_write(struct iobuf_write *buf, gtkhash_t gtkh
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 void              ws_wp_nested_pom_write(struct iobuf_write *buf, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
-uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number);
 void            ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
-#define ws_wp_nested_lbats_length() 3
 void      ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie *ws_lfnver);
-#define ws_wp_nested_lfn_version_length() 2
 void         ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
-uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t lgtkhash[3]);
 void ws_wp_nested_lfn_channel_plan_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp);
-uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp);
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);

@@ -350,17 +350,6 @@ void ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie)
-{
-    uint16_t length;
-    if (nr_ie->node_role == WS_NR_ROLE_LFN) {
-        length = 9;
-    } else {
-        length = 3;
-    }
-    return length;
-}
-
 void ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie)
 {
     int offset;
@@ -596,11 +585,6 @@ void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number)
-{
-    return 1 + phy_op_mode_number;
-}
-
 void ws_wp_nested_pom_write(struct iobuf_write *buf,
                             uint8_t phy_op_mode_number,
                             uint8_t *phy_operating_modes,
@@ -627,17 +611,6 @@ void ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LFN_VER_TYPE, false);
     iobuf_push_le16(buf, lfnver_ie->lfn_version);
     ieee802154_ie_fill_len_nested(buf, offset, false);
-}
-
-uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t lgtkhash[3])
-{
-    uint16_t length = 1;
-    int i;
-
-    for (i = 0; i < 3; i++)
-        if (memzcmp(lgtkhash[i], sizeof(lgtkhash[i])))
-            length += 8;
-    return length;
 }
 
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
