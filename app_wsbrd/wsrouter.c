@@ -202,7 +202,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 {
     fds[POLLFD_RCP].fd = ctxt->os_ctxt->trig_fd;
     fds[POLLFD_RCP].events = POLLIN;
-    fds[POLLFD_EVENT].fd = ctxt->os_ctxt->event_fd[0];
+    fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
     fds[POLLFD_EVENT].events = POLLIN;
     fds[POLLFD_TIMER].fd = ctxt->timerfd;
     fds[POLLFD_TIMER].events = POLLIN;
@@ -221,7 +221,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
         FATAL(2, "poll: %m");
 
     if (fds[POLLFD_EVENT].revents & POLLIN) {
-        read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
+        read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
         event_scheduler_run_until_idle();
     }
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     platform_critical_init();
-    event_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;

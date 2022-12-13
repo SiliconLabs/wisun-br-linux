@@ -39,8 +39,6 @@ struct os_ctxt {
     cpc_endpoint_t cpc_ep;
 #endif
 
-    int event_fd[2];
-    
     // For retransmission in case of crc error on the rcp
     // FIXME: rename this and the structure / naive circular buffer : rearch
     int retransmission_index;

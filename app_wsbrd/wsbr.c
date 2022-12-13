@@ -67,6 +67,7 @@ enum {
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
+    .scheduler.event_fd = { -1, -1 },
     .mac_api.mac_initialize = wsbr_mac_init,
     .mac_api.mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
     .mac_api.mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
@@ -97,7 +98,6 @@ struct os_ctxt g_os_ctxt = {
     // avoid initializating to 0 = STDIN_FILENO
     .trig_fd = -1,
     .data_fd = -1,
-    .event_fd = { -1, -1 },
 };
 
 static int get_fixed_channel(uint8_t bitmask[static 32])
@@ -440,7 +440,7 @@ static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     fds[POLLFD_RCP].events = POLLIN;
     fds[POLLFD_TUN].fd = ctxt->tun_fd;
     fds[POLLFD_TUN].events = POLLIN;
-    fds[POLLFD_EVENT].fd = ctxt->os_ctxt->event_fd[0];
+    fds[POLLFD_EVENT].fd = ctxt->scheduler.event_fd[0];
     fds[POLLFD_EVENT].events = POLLIN;
     fds[POLLFD_TIMER].fd = ctxt->timerfd;
     fds[POLLFD_TIMER].events = POLLIN;
@@ -482,7 +482,7 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
     if (fds[POLLFD_TUN].revents & POLLIN)
         wsbr_tun_read(ctxt);
     if (fds[POLLFD_EVENT].revents & POLLIN) {
-        read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
+        read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
         WARN_ON(val != 'W');
         event_scheduler_run_until_idle();
     }
@@ -510,7 +510,7 @@ int wsbr_main(int argc, char *argv[])
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
     platform_critical_init();
-    event_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;

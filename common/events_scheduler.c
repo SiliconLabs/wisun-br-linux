@@ -19,10 +19,11 @@
 #include <fcntl.h>
 #include "common/hal_interrupt.h"
 #include "common/ns_list.h"
+#include "common/log.h"
 
 #include "events_scheduler.h"
-#include "os_types.h"
-#include "log.h"
+
+struct events_scheduler *g_event_scheduler;
 
 struct event_tasklet {
     int8_t id; /**< Event handler Tasklet ID */
@@ -173,16 +174,17 @@ void event_scheduler_run_until_idle(void)
     while (event_scheduler_dispatch_event());
 }
 
-void event_scheduler_signal(void)
+void event_scheduler_signal()
 {
-    struct os_ctxt *ctxt = &g_os_ctxt;
+    struct events_scheduler *ctxt = g_event_scheduler;
     uint64_t val = 'W';
 
     write(ctxt->event_fd[1], &val, sizeof(val));
 }
 
-void event_scheduler_init(struct os_ctxt *ctxt)
+void event_scheduler_init(struct events_scheduler *ctxt)
 {
+    g_event_scheduler = ctxt;
     pipe(ctxt->event_fd);
     fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
     fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);

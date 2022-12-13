@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
     platform_critical_init();
-    event_scheduler_init(ctxt->os_ctxt);
+    event_scheduler_init(&ctxt->scheduler);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);
     if (ctxt->rcp_driver_id < 0)
@@ -326,8 +326,8 @@ int main(int argc, char *argv[])
         maxfd = max(maxfd, ctxt->rf_fd);
         FD_SET(ctxt->os_ctxt->trig_fd, &rfds);
         maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
-        FD_SET(ctxt->os_ctxt->event_fd[0], &rfds);
-        maxfd = max(maxfd, ctxt->os_ctxt->event_fd[0]);
+        FD_SET(ctxt->scheduler.event_fd[0], &rfds);
+        maxfd = max(maxfd, ctxt->scheduler.event_fd[0]);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
             maxfd = max(maxfd, timer->fd);
@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
         }
         if (FD_ISSET(ctxt->os_ctxt->trig_fd, &rfds) || ctxt->os_ctxt->uart_next_frame_ready)
             wsmac_rx_host(ctxt);
-        if (FD_ISSET(ctxt->os_ctxt->event_fd[0], &rfds)) {
-            read(ctxt->os_ctxt->event_fd[0], &val, sizeof(val));
+        if (FD_ISSET(ctxt->scheduler.event_fd[0], &rfds)) {
+            read(ctxt->scheduler.event_fd[0], &val, sizeof(val));
             WARN_ON(val != 'W');
             // You may use event_scheduler_run_until_idle() instead of
             // event_scheduler_dispatch_event() identify tasks that shcedule

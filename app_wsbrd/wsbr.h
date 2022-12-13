@@ -23,6 +23,7 @@ typedef struct sd_bus sd_bus;
 
 #include "common/version.h"
 #include "common/dhcp_server.h"
+#include "common/events_scheduler.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 
@@ -32,6 +33,7 @@ struct iobuf_read;
 
 struct wsbr_ctxt {
     struct os_ctxt *os_ctxt;
+    struct events_scheduler scheduler;
     struct wsbrd_conf config;
     struct dhcp_server dhcp_server;
     sd_bus *dbus;

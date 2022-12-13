@@ -19,6 +19,7 @@
 #  include <pcap/pcap.h>
 #endif
 #include "common/slist.h"
+#include "common/events_scheduler.h"
 
 #include "stack/mac/fhss_ws_extension.h"
 #include "mac/rf_driver_storage.h"
@@ -49,6 +50,7 @@ struct msdu_malloc_info {
 
 struct wsmac_ctxt {
     struct os_ctxt *os_ctxt;
+    struct events_scheduler scheduler;
 
     bool rf_frame_cca_progress;
     int rf_fd;

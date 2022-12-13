@@ -16,13 +16,15 @@
 #include <stdint.h>
 #include "common/ns_list.h"
 
-struct os_ctxt;
+struct events_scheduler {
+    int event_fd[2];
+};
 
 /**
  * \brief Initialise event scheduler.
  *
  */
-void event_scheduler_init(struct os_ctxt *ctxt);
+void event_scheduler_init(struct events_scheduler *ctxt);
 
 /**
  * Process one event from event queue.
