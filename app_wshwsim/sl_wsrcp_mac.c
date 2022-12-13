@@ -386,6 +386,8 @@ static void wsmac_spinel_fhss_set_conf(struct wsmac_ctxt *ctxt, mlme_attr_e attr
     spinel_pop_fixed_u8_array(buf, config.unicast_channel_mask, 32);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
+    if (iobuf_remaining_size(buf))
+        spinel_pop_fixed_u8_array(buf, config.broadcast_channel_mask, 32);
     BUG_ON(iobuf_remaining_size(buf));
     ns_fhss_ws_configuration_set(ctxt->fhss_api, &config);
 }
