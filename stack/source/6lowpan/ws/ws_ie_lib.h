@@ -45,7 +45,7 @@ void    ws_wh_bt_write(struct iobuf_write *buf);
 void    ws_wh_fc_write(struct iobuf_write *buf, struct ws_fc_ie *fc_ie);
 void   ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl);
 void    ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length);
-void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t *eui64);
+void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);
 /* Wi-SUN FAN 1.1 */
 void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
 #define ws_wh_lutt_length() 6
@@ -73,7 +73,7 @@ bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_
 bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie);
 bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie);
 bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl);
-bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t *eui64);
+bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t eui64[8]);
 /*Wi-SUN FAN 1.1 */
 bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie);
 bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie);

@@ -684,245 +684,160 @@ void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats
 
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
-    mac_header_IE_t utt_ie_data;
+    struct iobuf_read ie_buf;
 
-    utt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (4 > mac_ie_header_sub_id_discover(data, length, &utt_ie_data, WH_IE_UTT_TYPE)) {
-        // NO UTT header
-        return false;
-    }
-    data = utt_ie_data.content_ptr;
-    utt_ie->message_type = *data++;
-    utt_ie->ufsi = read_le24(data);
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_UTT_TYPE, &ie_buf);
+    utt_ie->message_type = iobuf_pop_u8(&ie_buf);
+    utt_ie->ufsi         = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
 {
-    mac_header_IE_t btt_ie_data;
+    struct iobuf_read ie_buf;
 
-    btt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (5 > mac_ie_header_sub_id_discover(data, length, &btt_ie_data, WH_IE_BT_TYPE)) {
-        return false;
-    }
-    data = btt_ie_data.content_ptr;
-    bt_ie->broadcast_slot_number = read_le16(data);
-    bt_ie->broadcast_interval_offset = read_le24(data + 2);
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_BT_TYPE, &ie_buf);
+    bt_ie->broadcast_slot_number     = iobuf_pop_le16(&ie_buf);
+    bt_ie->broadcast_interval_offset = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
 {
-    mac_header_IE_t fc_ie_data;
+    struct iobuf_read ie_buf;
 
-    fc_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (2 > mac_ie_header_sub_id_discover(data, length, &fc_ie_data, WH_IE_FC_TYPE)) {
-        return false;
-    }
-    data = fc_ie_data.content_ptr;
-    fc_ie->tx_flow_ctrl = *data++;
-    fc_ie->rx_flow_ctrl = *data;
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_FC_TYPE, &ie_buf);
+    fc_ie->tx_flow_ctrl = iobuf_pop_u8(&ie_buf);
+    fc_ie->rx_flow_ctrl = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl)
 {
-    mac_header_IE_t rsl_ie_data;
+    struct iobuf_read ie_buf;
 
-    rsl_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (1 > mac_ie_header_sub_id_discover(data, length, &rsl_ie_data, WH_IE_RSL_TYPE)) {
-        return false;
-    }
-    *rsl = *rsl_ie_data.content_ptr;
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_RSL_TYPE, &ie_buf);
+    *rsl = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
-bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t *eui64)
+bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t eui64[8])
 {
-    mac_header_IE_t rsl_ie_data;
+    struct iobuf_read ie_buf;
 
-    rsl_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (8 > mac_ie_header_sub_id_discover(data, length, &rsl_ie_data, WH_IE_EA_TYPE)) {
-        return false;
-    }
-    memcpy(eui64, rsl_ie_data.content_ptr, 8);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_EA_TYPE, &ie_buf);
+    iobuf_pop_data(&ie_buf, eui64, 8);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lutt_ie)
 {
-    mac_header_IE_t lutt_ie_data;
+    struct iobuf_read ie_buf;
 
-    lutt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lutt_length() > mac_ie_header_sub_id_discover(data, length, &lutt_ie_data, WH_IE_LUTT_TYPE)) {
-        return false;
-    }
-    data = lutt_ie_data.content_ptr;
-    lutt_ie->message_type = *data++;
-    lutt_ie->slot_number = read_le16(data);
-    lutt_ie->interval_offset = read_le24(data + 2);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LUTT_TYPE, &ie_buf);
+    lutt_ie->message_type    = iobuf_pop_u8(&ie_buf);
+    lutt_ie->slot_number     = iobuf_pop_le16(&ie_buf);
+    lutt_ie->interval_offset = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_ie)
 {
-    mac_header_IE_t lus_ie_data;
+    struct iobuf_read ie_buf;
 
-    lus_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lus_length() > mac_ie_header_sub_id_discover(data, length, &lus_ie_data, WH_IE_LUS_TYPE)) {
-        return false;
-    }
-    data = lus_ie_data.content_ptr;
-    lus_ie->listen_interval = read_le24(data);
-    data += 3;
-    lus_ie->channel_plan_tag = *data;
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LUS_TYPE, &ie_buf);
+    lus_ie->listen_interval  = iobuf_pop_le24(&ie_buf);
+    lus_ie->channel_plan_tag = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_flus_read(const uint8_t *data, uint16_t length, struct ws_flus_ie *flus_ie)
 {
-    mac_header_IE_t flus_ie_data;
+    struct iobuf_read ie_buf;
 
-    flus_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_flus_length() > mac_ie_header_sub_id_discover(data, length, &flus_ie_data, WH_IE_FLUS_TYPE)) {
-        return false;
-    }
-    data = flus_ie_data.content_ptr;
-    flus_ie->dwell_interval = *data++;
-    flus_ie->channel_plan_tag = *data;
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_FLUS_TYPE, &ie_buf);
+    flus_ie->dwell_interval   = iobuf_pop_u8(&ie_buf);
+    flus_ie->channel_plan_tag = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lbt_read(const uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_ie)
 {
-    mac_header_IE_t lbt_ie_data;
+    struct iobuf_read ie_buf;
 
-    lbt_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lbt_length() > mac_ie_header_sub_id_discover(data, length, &lbt_ie_data, WH_IE_LBT_TYPE)) {
-        return false;
-    }
-    data = lbt_ie_data.content_ptr;
-    lbt_ie->slot_number = read_le16(data);
-    lbt_ie->interval_offset = read_le24(data + 2);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LBT_TYPE, &ie_buf);
+    lbt_ie->slot_number     = iobuf_pop_le16(&ie_buf);
+    lbt_ie->interval_offset = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lbs_read(const uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_ie)
 {
-    mac_header_IE_t lbs_ie_data;
+    struct iobuf_read ie_buf;
 
-    lbs_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lbs_length() > mac_ie_header_sub_id_discover(data, length, &lbs_ie_data, WH_IE_LBS_TYPE)) {
-        return false;
-    }
-    data = lbs_ie_data.content_ptr;
-    lbs_ie->broadcast_interval = read_le24(data);
-    data += 3;
-    lbs_ie->broadcast_scheduler_id = read_le16(data);
-    data += 2;
-    lbs_ie->channel_plan_tag = *data++;
-    lbs_ie->broadcast_sync_period = *data;
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LBS_TYPE, &ie_buf);
+    lbs_ie->broadcast_interval     = iobuf_pop_le24(&ie_buf);
+    lbs_ie->broadcast_scheduler_id = iobuf_pop_le16(&ie_buf);
+    lbs_ie->channel_plan_tag       = iobuf_pop_u8(&ie_buf);
+    lbs_ie->broadcast_sync_period  = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 {
-    mac_header_IE_t nr_ie_data;
+    struct iobuf_read ie_buf;
 
-    nr_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (3 > mac_ie_header_sub_id_discover(data, length, &nr_ie_data, WH_IE_NR_TYPE)) {
-        return false;
+    ieee802154_ie_find_wh(data, length, WH_IE_NR_TYPE, &ie_buf);
+    nr_ie->node_role       = FIELD_GET(WS_WH_NR_IE_NODE_ROLE_ID_MASK, iobuf_pop_u8(&ie_buf));
+    nr_ie->clock_drift     = iobuf_pop_u8(&ie_buf);
+    nr_ie->timing_accuracy = iobuf_pop_u8(&ie_buf);
+    if (nr_ie->node_role == WS_NR_ROLE_LFN) {
+        nr_ie->listen_interval_min = iobuf_pop_le24(&ie_buf);
+        nr_ie->listen_interval_max = iobuf_pop_le24(&ie_buf);
     }
-    data = nr_ie_data.content_ptr;
-    nr_ie->node_role = FIELD_GET(WS_WH_NR_IE_NODE_ROLE_ID_MASK, *data++);
-    nr_ie->clock_drift = *data++;
-    nr_ie->timing_accuracy = *data++;
-    switch (nr_ie->node_role) {
-        case WS_NR_ROLE_BR:
-            break;
-        case WS_NR_ROLE_ROUTER:
-            break;
-        case WS_NR_ROLE_LFN:
-            if (9 > nr_ie_data.length) {
-                return false;
-            }
-            nr_ie->listen_interval_min = read_le24(data);
-            nr_ie->listen_interval_max = read_le24(data + 3);
-            break;
-        default:
-            return false;
-    }
-
-    return true;
+    return !ie_buf.err;
 }
 
 bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_ie)
 {
-    mac_header_IE_t lnd_ie_data;
+    struct iobuf_read ie_buf;
 
-    lnd_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lnd_length() > mac_ie_header_sub_id_discover(data, length, &lnd_ie_data, WH_IE_LND_TYPE)) {
-        return false;
-    }
-    data = lnd_ie_data.content_ptr;
-    lnd_ie->response_threshold = *data++;
-    lnd_ie->response_delay = read_le24(data);
-    data += 3;
-    lnd_ie->discovery_slot_time = *data++;
-    lnd_ie->discovery_slots = *data++;
-    lnd_ie->discovery_first_slot = read_le16(data);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LND_TYPE, &ie_buf);
+    lnd_ie->response_threshold   = iobuf_pop_u8(&ie_buf);
+    lnd_ie->response_delay       = iobuf_pop_le24(&ie_buf);
+    lnd_ie->discovery_slot_time  = iobuf_pop_u8(&ie_buf);
+    lnd_ie->discovery_slots      = iobuf_pop_u8(&ie_buf);
+    lnd_ie->discovery_first_slot = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_ie)
 {
-    mac_header_IE_t lto_ie_data;
+    struct iobuf_read ie_buf;
 
-    lto_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lto_length() > mac_ie_header_sub_id_discover(data, length, &lto_ie_data, WH_IE_LTO_TYPE)) {
-        return false;
-    }
-    data = lto_ie_data.content_ptr;
-    lto_ie->offset = read_le24(data);
-    lto_ie->adjusted_listening_interval = read_le24(data + 3);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LTO_TYPE, &ie_buf);
+    lto_ie->offset                      = iobuf_pop_le24(&ie_buf);
+    lto_ie->adjusted_listening_interval = iobuf_pop_le24(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie)
 {
-    mac_header_IE_t panid_ie_data;
+    struct iobuf_read ie_buf;
 
-    panid_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_panid_length() > mac_ie_header_sub_id_discover(data, length, &panid_ie_data, WH_IE_PANID_TYPE)) {
-        return false;
-    }
-    panid_ie->panid = read_le16(panid_ie_data.content_ptr);
-
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_PANID_TYPE, &ie_buf);
+    panid_ie->panid = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_ie)
 {
-    mac_header_IE_t lbc_ie_data;
+    struct iobuf_read ie_buf;
 
-    lbc_ie_data.id = MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID;
-    if (ws_wh_lbc_length() > mac_ie_header_sub_id_discover(data, length, &lbc_ie_data, WH_IE_LBC_TYPE)) {
-        return false;
-    }
-    data = lbc_ie_data.content_ptr;
-    lbc_ie->lfn_broadcast_interval = read_le24(data);
-    data += 3;
-    lbc_ie->broadcast_sync_period = *data;
-    return true;
+    ieee802154_ie_find_wh(data, length, WH_IE_LBC_TYPE, &ie_buf);
+    lbc_ie->lfn_broadcast_interval = iobuf_pop_le24(&ie_buf);
+    lbc_ie->broadcast_sync_period  = iobuf_pop_u8(&ie_buf);
+    return !ie_buf.err;
 }
 
 static const uint8_t *ws_channel_plan_zero_read(const uint8_t *ptr, ws_channel_plan_zero_t *plan)
