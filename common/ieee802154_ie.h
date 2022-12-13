@@ -14,8 +14,10 @@
 #define IEEE802154_IE_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
+struct iobuf_read;
 struct iobuf_write;
 
 #define IEEE802154_IE_TYPE_MASK             0b1000000000000000
@@ -65,5 +67,10 @@ void ieee802154_ie_fill_len_header(struct iobuf_write *buf, int offset);
 void ieee802154_ie_fill_len_payload(struct iobuf_write *buf, int offset);
 void ieee802154_ie_fill_len_nested(struct iobuf_write *buf, int offset, bool is_long);
 void ieee802154_ie_set_len(struct iobuf_write *buf, int offset, uint16_t len, uint16_t len_mask);
+
+int ieee802154_ie_find_header(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content);
+int ieee802154_ie_find_payload(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content);
+int ieee802154_ie_find_nested(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content, bool is_long);
+int ieee802154_ie_find_wh(const uint8_t *data, size_t len, uint8_t sub_id, struct iobuf_read *ie_content);
 
 #endif
