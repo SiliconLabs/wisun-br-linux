@@ -25,18 +25,12 @@
 
 struct events_scheduler *g_event_scheduler;
 
-struct event_tasklet {
-    int8_t id; /**< Event handler Tasklet ID */
-    void (*func_ptr)(struct event_payload *);
-    ns_list_link_t link;
-};
-
-static NS_LIST_DEFINE(event_tasklet_list, struct event_tasklet, link);
-static NS_LIST_DEFINE(event_queue, struct event_storage, link);
-
 static struct event_tasklet *event_tasklet_handler_get(uint8_t tasklet_id)
 {
-    ns_list_foreach(struct event_tasklet, cur, &event_tasklet_list) {
+    struct events_scheduler *ctxt = g_event_scheduler;
+
+    BUG_ON(!ctxt);
+    ns_list_foreach(struct event_tasklet, cur, &ctxt->event_tasklet_list) {
         if (cur->id == tasklet_id) {
             return cur;
         }
@@ -57,26 +51,31 @@ static int8_t event_tasklet_get_free_id(void)
 
 static void event_core_write(struct event_storage *event)
 {
+    struct events_scheduler *ctxt = g_event_scheduler;
+
+    BUG_ON(!ctxt);
     event->state = ARM_LIB_EVENT_QUEUED;
-    ns_list_foreach(struct event_storage, event_tmp, &event_queue) {
+    ns_list_foreach(struct event_storage, event_tmp, &ctxt->event_queue) {
         if (event_tmp->data.priority > event->data.priority) {
-            ns_list_add_before(&event_queue, event_tmp, event);
+            ns_list_add_before(&ctxt->event_queue, event_tmp, event);
             event_scheduler_signal();
             return;
         }
     }
-    ns_list_add_to_end(&event_queue, event);
+    ns_list_add_to_end(&ctxt->event_queue, event);
     event_scheduler_signal();
 }
 
 int8_t event_handler_create(void (*handler_func_ptr)(struct event_payload *), uint8_t init_event_type)
 {
+    struct events_scheduler *ctxt = g_event_scheduler;
     struct event_storage *event_tmp = malloc(sizeof(struct event_storage));
     struct event_tasklet *new = malloc(sizeof(struct event_tasklet));
 
+    BUG_ON(!ctxt);
     new->id = event_tasklet_get_free_id();
     new->func_ptr = handler_func_ptr;
-    ns_list_add_to_end(&event_tasklet_list, new);
+    ns_list_add_to_end(&ctxt->event_tasklet_list, new);
 
     event_tmp->allocator = ARM_LIB_EVENT_DYNAMIC;
     event_tmp->data.data_ptr = NULL;
@@ -112,6 +111,9 @@ void event_send_user_allocated(struct event_storage *event)
 }
 void event_cancel(struct event_storage *event)
 {
+    struct events_scheduler *ctxt = g_event_scheduler;
+
+    BUG_ON(!ctxt);
     if (!event) {
         return;
     }
@@ -124,7 +126,7 @@ void event_cancel(struct event_storage *event)
      * RUNNING cannot be removed, we are currenly "in" that event.
      */
     if (event->state == ARM_LIB_EVENT_QUEUED)
-        ns_list_remove(&event_queue, event);
+        ns_list_remove(&ctxt->event_queue, event);
 
     if (event->state != ARM_LIB_EVENT_RUNNING)
         if (event->allocator ==  ARM_LIB_EVENT_DYNAMIC)
@@ -150,13 +152,14 @@ void event_scheduler_set_active_tasklet(int8_t tasklet)
 bool event_scheduler_dispatch_event(void)
 {
     struct events_scheduler *ctxt = g_event_scheduler;
-    struct event_storage *event = ns_list_get_first(&event_queue);
+    struct event_storage *event = ns_list_get_first(&ctxt->event_queue);
     struct event_tasklet *tasklet;
 
+    BUG_ON(!ctxt);
     ctxt->curr_tasklet = 0;
     if (!event)
         return false;
-    ns_list_remove(&event_queue, event);
+    ns_list_remove(&ctxt->event_queue, event);
     ctxt->curr_tasklet = event->data.receiver;
     tasklet = event_tasklet_handler_get(ctxt->curr_tasklet);
     if (tasklet) {
@@ -193,6 +196,6 @@ void event_scheduler_init(struct events_scheduler *ctxt)
     fcntl(ctxt->event_fd[1], F_SETPIPE_SZ, sizeof(uint64_t) * 2);
     fcntl(ctxt->event_fd[1], F_SETFL, O_NONBLOCK);
 
-    ns_list_init(&event_queue);
-    ns_list_init(&event_tasklet_list);
+    ns_list_init(&ctxt->event_queue);
+    ns_list_init(&ctxt->event_tasklet_list);
 }

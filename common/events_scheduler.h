@@ -47,9 +47,17 @@ struct event_storage {
     ns_list_link_t link;
 };
 
+struct event_tasklet {
+    int8_t id;
+    void (*func_ptr)(struct event_payload *);
+    ns_list_link_t link;
+};
+
 struct events_scheduler {
     int event_fd[2];
     int8_t curr_tasklet;
+    NS_LIST_HEAD(struct event_tasklet, link) event_tasklet_list;
+    NS_LIST_HEAD(struct event_storage, link) event_queue;
 };
 
 /**
