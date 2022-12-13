@@ -840,28 +840,26 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
     return !ie_buf.err;
 }
 
-static const uint8_t *ws_channel_plan_zero_read(const uint8_t *ptr, ws_channel_plan_zero_t *plan)
+static const uint8_t *ws_channel_plan_read(const uint8_t *ptr, ws_generic_channel_info_t *chan_info)
 {
-    plan->regulatory_domain = *ptr++;
-    plan->operating_class = *ptr++;
-    return ptr;
-}
-
-static const uint8_t *ws_channel_plan_one_read(const uint8_t *ptr, ws_channel_plan_one_t *plan)
-{
-    plan->ch0 = read_le24(ptr);
-    ptr += 3;
-    plan->channel_spacing = *ptr++;
-    plan->number_of_channel = read_le16(ptr);
-    ptr += 2;
-    return ptr;
-}
-
-static const uint8_t *ws_channel_plan_two_read(const uint8_t *ptr, ws_channel_plan_two_t *plan)
-{
-    plan->regulatory_domain = *ptr++;
-    plan->channel_plan_id = *ptr++;
-    return ptr;
+    switch (chan_info->channel_plan) {
+    case 0:
+        chan_info->plan.zero.regulatory_domain = *ptr++;
+        chan_info->plan.zero.operating_class = *ptr++;
+        return ptr;
+    case 1:
+        chan_info->plan.one.ch0 = read_le24(ptr);
+        ptr += 3;
+        chan_info->plan.one.channel_spacing = *ptr++;
+        chan_info->plan.one.number_of_channel = read_le16(ptr);
+        return ptr + 2;
+    case 2:
+        chan_info->plan.two.regulatory_domain = *ptr++;
+        chan_info->plan.two.channel_plan_id = *ptr++;
+        return ptr;
+    default:
+        return NULL;
+    }
 }
 
 static const uint8_t *ws_channel_function_zero_read(const uint8_t *ptr, ws_channel_function_zero_t *plan)
@@ -903,21 +901,9 @@ bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie 
     }
 
     nested_payload_ie.length -= info_length;
-    switch (us_ie->chan_plan.channel_plan) {
-        case 0:
-            data = ws_channel_plan_zero_read(data, &us_ie->chan_plan.plan.zero);
-            break;
-
-        case 1:
-            data = ws_channel_plan_one_read(data, &us_ie->chan_plan.plan.one);
-            break;
-        case 2:
-            data = ws_channel_plan_two_read(data, &us_ie->chan_plan.plan.two);
-            break;
-        default:
-            return false;
-
-    }
+    data = ws_channel_plan_read(data, &us_ie->chan_plan);
+    if (!data)
+        return false;
 
     info_length = ws_channel_function_length(us_ie->chan_plan.channel_function, 0);
 
@@ -1013,21 +999,9 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
         return false;
     }
     nested_payload_ie.length -= info_length;
-    switch (bs_ie->chan_plan.channel_plan) {
-        case 0:
-            data = ws_channel_plan_zero_read(data, &bs_ie->chan_plan.plan.zero);
-            break;
-
-        case 1:
-            data = ws_channel_plan_one_read(data, &bs_ie->chan_plan.plan.one);
-            break;
-        case 2:
-            data = ws_channel_plan_two_read(data, &bs_ie->chan_plan.plan.two);
-            break;
-        default:
-            return false;
-
-    }
+    data = ws_channel_plan_read(data, &bs_ie->chan_plan);
+    if (!data)
+        return false;
 
     info_length = ws_channel_function_length(bs_ie->chan_plan.channel_function, 0);
     if (nested_payload_ie.length < info_length) {
@@ -1273,19 +1247,9 @@ bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, st
     }
     nested_payload_ie.length -= info_length;
 
-    switch (ws_lcp->chan_plan.channel_plan) {
-        case 0:
-            data = ws_channel_plan_zero_read(data, &ws_lcp->chan_plan.plan.zero);
-            break;
-        case 1:
-            data = ws_channel_plan_one_read(data, &ws_lcp->chan_plan.plan.one);
-            break;
-        case 2:
-            data = ws_channel_plan_two_read(data, &ws_lcp->chan_plan.plan.two);
-            break;
-        default:
-            return false;
-    }
+    data = ws_channel_plan_read(data, &ws_lcp->chan_plan);
+    if (!data)
+        return false;
 
     info_length = ws_channel_function_length(ws_lcp->chan_plan.channel_function, 0);
     if (nested_payload_ie.length < info_length) {
