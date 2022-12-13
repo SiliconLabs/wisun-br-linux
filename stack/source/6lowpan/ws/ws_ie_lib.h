@@ -112,7 +112,7 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
 bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration);
 bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
 bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name);
-gtkhash_t *ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length);
+bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t *gtkhash);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
 bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);

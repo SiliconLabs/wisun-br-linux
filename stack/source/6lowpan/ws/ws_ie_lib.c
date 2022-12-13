@@ -1195,17 +1195,16 @@ bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_
     return true;
 }
 
-gtkhash_t *ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length)
+bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t *gtkhash)
 {
     mac_nested_payload_IE_t nested_payload_ie;
 
     nested_payload_ie.id = WP_PAYLOAD_IE_GTKHASH_TYPE;
     nested_payload_ie.type_long = false;
-    if (mac_ie_nested_discover(data, length, &nested_payload_ie) !=  32) {
-        return NULL;
-    }
-
-    return (gtkhash_t *)nested_payload_ie.content_ptr;
+    if (mac_ie_nested_discover(data, length, &nested_payload_ie) !=  32)
+        return false;
+    memcpy(gtkhash, nested_payload_ie.content_ptr, 4 * 8);
+    return true;
 }
 
 bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)

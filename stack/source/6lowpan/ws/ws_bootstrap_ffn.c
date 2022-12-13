@@ -412,10 +412,9 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
 
 static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
-
+    gtkhash_t gtkhash[4];
     uint16_t pan_version;
     ws_bs_ie_t ws_bs_ie;
-    gtkhash_t *gtkhash_ptr;
     ws_bt_ie_t ws_bt_ie;
 
     if (data->SrcPANId != cur->ws_info->network_pan_id)
@@ -432,8 +431,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
         WARN("Received corrupted PAN config: no PAN version");
         return;
     }
-    gtkhash_ptr = ws_wp_nested_gtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength);
-    if (!gtkhash_ptr) {
+    if (!ws_wp_nested_gtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, gtkhash)) {
         WARN("Received corrupted PAN config: no GTK hash");
         return;
     }
@@ -532,7 +530,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
 
     cur->ws_info->pan_information.pan_version = pan_version;
 
-    ws_pae_controller_gtk_hash_update(cur, gtkhash_ptr);
+    ws_pae_controller_gtk_hash_update(cur, gtkhash);
 
     ws_pae_controller_nw_key_index_update(cur, data->Key.KeyIndex - 1);
 
