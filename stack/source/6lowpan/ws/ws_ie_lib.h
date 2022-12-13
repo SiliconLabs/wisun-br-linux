@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include "6lowpan/ws/ws_common_defines.h"
 
+struct iobuf_write;
 struct ws_pan_information;
 struct ws_utt_ie;
 struct ws_bt_ie;
@@ -39,32 +40,32 @@ typedef struct ws_wp_network_name {
 
 
 /* WS_WH HEADER IE */
-uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type);
-uint8_t *ws_wh_bt_write(uint8_t *ptr);
-uint8_t *ws_wh_fc_write(uint8_t *ptr, struct ws_fc_ie *fc_ie);
-uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl);
-uint8_t *ws_wh_vh_write(uint8_t *ptr, uint8_t *vendor_header, uint8_t vendor_header_length);
-uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64);
+void   ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type);
+void    ws_wh_bt_write(struct iobuf_write *buf);
+void    ws_wh_fc_write(struct iobuf_write *buf, struct ws_fc_ie *fc_ie);
+void   ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl);
+void    ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length);
+void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t *eui64);
 /* Wi-SUN FAN 1.1 */
-uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type);
+void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
 #define ws_wh_lutt_length() 6
-uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ie);
+void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);
 #define ws_wh_lus_length() 4
-uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ie);
+void  ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie);
 #define ws_wh_flus_length() 2
-uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie);
+void   ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie);
 #define ws_wh_lbt_length() 5
-uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie);
+void   ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie);
 #define ws_wh_lbs_length() 7
-uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie);
+void    ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie);
 uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie);
-uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ie);
+void   ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie);
 #define ws_wh_lnd_length() 8
-uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie);
+void   ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie);
 #define ws_wh_lto_length() 6
-uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie);
+void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie);
 #define ws_wh_panid_length() 2
-uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie);
+void   ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie);
 #define ws_wh_lbc_length() 4
 
 
@@ -86,26 +87,25 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
-uint8_t *ws_wp_base_write(uint8_t *ptr, uint16_t length);
-uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
-uint8_t *ws_wp_nested_vp_write(uint8_t *ptr, uint8_t *vendor_payload, uint16_t vendor_payload_length);
-uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pan_configuration);
-uint8_t *ws_wp_nested_netname_write(uint8_t *ptr, uint8_t *network_name, uint8_t network_name_length);
-uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information *pan_configuration);
-uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, gtkhash_t gtkhash[4], uint8_t gtkhash_length);
+int ws_wp_base_write(struct iobuf_write *buf);
+void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
+void               ws_wp_nested_vp_write(struct iobuf_write *buf, uint8_t *vendor_payload, uint16_t vendor_payload_length);
+void         ws_wp_nested_pan_info_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
+void          ws_wp_nested_netname_write(struct iobuf_write *buf, uint8_t *network_name, uint8_t network_name_length);
+void          ws_wp_nested_pan_ver_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
+void          ws_wp_nested_gtkhash_write(struct iobuf_write *buf, gtkhash_t gtkhash[4], uint8_t gtkhash_length);
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
-uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
+void              ws_wp_nested_pom_write(struct iobuf_write *buf, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
 uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number);
-uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie);
+void            ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
 #define ws_wp_nested_lbats_length() 3
-uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *ws_lfnver);
+void      ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie *ws_lfnver);
 #define ws_wp_nested_lfn_version_length() 2
-uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
+void         ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
 uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t lgtkhash[3]);
-uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_lcp_ie *ws_lcp);
+void ws_wp_nested_lfn_channel_plan_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp);
 uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp);
-
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);

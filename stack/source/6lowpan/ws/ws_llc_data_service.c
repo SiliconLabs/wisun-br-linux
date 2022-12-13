@@ -25,6 +25,8 @@
 #include "common/named_values.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/ieee802154_ie.h"
+#include "common/iobuf.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/mac_common_defines.h"
@@ -120,11 +122,8 @@ typedef struct llc_message {
     mcps_data_req_ie_list_t ie_ext;
     mac_data_priority_e priority;
     ns_list_link_t  link;               /**< List link entry */
-    uint8_t         ie_buffer[];        /**< Trailing buffer data */
+    struct iobuf_write ie_buffer;       /**< Buffer data */
 } llc_message_t;
-
-/** get pointer to Mac header start point*/
-#define ws_message_buffer_ptr_get(x)  (&(x)->ie_buffer[0])
 
 typedef NS_LIST_HEAD(llc_message_t, link) llc_message_list_t;
 
@@ -157,7 +156,7 @@ typedef struct llc_data_base {
     ws_asynch_ind                   *asynch_ind;                    /**< LLC Asynch data indication call back configured by user */
     ws_asynch_confirm               *asynch_confirm;                /**< LLC Asynch data confirmation call back configured by user */
     ws_neighbor_info_request        *ws_neighbor_info_request_cb;   /**< LLC Neighbour discover API*/
-    uint8_t                         ws_enhanced_response_elements[ENHANCED_FRAME_RESPONSE];
+    struct iobuf_write              ws_enhanced_response_elements;
     ns_ie_iovec_t                   ws_header_vector;
     bool                            high_priority_mode;
     uint8_t                         ms_mode;
@@ -168,16 +167,13 @@ typedef struct llc_data_base {
 
 static NS_LIST_DEFINE(llc_data_base_list, llc_data_base_t, link);
 
-static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_data_base_t *llc_base);
-static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_params_t *params);
-
 /** LLC message local functions */
 static llc_message_t *llc_message_discover_by_mac_handle(uint8_t handle, llc_message_list_t *list);
 static llc_message_t *llc_message_discover_by_mpx_id(uint8_t handle, llc_message_list_t *list);
 static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t user_id, llc_message_list_t *list);
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base);
 static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc_base, bool mpx_user);
-static llc_message_t *llc_message_allocate(uint16_t ie_buffer_size, llc_data_base_t *llc_base);
+static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 /** LLC interface sepesific local functions */
 static llc_data_base_t *ws_llc_discover_by_interface(struct net_if *interface);
@@ -278,6 +274,7 @@ static llc_message_t *llc_message_discover_mpx_user_id(uint8_t handle, uint16_t 
 static void llc_message_free(llc_message_t *message, llc_data_base_t *llc_base)
 {
     ns_list_remove(&llc_base->llc_message_list, message);
+    iobuf_free(&message->ie_buffer);
     free(message);
     llc_base->llc_message_list_size--;
     random_early_detection_aq_calc(llc_base->interface_ptr->llc_random_early_detection, llc_base->llc_message_list_size);
@@ -310,19 +307,20 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
     }
 }
 
-static llc_message_t *llc_message_allocate(uint16_t ie_buffer_size, llc_data_base_t *llc_base)
+static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
 {
     if (llc_base->llc_message_list_size >= LLC_MESSAGE_QUEUE_LIST_SIZE_MAX) {
         return NULL;
     }
 
-    llc_message_t *message = malloc(sizeof(llc_message_t) + ie_buffer_size);
+    llc_message_t *message = malloc(sizeof(llc_message_t));
     if (!message) {
         return NULL;
     }
     message->ack_requested = false;
     message->eapol_temporary = false;
     message->priority = MAC_DATA_NORMAL_PRIORITY;
+    memset(&message->ie_buffer, 0, sizeof(message->ie_buffer));
     return message;
 }
 
@@ -356,150 +354,20 @@ static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api)
     return NULL;
 }
 
-static uint16_t ws_wh_headers_length(wh_ie_sub_list_t requested_list, llc_ie_params_t *params)
+static inline bool ws_wp_nested_is_empty(wp_nested_ie_sub_list_t requested_list)
 {
-    uint16_t length = 0;
-    if (requested_list.utt_ie) {
-        //Static 4 bytes always UTT
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 4;
-    }
-
-    if (requested_list.bt_ie) {
-        //Static 5 bytes always
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 5;
-    }
-
-    if (requested_list.fc_ie) {
-        //Static 1 bytes always
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 2;
-    }
-
-    if (requested_list.rsl_ie) {
-        //Static 1 bytes always
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 1;
-    }
-
-    if (requested_list.vh_ie) {
-        //Dynamic length
-        length += WH_IE_ELEMENT_HEADER_LENGTH + params->vendor_header_length;
-    }
-
-    if (requested_list.ea_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + 8;
-    }
-
-    if (requested_list.lutt_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lutt_length();
-    }
-
-    if (requested_list.lbt_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbt_length();
-    }
-
-    if (requested_list.nr_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_nr_length(params->node_role);
-    }
-
-    if (requested_list.lus_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lus_length();
-    }
-
-    if (requested_list.flus_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_flus_length();
-    }
-
-    if (requested_list.lbs_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbs_length();
-    }
-
-    if (requested_list.lnd_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lnd_length();
-    }
-
-    if (requested_list.lto_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lto_length();
-    }
-
-    if (requested_list.panid_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_panid_length();
-    }
-
-    if (requested_list.lbc_ie) {
-        length += WH_IE_ELEMENT_HEADER_LENGTH + ws_wh_lbc_length();
-    }
-
-    return length;
-}
-
-static uint16_t ws_wp_nested_message_length(wp_nested_ie_sub_list_t requested_list, llc_data_base_t *llc_base)
-{
-    uint16_t length = 0;
-    llc_ie_params_t *params = &llc_base->ie_params;
-    if (requested_list.gtkhash_ie) {
-        //Static 32 bytes always
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + params->gtkhash_length;
-    }
-
-    if (requested_list.net_name_ie) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + params->network_name_length;
-    }
-
-    if (requested_list.vp_ie && params->vendor_payload_length) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + params->vendor_payload_length;
-    }
-
-    if (requested_list.pan_ie) {
-        //Static 5 bytes always
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
-        if (params->pan_configuration) {
-            length += 5;
-        }
-    }
-
-    if (requested_list.pan_version_ie) {
-        //Static 2 bytes always
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH;
-        if (params->pan_configuration) {
-            length += 2;
-        }
-    }
-
-    if (requested_list.bs_ie) {
-        ///Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, false);
-    }
-
-    if (requested_list.us_ie) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(params->hopping_schedule, true);
-    }
-
-    // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (requested_list.pom_ie && params->phy_operating_modes && params->phy_op_mode_number > 1) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_pom_length(params->phy_op_mode_number);
-    }
-
-    if (requested_list.lfnver_ie) {
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_version_length();
-    }
-
-    if (requested_list.lgtkhash_ie) {
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lgtkhash_length(params->lgtkhash);
-    }
-
-    if (requested_list.lcp_ie) {
-        //Dynamic length
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lfn_channel_plan_length(params->lfn_channel_plan);
-    }
-
-    if (requested_list.lbats_ie) {
-        length += WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_lbats_length();
-    }
-
-    return length;
+    return !(requested_list.us_ie
+          || requested_list.bs_ie
+          || requested_list.vp_ie
+          || requested_list.pan_ie
+          || requested_list.net_name_ie
+          || requested_list.pan_version_ie
+          || requested_list.gtkhash_ie
+          || requested_list.lgtkhash_ie
+          || requested_list.lfnver_ie
+          || requested_list.lcp_ie
+          || requested_list.lbats_ie
+          || requested_list.pom_ie);
 }
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id)
@@ -680,19 +548,15 @@ static void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_
     if (!base) {
         return;
     }
-    /* Init all by zero */
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
-    //Add just 2 header elements to inside 1 block
+
+    iobuf_free(&base->ws_enhanced_response_elements);
+    ws_wh_utt_write(&base->ws_enhanced_response_elements, WS_FT_ACK);
+    ws_wh_rsl_write(&base->ws_enhanced_response_elements, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
+    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements.data;
+    base->ws_header_vector.iovLen = base->ws_enhanced_response_elements.len;
     data->ie_elements.headerIeVectorList = &base->ws_header_vector;
-    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements;
-
     data->ie_elements.headerIovLength = 1;
-
-    //Write Data to block
-    uint8_t *ptr = base->ws_enhanced_response_elements;
-    ptr = ws_wh_utt_write(ptr, WS_FT_ACK);
-    ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
-    base->ws_header_vector.iovLen = ptr - base->ws_enhanced_response_elements;
 }
 
 
@@ -1161,17 +1025,25 @@ static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct n
     return false;
 }
 
-static void ws_llc_lowpan_mpx_header_set(llc_message_t *message, uint16_t user_id)
+// message->ie_vector_list[0].iovLen and message->ie_vector_list[2].iovLen
+// must be set prior to calling this function
+static void ws_llc_lowpan_mpx_header_write(llc_message_t *message, uint16_t user_id)
 {
-    uint8_t *ptr = (uint8_t *)message->ie_vector_list[1].ieBase;
-    ptr += message->ie_vector_list[1].iovLen;
-    ptr  = mac_ie_payload_base_write(ptr, MAC_PAYLOAD_MPX_IE_GROUP_ID, message->ie_vector_list[2].iovLen + 3);
-    mpx_msg_t mpx_header;
-    mpx_header.transfer_type = MPX_FT_FULL_FRAME;
-    mpx_header.transaction_id = message->mpx_id;
-    mpx_header.multiplex_id = user_id;
-    ptr = ws_llc_mpx_header_write(ptr, &mpx_header);
-    message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
+    mpx_msg_t mpx_header = {
+        .transfer_type = MPX_FT_FULL_FRAME,
+        .transaction_id = message->mpx_id,
+        .multiplex_id = user_id,
+    };
+    int ie_offset;
+
+    ie_offset = ieee802154_ie_push_payload(&message->ie_buffer, IEEE802154_IE_ID_MPX);
+    ws_llc_mpx_header_write(&message->ie_buffer, &mpx_header);
+    ieee802154_ie_set_len(&message->ie_buffer, ie_offset,
+                          message->ie_buffer.len - ie_offset - 2 + message->ie_vector_list[2].iovLen,
+                          IEEE802154_IE_PAYLOAD_LEN_MASK);
+    message->ie_vector_list[0].ieBase = message->ie_buffer.data;
+    message->ie_vector_list[1].ieBase = message->ie_buffer.data + message->ie_vector_list[0].iovLen;
+    message->ie_vector_list[1].iovLen = message->ie_buffer.len - message->ie_vector_list[0].iovLen;
 }
 
 uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_req *data)
@@ -1197,42 +1069,10 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
 
 static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
-    wh_ie_sub_list_t ie_header_mask = { };
-    wp_nested_ie_sub_list_t nested_wp_id = { };
-
-    ie_header_mask.utt_ie = true;
-    ie_header_mask.bt_ie = true;
-    if (base->ie_params.vendor_header_length) {
-        ie_header_mask.vh_ie = true;
-    }
-
-    if (base->ie_params.vendor_payload_length) {
-        nested_wp_id.vp_ie = true;
-    }
-
-    if (data->ExtendedFrameExchange && data->TxAckReq) {
-        ie_header_mask.fc_ie = true;
-    }
-    if (!data->TxAckReq) {
-        nested_wp_id.bs_ie = true;
-    }
-
-    nested_wp_id.pom_ie = true; // Only need once by peer ideally
-
-    nested_wp_id.us_ie = true;
-
-    uint16_t ie_header_length = ws_wh_headers_length(ie_header_mask, &base->ie_params);
-    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, base);
-
-    uint16_t over_head_size = ie_header_length;
-    if (nested_ie_length) {
-        over_head_size += nested_ie_length + 2;
-    }
-    //Mpx header size
-    over_head_size += 5; //MPX FuLL frame 3 bytes + IE header 2 bytes
+    int ie_offset;
 
     //Allocate Message
-    llc_message_t *message = llc_message_allocate(over_head_size, base);
+    llc_message_t *message = llc_message_allocate(base);
     if (!message) {
         mcps_data_conf_t data_conf;
         memset(&data_conf, 0, sizeof(mcps_data_conf_t));
@@ -1253,6 +1093,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     uint8_t phy_mode_id = ws_llc_mdr_phy_mode_get(base, data);
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
+    message->message_type = WS_FT_DATA;
     if (data->TxAckReq) {
         message->dst_address_type = data->DstAddrMode;
         memcpy(message->dst_address, data->DstAddr, 8);
@@ -1276,60 +1117,39 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         }
     }
 
-    uint8_t *ptr = ws_message_buffer_ptr_get(message);
-    message->message_type = WS_FT_DATA;
-
-    message->ie_vector_list[0].ieBase = ptr;
-    if (ie_header_mask.fc_ie) {
+    if (data->ExtendedFrameExchange && data->TxAckReq) {
         ws_fc_ie_t fc_ie;
         fc_ie.tx_flow_ctrl = 50;//No data at initial frame
         fc_ie.rx_flow_ctrl = 255;
         //Write Flow control for 1 packet send this will be modified at real data send
-        ptr = ws_wh_fc_write(ptr, &fc_ie);
+        ws_wh_fc_write(&message->ie_buffer, &fc_ie);
     }
-    //Write UTT
+    ws_wh_utt_write(&message->ie_buffer, message->message_type);
+    ws_wh_bt_write(&message->ie_buffer);
+    if (base->ie_params.vendor_header_length)
+        ws_wh_vh_write(&message->ie_buffer, base->ie_params.vendor_header_data, base->ie_params.vendor_header_length);
+    message->ie_vector_list[0].iovLen = message->ie_buffer.len;
 
-    ptr = ws_wh_utt_write(ptr, message->message_type);
-    if (ie_header_mask.bt_ie) {
-        ptr = ws_wh_bt_write(ptr);
-    }
+    ie_offset = ws_wp_base_write(&message->ie_buffer);
+    ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, true);
+    if (!data->TxAckReq)
+        ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, false);
+    // We put only POM-IE if more than 1 phy (base phy + something else)
+    if (base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
+        ws_wp_nested_pom_write(&message->ie_buffer, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
 
-    if (ie_header_mask.vh_ie) {
-        ptr = ws_wh_vh_write(ptr, base->ie_params.vendor_header_data, base->ie_params.vendor_header_length);
-    }
+    message->ie_vector_list[2].ieBase = data->msdu;
+    message->ie_vector_list[2].iovLen = data->msduLength;
+    ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
+    ws_llc_lowpan_mpx_header_write(message, MPX_LOWPAN_ENC_USER_ID);
+    message->ie_vector_list[1].iovLen = message->ie_buffer.len - message->ie_vector_list[0].iovLen;
 
-    message->ie_vector_list[0].iovLen = ie_header_length;
+    message->ie_vector_list[0].ieBase = message->ie_buffer.data;
+    message->ie_vector_list[1].ieBase = message->ie_buffer.data + message->ie_vector_list[0].iovLen;
     message->ie_ext.headerIeVectorList = &message->ie_vector_list[0];
     message->ie_ext.headerIovLength = 1;
     message->ie_ext.payloadIeVectorList = &message->ie_vector_list[1];
-    message->ie_ext.payloadIovLength = 2;
-    message->ie_vector_list[1].ieBase = ptr;
-
-    if (nested_ie_length) {
-        ptr = ws_wp_base_write(ptr, nested_ie_length);
-        //Write unicast schedule
-        ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, true);
-
-        if (nested_wp_id.bs_ie) {
-            //Write Broadcastcast schedule
-            ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, false);
-        }
-
-        // We put only POM-IE if more than 1 phy (base phy + something else)
-        if (nested_wp_id.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
-            //Write PHY Operating Modes payload
-            ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
-        }
-    }
-    // SET Payload IE Length
-    message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
-    message->ie_vector_list[2].ieBase = data->msdu;
-    message->ie_vector_list[2].iovLen =  data->msduLength;
-
-    ws_llc_lowpan_mpx_header_set(message, MPX_LOWPAN_ENC_USER_ID);
-    if (data->ExtendedFrameExchange) {
-        message->ie_ext.payloadIovLength = 0; //Set Back 2 at response handler
-    }
+    message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
@@ -1356,7 +1176,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
 
-    ws_llc_lowpan_mpx_header_set(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
+    ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
 }
 
 static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
@@ -1387,31 +1207,11 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 
 static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb, const struct mcps_data_req *data, mac_data_priority_e priority)
 {
-    wh_ie_sub_list_t ie_header_mask;
-    memset(&ie_header_mask, 0, sizeof(wh_ie_sub_list_t));
-
-    wp_nested_ie_sub_list_t nested_wp_id;
-    memset(&nested_wp_id, 0, sizeof(wp_nested_ie_sub_list_t));
-    ie_header_mask.utt_ie = true;
-    ie_header_mask.bt_ie = ws_eapol_relay_state_active(base->interface_ptr);
-    ie_header_mask.ea_ie = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
-    nested_wp_id.bs_ie = ie_header_mask.ea_ie;
-
-
-    nested_wp_id.us_ie = true;
-
-    uint16_t ie_header_length = ws_wh_headers_length(ie_header_mask, &base->ie_params);
-    uint16_t nested_ie_length = ws_wp_nested_message_length(nested_wp_id, base);
-
-    uint16_t over_head_size = ie_header_length;
-    if (nested_ie_length) {
-        over_head_size += nested_ie_length + 2;
-    }
-    //Mpx header size
-    over_head_size += 5; //MPX FuLL frame 3 bytes + IE header 2 bytes
+    bool eapol_handshake_first_msg = ws_eapol_handshake_first_msg(data->msdu, data->msduLength, base->interface_ptr);
+    int ie_offset;
 
     //Allocate Message
-    llc_message_t *message = llc_message_allocate(over_head_size, base);
+    llc_message_t *message = llc_message_allocate(base);
     if (!message) {
         mcps_data_conf_t data_conf;
         memset(&data_conf, 0, sizeof(mcps_data_conf_t));
@@ -1430,43 +1230,31 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->pan_id = data->DstPANId;
     message->message_type = WS_FT_EAPOL;
 
-    uint8_t *ptr = ws_message_buffer_ptr_get(message);
-
-    message->ie_vector_list[0].ieBase = ptr;
-    //Write UTT
-    ptr = ws_wh_utt_write(ptr, message->message_type);
-    if (ie_header_mask.bt_ie) {
-        ptr = ws_wh_bt_write(ptr);
-    }
-
-    if (ie_header_mask.ea_ie) {
+    ws_wh_utt_write(&message->ie_buffer, message->message_type);
+    if (ws_eapol_relay_state_active(base->interface_ptr))
+        ws_wh_bt_write(&message->ie_buffer);
+    if (eapol_handshake_first_msg) {
         uint8_t eapol_auth_eui64[8];
         ws_pae_controller_border_router_addr_read(base->interface_ptr, eapol_auth_eui64);
-        ptr = ws_wh_ea_write(ptr, eapol_auth_eui64);
+        ws_wh_ea_write(&message->ie_buffer, eapol_auth_eui64);
     }
+    message->ie_vector_list[0].iovLen = message->ie_buffer.len;
 
-    message->ie_vector_list[0].iovLen = ie_header_length;
+    ie_offset = ws_wp_base_write(&message->ie_buffer);
+    ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, true);
+    if (eapol_handshake_first_msg)
+        ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, false);
+    ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
+    message->ie_vector_list[1].iovLen = message->ie_buffer.len - message->ie_vector_list[0].iovLen;
+
+    message->ie_vector_list[0].ieBase = message->ie_buffer.data;
+    message->ie_vector_list[1].ieBase = message->ie_buffer.data + message->ie_vector_list[0].iovLen;
+    message->ie_vector_list[2].ieBase = data->msdu;
+    message->ie_vector_list[2].iovLen = data->msduLength;
     message->ie_ext.headerIeVectorList = &message->ie_vector_list[0];
     message->ie_ext.headerIovLength = 1;
     message->ie_ext.payloadIeVectorList = &message->ie_vector_list[1];
     message->ie_ext.payloadIovLength = 2;
-    message->ie_vector_list[1].ieBase = ptr;
-
-    if (nested_ie_length) {
-        ptr = ws_wp_base_write(ptr, nested_ie_length);
-        //Write unicast schedule
-        ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, true);
-
-        if (nested_wp_id.bs_ie) {
-            //Write Broadcastcast schedule
-            ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, false);
-        }
-    }
-
-    // SET Payload IE Length
-    message->ie_vector_list[1].iovLen = ptr - (uint8_t *)message->ie_vector_list[1].ieBase;
-    message->ie_vector_list[2].ieBase = data->msdu;
-    message->ie_vector_list[2].iovLen =  data->msduLength;
 
     if (base->temp_entries->active_eapol_session) {
         //Move to pending list
@@ -1476,7 +1264,6 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     } else {
         ws_llc_mpx_eapol_send(base, message);
     }
-
 }
 
 
@@ -1805,18 +1592,17 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
 
 static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_response_t *response_message, ws_fc_ie_t fc_ie)
 {
+    iobuf_free(&base->ws_enhanced_response_elements);
+    ws_wh_fc_write(&base->ws_enhanced_response_elements, &fc_ie);
+    ws_wh_utt_write(&base->ws_enhanced_response_elements, WS_FT_DATA);
+    ws_wh_bt_write(&base->ws_enhanced_response_elements);
+    ws_wh_rsl_write(&base->ws_enhanced_response_elements, ws_neighbor_class_rsl_from_dbm_calculate(response_message->rssi));
+    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements.data;
+    base->ws_header_vector.iovLen = base->ws_enhanced_response_elements.len;
+
     memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     response_message->ie_response.headerIeVectorList = &base->ws_header_vector;
-    base->ws_header_vector.ieBase = base->ws_enhanced_response_elements;
     response_message->ie_response.headerIovLength = 1;
-
-    //Write Data to block
-    uint8_t *ptr = base->ws_header_vector.ieBase;
-    ptr = ws_wh_fc_write(ptr, &fc_ie);
-    ptr = ws_wh_utt_write(ptr, WS_FT_DATA);
-    ptr = ws_wh_bt_write(ptr);
-    ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(response_message->rssi));
-    base->ws_header_vector.iovLen = ptr - base->ws_enhanced_response_elements;
     response_message->SrcAddrMode = MAC_ADDR_MODE_NONE;
     response_message->wait_response = false;
     response_message->PanIdSuppressed = true;
@@ -1824,15 +1610,17 @@ static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_respons
 
 static void ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t *response_message)
 {
-    uint8_t *ptr = message->ie_vector_list[0].ieBase;
+    struct iobuf_write ie_buf = { };
     ws_fc_ie_t fc_ie = {
-        .tx_flow_ctrl = 0, // Put data with handshake
+        .tx_flow_ctrl = 0, // Put Data with Handshake
         .rx_flow_ctrl = 255,
     };
 
     memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     //Write Flow control for 1 packet send this will be modified at real data send
-    ptr = ws_wh_fc_write(ptr, &fc_ie);
+    ws_wh_fc_write(&ie_buf, &fc_ie);
+    memcpy(message->ie_vector_list[0].ieBase, ie_buf.data, ie_buf.len);
+    iobuf_free(&ie_buf);
     response_message->ie_response.headerIeVectorList = &message->ie_vector_list[0];
     response_message->ie_response.headerIovLength = 1;
     response_message->ie_response.payloadIeVectorList = &message->ie_vector_list[1];
@@ -1968,6 +1756,8 @@ mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 
 int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
 {
+    int ie_offset;
+
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base || !base->ie_params.hopping_schedule) {
         return -1;
@@ -1990,21 +1780,8 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
             interface->pan_config_running = true;
     }
 
-    //Calculate IE Buffer size
-    request->wh_requested_ie_list.fc_ie = false; //Never should not be a part Asynch message
-    request->wh_requested_ie_list.rsl_ie = false; //Never should not be a part Asynch message
-    request->wh_requested_ie_list.vh_ie = false;
-    uint16_t header_buffer_length = ws_wh_headers_length(request->wh_requested_ie_list, &base->ie_params);
-    uint16_t wp_nested_payload_length = ws_wp_nested_message_length(request->wp_requested_nested_ie_list, base);
-
-    //Allocated
-    uint16_t total_length = header_buffer_length;
-    if (wp_nested_payload_length) {
-        total_length += 2 + wp_nested_payload_length;
-    }
     //Allocate LLC message pointer
-
-    llc_message_t *message = llc_message_allocate(total_length, base);
+    llc_message_t *message = llc_message_allocate(base);
     if (!message) {
         if (base->asynch_confirm) {
             base->asynch_confirm(interface, request->message_type);
@@ -2032,136 +1809,75 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         data_req.PanIdSuppressed = true;
     }
 
-    uint8_t *ptr = ws_message_buffer_ptr_get(message);
+    if (request->wh_requested_ie_list.utt_ie)
+        ws_wh_utt_write(&message->ie_buffer, message->message_type);
+    if (request->wh_requested_ie_list.bt_ie)
+        ws_wh_bt_write(&message->ie_buffer);
+    if (request->wh_requested_ie_list.lutt_ie)
+        ws_wh_lutt_write(&message->ie_buffer, message->message_type);
+    if (request->wh_requested_ie_list.lbt_ie)
+        ws_wh_lbt_write(&message->ie_buffer, NULL);
+    if (request->wh_requested_ie_list.nr_ie)
+        ws_wh_nr_write(&message->ie_buffer, base->ie_params.node_role);
+    if (request->wh_requested_ie_list.lus_ie)
+        ws_wh_lus_write(&message->ie_buffer, base->ie_params.lfn_us);
+    if (request->wh_requested_ie_list.flus_ie)
+        ws_wh_flus_write(&message->ie_buffer, base->ie_params.ffn_lfn_us);
+    if (request->wh_requested_ie_list.lbs_ie)
+        ws_wh_lbs_write(&message->ie_buffer, base->ie_params.lfn_bs);
+    if (request->wh_requested_ie_list.lnd_ie)
+        ws_wh_lnd_write(&message->ie_buffer, base->ie_params.lfn_network_discovery);
+    if (request->wh_requested_ie_list.lto_ie)
+        ws_wh_lto_write(&message->ie_buffer, base->ie_params.lfn_timing);
+    if (request->wh_requested_ie_list.panid_ie)
+        ws_wh_panid_write(&message->ie_buffer, base->ie_params.pan_id);
+    if (request->wh_requested_ie_list.lbc_ie)
+        ws_wh_lbc_write(&message->ie_buffer, base->ie_params.lfn_bc);
+    message->ie_vector_list[0].iovLen = message->ie_buffer.len;
 
-    message->ie_vector_list[0].ieBase = ptr;
-    message->ie_vector_list[0].iovLen = header_buffer_length;
-
-    message->ie_ext.headerIeVectorList = &message->ie_vector_list[0];
-    message->ie_ext.headerIovLength = 1;
-
-
-    //Write UTT
-    if (request->wh_requested_ie_list.utt_ie) {
-        ptr = ws_wh_utt_write(ptr, message->message_type);
-    }
-
-    if (request->wh_requested_ie_list.bt_ie) {
-        //Static 5 bytes always
-        ptr = ws_wh_bt_write(ptr);
-    }
-
-    if (request->wh_requested_ie_list.lutt_ie) {
-        ptr = ws_wh_lutt_write(ptr, message->message_type);
-    }
-
-    if (request->wh_requested_ie_list.lbt_ie) {
-        ptr = ws_wh_lbt_write(ptr, NULL);
-    }
-
-    if (request->wh_requested_ie_list.nr_ie) {
-        ptr = ws_wh_nr_write(ptr, base->ie_params.node_role);
-    }
-
-    if (request->wh_requested_ie_list.lus_ie) {
-        ptr = ws_wh_lus_write(ptr, base->ie_params.lfn_us);
-    }
-
-    if (request->wh_requested_ie_list.flus_ie) {
-        ptr = ws_wh_flus_write(ptr, base->ie_params.ffn_lfn_us);
-    }
-
-    if (request->wh_requested_ie_list.lbs_ie) {
-        ptr = ws_wh_lbs_write(ptr, base->ie_params.lfn_bs);
-    }
-
-    if (request->wh_requested_ie_list.lnd_ie) {
-        ptr = ws_wh_lnd_write(ptr, base->ie_params.lfn_network_discovery);
-    }
-
-    if (request->wh_requested_ie_list.lto_ie) {
-        ptr = ws_wh_lto_write(ptr, base->ie_params.lfn_timing);
-    }
-
-    if (request->wh_requested_ie_list.panid_ie) {
-        ptr = ws_wh_panid_write(ptr, base->ie_params.pan_id);
-    }
-
-    if (request->wh_requested_ie_list.lbc_ie) {
-        ptr = ws_wh_lbc_write(ptr, base->ie_params.lfn_bc);
-    }
-
-    if (wp_nested_payload_length) {
-        message->ie_vector_list[1].ieBase = ptr;
-        message->ie_vector_list[1].iovLen = 2 + wp_nested_payload_length;
-        message->ie_ext.payloadIeVectorList = &message->ie_vector_list[1];
-        message->ie_ext.payloadIovLength = 1;
-        ptr = ws_wp_base_write(ptr, wp_nested_payload_length);
-
-        if (request->wp_requested_nested_ie_list.us_ie) {
-            //Write unicast schedule
-            ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, true);
-        }
-
-        if (request->wp_requested_nested_ie_list.bs_ie) {
-            //Write Broadcastcast schedule
-            ptr = ws_wp_nested_hopping_schedule_write(ptr, base->ie_params.hopping_schedule, false);
-        }
-
-        if (request->wp_requested_nested_ie_list.pan_ie) {
-            //Write Pan information
-            ptr = ws_wp_nested_pan_info_write(ptr, base->ie_params.pan_configuration);
-        }
-
-        if (request->wp_requested_nested_ie_list.net_name_ie) {
-            //Write network name
-            ptr = ws_wp_nested_netname_write(ptr, base->ie_params.network_name, base->ie_params.network_name_length);
-        }
-
-        if (request->wp_requested_nested_ie_list.pan_version_ie) {
-            //Write pan version
-            ptr = ws_wp_nested_pan_ver_write(ptr, base->ie_params.pan_configuration);
-        }
-
-        if (request->wp_requested_nested_ie_list.gtkhash_ie) {
-            //Write GTKHASH
-            ptr = ws_wp_nested_gtkhash_write(ptr, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
-        }
-
-        if (request->wp_requested_nested_ie_list.vp_ie) {
-            //Write Vendor specific payload
-            ptr = ws_wp_nested_vp_write(ptr, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
-        }
-
+    if (!ws_wp_nested_is_empty(request->wp_requested_nested_ie_list)) {
+        ie_offset = ws_wp_base_write(&message->ie_buffer);
+        if (request->wp_requested_nested_ie_list.us_ie)
+            ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, true);
+        if (request->wp_requested_nested_ie_list.bs_ie)
+            ws_wp_nested_hopping_schedule_write(&message->ie_buffer, base->ie_params.hopping_schedule, false);
+        if (request->wp_requested_nested_ie_list.pan_ie)
+            ws_wp_nested_pan_info_write(&message->ie_buffer, base->ie_params.pan_configuration);
+        if (request->wp_requested_nested_ie_list.net_name_ie)
+            ws_wp_nested_netname_write(&message->ie_buffer, base->ie_params.network_name, base->ie_params.network_name_length);
+        if (request->wp_requested_nested_ie_list.pan_version_ie)
+            ws_wp_nested_pan_ver_write(&message->ie_buffer, base->ie_params.pan_configuration);
+        if (request->wp_requested_nested_ie_list.gtkhash_ie)
+            ws_wp_nested_gtkhash_write(&message->ie_buffer, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
+        if (request->wp_requested_nested_ie_list.vp_ie)
+            ws_wp_nested_vp_write(&message->ie_buffer, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
         if (ws_version_1_1(interface)) {
             // We put only POM-IE if more than 1 phy (base phy + something else)
-            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1) {
-                //Write PHY Operating Modes payload
-                ptr = ws_wp_nested_pom_write(ptr, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
-            }
-
-            if (request->wp_requested_nested_ie_list.lcp_ie) {
-                //Write LFN Channel Plan payload
-                ptr = ws_wp_nested_lfn_channel_plan_write(ptr, base->ie_params.lfn_channel_plan);
-            }
-
+            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
+                ws_wp_nested_pom_write(&message->ie_buffer, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+            if (request->wp_requested_nested_ie_list.lcp_ie)
+                ws_wp_nested_lfn_channel_plan_write(&message->ie_buffer, base->ie_params.lfn_channel_plan);
             if (request->wp_requested_nested_ie_list.lfnver_ie) {
                 ws_lfnver_ie_t lfn_ver;
                 //Write LFN Version
                 lfn_ver.lfn_version = interface->ws_info->pan_information.lpan_version;
-                ptr =  ws_wp_nested_lfn_version_write(ptr, &lfn_ver);
+                ws_wp_nested_lfn_version_write(&message->ie_buffer, &lfn_ver);
             }
-
-            if (request->wp_requested_nested_ie_list.lgtkhash_ie) {
-                ptr = ws_wp_nested_lgtkhash_write(ptr, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));
-            }
-
-            if (request->wp_requested_nested_ie_list.lbats_ie) {
-                //Write LFN Broadcast Additional Transmit Schedule payload
-                ptr = ws_wp_nested_lbats_write(ptr, base->ie_params.lbats_ie);
-            }
+            if (request->wp_requested_nested_ie_list.lgtkhash_ie)
+                ws_wp_nested_lgtkhash_write(&message->ie_buffer, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));
+            if (request->wp_requested_nested_ie_list.lbats_ie)
+                ws_wp_nested_lbats_write(&message->ie_buffer, base->ie_params.lbats_ie);
         }
+        ieee802154_ie_fill_len_payload(&message->ie_buffer, ie_offset);
+        message->ie_vector_list[1].iovLen = message->ie_buffer.len - message->ie_vector_list[0].iovLen;
     }
+
+    message->ie_vector_list[0].ieBase = message->ie_buffer.data;
+    message->ie_vector_list[1].ieBase = message->ie_buffer.data + message->ie_vector_list[0].iovLen;
+    message->ie_ext.headerIeVectorList = &message->ie_vector_list[0];
+    message->ie_ext.headerIovLength = 1;
+    message->ie_ext.payloadIeVectorList = &message->ie_vector_list[1];
+    message->ie_ext.payloadIovLength = 1;
 
     ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);

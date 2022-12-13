@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+struct iobuf_write;
+
 #define MPX_FT_FULL_FRAME                   0
 #define MPX_FT_FULL_FRAME_SMALL_MULTILEX_ID 1
 #define MPX_FT_FIRST_OR_SUB_FRAGMENT        2
@@ -37,7 +39,7 @@ typedef struct mpx_msg {
 } mpx_msg_t;
 
 bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg);
-uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg);
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const mpx_msg_t *msg);
 
 
 #endif

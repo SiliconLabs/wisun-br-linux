@@ -22,6 +22,8 @@
 #include "common/string_extra.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/ieee802154_ie.h"
+#include "common/iobuf.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/ws_management_api.h"
 
@@ -56,11 +58,13 @@
 #define WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK 0b00000100
 #define WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK  0b00011000
 
-static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t type)
+static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
 {
-    ptr = mac_ie_header_base_write(ptr, MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID, length + 1);
-    *ptr++ = type;
-    return ptr;
+    int offset;
+
+    offset = ieee802154_ie_push_header(buf, IEEE802154_IE_ID_WH);
+    iobuf_push_u8(buf, type);
+    return offset;
 }
 
 static uint16_t ws_channel_plan_length(uint8_t channel_plan)
@@ -224,111 +228,125 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
     return length;
 }
 
-uint8_t *ws_wh_utt_write(uint8_t *ptr, uint8_t message_type)
+void ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type)
 {
-    ptr = ws_wh_header_base_write(ptr, 4, WH_IE_UTT_TYPE);
-    *ptr++ = message_type;
-    memset(ptr, 0, 3);
-    ptr += 3;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_UTT_TYPE);
+    iobuf_push_u8(buf, message_type);
+    iobuf_push_le24(buf, 0); // Unicast Fractional Sequence Interval (filled by MAC layer)
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_bt_write(uint8_t *ptr)
+void ws_wh_bt_write(struct iobuf_write *buf)
 {
-    ptr = ws_wh_header_base_write(ptr, 5, WH_IE_BT_TYPE);
-    memset(ptr, 0, 5);
-    ptr += 5;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_BT_TYPE);
+    iobuf_push_le16(buf, 0); // Broadcast Slot Number (filled by MAC layer)
+    iobuf_push_le24(buf, 0); // Broadcast Interval Offset (filled by MAC layer)
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
 
-uint8_t *ws_wh_fc_write(uint8_t *ptr, ws_fc_ie_t *fc_ie)
+void ws_wh_fc_write(struct iobuf_write *buf, ws_fc_ie_t *fc_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, 2, WH_IE_FC_TYPE);
-    *ptr++ = fc_ie->tx_flow_ctrl;
-    *ptr++ = fc_ie->rx_flow_ctrl;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_FC_TYPE);
+    iobuf_push_u8(buf, fc_ie->tx_flow_ctrl);
+    iobuf_push_u8(buf, fc_ie->rx_flow_ctrl);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_rsl_write(uint8_t *ptr, uint8_t rsl)
+void ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl)
 {
-    ptr = ws_wh_header_base_write(ptr, 1, WH_IE_RSL_TYPE);
-    *ptr++ = rsl;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_RSL_TYPE);
+    iobuf_push_u8(buf, rsl);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_ea_write(uint8_t *ptr, uint8_t *eui64)
+void ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8])
 {
-    ptr = ws_wh_header_base_write(ptr, 8, WH_IE_EA_TYPE);
-    memcpy(ptr, eui64, 8);
-    ptr += 8;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_EA_TYPE);
+    iobuf_push_data(buf, eui64, 8);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_vh_write(uint8_t *ptr, uint8_t *vendor_header, uint8_t vendor_header_length)
+void ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length)
 {
-    ptr = ws_wh_header_base_write(ptr, vendor_header_length, WH_IE_VH_TYPE);
-    if (vendor_header_length) {
-        memcpy(ptr, vendor_header, vendor_header_length);
-        ptr += vendor_header_length;
-    }
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_VH_TYPE);
+    iobuf_push_data(buf, vendor_header, vendor_header_length);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lutt_write(uint8_t *ptr, uint8_t message_type)
+void ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lutt_length(), WH_IE_LUTT_TYPE);
-    *ptr++ = message_type;
-    memset(ptr, 0, 2); /* Unicast Slot Number 2 bytes */
-    ptr += 2;
-    memset(ptr, 0, 3); /* UFSI 3 bytes */
-    ptr += 3;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LUTT_TYPE);
+    iobuf_push_u8(buf, message_type);
+    iobuf_push_le16(buf, 0); // Unicast Slot Number (filled by MAC layer)
+    iobuf_push_le24(buf, 0); // Unicast Interval Offset (filled by MAC layer)
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lus_write(uint8_t *ptr, struct ws_lus_ie *lus_ie)
+void ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lus_length(), WH_IE_LUS_TYPE);
-    ptr = write_le24(ptr, lus_ie->listen_interval);
-    *ptr++ = lus_ie->channel_plan_tag;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LUS_TYPE);
+    iobuf_push_le24(buf, lus_ie->listen_interval);
+    iobuf_push_u8(buf, lus_ie->channel_plan_tag);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_flus_write(uint8_t *ptr, struct ws_flus_ie *flus_ie)
+void ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_flus_length(), WH_IE_FLUS_TYPE);
-    *ptr++ = flus_ie->dwell_interval;
-    *ptr++ = flus_ie->channel_plan_tag;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_FLUS_TYPE);
+    iobuf_push_u8(buf, flus_ie->dwell_interval);
+    iobuf_push_u8(buf, flus_ie->channel_plan_tag);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lbt_write(uint8_t *ptr, struct ws_lbt_ie *lbt_ie)
+void ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lbt_length(), WH_IE_LBT_TYPE);
-    memset(ptr, 0, 2); /* LFN Broadcast Slot Number 2 bytes */
-    ptr += 2;
-    memset(ptr, 0, 3); /* LFN Broadcast Interval Offset 3 bytes */
-    ptr += 3;
-    return ptr;
+    int offset;
 
+    offset = ws_wh_header_base_write(buf, WH_IE_LBT_TYPE);
+    iobuf_push_le16(buf, 0); // LFN Broadcast Slot Number (filled by MAC layer)
+    iobuf_push_le24(buf, 0); // LFN Broadcast Interval Offset (filled by MAC layer)
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie)
+void ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lbs_length(), WH_IE_LBS_TYPE);
-    ptr = write_le24(ptr, lbs_ie->broadcast_interval);
-    ptr = write_le16(ptr, lbs_ie->broadcast_scheduler_id);
-    *ptr++ = lbs_ie->channel_plan_tag;
-    *ptr++ = lbs_ie->broadcast_sync_period;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LBS_TYPE);
+    iobuf_push_le24(buf, lbs_ie->broadcast_interval);
+    iobuf_push_le16(buf, lbs_ie->broadcast_scheduler_id);
+    iobuf_push_u8(buf, lbs_ie->channel_plan_tag);
+    iobuf_push_u8(buf, lbs_ie->broadcast_sync_period);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie)
+void ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lbc_length(), WH_IE_LBC_TYPE);
-    ptr = write_le24(ptr, lbc_ie->lfn_broadcast_interval);
-    *ptr++ = lbc_ie->broadcast_sync_period;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LBC_TYPE);
+    iobuf_push_le24(buf, lbc_ie->lfn_broadcast_interval);
+    iobuf_push_u8(buf, lbc_ie->broadcast_sync_period);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
 uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie)
@@ -342,50 +360,56 @@ uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie)
     return length;
 }
 
-uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie)
+void ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_nr_length(nr_ie), WH_IE_NR_TYPE);
-    *ptr++ = FIELD_PREP(WS_WH_NR_IE_NODE_ROLE_ID_MASK, nr_ie->node_role);
-    *ptr++ = nr_ie->clock_drift;
-    *ptr++ = nr_ie->timing_accuracy;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_NR_TYPE);
+    iobuf_push_u8(buf, FIELD_PREP(WS_WH_NR_IE_NODE_ROLE_ID_MASK, nr_ie->node_role));
+    iobuf_push_u8(buf, nr_ie->clock_drift);
+    iobuf_push_u8(buf, nr_ie->timing_accuracy);
     if (nr_ie->node_role == WS_NR_ROLE_LFN) {
-        ptr = write_le24(ptr, nr_ie->listen_interval_min);
-        ptr = write_le24(ptr, nr_ie->listen_interval_max);
+        iobuf_push_le24(buf, nr_ie->listen_interval_min);
+        iobuf_push_le24(buf, nr_ie->listen_interval_max);
     }
-    return ptr;
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lnd_write(uint8_t *ptr, struct ws_lnd_ie *lnd_ie)
+void ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lnd_length(), WH_IE_LND_TYPE);
-    *ptr++ = lnd_ie->response_threshold;
-    memset(ptr, 0, 3);  /* Response Delay 3 bytes */
-    ptr += 3;
-    *ptr++ = lnd_ie->discovery_slot_time;
-    *ptr++ = lnd_ie->discovery_slots;
-    memset(ptr, 0, 2);  /* Discovery First Slot 2 bytes */
-    ptr += 2;
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LND_TYPE);
+    iobuf_push_u8(buf, lnd_ie->response_threshold);
+    iobuf_push_le24(buf, 0); // Response Delay
+    iobuf_push_u8(buf, lnd_ie->discovery_slot_time);
+    iobuf_push_u8(buf, lnd_ie->discovery_slots);
+    iobuf_push_le16(buf, 0); // Discovery First Slot
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie)
+void ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_lto_length(), WH_IE_LTO_TYPE);
-    ptr = write_le24(ptr, lto_ie->offset);
-    ptr = write_le24(ptr, lto_ie->adjusted_listening_interval);
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_LTO_TYPE);
+    iobuf_push_le24(buf, lto_ie->offset);
+    iobuf_push_le24(buf, lto_ie->adjusted_listening_interval);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie)
+void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie)
 {
-    ptr = ws_wh_header_base_write(ptr, ws_wh_panid_length(), WH_IE_PANID_TYPE);
-    ptr = write_le16(ptr, panid_ie->panid);
-    return ptr;
+    int offset;
+
+    offset = ws_wh_header_base_write(buf, WH_IE_PANID_TYPE);
+    iobuf_push_le16(buf, panid_ie->panid);
+    ieee802154_ie_fill_len_header(buf, offset);
 }
 
-uint8_t *ws_wp_base_write(uint8_t *ptr, uint16_t length)
+int ws_wp_base_write(struct iobuf_write *buf)
 {
-    return mac_ie_payload_base_write(ptr, WS_WP_NESTED_IE, length);
+    return ieee802154_ie_push_payload(buf, IEEE802154_IE_ID_WP);
 }
 
 static uint8_t ws_wp_channel_info_base_get(ws_generic_channel_info_t *generic_channel_info)
@@ -399,36 +423,35 @@ static uint8_t ws_wp_channel_info_base_get(ws_generic_channel_info_t *generic_ch
     return channel_info_base;
 }
 
-static uint8_t *ws_wp_channel_plan_write(uint8_t *ptr, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_channel_plan_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
 {
     switch (generic_channel_info->channel_plan) {
         case 0:
             //Regulator domain and operationg class inline
-            *ptr++ = generic_channel_info->plan.zero.regulatory_domain;
-            *ptr++ = generic_channel_info->plan.zero.operating_class;
+            iobuf_push_u8(buf, generic_channel_info->plan.zero.regulatory_domain);
+            iobuf_push_u8(buf, generic_channel_info->plan.zero.operating_class);
             break;
         case 1:
             //CHo, Channel spasing and number of channel's inline
-            ptr = write_le24(ptr, generic_channel_info->plan.one.ch0);
-            *ptr++ = generic_channel_info->plan.one.channel_spacing;
-            ptr = write_le16(ptr, generic_channel_info->plan.one.number_of_channel);
+            iobuf_push_le16(buf, generic_channel_info->plan.one.ch0);
+            iobuf_push_u8(buf, generic_channel_info->plan.one.channel_spacing);
+            iobuf_push_le16(buf, generic_channel_info->plan.one.number_of_channel);
             break;
         case 2:
-            *ptr++ = generic_channel_info->plan.two.regulatory_domain;
-            *ptr++ = generic_channel_info->plan.two.channel_plan_id;
+            iobuf_push_u8(buf, generic_channel_info->plan.two.regulatory_domain);
+            iobuf_push_u8(buf, generic_channel_info->plan.two.channel_plan_id);
             break;
         default:
             break;
     }
-    return ptr;
 }
 
-static uint8_t *ws_wp_channel_function_write(uint8_t *ptr, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_channel_function_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
 {
     switch (generic_channel_info->channel_function) {
         case 0:
             //Fixed channel inline
-            ptr = write_le16(ptr, generic_channel_info->function.zero.fixed_channel);
+            iobuf_push_le16(buf, generic_channel_info->function.zero.fixed_channel);
             break;
         case 1:
         case 2:
@@ -438,101 +461,93 @@ static uint8_t *ws_wp_channel_function_write(uint8_t *ptr, ws_generic_channel_in
             //TODO do this properly
             //Hop count + channel hop list
             if (generic_channel_info->function.three.channel_list && generic_channel_info->function.three.channel_hop_count) {
-                *ptr++ = generic_channel_info->function.three.channel_hop_count;
-                memcpy(ptr, generic_channel_info->function.three.channel_list, generic_channel_info->function.three.channel_hop_count);
-                ptr += generic_channel_info->function.three.channel_hop_count;
+                iobuf_push_u8(buf, generic_channel_info->function.three.channel_hop_count);
+                iobuf_push_data(buf, generic_channel_info->function.three.channel_list,
+                                generic_channel_info->function.three.channel_hop_count);
             } else {
-                *ptr++ = 1;
-                *ptr++ = 0;
+                iobuf_push_u8(buf, 1);
+                iobuf_push_u8(buf, 0);
             }
-
             break;
         default:
             break;
-
     }
-    return ptr;
 }
 
-static uint8_t *ws_wp_nested_excluded_channel_write(uint8_t *ptr, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_nested_excluded_channel_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
 {
     if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
         uint8_t range_length = generic_channel_info->excluded_channels.range_out.excluded_range_length;
         ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range_out.excluded_range;
-        *ptr++ = range_length;
+        iobuf_push_u8(buf, range_length);
         while (range_length) {
-            ptr = write_le16(ptr, range_ptr->range_start);
-            ptr = write_le16(ptr, range_ptr->range_end);
+            iobuf_push_le16(buf, range_ptr->range_start);
+            iobuf_push_le16(buf, range_ptr->range_end);
             range_length--;
             range_ptr++;
         }
     } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        memcpy(ptr, generic_channel_info->excluded_channels.mask_out.channel_mask,
-               generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline);
-        ptr += generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline;
+        iobuf_push_data(buf, generic_channel_info->excluded_channels.mask_out.channel_mask,
+                        generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline);
     }
-    return ptr;
 }
 
-uint8_t *ws_wp_nested_hopping_schedule_write(uint8_t *ptr, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
+void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
+                                         struct ws_hopping_schedule *hopping_schedule,
+                                         bool unicast_schedule)
 {
-    //Calculate length
     ws_generic_channel_info_t generic_channel_info;
+    int offset;
 
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast_schedule);
     ws_wp_channel_plan_set(&generic_channel_info, hopping_schedule);
     ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, unicast_schedule);
 
-    uint16_t length;
-    if (unicast_schedule) {
-        length = 3;
-    } else {
-        length = 9;
-    }
-    length += ws_wp_generic_schedule_length_get(&generic_channel_info);
-
     if (!unicast_schedule) {
-        ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_BS_TYPE, length);
-        ptr = write_le32(ptr, hopping_schedule->fhss_broadcast_interval);
-        ptr = write_le16(ptr, hopping_schedule->fhss_bsi);
-        *ptr++ = hopping_schedule->fhss_bc_dwell_interval;
+        offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_BS_TYPE, true);
+        iobuf_push_le32(buf, hopping_schedule->fhss_broadcast_interval);
+        iobuf_push_le16(buf, hopping_schedule->fhss_bsi);
+        iobuf_push_u8(buf, hopping_schedule->fhss_bc_dwell_interval);
     } else {
-        ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_US_TYPE, length);
-        *ptr++ =  hopping_schedule->fhss_uc_dwell_interval;
+        offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_US_TYPE, true);
+        iobuf_push_u8(buf, hopping_schedule->fhss_uc_dwell_interval);
     }
-
-    *ptr++ =  hopping_schedule->clock_drift;
-    *ptr++ =  hopping_schedule->timing_accuracy;
+    iobuf_push_u8(buf, hopping_schedule->clock_drift);
+    iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
 
     // Write a generic part of shedule
-    *ptr++ = ws_wp_channel_info_base_get(&generic_channel_info);
-    ptr = ws_wp_channel_plan_write(ptr, &generic_channel_info);
-    ptr = ws_wp_channel_function_write(ptr, &generic_channel_info);
-    ptr = ws_wp_nested_excluded_channel_write(ptr, &generic_channel_info);
-
-    return ptr;
+    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
+    ws_wp_channel_plan_write(buf, &generic_channel_info);
+    ws_wp_channel_function_write(buf, &generic_channel_info);
+    ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
+    ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-uint8_t *ws_wp_nested_vp_write(uint8_t *ptr, uint8_t *vendor_payload, uint16_t vendor_payload_length)
+void ws_wp_nested_vp_write(struct iobuf_write *buf,
+                           uint8_t *vendor_payload,
+                           uint16_t vendor_payload_length)
 {
-    if (vendor_payload_length) {
-        ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_VP_TYPE, vendor_payload_length);
-        memcpy(ptr, vendor_payload, vendor_payload_length);
-        ptr += vendor_payload_length;
-    }
-    return ptr;
+    int offset;
+
+    if (!vendor_payload_length)
+        return;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_VP_TYPE, true);
+    iobuf_push_data(buf, vendor_payload, vendor_payload_length);
+    ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pan_configuration)
+void ws_wp_nested_pan_info_write(struct iobuf_write *buf,
+                                 struct ws_pan_information *pan_configuration)
 {
     bool lfn_window_style = false;
     uint8_t tmp8;
+    int offset;
 
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_PAN_TYPE, false);
     if (!pan_configuration)
-        return mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 0);
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 5);
-    ptr = write_le16(ptr, pan_configuration->pan_size);
-    ptr = write_le16(ptr, pan_configuration->routing_cost);
+        return;
+    iobuf_push_le16(buf, pan_configuration->pan_size);
+    iobuf_push_le16(buf, pan_configuration->routing_cost);
     if (pan_configuration->version > WS_FAN_VERSION_1_0)
         lfn_window_style = pan_configuration->lfn_window_style;
     tmp8 = 0;
@@ -540,38 +555,44 @@ uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pa
     tmp8 |= FIELD_PREP(WS_WP_PAN_IE_ROUTING_METHOD_MASK,   pan_configuration->rpl_routing_method);
     tmp8 |= FIELD_PREP(WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK, lfn_window_style);
     tmp8 |= FIELD_PREP(WS_WP_PAN_IE_FAN_TPS_VERSION_MASK,  pan_configuration->version);
-    *ptr++ = tmp8;
-    return ptr;
+    iobuf_push_u8(buf, tmp8);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint8_t *ws_wp_nested_netname_write(uint8_t *ptr, uint8_t *network_name, uint8_t network_name_length)
+
+void ws_wp_nested_netname_write(struct iobuf_write *buf,
+                                uint8_t *network_name,
+                                uint8_t network_name_length)
 {
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_NETNAME_TYPE, network_name_length);
-    if (network_name_length) {
-        memcpy(ptr, network_name, network_name_length);
-        ptr += network_name_length;
-    }
-    return ptr;
+    int offset;
+
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_NETNAME_TYPE, false);
+    iobuf_push_data(buf, network_name, network_name_length);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint8_t *ws_wp_nested_pan_ver_write(uint8_t *ptr, struct ws_pan_information *pan_configuration)
+void ws_wp_nested_pan_ver_write(struct iobuf_write *buf,
+                                struct ws_pan_information *pan_configuration)
 {
-    if (!pan_configuration) {
-        return ptr;
-    }
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_VER_TYPE, 2);
-    ptr = write_le16(ptr, pan_configuration->pan_version);
-    return ptr;
+    int offset;
+
+    if (!pan_configuration)
+        return;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_PAN_VER_TYPE, false);
+    iobuf_push_le16(buf, pan_configuration->pan_version);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint8_t *ws_wp_nested_gtkhash_write(uint8_t *ptr, gtkhash_t gtkhash[4], uint8_t gtkhash_length)
+void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
+                                gtkhash_t gtkhash[4],
+                                uint8_t gtkhash_length)
 {
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_GTKHASH_TYPE, gtkhash_length);
-    if (gtkhash_length) {
-        memcpy(ptr, gtkhash, 32);
-        ptr += 32;
-    }
-    return ptr;
+    int offset;
+
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_GTKHASH_TYPE, false);
+    for (int i = 0; i < 4; i++)
+        iobuf_push_data(buf, gtkhash[i], 8);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
 uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number)
@@ -579,28 +600,32 @@ uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number)
     return 1 + phy_op_mode_number;
 }
 
-uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable)
+void ws_wp_nested_pom_write(struct iobuf_write *buf,
+                            uint8_t phy_op_mode_number,
+                            uint8_t *phy_operating_modes,
+                            uint8_t mdr_command_capable)
 {
     uint8_t tmp8;
+    int offset;
 
     if (!phy_op_mode_number)
-        return ptr;
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE,  ws_wp_nested_pom_length(phy_op_mode_number));
+        return;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_POM_TYPE, false);
     tmp8 = 0;
     tmp8 |= FIELD_PREP(WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK, phy_op_mode_number);
     tmp8 |= FIELD_PREP(WS_WP_POM_IE_MDR_CAPABLE_MASK,        mdr_command_capable);
-    *ptr++ = tmp8;
-    memcpy(ptr, phy_operating_modes, phy_op_mode_number);
-    ptr += phy_op_mode_number;
-    return ptr;
+    iobuf_push_u8(buf, tmp8);
+    iobuf_push_data(buf, phy_operating_modes, phy_op_mode_number);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint8_t *ws_wp_nested_lfn_version_write(uint8_t *ptr, struct ws_lfnver_ie *lfnver_ie)
+void ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie *lfnver_ie)
 {
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LFN_VER_TYPE, ws_wp_nested_lfn_version_length());
-    ptr = write_le16(ptr, lfnver_ie->lfn_version);
+    int offset;
 
-    return ptr;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LFN_VER_TYPE, false);
+    iobuf_push_le16(buf, lfnver_ie->lfn_version);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
 uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t lgtkhash[3])
@@ -614,55 +639,47 @@ uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t lgtkhash[3])
     return length;
 }
 
-uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, gtkhash_t lgtkhash[3], unsigned active_lgtk_index)
+void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
+                                 gtkhash_t lgtkhash[3],
+                                 unsigned active_lgtk_index)
 {
-    uint16_t length = ws_wp_nested_lgtkhash_length(lgtkhash);
     uint8_t tmp8;
-    int i;
+    int offset;
 
-    ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LGTKHASH_TYPE, false);
     tmp8 = 0;
     tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK0_MASK, (bool)memzcmp(lgtkhash[0], 8));
     tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK1_MASK, (bool)memzcmp(lgtkhash[1], 8));
     tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK, (bool)memzcmp(lgtkhash[2], 8));
     tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK,  active_lgtk_index);
-    *ptr++ = tmp8;
-    for (i = 0; i < 3; i++) {
-        if (memzcmp(lgtkhash[i], sizeof(lgtkhash[i]))) {
-            memcpy(ptr, lgtkhash[i], 8);
-            ptr += 8;
-        }
-    }
-    return ptr;
+    iobuf_push_u8(buf, tmp8);
+    for (int i = 0; i < 3; i++)
+        if (memzcmp(lgtkhash[0], 8))
+            iobuf_push_data(buf, lgtkhash[i], 8);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-uint16_t ws_wp_nested_lfn_channel_plan_length(struct ws_lcp_ie *ws_lcp)
+void ws_wp_nested_lfn_channel_plan_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp)
 {
-    uint16_t length = 1; //Channel Plan Tag
+    int offset;
 
-    length += ws_wp_generic_schedule_length_get(&ws_lcp->chan_plan);
-    return length;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, true);
+    iobuf_push_u8(buf, ws_lcp->lfn_channel_plan_tag);
+    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&ws_lcp->chan_plan));
+    ws_wp_channel_plan_write(buf, &ws_lcp->chan_plan);
+    ws_wp_channel_function_write(buf, &ws_lcp->chan_plan);
+    ws_wp_nested_excluded_channel_write(buf, &ws_lcp->chan_plan);
+    ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-uint8_t *ws_wp_nested_lfn_channel_plan_write(uint8_t *ptr, struct ws_lcp_ie *ws_lcp)
+void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie)
 {
-    uint16_t length = ws_wp_nested_lfn_channel_plan_length(ws_lcp);
+    int offset;
 
-    ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, length);
-    *ptr++ = ws_lcp->lfn_channel_plan_tag;
-    *ptr++ = ws_wp_channel_info_base_get(&ws_lcp->chan_plan);
-    ptr = ws_wp_channel_plan_write(ptr, &ws_lcp->chan_plan);
-    ptr = ws_wp_channel_function_write(ptr, &ws_lcp->chan_plan);
-    ptr = ws_wp_nested_excluded_channel_write(ptr, &ws_lcp->chan_plan);
-    return ptr;
-}
-
-uint8_t *ws_wp_nested_lbats_write(uint8_t *ptr, struct ws_lbats_ie *lbats_ie)
-{
-    ptr = mac_ie_nested_ie_long_base_write(ptr, WP_PAYLOAD_IE_LBATS_TYPE, ws_wp_nested_lbats_length());
-    *ptr++ = lbats_ie->additional_transmissions;
-    ptr = write_le16(ptr, lbats_ie->next_transmit_delay);
-    return ptr;
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LBATS_TYPE, false);
+    iobuf_push_u8(buf, lbats_ie->additional_transmissions);
+    iobuf_push_le16(buf, lbats_ie->next_transmit_delay);
+    ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)

@@ -22,6 +22,7 @@
 #include "common/endian.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/iobuf.h"
 #include "stack/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_mpx_header.h"
@@ -102,8 +103,7 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
     return true;
 }
 
-
-uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg)
+void ws_llc_mpx_header_write(struct iobuf_write *buf, const mpx_msg_t *msg)
 {
     bool fragmented_number_present = false;
     bool multiplex_id_present = false;
@@ -113,7 +113,7 @@ uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg)
     tmp8 = 0;
     tmp8 |= FIELD_PREP(MPX_IE_TRANSFER_TYPE_MASK,  msg->transfer_type);
     tmp8 |= FIELD_PREP(MPX_IE_TRANSACTION_ID_MASK, msg->transaction_id);
-    *ptr++ = tmp8;
+    iobuf_push_u8(buf, tmp8);
 
     switch (msg->transfer_type) {
         case MPX_FT_FULL_FRAME:
@@ -137,17 +137,10 @@ uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg)
         default:
             break;
     }
-
-    if (fragmented_number_present) {
-        *ptr++ = msg->fragment_number;
-    }
-
-    if (fragment_total_size) {
-        ptr = write_le16(ptr, msg->total_upper_layer_size);
-    }
-
-    if (multiplex_id_present) {
-        ptr = write_le16(ptr, msg->multiplex_id);
-    }
-    return ptr;
+    if (fragmented_number_present)
+        iobuf_push_u8(buf, msg->fragment_number);
+    if (fragment_total_size)
+        iobuf_push_le16(buf, msg->total_upper_layer_size);
+    if (multiplex_id_present)
+        iobuf_push_le16(buf, msg->multiplex_id);
 }
