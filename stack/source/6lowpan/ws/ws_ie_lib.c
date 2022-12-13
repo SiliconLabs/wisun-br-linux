@@ -30,6 +30,32 @@
 
 #include "6lowpan/ws/ws_ie_lib.h"
 
+// Figure 6-42 Node Role IE Format
+#define WS_WH_NR_IE_NODE_ROLE_ID_MASK 0b00000111
+
+// Figure 6-50 Unicast Schedule IE
+// Figure 6-51 Broadcast Schedule IE
+// Figure 6-66 LFN Channel Information Fields
+#define WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK     0b00000111
+#define WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK     0b00111000
+#define WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK 0b11000000
+
+// Figure 6-58 PAN IE
+#define WS_WP_PAN_IE_USE_PARENT_BS_IE_MASK 0b00000001
+#define WS_WP_PAN_IE_ROUTING_METHOD_MASK   0b00000010
+#define WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK 0b00000100
+#define WS_WP_PAN_IE_FAN_TPS_VERSION_MASK  0b11100000
+
+// Figure 6-62 Capability IE
+#define WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK 0b00001111
+#define WS_WP_POM_IE_MDR_CAPABLE_MASK        0b00010000
+
+// Figure 6-68 LFN GTK Hash IE
+#define WS_WP_LGTKHASH_IE_INCLUDE_LGTK0_MASK 0b00000001
+#define WS_WP_LGTKHASH_IE_INCLUDE_LGTK1_MASK 0b00000010
+#define WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK 0b00000100
+#define WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK  0b00011000
+
 static uint8_t *ws_wh_header_base_write(uint8_t *ptr, uint16_t length, uint8_t type)
 {
     ptr = mac_ie_header_base_write(ptr, MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID, length + 1);
@@ -319,7 +345,7 @@ uint16_t ws_wh_nr_length(struct ws_nr_ie *nr_ie)
 uint8_t *ws_wh_nr_write(uint8_t *ptr, struct ws_nr_ie *nr_ie)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_nr_length(nr_ie), WH_IE_NR_TYPE);
-    *ptr++ = nr_ie->node_role;
+    *ptr++ = FIELD_PREP(WS_WH_NR_IE_NODE_ROLE_ID_MASK, nr_ie->node_role);
     *ptr++ = nr_ie->clock_drift;
     *ptr++ = nr_ie->timing_accuracy;
     if (nr_ie->node_role == WS_NR_ROLE_LFN) {
@@ -499,25 +525,24 @@ uint8_t *ws_wp_nested_vp_write(uint8_t *ptr, uint8_t *vendor_payload, uint16_t v
 
 uint8_t *ws_wp_nested_pan_info_write(uint8_t *ptr, struct ws_pan_information *pan_configuration)
 {
-    if (!pan_configuration) {
+    bool lfn_window_style = false;
+    uint8_t tmp8;
+
+    if (!pan_configuration)
         return mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 0);
-    }
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_PAN_TYPE, 5);
     ptr = write_le16(ptr, pan_configuration->pan_size);
     ptr = write_le16(ptr, pan_configuration->routing_cost);
-    uint8_t temp8 = 0;
-    temp8 |= (pan_configuration->use_parent_bs << 0);
-    temp8 |= (pan_configuration->rpl_routing_method << 1);
-    /* FAN 1.1 specific write */
-    if (pan_configuration->version > WS_FAN_VERSION_1_0) {
-        temp8 |= (pan_configuration->lfn_window_style << 2);
-    }
-    temp8 |= pan_configuration->version << 5;
-
-    *ptr++ = temp8;
+    if (pan_configuration->version > WS_FAN_VERSION_1_0)
+        lfn_window_style = pan_configuration->lfn_window_style;
+    tmp8 = 0;
+    tmp8 |= FIELD_PREP(WS_WP_PAN_IE_USE_PARENT_BS_IE_MASK, pan_configuration->use_parent_bs);
+    tmp8 |= FIELD_PREP(WS_WP_PAN_IE_ROUTING_METHOD_MASK,   pan_configuration->rpl_routing_method);
+    tmp8 |= FIELD_PREP(WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK, lfn_window_style);
+    tmp8 |= FIELD_PREP(WS_WP_PAN_IE_FAN_TPS_VERSION_MASK,  pan_configuration->version);
+    *ptr++ = tmp8;
     return ptr;
 }
-
 
 uint8_t *ws_wp_nested_netname_write(uint8_t *ptr, uint8_t *network_name, uint8_t network_name_length)
 {
@@ -556,11 +581,15 @@ uint16_t ws_wp_nested_pom_length(uint8_t phy_op_mode_number)
 
 uint8_t *ws_wp_nested_pom_write(uint8_t *ptr, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable)
 {
+    uint8_t tmp8;
+
     if (!phy_op_mode_number)
         return ptr;
-
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_POM_TYPE,  ws_wp_nested_pom_length(phy_op_mode_number));
-    *ptr++ = (phy_op_mode_number & 0xF) | ((mdr_command_capable & 1) << 4);
+    tmp8 = 0;
+    tmp8 |= FIELD_PREP(WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK, phy_op_mode_number);
+    tmp8 |= FIELD_PREP(WS_WP_POM_IE_MDR_CAPABLE_MASK,        mdr_command_capable);
+    *ptr++ = tmp8;
     memcpy(ptr, phy_operating_modes, phy_op_mode_number);
     ptr += phy_op_mode_number;
     return ptr;
@@ -588,16 +617,16 @@ uint16_t ws_wp_nested_lgtkhash_length(gtkhash_t *lgtkhash)
 uint8_t *ws_wp_nested_lgtkhash_write(uint8_t *ptr, gtkhash_t *lgtkhash, unsigned active_lgtk_index)
 {
     uint16_t length = ws_wp_nested_lgtkhash_length(lgtkhash);
-    uint8_t temp8 = 0;
+    uint8_t tmp8;
     int i;
 
     ptr = mac_ie_nested_ie_short_base_write(ptr, WP_PAYLOAD_IE_LGTKHASH_TYPE, length);
-    temp8 = FIELD_PREP(0x18, active_lgtk_index);
-    for (i = 0; i < 3; i++)
-        if (memzcmp(lgtkhash[i], sizeof(lgtkhash[i])))
-            temp8 |= FIELD_PREP(1 << i, 1);
-    *ptr++ = temp8;
-
+    tmp8 = 0;
+    tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK0_MASK, (bool)memzcmp(lgtkhash[0], 8));
+    tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK1_MASK, (bool)memzcmp(lgtkhash[1], 8));
+    tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK, (bool)memzcmp(lgtkhash[2], 8));
+    tmp8 |= FIELD_PREP(WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK,  active_lgtk_index);
+    *ptr++ = tmp8;
     for (i = 0; i < 3; i++) {
         if (memzcmp(lgtkhash[i], sizeof(lgtkhash[i]))) {
             memcpy(ptr, lgtkhash[i], 8);
@@ -795,7 +824,7 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
         return false;
     }
     data = nr_ie_data.content_ptr;
-    nr_ie->node_role = *data++ & 7;
+    nr_ie->node_role = FIELD_GET(WS_WH_NR_IE_NODE_ROLE_ID_MASK, *data++);
     nr_ie->clock_drift = *data++;
     nr_ie->timing_accuracy = *data++;
     switch (nr_ie->node_role) {
@@ -930,9 +959,9 @@ bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie 
     us_ie->dwell_interval = *data++;
     us_ie->clock_drift = *data++;
     us_ie->timing_accuracy = *data++;
-    us_ie->chan_plan.channel_plan = (*data & 3);
-    us_ie->chan_plan.channel_function = (*data & 0x38) >> 3;
-    us_ie->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    us_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
+    us_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
+    us_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
     data++;
     uint16_t info_length = 0;
     nested_payload_ie.length -= 4;
@@ -1040,9 +1069,9 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
     bs_ie->clock_drift = *data++;
     bs_ie->timing_accuracy = *data++;
 
-    bs_ie->chan_plan.channel_plan = (*data & 3);
-    bs_ie->chan_plan.channel_function = (*data & 0x38) >> 3;
-    bs_ie->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    bs_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
+    bs_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
+    bs_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
     data++;
     nested_payload_ie.length -= 10;
     uint16_t info_length = 0;
@@ -1142,16 +1171,13 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
 
     pan_configuration->pan_size = read_le16(nested_payload_ie.content_ptr);
     pan_configuration->routing_cost = read_le16(nested_payload_ie.content_ptr + 2);
-    pan_configuration->use_parent_bs = (nested_payload_ie.content_ptr[4] & 0x01) == 0x01;
-    pan_configuration->rpl_routing_method = (nested_payload_ie.content_ptr[4] & 0x02) == 0x02;
-    pan_configuration->version = (nested_payload_ie.content_ptr[4] & 0xe0) >> 5;
-    if (pan_configuration->version > WS_FAN_VERSION_1_0) {
-        /* FAN 1.1 specific read */
-        pan_configuration->lfn_window_style = (nested_payload_ie.content_ptr[4] & 0x04) == 0x04;
-    } else {
-        pan_configuration->lfn_window_style = false; //Set false for FAN 1.0
-    }
-
+    pan_configuration->use_parent_bs      = FIELD_GET(WS_WP_PAN_IE_USE_PARENT_BS_IE_MASK, nested_payload_ie.content_ptr[4]);
+    pan_configuration->rpl_routing_method = FIELD_GET(WS_WP_PAN_IE_ROUTING_METHOD_MASK,   nested_payload_ie.content_ptr[4]);
+    pan_configuration->version            = FIELD_GET(WS_WP_PAN_IE_FAN_TPS_VERSION_MASK,  nested_payload_ie.content_ptr[4]);
+    if (pan_configuration->version > WS_FAN_VERSION_1_0)
+        pan_configuration->lfn_window_style = FIELD_GET(WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK, nested_payload_ie.content_ptr[4]);
+    else
+        pan_configuration->lfn_window_style = false;
     return true;
 }
 
@@ -1210,8 +1236,8 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
         return false;
     }
 
-    pom_ie->phy_op_mode_number = nested_payload_ie.content_ptr[0] & 0x0F;
-    pom_ie->mdr_command_capable = (nested_payload_ie.content_ptr[0] & 0x10) >> 4;
+    pom_ie->phy_op_mode_number  = FIELD_GET(WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK, nested_payload_ie.content_ptr[0]);
+    pom_ie->mdr_command_capable = FIELD_GET(WS_WP_POM_IE_MDR_CAPABLE_MASK,        nested_payload_ie.content_ptr[0]);
     if (pom_ie->phy_op_mode_number != 0) {
         pom_ie->phy_op_mode_id = nested_payload_ie.content_ptr + 1; //FIXME: this is nasty
     } else {
@@ -1248,8 +1274,10 @@ bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t 
     }
     data = nested_payload_ie.content_ptr;
 
-    valid_hashs = FIELD_GET(0x07, *data);
-    *active_lgtk_index = FIELD_GET(0x18, *data);
+    valid_hashs = FIELD_GET(WS_WP_LGTKHASH_IE_INCLUDE_LGTK0_MASK |
+                            WS_WP_LGTKHASH_IE_INCLUDE_LGTK1_MASK |
+                            WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK, *data);
+    *active_lgtk_index = FIELD_GET(WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK, *data);
 
     if (__builtin_popcount(valid_hashs) * 8 > nested_payload_ie.length) {
         return false;
@@ -1302,9 +1330,9 @@ bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, st
     //Parse Channel Plan, function and excluded channel
     data = nested_payload_ie.content_ptr;
     ws_lcp->lfn_channel_plan_tag = *data++;
-    ws_lcp->chan_plan.channel_plan = (*data & 3);
-    ws_lcp->chan_plan.channel_function = (*data & 0x38) >> 3;
-    ws_lcp->chan_plan.excluded_channel_ctrl = (*data & 0xc0) >> 6;
+    ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
+    ws_lcp->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
+    ws_lcp->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
     data++;
     nested_payload_ie.length--;
 
