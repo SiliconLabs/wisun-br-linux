@@ -355,6 +355,8 @@ static void wsmac_spinel_fhss_create(struct wsmac_ctxt *ctxt, mlme_attr_e attr, 
     spinel_pop_fixed_u8_array(buf, config.unicast_channel_mask, 32);
     config.channel_mask_size       = spinel_pop_u16(buf);
     config.config_parameters.number_of_channel_retries = spinel_pop_u8(buf);
+    if (iobuf_remaining_size(buf))
+        spinel_pop_fixed_u8_array(buf, config.broadcast_channel_mask, 32);
     BUG_ON(iobuf_remaining_size(buf));
     ctxt->fhss_api = ns_fhss_ws_create(&config, &wsmac_fhss);
     BUG_ON(!ctxt->fhss_api);
@@ -493,6 +495,8 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
          async_channel_list.next_channel_number = spinel_pop_u16(buf);
     else
          async_channel_list.next_channel_number = 0;
+    if (iobuf_remaining_size(buf))
+         spinel_pop_u8(buf); // phy_id
     BUG_ON(iobuf_remaining_size(buf));
 
     malloc_info = malloc(sizeof(*malloc_info));
