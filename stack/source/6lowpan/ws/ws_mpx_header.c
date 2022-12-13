@@ -18,12 +18,17 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common/bits.h"
 #include "common/endian.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "stack/mac/mac_common_defines.h"
 
 #include "6lowpan/ws/ws_mpx_header.h"
+
+// IEEE-802.15.9 Figure 10 Transaction Control field
+#define MPX_IE_TRANSFER_TYPE_MASK  0b00000111
+#define MPX_IE_TRANSACTION_ID_MASK 0b11111000
 
 bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_t *msg)
 {
@@ -35,8 +40,8 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
     bool multiplex_id_present = false;
     bool fragment_total_size = false;
 
-    msg->transfer_type = *ptr & 7;
-    msg->transaction_id = ((*ptr++ & 0xf8) >> 3);
+    msg->transfer_type  = FIELD_GET(MPX_IE_TRANSFER_TYPE_MASK,  *ptr);
+    msg->transaction_id = FIELD_GET(MPX_IE_TRANSACTION_ID_MASK, *ptr++);
     length--;
 
 
@@ -100,13 +105,15 @@ bool ws_llc_mpx_header_frame_parse(const uint8_t *ptr, uint16_t length, mpx_msg_
 
 uint8_t *ws_llc_mpx_header_write(uint8_t *ptr, const mpx_msg_t *msg)
 {
-
     bool fragmented_number_present = false;
     bool multiplex_id_present = false;
     bool fragment_total_size = false;
+    uint8_t tmp8;
 
-    *ptr = msg->transfer_type;
-    *ptr++ |= ((msg->transaction_id << 3) & 0xf8);
+    tmp8 = 0;
+    tmp8 |= FIELD_PREP(MPX_IE_TRANSFER_TYPE_MASK,  msg->transfer_type);
+    tmp8 |= FIELD_PREP(MPX_IE_TRANSACTION_ID_MASK, msg->transaction_id);
+    *ptr++ = tmp8;
 
     switch (msg->transfer_type) {
         case MPX_FT_FULL_FRAME:
