@@ -2464,11 +2464,17 @@ static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)
 {
+    // Firmware API < 0.15 crashes if slots > 3 are accessed
+    if (ws_version_1_0(cur) && slot > 3)
+        return;
     mac_helper_security_key_to_descriptor_set(cur, key, index + 1, slot);
 }
 
 static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot)
 {
+    // Firmware API < 0.15 crashes if slots > 3 are accessed
+    if (ws_version_1_0(cur) && slot > 3)
+        return;
     mac_helper_security_key_descriptor_clear(cur, slot);
 }
 

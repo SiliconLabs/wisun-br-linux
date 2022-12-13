@@ -522,10 +522,8 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
         // If network key is set and GTK key is not set or not the same, removes network key
         if (nw_key[i].set && (!gtk || memcmp(nw_key[i].gtk, gtk, GTK_LEN) != 0)) {
             // Removes key from MAC if installed
-            if (nw_key[i].installed) {
-                if (!(is_lgtk && ws_version_1_0(interface_ptr)))
-                    controller->nw_key_clear(interface_ptr, i + key_offset);
-            }
+            if (nw_key[i].installed)
+                controller->nw_key_clear(interface_ptr, i + key_offset);
             nw_key[i].installed = false;
             nw_key[i].set = false;
             tr_info("NW key remove: %i", i + key_offset);
@@ -563,8 +561,7 @@ static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface
             uint8_t gak[GTK_LEN];
             if (ws_pae_controller_gak_from_gtk(gak, gtk, controller->sec_keys_nw_info.network_name) >= 0) {
                 // Install the new network key derived from GTK and network name (GAK) to MAC
-                if (!(is_lgtk && ws_version_1_0(interface_ptr)))
-                    controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
+                controller->nw_key_set(interface_ptr, i + key_offset, i + key_offset, gak);
                 nw_key[i].installed = true;
                 ret = 0;
 #ifdef EXTRA_DEBUG_INFO
@@ -710,10 +707,8 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_
         // Deletes the key if it is set
         if (nw_key[i].set) {
             tr_info("NW key remove: %i", i + key_offset);
-            if (nw_key[i].installed) {
-                if (!(is_lgtk && ws_version_1_0(interface_ptr)))
-                    controller->nw_key_clear(interface_ptr, i + key_offset);
-            }
+            if (nw_key[i].installed)
+                controller->nw_key_clear(interface_ptr, i + key_offset);
             nw_key[i].set = false;
             nw_key[i].installed = false;
         }
