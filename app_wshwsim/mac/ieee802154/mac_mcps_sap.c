@@ -156,7 +156,7 @@ void mcps_sap_data_req_handler(protocol_interface_rf_mac_setup_s *rf_mac_setup, 
     mcps_sap_data_req_handler_ext(rf_mac_setup, data_req, &ie_list, NULL, MAC_DATA_NORMAL_PRIORITY, 0);
 }
 
-static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov_length,  uint16_t *length_out)
+static bool mac_ie_vector_length_validate(struct iovec *ie_vector, uint16_t iov_length,  uint16_t *length_out)
 {
     if (length_out) {
         *length_out = 0;
@@ -171,13 +171,13 @@ static bool mac_ie_vector_length_validate(ns_ie_iovec_t *ie_vector, uint16_t iov
     }
 
     uint16_t msg_length = 0;
-    ns_ie_iovec_t *msg_iov = ie_vector;
+    struct iovec *msg_iov = ie_vector;
     for (uint_fast16_t i = 0; i < iov_length; i++) {
-        if (msg_iov->iovLen != 0 && !msg_iov->ieBase) {
+        if (msg_iov->iov_len != 0 && !msg_iov->iov_base) {
             return false;
         }
-        msg_length += msg_iov->iovLen;
-        if (msg_length < msg_iov->iovLen) {
+        msg_length += msg_iov->iov_len;
+        if (msg_length < msg_iov->iov_len) {
             return false;
         }
         msg_iov++;

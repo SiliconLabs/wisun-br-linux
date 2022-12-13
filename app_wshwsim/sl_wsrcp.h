@@ -43,8 +43,8 @@ struct neighbor_timings {
 struct msdu_malloc_info {
     int msduHandle;
     void *msdu;
-    struct ns_ie_iovec *header;
-    struct ns_ie_iovec *payload;
+    struct iovec *header;
+    struct iovec *payload;
     struct slist list;
 };
 

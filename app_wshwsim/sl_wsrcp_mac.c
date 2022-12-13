@@ -475,19 +475,19 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
     len = spinel_pop_data_ptr(buf, &ptr);
     if (len) {
         ie_ext.payloadIovLength = 1;
-        ie_ext.payloadIeVectorList = malloc(sizeof(struct ns_ie_iovec));
-        ie_ext.payloadIeVectorList->iovLen = len;
-        ie_ext.payloadIeVectorList->ieBase = malloc(len);
-        memcpy(ie_ext.payloadIeVectorList->ieBase, ptr, len);
+        ie_ext.payloadIeVectorList = malloc(sizeof(struct iovec));
+        ie_ext.payloadIeVectorList->iov_len = len;
+        ie_ext.payloadIeVectorList->iov_base = malloc(len);
+        memcpy(ie_ext.payloadIeVectorList->iov_base, ptr, len);
     }
 
     len = spinel_pop_data_ptr(buf, &ptr);
     if (len) {
         ie_ext.headerIovLength = 1;
-        ie_ext.headerIeVectorList = malloc(sizeof(struct ns_ie_iovec));
-        ie_ext.headerIeVectorList->iovLen = len;
-        ie_ext.headerIeVectorList->ieBase = malloc(len);
-        memcpy(ie_ext.headerIeVectorList->ieBase, ptr, len);
+        ie_ext.headerIeVectorList = malloc(sizeof(struct iovec));
+        ie_ext.headerIeVectorList->iov_len = len;
+        ie_ext.headerIeVectorList->iov_base = malloc(len);
+        memcpy(ie_ext.headerIeVectorList->iov_base, ptr, len);
     }
     if (iobuf_remaining_size(buf))
          async_channel_list.next_channel_number = spinel_pop_u16(buf);
@@ -774,8 +774,8 @@ void wsmac_mcps_data_confirm_ext(const mac_api_t *mac_api, const mcps_data_conf_
     malloc_info = SLIST_REMOVE(ctxt->msdu_malloc_list, malloc_info,
                                list, malloc_info->msduHandle == data->msduHandle);
     BUG_ON(!malloc_info);
-    free(malloc_info->header->ieBase);
-    free(malloc_info->payload->ieBase);
+    free(malloc_info->header->iov_base);
+    free(malloc_info->payload->iov_base);
     free(malloc_info->header);
     free(malloc_info->payload);
     free(malloc_info->msdu);
@@ -929,19 +929,19 @@ void wsmac_mcps_ack_data_req_ext(const mac_api_t *mac_api, mcps_ack_data_payload
     // It is safe to use static buffer. Indeed, result of this function is
     // always stored in enhanced_ack_buffer that is instanciated only once for
     // each MAC.
-    static ns_ie_iovec_t header_vector;
+    static struct iovec header_vector;
     static uint8_t ie[20];
 
     memset(data, 0, sizeof(mcps_ack_data_payload_t));
     data->ie_elements.headerIovLength = 1;
     data->ie_elements.headerIeVectorList = &header_vector;
-    data->ie_elements.headerIeVectorList->ieBase = ie;
+    data->ie_elements.headerIeVectorList->iov_base = ie;
 
     // Write Data to block
     uint8_t *ptr = ie;
     ptr = ws_wh_utt_write(ptr, WS_FT_ACK);
     ptr = ws_wh_rsl_write(ptr, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
-    data->ie_elements.headerIeVectorList->iovLen = ptr - ie;
+    data->ie_elements.headerIeVectorList->iov_len = ptr - ie;
 }
 
 void wsmac_mcps_edfe_handler(const mac_api_t *mac_api, mcps_edfe_response_t *response_message)

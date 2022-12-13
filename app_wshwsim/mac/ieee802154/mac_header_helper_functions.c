@@ -585,12 +585,12 @@ uint8_t *mac_generic_packet_write(struct protocol_interface_rf_mac_setup *rf_ptr
     return ptr;
 }
 
-static uint8_t *mac_write_ie_vector_list(ns_ie_iovec_t *list, uint16_t length, uint8_t *ptr)
+static uint8_t *mac_write_ie_vector_list(struct iovec *list, uint16_t length, uint8_t *ptr)
 {
-    const ns_ie_iovec_t *msg_iov = list;
+    const struct iovec *msg_iov = list;
     for (uint_fast16_t i = 0; i < length; i++, msg_iov++) {
-        memcpy(ptr, msg_iov->ieBase, msg_iov->iovLen);
-        ptr += msg_iov->iovLen;
+        memcpy(ptr, msg_iov->iov_base, msg_iov->iov_len);
+        ptr += msg_iov->iov_len;
     }
     return ptr;
 }

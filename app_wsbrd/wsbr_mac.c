@@ -1031,19 +1031,19 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
 
     total = 0;
     for (i = 0; i < ie_ext->payloadIovLength; i++)
-        total += ie_ext->payloadIeVectorList[i].iovLen;
+        total += ie_ext->payloadIeVectorList[i].iov_len;
     spinel_push_u16(&buf, total);
     for (i = 0; i < ie_ext->payloadIovLength; i++)
-        spinel_push_raw(&buf, ie_ext->payloadIeVectorList[i].ieBase,
-                        ie_ext->payloadIeVectorList[i].iovLen);
+        spinel_push_raw(&buf, ie_ext->payloadIeVectorList[i].iov_base,
+                        ie_ext->payloadIeVectorList[i].iov_len);
 
     total = 0;
     for (i = 0; i < ie_ext->headerIovLength; i++)
-        total += ie_ext->headerIeVectorList[i].iovLen;
+        total += ie_ext->headerIeVectorList[i].iov_len;
     spinel_push_u16(&buf, total);
     for (i = 0; i < ie_ext->headerIovLength; i++)
-        spinel_push_raw(&buf, ie_ext->headerIeVectorList[i].ieBase,
-                        ie_ext->headerIeVectorList[i].iovLen);
+        spinel_push_raw(&buf, ie_ext->headerIeVectorList[i].iov_base,
+                        ie_ext->headerIeVectorList[i].iov_len);
     if (!fw_api_older_than(ctxt, 0, 7, 0))
         spinel_push_u16(&buf, async_channel_list->next_channel_number);
     if (!fw_api_older_than(ctxt, 0, 12,0))

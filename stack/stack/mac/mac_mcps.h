@@ -22,6 +22,7 @@
 #ifndef MAC_MCPS_H
 #define MAC_MCPS_H
 
+#include <sys/uio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "stack/mac/mac_common_defines.h"
@@ -126,17 +127,6 @@ typedef struct mcps_data_ie_list {
     uint16_t payloadIeListLength;       /**< Payload information IE's list length in bytes */
 } mcps_data_ie_list_t;
 
-/** \brief Scatter-gather descriptor for MCPS request IE Element list
- *
- * Slightly optimised for small platforms - we assume we won't need any
- * element bigger than 64K.
- */
-typedef struct ns_ie_iovec {
-    void *ieBase;              /**< IE element pointer */
-    uint_fast16_t iovLen;      /**< IE element length */
-} ns_ie_iovec_t;
-
-
 /**
  * @brief struct mcps_data_req_ie_list MCPS data Information element list stuctrure
  *
@@ -145,8 +135,8 @@ typedef struct ns_ie_iovec {
  * IE element could be divided to multiple vector which MAC just write to message direct.
  */
 typedef struct mcps_data_req_ie_list {
-    ns_ie_iovec_t *headerIeVectorList;   /**< Header IE element list */
-    ns_ie_iovec_t *payloadIeVectorList;  /**< Payload IE element list */
+    struct iovec *headerIeVectorList;    /**< Header IE element list */
+    struct iovec *payloadIeVectorList;   /**< Payload IE element list */
     uint16_t headerIovLength;            /**< Header IE element list size, set 0 when no elements */
     uint16_t payloadIovLength;           /**< Payload IE element list size, set 0 when no elements */
 } mcps_data_req_ie_list_t;

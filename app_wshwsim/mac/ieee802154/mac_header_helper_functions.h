@@ -26,7 +26,7 @@ struct mlme_security;
 struct mac_pre_parsed_frame;
 struct mac_pre_build_frame;
 struct mac_aux_security_header;
-struct ns_ie_iovec;
+struct iovec;
 struct protocol_interface_rf_mac_setup;
 
 uint8_t mac_security_mic_length_get(uint8_t security_level);
