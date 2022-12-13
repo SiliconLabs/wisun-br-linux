@@ -382,16 +382,16 @@ typedef struct ws_generic_channel_info {
     unsigned channel_plan: 3;
     unsigned channel_function: 3;
     unsigned excluded_channel_ctrl: 2;
-    union {
+    union ws_channel_plan {
         ws_channel_plan_zero_t zero;
         ws_channel_plan_one_t one;
         ws_channel_plan_two_t two;
     } plan;
-    union {
+    union ws_channel_function {
         ws_channel_function_zero_t zero;
         ws_channel_function_three_t three;
     } function;
-    union {
+    union ws_excluded_channel {
         ws_excluded_channel_range_out_t range_out;
         ws_excluded_channel_mask_out_t mask_out;
         ws_excluded_channel_range_t range;

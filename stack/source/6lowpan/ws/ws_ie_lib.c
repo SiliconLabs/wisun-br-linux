@@ -841,386 +841,230 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
     return !ie_buf.err;
 }
 
-static const uint8_t *ws_channel_plan_read(const uint8_t *ptr, ws_generic_channel_info_t *chan_info)
+static void ws_channel_plan_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
 {
     switch (chan_info->channel_plan) {
     case 0:
-        chan_info->plan.zero.regulatory_domain = *ptr++;
-        chan_info->plan.zero.operating_class = *ptr++;
-        return ptr;
+        chan_info->plan.zero.regulatory_domain = iobuf_pop_u8(ie_buf);
+        chan_info->plan.zero.operating_class   = iobuf_pop_u8(ie_buf);
+        break;
     case 1:
-        chan_info->plan.one.ch0 = read_le24(ptr);
-        ptr += 3;
-        chan_info->plan.one.channel_spacing = *ptr++;
-        chan_info->plan.one.number_of_channel = read_le16(ptr);
-        return ptr + 2;
+        chan_info->plan.one.ch0               = iobuf_pop_le24(ie_buf);
+        chan_info->plan.one.channel_spacing   = iobuf_pop_u8(ie_buf);
+        chan_info->plan.one.number_of_channel = iobuf_pop_le16(ie_buf);
+        break;
     case 2:
-        chan_info->plan.two.regulatory_domain = *ptr++;
-        chan_info->plan.two.channel_plan_id = *ptr++;
-        return ptr;
+        chan_info->plan.two.regulatory_domain = iobuf_pop_u8(ie_buf);
+        chan_info->plan.two.channel_plan_id   = iobuf_pop_u8(ie_buf);
+        break;
     default:
-        return NULL;
+        ie_buf->err = true;
+        break;
     }
 }
 
-static const uint8_t *ws_channel_function_read(const uint8_t *ptr, ws_generic_channel_info_t *chan_info)
+static void ws_channel_function_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
 {
+    union ws_channel_function *func = &chan_info->function;
+
     switch (chan_info->channel_function) {
     case 0:
-        chan_info->function.zero.fixed_channel = read_le16(ptr);
-        return ptr + 2;
+        func->zero.fixed_channel = iobuf_pop_le16(ie_buf);
+        break;
     case 1:
     case 2:
-        return ptr;
+        break;
     case 3:
-        chan_info->function.three.channel_hop_count = *ptr++;
-        chan_info->function.three.channel_list = ptr;
-        return ptr + chan_info->function.three.channel_hop_count;
+        func->three.channel_hop_count = iobuf_pop_u8(ie_buf);
+        func->three.channel_list = iobuf_pop_data_ptr(ie_buf, func->three.channel_hop_count);
+        break;
     default:
-        return NULL;
+        ie_buf->err = true;
+        break;
     }
 }
 
-static const uint8_t *ws_channel_excluded_read(const uint8_t *ptr, size_t size, ws_generic_channel_info_t *chan_info)
+static void ws_channel_excluded_read(struct iobuf_read *ie_buf, ws_generic_channel_info_t *chan_info)
 {
+    union ws_excluded_channel *exc_chan = &chan_info->excluded_channels;
+
     switch (chan_info->excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_NONE:
-        return ptr;
+        break;
     case WS_EXC_CHAN_CTRL_RANGE:
-        chan_info->excluded_channels.range.number_of_range = *ptr++;
-        chan_info->excluded_channels.range.range_start = ptr;
-        if (4 * chan_info->excluded_channels.range.number_of_range + 1 > size)
-            return NULL;
-        return ptr + 4 * chan_info->excluded_channels.range.number_of_range;
+        exc_chan->range.number_of_range = iobuf_pop_u8(ie_buf);
+        exc_chan->range.range_start = iobuf_pop_data_ptr(ie_buf, 4 * exc_chan->range.number_of_range);
+        break;
     case WS_EXC_CHAN_CTRL_BITMASK:
-        if (chan_info->channel_plan == 1) {
-            chan_info->excluded_channels.mask.mask_len_inline = roundup(chan_info->plan.one.number_of_channel, 8) / 8;
-            if (chan_info->excluded_channels.mask.mask_len_inline != size)
-                return NULL;
-        } else {
-            chan_info->excluded_channels.mask.mask_len_inline = size;
-        }
-        chan_info->excluded_channels.mask.channel_mask = ptr;
-        return ptr + chan_info->excluded_channels.mask.mask_len_inline;
+        if (chan_info->channel_plan == 1)
+            exc_chan->mask.mask_len_inline = roundup(chan_info->plan.one.number_of_channel, 8) / 8;
+        else
+            exc_chan->mask.mask_len_inline = iobuf_remaining_size(ie_buf);
+        exc_chan->mask.channel_mask = iobuf_pop_data_ptr(ie_buf, exc_chan->mask.mask_len_inline);
+        break;
     default:
-        return NULL;
+        ie_buf->err = true;
+        break;
     }
 }
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
+    uint8_t tmp8;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_US_TYPE;
-    nested_payload_ie.type_long = true;
-    if (4 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-
-    data = nested_payload_ie.content_ptr;
-    us_ie->dwell_interval = *data++;
-    us_ie->clock_drift = *data++;
-    us_ie->timing_accuracy = *data++;
-    us_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
-    us_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
-    us_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
-    data++;
-    uint16_t info_length = 0;
-    nested_payload_ie.length -= 4;
-    info_length = ws_channel_plan_length(us_ie->chan_plan.channel_plan);
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-
-    nested_payload_ie.length -= info_length;
-    data = ws_channel_plan_read(data, &us_ie->chan_plan);
-    if (!data)
-        return false;
-
-    info_length = ws_channel_function_length(us_ie->chan_plan.channel_function, 0);
-
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-    nested_payload_ie.length -= info_length;
-
-    data = ws_channel_function_read(data, &us_ie->chan_plan);
-    if (!data)
-        return false;
-    if (us_ie->chan_plan.channel_function == 3) {
-        if (nested_payload_ie.length < us_ie->chan_plan.function.three.channel_hop_count)
-            return false;
-        nested_payload_ie.length -= us_ie->chan_plan.function.three.channel_hop_count;
-    }
-
-    data = ws_channel_excluded_read(data, nested_payload_ie.length, &us_ie->chan_plan);
-    if (!data)
-        return false;
-
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_US_TYPE, &ie_buf, true);
+    us_ie->dwell_interval  = iobuf_pop_u8(&ie_buf);
+    us_ie->clock_drift     = iobuf_pop_u8(&ie_buf);
+    us_ie->timing_accuracy = iobuf_pop_u8(&ie_buf);
+    tmp8 = iobuf_pop_u8(&ie_buf);
+    us_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
+    us_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     tmp8);
+    us_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, tmp8);
+    ws_channel_plan_read(&ie_buf, &us_ie->chan_plan);
+    ws_channel_function_read(&ie_buf, &us_ie->chan_plan);
+    ws_channel_excluded_read(&ie_buf, &us_ie->chan_plan);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
+    uint8_t tmp8;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_BS_TYPE;
-    nested_payload_ie.type_long = true;
-    if (10 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-    data = nested_payload_ie.content_ptr;
-    bs_ie->broadcast_interval = read_le32(data);
-    bs_ie->broadcast_schedule_identifier = read_le16(data + 4);
-    data += 6;
-    bs_ie->dwell_interval = *data++;
-    bs_ie->clock_drift = *data++;
-    bs_ie->timing_accuracy = *data++;
-
-    bs_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
-    bs_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
-    bs_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
-    data++;
-    nested_payload_ie.length -= 10;
-    uint16_t info_length = 0;
-
-    info_length = ws_channel_plan_length(bs_ie->chan_plan.channel_plan);
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-    nested_payload_ie.length -= info_length;
-    data = ws_channel_plan_read(data, &bs_ie->chan_plan);
-    if (!data)
-        return false;
-
-    info_length = ws_channel_function_length(bs_ie->chan_plan.channel_function, 0);
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-    nested_payload_ie.length -= info_length;
-
-    data = ws_channel_function_read(data, &bs_ie->chan_plan);
-    if (!data)
-        return false;
-    if (bs_ie->chan_plan.channel_function == 3) {
-        if (nested_payload_ie.length < bs_ie->chan_plan.function.three.channel_hop_count)
-            return false;
-        nested_payload_ie.length -= bs_ie->chan_plan.function.three.channel_hop_count;
-    }
-
-    data = ws_channel_excluded_read(data, nested_payload_ie.length, &bs_ie->chan_plan);
-    if (!data)
-        return false;
-
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_BS_TYPE, &ie_buf, true);
+    bs_ie->broadcast_interval            = iobuf_pop_le32(&ie_buf);
+    bs_ie->broadcast_schedule_identifier = iobuf_pop_le16(&ie_buf);
+    bs_ie->dwell_interval                = iobuf_pop_u8(&ie_buf);
+    bs_ie->clock_drift                   = iobuf_pop_u8(&ie_buf);
+    bs_ie->timing_accuracy               = iobuf_pop_u8(&ie_buf);
+    tmp8 = iobuf_pop_u8(&ie_buf);
+    bs_ie->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
+    bs_ie->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     tmp8);
+    bs_ie->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, tmp8);
+    ws_channel_plan_read(&ie_buf, &bs_ie->chan_plan);
+    ws_channel_function_read(&ie_buf, &bs_ie->chan_plan);
+    ws_channel_excluded_read(&ie_buf, &bs_ie->chan_plan);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
+    uint8_t tmp8;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_PAN_TYPE;
-    nested_payload_ie.type_long = false;
-    if (5 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-
-    pan_configuration->pan_size = read_le16(nested_payload_ie.content_ptr);
-    pan_configuration->routing_cost = read_le16(nested_payload_ie.content_ptr + 2);
-    pan_configuration->use_parent_bs      = FIELD_GET(WS_WP_PAN_IE_USE_PARENT_BS_IE_MASK, nested_payload_ie.content_ptr[4]);
-    pan_configuration->rpl_routing_method = FIELD_GET(WS_WP_PAN_IE_ROUTING_METHOD_MASK,   nested_payload_ie.content_ptr[4]);
-    pan_configuration->version            = FIELD_GET(WS_WP_PAN_IE_FAN_TPS_VERSION_MASK,  nested_payload_ie.content_ptr[4]);
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_PAN_TYPE, &ie_buf, false);
+    pan_configuration->pan_size     = iobuf_pop_le16(&ie_buf);
+    pan_configuration->routing_cost = iobuf_pop_le16(&ie_buf);
+    tmp8 = iobuf_pop_u8(&ie_buf);
+    pan_configuration->use_parent_bs      = FIELD_GET(WS_WP_PAN_IE_USE_PARENT_BS_IE_MASK, tmp8);
+    pan_configuration->rpl_routing_method = FIELD_GET(WS_WP_PAN_IE_ROUTING_METHOD_MASK,   tmp8);
+    pan_configuration->version            = FIELD_GET(WS_WP_PAN_IE_FAN_TPS_VERSION_MASK,  tmp8);
     if (pan_configuration->version > WS_FAN_VERSION_1_0)
-        pan_configuration->lfn_window_style = FIELD_GET(WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK, nested_payload_ie.content_ptr[4]);
+        pan_configuration->lfn_window_style = FIELD_GET(WS_WP_PAN_IE_LFN_WINDOW_STYLE_MASK, tmp8);
     else
         pan_configuration->lfn_window_style = false;
-    return true;
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_PAN_VER_TYPE;
-    nested_payload_ie.type_long = false;
-    if (2 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-    *pan_version = read_le16(nested_payload_ie.content_ptr);
-
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_PAN_VER_TYPE, &ie_buf, false);
+    *pan_version = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t gtkhash[4])
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_GTKHASH_TYPE;
-    nested_payload_ie.type_long = false;
-    if (mac_ie_nested_discover(data, length, &nested_payload_ie) !=  32)
-        return false;
-    memcpy(gtkhash, nested_payload_ie.content_ptr, 4 * 8);
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_GTKHASH_TYPE, &ie_buf, false);
+    iobuf_pop_data(&ie_buf, (uint8_t *)gtkhash, 4 * 8);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_NETNAME_TYPE;
-    nested_payload_ie.type_long = false;
-    if (0 == mac_ie_nested_discover(data, length, &nested_payload_ie)) {
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_NETNAME_TYPE, &ie_buf, false);
+    network_name->network_name_length = iobuf_remaining_size(&ie_buf);
+    network_name->network_name = iobuf_ptr(&ie_buf);
+    if (network_name->network_name_length > 32)
         return false;
-    } else if (nested_payload_ie.length > 32) {
-        //Too long name
-        return false;
-    }
-    network_name->network_name = nested_payload_ie.content_ptr;
-    network_name->network_name_length = nested_payload_ie.length;
-    return true;
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
+    uint8_t tmp8;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_POM_TYPE;
-    nested_payload_ie.type_long = false;
-    if (mac_ie_nested_discover(data, length, &nested_payload_ie) <= 1) {
-        // Too short
-        return false;
-    }
-
-    pom_ie->phy_op_mode_number  = FIELD_GET(WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK, nested_payload_ie.content_ptr[0]);
-    pom_ie->mdr_command_capable = FIELD_GET(WS_WP_POM_IE_MDR_CAPABLE_MASK,        nested_payload_ie.content_ptr[0]);
-    if (pom_ie->phy_op_mode_number != 0) {
-        pom_ie->phy_op_mode_id = nested_payload_ie.content_ptr + 1; //FIXME: this is nasty
-    } else {
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_POM_TYPE, &ie_buf, false);
+    tmp8 = iobuf_pop_u8(&ie_buf);
+    pom_ie->phy_op_mode_number  = FIELD_GET(WS_WP_POM_IE_PHY_OP_MODE_NUMBER_MASK, tmp8);
+    pom_ie->mdr_command_capable = FIELD_GET(WS_WP_POM_IE_MDR_CAPABLE_MASK,        tmp8);
+    if (pom_ie->phy_op_mode_number)
+        pom_ie->phy_op_mode_id = iobuf_pop_data_ptr(&ie_buf, pom_ie->phy_op_mode_number);
+    else
         pom_ie->phy_op_mode_id = NULL;
-    }
-
-    return true;
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_LFN_VER_TYPE;
-    nested_payload_ie.type_long = false;
-    if (ws_wp_nested_lfn_version_length() > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-
-    ws_lfnver->lfn_version = read_le16(nested_payload_ie.content_ptr);
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LFN_VER_TYPE, &ie_buf, false);
+    ws_lfnver->lfn_version = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t lgtkhash[3], unsigned *active_lgtk_index)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
     unsigned valid_hashs;
-    int i;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_LGTKHASH_TYPE;
-    nested_payload_ie.type_long = false;
-    if (1 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-    data = nested_payload_ie.content_ptr;
-
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LGTKHASH_TYPE, &ie_buf, false);
     valid_hashs = FIELD_GET(WS_WP_LGTKHASH_IE_INCLUDE_LGTK0_MASK |
                             WS_WP_LGTKHASH_IE_INCLUDE_LGTK1_MASK |
                             WS_WP_LGTKHASH_IE_INCLUDE_LGTK2_MASK, *data);
     *active_lgtk_index = FIELD_GET(WS_WP_LGTKHASH_IE_ACTIVE_INDEX_MASK, *data);
-
-    if (__builtin_popcount(valid_hashs) * 8 > nested_payload_ie.length) {
-        return false;
-    }
-
-    data++;
-    for (i = 0; i < 3; i++) {
-        if (valid_hashs & (1 << i)) {
-            memcpy(lgtkhash[i], data, 8);
-            data += 8;
-        } else {
+    for (int i = 0; i < 3; i++) {
+        if (valid_hashs & (1 << i))
+            iobuf_pop_data(&ie_buf, lgtkhash[i], 8);
+        else
             memset(lgtkhash[i], 0, 8);
-        }
     }
-
-    return true;
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
+    struct iobuf_read ie_buf;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_LBATS_TYPE;
-    nested_payload_ie.type_long = true;
-    if (3 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-    lbats_ie->additional_transmissions = *nested_payload_ie.content_ptr++;
-    lbats_ie->next_transmit_delay = read_le16(nested_payload_ie.content_ptr);
-
-    return true;
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LBATS_TYPE, &ie_buf, true);
+    lbats_ie->additional_transmissions = iobuf_pop_u8(&ie_buf);
+    lbats_ie->next_transmit_delay      = iobuf_pop_le16(&ie_buf);
+    return !ie_buf.err;
 }
 
 bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
 {
-    mac_nested_payload_IE_t nested_payload_ie;
-    uint16_t info_length;
-    uint8_t plan_tag_id;
+    struct iobuf_read ie_buf;
+    uint8_t tmp8;
 
-    nested_payload_ie.id = WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE;
-    nested_payload_ie.type_long = true;
-    if (2 > mac_ie_nested_discover(data, length, &nested_payload_ie)) {
-        return false;
-    }
-    // FIXME is mac_ie_nested_tagged_discover() needed?
-    plan_tag_id = *nested_payload_ie.content_ptr;
-    if (1 < mac_ie_nested_tagged_discover(data, length, &nested_payload_ie, plan_tag_id)) {
-        return false;
-    }
-    //Parse Channel Plan, function and excluded channel
-    data = nested_payload_ie.content_ptr;
-    ws_lcp->lfn_channel_plan_tag = *data++;
-    ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     *data);
-    ws_lcp->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     *data);
-    ws_lcp->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, *data);
-    data++;
-    nested_payload_ie.length--;
-
-    info_length = ws_channel_plan_length(ws_lcp->chan_plan.channel_plan);
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-    nested_payload_ie.length -= info_length;
-
-    data = ws_channel_plan_read(data, &ws_lcp->chan_plan);
-    if (!data)
-        return false;
-
-    info_length = ws_channel_function_length(ws_lcp->chan_plan.channel_function, 0);
-    if (nested_payload_ie.length < info_length) {
-        return false;
-    }
-    nested_payload_ie.length -= info_length;
-
-    data = ws_channel_function_read(data, &ws_lcp->chan_plan);
-    if (!data)
-        return false;
-    if (ws_lcp->chan_plan.channel_function == 3) {
-        if (nested_payload_ie.length < ws_lcp->chan_plan.function.three.channel_hop_count)
-            return false;
-        nested_payload_ie.length -= ws_lcp->chan_plan.function.three.channel_hop_count;
-    }
-
-    data = ws_channel_excluded_read(data, nested_payload_ie.length, &ws_lcp->chan_plan);
-    if (!data)
-        return false;
-
-    return true;
-
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LBATS_TYPE, &ie_buf, true);
+    ws_lcp->lfn_channel_plan_tag = iobuf_pop_u8(&ie_buf);
+    tmp8 = iobuf_pop_u8(&ie_buf);
+    ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
+    ws_lcp->chan_plan.channel_function      = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK,     tmp8);
+    ws_lcp->chan_plan.excluded_channel_ctrl = FIELD_GET(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, tmp8);
+    ws_channel_plan_read(&ie_buf, &ws_lcp->chan_plan);
+    ws_channel_function_read(&ie_buf, &ws_lcp->chan_plan);
+    ws_channel_excluded_read(&ie_buf, &ws_lcp->chan_plan);
+    return !ie_buf.err;
 }
 
