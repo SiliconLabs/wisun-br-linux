@@ -17,7 +17,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include "common/hal_interrupt.h"
 #include "common/ns_list.h"
 #include "common/log.h"
 
@@ -109,16 +108,14 @@ void event_send_user_allocated(struct event_storage *event)
     event->allocator = ARM_LIB_EVENT_USER;
     event_core_write(event);
 }
+
 void event_cancel(struct event_storage *event)
 {
     struct events_scheduler *ctxt = g_event_scheduler;
 
     BUG_ON(!ctxt);
-    if (!event) {
+    if (!event)
         return;
-    }
-
-    platform_enter_critical();
 
     /*
      * Remove event from the list,
@@ -131,8 +128,6 @@ void event_cancel(struct event_storage *event)
     if (event->state != ARM_LIB_EVENT_RUNNING)
         if (event->allocator ==  ARM_LIB_EVENT_DYNAMIC)
             free(event);
-
-    platform_exit_critical();
 }
 
 int8_t event_scheduler_get_active_tasklet(void)
