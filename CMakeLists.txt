@@ -101,6 +101,7 @@ add_library(libwsbrd STATIC
     common/trickle.c
     common/ws_regdb.c
     common/key_value_storage.c
+    common/ieee802154_ie.c
     stack/source/timers.c
     stack/source/6lowpan/adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
@@ -281,6 +282,7 @@ if(COMPILE_SIMULATION_TOOLS)
         common/trickle.c
         common/ws_regdb.c
         common/key_value_storage.c
+        common/ieee802154_ie.c
         stack/source/timers.c
         stack/source/6lowpan/adaptation_interface.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan.c
