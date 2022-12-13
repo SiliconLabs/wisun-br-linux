@@ -56,7 +56,6 @@
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/mac/mac_ie_lib.h"
 
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common_defines.h"

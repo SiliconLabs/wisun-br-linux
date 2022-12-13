@@ -40,7 +40,6 @@
 #include "security/eapol/eapol_helper.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
-#include "6lowpan/mac/mac_ie_lib.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"

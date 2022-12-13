@@ -28,7 +28,6 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/ws_management_api.h"
 
-#include "6lowpan/mac/mac_ie_lib.h"
 #include "6lowpan/ws/ws_common_defines.h"
 
 #include "6lowpan/ws/ws_ie_lib.h"

@@ -113,7 +113,6 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/iphc_decode/iphc_decompress.c
     stack/source/6lowpan/iphc_decode/lowpan_context.c
     stack/source/6lowpan/mac/mac_helper.c
-    stack/source/6lowpan/mac/mac_ie_lib.c
     stack/source/6lowpan/mac/mac_response_handler.c
     stack/source/6lowpan/nd/nd_router_object.c
     stack/source/6lowpan/ws/ws_bbr_api.c
@@ -294,7 +293,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/6lowpan/iphc_decode/iphc_decompress.c
         stack/source/6lowpan/iphc_decode/lowpan_context.c
         stack/source/6lowpan/mac/mac_helper.c
-        stack/source/6lowpan/mac/mac_ie_lib.c
         stack/source/6lowpan/mac/mac_response_handler.c
         stack/source/6lowpan/nd/nd_router_object.c
         stack/source/6lowpan/ws/ws_bootstrap.c
