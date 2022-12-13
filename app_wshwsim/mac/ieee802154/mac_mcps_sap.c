@@ -2428,7 +2428,7 @@ void mac_cca_threshold_event_send(protocol_interface_rf_mac_setup_s *rf_ptr, uin
 
 void mac_generic_event_trig(uint8_t event_type, void *mac_ptr, bool low_latency)
 {
-    event_priority_e priority;
+    enum event_priority priority;
     if (low_latency) {
         priority = ARM_LIB_LOW_PRIORITY_EVENT;
     } else {

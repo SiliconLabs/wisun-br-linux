@@ -16,6 +16,37 @@
 #include <stdint.h>
 #include "common/ns_list.h"
 
+enum event_priority {
+    ARM_LIB_HIGH_PRIORITY_EVENT = 0,
+    ARM_LIB_MED_PRIORITY_EVENT  = 1,
+    ARM_LIB_LOW_PRIORITY_EVENT  = 2,
+};
+
+struct event_payload {
+    int8_t receiver;    /* Tasklet ID */
+    int8_t sender;      /* Tasklet ID */
+    uint8_t event_type;
+    uint8_t event_id;
+    void *data_ptr;
+    enum event_priority priority;
+    uintptr_t event_data;
+};
+
+struct event_storage {
+    struct event_payload data;
+    enum {
+        ARM_LIB_EVENT_DYNAMIC,
+        ARM_LIB_EVENT_USER,
+        ARM_LIB_EVENT_TIMER,
+    } allocator;
+    enum {
+        ARM_LIB_EVENT_UNQUEUED,
+        ARM_LIB_EVENT_QUEUED,
+        ARM_LIB_EVENT_RUNNING,
+    } state;
+    ns_list_link_t link;
+};
+
 struct events_scheduler {
     int event_fd[2];
     int8_t curr_tasklet;
@@ -62,41 +93,6 @@ int8_t event_scheduler_get_active_tasklet(void);
  * \brief This function will be called when stack receives an event.
  */
 void event_scheduler_signal(void);
-
-/**
- * \enum event_priority_e
- * \brief Event Priority level.
- */
-typedef enum event_priority {
-    ARM_LIB_HIGH_PRIORITY_EVENT = 0, /**< High Priority Event (Function CB) */
-    ARM_LIB_MED_PRIORITY_EVENT = 1, /**< Medium Priority (Timer) */
-    ARM_LIB_LOW_PRIORITY_EVENT = 2, /*!*< Normal Event and ECC / Security */
-} event_priority_e;
-
-struct event_payload {
-    int8_t receiver; /**< Event handler Tasklet ID */
-    int8_t sender; /**< Event sender Tasklet ID */
-    uint8_t event_type; /**< This will be typecast arm_library_event_type_e, arm_internal_event_type_e or application specific define */
-    uint8_t event_id; /**< Timer ID, NWK interface ID or application specific ID */
-    void *data_ptr; /**< Application could share data pointer tasklet to tasklet */
-    enum event_priority priority;
-    uintptr_t event_data;
-};
-
-struct event_storage {
-    struct event_payload data;
-    enum {
-        ARM_LIB_EVENT_DYNAMIC,
-        ARM_LIB_EVENT_USER,
-        ARM_LIB_EVENT_TIMER,
-    } allocator;
-    enum {
-        ARM_LIB_EVENT_UNQUEUED,
-        ARM_LIB_EVENT_QUEUED,
-        ARM_LIB_EVENT_RUNNING,
-    } state;
-    ns_list_link_t link;
-};
 
 /**
  * \brief Send event to event scheduler.

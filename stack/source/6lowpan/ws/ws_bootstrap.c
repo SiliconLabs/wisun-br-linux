@@ -83,7 +83,7 @@
 #define TRACE_GROUP "wsbs"
 
 static void ws_bootstrap_event_handler(struct event_payload *event);
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, event_priority_e priority, void *event_data);
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, enum event_priority priority, void *event_data);
 static uint16_t ws_bootstrap_rank_get(struct net_if *cur);
 static uint16_t ws_bootstrap_min_rank_inc_get(struct net_if *cur);
 static void ws_bootstrap_mac_security_enable(struct net_if *cur);
@@ -263,7 +263,7 @@ static int ws_bootstrap_tasklet_init(struct net_if *cur)
     return 0;
 }
 
-static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, event_priority_e priority, void *event_data)
+static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8_t interface_id, enum event_priority priority, void *event_data)
 {
     struct event_payload event = {
         .receiver = interface_id,
