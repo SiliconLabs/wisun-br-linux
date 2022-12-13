@@ -163,10 +163,12 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct net_if *cur, const struc
         WARN("Received corrupted PAN config: no broadcast timing information");
         return;
     }
+    // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
         WARN("Received corrupted PAN config: no broadcast schedule information");
         return;
     }
+    // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
         WARN("Received corrupted PAN config: no PAN version");
         return;
@@ -205,6 +207,7 @@ static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct net_if *cur, cons
 
     if (data->SrcPANId != cur->ws_info->network_pan_id)
         return;
+    // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
         WARN("Received corrupted PAN advertisement: no pan information");
         return;
@@ -261,6 +264,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
     }
 
     ws_us_ie_t ws_us;
+    // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_us)) {
         // Corrupted
         return;
@@ -271,6 +275,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
         return;
     }
 
+    // FIXME: see comment in ws_llc_asynch_indication
     if (neighbor && ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pom_ie)) {
         // POM-IE is optional (PA, LPA, PAS, LPAS)
         mac_neighbor_update_pom(neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);

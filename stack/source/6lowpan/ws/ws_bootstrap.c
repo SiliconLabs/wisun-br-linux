@@ -949,6 +949,7 @@ bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, c
         return false;
     }
 
+    // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_network_name_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
         tr_warn("No network name IE");
         return false;
