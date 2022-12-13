@@ -862,17 +862,22 @@ static const uint8_t *ws_channel_plan_read(const uint8_t *ptr, ws_generic_channe
     }
 }
 
-static const uint8_t *ws_channel_function_zero_read(const uint8_t *ptr, ws_channel_function_zero_t *plan)
+static const uint8_t *ws_channel_function_read(const uint8_t *ptr, ws_generic_channel_info_t *chan_info)
 {
-    plan->fixed_channel = read_le16(ptr);
-    return ptr + 2;
-}
-
-static const uint8_t *ws_channel_function_three_read(const uint8_t *ptr, ws_channel_function_three_t *plan)
-{
-    plan->channel_hop_count = *ptr++;
-    plan->channel_list = ptr;
-    return ptr;
+    switch (chan_info->channel_function) {
+    case 0:
+        chan_info->function.zero.fixed_channel = read_le16(ptr);
+        return ptr + 2;
+    case 1:
+    case 2:
+        return ptr;
+    case 3:
+        chan_info->function.three.channel_hop_count = *ptr++;
+        chan_info->function.three.channel_list = ptr;
+        return ptr + chan_info->function.three.channel_hop_count;
+    default:
+        return NULL;
+    }
 }
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie)
@@ -912,29 +917,13 @@ bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie 
     }
     nested_payload_ie.length -= info_length;
 
-
-    switch (us_ie->chan_plan.channel_function) {
-        case 0:
-            data = ws_channel_function_zero_read(data, &us_ie->chan_plan.function.zero);
-            break;
-
-        case 1:
-        case 2:
-            break;
-
-        case 3:
-
-            data = ws_channel_function_three_read(data, &us_ie->chan_plan.function.three);
-            info_length = us_ie->chan_plan.function.three.channel_hop_count;
-            if (nested_payload_ie.length < info_length) {
-                return false;
-            }
-            nested_payload_ie.length -= info_length;
-            data += info_length;
-            break;
-        default:
+    data = ws_channel_function_read(data, &us_ie->chan_plan);
+    if (!data)
+        return false;
+    if (us_ie->chan_plan.channel_function == 3) {
+        if (nested_payload_ie.length < us_ie->chan_plan.function.three.channel_hop_count)
             return false;
-
+        nested_payload_ie.length -= us_ie->chan_plan.function.three.channel_hop_count;
     }
 
     switch (us_ie->chan_plan.excluded_channel_ctrl) {
@@ -1009,27 +998,13 @@ bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie 
     }
     nested_payload_ie.length -= info_length;
 
-    switch (bs_ie->chan_plan.channel_function) {
-        case 0:
-            data = ws_channel_function_zero_read(data, &bs_ie->chan_plan.function.zero);
-            break;
-
-        case 1:
-        case 2:
-            break;
-
-        case 3:
-            data = ws_channel_function_three_read(data, &bs_ie->chan_plan.function.three);
-            info_length = bs_ie->chan_plan.function.three.channel_hop_count;
-            if (nested_payload_ie.length < info_length) {
-                return false;
-            }
-            nested_payload_ie.length -= info_length;
-            data += info_length;
-            break;
-        default:
+    data = ws_channel_function_read(data, &bs_ie->chan_plan);
+    if (!data)
+        return false;
+    if (bs_ie->chan_plan.channel_function == 3) {
+        if (nested_payload_ie.length < bs_ie->chan_plan.function.three.channel_hop_count)
             return false;
-
+        nested_payload_ie.length -= bs_ie->chan_plan.function.three.channel_hop_count;
     }
 
     switch (bs_ie->chan_plan.excluded_channel_ctrl) {
@@ -1257,24 +1232,13 @@ bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, st
     }
     nested_payload_ie.length -= info_length;
 
-    switch (ws_lcp->chan_plan.channel_function) {
-        case 0:
-            data = ws_channel_function_zero_read(data, &ws_lcp->chan_plan.function.zero);
-            break;
-        case 1:
-        case 2:
-            break;
-        case 3:
-            data = ws_channel_function_three_read(data, &ws_lcp->chan_plan.function.three);
-            info_length = ws_lcp->chan_plan.function.three.channel_hop_count;
-            if (nested_payload_ie.length < info_length) {
-                return false;
-            }
-            nested_payload_ie.length -= info_length;
-            data += info_length;
-            break;
-        default:
+    data = ws_channel_function_read(data, &ws_lcp->chan_plan);
+    if (!data)
+        return false;
+    if (ws_lcp->chan_plan.channel_function == 3) {
+        if (nested_payload_ie.length < ws_lcp->chan_plan.function.three.channel_hop_count)
             return false;
+        nested_payload_ie.length -= ws_lcp->chan_plan.function.three.channel_hop_count;
     }
 
     switch (ws_lcp->chan_plan.excluded_channel_ctrl) {
