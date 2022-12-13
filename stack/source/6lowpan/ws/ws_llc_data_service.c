@@ -1822,12 +1822,15 @@ static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_respons
     response_message->PanIdSuppressed = true;
 }
 
-static void  ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t *response_message, ws_fc_ie_t fc_ie)
+static void ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t *response_message)
 {
-    memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     uint8_t *ptr = message->ie_vector_list[0].ieBase;
-    fc_ie.tx_flow_ctrl = 0;//Put Data with Handshake
-    fc_ie.rx_flow_ctrl = 255;
+    ws_fc_ie_t fc_ie = {
+        .tx_flow_ctrl = 0, // Put data with handshake
+        .rx_flow_ctrl = 255,
+    };
+
+    memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     //Write Flow control for 1 packet send this will be modified at real data send
     ptr = ws_wh_fc_write(ptr, &fc_ie);
     response_message->ie_response.headerIeVectorList = &message->ie_vector_list[0];
@@ -1881,7 +1884,7 @@ static void ws_llc_mcps_edfe_handler(const mac_api_t *api, mcps_edfe_response_t 
                 response_message->edfe_message_status = MCPS_EDFE_FINAL_FRAME_RX;
                 return;
             }
-            ws_llc_build_edfe_frame(message, response_message, fc_ie);
+            ws_llc_build_edfe_frame(message, response_message);
         }
 
     } else if (fc_ie.tx_flow_ctrl == 0 && fc_ie.rx_flow_ctrl == 0) {
