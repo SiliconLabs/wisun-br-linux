@@ -18,6 +18,7 @@
 
 struct events_scheduler {
     int event_fd[2];
+    int8_t curr_tasklet;
 };
 
 /**

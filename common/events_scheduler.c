@@ -33,7 +33,6 @@ struct event_tasklet {
 
 static NS_LIST_DEFINE(event_tasklet_list, struct event_tasklet, link);
 static NS_LIST_DEFINE(event_queue, struct event_storage, link);
-static int8_t curr_tasklet = 0;
 
 static struct event_tasklet *event_tasklet_handler_get(uint8_t tasklet_id)
 {
@@ -136,25 +135,30 @@ void event_cancel(struct event_storage *event)
 
 int8_t event_scheduler_get_active_tasklet(void)
 {
-    return curr_tasklet;
+    struct events_scheduler *ctxt = g_event_scheduler;
+
+    return ctxt->curr_tasklet;
 }
 
 void event_scheduler_set_active_tasklet(int8_t tasklet)
 {
-    curr_tasklet = tasklet;
+    struct events_scheduler *ctxt = g_event_scheduler;
+
+    ctxt->curr_tasklet = tasklet;
 }
 
 bool event_scheduler_dispatch_event(void)
 {
+    struct events_scheduler *ctxt = g_event_scheduler;
     struct event_storage *event = ns_list_get_first(&event_queue);
     struct event_tasklet *tasklet;
 
-    curr_tasklet = 0;
+    ctxt->curr_tasklet = 0;
     if (!event)
         return false;
     ns_list_remove(&event_queue, event);
-    curr_tasklet = event->data.receiver;
-    tasklet = event_tasklet_handler_get(curr_tasklet);
+    ctxt->curr_tasklet = event->data.receiver;
+    tasklet = event_tasklet_handler_get(ctxt->curr_tasklet);
     if (tasklet) {
         event->state = ARM_LIB_EVENT_RUNNING;
         tasklet->func_ptr(&event->data);
@@ -164,7 +168,7 @@ bool event_scheduler_dispatch_event(void)
     event->state = ARM_LIB_EVENT_UNQUEUED;
     if (event->allocator == ARM_LIB_EVENT_DYNAMIC)
         free(event);
-    curr_tasklet = 0;
+    ctxt->curr_tasklet = 0;
 
     return true;
 }
