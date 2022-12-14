@@ -61,18 +61,23 @@ mandatory Wi-SUN multicast group subscriptions `ff02::1`, `ff02::2`,
 
 - `ay`: IPv6 multicast address
 
-### `RevokeNode` (`ay`)
+### `RevokePairwiseKeys` (`ay`)
 
 Remove the Pairwise Transient Key (PTK) and Pairwise Master Key (PMK)
-associated with the node. Call `RevokeApply` to complete the revocation
-process.
+associated with a node as described in the Wi-SUN FAN specification
+section 6.5.2.5.
 
 - `ay`: 64 bit MAC address of the node to be revoked
 
-### `RevokeApply`
+### `RevokeGroupKeys` (`ayay`)
 
-Transition to a new Group Transient Key (GTK) as described in Wi-SUN FAN
-specification section 6.5.2.5.
+Destroy all (L)GTKs except the current active one (and potentially the next
+key), reduce the current (or next) key's lifetime, and add a new key, as
+descibed in the Wi-SUN FAN specification section 6.5.2.5.
+
+- `ay`: Explicit key to add as the new GTK (for testing), or 0 length array to
+  generate a random key
+- `ay`: Idem for LGTKs
 
 ## Properties
 
