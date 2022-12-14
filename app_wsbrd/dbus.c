@@ -202,7 +202,7 @@ static int dbus_get_gaks(sd_bus *bus, const char *path, const char *interface,
     return 0;
 }
 
-static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+static int dbus_revoke_pairwise_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
     size_t eui64_len;
@@ -548,8 +548,8 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_set_mode_switch, 0),
         SD_BUS_METHOD("SetSlotAlgorithm", "y", NULL,
                       dbus_set_slot_algorithm, 0),
-        SD_BUS_METHOD("RevokeNode", "ay", NULL,
-                      dbus_revoke_node, 0),
+        SD_BUS_METHOD("RevokePairwiseKeys", "ay", NULL,
+                      dbus_revoke_pairwise_keys, 0),
         SD_BUS_METHOD("RevokeGroupKeys", "ayay", NULL,
                       dbus_revoke_group_keys, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
