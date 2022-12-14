@@ -325,6 +325,19 @@ easier integration for simple setups. However, CPC offers some features:
     between several network stacks (that is, Bluetooth, Zigbee, OpenThread, and
     Wi-SUN)
 
+## I get `error inflating zlib stream; class=Zlib (5)` during compilation
+
+With last update of github seems incompatible with the git version bundled with
+Rust 1.45. The issue and the workaround are described [here][1] and the root
+cause is solved [here][2].
+
+Before to launch `cmake`, you can run:
+
+   export CARGO_NET_GIT_FETCH_WITH_CLI=true
+
+[10]: https://github.com/rust-lang/cargo/issues/10303
+[11]: https://github.com/libgit2/libgit2/pull/5740
+
 ## I Cannot Connect to DBus Interface
 
 First of all, check you have followed the installation process. Especially,
