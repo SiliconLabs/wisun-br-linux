@@ -221,17 +221,35 @@ static int dbus_revoke_node(sd_bus_message *m, void *userdata, sd_bus_error *ret
     return 0;
 }
 
-static int dbus_revoke_apply(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
     struct wsbr_ctxt *ctxt = userdata;
+    uint8_t *gtk, *lgtk;
+    size_t len;
     int ret;
 
-    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, false, NULL);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    if (!len)
+        gtk = NULL;
+    else if (len != GTK_LEN)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&lgtk, &len);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    if (!len)
+        lgtk = NULL;
+    else if (len != GTK_LEN)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, false, gtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, true, NULL);
+    ret = ws_bbr_node_access_revoke_start(ctxt->rcp_if_id, true, lgtk);
     if (ret < 0)
         return sd_bus_error_set_errno(ret_error, EINVAL);
+
     sd_bus_reply_method_return(m, NULL);
     return 0;
 }
@@ -532,8 +550,8 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_set_slot_algorithm, 0),
         SD_BUS_METHOD("RevokeNode", "ay", NULL,
                       dbus_revoke_node, 0),
-        SD_BUS_METHOD("RevokeApply", NULL, NULL,
-                      dbus_revoke_apply, 0),
+        SD_BUS_METHOD("RevokeGroupKeys", "ayay", NULL,
+                      dbus_revoke_group_keys, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
