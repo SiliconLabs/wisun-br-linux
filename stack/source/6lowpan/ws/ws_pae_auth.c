@@ -137,6 +137,7 @@ static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(struct event_payload *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
+static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
@@ -984,11 +985,29 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     return decrement_seconds;
 }
 
+static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk)
+{
+    int i_install, i_last;
+
+    // Gets latest installed key lifetime and adds GTK expire offset to it
+    i_last = sec_prot_keys_gtk_install_order_last_index_get(gtks);
+    if (i_last >= 0)
+        lifetime += sec_prot_keys_gtk_lifetime_get(gtks, i_last);
+
+    // Installs the new key
+    i_install = sec_prot_keys_gtk_install_index_get(gtks, is_lgtk);
+    sec_prot_keys_gtk_clear(gtks, i_install);
+    sec_prot_keys_gtk_set(gtks, i_install, gtk, lifetime);
+
+    // Authenticator keys are always fresh
+    sec_prot_keys_gtk_status_all_fresh_set(gtks);
+
+    tr_info("%s install new index: %i, lifetime: %"PRIu32" system time: %"PRIu32"",
+            is_lgtk ? "LGTK" : "GTK", i_install, lifetime, g_monotonic_time_100ms / 10);
+}
+
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk)
 {
-    // Gets index to install the key
-    uint8_t install_index = sec_prot_keys_gtk_install_index_get(gtks, is_lgtk);
-
     // Key to install
     uint8_t gtk_value[GTK_LEN];
 
@@ -1007,21 +1026,7 @@ static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_k
         } while (sec_prot_keys_gtk_valid_check(gtk_value) < 0);
     }
 
-    // Gets latest installed key lifetime and adds GTK expire offset to it
-    int8_t last_index = sec_prot_keys_gtk_install_order_last_index_get(gtks);
-    if (last_index >= 0) {
-        lifetime += sec_prot_keys_gtk_lifetime_get(gtks, last_index);
-    }
-
-    // Installs the new key
-    sec_prot_keys_gtk_clear(gtks, install_index);
-    sec_prot_keys_gtk_set(gtks, install_index, gtk_value, lifetime);
-
-    // Authenticator keys are always fresh
-    sec_prot_keys_gtk_status_all_fresh_set(gtks);
-
-    tr_info("%s install new index: %i, lifetime: %"PRIu32" system time: %"PRIu32"",
-            is_lgtk ? "LGTK" : "GTK", install_index, lifetime, g_monotonic_time_100ms / 10);
+    ws_pae_auth_gtk_insert(gtks, gtk_value, lifetime, is_lgtk);
 }
 
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks)
