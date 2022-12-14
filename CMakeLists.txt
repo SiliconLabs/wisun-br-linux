@@ -521,6 +521,29 @@ if(COMPILE_SIMULATION_TOOLS)
     )
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+    add_executable(wshwping
+        app_wshwping/wshwping.c
+        common/bits.c
+        common/log.c
+        common/crc.c
+        common/bus_uart.c
+        common/spinel_buffer.c
+        common/named_values.c
+        common/iobuf.c
+        common/endian.c
+    )
+    target_include_directories(wshwping PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        stack/source/
+        stack/
+    )
+    if(LIBCPC_FOUND)
+        target_compile_definitions(wshwping PRIVATE HAVE_LIBCPC)
+        target_sources(wshwping PRIVATE common/bus_cpc.c)
+        target_link_libraries(wshwping PRIVATE cpc)
+    endif()
+    install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 endif()
 
 add_custom_command(OUTPUT wsbrd.conf
