@@ -176,7 +176,7 @@ int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui64
  * \return >= 0 success
  *
  */
-int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk);
+int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk, uint8_t new_gtk[GTK_LEN]);
 
 /**
  * ws_pae_auth_node_limit_set set node limit
@@ -320,7 +320,7 @@ int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len);
 #define ws_pae_auth_nw_key_index_update NULL
 #define ws_pae_auth_nw_info_set NULL
 #define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
-#define ws_pae_auth_node_access_revoke_start(interface_ptr, is_lgtk) -1
+#define ws_pae_auth_node_access_revoke_start(interface_ptr, is_lgtk, new_gtk) -1
 #define ws_pae_auth_node_limit_set(interface_ptr, limit)
 #define ws_pae_auth_fast_timer NULL
 #define ws_pae_auth_slow_timer NULL

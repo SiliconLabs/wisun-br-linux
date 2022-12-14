@@ -896,9 +896,9 @@ int ws_bbr_node_keys_remove(int8_t interface_id, uint8_t *eui64)
     return ws_pae_controller_node_keys_remove(interface_id, eui64);
 }
 
-int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk)
+int ws_bbr_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[GTK_LEN])
 {
-    return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk);
+    return ws_pae_controller_node_access_revoke_start(interface_id, is_lgtk, new_gtk);
 }
 
 int ws_bbr_eapol_node_limit_set(int8_t interface_id, uint16_t limit)

@@ -1838,14 +1838,14 @@ int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64)
     return ws_pae_auth_node_keys_remove(controller->interface_ptr, eui_64);
 }
 
-int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_lgtk)
+int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_lgtk, uint8_t new_gtk[GTK_LEN])
 {
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
     if (!controller) {
         return -1;
     }
 
-    return ws_pae_auth_node_access_revoke_start(controller->interface_ptr, is_lgtk);
+    return ws_pae_auth_node_access_revoke_start(controller->interface_ptr, is_lgtk, new_gtk);
 }
 
 int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)

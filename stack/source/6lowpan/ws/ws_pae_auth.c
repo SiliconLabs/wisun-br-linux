@@ -505,7 +505,7 @@ int8_t ws_pae_auth_node_keys_remove(struct net_if *interface_ptr, uint8_t *eui_6
     return ret_value;
 }
 
-int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk)
+int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool is_lgtk, uint8_t new_gtk[GTK_LEN])
 {
     sec_timer_gtk_cfg_t *timer_cfg;
     sec_prot_gtk_keys_t *key_nw_info, *key_nw_info_next;
@@ -570,7 +570,10 @@ int8_t ws_pae_auth_node_access_revoke_start(struct net_if *interface_ptr, bool i
     }
 
     // Adds new GTK
-    ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset, is_lgtk);
+    if (new_gtk)
+        ws_pae_auth_gtk_insert(key_nw_info, new_gtk, timer_cfg->expire_offset, is_lgtk);
+    else
+        ws_pae_auth_gtk_key_insert(key_nw_info, key_nw_info_next, timer_cfg->expire_offset, is_lgtk);
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 
     // Update keys to NVM as needed
