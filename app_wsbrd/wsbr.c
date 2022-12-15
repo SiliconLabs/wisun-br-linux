@@ -399,19 +399,19 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
 {
     int i;
 
-    // delete entries that use the same IPv6
+    // delete entries that already use this IPv6 address
     for (i = 0; i < ctxt->dhcp_leases_len; i++) {
         if (!memcmp(ctxt->dhcp_leases[i].ipv6, ipv6, 16)) {
-            memmove(ctxt->dhcp_leases + i, ctxt->dhcp_leases + i + 1, ctxt->dhcp_leases_len - i - 1);
+            memmove(ctxt->dhcp_leases + i, ctxt->dhcp_leases + i + 1,
+                    (ctxt->dhcp_leases_len - i - 1) * sizeof(*ctxt->dhcp_leases));
             ctxt->dhcp_leases_len--;
             i--;
         }
     }
 
-    if (i == ctxt->dhcp_leases_len)
-        for (i = 0; i < ctxt->dhcp_leases_len; i++)
-            if (!memcmp(ctxt->dhcp_leases[i].eui64, eui64, 8))
-                break;
+    for (i = 0; i < ctxt->dhcp_leases_len; i++)
+        if (!memcmp(ctxt->dhcp_leases[i].eui64, eui64, 8))
+            break;
     if (i == ctxt->dhcp_leases_len) {
         ctxt->dhcp_leases_len++;
         ctxt->dhcp_leases = realloc(ctxt->dhcp_leases, ctxt->dhcp_leases_len * sizeof(*ctxt->dhcp_leases));
