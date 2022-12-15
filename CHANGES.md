@@ -4,9 +4,9 @@ v1.5
   - Introduce phy_mode_id and chan_plan_id to select a PHY FAN1.1. Also add the
     DBus properties WisunPhyModeId and WisunChanPlanId.
   - We can now advertise FAN1.1 PAN (in the field "FAN TPS Version"). FAN1.1 is
-    automatically select if user use chan_plan_id. The fan version can still be
-    enforced with the fan_version parameter.
-  - The advertised FAN version in independent of the chosen PHY. It is possible
+    automatically select if the user uses chan_plan_id. The fan version can
+    still be enforced with the fan_version parameter.
+  - The advertised FAN version is independent of the chosen PHY. It is possible
     to advertise FAN1.1 protocol with PHY FAN1.0 and vice-versa.
   - Add support for LGTKs (for LFN authentication). The existing API for GTK
     (values, timings, etc...) is also available for LGTKs.
@@ -21,6 +21,9 @@ v1.5
     readable. Several interesting information can now be easily retrieved (GAK,
     GTK, PMK, PTK, active keys, etc...).
   - By default, the storage folder is no more readable by other users.
+  - Reports nodes on the DBus interface as soon as they are authenticated (until
+    now, they were reported once registered on RPL tree). The user can check the
+    "parent" property to check if the node is registered to the RPL tree.
   - Add a DBus API to subscribe the network to external multicast frames. This
     API is mandatory by the Wi-SUN specification. It replaces the MLDv2 (=
     IGMPv3 for IPv6) protocol available on classical IPv6 networks.
