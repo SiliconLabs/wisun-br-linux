@@ -517,7 +517,7 @@ int wsbr_main(int argc, char *argv[])
     wsbr_check_mbedtls_features();
     platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
-    g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
+    g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete)
         storage_delete();
     if (ctxt->config.lowpan_mtu)

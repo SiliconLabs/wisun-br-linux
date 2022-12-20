@@ -743,8 +743,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)
         FATAL(1, "allowed_mac64 and denied_mac64 are exclusive");
-    if (!strcmp(config->storage_prefix, "-"))
-        config->storage_prefix[0]= '\0';
     if (storage_check_access(config->storage_prefix))
         FATAL(1, "%s: %m", config->storage_prefix);
     if (config->radius_server.ss_family == AF_UNSPEC) {

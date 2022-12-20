@@ -45,14 +45,12 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
 {
     // This function is the first being executed after parse_commandline in
     // wsbr_main. Thus some checks can be put here.
-    if (g_storage_prefix) {
-        if (g_fuzz_ctxt.fuzzing_enabled)
-            g_storage_prefix = NULL;
-        else if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count)
-            WARN("using storage while in cature/replay mode");
-    }
-    if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count)
+    if (g_fuzz_ctxt.fuzzing_enabled)
+        g_ctxt.config.storage_delete = true;
+    if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count) {
+        WARN_ON(!g_ctxt.config.storage_delete, "storage_delete set to false while using capture/replay");
         FATAL_ON(!g_ctxt.config.tun_autoconf, 1, "tun_autoconf set to false while using capture/replay");
+    }
 
     if (g_fuzz_ctxt.replay_count)
         return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];
