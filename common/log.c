@@ -194,7 +194,7 @@ char *str_ipv6(const uint8_t in[static 16], char out[static STR_MAX_LEN_IPV6])
 
 char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV4_NET])
 {
-    uint8_t tmp[4];
+    uint8_t tmp[4] = { };
 
     bitcpy(tmp, in, prefix_len);
     str_ipv4(tmp, out);
@@ -204,7 +204,7 @@ char *str_ipv4_prefix(uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_
 
 char *str_ipv6_prefix(const uint8_t in[], int prefix_len, char out[static STR_MAX_LEN_IPV6_NET])
 {
-    uint8_t tmp[16];
+    uint8_t tmp[16] = { };
 
     bitcpy(tmp, in, prefix_len);
     str_ipv6(tmp, out);
