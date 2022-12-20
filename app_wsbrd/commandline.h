@@ -54,6 +54,7 @@ struct wsbrd_conf {
     uint8_t ipv6_prefix[16];
 
     char storage_prefix[PATH_MAX];
+    bool storage_delete;
     arm_certificate_entry_s tls_own;
     arm_certificate_entry_s tls_ca;
     uint8_t ws_gtk[4][16];

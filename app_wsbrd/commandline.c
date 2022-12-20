@@ -154,6 +154,8 @@ void print_help_br(FILE *stream) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -D, --delete-storage  Delete storage upon start, which deauhenticates any previously\n");
+    fprintf(stream, "                          connected nodes. Useful for testing.\n");
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
@@ -195,6 +197,8 @@ void print_help_node(FILE *stream) {
     fprintf(stream, "                          on config file\n");
     fprintf(stream, "  -o, --opt=PARM=VAL    Assign VAL to the parameter PARM. PARM can be any parameter accepted\n");
     fprintf(stream, "                          in the config file\n");
+    fprintf(stream, "  -D, --delete-storage  Delete storage upon start, which deauhenticates any previously\n");
+    fprintf(stream, "                          connected nodes. Useful for testing.\n");
     fprintf(stream, "  -v, --version         Print version and exit\n");
     fprintf(stream, "\n");
     fprintf(stream, "Wi-SUN related options:\n");
@@ -530,7 +534,7 @@ static void parse_config_file(struct wsbrd_conf *config, const char *filename)
 void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                        void (*print_help)(FILE *stream))
 {
-    static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:Hhv";
+    static const char *opts_short = "u:F:o:t:T:n:d:m:c:S:K:C:A:b:HhvD";
     static const struct option opts_long[] = {
         { "config",      required_argument, 0,  'F' },
         { "opt",         required_argument, 0,  'o' },
@@ -550,6 +554,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "hardflow",    no_argument,       0,  'H' },
         { "help",        no_argument,       0,  'h' },
         { "version",     no_argument,       0,  'v' },
+        { "delete-storage", no_argument,    0,  'D' },
         { 0,             0,                 0,   0  }
     };
     struct storage_parse_info info = {
@@ -665,6 +670,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'H':
                 FATAL(1, "deprecated option: -H/--hardflow");
+                break;
+            case 'D':
+                config->storage_delete = true;
                 break;
             case 'h':
                 print_help(stdout);

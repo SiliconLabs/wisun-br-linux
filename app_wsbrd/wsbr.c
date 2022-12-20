@@ -518,6 +518,8 @@ int wsbr_main(int argc, char *argv[])
     platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
+    if (ctxt->config.storage_delete)
+        storage_delete();
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.pan_size >= 0)
