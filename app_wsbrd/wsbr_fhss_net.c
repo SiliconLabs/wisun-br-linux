@@ -55,6 +55,7 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     if (!fw_api_older_than(ctxt, 0, 12, 0))
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
     ctxt->fhss_conf_valid = true;
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     // Upper layers absolutly want something != NULL
@@ -109,6 +110,7 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     if (!fw_api_older_than(ctxt, 0, 18, 0))
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
     memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
 }
@@ -173,6 +175,7 @@ void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
     spinel_push_u32(&buf, fhss_data->uc_timing_info.ufsi);
     spinel_push_u32(&buf, fhss_data->uc_timing_info.utt_rx_timestamp);
     rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
 }
 
 void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
@@ -183,6 +186,7 @@ void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
     spinel_push_fixed_u8_array(&buf, eui64, 8);
     rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
 }
 
 int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,

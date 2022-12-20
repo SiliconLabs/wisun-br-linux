@@ -1047,6 +1047,7 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
         spinel_push_u8(&buf, phy_id);
 
     rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
 }
 
 void wsbr_mcps_req(const struct mac_api *api,

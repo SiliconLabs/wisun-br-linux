@@ -60,6 +60,7 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
     spinel_push_uint(&buf, SPINEL_CMD_REPLAY_TIMERS);
     spinel_push_u16(&buf, ctxt->timer_counter);
     fuzz_capture_spinel(ctxt, &buf);
+    iobuf_free(&buf);
     ctxt->timer_counter = 0;
 }
 
@@ -76,4 +77,5 @@ void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
     spinel_push_u16(&buf, src_port);
     spinel_push_data(&buf, data, size);
     fuzz_capture_spinel(ctxt, &buf);
+    iobuf_free(&buf);
 }
