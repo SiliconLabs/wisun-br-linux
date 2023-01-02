@@ -46,6 +46,7 @@
 #include "security/protocols/radius_sec_prot/radius_client_sec_prot.h"
 #include "security/protocols/msg_sec_prot/msg_sec_prot.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_pae_controller.h"
@@ -1453,7 +1454,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
     }
 
     int8_t gtk_index = -1;
-    if (sec_keys->node_role == WS_NR_ROLE_LFN) {
+    if (sec_keys->node_role == WS_NR_ROLE_LFN && ws_version_1_1(pae_auth->interface_ptr)) {
         gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
 
         // For 4WH insert always a key, in case no other then active
@@ -1501,7 +1502,7 @@ static kmp_type_e ws_pae_auth_next_protocol_get(pae_auth_t *pae_auth, supp_entry
                 tr_info("PAE: start GKH for GTK index %i, eui-64: %s", gtk_index, tr_eui64(supp_entry->addr.eui_64));
             }
         }
-        if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER) {
+        if (next_type == KMP_TYPE_NONE && sec_keys->node_role == WS_NR_ROLE_ROUTER && ws_version_1_1(pae_auth->interface_ptr)) {
             gtk_index = sec_prot_keys_gtk_insert_index_from_gtkl_get(&sec_keys->lgtks);
             if (gtk_index >= 0) {
                 // Update just LGTK (do not when target is a FAN1.0 router)
