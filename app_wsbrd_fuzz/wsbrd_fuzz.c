@@ -49,7 +49,7 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
         g_ctxt.config.storage_delete = true;
     if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count) {
         WARN_ON(!g_ctxt.config.storage_delete, "storage_delete set to false while using capture/replay");
-        FATAL_ON(!g_ctxt.config.tun_autoconf, 1, "tun_autoconf set to false while using capture/replay");
+        WARN_ON(!g_ctxt.config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
     }
 
     if (g_fuzz_ctxt.replay_count)
