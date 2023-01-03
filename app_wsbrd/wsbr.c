@@ -502,6 +502,14 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 
 int wsbr_main(int argc, char *argv[])
 {
+    static const char *files[] = {
+        "keys-*:*:*:*:*:*:*:*",
+        "pairwise_keys",
+        "network_keys",
+        "counters",
+        "br-info",
+        NULL,
+    };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
 
@@ -519,7 +527,7 @@ int wsbr_main(int argc, char *argv[])
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete)
-        storage_delete();
+        storage_delete(files);
     if (ctxt->config.lowpan_mtu)
         ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.pan_size >= 0)

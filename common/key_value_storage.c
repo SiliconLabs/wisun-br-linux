@@ -118,7 +118,7 @@ int storage_parse_line(struct storage_parse_info *info)
     return 0;
 }
 
-void storage_delete()
+void storage_delete(const char *files[])
 {
     char filename[PATH_MAX];
     glob_t globbuf;
@@ -126,15 +126,19 @@ void storage_delete()
 
     if (!g_storage_prefix)
         return;
-    snprintf(filename, sizeof(filename), "%s*", g_storage_prefix);
-    ret = glob(filename, 0, NULL, &globbuf);
-    if (ret) {
-        WARN_ON(ret != GLOB_NOMATCH, "glob %s returned an error", filename);
-        return;
+    for (; *files; files++) {
+        snprintf(filename, sizeof(filename), "%s%s", g_storage_prefix, *files);
+        ret = glob(filename, 0, NULL, &globbuf);
+        if (ret == GLOB_NOMATCH) {
+            continue;
+        } else if (ret) {
+            WARN("glob %s returned an error", filename);
+            return;
+        }
+        for (int i = 0; globbuf.gl_pathv[i]; i++) {
+            ret = unlink(globbuf.gl_pathv[i]);
+            WARN_ON(ret < 0, "unlink %s: %m", globbuf.gl_pathv[i]);
+        }
+        globfree(&globbuf);
     }
-    for (int i = 0; globbuf.gl_pathv[i]; i++) {
-        ret = unlink(globbuf.gl_pathv[i]);
-        WARN_ON(ret < 0, "unlink %s: %m", globbuf.gl_pathv[i]);
-    }
-    globfree(&globbuf);
 }
