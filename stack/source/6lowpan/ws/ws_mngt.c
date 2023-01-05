@@ -24,10 +24,14 @@
 #include "common/trickle.h"
 
 static const struct name_value ws_mngt_frames[] = {
-    { "PAN Advertisement",         WS_FT_PA },
-    { "PAN Advertisement Solicit", WS_FT_PAS },
-    { "PAN Configuration",         WS_FT_PC },
-    { "PAN Configuration Solicit", WS_FT_PCS },
+    { "PAN Advertisement",             WS_FT_PA },
+    { "PAN Advertisement Solicit",     WS_FT_PAS },
+    { "PAN Configuration",             WS_FT_PC },
+    { "PAN Configuration Solicit",     WS_FT_PCS },
+    { "LFN PAN Advertisement",         WS_FT_LPA },
+    { "LFN PAN Advertisement Solicit", WS_FT_LPAS },
+    { "LFN PAN Configuration",         WS_FT_LPC },
+    { "LFN PAN Configuration Solicit", WS_FT_LPCS },
     { NULL }
 };
 
@@ -214,4 +218,51 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
         ws_neighbor_class_neighbor_unicast_schedule_set(net_if, neighbor_info.ws_neighbor, &ie_us, data->SrcAddr);
     }
+}
+
+void ws_mngt_lpas_analyze(struct net_if *net_if,
+                          const struct mcps_data_ind *data,
+                          const struct mcps_data_ie_list *ie_ext)
+{
+    struct ws_lutt_ie ie_lutt;
+    struct ws_lus_ie ie_lus;
+    struct ws_lnd_ie ie_lnd;
+    struct ws_lcp_ie ie_lcp;
+    struct ws_nr_ie ie_nr;
+    uint8_t rsl;
+
+    if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt)) {
+        ERROR("Missing LUTT-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
+        return;
+    }
+    BUG_ON(ie_lutt.message_type != WS_FT_LPAS);
+    if (!ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus)) {
+        ERROR("Missing LUS-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
+        return;
+    }
+    if (!ws_wh_nr_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_nr)) {
+        ERROR("Missing NR-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
+        return;
+    }
+    if (!ws_wh_lnd_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lnd)) {
+        ERROR("Missing LND-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
+        return;
+    }
+    // FIXME: see comment in ws_llc_asynch_indication
+    if (!ws_wp_nested_lcp_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, ie_lus.channel_plan_tag, &ie_lcp)) {
+        ERROR("Missing LCP-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
+        return;
+    }
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
+        return;
+
+    // [...] an FFN MUST ignore the LPAS if [...]
+    // The receive signal-level-above-sensitivity for the LPAS falls below the
+    // LND-IE Response Threshold.
+    rsl = ws_neighbor_class_rsl_from_dbm_calculate(data->signal_dbm);
+    if (rsl < (DEVICE_MIN_SENS + ie_lnd.response_threshold))
+        return;
+
+    // TODO
+    WARN("LPAS handling not yet implemented");
 }

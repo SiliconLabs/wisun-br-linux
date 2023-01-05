@@ -180,8 +180,10 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
             ws_mngt_pcs_analyze(cur, data, ie_ext);
             break;
-        case WS_FT_LPA:
         case WS_FT_LPAS:
+            ws_mngt_lpas_analyze(cur, data, ie_ext);
+            break;
+        case WS_FT_LPA:
         case WS_FT_LPCS:
         case WS_FT_LPC:
             tr_warn("LFN messages are not yet supported");

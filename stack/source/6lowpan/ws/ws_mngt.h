@@ -22,6 +22,10 @@
  * - PAN Advertisement Solicit (PAS)
  * - PAN Configuration (PC)
  * - PAN Configuration Solicit (PCS)
+ * - LFN PAN Advertisement (LPA)
+ * - LFN PAN Advertisement Solicit (LPAS)
+ * - LFN PAN Configuration (LPC)
+ * - LFN PAN Configuration Solicit (LPCS)
  */
 
 struct mcps_data_ie_list;
@@ -56,5 +60,8 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
 void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_ie_list *ie_ext);
+void ws_mngt_lpas_analyze(struct net_if *net_if,
+                          const struct mcps_data_ind *data,
+                          const struct mcps_data_ie_list *ie_ext);
 
 #endif
