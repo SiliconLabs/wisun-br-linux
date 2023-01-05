@@ -17,6 +17,7 @@
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "common/log.h"
+#include "common/trickle.h"
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
@@ -35,4 +36,12 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     // always true
     if (pan_information.routing_cost != 0xFFFF)
         trickle_consistent_heard(&net_if->ws_info->trickle_pan_advertisement);
+}
+
+void ws_mngt_pas_analyze(struct net_if *net_if,
+                         const struct mcps_data_ind *data,
+                         const struct mcps_data_ie_list *ie_ext)
+{
+    trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_advertisement,
+                               &net_if->ws_info->trickle_params_pan_discovery);
 }

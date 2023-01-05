@@ -28,5 +28,8 @@ struct net_if;
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_ie_list *ie_ext);
+void ws_mngt_pas_analyze(struct net_if *net_if,
+                         const struct mcps_data_ind *data,
+                         const struct mcps_data_ie_list *ie_ext);
 
 #endif

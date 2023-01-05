@@ -272,8 +272,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         case WS_FT_PAN_ADVERT_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
-            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
-
+            ws_mngt_pas_analyze(cur, data, ie_ext);
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
