@@ -73,6 +73,7 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
 #include "6lowpan/ws/ws_eapol_relay.h"
+#include "6lowpan/ws/ws_mngt.h"
 
 #define TRACE_GROUP "wsbs"
 
@@ -200,23 +201,6 @@ static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct net_if *cur, con
     }
 }
 
-static void ws_bootstrap_6lbr_pan_advertisement_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext)
-{
-    ws_pan_information_t pan_information;
-
-    if (data->SrcPANId != cur->ws_info->network_pan_id)
-        return;
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
-        WARN("Received corrupted PAN advertisement: no pan information");
-        return;
-    }
-    // Border router routing cost is 0, so "Routing Cost the same or worse" is
-    // always true
-    if (pan_information.routing_cost != 0xFFFF)
-        trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
-}
-
 void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     ws_pom_ie_t pom_ie;
@@ -283,9 +267,8 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
     //Handle Message's
     switch (message_type) {
         case WS_FT_PAN_ADVERT:
-            // Analyse Advertisement
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
-            ws_bootstrap_6lbr_pan_advertisement_analyse(cur, data, ie_ext);
+            ws_mngt_pa_analyze(cur, data, ie_ext);
             break;
         case WS_FT_PAN_ADVERT_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
