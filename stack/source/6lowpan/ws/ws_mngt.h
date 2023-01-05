@@ -13,6 +13,9 @@
 #ifndef WS_FFN_H
 #define WS_FFN_H
 
+#include <stdbool.h>
+#include "common/trickle.h"
+
 /*
  * Processing of Wi-SUN management frames
  * - PAN Advertisement (PA)
@@ -24,6 +27,18 @@
 struct mcps_data_ie_list;
 struct mcps_data_ind;
 struct net_if;
+
+struct ws_mngt {
+    trickle_params_t trickle_params;
+    trickle_t trickle_pa;
+    trickle_t trickle_pas;
+    trickle_t trickle_pc;
+    trickle_t trickle_pcs;
+    bool trickle_pa_running: 1;
+    bool trickle_pas_running: 1;
+    bool trickle_pc_running: 1;
+    bool trickle_pcs_running: 1;
+};
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,

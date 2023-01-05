@@ -120,7 +120,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
     if (pan_information.routing_cost != 0xFFFF)
-        trickle_consistent_heard(&net_if->ws_info->trickle_pan_advertisement);
+        trickle_consistent_heard(&net_if->ws_info->mngt.trickle_pa);
 }
 
 void ws_mngt_pas_analyze(struct net_if *net_if,
@@ -138,8 +138,8 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
         return;
 
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
-    trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_advertisement,
-                               &net_if->ws_info->trickle_params_pan_discovery);
+    trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pa,
+                               &net_if->ws_info->mngt.trickle_params);
 }
 
 void ws_mngt_pc_analyze(struct net_if *net_if,
@@ -176,10 +176,10 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         return;
 
     if (net_if->ws_info->pan_information.pan_version == ws_pan_version)
-        trickle_consistent_heard(&net_if->ws_info->trickle_pan_config);
+        trickle_consistent_heard(&net_if->ws_info->mngt.trickle_pc);
     else
-        trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_config,
-                                   &net_if->ws_info->trickle_params_pan_discovery);
+        trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
+                                   &net_if->ws_info->mngt.trickle_params);
 
     if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
@@ -207,8 +207,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
 
-    trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_config,
-                               &net_if->ws_info->trickle_params_pan_discovery);
+    trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
+                               &net_if->ws_info->mngt.trickle_params);
 
     if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);

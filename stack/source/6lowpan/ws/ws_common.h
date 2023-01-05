@@ -28,6 +28,7 @@
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_mngt.h"
 
 extern uint16_t test_max_child_count_override;
 
@@ -90,11 +91,7 @@ typedef struct ws_test_proc_trg {
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info {
-    trickle_t trickle_pan_config_solicit;
-    trickle_t trickle_pan_config;
-    trickle_t trickle_pan_advertisement_solicit;
-    trickle_t trickle_pan_advertisement;
-    trickle_params_t trickle_params_pan_discovery;
+    struct ws_mngt mngt;
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
     uint8_t pas_requests; // Amount of PAN solicits sent
@@ -113,10 +110,6 @@ typedef struct ws_info {
     uint32_t pan_config_sol_max_timeout;
     uint16_t network_pan_id;
     bool configuration_learned: 1;
-    bool trickle_pas_running: 1;
-    bool trickle_pa_running: 1;
-    bool trickle_pcs_running: 1;
-    bool trickle_pc_running: 1;
     ws_pending_key_index_t pending_key_index_info;
     ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;

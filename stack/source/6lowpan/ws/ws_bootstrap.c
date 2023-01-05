@@ -2058,7 +2058,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
             ws_common_border_router_alive_update(cur);
         }
 
-        if (!cur->ws_info->trickle_pa_running || !cur->ws_info->trickle_pc_running) {
+        if (!cur->ws_info->mngt.trickle_pa_running || !cur->ws_info->mngt.trickle_pc_running) {
             //Enable wi-sun asynch adverisment
             ws_bootstrap_advertise_start(cur);
         }
@@ -2382,10 +2382,10 @@ void ws_bootstrap_network_start(struct net_if *cur)
 
 void ws_bootstrap_advertise_start(struct net_if *cur)
 {
-    cur->ws_info->trickle_pa_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_advertisement, "ADV", &cur->ws_info->trickle_params_pan_discovery);
-    cur->ws_info->trickle_pc_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_config, "CFG", &cur->ws_info->trickle_params_pan_discovery);
+    cur->ws_info->mngt.trickle_pa_running = true;
+    trickle_start(&cur->ws_info->mngt.trickle_pa, "ADV", &cur->ws_info->mngt.trickle_params);
+    cur->ws_info->mngt.trickle_pc_running = true;
+    trickle_start(&cur->ws_info->mngt.trickle_pc, "CFG", &cur->ws_info->mngt.trickle_params);
 }
 
 static void ws_bootstrap_pan_version_increment(struct net_if *cur)
@@ -2506,17 +2506,17 @@ static void ws_bootstrap_authentication_completed(struct net_if *cur, auth_resul
         ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
 
         // Start PAS interval between imin - imax.
-        cur->ws_info->trickle_pas_running = true;
-        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, "ADV SOL", &cur->ws_info->trickle_params_pan_discovery);
+        cur->ws_info->mngt.trickle_pas_running = true;
+        trickle_start(&cur->ws_info->mngt.trickle_pas, "ADV SOL", &cur->ws_info->mngt.trickle_params);
 
         // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
-        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info->trickle_params_pan_discovery.Imin >> 1);
+        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info->mngt.trickle_params.Imin >> 1);
         tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     } else {
         tr_debug("authentication failed");
         // What else to do to start over again...
         // Trickle is reseted when entering to discovery from state 2
-        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+        trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
         ws_bootstrap_event_discovery_start(cur);
     }
 }
@@ -2644,7 +2644,7 @@ void ws_bootstrap_event_test_procedure_trigger(struct net_if *cur, ws_bootstrap_
 
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 {
-    trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
 }
 
 static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req)
@@ -2898,12 +2898,12 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
-    if (cur->ws_info->trickle_pas_running &&
-            trickle_timer(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
+    if (cur->ws_info->mngt.trickle_pas_running &&
+            trickle_timer(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params, ticks)) {
         // send PAN advertisement solicit
         ws_bootstrap_pan_advert_solicit(cur);
     }
-    if (cur->ws_info->trickle_pcs_running) {
+    if (cur->ws_info->mngt.trickle_pcs_running) {
 
         //Update MAX config sol timeout timer
         if (cur->ws_info->pan_config_sol_max_timeout > ticks) {
@@ -2913,7 +2913,7 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
             cur->ws_info->pan_config_sol_max_timeout = 0;
         }
 
-        if (trickle_timer(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
+        if (trickle_timer(&cur->ws_info->mngt.trickle_pcs, &cur->ws_info->mngt.trickle_params, ticks)) {
             if (cur->ws_info->pas_requests < PCS_MAX) {
                 // send PAN Configuration solicit
                 ws_bootstrap_pan_config_solicit(cur);
@@ -2926,18 +2926,18 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
             // if MAX PCS sent or max waited timeout restart discovery
             // Trickle is reseted when entering to discovery from state 3
             tr_info("PAN configuration Solicit timeout");
-            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+            trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
             ws_bootstrap_event_discovery_start(cur);
             return;
         }
     }
-    if (cur->ws_info->trickle_pa_running &&
-            trickle_timer(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
+    if (cur->ws_info->mngt.trickle_pa_running &&
+            trickle_timer(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params, ticks)) {
         // send PAN advertisement
         ws_bootstrap_pan_advert(cur);
     }
-    if (cur->ws_info->trickle_pc_running) {
-        if (trickle_timer(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery, ticks)) {
+    if (cur->ws_info->mngt.trickle_pc_running) {
+        if (trickle_timer(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params, ticks)) {
             // send PAN Configuration
             ws_bootstrap_pan_config(cur);
         }
@@ -2946,10 +2946,10 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 
 void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 {
-    cur->ws_info->trickle_pas_running = false;
-    cur->ws_info->trickle_pa_running = false;
-    cur->ws_info->trickle_pcs_running = false;
-    cur->ws_info->trickle_pc_running = false;
+    cur->ws_info->mngt.trickle_pa_running = false;
+    cur->ws_info->mngt.trickle_pas_running = false;
+    cur->ws_info->mngt.trickle_pc_running = false;
+    cur->ws_info->mngt.trickle_pcs_running = false;
 }
 
 
@@ -3253,39 +3253,39 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
                 tr_info("send PAN advertisement Solicit");
                 ws_bootstrap_pan_advert_solicit(cur);
             }
-            if (cur->ws_info->trickle_pas_running) {
-                trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit, &cur->ws_info->trickle_params_pan_discovery);
+            if (cur->ws_info->mngt.trickle_pas_running) {
+                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
             }
             break;
         case PROCEDURE_PA:
-            if (cur->ws_info->trickle_pa_running) {
+            if (cur->ws_info->mngt.trickle_pa_running) {
                 tr_info("trigger PAN advertisement");
                 ws_bootstrap_pan_advert(cur);
-                trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
+                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params);
             } else {
                 tr_info("wrong state: PAN advertisement not triggered");
             }
             break;
         case PROCEDURE_PCS:
         case PROCEDURE_PCS_TRICKLE_INCON:
-            if (cur->ws_info->trickle_pcs_running || ws_bootstrap_state_active(cur)) {
+            if (cur->ws_info->mngt.trickle_pcs_running || ws_bootstrap_state_active(cur)) {
                 tr_info("trigger PAN configuration Solicit");
                 if (procedure != PROCEDURE_PCS_TRICKLE_INCON) {
                     tr_info("send PAN configuration Solicit");
                     ws_bootstrap_pan_config_solicit(cur);
                 }
-                if (cur->ws_info->trickle_pcs_running) {
-                    trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery);
+                if (cur->ws_info->mngt.trickle_pcs_running) {
+                    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pcs, &cur->ws_info->mngt.trickle_params);
                 }
             } else {
                 tr_info("wrong state: PAN configuration Solicit not triggered");
             }
             break;
         case PROCEDURE_PC:
-            if (cur->ws_info->trickle_pc_running) {
+            if (cur->ws_info->mngt.trickle_pc_running) {
                 tr_info("trigger PAN configuration");
                 ws_bootstrap_pan_config(cur);
-                trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
             } else {
                 tr_info("wrong state: PAN configuration not triggered");
             }
@@ -3337,7 +3337,7 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
     cur->ws_info->test_proc_trg.auto_trg_enabled = true;
 
     if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
-        if (cur->ws_info->trickle_pas_running) {
+        if (cur->ws_info->mngt.trickle_pas_running) {
             if (cur->ws_info->test_proc_trg.pas_trigger_timer > seconds) {
                 cur->ws_info->test_proc_trg.pas_trigger_timer -= seconds;
             } else  {
@@ -3347,17 +3347,17 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
                     cur->ws_info->test_proc_trg.pas_trigger_count++;
                     ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS);
                 }
-                cur->ws_info->test_proc_trg.pas_trigger_timer = (cur->ws_info->trickle_params_pan_discovery.Imin / 10);
+                cur->ws_info->test_proc_trg.pas_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10);
             }
             if (cur->ws_info->test_proc_trg.eapol_trigger_timer > seconds) {
                 cur->ws_info->test_proc_trg.eapol_trigger_timer -= seconds;
             } else {
                 ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_EAPOL);
-                cur->ws_info->test_proc_trg.eapol_trigger_timer = (cur->ws_info->trickle_params_pan_discovery.Imin / 10) / 2;
+                cur->ws_info->test_proc_trg.eapol_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10) / 2;
             }
         }
     } else if (cur->nwk_bootstrap_state == ER_SCAN) {
-        if (cur->ws_info->trickle_pcs_running) {
+        if (cur->ws_info->mngt.trickle_pcs_running) {
             if (cur->ws_info->test_proc_trg.pcs_trigger_timer > seconds) {
                 cur->ws_info->test_proc_trg.pcs_trigger_timer -= seconds;
             } else  {
@@ -3367,7 +3367,7 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
                     cur->ws_info->test_proc_trg.pcs_trigger_count++;
                     ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PCS);
                 }
-                cur->ws_info->test_proc_trg.pcs_trigger_timer = (cur->ws_info->trickle_params_pan_discovery.Imin / 10);
+                cur->ws_info->test_proc_trg.pcs_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10);
             }
         }
     } else if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {

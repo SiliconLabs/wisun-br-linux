@@ -196,19 +196,19 @@ static void ws_bootstrap_ffn_start_discovery(struct net_if *cur)
     }
 
     // Start advertisement solicit trickle and calculate when we are checking the status
-    cur->ws_info->trickle_pas_running = true;
-    if (cur->ws_info->trickle_pan_advertisement_solicit.I != cur->ws_info->trickle_params_pan_discovery.Imin) {
+    cur->ws_info->mngt.trickle_pas_running = true;
+    if (cur->ws_info->mngt.trickle_pas.I != cur->ws_info->mngt.trickle_params.Imin) {
         // Trickle not reseted so starting a new interval
-        trickle_start(&cur->ws_info->trickle_pan_advertisement_solicit, "ADV SOL", &cur->ws_info->trickle_params_pan_discovery);
+        trickle_start(&cur->ws_info->mngt.trickle_pas, "ADV SOL", &cur->ws_info->mngt.trickle_params);
     }
 
     // Discovery statemachine is checkked after we have sent the Solicit
     uint32_t time_to_solicit = 0;
-    if (cur->ws_info->trickle_pan_advertisement_solicit.t > cur->ws_info->trickle_pan_advertisement_solicit.now) {
-        time_to_solicit = cur->ws_info->trickle_pan_advertisement_solicit.t - cur->ws_info->trickle_pan_advertisement_solicit.now;
+    if (cur->ws_info->mngt.trickle_pas.t > cur->ws_info->mngt.trickle_pas.now) {
+        time_to_solicit = cur->ws_info->mngt.trickle_pas.t - cur->ws_info->mngt.trickle_pas.now;
     }
 
-    time_to_solicit += cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+    time_to_solicit += cur->ws_info->mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info->mngt.trickle_params.Imin);
 
     if (time_to_solicit > 0xffff) {
         time_to_solicit = 0xffff;
@@ -231,11 +231,11 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
 
     cur->ws_info->pas_requests = 0;
     //Calculate max time for config learn state
-    cur->ws_info->pan_config_sol_max_timeout = trickle_timer_max(&cur->ws_info->trickle_params_pan_discovery, PCS_MAX);
+    cur->ws_info->pan_config_sol_max_timeout = trickle_timer_max(&cur->ws_info->mngt.trickle_params, PCS_MAX);
     // Reset advertisement solicit trickle to start discovering network
-    cur->ws_info->trickle_pcs_running = true;
-    trickle_start(&cur->ws_info->trickle_pan_config_solicit, "CFG SOL", &cur->ws_info->trickle_params_pan_discovery);
-    trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config_solicit, &cur->ws_info->trickle_params_pan_discovery);
+    cur->ws_info->mngt.trickle_pcs_running = true;
+    trickle_start(&cur->ws_info->mngt.trickle_pcs, "CFG SOL", &cur->ws_info->mngt.trickle_params);
+    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pcs, &cur->ws_info->mngt.trickle_params);
 }
 
 static void ws_bootstrap_ffn_network_configuration_learn(struct net_if *cur)
@@ -257,7 +257,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct net_if *cur
 {
     if (pan_information->routing_cost != 0xFFFF &&
         pan_information->routing_cost >= ws_bootstrap_routing_cost_calculate(cur)) {
-        trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement);
+        trickle_consistent_heard(&cur->ws_info->mngt.trickle_pa);
     }
 }
 
@@ -339,20 +339,20 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct net_if *cu
      * An inconsistent transmission is defined as:
      * A PAN Advertisement Solicit with NETNAME-IE matching that of the receiving node.
      */
-    trickle_inconsistent_heard(&cur->ws_info->trickle_pan_advertisement, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params);
     /*
      *  A consistent transmission is defined as
      *  a PAN Advertisement Solicit with NETNAME-IE / Network Name matching that configured on the receiving node.
      */
-    trickle_consistent_heard(&cur->ws_info->trickle_pan_advertisement_solicit);
+    trickle_consistent_heard(&cur->ws_info->mngt.trickle_pas);
     /*
      *  Optimized PAN discovery to select the parent faster if we hear solicit from someone else
      */
 
     if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
-            cur->bootstrap_state_machine_cnt > cur->ws_info->trickle_params_pan_discovery.Imin * 2) {
+            cur->bootstrap_state_machine_cnt > cur->ws_info->mngt.trickle_params.Imin * 2) {
 
-        cur->bootstrap_state_machine_cnt = cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+        cur->bootstrap_state_machine_cnt = cur->ws_info->mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info->mngt.trickle_params.Imin);
 
         tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
     }
@@ -387,7 +387,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
 
     if (!cur->ws_info->pan_information.lpan_version_set) {
         if (!cur->ws_info->configuration_learned) {
-            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+            trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
         }
     } else {
         if (cur->ws_info->pan_information.lpan_version == lfn_version.lfn_version) {
@@ -496,7 +496,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
     if (cur->ws_info->configuration_learned) {
         if (cur->ws_info->pan_information.pan_version == pan_version) {
             // Same version heard so it is consistent
-            trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
+            trickle_consistent_heard(&cur->ws_info->mngt.trickle_pc);
 
             if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_SOFT_SYNCH);
@@ -506,7 +506,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
             return;
         } else  {
             // received version is different so we need to reset the trickle
-            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+            trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
             if (neighbour_pointer_valid && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 ws_bootstrap_primary_parent_set(cur, &neighbor_info, WS_PARENT_HARD_SYNCH);
             }
@@ -588,13 +588,13 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
      * a PAN-ID matching that of the receiving node and a NETNAME-IE / Network Name
      * matching that configured on the receiving node.
      */
-    trickle_consistent_heard(&cur->ws_info->trickle_pan_config_solicit);
+    trickle_consistent_heard(&cur->ws_info->mngt.trickle_pcs);
     /*
      *  inconsistent transmission is defined as either:
      *  A PAN Configuration Solicit with a PAN-ID matching that of the receiving node and
      *  a NETNAME-IE / Network Name matching the network name configured on the receiving
      */
-    trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
+    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
 }
 
 static bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr)
@@ -831,7 +831,7 @@ select_best_candidate:
         // randomize new channel and start MAC
         ws_bootstrap_fhss_activate(cur);
         // Next check will be after one trickle
-        uint32_t random_start = cur->ws_info->trickle_params_pan_discovery.Imin + rand_get_random_in_range(0, cur->ws_info->trickle_params_pan_discovery.Imin);
+        uint32_t random_start = cur->ws_info->mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info->mngt.trickle_params.Imin);
         if (random_start > 0xffff) {
             random_start = 0xffff;
         }
