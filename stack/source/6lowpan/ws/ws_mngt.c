@@ -21,6 +21,34 @@
 #include "common/log.h"
 #include "common/trickle.h"
 
+static bool ws_mngt_ie_utt_validate(const struct mcps_data_ie_list *ie_ext,
+                                    struct ws_utt_ie *ie_utt,
+                                    const char *dbgstr)
+{
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, ie_utt)) {
+        ERROR("Missing UTT-IE in %s", dbgstr);
+        return false;
+    }
+    return true;
+}
+
+static bool ws_mngt_ie_us_validate(struct net_if *net_if,
+                                   const struct mcps_data_ie_list *ie_ext,
+                                   struct ws_us_ie *ie_us,
+                                   const char *dbgstr)
+{
+    // FIXME: see comment in ws_llc_asynch_indication
+    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, ie_us)) {
+        ERROR("Missing US-IE in %s", dbgstr);
+        return false;
+    }
+    if (!ws_bootstrap_validate_channel_plan(ie_us, NULL, net_if))
+        return false;
+    if (!ws_bootstrap_validate_channel_function(ie_us, NULL))
+        return false;
+    return true;
+}
+
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_ie_list *ie_ext)
@@ -29,25 +57,16 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
-        ERROR("Missing UTT-IE in PAN Advertisement");
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Advertisement"))
         return;
-    }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_us)) {
-        ERROR("Missing US-IE in PAN Advertisement");
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Advertisement"))
         return;
-    }
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
         ERROR("Missing PAN-IE in PAN Advertisement");
         return;
     }
 
-    if (!ws_bootstrap_validate_channel_plan(&ie_us, NULL, net_if))
-        return;
-    if (!ws_bootstrap_validate_channel_function(&ie_us, NULL))
-        return;
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
 
@@ -64,19 +83,9 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
-        ERROR("Missing UTT-IE in PAN Advertisement Solicit");
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Advertisement Solicit"))
         return;
-    }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_us)) {
-        ERROR("Missing US-IE in PAN Advertisement Solicit");
-        return;
-    }
-
-    if (!ws_bootstrap_validate_channel_plan(&ie_us, NULL, net_if))
-        return;
-    if (!ws_bootstrap_validate_channel_function(&ie_us, NULL))
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Advertisement Solicit"))
         return;
 
     trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_advertisement,
@@ -94,19 +103,14 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     ws_us_ie_t ie_us;
     ws_bs_ie_t ie_bs;
 
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
-        ERROR("Missing UTT-IE in PAN Configuration");
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Configuration"))
         return;
-    }
     if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
         ERROR("Missing BT-IE in PAN Configuration");
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_us)) {
-        ERROR("Missing US-IE in PAN Configuration");
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Configuration"))
         return;
-    }
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_bs)) {
         ERROR("Missing BS-IE in PAN Configuration");
@@ -118,10 +122,6 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         return;
     }
 
-    if (!ws_bootstrap_validate_channel_plan(&ie_us, NULL, net_if))
-        return;
-    if (!ws_bootstrap_validate_channel_function(&ie_us, NULL))
-        return;
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
 
@@ -147,20 +147,11 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
-        ERROR("Missing UTT-IE in PAN Configuration Solicit");
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Configuration Solicit"))
         return;
-    }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_us)) {
-        ERROR("Missing US-IE in PAN Configuration Solicit");
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Configuration Solicit"))
         return;
-    }
 
-    if (!ws_bootstrap_validate_channel_plan(&ie_us, NULL, net_if))
-        return;
-    if (!ws_bootstrap_validate_channel_function(&ie_us, NULL))
-        return;
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
 
