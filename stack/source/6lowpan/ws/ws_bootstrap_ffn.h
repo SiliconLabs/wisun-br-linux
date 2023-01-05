@@ -42,6 +42,9 @@ void ws_ffn_trickle_stop(struct ws_mngt *mngt);
 void ws_ffn_pas_trickle(struct net_if *cur, int ticks);
 void ws_ffn_pas_test_exec(struct net_if *cur, int procedure);
 void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds);
+void ws_ffn_pcs_trickle(struct net_if *cur, int ticks);
+void ws_ffn_pcs_test_exec(struct net_if *cur, int procedure);
+void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds);
 
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
@@ -86,6 +89,21 @@ static inline void ws_ffn_pas_test_exec(struct net_if *cur, int procedure)
 }
 
 static inline void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline void ws_ffn_pcs_trickle(struct net_if *cur, int ticks)
+{
+    // empty
+}
+
+static inline void ws_ffn_pcs_test_exec(struct net_if *cur, int procedure)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds)
 {
     BUG("not compiled with HAVE_WS_ROUTER");
 }

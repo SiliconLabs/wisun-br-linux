@@ -94,7 +94,6 @@ typedef struct ws_info {
     struct ws_mngt mngt;
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
-    uint8_t pas_requests; // Amount of PAN solicits sent
     uint8_t device_min_sens; // Device min sensitivity set by the application
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
@@ -107,7 +106,6 @@ typedef struct ws_info {
     uint32_t uptime;                       /**< Seconds after interface has been started */
     uint32_t authentication_time;          /**< When the last authentication was performed */
     uint32_t connected_time;               /**< Time we have been connected to network */
-    uint32_t pan_config_sol_max_timeout;
     uint16_t network_pan_id;
     bool configuration_learned: 1;
     ws_pending_key_index_t pending_key_index_info;

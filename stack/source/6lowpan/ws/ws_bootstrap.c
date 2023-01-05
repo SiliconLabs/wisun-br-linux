@@ -2595,23 +2595,6 @@ void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;
 }
 
-static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
-{
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_CONF_SOL;
-    //Request UTT Header and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.net_name_ie = true;
-
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
-    async_req.security.SecurityLevel = 0;
-
-    ws_stats_update(cur, STATS_WS_ASYNCH_TX_PCS, 1);
-    ws_llc_asynch_request(cur, &async_req);
-}
-
 static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
     asynch_request_t async_req;
@@ -2809,34 +2792,7 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
     ws_ffn_pas_trickle(cur, ticks);
-    if (cur->ws_info->mngt.trickle_pcs_running) {
-
-        //Update MAX config sol timeout timer
-        if (cur->ws_info->pan_config_sol_max_timeout > ticks) {
-            cur->ws_info->pan_config_sol_max_timeout -= ticks;
-        } else {
-            //Config sol state timeout
-            cur->ws_info->pan_config_sol_max_timeout = 0;
-        }
-
-        if (trickle_timer(&cur->ws_info->mngt.trickle_pcs, &cur->ws_info->mngt.trickle_params, ticks)) {
-            if (cur->ws_info->pas_requests < PCS_MAX) {
-                // send PAN Configuration solicit
-                ws_bootstrap_pan_config_solicit(cur);
-            }
-            //Update counter every time reason that we detect PCS_MAX higher state
-            cur->ws_info->pas_requests++;
-        }
-
-        if (cur->ws_info->pas_requests > PCS_MAX || cur->ws_info->pan_config_sol_max_timeout == 0) {
-            // if MAX PCS sent or max waited timeout restart discovery
-            // Trickle is reseted when entering to discovery from state 3
-            tr_info("PAN configuration Solicit timeout");
-            trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
-            ws_bootstrap_event_discovery_start(cur);
-            return;
-        }
-    }
+    ws_ffn_pcs_trickle(cur, ticks);
     if (cur->ws_info->mngt.trickle_pa_running &&
             trickle_timer(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params, ticks)) {
         // send PAN advertisement
@@ -2854,7 +2810,6 @@ void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 {
     cur->ws_info->mngt.trickle_pa_running = false;
     cur->ws_info->mngt.trickle_pc_running = false;
-    cur->ws_info->mngt.trickle_pcs_running = false;
     ws_ffn_trickle_stop(&cur->ws_info->mngt);
 }
 
@@ -3167,18 +3122,7 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             break;
         case PROCEDURE_PCS:
         case PROCEDURE_PCS_TRICKLE_INCON:
-            if (cur->ws_info->mngt.trickle_pcs_running || ws_bootstrap_state_active(cur)) {
-                tr_info("trigger PAN configuration Solicit");
-                if (procedure != PROCEDURE_PCS_TRICKLE_INCON) {
-                    tr_info("send PAN configuration Solicit");
-                    ws_bootstrap_pan_config_solicit(cur);
-                }
-                if (cur->ws_info->mngt.trickle_pcs_running) {
-                    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pcs, &cur->ws_info->mngt.trickle_params);
-                }
-            } else {
-                tr_info("wrong state: PAN configuration Solicit not triggered");
-            }
+            ws_ffn_pcs_test_exec(cur, procedure);
             break;
         case PROCEDURE_PC:
             if (cur->ws_info->mngt.trickle_pc_running) {
@@ -3238,19 +3182,7 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
     if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
         ws_ffn_pas_test_trigger(cur, seconds);
     } else if (cur->nwk_bootstrap_state == ER_SCAN) {
-        if (cur->ws_info->mngt.trickle_pcs_running) {
-            if (cur->ws_info->test_proc_trg.pcs_trigger_timer > seconds) {
-                cur->ws_info->test_proc_trg.pcs_trigger_timer -= seconds;
-            } else  {
-                if (cur->ws_info->test_proc_trg.pcs_trigger_count > 2) {
-                    ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PCS_TRICKLE_INCON);
-                } else {
-                    cur->ws_info->test_proc_trg.pcs_trigger_count++;
-                    ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PCS);
-                }
-                cur->ws_info->test_proc_trg.pcs_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10);
-            }
-        }
+        ws_ffn_pcs_test_trigger(cur, seconds);
     } else if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
         if (cur->ws_info->test_proc_trg.dis_trigger_timer > seconds) {
             cur->ws_info->test_proc_trg.dis_trigger_timer -= seconds;
