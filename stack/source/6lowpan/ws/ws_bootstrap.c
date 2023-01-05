@@ -92,8 +92,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index);
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot);
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint32_t *counter, uint8_t slot);
 static void ws_bootstrap_nw_info_updated(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
-static void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64);
-static const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static void ws_bootstrap_pan_version_increment(struct net_if *cur);
 static void ws_bootstrap_lpan_version_increment(struct net_if *cur);
@@ -1071,21 +1069,6 @@ parent_info_t *ws_bootstrap_candidate_parent_get(struct net_if *cur, const uint8
         return ws_bootstrap_candidate_parent_allocate(cur, addr);
     }
     return NULL;
-}
-
-static void ws_bootstrap_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
-{
-    parent_info_t *entry = ws_bootstrap_candidate_parent_get(cur, addr, false);
-    if (entry) {
-        if (entry->tx_fail >= 2) {
-            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
-            ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
-        } else {
-            entry->tx_fail++;
-            ws_bootstrap_candidate_parent_sort(cur, entry);
-        }
-
-    }
 }
 
 static bool ws_bootstrap_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
@@ -2486,57 +2469,6 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
         // Stores the settings
         ws_cfg_gen_set(cur, &gen_cfg, 0);
     }
-}
-
-static void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64)
-{
-    if (result == AUTH_RESULT_OK) {
-        tr_info("authentication success eui64:%s", tr_eui64(target_eui_64));
-        if (target_eui_64) {
-            // Authentication was made contacting the authenticator
-            cur->ws_info->authentication_time = cur->ws_info->uptime;
-        }
-        ws_bootstrap_event_configuration_start(cur);
-    } else if (result == AUTH_RESULT_ERR_TX_ERR) {
-        // eapol parent selected is not working
-        tr_debug("authentication TX failed");
-
-        ws_bootstrap_candidate_parent_mark_failure(cur, target_eui_64);
-        // Go back for network scanning
-        ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
-
-        // Start PAS interval between imin - imax.
-        cur->ws_info->mngt.trickle_pas_running = true;
-        trickle_start(&cur->ws_info->mngt.trickle_pas, "ADV SOL", &cur->ws_info->mngt.trickle_params);
-
-        // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
-        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info->mngt.trickle_params.Imin >> 1);
-        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
-    } else {
-        tr_debug("authentication failed");
-        // What else to do to start over again...
-        // Trickle is reseted when entering to discovery from state 2
-        trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
-        ws_bootstrap_event_discovery_start(cur);
-    }
-}
-
-static const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
-{
-    ws_bootstrap_candidate_parent_mark_failure(cur, previous_eui_64);
-
-    // Gets best target
-    parent_info_t *parent_info = ws_bootstrap_candidate_parent_get_best(cur);
-    if (parent_info) {
-        /* On failure still continues with the new parent, and on next call,
-           will try to set the neighbor again */
-        ws_bootstrap_neighbor_set(cur, parent_info, true);
-        *pan_id = parent_info->pan_id;
-        return parent_info->addr;
-    }
-
-    // If no targets found, retries the last one
-    return previous_eui_64;
 }
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)

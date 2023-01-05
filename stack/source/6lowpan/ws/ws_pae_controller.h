@@ -25,7 +25,7 @@
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_keys.h"
 
-typedef enum {
+typedef enum auth_result {
     AUTH_RESULT_OK = 0,                    // Successful
     AUTH_RESULT_ERR_NO_MEM = -1,           // No memory
     AUTH_RESULT_ERR_TX_ERR = -2,           // TX error (e.g. no acknowledge was received)

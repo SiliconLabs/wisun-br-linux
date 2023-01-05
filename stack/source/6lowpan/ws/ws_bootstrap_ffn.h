@@ -24,6 +24,7 @@
 struct net_if;
 struct mcps_data_ind;
 struct mcps_data_ie_list;
+typedef enum auth_result auth_result_e;
 
 #ifdef HAVE_WS_ROUTER
 
@@ -33,7 +34,11 @@ void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *ev
 void ws_bootstrap_ffn_state_machine(struct net_if *cur);
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds);
 
+void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64);
+const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
+
 #else
+#include "stack/source/6lowpan/ws/ws_pae_controller.h"
 
 static inline void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
@@ -48,6 +53,16 @@ static inline void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uin
 #define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_ffn_state_machine(cur) ((void) 0)
 #define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
+
+static inline void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
 
 #endif
 
