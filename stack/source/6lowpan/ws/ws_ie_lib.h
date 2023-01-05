@@ -103,7 +103,7 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
 bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
 bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t lgtkhash[3], unsigned *active_lgtk_index);
-bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
+bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, struct ws_lcp_ie *ws_lcp_ie);
 
 
 #endif

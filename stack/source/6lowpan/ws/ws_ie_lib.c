@@ -1040,12 +1040,32 @@ bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lba
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
+// LCP-IE can appear several times with different tag values
+static void ws_wp_nested_lcp_find_tag(const uint8_t *data, uint16_t length, uint8_t tag, struct iobuf_read *ie_content)
+{
+    const uint8_t *end = data + length;
+
+    do {
+        ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LCP_TYPE, ie_content, true);
+        if (iobuf_pop_u8(ie_content) == tag) {
+            ie_content->cnt = 0;
+            return;
+        }
+        if (ie_content->err)
+            return;
+        length -= 2 + ie_content->data_size;
+        data   += 2 + ie_content->data_size;
+        BUG_ON(data != ie_content->data + ie_content->data_size);
+    } while (data < end);
+    ie_content->err = true;
+}
+
+bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, uint8_t tag, struct ws_lcp_ie *ws_lcp)
 {
     struct iobuf_read ie_buf;
     uint8_t tmp8;
 
-    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LCP_TYPE, &ie_buf, true);
+    ws_wp_nested_lcp_find_tag(data, length, tag, &ie_buf);
     ws_lcp->lfn_channel_plan_tag = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
     ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
