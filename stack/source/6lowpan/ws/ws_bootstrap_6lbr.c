@@ -168,7 +168,7 @@ static void ws_bootstrap_6lbr_pan_config_analyse(struct net_if *cur, const struc
         return;
     }
     // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
+    if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
         WARN("Received corrupted PAN config: no PAN version");
         return;
     }

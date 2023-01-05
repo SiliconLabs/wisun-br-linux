@@ -373,7 +373,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
 
     ws_lfnver_ie_t lfn_version;
     // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_lfn_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &lfn_version)) {
+    if (!ws_wp_nested_lfnver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &lfn_version)) {
         return; // LFN version
     }
 
@@ -431,7 +431,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
         return;
     }
     // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_pan_version_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_version)) {
+    if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_version)) {
         WARN("Received corrupted PAN config: no PAN version");
         return;
     }

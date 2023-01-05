@@ -56,7 +56,7 @@
 #define WP_PAYLOAD_IE_BS_TYPE               2   /**< Broadcast Schedule information */
 #define WP_PAYLOAD_IE_VP_TYPE               3   /**< Vendor Payload information */
 /* Wi-SUN FAN definition 1.1 */
-#define WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE 4   /**< LFN Channel Plan information*/
+#define WP_PAYLOAD_IE_LCP_TYPE              4   /**< LFN Channel Plan information*/
 #define WP_PAYLOAD_IE_LBATS_TYPE            5   /**< LFN Broadcast Additional Transmit Schedule information */
 
 

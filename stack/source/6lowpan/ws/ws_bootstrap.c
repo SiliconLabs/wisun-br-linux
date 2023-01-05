@@ -942,14 +942,14 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 
 bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr)
 {
-    ws_wp_network_name_t network_name;
+    ws_wp_netname_t network_name;
 
     if (!network_name_ptr || !ie_ext) {
         return false;
     }
 
     // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_network_name_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
+    if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
         tr_warn("No network name IE");
         return false;
     }

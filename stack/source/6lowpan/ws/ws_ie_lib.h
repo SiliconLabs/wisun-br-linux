@@ -31,12 +31,12 @@ struct ws_fc_ie;
 struct ws_pom_ie;
 
 /**
- * @brief ws_wp_network_name_t WS nested payload network name
+ * @brief ws_wp_netname_t WS nested payload network name
  */
-typedef struct ws_wp_network_name {
+typedef struct ws_wp_netname {
     uint8_t network_name_length;
     const uint8_t *network_name;
-} ws_wp_network_name_t;
+} ws_wp_netname_t;
 
 
 /* WS_WH HEADER IE */
@@ -80,30 +80,30 @@ bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *
 int ws_wp_base_write(struct iobuf_write *buf);
 void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
 void               ws_wp_nested_vp_write(struct iobuf_write *buf, uint8_t *vendor_payload, uint16_t vendor_payload_length);
-void         ws_wp_nested_pan_info_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
+void              ws_wp_nested_pan_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
 void          ws_wp_nested_netname_write(struct iobuf_write *buf, uint8_t *network_name, uint8_t network_name_length);
-void          ws_wp_nested_pan_ver_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
+void           ws_wp_nested_panver_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
 void          ws_wp_nested_gtkhash_write(struct iobuf_write *buf, gtkhash_t gtkhash[4], uint8_t gtkhash_length);
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 void              ws_wp_nested_pom_write(struct iobuf_write *buf, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
 void            ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
-void      ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie *ws_lfnver);
+void           ws_wp_nested_lfnver_write(struct iobuf_write *buf, struct ws_lfnver_ie *ws_lfnver);
 void         ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
-void ws_wp_nested_lfn_channel_plan_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp);
+void              ws_wp_nested_lcp_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp);
 
 bool ws_wp_nested_us_read(const uint8_t *data, uint16_t length, struct ws_us_ie *us_ie);
 bool ws_wp_nested_bs_read(const uint8_t *data, uint16_t length, struct ws_bs_ie *bs_ie);
 bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_information *pan_configuration);
-bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
-bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name);
+bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pan_version);
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, ws_wp_netname_t *network_name);
 bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t gtkhash[4]);
 /* Wi-SUN FAN 1.1 */
 bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_ie *pom_ie);
 bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lbats_ie *lbats_ie);
-bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
+bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver);
 bool ws_wp_nested_lgtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t lgtkhash[3], unsigned *active_lgtk_index);
-bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
+bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp_ie);
 
 
 #endif

@@ -1835,11 +1835,11 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         if (request->wp_requested_nested_ie_list.bs_ie)
             ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, false);
         if (request->wp_requested_nested_ie_list.pan_ie)
-            ws_wp_nested_pan_info_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
+            ws_wp_nested_pan_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
         if (request->wp_requested_nested_ie_list.net_name_ie)
             ws_wp_nested_netname_write(&message->ie_buf_payload, base->ie_params.network_name, base->ie_params.network_name_length);
         if (request->wp_requested_nested_ie_list.pan_version_ie)
-            ws_wp_nested_pan_ver_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
+            ws_wp_nested_panver_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
         if (request->wp_requested_nested_ie_list.gtkhash_ie)
             ws_wp_nested_gtkhash_write(&message->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
         if (request->wp_requested_nested_ie_list.vp_ie)
@@ -1849,12 +1849,12 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
             if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
                 ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             if (request->wp_requested_nested_ie_list.lcp_ie)
-                ws_wp_nested_lfn_channel_plan_write(&message->ie_buf_payload, base->ie_params.lfn_channel_plan);
+                ws_wp_nested_lcp_write(&message->ie_buf_payload, base->ie_params.lfn_channel_plan);
             if (request->wp_requested_nested_ie_list.lfnver_ie) {
                 ws_lfnver_ie_t lfn_ver;
                 //Write LFN Version
                 lfn_ver.lfn_version = interface->ws_info->pan_information.lpan_version;
-                ws_wp_nested_lfn_version_write(&message->ie_buf_payload, &lfn_ver);
+                ws_wp_nested_lfnver_write(&message->ie_buf_payload, &lfn_ver);
             }
             if (request->wp_requested_nested_ie_list.lgtkhash_ie)
                 ws_wp_nested_lgtkhash_write(&message->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));

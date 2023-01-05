@@ -525,8 +525,8 @@ void ws_wp_nested_vp_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-void ws_wp_nested_pan_info_write(struct iobuf_write *buf,
-                                 struct ws_pan_information *pan_configuration)
+void ws_wp_nested_pan_write(struct iobuf_write *buf,
+                            struct ws_pan_information *pan_configuration)
 {
     bool lfn_window_style = false;
     uint8_t tmp8;
@@ -560,8 +560,8 @@ void ws_wp_nested_netname_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_pan_ver_write(struct iobuf_write *buf,
-                                struct ws_pan_information *pan_configuration)
+void ws_wp_nested_panver_write(struct iobuf_write *buf,
+                               struct ws_pan_information *pan_configuration)
 {
     int offset;
 
@@ -603,7 +603,7 @@ void ws_wp_nested_pom_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_lfn_version_write(struct iobuf_write *buf, struct ws_lfnver_ie *lfnver_ie)
+void ws_wp_nested_lfnver_write(struct iobuf_write *buf, struct ws_lfnver_ie *lfnver_ie)
 {
     int offset;
 
@@ -632,11 +632,11 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_lfn_channel_plan_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp)
+void ws_wp_nested_lcp_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp)
 {
     int offset;
 
-    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, true);
+    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
     iobuf_push_u8(buf, ws_lcp->lfn_channel_plan_tag);
     iobuf_push_u8(buf, ws_wp_channel_info_base_get(&ws_lcp->chan_plan));
     ws_wp_channel_plan_write(buf, &ws_lcp->chan_plan);
@@ -939,7 +939,7 @@ bool ws_wp_nested_pan_read(const uint8_t *data, uint16_t length, struct ws_pan_i
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_pan_version_read(const uint8_t *data, uint16_t length, uint16_t *pan_version)
+bool ws_wp_nested_panver_read(const uint8_t *data, uint16_t length, uint16_t *pan_version)
 {
     struct iobuf_read ie_buf;
 
@@ -957,7 +957,7 @@ bool ws_wp_nested_gtkhash_read(const uint8_t *data, uint16_t length, gtkhash_t g
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_network_name_read(const uint8_t *data, uint16_t length, ws_wp_network_name_t *network_name)
+bool ws_wp_nested_netname_read(const uint8_t *data, uint16_t length, ws_wp_netname_t *network_name)
 {
     struct iobuf_read ie_buf;
 
@@ -985,7 +985,7 @@ bool ws_wp_nested_pom_read(const uint8_t *data, uint16_t length, struct ws_pom_i
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_lfn_version_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
+bool ws_wp_nested_lfnver_read(const uint8_t *data, uint16_t length, struct ws_lfnver_ie *ws_lfnver)
 {
     struct iobuf_read ie_buf;
 
@@ -1023,12 +1023,12 @@ bool ws_wp_nested_lbats_read(const uint8_t *data, uint16_t length, struct ws_lba
     return !ie_buf.err;
 }
 
-bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
+bool ws_wp_nested_lcp_read(const uint8_t *data, uint16_t length, struct ws_lcp_ie *ws_lcp)
 {
     struct iobuf_read ie_buf;
     uint8_t tmp8;
 
-    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, &ie_buf, true);
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LCP_TYPE, &ie_buf, true);
     ws_lcp->lfn_channel_plan_tag = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
     ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
