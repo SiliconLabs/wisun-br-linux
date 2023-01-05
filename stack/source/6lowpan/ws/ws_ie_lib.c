@@ -655,11 +655,28 @@ void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
+static void ws_wh_find_subid(const uint8_t *data, uint16_t length, uint8_t subid, struct iobuf_read *wh_content)
+{
+    const uint8_t *end = data + length;
+
+    do {
+        ieee802154_ie_find_header(data, length, IEEE802154_IE_ID_WH, wh_content);
+        if (iobuf_pop_u8(wh_content) == subid)
+            return;
+        if (wh_content->err)
+            return;
+        length -= 2 + wh_content->data_size;
+        data   += 2 + wh_content->data_size;
+        BUG_ON(data != wh_content->data + wh_content->data_size);
+    } while (data < end);
+    wh_content->err = true;
+}
+
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie)
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_UTT_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_UTT_TYPE, &ie_buf);
     utt_ie->message_type = iobuf_pop_u8(&ie_buf);
     utt_ie->ufsi         = iobuf_pop_le24(&ie_buf);
     return !ie_buf.err;
@@ -669,7 +686,7 @@ bool ws_wh_bt_read(const uint8_t *data, uint16_t length, struct ws_bt_ie *bt_ie)
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_BT_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_BT_TYPE, &ie_buf);
     bt_ie->broadcast_slot_number     = iobuf_pop_le16(&ie_buf);
     bt_ie->broadcast_interval_offset = iobuf_pop_le16(&ie_buf);
     return !ie_buf.err;
@@ -679,7 +696,7 @@ bool ws_wh_fc_read(const uint8_t *data, uint16_t length, struct ws_fc_ie *fc_ie)
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_FC_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_FC_TYPE, &ie_buf);
     fc_ie->tx_flow_ctrl = iobuf_pop_u8(&ie_buf);
     fc_ie->rx_flow_ctrl = iobuf_pop_u8(&ie_buf);
     return !ie_buf.err;
@@ -689,7 +706,7 @@ bool ws_wh_rsl_read(const uint8_t *data, uint16_t length, int8_t *rsl)
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_RSL_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_RSL_TYPE, &ie_buf);
     *rsl = iobuf_pop_u8(&ie_buf);
     return !ie_buf.err;
 }
@@ -698,7 +715,7 @@ bool ws_wh_ea_read(const uint8_t *data, uint16_t length, uint8_t eui64[8])
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_EA_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_EA_TYPE, &ie_buf);
     iobuf_pop_data(&ie_buf, eui64, 8);
     return !ie_buf.err;
 }
@@ -707,7 +724,7 @@ bool ws_wh_lutt_read(const uint8_t *data, uint16_t length, struct ws_lutt_ie *lu
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LUTT_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LUTT_TYPE, &ie_buf);
     lutt_ie->message_type    = iobuf_pop_u8(&ie_buf);
     lutt_ie->slot_number     = iobuf_pop_le16(&ie_buf);
     lutt_ie->interval_offset = iobuf_pop_le24(&ie_buf);
@@ -718,7 +735,7 @@ bool ws_wh_lus_read(const uint8_t *data, uint16_t length, struct ws_lus_ie *lus_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LUS_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LUS_TYPE, &ie_buf);
     lus_ie->listen_interval  = iobuf_pop_le24(&ie_buf);
     lus_ie->channel_plan_tag = iobuf_pop_u8(&ie_buf);
     return !ie_buf.err;
@@ -728,7 +745,7 @@ bool ws_wh_flus_read(const uint8_t *data, uint16_t length, struct ws_flus_ie *fl
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_FLUS_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_FLUS_TYPE, &ie_buf);
     flus_ie->dwell_interval   = iobuf_pop_u8(&ie_buf);
     flus_ie->channel_plan_tag = iobuf_pop_u8(&ie_buf);
     return !ie_buf.err;
@@ -738,7 +755,7 @@ bool ws_wh_lbt_read(const uint8_t *data, uint16_t length, struct ws_lbt_ie *lbt_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LBT_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LBT_TYPE, &ie_buf);
     lbt_ie->slot_number     = iobuf_pop_le16(&ie_buf);
     lbt_ie->interval_offset = iobuf_pop_le24(&ie_buf);
     return !ie_buf.err;
@@ -748,7 +765,7 @@ bool ws_wh_lbs_read(const uint8_t *data, uint16_t length, struct ws_lbs_ie *lbs_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LBS_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LBS_TYPE, &ie_buf);
     lbs_ie->broadcast_interval     = iobuf_pop_le24(&ie_buf);
     lbs_ie->broadcast_scheduler_id = iobuf_pop_le16(&ie_buf);
     lbs_ie->channel_plan_tag       = iobuf_pop_u8(&ie_buf);
@@ -760,7 +777,7 @@ bool ws_wh_nr_read(const uint8_t *data, uint16_t length, struct ws_nr_ie *nr_ie)
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_NR_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_NR_TYPE, &ie_buf);
     nr_ie->node_role       = FIELD_GET(WS_WH_NR_IE_NODE_ROLE_ID_MASK, iobuf_pop_u8(&ie_buf));
     nr_ie->clock_drift     = iobuf_pop_u8(&ie_buf);
     nr_ie->timing_accuracy = iobuf_pop_u8(&ie_buf);
@@ -775,7 +792,7 @@ bool ws_wh_lnd_read(const uint8_t *data, uint16_t length, struct ws_lnd_ie *lnd_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LND_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LND_TYPE, &ie_buf);
     lnd_ie->response_threshold   = iobuf_pop_u8(&ie_buf);
     lnd_ie->response_delay       = iobuf_pop_le24(&ie_buf);
     lnd_ie->discovery_slot_time  = iobuf_pop_u8(&ie_buf);
@@ -788,7 +805,7 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LTO_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LTO_TYPE, &ie_buf);
     lto_ie->offset                      = iobuf_pop_le24(&ie_buf);
     lto_ie->adjusted_listening_interval = iobuf_pop_le24(&ie_buf);
     return !ie_buf.err;
@@ -798,7 +815,7 @@ bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_PANID_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_PANID_TYPE, &ie_buf);
     panid_ie->panid = iobuf_pop_le16(&ie_buf);
     return !ie_buf.err;
 }
@@ -807,7 +824,7 @@ bool ws_wh_lbc_read(const uint8_t *data, uint16_t length, struct ws_lbc_ie *lbc_
 {
     struct iobuf_read ie_buf;
 
-    ieee802154_ie_find_wh(data, length, WH_IE_LBC_TYPE, &ie_buf);
+    ws_wh_find_subid(data, length, WH_IE_LBC_TYPE, &ie_buf);
     lbc_ie->lfn_broadcast_interval = iobuf_pop_le24(&ie_buf);
     lbc_ie->broadcast_sync_period  = iobuf_pop_u8(&ie_buf);
     return !ie_buf.err;

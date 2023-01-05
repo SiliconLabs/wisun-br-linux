@@ -71,6 +71,5 @@ void ieee802154_ie_set_len(struct iobuf_write *buf, int offset, uint16_t len, ui
 int ieee802154_ie_find_header(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content);
 int ieee802154_ie_find_payload(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content);
 int ieee802154_ie_find_nested(const uint8_t *data, size_t len, uint8_t id, struct iobuf_read *ie_content, bool is_long);
-int ieee802154_ie_find_wh(const uint8_t *data, size_t len, uint8_t sub_id, struct iobuf_read *ie_content);
 
 #endif

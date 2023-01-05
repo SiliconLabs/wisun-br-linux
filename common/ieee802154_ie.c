@@ -153,38 +153,3 @@ int ieee802154_ie_find_nested(const uint8_t *data, size_t len, uint8_t id, struc
     }
     return -ENOENT;
 }
-
-int ieee802154_ie_find_wh(const uint8_t *data, size_t len, uint8_t sub_id, struct iobuf_read *ie_content)
-{
-    struct iobuf_read input = {
-        .data_size = len,
-        .data = data,
-    };
-    uint16_t ie_hdr;
-    int ie_len;
-
-    memset(ie_content, 0, sizeof(struct iobuf_read));
-    ie_content->err = true;
-    while (iobuf_remaining_size(&input)) {
-        ie_hdr = iobuf_pop_le16(&input);
-        if (FIELD_GET(IEEE802154_IE_TYPE_MASK, ie_hdr) != IEEE802154_IE_TYPE_HEADER)
-            return -EINVAL;
-        ie_len = FIELD_GET(IEEE802154_IE_HEADER_LEN_MASK, ie_hdr);
-        if (FIELD_GET(IEEE802154_IE_HEADER_ID_MASK, ie_hdr) != IEEE802154_IE_ID_WH) {
-            iobuf_pop_data_ptr(&input, ie_len);
-            continue;
-        }
-        if (ie_len < 1)
-            return -EINVAL;
-        if (iobuf_pop_u8(&input) == sub_id) {
-            ie_content->data = iobuf_pop_data_ptr(&input, ie_len - 1);
-            if (!ie_content->data)
-                return -EINVAL;
-            ie_content->err = false;
-            ie_content->data_size = ie_len - 1;
-            return ie_len - 1;
-        }
-        iobuf_pop_data_ptr(&input, ie_len - 1);
-    }
-    return -ENOENT;
-}
