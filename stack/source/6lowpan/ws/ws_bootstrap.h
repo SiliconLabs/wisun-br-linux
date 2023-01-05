@@ -128,8 +128,6 @@ int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedu
  * Functions shared with different bootstrap modes
  */
 
-bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr);
-
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
 

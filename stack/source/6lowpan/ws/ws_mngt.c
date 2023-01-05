@@ -12,6 +12,7 @@
  */
 #include "stack/mac/mac_mcps.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
+#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_mngt.h"
@@ -49,6 +50,23 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
     return true;
 }
 
+static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
+                                        const struct mcps_data_ie_list *ie_ext,
+                                        const char *dbgstr)
+{
+    const char *network_name = net_if->ws_info->cfg->gen.network_name;
+    ws_wp_netname_t ie_netname;
+
+    // FIXME: see comment in ws_llc_asynch_indication
+    if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_netname)) {
+        ERROR("Missing NETNAME-IE in %s", dbgstr);
+        return false;
+    }
+    if (ie_netname.network_name_length != strlen(network_name))
+        return false;
+    return !strncmp(network_name, (char *)ie_netname.network_name, ie_netname.network_name_length);
+}
+
 static void ws_mngt_ie_pom_handle(struct net_if *net_if,
                                   const struct mcps_data_ind *data,
                                   const struct mcps_data_ie_list *ie_ext)
@@ -82,6 +100,8 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
         ERROR("Missing PAN-IE in PAN Advertisement");
         return;
     }
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, "PAN Advertisement"))
+        return;
 
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
@@ -103,6 +123,8 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Advertisement Solicit"))
         return;
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Advertisement Solicit"))
+        return;
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, "PAN Advertisement Solicit"))
         return;
 
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
@@ -168,6 +190,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, "PAN Configuration Solicit"))
         return;
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Configuration Solicit"))
+        return;
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, "PAN Configuration Solicit"))
         return;
 
     if (data->SrcPANId != net_if->ws_info->network_pan_id)

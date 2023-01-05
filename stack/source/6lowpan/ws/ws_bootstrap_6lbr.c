@@ -161,26 +161,6 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
         return;
     }
     ws_stats_update(cur, STATS_WS_ASYNCH_RX, 1);
-    //Validate network name
-    switch (message_type) {
-        case WS_FT_PAN_ADVERT:
-        case WS_FT_PAN_ADVERT_SOL:
-        case WS_FT_PAN_CONF_SOL:
-        case WS_FT_LPA:
-        case WS_FT_LPAS:
-        case WS_FT_LPCS:
-            //Check Network Name
-            if (!ws_bootstrap_network_name_matches(ie_ext, cur->ws_info->cfg->gen.network_name)) {
-                // Not in our network
-                return;
-            }
-            break;
-        case WS_FT_PAN_CONF:
-        case WS_FT_LPC:
-            break;
-        default:
-            return;
-    }
 
     //Handle Message's
     switch (message_type) {

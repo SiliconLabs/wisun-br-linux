@@ -940,32 +940,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     return;
 }
 
-bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr)
-{
-    ws_wp_netname_t network_name;
-
-    if (!network_name_ptr || !ie_ext) {
-        return false;
-    }
-
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
-        tr_warn("No network name IE");
-        return false;
-    }
-
-    if (network_name.network_name_length != strlen(network_name_ptr)) {
-        return false;
-    }
-
-    if (strncmp(network_name_ptr, (char *)network_name.network_name, network_name.network_name_length) != 0) {
-        return false;
-    }
-
-    // names have equal length and same characters
-    return true;
-}
-
 static void ws_bootstrap_decode_exclude_range_to_mask_by_range(void *mask_buffer, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
