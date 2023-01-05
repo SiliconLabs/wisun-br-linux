@@ -837,7 +837,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     user_cb->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, ws_utt_ie_t ws_utt)
+static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
 {
     struct iobuf_read ie_buf;
 
@@ -850,7 +850,7 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
     if (ie_buf.err)
         return;
 
-    switch (ws_utt.message_type) {
+    switch (frame_type) {
         case WS_FT_PA:
         case WS_FT_PC:
         case WS_FT_PCS:
@@ -870,7 +870,7 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
     // the content of the WP-IE instead.
     asynch_ie_list.payloadIeList       = ie_buf.data;
     asynch_ie_list.payloadIeListLength = ie_buf.data_size;
-    base->asynch_ind(base->interface_ptr, data, &asynch_ie_list, ws_utt.message_type);
+    base->asynch_ind(base->interface_ptr, data, &asynch_ie_list, frame_type);
 }
 
 static const struct name_value ws_frames[] = {
@@ -937,30 +937,32 @@ static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data, const mcps_data_ie
 /** WS LLC MAC data extension indication  */
 static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
-    ws_utt_ie_t ws_utt;
+    bool has_utt, has_lutt;
+    ws_lutt_ie_t ie_lutt;
+    ws_utt_ie_t ie_utt;
+    uint8_t frame_type;
 
     ws_trace_llc_mac_ind(data, ie_ext);
 
-    //Discover Header WH_IE_UTT_TYPE
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_utt)) {
-        // NO UTT header
+    has_utt  = ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt);
+    has_lutt = ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt);
+    if (!has_utt && !has_lutt) {
+        ERROR("Missing (L)UTT-IE in received frame");
+        return;
+    } else if (has_utt && has_lutt) {
+        ERROR("Both UTT-IE and LUTT-IE found in received frame");
         return;
     }
+    frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
-    if (ws_utt.message_type < WS_FT_DATA) {
-        ws_llc_asynch_indication(api, data, ie_ext, ws_utt);
-        return;
-    }
-
-    if (ws_utt.message_type == WS_FT_DATA) {
-        ws_llc_data_indication_cb(api, data, ie_ext, ws_utt);
-        return;
-    }
-
-    if (ws_utt.message_type == WS_FT_EAPOL) {
-        ws_llc_eapol_indication_cb(api, data, ie_ext, ws_utt);
-        return;
-    }
+    if (frame_type < WS_FT_DATA)
+        ws_llc_asynch_indication(api, data, ie_ext, frame_type);
+    else if (frame_type == WS_FT_DATA && has_utt)
+        ws_llc_data_indication_cb(api, data, ie_ext, ie_utt);
+    else if (frame_type == WS_FT_EAPOL && has_utt)
+        ws_llc_eapol_indication_cb(api, data, ie_ext, ie_utt);
+    else
+        ERROR("Unsupported frame type: 0x%02x", frame_type);
 }
 
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
