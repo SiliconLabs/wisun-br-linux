@@ -24,10 +24,10 @@
 #include "common/trickle.h"
 
 static const struct name_value ws_mngt_frames[] = {
-    { "PAN Advertisement",         WS_FT_PAN_ADVERT },
-    { "PAN Advertisement Solicit", WS_FT_PAN_ADVERT_SOL },
-    { "PAN Configuration",         WS_FT_PAN_CONF },
-    { "PAN Configuration Solicit", WS_FT_PAN_CONF_SOL },
+    { "PAN Advertisement",         WS_FT_PA },
+    { "PAN Advertisement Solicit", WS_FT_PAS },
+    { "PAN Configuration",         WS_FT_PC },
+    { "PAN Configuration Solicit", WS_FT_PCS },
     { NULL }
 };
 
@@ -101,16 +101,16 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAN_ADVERT))
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PA))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAN_ADVERT))
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PA))
         return;
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
-        ERROR("Missing PAN-IE in %s", val_to_str(WS_FT_PAN_ADVERT, ws_mngt_frames, NULL));
+        ERROR("Missing PAN-IE in %s", val_to_str(WS_FT_PA, ws_mngt_frames, NULL));
         return;
     }
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PAN_ADVERT))
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PA))
         return;
 
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
@@ -130,11 +130,11 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAN_ADVERT_SOL))
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAS))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAN_ADVERT_SOL))
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAS))
         return;
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PAN_ADVERT_SOL))
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PAS))
         return;
 
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
@@ -153,22 +153,22 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     ws_us_ie_t ie_us;
     ws_bs_ie_t ie_bs;
 
-    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAN_CONF))
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PC))
         return;
     if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
-        ERROR("Missing BT-IE in %s", val_to_str(WS_FT_PAN_CONF, ws_mngt_frames, NULL));
+        ERROR("Missing BT-IE in %s", val_to_str(WS_FT_PC, ws_mngt_frames, NULL));
         return;
     }
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAN_CONF))
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PC))
         return;
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_bs)) {
-        ERROR("Missing BS-IE in %s", val_to_str(WS_FT_PAN_CONF, ws_mngt_frames, NULL));
+        ERROR("Missing BS-IE in %s", val_to_str(WS_FT_PC, ws_mngt_frames, NULL));
         return;
     }
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
-        ERROR("Missing PANVER-IE %s", val_to_str(WS_FT_PAN_CONF, ws_mngt_frames, NULL));
+        ERROR("Missing PANVER-IE %s", val_to_str(WS_FT_PC, ws_mngt_frames, NULL));
         return;
     }
 
@@ -197,11 +197,11 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     ws_utt_ie_t ie_utt;
     ws_us_ie_t ie_us;
 
-    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PAN_CONF_SOL))
+    if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PCS))
         return;
-    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PAN_CONF_SOL))
+    if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PCS))
         return;
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PAN_CONF_SOL))
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
         return;
 
     if (data->SrcPANId != net_if->ws_info->network_pan_id)

@@ -851,9 +851,9 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
         return;
 
     switch (ws_utt.message_type) {
-        case WS_FT_PAN_ADVERT:
-        case WS_FT_PAN_CONF:
-        case WS_FT_PAN_CONF_SOL:
+        case WS_FT_PA:
+        case WS_FT_PC:
+        case WS_FT_PCS:
         case WS_FT_LPA:
         case WS_FT_LPC:
         case WS_FT_LPCS:
@@ -874,10 +874,10 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
 }
 
 static const struct name_value ws_frames[] = {
-    { "adv",       WS_FT_PAN_ADVERT },
-    { "adv-sol",   WS_FT_PAN_ADVERT_SOL },
-    { "cfg",       WS_FT_PAN_CONF },
-    { "cfg-sol",   WS_FT_PAN_CONF_SOL },
+    { "adv",       WS_FT_PA },
+    { "adv-sol",   WS_FT_PAS },
+    { "cfg",       WS_FT_PC },
+    { "cfg-sol",   WS_FT_PCS },
     { "data",      WS_FT_DATA },
     { "ack",       WS_FT_ACK },
     { "eapol",     WS_FT_EAPOL },
@@ -1758,12 +1758,12 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         return -1;
     }
 
-    if (request->message_type == WS_FT_PAN_ADVERT) {
+    if (request->message_type == WS_FT_PA) {
         if (interface->pan_advert_running)
             return -1;
         else
             interface->pan_advert_running = true;
-    } else if (request->message_type == WS_FT_PAN_CONF) {
+    } else if (request->message_type == WS_FT_PC) {
         if (interface->pan_config_running)
             return -1;
         else
@@ -1794,7 +1794,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
     data_req.ExtendedFrameExchange = false;
-    if (request->message_type == WS_FT_PAN_ADVERT_SOL) {
+    if (request->message_type == WS_FT_PAS) {
         // PANID not know yet must be supressed
         data_req.PanIdSuppressed = true;
     }

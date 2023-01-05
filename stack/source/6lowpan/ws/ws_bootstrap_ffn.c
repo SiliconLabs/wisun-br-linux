@@ -638,9 +638,9 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
     ws_stats_update(cur, STATS_WS_ASYNCH_RX, 1);
     //Validate network name
     switch (message_type) {
-        case WS_FT_PAN_ADVERT:
-        case WS_FT_PAN_ADVERT_SOL:
-        case WS_FT_PAN_CONF_SOL:
+        case WS_FT_PA:
+        case WS_FT_PAS:
+        case WS_FT_PCS:
         case WS_FT_LPA:
         case WS_FT_LPAS:
         case WS_FT_LPCS:
@@ -650,7 +650,7 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
                 return;
             }
             break;
-        case WS_FT_PAN_CONF:
+        case WS_FT_PC:
         case WS_FT_LPC:
             break;
         default:
@@ -677,20 +677,20 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
 
     //Handle Message's
     switch (message_type) {
-        case WS_FT_PAN_ADVERT:
+        case WS_FT_PA:
             // Analyse Advertisement
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
             ws_bootstrap_ffn_pan_advertisement_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
-        case WS_FT_PAN_ADVERT_SOL:
+        case WS_FT_PAS:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
             ws_bootstrap_ffn_pan_advertisement_solicit_analyse(cur, data, &ws_utt, &ws_us);
             break;
-        case WS_FT_PAN_CONF:
+        case WS_FT_PC:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
             ws_bootstrap_ffn_pan_config_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
-        case WS_FT_PAN_CONF_SOL:
+        case WS_FT_PCS:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
             ws_bootstrap_ffn_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
             break;
@@ -707,9 +707,9 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
 
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
-    if (asynch_message == WS_FT_PAN_ADVERT)
+    if (asynch_message == WS_FT_PA)
         interface->pan_advert_running = false;
-    else if (asynch_message == WS_FT_PAN_CONF)
+    else if (asynch_message == WS_FT_PC)
         interface->pan_config_running = false;
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
 }
@@ -1064,7 +1064,7 @@ static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
 {
     asynch_request_t async_req;
     memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_ADVERT_SOL;
+    async_req.message_type = WS_FT_PAS;
     //Request UTT Header and US and Net name from payload
     async_req.wh_requested_ie_list.utt_ie = true;
     async_req.wp_requested_nested_ie_list.us_ie = true;
@@ -1130,7 +1130,7 @@ static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
 {
     asynch_request_t async_req;
     memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_CONF_SOL;
+    async_req.message_type = WS_FT_PCS;
     //Request UTT Header and US and Net name from payload
     async_req.wh_requested_ie_list.utt_ie = true;
     async_req.wp_requested_nested_ie_list.us_ie = true;

@@ -2599,7 +2599,7 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
     asynch_request_t async_req;
     memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_ADVERT;
+    async_req.message_type = WS_FT_PA;
     //Request UTT Header, Pan information and US and Net name from payload
     async_req.wh_requested_ie_list.utt_ie = true;
     async_req.wp_requested_nested_ie_list.us_ie = true;
@@ -2630,7 +2630,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
 {
     asynch_request_t async_req;
     memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_CONF;
+    async_req.message_type = WS_FT_PC;
     //Request UTT Header, Pan information and US and Net name from payload
     async_req.wh_requested_ie_list.utt_ie = true;
     async_req.wh_requested_ie_list.bt_ie = true;

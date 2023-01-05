@@ -82,7 +82,7 @@ typedef struct wp_nested_ie_sub_list {
  * @brief asynch_request_t Asynch message request parameters
  */
 typedef struct asynch_request {
-    unsigned  message_type: 4;                              /**< Asynch message type: WS_FT_PAN_ADVERT, WS_FT_PAN_ADVERT_SOL, WS_FT_PAN_CONF or WS_FT_PAN_CONF_SOL. */
+    unsigned  message_type: 4;                              /**< Asynch message type: WS_FT_PA, WS_FT_PAS, WS_FT_PC or WS_FT_PCS. */
     wh_ie_sub_list_t wh_requested_ie_list;                  /**< WH-IE header list to message. */
     wp_nested_ie_sub_list_t wp_requested_nested_ie_list;    /**< WP-IE Nested IE list to message. */
     struct mlme_security security;                               /**< Request MAC security paramaters */

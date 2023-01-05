@@ -164,19 +164,19 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
 
     //Handle Message's
     switch (message_type) {
-        case WS_FT_PAN_ADVERT:
+        case WS_FT_PA:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PA, 1);
             ws_mngt_pa_analyze(cur, data, ie_ext);
             break;
-        case WS_FT_PAN_ADVERT_SOL:
+        case WS_FT_PAS:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PAS, 1);
             ws_mngt_pas_analyze(cur, data, ie_ext);
             break;
-        case WS_FT_PAN_CONF:
+        case WS_FT_PC:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
             ws_mngt_pc_analyze(cur, data, ie_ext);
             break;
-        case WS_FT_PAN_CONF_SOL:
+        case WS_FT_PCS:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
             ws_mngt_pcs_analyze(cur, data, ie_ext);
             break;
@@ -193,13 +193,13 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
 
 void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
-    if (asynch_message == WS_FT_PAN_ADVERT)
+    if (asynch_message == WS_FT_PA)
         interface->pan_advert_running = false;
-    else if (asynch_message == WS_FT_PAN_CONF)
+    else if (asynch_message == WS_FT_PC)
         interface->pan_config_running = false;
     ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
     if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (asynch_message == WS_FT_PAN_CONF && interface->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
+        if (asynch_message == WS_FT_PC && interface->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ACTIVATE) {
             interface->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
             tr_info("Activate new default key %u", interface->ws_info->pending_key_index_info.index);
             /* Deprecated: Unused by the RCP. */

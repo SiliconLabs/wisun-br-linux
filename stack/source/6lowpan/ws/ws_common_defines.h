@@ -71,10 +71,10 @@
 #define WP_PAYLOAD_IE_LGTKHASH_TYPE 0x41   /**< LFN GTK Hash Information */
 
 /* WS frame types to WH_IE_UTT_TYPE */
-#define WS_FT_PAN_ADVERT        0          /**< PAN Advert */
-#define WS_FT_PAN_ADVERT_SOL    1          /**< PAN Advert Solicit */
-#define WS_FT_PAN_CONF          2          /**< PAN Config */
-#define WS_FT_PAN_CONF_SOL      3          /**< PAN Config Solicit */
+#define WS_FT_PA                0          /**< PAN Advert */
+#define WS_FT_PAS               1          /**< PAN Advert Solicit */
+#define WS_FT_PC                2          /**< PAN Config */
+#define WS_FT_PCS               3          /**< PAN Config Solicit */
 #define WS_FT_DATA              4          /**< data type inside MPX */
 #define WS_FT_ACK               5          /**< Enhanced ACK */
 #define WS_FT_EAPOL             6          /**< EAPOL message inside MPX */
