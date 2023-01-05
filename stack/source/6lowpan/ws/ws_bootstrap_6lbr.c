@@ -151,12 +151,6 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
 
 void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
-    ws_pom_ie_t pom_ie;
-    mac_neighbor_table_entry_t *neighbor;
-
-    // Check if we know the peer
-    neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
-
     // Store weakest heard packet RSSI
     if (cur->ws_info->weakest_received_rssi > data->signal_dbm) {
         cur->ws_info->weakest_received_rssi = data->signal_dbm;
@@ -186,12 +180,6 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         default:
             return;
-    }
-
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (neighbor && ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pom_ie)) {
-        // POM-IE is optional (PA, LPA, PAS, LPAS)
-        mac_neighbor_update_pom(neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
     }
 
     //Handle Message's

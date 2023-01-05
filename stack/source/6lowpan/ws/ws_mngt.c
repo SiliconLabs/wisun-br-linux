@@ -49,6 +49,22 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
     return true;
 }
 
+static void ws_mngt_ie_pom_handle(struct net_if *net_if,
+                                  const struct mcps_data_ind *data,
+                                  const struct mcps_data_ie_list *ie_ext)
+{
+    mac_neighbor_table_entry_t *neighbor;
+    ws_pom_ie_t ie_pom;
+
+    neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(net_if),
+                                                   data->SrcAddr, ADDR_802_15_4_LONG);
+    if (!neighbor)
+        return;
+    if (!ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_pom))
+        return;
+    mac_neighbor_update_pom(neighbor, ie_pom.phy_op_mode_number, ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
+}
+
 void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_ie_list *ie_ext)
@@ -70,6 +86,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;
 
+    ws_mngt_ie_pom_handle(net_if, data, ie_ext);
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
     if (pan_information.routing_cost != 0xFFFF)
@@ -88,6 +105,7 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, "PAN Advertisement Solicit"))
         return;
 
+    ws_mngt_ie_pom_handle(net_if, data, ie_ext);
     trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_advertisement,
                                &net_if->ws_info->trickle_params_pan_discovery);
 }
