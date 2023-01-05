@@ -50,17 +50,17 @@ If it is not yet done, start by cloning this repository:
 
 ## Compiling
 
-The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, and `cmake`.
-`libsystemd` is also recommended (note that it can be replaced by `elogind` if
-you do not want to pull `systemd`). Optionally, you can also install `libpcap`
-and Rust/Cargo.
+The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, `libcap`, and
+`cmake`.`libsystemd` is also recommended (note that it can be replaced by
+`elogind` if you do not want to pull `systemd`). Optionally, you can also
+install `libpcap` and Rust/Cargo.
 
 We also encourage the use of Ninja as the `cmake` back-end.
 
 On Debian and its derivatives, install the necessary dependencies (except for
 mbedTLS) with:
 
-    sudo apt-get install libnl-3-dev libnl-route-3-dev libpcap-dev libsystemd-dev cargo cmake ninja-build
+    sudo apt-get install libnl-3-dev libnl-route-3-dev libcap-dev libpcap-dev libsystemd-dev cargo cmake ninja-build
 
 Debian does not (yet) package `mbedTLS` > 2.18 so you must build it from
 sources. Note that support for `cmake` has been added to `mbedTLS` 2.27. So, if

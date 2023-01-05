@@ -32,6 +32,7 @@ find_package(PkgConfig REQUIRED)
 # Note that old libpcap releases didn't provide pkg-config file and are not
 # detected by the line below. The user have to compile without support for
 # libpcap or manually defines the flags.
+pkg_check_modules(LIBCAP      REQUIRED IMPORTED_TARGET libcap)
 pkg_check_modules(LIBPCAP              IMPORTED_TARGET libpcap)
 pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
@@ -205,6 +206,7 @@ target_compile_options(libwsbrd PRIVATE -include stack/source/configs/cfg_ws_bor
 target_link_libraries(libwsbrd PRIVATE Threads::Threads)
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBCAP)
 if(LIBSYSTEMD_FOUND)
     target_compile_definitions(libwsbrd PRIVATE HAVE_LIBSYSTEMD)
     target_sources(libwsbrd PRIVATE app_wsbrd/dbus.c)
