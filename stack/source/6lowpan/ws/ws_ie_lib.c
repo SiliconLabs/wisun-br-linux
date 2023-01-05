@@ -1028,7 +1028,7 @@ bool ws_wp_nested_lfn_channel_plan_read(const uint8_t *data, uint16_t length, st
     struct iobuf_read ie_buf;
     uint8_t tmp8;
 
-    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LBATS_TYPE, &ie_buf, true);
+    ieee802154_ie_find_nested(data, length, WP_PAYLOAD_IE_LFN_CHANNEL_PLAN_TYPE, &ie_buf, true);
     ws_lcp->lfn_channel_plan_tag = iobuf_pop_u8(&ie_buf);
     tmp8 = iobuf_pop_u8(&ie_buf);
     ws_lcp->chan_plan.channel_plan          = FIELD_GET(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK,     tmp8);
