@@ -51,6 +51,9 @@ struct wsbrd_conf {
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
 
+    char user[LOGIN_NAME_MAX];
+    char group[LOGIN_NAME_MAX];
+
     uint8_t ipv6_prefix[16];
 
     char storage_prefix[PATH_MAX];

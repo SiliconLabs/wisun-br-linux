@@ -457,6 +457,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "tun_device",                    config->tun_dev,                           conf_set_string,      (void *)sizeof(config->tun_dev) },
         { "tun_autoconf",                  &config->tun_autoconf,                     conf_set_bool,        NULL },
         { "neighbor_proxy",                config->neighbor_proxy,                    conf_set_string,      (void *)sizeof(config->neighbor_proxy) },
+        { "user",                          config->user,                              conf_set_string,      (void *)sizeof(config->user) },
+        { "group",                         config->group,                             conf_set_string,      (void *)sizeof(config->group) },
         { "color_output",                  &config->color_output,                     conf_set_enum,        &valid_tristate },
         { "use_tap",                       NULL,                                      conf_deprecated,      NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
@@ -692,6 +694,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "missing \"uart_device\" (or \"cpc_instance\") parameter");
     if (config->uart_dev[0] && config->cpc_instance[0])
         FATAL(1, "\"uart_device\" and \"cpc_instance\" are exclusive %s", config->uart_dev);
+    if (!config->user[0] && config->group[0])
+        WARN("group is set while user is not: privileges will not be dropped if started as root");
+    if (config->user[0] && !config->group[0])
+        WARN("user is set while group is not: privileges will not be dropped if started as root");
     if (config->list_rf_configs)
         return;
     if (!config->ws_name[0])
