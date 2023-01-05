@@ -36,5 +36,10 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ie_list *ie_ext,
                         struct ws_utt_ie *ie_utt,
                         struct ws_us_ie *ie_us);
+void ws_mngt_pcs_analyze(struct net_if *net_if,
+                         const struct mcps_data_ind *data,
+                         const struct mcps_data_ie_list *ie_ext,
+                         struct ws_utt_ie *ie_utt,
+                         struct ws_us_ie *ie_us);
 
 #endif

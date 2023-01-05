@@ -90,3 +90,23 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         ws_neighbor_class_neighbor_broadcast_schedule_set(net_if, neighbor_info.ws_neighbor, &ie_bs);
     }
 }
+
+void ws_mngt_pcs_analyze(struct net_if *net_if,
+                         const struct mcps_data_ind *data,
+                         const struct mcps_data_ie_list *ie_ext,
+                         struct ws_utt_ie *ie_utt,
+                         struct ws_us_ie *ie_us)
+{
+    llc_neighbour_req_t neighbor_info;
+
+    if (data->SrcPANId != net_if->ws_info->network_pan_id)
+        return;
+
+    trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_config,
+                               &net_if->ws_info->trickle_params_pan_discovery);
+
+    if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ie_utt, data->timestamp, (uint8_t *)data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_schedule_set(net_if, neighbor_info.ws_neighbor, ie_us, data->SrcAddr);
+    }
+}

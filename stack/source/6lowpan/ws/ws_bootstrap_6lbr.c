@@ -149,20 +149,6 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
     ws_eapol_auth_relay_socket_cb(fd);
 }
 
-static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
-{
-    llc_neighbour_req_t neighbor_info;
-
-    if (data->SrcPANId != cur->ws_info->network_pan_id) {
-        return;
-    }
-
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
-    }
-}
-
 void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     ws_pom_ie_t pom_ie;
@@ -242,8 +228,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
-            trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
-            ws_bootstrap_6lbr_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
+            ws_mngt_pcs_analyze(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
         case WS_FT_LPA:
         case WS_FT_LPAS:
