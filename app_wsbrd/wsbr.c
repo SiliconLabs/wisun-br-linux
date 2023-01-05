@@ -13,6 +13,9 @@
 #include <poll.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pwd.h>
+#include <grp.h>
+#include <sys/capability.h>
 #include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
@@ -116,6 +119,40 @@ static int get_fixed_channel(uint8_t bitmask[static 32])
         }
     }
     return val;
+}
+
+static void drop_privileges(struct wsbrd_conf *conf)
+{
+    int ret;
+    struct passwd *user;
+    struct group *group;
+    cap_t cap_p;
+    cap_value_t cap_value = CAP_NET_ADMIN;
+
+    group = getgrnam(conf->group);
+    FATAL_ON(!group, 1, "group '%s' does not exist", conf->group);
+    ret = cap_setgroups(group->gr_gid, 1, &group->gr_gid);
+    FATAL_ON(ret, 2, "cap_setgroups: %m");
+
+    user = getpwnam(conf->user);
+    FATAL_ON(!user, 1, "user '%s' does not exist", conf->user);
+    ret = cap_setuid(user->pw_uid);
+    FATAL_ON(ret, 2, "cap_setuid: %m"); // cap_setuid to unprivileged user drops the effective flag on all capabilities
+
+    cap_p = cap_get_proc();
+    FATAL_ON(!cap_p, 2, "cap_get_proc: %m");
+    ret = cap_clear_flag(cap_p, CAP_PERMITTED);
+    FATAL_ON(ret, 2, "cap_clear_flag: %m");
+    if (strlen(conf->neighbor_proxy)) {
+        ret = cap_set_flag(cap_p, CAP_PERMITTED, 1, &cap_value, CAP_SET);
+        FATAL_ON(ret, 2, "cap_set_flag: %m");
+        ret = cap_set_flag(cap_p, CAP_EFFECTIVE, 1, &cap_value, CAP_SET);
+        FATAL_ON(ret, 2, "cap_set_flag: %m");
+    }
+    ret = cap_set_proc(cap_p);
+    FATAL_ON(ret, 2, "cap_set_proc: %m");
+    ret = cap_free(cap_p);
+    FATAL_ON(ret, 2, "cap_free: %m");
 }
 
 static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
@@ -565,6 +602,8 @@ int wsbr_main(int argc, char *argv[])
     event_scheduler_run_until_idle();
 
     dbus_register(ctxt);
+    if (ctxt->config.user[0] && ctxt->config.group[0])
+        drop_privileges(&ctxt->config);
 
     wsbr_fds_init(ctxt, fds);
 
