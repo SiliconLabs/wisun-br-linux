@@ -188,18 +188,6 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             return;
     }
 
-    ws_us_ie_t ws_us;
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_us)) {
-        // Corrupted
-        return;
-    }
-
-    if (!ws_bootstrap_validate_channel_plan(&ws_us, NULL, cur) ||
-            !ws_bootstrap_validate_channel_function(&ws_us, NULL)) {
-        return;
-    }
-
     // FIXME: see comment in ws_llc_asynch_indication
     if (neighbor && ws_wp_nested_pom_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pom_ie)) {
         // POM-IE is optional (PA, LPA, PAS, LPAS)
@@ -218,11 +206,11 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
-            ws_mngt_pc_analyze(cur, data, ie_ext, &ws_us);
+            ws_mngt_pc_analyze(cur, data, ie_ext);
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
-            ws_mngt_pcs_analyze(cur, data, ie_ext, &ws_us);
+            ws_mngt_pcs_analyze(cur, data, ie_ext);
             break;
         case WS_FT_LPA:
         case WS_FT_LPAS:
