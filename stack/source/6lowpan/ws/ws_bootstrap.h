@@ -73,6 +73,7 @@ struct ws_stack_info;
 struct ws_neighbour_info;
 struct mcps_data_ie_list;
 struct mcps_data_ind;
+typedef struct asynch_request asynch_request_t;
 
 extern uint16_t test_pan_version;
 
@@ -194,5 +195,7 @@ void ws_bootstrap_advertise_start(struct net_if *cur);
 void ws_bootstrap_network_start(struct net_if *cur);
 
 uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur);
+
+void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req);
 
 #endif

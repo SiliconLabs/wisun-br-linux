@@ -22,6 +22,7 @@
 #include "common/events_scheduler.h"
 
 struct net_if;
+struct ws_mngt;
 struct mcps_data_ind;
 struct mcps_data_ie_list;
 typedef enum auth_result auth_result_e;
@@ -36,6 +37,11 @@ void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds);
 
 void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64);
 const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
+
+void ws_ffn_trickle_stop(struct ws_mngt *mngt);
+void ws_ffn_pas_trickle(struct net_if *cur, int ticks);
+void ws_ffn_pas_test_exec(struct net_if *cur, int procedure);
+void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds);
 
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
@@ -60,6 +66,26 @@ static inline void ws_bootstrap_authentication_completed(struct net_if *cur, aut
 }
 
 static inline const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline void ws_ffn_trickle_stop(struct ws_mngt *mngt)
+{
+    // empty
+}
+
+static inline void ws_ffn_pas_trickle(struct net_if *cur, int ticks)
+{
+    // empty
+}
+
+static inline void ws_ffn_pas_test_exec(struct net_if *cur, int procedure)
+{
+    BUG("not compiled with HAVE_WS_ROUTER");
+}
+
+static inline void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds)
 {
     BUG("not compiled with HAVE_WS_ROUTER");
 }

@@ -35,9 +35,11 @@ struct ws_mngt {
     trickle_t trickle_pc;
     trickle_t trickle_pcs;
     bool trickle_pa_running: 1;
-    bool trickle_pas_running: 1;
     bool trickle_pc_running: 1;
     bool trickle_pcs_running: 1;
+#ifdef HAVE_WS_ROUTER
+    bool trickle_pas_running: 1;
+#endif
 };
 
 void ws_mngt_pa_analyze(struct net_if *net_if,

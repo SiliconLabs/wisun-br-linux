@@ -1053,3 +1053,74 @@ void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e res
         ws_bootstrap_event_discovery_start(cur);
     }
 }
+
+void ws_ffn_trickle_stop(struct ws_mngt *mngt)
+{
+    mngt->trickle_pas_running = false;
+}
+
+static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
+{
+    asynch_request_t async_req;
+    memset(&async_req, 0, sizeof(asynch_request_t));
+    async_req.message_type = WS_FT_PAN_ADVERT_SOL;
+    //Request UTT Header and US and Net name from payload
+    async_req.wh_requested_ie_list.utt_ie = true;
+    async_req.wp_requested_nested_ie_list.us_ie = true;
+    async_req.wp_requested_nested_ie_list.net_name_ie = true;
+    if (ws_version_1_1(cur)) {
+        async_req.wp_requested_nested_ie_list.pom_ie = true;
+    }
+
+    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
+
+
+    async_req.security.SecurityLevel = 0;
+
+    ws_stats_update(cur, STATS_WS_ASYNCH_TX_PAS, 1);
+    ws_llc_asynch_request(cur, &async_req);
+}
+
+void ws_ffn_pas_trickle(struct net_if *cur, int ticks)
+{
+    if (cur->ws_info->mngt.trickle_pas_running &&
+            trickle_timer(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params, ticks)) {
+        // send PAN advertisement solicit
+        ws_bootstrap_pan_advert_solicit(cur);
+    }
+}
+
+void ws_ffn_pas_test_exec(struct net_if *cur, int procedure)
+{
+    tr_info("trigger PAN advertisement Solicit");
+    if (procedure != PROCEDURE_PAS_TRICKLE_INCON) {
+        tr_info("send PAN advertisement Solicit");
+        ws_bootstrap_pan_advert_solicit(cur);
+    }
+    if (cur->ws_info->mngt.trickle_pas_running) {
+        trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
+    }
+}
+
+void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds)
+{
+    if (cur->ws_info->mngt.trickle_pas_running) {
+        if (cur->ws_info->test_proc_trg.pas_trigger_timer > seconds) {
+            cur->ws_info->test_proc_trg.pas_trigger_timer -= seconds;
+        } else  {
+            if (cur->ws_info->test_proc_trg.pas_trigger_count > 2) {
+                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS_TRICKLE_INCON);
+            } else {
+                cur->ws_info->test_proc_trg.pas_trigger_count++;
+                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS);
+            }
+            cur->ws_info->test_proc_trg.pas_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10);
+        }
+        if (cur->ws_info->test_proc_trg.eapol_trigger_timer > seconds) {
+            cur->ws_info->test_proc_trg.eapol_trigger_timer -= seconds;
+        } else {
+            ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_EAPOL);
+            cur->ws_info->test_proc_trg.eapol_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10) / 2;
+        }
+    }
+}

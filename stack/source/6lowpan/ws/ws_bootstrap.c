@@ -2579,7 +2579,7 @@ void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
 }
 
-static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req)
+void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req)
 {
     memset(&async_req->channel_list, 0, sizeof(channel_list_t));
     if (cur->ws_info->cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
@@ -2593,28 +2593,6 @@ static void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_requ
     }
 
     async_req->channel_list.channel_page = CHANNEL_PAGE_10;
-}
-
-static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
-{
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAN_ADVERT_SOL;
-    //Request UTT Header and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.net_name_ie = true;
-    if (ws_version_1_1(cur)) {
-        async_req.wp_requested_nested_ie_list.pom_ie = true;
-    }
-
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
-
-
-    async_req.security.SecurityLevel = 0;
-
-    ws_stats_update(cur, STATS_WS_ASYNCH_TX_PAS, 1);
-    ws_llc_asynch_request(cur, &async_req);
 }
 
 static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
@@ -2830,11 +2808,7 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
-    if (cur->ws_info->mngt.trickle_pas_running &&
-            trickle_timer(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params, ticks)) {
-        // send PAN advertisement solicit
-        ws_bootstrap_pan_advert_solicit(cur);
-    }
+    ws_ffn_pas_trickle(cur, ticks);
     if (cur->ws_info->mngt.trickle_pcs_running) {
 
         //Update MAX config sol timeout timer
@@ -2879,9 +2853,9 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 {
     cur->ws_info->mngt.trickle_pa_running = false;
-    cur->ws_info->mngt.trickle_pas_running = false;
     cur->ws_info->mngt.trickle_pc_running = false;
     cur->ws_info->mngt.trickle_pcs_running = false;
+    ws_ffn_trickle_stop(&cur->ws_info->mngt);
 }
 
 
@@ -3180,14 +3154,7 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             break;
         case PROCEDURE_PAS:
         case PROCEDURE_PAS_TRICKLE_INCON:
-            tr_info("trigger PAN advertisement Solicit");
-            if (procedure != PROCEDURE_PAS_TRICKLE_INCON) {
-                tr_info("send PAN advertisement Solicit");
-                ws_bootstrap_pan_advert_solicit(cur);
-            }
-            if (cur->ws_info->mngt.trickle_pas_running) {
-                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pas, &cur->ws_info->mngt.trickle_params);
-            }
+            ws_ffn_pas_test_exec(cur, procedure);
             break;
         case PROCEDURE_PA:
             if (cur->ws_info->mngt.trickle_pa_running) {
@@ -3269,25 +3236,7 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
     cur->ws_info->test_proc_trg.auto_trg_enabled = true;
 
     if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
-        if (cur->ws_info->mngt.trickle_pas_running) {
-            if (cur->ws_info->test_proc_trg.pas_trigger_timer > seconds) {
-                cur->ws_info->test_proc_trg.pas_trigger_timer -= seconds;
-            } else  {
-                if (cur->ws_info->test_proc_trg.pas_trigger_count > 2) {
-                    ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS_TRICKLE_INCON);
-                } else {
-                    cur->ws_info->test_proc_trg.pas_trigger_count++;
-                    ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS);
-                }
-                cur->ws_info->test_proc_trg.pas_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10);
-            }
-            if (cur->ws_info->test_proc_trg.eapol_trigger_timer > seconds) {
-                cur->ws_info->test_proc_trg.eapol_trigger_timer -= seconds;
-            } else {
-                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_EAPOL);
-                cur->ws_info->test_proc_trg.eapol_trigger_timer = (cur->ws_info->mngt.trickle_params.Imin / 10) / 2;
-            }
-        }
+        ws_ffn_pas_test_trigger(cur, seconds);
     } else if (cur->nwk_bootstrap_state == ER_SCAN) {
         if (cur->ws_info->mngt.trickle_pcs_running) {
             if (cur->ws_info->test_proc_trg.pcs_trigger_timer > seconds) {
