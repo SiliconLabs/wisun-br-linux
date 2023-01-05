@@ -109,7 +109,7 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
  * \param timestamp timestamp for received data
  *
  */
-void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, uint8_t address[8]);
+void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, const uint8_t address[8]);
 
 /**
  * ws_neighbor_class_neighbor_unicast_schedule_set a function for update neighbor unicast shedule information

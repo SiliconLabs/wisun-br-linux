@@ -487,7 +487,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
 
     if (neighbour_pointer_valid) {
         //Update Neighbor Broadcast and Unicast Parameters
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, data->SrcAddr);
         ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
         ws_neighbor_class_neighbor_broadcast_schedule_set(cur, neighbor_info.ws_neighbor, &ws_bs_ie);
@@ -572,7 +572,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
 
     llc_neighbour_req_t neighbor_info;
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, data->SrcAddr);
         ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
     }
 

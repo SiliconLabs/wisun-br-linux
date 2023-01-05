@@ -694,7 +694,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
             return;
         }
 
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, data->SrcAddr);
         if (us_ie_inline) {
             ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
         }
@@ -807,7 +807,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
         temp_entry->signal_dbm = data->signal_dbm;
     }
     uint8_t auth_eui64[8];
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
+    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, data->SrcAddr);
     if (us_ie_inline) {
         ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
     }
