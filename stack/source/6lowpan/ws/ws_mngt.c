@@ -26,7 +26,12 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
                         const struct mcps_data_ie_list *ie_ext)
 {
     ws_pan_information_t pan_information;
+    ws_utt_ie_t ie_utt;
 
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
+        ERROR("Missing UTT-IE in PAN Advertisement");
+        return;
+    }
     // FIXME: see comment in ws_llc_asynch_indication
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
         ERROR("Missing PAN-IE in PAN Advertisement");
@@ -44,6 +49,12 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_ie_list *ie_ext)
 {
+    ws_utt_ie_t ie_utt;
+
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
+        ERROR("Missing UTT-IE in PAN Advertisement Solicit");
+        return;
+    }
     trickle_inconsistent_heard(&net_if->ws_info->trickle_pan_advertisement,
                                &net_if->ws_info->trickle_params_pan_discovery);
 }
@@ -51,14 +62,18 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
 void ws_mngt_pc_analyze(struct net_if *net_if,
                         const struct mcps_data_ind *data,
                         const struct mcps_data_ie_list *ie_ext,
-                        struct ws_utt_ie *ie_utt,
                         struct ws_us_ie *ie_us)
 {
     llc_neighbour_req_t neighbor_info;
     uint16_t ws_pan_version;
+    ws_utt_ie_t ie_utt;
     ws_bt_ie_t ie_bt;
     ws_bs_ie_t ie_bs;
 
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
+        ERROR("Missing UTT-IE in PAN Configuration");
+        return;
+    }
     if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
         ERROR("Missing BT-IE in PAN Configuration");
         return;
@@ -94,10 +109,15 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
 void ws_mngt_pcs_analyze(struct net_if *net_if,
                          const struct mcps_data_ind *data,
                          const struct mcps_data_ie_list *ie_ext,
-                         struct ws_utt_ie *ie_utt,
                          struct ws_us_ie *ie_us)
 {
     llc_neighbour_req_t neighbor_info;
+    ws_utt_ie_t ie_utt;
+
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt)) {
+        ERROR("Missing UTT-IE in PAN Configuration Solicit");
+        return;
+    }
 
     if (data->SrcPANId != net_if->ws_info->network_pan_id)
         return;

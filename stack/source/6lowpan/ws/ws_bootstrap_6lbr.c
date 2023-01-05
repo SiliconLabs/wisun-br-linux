@@ -187,12 +187,6 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
         default:
             return;
     }
-    //UTT-IE and US-IE are mandatory for all Asynch Messages
-    ws_utt_ie_t ws_utt;
-    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_utt)) {
-        // Corrupted
-        return;
-    }
 
     ws_us_ie_t ws_us;
     // FIXME: see comment in ws_llc_asynch_indication
@@ -224,11 +218,11 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
-            ws_mngt_pc_analyze(cur, data, ie_ext, &ws_utt, &ws_us);
+            ws_mngt_pc_analyze(cur, data, ie_ext, &ws_us);
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
-            ws_mngt_pcs_analyze(cur, data, ie_ext, &ws_utt, &ws_us);
+            ws_mngt_pcs_analyze(cur, data, ie_ext, &ws_us);
             break;
         case WS_FT_LPA:
         case WS_FT_LPAS:
