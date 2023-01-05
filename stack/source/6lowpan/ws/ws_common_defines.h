@@ -45,12 +45,9 @@
 #define WH_IE_PANID_TYPE            18  /**< PAN Identifier information */
 #define WH_IE_LBC_TYPE              128 /**< LFN Broadcast Configuration IE */
 
-
-#define WS_WP_NESTED_IE             4 /**< WS nested Payload IE element'selement could include mltiple sub payload IE */
-
 #define WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH 2
 
-/* Payload IE sub elements in side WS_WP_NESTED_IE */
+/* Payload IE sub elements in side WP-IE */
 /* Long form subID's */
 #define WP_PAYLOAD_IE_US_TYPE               1   /**< Unicast Schedule information */
 #define WP_PAYLOAD_IE_BS_TYPE               2   /**< Broadcast Schedule information */

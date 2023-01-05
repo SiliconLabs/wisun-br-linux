@@ -635,7 +635,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     bool pom_ie_inline = false;
     ws_bs_ie_t ws_bs_ie;
     ws_pom_ie_t pom_ie;
-    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, WS_WP_NESTED_IE, &ie_buf);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
     us_ie_inline = ws_wp_nested_us_read(ie_buf.data, ie_buf.data_size, &us_ie);
     bs_ie_inline = ws_wp_nested_bs_read(ie_buf.data, ie_buf.data_size, &ws_bs_ie);
     pom_ie_inline = ws_wp_nested_pom_read(ie_buf.data, ie_buf.data_size, &pom_ie);
@@ -769,7 +769,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     bool us_ie_inline = false;
     bool bs_ie_inline = false;
     ws_bs_ie_t ws_bs_ie;
-    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, WS_WP_NESTED_IE, &ie_buf);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
     us_ie_inline = ws_wp_nested_us_read(ie_buf.data, ie_buf.data_size, &us_ie);
     bs_ie_inline = ws_wp_nested_bs_read(ie_buf.data, ie_buf.data_size, &ws_bs_ie);
 
@@ -846,7 +846,7 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
         return;
     }
 
-    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, WS_WP_NESTED_IE, &ie_buf);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
     if (ie_buf.err)
         return;
 
@@ -965,7 +965,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
 
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 {
-    //TODO add WS_WP_NESTED_IE support
+    //TODO add IEEE802154_IE_ID_WP support
     uint16_t header_size = 0;
     if (user_id == MPX_LOWPAN_ENC_USER_ID) {
         header_size += 7 + 8 + 5 + 2; //UTT+BTT+ MPX + Padding
