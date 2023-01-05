@@ -61,6 +61,7 @@
 
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_bootstrap.h"
+#include "6lowpan/ws/ws_bootstrap_ffn.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
