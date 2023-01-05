@@ -149,44 +149,6 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
     ws_eapol_auth_relay_socket_cb(fd);
 }
 
-static void ws_bootstrap_6lbr_pan_config_analyse(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
-{
-    ws_bs_ie_t ws_bs_ie;
-    ws_bt_ie_t ws_bt_ie;
-    uint16_t ws_pan_version;
-    llc_neighbour_req_t neighbor_info;
-
-    if (data->SrcPANId != cur->ws_info->network_pan_id)
-        return;
-
-    if (!ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt_ie)) {
-        WARN("Received corrupted PAN config: no broadcast timing information");
-        return;
-    }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
-        WARN("Received corrupted PAN config: no broadcast schedule information");
-        return;
-    }
-    // FIXME: see comment in ws_llc_asynch_indication
-    if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
-        WARN("Received corrupted PAN config: no PAN version");
-        return;
-    }
-
-    if (cur->ws_info->pan_information.pan_version == ws_pan_version)
-        trickle_consistent_heard(&cur->ws_info->trickle_pan_config);
-    else
-        trickle_inconsistent_heard(&cur->ws_info->trickle_pan_config, &cur->ws_info->trickle_params_pan_discovery);
-
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, ws_utt, data->timestamp, (uint8_t *) data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
-        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt_ie, data->timestamp);
-        ws_neighbor_class_neighbor_broadcast_schedule_set(cur, neighbor_info.ws_neighbor, &ws_bs_ie);
-    }
-}
-
 static void ws_bootstrap_6lbr_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     llc_neighbour_req_t neighbor_info;
@@ -276,7 +238,7 @@ void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind
             break;
         case WS_FT_PAN_CONF:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PC, 1);
-            ws_bootstrap_6lbr_pan_config_analyse(cur, data, ie_ext, &ws_utt, &ws_us);
+            ws_mngt_pc_analyze(cur, data, ie_ext, &ws_utt, &ws_us);
             break;
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
