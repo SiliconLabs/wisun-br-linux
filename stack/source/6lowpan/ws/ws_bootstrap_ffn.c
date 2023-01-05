@@ -667,6 +667,7 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
         case WS_FT_PAN_CONF_SOL:
             ws_stats_update(cur, STATS_WS_ASYNCH_RX_PCS, 1);
             ws_bootstrap_ffn_pan_config_solicit_analyse(cur, data, &ws_utt, &ws_us);
+            break;
         case WS_FT_LPA:
         case WS_FT_LPAS:
         case WS_FT_LPCS:
