@@ -934,6 +934,21 @@ static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data, const mcps_data_ie
         TRACE(trace_domain, "rx-15.4 %-9s src:%s (%ddBm)", type_str, tr_eui64(data->SrcAddr), data->signal_dbm);
 }
 
+static inline bool ws_is_frame_mngt(uint8_t frame_type)
+{
+    bool ret = false;
+
+    ret |= frame_type == WS_FT_PA;
+    ret |= frame_type == WS_FT_PAS;
+    ret |= frame_type == WS_FT_PC;
+    ret |= frame_type == WS_FT_PCS;
+    ret |= frame_type == WS_FT_LPA;
+    ret |= frame_type == WS_FT_LPAS;
+    ret |= frame_type == WS_FT_LPC;
+    ret |= frame_type == WS_FT_LPCS;
+    return ret;
+}
+
 /** WS LLC MAC data extension indication  */
 static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
@@ -955,7 +970,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
-    if (frame_type < WS_FT_DATA)
+    if (ws_is_frame_mngt(frame_type))
         ws_llc_asynch_indication(api, data, ie_ext, frame_type);
     else if (frame_type == WS_FT_DATA && has_utt)
         ws_llc_data_indication_cb(api, data, ie_ext, ie_utt);
