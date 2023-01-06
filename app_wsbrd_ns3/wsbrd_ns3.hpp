@@ -16,6 +16,12 @@ extern "C" {
 extern ns3::Callback<int, const void *, size_t> g_uart_cb;
 
 /*
+ * File descriptor used when polling and reading data from the RCP, a pipe
+ * read end can be specified for example.
+ */
+extern int g_uart_fd;
+
+/*
  * Launch wsbrd with the specified config file.
  * This function does not return and should be launched in a thread.
  */

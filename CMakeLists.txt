@@ -563,6 +563,7 @@ if(COMPILE_SIMULATION_TOOLS)
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)
         target_link_options(wsbrd-ns3 PRIVATE
+            -Wl,--wrap=uart_open
             -Wl,--wrap=write
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
