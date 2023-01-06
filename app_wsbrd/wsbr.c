@@ -22,6 +22,7 @@
 #include "common/ws_regdb.h"
 #include "common/log.h"
 #include "common/utils.h"
+#include "common/version.h"
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
@@ -123,7 +124,7 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     int i;
 
     if (ctxt->config.ws_allowed_mac_address_count > 0 || ctxt->config.ws_denied_mac_address_count > 0) {
-        if (fw_api_older_than(ctxt, 0, 3, 0))
+        if (version_older_than(ctxt->rcp_version_api, 0, 3, 0))
             FATAL(1, "RCP API is too old to enable MAC address filtering");
     }
 
@@ -270,13 +271,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     WARN_ON(ret);
 
     if (ctxt->config.ws_regional_regulation) {
-        FATAL_ON(fw_api_older_than(ctxt, 0, 6, 0), 2,
+        FATAL_ON(version_older_than(ctxt->rcp_version_api, 0, 6, 0), 2,
                  "this device does not support regional regulation");
         ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->config.ws_regional_regulation);
         WARN_ON(ret);
     }
 
-    if (!fw_api_older_than(ctxt, 0, 17, 0))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 17, 0))
         mac_helper_set_async_fragmentation(ctxt->rcp_if_id, ctxt->config.ws_async_frag_duration);
 }
 
@@ -336,7 +337,7 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
     ret = uart_tx(os_ctxt, buf, buf_len);
     // Old firmware may merge close Rx events
-    if (fw_api_older_than(ctxt, 0, 4, 0))
+    if (version_older_than(ctxt->rcp_version_api, 0, 4, 0))
         usleep(20000);
     return ret;
 }
@@ -352,7 +353,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0xFF000000, ctxt->rcp_version_api),
           FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
-    if (fw_api_older_than(ctxt, 0, 2, 0))
+    if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
     ctxt->rcp_init_state |= RCP_HAS_RESET;
     wsbr_rcp_get_hw_addr(ctxt);
@@ -414,9 +415,9 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
 
-    if (fw_api_older_than(ctxt, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+    if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
         FATAL(1, "RCP does not support FAN 1.1");
-    if (fw_api_older_than(ctxt, 0, 16, 0) && ctxt->config.pcap_file[0])
+    if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP >= 0.16.0");
 
     while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
@@ -424,11 +425,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
     if (ctxt->config.list_rf_configs) {
-        if (fw_api_older_than(ctxt, 0, 11, 0))
+        if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
             FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
     }
 
-    if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0)) {
         wsbr_rcp_get_rf_config_list(ctxt);
         while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);

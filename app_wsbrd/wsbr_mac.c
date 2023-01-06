@@ -26,6 +26,7 @@
 #include "common/spinel_buffer.h"
 #include "common/iobuf.h"
 #include "common/utils.h"
+#include "common/version.h"
 #include "common/ws_regdb.h"
 
 #include "6lowpan/ws/ws_common_defines.h"
@@ -475,7 +476,7 @@ static bool wsbr_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
         return false;
     if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         return prop == SPINEL_PROP_HWADDR;
-    if (!fw_api_older_than(ctxt, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
         return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
     return true;
 }
@@ -655,7 +656,7 @@ static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned in
     spinel_push_u16(&buf, req->number_of_channels);
     spinel_push_u8(&buf,  req->modulation);
     spinel_push_u8(&buf,  req->modulation_index);
-    if (!fw_api_older_than(ctxt, 0, 6, 0)) {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 6, 0)) {
         spinel_push_bool(&buf, req->fec);
         spinel_push_uint(&buf, req->ofdm_option);
         spinel_push_uint(&buf, req->ofdm_mcs);
@@ -1044,9 +1045,9 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
     for (i = 0; i < ie_ext->headerIovLength; i++)
         spinel_push_raw(&buf, ie_ext->headerIeVectorList[i].iov_base,
                         ie_ext->headerIeVectorList[i].iov_len);
-    if (!fw_api_older_than(ctxt, 0, 7, 0))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 7, 0))
         spinel_push_u16(&buf, async_channel_list->next_channel_number);
-    if (!fw_api_older_than(ctxt, 0, 12,0))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
         spinel_push_u8(&buf, phy_id);
 
     rcp_tx(ctxt, &buf);
@@ -1070,7 +1071,7 @@ uint8_t wsbr_mcps_purge(const struct mac_api *api,
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
-    if (!fw_api_older_than(ctxt, 0, 4, 0)) {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 4, 0)) {
         spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MCPS_DROP);
         spinel_push_u8(&buf, data->msduHandle);
         rcp_tx(ctxt, &buf);

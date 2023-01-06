@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "common/bits.h"
 #include "common/endian.h"
 #include "common/log.h"
 #include "common/utils.h"

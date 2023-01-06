@@ -23,6 +23,7 @@
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/iobuf.h"
+#include "common/version.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/fhss_api.h"
 
@@ -52,7 +53,7 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     spinel_push_fixed_u8_array(&buf, config->unicast_channel_mask, 32);
     spinel_push_u16(&buf, config->channel_mask_size);
     spinel_push_u8(&buf, config->config_parameters.number_of_channel_retries);
-    if (!fw_api_older_than(ctxt, 0, 12, 0))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 12, 0))
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -107,7 +108,7 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     spinel_push_fixed_u8_array(&buf, config->unicast_channel_mask, 32);
     spinel_push_u16(&buf, config->channel_mask_size);
     spinel_push_u8(&buf, config->config_parameters.number_of_channel_retries);
-    if (!fw_api_older_than(ctxt, 0, 18, 0))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 18, 0))
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);

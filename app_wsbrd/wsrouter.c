@@ -27,6 +27,7 @@
 #include "common/utils.h"
 #include "common/log.h"
 #include "common/log_legacy.h"
+#include "common/version.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/sw_mac.h"
@@ -182,7 +183,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0xFF000000, ctxt->rcp_version_api),
           FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
-    if (fw_api_older_than(ctxt, 0, 2, 0))
+    if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
     ctxt->rcp_init_state |= RCP_HAS_RESET;
     wsbr_rcp_get_hw_addr(ctxt);
@@ -218,9 +219,9 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
 
-    if (fw_api_older_than(ctxt, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+    if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
         FATAL(1, "RCP does not support FAN 1.1");
-    if (fw_api_older_than(ctxt, 0, 16, 0) && ctxt->config.pcap_file[0])
+    if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP >= 0.16.0");
 
     while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
@@ -228,11 +229,11 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
     if (ctxt->config.list_rf_configs) {
-        if (fw_api_older_than(ctxt, 0, 11, 0))
+        if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
             FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
     }
 
-    if (!fw_api_older_than(ctxt, 0, 11, 0)) {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0)) {
         wsbr_rcp_get_rf_config_list(ctxt);
         while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);

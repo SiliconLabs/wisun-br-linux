@@ -21,7 +21,6 @@
 typedef struct sd_bus sd_bus;
 #endif
 
-#include "common/version.h"
 #include "common/dhcp_server.h"
 #include "common/events_scheduler.h"
 #include "stack/mac/mac_api.h"
@@ -81,18 +80,6 @@ struct wsbr_ctxt {
 // This global variable is necessary for various API of nanostack. Beside this
 // case, please never use it.
 extern struct wsbr_ctxt g_ctxt;
-
-/**
- * Indicates RCP firmware API is older than specified version.
- * (major.minor.patch).
- */
-static inline bool fw_api_older_than(const struct wsbr_ctxt *ctxt,
-                                     uint8_t major,
-                                     uint16_t minor,
-                                     uint8_t patch)
-{
-    return version_older_than(ctxt->rcp_version_api, major, minor, patch);
-}
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
 void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16]);
