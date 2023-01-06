@@ -129,9 +129,9 @@ Finally, launch `wsbrd` with:
 
 # Using `wsbrd_cli` and the D-Bus Interface
 
-`wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network.
-Its usage is described in output of `wsbrd_cli --help`. The tool relies on
-the D-Bus interface provided by `wsbrd`, which is described in `DBUS.md`.
+`wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network. Its
+usage is described in output of `wsbrd_cli --help`. The tool relies on the D-Bus
+interface provided by `wsbrd`, which is described in `DBUS.md`.
 
 # Generating the Wi-SUN Public Key Infrastructure
 
@@ -156,10 +156,10 @@ First you have to deactivate the internal dhcp server of `wsbrd` in wbsrd.conf:
 
     internal_dhcp = false
 
-Obviously, the DHCP server/relay needs a network interface to run. You can launch
-the DHCP server/relay just after `wsbrd` (you have to ensure the DHCP service is
-started before Wi-SUN nodes connect, but they will not connect before at least
-several dozen seconds) or [create the interface before launching
+Obviously, the DHCP server/relay needs a network interface to run. You can
+launch the DHCP server/relay just after `wsbrd` (you have to ensure the DHCP
+service is started before Wi-SUN nodes connect, but they will not connect before
+at least several dozen seconds) or [create the interface before launching
 `wsbrd`](#running-wsbrd-without-root-privilege).
 
 ## Using `dnsmasq`
@@ -223,11 +223,11 @@ command):
     sudo usermod -aG dialout YOUR_USER
 
 Then, you have to take over the creation of the network interface. This process
-can also be useful to set up unusual configurations, or if you need to access tun
-interface before `wsbrd` is launched.
+can also be useful to set up unusual configurations, or if you need to access
+tun interface before `wsbrd` is launched.
 
-First, create the network interface to give your user the
-permission to use it:
+First, create the network interface to give your user the permission to use
+it:
 
     sudo ip tuntap add mode tun tun0 user YOUR_USER
 
@@ -244,14 +244,14 @@ network with unnecessary Router Solicitations:
 
     sudo sysctl net.ipv6.conf.tun0.accept_ra=0
 
-Wi-SUN needs a link-address matching the EUI64 of the node. Therefore,
-Linux should not generate any link-local address by itself.
+Wi-SUN needs a link-address matching the EUI64 of the node. Therefore, Linux
+should not generate any link-local address by itself.
 
     sudo sysctl net.ipv6.conf.tun0.addr_gen_mode=1
 
-Then, `wsbrd` can automatically set up the IP addresses (Global and
-Link-Local) of the interface. However, to run without root privileges, you have
-to do it yourself.
+Then, `wsbrd` can automatically set up the IP addresses (Global and Link-Local)
+of the interface. However, to run without root privileges, you have to do it
+yourself.
 
 Disable the `tun_autoconf` parameter in `wsbrd`'s configuration. Then add IP
 addresses:
@@ -284,17 +284,17 @@ network without changing configuration of existing IPv6 infrastructure.
 Once enabled:
    - The Wi-SUN nodes will appear as classical hosts on the network
    - The other hosts on the network will be able to reach them
-   - The Wi-SUN nodes will be able to reach the Internet through the gateway
-     of the host
-   - If the upstream gateway provides global addresses and there is no
-     firewall on the way (which is uncommon), hosts on the Internet can
-     reach the Wi-SUN nodes
+   - The Wi-SUN nodes will be able to reach the Internet through the gateway of
+     the host
+   - If the upstream gateway provides global addresses and there is no firewall
+     on the way (which is uncommon), hosts on the Internet can reach the Wi-SUN
+     nodes
 
 To enable this feature:
-   - The `neighbor_proxy` parameter must be set to the name of the
-     upstream network interface.
-   - The `ipv6_prefix` parameter must be set to the same prefix as
-     the hosting network.
+   - The `neighbor_proxy` parameter must be set to the name of the upstream
+     network interface.
+   - The `ipv6_prefix` parameter must be set to the same prefix as the hosting
+     network.
    - IPv6 forward must be enabled on the host (with
      `sysctl net.ipv6.conf.all.forwarding=1`). Note that [enabling
      forwarding per interface does not work][1].
@@ -302,10 +302,10 @@ To enable this feature:
 
 Under the hood, when `neighbor_proxy` is in use:
    - NDP proxy (`/proc/sys/net/ipv6/conf/*/proxy_ndp`) is enabled
-   - Wi-SUN nodes are automatically added to the neighbor proxy list
-     (user can dump them with `ip -6 neigh show proxy`)
-   - IPv6 routes are automatically added for the Wi-SUN nodes (user can
-     dump them with `ip -6 route show`).
+   - Wi-SUN nodes are automatically added to the neighbor proxy list (user can
+     dump them with `ip -6 neigh show proxy`)
+   - IPv6 routes are automatically added for the Wi-SUN nodes (user can dump
+     them with `ip -6 route show`).
    - The delay before answering multicast neighbor solicitations
      (`/proc/sys/net/ipv6/neigh/*/proxy_delay`) is set to 0.
 
