@@ -1,3 +1,4 @@
+#include <exception>
 #include <limits.h>
 #include <string.h>
 
@@ -29,4 +30,10 @@ void wsbr_ns3_main(const char *config_filename)
     argv[4] = NULL;
 
     wsbr_main(ARRAY_SIZE(argv) - 1, argv); // Does not return
+}
+
+// exit() is not thread-safe, so aborting is preferred.
+extern "C" void __wrap_exit(int status)
+{
+    std::terminate();
 }
