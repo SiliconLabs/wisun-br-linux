@@ -4,6 +4,7 @@
 extern "C" {
 #include "app_wsbrd/libwsbrd.h"
 #include "common/utils.h"
+#include "common/log.h"
 }
 #include "wsbrd_ns3.hpp"
 
@@ -11,6 +12,8 @@ void wsbr_ns3_main(const char *config_filename)
 {
     char config_arg[PATH_MAX];
     char *argv[4];
+
+    BUG_ON(g_uart_cb.IsNull());
 
     // Copy arguments to make sure they won't be modified outside of this function
     strcpy(config_arg, config_filename);

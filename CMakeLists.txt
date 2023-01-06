@@ -552,14 +552,19 @@ if(COMPILE_SIMULATION_TOOLS)
         set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsbrd-ns3 SHARED
             app_wsbrd_ns3/wsbrd_ns3.cpp
+            app_wsbrd_ns3/uart.cpp
         )
         # Only include headers, do not link
         get_target_property(NS3_INCLUDE_DIRECTORIES ns3::libcore INTERFACE_INCLUDE_DIRECTORIES)
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
+            stack/
             ${NS3_INCLUDE_DIRECTORIES}
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)
+        target_link_options(wsbrd-ns3 PRIVATE
+            -Wl,--wrap=write
+        )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
 endif()
