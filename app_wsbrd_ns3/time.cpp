@@ -36,3 +36,11 @@ extern "C" void __wrap_wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
     );
     __real_wsbr_common_timer_process(ctxt);
 }
+
+extern "C" int __wrap_clock_gettime(clock_t clockid, struct timespec *tp)
+{
+    ns3::Time now = ns3::Now();
+    tp->tv_sec = now.GetSeconds();
+    tp->tv_nsec = now.GetNanoSeconds() % 1000000000;
+    return 0;
+}

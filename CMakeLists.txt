@@ -570,6 +570,7 @@ if(COMPILE_SIMULATION_TOOLS)
             -Wl,--wrap=getrandom
             -Wl,--wrap=wsbr_common_timer_init
             -Wl,--wrap=wsbr_common_timer_process
+            -Wl,--wrap=clock_gettime
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
