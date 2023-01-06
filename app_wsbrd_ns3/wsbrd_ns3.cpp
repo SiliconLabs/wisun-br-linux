@@ -8,6 +8,8 @@ extern "C" {
 }
 #include "wsbrd_ns3.hpp"
 
+int g_simulation_id;
+
 void wsbr_ns3_main(const char *config_filename)
 {
     char config_arg[PATH_MAX];

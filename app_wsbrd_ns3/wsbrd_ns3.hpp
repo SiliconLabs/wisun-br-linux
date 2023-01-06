@@ -10,6 +10,13 @@
 extern "C" {
 
 /*
+ * Simulation ID, should be different for each instance of libwsbrd-ns3.
+ * It must correspond to an ns-3 context (or node ID), which will be used
+ * to schedule events.
+ */
+extern int g_simulation_id;
+
+/*
  * Callback called instead of write() when wsbrd sends data to the RCP.
  * The signature is: int uart_cb(const void *data, size_t size);
  */
