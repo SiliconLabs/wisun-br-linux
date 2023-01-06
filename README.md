@@ -12,7 +12,7 @@
 </table>
 
 The goal of this project is to implement the Wi-SUN protocol on Linux devices
-and allow the use of Linux hosts as Border Router for Wi-SUN networks. For the
+and allow the use of Linux hosts as Border Routers for Wi-SUN networks. For the
 time being, the implementation is mostly a port of Silicon Labs' embedded stack
 on a Linux host. However, the ultimate goal is to replace services currently
 provided by the stack with native Linux services.
@@ -50,9 +50,9 @@ If it is not yet done, start by cloning this repository:
 
 ## Compiling
 
-The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, `cmake`.
+The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, and `cmake`.
 `libsystemd` is also recommended (note that it can be replaced by `elogind` if
-you don't want to pull `systemd`). Optionally, you can also install `libpcap`
+you do not want to pull `systemd`). Optionally, you can also install `libpcap`
 and Rust/Cargo.
 
 We also encourage the use of Ninja as the `cmake` back-end.
@@ -83,7 +83,7 @@ file provided in `examples/mbedtls-config.h`:
 > This configuration file has been written for `mbedtls` 3.0. Adapt it if
 > necessary.
 
-Optionally, `wsbrd` can be compiled with supports for [Silabs
+Optionally, `wsbrd` can be compiled with support for [Silabs
 CPC](#should-i-use-cpc-or-plain-uart). To install Silabs CPC
 library:
 
@@ -116,7 +116,7 @@ commented example is available in `/usr/local/share/doc/wsbrd/examples/wsbrd.con
 
 You can copy and edit it. You will notice that you need certificates and keys to
 authenticate your network's Wi-SUN nodes. The generation of these files is
-described in [[Generate Wi-SUN PKI]].  For now, you can use the certificates
+described in [[Generate Wi-SUN PKI]].  For now, you can use the certificate
 examples installed in `/usr/local/share/doc/wsbrd/examples/`.
 
 You also must provide the path of the UART representing your RCP device.
@@ -130,7 +130,7 @@ Finally, launch `wsbrd` with:
 # Using `wsbrd_cli` and the D-Bus Interface
 
 `wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network.
-Its usage is described in output of `wsbrd_cli --help`. The tool relies relies on
+Its usage is described in output of `wsbrd_cli --help`. The tool relies on
 the D-Bus interface provided by `wsbrd`, which is described in `DBUS.md`.
 
 # Generating the Wi-SUN Public Key Infrastructure
@@ -144,10 +144,10 @@ Web site][7] (restricted access).
 
 [7]: https://wi-sun.org/cyber-security-certificates/
 
-# Using an external DHCPv6 server
+# Using an External DHCPv6 Server
 
-`wsbrd` provides a build-in DHCPv6 server. However, it is still possible to use
-an external DHCPv6 server. If the DHCP server run on a remote host, you need to
+`wsbrd` provides a built-in DHCPv6 server. However, it is still possible to use
+an external DHCPv6 server. If the DHCP server runs on a remote host, you need to
 launch a DHCPv6 relay.
 `wsbrd` has been tested with ISC DHCP and dnsmasq. Both projects provide DHCP
 server and DHCP relay implementations.
@@ -156,10 +156,10 @@ First you have to deactivate the internal dhcp server of `wsbrd` in wbsrd.conf:
 
     internal_dhcp = false
 
-Obviously, the DHCP server/relay need a network interface to run. You can launch
+Obviously, the DHCP server/relay needs a network interface to run. You can launch
 the DHCP server/relay just after `wsbrd` (you have to ensure the DHCP service is
-started before Wi-SUN nodes connect, but they won't connect before at least
-several dozen of seconds) or [create the interface before launching
+started before Wi-SUN nodes connect, but they will not connect before at least
+several dozen seconds) or [create the interface before launching
 `wsbrd`](#running-wsbrd-without-root-privilege).
 
 ## Using `dnsmasq`
@@ -168,21 +168,21 @@ Because of [this issue][9], `dnsmasq` is supported from the version 2.87.
 
 [9]: https://www.mail-archive.com/dnsmasq-discuss@lists.thekelleys.org.uk/msg16394.html
 
-### Using `dnsmasq` as DHCP server
+### Using `dnsmasq` as DHCP Server
 
 `dnsmasq` does not need any specific options. A classical invocation can be
-used. We suggest to increase the lease time (`336h`) and disable DNS server
+used. We suggest increasing the lease time (`336h`) and disabling DNS server
 (`-p 0`):
 
     sudo dnsmasq -d -C /dev/null -p 0 -i tun0 --dhcp-range 2001:db8::,2001:db8::ffff,64,336h
 
-### Using `dnsmasq` as DHCP relay
+### Using `dnsmasq` as DHCP Relay
 
 To start the DHCP relay, you have to bind the `Wi-SUN` and the upstream network
 interfaces (`tun0` and `eth0`). Then specify the IP addresses of the DHCP server
 (`2001:db8:a::1`) and of the `wsbrd` interface (`2001:db8:b::1`) to the
 `--dhcp-relay` option. You can also disable the DNS server (which is useless in
-this case) with `-p 0`;
+this case) with `-p 0`:
 
     sudo dnsmasq -d -C /dev/null -p 0 -i tun0,eth0 --dhcp-relay 2001:db8:a::1,2001:db8:b::1
 
@@ -191,9 +191,9 @@ this case) with `-p 0`;
 Note that ISC DHCP needs to be patched to comply with Wi-SUN specification (for
 relay and server). We provide the needed patches in `misc/`.
 
-### Using `isc-dhcpd` as DHCP server
+### Using `isc-dhcpd` as DHCP Server
 
-`isc-dhcpd` won't start if the lease file does not exist:
+`isc-dhcpd` will not start if the lease file does not exist:
 
     sudo mkdir -p /var/lib/dhcpd/
     sudo touch /var/lib/dhcpd/dhcpd.leases
@@ -203,10 +203,10 @@ for details:
 
     sudo dhcpd -6 --no-pid -lf /var/lib/dhcpd/dhcpd.leases -cf examples/dhcpd.conf tun0
 
-### Using `isc-dhcrelay` as DHCP relay
+### Using `isc-dhcrelay` as DHCP Relay
 
 To start the DHCP relay, you have to provide the `wsbrd` network interface
-(`tun0`), the address of the DHCP server (`2001:db8::1` in the example below)
+(`tun0`), the address of the DHCP server (`2001:db8::1` in the example below),
 and the network interface associated with this address (see [dhcprelay
 manpage][8]):
 
@@ -214,7 +214,7 @@ manpage][8]):
 
 [8]: https://linux.die.net/man/8/dhcrelay
 
-# Running `wsbrd` without root privilege
+# Running `wsbrd` Without Root Privilege
 
 To run `wsbrd` without root permissions, you first have to ensure you have
 permission to access the UART device (you will have to logout/login after this
@@ -223,10 +223,10 @@ command):
     sudo usermod -aG dialout YOUR_USER
 
 Then, you have to take over the creation of the network interface. This process
-can also be useful to setup unusual configuration, or if you need to access tun
+can also be useful to set up unusual configurations, or if you need to access tun
 interface before `wsbrd` is launched.
 
-First, you have to create the network interface to give to your user the
+First, create the network interface to give your user the
 permission to use it:
 
     sudo ip tuntap add mode tun tun0 user YOUR_USER
@@ -235,26 +235,26 @@ The MTU must be set to 1280 bytes to comply with 802.15.4g:
 
     sudo ip link set dev tun0 mtu 1280
 
-We suggest to reduce queue size of the interface to avoid huge latencies:
+We suggest reducing the queue size of the interface to avoid huge latencies:
 
     sudo ip link set dev tun0 txqueuelen 10
 
-The Wi-SUN interface cannot be configured through SLAAC, so don't pollute your
+The Wi-SUN interface cannot be configured through SLAAC, so do not pollute your
 network with unnecessary Router Solicitations:
 
     sudo sysctl net.ipv6.conf.tun0.accept_ra=0
 
-Wi-SUN need a link-address matching the EUI64 of the node. So, we need to ask to
-Linux to not generate any link-local address by itself.
+Wi-SUN needs a link-address matching the EUI64 of the node. Therefore,
+Linux should not generate any link-local address by itself.
 
     sudo sysctl net.ipv6.conf.tun0.addr_gen_mode=1
 
-Then, `wsbrd` is able to automatically setup the IP addresses (Global and
+Then, `wsbrd` can automatically set up the IP addresses (Global and
 Link-Local) of the interface. However, to run without root privileges, you have
-to do it by yourself.
+to do it yourself.
 
 Disable the `tun_autoconf` parameter in `wsbrd`'s configuration. Then add IP
-addresses by yourself:
+addresses:
 
     sudo ip addr add dev tun0 fe80::200:5eef:1000:1/64
     sudo ip addr add dev tun0 2001:db8::200:5eef:1000:1/64
@@ -268,7 +268,7 @@ Finally, bring up the interface:
 
     sudo ip link set dev tun0 up
 
-Also note, the internal DHCP won't be able to bind ports 546 and 547 without
+Also note, the internal DHCP will not be able to bind ports 546 and 547 without
 root privilege. You can run an external DHCP server (with `internal_dhcp=false`)
 or you can configure your system to allow normal users to bind port 546 and
 above:
@@ -277,23 +277,23 @@ above:
 
 Finally, you can run `wsbrd`.
 
-# Using IPv6 transparent proxy
+# Using IPv6 Transparent Proxy
 
-Transparent IPv6 proxy allows provide IPv6 connectivity to the Wi-SUN
+Transparent IPv6 proxy provides IPv6 connectivity to the Wi-SUN
 network without changing configuration of existing IPv6 infrastructure.
 Once enabled:
-   - the Wi-SUN nodes will be seen like classical hosts on the network
-   - the other hosts on the network will be able to reach them
-   - the Wi-SUN nodes will be able to reach internet through the gateway
+   - The Wi-SUN nodes will appear as classical hosts on the network
+   - The other hosts on the network will be able to reach them
+   - The Wi-SUN nodes will be able to reach the Internet through the gateway
      of the host
-   - if the upstream gateway provide global addresses and there is no
+   - If the upstream gateway provides global addresses and there is no
      firewall on the way (which is uncommon), hosts on the Internet can
      reach the Wi-SUN nodes
 
 To enable this feature:
    - The `neighbor_proxy` parameter must be set to the name of the
      upstream network interface.
-   - The `ipv6_prefix` parameter must be set to the same prefix than
+   - The `ipv6_prefix` parameter must be set to the same prefix as
      the hosting network.
    - IPv6 forward must be enabled on the host (with
      `sysctl net.ipv6.conf.all.forwarding=1`). Note that [enabling
@@ -302,7 +302,7 @@ To enable this feature:
 
 Under the hood, when `neighbor_proxy` is in use:
    - NDP proxy (`/proc/sys/net/ipv6/conf/*/proxy_ndp`) is enabled
-   - Wi-SUN nodes are automatically added to neighbor proxy list
+   - Wi-SUN nodes are automatically added to the neighbor proxy list
      (user can dump them with `ip -6 neigh show proxy`)
    - IPv6 routes are automatically added for the Wi-SUN nodes (user can
      dump them with `ip -6 route show`).
@@ -314,18 +314,18 @@ Under the hood, when `neighbor_proxy` is in use:
 
 # Bugs and Limitations
 
-## Should I use CPC or plain UART?
+## Should I use CPC or Plain UART?
 
 CPC protocol relies on an external service (CPCd). So plain UART allows an
 easier integration for simple setups. However, CPC offers some features:
 
-  - support for SPI bus
-  - support for encrypted link with the RCP
-  - support for Dynamic MultiProtocol (DMP). Thus, CPCd can share the RCP
-    between several network stacks (ie. Bluetooth, Zigbee, OpenThread and
+  - Support for SPI bus
+  - Support for encrypted link with the RCP
+  - Support for Dynamic MultiProtocol (DMP). Thus, CPCd can share the RCP
+    between several network stacks (that is, Bluetooth, Zigbee, OpenThread, and
     Wi-SUN)
 
-## I cannot connect to DBus interface
+## I Cannot Connect to DBus Interface
 
 First of all, check you have followed the installation process. Especially,
 check you have run `ninja install`.
@@ -352,7 +352,7 @@ You can enforce the session used with an environment variable
 
     sudo env DBUS_STARTER_BUS_TYPE=system wsbrd ...
 
-## I have issues when trying to send UDP data
+## I Have Issues when Trying to Send UDP Data
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
 replies with `ICMPv6/Packet Too Big` if necessary. (Remember that in IPv6,

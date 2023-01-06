@@ -18,32 +18,32 @@ v1.5
     * Add pan_size parameter to simulate a busy network
     * Fix EUI64 exposed on DBus when an external DHCP is in use
   - Change the file format of the stored data (aka NVM). The new format is human
-    readable. Several interesting information can now be easily retrieved (GAK,
-    GTK, PMK, PTK, active keys, etc...).
-  - By default, the storage folder is no more readable by other users.
-  - Reports nodes on the DBus interface as soon as they are authenticated (until
+    readable. Several interesting items can now be easily retrieved (GAK,
+    GTK, PMK, PTK, active keys, etc.).
+  - By default, the storage folder is no longer readable by other users.
+  - Report nodes on the DBus interface as soon as they are authenticated (until
     now, they were reported once registered on RPL tree). The user can check the
     "parent" property to check if the node is registered to the RPL tree.
   - Add a DBus API to subscribe the network to external multicast frames. This
-    API is mandatory by the Wi-SUN specification. It replaces the MLDv2 (=
+    API is mandated by the Wi-SUN specification. It replaces the MLDv2 (=
     IGMPv3 for IPv6) protocol available on classical IPv6 networks.
-  - Drop DBus APIs AddRootCertificate and RemoveRootCertificate. We suggest to
-    rely on external Radius server for production usage.
-  - Allow to mix channel plans. We now compare the compatibility of set of RF
+  - Drop DBus APIs AddRootCertificate and RemoveRootCertificate. We suggest
+    relying on external Radius server for production usage.
+  - Allow mixing channel plans. We now compare the compatibility of the set of RF
     parameters.
-  - Remove 10sec delay on start.
+  - Remove 10 sec delay on start.
   - Time was lost when the server restarted.
   - Increase precision of "channel 0 frequency" displayed on start.
   - Remove some useless traces.
   - Fix possible latency when new neighbor is detected with neighbor_proxy
     enabled.
   - Fix PAN config and PAN advert trickles.
-  - Fix default permissions of cryptographic material
-  - Fix channel mask usage in asynchronous frames
-  - Add documentation for the DBus API
-  - Mention CPC in the compilation instructions
+  - Fix default permissions of cryptographic material.
+  - Fix channel mask usage in asynchronous frames.
+  - Add documentation for the DBus API.
+  - Mention CPC in the compilation instructions.
   - Simplify timers handling. Also add a trace to track timers usage.
-  - Simplify internal DHCP server
+  - Simplify internal DHCP server.
 
 v1.4
 ----
