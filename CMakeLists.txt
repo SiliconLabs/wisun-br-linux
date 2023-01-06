@@ -544,6 +544,18 @@ if(COMPILE_SIMULATION_TOOLS)
     endif()
     install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+    # To embed wsbrd into a shared library to be used with ns-3, dependencies
+    # must be compiled with -fPIC. This is also the case for MbedTLS, which
+    # cannot be ensured by CMake when resolving dependencies.
+    set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
+    add_library(wsbrd-ns3 SHARED
+        app_wsbrd_ns3/wsbrd_ns3.cpp
+    )
+    target_include_directories(wsbrd-ns3 PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+    target_link_libraries(wsbrd-ns3 libwsbrd)
+    install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 add_custom_command(OUTPUT wsbrd.conf
