@@ -553,6 +553,7 @@ if(COMPILE_SIMULATION_TOOLS)
         add_library(wsbrd-ns3 SHARED
             app_wsbrd_ns3/wsbrd_ns3.cpp
             app_wsbrd_ns3/rand.cpp
+            app_wsbrd_ns3/time.cpp
             app_wsbrd_ns3/uart.cpp
         )
         # Only include headers, do not link
@@ -567,6 +568,8 @@ if(COMPILE_SIMULATION_TOOLS)
             -Wl,--wrap=uart_open
             -Wl,--wrap=write
             -Wl,--wrap=getrandom
+            -Wl,--wrap=wsbr_common_timer_init
+            -Wl,--wrap=wsbr_common_timer_process
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()
