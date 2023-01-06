@@ -1391,8 +1391,8 @@ static bool ws_pae_auth_next_kmp_trigger(pae_auth_t *pae_auth, supp_entry_t *sup
             /* For other types than GTK, only one ongoing negotiation at the same time,
                for GTK there can be previous terminating and the new one for next key index */
             if (next_type != IEEE_802_11_GKH) {
-                tr_info("KMP already ongoing; ignored, eui-64: %s", tr_eui64(supp_entry->addr.eui_64));
-                return false;
+                tr_info("KMP already ongoing; delete previous, eui-64: %s", tr_eui64(supp_entry->addr.eui_64));
+                ws_pae_auth_kmp_api_finished(api);
             }
         }
     }
