@@ -323,18 +323,18 @@ int main(int argc, char *argv[])
         maxfd = 0;
         FD_ZERO(&rfds);
         FD_SET(ctxt->rf_fd, &rfds);
-        maxfd = max(maxfd, ctxt->rf_fd);
+        maxfd = MAX(maxfd, ctxt->rf_fd);
         FD_SET(ctxt->os_ctxt->trig_fd, &rfds);
-        maxfd = max(maxfd, ctxt->os_ctxt->trig_fd);
+        maxfd = MAX(maxfd, ctxt->os_ctxt->trig_fd);
         FD_SET(ctxt->scheduler.event_fd[0], &rfds);
-        maxfd = max(maxfd, ctxt->scheduler.event_fd[0]);
+        maxfd = MAX(maxfd, ctxt->scheduler.event_fd[0]);
         SLIST_FOR_EACH_ENTRY(ctxt->timers, timer, node) {
             FD_SET(timer->fd, &rfds);
-            maxfd = max(maxfd, timer->fd);
+            maxfd = MAX(maxfd, timer->fd);
         }
         SLIST_FOR_EACH_ENTRY(ctxt->fhss_timers, fhss_timer, node) {
             FD_SET(fhss_timer->fd, &rfds);
-            maxfd = max(maxfd, fhss_timer->fd);
+            maxfd = MAX(maxfd, fhss_timer->fd);
         }
         if (ctxt->os_ctxt->uart_next_frame_ready || ctxt->rf_frame_cca_progress)
             ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, NULL);

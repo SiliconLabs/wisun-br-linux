@@ -174,7 +174,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
     for (int i = 0; i < range_info->number_of_range; i++) {
         range_start = read_le16(range_ptr);
         range_ptr += 2;
-        range_stop = min(read_le16(range_ptr), number_of_channels);
+        range_stop = MIN(read_le16(range_ptr), number_of_channels);
         range_ptr += 2;
         for (int channel = range_start; channel < range_stop; channel++) {
             if (bittest(channel_info->channel_mask, channel)) {
@@ -187,7 +187,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
 
 static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
 {
-    int nchan = min(number_of_channels, mask_info->mask_len_inline * 8);
+    int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 
     for (int i = 0; i < nchan; i++) {
         if (bittest(channel_info->channel_mask, i) && bitrtest(mask_info->channel_mask, i)) {

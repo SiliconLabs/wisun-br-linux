@@ -20,7 +20,7 @@
 
 static void iobuf_enlarge_buffer(struct iobuf_write *buf, size_t new_data_size) {
     if (buf->data_size < buf->len + new_data_size) {
-        buf->data_size = max(64, buf->len + new_data_size);
+        buf->data_size = MAX(64, buf->len + new_data_size);
         buf->data = realloc(buf->data, buf->data_size);
         BUG_ON(!buf->data);
     }

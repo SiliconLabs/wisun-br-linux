@@ -214,7 +214,7 @@ int main(int argc, char **argv)
         .addr.sun_family = AF_UNIX
     };
 
-    fd_limit = min(increase_limit_fd(), ARRAY_SIZE(fds));
+    fd_limit = MIN(increase_limit_fd(), ARRAY_SIZE(fds));
     parse_commandline(&ctxt, argc, argv);
     for (i = 0; i < fd_limit; i++)
         fds[i].fd = -1;

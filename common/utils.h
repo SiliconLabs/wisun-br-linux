@@ -15,13 +15,13 @@
 
 #include <stddef.h>
 
-#define min(x, y) ({ \
+#define MIN(x, y) ({ \
     typeof(x) _x = (x); \
     typeof(y) _y = (y); \
     _x < _y ? _x : _y;  \
 })
 
-#define max(x, y) ({ \
+#define MAX(x, y) ({ \
     typeof(x) _x = (x); \
     typeof(y) _y = (y); \
     _x > _y ? _x : _y;  \
