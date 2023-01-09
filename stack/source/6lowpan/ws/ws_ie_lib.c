@@ -297,11 +297,11 @@ uint8_t *ws_wh_lbs_write(uint8_t *ptr, struct ws_lbs_ie *lbs_ie)
     return ptr;
 }
 
-uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie)
+uint8_t *ws_wh_lbc_write(uint8_t *ptr, uint24_t interval, uint8_t sync_period)
 {
     ptr = ws_wh_header_base_write(ptr, ws_wh_lbc_length(), WH_IE_LBC_TYPE);
-    ptr = common_write_24_bit_inverse(lbc_ie->lfn_broadcast_interval, ptr);
-    *ptr++ = lbc_ie->broadcast_sync_period;
+    ptr = common_write_24_bit_inverse(interval, ptr);
+    *ptr++ = sync_period;
     return ptr;
 }
 

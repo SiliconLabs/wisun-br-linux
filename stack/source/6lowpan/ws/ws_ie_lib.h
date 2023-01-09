@@ -64,7 +64,7 @@ uint8_t *ws_wh_lto_write(uint8_t *ptr, struct ws_lto_ie *lto_ie);
 #define ws_wh_lto_length() 6
 uint8_t *ws_wh_panid_write(uint8_t *ptr, struct ws_panid_ie *panid_ie);
 #define ws_wh_panid_length() 2
-uint8_t *ws_wh_lbc_write(uint8_t *ptr, struct ws_lbc_ie *lbc_ie);
+uint8_t *ws_wh_lbc_write(uint8_t *ptr, uint24_t interval, uint8_t sync_period);
 #define ws_wh_lbc_length() 4
 
 

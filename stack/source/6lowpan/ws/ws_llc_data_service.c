@@ -92,7 +92,6 @@ typedef struct llc_ie_params {
     ws_lnd_ie_t             *lfn_network_discovery; /**< LFN Network Discovery */
     ws_lto_ie_t             *lfn_timing;            /**< LFN Timing */
     ws_panid_ie_t           *pan_id;                /**< PAN ID */
-    ws_lbc_ie_t             *lfn_bc;                /**< LFN Broadcast Configuration */
     ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
     gtkhash_t               *lgtkhash;              /**< Pointer to LGTK HASH. User must provide a pointer to 3 gtkhash_t */
     ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
@@ -2088,7 +2087,8 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     }
 
     if (request->wh_requested_ie_list.lbc_ie) {
-        ptr = ws_wh_lbc_write(ptr, base->ie_params.lfn_bc);
+        ptr = ws_wh_lbc_write(ptr, interface->ws_info->cfg->fhss.lfn_bc_interval,
+                              interface->ws_info->cfg->fhss.lfn_bc_sync_period);
     }
 
     if (wp_nested_payload_length) {
