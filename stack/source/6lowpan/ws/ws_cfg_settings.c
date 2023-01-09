@@ -893,7 +893,9 @@ int8_t ws_cfg_fhss_validate(ws_fhss_cfg_t *new_cfg)
             cfg->fhss_uc_channel_function != new_cfg->fhss_uc_channel_function ||
             cfg->fhss_bc_channel_function != new_cfg->fhss_bc_channel_function ||
             cfg->fhss_uc_fixed_channel != new_cfg->fhss_uc_fixed_channel ||
-            cfg->fhss_bc_fixed_channel != new_cfg->fhss_bc_fixed_channel) {
+            cfg->fhss_bc_fixed_channel != new_cfg->fhss_bc_fixed_channel ||
+            cfg->lfn_bc_interval       != new_cfg->lfn_bc_interval ||
+            cfg->lfn_bc_sync_period    != new_cfg->lfn_bc_sync_period) {
 
         if (new_cfg->fhss_uc_dwell_interval < 15) {
             return CFG_SETTINGS_ERROR_FHSS_CONF;

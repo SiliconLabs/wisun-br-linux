@@ -92,6 +92,14 @@ static const struct number_limit valid_broadcast_interval = {
     100, 0xFFFFFF
 };
 
+static const struct number_limit valid_lfn_broadcast_interval = {
+    10000, 600000 // 10s-10min
+};
+
+static const struct number_limit valid_lfn_broadcast_sync_period = {
+    1, 60
+};
+
 static const struct number_limit valid_lowpan_mtu = {
     LOWPAN_MTU_MIN, LOWPAN_MTU_MAX
 };
@@ -484,6 +492,8 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "unicast_dwell_interval",        &config->uc_dwell_interval,                conf_set_number,      &valid_unicast_dwell_interval },
         { "broadcast_dwell_interval",      &config->bc_dwell_interval,                conf_set_number,      &valid_broadcast_dwell_interval },
         { "broadcast_interval",            &config->bc_interval,                      conf_set_number,      &valid_broadcast_interval },
+        { "lfn_broadcast_interval",        &config->lfn_bc_interval,                  conf_set_number,      &valid_lfn_broadcast_interval },
+        { "lfn_broadcast_sync_period",     &config->lfn_bc_sync_period,               conf_set_number,      &valid_lfn_broadcast_sync_period },
         { "pmk_lifetime",                  &config->ws_pmk_lifetime,                  conf_set_number,      &valid_unsigned },
         { "ptk_lifetime",                  &config->ws_ptk_lifetime,                  conf_set_number,      &valid_unsigned },
         { "gtk_expire_offset",             &config->ws_gtk_expire_offset,             conf_set_number,      &valid_unsigned },
