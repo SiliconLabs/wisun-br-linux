@@ -1,3 +1,10 @@
+v1.5.1
+------
+
+  - PAN-Configuration frames now include LFN Broadcast Interval and LFN
+    Broadcast Sync Period. The user can customize these values in the
+    configuration file.
+
 v1.5
 ----
 
