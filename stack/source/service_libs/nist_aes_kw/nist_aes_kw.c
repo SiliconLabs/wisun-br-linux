@@ -30,32 +30,6 @@ int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, 
     int8_t ret_val = 0;
     mbedtls_nist_kw_context ctx;
 
-#ifdef EXTRA_DEBUG_INFO
-    const uint8_t *print_data = key;
-    uint16_t print_data_len = key_bits / 8;
-    while (true) {
-        tr_debug("nist_aes_key_wrap key %s", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
-        if (print_data_len > 32) {
-            print_data_len -= 32;
-            print_data += 32;
-        } else {
-            break;
-        }
-    }
-
-    print_data = input;
-    print_data_len = input_len;
-    while (true) {
-        tr_debug("nist_aes_key_wrap in %s", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
-        if (print_data_len > 32) {
-            print_data_len -= 32;
-            print_data += 32;
-        } else {
-            break;
-        }
-    }
-#endif
-
     mbedtls_nist_kw_init(&ctx);
 
     if (mbedtls_nist_kw_setkey(&ctx, MBEDTLS_CIPHER_ID_AES, key, key_bits, is_wrap) != 0) {
@@ -76,20 +50,6 @@ int8_t nist_aes_key_wrap(uint8_t is_wrap, const uint8_t *key, int16_t key_bits, 
             goto error;
         }
     }
-
-#ifdef EXTRA_DEBUG_INFO
-    print_data = output;
-    print_data_len = *output_len;
-    while (true) {
-        tr_debug("nist_aes_key_wrap out %s", trace_array(print_data, print_data_len > 32 ? 32 : print_data_len));
-        if (print_data_len > 32) {
-            print_data_len -= 32;
-            print_data += 32;
-        } else {
-            break;
-        }
-    }
-#endif
 
 error:
     mbedtls_nist_kw_free(&ctx);
