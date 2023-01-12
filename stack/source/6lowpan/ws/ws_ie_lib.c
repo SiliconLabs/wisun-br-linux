@@ -1052,9 +1052,8 @@ static void ws_wp_nested_lcp_find_tag(const uint8_t *data, uint16_t length, uint
         }
         if (ie_content->err)
             return;
-        length -= 2 + ie_content->data_size;
-        data   += 2 + ie_content->data_size;
-        BUG_ON(data != ie_content->data + ie_content->data_size);
+        length -= ie_content->data + ie_content->data_size - data;
+        data = ie_content->data + ie_content->data_size;
     } while (data < end);
     ie_content->err = true;
 }
