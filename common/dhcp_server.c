@@ -298,15 +298,32 @@ static void dhcp_handle_request(struct dhcp_server *dhcp, struct sockaddr_in6 *s
                                 struct iobuf_read *req, struct iobuf_read *relay_req)
 {
     struct iobuf_write reply = { };
+    struct iobuf_read relay;
     uint24_t transaction;
+    uint8_t msg_type;
     uint32_t iaid;
     const uint8_t *hwaddr;
     int hwaddr_type;
 
-    if (iobuf_pop_u8(req) != DHCPV6_MSG_SOLICIT) {
-        WARN("unsuported dhcp request");
+    msg_type = iobuf_pop_u8(req);
+    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
+          val_to_str(msg_type, dhcp_frames, "[UNK]"),
+          tr_ipv6(src_addr->sin6_addr.s6_addr));
+    if (msg_type == DHCPV6_MSG_RELAY_FWD && !relay_req) {
+        iobuf_pop_u8(req); // hop-count
+        iobuf_pop_data_ptr(req, 16); // link-address
+        iobuf_pop_data_ptr(req, 16); // peer-address
+        dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req), DHCPV6_OPT_RELAY, &relay);
+        if (relay.err)
+            return;
+        req->cnt = 0; // reset buffer to reuse the relay-fwd header
+        dhcp_handle_request(dhcp, src_addr, &relay, req);
+        return;
+    } else if (msg_type != DHCPV6_MSG_SOLICIT) {
+        WARN("unsupported dhcp msg-type: 0x%02x", msg_type);
         return;
     }
+
     transaction = iobuf_pop_be24(req);
     if (dhcp_check_status_code(iobuf_ptr(req), iobuf_remaining_size(req)))
         return;
@@ -337,7 +354,6 @@ void dhcp_recv(struct dhcp_server *dhcp)
     socklen_t src_addr_len = sizeof(struct sockaddr_in6);
     struct sockaddr_in6 src_addr;
     struct iobuf_read req = { };
-    struct iobuf_read fwd_req = { };
     uint8_t buf[1024];
 
     req.data = buf;
@@ -347,16 +363,7 @@ void dhcp_recv(struct dhcp_server *dhcp)
         WARN("only IPv6 is supported");
         return;
     }
-    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
-          val_to_str(req.data[0], dhcp_frames, "[UNK]"),
-          tr_ipv6(src_addr.sin6_addr.s6_addr));
-
-    if (req.data[0] == DHCPV6_MSG_RELAY_FWD) {
-        dhcp_get_option(req.data + 34, req.data_size - 34, DHCPV6_OPT_RELAY, &fwd_req);
-        dhcp_handle_request(dhcp, &src_addr, &fwd_req, &req);
-    } else {
-        dhcp_handle_request(dhcp, &src_addr, &req, NULL);
-    }
+    dhcp_handle_request(dhcp, &src_addr, &req, NULL);
 }
 
 void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, uint8_t *prefix)
