@@ -665,9 +665,8 @@ static void ws_wh_find_subid(const uint8_t *data, uint16_t length, uint8_t subid
             return;
         if (wh_content->err)
             return;
-        length -= 2 + wh_content->data_size;
-        data   += 2 + wh_content->data_size;
-        BUG_ON(data != wh_content->data + wh_content->data_size);
+        length -= wh_content->data + wh_content->data_size - data;
+        data = wh_content->data + wh_content->data_size;
     } while (data < end);
     wh_content->err = true;
 }
