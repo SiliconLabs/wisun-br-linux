@@ -232,7 +232,7 @@ static void ws_eapol_relay_socket_cb(void *cb)
     }
 
     //First 8 byte is EUID64 and rsr payload
-    if (ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, data_len - 8, socket_pdu, NULL, 0) < 0) {
+    if (data_len < 8 || ws_eapol_pdu_send_to_mpx(eapol_relay->interface_ptr, socket_pdu, socket_pdu + 8, data_len - 8, socket_pdu, NULL, 0) < 0) {
         free(socket_pdu);
     }
 }
