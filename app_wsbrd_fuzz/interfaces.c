@@ -68,8 +68,6 @@ void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
     interface = spinel_pop_u8(buf);
     spinel_pop_fixed_u8_array(buf, src_addr, 16);
     src_port = spinel_pop_u16(buf);
-    if (buf->err)
-        return;
 
     if (interface == IF_TUN) {
         fd = g_fuzz_ctxt.tun_pipe[1];
@@ -89,6 +87,9 @@ void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
     }
 
     size = spinel_pop_data_ptr(buf, &data);
+    if (buf->err)
+        return;
+
     ret = write(fd, data, size);
     FATAL_ON(ret < 0, 2, "write: %m");
     FATAL_ON(ret < size, 2, "write: Short write");
