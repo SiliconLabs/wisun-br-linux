@@ -14,6 +14,11 @@
 #define LOG_LEGACY_H
 #include "common/log.h"
 
+/*
+ * Ensure compatibility with legacy code from the Nanostack. Don't use for new
+ * code (use log.h instead).
+ */
+
 #define tr_debug(MSG, ...) __PRINT(90, "[DBG ][%-4s]: " MSG, TRACE_GROUP, ##__VA_ARGS__)
 #define tr_info(MSG, ...)  __PRINT(39, "[INFO][%-4s]: " MSG, TRACE_GROUP, ##__VA_ARGS__)
 #define tr_warn(MSG, ...)  __PRINT(33, "[WARN][%-4s]: " MSG, TRACE_GROUP, ##__VA_ARGS__)
