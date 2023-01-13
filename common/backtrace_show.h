@@ -13,6 +13,24 @@
 #ifndef BACKTRACE_SHOW_H
 #define BACKTRACE_SHOW_H
 
+/*
+ * backtrace_show() smartly decodes the backtrace and displays it. Thanks to
+ * backtrace.h, the .eh_frames binary section is used to decode the stack
+ * frames. Then:
+ *   - if the debug symbols are available (ie. compiled with -g),
+ *     backtrace_show() will resolve the symbol names, the filenames and the
+ *     line numbers.
+ *   - if the binary is not stripped, backtrace_show() will only resolve the
+ *     symbol names.
+ *   - if the binary is a shared library or if the binary is compiled with
+ *     -rdynamic, backtrace_show() will resolve the names of the exported
+ *     symbols only (static functions won't be available)
+ *
+ * This function is usually called from assert handler but it can be called from
+ * any part of the code without disturbing the application. It can be useful
+ * during debug.
+ */
+
 #ifdef HAVE_BACKTRACE
 
 void backtrace_show();
