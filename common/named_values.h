@@ -13,6 +13,14 @@
 #ifndef NAMED_VALUES_H
 #define NAMED_VALUES_H
 
+/*
+ * Allow to manipulate numbers associated to symbolic names. Typically, it is
+ * used to display decoded frames (using val_to_str()) or to convert a user
+ * input into numeric representation (with str_to_val()).
+ *
+ * Note these functions iterate on "table" array until "name" field is NULL.
+ */
+
 struct name_value {
     char *name;
     int val;
