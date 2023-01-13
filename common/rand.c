@@ -54,13 +54,12 @@ uint64_t rand_get_64bit(void)
     return result;
 }
 
-void *rand_get_n_bytes_random(void *ptr, uint8_t count)
+void rand_get_n_bytes_random(void *ptr, uint8_t count)
 {
     int ret;
 
     ret = getrandom(ptr, count, 0);
     FATAL_ON(ret != count, 2, );
-    return ptr;
 }
 
 uint16_t rand_get_random_in_range(uint16_t min, uint16_t max)
