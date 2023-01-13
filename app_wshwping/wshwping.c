@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "common/log.h"
+#include "common/bits.h"
 #include "common/bus_uart.h"
 #include "common/os_types.h"
 #include "common/spinel_buffer.h"
@@ -35,6 +36,15 @@ static const struct name_value accepted_modes[] = {
     { "rx",   MODE_RX },
     { "dual", MODE_TX | MODE_RX },
     { NULL,  -1 },
+};
+
+const struct name_value valid_traces[] = {
+    { "bus",       TR_BUS },
+    { "cpc",       TR_CPC },
+    { "hdlc",      TR_HDLC },
+    { "hif",       TR_HIF },
+    { "hif-extra", TR_HIF_EXTRA },
+    { NULL },
 };
 
 struct commandline_args {
@@ -71,13 +81,15 @@ void print_help(FILE *stream, int exit_code)
     fprintf(stream, "  -r, --reset            Reset the RCP before measurement\n");
     fprintf(stream, "  -q, --quiet            Do not show progress\n");
     fprintf(stream, "  -v, --verbose          Show intermediate results\n");
+    fprintf(stream, "  -T, --trace=TAG[,TAG]  Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
+    fprintf(stream, "                         and hif-extra\n");
     fprintf(stream, "\n");
     exit(exit_code);
 }
 
 void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
 {
-    const char *opts_short = "u:C:B:s:c:w:rqvh";
+    const char *opts_short = "u:C:B:s:c:w:rT:qvh";
     static const struct option opts_long[] = {
         { "uart",     required_argument, 0,  'u' },
         { "cpc",      required_argument, 0,  'C' },
@@ -85,12 +97,14 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
         { "size",     required_argument, 0,  's' },
         { "count",    required_argument, 0,  'c' },
         { "window",   required_argument, 0,  'w' },
+        { "trace",    required_argument, 0,  'T' },
         { "reset",    no_argument,       0,  'r' },
         { "quiet",    no_argument,       0,  'q' },
         { "verbose",  no_argument,       0,  'v' },
         { "help",     no_argument,       0,  'h' },
         { 0,          0,                 0,   0  }
     };
+    const char *substr;
     int opt;
 
     cmd->window = -1;
@@ -127,6 +141,12 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
                 break;
             case 'v':
                 cmd->verbose = true;
+                break;
+            case 'T':
+                substr = strtok(optarg, ",");
+                do {
+                    g_enabled_traces |= str_to_val(substr, valid_traces);
+                } while ((substr = strtok(NULL, ",")));
                 break;
             case 'h':
                 print_help(stdout, 0);
@@ -182,6 +202,7 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
         cpc_tx(ctxt, tx_buf.data, tx_buf.len);
     else
         uart_tx(ctxt, tx_buf.data, tx_buf.len);
+    spinel_trace_tx(&tx_buf);
     iobuf_free(&tx_buf);
 }
 
@@ -225,6 +246,8 @@ static int receive(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint1
         WARN("poll: no answer from RCP on ping %d", counter);
         return counter + 1;
     }
+    spinel_trace_rx(&rx_buf);
+
     spinel_pop_u8(&rx_buf);
 
     val = spinel_pop_uint(&rx_buf);
