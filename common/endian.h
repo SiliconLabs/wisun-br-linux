@@ -12,9 +12,17 @@
  */
 #ifndef ENDIAN_H
 #define ENDIAN_H
-
 #include <stdint.h>
 #include "int24.h"
+
+/*
+ * Convert native numbers to/from little/big endian. These functions are only
+ * needed when the user want to read/write with a binary protocol (in the wsbrd
+ * case: when working with spinel and Wi-SUN frames).
+ *
+ * This file includes support for int24_t since this size is commonly used in
+ * 802.15.4 protocols.
+ */
 
 uint16_t read_be16(const uint8_t ptr[2]);
 uint16_t read_le16(const uint8_t ptr[2]);
