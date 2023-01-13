@@ -15,6 +15,10 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
+/*
+ * A collection of functions to convert strings in binary structures.
+ */
+
 int parse_bitmask(uint8_t *out, int size, const char *str);
 int parse_escape_sequences(char *out, const char *in, size_t max_len);
 int parse_byte_array(uint8_t *out, int size, const char *str);
