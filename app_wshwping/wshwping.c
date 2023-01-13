@@ -163,8 +163,6 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
     if (optind + 1 < argc)
         FATAL(1, "unexpected argument: %s", argv[optind + 1]);
     cmd->mode = str_to_val(argv[optind], accepted_modes);
-    cmd->payload_size -= 9;
-    FATAL_ON(cmd->payload_size < 0, 2, "payload size must > 8");
     if (cmd->window < 0) {
         cmd->window = 2;
         if (cmd->payload_size < 256)
@@ -175,9 +173,12 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
             cmd->window = 40;
         INFO("window size: %d", cmd->window);
     }
-    if (cmd->payload_size * cmd->window > 4096)
+    if (cmd->payload_size * cmd->window >= 4096)
         WARN("huge window is selected");
+    cmd->payload_size -= 9;
+    FATAL_ON(cmd->payload_size < 0, 2, "payload size must > 8");
 }
+
 
 static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_t counter)
 {
