@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2023 Silicon Laboratories Inc. (www.silabs.com)
+ *
+ * The licensor of this software is Silicon Laboratories Inc. Your use of this
+ * software is governed by the terms of the Silicon Labs Master Software License
+ * Agreement (MSLA) available at [1].  This software is distributed to you in
+ * Object Code format and/or Source Code format and is governed by the sections
+ * of the MSLA applicable to Object Code, Source Code and Modified Open Source
+ * Code. By using this software, you agree to the terms of the MSLA.
+ *
+ * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
+ */
 #include "crc.h"
 
 // width=16 poly=0x1021 init=0xffff refin=true refout=true xorout=0xffff check=0x906e residue=0xf0b8 name="CRC-16/IBM-SDLC"
