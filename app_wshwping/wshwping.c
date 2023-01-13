@@ -179,6 +179,16 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
     FATAL_ON(cmd->payload_size < 0, 2, "payload size must > 8");
 }
 
+static uint8_t get_spinel_hdr(struct os_ctxt *ctxt)
+{
+    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
+
+    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
+    if (!ctxt->spinel_tid)
+        ctxt->spinel_tid = 1;
+    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
+    return hdr;
+}
 
 static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_t counter)
 {
@@ -187,7 +197,7 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
 
     for (int i = 0; i < cmdline->payload_size; i++)
         payload_buf[i] = i % 0x10;
-    spinel_push_u8(&tx_buf, 0);
+    spinel_push_u8(&tx_buf, get_spinel_hdr(ctxt));
     spinel_push_uint(&tx_buf, SPINEL_CMD_RCP_PING);
     spinel_push_u16(&tx_buf, counter);
     if (cmdline->mode & MODE_TX)

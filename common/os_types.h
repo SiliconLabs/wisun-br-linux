@@ -32,6 +32,8 @@ struct os_ctxt {
     int     trig_fd;
     int     data_fd;
     int     spi_recv_window;
+    int     spinel_tid;
+    int     spinel_iid;
     bool    uart_next_frame_ready;
     int     uart_rx_buf_len;
     uint8_t uart_rx_buf[2048];
