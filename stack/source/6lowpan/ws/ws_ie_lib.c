@@ -339,13 +339,13 @@ void ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie)
+void ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_period)
 {
     int offset;
 
     offset = ws_wh_header_base_write(buf, WH_IE_LBC_TYPE);
-    iobuf_push_le24(buf, lbc_ie->lfn_broadcast_interval);
-    iobuf_push_u8(buf, lbc_ie->broadcast_sync_period);
+    iobuf_push_le24(buf, interval);
+    iobuf_push_u8(buf, sync_period);
     ieee802154_ie_fill_len_header(buf, offset);
 }
 

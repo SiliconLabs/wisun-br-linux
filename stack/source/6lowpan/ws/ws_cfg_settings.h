@@ -78,6 +78,8 @@ typedef struct ws_fhss_cfg {
     uint16_t fhss_uc_fixed_channel;     /**< FHSS unicast fixed channel; default 0xffff */
     uint16_t fhss_bc_fixed_channel;     /**< FHSS broadcast fixed channel; default 0xffff */
     uint8_t fhss_channel_mask[32];      /**< FHSS channel mask; default; 0xff * 32 */
+    uint24_t lfn_bc_interval;
+    uint8_t lfn_bc_sync_period;
 } ws_fhss_cfg_t;
 
 /**

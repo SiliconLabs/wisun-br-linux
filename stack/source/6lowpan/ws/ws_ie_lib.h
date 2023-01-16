@@ -19,6 +19,7 @@
 #define WS_IE_LIB_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include "common/int24.h"
 #include "6lowpan/ws/ws_common_defines.h"
 
 struct iobuf_write;
@@ -56,7 +57,7 @@ void    ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie);
 void   ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie);
 void   ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie);
 void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie);
-void   ws_wh_lbc_write(struct iobuf_write *buf, struct ws_lbc_ie *lbc_ie);
+void   ws_wh_lbc_write(struct iobuf_write *buf, uint24_t interval, uint8_t sync_period);
 
 
 bool ws_wh_utt_read(const uint8_t *data, uint16_t length, struct ws_utt_ie *utt_ie);

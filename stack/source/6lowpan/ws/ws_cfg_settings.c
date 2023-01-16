@@ -868,6 +868,8 @@ int8_t ws_cfg_fhss_default_set(ws_fhss_cfg_t *cfg)
     cfg->fhss_bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
     cfg->fhss_uc_channel_function = WS_DH1CF;
     cfg->fhss_bc_channel_function = WS_DH1CF;
+    cfg->lfn_bc_interval = 60000; // 1min
+    cfg->lfn_bc_sync_period = 5;
     bitfill(cfg->fhss_channel_mask, false, 0, 255);
     return CFG_SETTINGS_OK;
 }
