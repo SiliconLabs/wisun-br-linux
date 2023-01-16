@@ -791,6 +791,27 @@ int ws_management_fhss_broadcast_channel_function_validate(
     return 0;
 }
 
+int ws_management_fhss_lfn_configure(int8_t if_id,
+                                     uint24_t lfn_bc_interval,
+                                     uint8_t lfn_bc_sync_period)
+{
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(if_id);
+    ws_fhss_cfg_t cfg_default;
+    ws_fhss_cfg_t cfg;
+
+    if (!net_if || !ws_info(net_if))
+        return -1;
+    if (ws_cfg_fhss_get(&cfg) < 0)
+        return -2;
+    if (ws_cfg_fhss_default_set(&cfg_default) < 0)
+        return -2;
+    cfg.lfn_bc_interval    = lfn_bc_interval    ? : cfg_default.lfn_bc_interval;
+    cfg.lfn_bc_sync_period = lfn_bc_sync_period ? : cfg_default.lfn_bc_sync_period;
+    if (ws_cfg_fhss_set(net_if, &cfg, 0) < 0)
+        return -3;
+    return 0;
+}
+
 int ws_management_timing_parameters_set(
     int8_t interface_id,
     uint16_t disc_trickle_imin,

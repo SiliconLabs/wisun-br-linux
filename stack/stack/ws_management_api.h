@@ -27,6 +27,7 @@
 #ifndef WS_MANAGEMENT_API_H_
 #define WS_MANAGEMENT_API_H_
 #include <stdint.h>
+#include "common/int24.h"
 
 typedef struct fhss_timer fhss_timer_t;
 
@@ -706,6 +707,10 @@ int ws_management_fhss_broadcast_channel_function_validate(
     uint16_t fixed_channel,
     uint8_t dwell_interval,
     uint32_t broadcast_interval);
+
+int ws_management_fhss_lfn_configure(int8_t if_id,
+                                     uint24_t lfn_bc_interval,
+                                     uint8_t lfn_bc_sync_period);
 
 /**
  * Set timing parameters
