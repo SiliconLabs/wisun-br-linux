@@ -83,6 +83,11 @@ static const struct name_value dhcp_frames[] = {
     { NULL        },
 };
 
+static int dhcp_handle_request(struct dhcp_server *dhcp,
+                                struct iobuf_read *req, struct iobuf_write *reply);
+static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
+                                    struct iobuf_read *req, struct iobuf_write *reply);
+
 static int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload)
 {
     uint16_t opt_type, opt_len;
@@ -264,41 +269,42 @@ static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
     WARN_ON(ret < 0, "sendmsg: %m");
 }
 
-static void dhcp_send_relay_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
-                                  struct iobuf_write *reply, struct iobuf_read *relay_req)
+static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
+                                    struct iobuf_read *req, struct iobuf_write *reply)
 {
-    struct iobuf_read opt_interface_id = { };
+    struct iobuf_read opt_interface_id, opt_relay;
     struct iobuf_write relay_reply = { };
     const uint8_t *linkaddr, *peeraddr;
     uint8_t hopcount;
 
-    iobuf_pop_u8(relay_req); // DHCPV6_RELAY_FORWARD
-    hopcount = iobuf_pop_u8(relay_req);
-    linkaddr = iobuf_pop_data_ptr(relay_req, 16);
-    peeraddr = iobuf_pop_data_ptr(relay_req, 16);
-    iobuf_push_u8(&relay_reply, DHCPV6_MSG_RELAY_REPLY);
-    iobuf_push_u8(&relay_reply, hopcount);
-    iobuf_push_data(&relay_reply, linkaddr, 16);
-    iobuf_push_data(&relay_reply, peeraddr, 16);
-
-    if (dhcp_get_option(iobuf_ptr(relay_req), iobuf_remaining_size(relay_req),
+    hopcount = iobuf_pop_u8(req);
+    linkaddr = iobuf_pop_data_ptr(req, 16);
+    peeraddr = iobuf_pop_data_ptr(req, 16);
+    iobuf_push_u8(reply, DHCPV6_MSG_RELAY_REPLY);
+    iobuf_push_u8(reply, hopcount);
+    iobuf_push_data(reply, linkaddr, 16);
+    iobuf_push_data(reply, peeraddr, 16);
+    if (dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req),
                         DHCPV6_OPT_INTERFACE_ID, &opt_interface_id) > 0) {
-        iobuf_push_be16(&relay_reply, DHCPV6_OPT_INTERFACE_ID);
-        iobuf_push_be16(&relay_reply, opt_interface_id.data_size);
-        iobuf_push_data(&relay_reply, opt_interface_id.data, opt_interface_id.data_size);
+        iobuf_push_be16(reply, DHCPV6_OPT_INTERFACE_ID);
+        iobuf_push_be16(reply, opt_interface_id.data_size);
+        iobuf_push_data(reply, opt_interface_id.data, opt_interface_id.data_size);
     }
-
-    iobuf_push_be16(&relay_reply, DHCPV6_OPT_RELAY);
-    iobuf_push_be16(&relay_reply, reply->len);
-    iobuf_push_data(&relay_reply, reply->data, reply->len);
-    dhcp_send_reply(dhcp, dest, &relay_reply);
+    if (dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req),
+                        DHCPV6_OPT_RELAY, &opt_relay) < 0)
+        return -EINVAL;
+    if (dhcp_handle_request(dhcp, &opt_relay, &relay_reply))
+        return -EINVAL;
+    iobuf_push_be16(reply, DHCPV6_OPT_RELAY);
+    iobuf_push_be16(reply, relay_reply.len);
+    iobuf_push_data(reply, relay_reply.data, relay_reply.len);
+    iobuf_free(&relay_reply);
+    return 0;
 }
 
-static void dhcp_handle_request(struct dhcp_server *dhcp, struct sockaddr_in6 *src_addr,
-                                struct iobuf_read *req, struct iobuf_read *relay_req)
+static int dhcp_handle_request(struct dhcp_server *dhcp,
+                                struct iobuf_read *req, struct iobuf_write *reply)
 {
-    struct iobuf_write reply = { };
-    struct iobuf_read relay;
     uint24_t transaction;
     uint8_t msg_type;
     uint32_t iaid;
@@ -306,47 +312,34 @@ static void dhcp_handle_request(struct dhcp_server *dhcp, struct sockaddr_in6 *s
     int hwaddr_type;
 
     msg_type = iobuf_pop_u8(req);
-    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
-          val_to_str(msg_type, dhcp_frames, "[UNK]"),
-          tr_ipv6(src_addr->sin6_addr.s6_addr));
-    if (msg_type == DHCPV6_MSG_RELAY_FWD && !relay_req) {
-        iobuf_pop_u8(req); // hop-count
-        iobuf_pop_data_ptr(req, 16); // link-address
-        iobuf_pop_data_ptr(req, 16); // peer-address
-        dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req), DHCPV6_OPT_RELAY, &relay);
-        if (relay.err)
-            return;
-        req->cnt = 0; // reset buffer to reuse the relay-fwd header
-        dhcp_handle_request(dhcp, src_addr, &relay, req);
-        return;
-    } else if (msg_type != DHCPV6_MSG_SOLICIT) {
+    if (msg_type == DHCPV6_MSG_RELAY_FWD)
+        return dhcp_handle_request_fwd(dhcp, req, reply);
+    if (msg_type != DHCPV6_MSG_SOLICIT) {
         WARN("unsupported dhcp msg-type: 0x%02x", msg_type);
-        return;
+        return -EINVAL;
     }
 
     transaction = iobuf_pop_be24(req);
     if (dhcp_check_status_code(iobuf_ptr(req), iobuf_remaining_size(req)))
-        return;
+        return -EINVAL;
     if (dhcp_check_rapid_commit(iobuf_ptr(req), iobuf_remaining_size(req)))
-        return;
+        return -EINVAL;
     if (dhcp_check_elapsed_time(iobuf_ptr(req), iobuf_remaining_size(req)))
-        return;
+        return -EINVAL;
     iaid = dhcp_get_identity_association_id(iobuf_ptr(req), iobuf_remaining_size(req));
+    if (iaid == UINT32_MAX)
+        return -EINVAL;
     hwaddr_type = dhcp_get_client_hwaddr(iobuf_ptr(req), iobuf_remaining_size(req), &hwaddr);
     if (hwaddr_type < 0)
-        return;
+        return -EINVAL;
 
-    iobuf_push_u8(&reply, DHCPV6_MSG_REPLY);
-    iobuf_push_be24(&reply, transaction);
-    dhcp_fill_server_id(dhcp, &reply);
-    dhcp_fill_client_id(dhcp, &reply, hwaddr_type, hwaddr);
-    dhcp_fill_identity_association(dhcp, &reply, hwaddr, iaid);
-    dhcp_fill_rapid_commit(dhcp, &reply);
-    if (relay_req)
-        dhcp_send_relay_reply(dhcp, src_addr, &reply, relay_req);
-    else
-        dhcp_send_reply(dhcp, src_addr, &reply);
-    iobuf_free(&reply);
+    iobuf_push_u8(reply, DHCPV6_MSG_REPLY);
+    iobuf_push_be24(reply, transaction);
+    dhcp_fill_server_id(dhcp, reply);
+    dhcp_fill_client_id(dhcp, reply, hwaddr_type, hwaddr);
+    dhcp_fill_identity_association(dhcp, reply, hwaddr, iaid);
+    dhcp_fill_rapid_commit(dhcp, reply);
+    return 0;
 }
 
 void dhcp_recv(struct dhcp_server *dhcp)
@@ -354,6 +347,7 @@ void dhcp_recv(struct dhcp_server *dhcp)
     socklen_t src_addr_len = sizeof(struct sockaddr_in6);
     struct sockaddr_in6 src_addr;
     struct iobuf_read req = { };
+    struct iobuf_write reply = { };
     uint8_t buf[1024];
 
     req.data = buf;
@@ -363,7 +357,12 @@ void dhcp_recv(struct dhcp_server *dhcp)
         WARN("only IPv6 is supported");
         return;
     }
-    dhcp_handle_request(dhcp, &src_addr, &req, NULL);
+    TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
+          val_to_str(req.data[0], dhcp_frames, "[UNK]"),
+          tr_ipv6(src_addr.sin6_addr.s6_addr));
+    if (!dhcp_handle_request(dhcp, &req, &reply))
+        dhcp_send_reply(dhcp, &src_addr, &reply);
+    iobuf_free(&reply);
 }
 
 void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, uint8_t *prefix)
