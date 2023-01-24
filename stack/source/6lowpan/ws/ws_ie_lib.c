@@ -335,15 +335,16 @@ int ws_wp_base_write(struct iobuf_write *buf)
     return ieee802154_ie_push_payload(buf, IEEE802154_IE_ID_WP);
 }
 
-static uint8_t ws_wp_channel_info_base_get(ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
-    uint8_t channel_info_base = 0;
-    channel_info_base = generic_channel_info->channel_plan;
-    channel_info_base |= (generic_channel_info->channel_function << 3);
-    //Set Excluded Channel control part
-    channel_info_base |= (generic_channel_info->excluded_channel_ctrl << 6);
+    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
+    const uint8_t func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
+    uint8_t tmp8 = 0;
 
-    return channel_info_base;
+    tmp8 |= FIELD_PREP(WS_WP_SCHEDULE_IE_CHAN_PLAN_MASK, hopping_schedule->channel_plan);
+    tmp8 |= FIELD_PREP(WS_WP_SCHEDULE_IE_CHAN_FUNC_MASK, func);
+    tmp8 |= FIELD_PREP(WS_WP_SCHEDULE_IE_EXCL_CHAN_CTL_MASK, excl->excluded_channel_ctrl);
+    iobuf_push_u8(buf, tmp8);
 }
 
 static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule)
@@ -423,7 +424,7 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
 
     // Write a generic part of shedule
-    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
+    ws_wp_schedule_base_write(buf, hopping_schedule, unicast_schedule);
     ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_chan_func_write(buf, hopping_schedule, unicast_schedule);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
@@ -561,7 +562,7 @@ void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
 
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
     iobuf_push_u8(buf, tag);
-    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
+    ws_wp_schedule_base_write(buf, hopping_schedule, true); // Write unicast schedule
     ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_chan_func_write(buf, hopping_schedule, true);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
