@@ -2,6 +2,8 @@
 #include <limits.h>
 #include <string.h>
 
+#include <ns3/abort.h>
+
 extern "C" {
 #include "app_wsbrd/libwsbrd.h"
 #include "common/utils.h"
@@ -36,5 +38,5 @@ void wsbr_ns3_main(const char *config_filename)
 // exit() is not thread-safe, so aborting is preferred.
 extern "C" void __wrap_exit(int status)
 {
-    std::terminate();
+    NS_ABORT_MSG("wsbrd exited");
 }
