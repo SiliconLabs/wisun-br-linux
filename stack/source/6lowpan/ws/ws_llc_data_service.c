@@ -1752,10 +1752,81 @@ mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
     return &base->mpx_data_base.mpx_api;
 }
 
-int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
+// TODO: Factorize this further with EAPOL and MPX requests?
+static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
+                              wh_ie_sub_list_t wh_ies, wp_nested_ie_sub_list_t wp_ies)
 {
     int ie_offset;
 
+    if (wh_ies.utt_ie)
+        ws_wh_utt_write(&msg->ie_buf_header, msg->message_type);
+    if (wh_ies.bt_ie)
+        ws_wh_bt_write(&msg->ie_buf_header);
+    if (wh_ies.lutt_ie)
+        ws_wh_lutt_write(&msg->ie_buf_header, msg->message_type);
+    if (wh_ies.lbt_ie)
+        ws_wh_lbt_write(&msg->ie_buf_header, NULL);
+    if (wh_ies.nr_ie)
+        ws_wh_nr_write(&msg->ie_buf_header, base->ie_params.node_role);
+    if (wh_ies.lus_ie)
+        ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
+    if (wh_ies.flus_ie)
+        ws_wh_flus_write(&msg->ie_buf_header, base->ie_params.ffn_lfn_us);
+    if (wh_ies.lbs_ie)
+        ws_wh_lbs_write(&msg->ie_buf_header, base->ie_params.lfn_bs);
+    if (wh_ies.lnd_ie)
+        ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
+    if (wh_ies.lto_ie)
+        ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing);
+    if (wh_ies.panid_ie)
+        ws_wh_panid_write(&msg->ie_buf_header, base->ie_params.pan_id);
+    if (wh_ies.lbc_ie)
+        ws_wh_lbc_write(&msg->ie_buf_header, base->interface_ptr->ws_info->cfg->fhss.lfn_bc_interval,
+                        base->interface_ptr->ws_info->cfg->fhss.lfn_bc_sync_period);
+    msg->ie_iov_header.iov_base = msg->ie_buf_header.data;
+    msg->ie_iov_header.iov_len = msg->ie_buf_header.len;
+    msg->ie_ext.headerIeVectorList = &msg->ie_iov_header;
+    msg->ie_ext.headerIovLength = 1;
+
+    if (!ws_wp_nested_is_empty(wp_ies)) {
+        ie_offset = ws_wp_base_write(&msg->ie_buf_payload);
+        if (wp_ies.us_ie)
+            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, base->ie_params.hopping_schedule, true);
+        if (wp_ies.bs_ie)
+            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, base->ie_params.hopping_schedule, false);
+        if (wp_ies.pan_ie)
+            ws_wp_nested_pan_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
+        if (wp_ies.net_name_ie)
+            ws_wp_nested_netname_write(&msg->ie_buf_payload, base->ie_params.network_name, base->ie_params.network_name_length);
+        if (wp_ies.pan_version_ie)
+            ws_wp_nested_panver_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
+        if (wp_ies.gtkhash_ie)
+            ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
+        if (wp_ies.vp_ie)
+            ws_wp_nested_vp_write(&msg->ie_buf_payload, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
+        if (ws_version_1_1(base->interface_ptr)) {
+            // We put only POM-IE if more than 1 phy (base phy + something else)
+            if (wp_ies.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
+                ws_wp_nested_pom_write(&msg->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+            if (wp_ies.lcp_ie)
+                ws_wp_nested_lcp_write(&msg->ie_buf_payload, base->ie_params.lfn_channel_plan);
+            if (wp_ies.lfnver_ie)
+                ws_wp_nested_lfnver_write(&msg->ie_buf_payload, base->interface_ptr->ws_info->pan_information.lpan_version);
+            if (wp_ies.lgtkhash_ie)
+                ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
+            if (wp_ies.lbats_ie)
+                ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
+        }
+        ieee802154_ie_fill_len_payload(&msg->ie_buf_payload, ie_offset);
+    }
+    msg->ie_iov_payload[0].iov_len = msg->ie_buf_payload.len;
+    msg->ie_iov_payload[0].iov_base = msg->ie_buf_payload.data;
+    msg->ie_ext.payloadIeVectorList = &msg->ie_iov_payload[0];
+    msg->ie_ext.payloadIovLength = 1;
+}
+
+int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
+{
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base || !base->ie_params.hopping_schedule) {
         return -1;
@@ -1807,72 +1878,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         data_req.PanIdSuppressed = true;
     }
 
-    if (request->wh_requested_ie_list.utt_ie)
-        ws_wh_utt_write(&message->ie_buf_header, message->message_type);
-    if (request->wh_requested_ie_list.bt_ie)
-        ws_wh_bt_write(&message->ie_buf_header);
-    if (request->wh_requested_ie_list.lutt_ie)
-        ws_wh_lutt_write(&message->ie_buf_header, message->message_type);
-    if (request->wh_requested_ie_list.lbt_ie)
-        ws_wh_lbt_write(&message->ie_buf_header, NULL);
-    if (request->wh_requested_ie_list.nr_ie)
-        ws_wh_nr_write(&message->ie_buf_header, base->ie_params.node_role);
-    if (request->wh_requested_ie_list.lus_ie)
-        ws_wh_lus_write(&message->ie_buf_header, base->ie_params.lfn_us);
-    if (request->wh_requested_ie_list.flus_ie)
-        ws_wh_flus_write(&message->ie_buf_header, base->ie_params.ffn_lfn_us);
-    if (request->wh_requested_ie_list.lbs_ie)
-        ws_wh_lbs_write(&message->ie_buf_header, base->ie_params.lfn_bs);
-    if (request->wh_requested_ie_list.lnd_ie)
-        ws_wh_lnd_write(&message->ie_buf_header, base->ie_params.lfn_network_discovery);
-    if (request->wh_requested_ie_list.lto_ie)
-        ws_wh_lto_write(&message->ie_buf_header, base->ie_params.lfn_timing);
-    if (request->wh_requested_ie_list.panid_ie)
-        ws_wh_panid_write(&message->ie_buf_header, base->ie_params.pan_id);
-    if (request->wh_requested_ie_list.lbc_ie)
-        ws_wh_lbc_write(&message->ie_buf_header, interface->ws_info->cfg->fhss.lfn_bc_interval,
-                        interface->ws_info->cfg->fhss.lfn_bc_sync_period);
-    message->ie_iov_header.iov_base = message->ie_buf_header.data;
-    message->ie_iov_header.iov_len = message->ie_buf_header.len;
-    message->ie_ext.headerIeVectorList = &message->ie_iov_header;
-    message->ie_ext.headerIovLength = 1;
-
-    if (!ws_wp_nested_is_empty(request->wp_requested_nested_ie_list)) {
-        ie_offset = ws_wp_base_write(&message->ie_buf_payload);
-        if (request->wp_requested_nested_ie_list.us_ie)
-            ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, true);
-        if (request->wp_requested_nested_ie_list.bs_ie)
-            ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, false);
-        if (request->wp_requested_nested_ie_list.pan_ie)
-            ws_wp_nested_pan_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
-        if (request->wp_requested_nested_ie_list.net_name_ie)
-            ws_wp_nested_netname_write(&message->ie_buf_payload, base->ie_params.network_name, base->ie_params.network_name_length);
-        if (request->wp_requested_nested_ie_list.pan_version_ie)
-            ws_wp_nested_panver_write(&message->ie_buf_payload, base->ie_params.pan_configuration);
-        if (request->wp_requested_nested_ie_list.gtkhash_ie)
-            ws_wp_nested_gtkhash_write(&message->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
-        if (request->wp_requested_nested_ie_list.vp_ie)
-            ws_wp_nested_vp_write(&message->ie_buf_payload, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
-        if (ws_version_1_1(interface)) {
-            // We put only POM-IE if more than 1 phy (base phy + something else)
-            if (request->wp_requested_nested_ie_list.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
-                ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
-            if (request->wp_requested_nested_ie_list.lcp_ie)
-                ws_wp_nested_lcp_write(&message->ie_buf_payload, base->ie_params.lfn_channel_plan);
-            if (request->wp_requested_nested_ie_list.lfnver_ie)
-                ws_wp_nested_lfnver_write(&message->ie_buf_payload, interface->ws_info->pan_information.lpan_version);
-            if (request->wp_requested_nested_ie_list.lgtkhash_ie)
-                ws_wp_nested_lgtkhash_write(&message->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));
-            if (request->wp_requested_nested_ie_list.lbats_ie)
-                ws_wp_nested_lbats_write(&message->ie_buf_payload, base->ie_params.lbats_ie);
-        }
-        ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
-    }
-    message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
-    message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
-    message->ie_ext.payloadIeVectorList = &message->ie_iov_payload[0];
-    message->ie_ext.payloadIovLength = 1;
-
+    ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
     base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
 
