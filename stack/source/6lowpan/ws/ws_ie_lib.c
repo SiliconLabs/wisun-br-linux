@@ -67,21 +67,17 @@ static int ws_wh_header_base_write(struct iobuf_write *buf, uint8_t type)
     return offset;
 }
 
-static uint16_t ws_channel_plan_length(uint8_t channel_plan)
+static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_schedule)
 {
-    switch (channel_plan) {
-        case 0:
-            //Regulator domain and operationg class inline
-            return 2;
-        case 1:
-            //CHo, Channel spasing and number of channel's inline
-            return 6;
-        case 2:
-            //Regulator domain and channel plan ID inline
-            return 2;
-
-        default:
-            return 0;
+    switch (hopping_schedule->channel_plan) {
+    case 0:
+        return 2; // reg domain, op class
+    case 1:
+        return 6; // ch0, chan spacing, chan count
+    case 2:
+        return 2; // reg domain, chan plan id
+    default:
+        BUG("Unsupported channel plan: %u", hopping_schedule->channel_plan);
     }
 }
 
@@ -118,7 +114,6 @@ static uint16_t ws_excluded_channel_length(ws_generic_channel_info_t *generic_ch
 
 static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_schedule, ws_generic_channel_info_t *generic_channel_info, bool unicast_schedule)
 {
-    generic_channel_info->channel_plan = hopping_schedule->channel_plan;
     if (unicast_schedule) {
         generic_channel_info->channel_function = hopping_schedule->uc_channel_function;
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->uc_excluded_channels.excluded_channel_ctrl;
@@ -141,29 +136,6 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_sch
             generic_channel_info->excluded_channels.mask_out.excluded_channel_count = hopping_schedule->bc_excluded_channels.excluded_channel_count;
             generic_channel_info->excluded_channels.mask_out.channel_mask = hopping_schedule->bc_excluded_channels.channel_mask;
         }
-    }
-}
-
-static void ws_wp_channel_plan_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule *hopping_schedule)
-{
-    switch (generic_channel_info->channel_plan) {
-        case 0:
-            //Regulator domain and operationg class inline
-            generic_channel_info->plan.zero.regulatory_domain = hopping_schedule->regulatory_domain;
-            generic_channel_info->plan.zero.operating_class = hopping_schedule->operating_class;
-            break;
-        case 1:
-            //CHo, Channel spasing and number of channel's inline
-            generic_channel_info->plan.one.ch0 = hopping_schedule->ch0_freq / 1000;
-            generic_channel_info->plan.one.channel_spacing = hopping_schedule->channel_spacing;
-            generic_channel_info->plan.one.number_of_channel = hopping_schedule->number_of_channels;
-            break;
-        case 2:
-            generic_channel_info->plan.two.regulatory_domain = hopping_schedule->regulatory_domain;
-            generic_channel_info->plan.two.channel_plan_id = hopping_schedule->channel_plan_id;
-            break;
-        default:
-            break;
     }
 }
 
@@ -198,7 +170,6 @@ static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *gen
 {
     uint16_t length = 1;
 
-    length += ws_channel_plan_length(generic_channel_info->channel_plan);
     uint16_t number_of_channels = 1;
     if (generic_channel_info->channel_plan == 3) {
         number_of_channels = generic_channel_info->function.three.channel_hop_count;
@@ -224,6 +195,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
     } else {
         length = 9;
     }
+    length += ws_chan_plan_len(hopping_schedule);
     length += ws_wp_generic_schedule_length_get(&generic_channel_info);
     return length;
 }
@@ -414,26 +386,24 @@ static uint8_t ws_wp_channel_info_base_get(ws_generic_channel_info_t *generic_ch
     return channel_info_base;
 }
 
-static void ws_wp_channel_plan_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule)
 {
-    switch (generic_channel_info->channel_plan) {
-        case 0:
-            //Regulator domain and operationg class inline
-            iobuf_push_u8(buf, generic_channel_info->plan.zero.regulatory_domain);
-            iobuf_push_u8(buf, generic_channel_info->plan.zero.operating_class);
-            break;
-        case 1:
-            //CHo, Channel spasing and number of channel's inline
-            iobuf_push_le16(buf, generic_channel_info->plan.one.ch0);
-            iobuf_push_u8(buf, generic_channel_info->plan.one.channel_spacing);
-            iobuf_push_le16(buf, generic_channel_info->plan.one.number_of_channel);
-            break;
-        case 2:
-            iobuf_push_u8(buf, generic_channel_info->plan.two.regulatory_domain);
-            iobuf_push_u8(buf, generic_channel_info->plan.two.channel_plan_id);
-            break;
-        default:
-            break;
+    switch (hopping_schedule->channel_plan) {
+    case 0:
+        iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
+        iobuf_push_u8(buf, hopping_schedule->operating_class);
+        break;
+    case 1:
+        iobuf_push_le16(buf, hopping_schedule->ch0_freq / 1000);
+        iobuf_push_u8(buf, hopping_schedule->channel_spacing);
+        iobuf_push_le16(buf, hopping_schedule->number_of_channels);
+        break;
+    case 2:
+        iobuf_push_u8(buf, hopping_schedule->regulatory_domain);
+        iobuf_push_u8(buf, hopping_schedule->channel_plan_id);
+        break;
+    default:
+        BUG("Unsupported channel plan: %u", hopping_schedule->channel_plan);
     }
 }
 
@@ -491,7 +461,6 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
     int offset;
 
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast_schedule);
-    ws_wp_channel_plan_set(&generic_channel_info, hopping_schedule);
     ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, unicast_schedule);
 
     if (!unicast_schedule) {
@@ -508,7 +477,7 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
 
     // Write a generic part of shedule
     iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
-    ws_wp_channel_plan_write(buf, &generic_channel_info);
+    ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_channel_function_write(buf, &generic_channel_info);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
     ieee802154_ie_fill_len_nested(buf, offset, true);
@@ -642,13 +611,12 @@ void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
 
     // Retrieve unicast schedule
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, true);
-    ws_wp_channel_plan_set(&generic_channel_info, hopping_schedule);
     ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, true);
 
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
     iobuf_push_u8(buf, tag);
     iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
-    ws_wp_channel_plan_write(buf, &generic_channel_info);
+    ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_channel_function_write(buf, &generic_channel_info);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
     ieee802154_ie_fill_len_nested(buf, offset, true);
