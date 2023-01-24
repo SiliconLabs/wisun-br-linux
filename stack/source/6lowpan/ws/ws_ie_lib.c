@@ -81,21 +81,18 @@ static uint16_t ws_chan_plan_len(const struct ws_hopping_schedule *hopping_sched
     }
 }
 
-static uint16_t ws_channel_function_length(uint8_t channel_function, uint16_t hop_channel_count)
+static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
-    switch (channel_function) {
-        case 0:
-            //Fixed channel inline
-            return 2;
-        case 1:
-        case 2:
-            return 0;
-        case 3:
-            //Hop count + channel hop list
-            return (1 + hop_channel_count);
-        default:
-            return 0;
+    const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
 
+    switch (chan_func) {
+    case CHANNEL_FUNCTION_FIXED:
+        return 2;
+    case CHANNEL_FUNCTION_DH1CF:
+    case CHANNEL_FUNCTION_TR51CF:
+        return 0;
+    default:
+        BUG("Unsupported channel function: %d", chan_func);
     }
 }
 
@@ -115,7 +112,6 @@ static uint16_t ws_excluded_channel_length(ws_generic_channel_info_t *generic_ch
 static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_schedule, ws_generic_channel_info_t *generic_channel_info, bool unicast_schedule)
 {
     if (unicast_schedule) {
-        generic_channel_info->channel_function = hopping_schedule->uc_channel_function;
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->uc_excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             generic_channel_info->excluded_channels.range_out.excluded_range_length = hopping_schedule->uc_excluded_channels.excluded_range_length;
@@ -126,7 +122,6 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_sch
             generic_channel_info->excluded_channels.mask_out.channel_mask = hopping_schedule->uc_excluded_channels.channel_mask;
         }
     } else {
-        generic_channel_info->channel_function = hopping_schedule->bc_channel_function;
         generic_channel_info->excluded_channel_ctrl = hopping_schedule->bc_excluded_channels.excluded_channel_ctrl;
         if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
             generic_channel_info->excluded_channels.range_out.excluded_range_length = hopping_schedule->bc_excluded_channels.excluded_range_length;
@@ -139,44 +134,9 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_sch
     }
 }
 
-static void ws_wp_channel_function_set(ws_generic_channel_info_t *generic_channel_info, struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
-{
-    switch (generic_channel_info->channel_function) {
-        case 0:
-            //Fixed channel inline
-            if (unicast_schedule) {
-                generic_channel_info->function.zero.fixed_channel = hopping_schedule->uc_fixed_channel;
-            } else {
-                generic_channel_info->function.zero.fixed_channel = hopping_schedule->bc_fixed_channel;
-            }
-            break;
-        case 1:
-        case 2:
-            //No Inline
-            break;
-        case 3:
-            //TODO add list to possible to set
-            //Force 1 channel 0
-            generic_channel_info->function.three.channel_hop_count = 1;
-            generic_channel_info->function.three.channel_list = NULL;
-            break;
-        default:
-            break;
-
-    }
-}
-
 static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *generic_channel_info)
 {
     uint16_t length = 1;
-
-    uint16_t number_of_channels = 1;
-    if (generic_channel_info->channel_plan == 3) {
-        number_of_channels = generic_channel_info->function.three.channel_hop_count;
-    } else {
-        number_of_channels = 1;
-    }
-    length += ws_channel_function_length(generic_channel_info->channel_function, number_of_channels);
 
     length += ws_excluded_channel_length(generic_channel_info);
 
@@ -188,7 +148,6 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
     ws_generic_channel_info_t generic_channel_info;
 
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast_schedule);
-    ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, unicast_schedule);
     uint16_t length;
     if (unicast_schedule) {
         length = 3;
@@ -196,6 +155,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
         length = 9;
     }
     length += ws_chan_plan_len(hopping_schedule);
+    length += ws_chan_func_len(hopping_schedule, unicast_schedule);
     length += ws_wp_generic_schedule_length_get(&generic_channel_info);
     return length;
 }
@@ -407,31 +367,19 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
-static void ws_wp_channel_function_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
-    switch (generic_channel_info->channel_function) {
-        case 0:
-            //Fixed channel inline
-            iobuf_push_le16(buf, generic_channel_info->function.zero.fixed_channel);
-            break;
-        case 1:
-        case 2:
-            //No Inline
-            break;
-        case 3:
-            //TODO do this properly
-            //Hop count + channel hop list
-            if (generic_channel_info->function.three.channel_list && generic_channel_info->function.three.channel_hop_count) {
-                iobuf_push_u8(buf, generic_channel_info->function.three.channel_hop_count);
-                iobuf_push_data(buf, generic_channel_info->function.three.channel_list,
-                                generic_channel_info->function.three.channel_hop_count);
-            } else {
-                iobuf_push_u8(buf, 1);
-                iobuf_push_u8(buf, 0);
-            }
-            break;
-        default:
-            break;
+    const uint8_t chan_func = unicast ? hopping_schedule->uc_channel_function : hopping_schedule->bc_channel_function;
+
+    switch (chan_func) {
+    case CHANNEL_FUNCTION_FIXED:
+        iobuf_push_le16(buf, unicast ? hopping_schedule->uc_fixed_channel : hopping_schedule->bc_fixed_channel);
+        break;
+    case CHANNEL_FUNCTION_DH1CF:
+    case CHANNEL_FUNCTION_TR51CF:
+        break;
+    default:
+        BUG("Unsupported channel function: %d", chan_func);
     }
 }
 
@@ -461,7 +409,6 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
     int offset;
 
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast_schedule);
-    ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, unicast_schedule);
 
     if (!unicast_schedule) {
         offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_BS_TYPE, true);
@@ -478,7 +425,7 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
     // Write a generic part of shedule
     iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
     ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_channel_function_write(buf, &generic_channel_info);
+    ws_wp_chan_func_write(buf, hopping_schedule, unicast_schedule);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
@@ -611,13 +558,12 @@ void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
 
     // Retrieve unicast schedule
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, true);
-    ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, true);
 
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
     iobuf_push_u8(buf, tag);
     iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
     ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_channel_function_write(buf, &generic_channel_info);
+    ws_wp_chan_func_write(buf, hopping_schedule, true);
     ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
