@@ -253,7 +253,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         ERROR("Missing LCP-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
         return;
     }
-    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPAS))
         return;
 
     // [...] an FFN MUST ignore the LPAS if [...]
