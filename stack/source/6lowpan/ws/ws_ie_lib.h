@@ -53,7 +53,9 @@ void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);
 void  ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie);
 void   ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie);
 void   ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie);
-void    ws_wh_nr_write(struct iobuf_write *buf, struct ws_nr_ie *nr_ie);
+void    ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
+                       uint8_t clock_drift, uint8_t timing_accuracy,
+                       uint24_t listen_interval_min, uint24_t listen_interval_max);
 void   ws_wh_lnd_write(struct iobuf_write *buf, struct ws_lnd_ie *lnd_ie);
 void   ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie);
 void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie);

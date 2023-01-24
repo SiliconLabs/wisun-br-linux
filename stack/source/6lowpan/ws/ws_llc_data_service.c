@@ -86,7 +86,6 @@ typedef struct llc_ie_params {
     uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
-    ws_nr_ie_t              *node_role;             /**< Node Role */
     ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
     ws_flus_ie_t            *ffn_lfn_us;            /**< FFN to LFN Unicast schedule */
     ws_lbs_ie_t             *lfn_bs;                /**< LFN Broadcast schedule */
@@ -1767,7 +1766,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.lbt_ie)
         ws_wh_lbt_write(&msg->ie_buf_header, NULL);
     if (wh_ies.nr_ie)
-        ws_wh_nr_write(&msg->ie_buf_header, base->ie_params.node_role);
+        // TODO: Provide clock drift and timing accuracy
+        // TODO: Make the LFN listening interval configurable (currently it is 5s-4.66h)
+        ws_wh_nr_write(&msg->ie_buf_header, WS_NR_ROLE_BR, 255, 0, 5000, 1680000);
     if (wh_ies.lus_ie)
         ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
     if (wh_ies.flus_ie)
