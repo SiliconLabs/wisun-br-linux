@@ -89,7 +89,7 @@ uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hoppin
 /* Wi-SUN FAN 1.1 */
 void              ws_wp_nested_pom_write(struct iobuf_write *buf, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
 void            ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
-void           ws_wp_nested_lfnver_write(struct iobuf_write *buf, struct ws_lfnver_ie *ws_lfnver);
+void           ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version);
 void         ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
 void              ws_wp_nested_lcp_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp);
 

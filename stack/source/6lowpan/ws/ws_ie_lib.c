@@ -603,12 +603,12 @@ void ws_wp_nested_pom_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_lfnver_write(struct iobuf_write *buf, struct ws_lfnver_ie *lfnver_ie)
+void ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version)
 {
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LFN_VER_TYPE, false);
-    iobuf_push_le16(buf, lfnver_ie->lfn_version);
+    iobuf_push_le16(buf, version);
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 

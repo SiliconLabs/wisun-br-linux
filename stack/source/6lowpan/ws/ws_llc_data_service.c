@@ -1859,12 +1859,8 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
                 ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             if (request->wp_requested_nested_ie_list.lcp_ie)
                 ws_wp_nested_lcp_write(&message->ie_buf_payload, base->ie_params.lfn_channel_plan);
-            if (request->wp_requested_nested_ie_list.lfnver_ie) {
-                ws_lfnver_ie_t lfn_ver;
-                //Write LFN Version
-                lfn_ver.lfn_version = interface->ws_info->pan_information.lpan_version;
-                ws_wp_nested_lfnver_write(&message->ie_buf_payload, &lfn_ver);
-            }
+            if (request->wp_requested_nested_ie_list.lfnver_ie)
+                ws_wp_nested_lfnver_write(&message->ie_buf_payload, interface->ws_info->pan_information.lpan_version);
             if (request->wp_requested_nested_ie_list.lgtkhash_ie)
                 ws_wp_nested_lgtkhash_write(&message->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(interface));
             if (request->wp_requested_nested_ie_list.lbats_ie)
