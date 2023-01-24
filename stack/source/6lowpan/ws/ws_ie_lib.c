@@ -369,6 +369,14 @@ static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
+static void ws_wp_schedule_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
+{
+    ws_wp_schedule_base_write(buf, hopping_schedule, unicast);
+    ws_wp_chan_plan_write(buf, hopping_schedule);
+    ws_wp_chan_func_write(buf, hopping_schedule, unicast);
+    ws_wp_chan_excl_write(buf, hopping_schedule, unicast);
+}
+
 void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule)
 {
     int offset;
@@ -377,10 +385,7 @@ void ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, hopping_schedule->fhss_uc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
-    ws_wp_schedule_base_write(buf, hopping_schedule, true);
-    ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_chan_func_write(buf, hopping_schedule, true);
-    ws_wp_chan_excl_write(buf, hopping_schedule, true);
+    ws_wp_schedule_write(buf, hopping_schedule, true);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -394,10 +399,7 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, hopping_schedule->fhss_bc_dwell_interval);
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
-    ws_wp_schedule_base_write(buf, hopping_schedule, false);
-    ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_chan_func_write(buf, hopping_schedule, false);
-    ws_wp_chan_excl_write(buf, hopping_schedule, false);
+    ws_wp_schedule_write(buf, hopping_schedule, false);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -528,10 +530,7 @@ void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
 
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
     iobuf_push_u8(buf, tag);
-    ws_wp_schedule_base_write(buf, hopping_schedule, true); // Write unicast schedule
-    ws_wp_chan_plan_write(buf, hopping_schedule);
-    ws_wp_chan_func_write(buf, hopping_schedule, true);
-    ws_wp_chan_excl_write(buf, hopping_schedule, true);
+    ws_wp_schedule_write(buf, hopping_schedule, true); // Write unicast schedule
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
