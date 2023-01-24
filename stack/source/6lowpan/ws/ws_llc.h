@@ -244,14 +244,6 @@ void  ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash);
  */
 void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_information *pan_information_pointer);
 
-/**
- * @brief ws_llc_hopping_schedule_config Configure channel hopping
- * @param interface Interface pointer
- * @param hopping_schedule pointer to Channel hopping schedule
- *
- */
-void ws_llc_hopping_schedule_config(struct net_if *interface, struct ws_hopping_schedule *hopping_schedule);
-
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);

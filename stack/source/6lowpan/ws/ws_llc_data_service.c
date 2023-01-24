@@ -79,7 +79,6 @@ typedef struct llc_ie_params {
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
-    struct ws_hopping_schedule *hopping_schedule;/**< Channel hopping schedule */
     gtkhash_t               *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
@@ -993,12 +992,14 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
         }
 
         //Dynamic length
-        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(base->ie_params.hopping_schedule, true) + ws_wp_nested_hopping_schedule_length(base->ie_params.hopping_schedule, false);
-
+        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
-        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH + ws_wp_nested_hopping_schedule_length(base->ie_params.hopping_schedule, true);
+        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, true);
     }
     return header_size;
 }
@@ -1137,9 +1138,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buf_payload);
-    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, true);
+    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, true);
     if (!data->TxAckReq)
-        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, false);
+        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, false);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
         ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
@@ -1246,9 +1247,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buf_payload);
-    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, true);
+    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, true);
     if (eapol_handshake_first_msg)
-        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, base->ie_params.hopping_schedule, false);
+        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, false);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1277,16 +1278,6 @@ static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data
 
     mpx_user_t *user_cb = ws_llc_mpx_user_discover(&base->mpx_data_base, user_id);
     if (!user_cb || !user_cb->data_confirm || !user_cb->data_ind) {
-        return;
-    }
-
-    if (!base->ie_params.hopping_schedule) {
-        tr_error("Missing FHSS configurations");
-        mcps_data_conf_t data_conf;
-        memset(&data_conf, 0, sizeof(mcps_data_conf_t));
-        data_conf.msduHandle = data->msduHandle;
-        data_conf.status = MLME_TRANSACTION_OVERFLOW;
-        user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
         return;
     }
 
@@ -1792,9 +1783,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (!ws_wp_nested_is_empty(wp_ies)) {
         ie_offset = ws_wp_base_write(&msg->ie_buf_payload);
         if (wp_ies.us_ie)
-            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, base->ie_params.hopping_schedule, true);
+            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, true);
         if (wp_ies.bs_ie)
-            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, base->ie_params.hopping_schedule, false);
+            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, false);
         if (wp_ies.pan_ie)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
         if (wp_ies.net_name_ie)
@@ -1829,9 +1820,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
 int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base || !base->ie_params.hopping_schedule) {
+    if (!base)
         return -1;
-    }
 
     if (base->high_priority_mode) {
         //Drop asynch messages at High Priority mode
@@ -2025,15 +2015,6 @@ void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_
     }
 
     base->ie_params.pan_configuration = pan_information_pointer;
-}
-
-void ws_llc_hopping_schedule_config(struct net_if *interface, struct ws_hopping_schedule *hopping_schedule)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-    base->ie_params.hopping_schedule = hopping_schedule;
 }
 
 void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes)

@@ -1822,7 +1822,6 @@ static void ws_bootstrap_mac_activate(struct net_if *cur, uint16_t channel, uint
 void ws_bootstrap_fhss_activate(struct net_if *cur)
 {
     ws_bootstrap_fhss_enable(cur);
-    ws_llc_hopping_schedule_config(cur, &cur->ws_info->hopping_schedule);
     // Only supporting fixed channel
 
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
