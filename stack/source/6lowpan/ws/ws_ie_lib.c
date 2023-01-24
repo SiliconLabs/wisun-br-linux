@@ -143,19 +143,14 @@ static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *gen
     return length;
 }
 
-uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule)
+uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
     ws_generic_channel_info_t generic_channel_info;
+    uint16_t length = unicast ? 3 : 9;
 
-    ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast_schedule);
-    uint16_t length;
-    if (unicast_schedule) {
-        length = 3;
-    } else {
-        length = 9;
-    }
+    ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast);
     length += ws_chan_plan_len(hopping_schedule);
-    length += ws_chan_func_len(hopping_schedule, unicast_schedule);
+    length += ws_chan_func_len(hopping_schedule, unicast);
     length += ws_wp_generic_schedule_length_get(&generic_channel_info);
     return length;
 }
