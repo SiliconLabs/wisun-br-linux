@@ -634,16 +634,23 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_lcp_write(struct iobuf_write *buf, struct ws_lcp_ie *ws_lcp)
+void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
+                            struct ws_hopping_schedule *hopping_schedule)
 {
+    ws_generic_channel_info_t generic_channel_info;
     int offset;
 
+    // Retrieve unicast schedule
+    ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, true);
+    ws_wp_channel_plan_set(&generic_channel_info, hopping_schedule);
+    ws_wp_channel_function_set(&generic_channel_info, hopping_schedule, true);
+
     offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_LCP_TYPE, true);
-    iobuf_push_u8(buf, ws_lcp->lfn_channel_plan_tag);
-    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&ws_lcp->chan_plan));
-    ws_wp_channel_plan_write(buf, &ws_lcp->chan_plan);
-    ws_wp_channel_function_write(buf, &ws_lcp->chan_plan);
-    ws_wp_nested_excluded_channel_write(buf, &ws_lcp->chan_plan);
+    iobuf_push_u8(buf, tag);
+    iobuf_push_u8(buf, ws_wp_channel_info_base_get(&generic_channel_info));
+    ws_wp_channel_plan_write(buf, &generic_channel_info);
+    ws_wp_channel_function_write(buf, &generic_channel_info);
+    ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
