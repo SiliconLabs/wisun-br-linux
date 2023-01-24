@@ -1763,7 +1763,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.lus_ie)
         ws_wh_lus_write(&msg->ie_buf_header, base->ie_params.lfn_us);
     if (wh_ies.flus_ie)
-        ws_wh_flus_write(&msg->ie_buf_header, base->ie_params.ffn_lfn_us);
+        // Only a single chan plan tag is supported. (0)
+        ws_wh_flus_write(&msg->ie_buf_header, base->interface_ptr->ws_info->cfg->fhss.fhss_uc_dwell_interval, 0);
     if (wh_ies.lbs_ie)
         ws_wh_lbs_write(&msg->ie_buf_header, base->ie_params.lfn_bs);
     if (wh_ies.lnd_ie)

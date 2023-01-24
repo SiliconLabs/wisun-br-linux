@@ -307,13 +307,13 @@ void ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie)
+void ws_wh_flus_write(struct iobuf_write *buf, uint24_t dwell_interval, uint8_t tag)
 {
     int offset;
 
     offset = ws_wh_header_base_write(buf, WH_IE_FLUS_TYPE);
-    iobuf_push_u8(buf, flus_ie->dwell_interval);
-    iobuf_push_u8(buf, flus_ie->channel_plan_tag);
+    iobuf_push_u8(buf, dwell_interval);
+    iobuf_push_u8(buf, tag);
     ieee802154_ie_fill_len_header(buf, offset);
 }
 

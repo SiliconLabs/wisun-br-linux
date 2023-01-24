@@ -50,7 +50,7 @@ void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);
 /* Wi-SUN FAN 1.1 */
 void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
 void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);
-void  ws_wh_flus_write(struct iobuf_write *buf, struct ws_flus_ie *flus_ie);
+void  ws_wh_flus_write(struct iobuf_write *buf, uint24_t dwell_interval, uint8_t tag);
 void   ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie);
 void   ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie);
 void    ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
