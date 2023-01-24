@@ -52,7 +52,7 @@ void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
 void   ws_wh_lus_write(struct iobuf_write *buf, struct ws_lus_ie *lus_ie);
 void  ws_wh_flus_write(struct iobuf_write *buf, uint24_t dwell_interval, uint8_t tag);
 void   ws_wh_lbt_write(struct iobuf_write *buf, struct ws_lbt_ie *lbt_ie);
-void   ws_wh_lbs_write(struct iobuf_write *buf, struct ws_lbs_ie *lbs_ie);
+void   ws_wh_lbs_write(struct iobuf_write *buf, uint24_t interval, uint16_t sched_id, uint8_t tag, uint8_t sync_period);
 void    ws_wh_nr_write(struct iobuf_write *buf, uint8_t node_role,
                        uint8_t clock_drift, uint8_t timing_accuracy,
                        uint24_t listen_interval_min, uint24_t listen_interval_max);

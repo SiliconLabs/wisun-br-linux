@@ -1766,7 +1766,11 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         // Only a single chan plan tag is supported. (0)
         ws_wh_flus_write(&msg->ie_buf_header, base->interface_ptr->ws_info->cfg->fhss.fhss_uc_dwell_interval, 0);
     if (wh_ies.lbs_ie)
-        ws_wh_lbs_write(&msg->ie_buf_header, base->ie_params.lfn_bs);
+        // Only a single chan plan tag is supported. (0)
+        // TODO: use a separate LFN BSI
+        ws_wh_lbs_write(&msg->ie_buf_header, base->interface_ptr->ws_info->cfg->fhss.lfn_bc_interval,
+                        base->interface_ptr->ws_info->hopping_schedule.fhss_bsi, 0,
+                        base->interface_ptr->ws_info->cfg->fhss.lfn_bc_sync_period);
     if (wh_ies.lnd_ie)
         ws_wh_lnd_write(&msg->ie_buf_header, base->ie_params.lfn_network_discovery);
     if (wh_ies.lto_ie)
