@@ -14,7 +14,7 @@ int g_simulation_id;
 void wsbr_ns3_main(const char *config_filename)
 {
     char config_arg[PATH_MAX];
-    char *argv[5];
+    char *argv[6];
 
     BUG_ON(g_uart_cb.IsNull());
     BUG_ON(g_uart_fd < 0);
@@ -27,7 +27,8 @@ void wsbr_ns3_main(const char *config_filename)
     argv[1] = (char *)"-F";
     argv[2] = config_arg;
     argv[3] = (char *)"-u/dev/null"; // Provide a UART devive so parse_commandline succeeds
-    argv[4] = NULL;
+    argv[4] = (char *)"-D";
+    argv[5] = NULL;
 
     wsbr_main(ARRAY_SIZE(argv) - 1, argv); // Does not return
 }
