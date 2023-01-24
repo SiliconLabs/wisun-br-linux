@@ -54,6 +54,7 @@ enum {
     SPINEL_CMD_PROP_REMOVED        = 8, /* Unused */
 
     SPINEL_CMD_RCP_PING            = 24,
+    SPINEL_CMD_BOOTLOADER_UPDATE   = 25,
 
     SPINEL_CMD_VENDOR__BEGIN       = 0x3C00,
     SPINEL_CMD_VENDOR__END         = 0x4000,

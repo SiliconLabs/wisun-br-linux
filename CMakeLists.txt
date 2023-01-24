@@ -261,6 +261,19 @@ if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 
 endif()
 
+add_executable(wsbrd-fwup
+    app_wsbrd_fwup/app_wsbrd_fwup.c
+    common/bits.c
+    common/log.c
+    common/crc.c
+    common/bus_uart.c
+    common/spinel_buffer.c
+    common/iobuf.c
+    common/endian.c
+)
+target_include_directories(wsbrd-fwup PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+install(TARGETS wsbrd-fwup RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 if(COMPILE_SIMULATION_TOOLS)
 
     add_executable(wsnode
