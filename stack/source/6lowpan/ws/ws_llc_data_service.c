@@ -1138,9 +1138,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buf_payload);
-    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, true);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     if (!data->TxAckReq)
-        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, false);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
         ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
@@ -1247,9 +1247,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ws_wp_base_write(&message->ie_buf_payload);
-    ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, true);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     if (eapol_handshake_first_msg)
-        ws_wp_nested_hopping_schedule_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule, false);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1789,9 +1789,9 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (!ws_wp_nested_is_empty(wp_ies)) {
         ie_offset = ws_wp_base_write(&msg->ie_buf_payload);
         if (wp_ies.us_ie)
-            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, &info->hopping_schedule, true);
+            ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies.bs_ie)
-            ws_wp_nested_hopping_schedule_write(&msg->ie_buf_payload, &info->hopping_schedule, false);
+            ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies.pan_ie)
             ws_wp_nested_pan_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
         if (wp_ies.net_name_ie)
