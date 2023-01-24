@@ -1125,13 +1125,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         }
     }
 
-    if (data->ExtendedFrameExchange && data->TxAckReq) {
-        ws_fc_ie_t fc_ie;
-        fc_ie.tx_flow_ctrl = 50;//No data at initial frame
-        fc_ie.rx_flow_ctrl = 255;
+    if (data->ExtendedFrameExchange && data->TxAckReq)
         //Write Flow control for 1 packet send this will be modified at real data send
-        ws_wh_fc_write(&message->ie_buf_header, &fc_ie);
-    }
+        ws_wh_fc_write(&message->ie_buf_header, 50, 255); // No data at initial frame
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
     if (base->ie_params.vendor_header_length)
@@ -1599,7 +1595,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
 static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_response_t *response_message, ws_fc_ie_t fc_ie)
 {
     iobuf_free(&base->ws_enhanced_response_elements);
-    ws_wh_fc_write(&base->ws_enhanced_response_elements, &fc_ie);
+    ws_wh_fc_write(&base->ws_enhanced_response_elements, fc_ie.tx_flow_ctrl, fc_ie.rx_flow_ctrl);
     ws_wh_utt_write(&base->ws_enhanced_response_elements, WS_FT_DATA);
     ws_wh_bt_write(&base->ws_enhanced_response_elements);
     ws_wh_rsl_write(&base->ws_enhanced_response_elements, ws_neighbor_class_rsl_from_dbm_calculate(response_message->rssi));
@@ -1617,14 +1613,10 @@ static void  ws_llc_build_edfe_response(llc_data_base_t *base, mcps_edfe_respons
 static void ws_llc_build_edfe_frame(llc_message_t *message, mcps_edfe_response_t *response_message)
 {
     struct iobuf_write ie_buf = { };
-    ws_fc_ie_t fc_ie = {
-        .tx_flow_ctrl = 0, // Put Data with Handshake
-        .rx_flow_ctrl = 255,
-    };
 
     memset(&response_message->ie_response, 0, sizeof(mcps_data_req_ie_list_t));
     //Write Flow control for 1 packet send this will be modified at real data send
-    ws_wh_fc_write(&ie_buf, &fc_ie);
+    ws_wh_fc_write(&ie_buf, 0, 255); // Put Data with Handshake
     memcpy(message->ie_buf_header.data, ie_buf.data, ie_buf.len);
     iobuf_free(&ie_buf);
     response_message->ie_response.headerIeVectorList = &message->ie_iov_header;

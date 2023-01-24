@@ -43,7 +43,7 @@ typedef struct ws_wp_netname {
 /* WS_WH HEADER IE */
 void   ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type);
 void    ws_wh_bt_write(struct iobuf_write *buf);
-void    ws_wh_fc_write(struct iobuf_write *buf, struct ws_fc_ie *fc_ie);
+void    ws_wh_fc_write(struct iobuf_write *buf, uint8_t tx, uint8_t rx);
 void   ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl);
 void    ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length);
 void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);

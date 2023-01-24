@@ -249,13 +249,13 @@ void ws_wh_bt_write(struct iobuf_write *buf)
 }
 
 
-void ws_wh_fc_write(struct iobuf_write *buf, ws_fc_ie_t *fc_ie)
+void ws_wh_fc_write(struct iobuf_write *buf, uint8_t tx, uint8_t rx)
 {
     int offset;
 
     offset = ws_wh_header_base_write(buf, WH_IE_FC_TYPE);
-    iobuf_push_u8(buf, fc_ie->tx_flow_ctrl);
-    iobuf_push_u8(buf, fc_ie->rx_flow_ctrl);
+    iobuf_push_u8(buf, tx);
+    iobuf_push_u8(buf, rx);
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
