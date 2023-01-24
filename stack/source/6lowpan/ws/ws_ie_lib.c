@@ -389,12 +389,12 @@ void ws_wh_lto_write(struct iobuf_write *buf, struct ws_lto_ie *lto_ie)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_panid_write(struct iobuf_write *buf, struct ws_panid_ie *panid_ie)
+void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
 {
     int offset;
 
     offset = ws_wh_header_base_write(buf, WH_IE_PANID_TYPE);
-    iobuf_push_le16(buf, panid_ie->panid);
+    iobuf_push_le16(buf, panid);
     ieee802154_ie_fill_len_header(buf, offset);
 }
 

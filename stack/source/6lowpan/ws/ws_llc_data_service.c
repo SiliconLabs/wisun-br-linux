@@ -1772,7 +1772,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.lto_ie)
         ws_wh_lto_write(&msg->ie_buf_header, base->ie_params.lfn_timing);
     if (wh_ies.panid_ie)
-        ws_wh_panid_write(&msg->ie_buf_header, base->ie_params.pan_id);
+        ws_wh_panid_write(&msg->ie_buf_header, base->interface_ptr->ws_info->network_pan_id);
     if (wh_ies.lbc_ie)
         ws_wh_lbc_write(&msg->ie_buf_header, base->interface_ptr->ws_info->cfg->fhss.lfn_bc_interval,
                         base->interface_ptr->ws_info->cfg->fhss.lfn_bc_sync_period);
