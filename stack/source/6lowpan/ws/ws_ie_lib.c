@@ -96,17 +96,20 @@ static uint16_t ws_chan_func_len(const struct ws_hopping_schedule *hopping_sched
     }
 }
 
-static uint16_t ws_excluded_channel_length(ws_generic_channel_info_t *generic_channel_info)
+static uint16_t ws_chan_excl_len(const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
-    uint16_t length;
-    if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-        length = (generic_channel_info->excluded_channels.range_out.excluded_range_length * 4) + 1;
-    } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        length = generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline;
-    } else {
-        length = 0;
+    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
+
+    switch (excl->excluded_channel_ctrl) {
+    case WS_EXC_CHAN_CTRL_RANGE:
+        return 1 + 4 * excl->excluded_range_length;
+    case WS_EXC_CHAN_CTRL_BITMASK:
+        return excl->channel_mask_bytes_inline;
+    case WS_EXC_CHAN_CTRL_NONE:
+        return 0;
+    default:
+        BUG("Unsupported excluded channel control: %u", excl->excluded_channel_ctrl);
     }
-    return length;
 }
 
 static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_schedule, ws_generic_channel_info_t *generic_channel_info, bool unicast_schedule)
@@ -134,24 +137,16 @@ static void ws_generic_channel_info_init(struct ws_hopping_schedule *hopping_sch
     }
 }
 
-static uint16_t ws_wp_generic_schedule_length_get(ws_generic_channel_info_t *generic_channel_info)
-{
-    uint16_t length = 1;
-
-    length += ws_excluded_channel_length(generic_channel_info);
-
-    return length;
-}
-
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
     ws_generic_channel_info_t generic_channel_info;
     uint16_t length = unicast ? 3 : 9;
 
     ws_generic_channel_info_init(hopping_schedule, &generic_channel_info, unicast);
+    length++;
     length += ws_chan_plan_len(hopping_schedule);
     length += ws_chan_func_len(hopping_schedule, unicast);
-    length += ws_wp_generic_schedule_length_get(&generic_channel_info);
+    length += ws_chan_excl_len(hopping_schedule, unicast);
     return length;
 }
 
@@ -379,21 +374,25 @@ static void ws_wp_chan_func_write(struct iobuf_write *buf, const struct ws_hoppi
     }
 }
 
-static void ws_wp_nested_excluded_channel_write(struct iobuf_write *buf, ws_generic_channel_info_t *generic_channel_info)
+static void ws_wp_chan_excl_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
-    if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_RANGE) {
-        uint8_t range_length = generic_channel_info->excluded_channels.range_out.excluded_range_length;
-        ws_excluded_channel_range_data_t *range_ptr = generic_channel_info->excluded_channels.range_out.excluded_range;
-        iobuf_push_u8(buf, range_length);
-        while (range_length) {
-            iobuf_push_le16(buf, range_ptr->range_start);
-            iobuf_push_le16(buf, range_ptr->range_end);
-            range_length--;
-            range_ptr++;
+    const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;
+
+    switch (excl->excluded_channel_ctrl) {
+    case WS_EXC_CHAN_CTRL_RANGE:
+        iobuf_push_u8(buf, excl->excluded_range_length);
+        for (int i = 0; i < excl->excluded_range_length; i++) {
+            iobuf_push_le16(buf, excl->excluded_range[i].range_start);
+            iobuf_push_le16(buf, excl->excluded_range[i].range_end);
         }
-    } else if (generic_channel_info->excluded_channel_ctrl == WS_EXC_CHAN_CTRL_BITMASK) {
-        iobuf_push_data(buf, generic_channel_info->excluded_channels.mask_out.channel_mask,
-                        generic_channel_info->excluded_channels.mask_out.channel_mask_bytes_inline);
+        break;
+    case WS_EXC_CHAN_CTRL_BITMASK:
+        iobuf_push_data(buf, excl->channel_mask, excl->channel_mask_bytes_inline);
+        break;
+    case WS_EXC_CHAN_CTRL_NONE:
+        break;
+    default:
+        BUG("Unsupported excluded channel control: %u", excl->excluded_channel_ctrl);
     }
 }
 
@@ -422,7 +421,7 @@ void ws_wp_nested_hopping_schedule_write(struct iobuf_write *buf,
     ws_wp_schedule_base_write(buf, hopping_schedule, unicast_schedule);
     ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_chan_func_write(buf, hopping_schedule, unicast_schedule);
-    ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
+    ws_wp_chan_excl_write(buf, hopping_schedule, unicast_schedule);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
@@ -560,7 +559,7 @@ void ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag,
     ws_wp_schedule_base_write(buf, hopping_schedule, true); // Write unicast schedule
     ws_wp_chan_plan_write(buf, hopping_schedule);
     ws_wp_chan_func_write(buf, hopping_schedule, true);
-    ws_wp_nested_excluded_channel_write(buf, &generic_channel_info);
+    ws_wp_chan_excl_write(buf, hopping_schedule, true);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
