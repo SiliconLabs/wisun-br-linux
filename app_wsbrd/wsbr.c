@@ -451,8 +451,10 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
             i++;
     } while (ret < 1);
 
+    ctxt->os_ctxt->uart_inhibit_crc_warning = true;
     while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
+    ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
     if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
         FATAL(1, "RCP does not support FAN 1.1");

@@ -78,7 +78,7 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         fuzz_capture_timers(fuzz_ctxt);
         fuzz_capture(fuzz_ctxt, frame, frame_len);
     }
-    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len);
+    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
 

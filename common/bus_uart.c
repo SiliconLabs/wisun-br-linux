@@ -184,7 +184,7 @@ size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     return frame_len;
 }
 
-size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len)
+size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len, bool inhibit_crc_warning)
 {
     int i = 0, frame_len = 0;
 
@@ -205,7 +205,8 @@ size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t 
     } else {
         frame_len -= sizeof(uint16_t);
         if (!crc_check(out, frame_len, read_le16(out + frame_len))) {
-            WARN("bad crc, frame dropped");
+            if (!inhibit_crc_warning)
+                WARN("bad crc, frame dropped");
             return 0;
         }
     }
@@ -222,6 +223,6 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len);
+    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
