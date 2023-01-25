@@ -201,18 +201,3 @@ int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preferenc
 
     return 0;
 }
-
-uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id)
-{
-    if (!protocol_6lowpan_rpl_domain) {
-        return 0;
-    }
-
-    struct rpl_instance *instance = rpl_control_lookup_instance(protocol_6lowpan_rpl_domain, instance_id, dodag_ptr->dodag_id);
-    if (!instance) {
-        return 0;
-    }
-    return rpl_control_read_dodag_info(instance, dodag_ptr);
-}
-
-
