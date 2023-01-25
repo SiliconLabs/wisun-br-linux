@@ -202,41 +202,6 @@ int8_t arm_nwk_6lowpan_rpl_dodag_pref_set(int8_t interface_id, uint8_t preferenc
     return 0;
 }
 
-uint8_t rpl_instance_list_read(uint8_t *buffer_ptr, uint8_t buffer_size)
-{
-    uint8_t ret_val = 0;
-    struct rpl_instance *instance = NULL;
-
-    if (!protocol_6lowpan_rpl_domain) {
-        return 0;
-    }
-
-    while (buffer_size) {
-        instance = rpl_control_enumerate_instances(protocol_6lowpan_rpl_domain, instance);
-        if (!instance) {
-            break;
-        }
-        rpl_dodag_info_t dodag_info;
-        if (rpl_control_read_dodag_info(instance, &dodag_info)) {
-            /* First the instance ID */
-            *buffer_ptr++ = dodag_info.instance_id;
-            buffer_size--;
-            /* Then, if local, the DODAG ID */
-            if (rpl_instance_id_is_local(dodag_info.instance_id)) {
-                if (buffer_size < 16) {
-                    break;
-                }
-                memcpy(buffer_ptr, dodag_info.dodag_id, 16);
-                buffer_ptr += 16;
-                buffer_size -= 16;
-            }
-            ret_val++;
-        }
-    }
-
-    return ret_val;
-}
-
 uint8_t rpl_read_dodag_info(rpl_dodag_info_t *dodag_ptr, uint8_t instance_id)
 {
     if (!protocol_6lowpan_rpl_domain) {

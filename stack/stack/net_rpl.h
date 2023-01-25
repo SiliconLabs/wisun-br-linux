@@ -36,7 +36,6 @@
  * - arm_nwk_6lowpan_rpl_dodag_version_increment(), Increment the DODAG version to trigger a global DODAG repair.
  *
  * \section rpl-recommend RECOMMEND API for router and border router:
- * - rpl_instance_list_read(), Read active RPL instance list.
  * - rpl_read_dodag_info(), Read RPL DODAG information to rpl_dodag_info_t structure by selected RPL instance ID.
  *
  * \section rpl-dodag-init Steps to define a new RPL DODAG instance:
@@ -281,19 +280,6 @@ int8_t arm_nwk_6lowpan_rpl_dodag_dao_trig(int8_t interface_id);
   *
   */
 int8_t arm_nwk_6lowpan_rpl_dodag_version_increment(int8_t interface_id);
-/**
-  * \brief Read RPL instance list of a node.
-  *
-  * Global instances are output as a single byte containing the instance ID;
-  * local instances are output as the instance ID followed by the 16-byte DODAG ID.
-  *
-  * \param buffer_ptr A pointer to the location of the instance IDs.
-  * \param buffer_size Instance list buffer size.
-  *
-  * \return RPL instance count (not necessarily number of bytes, if local instances).
-  *
-  */
-uint8_t rpl_instance_list_read(uint8_t *buffer_ptr, uint8_t buffer_size);
 /**
   * \brief Read DODAG information by given RPL instance ID.
   *
