@@ -50,10 +50,10 @@ If it is not yet done, start by cloning this repository:
 
 ## Compiling
 
-The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, `libcap`, and
-`cmake`.`libsystemd` is also recommended (note that it can be replaced by
-`elogind` if you do not want to pull `systemd`). Optionally, you can also
-install `libpcap` and Rust/Cargo.
+The build requires `mbedTLS` (> 2.18), `libnl-3`, `libnl-route-3`, and `cmake`.
+`libcap` and `libsystemd` are also recommended (note that `libsystemd` can be
+replaced by `elogind` if you do not want to pull `systemd`). Optionally, you can
+also install `libpcap` and Rust/Cargo.
 
 We also encourage the use of Ninja as the `cmake` back-end.
 
