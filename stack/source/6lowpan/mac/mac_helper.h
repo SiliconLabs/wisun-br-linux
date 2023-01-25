@@ -43,7 +43,6 @@ int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_
 void mac_helper_coordinator_address_set(struct net_if *interface, enum addrtype adr_type, uint8_t *adr_ptr);
 enum addrtype mac_helper_coordinator_address_get(struct net_if *interface, uint8_t *adr_ptr);
 int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribute, bool value);
-int8_t mac_helper_mac_channel_set(struct net_if *interface, uint8_t new_channel);
 bool mac_helper_write_our_addr(struct net_if *interface, struct ns_sockaddr *ptr);
 int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64);
 uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead);

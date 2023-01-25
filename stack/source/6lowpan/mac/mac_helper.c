@@ -311,24 +311,6 @@ int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribut
     return 0;
 }
 
-int8_t mac_helper_mac_channel_set(struct net_if *interface, uint8_t new_channel)
-{
-
-    if (interface->mac_parameters.mac_channel != new_channel) {
-
-        interface->mac_parameters.mac_channel = new_channel;
-        if (interface->mac_api && interface->mac_api->mlme_req) {
-            mlme_set_t set_req;
-            set_req.attr = phyCurrentChannel;
-            set_req.attr_index = 0;
-            set_req.value_pointer = &new_channel;
-            set_req.value_size = 1;
-            interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-        }
-    }
-    return 0;
-}
-
 static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
 {
     write_be16(addrPtr, temp16);

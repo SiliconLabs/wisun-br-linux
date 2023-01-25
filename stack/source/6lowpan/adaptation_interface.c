@@ -936,16 +936,6 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
         dataReq.msduLength = buffer_data_length(buf);
         dataReq.msdu = buffer_data_pointer(buf);
     }
-    if (buf->link_specific.ieee802_15_4.rf_channel_switch) {
-        //Switch channel if selected channel is different
-        if (cur->mac_parameters.mac_channel != buf->link_specific.ieee802_15_4.selected_channel) {
-            uint8_t channel = cur->mac_parameters.mac_channel;
-            mac_helper_mac_channel_set(cur, buf->link_specific.ieee802_15_4.selected_channel);
-            buf->link_specific.ieee802_15_4.selected_channel = channel;
-        } else {
-            buf->link_specific.ieee802_15_4.rf_channel_switch = false;
-        }
-    }
     //Define data priority
     mac_data_priority_e data_priority;
 
@@ -1442,12 +1432,6 @@ int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_dat
 
     if (interface_ptr->etx_update_cb) {
         interface_ptr->etx_update_cb(cur, buf, confirm);
-    }
-
-    //Switch original channel back
-    if (buf->link_specific.ieee802_15_4.rf_channel_switch) {
-        mac_helper_mac_channel_set(cur, buf->link_specific.ieee802_15_4.selected_channel);
-        buf->link_specific.ieee802_15_4.rf_channel_switch = false;
     }
 
     if (confirm->status == MLME_SUCCESS) {

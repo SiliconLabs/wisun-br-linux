@@ -65,7 +65,6 @@ static void mac_mlme_write_mac64(struct protocol_interface_rf_mac_setup *rf_setu
 static void mac_mlme_timers_disable(protocol_interface_rf_mac_setup_s *rf_ptr);
 static int8_t mac_mlme_set_panid(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t pan_id);
 static int8_t mac_mlme_set_mac16(struct protocol_interface_rf_mac_setup *rf_setup, uint16_t mac16);
-static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t new_channel);
 static void mac_mlme_timer_cb(int timer_id, uint16_t slots);
 static void mac_mlme_start_confirm_handler(protocol_interface_rf_mac_setup_s *rf_ptr, const mlme_start_conf_t *conf);
 static int mac_mlme_set_symbol_rate(protocol_interface_rf_mac_setup_s *rf_mac_setup);
@@ -232,7 +231,6 @@ static int8_t mac_mlme_8bit_set(protocol_interface_rf_mac_setup_s *rf_mac_setup,
 {
     switch (attribute) {
         case phyCurrentChannel:
-            mac_mlme_rf_channel_set(rf_mac_setup, value);
             break;
         case macAutoRequestKeyIndex:
             rf_mac_setup->mac_auto_request.KeyIndex = value;
@@ -955,39 +953,6 @@ static int8_t mac_mlme_rf_receiver_enable(struct protocol_interface_rf_mac_setup
     rf_mac_setup->macRfRadioOn = true;
     //tr_debug("Enable radio with channel %u", rf_mac_setup->mac_channel);
     return retval;
-}
-
-/**
- * Initialize MAC channel selection sequence
- *
- * TODO: initialize channel select sequence
- *       in coordinator mode
- *
- * \param new_channel channel to set
- *
- * \return 0 success
- * \return -1 HW error
- */
-static int8_t mac_mlme_rf_channel_set(struct protocol_interface_rf_mac_setup *rf_setup, uint8_t new_channel)
-{
-    if (new_channel == rf_setup->mac_channel) {
-        return 0;
-    }
-    mac_pre_build_frame_t *buf;
-
-    //Disable always
-    mac_mlme_mac_radio_disabled(rf_setup);
-    buf = rf_setup->active_pd_data_request;
-    rf_setup->active_pd_data_request = NULL;
-    //Set Channel
-    rf_setup->mac_channel = new_channel;
-    //Enable Radio
-    mac_mlme_mac_radio_enable(rf_setup);
-    if (buf) {
-        mcps_sap_pd_req_queue_write(rf_setup, buf);
-    }
-
-    return 0;
 }
 
 /**

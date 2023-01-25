@@ -83,9 +83,7 @@ typedef struct buffer_link_ieee802_15_4 {
     bool useDefaultPanId: 1;       // Transmit to broadcast PAN ID (0xffff)
     bool indirectTxProcess: 1;
     bool requestAck: 1;
-    bool rf_channel_switch: 1;
     buffer_security_key_id_mode_e key_id_mode;
-    uint8_t selected_channel;
     uint32_t indirectTTL;
     uint16_t srcPanId;
     uint16_t dstPanId;

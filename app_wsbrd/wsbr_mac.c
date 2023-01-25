@@ -836,7 +836,6 @@ static const struct {
     { macSecurityEnabled,              wsbr_spinel_set_bool,                  SPINEL_PROP_WS_SECURITY_ENABLED,                 },
     { macAcceptByPassUnknowDevice,     wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
     { macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
-    { phyCurrentChannel,               wsbr_spinel_set_u8,                    SPINEL_PROP_PHY_CHAN,                            },
     { macAutoRequestKeyIdMode,         wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_ID_MODE,         },
     { macAutoRequestKeyIndex,          wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_KEY_INDEX,           },
     { macAutoRequestSecurityLevel,     wsbr_spinel_set_u8,                    SPINEL_PROP_WS_AUTO_REQUEST_SECURITY_LEVEL,      },
