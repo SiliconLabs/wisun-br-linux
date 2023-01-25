@@ -45,6 +45,9 @@ void print_help(FILE *stream, int exit_code)
     fprintf(stream, "a Gecko Bootloader file (see Silicon Labs document UG266 for more information\n");
     fprintf(stream, "how to generate that file).\n");
     fprintf(stream, "\n");
+    fprintf(stream, "wsbrd-fwup expects the device to have the \"bootloader-uart-xmodem\" component.\n");
+    fprintf(stream, "Otherwise the update fails without affecting the device.\n");
+    fprintf(stream, "\n");
     fprintf(stream, "Options:\n");
     fprintf(stream, "  -u, --uart=DEVICE  Use UART bus (default: /dev/ttyACM0)\n");
     fprintf(stream, "  -B, --baurate=RATE Configure UART with this baudrate (default: 115200)\n");
