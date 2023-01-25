@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/rand.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/ns_address.h"
 
@@ -33,6 +34,7 @@
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/ws/ws_common.h"
 
 #include "udp.h"
 #include "ns_socket.h"
@@ -848,6 +850,33 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
     }
 }
 
+static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
+{
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+    uint32_t latency_estimate = 0;
+
+    if (!cur_interface) {
+        return false;
+    }
+
+    if (cur_interface->eth_mac_api) {
+        // either PPP or Ethernet interface.
+        latency_estimate = 1000;
+    } else if (ws_info(cur_interface)) {
+        latency_estimate = ws_common_latency_estimate_get(cur_interface);
+    } else {
+        // 6LoWPAN ND
+        latency_estimate = 20000;
+    }
+
+    if (latency_estimate != 0) {
+        *latency = latency_estimate;
+        return true;
+    }
+
+    return false;
+}
+
 static bool socket_latency_get(const uint8_t dest_addr[static 16], uint32_t *latency)
 {
     ipv6_route_t *route = ipv6_route_choose_next_hop(dest_addr, -1, NULL);
@@ -856,6 +885,83 @@ static bool socket_latency_get(const uint8_t dest_addr[static 16], uint32_t *lat
     }
 
     return protocol_6lowpan_latency_estimate_get(route->info.interface_id, latency);
+}
+
+/* Data rate for application used in Stagger calculation */
+#define STAGGER_DATARATE_FOR_APPL(n) ((n)*75/100)
+
+/* Time after network is considered stable and smaller stagger values can be given*/
+#define STAGGER_STABLE_NETWORK_TIME 3600*4
+
+static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)
+{
+    size_t network_size;
+    uint32_t datarate;
+    uint32_t stagger_value;
+    struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
+
+    if (!cur_interface) {
+        return false;
+    }
+
+    if (cur_interface->eth_mac_api) {
+        // either PPP or Ethernet interface.
+        network_size = 1;
+        datarate = 1000000;
+    } else if (ws_info(cur_interface)) {
+        network_size = ws_common_network_size_estimate_get(cur_interface);
+        datarate = ws_common_usable_application_datarate_get(cur_interface);
+    } else {
+        // 6LoWPAN ND
+        network_size = 1000;
+        datarate = 250000;
+    }
+
+    if (data_amount == 0) {
+        // If no data amount given, use 1kB
+        data_amount = 1;
+    }
+    if (datarate < 25000) {
+        // Minimum data rate used in calculations is 25kbs to prevent invalid values
+        datarate = 25000;
+    }
+
+    /*
+     * Do not occupy whole bandwidth, leave space for network formation etc...
+     */
+    if (ws_info(cur_interface) &&
+            (ws_common_connected_time_get(cur_interface) > STAGGER_STABLE_NETWORK_TIME || ws_common_authentication_time_get(cur_interface) == 0)) {
+        // After four hours of network connected full bandwidth is given to application
+        // Authentication has not been required during bootstrap so network load is much smaller
+    } else {
+        // Smaller data rate allowed as we have just joined to the network and Authentication was made
+        datarate = STAGGER_DATARATE_FOR_APPL(datarate);
+    }
+
+    // For small networks sets 10 seconds stagger
+    if (ws_info(cur_interface) && (network_size <= 100 || ws_test_proc_auto_trg(cur_interface))) {
+        stagger_value = 10;
+    } else {
+        stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
+    }
+    /**
+     * Example:
+     * Maximum stagger value to send 1kB to 100 device network using data rate of 50kbs:
+     * 1 + (1 * 1024 * 8 * 100) / (50000*0.25) = 66s
+     */
+
+    *stagger_min = stagger_value / 5;   // Minimum stagger value is 1/5 of the max
+
+    if (stagger_value > 0xFFFF) {
+        *stagger_max = 0xFFFF;
+    } else {
+        *stagger_max = (uint16_t)stagger_value + *stagger_min;
+    }
+
+    // Randomize stagger value
+    *stagger_rand = rand_get_random_in_range(*stagger_min, *stagger_max);
+
+    return true;
 }
 
 static bool socket_stagger_value_get(const uint8_t dest_addr[static 16], uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand)

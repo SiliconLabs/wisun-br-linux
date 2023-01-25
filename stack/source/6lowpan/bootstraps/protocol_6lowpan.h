@@ -54,8 +54,4 @@ void protocol_6lowpan_allocate_mac16(struct net_if *cur);
 
 int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct net_if *cur, struct ns_sockaddr *adr_ptr);
 
-int16_t protocol_6lowpan_rpl_global_priority_get(void);
-bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency);
-bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t data_amount, uint16_t *stagger_min, uint16_t *stagger_max, uint16_t *stagger_rand);
-
 #endif /* PROTOCOL_6LOWPAN_H_ */
