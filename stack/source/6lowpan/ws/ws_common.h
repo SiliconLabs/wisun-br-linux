@@ -158,14 +158,6 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 
 uint32_t ws_common_datarate_get(struct net_if *cur);
 
-uint32_t ws_common_usable_application_datarate_get(struct net_if *cur);
-
-uint32_t ws_common_network_size_estimate_get(struct net_if *cur);
-
-uint32_t ws_common_connected_time_get(struct net_if *cur);
-
-uint32_t ws_common_authentication_time_get(struct net_if *cur);
-
 void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor);
 
 void ws_common_secondary_parent_update(struct net_if *interface);
@@ -183,5 +175,4 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *
 #define ws_info(cur) ((cur)->ws_info)
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
 #define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
-#define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 #endif //WS_COMMON_H_

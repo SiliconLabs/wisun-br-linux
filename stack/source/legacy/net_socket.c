@@ -28,12 +28,14 @@
 #include "common/endian.h"
 #include "common/rand.h"
 #include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
+#include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_common.h"
 
 #include "udp.h"
@@ -849,6 +851,76 @@ int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const v
             return -2;
     }
 }
+
+uint32_t ws_common_latency_estimate_get(struct net_if *cur)
+{
+    uint32_t latency = 0;
+
+    if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
+        // Also has the certificate settings
+        latency = 5000;
+    } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
+        latency = 10000;
+    } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
+        latency = 20000;
+    } else  {
+        latency = 30000;
+    }
+
+    return latency;
+}
+
+static uint32_t ws_common_network_size_estimate_get(struct net_if *cur)
+{
+    uint32_t network_size_estimate = 100;
+
+    if ((cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_AUTOMATIC) &&
+            (cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_CERTIFICATE)) {
+        network_size_estimate = cur->ws_info->cfg->gen.network_size * 100;
+    }
+
+    return network_size_estimate;
+}
+
+static uint32_t ws_common_usable_application_datarate_get(struct net_if *cur)
+{
+    /* Usable data rate is a available data rate when removed ACK and wait times required to send a packet
+     *
+     * Estimated to be around 70% with following assumptions with 150kbs data rate
+     * Average ACK size 48 bytes
+     * Average tACK 2ms
+     * Average CCA check time + processing 7ms
+     * Delays in bytes with 150kbs data rate 168 + 48 bytes for ACK 216 bytes
+     * Usable data rate is 1 - 216/(216 + 500) about 70%
+     */
+    return 70 * ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schedule.phy_mode_id, cur->ws_info->hopping_schedule.operating_mode) / 100;
+}
+
+static uint32_t ws_common_connected_time_get(struct net_if *cur)
+{
+    if (!ws_info(cur)) {
+        return 0;
+    }
+    if (cur->ws_info->connected_time == 0) {
+        // We are not connected
+        return 0;
+    }
+    return cur->ws_info->uptime - cur->ws_info->connected_time;
+}
+
+uint32_t ws_common_authentication_time_get(struct net_if *cur)
+{
+    if (!ws_info(cur)) {
+        return 0;
+    }
+    if (cur->ws_info->authentication_time == 0) {
+        // Authentication was not done when joined to network so time is not known
+        return 0;
+    }
+    return cur->ws_info->uptime - cur->ws_info->authentication_time;
+}
+
+#define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
 
 static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
 {
