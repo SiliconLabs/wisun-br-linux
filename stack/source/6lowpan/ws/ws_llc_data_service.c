@@ -561,14 +561,14 @@ static void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_
 }
 
 
-static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, const mcps_data_ind_t *data, ws_utt_ie_t ws_utt)
+static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, const mcps_data_ind_t *data, uint8_t frame_type)
 {
     llc_data_base_t *base = ws_llc_discover_by_mac(api);
     if (!base) {
         return NULL;
     }
 
-    if (!base->ie_params.gtkhash && ws_utt.message_type == WS_FT_DATA) {
+    if (frame_type == WS_FT_DATA && !base->ie_params.gtkhash) {
         return NULL;
     }
 
@@ -615,7 +615,7 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
 {
     struct iobuf_read ie_buf;
 
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt);
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt.message_type);
     if (!base) {
         return;
     }
@@ -747,7 +747,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
 {
     struct iobuf_read ie_buf;
 
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt);
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt.message_type);
     if (!base) {
         return;
     }
