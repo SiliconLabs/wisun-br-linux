@@ -80,7 +80,6 @@ bool ws_wh_lto_read(const uint8_t *data, uint16_t length, struct ws_lto_ie *lto_
 bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *panid_ie);
 
 /* WS_WP_NESTED PAYLOD IE */
-int ws_wp_base_write(struct iobuf_write *buf);
 void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
 void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
 void       ws_wp_nested_vp_write(struct iobuf_write *buf, uint8_t *vendor_payload, uint16_t vendor_payload_length);

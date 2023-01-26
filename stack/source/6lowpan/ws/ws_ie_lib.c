@@ -293,11 +293,6 @@ void ws_wh_panid_write(struct iobuf_write *buf, uint16_t panid)
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-int ws_wp_base_write(struct iobuf_write *buf)
-{
-    return ieee802154_ie_push_payload(buf, IEEE802154_IE_ID_WP);
-}
-
 static void ws_wp_schedule_base_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule, bool unicast)
 {
     const ws_excluded_channel_data_t *excl = unicast ? &hopping_schedule->uc_excluded_channels : &hopping_schedule->bc_excluded_channels;

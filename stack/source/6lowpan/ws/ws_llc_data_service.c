@@ -1138,7 +1138,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
     message->ie_ext.headerIovLength = 1;
 
-    ie_offset = ws_wp_base_write(&message->ie_buf_payload);
+    ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     if (!data->TxAckReq)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
@@ -1247,7 +1247,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
     message->ie_ext.headerIovLength = 1;
 
-    ie_offset = ws_wp_base_write(&message->ie_buf_payload);
+    ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
     ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
     if (eapol_handshake_first_msg)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
@@ -1788,7 +1788,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     msg->ie_ext.headerIovLength = 1;
 
     if (!ws_wp_nested_is_empty(wp_ies)) {
-        ie_offset = ws_wp_base_write(&msg->ie_buf_payload);
+        ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies.us_ie)
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies.bs_ie)
