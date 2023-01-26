@@ -34,21 +34,38 @@ const struct phy_params phy_params_table[] = {
     { 22, 22, MODULATION_2FSK,  200000,    0, MODULATION_INDEX_0_5,   0, 0,  true },
     { 23, 23, MODULATION_2FSK,  200000,    0, MODULATION_INDEX_1_0,   0, 0,  true },
     { 24, 24, MODULATION_2FSK,  300000,    0, MODULATION_INDEX_0_5,   0, 0,  true },
+    { 32, 32, MODULATION_OFDM,  100000,    0, MODULATION_INDEX_UNDEF, 0, 1, false }, // not Wi-SUN standard
+    { 32, 33, MODULATION_OFDM,  200000,    0, MODULATION_INDEX_UNDEF, 1, 1, false }, // not Wi-SUN standard
     { 32, 34, MODULATION_OFDM,  400000,    0, MODULATION_INDEX_UNDEF, 2, 1, false },
     { 32, 35, MODULATION_OFDM,  800000,    0, MODULATION_INDEX_UNDEF, 3, 1, false },
     { 32, 36, MODULATION_OFDM, 1200000,    0, MODULATION_INDEX_UNDEF, 4, 1, false },
     { 32, 37, MODULATION_OFDM, 1600000,    0, MODULATION_INDEX_UNDEF, 5, 1, false },
     { 32, 38, MODULATION_OFDM, 2400000,    0, MODULATION_INDEX_UNDEF, 6, 1, false },
+    { 32, 39, MODULATION_OFDM, 3600000,    0, MODULATION_INDEX_UNDEF, 7, 1, false }, // not IEEE 802.15.4 standard
+    { 48, 48, MODULATION_OFDM,   50000,    0, MODULATION_INDEX_UNDEF, 0, 2, false }, // not Wi-SUN standard
+    { 48, 49, MODULATION_OFDM,  100000,    0, MODULATION_INDEX_UNDEF, 1, 2, false }, // not Wi-SUN standard
+    { 48, 50, MODULATION_OFDM,  200000,    0, MODULATION_INDEX_UNDEF, 2, 2, false }, // not Wi-SUN standard
     { 48, 51, MODULATION_OFDM,  400000,    0, MODULATION_INDEX_UNDEF, 3, 2, false },
     { 48, 52, MODULATION_OFDM,  600000,    0, MODULATION_INDEX_UNDEF, 4, 2, false },
     { 48, 53, MODULATION_OFDM,  800000,    0, MODULATION_INDEX_UNDEF, 5, 2, false },
     { 48, 54, MODULATION_OFDM, 1200000,    0, MODULATION_INDEX_UNDEF, 6, 2, false },
+    { 48, 55, MODULATION_OFDM, 1800000,    0, MODULATION_INDEX_UNDEF, 7, 2, false }, // not IEEE 802.15.4 standard
+    { 64, 64, MODULATION_OFDM,   25000,    0, MODULATION_INDEX_UNDEF, 0, 3, false }, // not Wi-SUN standard
+    { 64, 65, MODULATION_OFDM,   50000,    0, MODULATION_INDEX_UNDEF, 1, 3, false }, // not Wi-SUN standard
+    { 64, 66, MODULATION_OFDM,  100000,    0, MODULATION_INDEX_UNDEF, 2, 3, false }, // not Wi-SUN standard
+    { 64, 67, MODULATION_OFDM,  200000,    0, MODULATION_INDEX_UNDEF, 3, 3, false }, // not Wi-SUN standard
     { 64, 68, MODULATION_OFDM,  300000,    0, MODULATION_INDEX_UNDEF, 4, 3, false },
     { 64, 69, MODULATION_OFDM,  400000,    0, MODULATION_INDEX_UNDEF, 5, 3, false },
     { 64, 70, MODULATION_OFDM,  600000,    0, MODULATION_INDEX_UNDEF, 6, 3, false },
+    { 64, 71, MODULATION_OFDM,  900000,    0, MODULATION_INDEX_UNDEF, 7, 3, false }, // not IEEE 802.15.4 standard
+    { 80, 80, MODULATION_OFDM,   12500,    0, MODULATION_INDEX_UNDEF, 0, 4, false }, // not Wi-SUN standard
+    { 80, 81, MODULATION_OFDM,   25000,    0, MODULATION_INDEX_UNDEF, 1, 4, false }, // not Wi-SUN standard
+    { 80, 82, MODULATION_OFDM,   50000,    0, MODULATION_INDEX_UNDEF, 2, 4, false }, // not Wi-SUN standard
+    { 80, 83, MODULATION_OFDM,  100000,    0, MODULATION_INDEX_UNDEF, 3, 4, false }, // not Wi-SUN standard
     { 80, 84, MODULATION_OFDM,  150000,    0, MODULATION_INDEX_UNDEF, 4, 4, false },
     { 80, 85, MODULATION_OFDM,  200000,    0, MODULATION_INDEX_UNDEF, 5, 4, false },
     { 80, 86, MODULATION_OFDM,  300000,    0, MODULATION_INDEX_UNDEF, 6, 4, false },
+    { 80, 87, MODULATION_OFDM,  450000,    0, MODULATION_INDEX_UNDEF, 7, 4, false }, // not IEEE 802.15.4 standard
     {  0,  0, MODULATION_UNDEFINED,  0,    0, MODULATION_INDEX_UNDEF, 0, 0, false },
 };
 
