@@ -394,7 +394,7 @@ static void ws_wp_chan_plan_write(struct iobuf_write *buf, const struct ws_hoppi
         iobuf_push_u8(buf, hopping_schedule->operating_class);
         break;
     case 1:
-        iobuf_push_le16(buf, hopping_schedule->ch0_freq / 1000);
+        iobuf_push_le24(buf, hopping_schedule->ch0_freq / 1000);
         iobuf_push_u8(buf, hopping_schedule->channel_spacing);
         iobuf_push_le16(buf, hopping_schedule->number_of_channels);
         break;
