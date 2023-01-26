@@ -253,6 +253,10 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         ERROR("Missing LCP-IE in %s", val_to_str(WS_FT_LPAS, ws_mngt_frames, NULL));
         return;
     }
+    if (ie_lcp.chan_plan.channel_function != net_if->ws_info->cfg->fhss.fhss_uc_channel_function)
+        return;
+    if (ie_lcp.chan_plan.channel_plan != 2)
+        return;
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPAS))
         return;
 
