@@ -752,10 +752,6 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
         return;
     }
 
-    if (data->DstAddrMode != ADDR_802_15_4_LONG) {
-        return;
-    }
-
     //Discover MPX header and handler
     mpx_msg_t mpx_frame;
     mpx_user_t *user_cb = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
