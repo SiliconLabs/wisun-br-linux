@@ -75,15 +75,11 @@ typedef struct mpx_class {
 typedef struct llc_ie_params {
     uint16_t                supported_channels;     /**< Configured Channel count. This will define Channel infor mask length to some information element */
     uint16_t                network_name_length;    /**< Network name length */
-    uint16_t                vendor_payload_length;  /**< Vendor specific payload length */
-    uint8_t                 vendor_header_length;   /**< Vendor specific header length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
     ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     gtkhash_t               *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
-    uint8_t                 *vendor_header_data;    /**< Vendor specific header data */
-    uint8_t                 *vendor_payload;        /**< Vendor specific payload data */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
     ws_lus_ie_t             *lfn_us;                /**< LFN Unicast schedule */
@@ -359,7 +355,6 @@ static inline bool ws_wp_nested_is_empty(wp_nested_ie_sub_list_t requested_list)
 {
     return !(requested_list.us_ie
           || requested_list.bs_ie
-          || requested_list.vp_ie
           || requested_list.pan_ie
           || requested_list.net_name_ie
           || requested_list.pan_version_ie
@@ -980,13 +975,6 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
     uint16_t header_size = 0;
     if (user_id == MPX_LOWPAN_ENC_USER_ID) {
         header_size += 7 + 8 + 5 + 2; //UTT+BTT+ MPX + Padding
-        if (base->ie_params.vendor_header_length) {
-            header_size += base->ie_params.vendor_header_length + 3;
-        }
-
-        if (base->ie_params.vendor_payload_length) {
-            header_size += base->ie_params.vendor_payload_length + 2;
-        }
 
         //Dynamic length
         header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
@@ -1127,8 +1115,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
         ws_wh_fc_write(&message->ie_buf_header, 50, 255); // No data at initial frame
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
     ws_wh_bt_write(&message->ie_buf_header);
-    if (base->ie_params.vendor_header_length)
-        ws_wh_vh_write(&message->ie_buf_header, base->ie_params.vendor_header_data, base->ie_params.vendor_header_length);
     message->ie_iov_header.iov_base = message->ie_buf_header.data;
     message->ie_iov_header.iov_len = message->ie_buf_header.len;
     message->ie_ext.headerIeVectorList = &message->ie_iov_header;
@@ -1797,8 +1783,6 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             ws_wp_nested_panver_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
         if (wp_ies.gtkhash_ie)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
-        if (wp_ies.vp_ie)
-            ws_wp_nested_vp_write(&msg->ie_buf_payload, base->ie_params.vendor_payload, base->ie_params.vendor_payload_length);
         if (ws_version_1_1(base->interface_ptr)) {
             // We put only POM-IE if more than 1 phy (base phy + something else)
             if (wp_ies.pom_ie && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
@@ -1951,29 +1935,6 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 
     return 0;
 }
-
-void ws_llc_set_vendor_header_data(struct net_if *interface, uint8_t *vendor_header, uint8_t vendor_header_length)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-    base->ie_params.vendor_header_data = vendor_header;
-    base->ie_params.vendor_header_length = vendor_header_length;
-}
-
-
-void ws_llc_set_vendor_payload_data(struct net_if *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-
-    base->ie_params.vendor_payload = vendor_payload;
-    base->ie_params.vendor_payload_length = vendor_payload_length;
-}
-
 
 void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length)
 {

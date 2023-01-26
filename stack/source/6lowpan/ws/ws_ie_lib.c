@@ -172,15 +172,6 @@ void ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8])
     ieee802154_ie_fill_len_header(buf, offset);
 }
 
-void ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length)
-{
-    int offset;
-
-    offset = ws_wh_header_base_write(buf, WH_IE_VH_TYPE);
-    iobuf_push_data(buf, vendor_header, vendor_header_length);
-    ieee802154_ie_fill_len_header(buf, offset);
-}
-
 void ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type)
 {
     int offset;
@@ -395,19 +386,6 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     iobuf_push_u8(buf, hopping_schedule->clock_drift);
     iobuf_push_u8(buf, hopping_schedule->timing_accuracy);
     ws_wp_schedule_write(buf, hopping_schedule, false);
-    ieee802154_ie_fill_len_nested(buf, offset, true);
-}
-
-void ws_wp_nested_vp_write(struct iobuf_write *buf,
-                           uint8_t *vendor_payload,
-                           uint16_t vendor_payload_length)
-{
-    int offset;
-
-    if (!vendor_payload_length)
-        return;
-    offset = ieee802154_ie_push_nested(buf, WP_PAYLOAD_IE_VP_TYPE, true);
-    iobuf_push_data(buf, vendor_payload, vendor_payload_length);
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 

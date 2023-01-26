@@ -2399,7 +2399,6 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
     async_req.wp_requested_nested_ie_list.bs_ie = true;
     async_req.wp_requested_nested_ie_list.pan_version_ie = true;
     async_req.wp_requested_nested_ie_list.gtkhash_ie = true;
-    async_req.wp_requested_nested_ie_list.vp_ie = true;
     if (ws_version_1_1(cur)) {
         async_req.wh_requested_ie_list.lbc_ie = cur->ws_info->pan_information.lpan_version_set;
         async_req.wp_requested_nested_ie_list.lgtkhash_ie = cur->ws_info->pan_information.lpan_version_set;

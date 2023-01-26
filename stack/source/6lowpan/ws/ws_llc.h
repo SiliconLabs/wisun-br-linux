@@ -46,7 +46,6 @@ typedef struct wh_ie_sub_list {
     bool bt_ie: 1;   /**< Broadcast timing information */
     bool fc_ie: 1;   /**< Flow Control for Extended Direct Frame Exchange */
     bool rsl_ie: 1;  /**< Received Signal Level information */
-    bool vh_ie: 1;   /**< Vendor header information */
     bool ea_ie: 1;   /**< EAPOL autheticator EUI-64 header information */
     bool lutt_ie: 1;  /**< LFN Unicast Timing and Frame Type information */
     bool lbt_ie: 1;   /**< LFN Broadcast Timing information */
@@ -66,7 +65,6 @@ typedef struct wh_ie_sub_list {
 typedef struct wp_nested_ie_sub_list {
     bool us_ie: 1;                  /**< Unicast Schedule information */
     bool bs_ie: 1;                  /**< Broadcast Schedule information */
-    bool vp_ie: 1;                  /**< Vendor Payload information */
     bool pan_ie: 1;                 /**< PAN Information */
     bool net_name_ie: 1;            /**< Network Name information */
     bool pan_version_ie: 1;         /**< Pan configuration version */
@@ -192,24 +190,6 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
  */
 int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request);
 
-
-/**
- * @brief ws_llc_set_vendor_header_data Configure WS vendor Header data information (Data of WH_IE_VH_TYPE IE element)
- * @param interface Interface pointer
- * @param vendor_header pointer to vendor header this pointer must keep alive when it is configured to LLC
- * @param vendor_header_length configured vendor header length
- *
- */
-void ws_llc_set_vendor_header_data(struct net_if *interface, uint8_t *vendor_header, uint8_t vendor_header_length);
-
-/**
- * @brief ws_llc_set_vendor_payload_data Configure WS vendor payload data information (Data of WP_PAYLOAD_IE_VP_TYPE IE element)
- * @param interface Interface pointer
- * @param vendor_payload pointer to vendor payload this pointer must keep alive when it is configured to LLC
- * @param vendor_payload_length configured vendor payload length
- *
- */
-void ws_llc_set_vendor_payload_data(struct net_if *interface, uint8_t *vendor_payload, uint8_t vendor_payload_length);
 
 /**
  * @brief ws_llc_set_network_name Configure WS Network name (Data of WP_PAYLOAD_IE_NETNAME_TYPE IE element)

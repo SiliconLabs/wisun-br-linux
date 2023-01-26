@@ -45,7 +45,6 @@ void   ws_wh_utt_write(struct iobuf_write *buf, uint8_t message_type);
 void    ws_wh_bt_write(struct iobuf_write *buf);
 void    ws_wh_fc_write(struct iobuf_write *buf, uint8_t tx, uint8_t rx);
 void   ws_wh_rsl_write(struct iobuf_write *buf, uint8_t rsl);
-void    ws_wh_vh_write(struct iobuf_write *buf, uint8_t *vendor_header, uint8_t vendor_header_length);
 void    ws_wh_ea_write(struct iobuf_write *buf, uint8_t eui64[8]);
 /* Wi-SUN FAN 1.1 */
 void  ws_wh_lutt_write(struct iobuf_write *buf, uint8_t message_type);
@@ -82,7 +81,6 @@ bool ws_wh_panid_read(const uint8_t *data, uint16_t length, struct ws_panid_ie *
 /* WS_WP_NESTED PAYLOD IE */
 void       ws_wp_nested_us_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
 void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_schedule *hopping_schedule);
-void       ws_wp_nested_vp_write(struct iobuf_write *buf, uint8_t *vendor_payload, uint16_t vendor_payload_length);
 void      ws_wp_nested_pan_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, uint8_t *network_name, uint8_t network_name_length);
 void   ws_wp_nested_panver_write(struct iobuf_write *buf, struct ws_pan_information *pan_configuration);
