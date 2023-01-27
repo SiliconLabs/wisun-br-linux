@@ -2455,39 +2455,6 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
     }
 }
 
-int8_t ws_bootstrap_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
-{
-    uint16_t pan_id = cur->ws_info->network_pan_id;
-
-    // Add EAPOL neighbor
-    cur->ws_info->network_pan_id = parent_ptr->pan_id;
-    cur->ws_info->pan_information.pan_size = parent_ptr->pan_information.pan_size;
-    cur->ws_info->pan_information.routing_cost = parent_ptr->pan_information.routing_cost;
-    cur->ws_info->pan_information.use_parent_bs = parent_ptr->pan_information.use_parent_bs;
-    cur->ws_info->pan_information.pan_version = 0; // This is learned from actual configuration
-    cur->ws_info->pan_information.lpan_version = 0; // This is learned from actual configuration
-
-    // If PAN ID changes, clear learned neighbors and activate FHSS
-    if (pan_id != cur->ws_info->network_pan_id) {
-        if (clear_list) {
-            ws_bootstrap_neighbor_list_clean(cur);
-        }
-        ws_bootstrap_fhss_activate(cur);
-    }
-
-    llc_neighbour_req_t neighbor_info;
-    if (!ws_bootstrap_neighbor_info_request(cur, parent_ptr->addr, &neighbor_info, true)) {
-        //Remove Neighbour and set Link setup back
-        ns_list_remove(&cur->ws_info->parent_list_reserved, parent_ptr);
-        ns_list_add_to_end(&cur->ws_info->parent_list_free, parent_ptr);
-        return -1;
-    }
-    ws_bootstrap_neighbor_set_stable(cur, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &parent_ptr->ws_utt, parent_ptr->timestamp, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, &parent_ptr->ws_us, parent_ptr->addr);
-    return 0;
-}
-
 /*
  * State machine
  *

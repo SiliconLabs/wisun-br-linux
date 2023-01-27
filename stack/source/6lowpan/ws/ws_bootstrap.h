@@ -159,7 +159,6 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_re
 void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);
 bool ws_bootstrap_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface);
-int8_t ws_bootstrap_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list);
 void ws_nud_table_reset(struct net_if *cur);
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16]);
 
