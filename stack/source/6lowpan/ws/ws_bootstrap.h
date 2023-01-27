@@ -155,7 +155,6 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 
 void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
 void ws_bootstrap_candidate_table_reset(struct net_if *cur);
-void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry);
 
 void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
 void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);

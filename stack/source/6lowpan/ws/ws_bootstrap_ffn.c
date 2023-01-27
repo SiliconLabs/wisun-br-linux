@@ -205,6 +205,70 @@ parent_info_t *ws_bootstrap_ffn_candidate_parent_get(struct net_if *cur, const u
     return NULL;
 }
 
+static bool ws_bootstrap_ffn_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
+{
+    // Return true if P2 is better
+    // signal lower than threshold for both
+    // pan_cost
+    // signal quality
+
+    if (p2->tx_fail > p1->tx_fail) {
+        return false;
+    }
+
+    if (p2->tx_fail < p1->tx_fail) {
+        return true;
+    }
+
+    if (p1->link_acceptable && !p2->link_acceptable) {
+        // Link acceptable is always better than not
+        return true;
+    }
+    if (!p1->link_acceptable && p2->link_acceptable) {
+        // Link acceptable is always better than not
+        return false;
+    }
+
+    // Select the lowest PAN cost
+    uint16_t p1_pan_cost = (p1->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p1->pan_information.pan_size / PS_WEIGHT_FACTOR);
+    uint16_t p2_pan_cost = (p2->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p2->pan_information.pan_size / PS_WEIGHT_FACTOR);
+    if (p1_pan_cost > p2_pan_cost) {
+        return true;
+    } else if (p1_pan_cost < p2_pan_cost) {
+        return false;
+    }
+
+    // If pan cost is the same then we select the one we hear highest
+    if (p1->signal_dbm < p2->signal_dbm) {
+        return true;
+    }
+    return false;
+}
+
+static void ws_bootstrap_ffn_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry)
+{
+    //Remove from the list
+
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+
+        if (entry == new_entry) {
+            // own entry skip it
+            continue;
+        }
+
+        if (ws_bootstrap_ffn_candidate_parent_compare(entry, new_entry)) {
+            // New entry is better
+            //tr_debug("candidate list new is better");
+            ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
+            ns_list_add_before(&cur->ws_info->parent_list_reserved, entry, new_entry);
+            return;
+        }
+    }
+    // This is the last entry
+    ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
+    ns_list_add_to_end(&cur->ws_info->parent_list_reserved, new_entry);
+}
+
 static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
 {
     parent_info_t *entry = ws_bootstrap_ffn_candidate_parent_get(cur, addr, false);
@@ -214,7 +278,7 @@ static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, c
             ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
         } else {
             entry->tx_fail++;
-            ws_bootstrap_candidate_parent_sort(cur, entry);
+            ws_bootstrap_ffn_candidate_parent_sort(cur, entry);
         }
 
     }
@@ -253,7 +317,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const str
         return;
     }
     // set to the correct place in list
-    ws_bootstrap_candidate_parent_sort(cur, new_entry);
+    ws_bootstrap_ffn_candidate_parent_sort(cur, new_entry);
 
     return;
 }

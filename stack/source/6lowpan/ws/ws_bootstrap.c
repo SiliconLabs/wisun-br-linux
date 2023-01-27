@@ -937,46 +937,6 @@ void ws_bootstrap_candidate_table_reset(struct net_if *cur)
     }
 }
 
-static bool ws_bootstrap_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
-{
-    // Return true if P2 is better
-    // signal lower than threshold for both
-    // pan_cost
-    // signal quality
-
-    if (p2->tx_fail > p1->tx_fail) {
-        return false;
-    }
-
-    if (p2->tx_fail < p1->tx_fail) {
-        return true;
-    }
-
-    if (p1->link_acceptable && !p2->link_acceptable) {
-        // Link acceptable is always better than not
-        return true;
-    }
-    if (!p1->link_acceptable && p2->link_acceptable) {
-        // Link acceptable is always better than not
-        return false;
-    }
-
-    // Select the lowest PAN cost
-    uint16_t p1_pan_cost = (p1->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p1->pan_information.pan_size / PS_WEIGHT_FACTOR);
-    uint16_t p2_pan_cost = (p2->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p2->pan_information.pan_size / PS_WEIGHT_FACTOR);
-    if (p1_pan_cost > p2_pan_cost) {
-        return true;
-    } else if (p1_pan_cost < p2_pan_cost) {
-        return false;
-    }
-
-    // If pan cost is the same then we select the one we hear highest
-    if (p1->signal_dbm < p2->signal_dbm) {
-        return true;
-    }
-    return false;
-}
-
 void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id)
 {
     int pan_count = 0;
@@ -998,30 +958,6 @@ void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint
             }
         }
     }
-}
-
-void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry)
-{
-    //Remove from the list
-
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-
-        if (entry == new_entry) {
-            // own entry skip it
-            continue;
-        }
-
-        if (ws_bootstrap_candidate_parent_compare(entry, new_entry)) {
-            // New entry is better
-            //tr_debug("candidate list new is better");
-            ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
-            ns_list_add_before(&cur->ws_info->parent_list_reserved, entry, new_entry);
-            return;
-        }
-    }
-    // This is the last entry
-    ns_list_remove(&cur->ws_info->parent_list_reserved, new_entry);
-    ns_list_add_to_end(&cur->ws_info->parent_list_reserved, new_entry);
 }
 
 static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
