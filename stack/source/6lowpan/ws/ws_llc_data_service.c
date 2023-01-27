@@ -43,6 +43,7 @@
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
+#include "6lowpan/ws/ws_bootstrap_ffn.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_ie_lib.h"
@@ -823,7 +824,7 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
         ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
         if (neighbor_info.neighbor) {
-            ws_bootstrap_eapol_parent_synch(interface, &neighbor_info);
+            ws_bootstrap_ffn_eapol_parent_synch(interface, &neighbor_info);
         }
     }
 

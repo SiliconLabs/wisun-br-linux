@@ -676,24 +676,6 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
     ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
 }
 
-void ws_bootstrap_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t *neighbor_info)
-{
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_schedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
-        return;
-    }
-
-    if (ws_bootstrap_candidate_parent_get(cur, neighbor_info->neighbor->mac64, false) == NULL) {
-        return;
-    }
-
-    //Store Brodacst Shedule
-    if (!neighbor_info->ws_neighbor->synch_done) {
-        ws_bootstrap_primary_parent_set(cur, neighbor_info, WS_EAPOL_PARENT_SYNCH);
-    } else {
-        ns_fhss_ws_set_parent(cur->ws_info->fhss_api, neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, false);
-    }
-}
-
 static void ws_bootstrap_ll_address_validate(struct net_if *cur)
 {
     // Configure EUI64 for MAC if missing

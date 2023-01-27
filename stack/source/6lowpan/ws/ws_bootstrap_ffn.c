@@ -1087,6 +1087,25 @@ static void ws_bootstrap_candidate_parent_mark_failure(struct net_if *cur, const
     }
 }
 
+void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t *neighbor_info)
+{
+    BUG_ON(cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER);
+    if (cur->ws_info->configuration_learned || !neighbor_info->ws_neighbor->broadcast_schedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
+        return;
+    }
+
+    if (ws_bootstrap_candidate_parent_get(cur, neighbor_info->neighbor->mac64, false) == NULL) {
+        return;
+    }
+
+    //Store Brodacst Shedule
+    if (!neighbor_info->ws_neighbor->synch_done) {
+        ws_bootstrap_primary_parent_set(cur, neighbor_info, WS_EAPOL_PARENT_SYNCH);
+    } else {
+        ns_fhss_ws_set_parent(cur->ws_info->fhss_api, neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, false);
+    }
+}
+
 const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
 {
     ws_bootstrap_candidate_parent_mark_failure(cur, previous_eui_64);
