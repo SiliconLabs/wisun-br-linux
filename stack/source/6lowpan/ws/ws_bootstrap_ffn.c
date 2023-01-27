@@ -173,6 +173,21 @@ static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *
     return ns_list_get_first(&cur->ws_info->parent_list_reserved);
 }
 
+static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
+{
+    parent_info_t *entry = ws_bootstrap_candidate_parent_get(cur, addr, false);
+    if (entry) {
+        if (entry->tx_fail >= 2) {
+            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
+            ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
+        } else {
+            entry->tx_fail++;
+            ws_bootstrap_candidate_parent_sort(cur, entry);
+        }
+
+    }
+}
+
 static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
 
@@ -1072,21 +1087,6 @@ void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
     }
 }
 
-static void ws_bootstrap_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
-{
-    parent_info_t *entry = ws_bootstrap_candidate_parent_get(cur, addr, false);
-    if (entry) {
-        if (entry->tx_fail >= 2) {
-            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
-            ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
-        } else {
-            entry->tx_fail++;
-            ws_bootstrap_candidate_parent_sort(cur, entry);
-        }
-
-    }
-}
-
 void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t *neighbor_info)
 {
     BUG_ON(cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER);
@@ -1108,7 +1108,7 @@ void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t
 
 const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
 {
-    ws_bootstrap_candidate_parent_mark_failure(cur, previous_eui_64);
+    ws_bootstrap_ffn_candidate_parent_mark_failure(cur, previous_eui_64);
 
     // Gets best target
     parent_info_t *parent_info = ws_bootstrap_ffn_candidate_parent_get_best(cur);
@@ -1137,7 +1137,7 @@ void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e res
         // eapol parent selected is not working
         tr_debug("authentication TX failed");
 
-        ws_bootstrap_candidate_parent_mark_failure(cur, target_eui_64);
+        ws_bootstrap_ffn_candidate_parent_mark_failure(cur, target_eui_64);
         // Go back for network scanning
         ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
 
