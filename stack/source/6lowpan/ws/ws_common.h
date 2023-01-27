@@ -35,6 +35,7 @@ extern uint16_t test_max_child_count_override;
 struct ws_cfg;
 
 typedef struct parent_info {
+#ifndef HAVE_WS_BORDER_ROUTER
     uint16_t             pan_id;             /**< PAN ID */
     uint8_t              addr[8];            /**< address */
     uint8_t              link_quality;       /**< LQI value measured during reception of the MPDU */
@@ -47,6 +48,7 @@ typedef struct parent_info {
     uint32_t             age;                       /**< Age of entry in 100ms ticks */
     uint8_t              excluded_channel_data[32]; /**< Channel mask Max length and it accept 8 different range*/
     bool                 link_acceptable: 1;        /**< True when Link quality is in acceptable level*/
+#endif
     ns_list_link_t       link;
 } parent_info_t;
 
