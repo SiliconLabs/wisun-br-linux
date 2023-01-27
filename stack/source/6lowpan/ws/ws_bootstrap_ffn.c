@@ -164,6 +164,15 @@ static void ws_bootstrap_ffn_candidate_parent_store(parent_info_t *parent, const
     parent->age = g_monotonic_time_100ms;
 }
 
+static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *cur)
+{
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, tr_eui64(entry->addr), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
+    }
+
+    return ns_list_get_first(&cur->ws_info->parent_list_reserved);
+}
+
 static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
 
@@ -899,7 +908,7 @@ static void ws_bootstrap_ffn_network_scan_process(struct net_if *cur)
     tr_debug("analyze network discovery result");
 
 select_best_candidate:
-    selected_parent_ptr = ws_bootstrap_candidate_parent_get_best(cur);
+    selected_parent_ptr = ws_bootstrap_ffn_candidate_parent_get_best(cur);
 
     if (!selected_parent_ptr) {
         // Configure LLC for network discovery
@@ -1083,7 +1092,7 @@ const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const
     ws_bootstrap_candidate_parent_mark_failure(cur, previous_eui_64);
 
     // Gets best target
-    parent_info_t *parent_info = ws_bootstrap_candidate_parent_get_best(cur);
+    parent_info_t *parent_info = ws_bootstrap_ffn_candidate_parent_get_best(cur);
     if (parent_info) {
         /* On failure still continues with the new parent, and on next call,
            will try to set the neighbor again */

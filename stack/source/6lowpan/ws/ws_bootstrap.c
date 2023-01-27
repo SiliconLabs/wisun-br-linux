@@ -938,15 +938,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     return;
 }
 
-parent_info_t *ws_bootstrap_candidate_parent_get_best(struct net_if *cur)
-{
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, tr_eui64(entry->addr), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
-    }
-
-    return ns_list_get_first(&cur->ws_info->parent_list_reserved);
-}
-
 void ws_bootstrap_candidate_table_reset(struct net_if *cur)
 {
     //Empty active list

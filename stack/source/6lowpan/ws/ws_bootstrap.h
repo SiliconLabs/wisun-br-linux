@@ -157,7 +157,6 @@ void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint
 void ws_bootstrap_candidate_table_reset(struct net_if *cur);
 parent_info_t *ws_bootstrap_candidate_parent_get(struct net_if *cur, const uint8_t *addr, bool create);
 void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry);
-parent_info_t *ws_bootstrap_candidate_parent_get_best(struct net_if *cur);
 
 void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
 void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);
