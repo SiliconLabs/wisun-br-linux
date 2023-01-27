@@ -284,6 +284,29 @@ static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, c
     }
 }
 
+static void ws_bootstrap_ffn_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id)
+{
+    int pan_count = 0;
+
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+
+        if ((current_time - entry->age) > WS_PARENT_LIST_MAX_AGE) {
+            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
+            ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
+            continue;
+        }
+        if (entry->pan_id == pan_id) {
+            // Same panid if there is more than limited amount free those
+            pan_count++;
+            if (pan_count > pan_max) {
+                ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
+                ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
+                continue;
+            }
+        }
+    }
+}
+
 static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
 
@@ -299,7 +322,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const str
     //tr_info("neighbour: addr:%s panid:%x signal:%d", tr_eui64(data->SrcAddr), data->SrcPANId, data->signal_dbm);
 
     // Clean old entries
-    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
+    ws_bootstrap_ffn_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
 
     new_entry = ws_bootstrap_ffn_candidate_parent_get(cur, data->SrcAddr, true);
     if (!new_entry) {
@@ -495,7 +518,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct net_if *cur, const
     //tr_debug("Advertisement active");
 
     // In active operation less neighbours per pan is allowed
-    ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_ACTIVE, g_monotonic_time_100ms, data->SrcPANId);
+    ws_bootstrap_ffn_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_ACTIVE, g_monotonic_time_100ms, data->SrcPANId);
 
     // Check if valid PAN
     if (data->SrcPANId != cur->ws_info->network_pan_id) {

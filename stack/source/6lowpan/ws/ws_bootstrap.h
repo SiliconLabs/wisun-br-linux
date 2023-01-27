@@ -153,7 +153,6 @@ bool ws_bootstrap_state_active(struct net_if *cur);
 void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type);
 void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
 
-void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
 void ws_bootstrap_candidate_table_reset(struct net_if *cur);
 
 void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);

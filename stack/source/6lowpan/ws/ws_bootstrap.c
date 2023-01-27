@@ -937,29 +937,6 @@ void ws_bootstrap_candidate_table_reset(struct net_if *cur)
     }
 }
 
-void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id)
-{
-    int pan_count = 0;
-
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-
-        if ((current_time - entry->age) > WS_PARENT_LIST_MAX_AGE) {
-            ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
-            ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
-            continue;
-        }
-        if (entry->pan_id == pan_id) {
-            // Same panid if there is more than limited amount free those
-            pan_count++;
-            if (pan_count > pan_max) {
-                ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
-                ns_list_add_to_end(&cur->ws_info->parent_list_free, entry);
-                continue;
-            }
-        }
-    }
-}
-
 static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
                                     ws_hopping_schedule_t *hopping_schedule)
 {
