@@ -173,9 +173,41 @@ static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *
     return ns_list_get_first(&cur->ws_info->parent_list_reserved);
 }
 
+static parent_info_t *ws_bootstrap_ffn_candidate_parent_allocate(struct net_if *cur, const uint8_t *addr)
+{
+    parent_info_t *entry = ns_list_get_first(&cur->ws_info->parent_list_free);
+    if (entry) {
+        memcpy(entry->addr, addr, 8);
+        ns_list_remove(&cur->ws_info->parent_list_free, entry);
+        ns_list_add_to_end(&cur->ws_info->parent_list_reserved, entry);
+    } else {
+        // If there is no free entries always allocate the last one of reserved as it is the worst
+        entry = ns_list_get_last(&cur->ws_info->parent_list_reserved);
+
+    }
+    if (entry) {
+        entry->tx_fail = 0;
+        entry->link_acceptable = false;
+    }
+    return entry;
+}
+
+parent_info_t *ws_bootstrap_ffn_candidate_parent_get(struct net_if *cur, const uint8_t *addr, bool create)
+{
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+        if (memcmp(entry->addr, addr, 8) == 0) {
+            return entry;
+        }
+    }
+    if (create) {
+        return ws_bootstrap_ffn_candidate_parent_allocate(cur, addr);
+    }
+    return NULL;
+}
+
 static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
 {
-    parent_info_t *entry = ws_bootstrap_candidate_parent_get(cur, addr, false);
+    parent_info_t *entry = ws_bootstrap_ffn_candidate_parent_get(cur, addr, false);
     if (entry) {
         if (entry->tx_fail >= 2) {
             ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
@@ -205,7 +237,7 @@ static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const str
     // Clean old entries
     ws_bootstrap_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
 
-    new_entry = ws_bootstrap_candidate_parent_get(cur, data->SrcAddr, true);
+    new_entry = ws_bootstrap_ffn_candidate_parent_get(cur, data->SrcAddr, true);
     if (!new_entry) {
         tr_warn("neighbour creation fail");
         return;
@@ -1094,7 +1126,7 @@ void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t
         return;
     }
 
-    if (ws_bootstrap_candidate_parent_get(cur, neighbor_info->neighbor->mac64, false) == NULL) {
+    if (ws_bootstrap_ffn_candidate_parent_get(cur, neighbor_info->neighbor->mac64, false) == NULL) {
         return;
     }
 
