@@ -154,7 +154,6 @@ void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e
 void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
 
 void ws_bootstrap_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id);
-void ws_bootstrap_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information);
 void ws_bootstrap_candidate_table_reset(struct net_if *cur);
 parent_info_t *ws_bootstrap_candidate_parent_get(struct net_if *cur, const uint8_t *addr, bool create);
 void ws_bootstrap_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry);
