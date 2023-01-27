@@ -122,6 +122,23 @@ static void ws_bootstrap_ffn_decode_exclude_range_to_mask_by_range(void *mask_bu
     }
 }
 
+void ws_bootstrap_ffn_candidate_table_reset(struct net_if *cur)
+{
+    //Empty active list
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_free) {
+        ns_list_remove(&cur->ws_info->parent_list_free, entry);
+    }
+
+    //Empty free list
+    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
+        ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
+    }
+    //Add to free list to full
+    for (int i = 0; i < WS_PARENT_LIST_SIZE; i++) {
+        ns_list_add_to_end(&cur->ws_info->parent_list_free, &cur->ws_info->parent_info[i]);
+    }
+}
+
 static void ws_bootstrap_ffn_candidate_parent_store(parent_info_t *parent, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
 {
     parent->ws_utt = *ws_utt;
@@ -429,7 +446,7 @@ static void ws_bootstrap_ffn_start_discovery(struct net_if *cur)
     cur->ws_info->weakest_received_rssi = 0;
 
     // Clear learned candidate parents
-    ws_bootstrap_candidate_table_reset(cur);
+    ws_bootstrap_ffn_candidate_table_reset(cur);
 
     // Clear RPL information
     rpl_control_free_domain_instances_from_interface(cur);

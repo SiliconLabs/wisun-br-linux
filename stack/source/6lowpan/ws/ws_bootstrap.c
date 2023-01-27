@@ -838,7 +838,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     ws_nud_table_reset(cur);
 
-    ws_bootstrap_candidate_table_reset(cur);
+    ws_bootstrap_ffn_candidate_table_reset(cur);
     // Zero uptime counters
     cur->ws_info->uptime = 0;
     cur->ws_info->authentication_time = 0;
@@ -880,7 +880,7 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     ws_eapol_relay_delete(cur);
     ws_eapol_auth_relay_delete(cur);
     ws_pae_controller_stop(cur);
-    ws_bootstrap_candidate_table_reset(cur);
+    ws_bootstrap_ffn_candidate_table_reset(cur);
     blacklist_clear();
     cur->if_common_forwarding_out_cb = NULL;
 
@@ -918,23 +918,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
 
     //cur->mac_security_key_usage_update_cb = ws_management_mac_security_key_update_cb;
     return;
-}
-
-void ws_bootstrap_candidate_table_reset(struct net_if *cur)
-{
-    //Empty active list
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_free) {
-        ns_list_remove(&cur->ws_info->parent_list_free, entry);
-    }
-
-    //Empty free list
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info->parent_list_reserved) {
-        ns_list_remove(&cur->ws_info->parent_list_reserved, entry);
-    }
-    //Add to free list to full
-    for (int i = 0; i < WS_PARENT_LIST_SIZE; i++) {
-        ns_list_add_to_end(&cur->ws_info->parent_list_free, &cur->ws_info->parent_info[i]);
-    }
 }
 
 static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
