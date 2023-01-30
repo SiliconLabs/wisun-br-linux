@@ -13,6 +13,7 @@
 #define _GNU_SOURCE
 #include <stdint.h>
 #include <string.h>
+#include <errno.h>
 #include <netdb.h>
 #include "parsers.h"
 #include "log.h"
@@ -23,7 +24,7 @@ static int set_bitmask(uint8_t *out, int size, int shift)
     int bit_nr = shift % 8;
 
     if (word_nr >= size)
-        return -1;
+        return -ERANGE;
     out[word_nr] |= 1u << bit_nr;
     return 0;
 }
@@ -40,7 +41,7 @@ int parse_bitmask(uint8_t *out, int size, const char *str)
     memset(out, 0, size);
     do {
         if (!*str) /* empty string or string terminated by ',' */
-            return -1;
+            return -EINVAL;
         cur = strtoul(str, &endptr, 0);
         if (*endptr == '-') {
             str = endptr + 1;
@@ -50,12 +51,12 @@ int parse_bitmask(uint8_t *out, int size, const char *str)
             end = cur;
         }
         if (*endptr != '\0' && *endptr != ',')
-            return -1;
+            return -EINVAL;
         if (cur > end)
-            return -1;
+            return -EINVAL;
         for (; cur <= end; cur++)
             if (set_bitmask(out, size, cur) < 0)
-                return -1;
+                return -ERANGE;
         str = endptr + 1;
     } while (*endptr != '\0');
     return 0;
@@ -71,7 +72,7 @@ int parse_escape_sequences(char *out, const char *in, size_t max_len)
     for (i = 0; in[i]; ) {
         if (j >= max_len - 1) {
             out[j] = '\0';
-            return -2;
+            return -ERANGE;
         }
         if (in[i] == '\\') {
             if (in[i + 1] != 'x')
@@ -83,7 +84,7 @@ int parse_escape_sequences(char *out, const char *in, size_t max_len)
             out[j++] = conv;
             if (*end_ptr || !conv) {
                 out[j] = '\0';
-                return -1;
+                return -EINVAL;
             }
             i += 4;
         } else {
@@ -98,13 +99,13 @@ int parse_byte_array(uint8_t *out, int size, const char *str)
 {
     for (int i = 0; i < size; i++) {
         if (str[2] != '\0' && str[2] != ':')
-            return -1;
+            return -EINVAL;
         if (sscanf(str, "%hhx", out + i) != 1)
-            return -2;
+            return -EINVAL;
         str += 3;
     }
     if (str[-1] != '\0')
-        return -3;
+        return -EINVAL;
     return 0;
 }
 
