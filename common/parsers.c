@@ -28,6 +28,10 @@ static int set_bitmask(uint8_t *out, int size, int shift)
     return 0;
 }
 
+/*
+ * Accepted input string is more or less the same than pages selection for
+ * printers: 1,4-6,24
+ */
 int parse_bitmask(uint8_t *out, int size, const char *str)
 {
     unsigned long int cur, end;
@@ -41,6 +45,7 @@ int parse_bitmask(uint8_t *out, int size, const char *str)
         if (*endptr == '-') {
             str = endptr + 1;
             end = strtoul(str, &endptr, 0);
+            /* FIXME: support for open ranges: "10-" */
         } else {
             end = cur;
         }
