@@ -16,6 +16,7 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
 #include <limits.h>
@@ -303,9 +304,16 @@ static void conf_set_string(struct wsbrd_conf *config, const struct storage_pars
 {
     uintptr_t max_len = (uintptr_t)raw_param;
     char *dest = raw_dest;
+    int ret;
 
-    if (parse_escape_sequences(dest, info->value, max_len))
+    ret = parse_escape_sequences(dest, info->value, max_len);
+    if (ret == -EINVAL)
         FATAL(1, "%s:%d: invalid escape sequence", info->filename, info->linenr);
+    else if (ret == -ERANGE)
+        FATAL(1, "%s:%d: maximum length for '%s' is %zu characters",
+              info->filename, info->linenr, info->key, max_len - 1);
+    else if (ret < 0)
+        FATAL(1, "%s:%d: parsing error", info->filename, info->linenr);
 }
 
 static void conf_set_netmask(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
