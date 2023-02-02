@@ -52,6 +52,4 @@ int8_t protocol_6lowpan_neighbor_remove(struct net_if *cur, uint8_t *address_ptr
 
 void protocol_6lowpan_allocate_mac16(struct net_if *cur);
 
-int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct net_if *cur, struct ns_sockaddr *adr_ptr);
-
 #endif /* PROTOCOL_6LOWPAN_H_ */

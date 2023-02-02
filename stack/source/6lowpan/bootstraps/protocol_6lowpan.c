@@ -493,14 +493,3 @@ void protocol_6lowpan_interface_common_init(struct net_if *cur)
     // Interface metric will determine which interface is actually used, if we have multiple.
     ipv6_route_add(ADDR_LINK_LOCAL_ALL_NODES, 8, cur->id, NULL, ROUTE_STATIC, 0xFFFFFFFF, -1);
 }
-
-int8_t protocol_6lowpan_interface_get_mac_coordinator_address(struct net_if *cur, sockaddr_t *adr_ptr)
-{
-    write_be16(adr_ptr->address + 0, cur->mac_parameters.pan_id);
-
-    adr_ptr->addr_type = mac_helper_coordinator_address_get(cur, adr_ptr->address + 2);
-    if (adr_ptr->addr_type == ADDR_NONE) {
-        return -1;
-    }
-    return 0;
-}
