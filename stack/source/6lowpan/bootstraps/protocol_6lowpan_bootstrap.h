@@ -35,7 +35,6 @@ enum nwk_interface_id;
 // Waiting Start confirm from MAC (ms)
 #define BOOTSTRAP_START_TIMEOUT  10000
 
-void arm_6lowpan_bootstrap_init(struct net_if *cur);
 uint8_t *protocol_6lowpan_nd_border_router_address_get();
 uint8_t protocol_6lowpan_rf_link_scalability_from_lqi(uint8_t lqi);
 void protocol_6lowpan_bootstrap_nd_ready(struct net_if *cur_interface);

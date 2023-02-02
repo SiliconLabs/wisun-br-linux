@@ -57,16 +57,6 @@ static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface);
 
 #define MAX_MC_DIS_COUNT 3
 
-void arm_6lowpan_bootstrap_init(struct net_if *cur)
-{
-    //Init 6LoWPAN Bootstrap
-    icmp_nd_routers_init();
-    cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
-    cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
-    bootstrap_next_state_kick(ER_SCAN, cur);
-    mac_helper_mac16_address_set(cur, 0xffff);
-}
-
 static void protocol_6lowpan_nd_ready(struct net_if *cur)
 {
     if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
