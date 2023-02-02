@@ -982,11 +982,6 @@ nd_router_t *nd_get_object_by_nwk_id()
     return NULL;
 }
 
-nd_router_t *nd_get_pana_address(void)
-{
-    return ns_list_get_first(&nd_router_list);
-}
-
 void nd_6lowpan_set_radv_params(struct net_if *cur_interface)
 {
     cur_interface->max_ra_delay_time = 20;

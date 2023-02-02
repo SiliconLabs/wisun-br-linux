@@ -51,8 +51,6 @@ void icmp_nd_routers_init(void);
 bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
-nd_router_t *nd_get_pana_address(void);
-
 /** ND Routing Part */
 uint8_t nd_prefix_dst_check(uint8_t *ptr);
 nd_router_t *nd_get_object_by_nwk_id();
