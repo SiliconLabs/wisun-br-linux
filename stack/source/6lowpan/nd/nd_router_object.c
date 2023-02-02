@@ -44,7 +44,6 @@
 
 static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
 static void icmp_nd_router_object_release(nd_router_t *router_object);
-static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
@@ -774,42 +773,6 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interf
 
     return 0;
 }
-
-/* Returns 1 if the router object has been removed, or we want no further processing on this tick */
-static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks)
-{
-    uint16_t scaled_ticks;
-    /*
-     * nd_timer is scaled by nd_base_tick during the discovery states,
-     * to allow API to slow down the ND process. Note we count up and test
-     * inequality, just in case someone decides to change nd_base_tick on
-     * the fly.
-     */
-    if (cur->nd_bootstrap_tick + ticks < nd_base_tick) {
-        cur->nd_bootstrap_tick += ticks;
-        return 0;
-    }
-
-    //Take off scaled ticks
-    ticks -= (nd_base_tick - cur->nd_bootstrap_tick);
-
-    scaled_ticks = 1 + (ticks / nd_base_tick);
-
-    cur->nd_bootstrap_tick = 0 + (ticks % nd_base_tick);
-
-    if (!cur->nd_timer) {
-        tr_debug("NDB:Tick Update fail %u", scaled_ticks);
-        return 0;
-    }
-
-
-    if (cur->nd_timer > scaled_ticks) {
-        cur->nd_timer -= scaled_ticks;
-        return 0;
-    }
-    return 0;
-}
-
 
 void nd_object_timer(int ticks_update)
 {
