@@ -121,7 +121,6 @@ typedef enum {
 #define INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE              64
 
 struct nd_router;
-struct nd_router_setup;
 
 typedef struct mac_cordinator {
     unsigned cord_adr_mode: 2;
@@ -200,15 +199,6 @@ struct ws_info;
 struct auth_info;
 struct rpl_domain;
 
-/* Structure to keep track of timing of multicast adverts - potentially
- * multiple required: one for our own adverts in the interface structure below,
- * and one for each ABRO that we relay (in nd_router_t).
- */
-typedef struct ipv6_ra_timing {
-    uint32_t rtr_adv_last_send_time;    // monotonic time
-    uint8_t initial_rtr_adv_count;
-} ipv6_ra_timing_t;
-
 struct net_if {
     int8_t id;
     int8_t bootStrapId;
@@ -263,7 +253,6 @@ struct net_if {
     uint8_t rtr_adv_flags;
     uint16_t min_rtr_adv_interval;      // 100ms ticks
     uint16_t max_rtr_adv_interval;      // 100ms ticks
-    ipv6_ra_timing_t ra_timing;
     /* RFC 4862 Node Configuration */
     uint8_t dup_addr_detect_transmits;
     uint16_t pmtu_lifetime;             // s

@@ -236,17 +236,6 @@ typedef struct ns_keys {
     uint8_t current_active_key_index;           /**< The index associated to the current_active_network_key. */
 } ns_keys_t;
 
-/** 6LoWPAN border router information structure. */
-typedef struct border_router_setup {
-    uint16_t mac_panid;             /**< Link layer PAN-ID, accepts only < 0xfffe.  */
-    uint16_t mac_short_adr;         /**< Defines 802.15.4 short address. If the value is <0xfffe it indicates that GP16 is activated. */
-    uint8_t beacon_protocol_id;     /**< ZigBeeIP uses always 2. */
-    uint8_t network_id[16];         /**< Network ID 16-bytes, will be used at beacon payload. */
-    uint8_t lowpan_nd_prefix[8];    /**< Define ND default prefix, ABRO, DODAG ID, GP address. */
-    uint16_t ra_life_time;          /**< Define ND router lifetime in seconds, recommend value 180+. */
-    uint32_t abro_version_num;      /**< ND ABRO version number (0 when starting a new ND setup). */
-} border_router_setup_s;
-
 /** 6LoWPAN radio interface setup. */
 typedef struct network_driver_setup {
     uint16_t mac_panid;                 /**< Link layer PAN-ID, accepts only < 0xfffe. */

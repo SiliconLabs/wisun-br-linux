@@ -61,7 +61,6 @@ typedef struct nd_router_next_hop {
 // (we're in danger of timing ourselves out as a border router)
 typedef struct nd_router {
     uint8_t border_router[16];
-    uint8_t flags;
     uint16_t life_time;
     uint16_t nd_re_validate;
     nd_obj_state_e nd_state;
@@ -69,25 +68,12 @@ typedef struct nd_router {
     uint16_t nd_timer;
     uint8_t nd_bootstrap_tick;
     uint8_t ns_retry;
-    uint32_t abro_version_num;
-    bool trig_address_reg;
-    ipv6_ra_timing_t ra_timing;
     prefix_list_t prefix_list;
     lowpan_context_list_t context_list;
     nd_router_next_hop default_hop;
     nd_router_next_hop *secondaty_hop;
-
     ns_list_link_t link;
-
 } nd_router_t;
-
-/* XXX why isn't this a substructure of nd_router_t? or share one */
-typedef struct nd_router_setup {
-    uint16_t life_time;
-    uint32_t abro_version_num;
-    prefix_list_t prefix_list;
-    lowpan_context_list_t context_list;
-} nd_router_setup_t;
 
 
 #endif
