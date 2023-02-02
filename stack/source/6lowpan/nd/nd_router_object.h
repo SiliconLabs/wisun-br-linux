@@ -48,7 +48,6 @@ void gp_address_list_free(gp_ipv6_address_list_t *list);
 uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
 bool nd_object_active(void);
 void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
-nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router);
 void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 
 

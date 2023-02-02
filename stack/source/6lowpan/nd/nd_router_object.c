@@ -172,37 +172,6 @@ static void nd_router_remove(nd_router_t *router, struct net_if *interface)
     }
 }
 
-nd_router_t *icmp_nd_router_object_get(const uint8_t *border_router)
-{
-    nd_router_t *new_entry = 0;
-    uint_fast8_t count = 0;
-
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (memcmp(cur->border_router, border_router, 16) == 0) {
-            return cur;
-        }
-        ++count;
-    }
-
-    if (count >= ND_OBJECT_MAX) {
-        return NULL;
-    }
-
-    new_entry = malloc(sizeof(nd_router_t));
-    if (!new_entry) {
-        tr_error("No heap for New Border Router");
-        return NULL;
-    }
-
-    new_entry->nd_state = ND_READY;
-    nd_router_base_init(new_entry);
-    memcpy(new_entry->border_router, border_router, 16);
-    new_entry->trig_address_reg = false;
-    ns_list_add_to_end(&nd_router_list, new_entry);
-
-    return new_entry;
-}
-
 void icmp_nd_router_object_reset(nd_router_t *router_object)
 {
     icmpv6_prefix_list_free(&router_object->prefix_list);
