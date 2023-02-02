@@ -180,13 +180,6 @@ typedef struct network_layer_address {
     uint8_t prefix[8];        /**< Long 64-bit network ID. */
 } network_layer_address_s;
 
-/** Different addressing modes for a network interface. */
-typedef enum {
-    NET_6LOWPAN_GP64_ADDRESS,       /**< Interface registers only GP64 address. */
-    NET_6LOWPAN_GP16_ADDRESS,       /**< Interface registers only GP16 address. */
-    NET_6LOWPAN_MULTI_GP_ADDRESS,   /**< Interface registers GP16 & GP64 addresses. */
-} net_6lowpan_gp_address_mode_e;
-
 /** TLS PSK info */
 typedef struct net_tls_psk_info {
     uint32_t key_id;    /**< PSK Key ID can be 0x01-0xffff, storage size is intentionally 32 bits. */

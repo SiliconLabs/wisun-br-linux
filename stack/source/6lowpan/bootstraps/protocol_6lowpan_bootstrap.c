@@ -101,20 +101,7 @@ static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
 
 void protocol_6lowpan_bootstrap_nd_ready(struct net_if *cur_interface)
 {
-
-    tr_debug("ND Ready");
-
-
-
-    if (cur_interface->lowpan_address_mode == NET_6LOWPAN_GP64_ADDRESS) {
-        protocol_6lowpan_address_reg_ready(cur_interface);
-    } else {
-        //Here we need to verify address mode
-        tr_debug("Synch MAC16 with parent");
-        nwk_bootstrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur_interface);
-    }
-
-
+    protocol_6lowpan_address_reg_ready(cur_interface);
 }
 
 void protocol_6lowpan_nd_borderrouter_connection_down(struct net_if *interface)

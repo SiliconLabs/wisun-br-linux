@@ -233,7 +233,6 @@ static void protocol_core_base_init(struct net_if *entry)
 {
     entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
     entry->bootStrapId = -1;
-    entry->lowpan_address_mode = NET_6LOWPAN_GP64_ADDRESS;
     entry->if_ns_transmit = NULL;
     entry->if_common_forwarding_out_cb = NULL;
     entry->if_special_forwarding = NULL;

@@ -209,24 +209,8 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
                 tr_info("Address REG OK: %s", tr_ipv6(interface->if_6lowpan_dad_process.address));
                 interface->if_6lowpan_dad_process.active = false;
                 interface->global_address_available = true;
-                //Check If GP16 Address Add LL16 Address
-                if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
-                    if (g16_address) {
-                        //Register also GP64 if NET_6LOWPAN_MULTI_GP_ADDRESS mode is enabled
-                        if (interface->lowpan_address_mode == NET_6LOWPAN_MULTI_GP_ADDRESS) {
-                            if (icmp_nd_slaac_prefix_address_gen(interface, addr->address, addr->prefix_len,
-                                                                 addr->valid_lifetime, addr->preferred_lifetime, false, SLAAC_IID_DEFAULT) == 0) {
-                                return;
-                            } else {
-                                tr_warn("Secondary Address allocate fail");
-                            }
-                        }
-
-                    }
-
+                if (interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)
                     protocol_6lowpan_bootstrap_nd_ready(interface);
-                }
-
             }
             break;
 
