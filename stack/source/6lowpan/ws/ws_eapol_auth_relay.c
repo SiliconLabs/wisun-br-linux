@@ -50,7 +50,7 @@ typedef struct eapol_auth_relay {
     struct net_if *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address and port */
     ns_address_t relay_addr;                                /**< Relay address */
-    int8_t socket_id;                                       /**< Socket ID for relay */
+    int socket_id;                                          /**< Socket ID for relay */
     ns_list_link_t link;                                    /**< Link */
 } eapol_auth_relay_t;
 

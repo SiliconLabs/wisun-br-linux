@@ -108,7 +108,7 @@ typedef struct dhcp_service_class {
     relay_instance_list_t relay_list;
     relay_notify_list_t notify_list;
     tr_list_t tr_list;
-    int8_t dhcp_server_socket;
+    int    dhcp_server_socket;
     int8_t dhcp_client_socket;
     int8_t dhcp_relay_socket;
     int8_t dhcpv6_socket_service_tasklet;

@@ -47,7 +47,7 @@
 typedef struct eapol_relay {
     struct net_if *interface_ptr;         /**< Interface pointer */
     ns_address_t remote_addr;                               /**< Remote address (border router address) */
-    int8_t socket_id;                                       /**< Socket ID for relay */
+    int socket_id;                                          /**< Socket ID for relay */
     ns_list_link_t link;                                    /**< Link */
 } eapol_relay_t;
 
