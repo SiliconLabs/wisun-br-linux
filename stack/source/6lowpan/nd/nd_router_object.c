@@ -473,34 +473,6 @@ void gp_address_list_free(gp_ipv6_address_list_t *list)
     }
 }
 
-void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, struct net_if *cur_interface)
-{
-    uint8_t *dptr;
-    uint16_t data_len = buffer_data_length(buf);
-    uint16_t readed = 0;
-    uint8_t type, len;
-    dptr = buffer_data_pointer(buf);
-    while (readed  < data_len) {
-        type = *dptr++;
-        len  = *dptr++;
-        if (len == 0) {
-            return;
-        }
-        len <<= 3;
-        readed += len;
-
-        if (readed > data_len) {
-            return;
-        } else if (type == ICMPV6_OPT_PREFIX_INFO && len == 32) {
-            icmp_nd_router_prefix_update(dptr, nd_router_object, cur_interface);
-            dptr += 30;
-        } else {
-            dptr += (len - 2);
-        }
-    }
-}
-
-
 void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr)
 {
     uint8_t *ptr = 0;

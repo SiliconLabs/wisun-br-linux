@@ -43,7 +43,6 @@ int8_t nd_set_br(nd_router_t *br);
 #else
 #define nd_set_br(br) -1
 #endif
-void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, struct net_if *cur_interface);
 int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, struct net_if *cur_interface);
 void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16]);
 void gp_address_list_free(gp_ipv6_address_list_t *list);
