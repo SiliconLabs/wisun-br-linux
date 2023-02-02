@@ -175,50 +175,6 @@ void net_get_version_information(uint8_t *ptr)
 }
 
 /**
- * \brief Set configured network interface Global address mode (Border router bootstrap mode can't set this).
- *
- * \param interface_id Network interface ID
- * \param mode efine 6LoWPAN Global Address register mode::
- *      * NET_6LOWPAN_GP64_ADDRESS, Interface register only GP64
- *      * NET_6LOWPAN_GP16_ADDRESS, Interface register only GP16
- *      * NET_6LOWPAN_MULTI_GP_ADDRESS, Interface register GP16 and GP64 addresses. GP16 is primary address and GP64 is secondary.
- *
- * \param short_address_base Short address base. If application defines value 0-0xfffd 6LoWPAN try to register GP16 address using that address. 0xfffe and 0xffff will generate random 16-bit short address.
- *
- * \param define_new_short_address_at_DAD This parameter is only checked when mode is not NET_6LOWPAN_GP64_ADDRESS and short_address_base is 0-0xfffd. Recommend value is 1 that will enable automatic new address definition at Duplicate Address Detection(DAD). Value 0 will generate Duplicate Adreress Detection error for interface bootstrap.
-Border Router Device will not check that part.
- *
- * \return >=0 Bootstrap mode set OK.
- * \return -1 Unknown network ID.
- * \return -2 Illegal for Border Router
- * \return -3 Bootstrap not defined yet.
- */
-int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        return -2;
-    }
-    if (!(cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED)) {
-        return -3;
-    }
-
-    if (short_address_base < 0xfffe) {
-        cur->lowpan_desired_short_address = short_address_base;
-    } else {
-        protocol_6lowpan_allocate_mac16(cur); //Allocate Random init value
-    }
-    cur->reallocate_short_address_if_duplicate = define_new_short_address_at_DAD;
-    cur->lowpan_address_mode = mode;
-
-    return 0;
-}
-
-/**
  * \brief A function to read networking address informations.
  * \param addr_id identifies the address information type to be read.
  * \param address is a pointer to a buffer to where the address information is written to.

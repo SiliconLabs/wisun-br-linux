@@ -321,30 +321,6 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list *nwk_channel_list, network_driver_setup_t *link_setup);
 
 /**
- * \brief Set configured network interface global address mode (border router bootstrap mode cannot set this).
- *
- * \param interface_id Network interface ID.
- * \param mode Define 6LoWPAN Global Address register mode:
- *      * NET_6LOWPAN_GP64_ADDRESS, Interface registers only GP64
- *      * NET_6LOWPAN_GP16_ADDRESS, Interface registers only GP16
- *      * NET_6LOWPAN_MULTI_GP_ADDRESS, Interface registers GP16 and GP64 addresses. GP16 is primary address and GP64 is secondary.
- *
- * \param short_address_base Short address base. If the application defines value 0-0xfffd, 6LoWPAN tries to register GP16 address
- * using that address. 0xfffe and 0xffff generate random 16-bit short address.
- *
- * \param define_new_short_address_at_DAD This parameter is only checked when mode is not NET_6LOWPAN_GP64_ADDRESS and
- * short_address_base is 0-0xfffd. Recommended value is 1. It enables automatic new address definition at
- * Duplicate Address Detection (DAD). Value 0 generates a DAD error for the interface bootstrap.
- * Border router device will not check that part.
- *
- * \return >=0 Bootstrap mode set OK.
- * \return -1 Unknown network ID.
- * \return -2 Illegal for border router.
- * \return -3 No memory for 6LoWPAN stack.
- */
-int8_t arm_nwk_6lowpan_gp_address_mode(int8_t interface_id, net_6lowpan_gp_address_mode_e mode, uint16_t short_address_base, uint8_t define_new_short_address_at_DAD);
-
-/**
  * \brief Set the channel list configuration to be used on the network interface.
  *
  * \param interface_id Network interface ID.
