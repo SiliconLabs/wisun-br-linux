@@ -1311,17 +1311,6 @@ static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
     }
 }
 
-ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16])
-{
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (addr_ipv6_equal(abro, cur->border_router)) {
-            return &cur->ra_timing;
-        }
-    }
-
-    return NULL;
-}
-
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {

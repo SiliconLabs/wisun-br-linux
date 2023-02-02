@@ -68,7 +68,6 @@ void nd_router_base_init(nd_router_t *new_entry);
 
 void icmp_nd_routers_init(void);
 
-ipv6_ra_timing_t *nd_ra_timing(const uint8_t abro[16]);
 void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, struct net_if *cur_interface);
 /** 6LoWPAN specific ICMP message Handler */
 bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
