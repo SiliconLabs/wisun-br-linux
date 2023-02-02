@@ -59,12 +59,6 @@ typedef struct nd_parameters {
     bool multihop_dad;                      /**< Define whether to perform duplicate address detection with border router or locally. */
     bool iids_map_to_mac;                   /**< Define whether IPv6 IIDs can be assumed to be based on MAC address (so no address resolution by routers). */
     bool send_nud_probes;                   /**< Define whether IPv6 NUD probes are enabled (disabling may limit fault detection). */
-    uint16_t ra_interval_min;               /**< Define initial transmission interval for Router Advertisements in standard timer ticks. */
-    uint8_t ra_transmits;                   /**< Define number of RA transmissions. */
-    uint8_t ra_cur_hop_limit;               /**< Define the value of current hop limit in RAs. */
-    uint32_t ra_link_mtu;                   /**< Define the value of link MTU in RAs. */
-    uint32_t ra_reachable_time;             /**< Define the value of reachable time in RAs (in milliseconds). */
-    uint32_t ra_retrans_timer;              /**< Define the value of retrans timer in RAs (in milliseconds). */
     uint16_t ns_forward_timeout;            /**< Define timeout when forwarding NS messages - if reached, our own address discovery process is restarted. */
 } nd_parameters_s;
 

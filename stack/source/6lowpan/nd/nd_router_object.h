@@ -18,43 +18,30 @@
 #define ND_ROUTER_OBJECT_H_
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "6lowpan/nd/nd_defines.h"
 
 struct nd_parameters;
-enum nwk_interface_id;
+struct aro;
 enum addrtype;
 
-#define ND_OBJECT_MAX 1
-
-#define ND_MAX_PROXY_CONTEXT_COUNT 5
-#define ND_MAX_PROXY_PREFIX_COUNT 5
-
-/* RFC4861 AdvCurHopLimit: value placed in Router Advertisement Cur Hop Limit */
-#ifndef ADV_CUR_HOP_LIMIT
-#define ADV_CUR_HOP_LIMIT 64
-#endif
 extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
-struct aro;
 
 void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
 
-/** 6LoWPAN specific ICMP message Handler */
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
 buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur);
 void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
 
 void icmp_nd_routers_init(void);
 
-/** 6LoWPAN specific ICMP message Handler */
 bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
-/** ND Routing Part */
 nd_router_t *nd_get_object_by_nwk_id();
 void nd_object_timer(int ticks_update);
 
 void icmp_nd_router_object_reset(nd_router_t *router_object);
 void nd_6lowpan_set_radv_params(struct net_if *cur_interface);
+
 #endif

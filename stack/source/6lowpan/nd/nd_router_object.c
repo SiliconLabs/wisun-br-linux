@@ -71,12 +71,6 @@ nd_parameters_s nd_params = {
     .multihop_dad = true,
     .iids_map_to_mac = false,
     .send_nud_probes = true,
-    .ra_interval_min = 160,
-    .ra_transmits = 3,
-    .ra_cur_hop_limit = ADV_CUR_HOP_LIMIT,
-    .ra_link_mtu = 0,
-    .ra_reachable_time = 0,
-    .ra_retrans_timer = 0,
     .ns_forward_timeout = 300,
 };
 
@@ -959,14 +953,5 @@ nd_router_t *nd_get_object_by_nwk_id()
 
 void nd_6lowpan_set_radv_params(struct net_if *cur_interface)
 {
-    cur_interface->max_ra_delay_time = 20;
-    cur_interface->min_delay_between_ras = 100;
-    cur_interface->rtr_adv_unicast_to_rs = true;
-    cur_interface->adv_cur_hop_limit = nd_params.ra_cur_hop_limit;
-    cur_interface->adv_link_mtu = nd_params.ra_link_mtu;
-    cur_interface->adv_reachable_time = nd_params.ra_reachable_time;
-    cur_interface->adv_retrans_timer = nd_params.ra_retrans_timer;
-    cur_interface->max_initial_rtr_adv_interval = nd_params.ra_interval_min;
-    cur_interface->max_initial_rtr_advertisements = nd_params.ra_transmits;
 }
 

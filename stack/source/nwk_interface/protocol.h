@@ -260,16 +260,7 @@ struct net_if {
     bool ip_forwarding : 1;
     bool ip_multicast_forwarding : 1;
     bool adv_send_advertisements : 1;
-    bool rtr_adv_unicast_to_rs : 1;
     uint8_t rtr_adv_flags;
-    uint8_t max_ra_delay_time;          // 100ms ticks
-    uint8_t min_delay_between_ras;      // 100ms ticks
-    uint8_t max_initial_rtr_advertisements;
-    uint16_t max_initial_rtr_adv_interval; // 100ms ticks
-    uint8_t adv_cur_hop_limit;
-    uint32_t adv_reachable_time;
-    uint32_t adv_retrans_timer;
-    uint16_t adv_link_mtu;
     uint16_t min_rtr_adv_interval;      // 100ms ticks
     uint16_t max_rtr_adv_interval;      // 100ms ticks
     ipv6_ra_timing_t ra_timing;
