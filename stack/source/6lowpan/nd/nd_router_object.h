@@ -77,9 +77,6 @@ nd_router_t *nd_get_pana_address(void);
 /** ND Routing Part */
 uint8_t nd_prefix_dst_check(uint8_t *ptr);
 nd_router_t *nd_get_object_by_nwk_id();
-/* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
-/* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
-bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime);
 void nd_object_timer(int ticks_update);
 uint32_t nd_object_time_to_next_nd_reg(void);
 
