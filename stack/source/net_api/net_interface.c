@@ -74,31 +74,6 @@ static int arm_channel_list_validation(const channel_list_t *scan_list)
 }
 
 /**
- * \brief A function to read network layer configurations.
- * \param network_params is a pointer to the structure to where the network layer configs are written to.
- * \return 0 on success.
- * \return Negative value if interface id or PAN coordinator is not known.
- */
-int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_params)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    addrtype_e addrType = mac_helper_coordinator_address_get(cur, network_params->address);
-    if (addrType == ADDR_NONE) {
-        return -2;
-    }
-    network_params->PANId = mac_helper_panid_get(cur);
-    if (addrType == ADDR_802_15_4_SHORT) {
-        network_params->addr_mode = ADDR_MAC_SHORT16;
-    } else {
-        network_params->addr_mode = ADDR_MAC_LONG64;
-    }
-
-    network_params->LogicalChannel = cur->mac_parameters.mac_channel;
-    network_params->sf = 0xff;
-    return 0;
-}
-
-/**
  * \brief A function to read MAC PAN-ID, Short address & EUID64
  * \param mac_params is a pointer to the structure to where the mac address are written to.
  * \return 0 on success.

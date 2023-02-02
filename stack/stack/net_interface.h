@@ -468,15 +468,6 @@ int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id);
 int8_t arm_nwk_6lowpan_border_route_nd_default_prefix_timeout_set(int8_t interface_id, uint32_t time);
 
 /**
- * \brief A function to read network layer configurations.
- * \param interface_id Network interface ID.
- * \param network_params A pointer to the structure where the network layer configs are written.
- * \return 0 On success.
- * \return Negative value if interface is not known.
- */
-int8_t arm_nwk_param_read(int8_t interface_id, link_layer_setups_s *network_params);
-
-/**
  * \brief A function to read MAC PAN-ID, Short address and EUID64.
  * \param interface_id Network interface ID.
  * \param mac_params A pointer to the structure where the MAC addresses are written.
