@@ -42,11 +42,6 @@ typedef struct iphc_compress_state {
 
 static bool compress_nh(uint8_t nh, iphc_compress_state_t *restrict cs);
 
-static inline bool context_ok_for_compression(const lowpan_context_t *ctx, bool stable_only)
-{
-    return ctx->lifetime && ctx->compression && (!stable_only || ctx->stable);
-}
-
 /* Using a specified context, what's the best possible compression of addr? */
 static uint_fast8_t addr_bytes_needed(const uint8_t *addr, const uint8_t *outer_iid, const uint8_t *ctx_prefix, uint_fast8_t ctx_len)
 {
