@@ -155,13 +155,6 @@ typedef enum {
     NET_6LOWPAN_ZIGBEE_IP               /**< **UNSUPPORTED** */
 } net_6lowpan_mode_extension_e;
 
-
-/** IPv6 bootstrap modes */
-typedef enum {
-    NET_IPV6_BOOTSTRAP_STATIC,  /**< Application defines the IPv6 prefix. */
-    NET_IPV6_BOOTSTRAP_AUTONOMOUS /**< Interface gets IPv6 address automatically from network using ICMP and DHCP. */
-} net_ipv6_mode_e;
-
 /** Network coordinator parameter list.
  * Structure is used to read network parameter for warm start.
  */

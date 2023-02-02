@@ -172,7 +172,6 @@ typedef struct if_6lowpan_dad_entry {
 } if_6lowpan_dad_entry_t;
 
 typedef struct ipv6_interface_info {
-    net_ipv6_mode_e ipv6_stack_mode;
     uint8_t     static_prefix64[8];
 } ipv6_interface_info_t;
 
