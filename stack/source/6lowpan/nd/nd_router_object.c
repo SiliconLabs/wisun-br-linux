@@ -126,8 +126,6 @@ static void nd_router_remove(nd_router_t *router, struct net_if *interface)
 static void icmp_nd_router_object_reset(nd_router_t *router_object)
 {
     icmpv6_prefix_list_free(&router_object->prefix_list);
-
-    lowpan_context_list_free(&router_object->context_list);
 }
 
 /* Returns 1 if the router object has been removed */
@@ -281,24 +279,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
 
         default:
             break;
-    }
-}
-
-/* Update lifetime and expire contexts in ABRO storage */
-static void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds)
-{
-    ns_list_foreach_safe(lowpan_context_t, cur, &nd_router_object->context_list) {
-        /* We're using seconds in call, but lifetime is in 100ms ticks */
-        if (cur->lifetime <= (uint32_t)seconds * 10) {
-            /* When lifetime in the ABRO storage runs out, just drop it,
-             * so we stop advertising it. This is different from the
-             * interface context handling.
-             */
-            ns_list_remove(&nd_router_object->context_list, cur);
-            free(cur);
-        } else {
-            cur->lifetime -= (uint32_t)seconds * 10;
-        }
     }
 }
 
@@ -767,9 +747,6 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interf
     if (icmp_nd_router_prefix_ttl_update(cur, cur_interface, updated_seconds)) {
         return 1;
     }
-
-    //Update seconds
-    icmp_nd_router_context_ttl_update(cur, updated_seconds);
 
     return 0;
 }

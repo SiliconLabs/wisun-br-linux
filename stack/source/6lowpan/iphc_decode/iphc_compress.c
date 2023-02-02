@@ -125,22 +125,6 @@ static uint8_t compress_mc_addr(const lowpan_context_list_t *context_list, const
         *mode |= HC_48BIT_MULTICAST;
         return 6;
     }
-    /* Looking for addresses of the form ffxx:xxLL:PPPP:PPPP:PPPP:PPPP:xxxx:xxxx */
-    /* Context info is padded with zeros, so the 8-byte memcmp is okay for short contexts. */
-    /* RFCs are ambiguous about how this should work if prefix length is > 64 bits, */
-    /* so don't attempt compression against long contexts. */
-    ns_list_foreach(lowpan_context_t, ctx, context_list) {
-        if (context_ok_for_compression(ctx, stable_only) &&
-                ctx->length <= 64 &&
-                addr[3] == ctx->length && memcmp(addr + 4, ctx->prefix, 8) == 0) {
-            cmp_addr_out[0] = addr[1];
-            cmp_addr_out[1] = addr[2];
-            memcpy(cmp_addr_out + 2, addr + 12, 4);
-            *context |= ctx->cid;
-            *mode |= HC_48BIT_CONTEXT_MULTICAST;
-            return 6;
-        }
-    }
 
     memcpy(cmp_addr_out, addr, 16);
     *mode |= HC_128BIT_MULTICAST;
@@ -155,32 +139,6 @@ static uint8_t compress_addr(const lowpan_context_list_t *context_list, const ui
 
     uint_fast8_t best_bytes = addr_bytes_needed(addr, outer_iid, ADDR_LINK_LOCAL_PREFIX, 64);
     lowpan_context_t *best_ctx = NULL;
-    bool checked_ctx0 = false;
-
-    if (best_bytes > 0) {
-        ns_list_foreach(lowpan_context_t, ctx, context_list) {
-            if (!context_ok_for_compression(ctx, stable_only)) {
-                continue;
-            }
-
-            uint_fast8_t bytes = addr_bytes_needed(addr, outer_iid, ctx->prefix, ctx->length);
-            if (ctx->cid == 0) {
-                checked_ctx0 = true;
-            }
-            /* This context is better if:
-             * a) it means fewer inline bytes, or
-             * b) it needs the same inline bytes and might avoid a CID extension
-             */
-            if (bytes < best_bytes || (bytes == best_bytes && ctx->cid == 0 && best_ctx && best_ctx->cid != 0)) {
-                best_ctx = ctx;
-                best_bytes = bytes;
-                /* Don't need to check further if we've reached 0 bytes, and we've considered context 0 */
-                if (best_bytes == 0 && checked_ctx0) {
-                    break;
-                }
-            }
-        }
-    }
 
     /* If not found a 0-byte match, one more (unlikely) possibility for source - special case for "unspecified" */
     if (best_bytes > 0 && !is_dst && addr_is_ipv6_unspecified(addr)) {
