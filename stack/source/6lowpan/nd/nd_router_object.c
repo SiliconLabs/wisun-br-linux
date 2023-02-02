@@ -992,63 +992,6 @@ uint8_t nd_prefix_dst_check(uint8_t *ptr)
     return 0;
 }
 
-
-int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, struct net_if *cur_interface)
-{
-    int8_t ret_val = -1;
-    addrtype_e adr_type = ADDR_802_15_4_LONG;
-    uint8_t *adr_ptr = neighbor_address;
-    nd_router_next_hop *hop;
-    uint8_t compare_len = 8;
-
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
-            continue;
-        }
-
-        hop = &cur->default_hop;
-        if (memcmp(neighbor_address, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-            adr_ptr += 6;
-            adr_type = ADDR_802_15_4_SHORT;
-            compare_len = 2;
-        }
-        if (hop->addrtype == adr_type) {
-            if (memcmp(hop->address, adr_ptr, compare_len) == 0) {
-                tr_debug("ND Primary Parent Lost");
-
-                if (cur->secondaty_hop == 0) {
-                    ret_val = -1;
-                } else {
-                    ret_val = 0;
-                    tr_debug("Swap Secondary to primary");
-                    memcpy(hop, cur->secondaty_hop, sizeof(nd_router_next_hop));
-                    tr_debug("Trig NS/NA with new parent");
-                    if (cur->nd_state == ND_READY) {
-                        cur->nd_re_validate = 1;
-                        if (cur_interface->if_6lowpan_dad_process.active == false) {
-                            nd_ns_trig(cur, cur_interface);
-                        }
-                    }
-                    free(cur->secondaty_hop);
-                    cur->secondaty_hop = 0;
-                }
-                return ret_val;
-            }
-        } else if (cur->secondaty_hop) {
-            hop = cur->secondaty_hop;
-            if (hop->addrtype == adr_type) {
-                if (memcmp(hop->address, adr_ptr, compare_len) == 0) {
-                    tr_debug("ND Secondary Parent Lost");
-                    free(cur->secondaty_hop);
-                    cur->secondaty_hop = 0;
-                    return 0;
-                }
-            }
-        }
-    }
-    return -1;
-}
-
 nd_router_t *nd_get_object_by_nwk_id()
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list)
