@@ -383,9 +383,12 @@ void dhcp_start(struct dhcp_server *dhcp, const char *tun_dev, uint8_t *hwaddr, 
     memcpy(dhcp->prefix, prefix, 8);
     dhcp->tun_if_id = if_nametoindex(tun_dev);
     dhcp->fd = socket(AF_INET6, SOCK_DGRAM, 0);
-    setsockopt(dhcp->fd, SOL_SOCKET, SO_BINDTODEVICE, tun_dev, IF_NAMESIZE);
+    if (dhcp->fd < 0)
+        FATAL(1, "%s: socket: %m", __func__);
+    if (setsockopt(dhcp->fd, SOL_SOCKET, SO_BINDTODEVICE, tun_dev, IF_NAMESIZE) < 0)
+        FATAL(1, "%s: setsockopt: %m", __func__);
     if (bind(dhcp->fd, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
-        FATAL(2, "Failed to start DHCP server: %m");
+        FATAL(1, "%s: bind: %m", __func__);
 }
 
 int dhcp_dpi_get_lease(const uint8_t *pkt, size_t pkt_len, const uint8_t **eui64, const uint8_t **ipv6)

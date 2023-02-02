@@ -105,17 +105,19 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct sockaddr_in6 sockaddr = { .sin6_family = AF_INET6, .sin6_addr = IN6ADDR_ANY_INIT, .sin6_port = htons(local_port) };
     eapol_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
-    setsockopt(eapol_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
-    if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-        tr_error("could not create eapol_auth_relay->socket_id socket: %m");
-    }
+    if (eapol_relay->socket_id < 0)
+        FATAL(1, "%s: socket: %m", __func__);
+    if (setsockopt(eapol_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
+        FATAL(1, "%s: setsocketopt: %m", __func__);
+    if (bind(eapol_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
+        FATAL(1, "%s: bind: %m", __func__);
 #else
     eapol_relay->socket_id = socket_open(IPV6_NH_UDP, local_port, &ws_eapol_relay_socket_cb);
-#endif
     if (eapol_relay->socket_id < 0) {
         free(eapol_relay);
         return -1;
     }
+#endif
 #ifdef HAVE_SOCKET_API
     int16_t tc = IP_DSCP_CS6 << IP_TCLASS_DSCP_SHIFT;
     socket_setsockopt(eapol_relay->socket_id, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_TCLASS, &tc, sizeof(tc));

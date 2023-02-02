@@ -584,9 +584,10 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
             tr_error("dhcp Server socket can't open because Agent open already");
         }
         dhcp_service->dhcp_server_socket = socket(AF_INET6, SOCK_DGRAM, 0);
-        if (bind(dhcp_service->dhcp_server_socket, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-            FATAL(1, "could not create dhcp server socket: %m");
-        }
+        if (dhcp_service->dhcp_server_socket < 0)
+            FATAL(1, "%s: socket: %m", __func__);
+        if (bind(dhcp_service->dhcp_server_socket, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
+            FATAL(1, "%s: bind: %m", __func__);
     }
 
     if (instance_type == DHCP_INTANCE_RELAY_AGENT && dhcp_service->dhcp_relay_socket < 0) {

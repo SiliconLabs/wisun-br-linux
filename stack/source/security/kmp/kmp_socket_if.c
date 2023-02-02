@@ -114,14 +114,12 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
                 close(socket_if->kmp_socket_id);
             }
             socket_if->kmp_socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
-            setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
-            if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-                tr_error("could not create socket_if->kmp_socket_id socket: %m");
-            }
-            if (socket_if->kmp_socket_id < 0) {
-                free(socket_if);
-                return -1;
-            }
+            if (socket_if->kmp_socket_id < 0)
+                FATAL(1, "%s: socket: %m", __func__);
+            if (setsockopt(socket_if->kmp_socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
+                FATAL(1, "%s: setsocketopt: %m", __func__);
+            if (bind(socket_if->kmp_socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
+                FATAL(1, "%s: bind: %m", __func__);
         }
     } else {
         if ((socket_if->kmp_socket_id < 1)) {
@@ -132,19 +130,11 @@ int8_t kmp_socket_if_register(kmp_service_t *service, uint8_t *instance_id, bool
             memcpy(&socket_if->remote_sockaddr, remote_addr, sizeof(struct sockaddr_storage));
             ((struct sockaddr_in *) &socket_if->remote_sockaddr)->sin_port = htons(remote_port);
             socket_if->kmp_socket_id = socket(socket_if->remote_sockaddr.ss_family, SOCK_DGRAM, 0);
-
-            if (socket_if->kmp_socket_id < 0) {
-                free(socket_if);
-                return -1;
-            }
-
+            if (socket_if->kmp_socket_id < 0)
+                FATAL(1, "%s: socket: %m", __func__);
             radius_cli_bind.ss_family = ((struct sockaddr_storage *) remote_addr)->ss_family;
-            if (bind(socket_if->kmp_socket_id,
-                     (struct sockaddr *)&radius_cli_bind,
-                     sizeof(radius_cli_bind)) < 0) {
-                free(socket_if);
-                return -1;
-            }
+            if (bind(socket_if->kmp_socket_id, (struct sockaddr *)&radius_cli_bind, sizeof(radius_cli_bind)) < 0)
+                FATAL(1, "%s: bind: %m", __func__);
         }
     }
 

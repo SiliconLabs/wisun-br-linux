@@ -93,10 +93,12 @@ int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_po
     eapol_auth_relay->relay_addr.identifier = remote_port;
 
     eapol_auth_relay->socket_id = socket(AF_INET6, SOCK_DGRAM, 0);
-    setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE);
-    if (bind(eapol_auth_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-        tr_error("could not create eapol_auth_relay->socket_id socket: %m");
-    }
+    if (eapol_auth_relay->socket_id < 0)
+        FATAL(1, "%s: socket: %m", __func__);
+    if (setsockopt(eapol_auth_relay->socket_id, SOL_SOCKET, SO_BINDTODEVICE, ctxt->config.tun_dev, IF_NAMESIZE) < 0)
+        FATAL(1, "%s: setsocketopt: %m", __func__);
+    if (bind(eapol_auth_relay->socket_id, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0)
+        FATAL(1, "%s: bind: %m", __func__);
     if (eapol_auth_relay->socket_id < 0) {
         free(eapol_auth_relay);
         return -1;

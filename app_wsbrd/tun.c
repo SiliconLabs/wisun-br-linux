@@ -344,6 +344,8 @@ static void wsbr_sysctl_set(const char *path, const char *devname, const char *o
 static void wsbr_tun_mcast_init(int * sock_ptr, const char * if_name)
 {
     *sock_ptr = socket(AF_INET6, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+    if (*sock_ptr < 0)
+        FATAL(1, "%s: socket: %m", __func__);
     // ff02::1 and ff02::2 are automatically joined by Linux when the interface is brought up
     wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_LINK_LOCAL_ALL_RPL_NODES);   // ff02::1a
     wsbr_tun_join_mcast_group(*sock_ptr, if_name, ADDR_REALM_LOCAL_ALL_NODES);      // ff03::1
