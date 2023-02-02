@@ -44,10 +44,6 @@ void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
 buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur);
 void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
-int8_t nd_parent_loose_indcate(uint8_t *neighbor_address, struct net_if *cur_interface);
-
-void nd_router_base_init(nd_router_t *new_entry);
-
 
 void icmp_nd_routers_init(void);
 

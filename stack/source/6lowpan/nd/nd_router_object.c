@@ -124,24 +124,6 @@ void nd_ns_trig(nd_router_t *router_object, struct net_if *cur)
     }
 }
 
-void nd_router_base_init(nd_router_t *new_entry)
-{
-    ns_list_link_init(new_entry, link);
-    new_entry->nd_timer = 0;
-    new_entry->nd_bootstrap_tick = 0;
-    new_entry->nd_re_validate = 0;
-    new_entry->default_hop.addrtype = ADDR_NONE;
-    ns_list_init(&new_entry->prefix_list);
-    ns_list_init(&new_entry->context_list);
-    new_entry->secondaty_hop = 0;
-    new_entry->ns_forward_timer = 0;
-    new_entry->flags = 0;
-    new_entry->ra_timing.initial_rtr_adv_count = 0;
-    new_entry->ra_timing.rtr_adv_last_send_time = g_monotonic_time_100ms - 0x10000;
-    new_entry->abro_version_num = 0;
-    new_entry->trig_address_reg = false;
-}
-
 static void nd_router_remove(nd_router_t *router, struct net_if *interface)
 {
     tr_debug("route remove");
