@@ -1168,40 +1168,6 @@ buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], con
     return buf;
 }
 
-void icmpv6_build_echo_req(struct net_if *cur, const uint8_t target_addr[16])
-{
-    const uint8_t *src;
-    buffer_t *buf = buffer_get(127);
-    if (!buf) {
-        return;
-    }
-
-    buf->options.type = ICMPV6_TYPE_INFO_ECHO_REQUEST;
-    buf->options.code = 0;
-    buf->options.hop_limit = 255;
-
-    uint8_t *ptr = buffer_data_pointer(buf);
-    memcpy(ptr, target_addr, 16);
-    ptr += 16;
-
-    memcpy(buf->dst_sa.address, target_addr, 16);
-    buf->dst_sa.addr_type = ADDR_IPV6;
-    //Select Address By Destination
-    src = addr_select_source(cur, buf->dst_sa.address, 0);
-    if (src) {
-        memcpy(buf->src_sa.address, src, 16);
-    } else {
-        tr_debug("No address for NS");
-        buffer_free(buf);
-        return;
-    }
-    buf->src_sa.addr_type = ADDR_IPV6;
-    buffer_data_end_set(buf, ptr);
-    buf->interface = cur;
-    buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-    protocol_push(buf);
-}
-
 buffer_t *icmpv6_build_dad(struct net_if *cur, buffer_t *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime)
 {
     if (!cur) {

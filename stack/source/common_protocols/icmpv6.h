@@ -139,7 +139,6 @@ struct buffer *icmpv6_build_rs(struct net_if *cur, const uint8_t *dest_addr);
 struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const struct aro *aro);
 struct buffer *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16]);
 struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime);
-void icmpv6_build_echo_req(struct net_if *cur, const uint8_t target_addr[16]);
 
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);
 
