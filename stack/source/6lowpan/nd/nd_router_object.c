@@ -856,27 +856,6 @@ static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr)
     return NULL;
 }
 
-
-void gp_address_add_to_end(gp_ipv6_address_list_t *list, const uint8_t address[static 16])
-{
-    gp_ipv6_address_entry_t *new_entry;
-
-    ns_list_foreach(gp_ipv6_address_entry_t, cur, list) {
-        if (memcmp(cur->address, address, 16) == 0) {
-            return;
-        }
-    }
-
-    new_entry = malloc(sizeof(gp_ipv6_address_entry_t));
-    if (!new_entry) {
-        tr_warn("No heap for New Address");
-        return;
-    }
-
-    memcpy(new_entry->address, address, 16);
-    ns_list_add_to_end(list, new_entry);
-}
-
 /* Returns 1 if the router object has been removed */
 static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks_update)
 {
