@@ -998,47 +998,6 @@ uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_o
     return dptr;
 }
 
-/*
- * Write either an ICMPv6 Prefix Information Option for a Router Advertisement
- * (RFC4861+6275), or an RPL Prefix Information Option (RFC6550).
- * Same payload, different type/len.
- */
-uint8_t *icmpv6_write_prefix_option(const prefix_list_t *prefixes,  uint8_t *dptr, uint8_t rpl_prefix, struct net_if *cur)
-{
-    uint8_t flags;
-
-    ns_list_foreach(prefix_entry_t, prefix_ptr, prefixes) {
-        flags = prefix_ptr->options;
-        if (prefix_ptr->prefix_len == 64) {
-            /* XXX this seems dubious - shouldn't get_address_with_prefix be called every time? What if the address changes or is deleted? */
-            if (prefix_ptr->options & PIO_R) {
-                const uint8_t *addr = addr_select_with_prefix(cur, prefix_ptr->prefix, prefix_ptr->prefix_len, 0);
-                if (addr) {
-                    memcpy(prefix_ptr->prefix, addr, 16);
-                } else {
-                    flags &= ~PIO_R;
-                }
-            }
-        }
-        if (rpl_prefix) {
-            *dptr++ = RPL_PREFIX_INFO_OPTION;
-            *dptr++ = 30; // Length in bytes, excluding these 2
-        } else {
-            *dptr++ = ICMPV6_OPT_PREFIX_INFO;
-            *dptr++ = 4; // Length in 8-byte units
-        }
-
-        *dptr++ = prefix_ptr->prefix_len; //length
-        *dptr++ = flags; //Flags
-        dptr = write_be32(dptr, prefix_ptr->lifetime);
-        dptr = write_be32(dptr, prefix_ptr->preftime);
-        dptr = write_be32(dptr, 0); // Reserved2
-        memcpy(dptr, prefix_ptr->prefix, 16);
-        dptr += 16;
-    }
-    return dptr;
-}
-
 /* 0                   1                   2                   3
  * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

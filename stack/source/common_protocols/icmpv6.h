@@ -153,7 +153,6 @@ struct if_address_entry *icmpv6_slaac_address_add(struct net_if *cur, const uint
  * (RFC4861+6275), or an RPL Prefix Information Option (RFC6550).
  * Same payload, different type/len.
  */
-uint8_t *icmpv6_write_prefix_option(const prefix_list_t *prefixes,  uint8_t *dptr, uint8_t rpl_prefix, struct net_if *cur);
 uint8_t *icmpv6_write_mtu_option(uint32_t mtu, uint8_t *dptr);
 uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_opt, bool must, const uint8_t *ip_addr);
 
