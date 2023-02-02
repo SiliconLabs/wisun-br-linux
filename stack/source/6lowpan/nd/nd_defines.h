@@ -62,7 +62,6 @@ typedef struct nd_router_next_hop {
 typedef struct nd_router {
     uint8_t border_router[16];
     uint16_t life_time;
-    uint16_t nd_re_validate;
     nd_obj_state_e nd_state;
     uint16_t ns_forward_timer;
     uint16_t nd_timer;

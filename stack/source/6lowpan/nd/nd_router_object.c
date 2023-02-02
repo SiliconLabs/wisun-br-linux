@@ -776,11 +776,6 @@ static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
     cur->ns_forward_timer = 0;
     cur_interface = protocol_stack_interface_info_get();
     if (cur_interface) {
-        if (cur->nd_re_validate > 10) {
-            tr_debug("TRIG NS/ND");
-            cur->nd_timer = 1;
-            cur->nd_re_validate = 1;
-        }
         if (cur_interface->if_6lowpan_dad_process.active == false) {
             nd_ns_trig(cur, cur_interface);
         }
@@ -827,23 +822,6 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interf
     //Update seconds
     icmp_nd_router_context_ttl_update(cur, updated_seconds);
 
-    if (!cur->nd_re_validate) {
-        return 0;
-    }
-
-    if (cur->nd_re_validate > updated_seconds) {
-        cur->nd_re_validate -= updated_seconds;
-        //tr_debug("NDR:Tick Update %u", cur->nd_re_validate);
-        return 0;
-    }
-
-    tr_debug("RE ND Process: RS Unicast!");
-    cur->ns_retry = nd_params.rs_retry_max;
-    cur->nd_state = ND_RS_UNCAST;
-    set_power_state(ICMP_ACTIVE);
-    cur->nd_timer = 1;
-    cur->nd_bootstrap_tick = (nd_base_tick - 1);
-    nd_router_bootstrap_timer(cur, cur_interface, 1);
     return 0;
 }
 

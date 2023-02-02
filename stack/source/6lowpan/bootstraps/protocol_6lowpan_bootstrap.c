@@ -96,8 +96,6 @@ static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
     if (cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
         addr_add_router_groups(cur_interface);
         addr_add_group(cur_interface, ADDR_REALM_LOCAL_ALL_ROUTERS);
-        /* Stop the ND revalidate timer - this means we don't do RS again */
-        cur->nd_re_validate = 0;
     }
 }
 
