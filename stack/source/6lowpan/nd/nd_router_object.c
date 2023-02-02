@@ -129,11 +129,6 @@ static void icmp_nd_router_object_reset(nd_router_t *router_object)
     icmpv6_prefix_list_free(&router_object->prefix_list);
 
     lowpan_context_list_free(&router_object->context_list);
-
-    if (router_object->secondaty_hop) {
-        free(router_object->secondaty_hop);
-        router_object->secondaty_hop = 0;
-    }
 }
 
 /* Returns 1 if the router object has been removed */
@@ -267,18 +262,8 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
                     //ND FAIL
                     tr_error("NS Fail");
                     protocol_6lowpan_neighbor_remove(interface, cur->default_hop.address, cur->default_hop.addrtype);
-
-                    if (cur->secondaty_hop) {
-                        tr_warn("Try Secondary Route");
-                        memcpy(&cur->default_hop, cur->secondaty_hop, sizeof(nd_router_next_hop));
-                        free(cur->secondaty_hop);
-                        cur->secondaty_hop = 0;
-                        interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
-                        addr->state_timer = 1;
-                    } else {
-                        interface->if_6lowpan_dad_process.active = false;
-                        protocol_6lowpan_nd_borderrouter_connection_down(interface);
-                    }
+                    interface->if_6lowpan_dad_process.active = false;
+                    protocol_6lowpan_nd_borderrouter_connection_down(interface);
                 }
             }
 

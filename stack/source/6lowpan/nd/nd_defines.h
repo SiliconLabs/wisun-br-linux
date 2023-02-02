@@ -70,7 +70,6 @@ typedef struct nd_router {
     prefix_list_t prefix_list;
     lowpan_context_list_t context_list;
     nd_router_next_hop default_hop;
-    nd_router_next_hop *secondaty_hop;
     ns_list_link_t link;
 } nd_router_t;
 
