@@ -278,8 +278,6 @@ void nwk_interface_flush_neigh_cache(void);
 
 void protocol_core_interface_info_reset(struct net_if *entry);
 
-void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface);
-
 uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
 struct net_if *protocol_stack_interface_info_get();

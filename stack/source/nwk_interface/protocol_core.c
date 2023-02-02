@@ -105,16 +105,6 @@ void clear_power_state(uint8_t mode)
     power_save_state &= ~mode;
 }
 
-void arm_net_protocol_packet_handler(buffer_t *buf, struct net_if *cur_interface)
-{
-    if (cur_interface->if_stack_buffer_handler) {
-        cur_interface->if_stack_buffer_handler(buf);
-        //buf = 0;
-    } else {
-        buffer_free(buf);
-    }
-}
-
 void protocol_root_tasklet(struct event_payload *event)
 {
     BUG_ON(event->event_type != ARM_IN_INTERFACE_BOOTSTRAP_CB);
