@@ -45,7 +45,6 @@
 void icmp_nd_router_object_release(nd_router_t *router_object);
 uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds);
 static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks);
-static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if *cur_interface);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
@@ -1037,7 +1036,6 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 
     return na_buf;
 }
-
 /* Original ABRO-based all-in-one parser. This needs some rework to separate ABRO-related and unrelated bits */
 /* Returns "false" if ABRO suggested it was a stale message, so not worth handling in the normal code */
 bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, uint8_t ra_flags, uint16_t router_lifetime)
@@ -1183,94 +1181,6 @@ bool nd_ra_process_abro(struct net_if *cur, buffer_t *buf, const uint8_t *dptr, 
     return uptodate;
 }
 
-static void nd_ra_build(nd_router_t *cur, const uint8_t *address, struct net_if *cur_interface)
-{
-    if (!(cur_interface->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) || !icmp_nd_router_prefix_valid(cur)) {
-        return;
-    }
-
-    /* Base buffer size: RA Hdr = 12, ABRO = 24, MTU = up to 8, SLLAO = up to 16 */
-    uint16_t length = 12 + 24 + 8 + 16;
-    length += 32 * ns_list_count(&cur->prefix_list);
-
-    ns_list_foreach(lowpan_context_t, context_ptr, &cur->context_list) {
-        length += (context_ptr->length <= 64) ? 16 : 24;
-    }
-
-    buffer_t *db = buffer_get(length);
-    if (!db) {
-        return;
-    } else if (addr_interface_get_ll_address(cur_interface, db->src_sa.address, 0) != 0) {
-        buffer_free(db);
-        return;
-    }
-    db->src_sa.addr_type = ADDR_IPV6;
-
-    uint8_t *dptr = buffer_data_pointer(db);
-    *dptr++ = cur_interface->adv_cur_hop_limit;
-    *dptr++ = cur->flags;
-    dptr = write_be16(dptr, cur->life_time);
-    dptr = write_be32(dptr, cur_interface->adv_reachable_time);
-    dptr = write_be32(dptr, cur_interface->adv_retrans_timer);
-
-    //SET ABRO
-    *dptr++ = ICMPV6_OPT_AUTHORITATIVE_BORDER_RTR;
-    *dptr++ = 3;        //Len * 8 byte
-
-    dptr = write_be16(dptr, (uint16_t)cur->abro_version_num);
-    dptr = write_be16(dptr, (uint16_t)(cur->abro_version_num >> 16));
-    dptr = write_be16(dptr, 0);
-    memcpy(dptr, cur->border_router, 16);
-    dptr += 16;
-    //SET Prefixs
-    dptr = icmpv6_write_prefix_option(&cur->prefix_list, dptr, 0, cur_interface);
-
-    ns_list_foreach(lowpan_context_t, context_ptr, &cur->context_list) {
-        *dptr++ = ICMPV6_OPT_6LOWPAN_CONTEXT;
-        *dptr++ = (context_ptr->length <= 64) ? 2 : 3;
-        *dptr++ = context_ptr->length;
-        *dptr++ = context_ptr->cid | (context_ptr->compression ? LOWPAN_CONTEXT_C : 0);
-        dptr = write_be16(dptr, 0);
-        dptr = write_be16(dptr, (context_ptr->lifetime + 599) / 600);
-        length = (context_ptr->length <= 64) ? 8 : 16;
-        memcpy(dptr, context_ptr->prefix, length);
-        dptr += length;
-    }
-
-    //MTU
-    if (cur_interface->adv_link_mtu != 0) {
-        dptr = icmpv6_write_mtu_option(cur_interface->adv_link_mtu, dptr);
-    }
-
-    /* RFC 6775 mandates SLLAO in RA */
-    dptr = icmpv6_write_icmp_lla(cur_interface, dptr, ICMPV6_OPT_SRC_LL_ADDR, true, db->src_sa.address);
-
-    if (address) {
-        memcpy(db->dst_sa.address, address, 16);
-    } else {
-        memcpy(db->dst_sa.address, ADDR_LINK_LOCAL_ALL_NODES, 16);
-    }
-    buffer_data_end_set(db, dptr);
-
-
-    db->dst_sa.addr_type = ADDR_IPV6;
-    db->interface = cur_interface;
-    db->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-    db->options.type = ICMPV6_TYPE_INFO_RA;
-    db->options.code = 0;
-    db->options.hop_limit = 255;
-    arm_net_protocol_packet_handler(db, cur_interface);
-
-}
-
-void nd_ra_build_by_abro(const uint8_t *abro, const uint8_t *dest, struct net_if *cur_interface)
-{
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (addr_ipv6_equal(cur->border_router, abro)) {
-            nd_ra_build(cur, dest, cur_interface);
-        }
-    }
-}
 
 void nd_ns_forward_timer_reset(uint8_t *root_adr)
 {
