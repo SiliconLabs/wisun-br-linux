@@ -80,14 +80,6 @@ nd_parameters_s nd_params = {
     .ns_forward_timeout = 300,
 };
 
-bool nd_object_active(void)
-{
-    if (!ns_list_is_empty(&nd_router_list)) {
-        return true;
-    }
-    return false;
-}
-
 void icmp_nd_routers_init(void)
 {
     ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {

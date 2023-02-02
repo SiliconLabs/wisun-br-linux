@@ -38,8 +38,6 @@ extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 struct aro;
 
-uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
-bool nd_object_active(void);
 void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
 
 /** 6LoWPAN specific ICMP message Handler */
