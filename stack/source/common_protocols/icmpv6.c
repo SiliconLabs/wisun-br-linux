@@ -998,23 +998,6 @@ uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_o
     return dptr;
 }
 
-/* 0                   1                   2                   3
- * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |     Type      |    Length     |           Reserved            |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                              MTU                              |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
-uint8_t *icmpv6_write_mtu_option(uint32_t mtu, uint8_t *dptr)
-{
-    *dptr++ = ICMPV6_OPT_MTU;
-    *dptr++ = 1; // length
-    dptr = write_be16(dptr, 0);
-    dptr = write_be32(dptr, mtu);
-    return dptr;
-}
-
 void ack_receive_cb(struct buffer *buffer_ptr, uint8_t status)
 {
     /*icmpv6_na_handler functionality based on ACK*/
