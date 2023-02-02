@@ -51,20 +51,6 @@ typedef struct lowpan_context {
 typedef NS_LIST_HEAD(lowpan_context_t, link) lowpan_context_list_t;
 
 /**
- * \brief Update lowpan current context or add new one
- *
- * \param list pointer to linked list for context
- * \param cid_flags Define context id (LOWPAN_CONTEXT_CID_MASK) and Context compression mode (LOWPAN_CONTEXT_C)
- * \param lifetime in minutes for context 0 delete contexts
- * \param prefix pointer to context prefix
- * \param len prefin length in bits
- *
- * \return 0 Update OK
- * \return -2 Update fail Out of memory reason
- */
-int_fast8_t lowpan_context_update(lowpan_context_list_t *list, uint8_t cid_flags, uint16_t lifetime, const uint8_t *prefix, uint_fast8_t len, bool stable);
-
-/**
  * \brief Cleand free full linked list about context
  *
  * \param list pointer to linked list for context
