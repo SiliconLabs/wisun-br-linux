@@ -41,7 +41,6 @@ int8_t mac_helper_security_auto_request_key_index_set(struct net_if *interface, 
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor);
 void mac_helper_coordinator_address_set(struct net_if *interface, enum addrtype adr_type, uint8_t *adr_ptr);
-enum addrtype mac_helper_coordinator_address_get(struct net_if *interface, uint8_t *adr_ptr);
 int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribute, bool value);
 bool mac_helper_write_our_addr(struct net_if *interface, struct ns_sockaddr *ptr);
 int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64);

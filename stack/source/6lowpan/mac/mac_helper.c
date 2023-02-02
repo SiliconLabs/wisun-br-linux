@@ -267,23 +267,6 @@ void mac_helper_coordinator_address_set(struct net_if *interface, addrtype_e adr
     }
 }
 
-addrtype_e mac_helper_coordinator_address_get(struct net_if *interface, uint8_t *adr_ptr)
-{
-    addrtype_e ret = ADDR_NONE;
-    if (!interface) {
-        return ret;
-    }
-
-    if (interface->mac_parameters.mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_16_BIT) {
-        memcpy(adr_ptr, interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, 2);
-        ret = ADDR_802_15_4_SHORT;
-    } else if (interface->mac_parameters.mac_cordinator_info.cord_adr_mode == MAC_ADDR_MODE_64_BIT) {
-        memcpy(adr_ptr, interface->mac_parameters.mac_cordinator_info.mac_mlme_coord_address, 8);
-        ret = ADDR_802_15_4_LONG;
-    }
-    return ret;
-}
-
 int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribute, bool value)
 {
 
