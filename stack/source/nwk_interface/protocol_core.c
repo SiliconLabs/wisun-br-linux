@@ -255,7 +255,6 @@ static void protocol_core_base_finish_init(struct net_if *entry)
     entry->bootstrap_state_machine_cnt = 0;
     entry->global_address_available = false;
     entry->reallocate_short_address_if_duplicate = true;
-    entry->iids_map_to_mac = false;
     entry->ip_multicast_as_mac_unicast_to_parent = false;
     entry->dad_failures = 0;
     entry->icmp_tokens = 10;

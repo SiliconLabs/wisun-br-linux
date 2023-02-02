@@ -65,7 +65,6 @@ nd_parameters_s nd_params = {
     .timer_random_max = 31,
     .ns_retry_max = 5,
     .multihop_dad = true,
-    .iids_map_to_mac = false,
     .send_nud_probes = true,
     .ns_forward_timeout = 300,
 };

@@ -57,7 +57,6 @@ typedef struct nd_parameters {
     uint16_t ns_retry_interval_min;         /**< Define Retry interval in 6LoWPAN bootstrap timer ticks waiting for NA. */
     uint16_t ns_retry_linear_backoff;       /**< Define Retry interval linear backoff in bootstrap timer ticks. */
     bool multihop_dad;                      /**< Define whether to perform duplicate address detection with border router or locally. */
-    bool iids_map_to_mac;                   /**< Define whether IPv6 IIDs can be assumed to be based on MAC address (so no address resolution by routers). */
     bool send_nud_probes;                   /**< Define whether IPv6 NUD probes are enabled (disabling may limit fault detection). */
     uint16_t ns_forward_timeout;            /**< Define timeout when forwarding NS messages - if reached, our own address discovery process is restarted. */
 } nd_parameters_s;

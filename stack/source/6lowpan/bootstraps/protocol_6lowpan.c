@@ -251,7 +251,7 @@ static bool protocol_6lowpan_map_ip_to_link_addr(struct net_if *cur, const uint8
     /* RFC 6775 says link-local addresses are based on extended MAC (LL64) */
     /* ZigBee IP and Thread both also have link-local addresses based on short MAC (LL16) */
     /* Our old IP stack assumed all addresses were based on MAC; this is available as an option */
-    if (cur->iids_map_to_mac || addr_is_ipv6_link_local(ip_addr)) {
+    if (addr_is_ipv6_link_local(ip_addr)) {
         if (memcmp(&ip_addr[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
             *ll_type = ADDR_802_15_4_SHORT;
             memcpy(&ll_addr[2], &ip_addr[14], 2);
@@ -302,7 +302,6 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
     cur->ipv6_neighbour_cache.send_nud_probes = nd_params.send_nud_probes;
     cur->ipv6_neighbour_cache.probe_avoided_routers = nd_params.send_nud_probes;
-    cur->iids_map_to_mac = nd_params.iids_map_to_mac;
     cur->ip_multicast_as_mac_unicast_to_parent = false;
     cur->max_link_mtu = LOWPAN_MAX_MTU;
     cur->send_mld = false;
