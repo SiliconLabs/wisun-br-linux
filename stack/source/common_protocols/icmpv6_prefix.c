@@ -66,11 +66,3 @@ prefix_entry_t *icmpv6_prefix_compare(prefix_list_t *list, const uint8_t *addr, 
     return NULL;
 }
 
-
-void icmpv6_prefix_list_free(prefix_list_t *list)
-{
-    ns_list_foreach_safe(prefix_entry_t, cur, list) {
-        ns_list_remove(list, cur);
-        free(cur);
-    }
-}

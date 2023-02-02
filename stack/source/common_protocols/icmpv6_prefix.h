@@ -22,7 +22,6 @@
  * API:
  *  * ADD / UPDATE, icmpv6_prefix_add()
  *  * Discover prefix from the list, icmpv6_prefix_compare()
- *  * Free Linked list, icmpv6_prefix_list_free()
  *
  */
 
@@ -49,7 +48,5 @@ typedef NS_LIST_HEAD(prefix_entry_t, link) prefix_list_t;
 prefix_entry_t *icmpv6_prefix_add(prefix_list_t *list, const uint8_t *prefixPtr, uint8_t prefix_len, uint32_t lifeTime, uint32_t prefTime, uint8_t flags);
 
 prefix_entry_t *icmpv6_prefix_compare(prefix_list_t *list, const uint8_t *addr, uint8_t prefix_len);
-
-void icmpv6_prefix_list_free(prefix_list_t *list);
 
 #endif /* ICMPV6_PREFIX_DEFINITION_H_ */
