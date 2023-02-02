@@ -43,7 +43,6 @@ int8_t nd_set_br(nd_router_t *br);
 #else
 #define nd_set_br(br) -1
 #endif
-void gp_address_list_free(gp_ipv6_address_list_t *list);
 uint8_t nd_set_adr_by_dest_prefix(uint8_t *ptr, uint8_t *prefix);
 bool nd_object_active(void);
 void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);

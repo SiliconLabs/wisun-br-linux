@@ -391,16 +391,6 @@ void icmp_nd_router_object_release(nd_router_t *router_object)
 }
 
 
-
-void gp_address_list_free(gp_ipv6_address_list_t *list)
-{
-    ns_list_foreach_safe(gp_ipv6_address_entry_t, cur, list) {
-        ns_list_remove(list, cur);
-        free(cur);
-    }
-}
-
-
 uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
 {
     buffer_t *buf;
