@@ -302,7 +302,6 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->ipv6_neighbour_cache.link_mtu = LOWPAN_MTU;
     cur->ipv6_neighbour_cache.send_nud_probes = nd_params.send_nud_probes;
     cur->ipv6_neighbour_cache.probe_avoided_routers = nd_params.send_nud_probes;
-    cur->ip_multicast_as_mac_unicast_to_parent = false;
     cur->max_link_mtu = LOWPAN_MAX_MTU;
     cur->send_mld = false;
 }

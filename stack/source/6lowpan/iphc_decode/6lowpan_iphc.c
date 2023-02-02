@@ -102,20 +102,12 @@ buffer_t *lowpan_down(buffer_t *buf)
     }
 
     if (buf->dst_sa.addr_type == ADDR_BROADCAST) {
-        /* Thread says multicasts other than MLE are sent to our parent, if we're an end device */
-        if (cur->ip_multicast_as_mac_unicast_to_parent && !buf->options.ll_broadcast_tx) {
-            if (protocol_6lowpan_interface_get_mac_coordinator_address(cur, &buf->dst_sa) < 0) {
-                tr_warn("IP: No parent for multicast as unicast");
-                return buffer_free(buf);
-            }
-        } else {
-            /*
-             * Not using a mesh header, so have to "purify" RFC 4944 multicast - we
-             * set a 100xxxxxxxxxxxxx RFC 4944 multicast address above, but
-             * IEEE 802.15.4 only supports broadcast in the real MAC header.
-             */
-            write_be16(buf->dst_sa.address + 2, 0xFFFF);
-        }
+        /*
+         * Not using a mesh header, so have to "purify" RFC 4944 multicast - we
+         * set a 100xxxxxxxxxxxxx RFC 4944 multicast address above, but
+         * IEEE 802.15.4 only supports broadcast in the real MAC header.
+         */
+        write_be16(buf->dst_sa.address + 2, 0xFFFF);
     }
 
     /* RFC 6282+4944 require that we limit compression to the first fragment.
