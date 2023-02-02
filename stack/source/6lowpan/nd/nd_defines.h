@@ -58,7 +58,6 @@ typedef struct nd_router {
     uint16_t ns_forward_timer;
     uint16_t nd_timer;
     uint8_t ns_retry;
-    prefix_list_t prefix_list;
     nd_router_next_hop default_hop;
     ns_list_link_t link;
 } nd_router_t;

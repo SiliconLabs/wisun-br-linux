@@ -45,7 +45,6 @@
 static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
 static void icmp_nd_router_object_release(nd_router_t *router_object);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 //ND Router List
@@ -89,11 +88,6 @@ static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
     } else {
         memcpy(ptr, cur->default_hop.address, 8);
     }
-}
-
-static void icmp_nd_router_object_reset(nd_router_t *router_object)
-{
-    icmpv6_prefix_list_free(&router_object->prefix_list);
 }
 
 static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
@@ -221,10 +215,7 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
 
 static void icmp_nd_router_object_release(nd_router_t *router_object)
 {
-    if (router_object) {
-        icmp_nd_router_object_reset(router_object);
-        free(router_object);
-    }
+    free(router_object);
 }
 
 
@@ -538,27 +529,7 @@ RESPONSE:
         nd_update_registration(cur_interface, neigh, aro_out);
         return true; /* Transmit NA */
     } else { /* Non-border router and multihop DAD: relay as DAR to Border Router */
-        nd_router_t *nd_router_obj = 0;
-
-        nd_router_obj = nd_router_object_scan_by_prefix(src_addr);
-        if (!nd_router_obj) {
-            /* Don't know where to send this. Do we say "yay" or "nay"? */
-            /* For now, ignore ARO, as with old code; don't set aro_out.present */
-            return true;
-        }
-
-        buffer_t *buf = icmpv6_build_dad(cur_interface, NULL, ICMPV6_TYPE_INFO_DAR, nd_router_obj->border_router, aro_out->eui64, src_addr, 0, aro_out->lifetime);
-        if (!buf) {
-            return false;    /* Failed to build DAR - drop NS */
-        }
-
-        tr_debug("RX:NS --> TX DAR to Root");
-        protocol_push(buf);
-        if (nd_router_obj->ns_forward_timer == 0) {
-            nd_router_obj->ns_forward_timer = nd_params.ns_forward_timeout;
-        }
-
-        return false; /* Tell ns_handler to not transmit now */
+        return true;
     }
 }
 
@@ -629,7 +600,6 @@ static void nd_ns_forward_timer_reset(uint8_t *root_adr)
 
 static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
 {
-    struct net_if *cur_interface;
     if (!(cur->ns_forward_timer)) {
         return;
     }
@@ -640,18 +610,6 @@ static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
     }
 
     cur->ns_forward_timer = 0;
-    cur_interface = protocol_stack_interface_info_get();
-}
-
-static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr)
-{
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (icmpv6_prefix_compare(&cur->prefix_list, ptr, 64)) {
-            return cur;
-        }
-    }
-
-    return NULL;
 }
 
 /* Returns 1 if the router object has been removed */
