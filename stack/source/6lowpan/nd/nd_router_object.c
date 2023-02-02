@@ -400,24 +400,6 @@ void gp_address_list_free(gp_ipv6_address_list_t *list)
     }
 }
 
-void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr)
-{
-    uint8_t *ptr = 0;
-    ptr = hop->address;
-    if (adr->addr_type == ADDR_IPV6) {
-        if (memcmp(&adr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-            hop->addrtype = ADDR_802_15_4_SHORT;
-            memcpy(ptr, &adr->address[14], 2);
-        } else {
-            hop->addrtype = ADDR_802_15_4_LONG;
-            memcpy(ptr, &adr->address[8], 8);
-        }
-    } else {
-        hop->addrtype = adr->addr_type;
-        memcpy(ptr, &adr->address[2], 8);
-    }
-}
-
 
 uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
 {
