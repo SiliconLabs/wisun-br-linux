@@ -312,25 +312,6 @@ static void icmp_nd_router_object_release(nd_router_t *router_object)
 }
 
 
-static uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
-{
-    buffer_t *buf;
-
-    if (cur) {
-        uint8_t dest_addr[16];
-        icmp_nd_set_nd_def_router_address(dest_addr, cur);
-        buf = icmpv6_build_rs(cur_interface, dest_addr);
-    } else {
-        buf = icmpv6_build_rs(cur_interface, NULL);
-    }
-
-    if (buf) {
-        arm_net_protocol_packet_handler(buf, cur_interface);
-        return 1;
-    }
-    return 0;
-}
-
 static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
 {
     return valid && rpl_data_is_rpl_parent_route(route->source);
