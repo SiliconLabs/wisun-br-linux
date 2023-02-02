@@ -866,16 +866,6 @@ void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t pre
 
 }
 
-void addr_set_non_preferred(struct net_if *cur, if_address_source_e source)
-{
-    ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == source) {
-            // Sets preferred lifetime to zero or deletes tentative addresses
-            addr_set_preferred_lifetime(cur, e, 0);
-        }
-    }
-}
-
 void addr_duplicate_detected(struct net_if *interface, const uint8_t addr[static 16])
 {
     if_address_entry_t *entry = addr_get_entry(interface, addr);

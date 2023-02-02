@@ -162,7 +162,6 @@ int_fast8_t addr_delete(struct net_if *cur, const uint8_t address[static 16]);
 int_fast8_t addr_deprecate(struct net_if *cur, const uint8_t address[static 16]);
 void addr_delete_matching(struct net_if *cur, const uint8_t *prefix, uint8_t prefix_len, if_address_source_e source);
 void addr_delete_entry(struct net_if *cur, if_address_entry_t *addr);
-void addr_set_non_preferred(struct net_if *cur, if_address_source_e source);
 
 void addr_notification_register(if_address_notification_fn fn);
 void addr_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
