@@ -943,44 +943,6 @@ buffer_t *icmpv6_down(buffer_t *buf)
     return (buf);
 }
 
-buffer_t *icmpv6_build_rs(struct net_if *cur, const uint8_t *dest)
-{
-
-    buffer_t *buf = buffer_get(127);
-    if (!buf) {
-        return NULL;
-    }
-
-    const uint8_t *src_address;
-    uint8_t *ptr = buffer_data_pointer(buf);
-
-    memcpy(buf->dst_sa.address, dest ? dest : ADDR_LINK_LOCAL_ALL_ROUTERS, 16);
-    buf->dst_sa.addr_type = ADDR_IPV6;
-
-    //select Address by Interface pointer and destination
-    src_address = addr_select_source(cur, buf->dst_sa.address, 0);
-    if (!src_address) {
-        tr_debug("No source address defined");
-        return buffer_free(buf);
-    }
-
-    memcpy(buf->src_sa.address, src_address, 16);
-    buf->src_sa.addr_type = ADDR_IPV6;
-
-    buf->options.type = ICMPV6_TYPE_INFO_RS;
-    buf->options.code = 0;
-    buf->options.hop_limit = 255;
-    ptr = write_be32(ptr, 0);
-
-    /* RFC 6775 mandates SLLAO in RS */
-    ptr = icmpv6_write_icmp_lla(cur, ptr, ICMPV6_OPT_SRC_LL_ADDR, true, src_address);
-
-    buf->buf_end = ptr - buf->buf;
-    buf->interface = cur;
-    buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_ICMP | B_DIR_DOWN);
-    return buf;
-}
-
 uint8_t *icmpv6_write_icmp_lla(struct net_if *cur, uint8_t *dptr, uint8_t icmp_opt, bool must, const uint8_t *ip_addr)
 {
     dptr += cur->if_llao_write(cur, dptr, icmp_opt, must, ip_addr);
