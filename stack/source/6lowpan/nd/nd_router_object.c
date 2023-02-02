@@ -215,16 +215,6 @@ void icmp_nd_router_object_reset(nd_router_t *router_object)
     }
 }
 
-uint8_t icmp_nd_router_prefix_valid(nd_router_t *nd_router_object)
-{
-    ns_list_foreach(prefix_entry_t, cur, &nd_router_object->prefix_list) {
-        if ((cur->options & PIO_A) && cur->lifetime) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 /* Returns 1 if the router object has been removed */
 uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds)
 {
