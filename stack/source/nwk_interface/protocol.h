@@ -171,27 +171,9 @@ typedef struct if_6lowpan_dad_entry {
     bool active;                // RFC 4941 temporary address
 } if_6lowpan_dad_entry_t;
 
-typedef enum {
-    IPV6_LL_CONFIG,
-    IPV6_ROUTER_SOLICITATION,
-    IPV6_GP_GEN,
-    IPV6_GP_CONFIG,
-    IPV6_READY,
-    IPV6_DHCPV6_SOLICITATION,
-    IPV6_DHCPV6_ADDRESS_REQUEST,
-    IPV6_DHCPV6_ADDRESS_REQ_FAIL,
-    //IPV6_DHCPV6_PREFIX_READY
-} ipv6_nd_state_e;
-
 typedef struct ipv6_interface_info {
     net_ipv6_mode_e ipv6_stack_mode;
-    ipv6_nd_state_e IPv6_ND_state;
-    net_ipv6_accept_ra_e accept_ra;
-    uint8_t     wb_table_ttl;
-    uint16_t    ND_TIMER;
     uint8_t     static_prefix64[8];
-    uint8_t     routerSolicitationRetryCounter;
-    bool        temporaryUlaAddressState;
 } ipv6_interface_info_t;
 
 struct thread_info;

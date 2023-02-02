@@ -162,12 +162,6 @@ typedef enum {
     NET_IPV6_BOOTSTRAP_AUTONOMOUS /**< Interface gets IPv6 address automatically from network using ICMP and DHCP. */
 } net_ipv6_mode_e;
 
-/** IPv6 accept RA behaviour */
-typedef enum {
-    NET_IPV6_RA_ACCEPT_IF_AUTONOMOUS, /**<Accept Router Advertisements when using autonomous IPv6 address allocation. Ignore when using a static address. This is the default value for the setting. */
-    NET_IPV6_RA_ACCEPT_ALWAYS         /**<Accept Router Advertisements always, even when using static IPv6 address allocation. */
-} net_ipv6_accept_ra_e;
-
 /** Network coordinator parameter list.
  * Structure is used to read network parameter for warm start.
  */
