@@ -27,11 +27,8 @@ enum addrtype;
 extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 
-void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur);
-
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
 buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur);
-void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
 
 void icmp_nd_routers_init(void);
 
@@ -40,7 +37,5 @@ void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type,
 
 nd_router_t *nd_get_object_by_nwk_id();
 void nd_object_timer(int ticks_update);
-
-void icmp_nd_router_object_reset(nd_router_t *router_object);
 
 #endif

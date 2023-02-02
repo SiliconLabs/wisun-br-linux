@@ -42,16 +42,12 @@
 
 #define TRACE_GROUP "loND"
 
-void icmp_nd_router_object_release(nd_router_t *router_object);
-uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds);
+static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
+static void icmp_nd_router_object_release(nd_router_t *router_object);
 static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
-static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update);
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
-
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
-uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface);
-void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds);
 
 //ND Router List
 static NS_LIST_DEFINE(nd_router_list, nd_router_t, link);
@@ -83,7 +79,7 @@ void icmp_nd_routers_init(void)
 }
 
 
-void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
+static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
 {
     memcpy(ptr, ADDR_LINK_LOCAL_PREFIX, 8);
     ptr += 8;
@@ -97,7 +93,7 @@ void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
     }
 }
 
-void nd_ns_trig(nd_router_t *router_object, struct net_if *cur)
+static void nd_ns_trig(nd_router_t *router_object, struct net_if *cur)
 {
     //
     ns_list_foreach(prefix_entry_t, prefix, &router_object->prefix_list) {
@@ -129,7 +125,7 @@ static void nd_router_remove(nd_router_t *router, struct net_if *interface)
     }
 }
 
-void icmp_nd_router_object_reset(nd_router_t *router_object)
+static void icmp_nd_router_object_reset(nd_router_t *router_object)
 {
     icmpv6_prefix_list_free(&router_object->prefix_list);
 
@@ -142,7 +138,7 @@ void icmp_nd_router_object_reset(nd_router_t *router_object)
 }
 
 /* Returns 1 if the router object has been removed */
-uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds)
+static uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds)
 {
     ns_list_foreach(prefix_entry_t, cur, &nd_router_object->prefix_list) {
         if (cur->preftime != 0xffffffff && cur->preftime) {
@@ -322,7 +318,7 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
 }
 
 /* Update lifetime and expire contexts in ABRO storage */
-void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds)
+static void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds)
 {
     ns_list_foreach_safe(lowpan_context_t, cur, &nd_router_object->context_list) {
         /* We're using seconds in call, but lifetime is in 100ms ticks */
@@ -339,7 +335,7 @@ void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t s
     }
 }
 
-void icmp_nd_router_object_release(nd_router_t *router_object)
+static void icmp_nd_router_object_release(nd_router_t *router_object)
 {
     if (router_object) {
         icmp_nd_router_object_reset(router_object);
@@ -348,7 +344,7 @@ void icmp_nd_router_object_release(nd_router_t *router_object)
 }
 
 
-uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
+static uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
 {
     buffer_t *buf;
 
@@ -375,7 +371,7 @@ static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
 /* Neighbor Solicitation (RFC4861) with Address Registration Option (RFC6775)
  * and Source Link-Layer Address Option (RFC4861)
  */
-void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr)
+static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr)
 {
     uint8_t router[16];
     aro_t aro;
@@ -753,7 +749,7 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 }
 
 
-void nd_ns_forward_timer_reset(uint8_t *root_adr)
+static void nd_ns_forward_timer_reset(uint8_t *root_adr)
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list) {
         if (memcmp(root_adr, cur->border_router, 16) == 0) {
