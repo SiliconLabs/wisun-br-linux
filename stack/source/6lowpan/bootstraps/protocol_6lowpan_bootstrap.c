@@ -114,13 +114,6 @@ void protocol_6lowpan_nd_borderrouter_connection_down(struct net_if *interface)
     }
 }
 
-void protocol_6lowpan_bootstrap_re_start(struct net_if *interface)
-{
-    mac_helper_mac16_address_set(interface, 0xffff);
-    arm_6lowpan_bootstrap_init(interface);
-    tr_info("-->Bootstrap");
-}
-
 uint8_t *protocol_6lowpan_nd_border_router_address_get()
 {
     nd_router_t   *object = nd_get_object_by_nwk_id();
