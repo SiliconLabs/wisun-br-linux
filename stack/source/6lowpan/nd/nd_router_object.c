@@ -51,7 +51,6 @@ static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *prefix);
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface);
-bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr);
 void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds);
 
 //ND Router List
@@ -563,29 +562,6 @@ void icmp_nd_set_next_hop(nd_router_next_hop *hop, sockaddr_t *adr)
     }
 }
 
-bool icmp_nd_compare_to_def_next_hop(nd_router_next_hop *hop, sockaddr_t *adr)
-{
-    if (adr->addr_type == ADDR_IPV6) {
-        if (memcmp(&adr->address[8], ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-            if (hop->addrtype == ADDR_802_15_4_SHORT) {
-                if (memcmp(hop->address, &adr->address[14], 2) == 0) {
-                    return false;
-                }
-            }
-        } else {
-            if (hop->addrtype == ADDR_802_15_4_LONG) {
-                if (memcmp(hop->address, &adr->address[8], 8) == 0) {
-                    return false;
-                }
-            }
-
-        }
-    } else {
-        hop->addrtype = adr->addr_type;
-        memcpy(hop->address, &adr->address[2], 8);
-    }
-    return true;
-}
 
 uint8_t nd_rs_build(nd_router_t *cur, struct net_if *cur_interface)
 {
