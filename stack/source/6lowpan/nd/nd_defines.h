@@ -26,13 +26,6 @@
 #include "6lowpan/iphc_decode/lowpan_context.h"
 #include "common_protocols/icmpv6_prefix.h"
 
-typedef enum {
-    ND_READY = 0,
-    ND_RS_UNCAST = 2,
-    ND_RS_MULTICAST = 3,
-} nd_obj_state_e;
-
-#define nd_is_ready_state(state) ((state) == ND_READY)
 #define nd_is_bootstrap_state(state) (!nd_is_ready_state(state))
 
 typedef enum {
@@ -62,7 +55,6 @@ typedef struct nd_router_next_hop {
 typedef struct nd_router {
     uint8_t border_router[16];
     uint16_t life_time;
-    nd_obj_state_e nd_state;
     uint16_t ns_forward_timer;
     uint16_t nd_timer;
     uint8_t nd_bootstrap_tick;

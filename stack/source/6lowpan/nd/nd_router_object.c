@@ -826,41 +826,6 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, struct net_if *cur_in
         cur->nd_timer -= scaled_ticks;
         return 0;
     }
-
-    switch (cur->nd_state) {
-
-        case ND_RS_UNCAST:
-        case ND_RS_MULTICAST:
-            if (cur->ns_retry) {
-                if (nd_rs_build(cur->nd_state == ND_RS_UNCAST ? cur : NULL, cur_interface)) {
-                    cur->nd_timer = nd_params.rs_retry_interval_min;
-                    cur->nd_timer += rand_get_16bit() & nd_params.timer_random_max;
-                    cur->ns_retry--;
-                    tr_debug("%s", cur->nd_state == ND_RS_UNCAST ? "RS" : "RS+");
-                } else {
-                    cur->nd_timer = 2;
-                }
-            } else {
-                //ND FAIL
-                if (cur->nd_state == ND_RS_UNCAST) {
-                    cur->ns_retry = nd_params.rs_retry_max;
-                    cur->nd_state = ND_RS_MULTICAST;
-                    cur->nd_timer = 1;
-                } else {
-                    //RS UNICAST Fail
-                    /*if (rpl_object_poisons() == 0) ??? */ {
-                        protocol_6lowpan_bootstrap_re_start(cur_interface);
-                    }
-                    return 1;
-                }
-            }
-            break;
-
-        case ND_READY:
-            /* Not called for these states - put in to suppress GCC warning */
-            break;
-    }
-
     return 0;
 }
 
@@ -876,11 +841,7 @@ void nd_object_timer(int ticks_update)
         /* This may nd_router_remove(cur), so need to use safe loop */
         nd_router_forward_timer(cur, ticks_update);
 
-        if (nd_is_ready_state(cur->nd_state)) {
-            nd_router_ready_timer(cur, cur_interface, ticks_update);
-        } else {
-            nd_router_bootstrap_timer(cur, cur_interface, ticks_update);
-        }
+        nd_router_ready_timer(cur, cur_interface, ticks_update);
         return;
     }
 }
