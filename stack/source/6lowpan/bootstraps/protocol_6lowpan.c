@@ -306,7 +306,6 @@ void protocol_6lowpan_configure_core(struct net_if *cur)
     cur->ip_multicast_as_mac_unicast_to_parent = false;
     cur->max_link_mtu = LOWPAN_MAX_MTU;
     cur->send_mld = false;
-    nd_6lowpan_set_radv_params(cur);
 }
 
 void protocol_6lowpan_register_handlers(struct net_if *cur)

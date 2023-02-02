@@ -951,7 +951,3 @@ nd_router_t *nd_get_object_by_nwk_id()
     return NULL;
 }
 
-void nd_6lowpan_set_radv_params(struct net_if *cur_interface)
-{
-}
-

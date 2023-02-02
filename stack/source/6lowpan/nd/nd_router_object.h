@@ -42,6 +42,5 @@ nd_router_t *nd_get_object_by_nwk_id();
 void nd_object_timer(int ticks_update);
 
 void icmp_nd_router_object_reset(nd_router_t *router_object);
-void nd_6lowpan_set_radv_params(struct net_if *cur_interface);
 
 #endif
