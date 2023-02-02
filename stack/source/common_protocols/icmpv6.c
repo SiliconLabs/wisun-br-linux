@@ -567,17 +567,6 @@ int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, ui
     return ret_val;
 }
 
-void icmpv6_slaac_prefix_register_trig(struct net_if *cur, uint8_t *prefix_ptr, uint8_t prefix_len)
-{
-
-    //Validate first current list If prefix is already defined adress
-    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-        if (e->source == ADDR_SOURCE_SLAAC && (e->prefix_len == prefix_len) && !bitcmp(e->address, prefix_ptr, prefix_len)) {
-            e->state_timer = 150;
-        }
-    }
-}
-
 if_address_entry_t *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry;

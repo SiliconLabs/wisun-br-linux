@@ -144,7 +144,6 @@ void icmpv6_build_echo_req(struct net_if *cur, const uint8_t target_addr[16]);
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);
 void icmpv6_recv_ra_prefixes(struct net_if *cur, bool enable);
 
-void icmpv6_slaac_prefix_register_trig(struct net_if *cur, uint8_t *prefix_ptr, uint8_t prefix_len);
 int icmpv6_slaac_prefix_update(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
 struct if_address_entry *icmpv6_slaac_address_add(struct net_if *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
 
