@@ -395,48 +395,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
     }
 }
 
-int8_t icmp_nd_router_prefix_update(uint8_t *dptr, nd_router_t *nd_router_object, struct net_if *cur_interface)
-{
-    slaac_src_e slaac_src;
-    prefix_entry_t *new_entry = 0;
-    uint8_t prefix_len = *dptr++;
-    uint8_t pre_setups = *dptr++;
-    uint32_t lifetime = read_be32(dptr);
-    uint32_t preftime = read_be32(dptr + 4);
-
-    if (cur_interface->lowpan_address_mode == NET_6LOWPAN_GP16_ADDRESS
-            || cur_interface->lowpan_address_mode == NET_6LOWPAN_MULTI_GP_ADDRESS) {
-        slaac_src = SLAAC_IID_6LOWPAN_SHORT;
-    } else {
-        slaac_src = SLAAC_IID_DEFAULT;
-    }
-
-    //Read Lifetimes + skip resertved 4 bytes
-    dptr += 12;
-    new_entry = icmpv6_prefix_add(&nd_router_object->prefix_list, dptr, prefix_len, lifetime, preftime, pre_setups);
-    if (new_entry) {
-        if (new_entry->options == 0xff) {
-            new_entry->options = pre_setups;
-            if (new_entry->options & PIO_A) {
-                if (icmpv6_slaac_prefix_update(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime) != 0) {
-                    icmp_nd_slaac_prefix_address_gen(cur_interface, new_entry->prefix, new_entry->prefix_len, new_entry->lifetime, new_entry->preftime, false, slaac_src);
-                }
-            }
-        } else {
-            icmpv6_slaac_prefix_update(cur_interface, dptr, prefix_len, lifetime, preftime);
-        }
-
-        if (nd_router_object->trig_address_reg) {
-            nd_router_object->trig_address_reg = false;
-            icmpv6_slaac_prefix_register_trig(cur_interface, dptr, prefix_len);
-        }
-
-        return 0;
-    }
-
-    return -2;
-}
-
 /* Update lifetime and expire contexts in ABRO storage */
 void icmp_nd_router_context_ttl_update(nd_router_t *nd_router_object, uint16_t seconds)
 {
