@@ -949,21 +949,6 @@ void nd_object_timer(int ticks_update)
     }
 }
 
-uint32_t nd_object_time_to_next_nd_reg(void)
-{
-    uint32_t ret_val = 0;
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (cur->nd_state == ND_READY) {
-            ret_val = cur->nd_re_validate;
-            ret_val++;
-            ret_val *= 1000;
-            /* XXX surely this should find the shortest, not the first? */
-            break;
-        }
-    }
-    return ret_val;
-}
-
 nd_router_t *nd_get_object_by_nwk_id()
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list)

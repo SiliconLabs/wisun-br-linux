@@ -54,7 +54,6 @@ void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type,
 /** ND Routing Part */
 nd_router_t *nd_get_object_by_nwk_id();
 void nd_object_timer(int ticks_update);
-uint32_t nd_object_time_to_next_nd_reg(void);
 
 void icmp_nd_router_object_reset(nd_router_t *router_object);
 void nd_6lowpan_set_radv_params(struct net_if *cur_interface);
