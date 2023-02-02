@@ -614,16 +614,6 @@ void icmpv6_recv_ra_routes(struct net_if *cur, bool enable)
     }
 }
 
-void icmpv6_recv_ra_prefixes(struct net_if *cur, bool enable)
-{
-    if (cur->recv_ra_prefixes != enable) {
-        cur->recv_ra_prefixes = enable;
-        if (!enable) {
-            addr_set_non_preferred(cur, ADDR_SOURCE_SLAAC);
-        }
-    }
-}
-
 static buffer_t *icmpv6_redirect_handler(buffer_t *buf, struct net_if *cur)
 {
     const uint8_t *ptr = buffer_data_pointer(buf);
