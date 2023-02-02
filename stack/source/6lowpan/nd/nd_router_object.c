@@ -964,16 +964,6 @@ uint32_t nd_object_time_to_next_nd_reg(void)
     return ret_val;
 }
 
-uint8_t nd_prefix_dst_check(uint8_t *ptr)
-{
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (icmpv6_prefix_compare(&cur->prefix_list, ptr, 64)) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 nd_router_t *nd_get_object_by_nwk_id()
 {
     ns_list_foreach(nd_router_t, cur, &nd_router_list)

@@ -52,7 +52,6 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 /** ND Routing Part */
-uint8_t nd_prefix_dst_check(uint8_t *ptr);
 nd_router_t *nd_get_object_by_nwk_id();
 void nd_object_timer(int ticks_update);
 uint32_t nd_object_time_to_next_nd_reg(void);
