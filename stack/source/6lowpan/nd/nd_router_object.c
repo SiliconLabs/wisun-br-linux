@@ -91,27 +91,6 @@ static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
     }
 }
 
-static void nd_ns_trig(nd_router_t *router_object, struct net_if *cur)
-{
-    //
-    ns_list_foreach(prefix_entry_t, prefix, &router_object->prefix_list) {
-        if (prefix->options & PIO_A) {
-            ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-                if (e->source == ADDR_SOURCE_SLAAC && (memcmp(e->address, prefix->prefix, 8) == 0)) {
-                    if (cur->if_6lowpan_dad_process.active) {
-                        e->state_timer = 5;
-                    } else {
-                        e->state_timer = 25;
-                        cur->if_6lowpan_dad_process.active = true;
-                        memcpy(cur->if_6lowpan_dad_process.address, e->address, 16);
-                        cur->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
-                    }
-                }
-            }
-        }
-    }
-}
-
 static void nd_router_remove(nd_router_t *router, struct net_if *interface)
 {
     tr_debug("route remove");
@@ -126,37 +105,6 @@ static void nd_router_remove(nd_router_t *router, struct net_if *interface)
 static void icmp_nd_router_object_reset(nd_router_t *router_object)
 {
     icmpv6_prefix_list_free(&router_object->prefix_list);
-}
-
-/* Returns 1 if the router object has been removed */
-static uint8_t icmp_nd_router_prefix_ttl_update(nd_router_t *nd_router_object, struct net_if *cur_interface, uint16_t seconds)
-{
-    ns_list_foreach(prefix_entry_t, cur, &nd_router_object->prefix_list) {
-        if (cur->preftime != 0xffffffff && cur->preftime) {
-            if (cur->preftime <=  seconds) {
-                tr_warn("PREFTIME zero");
-                cur->preftime = 0;
-            } else {
-                cur->preftime -= seconds;
-            }
-
-        }
-
-        if (cur->lifetime != 0xffffffff && cur->lifetime) {
-            if (cur->lifetime > seconds) {
-                cur->lifetime -= seconds;
-            } else {
-                tr_debug("Prefix Expiry");
-                if (cur->options & PIO_A) {
-                    tr_debug("Delete GP Address by Prefix, start RS");
-                    nd_router_remove(nd_router_object, cur_interface);
-                    return 1;
-                }
-            }
-        }
-    }
-
-    return 0;
 }
 
 static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
@@ -704,11 +652,6 @@ static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
 
     cur->ns_forward_timer = 0;
     cur_interface = protocol_stack_interface_info_get();
-    if (cur_interface) {
-        if (cur_interface->if_6lowpan_dad_process.active == false) {
-            nd_ns_trig(cur, cur_interface);
-        }
-    }
 }
 
 static nd_router_t *nd_router_object_scan_by_prefix(const uint8_t *ptr)
@@ -742,10 +685,6 @@ static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interf
         updated_seconds += (ticks_update / 10);
         //Set Next second based on over based time
         cur->nd_timer -= (ticks_update % 10);
-    }
-
-    if (icmp_nd_router_prefix_ttl_update(cur, cur_interface, updated_seconds)) {
-        return 1;
     }
 
     return 0;
