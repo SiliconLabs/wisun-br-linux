@@ -464,17 +464,6 @@ void icmp_nd_router_object_release(nd_router_t *router_object)
 }
 
 
-void icmp_nd_border_router_release(nd_router_t *router_object)
-{
-    if (router_object) {
-        if (!ns_list_is_empty(&nd_router_list)) {
-            ns_list_remove(&nd_router_list, router_object);
-        }
-        icmp_nd_router_object_reset(router_object);
-    }
-}
-
-
 
 void gp_address_list_free(gp_ipv6_address_list_t *list)
 {
