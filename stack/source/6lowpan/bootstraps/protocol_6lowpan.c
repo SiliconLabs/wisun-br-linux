@@ -468,15 +468,6 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const u
     return ret_val;
 }
 
-int8_t protocol_6lowpan_neighbor_remove(struct net_if *cur, uint8_t *address_ptr, addrtype_e type)
-{
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address_ptr, type);
-    if (entry) {
-        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry);
-    }
-    return 0;
-}
-
 void protocol_6lowpan_allocate_mac16(struct net_if *cur)
 {
     if (cur) {

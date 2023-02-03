@@ -48,7 +48,6 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8]);
-int8_t protocol_6lowpan_neighbor_remove(struct net_if *cur, uint8_t *address_ptr, enum addrtype type);
 
 void protocol_6lowpan_allocate_mac16(struct net_if *cur);
 
