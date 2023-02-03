@@ -154,11 +154,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
     }
 }
 
-buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface)
-{
-    return buffer_free(buf);
-}
-
 static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const aro_t *aro)
 {
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */

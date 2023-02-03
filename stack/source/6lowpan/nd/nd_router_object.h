@@ -27,8 +27,6 @@ enum addrtype;
 extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 
-buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
-
 void icmp_nd_routers_init(void);
 
 bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt, const uint8_t *target, struct aro *aro_out);

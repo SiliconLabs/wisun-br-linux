@@ -887,15 +887,9 @@ buffer_t *icmpv6_up(buffer_t *buf)
             buf = mpl_control_handler(buf, cur);
             break;
 
-#ifdef HAVE_WS_BORDER_ROUTER
         case ICMPV6_TYPE_INFO_DAR:
-
-            if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                buf = nd_dar_parse(buf, cur);
-                break;
-            }
+            // FIXME: forward to Linux?
             goto drop;
-#endif
         case ICMPV6_TYPE_INFO_DAC:
             // FIXME: forward to Linux?
             goto drop;
