@@ -84,7 +84,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/tun.c
     app_wsbrd/commandline.c
     app_wsbrd/commandline_values.c
-    app_wsbrd/os_whiteboard.c
     app_wsbrd/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
@@ -194,7 +193,6 @@ add_library(libwsbrd STATIC
     stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
     stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
     stack/source/service_libs/random_early_detection/random_early_detection.c
-    # Excluded stack/source/service_libs/whiteboard/whiteboard.c
 )
 target_include_directories(libwsbrd PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -400,7 +398,6 @@ if(COMPILE_SIMULATION_TOOLS)
         stack/source/service_libs/mac_neighbor_table/mac_neighbor_table.c
         stack/source/service_libs/nist_aes_kw/nist_aes_kw.c
         stack/source/service_libs/random_early_detection/random_early_detection.c
-        # Excluded stack/source/service_libs/whiteboard/whiteboard.c
     )
     target_include_directories(wsnode PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}

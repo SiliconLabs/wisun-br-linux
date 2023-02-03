@@ -22,7 +22,6 @@
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "service_libs/whiteboard/whiteboard.h"
 #include "stack/net_6lowpan_parameter.h"
 #include "stack/timers.h"
 
@@ -309,53 +308,6 @@ static bool nd_dar_dac_valid(buffer_t *buf)
 
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface)
 {
-#if defined WHITEBOARD && defined HAVE_WS_BORDER_ROUTER
-    uint8_t *dptr = buffer_data_pointer(buf);
-    buffer_t *retbuf;
-    uint8_t status;
-    uint16_t lifetime;
-    const uint8_t *eui64;
-
-    if (!nd_dar_dac_valid(buf)) {
-        goto drop;
-    }
-
-    status = *dptr;
-    dptr += 2;
-    lifetime = read_be16(dptr);
-    dptr += 2;
-
-    if (status != ARO_SUCCESS) {
-        goto drop;
-    }
-
-    whiteboard_entry_t *wb;
-
-    /* EUI-64 */
-    eui64 = dptr;
-    dptr += 8;
-    tr_debug("DAR adr: %s, from %s", tr_ipv6(dptr), tr_ipv6(buf->src_sa.address));
-
-    //SET White board
-    wb = whiteboard_table_update(dptr, eui64, &status);
-    if (wb && status == ARO_SUCCESS) {
-        memcpy(wb->address, dptr, 16);
-        memcpy(wb->eui64, eui64, 8);
-        wb->interface_index = cur_interface->id;
-        wb->ttl = UINT24_C(60) * lifetime;
-    }
-
-    retbuf = icmpv6_build_dad(cur_interface, NULL, ICMPV6_TYPE_INFO_DAC, buf->src_sa.address, eui64, dptr, status, lifetime);
-    if (retbuf) {
-        buffer_free(buf);
-        return retbuf;
-    }
-
-drop:
-#else
-    (void)cur_interface;
-#endif
-
     return buffer_free(buf);
 }
 
@@ -508,23 +460,10 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     }
     if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || nd_params.multihop_dad == false) {
         if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-            whiteboard_entry_t *wb;
-            wb = whiteboard_table_update(src_addr, aro_out->eui64, &aro_out->status);
-            if (wb) {
-                if (aro_out->status == ARO_SUCCESS) {
-                    memcpy(wb->address, src_addr, 16);
-                    memcpy(wb->eui64, aro_out->eui64, 8);
-                    wb->interface_index = cur_interface->id;
-                    wb->ttl = 50000;//life_time;
-                }
-            } else {
-                tr_warn("white Board Registry fail");
-                aro_out->status = ARO_FULL;
-                goto RESPONSE;
-            }
+            tr_warn("white Board Registry fail");
+            aro_out->status = ARO_FULL;
         }
 
-RESPONSE:
         aro_out->present = true;
         nd_update_registration(cur_interface, neigh, aro_out);
         return true; /* Transmit NA */

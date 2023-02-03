@@ -23,7 +23,6 @@
 #include "common/log_legacy.h"
 #include "common/events_scheduler.h"
 #include "common/endian.h"
-#include "service_libs/whiteboard/whiteboard.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mac_api.h"
 #include "stack/timers.h"

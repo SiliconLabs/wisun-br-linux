@@ -28,7 +28,6 @@
 #include "common/log_legacy.h"
 #include "common/events_scheduler.h"
 #include "common/endian.h"
-#include "service_libs/whiteboard/whiteboard.h"
 #include "stack/nwk_stats_api.h"
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"

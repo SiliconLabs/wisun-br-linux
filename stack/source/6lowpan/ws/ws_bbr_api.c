@@ -29,7 +29,6 @@
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
-#include "stack/mac/platform/os_whiteboard.h"
 #include "stack/ws_bbr_api.h"
 #include "stack/timers.h"
 
