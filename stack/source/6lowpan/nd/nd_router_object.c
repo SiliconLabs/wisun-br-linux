@@ -42,12 +42,8 @@
 #define TRACE_GROUP "loND"
 
 static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
-static void icmp_nd_router_object_release(nd_router_t *router_object);
 static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
-
-//ND Router List
-static NS_LIST_DEFINE(nd_router_list, nd_router_t, link);
 
 /*
  * Default values are documented in net_6lowpan_parameter_api.h - keep in sync.
@@ -68,10 +64,6 @@ nd_parameters_s nd_params = {
 
 void icmp_nd_routers_init(void)
 {
-    ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {
-        ns_list_remove(&nd_router_list, cur);
-        icmp_nd_router_object_release(cur);
-    }
 }
 
 
@@ -211,12 +203,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
             break;
     }
 }
-
-static void icmp_nd_router_object_release(nd_router_t *router_object)
-{
-    free(router_object);
-}
-
 
 static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
 {
@@ -526,77 +512,14 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 
 static void nd_ns_forward_timer_reset(uint8_t *root_adr)
 {
-    ns_list_foreach(nd_router_t, cur, &nd_router_list) {
-        if (memcmp(root_adr, cur->border_router, 16) == 0) {
-            if (cur->ns_forward_timer) {
-                cur->ns_forward_timer = 0;
-                tr_warn("RX VALID DAC");
-            }
-            break;
-        }
-    }
-}
-
-static void nd_router_forward_timer(nd_router_t *cur, uint16_t ticks_update)
-{
-    if (!(cur->ns_forward_timer)) {
-        return;
-    }
-
-    if (cur->ns_forward_timer > ticks_update) {
-        cur->ns_forward_timer -= ticks_update;
-        return;
-    }
-
-    cur->ns_forward_timer = 0;
-}
-
-/* Returns 1 if the router object has been removed */
-static uint8_t nd_router_ready_timer(nd_router_t *cur, struct net_if *cur_interface, uint16_t ticks_update)
-{
-    if (!cur->nd_timer) {
-        return 0;
-    }
-
-    if (cur->nd_timer > ticks_update) {
-        cur->nd_timer -= ticks_update;
-        return 0;
-    }
-
-    //Take out last remaing time from ticks
-    ticks_update -= cur->nd_timer;
-    uint16_t updated_seconds = 1;
-    cur->nd_timer = 10;
-    if (ticks_update) {
-        updated_seconds += (ticks_update / 10);
-        //Set Next second based on over based time
-        cur->nd_timer -= (ticks_update % 10);
-    }
-
-    return 0;
 }
 
 void nd_object_timer(int ticks_update)
 {
-    struct net_if *cur_interface = protocol_stack_interface_info_get();
-
-    if (!(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE))
-        return;
-
-    ns_list_foreach_safe(nd_router_t, cur, &nd_router_list) {
-        /* This may nd_router_remove(cur), so need to use safe loop */
-        nd_router_forward_timer(cur, ticks_update);
-
-        nd_router_ready_timer(cur, cur_interface, ticks_update);
-        return;
-    }
 }
 
 nd_router_t *nd_get_object_by_nwk_id()
 {
-    ns_list_foreach(nd_router_t, cur, &nd_router_list)
-        return cur;
-
     return NULL;
 }
 
