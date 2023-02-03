@@ -80,7 +80,6 @@ static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
     }
 
     cur->nd_timer = 10;
-    cur->ns_forward_timer = 0;
 
     protocol_6lowpan_nd_ready(cur_interface);
     if (cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
