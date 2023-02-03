@@ -183,7 +183,6 @@ add_library(libwsbrd STATIC
     stack/source/net_api/net_multicast.c
     stack/source/net_api/net_rpl.c
     stack/source/net_api/net_interface.c
-    stack/source/net_api/net_ipv6.c
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
@@ -386,7 +385,6 @@ if(COMPILE_DEVTOOLS)
         stack/source/net_api/net_multicast.c
         stack/source/net_api/net_rpl.c
         stack/source/net_api/net_interface.c
-        stack/source/net_api/net_ipv6.c
         stack/source/mpl/mpl.c
         stack/source/nwk_interface/protocol_core.c
         stack/source/nwk_interface/protocol_stats.c
