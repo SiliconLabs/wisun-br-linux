@@ -39,10 +39,8 @@ extern struct nd_parameters nd_params;
 struct aro;
 
 #ifdef HAVE_WS_BORDER_ROUTER
-int8_t icmp_nd_router_prefix_proxy_update(uint8_t *dptr, nd_router_setup_t *nd_router_object);
 int8_t nd_set_br(nd_router_t *br);
 #else
-#define icmp_nd_router_prefix_proxy_update(dptr, nd_router_object) -1
 #define nd_set_br(br) -1
 #endif
 void icmp_nd_prefixs_parse(buffer_t *buf, nd_router_t *nd_router_object, struct net_if *cur_interface);

@@ -214,28 +214,6 @@ void icmp_nd_router_object_reset(nd_router_t *router_object)
         router_object->secondaty_hop = 0;
     }
 }
-#ifdef HAVE_WS_BORDER_ROUTER
-int8_t icmp_nd_router_prefix_proxy_update(uint8_t *dptr, nd_router_setup_t *nd_router_object)
-{
-    prefix_entry_t *new_entry = 0;
-    uint8_t pre_setups;
-    uint32_t lifeTime, prefTime;
-    uint8_t prefix_len = *dptr++;
-    pre_setups = *dptr++;
-    lifeTime = read_be32(dptr);
-    dptr += 4;
-    prefTime = read_be32(dptr);
-    dptr += 4;
-    pre_setups |= PIO_R;
-
-    new_entry = icmpv6_prefix_add(&nd_router_object->prefix_list, dptr, prefix_len, lifeTime, prefTime, pre_setups);
-    if (new_entry) {
-        new_entry->options = pre_setups;
-        return 0;
-    }
-    return -2;
-}
-#endif
 
 uint8_t icmp_nd_router_prefix_valid(nd_router_t *nd_router_object)
 {
