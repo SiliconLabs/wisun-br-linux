@@ -80,17 +80,6 @@ nd_parameters_s nd_params = {
     .ns_forward_timeout = 300,
 };
 
-#ifdef HAVE_WS_BORDER_ROUTER
-int8_t nd_set_br(nd_router_t *br)
-{
-    if (ns_list_is_empty(&nd_router_list)) {
-        ns_list_add_to_start(&nd_router_list, br);
-        return 0;
-    }
-    return -1;
-}
-#endif
-
 bool nd_object_active(void)
 {
     if (!ns_list_is_empty(&nd_router_list)) {
