@@ -28,7 +28,6 @@ extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface);
-buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur);
 
 void icmp_nd_routers_init(void);
 

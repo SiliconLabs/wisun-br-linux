@@ -154,55 +154,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
     }
 }
 
-/* RFC 6775 Duplicate Address Request/Confirmation packets
- *
- *     0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |     Type      |     Code      |          Checksum             |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |    Status     |   Reserved    |     Registration Lifetime     |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                                                               |
- * +                            EUI-64                             +
- * |                                                               |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |                                                               |
- * +                                                               +
- * |                                                               |
- * +                       Registered Address                      +
- * |                                                               |
- * +                                                               +
- * |                                                               |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *
- * (and 8.2.1 implies this is can be followed by options, although
- * none are defined).
- */
-static bool nd_dar_dac_valid(buffer_t *buf)
-{
-    const uint8_t *dptr = buffer_data_pointer(buf);
-
-    if (buf->options.code != 0) {
-        return false;
-    }
-
-    if (!icmpv6_options_well_formed_in_buffer(buf, 28)) {
-        return false;
-    }
-
-    if (addr_is_ipv6_multicast(dptr + 12)) {
-        return false;
-    }
-
-    if (addr_is_ipv6_unspecified(buf->src_sa.address) ||
-            addr_is_ipv6_multicast(buf->src_sa.address)) {
-        return false;
-    }
-
-    return true;
-}
-
 buffer_t *nd_dar_parse(buffer_t *buf, struct net_if *cur_interface)
 {
     return buffer_free(buf);
@@ -367,53 +318,4 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     } else { /* Non-border router and multihop DAD: relay as DAR to Border Router */
         return true;
     }
-}
-
-buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
-{
-    uint8_t *dptr, target_address[16], *reg_address;
-    aro_t aro;
-
-    dptr = buffer_data_pointer(buf);
-
-    if (!nd_dar_dac_valid(buf)) {
-        return buffer_free(buf);
-    }
-
-    aro.status  = *dptr;
-    dptr += 2;
-    aro.lifetime = read_be16(dptr);
-    dptr += 2;
-    /* EUI-64 */
-    memcpy(aro.eui64, dptr, 8);
-    dptr += 8;
-    reg_address = dptr;
-    dptr += 16;
-
-    ipv6_neighbour_t *neigh = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, reg_address);
-    if (!neigh || neigh->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE || memcmp(ipv6_neighbour_eui64(&cur->ipv6_neighbour_cache, neigh), aro.eui64, 8)) {
-        return buffer_free(buf);
-    }
-
-    nd_update_registration(cur, neigh, &aro);
-
-    /* RFC 6775 has a bit of a hole here - what's the Target Address? */
-    /* It's not in the DAC. We didn't record locally when we sent the DAR */
-    /* I guess it's logical that we use a link-local address. We break */
-    /* RFC 4861 by responding "solicited", but not to the NS Target... */
-    /* However, my reading of RFC 4861 says that the receiver should do */
-    /* the right thing. Only problem is that what if they really did want */
-    /* to do a NUD probe for our GP addr, but included the ARO by mistake? */
-    if (addr_interface_get_ll_address(cur, target_address, 0)) {
-        return buffer_free(buf);
-    }
-
-    /* NA builder will send it to the address in the buffer's source */
-    memcpy(buf->src_sa.address, reg_address, 16);
-
-    buffer_t *na_buf = icmpv6_build_na(cur, true, true, false, target_address, &aro, buf->src_sa.address);
-
-    buffer_free(buf);
-
-    return na_buf;
 }
