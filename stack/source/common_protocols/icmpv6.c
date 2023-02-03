@@ -897,10 +897,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
             goto drop;
 #endif
         case ICMPV6_TYPE_INFO_DAC:
-            if (cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY) {
-                buf = nd_dac_handler(buf, cur);
-                break;
-            }
+            // FIXME: forward to Linux?
             goto drop;
 
     }

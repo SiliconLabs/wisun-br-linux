@@ -114,7 +114,6 @@ typedef enum {
     ARM_NWK_SNIFFER_MODE,
 } arm_nwk_interface_mode_e;
 
-#define INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY   1
 #define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
 #define INTERFACE_NWK_ACTIVE                            8
 #define INTERFACE_NWK_ROUTER_DEVICE                     16

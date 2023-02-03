@@ -101,22 +101,7 @@ int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_p
  */
 int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_addr_info)
 {
-    (void)interface_id;
-    (void)nd_addr_info;
-    int8_t ret_val = -2;
-    struct net_if *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if ((cur->lowpan_info & (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) == (INTERFACE_NWK_ACTIVE | INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY)) {
-            uint8_t *adr_ptr = protocol_6lowpan_nd_border_router_address_get();
-            if (adr_ptr) {
-                ret_val = 0;
-                memcpy(nd_addr_info->border_router, adr_ptr, 16);
-                memcpy(nd_addr_info->prefix, adr_ptr, 8);
-            }
-        }
-    }
-    return ret_val;
+    return -2;
 }
 
 /**
