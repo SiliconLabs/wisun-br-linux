@@ -91,17 +91,6 @@ static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
     }
 }
 
-static void nd_router_remove(nd_router_t *router, struct net_if *interface)
-{
-    tr_debug("route remove");
-    ns_list_remove(&nd_router_list, router);
-    icmp_nd_router_object_release(router);
-
-    if (ns_list_is_empty(&nd_router_list)) {
-        arm_6lowpan_bootstrap_init(interface);
-    }
-}
-
 static void icmp_nd_router_object_reset(nd_router_t *router_object)
 {
     icmpv6_prefix_list_free(&router_object->prefix_list);
