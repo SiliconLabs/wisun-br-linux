@@ -88,7 +88,6 @@
 #include "app_wsbrd/wsbr.h"
 #include "common/ns_list.h"
 #include "common/utils.h"
-#include "stack/net_rpl.h"
 #include "stack/timers.h"
 
 #include "stack/source/common_protocols/icmpv6.h"

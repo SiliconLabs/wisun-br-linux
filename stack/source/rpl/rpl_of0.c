@@ -21,7 +21,6 @@
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
 #include "service_libs/etx/etx.h"
-#include "stack/net_rpl.h"
 #include "stack/net_interface.h"
 
 #include "nwk_interface/protocol_abstract.h"

@@ -29,11 +29,11 @@
 #include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
-#include "stack/net_rpl.h"
 #include "stack/ws_bbr_api.h"
 #include "stack/timers.h"
 
 #include "nwk_interface/protocol.h"
+#include "rpl/rpl_structures.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"
 #include "common_protocols/icmpv6.h"

@@ -40,7 +40,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/etx/etx.h" /* slight ick */
-#include "stack/net_rpl.h"
 #include "stack/timers.h"
 
 #include "core/ns_buffer.h"

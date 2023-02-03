@@ -36,7 +36,6 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "stack/net_interface.h"
-#include "stack/net_rpl.h"
 #include "stack/timers.h"
 
 #include "core/ns_address_internal.h"

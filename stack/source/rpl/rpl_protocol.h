@@ -19,8 +19,6 @@
 #ifndef RPL_PROTOCOL_H_
 #define RPL_PROTOCOL_H_
 
-#include "stack/net_rpl.h" // for RPL_INSTANCE_LOCAL
-
 /* RPL messages are defined as ICMPv6 Codes in common_protocols/icmpv6.h */
 
 /* Options in ICMPv6 RPL messages (RFC 6550) */
@@ -77,6 +75,9 @@
 /* Flags in RPL InstanceID */
 // RPL_INSTANCE_LOCAL defined in net_rpl.h, as it's part of public API
 #define RPL_INSTANCE_DEST       0x40    /* 'D' */
+
+/** Flag in RPL instance ID to indicate that it is a local instance. */
+#define RPL_INSTANCE_LOCAL          0x80
 
 #define rpl_instance_id_is_local(id)  (((id) & RPL_INSTANCE_LOCAL) != 0)
 #define rpl_instance_id_is_global(id) (((id) & RPL_INSTANCE_LOCAL) == 0)

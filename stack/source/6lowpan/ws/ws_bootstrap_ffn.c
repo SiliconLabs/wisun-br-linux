@@ -33,7 +33,6 @@
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
-#include "stack/net_rpl.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_api.h"

@@ -33,6 +33,33 @@ struct rpl_dodag_info;
 struct rpl_dodag;
 struct buffer;
 
+/* A 3-bit unsigned integer that defines how preferable the root of this DODAG
+ * is compared to other DODAG roots within the instance. DAGPreference ranges
+ * from 0x00 (least preferred) to 0x07 (most preferred). The default is 0 (least
+ * preferred).
+ */
+#define RPL_DODAG_PREF_MASK         0x07                          /**< Preference mask */
+#define RPL_DODAG_PREF(n)           ((n) & RPL_DODAG_PREF_MASK)   /**< DODAG preference */
+
+/* The Mode of Operation (MOP) field identifies the mode of operation of the RPL
+ * instance as administratively provisioned at and distributed by the DODAG
+ * root. All nodes joining the DODAG must be able to honor the MOP to fully
+ * participate as a router. Otherwise, they must only join as a leaf.
+ */
+#define RPL_MODE_MASK               0x38  /**< MOP mask */
+#define RPL_MODE_SHIFT              3     /**< shift count */
+#define RPL_MODE_NO_DOWNWARD        0x00  /**< No Downward routes maintained by RPL */
+#define RPL_MODE_NON_STORING        0x08  /**< Non-Storing Mode of Operation */
+#define RPL_MODE_STORING            0x10  /**< Storing Mode of Operation with no multicast support */
+#define RPL_MODE_STORING_MULTICAST  0x18  /**< Storing Mode of Operation with multicast support */
+#define RPL_MODE_P2P_DISCOVERY      0x20  /**< RFC 6997 */
+
+/* The Grounded 'G' flag indicates whether the DODAG advertised can satisfy the
+ * application-defined goal. If the flag is set, the DODAG is grounded. If the
+ * flag is cleared, the DODAG is floating.
+ */
+#define RPL_GROUNDED                0x80
+
 typedef enum rpl_event {
     RPL_EVENT_DAO_DONE,         /* Simplistic trigger for bootstrap advance - a DAO registration completed */
     RPL_EVENT_LOCAL_REPAIR_START, /* RPL start scanning new parent by multicast DIS user can disable beacon request responser here*/
@@ -105,6 +132,31 @@ typedef struct rpl_dio_route {
     uint8_t prefix_len;                             /* Prefix length (bits) */
     uint8_t prefix[];                               /* Variable-length prefix */
 } rpl_dio_route_t;
+
+/** RPL ROOT parent flag */
+#define RPL_ROOT_PARENT             0
+/** RPL primary active primary_parent primary_parent_rank information is valid. */
+#define RPL_PRIMARY_PARENT_SET      1
+/** RPL secondary active secondary_parent secondary_parent_rank information is valid. */
+#define RPL_SECONDARY_PARENT_SET    2
+
+/* RPL Instance DODAG info structure for rpl_control_read_dodag_infoo. Read RFC
+ * 6550 for more information and to make sure you know what you are doing.
+ */
+typedef struct rpl_dodag_info {
+    uint8_t dodag_id[16];           /**< RPL DODAG ID. */
+    uint8_t instance_id;            /**< RPL instance ID. */
+    uint8_t flags;                  /**< RPL DODAG Flags: (MOP,Grounded, Router Pref) */
+    uint8_t version_num;            /**< RPL DODAG version number. */
+    uint8_t DTSN;                   /**< RPL DODAG DAO trigger version number. */
+    uint16_t curent_rank;           /**< RPL DODAG node current Rank. */
+    uint8_t parent_flags;           /**< RPL DODAG parent Flags: RPL_ROOT_PARENT or RPL_PRIMARY_PARENT_SET, RPL_SECONDARY_PARENT_SET */
+    uint8_t primary_parent[16];     /**< Primary Parent GP address if RPL_PRIMARY_PARENT_SET flag is active. */
+    uint16_t primary_parent_rank;   /**< Primary Parent Rank if RPL_PRIMARY_PARENT_SET flag is active. */
+    uint8_t secondary_parent[16];   /**< Secondary Parent GP address if RPL_SECONDARY_PARENT_SET flag is active. */
+    uint16_t secondary_parent_rank; /**< Secondary Parent rank if RPL_SECONDARY_PARENT_SET flag is active. */
+    uint16_t dag_min_hop_rank_inc;  /**< RPL DODAG conf DAG minimum rank increase. */
+} rpl_dodag_info_t;
 
 typedef NS_LIST_HEAD(rpl_dio_route_t, link) rpl_dio_route_list_t;
 
