@@ -76,8 +76,6 @@ static int8_t set_6lowpan_nwk_down(struct net_if *cur)
         lowpan_adaptation_interface_reset(cur->id);
         reassembly_interface_reset(cur->id);
 
-        icmp_nd_routers_init();
-
         /* Init RPL Timers */
         cur->bootstrap_state_machine_cnt = 0;
 
@@ -95,7 +93,6 @@ static int8_t set_6lowpan_nwk_up(struct net_if *cur)
 
     if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
         /* Change Idle-> Active */
-        icmp_nd_routers_init();
         cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
         cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
         cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY; //Clear Bind

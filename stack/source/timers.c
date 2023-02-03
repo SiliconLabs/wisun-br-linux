@@ -49,7 +49,6 @@ static struct {
     timer_entry(6LOWPAN_ADDR_SLOW,      addr_slow_timer,                            1000,                                         true),
     timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                                          true),
     timer_entry(WS_COMMON_SLOW,         ws_common_seconds_timer,                    1000,                                         true),
-    timer_entry(6LOWPAN_ND,             nd_object_timer,                            100,                                          true),
     timer_entry(6LOWPAN_ETX,            etx_cache_timer,                            1000,                                         true),
     timer_entry(6LOWPAN_ADAPTATION,     lowpan_adaptation_interface_slow_timer,     1000,                                         true),
     timer_entry(6LOWPAN_NEIGHBOR,       mac_neighbor_table_neighbor_timeout_update, 1000,                                         true),

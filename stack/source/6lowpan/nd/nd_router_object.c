@@ -42,7 +42,6 @@
 #define TRACE_GROUP "loND"
 
 static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
-static void nd_ns_forward_timer_reset(uint8_t *root_adr);
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 /*
@@ -61,11 +60,6 @@ nd_parameters_s nd_params = {
     .send_nud_probes = true,
     .ns_forward_timeout = 300,
 };
-
-void icmp_nd_routers_init(void)
-{
-}
-
 
 static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
 {
@@ -469,8 +463,6 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
         return buffer_free(buf);
     }
 
-    nd_ns_forward_timer_reset(buf->src_sa.address);
-
     aro.status  = *dptr;
     dptr += 2;
     aro.lifetime = read_be16(dptr);
@@ -507,15 +499,6 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
     buffer_free(buf);
 
     return na_buf;
-}
-
-
-static void nd_ns_forward_timer_reset(uint8_t *root_adr)
-{
-}
-
-void nd_object_timer(int ticks_update)
-{
 }
 
 nd_router_t *nd_get_object_by_nwk_id()

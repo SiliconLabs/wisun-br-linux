@@ -36,6 +36,5 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 nd_router_t *nd_get_object_by_nwk_id();
-void nd_object_timer(int ticks_update);
 
 #endif
