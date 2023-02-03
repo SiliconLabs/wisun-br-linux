@@ -23,11 +23,10 @@
 
 #include <stdint.h>
 
-#include "stack/net_multicast.h"
-
 struct net_if;
 struct trickle_params;
 typedef struct buffer buffer_t;
+typedef enum multicast_mpl_seed_id_mode multicast_mpl_seed_id_mode_e;
 
 /* Timing is in 50 ms (1/20 s) ticks */
 #define MPL_TICK_MS 50

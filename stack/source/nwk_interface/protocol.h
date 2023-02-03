@@ -30,7 +30,6 @@
 #include "common/trickle.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/channel_list.h"
-#include "stack/net_multicast.h"
 #include "stack/net_interface.h"
 
 // Users of protocol.h can assume it includes these headers
@@ -115,6 +114,19 @@ typedef enum {
     ARM_NWK_RAW_PHY_MODE,
     ARM_NWK_SNIFFER_MODE,
 } arm_nwk_interface_mode_e;
+
+/** Control selection of MPL Seed Identifier for packets we originate */
+typedef enum multicast_mpl_seed_id_mode {
+    MULTICAST_MPL_SEED_ID_DEFAULT = -256,               /** Default selection (used to make a domain use the interface's default) */
+    MULTICAST_MPL_SEED_ID_MAC_SHORT = -1,               /** Use short MAC address if available (eg IEEE 802.15.4 interface's macShortAddress (16-bit)), else full MAC */
+    MULTICAST_MPL_SEED_ID_MAC = -2,                     /** Use MAC padded to 64-bit (eg IEEE 802.15.4 interface's macExtendedAddress, or 48-bit Ethernet MAC followed by 2 zero pad bytes) */
+    MULTICAST_MPL_SEED_ID_IID_EUI64 = -3,               /** Use 64-bit IPv6 IID based on EUI-64 (eg 02:11:22:ff:fe:00:00:00 for an Ethernet interface with MAC 00:11:22:00:00:00) */
+    MULTICAST_MPL_SEED_ID_IID_SLAAC = -4,               /** Use 64-bit IPv6 IID that would be used for SLAAC */
+    MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN = 0,      /** Use IPv6 source address selection to choose 128-bit Seed ID based on MPL Domain Address as destination */
+    MULTICAST_MPL_SEED_ID_16_BIT = 2,                   /** Use a manually-specified 16-bit ID */
+    MULTICAST_MPL_SEED_ID_64_BIT = 8,                   /** Use a manually-specified 64-bit ID */
+    MULTICAST_MPL_SEED_ID_128_BIT = 16,                 /** Use a manually-specified 128-bit ID */
+} multicast_mpl_seed_id_mode_e;
 
 #define INTERFACE_NWK_BOOTSTRAP_ACTIVE                   2
 #define INTERFACE_NWK_ACTIVE                            8

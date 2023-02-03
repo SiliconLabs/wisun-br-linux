@@ -25,7 +25,6 @@
 #include "common/ws_regdb.h"
 #include "common/key_value_storage.h"
 #include "common/log_legacy.h"
-#include "stack/net_multicast.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
 #include "stack/ws_bbr_api.h"
