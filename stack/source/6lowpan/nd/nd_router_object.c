@@ -25,7 +25,6 @@
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/net_6lowpan_parameter.h"
 #include "stack/timers.h"
 
 #include "stack/source/rpl/rpl_downward.h"

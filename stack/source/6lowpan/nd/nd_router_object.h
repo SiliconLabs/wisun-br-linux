@@ -21,7 +21,18 @@
 #include <stdbool.h>
 #include "6lowpan/nd/nd_defines.h"
 
-struct nd_parameters;
+typedef struct nd_parameters {
+    uint8_t rs_retry_max;                   /**< Define Bootstrap RS max retry count. */
+    uint8_t ns_retry_max;                   /**< Define Bootstrap NS max retry count. */
+    uint16_t timer_random_max;              /**< Define Interval random in 6LoWPAN bootstrap timer ticks for RS, NS and starting NS - NA process.  */
+    uint16_t rs_retry_interval_min;         /**< Define Retry interval in 6LoWPAN bootstrap timer ticks waiting for RA. */
+    uint16_t ns_retry_interval_min;         /**< Define Retry interval in 6LoWPAN bootstrap timer ticks waiting for NA. */
+    uint16_t ns_retry_linear_backoff;       /**< Define Retry interval linear backoff in bootstrap timer ticks. */
+    bool multihop_dad;                      /**< Define whether to perform duplicate address detection with border router or locally. */
+    bool send_nud_probes;                   /**< Define whether IPv6 NUD probes are enabled (disabling may limit fault detection). */
+    uint16_t ns_forward_timeout;            /**< Define timeout when forwarding NS messages - if reached, our own address discovery process is restarted. */
+} nd_parameters_s;
+
 struct aro;
 enum addrtype;
 
