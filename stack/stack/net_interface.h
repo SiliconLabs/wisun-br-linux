@@ -446,16 +446,6 @@ int8_t arm_nwk_6lowpan_border_route_nd_default_prefix_timeout_set(int8_t interfa
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params);
 
 /**
- * \brief A function to read 6LoWPAN ND border router address and NWK prefix.
- * \param interface_id Network interface ID.
- * \param nd_addr_info Pointer to the structure where the address is written.
- * \return 0 On success.
- * \return Negative value if network interface is not known or if the interface
- *          is not in active or ready state.
- */
-int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_addr_info);
-
-/**
  * \brief A function to read the networking address information.
  * \param interface_id Network interface ID.
  * \param addr_id The address information type to be read.

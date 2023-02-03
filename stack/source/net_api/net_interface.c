@@ -94,17 +94,6 @@ int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_p
 }
 
 /**
- * \brief A function to read 6LoWPAN ND border router address and NWK prefix
- * \param mac_params is a pointer to the structure to where the mac address are written to.
- * \return 0 on success.
- * \return -1 .
- */
-int8_t arm_nwk_nd_address_read(int8_t interface_id, network_layer_address_s *nd_addr_info)
-{
-    return -2;
-}
-
-/**
   * \brief Get current used channel.
   *
   * \return Active channel
