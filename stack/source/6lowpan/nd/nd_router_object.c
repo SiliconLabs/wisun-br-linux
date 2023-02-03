@@ -41,7 +41,6 @@
 
 #define TRACE_GROUP "loND"
 
-static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr);
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
 /*
@@ -60,20 +59,6 @@ nd_parameters_s nd_params = {
     .send_nud_probes = true,
     .ns_forward_timeout = 300,
 };
-
-static void icmp_nd_set_nd_def_router_address(uint8_t *ptr, nd_router_t *cur)
-{
-    memcpy(ptr, ADDR_LINK_LOCAL_PREFIX, 8);
-    ptr += 8;
-    if (cur->default_hop.addrtype == ADDR_802_15_4_SHORT) {
-        memcpy(ptr, ADDR_SHORT_ADR_SUFFIC, 6);
-        ptr += 6;
-        *ptr++ = cur->default_hop.address[0];
-        *ptr = cur->default_hop.address[1];
-    } else {
-        memcpy(ptr, cur->default_hop.address, 8);
-    }
-}
 
 static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
 {
@@ -106,7 +91,6 @@ static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason)
 {
-    nd_router_t *cur = NULL;
     bool g16_address;
     tr_debug("Interface ID: %i, ipv6: %s", interface->id, tr_ipv6(addr->address));
 
@@ -130,38 +114,10 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
         case ADDR_CALLBACK_TIMER:
             tr_debug("State Timer CB");
             if (interface->if_6lowpan_dad_process.active) {
-                if (memcmp(addr->address, interface->if_6lowpan_dad_process.address, 16) == 0) {
-                    cur = nd_get_object_by_nwk_id();
-                } else {
+                if (memcmp(addr->address, interface->if_6lowpan_dad_process.address, 16))
                     addr->state_timer = 5;
-                }
             } else {
-                cur = nd_get_object_by_nwk_id();
-                if (cur) {
-                    interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
-                    interface->if_6lowpan_dad_process.active = true;
-                    memcpy(interface->if_6lowpan_dad_process.address, addr->address, 16);
-                } else {
-                    tr_debug("No ND Object for Address");
-                }
-            }
-
-            if (cur) {
-                if (interface->if_6lowpan_dad_process.count) {
-                    nd_ns_build(cur, interface, addr->address);
-                    addr->state_timer = nd_params.ns_retry_interval_min;
-                    addr->state_timer += nd_params.ns_retry_linear_backoff * (nd_params.ns_retry_max - interface->if_6lowpan_dad_process.count);
-                    addr->state_timer += (rand_get_16bit() & nd_params.timer_random_max);
-                    tr_debug("NS Configured");
-                    interface->if_6lowpan_dad_process.count--;
-                } else {
-
-                    //ND FAIL
-                    tr_error("NS Fail");
-                    protocol_6lowpan_neighbor_remove(interface, cur->default_hop.address, cur->default_hop.addrtype);
-                    interface->if_6lowpan_dad_process.active = false;
-                    protocol_6lowpan_nd_borderrouter_connection_down(interface);
-                }
+                tr_debug("No ND Object for Address");
             }
 
             break;
@@ -196,45 +152,6 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
         default:
             break;
     }
-}
-
-static bool rpl_parents_only(const ipv6_route_info_t *route, bool valid)
-{
-    return valid && rpl_data_is_rpl_parent_route(route->source);
-}
-
-/* Neighbor Solicitation (RFC4861) with Address Registration Option (RFC6775)
- * and Source Link-Layer Address Option (RFC4861)
- */
-static void nd_ns_build(nd_router_t *cur, struct net_if *cur_interface, uint8_t *address_ptr)
-{
-    uint8_t router[16];
-    aro_t aro;
-    buffer_t *buf;
-
-    /* If we're a host, we will just send to our ND parent. But as a router,
-     * we don't really maintain our ND parent - send NA instead to the RPL
-     * parent we would use to talk to the border router.
-     */
-    if ((cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) && cur_interface->rpl_domain) {
-        ipv6_route_t *route = ipv6_route_choose_next_hop(cur->border_router, cur_interface->id, rpl_parents_only);
-        if (!route) {
-            /* Important to return 1 so this counts as a "success" - caller then backs off due to lack of response and time out */
-            return;
-        }
-        memcpy(router, route->info.next_hop_addr, 16);
-    } else
-    {
-        icmp_nd_set_nd_def_router_address(router, cur);
-    }
-
-    aro.status = ARO_SUCCESS;
-    aro.present = true;
-    aro.lifetime = (cur->life_time / 60) + 1;
-    memcpy(aro.eui64, cur_interface->mac, 8);
-
-    buf = icmpv6_build_ns(cur_interface, router, address_ptr, true, false, &aro);
-    protocol_push(buf);
 }
 
 /* RFC 6775 Duplicate Address Request/Confirmation packets
@@ -500,9 +417,3 @@ buffer_t *nd_dac_handler(buffer_t *buf, struct net_if *cur)
 
     return na_buf;
 }
-
-nd_router_t *nd_get_object_by_nwk_id()
-{
-    return NULL;
-}
-

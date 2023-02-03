@@ -57,35 +57,8 @@ static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface);
 
 #define MAX_MC_DIS_COUNT 3
 
-static void protocol_6lowpan_nd_ready(struct net_if *cur)
-{
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE)) {
-        tr_debug("ND BS ready");
-        bootstrap_next_state_kick(ER_BIND_COMP, cur);
-        clear_power_state(ICMP_ACTIVE);
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ADDRESS_REGISTER_READY;
-    } else {
-        tr_debug("RE ND ready");
-        clear_power_state(ICMP_ACTIVE);
-    }
-}
-
 static void protocol_6lowpan_address_reg_ready(struct net_if *cur_interface)
 {
-    nd_router_t *cur;
-    cur = nd_get_object_by_nwk_id();
-
-    if (!cur) {
-        return;
-    }
-
-    cur->nd_timer = 10;
-
-    protocol_6lowpan_nd_ready(cur_interface);
-    if (cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
-        addr_add_router_groups(cur_interface);
-        addr_add_group(cur_interface, ADDR_REALM_LOCAL_ALL_ROUTERS);
-    }
 }
 
 void protocol_6lowpan_bootstrap_nd_ready(struct net_if *cur_interface)
@@ -105,10 +78,6 @@ void protocol_6lowpan_nd_borderrouter_connection_down(struct net_if *interface)
 
 uint8_t *protocol_6lowpan_nd_border_router_address_get()
 {
-    nd_router_t   *object = nd_get_object_by_nwk_id();
-    if (object) {
-        return object->border_router;
-    }
     return 0;
 }
 
