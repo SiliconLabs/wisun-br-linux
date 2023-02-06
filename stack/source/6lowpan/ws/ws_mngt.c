@@ -57,7 +57,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
         ERROR("Missing US-IE in %s", val_to_str(frame_type, ws_mngt_frames, NULL));
         return false;
     }
-    if (!ws_bootstrap_validate_channel_plan(ie_us, NULL, net_if))
+    if (!ws_chan_plan_validate(&ie_us->chan_plan, &net_if->ws_info->hopping_schedule))
         return false;
     if (!ws_bootstrap_validate_channel_function(ie_us, NULL))
         return false;

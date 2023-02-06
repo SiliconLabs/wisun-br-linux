@@ -920,12 +920,12 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     return;
 }
 
-static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
-                                    ws_hopping_schedule_t *hopping_schedule)
+bool ws_chan_plan_validate(const struct ws_generic_channel_info *rx_plan,
+                           const ws_hopping_schedule_t *hopping_schedule)
 {
-    ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
-    ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
-    ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
+    const ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
+    const ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
+    const ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
     int plan_nr = rx_plan->channel_plan;
     const struct chan_params *parms = NULL;
 
@@ -946,19 +946,6 @@ static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
     return parms->chan0_freq == hopping_schedule->ch0_freq &&
            parms->chan_count == hopping_schedule->number_of_channels &&
            ws_regdb_chan_spacing_id(parms->chan_spacing) == hopping_schedule->channel_spacing;
-}
-
-bool ws_bootstrap_validate_channel_plan(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs, struct net_if *cur)
-{
-    if (ws_us)
-        if (!ws_channel_plan_compare(&ws_us->chan_plan, &cur->ws_info->hopping_schedule))
-            return false;
-
-    if (ws_bs)
-        if (!ws_channel_plan_compare(&ws_bs->chan_plan, &cur->ws_info->hopping_schedule))
-            return false;
-
-    return true;
 }
 
 bool ws_bootstrap_validate_channel_function(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs)

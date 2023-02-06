@@ -938,10 +938,9 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
         return;
     }
 
-    if (!ws_bootstrap_validate_channel_plan(&ws_us, NULL, cur) ||
-            !ws_bootstrap_validate_channel_function(&ws_us, NULL)) {
+    if (!ws_chan_plan_validate(&ws_us.chan_plan, &cur->ws_info->hopping_schedule) ||
+        !ws_bootstrap_validate_channel_function(&ws_us, NULL))
         return;
-    }
 
     //Handle Message's
     switch (message_type) {
