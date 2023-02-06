@@ -912,10 +912,10 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
     has_utt  = ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt);
     has_lutt = ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt);
     if (!has_utt && !has_lutt) {
-        ERROR("Missing (L)UTT-IE in received frame");
+        TRACE(TR_DROP, "drop 15.4     : missing (L)UTT-IE");
         return;
     } else if (has_utt && has_lutt) {
-        ERROR("Both UTT-IE and LUTT-IE found in received frame");
+        TRACE(TR_DROP, "drop 15.4     : both UTT-IE and LUTT-IE present");
         return;
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
@@ -927,7 +927,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
     else if (frame_type == WS_FT_EAPOL && has_utt)
         ws_llc_eapol_ffn_ind(api, data, ie_ext);
     else
-        ERROR("Unsupported frame type: 0x%02x", frame_type);
+        TRACE(TR_DROP, "drop 15.4     : unsupported frame type (0x%02x)", frame_type);
 }
 
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
