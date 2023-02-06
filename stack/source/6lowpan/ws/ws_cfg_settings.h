@@ -19,6 +19,10 @@
 #define WS_CFG_STORAGE_H_
 #include <stdint.h>
 
+#include "common/int24.h"
+
+struct net_if;
+
 /**
  * \brief Struct ws_gen_cfg_t General configuration
  */
