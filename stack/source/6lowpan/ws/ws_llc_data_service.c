@@ -738,92 +738,78 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
 
 }
 
-static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, ws_utt_ie_t ws_utt)
+static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data, llc_neighbour_req_t *neighbor)
 {
-    struct iobuf_read ie_buf;
+    ws_neighbor_temp_class_t *tmp;
 
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt.message_type);
-    if (!base) {
-        return;
+    if (base->ws_neighbor_info_request_cb(base->interface_ptr, data->SrcAddr, neighbor, false))
+        return true;
+
+    tmp = ws_allocate_eapol_temp_entry(base->temp_entries, data->SrcAddr);
+    if (!tmp) {
+        WARN("EAPOL temporary pool empty");
+        return false;
     }
 
-    //Discover MPX header and handler
-    mpx_msg_t mpx_frame;
-    mpx_user_t *user_cb = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
-    if (!user_cb) {
-        return;
-    }
+    neighbor->ws_neighbor = &tmp->neigh_info_list;
+    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+    tmp->mpduLinkQuality = data->mpduLinkQuality;
+    tmp->signal_dbm = data->signal_dbm;
+    return true;
+}
 
-    ws_us_ie_t us_ie;
-    bool us_ie_inline = false;
-    bool bs_ie_inline = false;
-    ws_bs_ie_t ws_bs_ie;
-    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
-    us_ie_inline = ws_wp_nested_us_read(ie_buf.data, ie_buf.data_size, &us_ie);
-    bs_ie_inline = ws_wp_nested_bs_read(ie_buf.data, ie_buf.data_size, &ws_bs_ie);
-
-    struct net_if *interface = base->interface_ptr;
-
-    //Validate Unicast shedule Channel Plan
-    if (us_ie_inline &&
-            (!ws_chan_plan_validate(&us_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_chan_func_validate(us_ie.chan_plan.channel_function))) {
-        //Channel plan or channel function configuration mismatch
-        return;
-    }
-
-    if (bs_ie_inline &&
-            (!ws_chan_plan_validate(&ws_bs_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_chan_func_validate(ws_bs_ie.chan_plan.channel_function))) {
-        return;
-    }
-
-    llc_neighbour_req_t neighbor_info;
-
-    if (!base->ws_neighbor_info_request_cb(interface, data->SrcAddr, &neighbor_info, false)) {
-        //Allocate temporary entry
-        ws_neighbor_temp_class_t *temp_entry = ws_allocate_eapol_temp_entry(base->temp_entries, data->SrcAddr);
-        if (!temp_entry) {
-            tr_warn("EAPOL temp pool empty");
-            return;
-        }
-        //Update Temporary Lifetime
-        temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
-
-        neighbor_info.ws_neighbor = &temp_entry->neigh_info_list;
-        //Storage Signal info for future ETX update possibility
-        temp_entry->mpduLinkQuality = data->mpduLinkQuality;
-        temp_entry->signal_dbm = data->signal_dbm;
-    }
-    uint8_t auth_eui64[8];
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, data->SrcAddr);
-    if (us_ie_inline) {
-        ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
-    }
-    //Update BS if it is part of message
-    if (bs_ie_inline) {
-        ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
-    }
-
-    //Discover and write Auhtenticator EUI-64
-    if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64)) {
-        ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
-    }
-
-    //Update BT if it is part of message
-    ws_bt_ie_t ws_bt;
-    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
-        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
-        if (neighbor_info.neighbor) {
-            ws_bootstrap_ffn_eapol_parent_synch(interface, &neighbor_info);
-        }
-    }
-
-
+static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+{
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, WS_FT_EAPOL);
     mcps_data_ind_t data_ind = *data;
+    llc_neighbour_req_t neighbor;
+    struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
+    struct iobuf_read ie_wp;
+    struct ws_us_ie ie_us;
+    struct ws_bs_ie ie_bs;
+    uint8_t auth_eui64[8];
+    mpx_user_t *mpx_user;
+    mpx_msg_t mpx_frame;
+    bool has_us, has_bs;
+
+    if (!base)
+        return;
+    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
+    if (!mpx_user)
+        return;
+
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
+    has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
+    if (has_us && (!ws_chan_func_validate(ie_us.chan_plan.channel_function) ||
+        !ws_chan_plan_validate(&ie_us.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+        return;
+    has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
+    if (has_bs && (!ws_chan_func_validate(ie_bs.chan_plan.channel_function) ||
+        !ws_chan_plan_validate(&ie_bs.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+        return;
+
+    if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))
+        return;
+
+    if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
+        BUG("missing UTT-IE in EAPOL frame from FFN");
+    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
+    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
+        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor.ws_neighbor, &ie_bt, data->timestamp);
+        if (neighbor.neighbor)
+            ws_bootstrap_ffn_eapol_parent_synch(base->interface_ptr, &neighbor);
+    }
+    if (has_us)
+        ws_neighbor_class_neighbor_unicast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_us, data->SrcAddr);
+    if (has_bs)
+        ws_neighbor_class_neighbor_broadcast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_bs);
+    if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
+        ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
+
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
-    user_cb->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
 static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
@@ -964,7 +950,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
     else if (frame_type == WS_FT_DATA && has_utt)
         ws_llc_data_indication_cb(api, data, ie_ext, ie_utt);
     else if (frame_type == WS_FT_EAPOL && has_utt)
-        ws_llc_eapol_indication_cb(api, data, ie_ext, ie_utt);
+        ws_llc_eapol_ffn_ind(api, data, ie_ext);
     else
         ERROR("Unsupported frame type: 0x%02x", frame_type);
 }
