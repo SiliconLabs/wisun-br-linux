@@ -605,137 +605,110 @@ static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_dat
     return user_cb;
 }
 
-
-static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, ws_utt_ie_t ws_utt)
+static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *data,
+                                const mcps_data_ie_list_t *ie_ext)
 {
-    struct iobuf_read ie_buf;
-
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, ws_utt.message_type);
-    if (!base) {
-        return;
-    }
-
-    //Discover MPX header and handler
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, WS_FT_DATA);
+    mcps_data_ind_t data_ind = *data;
+    llc_neighbour_req_t neighbor;
+    bool has_us, has_bs, has_pom;
+    bool req_new_ngb, multicast;
+    struct ws_utt_ie ie_utt;
+    struct ws_bt_ie ie_bt;
+    struct iobuf_read ie_wp;
+    struct ws_pom_ie ie_pom;
+    struct ws_us_ie ie_us;
+    struct ws_bs_ie ie_bs;
+    mpx_user_t *mpx_user;
     mpx_msg_t mpx_frame;
-    mpx_user_t *user_cb = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
-    if (!user_cb) {
+
+    if (!base)
         return;
-    }
-
-    ws_us_ie_t us_ie;
-    bool us_ie_inline = false;
-    bool bs_ie_inline = false;
-    bool pom_ie_inline = false;
-    ws_bs_ie_t ws_bs_ie;
-    ws_pom_ie_t pom_ie;
-    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
-    us_ie_inline = ws_wp_nested_us_read(ie_buf.data, ie_buf.data_size, &us_ie);
-    bs_ie_inline = ws_wp_nested_bs_read(ie_buf.data, ie_buf.data_size, &ws_bs_ie);
-    pom_ie_inline = ws_wp_nested_pom_read(ie_buf.data, ie_buf.data_size, &pom_ie);
-
-    struct net_if *interface = base->interface_ptr;
-
-    //Validate Unicast shedule Channel Plan
-    if (us_ie_inline &&
-            (!ws_chan_plan_validate(&us_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_chan_func_validate(us_ie.chan_plan.channel_function))) {
-        //Channel plan or channel function configuration mismatch
+    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
+    if (!mpx_user)
         return;
-    }
 
-    if (bs_ie_inline &&
-            (!ws_chan_plan_validate(&ws_bs_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_chan_func_validate(ws_bs_ie.chan_plan.channel_function))) {
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
+    has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
+    has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
+    has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
+
+    if (has_us && (!ws_chan_func_validate(ie_us.chan_plan.channel_function) ||
+        !ws_chan_plan_validate(&ie_us.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
         return;
-    }
+    if (has_bs && (!ws_chan_func_validate(ie_bs.chan_plan.channel_function) ||
+        !ws_chan_plan_validate(&ie_bs.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+        return;
 
-    //Free Old temporary entry
-    if (data->Key.SecurityLevel) {
+    if (data->Key.SecurityLevel)
         ws_llc_release_eapol_temp_entry(base->temp_entries, data->SrcAddr);
-    }
 
-    llc_neighbour_req_t neighbor_info;
-    bool multicast;
-    bool request_new_entry;
     if (data->DstAddrMode == ADDR_802_15_4_LONG) {
         multicast = false;
-        request_new_entry = us_ie_inline;
+        req_new_ngb = has_us;
     } else {
         multicast = true;
-        request_new_entry = false;
+        req_new_ngb = false;
     }
 
-    if (!base->ws_neighbor_info_request_cb(interface, data->SrcAddr, &neighbor_info, request_new_entry)) {
+    if (!base->ws_neighbor_info_request_cb(base->interface_ptr, data->SrcAddr, &neighbor, req_new_ngb)) {
         if (!multicast) {
             //tr_debug("Drop message no neighbor");
             return;
         } else {
 #ifndef HAVE_WS_BORDER_ROUTER
-            //Allocate temporary entry
-            ws_neighbor_temp_class_t *temp_entry = ws_allocate_multicast_temp_entry(base->temp_entries, data->SrcAddr);
-            neighbor_info.ws_neighbor = &temp_entry->neigh_info_list;
-            //Storage Signal info for future ETX update possibility
-            temp_entry->mpduLinkQuality = data->mpduLinkQuality;
-            temp_entry->signal_dbm = data->signal_dbm;
+            ws_neighbor_temp_class_t *tmp = ws_allocate_multicast_temp_entry(base->temp_entries, data->SrcAddr);
+
+            neighbor.ws_neighbor = &tmp->neigh_info_list;
+            tmp->mpduLinkQuality = data->mpduLinkQuality;
+            tmp->signal_dbm = data->signal_dbm;
 #endif
         }
     }
 
-    if (neighbor_info.ws_neighbor) {
-        if (!multicast && !data->DSN_suppressed && !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, data->DSN, data->timestamp)) {
+    if (neighbor.ws_neighbor) {
+        if (!multicast && !data->DSN_suppressed &&
+            !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor.ws_neighbor, data->DSN, data->timestamp)) {
             tr_info("Drop duplicate message");
             return;
         }
 
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, data->SrcAddr);
-        if (us_ie_inline) {
-            ws_neighbor_class_neighbor_unicast_schedule_set(interface, neighbor_info.ws_neighbor, &us_ie, data->SrcAddr);
+        if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
+            BUG("missing UTT-IE in data frame from FFN");
+        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
+        if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
+            ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor.ws_neighbor, &ie_bt, data->timestamp);
+            if (neighbor.neighbor && neighbor.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR)
+                ns_fhss_ws_set_parent(base->interface_ptr->ws_info->fhss_api, neighbor.neighbor->mac64,
+                                      &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
         }
-        //Update BS if it is part of message
-        if (bs_ie_inline) {
-            ws_neighbor_class_neighbor_broadcast_schedule_set(interface, neighbor_info.ws_neighbor, &ws_bs_ie);
-        }
+        if (has_us)
+            ws_neighbor_class_neighbor_unicast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_us, data->SrcAddr);
+        if (has_bs)
+            ws_neighbor_class_neighbor_broadcast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_bs);
 
-        //Update BT if it is part of message
-        ws_bt_ie_t ws_bt;
-        if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ws_bt)) {
-            ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor_info.ws_neighbor, &ws_bt, data->timestamp);
-            if (neighbor_info.neighbor && neighbor_info.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-                ns_fhss_ws_set_parent(interface->ws_info->fhss_api, neighbor_info.neighbor->mac64, &neighbor_info.ws_neighbor->fhss_data.bc_timing_info, false);
-            }
-        }
 
-        if (data->DstAddrMode == ADDR_802_15_4_LONG) {
-            neighbor_info.ws_neighbor->unicast_data_rx = true;
-        }
+        if (data->DstAddrMode == ADDR_802_15_4_LONG)
+            neighbor.ws_neighbor->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neighbor_class_rf_sensitivity_calculate(interface->ws_info->device_min_sens, data->signal_dbm);
-        ws_neighbor_class_rsl_in_calculate(neighbor_info.ws_neighbor, data->signal_dbm);
+        ws_neighbor_class_rf_sensitivity_calculate(base->interface_ptr->ws_info->device_min_sens, data->signal_dbm);
+        ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
-        if (neighbor_info.neighbor) {
-            if (data->Key.SecurityLevel) {
-                //SET trusted state
-                mac_neighbor_table_trusted_neighbor(mac_neighbor_info(interface), neighbor_info.neighbor, true);
-            }
-            //
-            //Phy CAP info read and store
-            if (ws_version_1_1(interface)) {
-                if (pom_ie_inline) {
-                    mac_neighbor_update_pom(neighbor_info.neighbor, pom_ie.phy_op_mode_number, pom_ie.phy_op_mode_id, pom_ie.mdr_command_capable);
-                }
-            }
+        if (neighbor.neighbor) {
+            if (data->Key.SecurityLevel)
+                mac_neighbor_table_trusted_neighbor(mac_neighbor_info(base->interface_ptr), neighbor.neighbor, true);
+            if (ws_version_1_1(base->interface_ptr) && has_pom)
+                mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
+                                        ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
         }
     }
 
-    mcps_data_ind_t data_ind = *data;
-    if (!neighbor_info.neighbor) {
-        data_ind.Key.SecurityLevel = 0; //Mark unknow device
-    }
+    if (!neighbor.neighbor)
+        data_ind.Key.SecurityLevel = 0;
     data_ind.msdu_ptr = mpx_frame.frame_ptr;
     data_ind.msduLength = mpx_frame.frame_length;
-    user_cb->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
-
+    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
 static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data, llc_neighbour_req_t *neighbor)
@@ -948,7 +921,7 @@ static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t
     if (ws_is_frame_mngt(frame_type))
         ws_llc_asynch_indication(api, data, ie_ext, frame_type);
     else if (frame_type == WS_FT_DATA && has_utt)
-        ws_llc_data_indication_cb(api, data, ie_ext, ie_utt);
+        ws_llc_data_ffn_ind(api, data, ie_ext);
     else if (frame_type == WS_FT_EAPOL && has_utt)
         ws_llc_eapol_ffn_ind(api, data, ie_ext);
     else
