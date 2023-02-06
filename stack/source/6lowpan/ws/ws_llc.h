@@ -251,4 +251,6 @@ void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operat
 
 int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address);
 
+const char *tr_ws_frame(uint8_t frame_type);
+
 #endif

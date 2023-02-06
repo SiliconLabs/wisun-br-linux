@@ -836,12 +836,17 @@ static const struct name_value ws_frames[] = {
     { NULL },
 };
 
+const char *tr_ws_frame(uint8_t type)
+{
+    return val_to_str(type, ws_frames, "unknown");
+}
+
 static void ws_trace_llc_mac_req(const mcps_data_req_t *data, const llc_message_t *message)
 {
     const char *type_str;
     int trace_domain;
 
-    type_str = val_to_str(message->message_type, ws_frames, "[UNK]");
+    type_str = tr_ws_frame(message->message_type);
     if (message->message_type == WS_FT_DATA ||
         message->message_type == WS_FT_ACK ||
         message->message_type == WS_FT_EAPOL)
@@ -869,7 +874,7 @@ static void ws_trace_llc_mac_ind(const mcps_data_ind_t *data, const mcps_data_ie
     else
         message_type = -1;
 
-    type_str = val_to_str(message_type, ws_frames, "[UNK]");
+    type_str = tr_ws_frame(message_type);
     if (message_type == WS_FT_DATA ||
         message_type == WS_FT_ACK ||
         message_type == WS_FT_EAPOL)
