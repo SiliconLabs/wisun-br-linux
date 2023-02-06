@@ -81,23 +81,6 @@ typedef struct nd_parameters {
 int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *parameter_ptr);
 
 /**
- * \brief Function to change 6LoWPAN bootstrap base tick 100ms multiplier.
- *
- * Note: This function MUST be called after net_init_core(). Do not change this
- * unless you really want 6LoWPAN bootstrap working slower than normally.
- *
- * This only affects the bootstrap timers.
- *
- * \param base_tick_x_100ms Tick resolution in 100ms units.
- *        Max value 10 --> 10 times slower functionality
- *
- * \return 0, Change OK.
- * \return -1, Invalid value (<1 or >10).
- *
- */
-int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms);
-
-/**
  * \brief Function to read 6LoWPAN ND bootstrap parameters.
  *
  * \param parameter_ptr Output pointer for ND parameters.

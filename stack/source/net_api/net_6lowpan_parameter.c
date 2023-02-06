@@ -66,28 +66,6 @@ int8_t net_6lowpan_nd_parameter_set(const nd_parameters_s *p)
 }
 
 /**
- * \brief API for change 6LoWPAN bootstrap base tick 100ms multiplier.
- *
- * Note: This function MUST be called after net_init_core(). Do not change this
- * unless you really want 6LoWPAN bootstrap working slower than normally.
- * \param base_tick_x_100ms Tick resolution in 100ms units.
- *        Max value 10 --> 10 times slower functionality
- *
- * \return 0, Change OK
- * \return -1, Invalid value (<1 or >10)
- *
- */
-int8_t net_6lowpan_nd_timer_base_tick_set(uint8_t base_tick_x_100ms)
-{
-    if (base_tick_x_100ms < 1 || base_tick_x_100ms > 10) {
-        return -1;
-    }
-
-    nd_base_tick = base_tick_x_100ms;
-    return 0;
-}
-
-/**
  * \brief API to read 6LoWPAN ND bootstrap parameters.
  *
  * \param parameter_ptr Output pointer for ND parameters

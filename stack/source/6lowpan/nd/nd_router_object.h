@@ -24,7 +24,6 @@ struct nd_parameters;
 struct aro;
 enum addrtype;
 
-extern uint8_t nd_base_tick;
 extern struct nd_parameters nd_params;
 
 void icmp_nd_routers_init(void);

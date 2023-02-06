@@ -43,11 +43,6 @@
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
-/*
- * Default values are documented in net_6lowpan_parameter_api.h - keep in sync.
- */
-uint8_t nd_base_tick = 1;
-
 nd_parameters_s nd_params = {
     .rs_retry_max = 3,
     .rs_retry_interval_min = 15,
