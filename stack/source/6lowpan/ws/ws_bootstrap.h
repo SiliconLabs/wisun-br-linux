@@ -111,11 +111,6 @@ bool ws_eapol_relay_state_active(struct net_if *cur);
 
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
-bool ws_chan_plan_validate(const struct ws_generic_channel_info *rx_plan,
-                      const struct ws_hopping_schedule *hopping_schedule);
-
-bool ws_chan_func_validate(uint8_t func);
-
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64);
 
 int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr);

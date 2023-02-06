@@ -920,45 +920,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     return;
 }
 
-bool ws_chan_plan_validate(const struct ws_generic_channel_info *rx_plan,
-                           const ws_hopping_schedule_t *hopping_schedule)
-{
-    const ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
-    const ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
-    const ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
-    int plan_nr = rx_plan->channel_plan;
-    const struct chan_params *parms = NULL;
-
-    if (plan_nr == 1)
-        return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
-               plan1->channel_spacing == hopping_schedule->channel_spacing &&
-               plan1->number_of_channel == hopping_schedule->number_of_channels;
-    if (plan_nr == 0)
-        parms = ws_regdb_chan_params(plan0->regulatory_domain,
-                                     0, plan0->operating_class);
-    if (plan_nr == 2)
-        parms = ws_regdb_chan_params(plan2->regulatory_domain,
-                                     plan2->channel_plan_id, 0);
-    if (!parms) {
-        ERROR("invalid channel plan");
-        return false;
-    }
-    return parms->chan0_freq == hopping_schedule->ch0_freq &&
-           parms->chan_count == hopping_schedule->number_of_channels &&
-           ws_regdb_chan_spacing_id(parms->chan_spacing) == hopping_schedule->channel_spacing;
-}
-
-bool ws_chan_func_validate(uint8_t func)
-{
-    switch (func) {
-    case WS_FIXED_CHANNEL:
-    case WS_TR51CF:
-    case WS_DH1CF:
-        return true;
-    }
-    return false;
-}
-
 uint32_t ws_time_from_last_unicast_traffic(uint32_t current_time_stamp, ws_neighbor_class_entry_t *ws_neighbor)
 {
     uint32_t time_from_last_unicast_schedule = current_time_stamp;

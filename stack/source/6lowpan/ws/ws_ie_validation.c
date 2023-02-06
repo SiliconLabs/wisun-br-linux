@@ -1,22 +1,53 @@
-#include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/mac/fhss_config.h"
 #include "common/log.h"
+#include "common/ws_regdb.h"
 
 #include "ws_ie_validation.h"
+
+static bool ws_ie_validate_chan_plan(const struct ws_generic_channel_info *rx_plan,
+                                     const ws_hopping_schedule_t *hopping_schedule)
+{
+    const ws_channel_plan_zero_t *plan0 = &rx_plan->plan.zero;
+    const ws_channel_plan_one_t *plan1 = &rx_plan->plan.one;
+    const ws_channel_plan_two_t *plan2 = &rx_plan->plan.two;
+    int plan_nr = rx_plan->channel_plan;
+    const struct chan_params *parms = NULL;
+
+    if (plan_nr == 1)
+        return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
+               plan1->channel_spacing == hopping_schedule->channel_spacing &&
+               plan1->number_of_channel == hopping_schedule->number_of_channels;
+    if (plan_nr == 0)
+        parms = ws_regdb_chan_params(plan0->regulatory_domain,
+                                     0, plan0->operating_class);
+    if (plan_nr == 2)
+        parms = ws_regdb_chan_params(plan2->regulatory_domain,
+                                     plan2->channel_plan_id, 0);
+    if (!parms)
+        return false;
+    return parms->chan0_freq == hopping_schedule->ch0_freq &&
+           parms->chan_count == hopping_schedule->number_of_channels &&
+           ws_regdb_chan_spacing_id(parms->chan_spacing) == hopping_schedule->channel_spacing;
+}
 
 static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
                                     const struct ws_generic_channel_info *chan_info,
                                     const char *ie_str)
 {
-    if (!ws_chan_plan_validate(chan_info, &ws_info->hopping_schedule)) {
+    if (!ws_ie_validate_chan_plan(chan_info, &ws_info->hopping_schedule)) {
         TRACE(TR_DROP, "drop 15.4     : %s channel plan mismatch", ie_str);
         return false;
     }
 
-    if (!ws_chan_func_validate(chan_info->channel_function)) {
+    switch (chan_info->channel_function) {
+    case WS_FIXED_CHANNEL:
+    case WS_TR51CF:
+    case WS_DH1CF:
+        break;
+    default:
         TRACE(TR_DROP, "drop 15.4     : %s channel function unsupported", ie_str);
         return false;
     }
