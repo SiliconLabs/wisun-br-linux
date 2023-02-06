@@ -939,7 +939,7 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
     }
 
     if (!ws_chan_plan_validate(&ws_us.chan_plan, &cur->ws_info->hopping_schedule) ||
-        !ws_bootstrap_validate_channel_function(&ws_us, NULL))
+        !ws_chan_func_validate(ws_us.chan_plan.channel_function))
         return;
 
     //Handle Message's

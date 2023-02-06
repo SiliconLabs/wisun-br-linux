@@ -948,25 +948,15 @@ bool ws_chan_plan_validate(const struct ws_generic_channel_info *rx_plan,
            ws_regdb_chan_spacing_id(parms->chan_spacing) == hopping_schedule->channel_spacing;
 }
 
-bool ws_bootstrap_validate_channel_function(ws_us_ie_t *ws_us, ws_bs_ie_t *ws_bs)
+bool ws_chan_func_validate(uint8_t func)
 {
-    if (ws_us) {
-        if (ws_us->chan_plan.channel_function != WS_FIXED_CHANNEL &&
-                ws_us->chan_plan.channel_function != WS_TR51CF &&
-                ws_us->chan_plan.channel_function != WS_DH1CF) {
-            return false;
-        }
+    switch (func) {
+    case WS_FIXED_CHANNEL:
+    case WS_TR51CF:
+    case WS_DH1CF:
+        return true;
     }
-
-    if (ws_bs) {
-        if (ws_bs->chan_plan.channel_function != WS_FIXED_CHANNEL &&
-                ws_bs->chan_plan.channel_function != WS_TR51CF &&
-                ws_bs->chan_plan.channel_function != WS_DH1CF) {
-            return false;
-        }
-    }
-
-    return true;
+    return false;
 }
 
 uint32_t ws_time_from_last_unicast_traffic(uint32_t current_time_stamp, ws_neighbor_class_entry_t *ws_neighbor)

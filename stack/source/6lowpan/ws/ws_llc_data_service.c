@@ -638,14 +638,14 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
             (!ws_chan_plan_validate(&us_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
+             !ws_chan_func_validate(us_ie.chan_plan.channel_function))) {
         //Channel plan or channel function configuration mismatch
         return;
     }
 
     if (bs_ie_inline &&
             (!ws_chan_plan_validate(&ws_bs_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie))) {
+             !ws_chan_func_validate(ws_bs_ie.chan_plan.channel_function))) {
         return;
     }
 
@@ -767,14 +767,14 @@ static void ws_llc_eapol_indication_cb(const mac_api_t *api, const mcps_data_ind
     //Validate Unicast shedule Channel Plan
     if (us_ie_inline &&
             (!ws_chan_plan_validate(&us_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_bootstrap_validate_channel_function(&us_ie, NULL))) {
+             !ws_chan_func_validate(us_ie.chan_plan.channel_function))) {
         //Channel plan or channel function configuration mismatch
         return;
     }
 
     if (bs_ie_inline &&
             (!ws_chan_plan_validate(&ws_bs_ie.chan_plan, &interface->ws_info->hopping_schedule) ||
-             !ws_bootstrap_validate_channel_function(NULL, &ws_bs_ie))) {
+             !ws_chan_func_validate(ws_bs_ie.chan_plan.channel_function))) {
         return;
     }
 

@@ -59,7 +59,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
     }
     if (!ws_chan_plan_validate(&ie_us->chan_plan, &net_if->ws_info->hopping_schedule))
         return false;
-    if (!ws_bootstrap_validate_channel_function(ie_us, NULL))
+    if (!ws_chan_func_validate(ie_us->chan_plan.channel_function))
         return false;
     return true;
 }
