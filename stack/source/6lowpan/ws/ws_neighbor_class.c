@@ -197,36 +197,56 @@ static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, 
     }
 }
 
-static void ws_neigbhor_set_chan_list(const struct net_if *net_if,
-                                      union ws_excluded_channel *excl_chans,
-                                      uint8_t excl_chan_ctrl,
-                                      ws_channel_mask_t *chan_list,
-                                      uint16_t chan_cnt,
-                                      uint8_t reg_domain,
-                                      uint8_t op_class,
-                                      uint8_t chan_plan_id)
+static void ws_neighbor_set_chan_list(const struct net_if *net_if,
+                                      struct ws_channel_mask *chan_list,
+                                      const struct ws_generic_channel_info *_chan_info,
+                                      uint16_t *chan_cnt)
 {
-    // Handle excluded channel and generate activate channel list
-    switch (excl_chan_ctrl) {
+    struct ws_generic_channel_info chan_info = *_chan_info;
+    uint8_t reg_domain = REG_DOMAIN_UNDEF;
+    uint8_t chan_plan_id = 0;
+    uint8_t op_class = 0;
+
+    switch (chan_info.channel_plan) {
+    case 0:
+        reg_domain = chan_info.plan.zero.regulatory_domain;
+        op_class   = chan_info.plan.zero.operating_class;
+        *chan_cnt = ws_common_channel_number_calc(reg_domain, op_class, 0);
+        break;
+    case 1:
+        *chan_cnt = chan_info.plan.one.number_of_channel;
+        break;
+    case 2:
+        reg_domain   = chan_info.plan.two.regulatory_domain;
+        chan_plan_id = chan_info.plan.two.channel_plan_id;
+        *chan_cnt = ws_common_channel_number_calc(reg_domain, 0, chan_plan_id);
+        break;
+    default:
+        BUG("unsupported channel plan: %d", chan_info.channel_plan);
+    }
+
+    switch (chan_info.excluded_channel_ctrl) {
     case WS_EXC_CHAN_CTRL_RANGE:
-        ws_common_generate_channel_list(net_if, chan_list->channel_mask, chan_cnt,
+        ws_common_generate_channel_list(net_if, chan_list->channel_mask, *chan_cnt,
                                         reg_domain, op_class, chan_plan_id);
-        chan_list->channel_count = bitcnt(chan_list->channel_mask, chan_cnt);
-        ws_neighbour_excluded_mask_by_range(chan_list, &excl_chans->range, chan_cnt);
+        chan_list->channel_count = bitcnt(chan_list->channel_mask, *chan_cnt);
+        ws_neighbour_excluded_mask_by_range(chan_list, &chan_info.excluded_channels.range, *chan_cnt);
         break;
     case WS_EXC_CHAN_CTRL_BITMASK:
-        ws_common_generate_channel_list(net_if, chan_list->channel_mask, chan_cnt,
+        ws_common_generate_channel_list(net_if, chan_list->channel_mask, *chan_cnt,
                                         reg_domain, op_class, chan_plan_id);
-        chan_list->channel_count = bitcnt(chan_list->channel_mask, chan_cnt);
-        ws_neighbour_excluded_mask_by_mask(chan_list, &excl_chans->mask, chan_cnt);
+        chan_list->channel_count = bitcnt(chan_list->channel_mask, *chan_cnt);
+        ws_neighbour_excluded_mask_by_mask(chan_list, &chan_info.excluded_channels.mask, *chan_cnt);
         break;
     case WS_EXC_CHAN_CTRL_NONE:
-        if (chan_cnt != chan_list->channel_count) {
-            ws_common_generate_channel_list(net_if, chan_list->channel_mask, chan_cnt,
+        if (*chan_cnt != chan_list->channel_count) {
+            ws_common_generate_channel_list(net_if, chan_list->channel_mask, *chan_cnt,
                                             reg_domain, op_class, chan_plan_id);
-            chan_list->channel_count = bitcnt(chan_list->channel_mask, chan_cnt);
+            chan_list->channel_count = bitcnt(chan_list->channel_mask, *chan_cnt);
         }
         break;
+    default:
+        BUG("unsupported excluded channel control: %d", chan_info.excluded_channel_ctrl);
     }
 }
 
@@ -237,43 +257,8 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, w
         ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->chan_plan.function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
-        uint8_t excluded_channel_ctrl;
-        uint8_t regulatory_domain;
-        uint8_t operating_class;
-        uint8_t channel_plan_id;
-
-        switch (ws_us->chan_plan.channel_plan) {
-            case 0:  // Regulatory Domain and Operating Class
-                excluded_channel_ctrl = ws_us->chan_plan.excluded_channel_ctrl;
-                regulatory_domain = ws_us->chan_plan.plan.zero.regulatory_domain;
-                operating_class = ws_us->chan_plan.plan.zero.operating_class;
-                channel_plan_id = 255;
-                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
-                break;
-            case 1:  // Explicit Channel Plan
-                excluded_channel_ctrl = ws_us->chan_plan.excluded_channel_ctrl;
-                regulatory_domain = REG_DOMAIN_UNDEF;
-                operating_class = 255;
-                channel_plan_id = 255;
-                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = ws_us->chan_plan.plan.one.number_of_channel;
-                break;
-            case 2:  // ChanPlanID and Regulatory Domain
-                //TODO add Channel plan 2 channel count function call here
-                // Fall through until it is handled
-            default:
-                // Unknown channel plan, so use domain channel mask
-                excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
-                regulatory_domain = cur->ws_info->hopping_schedule.regulatory_domain;
-                operating_class = cur->ws_info->hopping_schedule.operating_class;
-                channel_plan_id = cur->ws_info->hopping_schedule.channel_plan_id;
-                ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = cur->ws_info->hopping_schedule.number_of_channels;
-                break;
-        }
-
-        ws_neigbhor_set_chan_list(cur, &ws_us->chan_plan.excluded_channels, excluded_channel_ctrl,
-                                  &ws_neighbor->fhss_data.uc_channel_list,
-                                  ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels,
-                                  regulatory_domain, operating_class, channel_plan_id);
+        ws_neighbor_set_chan_list(cur, &ws_neighbor->fhss_data.uc_channel_list, &ws_us->chan_plan,
+                                  &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
     ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
@@ -290,48 +275,14 @@ void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_ent
 
 void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
 {
+    uint16_t chan_cnt;
+
     ws_neighbor->broadcast_schedule_info_stored = true;
     ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->chan_plan.channel_function;
     if (ws_bs->chan_plan.channel_function == WS_FIXED_CHANNEL) {
         ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs->chan_plan.function.zero.fixed_channel;
     } else {
-        uint8_t excluded_channel_ctrl;
-        uint8_t regulatory_domain;
-        uint8_t operating_class;
-        uint8_t channel_plan_id;
-        uint16_t broadcast_number_of_channels;
-
-        switch (ws_bs->chan_plan.channel_plan) {
-            case 0:  // Regulatory Domain and Operating Class
-                excluded_channel_ctrl = ws_bs->chan_plan.excluded_channel_ctrl;
-                regulatory_domain = ws_bs->chan_plan.plan.zero.regulatory_domain;
-                operating_class = ws_bs->chan_plan.plan.zero.operating_class;
-                channel_plan_id = 255;
-                broadcast_number_of_channels = ws_common_channel_number_calc(regulatory_domain, operating_class, channel_plan_id);
-                break;
-            case 1:  // Explicit Channel Plan
-                excluded_channel_ctrl = ws_bs->chan_plan.excluded_channel_ctrl;
-                regulatory_domain = REG_DOMAIN_UNDEF;
-                operating_class = 255;
-                channel_plan_id = 255;
-                broadcast_number_of_channels = ws_bs->chan_plan.plan.one.number_of_channel;
-                break;
-            case 2:  // ChanPlanID and Regulatory Domain
-                // TODO add Channel plan 2 channel count function call here
-                // Fall through until it is handled
-            default:
-                // Unknown channel plan, so use domain channel mask
-                excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
-                regulatory_domain = cur->ws_info->hopping_schedule.regulatory_domain;
-                operating_class = cur->ws_info->hopping_schedule.operating_class;
-                channel_plan_id = cur->ws_info->hopping_schedule.channel_plan_id;
-                broadcast_number_of_channels = cur->ws_info->hopping_schedule.number_of_channels;
-                break;
-        }
-
-        ws_neigbhor_set_chan_list(cur, &ws_bs->chan_plan.excluded_channels, excluded_channel_ctrl,
-                                  &ws_neighbor->fhss_data.bc_channel_list, broadcast_number_of_channels,
-                                  regulatory_domain, operating_class, channel_plan_id);
+        ws_neighbor_set_chan_list(cur, &ws_neighbor->fhss_data.bc_channel_list, &ws_bs->chan_plan, &chan_cnt);
     }
     ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = ws_bs->dwell_interval;
     ws_neighbor->fhss_data.bc_timing_info.broadcast_interval = ws_bs->broadcast_interval;
