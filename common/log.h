@@ -81,6 +81,7 @@ enum {
     TR_HIF_EXTRA = 0x1000,
     TR_CPC       = 0x2000,
     TR_TIMERS    = 0x4000,
+    TR_DROP      = 0x8000,
 };
 #define TRACE(COND, ...)          __TRACE(COND, "" __VA_ARGS__)
 #define DEBUG(...)                __DEBUG("" __VA_ARGS__)
