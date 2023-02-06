@@ -1,3 +1,4 @@
+#include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
@@ -82,4 +83,16 @@ bool ws_ie_validate_lcp(const struct ws_info *ws_info, const struct ws_lcp_ie *i
         return false;
     }
     return ws_ie_validate_schedule(ws_info, &ie_lcp->chan_plan, "LCP-IE");
+}
+
+bool ws_ie_validate_netname(const struct ws_info *ws_info, const struct ws_wp_netname *ie_netname)
+{
+    const char *network_name = ws_info->cfg->gen.network_name;
+
+    if (ie_netname->network_name_length != strlen(network_name) ||
+        strncmp(network_name, (char *)ie_netname->network_name, ie_netname->network_name_length)) {
+        TRACE(TR_DROP, "drop 15.4-mngt: NETNAME-IE mismatch");
+        return false;
+    }
+    return true;
 }

@@ -65,7 +65,6 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
                                         const struct mcps_data_ie_list *ie_ext,
                                         uint8_t frame_type)
 {
-    const char *network_name = net_if->ws_info->cfg->gen.network_name;
     ws_wp_netname_t ie_netname;
 
     // FIXME: see comment in ws_llc_asynch_indication
@@ -73,9 +72,7 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
         ERROR("Missing NETNAME-IE in %s", val_to_str(frame_type, ws_mngt_frames, NULL));
         return false;
     }
-    if (ie_netname.network_name_length != strlen(network_name))
-        return false;
-    return !strncmp(network_name, (char *)ie_netname.network_name, ie_netname.network_name_length);
+    return ws_ie_validate_netname(net_if->ws_info, &ie_netname);
 }
 
 static void ws_mngt_ie_pom_handle(struct net_if *net_if,
