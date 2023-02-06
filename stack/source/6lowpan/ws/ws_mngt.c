@@ -17,6 +17,7 @@
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_mngt.h"
 #include "stack/source/6lowpan/ws/ws_ie_lib.h"
+#include "stack/source/6lowpan/ws/ws_ie_validation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "common/log.h"
@@ -57,11 +58,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
         ERROR("Missing US-IE in %s", val_to_str(frame_type, ws_mngt_frames, NULL));
         return false;
     }
-    if (!ws_chan_plan_validate(&ie_us->chan_plan, &net_if->ws_info->hopping_schedule))
-        return false;
-    if (!ws_chan_func_validate(ie_us->chan_plan.channel_function))
-        return false;
-    return true;
+    return ws_ie_validate_us(net_if->ws_info, ie_us);
 }
 
 static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
@@ -255,7 +252,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     }
     if (ie_lcp.chan_plan.channel_function != net_if->ws_info->cfg->fhss.fhss_uc_channel_function)
         return;
-    if (ie_lcp.chan_plan.channel_plan != 2)
+    if (!ws_ie_validate_lcp(net_if->ws_info, &ie_lcp))
         return;
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPAS))
         return;

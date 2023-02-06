@@ -405,4 +405,3 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *
     }
     return fhss_configuration;
 }
-

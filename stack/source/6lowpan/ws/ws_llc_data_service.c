@@ -45,8 +45,8 @@
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bootstrap_ffn.h"
 #include "6lowpan/ws/ws_ie_lib.h"
+#include "6lowpan/ws/ws_ie_validation.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
-#include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_mpx_header.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
@@ -633,11 +633,10 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
     has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
 
-    if (has_us && (!ws_chan_func_validate(ie_us.chan_plan.channel_function) ||
-        !ws_chan_plan_validate(&ie_us.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+    if (has_us && !ws_ie_validate_us(base->interface_ptr->ws_info, &ie_us))
         return;
-    if (has_bs && (!ws_chan_func_validate(ie_bs.chan_plan.channel_function) ||
-        !ws_chan_plan_validate(&ie_bs.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+    has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
+    if (has_bs && !ws_ie_validate_bs(base->interface_ptr->ws_info, &ie_bs))
         return;
 
     if (data->Key.SecurityLevel)
@@ -754,12 +753,10 @@ static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *da
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
-    if (has_us && (!ws_chan_func_validate(ie_us.chan_plan.channel_function) ||
-        !ws_chan_plan_validate(&ie_us.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+    if (has_us && !ws_ie_validate_us(base->interface_ptr->ws_info, &ie_us))
         return;
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
-    if (has_bs && (!ws_chan_func_validate(ie_bs.chan_plan.channel_function) ||
-        !ws_chan_plan_validate(&ie_bs.chan_plan, &base->interface_ptr->ws_info->hopping_schedule)))
+    if (has_bs && !ws_ie_validate_bs(base->interface_ptr->ws_info, &ie_bs))
         return;
 
     if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))

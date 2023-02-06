@@ -70,6 +70,7 @@
 #include "6lowpan/ws/ws_eapol_pdu.h"
 #include "6lowpan/ws/ws_eapol_relay.h"
 #include "6lowpan/ws/ws_ie_lib.h"
+#include "6lowpan/ws/ws_ie_validation.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_pae_controller.h"
@@ -938,8 +939,7 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
         return;
     }
 
-    if (!ws_chan_plan_validate(&ws_us.chan_plan, &cur->ws_info->hopping_schedule) ||
-        !ws_chan_func_validate(ws_us.chan_plan.channel_function))
+    if (!ws_ie_validate_us(cur->ws_info, &ws_us))
         return;
 
     //Handle Message's
