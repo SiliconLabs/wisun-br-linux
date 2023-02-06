@@ -933,16 +933,9 @@ static bool ws_channel_plan_compare(struct ws_generic_channel_info *rx_plan,
         return plan1->ch0 * 1000 == hopping_schedule->ch0_freq &&
                plan1->channel_spacing == hopping_schedule->channel_spacing &&
                plan1->number_of_channel == hopping_schedule->number_of_channels;
-    if (plan_nr == 0) {
-        // Some chip may advertise FAN1.1 chan_plans with channel_plan=0 using this
-        // non standard extension
-        if (plan0->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT)
-            parms = ws_regdb_chan_params(plan0->regulatory_domain,
-                                         plan0->operating_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK, 0);
-        else
-            parms = ws_regdb_chan_params(plan0->regulatory_domain,
-                                         0, plan0->operating_class);
-    }
+    if (plan_nr == 0)
+        parms = ws_regdb_chan_params(plan0->regulatory_domain,
+                                     0, plan0->operating_class);
     if (plan_nr == 2)
         parms = ws_regdb_chan_params(plan2->regulatory_domain,
                                      plan2->channel_plan_id, 0);

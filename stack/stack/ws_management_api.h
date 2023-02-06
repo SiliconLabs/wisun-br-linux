@@ -40,11 +40,6 @@ typedef struct fhss_timer fhss_timer_t;
 #define OPERATING_MODE_4b 0x4b  /**< 200, 1.0 */
 #define OPERATING_MODE_5  0x05  /**< 300, 0.5 */
 
-#define OPERATING_MODE_PHY_MODE_ID_BIT    0x80  /**< Indicate the 7 LSB bits of the operating mode field must be interpreted as PhyModeId */
-#define OPERATING_MODE_PHY_MODE_ID_MASK   0x7F  /**< Mask the 7 LSB bits of the operating mode field which must be interpreted as PhyModeId */
-#define OPERATING_CLASS_CHAN_PLAN_ID_BIT  0x80  /**< Indicate the 6 LSB bits of the operating class field must be interpreted as ChanPlanId */
-#define OPERATING_CLASS_CHAN_PLAN_ID_MASK 0x3F  /**< Mask the 6 LSB bits of the operating class field which must be interpreted as ChanPlanId */
-
 #define CHANNEL_FUNCTION_FIXED            0x00  /**< Fixed channel */
 #define CHANNEL_FUNCTION_TR51CF           0x01  /**< TR51CF */
 #define CHANNEL_FUNCTION_DH1CF            0x02  /**< Direct Hash */

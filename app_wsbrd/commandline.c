@@ -107,11 +107,6 @@ static const struct number_limit valid_lowpan_mtu = {
 
 static const int valid_ws_modes[] = {
     0x1a, 0x1b, 0x2a, 0x2b, 0x03, 0x4a, 0x4b, 0x05,
-    0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
-    0xa2, 0xa3, 0xa4, 0xa5, 0xa6,
-    0xb3, 0xb4, 0xb5, 0xb6,
-    0xc4, 0xc5, 0xc6,
-    0xd4, 0xd5, 0xd6,
     INT_MIN
 };
 
@@ -126,10 +121,7 @@ static const int valid_ws_phy_mode_ids[] = {
 };
 
 static const int valid_ws_classes[] = {
-    0x01, 0x02, 0x03, 0x04,                         // Legacy
-    0x81, 0x82, 0x83, 0x84, 0x85,                   // ChanPlanIDs NA/BZ
-    0x95, 0x96, 0x97, 0x98,                         // ChanPlanIDs JP
-    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, // ChanPlanIDs EU
+    0x01, 0x02, 0x03, 0x04,
     INT_MIN
 };
 
@@ -745,14 +737,6 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "\"phy_mode_id\" and \"mode\" are mutually exclusive");
     if (config->ws_class && config->ws_chan_plan_id)
         FATAL(1, "\"chan_plan_id\" and \"class\" are mutually exclusive");
-    if (config->ws_mode & OPERATING_MODE_PHY_MODE_ID_BIT) {
-        config->ws_phy_mode_id = config->ws_mode & OPERATING_MODE_PHY_MODE_ID_MASK;
-        config->ws_mode = 0;
-    }
-    if (config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_BIT) {
-        config->ws_chan_plan_id = config->ws_class & OPERATING_CLASS_CHAN_PLAN_ID_MASK;
-        config->ws_class = 0;
-    }
     if (config->ws_class && config->ws_phy_mode_id)
         WARN("mix FAN 1.1 PHY mode with FAN1.0 class");
     if (config->ws_chan_plan_id && !config->ws_phy_mode_id)
