@@ -34,6 +34,7 @@
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"
 #include "security/kmp/kmp_socket_if.h"
+#include "security/eapol/eapol_helper.h"
 #include "security/protocols/sec_prot_certs.h"
 #include "security/protocols/sec_prot_keys.h"
 #include "security/protocols/key_sec_prot/key_sec_prot.h"
@@ -1295,7 +1296,25 @@ static kmp_api_t *ws_pae_auth_kmp_incoming_ind(kmp_service_t *service, uint8_t m
     // Search for existing KMP for supplicant
     kmp_api_t *kmp = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, kmp_type_to_search);
     if (kmp) {
-        return kmp;
+        struct eapol_pdu recv_eapol_pdu;
+        kmp_api_t *kmp_tls;
+
+        if (kmp_type_to_search != IEEE_802_1X_MKA)
+            // Found KMP for 4WH or GKH
+            return kmp;
+        if (eapol_parse_pdu_header(pdu, size, &recv_eapol_pdu)) {
+            if (recv_eapol_pdu.packet_type == EAPOL_EAP_TYPE) {
+                // Received EAP packet, found corresponding KMP
+                return kmp;
+            } else if (recv_eapol_pdu.packet_type == EAPOL_KEY_TYPE) {
+                // Received KEY packet for MKA: allow EAP exchange restart by wiping corresponding KMPs
+                tr_info("MKA already ongoing; delete previous, eui-64: %s", trace_array(supp_entry->addr.eui_64, 8));
+                ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, kmp);
+                kmp_tls = ws_pae_lib_kmp_list_type_get(&supp_entry->kmp_list, TLS_PROT);
+                if (kmp_tls)
+                    ws_pae_lib_kmp_list_delete(&supp_entry->kmp_list, kmp_tls);
+            }
+        }
     }
 
     // Create a new KMP for initial eapol-key
