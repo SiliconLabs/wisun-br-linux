@@ -176,7 +176,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
         range_ptr += 2;
         range_stop = min(common_read_16_bit_inverse(range_ptr), number_of_channels);
         range_ptr += 2;
-        for (int channel = range_start; channel < range_stop; channel++) {
+        for (int channel = range_start; channel <= range_stop; channel++) {
             if (bittest(channel_info->channel_mask, channel)) {
                 bitclr(channel_info->channel_mask, channel);
                 channel_info->channel_count--;
