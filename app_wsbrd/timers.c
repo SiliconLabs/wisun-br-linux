@@ -1,4 +1,5 @@
 #include <sys/timerfd.h>
+#include <inttypes.h>
 #include <unistd.h>
 
 #include "stack/timers.h"
@@ -27,7 +28,7 @@ void wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
 
     ret = read(ctxt->timerfd, &val, sizeof(val));
     WARN_ON(ret < sizeof(val), "cancelled timer?");
-    WARN_ON(val != 1, "missing timers: %u", (unsigned int)val - 1);
+    WARN_ON(val != 1, "missing timers: %"PRIu64, val - 1);
     timer_global_tick();
 }
 
