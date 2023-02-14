@@ -105,7 +105,7 @@ int tun_addr_get_global_unicast(const char *if_name, uint8_t ip[static 16])
     return tun_addr_get(if_name, ip, true);
 }
 
-void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, uint8_t address[16])
+void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     char ipv6_addr_to_str[128] = { };
@@ -156,7 +156,7 @@ ret_free_sock:
     nl_socket_free(sock);
 }
 
-void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
+void tun_add_ipv6_direct_route(struct net_if *if_entry, const uint8_t address[16])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     char ipv6_addr_to_str[128] = { };
