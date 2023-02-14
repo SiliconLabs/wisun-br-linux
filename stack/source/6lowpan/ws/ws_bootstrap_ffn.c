@@ -354,7 +354,8 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
     }
     ws_bootstrap_neighbor_set_stable(cur, parent_ptr->addr);
     ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, parent_ptr->ws_utt.ufsi, parent_ptr->timestamp, parent_ptr->addr);
-    ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, &parent_ptr->ws_us, parent_ptr->addr);
+    ws_neighbor_class_us_update(cur, neighbor_info.ws_neighbor, &parent_ptr->ws_us.chan_plan,
+                                parent_ptr->ws_us.dwell_interval, parent_ptr->addr);
     return 0;
 }
 
@@ -760,8 +761,9 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt->ufsi, data->timestamp, data->SrcAddr);
         ws_neighbor_class_bt_update(neighbor_info.ws_neighbor, ws_bt_ie.broadcast_slot_number,
                                     ws_bt_ie.broadcast_interval_offset, data->timestamp);
-        ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
-        ws_neighbor_class_neighbor_broadcast_schedule_set(cur, neighbor_info.ws_neighbor, &ws_bs_ie);
+        ws_neighbor_class_us_update(cur, neighbor_info.ws_neighbor, &ws_us->chan_plan, ws_us->dwell_interval, data->SrcAddr);
+        ws_neighbor_class_bs_update(cur, neighbor_info.ws_neighbor, &ws_bs_ie.chan_plan, ws_bs_ie.dwell_interval,
+                                    ws_bs_ie.broadcast_interval, ws_bs_ie.broadcast_schedule_identifier);
     }
 
     if (cur->ws_info->configuration_learned) {
@@ -844,7 +846,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
     llc_neighbour_req_t neighbor_info;
     if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt->ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(cur, neighbor_info.ws_neighbor, ws_us, data->SrcAddr);
+        ws_neighbor_class_us_update(cur, neighbor_info.ws_neighbor, &ws_us->chan_plan, ws_us->dwell_interval, data->SrcAddr);
     }
 
     if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {

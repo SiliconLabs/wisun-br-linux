@@ -177,7 +177,7 @@ void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t s
     neighbor->fhss_data.bc_timing_info.broadcast_interval_offset = interval_offset;
 }
 
-static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
+static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
     const uint8_t *range_ptr = range_info->range_start;
@@ -196,7 +196,7 @@ static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info,
     }
 }
 
-static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
+static void ws_neighbour_excluded_mask_by_mask(ws_channel_mask_t *channel_info, const ws_excluded_channel_mask_t *mask_info, uint16_t number_of_channels)
 {
     int nchan = MIN(number_of_channels, mask_info->mask_len_inline * 8);
 
@@ -261,34 +261,38 @@ static void ws_neighbor_set_chan_list(const struct net_if *net_if,
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8])
+void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
+                           const struct ws_generic_channel_info *chan_info,
+                           uint8_t dwell_interval, const uint8_t eui64[8])
 {
-    ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = ws_us->chan_plan.channel_function;
-    if (ws_us->chan_plan.channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.uc_timing_info.fixed_channel = ws_us->chan_plan.function.zero.fixed_channel;
+    ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = chan_info->channel_function;
+    if (chan_info->channel_function == WS_FIXED_CHANNEL) {
+        ws_neighbor->fhss_data.uc_timing_info.fixed_channel = chan_info->function.zero.fixed_channel;
         ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
     } else {
-        ws_neighbor_set_chan_list(cur, &ws_neighbor->fhss_data.uc_channel_list, &ws_us->chan_plan,
+        ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.uc_channel_list, chan_info,
                                   &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
     }
-    ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
-    ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
+    ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = dwell_interval;
+    ns_fhss_ws_update_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 
-void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
+// Irrelevant for border router
+void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
+                                 const struct ws_generic_channel_info *chan_info,
+                                 uint8_t dwell_interval, uint32_t interval, uint16_t bsi)
 {
     uint16_t chan_cnt;
 
     ws_neighbor->broadcast_schedule_info_stored = true;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = ws_bs->chan_plan.channel_function;
-    if (ws_bs->chan_plan.channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = ws_bs->chan_plan.function.zero.fixed_channel;
-    } else {
-        ws_neighbor_set_chan_list(cur, &ws_neighbor->fhss_data.bc_channel_list, &ws_bs->chan_plan, &chan_cnt);
-    }
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = ws_bs->dwell_interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval = ws_bs->broadcast_interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id = ws_bs->broadcast_schedule_identifier;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = chan_info->channel_function;
+    if (chan_info->channel_function == WS_FIXED_CHANNEL)
+        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = chan_info->function.zero.fixed_channel;
+    else
+        ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.bc_channel_list, chan_info, &chan_cnt);
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = dwell_interval;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval       = interval;
+    ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id    = bsi;
 }
 
 void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard)

@@ -173,8 +173,8 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
 
     if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(net_if, neighbor_info.ws_neighbor, &ie_us, data->SrcAddr);
-        ws_neighbor_class_neighbor_broadcast_schedule_set(net_if, neighbor_info.ws_neighbor, &ie_bs);
+        ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
+                                    ie_us.dwell_interval, data->SrcAddr);
     }
 }
 
@@ -203,7 +203,8 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
 
     if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_neighbor_unicast_schedule_set(net_if, neighbor_info.ws_neighbor, &ie_us, data->SrcAddr);
+        ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
+                                    ie_us.dwell_interval, data->SrcAddr);
     }
 }
 

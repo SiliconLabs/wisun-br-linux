@@ -682,9 +682,11 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
                                       &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
         }
         if (has_us)
-            ws_neighbor_class_neighbor_unicast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_us, data->SrcAddr);
+            ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
+                                        ie_us.dwell_interval, data->SrcAddr);
         if (has_bs)
-            ws_neighbor_class_neighbor_broadcast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_bs);
+            ws_neighbor_class_bs_update(base->interface_ptr, neighbor.ws_neighbor, &ie_bs.chan_plan, ie_bs.dwell_interval,
+                                        ie_bs.broadcast_interval, ie_bs.broadcast_schedule_identifier);
 
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             neighbor.ws_neighbor->unicast_data_rx = true;
@@ -771,9 +773,11 @@ static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *da
             ws_bootstrap_ffn_eapol_parent_synch(base->interface_ptr, &neighbor);
     }
     if (has_us)
-        ws_neighbor_class_neighbor_unicast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_us, data->SrcAddr);
+        ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
+                                    ie_us.dwell_interval, data->SrcAddr);
     if (has_bs)
-        ws_neighbor_class_neighbor_broadcast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_bs);
+        ws_neighbor_class_bs_update(base->interface_ptr, neighbor.ws_neighbor, &ie_bs.chan_plan, ie_bs.dwell_interval,
+                                    ie_bs.broadcast_interval, ie_bs.broadcast_schedule_identifier);
     if (ws_wh_ea_read(ie_ext->headerIeList, ie_ext->headerIeListLength, auth_eui64))
         ws_pae_controller_border_router_addr_write(base->interface_ptr, auth_eui64);
 

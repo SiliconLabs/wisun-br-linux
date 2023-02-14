@@ -108,24 +108,14 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
 void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
                                  uint24_t interval_offset, uint32_t timestamp);
 
-/**
- * ws_neighbor_class_neighbor_unicast_schedule_set a function for update neighbor unicast shedule information
- *
- * \param cur Pointer to interface
- * \param ws_neighbor pointer to neighbor
- * \param ws_us Unicast schedule IE data
- *
- */
-void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8]);
-
-/**
- * ws_neighbor_class_neighbor_broadcast_schedule_set a function for update neighbor broadcast shedule information
- *
- * \param ws_neighbor pointer to neighbor
- * \param ws_bs_ie Broadcast schedule IE data
- *
- */
-void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs_ie);
+// Unicast Schedule update
+void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,
+                                 const struct ws_generic_channel_info *chan_info,
+                                 uint8_t dwell_interval, const uint8_t eui64[8]);
+// Broadcast Schedule update
+void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor, 
+                                 const struct ws_generic_channel_info *chan_info,
+                                 uint8_t dwell_interval, uint32_t interval, uint16_t bsi);
 
 /**
  * ws_neighbor_class_rf_sensitivity_calculate
