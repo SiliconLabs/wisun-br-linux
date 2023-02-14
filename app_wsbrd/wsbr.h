@@ -39,7 +39,6 @@ struct wsbr_ctxt {
 
     int timerfd;
 
-    int  tun_if_id;
     int  tun_fd;
     int  sock_mcast;
 
