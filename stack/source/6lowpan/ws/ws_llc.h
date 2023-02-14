@@ -133,18 +133,6 @@ typedef void ws_asynch_ind(struct net_if *interface, const struct mcps_data_ind 
 typedef void ws_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 
 /**
- * @brief ws_asynch_confirm ws asynch data confirmation to asynch message request
- * @param interface The interface pointer
- * @param mac_64 Neighbor 64-bit address
- * @param neighbor_buffer Buffer where neighbor infor is buffered
- * @param request_new true if is possible to allocate new entry
- *
- * @return true when neighbor info is available
- * @return false when no neighbor info
- */
-typedef bool ws_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
-
-/**
  * @brief ws_llc_create ws LLC module create
  * @param interface Interface pointer
  * @param asynch_ind_cb Asynch indication
@@ -152,7 +140,7 @@ typedef bool ws_neighbor_info_request(struct net_if *interface, const uint8_t *m
  *
  * Function allocate and init LLC class and init it 2 supported 2 API: ws asynch and MPX user are internally registered.
  */
-int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb, ws_neighbor_info_request *ws_neighbor_info_request_cb);
+int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb);
 
 /**
  * @brief ws_llc_reset Reset ws LLC parametrs and clean messages
