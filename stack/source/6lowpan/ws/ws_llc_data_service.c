@@ -476,8 +476,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
                         if (success) {
                             neighbor_info.neighbor->lifetime = neighbor_info.neighbor->link_lifetime;
                         }
-
-                        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor_info.ws_neighbor, &ws_utt, data->timestamp, neighbor_info.neighbor->mac64);
+                        ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt.ufsi, data->timestamp, neighbor_info.neighbor->mac64);
                     }
 
                     int8_t rsl;
@@ -674,9 +673,10 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
 
         if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
             BUG("missing UTT-IE in data frame from FFN");
-        ws_neighbor_class_neighbor_unicast_time_info_update(neighbor.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
+        ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
         if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
-            ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor.ws_neighbor, &ie_bt, data->timestamp);
+            ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
+                                        ie_bt.broadcast_interval_offset, data->timestamp);
             if (neighbor.neighbor && neighbor.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR)
                 ns_fhss_ws_set_parent(base->interface_ptr->ws_info->fhss_api, neighbor.neighbor->mac64,
                                       &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
@@ -685,7 +685,6 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
             ws_neighbor_class_neighbor_unicast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_us, data->SrcAddr);
         if (has_bs)
             ws_neighbor_class_neighbor_broadcast_schedule_set(base->interface_ptr, neighbor.ws_neighbor, &ie_bs);
-
 
         if (data->DstAddrMode == ADDR_802_15_4_LONG)
             neighbor.ws_neighbor->unicast_data_rx = true;
@@ -764,9 +763,10 @@ static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *da
 
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
-    ws_neighbor_class_neighbor_unicast_time_info_update(neighbor.ws_neighbor, &ie_utt, data->timestamp, data->SrcAddr);
+    ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
     if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
-        ws_neighbor_class_neighbor_broadcast_time_info_update(neighbor.ws_neighbor, &ie_bt, data->timestamp);
+        ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
+                                    ie_bt.broadcast_interval_offset, data->timestamp);
         if (neighbor.neighbor)
             ws_bootstrap_ffn_eapol_parent_synch(base->interface_ptr, &neighbor);
     }

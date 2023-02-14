@@ -101,15 +101,12 @@ uint8_t ws_neighbor_class_entry_index_get(ws_neighbor_class_t *class_data, ws_ne
  */
 void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t attribute_index);
 
-/**
- * ws_neighbor_class_neighbor_unicast_time_info_update a function for update neighbor unicast time information
- *
- * \param ws_neighbor pointer to neighbor
- * \param ws_utt Unicast time IE data
- * \param timestamp timestamp for received data
- *
- */
-void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, const uint8_t address[8]);
+// Unicast Timing update
+void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
+                                 uint32_t timestamp, const uint8_t eui64[8]);
+// Broadcast Timing update
+void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
+                                 uint24_t interval_offset, uint32_t timestamp);
 
 /**
  * ws_neighbor_class_neighbor_unicast_schedule_set a function for update neighbor unicast shedule information
@@ -120,17 +117,6 @@ void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry
  *
  */
 void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_us_ie_t *ws_us, const uint8_t address[8]);
-
-
-/**
- * ws_neighbor_class_neighbor_broadcast_time_info_update a function for update neighbor broadcast time information
- *
- * \param ws_neighbor pointer to neighbor
- * \param ws_bt_ie Broadcast time IE data
- * \param timestamp timestamp for received data
- *
- */
-void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_bt_ie_t *ws_bt_ie, uint32_t timestamp);
 
 /**
  * ws_neighbor_class_neighbor_broadcast_schedule_set a function for update neighbor broadcast shedule information

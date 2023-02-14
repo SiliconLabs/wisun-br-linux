@@ -102,7 +102,7 @@ static int own_ceil(float value)
     return ivalue + 1;
 }
 
-static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, const uint8_t address[8])
+static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, uint24_t ufsi, uint32_t timestamp, const uint8_t address[8])
 {
     if (ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp && ws_neighbor->fhss_data.uc_timing_info.ufsi) {
         // No UFSI on fixed channel
@@ -114,7 +114,7 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
             seq_length = ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
         }
         uint32_t ufsi_prev_tmp = ws_neighbor->fhss_data.uc_timing_info.ufsi;
-        uint32_t ufsi_cur_tmp = ws_utt->ufsi;
+        uint32_t ufsi_cur_tmp = ufsi;
         if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
@@ -151,19 +151,30 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
     }
 }
 
-void ws_neighbor_class_neighbor_unicast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_utt_ie_t *ws_utt, uint32_t timestamp, const uint8_t address[8])
+void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
+                                 uint32_t timestamp, const uint8_t eui64[8])
 {
-    struct unicast_timing_info *info = &ws_neighbor->fhss_data.uc_timing_info;
+    struct unicast_timing_info *info = &neighbor->fhss_data.uc_timing_info;
 
-    ws_neighbor_calculate_ufsi_drift(ws_neighbor, ws_utt, timestamp, address);
-    if (info->utt_rx_timestamp != timestamp ||
-        info->ufsi != ws_utt->ufsi) {
-        info->utt_rx_timestamp = timestamp;
-        info->ufsi = ws_utt->ufsi;
-        ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
-    } else {
-        tr_info("save a timing update");
-    }
+    ws_neighbor_calculate_ufsi_drift(neighbor, ufsi, timestamp, eui64);
+
+    if (info->utt_rx_timestamp == timestamp &&
+        info->ufsi             == ufsi)
+        return; // Save an update
+
+    info->utt_rx_timestamp = timestamp;
+    info->ufsi             = ufsi;
+    ns_fhss_ws_update_neighbor(eui64, &neighbor->fhss_data);
+}
+
+// Irrelevant for border router
+void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
+                                 uint24_t interval_offset,uint32_t timestamp)
+{
+    neighbor->broadcast_timing_info_stored = true;
+    neighbor->fhss_data.bc_timing_info.bt_rx_timestamp           = timestamp;
+    neighbor->fhss_data.bc_timing_info.broadcast_slot            = slot_number;
+    neighbor->fhss_data.bc_timing_info.broadcast_interval_offset = interval_offset;
 }
 
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
@@ -263,15 +274,6 @@ void ws_neighbor_class_neighbor_unicast_schedule_set(const struct net_if *cur, w
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = ws_us->dwell_interval;
     ns_fhss_ws_update_neighbor(address, &ws_neighbor->fhss_data);
 }
-
-void ws_neighbor_class_neighbor_broadcast_time_info_update(ws_neighbor_class_entry_t *ws_neighbor, ws_bt_ie_t *ws_bt_ie, uint32_t timestamp)
-{
-    ws_neighbor->broadcast_timing_info_stored = true;
-    ws_neighbor->fhss_data.bc_timing_info.bt_rx_timestamp = timestamp;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_slot = ws_bt_ie->broadcast_slot_number;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval_offset = ws_bt_ie->broadcast_interval_offset;
-}
-
 
 void ws_neighbor_class_neighbor_broadcast_schedule_set(const struct net_if *cur, ws_neighbor_class_entry_t *ws_neighbor, ws_bs_ie_t *ws_bs)
 {
