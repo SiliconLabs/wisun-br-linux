@@ -171,7 +171,7 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
                                    &net_if->ws_info->mngt.trickle_params);
 
-    if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
         ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);
@@ -201,7 +201,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
                                &net_if->ws_info->mngt.trickle_params);
 
-    if (ws_bootstrap_neighbor_info_request(net_if, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
         ws_neighbor_class_us_update(net_if, neighbor_info.ws_neighbor, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);

@@ -401,7 +401,7 @@ static bool dbus_get_neighbor_info(struct wsbr_ctxt *ctxt, struct neighbor_info 
         neighbor_ws->rssi = neighbor_ws_tmp->signal_dbm;
     }
     if (!neighbor_ws) {
-        if (ws_bootstrap_neighbor_info_request(net_if, eui64, &neighbor_llc, false))
+        if (ws_bootstrap_neighbor_get(net_if, eui64, &neighbor_llc))
             neighbor_ws = neighbor_llc.ws_neighbor;
         else
             return false;

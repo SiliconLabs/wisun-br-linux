@@ -1013,35 +1013,34 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
 }
 
-bool ws_bootstrap_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, llc_neighbour_req_t *neighbor_buffer, bool request_new)
+bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
-    neighbor_buffer->ws_neighbor = NULL;
-    neighbor_buffer->neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), mac_64, ADDR_802_15_4_LONG);
-    if (neighbor_buffer->neighbor) {
-        neighbor_buffer->ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_buffer->neighbor->index);
-        if (!neighbor_buffer->ws_neighbor) {
-            return false;
-        }
-        return true;
-    }
-    if (!request_new) {
+    neighbor->ws_neighbor = NULL;
+    neighbor->neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(net_if), eui64, ADDR_802_15_4_LONG);
+    if (!neighbor->neighbor)
+        return false;
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
+    if (!neighbor->ws_neighbor)
+        return false;
+    return true;
+}
+
+bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
+{
+    ws_bootstrap_neighbor_table_clean(net_if);
+
+    neighbor->ws_neighbor = NULL;
+    neighbor->neighbor = ws_bootstrap_mac_neighbor_add(net_if, eui64);
+    if (!neighbor->neighbor)
+        return false;
+
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
+    if (!neighbor->ws_neighbor) {
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(net_if), neighbor->neighbor);
         return false;
     }
 
-    ws_bootstrap_neighbor_table_clean(interface);
-
-    neighbor_buffer->neighbor = ws_bootstrap_mac_neighbor_add(interface, mac_64);
-
-    if (!neighbor_buffer->neighbor) {
-        return false;
-    }
-
-    neighbor_buffer->ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_buffer->neighbor->index);
-    if (!neighbor_buffer->ws_neighbor) {
-        mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_buffer->neighbor);
-        return false;
-    }
-    ws_stats_update(interface, STATS_WS_NEIGHBOUR_ADD, 1);
+    ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return true;
 }
 
@@ -1836,7 +1835,7 @@ static bool ws_rpl_candidate_soft_filtering(struct net_if *cur, struct rpl_insta
 
 static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle, struct rpl_instance *instance, uint16_t candidate_rank)
 {
-
+    bool create_ok;
     struct net_if *cur = handle;
     if (!cur->rpl_domain || cur->interface_mode != INTERFACE_UP) {
         return false;
@@ -1857,7 +1856,7 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
     mac64[0] ^= 2;
 
 
-    ws_bootstrap_neighbor_info_request(cur, mac64, &neigh_buffer, false);
+    ws_bootstrap_neighbor_get(cur, mac64, &neigh_buffer);
     //Discover Multicast temporary entry for create neighbour table entry for new candidate
     ws_neighbor_temp_class_t *entry = ws_llc_get_multicast_temp_entry(cur, mac64);
 
@@ -1914,7 +1913,9 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
     }
 
     //Create entry
-    bool create_ok = ws_bootstrap_neighbor_info_request(cur, entry->mac64, &neigh_buffer, true);
+    create_ok = ws_bootstrap_neighbor_get(cur, entry->mac64, &neigh_buffer);
+    if (!create_ok)
+        ws_bootstrap_neighbor_add(cur, entry->mac64, &neigh_buffer);
     if (create_ok) {
         ws_neighbor_class_entry_t *ws_neigh = neigh_buffer.ws_neighbor;
         ws_bootstrap_neighbor_set_stable(cur, entry->mac64);

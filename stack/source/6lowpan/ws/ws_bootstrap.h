@@ -151,7 +151,8 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 
 void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);
 void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instance);
-bool ws_bootstrap_neighbor_info_request(struct net_if *interface, const uint8_t *mac_64, struct llc_neighbour_req *neighbor_buffer, bool request_new);
+bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
+bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor);
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface);
 void ws_nud_table_reset(struct net_if *cur);
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16]);

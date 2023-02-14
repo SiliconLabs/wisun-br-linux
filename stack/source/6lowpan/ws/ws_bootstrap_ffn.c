@@ -346,7 +346,8 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
     }
 
     llc_neighbour_req_t neighbor_info;
-    if (!ws_bootstrap_neighbor_info_request(cur, parent_ptr->addr, &neighbor_info, true)) {
+    if (!ws_bootstrap_neighbor_get(cur, parent_ptr->addr, &neighbor_info) &&
+        !ws_bootstrap_neighbor_add(cur, parent_ptr->addr, &neighbor_info)) {
         //Remove Neighbour and set Link setup back
         ns_list_remove(&cur->ws_info->parent_list_reserved, parent_ptr);
         ns_list_add_to_end(&cur->ws_info->parent_list_free, parent_ptr);
@@ -580,9 +581,8 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct net_if *cur, const
     // Save route cost for all known neighbors
     llc_neighbour_req_t neighbor_info;
     neighbor_info.neighbor = NULL;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info))
         neighbor_info.ws_neighbor->routing_cost = pan_information.routing_cost;
-    }
 
     ws_bootstrap_ffn_pan_advertisement_analyse_active(cur, &pan_information);
 
@@ -746,13 +746,14 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
 
     if (cur->ws_info->configuration_learned || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         //If we are border router or learned configuration we only update already learned neighbours.
-        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false);
+        neighbour_pointer_valid = ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info);
 
     } else {
-        neighbour_pointer_valid = ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, true);
-        if (!neighbour_pointer_valid) {
+        neighbour_pointer_valid = ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info);
+        if (!neighbour_pointer_valid)
+            neighbour_pointer_valid = ws_bootstrap_neighbor_add(cur, data->SrcAddr, &neighbor_info);
+        if (!neighbour_pointer_valid)
             return;
-        }
         ws_bootstrap_neighbor_set_stable(cur, data->SrcAddr);
     }
 
@@ -844,7 +845,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
      */
 
     llc_neighbour_req_t neighbor_info;
-    if (ws_bootstrap_neighbor_info_request(cur, data->SrcAddr, &neighbor_info, false)) {
+    if (ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt->ufsi, data->timestamp, data->SrcAddr);
         ws_neighbor_class_us_update(cur, neighbor_info.ws_neighbor, &ws_us->chan_plan, ws_us->dwell_interval, data->SrcAddr);
     }

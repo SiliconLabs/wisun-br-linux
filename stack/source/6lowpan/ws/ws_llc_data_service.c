@@ -429,7 +429,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
         return;
 
     if (message->dst_address_type == MAC_ADDR_MODE_64_BIT)
-        ws_bootstrap_neighbor_info_request(interface, message->dst_address, &neighbor_info, false);
+        ws_bootstrap_neighbor_get(interface, message->dst_address, &neighbor_info);
 
     if (neighbor_info.neighbor)
         ws_llc_rate_handle_tx_conf(base, data, neighbor_info.neighbor);
@@ -452,9 +452,8 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
 
         bool success = false;
 
-        if (message->dst_address_type == MAC_ADDR_MODE_64_BIT) {
-            ws_bootstrap_neighbor_info_request(interface, message->dst_address, &neighbor_info, false);
-        }
+        if (message->dst_address_type == MAC_ADDR_MODE_64_BIT)
+            ws_bootstrap_neighbor_get(interface, message->dst_address, &neighbor_info);
         switch (data->status) {
             case MLME_SUCCESS:
             case MLME_TX_NO_ACK:
@@ -648,7 +647,8 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
         req_new_ngb = false;
     }
 
-    if (!ws_bootstrap_neighbor_info_request(base->interface_ptr, data->SrcAddr, &neighbor, req_new_ngb)) {
+    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, &neighbor) &&
+        !(req_new_ngb && ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, &neighbor))) {
         if (!multicast) {
             //tr_debug("Drop message no neighbor");
             return;
@@ -714,7 +714,7 @@ static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind
 {
     ws_neighbor_temp_class_t *tmp;
 
-    if (ws_bootstrap_neighbor_info_request(base->interface_ptr, data->SrcAddr, neighbor, false))
+    if (ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, neighbor))
         return true;
 
     tmp = ws_allocate_eapol_temp_entry(base->temp_entries, data->SrcAddr);
@@ -1014,7 +1014,7 @@ uint8_t ws_llc_mdr_phy_mode_get(llc_data_base_t *base, const struct mcps_data_re
 
     if (data->TxAckReq &&
         base->ie_params.phy_operating_modes &&
-        ws_bootstrap_neighbor_info_request(base->interface_ptr, data->DstAddr, &neighbor_info, false)) {
+        ws_bootstrap_neighbor_get(base->interface_ptr, data->DstAddr, &neighbor_info)) {
         if (neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED)
             neighbor_ms_phy_mode_id = neighbor_info.neighbor->ms_phy_mode_id;
         else if ((neighbor_info.neighbor->ms_mode == SL_WISUN_MODE_SWITCH_DEFAULT) && (base->ms_mode == SL_WISUN_MODE_SWITCH_ENABLED))
@@ -1873,7 +1873,7 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
         llc->ms_mode = mode;
     } else {
         // Specific neighbor address
-        if (ws_bootstrap_neighbor_info_request(llc->interface_ptr, neighbor_mac_address, &neighbor_info, false) == false) {
+        if (!ws_bootstrap_neighbor_get(llc->interface_ptr, neighbor_mac_address, &neighbor_info)) {
             // Wrong peer
             return -5;
         } else {
@@ -2033,9 +2033,8 @@ bool ws_llc_eapol_relay_forward_filter(struct net_if *interface, const uint8_t *
     if (!neighbor) {
         llc_neighbour_req_t neighbor_info;
         //Discover here Normal Neighbour
-        if (!ws_bootstrap_neighbor_info_request(interface, joiner_eui64, &neighbor_info, false)) {
+        if (!ws_bootstrap_neighbor_get(interface, joiner_eui64, &neighbor_info))
             return false;
-        }
         return ws_neighbor_class_neighbor_duplicate_packet_check(neighbor_info.ws_neighbor, mac_sequency, rx_timestamp);
     }
 
