@@ -1,3 +1,9 @@
+v1.5.2
+------
+
+  - Fix handling of channel mask on big endian architectures. Globally all the
+    bits arrays has been rewritten to be agnostic with the CPU endianess.
+
 v1.5.1
 ------
 
