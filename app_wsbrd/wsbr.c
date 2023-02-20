@@ -510,8 +510,7 @@ int wsbr_main(int argc, char *argv[])
 {
     static const char *files[] = {
         "keys-*:*:*:*:*:*:*:*",
-        "pairwise_keys",
-        "network_keys",
+        "network-keys",
         "counters",
         "br-info",
         NULL,
