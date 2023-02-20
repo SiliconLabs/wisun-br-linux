@@ -11,6 +11,7 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "stack/mac/mac_mcps.h"
+#include "stack/mac/mlme.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
@@ -140,6 +141,11 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     ws_bt_ie_t ie_bt;
     ws_us_ie_t ie_us;
     ws_bs_ie_t ie_bs;
+
+    if (data->Key.SecurityLevel != SEC_ENC_MIC64) {
+        TRACE(TR_DROP, "drop %-9s: unencrypted frame", tr_ws_frame(WS_FT_PC));
+        return;
+    }
 
     if (!ws_mngt_ie_utt_validate(ie_ext, &ie_utt, WS_FT_PC))
         return;
