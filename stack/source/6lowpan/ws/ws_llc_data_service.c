@@ -555,7 +555,9 @@ static void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_
 
 static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, const mcps_data_ind_t *data, uint8_t frame_type)
 {
-    llc_data_base_t *base = ws_llc_discover_by_mac(api);
+    struct llc_data_base *base = ws_llc_discover_by_mac(api);
+    uint16_t pan_id;
+
     if (!base) {
         return NULL;
     }
@@ -565,13 +567,13 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, 
     }
 
     if (data->SrcAddrMode != ADDR_802_15_4_LONG) {
+        TRACE(TR_DROP, "drop %-9s: invalid source address mode", tr_ws_frame(frame_type));
         return NULL;
     }
 
-    struct net_if *interface = base->interface_ptr;
-
-    if (interface->mac_parameters.pan_id != 0xffff && data->SrcPANId != interface->mac_parameters.pan_id) {
-        //Drop wrong PAN-id messages in this phase.
+    pan_id = base->interface_ptr->mac_parameters.pan_id;
+    if (pan_id != 0xffff && data->SrcPANId != pan_id) {
+        TRACE(TR_DROP, "drop %-9s: invalid source PAN ID", tr_ws_frame(frame_type));
         return NULL;
     }
 
@@ -582,24 +584,31 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, 
 static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_data_ie_list_t *ie_ext, mpx_msg_t *mpx_frame)
 {
     struct iobuf_read ie_buf;
+    struct mpx_user *mpx_usr;
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_MPX, &ie_buf);
-    if (ie_buf.err)
+    if (ie_buf.err) {
+        TRACE(TR_DROP, "drop %-9s: missing MPX-IE", "15.4");
         return NULL;
-    if (!ws_llc_mpx_header_frame_parse(ie_buf.data, ie_buf.data_size, mpx_frame))
+    }
+    if (!ws_llc_mpx_header_frame_parse(ie_buf.data, ie_buf.data_size, mpx_frame)) {
+        TRACE(TR_DROP, "drop %-9s: malformed MPX-IE", "15.4");
         return NULL;
+    }
 
     if (mpx_frame->transfer_type != MPX_FT_FULL_FRAME) {
-        return NULL; //Support only FULL Frame's
+        TRACE(TR_DROP, "drop %-9s: unsupported MPX transfer type", "15.4");
+        return NULL;
     }
 
     // Discover MPX handler
-    mpx_user_t *user_cb = ws_llc_mpx_user_discover(&base->mpx_data_base, mpx_frame->multiplex_id);
-    if (!user_cb || !user_cb->data_ind) {
+    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, mpx_frame->multiplex_id);
+    if (!mpx_usr || !mpx_usr->data_ind) {
+        TRACE(TR_DROP, "drop %-9s: unsupported MPX multiplex ID", "15.4");
         return NULL;
     }
 
-    return user_cb;
+    return mpx_usr;
 }
 
 static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *data,
