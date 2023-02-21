@@ -275,6 +275,9 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
 
     uint8_t *ptr = buffer_data_pointer(buf);
 
+    if (buffer_data_length(buf) < 4)
+        goto reassembly_error;
+
     frag_header = ptr[0];
     datagram_size = common_read_16_bit(ptr) & 0x07FF;
 
@@ -286,6 +289,8 @@ buffer_t *cipv6_frag_reassembly(int8_t interface_id, buffer_t *buf)
     datagram_tag = common_read_16_bit(ptr);
     ptr += 2;
     if (frag_header & LOWPAN_FRAGN_BIT) {
+        if (buffer_data_length(buf) < 5)
+            goto reassembly_error;
         fragment_first = *ptr++ << 3;
     } else {
         fragment_first = 0;
