@@ -87,13 +87,16 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> OrgFreedes
 }
 
 pub trait ComSilabsWisunBorderRouter {
-    fn debug_ping(&self, arg0: &str) -> Result<(), dbus::Error>;
-    fn add_root_certificate(&self, arg0: &str) -> Result<(), dbus::Error>;
-    fn remove_root_certificate(&self, arg0: &str) -> Result<(), dbus::Error>;
-    fn revoke_node(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
-    fn revoke_apply(&self) -> Result<(), dbus::Error>;
+    fn join_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
+    fn leave_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
+    fn set_mode_switch(&self, arg0: Vec<u8>, arg1: i32) -> Result<(), dbus::Error>;
+    fn set_slot_algorithm(&self, arg0: u8) -> Result<(), dbus::Error>;
+    fn revoke_pairwise_keys(&self, arg0: Vec<u8>) -> Result<(), dbus::Error>;
+    fn revoke_group_keys(&self, arg0: Vec<u8>, arg1: Vec<u8>) -> Result<(), dbus::Error>;
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn gaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
+    fn lgtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
+    fn lgaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error>;
     fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error>;
     fn hw_address(&self) -> Result<Vec<u8>, dbus::Error>;
     fn wisun_network_name(&self) -> Result<String, dbus::Error>;
@@ -101,29 +104,35 @@ pub trait ComSilabsWisunBorderRouter {
     fn wisun_domain(&self) -> Result<String, dbus::Error>;
     fn wisun_mode(&self) -> Result<u32, dbus::Error>;
     fn wisun_class(&self) -> Result<u32, dbus::Error>;
+    fn wisun_phy_mode_id(&self) -> Result<u32, dbus::Error>;
+    fn wisun_chan_plan_id(&self) -> Result<u32, dbus::Error>;
     fn wisun_pan_id(&self) -> Result<u16, dbus::Error>;
 }
 
 impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsWisunBorderRouter for blocking::Proxy<'a, C> {
 
-    fn debug_ping(&self, arg0: &str) -> Result<(), dbus::Error> {
-        self.method_call("com.silabs.Wisun.BorderRouter", "DebugPing", (arg0, ))
+    fn join_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "JoinMulticastGroup", (arg0, ))
     }
 
-    fn add_root_certificate(&self, arg0: &str) -> Result<(), dbus::Error> {
-        self.method_call("com.silabs.Wisun.BorderRouter", "AddRootCertificate", (arg0, ))
+    fn leave_multicast_group(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "LeaveMulticastGroup", (arg0, ))
     }
 
-    fn remove_root_certificate(&self, arg0: &str) -> Result<(), dbus::Error> {
-        self.method_call("com.silabs.Wisun.BorderRouter", "RemoveRootCertificate", (arg0, ))
+    fn set_mode_switch(&self, arg0: Vec<u8>, arg1: i32) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "SetModeSwitch", (arg0, arg1, ))
     }
 
-    fn revoke_node(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
-        self.method_call("com.silabs.Wisun.BorderRouter", "RevokeNode", (arg0, ))
+    fn set_slot_algorithm(&self, arg0: u8) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "SetSlotAlgorithm", (arg0, ))
     }
 
-    fn revoke_apply(&self) -> Result<(), dbus::Error> {
-        self.method_call("com.silabs.Wisun.BorderRouter", "RevokeApply", ())
+    fn revoke_pairwise_keys(&self, arg0: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "RevokePairwiseKeys", (arg0, ))
+    }
+
+    fn revoke_group_keys(&self, arg0: Vec<u8>, arg1: Vec<u8>) -> Result<(), dbus::Error> {
+        self.method_call("com.silabs.Wisun.BorderRouter", "RevokeGroupKeys", (arg0, arg1, ))
     }
 
     fn gtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error> {
@@ -132,6 +141,14 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn gaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Gaks")
+    }
+
+    fn lgtks(&self) -> Result<Vec<Vec<u8>>, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Lgtks")
+    }
+
+    fn lgaks(&self) -> Result<Vec<Vec<u8>>, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "Lgaks")
     }
 
     fn nodes(&self) -> Result<Vec<(Vec<u8>, arg::PropMap)>, dbus::Error> {
@@ -160,6 +177,14 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn wisun_class(&self) -> Result<u32, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "WisunClass")
+    }
+
+    fn wisun_phy_mode_id(&self) -> Result<u32, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "WisunPhyModeId")
+    }
+
+    fn wisun_chan_plan_id(&self) -> Result<u32, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "WisunChanPlanId")
     }
 
     fn wisun_pan_id(&self) -> Result<u16, dbus::Error> {
