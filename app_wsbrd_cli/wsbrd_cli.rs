@@ -106,6 +106,16 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
         println!("GTK[{}]: {}", i, format_byte_array(g));
     }
 
+    let lgaks = dbus_proxy.lgaks().unwrap_or(vec![]);
+    for (i, g) in lgaks.iter().enumerate() {
+        println!("LGAK[{}]: {}", i, format_byte_array(g));
+    }
+
+    let lgtks = dbus_proxy.lgtks().unwrap_or(vec![]);
+    for (i, g) in lgtks.iter().enumerate() {
+        println!("LGTK[{}]: {}", i, format_byte_array(g));
+    }
+
     let nodes = dbus_proxy.nodes().unwrap();
     let node_br = nodes.iter().find(|n| is_border_router(n)).unwrap();
     println!("{}", format_byte_array(&node_br.0));
