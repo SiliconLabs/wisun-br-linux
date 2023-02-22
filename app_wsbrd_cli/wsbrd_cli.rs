@@ -82,8 +82,17 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("domain: {}", dbus_proxy.wisun_domain().unwrap_or("[UNKNOWN]".to_string()));
-    println!("mode: {:x}", dbus_proxy.wisun_mode().unwrap_or(0));
-    println!("class: {}", dbus_proxy.wisun_class().unwrap_or(0));
+    let mode         = dbus_proxy.wisun_mode().unwrap_or(0);
+    let class        = dbus_proxy.wisun_class().unwrap_or(0);
+    let phy_mode_id  = dbus_proxy.wisun_phy_mode_id().unwrap_or(0);
+    let chan_plan_id = dbus_proxy.wisun_chan_plan_id().unwrap_or(0);
+    if mode != 0 && class != 0 {
+        println!("mode: {:x}", mode);
+        println!("class: {}", class);
+    } else if phy_mode_id != 0 && chan_plan_id != 0 {
+        println!("phy_mode_id: {}", phy_mode_id);
+        println!("chan_plan_id: {}", chan_plan_id);
+    }
     println!("panid: {:#04x}", dbus_proxy.wisun_pan_id().unwrap_or(0));
     println!("size: {}", dbus_proxy.wisun_size().unwrap_or("[UNKNOWN]".to_string()));
 
