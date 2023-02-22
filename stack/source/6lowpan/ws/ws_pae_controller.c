@@ -2200,7 +2200,7 @@ static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id)
     return controller;
 }
 
-sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)
+sec_prot_gtk_keys_t *ws_pae_controller_get_transient_keys(int8_t interface_id, bool is_lfn)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     pae_controller_t *controller = ws_pae_controller_get(cur);
@@ -2209,7 +2209,5 @@ sec_prot_gtk_keys_t *ws_pae_controller_get_gtks(int8_t interface_id)
         return NULL;
     if (!controller)
         return NULL;
-    return &controller->gtks.gtks;
+    return is_lfn ? &controller->lgtks.gtks : &controller->gtks.gtks;
 }
-
-
