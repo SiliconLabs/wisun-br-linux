@@ -584,7 +584,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->ws_size = NETWORK_SIZE_SMALL;
     config->ws_pan_id = -1;
     config->color_output = -1;
-    config->tx_power = 20;
+    config->tx_power = 14;
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->bc_dwell_interval = 255;
