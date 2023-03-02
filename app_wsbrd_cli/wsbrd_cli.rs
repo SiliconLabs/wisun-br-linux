@@ -12,6 +12,9 @@
  */
 mod wsbrddbusapi;
 
+extern crate dbus;
+extern crate clap;
+
 use std::time::Duration;
 use dbus::blocking::Connection;
 use dbus::arg::PropMap;
