@@ -197,7 +197,8 @@ void tun_add_ipv6_direct_route(struct net_if *if_entry, uint8_t address[16])
     rtnl_route_nh_set_ifindex(nl_nexthop, ifindex);
     rtnl_route_add_nexthop(nl_route, nl_nexthop);
     err = rtnl_route_add(sock, nl_route, 0);
-    FATAL_ON(err < 0, 2, "rtnl_route_add: %s", nl_geterror(err));
+    if (err < 0 && err != -NLE_EXIST)
+        FATAL(2, "rtnl_route_add: %s", nl_geterror(err));
 
     rtnl_route_put(nl_route);
     nl_addr_put(ipv6_nl_addr);
