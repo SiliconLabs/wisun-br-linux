@@ -65,6 +65,53 @@ static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
     ctxt->rcp_time_diff = rcp_time_diff;
 }
 
+static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
+{
+    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
+    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
+    uint32_t chan0_freq;
+    uint32_t chan_spacing;
+    uint8_t rail_phy_mode_id;
+    uint8_t phy_mode_id;
+    uint16_t chan_count;
+    bool is_submode;
+    bool rf_cfg_found = false;
+    int i, j = 0;
+
+    memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
+
+    // MDR with custom domains are not yet supported
+    if (!chan_params || !phy_params)
+        return;
+
+    while (iobuf_remaining_size(buf)) {
+        chan0_freq = spinel_pop_u32(buf);
+        chan_spacing = spinel_pop_u32(buf);
+        chan_count = spinel_pop_u16(buf);
+        rail_phy_mode_id = spinel_pop_u8(buf);
+        is_submode = spinel_pop_bool(buf);
+
+        phy_mode_id = 0;
+        for (i = 0; phy_params_table[i].phy_mode_id; i++)
+            if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id)
+                phy_mode_id = phy_params_table[i].phy_mode_id;
+        if (!phy_mode_id)
+            break; // unknown rail_phy_mode_id
+
+        if (phy_mode_id == phy_params->phy_mode_id
+            && chan0_freq == chan_params->chan0_freq
+            && chan_spacing == chan_params->chan_spacing
+            && chan_count == chan_params->chan_count
+            && !is_submode) {
+            rf_cfg_found = true;
+        } else if (rf_cfg_found && is_submode) {
+            ctxt->phy_operating_modes[j++] = phy_mode_id;
+        } else if (rf_cfg_found && !is_submode) {
+            return;
+        }
+    }
+}
+
 static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
                             const struct phy_params *phy_params, const struct chan_params *chan_params,
                             uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count, uint8_t phy_mode_id)
@@ -139,54 +186,6 @@ static void print_rf_config(struct wsbr_ctxt *ctxt, char *out,
                 break;
         if (!chan_params->valid_phy_modes[i])
             sprintf(out + strlen(out), " (non standard)");
-    }
-}
-
-
-static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
-{
-    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
-    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
-    uint32_t chan0_freq;
-    uint32_t chan_spacing;
-    uint8_t rail_phy_mode_id;
-    uint8_t phy_mode_id;
-    uint16_t chan_count;
-    bool is_submode;
-    bool rf_cfg_found = false;
-    int i, j = 0;
-
-    memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
-
-    // MDR with custom domains are not yet supported
-    if (!chan_params || !phy_params)
-        return;
-
-    while (iobuf_remaining_size(buf)) {
-        chan0_freq = spinel_pop_u32(buf);
-        chan_spacing = spinel_pop_u32(buf);
-        chan_count = spinel_pop_u16(buf);
-        rail_phy_mode_id = spinel_pop_u8(buf);
-        is_submode = spinel_pop_bool(buf);
-
-        phy_mode_id = 0;
-        for (i = 0; phy_params_table[i].phy_mode_id; i++)
-            if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id)
-                phy_mode_id = phy_params_table[i].phy_mode_id;
-        if (!phy_mode_id)
-            break; // unknown rail_phy_mode_id
-
-        if (phy_mode_id == phy_params->phy_mode_id
-            && chan0_freq == chan_params->chan0_freq
-            && chan_spacing == chan_params->chan_spacing
-            && chan_count == chan_params->chan_count
-            && !is_submode) {
-            rf_cfg_found = true;
-        } else if (rf_cfg_found && is_submode) {
-            ctxt->phy_operating_modes[j++] = phy_mode_id;
-        } else if (rf_cfg_found && !is_submode) {
-            return;
-        }
     }
 }
 
