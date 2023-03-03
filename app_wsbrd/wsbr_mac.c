@@ -215,13 +215,13 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
         chan_spacing = spinel_pop_u32(buf);
         chan_count = spinel_pop_u16(buf);
         rail_phy_mode_id = spinel_pop_u8(buf);
-        is_submode = spinel_pop_u8(buf); // can only be used with mode switch
+        is_submode = spinel_pop_u8(buf); // belongs to same multiphy as previous
         // the loops below allow several entries to match
         phy_mode_found = false;
         chan_plan_found = false;
 
-        if (is_submode)
-            continue;
+        if (!is_submode)
+            INFO("---------------------------------------------------------------------------------------");
         for (i = 0; phy_params_table[i].phy_mode_id; i++) {
             if (phy_params_table[i].rail_phy_mode_id == rail_phy_mode_id) {
                 phy_mode_found = true;
