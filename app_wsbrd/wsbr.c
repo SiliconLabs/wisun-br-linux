@@ -421,20 +421,18 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
     if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
-        FATAL(1, "RCP does not support FAN 1.1");
+        FATAL(1, "fan_version = 1.1 requires RCP API >= 0.15.0");
     if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
-        FATAL(1, "pcap_file requires RCP >= 0.16.0");
+        FATAL(1, "pcap_file requires RCP API >= 0.16.0");
 
     while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
-    if (ctxt->config.list_rf_configs) {
-        if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
-            FATAL(1, "--list-rf-configs needs RCP API >= 0.10.0");
-    }
+    if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
+        FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
 
-    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0)) {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 16, 0)) {
         wsbr_rcp_get_rf_config_list(ctxt);
         while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
