@@ -496,8 +496,10 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *
         int val = spinel_pop_uint(buf);
         if (!spinel_prop_is_valid(buf, prop))
             return;
-        if (val)
-            FATAL(2, "RF configuration not supported by the RCP");
+        if (!val) {
+            ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG;
+            ctxt->rcp_init_state |= RCP_INIT_DONE;
+        }
         break;
     }
     case SPINEL_PROP_WS_RCP_CRC_ERR: {

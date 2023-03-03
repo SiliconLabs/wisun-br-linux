@@ -21,7 +21,8 @@ struct iobuf_write;
 #define RCP_HAS_RESET          0x0001
 #define RCP_HAS_HWADDR         0x0002
 #define RCP_HAS_RF_CONFIG_LIST 0x0004
-#define RCP_INIT_DONE          0x0008
+#define RCP_HAS_RF_CONFIG      0x0008
+#define RCP_INIT_DONE          0x0010
 
 uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
 void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop);

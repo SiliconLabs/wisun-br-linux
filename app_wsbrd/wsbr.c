@@ -347,6 +347,8 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 {
+    if (ctxt->rcp_init_state & RCP_HAS_HWADDR && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG))
+        FATAL(3, "unsupported radio configuration (check --list-rf-config)");
     if (ctxt->rcp_init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
@@ -439,7 +441,6 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         if (ctxt->config.list_rf_configs)
             exit(0);
     }
-    ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)
