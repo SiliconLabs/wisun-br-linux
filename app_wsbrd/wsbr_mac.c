@@ -117,6 +117,7 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
                             uint32_t chan0_freq, uint32_t chan_spacing, uint16_t chan_count, uint8_t phy_mode_id)
 {
     char str[256];
+    bool is_std;
     int i;
 
     *str = '\0';
@@ -174,20 +175,26 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
     sprintf(str + strlen(str), " %4dkHz", chan_spacing / 1000);
     sprintf(str + strlen(str), "  %3d", chan_count);
 
-    if (chan_params && chan_params->chan_allowed)
-        sprintf(str + strlen(str), "  %s", chan_params->chan_allowed);
-    else if (chan_params)
-        sprintf(str + strlen(str), "  --");
-    else
-        sprintf(str + strlen(str), "  ??");
-
+    is_std = false;
     if (chan_params) {
-        for (i = 0; chan_params->valid_phy_modes[i]; i++)
-            if (chan_params->valid_phy_modes[i] == phy_mode_id)
+        for (i = 0; chan_params->valid_phy_modes[i]; i++) {
+            if (chan_params->valid_phy_modes[i] == phy_mode_id) {
+                is_std = true;
                 break;
-        if (!chan_params->valid_phy_modes[i])
-            sprintf(str + strlen(str), " (non standard)");
+            }
+        }
     }
+    if (is_std)
+        sprintf(str + strlen(str), "  yes");
+    else
+        sprintf(str + strlen(str), "   no");
+
+    if (chan_params && chan_params->chan_allowed)
+        sprintf(str + strlen(str), " %s", chan_params->chan_allowed);
+    else if (chan_params)
+        sprintf(str + strlen(str), " --");
+    else
+        sprintf(str + strlen(str), " ??");
 
     INFO("%s", str);
 }
@@ -201,8 +208,8 @@ static void print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
     bool phy_mode_found, chan_plan_found, is_submode;
     int i, j = 0;
 
-    INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans  chans");
-    INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        allowed");
+    INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans is  chans");
+    INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        std allowed");
     while (iobuf_remaining_size(buf)) {
         chan0_freq = spinel_pop_u32(buf);
         chan_spacing = spinel_pop_u32(buf);
