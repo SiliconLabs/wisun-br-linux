@@ -755,6 +755,9 @@ static void ws_llc_data_indication_cb(const mac_api_t *api, const mcps_data_ind_
         return;
     }
 
+    if (data->Key.SecurityLevel != SEC_ENC_MIC64)
+        return;
+
     //Discover MPX header and handler
     mac_payload_IE_t mpx_ie;
     mpx_msg_t mpx_frame;
@@ -992,6 +995,9 @@ static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t
         // NO WS_WP_NESTED_IE Payload
         return;
     }
+
+    if (ws_utt.message_type == WS_FT_PAN_CONF && data->Key.SecurityLevel != SEC_ENC_MIC64)
+        return;
 
     switch (ws_utt.message_type) {
         case WS_FT_PAN_ADVERT:
