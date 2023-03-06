@@ -280,6 +280,12 @@ static void wsbr_poll(struct wsbr_ctxt *ctxt, struct pollfd *fds)
 
 int main(int argc, char *argv[])
 {
+    static const char *files[] = {
+        "pairwise-keys",
+        "network-keys",
+        "counters",
+        NULL,
+    };
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct pollfd fds[POLLFD_COUNT];
 
@@ -296,6 +302,8 @@ int main(int argc, char *argv[])
     platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
+    if (ctxt->config.storage_delete)
+        storage_delete(files);
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
