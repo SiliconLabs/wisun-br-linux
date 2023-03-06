@@ -110,6 +110,9 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
     info = storage_open_prefix(str_buf, "r");
     if (!info)
         return pae_supp;
+    // FIXME: the caller already knows the value of eui64
+    memcpy(pae_supp->sec_keys.ptk_eui_64, eui_64, 8);
+    pae_supp->sec_keys.ptk_eui_64_set = true;
     for (;;) {
         ret = storage_parse_line(info);
         if (ret == EOF)
