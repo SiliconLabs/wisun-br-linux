@@ -240,4 +240,15 @@ int8_t ws_llc_set_mode_switch(struct net_if *interface, int mode, uint8_t phy_mo
 
 const char *tr_ws_frame(uint8_t frame_type);
 
+typedef struct mac_api                mac_api_t;
+typedef struct mcps_data_ind          mcps_data_ind_t;
+typedef struct mcps_data_conf         mcps_data_conf_t;
+typedef struct mcps_data_conf_payload mcps_data_conf_payload_t;
+typedef struct mcps_ack_data_payload  mcps_ack_data_payload_t;
+typedef struct mcps_data_ie_list      mcps_data_ie_list_t;
+
+void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);
+void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext);
+void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t *data, int8_t rssi, uint8_t lqi);
+
 #endif

@@ -717,19 +717,6 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
     return 0;
 }
 
-int8_t wsbr_mac_mcps_ext_init(struct mac_api *api,
-                              mcps_data_indication_ext *data_ind_cb,
-                              mcps_data_confirm_ext *data_cnf_cb,
-                              mcps_ack_data_req_ext *ack_data_req_cb)
-{
-    BUG_ON(!api);
-
-    api->data_conf_ext_cb = data_cnf_cb;
-    api->data_ind_ext_cb = data_ind_cb;
-    api->enhanced_ack_data_req_cb = ack_data_req_cb;
-    return 0;
-}
-
 int8_t wsbr_mac_edfe_ext_init(struct mac_api *api,
                               mcps_edfe_handler *edfe_ind_cb)
 {
@@ -740,8 +727,9 @@ int8_t wsbr_mac_edfe_ext_init(struct mac_api *api,
 }
 
 int8_t wsbr_mac_init(struct mac_api *api,
-                     mcps_data_confirm *data_conf_cb,
-                     mcps_data_indication *data_ind_cb,
+                     mcps_data_confirm_ext *data_conf_cb,
+                     mcps_data_indication_ext *data_ind_cb,
+                     mcps_ack_data_req_ext *ack_data_req_cb,
                      mcps_purge_confirm *purge_conf_cb,
                      mlme_confirm *mlme_conf_cb,
                      mlme_indication *mlme_ind_cb,
@@ -749,8 +737,9 @@ int8_t wsbr_mac_init(struct mac_api *api,
 {
     BUG_ON(!api);
 
-    api->data_conf_cb = data_conf_cb;
-    api->data_ind_cb = data_ind_cb;
+    api->data_conf_ext_cb = data_conf_cb;
+    api->data_ind_ext_cb = data_ind_cb;
+    api->enhanced_ack_data_req_cb = ack_data_req_cb;
     api->purge_conf_cb = purge_conf_cb;
     api->mlme_conf_cb = mlme_conf_cb;
     api->mlme_ind_cb = mlme_ind_cb;

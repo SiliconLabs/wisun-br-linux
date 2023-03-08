@@ -59,20 +59,6 @@ static void mac_mlme_get_confirmation_handler(struct net_if *info_entry, mlme_ge
     }
 }
 
-void mcps_data_confirm_handler(const mac_api_t *api, const mcps_data_conf_t *data)
-{
-    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-    //TODO: create buffer_t and call correct function
-    //Update protocol_status
-    lowpan_adaptation_interface_tx_confirm(info_entry, data);
-}
-
-void mcps_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *data_ind)
-{
-    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-    lowpan_adaptation_interface_data_ind(info_entry, data_ind);
-}
-
 void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data)
 {
     (void)api;

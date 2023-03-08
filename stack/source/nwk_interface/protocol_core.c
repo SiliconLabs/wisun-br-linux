@@ -35,6 +35,7 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mac_response_handler.h"
 #include "6lowpan/ws/ws_common.h"
+#include "6lowpan/ws/ws_llc.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "legacy/ns_socket.h"
@@ -316,7 +317,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     entry->mac_parameters.mac_default_key_index = 0;
 
     entry->mac_api = api;
-    int8_t err = wsbr_mac_init(entry->mac_api, &mcps_data_confirm_handler, &mcps_data_indication_handler,
+    int8_t err = wsbr_mac_init(entry->mac_api, &ws_llc_mac_confirm_cb, &ws_llc_mac_indication_cb, &ws_llc_ack_data_req_ext,
                                &mcps_purge_confirm_handler, &mlme_confirm_handler, &mlme_indication_handler,
                                entry->id);
     if (err < 0) {

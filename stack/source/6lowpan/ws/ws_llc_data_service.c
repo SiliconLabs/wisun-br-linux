@@ -178,8 +178,6 @@ static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
 static llc_data_base_t *ws_llc_base_allocate(void);
-static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);
-static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext);
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id);
 static void ws_llc_mpx_data_request(const mpx_api_t *api, const struct mcps_data_req *data, uint16_t user_id, mac_data_priority_e priority);
 static int8_t ws_llc_mpx_data_cb_register(const mpx_api_t *api, mpx_data_confirm *confirm_cb, mpx_data_indication *indication_cb, uint16_t user_id);
@@ -413,7 +411,7 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 
 
 /** WS LLC MAC data extension confirmation  */
-static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
+void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
 {
     (void) conf_data;
     llc_neighbour_req_t neighbor_info = { };
@@ -534,7 +532,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
 
 }
 
-static void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t *data, int8_t rssi, uint8_t lqi)
+void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t *data, int8_t rssi, uint8_t lqi)
 {
     (void) lqi;
     llc_data_base_t *base = ws_llc_discover_by_mac(api);
@@ -919,7 +917,7 @@ static inline bool ws_is_frame_mngt(uint8_t frame_type)
 }
 
 /** WS LLC MAC data extension indication  */
-static void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
     bool has_utt, has_lutt;
     ws_lutt_ie_t ie_lutt;
@@ -1659,7 +1657,6 @@ int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_
     base->asynch_ind = asynch_ind_cb;
     base->asynch_confirm = asynch_cnf_cb;
     //Register MAC Extensions
-    wsbr_mac_mcps_ext_init(base->interface_ptr->mac_api, &ws_llc_mac_indication_cb, &ws_llc_mac_confirm_cb, &ws_llc_ack_data_req_ext);
     wsbr_mac_edfe_ext_init(base->interface_ptr->mac_api, &ws_llc_mcps_edfe_handler);
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
@@ -1677,8 +1674,6 @@ int8_t ws_llc_delete(struct net_if *interface)
     ws_llc_clean(base);
 
     ns_list_remove(&llc_data_base_list, base);
-    //Disable Mac extension
-    wsbr_mac_mcps_ext_init(base->interface_ptr->mac_api, NULL, NULL, NULL);
     free(base->temp_entries);
     free(base);
     return 0;
