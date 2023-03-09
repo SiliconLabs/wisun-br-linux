@@ -917,6 +917,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
 {
     mcps_data_req_t dataReq;
 
+    BUG_ON(!interface_ptr->mpx_api);
     lowpan_adaptation_data_request_primitiv_set(buf, &dataReq, cur);
     if (tx_ptr->fragmented_data) {
         dataReq.msdu = tx_ptr->fragmenter_buf;
@@ -950,14 +951,8 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
             break;
     }
 
-    if (interface_ptr->mpx_api) {
-        dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
-        interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
-    } else {
-        mcps_data_req_ie_list_t ie_list;
-        memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-        wsbr_mcps_req_ext(cur->mac_api, &dataReq, &ie_list, false, data_priority, 0);
-    }
+    dataReq.ExtendedFrameExchange = buf->options.edfe_mode;
+    interface_ptr->mpx_api->mpx_data_request(interface_ptr->mpx_api, &dataReq, interface_ptr->mpx_user_id, data_priority);
 }
 
 static bool lowpan_adaptation_is_destination_tx_active(fragmenter_tx_list_t *list, buffer_t *buf)
