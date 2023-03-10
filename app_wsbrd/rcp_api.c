@@ -76,6 +76,17 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
 }
 
 
+
+void rcp_release_fhss()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DELETE);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

@@ -844,7 +844,7 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     // Reset MAC for safe upper layer memory free
     protocol_mac_reset(cur);
     ns_sw_mac_fhss_unregister(cur->mac_api);
-    ns_fhss_delete(cur->ws_info.fhss_api);
+    rcp_release_fhss();
     cur->ws_info.fhss_api = NULL;
     // Reset WS information
     ws_bootstrap_asynch_trickle_stop(cur);

@@ -60,15 +60,3 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
     // Upper layers absolutly want something != NULL
     return FHSS_API_PLACEHOLDER;
 }
-
-int ns_fhss_delete(struct fhss_api *fhss_api)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DELETE);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}
