@@ -76,6 +76,17 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
 }
 
 
+void rcp_noop()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_u8(&buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_uint(&buf, SPINEL_CMD_NOOP);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

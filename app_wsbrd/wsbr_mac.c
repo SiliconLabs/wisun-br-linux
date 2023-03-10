@@ -797,16 +797,6 @@ void wsbr_rcp_reset(struct wsbr_ctxt *ctxt)
     iobuf_free(&buf);
 }
 
-void wsbr_rcp_noop(struct wsbr_ctxt *ctxt)
-{
-    struct iobuf_write buf = { };
-
-    spinel_push_u8(&buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(&buf, SPINEL_CMD_NOOP);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
