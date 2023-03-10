@@ -64,17 +64,6 @@ static int8_t mac_helper_pib_8bit_set(struct net_if *interface, mlme_attr_e attr
     return 0;
 }
 
-void mac_helper_panid_set(struct net_if *interface, uint16_t panId)
-{
-    interface->mac_parameters.pan_id = panId;
-    mlme_set_t set_req;
-    set_req.attr = macPANId;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &panId;
-    set_req.value_size = 2;
-    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-}
-
 void mac_helper_mac16_address_set(struct net_if *interface, uint16_t mac16)
 {
     interface->mac_parameters.mac_short_address = mac16;

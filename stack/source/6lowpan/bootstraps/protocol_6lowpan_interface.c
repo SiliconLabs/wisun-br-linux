@@ -96,7 +96,6 @@ static int8_t set_6lowpan_nwk_up(struct net_if *cur)
         cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
         cur->bootstrap_state_machine_cnt = 2;
         //Possible mac_mlme_start_req(call)
-        mac_helper_panid_set(cur, 0xffff);
         mac_helper_mac16_address_set(cur, 0xffff);
 
 

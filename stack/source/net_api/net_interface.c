@@ -676,7 +676,6 @@ int8_t net_nvm_data_clean(int8_t interface_id)
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (cur) {
         if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
-            mac_helper_panid_set(cur, 0xffff);
             mac_helper_mac16_address_set(cur, 0xffff);
             ret_val = 0;
         } else {
