@@ -45,6 +45,8 @@ void rcp_set_fhss_neighbor(const uint8_t neigh[8],
                            const struct fhss_ws_neighbor_timing_info *timing_info);
 void rcp_drop_fhss_neighbor(const uint8_t eui64[8]);
 void rcp_set_fhss_hop_count(int hop_count);
+void rcp_set_coordinator_mac64(uint8_t val[8]);
+void rcp_set_coordinator_mac16(uint16_t val);
 void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
                                 fhss_ws_tx_allow_level_e expedited_forwarding);
 void rcp_set_frame_counter_per_key(bool enable);

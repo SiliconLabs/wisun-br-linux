@@ -27,6 +27,7 @@
 #include "stack/net_rpl.h"
 #include "stack/mac/sw_mac.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "legacy/udp.h"
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -370,11 +371,9 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e 
         }
         entry->link_role = PRIORITY_PARENT_NEIGHBOUR;
 
-
-        uint8_t temp[2];
-        write_be16(temp, entry->mac16);
-        mac_helper_coordinator_address_set(cur, ADDR_802_15_4_SHORT, temp);
-        mac_helper_coordinator_address_set(cur, ADDR_802_15_4_LONG, entry->mac64);
+        rcp_set_coordinator_mac16(entry->mac16);
+        rcp_set_coordinator_mac64(entry->mac64);
+        cur->mac_parameters.mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_64_BIT;
         if (etx_entry) {
             protocol_stats_update(STATS_ETX_1ST_PARENT, etx_entry->etx >> 4);
         }

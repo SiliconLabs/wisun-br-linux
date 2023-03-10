@@ -330,6 +330,16 @@ void rcp_set_fhss_hop_count(int hop_count)
     rcp_set_u8(SPINEL_PROP_WS_FHSS_SET_HOP_COUNT, hop_count);
 }
 
+void rcp_set_coordinator_mac64(uint8_t val[8])
+{
+    rcp_set_eui64(SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS, val);
+}
+
+void rcp_set_coordinator_mac16(uint16_t val)
+{
+    rcp_set_u16(SPINEL_PROP_WS_COORD_SHORT_ADDRESS, val);
+}
+
 void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
                                 fhss_ws_tx_allow_level_e expedited_forwarding)
 {
