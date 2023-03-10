@@ -163,7 +163,7 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
          * what to do without MLE - might need special external/non-external prioritisation at root.
          * This "publish for RFD" rule comes from ZigBee IP.
          */
-        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur_interface->mac_parameters.mac_neighbor_table, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
 
         if (entry) {
 

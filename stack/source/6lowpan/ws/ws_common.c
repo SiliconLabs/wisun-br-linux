@@ -237,7 +237,7 @@ void ws_common_create_ll_address(uint8_t *ll_address, const uint8_t *mac64)
 void ws_common_neighbor_update(struct net_if *cur, const uint8_t *ll_address)
 {
     //Neighbor connectected update
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), ll_address, false, NULL);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, ll_address, false, NULL);
     if (mac_neighbor) {
         ws_nud_entry_remove_active(cur, mac_neighbor);
     }
@@ -283,7 +283,7 @@ static void ws_common_neighbour_address_reg_link_update(struct net_if *interface
     /*
      * ARO registration from child can update the link timeout so we don't need to send extra NUD if ARO received
      */
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(interface), eui64, false, false);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_mac64(interface->mac_parameters.mac_neighbor_table, eui64, false, false);
 
     if (mac_neighbor) {
         if (mac_neighbor->link_lifetime < link_lifetime) {
@@ -302,7 +302,7 @@ static void ws_common_neighbour_address_reg_link_update(struct net_if *interface
 uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8_t *eui64, uint16_t aro_timeout)
 {
     uint8_t child_count = 0;
-    uint8_t max_child_count = mac_neighbor_info(interface)->list_total_size - ws_common_temporary_entry_size(mac_neighbor_info(interface)->list_total_size);
+    uint8_t max_child_count = interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     if (aro_timeout == 0) {
         //DeRegister Address Reg
@@ -329,7 +329,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_TOPOLOGICALLY_INCORRECT;
     }
 
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
+    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
 
         if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
             child_count++;
@@ -337,12 +337,12 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
     }
 
     if (child_count >= max_child_count) {
-        tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
+        tr_warn("Child registration not allowed %d/%d, max:%d", child_count, max_child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
         return ARO_FULL;
     }
 
     ws_common_neighbour_address_reg_link_update(interface, eui64, link_lifetime);
-    tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, mac_neighbor_info(interface)->list_total_size);
+    tr_info("Child registration allowed %d/%d, max:%d", child_count, max_child_count, interface->mac_parameters.mac_neighbor_table->list_total_size);
 
     ws_stats_update(interface, STATS_WS_CHILD_ADD, 1);
     return ARO_SUCCESS;
@@ -350,7 +350,7 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
 
 bool ws_common_negative_aro_mark(struct net_if *interface, const uint8_t *eui64)
 {
-    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_address_discover(mac_neighbor_info(interface), eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *neighbour = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (!neighbour) {
         return false;
     }

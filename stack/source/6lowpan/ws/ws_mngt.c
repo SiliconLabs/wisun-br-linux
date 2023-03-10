@@ -71,7 +71,7 @@ static void ws_mngt_ie_pom_handle(struct net_if *net_if,
     mac_neighbor_table_entry_t *neighbor;
     ws_pom_ie_t ie_pom;
 
-    neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(net_if),
+    neighbor = mac_neighbor_table_address_discover(net_if->mac_parameters.mac_neighbor_table,
                                                    data->SrcAddr, ADDR_802_15_4_LONG);
     if (!neighbor)
         return;

@@ -316,7 +316,7 @@ uint16_t etx_read(int8_t interface_id, addrtype_e addr_type, const uint8_t *addr
     uint8_t attribute_index;
 
     //Must Support old MLE table and new still same time
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -646,7 +646,7 @@ void etx_cache_timer(int seconds_update)
         return;
     }
 
-    if (!interface || !mac_neighbor_info(interface)) {
+    if (!interface || !interface->mac_parameters.mac_neighbor_table) {
         return;
     }
 
@@ -654,7 +654,7 @@ void etx_cache_timer(int seconds_update)
         return;
     }
 
-    ns_list_foreach(mac_neighbor_table_entry_t, neighbour, &mac_neighbor_info(interface)->neighbour_list) {
+    ns_list_foreach(mac_neighbor_table_entry_t, neighbour, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
 
         etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, neighbour->index);
 

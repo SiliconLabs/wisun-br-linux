@@ -523,7 +523,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
             if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
                 //Remove temp neighbour
                 tr_debug("Remove Temp Entry by TX confirm");
-                mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_info.neighbor);
+                mac_neighbor_table_neighbor_remove(interface->mac_parameters.mac_neighbor_table, neighbor_info.neighbor);
             }
         }
 
@@ -710,7 +710,7 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
 
         if (neighbor.neighbor) {
             if (data->Key.SecurityLevel)
-                mac_neighbor_table_trusted_neighbor(mac_neighbor_info(base->interface_ptr), neighbor.neighbor, true);
+                mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
             if (ws_version_1_1(base->interface_ptr) && has_pom)
                 mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
                                         ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);

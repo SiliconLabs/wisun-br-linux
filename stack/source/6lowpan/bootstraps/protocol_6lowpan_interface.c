@@ -63,7 +63,7 @@ static int8_t set_6lowpan_nwk_down(struct net_if *cur)
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
         /* Change Active -> Idle */
         /* Disable Protocols Timers */
-        mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
+        mac_neighbor_table_neighbor_list_clean(cur->mac_parameters.mac_neighbor_table);
 
         if (cur->interface_mode == INTERFACE_UP) {
             cur->mac_parameters.pan_id = 0xffff;

@@ -59,8 +59,6 @@ typedef struct mac_neighbor_table_entry {
 
 typedef NS_LIST_HEAD(mac_neighbor_table_entry_t, link) mac_neighbor_table_list_t;
 
-#define mac_neighbor_info(interface) ((interface)->mac_parameters.mac_neighbor_table) /*!< Helper macro for give mac neighbor class pointer from interface pointer. */
-
 /**
  * Remove entry notify
  *

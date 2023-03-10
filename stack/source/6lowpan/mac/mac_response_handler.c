@@ -44,7 +44,7 @@ static void mac_mlme_device_table_confirmation_handle(struct net_if *info_entry,
 
     if (confirmation->status == MLME_SUCCESS) {
         //GET ME table by extended mac64 address
-        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(info_entry), description->ExtAddress, ADDR_802_15_4_LONG);
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(info_entry->mac_parameters.mac_neighbor_table, description->ExtAddress, ADDR_802_15_4_LONG);
 
         if (!entry) {
             return;

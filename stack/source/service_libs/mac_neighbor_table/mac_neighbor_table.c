@@ -100,7 +100,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
     if (!(interface->lowpan_info & INTERFACE_NWK_ACTIVE))
         return;
 
-    table_class = mac_neighbor_info(interface);
+    table_class = interface->mac_parameters.mac_neighbor_table;
     if (!table_class) {
         return;
     }

@@ -629,7 +629,7 @@ static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct net_if *cu
     }
 
     if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
+        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, data->SrcAddr, ADDR_802_15_4_LONG);
         if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             ws_bootstrap_parent_confirm(cur, NULL);
         }
@@ -851,7 +851,7 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
     }
 
     if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), data->SrcAddr, ADDR_802_15_4_LONG);
+        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, data->SrcAddr, ADDR_802_15_4_LONG);
         if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             ws_bootstrap_parent_confirm(cur, NULL);
         }

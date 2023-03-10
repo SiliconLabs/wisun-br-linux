@@ -105,7 +105,7 @@ uint16_t test_pan_version = 1;
 
 static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *src64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(mac_neighbor_info(interface), src64);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, src64);
     if (!neighbor) {
         return NULL;
     }
@@ -121,7 +121,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
 
 mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
     if (neighbor) {
         return neighbor;
     }
@@ -131,7 +131,7 @@ mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interfa
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
 
     if (neighbor && neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
         neighbor->lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
@@ -142,7 +142,7 @@ void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *s
 
 void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), src64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
 
     if (neighbor && neighbor->link_lifetime <= valid_time) {
         //mlme_device_descriptor_t device_desc;
@@ -163,7 +163,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
 {
 
-    mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(interface));
+    mac_neighbor_table_neighbor_list_clean(interface->mac_parameters.mac_neighbor_table);
 }
 
 static void ws_address_reregister_trig(struct net_if *interface)
@@ -313,10 +313,10 @@ void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor)
         ns_list_remove(&cur->ws_info->active_nud_process, entry);
         ns_list_add_to_end(&cur->ws_info->free_nud_entries, entry);
         if (mac_neighbor->nud_active) {
-            mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), mac_neighbor, mac_neighbor->link_lifetime);
+            mac_neighbor_table_neighbor_refresh(cur->mac_parameters.mac_neighbor_table, mac_neighbor, mac_neighbor->link_lifetime);
         }
 
-        mac_neighbor_table_neighbor_connected(mac_neighbor_info(cur), mac_neighbor);
+        mac_neighbor_table_neighbor_connected(cur->mac_parameters.mac_neighbor_table, mac_neighbor);
     }
 }
 
@@ -337,7 +337,7 @@ static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
     ns_list_add_to_end(&cur->ws_info->free_nud_entries, entry);
     if (neighbor->nud_active) {
         neighbor->nud_active = false;
-        mac_neighbor_info(cur)->active_nud_process--;
+        cur->mac_parameters.mac_neighbor_table->active_nud_process--;
     }
 }
 
@@ -417,7 +417,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
                         //Clear entry from active list
                         ws_nud_state_clean(cur, entry);
                         //Remove whole entry
-                        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry->neighbor_info);
+                        mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, entry->neighbor_info);
                     }
                 } else {
                     ws_nud_state_clean(cur, entry);
@@ -448,10 +448,10 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
 static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss_api_t *api, uint8_t eui64[8])
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_fhss_api(api);
-    if (!cur || !mac_neighbor_info(cur)) {
+    if (!cur || !cur->mac_parameters.mac_neighbor_table) {
         return NULL;
     }
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, MAC_ADDR_MODE_64_BIT);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, MAC_ADDR_MODE_64_BIT);
     if (mac_neighbor) {
         ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_neighbor->index);
         if (!ws_neighbor) {
@@ -723,7 +723,7 @@ uint16_t ws_local_etx_read(struct net_if *interface, addrtype_e addr_type, const
 
     uint8_t attribute_index;
 
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(interface), mac_adddress, addr_type);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, mac_adddress, addr_type);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -934,12 +934,12 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
     uint8_t ll_target[16];
 
-    if (mac_neighbor_info(interface)->neighbour_list_size <= mac_neighbor_info(interface)->list_total_size - ws_common_temporary_entry_size(mac_neighbor_info(interface)->list_total_size)) {
+    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size <= interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size)) {
         // Enough neighbor entries
         return;
     }
     uint32_t temp_link_min_timeout;
-    if (mac_neighbor_info(interface)->neighbour_list_size == mac_neighbor_info(interface)->list_total_size) {
+    if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size == interface->mac_parameters.mac_neighbor_table->list_total_size) {
         temp_link_min_timeout = 1; //Accept 1 second time from last
     } else {
         temp_link_min_timeout = interface->ws_info->cfg->timing.temp_link_min_timeout;
@@ -950,7 +950,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     uint32_t current_time_stamp = ns_sw_mac_read_current_timestamp(interface->mac_api);
 
     mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
-    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &mac_neighbor_info(interface)->neighbour_list) {
+    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
         ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, cur->index);
 
         if (cur->link_role == PRIORITY_PARENT_NEIGHBOUR) {
@@ -1008,7 +1008,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     }
     if (neighbor_entry_ptr) {
         tr_info("dropped oldest neighbour %s", tr_eui64(neighbor_entry_ptr->mac64));
-        mac_neighbor_table_neighbor_remove(mac_neighbor_info(interface), neighbor_entry_ptr);
+        mac_neighbor_table_neighbor_remove(interface->mac_parameters.mac_neighbor_table, neighbor_entry_ptr);
     }
 
 }
@@ -1016,7 +1016,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
 {
     neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(net_if), eui64, ADDR_802_15_4_LONG);
+    neighbor->neighbor = mac_neighbor_table_address_discover(net_if->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (!neighbor->neighbor)
         return false;
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
@@ -1036,7 +1036,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
 
     neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
     if (!neighbor->ws_neighbor) {
-        mac_neighbor_table_neighbor_remove(mac_neighbor_info(net_if), neighbor->neighbor);
+        mac_neighbor_table_neighbor_remove(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
     }
 
@@ -1253,10 +1253,10 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     //Disable always by default
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
-    mac_neighbor_table_delete(mac_neighbor_info(cur));
-    mac_neighbor_info(cur) = mac_neighbor_table_create(buffer.device_description_table_size, ws_neighbor_entry_remove_notify
+    mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
+    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(buffer.device_description_table_size, ws_neighbor_entry_remove_notify
                                                        , ws_neighbor_entry_nud_notify, cur);
-    if (!mac_neighbor_info(cur)) {
+    if (!cur->mac_parameters.mac_neighbor_table) {
         ret_val = -1;
         goto init_fail;
     }
@@ -1372,7 +1372,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 init_fail:
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
     ws_eapol_pdu_mpx_register(cur, NULL, 0);
-    mac_neighbor_table_delete(mac_neighbor_info(cur));
+    mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
     etx_storage_list_allocate(cur->id, 0);
     ws_neighbor_class_dealloc(&neigh_info);
     ws_llc_delete(cur);
@@ -1438,10 +1438,10 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
 
 int ws_bootstrap_neighbor_remove(struct net_if *cur, const uint8_t *ll_address)
 {
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), ll_address, false, NULL);
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_by_ll64(cur->mac_parameters.mac_neighbor_table, ll_address, false, NULL);
 
     if (mac_neighbor) {
-        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), mac_neighbor);
+        mac_neighbor_table_neighbor_remove(cur->mac_parameters.mac_neighbor_table, mac_neighbor);
     }
     return 0;
 }
@@ -1722,7 +1722,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
             //Update here Suplikant target by validated Primary Parent
             if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
+                mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
                 if (mac_neighbor) {
                     ws_pae_controller_set_target(cur, cur->ws_info->network_pan_id, mac_neighbor->mac64);
                 }
@@ -1921,7 +1921,7 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
         ws_bootstrap_neighbor_set_stable(cur, entry->mac64);
         //Copy fhss temporary data
         *ws_neigh = entry->neigh_info_list;
-        mac_neighbor_table_trusted_neighbor(mac_neighbor_info(cur), neigh_buffer.neighbor, true);
+        mac_neighbor_table_trusted_neighbor(cur->mac_parameters.mac_neighbor_table, neigh_buffer.neighbor, true);
     }
     ws_llc_free_multicast_temp_entry(cur, entry);
 
@@ -1938,7 +1938,7 @@ neigh_create_ok:
 }
 uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur)
 {
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
+    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
     if (!mac_neighbor) {
         return 0xffff;
     }
@@ -2527,7 +2527,7 @@ int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_p
     ws_neighbor_class_entry_t *ws_neighbour = NULL;
 
     memset(info_ptr, 0, sizeof(struct ws_stack_info));
-    mac_neighbor_table_entry_t *mac_parent = mac_neighbor_entry_get_priority(mac_neighbor_info(cur));
+    mac_neighbor_table_entry_t *mac_parent = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
 
     if (mac_parent) {
         ws_neighbour = ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_parent->index);
@@ -2559,8 +2559,8 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
     uint8_t count = 0;
     if (!neighbor_ptr) {
         // Return the aount of neighbors.
-        for (int n = 0; n < mac_neighbor_info(cur)->list_total_size; n++) {
-            mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(mac_neighbor_info(cur), n);
+        for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
+            mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
             if (mac_entry && mac_entry->lifetime && mac_entry->lifetime != 0xffffffff) {
                 count++;
             }
@@ -2568,16 +2568,16 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
         return count;
     }
 
-    if (table_max > mac_neighbor_info(cur)->list_total_size) {
-        table_max = mac_neighbor_info(cur)->list_total_size;
+    if (table_max > cur->mac_parameters.mac_neighbor_table->list_total_size) {
+        table_max = cur->mac_parameters.mac_neighbor_table->list_total_size;
     }
 
-    for (int n = 0; n < mac_neighbor_info(cur)->list_total_size; n++) {
+    for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
         if (count > table_max) {
             break;
         }
 
-        mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(mac_neighbor_info(cur), n);
+        mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
         ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, n);
         if (mac_entry && ws_neighbor && mac_entry->lifetime && mac_entry->lifetime != 0xffffffff) {
             // Active neighbor entry
@@ -2805,8 +2805,8 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             break;
         case PROCEDURE_RPL: {
             bool neigth_has_ext = false;
-            for (int n = 0; n < mac_neighbor_info(cur)->list_total_size; n++) {
-                mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(mac_neighbor_info(cur), n);
+            for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
+                mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
                 if (mac_entry) {
                     uint16_t etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_entry->mac64);
                     if (etx != 0xFFFF) {

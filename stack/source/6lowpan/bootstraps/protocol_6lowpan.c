@@ -357,7 +357,7 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e 
         return 0;
     }
 
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
 
@@ -397,7 +397,7 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
         return 0;
     }
 
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
         bool new_secondary = false;
@@ -428,7 +428,7 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
     if (!cur) {
         return;
     }
-    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+    mac_neighbor_table_list_t *mac_table_list = &cur->mac_parameters.mac_neighbor_table->neighbour_list;
 
     ns_list_foreach(mac_neighbor_table_entry_t, entry, mac_table_list) {
         if (priority == PRIORITY_1ST && entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
@@ -449,7 +449,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const u
 {
     int8_t ret_val = -1;
 
-    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), eui64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (entry) {
         if (memcmp(iid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
             iid += 6;
@@ -458,7 +458,7 @@ int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const u
         }
         if (!entry->ffd_device) {
             if (entry->connected_device) {
-                mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry, entry->link_lifetime);
+                mac_neighbor_table_neighbor_refresh(cur->mac_parameters.mac_neighbor_table, entry, entry->link_lifetime);
             }
             ret_val = 1;
         } else {

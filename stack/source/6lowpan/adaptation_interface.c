@@ -662,7 +662,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->link_specific.ieee802_15_4.requestAck = false;
     } else {
 
-        neigh_entry_ptr = mac_neighbor_table_address_discover(mac_neighbor_info(cur), buf->dst_sa.address + 2, buf->dst_sa.addr_type);
+        neigh_entry_ptr = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
 
         //Validate neighbour
         if (!buf->options.ll_security_bypass_tx && neigh_entry_ptr) {
@@ -696,7 +696,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
 
 tx_error_handler:
     if (neigh_entry_ptr && neigh_entry_ptr->nud_active) {
-        mac_neighbor_info(cur)->active_nud_process--;
+        cur->mac_parameters.mac_neighbor_table->active_nud_process--;
         neigh_entry_ptr->nud_active = false;
 
     }
@@ -854,7 +854,7 @@ static bool lowpan_adaptation_make_room_for_small_packet(struct net_if *cur, fra
     fragmenter_tx_entry_t *low_priority_msg_ptr = NULL;
 
     ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, tx_entry, &interface_ptr->indirect_tx_queue) {
-        mac_neighbor_table_entry_t *tx_neighbour = mac_neighbor_table_address_discover(mac_neighbor_info(cur), tx_entry->buf->dst_sa.address + 2, tx_entry->buf->dst_sa.addr_type);
+        mac_neighbor_table_entry_t *tx_neighbour = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, tx_entry->buf->dst_sa.address + 2, tx_entry->buf->dst_sa.addr_type);
         if (tx_neighbour == neighbour_to_count && buffer_data_length(tx_entry->buf) <= interface_ptr->indirect_big_packet_threshold) {
             if (!lowpan_adaptation_is_priority_message(tx_entry->buf)) {
                 // if there is sub priorities inside message example age here you could compare
@@ -1258,7 +1258,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     if (indirect) {
         //Add to indirectQUue
         fragmenter_tx_entry_t *tx_ptr_cached;
-        mac_neighbor_table_entry_t *neigh_entry_ptr = mac_neighbor_table_address_discover(mac_neighbor_info(cur), buf->dst_sa.address + PAN_ID_LEN, buf->dst_sa.addr_type);
+        mac_neighbor_table_entry_t *neigh_entry_ptr = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, buf->dst_sa.address + PAN_ID_LEN, buf->dst_sa.addr_type);
         if (neigh_entry_ptr) {
             buf->link_specific.ieee802_15_4.indirectTTL = (uint32_t) neigh_entry_ptr->link_lifetime * 1000;
         } else {
@@ -1512,7 +1512,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const sockaddr_t *addr)
 {
     if (cur->ws_info) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
+        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr->address + 2, addr->addr_type);
         if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
             return true;
         }
