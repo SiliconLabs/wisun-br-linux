@@ -212,7 +212,6 @@ typedef struct ws_neighbour_info {
  * \param interface_id Network interface ID.
  * \param regulatory_domain Mandatory regulatory domain value of the device.
  * \param network_name_ptr Network name where to join if no configuration found from storage.
- * \param fhss_timer_ptr FHSS functions for timer adaptation to platform.
  *
  * \return 0, Init OK.
  * \return <0 Init fail.
@@ -220,8 +219,7 @@ typedef struct ws_neighbour_info {
 int ws_management_node_init(
     int8_t interface_id,
     uint8_t regulatory_domain,
-    char *network_name_ptr,
-    fhss_timer_t *fhss_timer_ptr);
+    char *network_name_ptr);
 
 /**
  * Change the network name

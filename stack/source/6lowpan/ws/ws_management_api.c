@@ -34,8 +34,7 @@
 int ws_management_node_init(
     int8_t interface_id,
     uint8_t regulatory_domain,
-    char *network_name_ptr,
-    fhss_timer_t *fhss_timer_ptr)
+    char *network_name_ptr)
 {
     struct net_if *cur;
 
@@ -45,7 +44,7 @@ int ws_management_node_init(
         return -1;
     }
 
-    if (!network_name_ptr || !fhss_timer_ptr) {
+    if (!network_name_ptr) {
         return -2;
     }
 
@@ -70,9 +69,6 @@ int ws_management_node_init(
     if (ws_cfg_gen_set(cur, &gen_cfg, 0) < 0) {
         return -4;
     }
-
-    if (cur)
-        cur->ws_info.fhss_timer_ptr = fhss_timer_ptr;
 
     return 0;
 }

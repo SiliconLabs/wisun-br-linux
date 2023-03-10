@@ -121,7 +121,6 @@ typedef struct ws_info {
     ws_hopping_schedule_t hopping_schedule;
     struct ws_statistics *stored_stats_ptr;
     struct ws_neighbor_class neighbor_storage;
-    struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     // FIXME: fhss_conf is redundant with hopping_schedule
     struct fhss_ws_configuration fhss_conf;
     int regulation;  /**< Regional regulation context. */

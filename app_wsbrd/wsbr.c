@@ -188,7 +188,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     bool lgtk_force = false;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
-                                  ctxt->config.ws_name, (struct fhss_timer *)-1);
+                                  ctxt->config.ws_name);
     WARN_ON(ret);
 
     ret = ws_management_regulatory_domain_set(ctxt->rcp_if_id, ctxt->config.ws_domain,
