@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include "stack/mac/fhss_ws_extension.h"
 
+struct fhss_ws_configuration;
+
+void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
 void rcp_set_fhss_parent(const uint8_t parent[8],
                          const struct broadcast_timing_info *timing_info,
                          bool force_synch);

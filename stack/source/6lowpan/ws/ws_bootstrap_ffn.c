@@ -416,7 +416,7 @@ static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery
     uint8_t tmp_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_bc_fixed_channel, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.fhss_conf.domain_channel_mask);
     cur->ws_info.fhss_conf.unicast_fixed_channel = tmp_uc_fixed_channel;
     cur->ws_info.fhss_conf.broadcast_fixed_channel = tmp_bc_fixed_channel;
-    ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &cur->ws_info.fhss_conf);
+    rcp_set_fhss_timings(&cur->ws_info.fhss_conf);
     rcp_set_fhss_hop_count(0xff);
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
