@@ -322,7 +322,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
         goto interface_failure;
     }
 
-    //Set default key source
     mac_helper_set_default_key_source(entry);
 
     protocol_core_base_finish_init(entry);

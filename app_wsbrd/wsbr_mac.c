@@ -711,7 +711,6 @@ static const struct {
     { macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
     { macRegionalRegulation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_REGIONAL_REGULATION,              },
     { macAsyncFragmentation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_ASYNC_FRAGMENTATION,              },
-    { macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },

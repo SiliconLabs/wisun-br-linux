@@ -405,6 +405,11 @@ void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
     iobuf_free(&buf);
 }
 
+void rcp_set_default_key_source(const uint8_t lookup_data[8])
+{
+    rcp_set_eui64(SPINEL_PROP_WS_DEFAULT_KEY_SOURCE, lookup_data);
+}
+
 void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac64, uint32_t frame_counter)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

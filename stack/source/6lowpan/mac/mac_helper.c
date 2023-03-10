@@ -63,13 +63,7 @@ uint8_t mac_helper_default_key_index_get(struct net_if *interface)
 
 void mac_helper_set_default_key_source(struct net_if *interface)
 {
-    mlme_set_t set_req;
-    set_req.attr_index = 0;
-    set_req.value_pointer = (void *)mac_helper_default_key_source;
-    set_req.value_size = 8;
-    //Set first default key source
-    set_req.attr = macDefaultKeySource;
-    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
+    rcp_set_default_key_source(mac_helper_default_key_source);
 }
 
 uint8_t mac_helper_default_security_level_get(struct net_if *interface)
