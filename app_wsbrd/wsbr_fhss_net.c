@@ -100,22 +100,6 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     return 0;
 }
 
-int ns_fhss_ws_set_tx_allowance_level(const fhss_api_t *fhss_api,
-                                      const fhss_ws_tx_allow_level_e global_level,
-                                      const fhss_ws_tx_allow_level_e ef_level)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
-    spinel_push_uint(&buf, global_level);
-    spinel_push_uint(&buf, ef_level);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}
-
 int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8],
                           const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
 {

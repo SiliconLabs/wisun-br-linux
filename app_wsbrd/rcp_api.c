@@ -111,3 +111,17 @@ void rcp_set_fhss_hop_count(int hop_count)
 {
     rcp_set_u8(SPINEL_PROP_WS_FHSS_SET_HOP_COUNT, hop_count);
 }
+
+void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
+                                fhss_ws_tx_allow_level_e expedited_forwarding)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
+    spinel_push_uint(&buf, normal);
+    spinel_push_uint(&buf, expedited_forwarding);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+

@@ -33,6 +33,7 @@
 #include "stack/source/common_protocols/icmpv6.h"
 
 #include "commandline_values.h"
+#include "rcp_api.h"
 #include "wsbr.h"
 #include "tun.h"
 
@@ -40,8 +41,6 @@
 
 static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
 {
-
-    struct wsbr_ctxt *ctxt = userdata;
     int ret;
     uint8_t mode;
 
@@ -50,9 +49,9 @@ static int dbus_set_slot_algorithm(sd_bus_message *m, void *userdata, sd_bus_err
         return sd_bus_error_set_errno(ret_error, -ret);
 
     if (mode == 0)
-        ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+        rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     else if (mode == 1)
-        ns_fhss_ws_set_tx_allowance_level(ctxt->fhss_api, WS_TX_SLOT, WS_TX_SLOT);
+        rcp_set_tx_allowance_level(WS_TX_SLOT, WS_TX_SLOT);
     else
         return sd_bus_error_set_errno(ret_error, EINVAL);
     sd_bus_reply_method_return(m, NULL);

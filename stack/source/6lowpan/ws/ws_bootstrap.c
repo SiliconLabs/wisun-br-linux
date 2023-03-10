@@ -560,8 +560,7 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
             return -1;
         }
         ns_sw_mac_fhss_register(cur->mac_api, fhss_api);
-        // Allow transmitting unicast data on TX and RX slots for normal and expedited forwarding mode
-        ns_fhss_ws_set_tx_allowance_level(fhss_api, WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
+        rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     } else {
         return -1;
     }
