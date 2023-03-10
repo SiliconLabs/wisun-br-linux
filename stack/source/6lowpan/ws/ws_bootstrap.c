@@ -444,28 +444,6 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
     }
 }
 
-static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss_api_t *api, uint8_t eui64[8])
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_fhss_api(api);
-    if (!cur || !cur->mac_parameters.mac_neighbor_table) {
-        return NULL;
-    }
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, MAC_ADDR_MODE_64_BIT);
-    if (mac_neighbor) {
-        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_neighbor->index);
-        if (!ws_neighbor) {
-            return NULL;
-        }
-        return &ws_neighbor->fhss_data;
-    }
-    //Discover temporary entry
-    ws_neighbor_temp_class_t *temp_entry = ws_llc_get_eapol_temp_entry(cur, eui64);
-    if (!temp_entry) {
-        return NULL;
-    }
-    return &temp_entry->neigh_info_list.fhss_data;
-}
-
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
     cur->ws_info.hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
@@ -622,11 +600,6 @@ static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
 
     // Set the LLC information to follow the actual fhss settings
     ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
-
-    // Set neighbor info callback
-    if (ns_fhss_set_neighbor_info_fp(cur->ws_info.fhss_api, &ws_bootstrap_get_neighbor_info)) {
-        return -1;
-    }
 
     return 0;
 }

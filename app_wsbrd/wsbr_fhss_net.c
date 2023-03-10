@@ -156,7 +156,6 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
     ctxt->fhss_conf.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
     return 0;
 }
-
 void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
                                 fhss_ws_neighbor_timing_info_t *fhss_data)
 {
@@ -190,13 +189,6 @@ void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
     iobuf_free(&buf);
 }
 
-int ns_fhss_set_neighbor_info_fp(const struct fhss_api *fhss_api,
-                                 fhss_get_neighbor_info *get_neighbor_info)
-{
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    //BUG_ON(get_neighbor_info != ws_get_neighbor_info);
-    return 0;
-}
 
 int ns_fhss_ws_set_hop_count(const struct fhss_api *fhss_api, const uint8_t hop_count)
 {
