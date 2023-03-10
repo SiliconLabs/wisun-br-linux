@@ -64,22 +64,6 @@ static int8_t mac_helper_pib_8bit_set(struct net_if *interface, mlme_attr_e attr
     return 0;
 }
 
-void mac_helper_mac16_address_set(struct net_if *interface, uint16_t mac16)
-{
-    interface->mac_parameters.mac_short_address = mac16;
-    if (mac16 < 0xfffe) {
-        interface->mac_parameters.shortAdressValid = true;
-    } else {
-        interface->mac_parameters.shortAdressValid = false;
-    }
-    mlme_set_t set_req;
-    set_req.attr = macShortAddress;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &mac16;
-    set_req.value_size = 2;
-    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-}
-
 uint16_t mac_helper_mac16_address_get(const struct net_if *interface)
 {
     uint16_t shortAddress = 0xfffe;

@@ -95,10 +95,6 @@ static int8_t set_6lowpan_nwk_up(struct net_if *cur)
         cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
         cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE | INTERFACE_NWK_ACTIVE; //Set Active Bootstrap
         cur->bootstrap_state_machine_cnt = 2;
-        //Possible mac_mlme_start_req(call)
-        mac_helper_mac16_address_set(cur, 0xffff);
-
-
         cur->interface_mode = INTERFACE_UP;
         ret_val = 0;
     }

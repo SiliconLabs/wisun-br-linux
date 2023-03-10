@@ -669,23 +669,6 @@ int8_t net_init_core(void)
     return 0;
 }
 
-int8_t net_nvm_data_clean(int8_t interface_id)
-{
-    int8_t ret_val = -2; // Not ative
-    struct net_if *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) == 0) {
-            mac_helper_mac16_address_set(cur, 0xffff);
-            ret_val = 0;
-        } else {
-            ret_val = 0;
-        }
-    }
-
-    return ret_val;
-}
-
 void arm_print_routing_table(void)
 {
     arm_print_routing_table2();
