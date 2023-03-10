@@ -36,7 +36,6 @@ void mac_helper_default_security_key_id_mode_set(struct net_if *interface, uint8
 uint8_t mac_helper_default_security_key_id_mode_get(struct net_if *interface);
 void mac_helper_default_key_index_set(struct net_if *interface, uint8_t keyIndex);
 uint8_t mac_helper_default_key_index_get(struct net_if *interface);
-int8_t mac_helper_security_default_key_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode);
 int8_t mac_helper_security_auto_request_key_index_set(struct net_if *interface, uint8_t key_attibute_index, uint8_t id);
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor);

@@ -191,17 +191,6 @@ static void mac_helper_keytable_descriptor_set(struct mac_api *api, const uint8_
     api->mlme_req(api, MLME_SET, &set_req);
 }
 
-int8_t mac_helper_security_default_key_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t keyid_mode)
-{
-    if (id == 0 || keyid_mode > 3) {
-        return -1;
-    }
-
-    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id); /* Deprecated: Unused by the RCP. */
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, interface->mac_parameters.mac_default_key_attribute_id);
-    return 0;
-}
-
 int8_t mac_helper_security_auto_request_key_index_set(struct net_if *interface, uint8_t key_attibute_index, uint8_t id)
 {
     /* Deprecated: Unused by the RCP. */
