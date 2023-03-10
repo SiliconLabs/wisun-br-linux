@@ -874,7 +874,7 @@ static const struct {
     { macMaxCSMABackoffs,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS,                },
     { macMinBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MIN_BE,                           },
     { macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
-    { macCCAThreshold,                 wsbr_spinel_set_u8,                    SPINEL_PROP_WS_CCA_THRESHOLD,                    },
+    { macCCAThreshold,                 NULL /* get only */,                   SPINEL_PROP_WS_CCA_THRESHOLD,                    },
     { macPANId,                        wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_PANID,                      },
     { macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
     { macShortAddress,                 wsbr_spinel_set_u16,                   SPINEL_PROP_MAC_15_4_SADDR,                      },

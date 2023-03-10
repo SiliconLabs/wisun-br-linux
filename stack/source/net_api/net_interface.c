@@ -736,22 +736,6 @@ int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t b
     return -1;
 }
 
-int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->mac_api || (cca_threshold > 100)) {
-        return -1;
-    }
-    mlme_set_t set_req;
-    set_req.attr = macCCAThreshold;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &cca_threshold;
-    set_req.value_size = sizeof(cca_threshold);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-    return 0;
-}
-
 int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
 {
     struct net_if *cur;

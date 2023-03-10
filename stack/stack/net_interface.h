@@ -832,20 +832,6 @@ void net_get_version_information(uint8_t *ptr);
 int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
 
 /**
- * \brief Set CCA threshold.
- *
- * This function can be used to set CCA threshold to PHY layer. Threshold is given as percentage of maximum threshold.
- * 0 is the lowest(strictest) possible threshold and 100 is the highest possible threshold.
- *
- * Note! Software MAC must be created and registered before using this function.
- *
- * \param interface_id Network interface ID.
- * \param cca_threshold CCA threshold (%).
- * \return 0 on success, <0 on errors.
- */
-int8_t arm_nwk_set_cca_threshold(int8_t interface_id, uint8_t cca_threshold);
-
-/**
  * \brief Set TX output power.
  *
  * This function can be used to set TX output power to PHY layer.
