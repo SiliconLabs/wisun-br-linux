@@ -552,8 +552,7 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
     ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
     rcp_allocate_fhss(&cur->ws_info.fhss_conf);
-
-    ns_sw_mac_fhss_register(cur->mac_api, NULL);
+    rcp_register_fhss();
     rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     return 0;
 }

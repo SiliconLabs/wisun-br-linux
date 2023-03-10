@@ -30,19 +30,6 @@
 #include "wsbr_fhss_net.h"
 
 #include "wsbr_fhss_mac.h"
-int ns_sw_mac_fhss_register(struct mac_api *mac_api, struct fhss_api *fhss_api)
-{
-    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct iobuf_write buf = { };
-
-    BUG_ON(!mac_api);
-    BUG_ON(ctxt != &g_ctxt);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_REGISTER);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}
-
 int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
