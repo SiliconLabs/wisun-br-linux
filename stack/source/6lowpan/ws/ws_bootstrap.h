@@ -159,7 +159,6 @@ void ws_nud_table_reset(struct net_if *cur);
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16]);
 
 
-void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be);
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
 int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration);
 void ws_bootstrap_fhss_activate(struct net_if *cur);

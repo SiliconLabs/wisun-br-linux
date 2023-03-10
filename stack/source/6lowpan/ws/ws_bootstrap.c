@@ -223,13 +223,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
     }
 }
 
-void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be)
-{
-    rcp_set_max_csma_backoffs(max_backoffs);
-    rcp_set_min_be(min_be);
-    rcp_set_max_be(max_be);
-}
-
 static int ws_bootstrap_tasklet_init(struct net_if *cur)
 {
     if (cur->bootStrapId < 0)

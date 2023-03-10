@@ -414,8 +414,9 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
 
             rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
             rcp_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
-            // Set CSMA-CA backoff configuration
-            ws_bootstrap_configure_csma_ca_backoffs(cur, WS_MAX_CSMA_BACKOFFS, WS_MAC_MIN_BE, WS_MAC_MAX_BE);
+            rcp_set_max_csma_backoffs(WS_MAX_CSMA_BACKOFFS);
+            rcp_set_min_be(WS_MAC_MIN_BE);
+            rcp_set_max_be(WS_MAC_MAX_BE);
 
             ws_bootstrap_event_operation_start(cur);
             break;
