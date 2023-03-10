@@ -57,8 +57,6 @@ struct fhss_api *ns_fhss_ws_create(const struct fhss_ws_configuration *config,
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    ctxt->fhss_conf_valid = true;
-    memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     // Upper layers absolutly want something != NULL
     return FHSS_API_PLACEHOLDER;
 }
@@ -72,19 +70,7 @@ int ns_fhss_delete(struct fhss_api *fhss_api)
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DELETE);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    ctxt->fhss_conf_valid = false;
     return 0;
-}
-
-const struct fhss_ws_configuration *ns_fhss_ws_configuration_get(const struct fhss_api *fhss_api)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    if (ctxt->fhss_conf_valid)
-        return &ctxt->fhss_conf;
-    else
-        return NULL;
 }
 
 int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
@@ -93,7 +79,6 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    BUG_ON(!ctxt->fhss_conf_valid);
     BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_CONF);
     spinel_push_u8(&buf, config->ws_uc_channel_function);
@@ -112,7 +97,6 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
         spinel_push_fixed_u8_array(&buf, config->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    memcpy(&ctxt->fhss_conf, config, sizeof(*config));
     return 0;
 }
 
@@ -152,8 +136,6 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
     spinel_push_u32(&buf, bc_timing_info->bt_rx_timestamp);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    ctxt->fhss_conf.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;
-    ctxt->fhss_conf.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
     return 0;
 }
 void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],

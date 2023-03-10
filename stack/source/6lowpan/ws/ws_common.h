@@ -23,6 +23,7 @@
 #include "common/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/net_fhss.h"
+#include "stack/mac/fhss_config.h"
 #include "stack/net_interface.h"
 
 #include "6lowpan/ws/ws_config.h"
@@ -122,6 +123,8 @@ typedef struct ws_info {
     struct ws_neighbor_class neighbor_storage;
     struct fhss_timer *fhss_timer_ptr; // Platform adaptation for FHSS timers.
     struct fhss_api *fhss_api;
+    // FIXME: fhss_conf is redundant with hopping_schedule
+    struct fhss_ws_configuration fhss_conf;
     int regulation;  /**< Regional regulation context. */
 } ws_info_t;
 
@@ -171,8 +174,6 @@ void ws_common_border_router_alive_update(struct net_if *interface);
 int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
 void ws_common_state_machine(struct net_if *cur);
-
-fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur);
 
 bool ws_common_is_valid_nr(uint8_t node_role);
 

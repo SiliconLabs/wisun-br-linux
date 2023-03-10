@@ -79,17 +79,19 @@
 
 static int8_t ws_bootstrap_6lbr_fhss_configure(struct net_if *cur)
 {
-    // Read configuration of existing FHSS and start using the default values for any network
-    fhss_ws_configuration_t fhss_configuration = ws_common_get_current_fhss_configuration(cur);
     //GET BSI from BBR module
-    fhss_configuration.bsi = ws_bbr_bsi_generate(cur);
-    ws_bootstrap_fhss_configure_channel_masks(cur, &fhss_configuration);
+    cur->ws_info.fhss_conf.bsi = ws_bbr_bsi_generate(cur);
+    ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
     // Randomize fixed channels. Only used if channel plan is fixed.
-    cur->ws_info.cfg->fhss.fhss_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.hopping_schedule.number_of_channels, fhss_configuration.domain_channel_mask);
-    cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_bc_fixed_channel, cur->ws_info.hopping_schedule.number_of_channels, fhss_configuration.domain_channel_mask);
-    ws_bootstrap_fhss_set_defaults(cur, &fhss_configuration);
-    ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &fhss_configuration);
-    ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
+    cur->ws_info.cfg->fhss.fhss_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_uc_fixed_channel,
+                                                                                         cur->ws_info.hopping_schedule.number_of_channels,
+                                                                                         cur->ws_info.fhss_conf.domain_channel_mask);
+    cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_bc_fixed_channel,
+                                                                                         cur->ws_info.hopping_schedule.number_of_channels,
+                                                                                         cur->ws_info.fhss_conf.domain_channel_mask);
+    ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
+    ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &cur->ws_info.fhss_conf);
+    ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;
 }
@@ -240,7 +242,7 @@ static const char *tr_excl_channel_mask(const uint_rev8_t *chan_mask, int num_ch
 static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
 {
     ws_hopping_schedule_t *hopping_schedule = &cur->ws_info.hopping_schedule;
-    const struct fhss_ws_configuration *fhss_configuration = ns_fhss_ws_configuration_get(cur->ws_info.fhss_api);
+    const struct fhss_ws_configuration *fhss_configuration = &cur->ws_info.fhss_conf;
     uint8_t async_chan_mask[32];
     int length;
 

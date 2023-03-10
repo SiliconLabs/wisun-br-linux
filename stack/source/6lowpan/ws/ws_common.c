@@ -386,18 +386,6 @@ void ws_common_border_router_alive_update(struct net_if *interface)
     interface->ws_info.pan_timeout_timer = interface->ws_info.cfg->timing.pan_timeout;
 }
 
-fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur)
-{
-    fhss_ws_configuration_t fhss_configuration;
-    memset(&fhss_configuration, 0, sizeof(fhss_ws_configuration_t));
-    if (ns_fhss_ws_configuration_get(cur->ws_info.fhss_api)) {
-        memcpy(&fhss_configuration, ns_fhss_ws_configuration_get(cur->ws_info.fhss_api), sizeof(fhss_ws_configuration_t));
-    } else {
-        tr_error("FHSS configuration could not be read");
-    }
-    return fhss_configuration;
-}
-
 bool ws_common_is_valid_nr(uint8_t node_role)
 {
     switch (node_role) {

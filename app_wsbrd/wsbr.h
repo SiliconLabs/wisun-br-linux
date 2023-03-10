@@ -49,9 +49,6 @@ struct wsbr_ctxt {
     struct mac_api mac_api;
     struct mac_description_storage_size storage_sizes;
 
-    bool fhss_conf_valid;
-    struct fhss_ws_configuration fhss_conf;
-
     int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
     int  rcp_driver_id;
