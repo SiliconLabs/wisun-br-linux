@@ -1352,20 +1352,15 @@ int ws_bootstrap_restart_delayed(int8_t interface_id)
 
 static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configuration_t rf_configs)
 {
-    mlme_set_t set_request;
+    unsigned int ack_wait_symbols;
 
+    ack_wait_symbols = WS_TACK_MAX_MS * (rf_configs.datarate / 1000);
+    if (rf_configs.modulation == MODULATION_OFDM)
+        ack_wait_symbols /= 4;
+    ack_wait_symbols += WS_ACK_WAIT_SYMBOLS;
     rcp_set_802154_mode(IEEE_802_15_4G_2012);
     rcp_set_rf_config(&rf_configs);
-    // Set Ack wait duration
-    uint8_t bits_per_symbol = 1;
-    if (rf_configs.modulation == MODULATION_OFDM) {
-        bits_per_symbol = 4;
-    }
-    uint16_t ack_wait_symbols = WS_ACK_WAIT_SYMBOLS + (WS_TACK_MAX_MS * (rf_configs.datarate / 1000) / bits_per_symbol);
-    set_request.attr = macAckWaitDuration;
-    set_request.value_pointer = &ack_wait_symbols;
-    set_request.value_size = sizeof(ack_wait_symbols);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
+    rcp_set_ack_wait_duration(ack_wait_symbols);
     rcp_get_rx_sensitivity();
     // Start automatic CCA threshold
     mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
