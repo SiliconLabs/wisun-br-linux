@@ -10,5 +10,66 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "common/iobuf.h"
+#include "common/spinel_buffer.h"
+
+#include "wsbr_mac.h"
 #include "rcp_api.h"
+#include "wsbr.h"
+
+static void rcp_set_bool(unsigned int prop, bool val)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_bool(&buf, val);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+static void rcp_set_u8(unsigned int prop, uint8_t val)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_u8(&buf, val);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+static void rcp_set_u16(unsigned int prop, uint16_t val)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_u16(&buf, val);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+static void rcp_set_u32(unsigned int prop, uint32_t val)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_u32(&buf, val);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_fixed_u8_array(&buf, val, 8);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 
