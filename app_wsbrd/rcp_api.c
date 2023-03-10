@@ -247,6 +247,11 @@ void rcp_set_max_be(uint8_t val)
     rcp_set_u8(SPINEL_PROP_WS_MAX_BE, val);
 }
 
+void rcp_set_tx_power(int8_t val)
+{
+    rcp_set_u8(SPINEL_PROP_WS_MAX_BE, (uint8_t)val);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

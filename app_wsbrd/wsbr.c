@@ -233,8 +233,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_test_version_set(ctxt->rcp_if_id, ctxt->config.ws_fan_version);
     WARN_ON(ret);
 
-    ret = arm_nwk_set_tx_output_power(ctxt->rcp_if_id, ctxt->config.tx_power);
-    WARN_ON(ret);
+    rcp_set_tx_power(ctxt->config.tx_power);
 
     ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
     WARN_ON(ret);
