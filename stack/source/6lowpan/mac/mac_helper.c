@@ -355,23 +355,6 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
     return 0;
 }
 
-int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !cur->mac_api) {
-        return -1;
-    }
-    mlme_set_t set_req;
-    set_req.attr = macFrameCounter;
-    set_req.attr_index = descriptor;
-    set_req.value_pointer = &seq_ptr;
-    set_req.value_size = 4;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-
-    return 0;
-}
-
 void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, uint8_t *mac64)
 {
     (void) mac64;

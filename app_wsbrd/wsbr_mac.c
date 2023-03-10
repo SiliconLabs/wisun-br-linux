@@ -776,17 +776,6 @@ static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
     dbus_emit_keys_change(ctxt);
 }
 
-static void wsbr_spinel_set_frame_counter(struct wsbr_ctxt *ctxt, int counter, uint32_t val)
-{
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FRAME_COUNTER);
-    spinel_push_uint(&buf, counter);
-    spinel_push_u32(&buf, val);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -837,7 +826,7 @@ static const struct {
     { macRxSensitivity,                NULL /* get only */,                   SPINEL_PROP_WS_RX_SENSITIVITY                    },
     { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
-    { macFrameCounter,                 NULL /* Special */,                    SPINEL_PROP_WS_FRAME_COUNTER,                    },
+    { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
 
@@ -849,6 +838,7 @@ static void wsbr_mlme_set(const struct mac_api *api, const void *data)
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
+    BUG_ON(req->attr == macFrameCounter);
     // SPINEL_CMD_PROP_SET
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
@@ -862,9 +852,6 @@ static void wsbr_mlme_set(const struct mac_api *api, const void *data)
     } else if (req->attr == macKeyTable) {
         BUG_ON(req->value_size != sizeof(mlme_key_descriptor_entry_t));
         wsbr_spinel_set_key_table(ctxt, req->attr_index, req->value_pointer);
-    } else if (req->attr == macFrameCounter) {
-        BUG_ON(req->value_size != sizeof(uint32_t));
-        wsbr_spinel_set_frame_counter(ctxt, req->attr_index, *(uint32_t *)req->value_pointer);
     } else {
         WARN("unknown message: %02x", req->attr);
     }

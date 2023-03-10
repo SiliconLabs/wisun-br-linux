@@ -252,3 +252,16 @@ void rcp_set_frame_counter_per_key(bool enable)
 {
     rcp_set_bool(SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY, enable);
 }
+
+void rcp_set_frame_counter(int slot, uint32_t val)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    spinel_push_uint(&buf, slot);
+    spinel_push_u32(&buf, val);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+

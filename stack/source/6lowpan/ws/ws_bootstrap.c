@@ -2070,8 +2070,7 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot)
 {
-    // Set frame counter
-    mac_helper_key_link_frame_counter_set(cur->id, counter, slot);
+    rcp_set_frame_counter(slot, counter);
 }
 
 static void ws_bootstrap_nw_frame_counter_read(struct net_if *cur, uint32_t *counter, uint8_t slot)

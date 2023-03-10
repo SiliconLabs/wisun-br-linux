@@ -41,7 +41,6 @@ uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t fram
 uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *buf);
 int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr);
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor);
-int8_t mac_helper_key_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr, uint8_t descriptor);
 void mac_helper_devicetable_remove(struct mac_api *mac_api, uint8_t attribute_index, uint8_t *mac64);
 void mac_helper_device_description_write(struct net_if *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt);
 void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, struct net_if *cur, uint8_t attribute_index);
