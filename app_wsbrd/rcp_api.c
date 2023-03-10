@@ -226,3 +226,7 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
     iobuf_free(&buf);
 }
 
+void rcp_set_frame_counter_per_key(bool enable)
+{
+    rcp_set_bool(SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY, enable);
+}

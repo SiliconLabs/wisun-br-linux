@@ -1157,9 +1157,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         return -2;
     }
 
-    if (ns_sw_mac_enable_frame_counter_per_key(cur->mac_api, true)) {
-        return -1;
-    }
+    rcp_set_frame_counter_per_key(true);
 
     if (!etx_storage_list_allocate(cur->id, buffer.device_description_table_size)) {
         return -1;
