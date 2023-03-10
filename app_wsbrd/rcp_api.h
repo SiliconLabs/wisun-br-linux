@@ -12,7 +12,9 @@
  */
 #ifndef RCP_API_H
 #define RCP_API_H
+#include <stdint.h>
 
+void rcp_drop_fhss_neighbor(const uint8_t eui64[8]);
 void rcp_set_fhss_hop_count(int hop_count);
 
 #endif

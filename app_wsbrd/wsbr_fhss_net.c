@@ -160,14 +160,3 @@ void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
     iobuf_free(&buf);
 }
 
-void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
-    spinel_push_fixed_u8_array(&buf, eui64, 8);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-

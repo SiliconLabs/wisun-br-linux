@@ -73,6 +73,17 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
     iobuf_free(&buf);
 }
 
+void rcp_drop_fhss_neighbor(const uint8_t eui64[8])
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
+    spinel_push_fixed_u8_array(&buf, eui64, 8);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_hop_count(int hop_count)
 {
     rcp_set_u8(SPINEL_PROP_WS_FHSS_SET_HOP_COUNT, hop_count);

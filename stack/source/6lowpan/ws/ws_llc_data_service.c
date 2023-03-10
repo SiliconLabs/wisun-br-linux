@@ -35,6 +35,7 @@
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/ws_management_api.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"
@@ -1364,7 +1365,7 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        ns_fhss_ws_drop_neighbor(entry->mac64);
+        rcp_drop_fhss_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
 }
@@ -1497,7 +1498,7 @@ static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_
     } else {
         //Replace last entry and put it to first
         entry = ns_list_get_last(&base->active_multicast_temp_neigh);
-        ns_fhss_ws_drop_neighbor(entry->mac64);
+        rcp_drop_fhss_neighbor(entry->mac64);
         ns_list_remove(&base->active_multicast_temp_neigh, entry);
     }
     //Add to list
@@ -1538,7 +1539,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
     if (!base) {
         return;
     }
-    ns_fhss_ws_drop_neighbor(neighbor->mac64);
+    rcp_drop_fhss_neighbor(neighbor->mac64);
     ns_list_remove(&base->temp_entries->active_multicast_temp_neigh, neighbor);
     ns_list_add_to_end(&base->temp_entries->free_temp_neigh, neighbor);
 }
@@ -2017,7 +2018,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries->active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            ns_fhss_ws_drop_neighbor(entry->mac64);
+            rcp_drop_fhss_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries->active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries->free_temp_neigh, entry);
         } else {
