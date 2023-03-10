@@ -1431,8 +1431,9 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     ws_bootstrap_fhss_enable(cur);
     // Only supporting fixed channel
 
-    mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
+    cur->mac_parameters.RxOnWhenIdle = true;
+    rcp_set_rx_on_idle(true);
     ws_bootstrap_mac_security_enable(cur);
     ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;
@@ -1994,7 +1995,8 @@ static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 {
     cur->mac_parameters.mac_key_id_mode = MAC_KEY_ID_MODE_IDX;
     cur->mac_parameters.mac_security_level = AES_SECURITY_LEVEL_ENC_MIC64;
-    mac_helper_pib_boolean_set(cur, macSecurityEnabled, true);
+    cur->mac_parameters.SecurityEnabled = true;
+    rcp_set_security(true);
 }
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)

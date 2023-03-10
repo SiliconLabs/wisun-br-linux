@@ -27,6 +27,7 @@ void rcp_unregister_fhss(void);
 void rcp_release_fhss(void);
 void rcp_get_rx_sensitivity(void);
 void rcp_set_rf_config(const struct phy_rf_channel_configuration *config);
+void rcp_set_rx_on_idle(bool enable);
 void rcp_set_802154_mode(phy_802_15_4_mode_e val);
 void rcp_set_ack_wait_duration(uint16_t val);
 void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
@@ -50,6 +51,7 @@ void rcp_set_coordinator_mac64(uint8_t val[8]);
 void rcp_set_coordinator_mac16(uint16_t val);
 void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
                                 fhss_ws_tx_allow_level_e expedited_forwarding);
+void rcp_set_security(bool enable);
 void rcp_set_frame_counter_per_key(bool enable);
 void rcp_set_frame_counter(int slot, uint32_t val);
 void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);

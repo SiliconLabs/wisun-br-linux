@@ -100,33 +100,6 @@ int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_
     return 0;
 }
 
-int8_t mac_helper_pib_boolean_set(struct net_if *interface, mlme_attr_e attribute, bool value)
-{
-
-    switch (attribute) {
-        case macSecurityEnabled:
-            interface->mac_parameters.SecurityEnabled = value;
-            break;
-
-        case macRxOnWhenIdle:
-            interface->mac_parameters.RxOnWhenIdle = value;
-            break;
-
-        default:
-            return -1;
-    }
-    if (interface->mac_api && interface->mac_api->mlme_req) {
-        mlme_set_t set_req;
-        set_req.attr = attribute;
-        set_req.attr_index = 0;
-        set_req.value_pointer = &value;
-        set_req.value_size = sizeof(bool);
-        interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-    }
-
-    return 0;
-}
-
 static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
 {
     write_be16(addrPtr, temp16);

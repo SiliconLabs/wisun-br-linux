@@ -707,8 +707,6 @@ static const struct {
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
-    { macRxOnWhenIdle,                 wsbr_spinel_set_bool,                  SPINEL_PROP_WS_RX_ON_WHEN_IDLE,                  },
-    { macSecurityEnabled,              wsbr_spinel_set_bool,                  SPINEL_PROP_WS_SECURITY_ENABLED,                 },
     { macAcceptByPassUnknowDevice,     wsbr_spinel_set_bool,                  SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE,      },
     { macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
     { macRegionalRegulation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_REGIONAL_REGULATION,              },

@@ -186,6 +186,10 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     iobuf_free(&buf);
 }
 
+void rcp_set_rx_on_idle(bool enable)
+{
+    rcp_set_bool(SPINEL_PROP_WS_RX_ON_WHEN_IDLE, enable);
+}
 
 void rcp_set_802154_mode(phy_802_15_4_mode_e val)
 {
@@ -356,6 +360,11 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
     spinel_push_uint(&buf, expedited_forwarding);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
+}
+
+void rcp_set_security(bool enable)
+{
+    rcp_set_bool(SPINEL_PROP_WS_SECURITY_ENABLED, enable);
 }
 
 void rcp_set_frame_counter_per_key(bool enable)
