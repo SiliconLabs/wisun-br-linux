@@ -919,19 +919,10 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     return;
 }
 
-uint32_t ws_time_from_last_unicast_traffic(uint32_t current_time_stamp, ws_neighbor_class_entry_t *ws_neighbor)
-{
-    uint32_t time_from_last_unicast_schedule = current_time_stamp;
-
-    //Time from last RX unicast in us
-    time_from_last_unicast_schedule -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
-    time_from_last_unicast_schedule /= 1000000; //Convert to seconds
-    return time_from_last_unicast_schedule;
-}
-
 static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 {
     uint8_t ll_target[16];
+    struct timespec current_time_stamp;
 
     if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size <= interface->mac_parameters.mac_neighbor_table->list_total_size - ws_common_temporary_entry_size(interface->mac_parameters.mac_neighbor_table->list_total_size)) {
         // Enough neighbor entries
@@ -946,7 +937,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
 
-    uint32_t current_time_stamp = ns_sw_mac_read_current_timestamp(interface->mac_api);
+    clock_gettime(CLOCK_MONOTONIC, &current_time_stamp);
 
     mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
@@ -990,14 +981,14 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
         }
 
         //Read current timestamp
-        uint32_t time_from_last_unicast_schedule = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor);
+        uint32_t time_from_last_unicast_schedule = current_time_stamp.tv_sec - ws_neighbor->host_rx_timestamp.tv_sec;
         if (time_from_last_unicast_schedule >= temp_link_min_timeout) {
             //Accept only Enough Old Device
             if (!neighbor_entry_ptr) {
                 //Accept first compare
                 neighbor_entry_ptr = cur;
             } else {
-                uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->index));
+                uint32_t compare_neigh_time = current_time_stamp.tv_sec - ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->index)->host_rx_timestamp.tv_sec;
                 if (compare_neigh_time < time_from_last_unicast_schedule)  {
                     //Accept older RX timeout always
                     neighbor_entry_ptr = cur;

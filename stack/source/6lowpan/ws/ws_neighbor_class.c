@@ -164,6 +164,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
 
     info->utt_rx_timestamp = timestamp;
     info->ufsi             = ufsi;
+    clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
     ns_fhss_ws_update_neighbor(eui64, &neighbor->fhss_data);
 }
 

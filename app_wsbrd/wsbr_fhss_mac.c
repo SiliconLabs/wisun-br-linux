@@ -30,7 +30,6 @@
 #include "wsbr_fhss_net.h"
 
 #include "wsbr_fhss_mac.h"
-
 int ns_sw_mac_fhss_register(struct mac_api *mac_api, struct fhss_api *fhss_api)
 {
     struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
@@ -68,17 +67,6 @@ int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
     return 0;
 }
 
-uint32_t ns_sw_mac_read_current_timestamp(struct mac_api *mac_api)
-{
-    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct timespec tp;
-
-    BUG_ON(!mac_api);
-    BUG_ON(ctxt != &g_ctxt);
-
-    clock_gettime(CLOCK_MONOTONIC, &tp);
-    return (tp.tv_sec * 1000000 + tp.tv_nsec / 1000) - ctxt->rcp_time_diff;
-}
 
 int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api *mac_api,
                                               bool enable_feature)

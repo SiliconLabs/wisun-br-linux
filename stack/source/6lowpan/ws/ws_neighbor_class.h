@@ -17,6 +17,7 @@
 
 #ifndef WS_NEIGHBOR_CLASS_H_
 #define WS_NEIGHBOR_CLASS_H_
+#include <time.h>
 
 #include "stack/mac/fhss_ws_extension.h"
 
@@ -38,6 +39,7 @@ typedef struct ws_neighbor_class_entry {
     bool broadcast_schedule_info_stored: 1;
     bool synch_done : 1;
     bool unicast_data_rx : 1;
+    struct timespec host_rx_timestamp;
 } ws_neighbor_class_entry_t;
 
 /**

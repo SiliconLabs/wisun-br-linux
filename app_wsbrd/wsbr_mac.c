@@ -49,22 +49,6 @@
 #include "dbus.h"
 #include "commandline_values.h"
 
-static void adjust_rcp_time_diff(struct wsbr_ctxt *ctxt, uint32_t rcp_time)
-{
-    struct timespec tp;
-    int rcp_time_diff;
-
-    // FIXME: explain hy and when this case happens
-    if (!rcp_time)
-        return;
-    clock_gettime(CLOCK_MONOTONIC, &tp);
-    rcp_time_diff = (tp.tv_sec * 1000000 + tp.tv_nsec / 1000) - rcp_time;
-    if (!ctxt->rcp_time_diff)
-        ctxt->rcp_time_diff = rcp_time_diff;
-    rcp_time_diff = rcp_time_diff * 0.10 + ctxt->rcp_time_diff * 0.9; // smooth adjustement
-    ctxt->rcp_time_diff = rcp_time_diff;
-}
-
 static void store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
 {
     const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
@@ -418,7 +402,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *
         }
         if (!spinel_prop_is_valid(buf, prop))
             return;
-        adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_conf_cb()
         ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
         break;
@@ -454,7 +437,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *
         }
         if (!spinel_prop_is_valid(buf, prop))
             return;
-        adjust_rcp_time_diff(ctxt, req.timestamp);
         // Note: we don't support data_ind_cb()
         ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
         break;
