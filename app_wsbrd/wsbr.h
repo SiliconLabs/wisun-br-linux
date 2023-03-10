@@ -45,7 +45,6 @@ struct wsbr_ctxt {
     uint32_t rcp_init_state;
     uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
-    struct fhss_api *fhss_api;
     struct mac_api mac_api;
     struct mac_description_storage_size storage_sizes;
 

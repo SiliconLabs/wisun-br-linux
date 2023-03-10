@@ -37,20 +37,10 @@ int ns_sw_mac_fhss_register(struct mac_api *mac_api, struct fhss_api *fhss_api)
 
     BUG_ON(!mac_api);
     BUG_ON(ctxt != &g_ctxt);
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_REGISTER);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    // The original function initialize of the callback. But it useless now.
-    ctxt->fhss_api = fhss_api;
     return 0;
-}
-
-struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api *mac_api)
-{
-    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-
-    return ctxt->fhss_api;
 }
 
 int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
@@ -63,7 +53,6 @@ int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
-    ctxt->fhss_api = NULL;
     return 0;
 }
 

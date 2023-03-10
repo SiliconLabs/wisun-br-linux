@@ -404,14 +404,6 @@ struct net_if *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_
     return NULL;
 }
 
-struct net_if *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api)
-{
-    ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)
-        if (cur->ws_info.fhss_api == fhss_api)
-            return cur;
-    return NULL;
-}
-
 struct net_if *protocol_stack_interface_info_get_wisun_mesh(void)
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list)

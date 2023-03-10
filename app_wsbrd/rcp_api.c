@@ -76,6 +76,29 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
 }
 
 
+void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_CREATE);
+    spinel_push_u8(&buf, timing_info->ws_uc_channel_function);
+    spinel_push_u8(&buf, timing_info->ws_bc_channel_function);
+    spinel_push_u16(&buf, timing_info->bsi);
+    spinel_push_u8(&buf, timing_info->fhss_uc_dwell_interval);
+    spinel_push_u32(&buf, timing_info->fhss_broadcast_interval);
+    spinel_push_u8(&buf, timing_info->fhss_bc_dwell_interval);
+    spinel_push_u8(&buf, timing_info->unicast_fixed_channel);
+    spinel_push_u8(&buf, timing_info->broadcast_fixed_channel);
+    spinel_push_fixed_u8_array(&buf, timing_info->domain_channel_mask, 32);
+    spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
+    spinel_push_u16(&buf, timing_info->channel_mask_size);
+    spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
+    if (!version_older_than(ctxt->rcp_version_api, 0, 12, 0))
+        spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
 
 void rcp_release_fhss()
 {

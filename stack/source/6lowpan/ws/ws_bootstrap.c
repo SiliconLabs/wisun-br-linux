@@ -547,24 +547,14 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 
 static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
 {
-    fhss_api_t *fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
-
     memset(&cur->ws_info.fhss_conf, 0, sizeof(fhss_ws_configuration_t));
-    if (!fhss_api) {
-        // When FHSS doesn't exist yet, create one
-        ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-        ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-        fhss_api = ns_fhss_ws_create(&cur->ws_info.fhss_conf, cur->ws_info.fhss_timer_ptr);
+    // When FHSS doesn't exist yet, create one
+    ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
+    ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
+    rcp_allocate_fhss(&cur->ws_info.fhss_conf);
 
-        if (!fhss_api) {
-            return -1;
-        }
-        ns_sw_mac_fhss_register(cur->mac_api, fhss_api);
-        rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
-    } else {
-        return -1;
-    }
-
+    ns_sw_mac_fhss_register(cur->mac_api, NULL);
+    rcp_set_tx_allowance_level(WS_TX_AND_RX_SLOT, WS_TX_AND_RX_SLOT);
     return 0;
 }
 
@@ -772,8 +762,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         //BBR init like NVM read
         ws_bbr_init(cur);
     }
-    // Save FHSS api
-    cur->ws_info.fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
 
     ws_bootstrap_ll_address_validate(cur);
 
@@ -845,7 +833,6 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     protocol_mac_reset(cur);
     ns_sw_mac_fhss_unregister(cur->mac_api);
     rcp_release_fhss();
-    cur->ws_info.fhss_api = NULL;
     // Reset WS information
     ws_bootstrap_asynch_trickle_stop(cur);
     ws_llc_reset(cur);
