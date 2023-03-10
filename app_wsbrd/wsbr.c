@@ -551,7 +551,7 @@ int wsbr_main(int argc, char *argv[])
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
     rcp_noop();
-    wsbr_rcp_reset(ctxt);
+    rcp_reset();
     wsbr_rcp_init(ctxt);
     wsbr_tun_init(ctxt);
 

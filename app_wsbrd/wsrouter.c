@@ -38,6 +38,7 @@
 
 #include "commandline.h"
 #include "version.h"
+#include "rcp_api.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
 #include "timers.h"
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
     ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     ctxt->os_ctxt->trig_fd = ctxt->os_ctxt->data_fd;
 
-    wsbr_rcp_reset(ctxt);
+    rcp_reset();
     wsbr_rcp_init(ctxt);
 
     wsbr_common_timer_init(ctxt);
