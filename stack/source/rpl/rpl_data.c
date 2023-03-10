@@ -1056,7 +1056,7 @@ drop:
 
     buf->options.ip_extflags |= IPEXT_SRH_RPL;
 
-    if (ws_info(cur)) {
+    if (cur->ws_info) {
         //Call SRC route header handler hook to Wi-SUN refresh border router alive
         ws_common_border_router_alive_update(cur);
     }

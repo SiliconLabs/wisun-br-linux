@@ -205,7 +205,7 @@ static uint8_t test_drop_data_message = 0;
 int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !ws_info(cur)) {
+    if (!cur || !cur->ws_info) {
         return -1;
     }
     test_skip_first_init_response = skip;
@@ -215,7 +215,7 @@ int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !ws_info(cur)) {
+    if (!cur || !cur->ws_info) {
         return -1;
     }
     test_drop_data_message = number_of_dropped_frames;

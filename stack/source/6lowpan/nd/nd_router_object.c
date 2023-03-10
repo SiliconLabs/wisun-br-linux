@@ -238,7 +238,7 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     }
 
     /* TODO - check hard upper limit on registrations? */
-    if (ws_info(cur_interface)) {
+    if (cur_interface->ws_info) {
 
         aro_out->status = ws_common_allow_child_registration(cur_interface, aro_out->eui64, aro_out->lifetime);
         if (aro_out->status != ARO_SUCCESS) {
@@ -289,7 +289,7 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur_interface->ipv6_neighbour_cache, neigh, ll_addr.addr_type, ll_addr.address);
     ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-    if (ws_info(cur_interface)) {
+    if (cur_interface->ws_info) {
         aro_out->status = ARO_SUCCESS;
         aro_out->present = true;
         // Todo: this might not be needed...

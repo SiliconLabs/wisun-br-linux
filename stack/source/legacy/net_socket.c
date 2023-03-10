@@ -898,7 +898,7 @@ static uint32_t ws_common_usable_application_datarate_get(struct net_if *cur)
 
 static uint32_t ws_common_connected_time_get(struct net_if *cur)
 {
-    if (!ws_info(cur)) {
+    if (!cur->ws_info) {
         return 0;
     }
     if (cur->ws_info->connected_time == 0) {
@@ -910,7 +910,7 @@ static uint32_t ws_common_connected_time_get(struct net_if *cur)
 
 uint32_t ws_common_authentication_time_get(struct net_if *cur)
 {
-    if (!ws_info(cur)) {
+    if (!cur->ws_info) {
         return 0;
     }
     if (cur->ws_info->authentication_time == 0) {
@@ -934,7 +934,7 @@ static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t 
     if (cur_interface->eth_mac_api) {
         // either PPP or Ethernet interface.
         latency_estimate = 1000;
-    } else if (ws_info(cur_interface)) {
+    } else if (cur_interface->ws_info) {
         latency_estimate = ws_common_latency_estimate_get(cur_interface);
     } else {
         // 6LoWPAN ND
@@ -980,7 +980,7 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
         // either PPP or Ethernet interface.
         network_size = 1;
         datarate = 1000000;
-    } else if (ws_info(cur_interface)) {
+    } else if (cur_interface->ws_info) {
         network_size = ws_common_network_size_estimate_get(cur_interface);
         datarate = ws_common_usable_application_datarate_get(cur_interface);
     } else {
@@ -1001,7 +1001,7 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
     /*
      * Do not occupy whole bandwidth, leave space for network formation etc...
      */
-    if (ws_info(cur_interface) &&
+    if (cur_interface->ws_info &&
             (ws_common_connected_time_get(cur_interface) > STAGGER_STABLE_NETWORK_TIME || ws_common_authentication_time_get(cur_interface) == 0)) {
         // After four hours of network connected full bandwidth is given to application
         // Authentication has not been required during bootstrap so network load is much smaller
@@ -1011,7 +1011,7 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
     }
 
     // For small networks sets 10 seconds stagger
-    if (ws_info(cur_interface) && (network_size <= 100 || ws_test_proc_auto_trg(cur_interface))) {
+    if (cur_interface->ws_info && (network_size <= 100 || ws_test_proc_auto_trg(cur_interface))) {
         stagger_value = 10;
     } else {
         stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);

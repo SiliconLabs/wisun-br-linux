@@ -174,7 +174,6 @@ void ws_common_state_machine(struct net_if *cur);
 
 fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur);
 
-#define ws_info(cur) ((cur)->ws_info)
 #define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
 #define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
 #endif //WS_COMMON_H_

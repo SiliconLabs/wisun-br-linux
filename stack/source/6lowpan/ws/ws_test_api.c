@@ -44,7 +44,7 @@ int ws_test_version_set(int8_t interface_id, uint8_t version)
 
     test_pan_version = version;
     if (cur) {
-        if (!ws_info(cur)) {
+        if (!cur->ws_info) {
             return -1;
         }
         cur->ws_info->version = version;
@@ -92,7 +92,7 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !ws_info(cur)) {
+    if (!cur || !cur->ws_info) {
         return -1;
     }
 
@@ -107,7 +107,7 @@ int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, voi
     (void) parameters;
     if (interface_id > 0) {
         cur = protocol_stack_interface_info_get_by_id(interface_id);
-        if (!cur || !ws_info(cur)) {
+        if (!cur || !cur->ws_info) {
             return -1;
         }
     } else {

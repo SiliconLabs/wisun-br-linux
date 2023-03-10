@@ -920,7 +920,7 @@ static void rpl_control_process_prefix_options(struct net_if *cur, rpl_instance_
         uint32_t preferred = read_be32(ptr + 8);
         const uint8_t *prefix = ptr + 16;
 
-        if (ws_info(cur)) {
+        if (cur->ws_info) {
             //For Wi-SUN Interoperability force length to 64
             prefix_len = 64;
         }

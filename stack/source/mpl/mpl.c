@@ -1093,7 +1093,7 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
 
     /* "Compress" seed ID if it's the IPv6 source address */
     /* (For Wi-sun, not support seed id address compression */
-    if (!ws_info(buf->interface) && seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
+    if (!buf->interface->ws_info && seed_id_len == 16 && addr_ipv6_equal(seed_id, buf->src_sa.address)) {
         seed_id_len = 0;
     }
 

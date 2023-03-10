@@ -673,7 +673,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
                 //tr_warn("Drop TX to unassociated %s", trace_sockaddr(&buf->dst_sa, true));
                 goto tx_error_handler;
             }
-        } else if (ws_info(cur) && !neigh_entry_ptr) {
+        } else if (cur->ws_info && !neigh_entry_ptr) {
             //Do not accept to send unknow device
             goto tx_error_handler;
         }
@@ -685,7 +685,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
 
         if (!buf->link_specific.ieee802_15_4.requestAck) {
             buf->link_specific.ieee802_15_4.key_id_mode = B_SECURITY_KEY_ID_MODE_DEFAULT;
-        } else if (ws_info(cur) || (neigh_entry_ptr && !neigh_entry_ptr->trusted_device)) {
+        } else if (cur->ws_info || (neigh_entry_ptr && !neigh_entry_ptr->trusted_device)) {
             buf->link_specific.ieee802_15_4.key_id_mode  = B_SECURITY_KEY_ID_MODE_DEFAULT;
         } else {
             buf->link_specific.ieee802_15_4.key_id_mode  = B_SECURITY_KEY_ID_IMPLICIT;
@@ -1454,8 +1454,8 @@ int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_dat
         } else {
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
-    } else if ((confirm->status == MLME_BUSY_CHAN) && !ws_info(cur)) {
-        tr_error("unexpected: !ws_info(cur)");
+    } else if ((confirm->status == MLME_BUSY_CHAN) && !cur->ws_info) {
+        tr_error("unexpected: !cur->ws_info");
     } else if ((buf->link_specific.ieee802_15_4.requestAck) && (confirm->status == MLME_TRANSACTION_EXPIRED)) {
         lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
@@ -1511,7 +1511,7 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 
 static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const sockaddr_t *addr)
 {
-    if (ws_info(cur)) {
+    if (cur->ws_info) {
         mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr->address + 2, addr->addr_type);
         if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
             return true;

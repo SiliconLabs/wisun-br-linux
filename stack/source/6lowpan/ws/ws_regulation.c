@@ -26,7 +26,7 @@ int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !ws_info(cur))
+    if (!cur || !cur->ws_info)
         return -1;
     cur->ws_info->regulation = regulation;
     mac_helper_set_regional_regulation(cur, regulation);
