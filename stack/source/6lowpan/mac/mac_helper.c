@@ -407,13 +407,8 @@ void mac_helper_device_description_write(struct net_if *cur, mlme_device_descrip
     device_desc->FrameCounter = frame_counter;
 }
 
-void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, struct net_if *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
+void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, struct net_if *cur, uint8_t attribute_index)
 {
-    if (!force_set && cur->mac_parameters.SecurityEnabled && cur->mac_parameters.mac_default_key_index != keyID) {
-        tr_debug("Do not set counter by index %u != %u", cur->mac_parameters.mac_default_key_index, keyID);
-        return;
-    }
-
     tr_debug("Register Device %u, mac16 %x mac64: %s, %"PRIu32, attribute_index, device_desc->ShortAddress, tr_eui64(device_desc->ExtAddress), device_desc->FrameCounter);
     mac_helper_devicetable_direct_set(cur->mac_api, device_desc, attribute_index);
 }

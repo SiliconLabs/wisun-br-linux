@@ -114,7 +114,7 @@ static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net
     neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     mac_helper_device_description_write(interface, &device_desc, neighbor->mac64, neighbor->mac16, 0, false);
-    mac_helper_devicetable_set(&device_desc, interface, neighbor->index, interface->mac_parameters.mac_default_key_index, true);
+    mac_helper_devicetable_set(&device_desc, interface, neighbor->index);
 
     return neighbor;
 }
