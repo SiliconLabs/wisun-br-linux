@@ -30,6 +30,7 @@
 #include "stack/ws_management_api.h"
 #include "stack/mac/mac_api.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"
@@ -165,7 +166,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
     info->utt_rx_timestamp = timestamp;
     info->ufsi             = ufsi;
     clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
-    ns_fhss_ws_update_neighbor(eui64, &neighbor->fhss_data);
+    rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
 // Irrelevant for border router
@@ -275,7 +276,7 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                                   &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = dwell_interval;
-    ns_fhss_ws_update_neighbor(eui64, &ws_neighbor->fhss_data);
+    rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 
 // Irrelevant for border router

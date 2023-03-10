@@ -138,25 +138,3 @@ int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8
     iobuf_free(&buf);
     return 0;
 }
-void ns_fhss_ws_update_neighbor(const uint8_t eui64[8],
-                                fhss_ws_neighbor_timing_info_t *fhss_data)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
-    spinel_push_fixed_u8_array(&buf, eui64, 8);
-    spinel_push_u8(&buf, fhss_data->clock_drift);
-    spinel_push_u8(&buf, fhss_data->timing_accuracy);
-    spinel_push_u16(&buf, fhss_data->uc_channel_list.channel_count);
-    spinel_push_fixed_u8_array(&buf, fhss_data->uc_channel_list.channel_mask, 32);
-    spinel_push_u8(&buf, fhss_data->uc_timing_info.unicast_channel_function);
-    spinel_push_u8(&buf, fhss_data->uc_timing_info.unicast_dwell_interval);
-    spinel_push_u16(&buf, fhss_data->uc_timing_info.unicast_number_of_channels);
-    spinel_push_u16(&buf, fhss_data->uc_timing_info.fixed_channel);
-    spinel_push_u32(&buf, fhss_data->uc_timing_info.ufsi);
-    spinel_push_u32(&buf, fhss_data->uc_timing_info.utt_rx_timestamp);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-

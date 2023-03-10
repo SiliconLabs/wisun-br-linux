@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "stack/mac/fhss_ws_extension.h"
 #include "common/iobuf.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
@@ -73,6 +74,28 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
     iobuf_free(&buf);
 }
 
+
+void rcp_set_fhss_neighbor(const uint8_t neigh[8],
+                           const struct fhss_ws_neighbor_timing_info *timing_info)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
+    spinel_push_fixed_u8_array(&buf, neigh, 8);
+    spinel_push_u8(&buf, timing_info->clock_drift);
+    spinel_push_u8(&buf, timing_info->timing_accuracy);
+    spinel_push_u16(&buf, timing_info->uc_channel_list.channel_count);
+    spinel_push_fixed_u8_array(&buf, timing_info->uc_channel_list.channel_mask, 32);
+    spinel_push_u8(&buf, timing_info->uc_timing_info.unicast_channel_function);
+    spinel_push_u8(&buf, timing_info->uc_timing_info.unicast_dwell_interval);
+    spinel_push_u16(&buf, timing_info->uc_timing_info.unicast_number_of_channels);
+    spinel_push_u16(&buf, timing_info->uc_timing_info.fixed_channel);
+    spinel_push_u32(&buf, timing_info->uc_timing_info.ufsi);
+    spinel_push_u32(&buf, timing_info->uc_timing_info.utt_rx_timestamp);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
 void rcp_drop_fhss_neighbor(const uint8_t eui64[8])
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

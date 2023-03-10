@@ -14,6 +14,10 @@
 #define RCP_API_H
 #include <stdint.h>
 
+struct fhss_ws_neighbor_timing_info;
+
+void rcp_set_fhss_neighbor(const uint8_t neigh[8],
+                           const struct fhss_ws_neighbor_timing_info *timing_info);
 void rcp_drop_fhss_neighbor(const uint8_t eui64[8]);
 void rcp_set_fhss_hop_count(int hop_count);
 
