@@ -35,35 +35,6 @@ static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0,
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-static int8_t mac_helper_pib_8bit_set(struct net_if *interface, mlme_attr_e attribute, uint8_t value)
-{
-    /* Deprecated: Unused by the RCP. */
-    switch (attribute) {
-        case macAutoRequestKeyIdMode:
-            interface->mac_parameters.mac_key_id_mode = value;
-            break;
-        case macAutoRequestKeyIndex:
-            interface->mac_parameters.mac_default_key_index = value;
-            break;
-
-        case macAutoRequestSecurityLevel:
-        default:
-            interface->mac_parameters.mac_security_level = value;
-            break;
-    }
-
-    if (interface->mac_api && interface->mac_api->mlme_req) {
-        mlme_set_t set_req;
-        set_req.attr = attribute;
-        set_req.attr_index = 0;
-        set_req.value_pointer = &value;
-        set_req.value_size = 1;
-        interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-    }
-
-    return 0;
-}
-
 uint16_t mac_helper_mac16_address_get(const struct net_if *interface)
 {
     uint16_t shortAddress = 0xfffe;
@@ -101,22 +72,6 @@ void mac_helper_set_default_key_source(struct net_if *interface)
     //Set first default key source
     set_req.attr = macDefaultKeySource;
     interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-    //Set first default key source
-    set_req.attr = macAutoRequestKeySource;
-    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-
-}
-
-void mac_helper_default_security_level_set(struct net_if *interface, uint8_t securityLevel)
-{
-    bool security_enabled;
-    if (securityLevel) {
-        security_enabled = true;
-    } else {
-        security_enabled = false;
-    }
-    mac_helper_pib_8bit_set(interface, macAutoRequestSecurityLevel,  securityLevel); /* Deprecated: Unused by the RCP. */
-    mac_helper_pib_boolean_set(interface, macSecurityEnabled, security_enabled);
 }
 
 uint8_t mac_helper_default_security_level_get(struct net_if *interface)
@@ -124,16 +79,10 @@ uint8_t mac_helper_default_security_level_get(struct net_if *interface)
     return interface->mac_parameters.mac_security_level;
 }
 
-void mac_helper_default_security_key_id_mode_set(struct net_if *interface, uint8_t keyIdMode)
-{
-    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIdMode,  keyIdMode);
-}
-
 uint8_t mac_helper_default_security_key_id_mode_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_key_id_mode;
 }
-
 static void mac_helper_key_lookup_set(mlme_key_id_lookup_descriptor_t *lookup, uint8_t id)
 {
     memcpy(lookup->LookupData, mac_helper_default_key_source, 8);
@@ -164,16 +113,6 @@ static void mac_helper_keytable_descriptor_set(struct mac_api *api, const uint8_
     api->mlme_req(api, MLME_SET, &set_req);
 }
 
-int8_t mac_helper_security_auto_request_key_index_set(struct net_if *interface, uint8_t key_attibute_index, uint8_t id)
-{
-    /* Deprecated: Unused by the RCP. */
-    if (id == 0) {
-        return -1;
-    }
-    interface->mac_parameters.mac_default_key_attribute_id = key_attibute_index;
-    mac_helper_pib_8bit_set(interface, macAutoRequestKeyIndex, id);
-    return 0;
-}
 
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
 {

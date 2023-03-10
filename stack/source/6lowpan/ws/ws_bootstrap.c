@@ -2039,8 +2039,9 @@ static void ws_bootstrap_lpan_version_increment(struct net_if *cur)
 
 static void ws_bootstrap_mac_security_enable(struct net_if *cur)
 {
-    mac_helper_default_security_level_set(cur, AES_SECURITY_LEVEL_ENC_MIC64);
-    mac_helper_default_security_key_id_mode_set(cur, MAC_KEY_ID_MODE_IDX);
+    cur->mac_parameters.mac_key_id_mode = MAC_KEY_ID_MODE_IDX;
+    cur->mac_parameters.mac_security_level = AES_SECURITY_LEVEL_ENC_MIC64;
+    mac_helper_pib_boolean_set(cur, macSecurityEnabled, true);
 }
 
 static void ws_bootstrap_nw_key_set(struct net_if *cur, uint8_t slot, uint8_t index, uint8_t *key)
@@ -2075,10 +2076,9 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
             return;
         }
     }
-
-    /* Update the default key to use */
-    /* Deprecated: Unused by the EFR. */
-    mac_helper_security_auto_request_key_index_set(cur, index, index + 1);
+    /* Deprecated: Unused by the RCP. */
+    cur->mac_parameters.mac_default_key_attribute_id = index;
+    cur->mac_parameters.mac_default_key_index = index + 1;
 }
 
 static void ws_bootstrap_nw_frame_counter_set(struct net_if *cur, uint32_t counter, uint8_t slot)

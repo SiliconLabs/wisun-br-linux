@@ -205,7 +205,8 @@ void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_m
             interface->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
             tr_info("Activate new default key %u", interface->ws_info.pending_key_index_info.index);
             /* Deprecated: Unused by the RCP. */
-            mac_helper_security_auto_request_key_index_set(interface, interface->ws_info.pending_key_index_info.index, interface->ws_info.pending_key_index_info.index + 1);
+            interface->mac_parameters.mac_default_key_attribute_id = interface->ws_info.pending_key_index_info.index;
+            interface->mac_parameters.mac_default_key_index = interface->ws_info.pending_key_index_info.index + 1;
         }
     }
 }
