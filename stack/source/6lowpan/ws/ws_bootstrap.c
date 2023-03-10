@@ -645,7 +645,7 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
     ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &cur->ws_info.fhss_conf);
 
     // We have broadcast schedule set up set the broadcast parent schedule
-    ns_fhss_ws_set_parent(cur->ws_info.fhss_api, neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, synch_req != WS_PARENT_SOFT_SYNCH);
+    rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, synch_req != WS_PARENT_SOFT_SYNCH);
 
     // Update LLC to follow updated fhss settings
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);

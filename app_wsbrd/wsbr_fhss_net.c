@@ -99,26 +99,3 @@ int ns_fhss_ws_configuration_set(const struct fhss_api *fhss_api,
     iobuf_free(&buf);
     return 0;
 }
-
-int ns_fhss_ws_set_parent(const struct fhss_api *fhss_api, const uint8_t eui64[8],
-                          const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    BUG_ON(fhss_api != FHSS_API_PLACEHOLDER);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
-    spinel_push_fixed_u8_array(&buf, eui64, 8);
-    spinel_push_bool(&buf, force_synch);
-    spinel_push_u8(&buf, bc_timing_info->broadcast_channel_function);
-    spinel_push_u8(&buf, bc_timing_info->broadcast_dwell_interval);
-    spinel_push_u16(&buf, bc_timing_info->fixed_channel);
-    spinel_push_u16(&buf, bc_timing_info->broadcast_slot);
-    spinel_push_u16(&buf, bc_timing_info->broadcast_schedule_id);
-    spinel_push_u32(&buf, bc_timing_info->broadcast_interval_offset);
-    spinel_push_u32(&buf, bc_timing_info->broadcast_interval);
-    spinel_push_u32(&buf, bc_timing_info->bt_rx_timestamp);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}

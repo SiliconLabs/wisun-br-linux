@@ -692,8 +692,7 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
             if (neighbor.neighbor && neighbor.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
                 base->interface_ptr->ws_info.fhss_conf.fhss_bc_dwell_interval = neighbor.ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval;
                 base->interface_ptr->ws_info.fhss_conf.fhss_broadcast_interval = neighbor.ws_neighbor->fhss_data.bc_timing_info.broadcast_interval;
-                ns_fhss_ws_set_parent(base->interface_ptr->ws_info.fhss_api, neighbor.neighbor->mac64,
-                                      &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
+                rcp_set_fhss_parent(neighbor.neighbor->mac64, &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
             }
         }
         if (has_us)

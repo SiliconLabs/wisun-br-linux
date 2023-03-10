@@ -75,6 +75,28 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
 }
 
 
+void rcp_set_fhss_parent(const uint8_t parent[8],
+                         const struct broadcast_timing_info *timing_info,
+                         bool force_synch)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
+    spinel_push_fixed_u8_array(&buf, parent, 8);
+    spinel_push_bool(&buf, force_synch);
+    spinel_push_u8(&buf, timing_info->broadcast_channel_function);
+    spinel_push_u8(&buf, timing_info->broadcast_dwell_interval);
+    spinel_push_u16(&buf, timing_info->fixed_channel);
+    spinel_push_u16(&buf, timing_info->broadcast_slot);
+    spinel_push_u16(&buf, timing_info->broadcast_schedule_id);
+    spinel_push_u32(&buf, timing_info->broadcast_interval_offset);
+    spinel_push_u32(&buf, timing_info->broadcast_interval);
+    spinel_push_u32(&buf, timing_info->bt_rx_timestamp);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_neighbor(const uint8_t neigh[8],
                            const struct fhss_ws_neighbor_timing_info *timing_info)
 {

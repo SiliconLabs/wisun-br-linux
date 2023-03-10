@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include "stack/mac/fhss_ws_extension.h"
 
+void rcp_set_fhss_parent(const uint8_t parent[8],
+                         const struct broadcast_timing_info *timing_info,
+                         bool force_synch);
 void rcp_set_fhss_neighbor(const uint8_t neigh[8],
                            const struct fhss_ws_neighbor_timing_info *timing_info);
 void rcp_drop_fhss_neighbor(const uint8_t eui64[8]);
