@@ -788,7 +788,6 @@ static const struct {
     { macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
     { macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
     { macAckWaitDuration,              wsbr_spinel_set_u16,                   SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
-    { mac802_15_4Mode,                 wsbr_spinel_set_u32,                   SPINEL_PROP_WS_15_4_MODE,                        },
     { macRegionalRegulation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_REGIONAL_REGULATION,              },
     { macAsyncFragmentation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_ASYNC_FRAGMENTATION,              },
     { macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },

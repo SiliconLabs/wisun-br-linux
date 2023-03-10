@@ -1354,12 +1354,7 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
 {
     mlme_set_t set_request;
 
-    // Set MAC mode
-    phy_802_15_4_mode_e mac_mode = IEEE_802_15_4G_2012;
-    set_request.attr = mac802_15_4Mode;
-    set_request.value_pointer = &mac_mode;
-    set_request.value_size = sizeof(phy_802_15_4_mode_e);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
+    rcp_set_802154_mode(IEEE_802_15_4G_2012);
     rcp_set_rf_config(&rf_configs);
     // Set Ack wait duration
     uint8_t bits_per_symbol = 1;

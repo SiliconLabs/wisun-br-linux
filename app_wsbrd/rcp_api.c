@@ -186,6 +186,12 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     iobuf_free(&buf);
 }
 
+
+void rcp_set_802154_mode(phy_802_15_4_mode_e val)
+{
+    rcp_set_u32(SPINEL_PROP_WS_15_4_MODE, val);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
