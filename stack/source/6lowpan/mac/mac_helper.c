@@ -53,11 +53,6 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
     return panId;
 }
 
-void mac_helper_default_key_index_set(struct net_if *interface, uint8_t keyIndex)
-{
-    interface->mac_parameters.mac_default_key_index = keyIndex;
-}
-
 uint8_t mac_helper_default_key_index_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_default_key_index;
