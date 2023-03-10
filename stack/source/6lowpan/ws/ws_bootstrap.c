@@ -225,11 +225,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
     }
 }
 
-void ws_bootstrap_configure_max_retries(struct net_if *cur, uint8_t max_mac_retries)
-{
-    mac_helper_mac_mlme_max_retry_set(cur->id, max_mac_retries);
-}
-
 void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be)
 {
     mac_helper_mac_mlme_max_csma_backoffs_set(cur->id, max_backoffs);
@@ -1669,8 +1664,8 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
         }
 
         ws_bootstrap_set_fhss_hop(cur);
-        // Set retry configuration for bootstrap ready state
-        ws_bootstrap_configure_max_retries(cur, WS_MAX_FRAME_RETRIES);
+
+        rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
         // Set TX failure request restart configuration
         ws_bootstrap_configure_data_request_restart(cur, WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
     } else if (event == RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS) {

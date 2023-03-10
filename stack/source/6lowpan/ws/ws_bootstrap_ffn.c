@@ -1018,8 +1018,8 @@ void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *ev
             // Configure LLC for network discovery
             ws_bootstrap_ffn_network_discovery_configure(cur);
             ws_bootstrap_fhss_activate(cur);
-            // Set retry configuration for discovery state
-            ws_bootstrap_configure_max_retries(cur, WS_MAX_FRAME_RETRIES_BOOTSTRAP);
+
+            rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES_BOOTSTRAP);
             // Set TX failure request restart configuration for discovery state
             ws_bootstrap_configure_data_request_restart(cur, WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX_BOOTSTRAP, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
             // Set CSMA-CA backoff configuration

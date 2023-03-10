@@ -212,6 +212,11 @@ void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
     iobuf_free(&buf);
 }
 
+void rcp_set_max_mac_retry(uint8_t val)
+{
+    rcp_set_u8(SPINEL_PROP_WS_MAX_FRAME_RETRIES, val);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

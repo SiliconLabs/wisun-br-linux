@@ -412,8 +412,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             // Initialize eapol congestion tracking
             ws_bootstrap_6lbr_eapol_congestion_init(cur);
 
-            // Set retry configuration for bootstrap ready state
-            ws_bootstrap_configure_max_retries(cur, WS_MAX_FRAME_RETRIES);
+            rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
 
             // Set TX failure request restart configuration
             ws_bootstrap_configure_data_request_restart(cur, WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
