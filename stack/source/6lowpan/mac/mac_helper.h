@@ -45,7 +45,6 @@ void mac_helper_devicetable_remove(struct mac_api *mac_api, uint8_t attribute_in
 void mac_helper_device_description_write(struct net_if *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt);
 void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, struct net_if *cur, uint8_t attribute_index);
 void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index);
-int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_request_restart_config_t *request_restart_config);
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit);
 int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
 int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id);

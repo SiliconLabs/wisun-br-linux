@@ -232,16 +232,6 @@ void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_bac
     rcp_set_max_be(max_be);
 }
 
-void ws_bootstrap_configure_data_request_restart(struct net_if *cur, uint8_t cca_failure_restart_max, uint8_t tx_failure_restart_max, uint16_t blacklist_min_ms, uint16_t blacklist_max_ms)
-{
-    mlme_request_restart_config_t request_restart_config;
-    request_restart_config.cca_failure_restart_max = cca_failure_restart_max;
-    request_restart_config.tx_failure_restart_max = tx_failure_restart_max;
-    request_restart_config.blacklist_min_ms = blacklist_min_ms;
-    request_restart_config.blacklist_max_ms = blacklist_max_ms;
-    mac_helper_mac_mlme_data_request_restart_set(cur->id, &request_restart_config);
-}
-
 static int ws_bootstrap_tasklet_init(struct net_if *cur)
 {
     if (cur->bootStrapId < 0)
@@ -1667,8 +1657,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
         ws_bootstrap_set_fhss_hop(cur);
 
         rcp_set_max_mac_retry(WS_MAX_FRAME_RETRIES);
-        // Set TX failure request restart configuration
-        ws_bootstrap_configure_data_request_restart(cur, WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
+        rcp_set_max_rf_retry(WS_CCA_REQUEST_RESTART_MAX, WS_TX_REQUEST_RESTART_MAX, WS_REQUEST_RESTART_BLACKLIST_MIN, WS_REQUEST_RESTART_BLACKLIST_MAX);
     } else if (event == RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS) {
         /*
          * RPL goes to passive mode, but does not require any extra changed

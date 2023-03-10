@@ -212,6 +212,21 @@ void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
     iobuf_free(&buf);
 }
 
+void rcp_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
+                          uint16_t blacklist_min_ms, uint16_t blacklist_max_ms)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_REQUEST_RESTART);
+    spinel_push_u8(&buf, max_cca_failure);
+    spinel_push_u8(&buf, max_tx_failure);
+    spinel_push_u16(&buf, blacklist_min_ms);
+    spinel_push_u16(&buf, blacklist_max_ms);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_max_mac_retry(uint8_t val)
 {
     rcp_set_u8(SPINEL_PROP_WS_MAX_FRAME_RETRIES, val);

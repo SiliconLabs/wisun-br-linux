@@ -628,22 +628,6 @@ static void wsbr_spinel_set_eui64(struct wsbr_ctxt *ctxt, unsigned int prop, con
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    struct iobuf_write buf = { };
-    const struct mlme_request_restart_config *req = data;
-
-    BUG_ON(prop != SPINEL_PROP_WS_REQUEST_RESTART);
-    BUG_ON(data_len != sizeof(struct mlme_request_restart_config));
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
-    spinel_push_u8(&buf,  req->cca_failure_restart_max);
-    spinel_push_u8(&buf,  req->tx_failure_restart_max);
-    spinel_push_u16(&buf, req->blacklist_min_ms);
-    spinel_push_u16(&buf, req->blacklist_max_ms);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 static void wsbr_spinel_set_mac_filter_start(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     struct iobuf_write buf = { };
@@ -774,7 +758,6 @@ static const struct {
     { macAsyncFragmentation,           wsbr_spinel_set_u32,                   SPINEL_PROP_WS_ASYNC_FRAGMENTATION,              },
     { macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
-    { macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
     { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },

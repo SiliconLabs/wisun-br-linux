@@ -31,6 +31,8 @@ void rcp_set_802154_mode(phy_802_15_4_mode_e val);
 void rcp_set_ack_wait_duration(uint16_t val);
 void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
                            uint8_t high_limit, uint8_t low_limit);
+void rcp_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
+                          uint16_t blacklist_min_ms, uint16_t blacklist_max_ms);
 void rcp_set_max_mac_retry(uint8_t val);
 void rcp_set_max_csma_backoffs(uint8_t val);
 void rcp_set_min_be(uint8_t val);
