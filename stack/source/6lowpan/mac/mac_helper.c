@@ -24,6 +24,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 
 #include "6lowpan/mac/mac_helper.h"
@@ -486,12 +487,8 @@ int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_o
     if (!cur || !cur->mac_api) {
         return -1;
     }
-    uint8_t start_cca_thr[4] = {number_of_channels, default_dbm, high_limit, low_limit};
-    mlme_set_t set_req;
-    set_req.attr = macCCAThresholdStart;
-    set_req.value_pointer = &start_cca_thr;
-    set_req.value_size = sizeof(start_cca_thr);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+
+    rcp_set_cca_threshold(number_of_channels, default_dbm, high_limit, low_limit);
     return 0;
 }
 

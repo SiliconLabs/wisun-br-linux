@@ -197,6 +197,21 @@ void rcp_set_ack_wait_duration(uint16_t val)
     rcp_set_u16(SPINEL_PROP_WS_ACK_WAIT_DURATION, val);
 }
 
+void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
+                           uint8_t high_limit, uint8_t low_limit)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_CCA_THRESHOLD_START);
+    spinel_push_u8(&buf, number_of_channels);
+    spinel_push_u8(&buf, default_dbm);
+    spinel_push_u8(&buf, high_limit);
+    spinel_push_u8(&buf, low_limit);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

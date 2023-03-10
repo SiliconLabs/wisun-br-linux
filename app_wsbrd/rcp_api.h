@@ -29,6 +29,8 @@ void rcp_get_rx_sensitivity(void);
 void rcp_set_rf_config(const struct phy_rf_channel_configuration *config);
 void rcp_set_802154_mode(phy_802_15_4_mode_e val);
 void rcp_set_ack_wait_duration(uint16_t val);
+void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
+                           uint8_t high_limit, uint8_t low_limit);
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
 void rcp_set_fhss_parent(const uint8_t parent[8],
                          const struct broadcast_timing_info *timing_info,
