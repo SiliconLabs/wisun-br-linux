@@ -238,13 +238,10 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     }
 
     /* TODO - check hard upper limit on registrations? */
-    if (cur_interface->ws_info) {
-
-        aro_out->status = ws_common_allow_child_registration(cur_interface, aro_out->eui64, aro_out->lifetime);
-        if (aro_out->status != ARO_SUCCESS) {
-            aro_out->present = true;
-            return true;
-        }
+    aro_out->status = ws_common_allow_child_registration(cur_interface, aro_out->eui64, aro_out->lifetime);
+    if (aro_out->status != ARO_SUCCESS) {
+        aro_out->present = true;
+        return true;
     }
 
     /* We need to have entry in the Neighbour Cache */
@@ -289,23 +286,9 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur_interface->ipv6_neighbour_cache, neigh, ll_addr.addr_type, ll_addr.address);
     ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-    if (cur_interface->ws_info) {
-        aro_out->status = ARO_SUCCESS;
-        aro_out->present = true;
-        // Todo: this might not be needed...
-        nd_update_registration(cur_interface, neigh, aro_out);
-        return true;
-    }
-    if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || nd_params.multihop_dad == false) {
-        if (cur_interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-            tr_warn("white Board Registry fail");
-            aro_out->status = ARO_FULL;
-        }
-
-        aro_out->present = true;
-        nd_update_registration(cur_interface, neigh, aro_out);
-        return true; /* Transmit NA */
-    } else { /* Non-border router and multihop DAD: relay as DAR to Border Router */
-        return true;
-    }
+    aro_out->status = ARO_SUCCESS;
+    aro_out->present = true;
+    // Todo: this might not be needed...
+    nd_update_registration(cur_interface, neigh, aro_out);
+    return true;
 }

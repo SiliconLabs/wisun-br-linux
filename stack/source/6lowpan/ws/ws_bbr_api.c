@@ -139,17 +139,17 @@ static void ws_bbr_rpl_version_timer_start(struct net_if *cur, uint8_t version)
     // Set the next timeout value for version update
     if (version < 128) {
         //stable version for RPL so slow timer update is ok
-        cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME;
+        cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME;
     } else {
         if (ws_cfg_network_config_get(cur) <= CONFIG_SMALL) {
             // Also handles CONFIG_CERTIFICATE
-            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
+            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_SMALL;
         } else if (ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM) {
-            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
+            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_MEDIUM;
         } else if (ws_cfg_network_config_get(cur) <= CONFIG_LARGE) {
-            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
+            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_LARGE;
         } else  {
-            cur->ws_info->rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
+            cur->ws_info.rpl_version_timer = RPL_VERSION_LIFETIME_RESTART_EXTRA_LARGE;
         }
     }
 }
@@ -576,20 +576,20 @@ void ws_bbr_pan_version_increase(struct net_if *cur)
     if (configuration & BBR_PERIODIC_VERSION_INC) {
         // Periodically increase the version number.
         // This removes need for DAO, but causes slowness in recovery
-        pan_version_timer = cur->ws_info->cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
+        pan_version_timer = cur->ws_info.cfg->timing.pan_timeout / PAN_VERSION_CHANGE_INTERVAL;
     } else {
         // Version number is not periodically increased forcing nodes to check Border router availability using DAO
         pan_version_timer = 0;
     }
-    cur->ws_info->pan_information.pan_version++;
+    cur->ws_info.pan_information.pan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_bootstrap_configuration_trickle_reset(cur);
 
     // Indicate new pan version to PAE controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
-                                  cur->ws_info->pan_information.pan_version,
-                                  cur->ws_info->pan_information.lpan_version,
-                                  cur->ws_info->cfg->gen.network_name);
+    ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
+                                  cur->ws_info.pan_information.pan_version,
+                                  cur->ws_info.pan_information.lpan_version,
+                                  cur->ws_info.cfg->gen.network_name);
 }
 
 void ws_bbr_lpan_version_increase(struct net_if *cur)
@@ -598,24 +598,21 @@ void ws_bbr_lpan_version_increase(struct net_if *cur)
         return;
     }
     tr_debug("Border router LFN version number update");
-    cur->ws_info->pan_information.lpan_version++;
+    cur->ws_info.pan_information.lpan_version++;
     // Inconsistent for border router to make information distribute faster
     ws_bootstrap_configuration_trickle_reset(cur);
 
     // Indicate new pan version to PAE controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
-                                  cur->ws_info->pan_information.pan_version,
-                                  cur->ws_info->pan_information.lpan_version,
-                                  cur->ws_info->cfg->gen.network_name);
+    ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
+                                  cur->ws_info.pan_information.pan_version,
+                                  cur->ws_info.pan_information.lpan_version,
+                                  cur->ws_info.cfg->gen.network_name);
 }
 
 void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     (void)seconds;
 
-    if (!cur->ws_info) {
-        return;
-    }
     if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Not a border router
         return;
@@ -667,8 +664,8 @@ void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
                 ws_bbr_pan_version_increase(cur);
             }
         }
-        if (cur->ws_info->rpl_version_timer > seconds) {
-            cur->ws_info->rpl_version_timer -= seconds;
+        if (cur->ws_info.rpl_version_timer > seconds) {
+            cur->ws_info.rpl_version_timer -= seconds;
         } else {
             // RPL version update needed
             ws_bbr_rpl_version_increase(cur);
@@ -991,8 +988,8 @@ int ws_bbr_bsi_set(int8_t interface_id, uint16_t new_bsi)
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     //Check if new value is different than current active
-    if (cur && cur->ws_info && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        if (cur->ws_info->hopping_schedule.fhss_bsi == new_bsi) {
+    if (cur && cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
+        if (cur->ws_info.hopping_schedule.fhss_bsi == new_bsi) {
             return 0;
         }
         tr_debug("New BSI %u to delayed activate", new_bsi);

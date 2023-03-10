@@ -32,29 +32,26 @@ int ws_statistics_start(int8_t interface_id, ws_statistics_t *stats_ptr)
         return -1;
     }
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
-    cur->ws_info->stored_stats_ptr = stats_ptr;
+    cur->ws_info.stored_stats_ptr = stats_ptr;
     return 0;
 }
 
 int ws_statistics_stop(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
-    cur->ws_info->stored_stats_ptr = NULL;
+    cur->ws_info.stored_stats_ptr = NULL;
     return 0;
 }
 
 void ws_stats_update(struct net_if *cur, ws_stats_type_e type, uint32_t update_val)
 {
-    if (!cur || !cur->ws_info || !cur->ws_info->stored_stats_ptr) {
+    if (!cur || !cur->ws_info.stored_stats_ptr)
         return;
-    }
-    ws_statistics_t *stored_stats = cur->ws_info->stored_stats_ptr;
+    ws_statistics_t *stored_stats = cur->ws_info.stored_stats_ptr;
 
     switch (type) {
         case STATS_WS_ASYNCH_TX:

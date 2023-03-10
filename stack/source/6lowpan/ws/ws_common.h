@@ -23,8 +23,8 @@
 #include "common/ns_list.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/net_fhss.h"
+#include "stack/net_interface.h"
 
-#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
@@ -174,6 +174,6 @@ void ws_common_state_machine(struct net_if *cur);
 
 fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur);
 
-#define ws_version_1_0(cur) (((cur)->ws_info) && ((cur)->ws_info)->version == 1)
-#define ws_version_1_1(cur) (((cur)->ws_info) && ((cur)->ws_info)->version > 1)
+#define ws_version_1_0(cur) ((cur)->ws_info.version == 1)
+#define ws_version_1_1(cur) ((cur)->ws_info.version > 1)
 #endif //WS_COMMON_H_

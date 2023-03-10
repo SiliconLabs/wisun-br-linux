@@ -80,7 +80,7 @@ int8_t ws_common_generate_channel_list(const struct net_if *cur,
     memset(channel_mask, 0xFF, 32);
     if (chan_params && chan_params->chan_allowed)
         parse_bitmask(channel_mask, 32, chan_params->chan_allowed);
-    if (cur->ws_info->regulation == REG_REGIONAL_ARIB) {
+    if (cur->ws_info.regulation == REG_REGIONAL_ARIB) {
         // For now, ARIB is not supported for custom channel plans
         BUG_ON(!chan_params);
         // For now, ARIB is not supported outside of Japan
@@ -139,43 +139,35 @@ uint16_t ws_common_channel_number_calc(uint8_t regulatory_domain, uint8_t operat
 
 int8_t ws_common_allocate_and_init(struct net_if *cur)
 {
+    memset(&cur->ws_info, 0, sizeof(ws_info_t));
+    ns_list_init(&cur->ws_info.active_nud_process);
+    ns_list_init(&cur->ws_info.free_nud_entries);
 
-    if (!cur->ws_info) {
-        cur->ws_info = malloc(sizeof(ws_info_t));
-    }
-    if (!cur->ws_info) {
-        return -1;
-    }
+    ns_list_init(&cur->ws_info.parent_list_free);
+    ns_list_init(&cur->ws_info.parent_list_reserved);
 
-    memset(cur->ws_info, 0, sizeof(ws_info_t));
-    ns_list_init(&cur->ws_info->active_nud_process);
-    ns_list_init(&cur->ws_info->free_nud_entries);
+    cur->ws_info.version = test_pan_version;
 
-    ns_list_init(&cur->ws_info->parent_list_free);
-    ns_list_init(&cur->ws_info->parent_list_reserved);
+    cur->ws_info.network_pan_id = 0xffff;
+    cur->ws_info.pan_information.use_parent_bs = true;
+    cur->ws_info.pan_information.rpl_routing_method = true;
+    cur->ws_info.pan_information.pan_version_set = false;
+    cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
+    cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
 
-    cur->ws_info->version = test_pan_version;
-
-    cur->ws_info->network_pan_id = 0xffff;
-    cur->ws_info->pan_information.use_parent_bs = true;
-    cur->ws_info->pan_information.rpl_routing_method = true;
-    cur->ws_info->pan_information.pan_version_set = false;
-    cur->ws_info->pan_information.version = WS_FAN_VERSION_1_0;
-    cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
-
-    cur->ws_info->hopping_schedule.regulatory_domain = REG_DOMAIN_EU;
-    cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_3;
-    cur->ws_info->hopping_schedule.operating_class = 2;
+    cur->ws_info.hopping_schedule.regulatory_domain = REG_DOMAIN_EU;
+    cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_3;
+    cur->ws_info.hopping_schedule.operating_class = 2;
     // Clock drift value 255 indicates that information is not provided
-    cur->ws_info->hopping_schedule.clock_drift = 255;
+    cur->ws_info.hopping_schedule.clock_drift = 255;
     // Timing accuracy is given from 0 to 2.55msec with 10usec resolution
-    cur->ws_info->hopping_schedule.timing_accuracy = 100;
-    ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule);
-    cur->ws_info->pending_key_index_info.state = NO_PENDING_PROCESS;
+    cur->ws_info.hopping_schedule.timing_accuracy = 100;
+    ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
+    cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
 
     // initialize for FAN 1.1 defaults
     if (ws_version_1_1(cur)) {
-        cur->ws_info->pan_information.version = WS_FAN_VERSION_1_1;
+        cur->ws_info.pan_information.version = WS_FAN_VERSION_1_1;
     }
     return 0;
 }
@@ -371,7 +363,7 @@ uint32_t ws_common_datarate_get_from_phy_mode(uint8_t phy_mode_id, uint8_t opera
 
 uint32_t ws_common_datarate_get(struct net_if *cur)
 {
-    return ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schedule.phy_mode_id, cur->ws_info->hopping_schedule.operating_mode);
+    return ws_common_datarate_get_from_phy_mode(cur->ws_info.hopping_schedule.phy_mode_id, cur->ws_info.hopping_schedule.operating_mode);
 }
 
 void ws_common_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
@@ -391,15 +383,15 @@ void ws_common_border_router_alive_update(struct net_if *interface)
     }
 
     // After successful DAO ACK connection to border router is verified
-    interface->ws_info->pan_timeout_timer = interface->ws_info->cfg->timing.pan_timeout;
+    interface->ws_info.pan_timeout_timer = interface->ws_info.cfg->timing.pan_timeout;
 }
 
 fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *cur)
 {
     fhss_ws_configuration_t fhss_configuration;
     memset(&fhss_configuration, 0, sizeof(fhss_ws_configuration_t));
-    if (ns_fhss_ws_configuration_get(cur->ws_info->fhss_api)) {
-        memcpy(&fhss_configuration, ns_fhss_ws_configuration_get(cur->ws_info->fhss_api), sizeof(fhss_ws_configuration_t));
+    if (ns_fhss_ws_configuration_get(cur->ws_info.fhss_api)) {
+        memcpy(&fhss_configuration, ns_fhss_ws_configuration_get(cur->ws_info.fhss_api), sizeof(fhss_ws_configuration_t));
     } else {
         tr_error("FHSS configuration could not be read");
     }

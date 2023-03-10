@@ -157,7 +157,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
     ns_fhss_ws_drop_neighbor(entry_ptr->mac64);
     mac_helper_devicetable_remove(interface->mac_api, entry_ptr->index, entry_ptr->mac64);
     etx_neighbor_remove(interface->id, entry_ptr->index, entry_ptr->mac64);
-    ws_neighbor_class_entry_remove(&interface->ws_info->neighbor_storage, entry_ptr->index);
+    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, entry_ptr->index);
 }
 
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
@@ -168,17 +168,16 @@ void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
 
 static void ws_address_reregister_trig(struct net_if *interface)
 {
-    if (interface->ws_info->aro_registration_timer == 0) {
-        interface->ws_info->aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
+    if (interface->ws_info.aro_registration_timer == 0) {
+        interface->ws_info.aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
     }
 }
 
 static void ws_bootstrap_address_notification_cb(struct net_if *interface, const struct if_address_entry *addr, if_address_callback_e reason)
 {
     /* No need for LL address registration */
-    if (addr->source == ADDR_SOURCE_UNKNOWN || !interface->ws_info) {
+    if (addr->source == ADDR_SOURCE_UNKNOWN)
         return;
-    }
 
     if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
         //If address is generated manually we need to force registration
@@ -275,31 +274,31 @@ static int8_t ws_bootstrap_event_trig(ws_bootstrap_event_type_e event_type, int8
 void ws_nud_table_reset(struct net_if *cur)
 {
     //Empty active list
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info->active_nud_process) {
-        ns_list_remove(&cur->ws_info->active_nud_process, entry);
+    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
+        ns_list_remove(&cur->ws_info.active_nud_process, entry);
     }
 
     //Empty free list
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info->free_nud_entries) {
-        ns_list_remove(&cur->ws_info->free_nud_entries, entry);
+    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.free_nud_entries) {
+        ns_list_remove(&cur->ws_info.free_nud_entries, entry);
     }
     //Add to free list to full
     for (int i = 0; i < ACTIVE_NUD_PROCESS_MAX; i++) {
-        ns_list_add_to_end(&cur->ws_info->free_nud_entries, &cur->ws_info->nud_table_entrys[i]);
+        ns_list_add_to_end(&cur->ws_info.free_nud_entries, &cur->ws_info.nud_table_entrys[i]);
     }
 }
 
 static ws_nud_table_entry_t *ws_nud_entry_get_free(struct net_if *cur)
 {
-    ws_nud_table_entry_t *entry = ns_list_get_first(&cur->ws_info->free_nud_entries);
+    ws_nud_table_entry_t *entry = ns_list_get_first(&cur->ws_info.free_nud_entries);
     if (entry) {
         entry->wait_response = false;
         entry->retry_count = 0;
         entry->nud_process = false;
         entry->timer = rand_get_random_in_range(1, 900);
         entry->neighbor_info = NULL;
-        ns_list_remove(&cur->ws_info->free_nud_entries, entry);
-        ns_list_add_to_end(&cur->ws_info->active_nud_process, entry);
+        ns_list_remove(&cur->ws_info.free_nud_entries, entry);
+        ns_list_add_to_end(&cur->ws_info.active_nud_process, entry);
     }
     return entry;
 }
@@ -310,8 +309,8 @@ void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor)
 
     if (entry) {
         mac_neighbor_table_entry_t *mac_neighbor = neighbor;
-        ns_list_remove(&cur->ws_info->active_nud_process, entry);
-        ns_list_add_to_end(&cur->ws_info->free_nud_entries, entry);
+        ns_list_remove(&cur->ws_info.active_nud_process, entry);
+        ns_list_add_to_end(&cur->ws_info.free_nud_entries, entry);
         if (mac_neighbor->nud_active) {
             mac_neighbor_table_neighbor_refresh(cur->mac_parameters.mac_neighbor_table, mac_neighbor, mac_neighbor->link_lifetime);
         }
@@ -322,7 +321,7 @@ void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor)
 
 static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *neighbor)
 {
-    ns_list_foreach(ws_nud_table_entry_t, entry, &cur->ws_info->active_nud_process) {
+    ns_list_foreach(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
         if (entry->neighbor_info == neighbor) {
             return entry;
         }
@@ -333,8 +332,8 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *nei
 static void ws_nud_state_clean(struct net_if *cur, ws_nud_table_entry_t *entry)
 {
     mac_neighbor_table_entry_t *neighbor = entry->neighbor_info;
-    ns_list_remove(&cur->ws_info->active_nud_process, entry);
-    ns_list_add_to_end(&cur->ws_info->free_nud_entries, entry);
+    ns_list_remove(&cur->ws_info.active_nud_process, entry);
+    ns_list_add_to_end(&cur->ws_info.free_nud_entries, entry);
     if (neighbor->nud_active) {
         neighbor->nud_active = false;
         cur->mac_parameters.mac_neighbor_table->active_nud_process--;
@@ -403,7 +402,7 @@ void ws_nud_active_timer(struct net_if *cur, uint16_t ticks)
         ticks *= 100;
     }
 
-    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info->active_nud_process) {
+    ns_list_foreach_safe(ws_nud_table_entry_t, entry, &cur->ws_info.active_nud_process) {
         if (entry->timer <= ticks) {
             //TX Process or timeout
             if (entry->wait_response) {
@@ -453,7 +452,7 @@ static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss
     }
     mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, MAC_ADDR_MODE_64_BIT);
     if (mac_neighbor) {
-        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_neighbor->index);
+        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_neighbor->index);
         if (!ws_neighbor) {
             return NULL;
         }
@@ -469,15 +468,15 @@ static fhss_ws_neighbor_timing_info_t *ws_bootstrap_get_neighbor_info(const fhss
 
 void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configuration_t *fhss_configuration)
 {
-    cur->ws_info->hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
-    cur->ws_info->hopping_schedule.bc_fixed_channel = fhss_configuration->broadcast_fixed_channel;
+    cur->ws_info.hopping_schedule.uc_fixed_channel = fhss_configuration->unicast_fixed_channel;
+    cur->ws_info.hopping_schedule.bc_fixed_channel = fhss_configuration->broadcast_fixed_channel;
     // Read UC channel function from WS info because FHSS might be temporarily configured to fixed channel during discovery.
-    cur->ws_info->hopping_schedule.uc_channel_function = cur->ws_info->cfg->fhss.fhss_uc_channel_function;
-    cur->ws_info->hopping_schedule.bc_channel_function = fhss_configuration->ws_bc_channel_function;
-    cur->ws_info->hopping_schedule.fhss_bc_dwell_interval = fhss_configuration->fhss_bc_dwell_interval;
-    cur->ws_info->hopping_schedule.fhss_broadcast_interval = fhss_configuration->fhss_broadcast_interval;
-    cur->ws_info->hopping_schedule.fhss_uc_dwell_interval = fhss_configuration->fhss_uc_dwell_interval;
-    cur->ws_info->hopping_schedule.fhss_bsi = fhss_configuration->bsi;
+    cur->ws_info.hopping_schedule.uc_channel_function = cur->ws_info.cfg->fhss.fhss_uc_channel_function;
+    cur->ws_info.hopping_schedule.bc_channel_function = fhss_configuration->ws_bc_channel_function;
+    cur->ws_info.hopping_schedule.fhss_bc_dwell_interval = fhss_configuration->fhss_bc_dwell_interval;
+    cur->ws_info.hopping_schedule.fhss_broadcast_interval = fhss_configuration->fhss_broadcast_interval;
+    cur->ws_info.hopping_schedule.fhss_uc_dwell_interval = fhss_configuration->fhss_uc_dwell_interval;
+    cur->ws_info.hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 
 static uint8_t ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint8_t *selected_channel_mask, const uint8_t *global_channel_mask, uint16_t number_of_channels)
@@ -549,21 +548,21 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
 {
     int channel_plan;
 
-    fhss_configuration->channel_mask_size = cur->ws_info->hopping_schedule.number_of_channels;
-    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
-    ws_common_generate_channel_list(cur, fhss_configuration->unicast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+    fhss_configuration->channel_mask_size = cur->ws_info.hopping_schedule.number_of_channels;
+    ws_common_generate_channel_list(cur, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
+    ws_common_generate_channel_list(cur, fhss_configuration->unicast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
-    bitand(fhss_configuration->unicast_channel_mask, cur->ws_info->cfg->fhss.fhss_channel_mask, 256);
+    bitand(fhss_configuration->unicast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
     //Update Excluded channels
-    channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.uc_excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
+    channel_plan = ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.uc_excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels);
     if (channel_plan)
-        cur->ws_info->hopping_schedule.channel_plan = 1;
+        cur->ws_info.hopping_schedule.channel_plan = 1;
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
-        bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info->cfg->fhss.fhss_channel_mask, 256);
+        ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
+        bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
         // ws_bootstrap_generate_excluded_channel_list_from_active_channels()
         // will return the same value than the previous call.
-        ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.bc_excluded_channels, fhss_configuration->broadcast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
+        ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.bc_excluded_channels, fhss_configuration->broadcast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels);
     }
 }
 
@@ -576,7 +575,7 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
         // When FHSS doesn't exist yet, create one
         ws_bootstrap_fhss_configure_channel_masks(cur, &fhss_configuration);
         ws_bootstrap_fhss_set_defaults(cur, &fhss_configuration);
-        fhss_api = ns_fhss_ws_create(&fhss_configuration, cur->ws_info->fhss_timer_ptr);
+        fhss_api = ns_fhss_ws_create(&fhss_configuration, cur->ws_info.fhss_timer_ptr);
 
         if (!fhss_api) {
             return -1;
@@ -593,15 +592,15 @@ static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
 
 int8_t ws_bootstrap_fhss_set_defaults(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
 {
-    fhss_configuration->fhss_uc_dwell_interval = cur->ws_info->cfg->fhss.fhss_uc_dwell_interval;
-    fhss_configuration->ws_uc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info->cfg->fhss.fhss_uc_channel_function;
-    fhss_configuration->ws_bc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info->cfg->fhss.fhss_bc_channel_function;
-    fhss_configuration->fhss_bc_dwell_interval = cur->ws_info->cfg->fhss.fhss_bc_dwell_interval;
-    fhss_configuration->fhss_broadcast_interval = cur->ws_info->cfg->fhss.fhss_bc_interval;
-    if (cur->ws_info->cfg->fhss.fhss_uc_fixed_channel != 0xffff) {
-        fhss_configuration->unicast_fixed_channel = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
+    fhss_configuration->fhss_uc_dwell_interval = cur->ws_info.cfg->fhss.fhss_uc_dwell_interval;
+    fhss_configuration->ws_uc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info.cfg->fhss.fhss_uc_channel_function;
+    fhss_configuration->ws_bc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info.cfg->fhss.fhss_bc_channel_function;
+    fhss_configuration->fhss_bc_dwell_interval = cur->ws_info.cfg->fhss.fhss_bc_dwell_interval;
+    fhss_configuration->fhss_broadcast_interval = cur->ws_info.cfg->fhss.fhss_bc_interval;
+    if (cur->ws_info.cfg->fhss.fhss_uc_fixed_channel != 0xffff) {
+        fhss_configuration->unicast_fixed_channel = cur->ws_info.cfg->fhss.fhss_uc_fixed_channel;
     }
-    fhss_configuration->broadcast_fixed_channel = cur->ws_info->cfg->fhss.fhss_bc_fixed_channel;
+    fhss_configuration->broadcast_fixed_channel = cur->ws_info.cfg->fhss.fhss_bc_fixed_channel;
     return 0;
 }
 
@@ -625,7 +624,7 @@ static int8_t ws_bootstrap_fhss_enable(struct net_if *cur)
     ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
 
     // Set neighbor info callback
-    if (ns_fhss_set_neighbor_info_fp(cur->ws_info->fhss_api, &ws_bootstrap_get_neighbor_info)) {
+    if (ns_fhss_set_neighbor_info_fp(cur->ws_info.fhss_api, &ws_bootstrap_get_neighbor_info)) {
         return -1;
     }
 
@@ -651,26 +650,26 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
         }
         fhss_configuration.ws_bc_channel_function = (fhss_ws_channel_functions_e)neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function;
         if (fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
-            cur->ws_info->hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
-            cur->ws_info->cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
+            cur->ws_info.hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
+            cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
         } else {
-            ws_common_generate_channel_list(cur, fhss_configuration.broadcast_channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+            ws_common_generate_channel_list(cur, fhss_configuration.broadcast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
             // Apply primary parent channel mask to broadcast channel mask.
             bitand(fhss_configuration.broadcast_channel_mask, neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask, 256);
             // Update broadcast excluded channels.
-            ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info->hopping_schedule.bc_excluded_channels, fhss_configuration.broadcast_channel_mask, fhss_configuration.domain_channel_mask, cur->ws_info->hopping_schedule.number_of_channels);
+            ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.bc_excluded_channels, fhss_configuration.broadcast_channel_mask, fhss_configuration.domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels);
         }
         fhss_configuration.bsi = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id;
         fhss_configuration.fhss_bc_dwell_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval;
         fhss_configuration.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_interval;
-        fhss_configuration.broadcast_fixed_channel = cur->ws_info->cfg->fhss.fhss_bc_fixed_channel;
+        fhss_configuration.broadcast_fixed_channel = cur->ws_info.cfg->fhss.fhss_bc_fixed_channel;
         neighbor_info->ws_neighbor->synch_done = true;
     }
 
-    ns_fhss_ws_configuration_set(cur->ws_info->fhss_api, &fhss_configuration);
+    ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &fhss_configuration);
 
     // We have broadcast schedule set up set the broadcast parent schedule
-    ns_fhss_ws_set_parent(cur->ws_info->fhss_api, neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, synch_req != WS_PARENT_SOFT_SYNCH);
+    ns_fhss_ws_set_parent(cur->ws_info.fhss_api, neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, synch_req != WS_PARENT_SOFT_SYNCH);
 
     // Update LLC to follow updated fhss settings
     ws_bootstrap_llc_hopping_update(cur, &fhss_configuration);
@@ -728,7 +727,7 @@ uint16_t ws_local_etx_read(struct net_if *interface, addrtype_e addr_type, const
         return 0xffff;
     }
     attribute_index = mac_neighbor->index;
-    ws_neighbor_class_entry_t *ws_neighbour = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, attribute_index);
+    ws_neighbor_class_entry_t *ws_neighbour = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, attribute_index);
     etx_storage_t *etx_entry = etx_storage_entry_get(interface->id, attribute_index);
 
     if (!ws_neighbour || !etx_entry) {
@@ -798,7 +797,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         ws_bbr_init(cur);
     }
     // Save FHSS api
-    cur->ws_info->fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
+    cur->ws_info.fhss_api = ns_sw_mac_get_fhss_api(cur->mac_api);
 
     ws_bootstrap_ll_address_validate(cur);
 
@@ -840,9 +839,9 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     ws_bootstrap_ffn_candidate_table_reset(cur);
     // Zero uptime counters
-    cur->ws_info->uptime = 0;
-    cur->ws_info->authentication_time = 0;
-    cur->ws_info->connected_time = 0;
+    cur->ws_info.uptime = 0;
+    cur->ws_info.authentication_time = 0;
+    cur->ws_info.connected_time = 0;
 
     blacklist_params_set(
         WS_BLACKLIST_ENTRY_LIFETIME,
@@ -869,8 +868,8 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     // Reset MAC for safe upper layer memory free
     protocol_mac_reset(cur);
     ns_sw_mac_fhss_unregister(cur->mac_api);
-    ns_fhss_delete(cur->ws_info->fhss_api);
-    cur->ws_info->fhss_api = NULL;
+    ns_fhss_delete(cur->ws_info.fhss_api);
+    cur->ws_info.fhss_api = NULL;
     // Reset WS information
     ws_bootstrap_asynch_trickle_stop(cur);
     ws_llc_reset(cur);
@@ -913,7 +912,7 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     }
 
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
-    cur->ws_info->network_pan_id = 0xffff;
+    cur->ws_info.network_pan_id = 0xffff;
     ws_bootstrap_asynch_trickle_stop(cur);
 
     //cur->mac_security_key_usage_update_cb = ws_management_mac_security_key_update_cb;
@@ -942,7 +941,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
     if (interface->mac_parameters.mac_neighbor_table->neighbour_list_size == interface->mac_parameters.mac_neighbor_table->list_total_size) {
         temp_link_min_timeout = 1; //Accept 1 second time from last
     } else {
-        temp_link_min_timeout = interface->ws_info->cfg->timing.temp_link_min_timeout;
+        temp_link_min_timeout = interface->ws_info.cfg->timing.temp_link_min_timeout;
     }
 
     memcpy(ll_target, ADDR_LINK_LOCAL_PREFIX, 8);
@@ -951,7 +950,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
 
     mac_neighbor_table_entry_t *neighbor_entry_ptr = NULL;
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
-        ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, cur->index);
+        ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, cur->index);
 
         if (cur->link_role == PRIORITY_PARENT_NEIGHBOUR) {
             //This is our primary parent we cannot delete
@@ -998,7 +997,7 @@ static void ws_bootstrap_neighbor_table_clean(struct net_if *interface)
                 //Accept first compare
                 neighbor_entry_ptr = cur;
             } else {
-                uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor_entry_ptr->index));
+                uint32_t compare_neigh_time = ws_time_from_last_unicast_traffic(current_time_stamp, ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor_entry_ptr->index));
                 if (compare_neigh_time < time_from_last_unicast_schedule)  {
                     //Accept older RX timeout always
                     neighbor_entry_ptr = cur;
@@ -1019,7 +1018,7 @@ bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], st
     neighbor->neighbor = mac_neighbor_table_address_discover(net_if->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
     if (!neighbor->neighbor)
         return false;
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
     if (!neighbor->ws_neighbor)
         return false;
     return true;
@@ -1034,7 +1033,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
     if (!neighbor->neighbor)
         return false;
 
-    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info->neighbor_storage, neighbor->neighbor->index);
+    neighbor->ws_neighbor = ws_neighbor_class_entry_get(&net_if->ws_info.neighbor_storage, neighbor->neighbor->index);
     if (!neighbor->ws_neighbor) {
         mac_neighbor_table_neighbor_remove(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
@@ -1089,7 +1088,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     bool candidate_parent;
     struct net_if *cur = user_data;
 
-    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, entry_ptr->index);
+    ws_neighbor_class_entry_t *ws_neighbor = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, entry_ptr->index);
     etx_storage_t *etx_entry = etx_storage_entry_get(cur->id, entry_ptr->index);
 
     if (!entry_ptr->trusted_device || !ws_neighbor || !etx_entry || entry_ptr->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
@@ -1106,7 +1105,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     if (time_from_start > WS_NEIGHBOR_NUD_TIMEOUT) {
 
         child = ipv6_neighbour_has_registered_by_eui64(&cur->ipv6_neighbour_cache, entry_ptr->mac64);
-        candidate_parent = rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info->cfg->gen.rpl_parent_candidate_max);
+        candidate_parent = rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info.cfg->gen.rpl_parent_candidate_max);
         /* For parents ARO registration is sent in link timeout times
          * For candidate parents NUD is needed
          * For children NUD is sent only at very close to end
@@ -1319,7 +1318,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         ret_val =  -4;
         goto init_fail;
     }
-    if (ws_pae_controller_configure(cur, &cur->ws_info->cfg->sec_timer, &cur->ws_info->cfg->sec_prot, &cur->ws_info->cfg->timing) < 0) {
+    if (ws_pae_controller_configure(cur, &cur->ws_info.cfg->sec_timer, &cur->ws_info.cfg->sec_prot, &cur->ws_info.cfg->timing) < 0) {
         ret_val =  -4;
         goto init_fail;
     }
@@ -1339,7 +1338,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     cur->if_up = ws_bootstrap_up;
     cur->if_down = ws_bootstrap_down;
-    cur->ws_info->neighbor_storage = neigh_info;
+    cur->ws_info.neighbor_storage = neigh_info;
     cur->etx_read_override = ws_etx_read;
 
     ws_bootstrap_configuration_reset(cur);
@@ -1384,9 +1383,8 @@ init_fail:
 int ws_bootstrap_restart(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
     ws_bootstrap_event_discovery_start(cur);
     return 0;
 }
@@ -1394,9 +1392,8 @@ int ws_bootstrap_restart(int8_t interface_id)
 int ws_bootstrap_restart_delayed(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
     ws_bootstrap_state_change(cur, ER_WAIT_RESTART);
     cur->bootstrap_state_machine_cnt = 3;
     return 0;
@@ -1432,7 +1429,7 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
     get_request.attr = macRxSensitivity;
     cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_request);
     // Start automatic CCA threshold
-    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info->hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     return 0;
 }
 
@@ -1457,7 +1454,7 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 {
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
-    ws_hopping_schedule_t *hopping_schedule = &cur->ws_info->hopping_schedule;
+    ws_hopping_schedule_t *hopping_schedule = &cur->ws_info.hopping_schedule;
     phy_rf_channel_configuration_t rf_config = { };
 
     phy_params = ws_regdb_phy_params(hopping_schedule->phy_mode_id, hopping_schedule->operating_mode);
@@ -1519,7 +1516,7 @@ void ws_bootstrap_fhss_activate(struct net_if *cur)
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
     cur->lowpan_info &=  ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
     ws_bootstrap_mac_security_enable(cur);
-    ws_bootstrap_mac_activate(cur, cur->ws_info->cfg->fhss.fhss_uc_fixed_channel, cur->ws_info->network_pan_id, true);
+    ws_bootstrap_mac_activate(cur, cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.network_pan_id, true);
     return;
 }
 
@@ -1546,7 +1543,7 @@ static void ws_bootstrap_set_fhss_hop(struct net_if *cur)
     }
     // Calculate own hop count. This method gets inaccurate when hop count increases.
     uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
-    ns_fhss_ws_set_hop_count(cur->ws_info->fhss_api, own_hop);
+    ns_fhss_ws_set_hop_count(cur->ws_info.fhss_api, own_hop);
     tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
 }
 
@@ -1602,18 +1599,18 @@ void ws_address_registration_update(struct net_if *interface, const uint8_t addr
     rpl_control_register_address(interface, addr);
     // Timer is used only to track full registrations
 
-    if (addr != NULL && interface->ws_info->aro_registration_timer) {
+    if (addr != NULL && interface->ws_info.aro_registration_timer) {
         // Single address update and timer is running
         return;
     }
 
-    if (interface->ws_info->aro_registration_timer == 0) {
+    if (interface->ws_info.aro_registration_timer == 0) {
         // Timer expired and check if we have valid address to register
         ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
             if (!addr_is_ipv6_link_local(address->address)) {
                 // We have still valid addresses let the timer run for next period
                 tr_info("ARO registration timer start");
-                interface->ws_info->aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
+                interface->ws_info.aro_registration_timer = WS_NEIGHBOR_NUD_TIMEOUT;
                 return;
             }
         }
@@ -1666,8 +1663,8 @@ void ws_bootstrap_parent_confirm(struct net_if *cur, struct rpl_instance *instan
     }
 
     /*Speed up the ARO registration*/
-    if (cur->ws_info->aro_registration_timer > Imin_secs) {
-        cur->ws_info->aro_registration_timer = Imin_secs;
+    if (cur->ws_info.aro_registration_timer > Imin_secs) {
+        cur->ws_info.aro_registration_timer = Imin_secs;
     }
 }
 
@@ -1714,17 +1711,17 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
             // Set both own port and border router port to 10253
             ws_eapol_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, dodag_info.dodag_id, EAPOL_RELAY_SOCKET_PORT);
             // Set network information to PAE
-            ws_pae_controller_nw_info_set(cur, cur->ws_info->network_pan_id,
-                                          cur->ws_info->pan_information.pan_version,
-                                          cur->ws_info->pan_information.lpan_version,
-                                          cur->ws_info->cfg->gen.network_name);
+            ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
+                                          cur->ws_info.pan_information.pan_version,
+                                          cur->ws_info.pan_information.lpan_version,
+                                          cur->ws_info.cfg->gen.network_name);
             // Network key is valid, indicate border router IID to controller
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
             //Update here Suplikant target by validated Primary Parent
             if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
                 mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
                 if (mac_neighbor) {
-                    ws_pae_controller_set_target(cur, cur->ws_info->network_pan_id, mac_neighbor->mac64);
+                    ws_pae_controller_set_target(cur, cur->ws_info.network_pan_id, mac_neighbor->mac64);
                 }
             }
 
@@ -1732,7 +1729,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
             ws_common_border_router_alive_update(cur);
         }
 
-        if (!cur->ws_info->mngt.trickle_pa_running || !cur->ws_info->mngt.trickle_pc_running) {
+        if (!cur->ws_info.mngt.trickle_pa_running || !cur->ws_info.mngt.trickle_pc_running) {
             //Enable wi-sun asynch adverisment
             ws_bootstrap_advertise_start(cur);
         }
@@ -1763,7 +1760,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
     } else if (event == RPL_EVENT_DAO_PARENT_ADD) {
         ws_address_parent_update(cur);
     }
-    cur->ws_info->rpl_state = event;
+    cur->ws_info.rpl_state = event;
     tr_info("RPL event %d", event);
 }
 
@@ -1815,14 +1812,14 @@ static bool ws_rpl_candidate_soft_filtering(struct net_if *cur, struct rpl_insta
 {
     //Already many candidates
     uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-    if (candidate_list_size >= cur->ws_info->cfg->gen.rpl_parent_candidate_max) {
+    if (candidate_list_size >= cur->ws_info.cfg->gen.rpl_parent_candidate_max) {
         return false;
     }
 
     uint16_t selected_parents = rpl_control_selected_parent_count(cur, instance);
 
     //Already enough selected candidates
-    if (selected_parents >= cur->ws_info->cfg->gen.rpl_selected_parent_max) {
+    if (selected_parents >= cur->ws_info.cfg->gen.rpl_selected_parent_max) {
         candidate_list_size -= selected_parents;
         if (candidate_list_size >= 2) {
             //We have more candidates than selected
@@ -1869,7 +1866,7 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
         }
 
         uint16_t candidate_list_size = rpl_control_candidate_list_size(cur, instance);
-        if (candidate_list_size > cur->ws_info->cfg->gen.rpl_parent_candidate_max + 1) {
+        if (candidate_list_size > cur->ws_info.cfg->gen.rpl_parent_candidate_max + 1) {
             //Accept only 1 better 1 time
             return false;
         }
@@ -1942,7 +1939,7 @@ uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur)
     if (!mac_neighbor) {
         return 0xffff;
     }
-    ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_neighbor->index);
+    ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_neighbor->index);
     if (!ws_neighbor) {
         return 0xffff;
     }
@@ -2007,7 +2004,7 @@ void ws_bootstrap_rpl_scan_start(struct net_if *cur)
     // routers wait until RPL root is contacted
     ws_bootstrap_state_change(cur, ER_RPL_SCAN);
     // Change state as the state is checked in state machine
-    cur->ws_info->rpl_state = RPL_EVENT_LOCAL_REPAIR_START;
+    cur->ws_info.rpl_state = RPL_EVENT_LOCAL_REPAIR_START;
     //For Large network and medium should do passive scan
     if (ws_cfg_network_config_get(cur) > CONFIG_SMALL) {
         // Set timeout for check to 30 - 60 seconds
@@ -2045,23 +2042,23 @@ void ws_bootstrap_rpl_activate(struct net_if *cur)
     // Set the minimum target refresh to sen DAO registrations before pan timeout
     rpl_control_set_minimum_dao_target_refresh(WS_RPL_DAO_MAX_TIMOUT);
 
-    cur->ws_info->rpl_state = 0xff; // Set invalid state and learn from event
+    cur->ws_info.rpl_state = 0xff; // Set invalid state and learn from event
 }
 
 void ws_bootstrap_network_start(struct net_if *cur)
 {
     //Set Network names, Pan information configure, hopping schedule & GTKHash
-    ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info->cfg->gen.network_name, strlen(cur->ws_info->cfg->gen.network_name));
+    ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
     ws_llc_set_phy_operating_mode(cur, ws_bbr_get_phy_operating_modes());
-    ws_llc_set_pan_information_pointer(cur, &cur->ws_info->pan_information);
+    ws_llc_set_pan_information_pointer(cur, &cur->ws_info.pan_information);
 }
 
 void ws_bootstrap_advertise_start(struct net_if *cur)
 {
-    cur->ws_info->mngt.trickle_pa_running = true;
-    trickle_start(&cur->ws_info->mngt.trickle_pa, "ADV", &cur->ws_info->mngt.trickle_params);
-    cur->ws_info->mngt.trickle_pc_running = true;
-    trickle_start(&cur->ws_info->mngt.trickle_pc, "CFG", &cur->ws_info->mngt.trickle_params);
+    cur->ws_info.mngt.trickle_pa_running = true;
+    trickle_start(&cur->ws_info.mngt.trickle_pa, "ADV", &cur->ws_info.mngt.trickle_params);
+    cur->ws_info.mngt.trickle_pc_running = true;
+    trickle_start(&cur->ws_info.mngt.trickle_pc, "CFG", &cur->ws_info.mngt.trickle_params);
 }
 
 static void ws_bootstrap_pan_version_increment(struct net_if *cur)
@@ -2109,8 +2106,8 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
             cur->mac_parameters.mac_default_key_index != index + 1) {
             /* Update the active key in the PAN Configs */
             tr_info("New Pending key Request %u", index);
-            cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
-            cur->ws_info->pending_key_index_info.index = index;
+            cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
+            cur->ws_info.pending_key_index_info.index = index;
             return;
         }
     }
@@ -2145,13 +2142,13 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
         }
 
         // If PAN ID has not been set, set it
-        if (cur->ws_info->network_pan_id == 0xffff) {
-            cur->ws_info->network_pan_id = pan_id;
+        if (cur->ws_info.network_pan_id == 0xffff) {
+            cur->ws_info.network_pan_id = pan_id;
             // Sets PAN version
-            cur->ws_info->pan_information.pan_version = pan_version;
-            cur->ws_info->pan_information.pan_version_set = true;
-            cur->ws_info->pan_information.lpan_version = lpan_version;
-            cur->ws_info->pan_information.lpan_version_set = true;
+            cur->ws_info.pan_information.pan_version = pan_version;
+            cur->ws_info.pan_information.pan_version_set = true;
+            cur->ws_info.pan_information.lpan_version = lpan_version;
+            cur->ws_info.pan_information.lpan_version_set = true;
         }
 
         // If network name has not been set, set it
@@ -2212,8 +2209,8 @@ static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t activ
 
     if (red_info == NULL) {
         red_info = random_early_detection_create(
-                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
-                       cur->ws_info->cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
+                       cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_min,
+                       cur->ws_info.cfg->sec_prot.max_simult_sec_neg_tx_queue_max,
                        100, RED_AVERAGE_WEIGHT_DISABLED);
     }
     if (red_info == NULL) {
@@ -2269,19 +2266,19 @@ void ws_bootstrap_event_test_procedure_trigger(struct net_if *cur, ws_bootstrap_
 
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 {
-    trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
+    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
 }
 
 void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req)
 {
     memset(&async_req->channel_list, 0, sizeof(channel_list_t));
-    if (cur->ws_info->cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
+    if (cur->ws_info.cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
         //SET 1 Channel only
-        uint16_t channel_number = cur->ws_info->cfg->fhss.fhss_uc_fixed_channel;
+        uint16_t channel_number = cur->ws_info.cfg->fhss.fhss_uc_fixed_channel;
         async_req->channel_list.next_channel_number = channel_number;
         bitset(async_req->channel_list.channel_mask, channel_number);
     } else {
-        ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info->hopping_schedule.number_of_channels, cur->ws_info->hopping_schedule.regulatory_domain, cur->ws_info->hopping_schedule.operating_class, cur->ws_info->hopping_schedule.channel_plan_id);
+        ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
         async_req->channel_list.next_channel_number = 0;
     }
 
@@ -2307,12 +2304,12 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Border routers write the NW size
-        cur->ws_info->pan_information.pan_size = ws_bbr_pan_size(cur);
-        cur->ws_info->pan_information.routing_cost = 0;
+        cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
+        cur->ws_info.pan_information.routing_cost = 0;
     } else {
         // Nodes need to calculate routing cost
         // PAN size is saved from latest PAN advertisement
-        cur->ws_info->pan_information.routing_cost = ws_bootstrap_routing_cost_calculate(cur);
+        cur->ws_info.pan_information.routing_cost = ws_bootstrap_routing_cost_calculate(cur);
     }
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PA, 1);
@@ -2332,18 +2329,18 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
     async_req.wp_requested_nested_ie_list.pan_version_ie = true;
     async_req.wp_requested_nested_ie_list.gtkhash_ie = true;
     if (ws_version_1_1(cur)) {
-        async_req.wh_requested_ie_list.lbc_ie = cur->ws_info->pan_information.lpan_version_set;
-        async_req.wp_requested_nested_ie_list.lgtkhash_ie = cur->ws_info->pan_information.lpan_version_set;
-        async_req.wp_requested_nested_ie_list.lfnver_ie = cur->ws_info->pan_information.lpan_version_set;
+        async_req.wh_requested_ie_list.lbc_ie = cur->ws_info.pan_information.lpan_version_set;
+        async_req.wp_requested_nested_ie_list.lgtkhash_ie = cur->ws_info.pan_information.lpan_version_set;
+        async_req.wp_requested_nested_ie_list.lfnver_ie = cur->ws_info.pan_information.lpan_version_set;
     }
 
     ws_bootstrap_set_asynch_channel_list(cur, &async_req);
 
     async_req.security.SecurityLevel = mac_helper_default_security_level_get(cur);
     async_req.security.KeyIdMode = mac_helper_default_security_key_id_mode_get(cur);
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info->pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
-        async_req.security.KeyIndex =  cur->ws_info->pending_key_index_info.index + 1;
-        cur->ws_info->pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
+        async_req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
+        cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
         async_req.security.KeyIndex = mac_helper_default_key_index_get(cur);
     }
@@ -2380,7 +2377,7 @@ void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e
         return;
     }
     // We are no longer connected
-    cur->ws_info->connected_time = 0;
+    cur->ws_info.connected_time = 0;
 
     if (cur->rpl_domain && cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
         //Stop Asych Timer
@@ -2453,13 +2450,13 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
     ws_ffn_pas_trickle(cur, ticks);
     ws_ffn_pcs_trickle(cur, ticks);
-    if (cur->ws_info->mngt.trickle_pa_running &&
-            trickle_timer(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params, ticks)) {
+    if (cur->ws_info.mngt.trickle_pa_running &&
+            trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks)) {
         // send PAN advertisement
         ws_bootstrap_pan_advert(cur);
     }
-    if (cur->ws_info->mngt.trickle_pc_running) {
-        if (trickle_timer(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params, ticks)) {
+    if (cur->ws_info.mngt.trickle_pc_running) {
+        if (trickle_timer(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params, ticks)) {
             // send PAN Configuration
             ws_bootstrap_pan_config(cur);
         }
@@ -2468,9 +2465,9 @@ void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 
 void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 {
-    cur->ws_info->mngt.trickle_pa_running = false;
-    cur->ws_info->mngt.trickle_pc_running = false;
-    ws_ffn_trickle_stop(&cur->ws_info->mngt);
+    cur->ws_info.mngt.trickle_pa_running = false;
+    cur->ws_info.mngt.trickle_pc_running = false;
+    ws_ffn_trickle_stop(&cur->ws_info.mngt);
 }
 
 
@@ -2488,7 +2485,7 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     } else if (ws_bootstrap_state_active(cur)) {
         ws_stats_update(cur, STATS_WS_STATE_5, 1);
     }
-    cur->ws_info->uptime++;
+    cur->ws_info.uptime++;
 
     ws_llc_timer_seconds(cur, seconds);
 
@@ -2497,28 +2494,22 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
 
 void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
-    if (interface->ws_info) {
-        llc_neighbour_req_t neighbor_info;
-        neighbor_info.neighbor = neighbor;
-        neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info->neighbor_storage, neighbor->index);
-        ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
-        uint8_t link_local_address[16];
-        ws_common_create_ll_address(link_local_address, neighbor->mac64);
-        dhcp_client_server_address_update(interface->id, NULL, link_local_address);
+    llc_neighbour_req_t neighbor_info;
+    uint8_t link_local_address[16];
 
-        ws_bootstrap_secondary_parent_update(interface);
-    }
+    neighbor_info.neighbor = neighbor;
+    neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor->index);
+    ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
+    ws_common_create_ll_address(link_local_address, neighbor->mac64);
+    dhcp_client_server_address_update(interface->id, NULL, link_local_address);
+    ws_bootstrap_secondary_parent_update(interface);
 }
 
 void ws_bootstrap_secondary_parent_update(struct net_if *interface)
 {
-    if (interface->ws_info) {
-        ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
-            if (!addr_is_ipv6_link_local(address->address)) {
-                ws_address_parent_update(interface);
-            }
-        }
-    }
+    ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses)
+        if (!addr_is_ipv6_link_local(address->address))
+            ws_address_parent_update(interface);
 }
 
 int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_ptr)
@@ -2530,7 +2521,7 @@ int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_p
     mac_neighbor_table_entry_t *mac_parent = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
 
     if (mac_parent) {
-        ws_neighbour = ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, mac_parent->index);
+        ws_neighbour = ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_parent->index);
         ws_common_create_ll_address(info_ptr->parent, mac_parent->mac64);
     }
     if (ws_neighbour) {
@@ -2550,7 +2541,7 @@ int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_p
     } else if (ws_bootstrap_state_active(cur)) {
         info_ptr->join_state = 5;
     }
-    info_ptr->pan_id = cur->ws_info->network_pan_id;
+    info_ptr->pan_id = cur->ws_info.network_pan_id;
 
     return 0;
 }
@@ -2578,7 +2569,7 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
         }
 
         mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
-        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info->neighbor_storage, n);
+        ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, n);
         if (mac_entry && ws_neighbor && mac_entry->lifetime && mac_entry->lifetime != 0xffffffff) {
             // Active neighbor entry
             uint8_t ll_address[16];
@@ -2596,7 +2587,7 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, ws_neighbour_info_t *neig
             ws_common_create_ll_address(ll_address, mac_entry->mac64);
             memcpy(neighbor_ptr[count].link_local_address, ll_address, 16);
 
-            if (rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info->cfg->gen.rpl_parent_candidate_max)) {
+            if (rpl_control_is_dodag_parent_candidate(cur, ll_address, cur->ws_info.cfg->gen.rpl_parent_candidate_max)) {
                 neighbor_ptr[count].type = WS_CANDIDATE_PARENT;
             }
             neighbor_ptr[count].rpl_rank = rpl_control_neighbor_info_get(cur, ll_address, neighbor_ptr[count].global_address);
@@ -2772,10 +2763,10 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             ws_ffn_pas_test_exec(cur, procedure);
             break;
         case PROCEDURE_PA:
-            if (cur->ws_info->mngt.trickle_pa_running) {
+            if (cur->ws_info.mngt.trickle_pa_running) {
                 tr_info("trigger PAN advertisement");
                 ws_bootstrap_pan_advert(cur);
-                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pa, &cur->ws_info->mngt.trickle_params);
+                trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params);
             } else {
                 tr_info("wrong state: PAN advertisement not triggered");
             }
@@ -2785,10 +2776,10 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             ws_ffn_pcs_test_exec(cur, procedure);
             break;
         case PROCEDURE_PC:
-            if (cur->ws_info->mngt.trickle_pc_running) {
+            if (cur->ws_info.mngt.trickle_pc_running) {
                 tr_info("trigger PAN configuration");
                 ws_bootstrap_pan_config(cur);
-                trickle_inconsistent_heard(&cur->ws_info->mngt.trickle_pc, &cur->ws_info->mngt.trickle_params);
+                trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
             } else {
                 tr_info("wrong state: PAN configuration not triggered");
             }
@@ -2833,42 +2824,42 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
 static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32_t seconds)
 {
     if (!auto_test_proc_trg_enabled) {
-        cur->ws_info->test_proc_trg.auto_trg_enabled = false;
+        cur->ws_info.test_proc_trg.auto_trg_enabled = false;
         return;
     }
 
-    cur->ws_info->test_proc_trg.auto_trg_enabled = true;
+    cur->ws_info.test_proc_trg.auto_trg_enabled = true;
 
     if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
         ws_ffn_pas_test_trigger(cur, seconds);
     } else if (cur->nwk_bootstrap_state == ER_SCAN) {
         ws_ffn_pcs_test_trigger(cur, seconds);
     } else if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
-        if (cur->ws_info->test_proc_trg.dis_trigger_timer > seconds) {
-            cur->ws_info->test_proc_trg.dis_trigger_timer -= seconds;
+        if (cur->ws_info.test_proc_trg.dis_trigger_timer > seconds) {
+            cur->ws_info.test_proc_trg.dis_trigger_timer -= seconds;
         } else  {
             ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_DIS);
-            cur->ws_info->test_proc_trg.dis_trigger_timer_val *= 2;
-            if (cur->ws_info->test_proc_trg.dis_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4) {
-                cur->ws_info->test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4;
+            cur->ws_info.test_proc_trg.dis_trigger_timer_val *= 2;
+            if (cur->ws_info.test_proc_trg.dis_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4) {
+                cur->ws_info.test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4;
             }
-            cur->ws_info->test_proc_trg.dis_trigger_timer = cur->ws_info->test_proc_trg.dis_trigger_timer_val;
+            cur->ws_info.test_proc_trg.dis_trigger_timer = cur->ws_info.test_proc_trg.dis_trigger_timer_val;
         }
-        if (cur->ws_info->test_proc_trg.rpl_trigger_timer > seconds) {
-            cur->ws_info->test_proc_trg.rpl_trigger_timer -= seconds;
+        if (cur->ws_info.test_proc_trg.rpl_trigger_timer > seconds) {
+            cur->ws_info.test_proc_trg.rpl_trigger_timer -= seconds;
         } else  {
             ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_RPL);
-            cur->ws_info->test_proc_trg.rpl_trigger_timer_val *= 2;
-            if (cur->ws_info->test_proc_trg.rpl_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2) {
-                cur->ws_info->test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2;
+            cur->ws_info.test_proc_trg.rpl_trigger_timer_val *= 2;
+            if (cur->ws_info.test_proc_trg.rpl_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2) {
+                cur->ws_info.test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2;
             }
-            cur->ws_info->test_proc_trg.rpl_trigger_timer = cur->ws_info->test_proc_trg.rpl_trigger_timer_val;
+            cur->ws_info.test_proc_trg.rpl_trigger_timer = cur->ws_info.test_proc_trg.rpl_trigger_timer_val;
         }
     } else {
-        cur->ws_info->test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
-        cur->ws_info->test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
-        cur->ws_info->test_proc_trg.pas_trigger_count = 0;
-        cur->ws_info->test_proc_trg.pcs_trigger_count = 0;
+        cur->ws_info.test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
+        cur->ws_info.test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
+        cur->ws_info.test_proc_trg.pas_trigger_count = 0;
+        cur->ws_info.test_proc_trg.pcs_trigger_count = 0;
     }
 }
 

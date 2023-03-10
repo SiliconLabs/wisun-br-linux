@@ -591,30 +591,30 @@ int8_t ws_cfg_phy_set(struct net_if *cur, ws_phy_cfg_t *new_cfg, uint8_t flags)
     if (cur) {
         // Set operating mode for FSK if given with PHY mode ID
         if ((new_cfg->phy_mode_id == 1) || (new_cfg->phy_mode_id == 17)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_1a;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_1a;
         } else if ((new_cfg->phy_mode_id == 2) || (new_cfg->phy_mode_id == 18)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_1b;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_1b;
         } else if ((new_cfg->phy_mode_id == 3) || (new_cfg->phy_mode_id == 19)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_2a;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_2a;
         } else if ((new_cfg->phy_mode_id == 4) || (new_cfg->phy_mode_id == 20)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_2b;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_2b;
         } else if ((new_cfg->phy_mode_id == 5) || (new_cfg->phy_mode_id == 21)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_3;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_3;
         } else if ((new_cfg->phy_mode_id == 6) || (new_cfg->phy_mode_id == 22)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_4a;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_4a;
         } else if ((new_cfg->phy_mode_id == 7) || (new_cfg->phy_mode_id == 23)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_4b;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_4b;
         } else if ((new_cfg->phy_mode_id == 8) || (new_cfg->phy_mode_id == 24)) {
-            cur->ws_info->hopping_schedule.operating_mode = OPERATING_MODE_5;
+            cur->ws_info.hopping_schedule.operating_mode = OPERATING_MODE_5;
         } else {
-            cur->ws_info->hopping_schedule.operating_mode = new_cfg->operating_mode;
+            cur->ws_info.hopping_schedule.operating_mode = new_cfg->operating_mode;
         }
-        cur->ws_info->hopping_schedule.phy_mode_id = new_cfg->phy_mode_id;
-        cur->ws_info->hopping_schedule.channel_plan_id = new_cfg->channel_plan_id;
-        cur->ws_info->hopping_schedule.regulatory_domain = new_cfg->regulatory_domain;
-        cur->ws_info->hopping_schedule.operating_class = new_cfg->operating_class;
+        cur->ws_info.hopping_schedule.phy_mode_id = new_cfg->phy_mode_id;
+        cur->ws_info.hopping_schedule.channel_plan_id = new_cfg->channel_plan_id;
+        cur->ws_info.hopping_schedule.regulatory_domain = new_cfg->regulatory_domain;
+        cur->ws_info.hopping_schedule.operating_class = new_cfg->operating_class;
 
-        if (ws_common_regulatory_domain_config(cur, &cur->ws_info->hopping_schedule) < 0) {
+        if (ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule) < 0) {
             return CFG_SETTINGS_ERROR_PHY_CONF;
         }
     }
@@ -693,10 +693,10 @@ int8_t ws_cfg_timing_set(struct net_if *cur, ws_timing_cfg_t *new_cfg, uint8_t f
     }
 
     if (cur) {
-        cur->ws_info->mngt.trickle_params.Imin = new_cfg->disc_trickle_imin * 10;
-        cur->ws_info->mngt.trickle_params.Imax = new_cfg->disc_trickle_imax * 10;
-        cur->ws_info->mngt.trickle_params.k = new_cfg->disc_trickle_k;
-        cur->ws_info->mngt.trickle_params.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;
+        cur->ws_info.mngt.trickle_params.Imin = new_cfg->disc_trickle_imin * 10;
+        cur->ws_info.mngt.trickle_params.Imax = new_cfg->disc_trickle_imax * 10;
+        cur->ws_info.mngt.trickle_params.k = new_cfg->disc_trickle_k;
+        cur->ws_info.mngt.trickle_params.TimerExpirations = TRICKLE_EXPIRATIONS_INFINITE;
         ws_pae_controller_configure(cur, NULL, NULL, new_cfg);
     }
 
@@ -1143,7 +1143,7 @@ int8_t ws_cfg_settings_interface_set(struct net_if *cur)
 {
     int8_t ret_value = 0;
 
-    cur->ws_info->cfg = &ws_cfg;
+    cur->ws_info.cfg = &ws_cfg;
 
     // Set new configuration values
     for (uint8_t index = 0; index < CFG_CB_NUM; index++) {

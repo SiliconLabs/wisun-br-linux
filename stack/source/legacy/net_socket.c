@@ -874,9 +874,9 @@ static uint32_t ws_common_network_size_estimate_get(struct net_if *cur)
 {
     uint32_t network_size_estimate = 100;
 
-    if ((cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_AUTOMATIC) &&
-            (cur->ws_info->cfg->gen.network_size != NETWORK_SIZE_CERTIFICATE)) {
-        network_size_estimate = cur->ws_info->cfg->gen.network_size * 100;
+    if ((cur->ws_info.cfg->gen.network_size != NETWORK_SIZE_AUTOMATIC) &&
+            (cur->ws_info.cfg->gen.network_size != NETWORK_SIZE_CERTIFICATE)) {
+        network_size_estimate = cur->ws_info.cfg->gen.network_size * 100;
     }
 
     return network_size_estimate;
@@ -893,34 +893,28 @@ static uint32_t ws_common_usable_application_datarate_get(struct net_if *cur)
      * Delays in bytes with 150kbs data rate 168 + 48 bytes for ACK 216 bytes
      * Usable data rate is 1 - 216/(216 + 500) about 70%
      */
-    return 70 * ws_common_datarate_get_from_phy_mode(cur->ws_info->hopping_schedule.phy_mode_id, cur->ws_info->hopping_schedule.operating_mode) / 100;
+    return 70 * ws_common_datarate_get_from_phy_mode(cur->ws_info.hopping_schedule.phy_mode_id, cur->ws_info.hopping_schedule.operating_mode) / 100;
 }
 
 static uint32_t ws_common_connected_time_get(struct net_if *cur)
 {
-    if (!cur->ws_info) {
-        return 0;
-    }
-    if (cur->ws_info->connected_time == 0) {
+    if (cur->ws_info.connected_time == 0) {
         // We are not connected
         return 0;
     }
-    return cur->ws_info->uptime - cur->ws_info->connected_time;
+    return cur->ws_info.uptime - cur->ws_info.connected_time;
 }
 
 uint32_t ws_common_authentication_time_get(struct net_if *cur)
 {
-    if (!cur->ws_info) {
-        return 0;
-    }
-    if (cur->ws_info->authentication_time == 0) {
+    if (cur->ws_info.authentication_time == 0) {
         // Authentication was not done when joined to network so time is not known
         return 0;
     }
-    return cur->ws_info->uptime - cur->ws_info->authentication_time;
+    return cur->ws_info.uptime - cur->ws_info.authentication_time;
 }
 
-#define ws_test_proc_auto_trg(cur) ((cur)->ws_info->test_proc_trg.auto_trg_enabled == true)
+#define ws_test_proc_auto_trg(cur) ((cur)->ws_info.test_proc_trg.auto_trg_enabled == true)
 
 static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
 {
@@ -934,11 +928,8 @@ static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t 
     if (cur_interface->eth_mac_api) {
         // either PPP or Ethernet interface.
         latency_estimate = 1000;
-    } else if (cur_interface->ws_info) {
-        latency_estimate = ws_common_latency_estimate_get(cur_interface);
     } else {
-        // 6LoWPAN ND
-        latency_estimate = 20000;
+        latency_estimate = ws_common_latency_estimate_get(cur_interface);
     }
 
     if (latency_estimate != 0) {
@@ -980,13 +971,9 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
         // either PPP or Ethernet interface.
         network_size = 1;
         datarate = 1000000;
-    } else if (cur_interface->ws_info) {
+    } else {
         network_size = ws_common_network_size_estimate_get(cur_interface);
         datarate = ws_common_usable_application_datarate_get(cur_interface);
-    } else {
-        // 6LoWPAN ND
-        network_size = 1000;
-        datarate = 250000;
     }
 
     if (data_amount == 0) {
@@ -1001,8 +988,8 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
     /*
      * Do not occupy whole bandwidth, leave space for network formation etc...
      */
-    if (cur_interface->ws_info &&
-            (ws_common_connected_time_get(cur_interface) > STAGGER_STABLE_NETWORK_TIME || ws_common_authentication_time_get(cur_interface) == 0)) {
+    if (ws_common_connected_time_get(cur_interface) > STAGGER_STABLE_NETWORK_TIME ||
+        !ws_common_authentication_time_get(cur_interface)) {
         // After four hours of network connected full bandwidth is given to application
         // Authentication has not been required during bootstrap so network load is much smaller
     } else {
@@ -1011,7 +998,7 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
     }
 
     // For small networks sets 10 seconds stagger
-    if (cur_interface->ws_info && (network_size <= 100 || ws_test_proc_auto_trg(cur_interface))) {
+    if (network_size <= 100 || ws_test_proc_auto_trg(cur_interface)) {
         stagger_value = 10;
     } else {
         stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);

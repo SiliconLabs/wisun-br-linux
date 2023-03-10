@@ -672,12 +672,12 @@ int8_t ws_pae_supp_init(struct net_if *interface_ptr, const sec_prot_certs_t *ce
     memset(pae_supp->new_br_eui_64, 0, 8);
 
 #ifdef HAVE_WS_HOST
-    if (interface_ptr->ws_info->pan_information.version > WS_FAN_VERSION_1_0)
+    if (interface_ptr->ws_info.pan_information.version > WS_FAN_VERSION_1_0)
         pae_supp->entry.sec_keys.node_role = WS_NR_ROLE_LFN;
     else
         BUG("LFN node role only exist on FAN1.1");
 #else
-   if (interface_ptr->ws_info->pan_information.version > WS_FAN_VERSION_1_0)
+   if (interface_ptr->ws_info.pan_information.version > WS_FAN_VERSION_1_0)
         pae_supp->entry.sec_keys.node_role = WS_NR_ROLE_ROUTER;
     else
         pae_supp->entry.sec_keys.node_role = WS_NR_ROLE_UNKNOWN;

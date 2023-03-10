@@ -673,7 +673,7 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
                 //tr_warn("Drop TX to unassociated %s", trace_sockaddr(&buf->dst_sa, true));
                 goto tx_error_handler;
             }
-        } else if (cur->ws_info && !neigh_entry_ptr) {
+        } else if (!neigh_entry_ptr) {
             //Do not accept to send unknow device
             goto tx_error_handler;
         }
@@ -681,16 +681,8 @@ buffer_t *lowpan_adaptation_data_process_tx_preprocess(struct net_if *cur, buffe
         buf->link_specific.ieee802_15_4.indirectTxProcess = lowpan_adaptation_indirect_data_request(neigh_entry_ptr);
     }
 
-    if (buf->link_specific.ieee802_15_4.key_id_mode != B_SECURITY_KEY_ID_2) {
-
-        if (!buf->link_specific.ieee802_15_4.requestAck) {
-            buf->link_specific.ieee802_15_4.key_id_mode = B_SECURITY_KEY_ID_MODE_DEFAULT;
-        } else if (cur->ws_info || (neigh_entry_ptr && !neigh_entry_ptr->trusted_device)) {
-            buf->link_specific.ieee802_15_4.key_id_mode  = B_SECURITY_KEY_ID_MODE_DEFAULT;
-        } else {
-            buf->link_specific.ieee802_15_4.key_id_mode  = B_SECURITY_KEY_ID_IMPLICIT;
-        }
-    }
+    if (buf->link_specific.ieee802_15_4.key_id_mode != B_SECURITY_KEY_ID_2)
+        buf->link_specific.ieee802_15_4.key_id_mode = B_SECURITY_KEY_ID_MODE_DEFAULT;
 
     return buf;
 
@@ -1454,8 +1446,6 @@ int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_dat
         } else {
             lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
         }
-    } else if ((confirm->status == MLME_BUSY_CHAN) && !cur->ws_info) {
-        tr_error("unexpected: !cur->ws_info");
     } else if ((buf->link_specific.ieee802_15_4.requestAck) && (confirm->status == MLME_TRANSACTION_EXPIRED)) {
         lowpan_adaptation_tx_queue_write_to_front(cur, interface_ptr, buf);
         ns_list_remove(&interface_ptr->activeUnicastList, tx_ptr);
@@ -1511,19 +1501,13 @@ static bool mac_data_is_broadcast_addr(const sockaddr_t *addr)
 
 static bool mcps_data_indication_neighbor_validate(struct net_if *cur, const sockaddr_t *addr)
 {
-    if (cur->ws_info) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr->address + 2, addr->addr_type);
-        if (neighbor && (neighbor->connected_device ||  neighbor->trusted_device)) {
-            return true;
-        }
+    mac_neighbor_table_entry_t *neighbor;
 
-        /* Otherwise, we don't know them */
-        return false;
-    } else {
-        //6lowpan without MLE don't can't do validation
-        return true;
-    }
+    if (!cur->mac_parameters.mac_neighbor_table)
+        return true; // FIXME: shouldn't we return false? is this case even possible?
 
+    neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, addr->address + 2, addr->addr_type);
+    return neighbor && (neighbor->connected_device || neighbor->trusted_device);
 }
 
 void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_ind_t *data_ind)

@@ -209,13 +209,13 @@ static int dbus_get_aes_keys(sd_bus_message *reply, void *userdata,
     uint8_t gak[16];
     int ret;
 
-    if (!gtks || !interface_ptr || !interface_ptr->ws_info || !interface_ptr->ws_info->cfg)
+    if (!gtks || !interface_ptr || !interface_ptr->ws_info.cfg)
         return sd_bus_error_set_errno(ret_error, EBADR);
     ret = sd_bus_message_open_container(reply, 'a', "ay");
     WARN_ON(ret < 0, "%s", strerror(-ret));
     for (int i = 0; i < key_cnt; i++) {
         // GAK is SHA256 of network name concatened with GTK
-        ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, interface_ptr->ws_info->cfg->gen.network_name);
+        ws_pae_controller_gak_from_gtk(gak, gtks->gtk[i].key, interface_ptr->ws_info.cfg->gen.network_name);
         ret = sd_bus_message_append_array(reply, 'y', gak, ARRAY_SIZE(gak));
         WARN_ON(ret < 0, "%s", strerror(-ret));
     }
@@ -531,9 +531,9 @@ int dbus_get_ws_pan_id(sd_bus *bus, const char *path, const char *interface,
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(*(int *)userdata);
     int ret;
 
-    if (!net_if || !net_if->ws_info)
+    if (!net_if)
         return sd_bus_error_set_errno(ret_error, EINVAL);
-    ret = sd_bus_message_append(reply, "q", net_if->ws_info->network_pan_id);
+    ret = sd_bus_message_append(reply, "q", net_if->ws_info.network_pan_id);
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     return 0;
 }

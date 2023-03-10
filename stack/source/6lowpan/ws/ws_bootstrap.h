@@ -21,6 +21,7 @@
 #include <stdbool.h>
 
 #include "6lowpan/ws/ws_common.h"
+#include "nwk_interface/protocol.h"
 
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/

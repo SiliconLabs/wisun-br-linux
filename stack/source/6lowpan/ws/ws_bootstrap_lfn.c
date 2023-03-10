@@ -74,8 +74,8 @@ void ws_bootstrap_lfn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
 {
     (void)ie_ext;
     // Store weakest heard packet RSSI
-    if (cur->ws_info->weakest_received_rssi > data->signal_dbm) {
-        cur->ws_info->weakest_received_rssi = data->signal_dbm;
+    if (cur->ws_info.weakest_received_rssi > data->signal_dbm) {
+        cur->ws_info.weakest_received_rssi = data->signal_dbm;
     }
 
     if (data->SrcAddrMode != MAC_ADDR_MODE_64_BIT) {

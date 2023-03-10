@@ -38,6 +38,7 @@
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them
 #include "6lowpan/iphc_decode/lowpan_context.h"
+#include "6lowpan/ws/ws_common.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct mac_neighbor_table;
@@ -242,7 +243,7 @@ struct net_if {
     struct red_info *random_early_detection;
     struct red_info *llc_random_early_detection;
     struct red_info *llc_eapol_random_early_detection;
-    struct ws_info *ws_info;
+    struct ws_info ws_info;
     struct rpl_domain *rpl_domain;
 
     struct mac_api *mac_api;

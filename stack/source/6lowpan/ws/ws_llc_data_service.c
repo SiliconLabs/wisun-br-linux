@@ -205,9 +205,8 @@ static uint8_t test_drop_data_message = 0;
 int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
     test_skip_first_init_response = skip;
     return 0;
 }
@@ -215,9 +214,8 @@ int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 int8_t  ws_test_drop_edfe_data_frames(int8_t interface_id, uint8_t number_of_dropped_frames)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
     test_drop_data_message = number_of_dropped_frames;
     return 0;
 }
@@ -443,7 +441,7 @@ static void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *
             ws_neighbor_temp_class_t *temp_entry = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, message->dst_address);
             if (temp_entry) {
                 //Update Temporary Lifetime
-                temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+                temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
             }
         }
     }
@@ -644,10 +642,10 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
     has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
 
-    if (has_us && !ws_ie_validate_us(base->interface_ptr->ws_info, &ie_us))
+    if (has_us && !ws_ie_validate_us(&base->interface_ptr->ws_info, &ie_us))
         return;
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
-    if (has_bs && !ws_ie_validate_bs(base->interface_ptr->ws_info, &ie_bs))
+    if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
     if (data->Key.SecurityLevel)
@@ -691,7 +689,7 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
             ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
                                         ie_bt.broadcast_interval_offset, data->timestamp);
             if (neighbor.neighbor && neighbor.neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR)
-                ns_fhss_ws_set_parent(base->interface_ptr->ws_info->fhss_api, neighbor.neighbor->mac64,
+                ns_fhss_ws_set_parent(base->interface_ptr->ws_info.fhss_api, neighbor.neighbor->mac64,
                                       &neighbor.ws_neighbor->fhss_data.bc_timing_info, false);
         }
         if (has_us)
@@ -705,7 +703,7 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
             neighbor.ws_neighbor->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neighbor_class_rf_sensitivity_calculate(base->interface_ptr->ws_info->device_min_sens, data->signal_dbm);
+        ws_neighbor_class_rf_sensitivity_calculate(base->interface_ptr->ws_info.device_min_sens, data->signal_dbm);
         ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
         if (neighbor.neighbor) {
@@ -738,7 +736,7 @@ static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind
     }
 
     neighbor->ws_neighbor = &tmp->neigh_info_list;
-    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info->cfg->timing.temp_eapol_min_timeout + 1;
+    tmp->eapol_temp_info.eapol_timeout = base->interface_ptr->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
     tmp->mpduLinkQuality = data->mpduLinkQuality;
     tmp->signal_dbm = data->signal_dbm;
     return true;
@@ -767,10 +765,10 @@ static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *da
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_us = ws_wp_nested_us_read(ie_wp.data, ie_wp.data_size, &ie_us);
-    if (has_us && !ws_ie_validate_us(base->interface_ptr->ws_info, &ie_us))
+    if (has_us && !ws_ie_validate_us(&base->interface_ptr->ws_info, &ie_us))
         return;
     has_bs = ws_wp_nested_bs_read(ie_wp.data, ie_wp.data_size, &ie_bs);
-    if (has_bs && !ws_ie_validate_bs(base->interface_ptr->ws_info, &ie_bs))
+    if (has_bs && !ws_ie_validate_bs(&base->interface_ptr->ws_info, &ie_bs))
         return;
 
     if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))
@@ -956,13 +954,13 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
         //Dynamic length
         header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, true) +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, false);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true) +
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
         header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
-                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info->hopping_schedule, true);
+                       ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true);
     }
     return header_size;
 }
@@ -1099,9 +1097,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     if (!data->TxAckReq)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
     if (base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
         ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
@@ -1208,9 +1206,9 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->ie_ext.headerIovLength = 1;
 
     ie_offset = ieee802154_ie_push_payload(&message->ie_buf_payload, IEEE802154_IE_ID_WP);
-    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
+    ws_wp_nested_us_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     if (eapol_handshake_first_msg)
-        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info->hopping_schedule);
+        ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     ieee802154_ie_fill_len_payload(&message->ie_buf_payload, ie_offset);
     message->ie_iov_payload[0].iov_len = message->ie_buf_payload.len;
     message->ie_iov_payload[0].iov_base = message->ie_buf_payload.data;
@@ -1706,7 +1704,7 @@ mpx_api_t *ws_llc_mpx_api_get(struct net_if *interface)
 static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               wh_ie_sub_list_t wh_ies, wp_nested_ie_sub_list_t wp_ies)
 {
-    struct ws_info *info = base->interface_ptr->ws_info;
+    struct ws_info *info = &base->interface_ptr->ws_info;
     int ie_offset;
 
     if (wh_ies.utt_ie)
@@ -1766,7 +1764,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                 ws_wp_nested_pom_write(&msg->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
             if (wp_ies.lcp_ie)
                 // Only unicast schedule using tag 0 is supported
-                ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info->hopping_schedule);
+                ws_wp_nested_lcp_write(&msg->ie_buf_payload, 0, &base->interface_ptr->ws_info.hopping_schedule);
             if (wp_ies.lfnver_ie)
                 ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lpan_version);
             if (wp_ies.lgtkhash_ie)

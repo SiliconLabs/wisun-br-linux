@@ -44,14 +44,11 @@ int ws_test_version_set(int8_t interface_id, uint8_t version)
 
     test_pan_version = version;
     if (cur) {
-        if (!cur->ws_info) {
-            return -1;
-        }
-        cur->ws_info->version = version;
+        cur->ws_info.version = version;
         if (ws_version_1_0(cur)) {
-            cur->ws_info->pan_information.version = WS_FAN_VERSION_1_0;
+            cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
         } else if (ws_version_1_1(cur)) {
-            cur->ws_info->pan_information.version = WS_FAN_VERSION_1_1;
+            cur->ws_info.pan_information.version = WS_FAN_VERSION_1_1;
         }
     }
     return 0;
@@ -92,9 +89,8 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->ws_info) {
+    if (!cur)
         return -1;
-    }
 
     ws_cfg_neighbour_temporary_lifetime_set(temporary_lifetime);
     return 0;
@@ -107,9 +103,8 @@ int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, voi
     (void) parameters;
     if (interface_id > 0) {
         cur = protocol_stack_interface_info_get_by_id(interface_id);
-        if (!cur || !cur->ws_info) {
+        if (!cur)
             return -1;
-        }
     } else {
         cur = protocol_stack_interface_info_get_wisun_mesh();
         if (!cur) {

@@ -24,6 +24,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/fhss_ws_extension.h"
+#include "nwk_interface/protocol.h"
 
 #include "core/ns_address_internal.h"
 

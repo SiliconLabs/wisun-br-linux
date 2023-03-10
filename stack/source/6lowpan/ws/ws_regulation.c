@@ -19,6 +19,7 @@
 
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
+#include "nwk_interface/protocol.h"
 
 #include "6lowpan/ws/ws_regulation.h"
 
@@ -26,9 +27,9 @@ int ws_regulation_set(int8_t interface_id, uint32_t regulation)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->ws_info)
+    if (!cur)
         return -1;
-    cur->ws_info->regulation = regulation;
+    cur->ws_info.regulation = regulation;
     mac_helper_set_regional_regulation(cur, regulation);
     return 0;
 }

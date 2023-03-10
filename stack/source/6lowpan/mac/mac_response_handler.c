@@ -22,6 +22,7 @@
 #include "stack/mac/mac_mcps.h"
 
 #include "nwk_interface/protocol_abstract.h"
+#include "nwk_interface/protocol.h"
 #include "core/ns_address_internal.h"
 #include "legacy/ns_socket.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

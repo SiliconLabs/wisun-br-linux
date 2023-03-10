@@ -708,9 +708,7 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
         if (cur->ipv6_neighbour_cache.recv_na_aro) {
             icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
         }
-        if (cur->ws_info) {
-            icmpv6_na_wisun_aro_handler(cur, aro, buf->src_sa.address);
-        }
+        icmpv6_na_wisun_aro_handler(cur, aro, buf->src_sa.address);
     }
 
     /* No need to create a neighbour cache entry if one doesn't already exist */
@@ -725,7 +723,7 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
     }
 
     ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, neighbour_entry, flags, buf->dst_sa.addr_type, buf->dst_sa.address);
-    if (cur->ws_info && neighbour_entry->state == IP_NEIGHBOUR_REACHABLE) {
+    if (neighbour_entry->state == IP_NEIGHBOUR_REACHABLE) {
         tr_debug("NA neigh update");
         ws_common_neighbor_update(cur, target);
     }
@@ -804,10 +802,9 @@ buffer_t *icmpv6_up(buffer_t *buf)
     buf->options.code = *dptr++;
 
     if (buf->options.ll_security_bypass_rx) {
-        if (!buf->interface->ws_info
-                || (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL
-                    && (buf->options.code != ICMPV6_CODE_RPL_DIO
-                        && buf->options.code != ICMPV6_CODE_RPL_DIS))) {
+        if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL &&
+            (buf->options.code != ICMPV6_CODE_RPL_DIO &&
+             buf->options.code != ICMPV6_CODE_RPL_DIS)) {
             tr_warn("Drop: ICMP EP unsecured packet");
             goto drop;
         }
@@ -970,9 +967,7 @@ void ack_receive_cb(struct buffer *buffer_ptr, uint8_t status)
         ipv6_neighbour_update_from_na(&buffer_ptr->interface->ipv6_neighbour_cache, neighbour_entry, NA_S, buffer_ptr->dst_sa.addr_type, buffer_ptr->dst_sa.address);
     }
 
-    if (buffer_ptr->interface->ws_info) {
-        ws_common_neighbor_update(buffer_ptr->interface, ll_target);
-    }
+    ws_common_neighbor_update(buffer_ptr->interface, ll_target);
 }
 void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
 {
@@ -992,10 +987,7 @@ void ack_remove_neighbour_cb(struct buffer *buffer_ptr, uint8_t status)
         tr_warn("wrong address %d %s", buffer_ptr->dst_sa.addr_type, trace_array(buffer_ptr->dst_sa.address, 16));
         return;
     }
-    if (buffer_ptr->interface->ws_info) {
-        ws_common_neighbor_remove(buffer_ptr->interface, ll_target);
-    }
-
+    ws_common_neighbor_remove(buffer_ptr->interface, ll_target);
 }
 
 static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
@@ -1283,7 +1275,7 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         memcpy(ptr, aro->eui64, 8);
         ptr += 8;
     }
-    if (cur->ws_info && aro && (aro->status != ARO_SUCCESS && aro->status != ARO_TOPOLOGICALLY_INCORRECT)) {
+    if (aro && (aro->status != ARO_SUCCESS && aro->status != ARO_TOPOLOGICALLY_INCORRECT)) {
         /*If Aro failed we will kill the neigbour after we have succeeded in sending message*/
         if (!ws_common_negative_aro_mark(cur, aro->eui64)) {
             tr_debug("Neighbour removed for negative response send");

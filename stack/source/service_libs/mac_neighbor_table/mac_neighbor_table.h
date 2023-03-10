@@ -21,8 +21,6 @@
 #include <stdbool.h>
 #include "common/ns_list.h"
 
-#include "nwk_interface/protocol.h"
-
 #define NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME 240
 
 #define ACTIVE_NUD_PROCESS_MAX 3 //Limit That how many activate NUD process is active in same time

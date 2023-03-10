@@ -47,7 +47,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing US-IE", tr_ws_frame(frame_type));
         return false;
     }
-    return ws_ie_validate_us(net_if->ws_info, ie_us);
+    return ws_ie_validate_us(&net_if->ws_info, ie_us);
 }
 
 static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
@@ -61,7 +61,7 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing NETNAME-IE", tr_ws_frame(frame_type));
         return false;
     }
-    return ws_ie_validate_netname(net_if->ws_info, &ie_netname);
+    return ws_ie_validate_netname(&net_if->ws_info, &ie_netname);
 }
 
 static void ws_mngt_ie_pom_handle(struct net_if *net_if,
@@ -100,7 +100,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PA))
         return;
 
-    if (data->SrcPANId != net_if->ws_info->network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PA));
         return;
     }
@@ -109,7 +109,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
     // Border router routing cost is 0, so "Routing Cost the same or worse" is
     // always true
     if (pan_information.routing_cost != 0xFFFF)
-        trickle_consistent_heard(&net_if->ws_info->mngt.trickle_pa);
+        trickle_consistent_heard(&net_if->ws_info.mngt.trickle_pa);
 }
 
 void ws_mngt_pas_analyze(struct net_if *net_if,
@@ -127,8 +127,8 @@ void ws_mngt_pas_analyze(struct net_if *net_if,
         return;
 
     ws_mngt_ie_pom_handle(net_if, data, ie_ext);
-    trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pa,
-                               &net_if->ws_info->mngt.trickle_params);
+    trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pa,
+                               &net_if->ws_info.mngt.trickle_params);
 }
 
 void ws_mngt_pc_analyze(struct net_if *net_if,
@@ -166,16 +166,16 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
         return;
     }
 
-    if (data->SrcPANId != net_if->ws_info->network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PC));
         return;
     }
 
-    if (net_if->ws_info->pan_information.pan_version == ws_pan_version)
-        trickle_consistent_heard(&net_if->ws_info->mngt.trickle_pc);
+    if (net_if->ws_info.pan_information.pan_version == ws_pan_version)
+        trickle_consistent_heard(&net_if->ws_info.mngt.trickle_pc);
     else
-        trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
-                                   &net_if->ws_info->mngt.trickle_params);
+        trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
+                                   &net_if->ws_info.mngt.trickle_params);
 
     if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
@@ -199,13 +199,13 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_PCS))
         return;
 
-    if (data->SrcPANId != net_if->ws_info->network_pan_id) {
+    if (data->SrcPANId != net_if->ws_info.network_pan_id) {
         TRACE(TR_DROP, "drop %-9s: PAN ID mismatch", tr_ws_frame(WS_FT_PCS));
         return;
     }
 
-    trickle_inconsistent_heard(&net_if->ws_info->mngt.trickle_pc,
-                               &net_if->ws_info->mngt.trickle_params);
+    trickle_inconsistent_heard(&net_if->ws_info.mngt.trickle_pc,
+                               &net_if->ws_info.mngt.trickle_params);
 
     if (ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor_info)) {
         ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
@@ -247,11 +247,11 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    if (ie_lcp.chan_plan.channel_function != net_if->ws_info->cfg->fhss.fhss_uc_channel_function) {
+    if (ie_lcp.chan_plan.channel_function != net_if->ws_info.cfg->fhss.fhss_uc_channel_function) {
         TRACE(TR_DROP, "drop %-9s: LUS-IE/LCP-IE channel function mismatch", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    if (!ws_ie_validate_lcp(net_if->ws_info, &ie_lcp))
+    if (!ws_ie_validate_lcp(&net_if->ws_info, &ie_lcp))
         return;
     if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPAS))
         return;
