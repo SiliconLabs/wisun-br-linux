@@ -110,6 +110,16 @@ void rcp_register_fhss()
     iobuf_free(&buf);
 }
 
+void rcp_unregister_fhss()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_release_fhss()
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

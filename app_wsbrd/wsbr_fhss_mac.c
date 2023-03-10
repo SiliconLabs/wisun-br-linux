@@ -30,19 +30,6 @@
 #include "wsbr_fhss_net.h"
 
 #include "wsbr_fhss_mac.h"
-int ns_sw_mac_fhss_unregister(struct mac_api *mac_api)
-{
-    struct wsbr_ctxt *ctxt = container_of(mac_api, struct wsbr_ctxt, mac_api);
-    struct iobuf_write buf = { };
-
-    BUG_ON(!mac_api);
-    BUG_ON(ctxt != &g_ctxt);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}
-
 
 int8_t ns_sw_mac_enable_frame_counter_per_key(struct mac_api *mac_api,
                                               bool enable_feature)
