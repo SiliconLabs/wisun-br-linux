@@ -40,6 +40,7 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "app_wsbrd/commandline_values.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -380,7 +381,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             ws_bootstrap_6lbr_fhss_configure(cur);
             ws_bootstrap_set_domain_rf_config(cur);
             ws_bootstrap_fhss_activate(cur);
-            ns_fhss_ws_set_hop_count(cur->ws_info.fhss_api, 0);
+            rcp_set_fhss_hop_count(0);
 
             ws_bootstrap_6lbr_print_config(cur);
 

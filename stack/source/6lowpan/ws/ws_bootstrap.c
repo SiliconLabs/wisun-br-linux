@@ -41,6 +41,7 @@
 #include "stack/mac/ccm.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
@@ -1510,7 +1511,7 @@ static void ws_bootstrap_set_fhss_hop(struct net_if *cur)
     }
     // Calculate own hop count. This method gets inaccurate when hop count increases.
     uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
-    ns_fhss_ws_set_hop_count(cur->ws_info.fhss_api, own_hop);
+    rcp_set_fhss_hop_count(own_hop);
     tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
 }
 

@@ -11,11 +11,12 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "common/iobuf.h"
+#include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 
 #include "wsbr_mac.h"
-#include "rcp_api.h"
 #include "wsbr.h"
+#include "rcp_api.h"
 
 static void rcp_set_bool(unsigned int prop, bool val)
 {
@@ -72,4 +73,7 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
     iobuf_free(&buf);
 }
 
-
+void rcp_set_fhss_hop_count(int hop_count)
+{
+    rcp_set_u8(SPINEL_PROP_WS_FHSS_SET_HOP_COUNT, hop_count);
+}

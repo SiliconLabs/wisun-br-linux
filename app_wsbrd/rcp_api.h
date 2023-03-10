@@ -13,6 +13,6 @@
 #ifndef RCP_API_H
 #define RCP_API_H
 
-
+void rcp_set_fhss_hop_count(int hop_count);
 
 #endif

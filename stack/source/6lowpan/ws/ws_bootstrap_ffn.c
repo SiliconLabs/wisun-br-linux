@@ -40,6 +40,7 @@
 #include "stack/mac/sw_mac.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"
@@ -416,7 +417,7 @@ static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery
     cur->ws_info.fhss_conf.unicast_fixed_channel = tmp_uc_fixed_channel;
     cur->ws_info.fhss_conf.broadcast_fixed_channel = tmp_bc_fixed_channel;
     ns_fhss_ws_configuration_set(cur->ws_info.fhss_api, &cur->ws_info.fhss_conf);
-    ns_fhss_ws_set_hop_count(cur->ws_info.fhss_api, 0xff);
+    rcp_set_fhss_hop_count(0xff);
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
 
     return 0;

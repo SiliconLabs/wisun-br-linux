@@ -171,16 +171,3 @@ void ns_fhss_ws_drop_neighbor(const uint8_t eui64[8])
     iobuf_free(&buf);
 }
 
-
-int ns_fhss_ws_set_hop_count(const struct fhss_api *fhss_api, const uint8_t hop_count)
-{
-    struct wsbr_ctxt *ctxt = &g_ctxt;
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_HOP_COUNT);
-    spinel_push_u8(&buf, hop_count);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    return 0;
-}
-
