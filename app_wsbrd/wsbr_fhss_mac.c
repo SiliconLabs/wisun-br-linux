@@ -27,7 +27,6 @@
 
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "wsbr_fhss_net.h"
 
 #include "wsbr_fhss_mac.h"
 

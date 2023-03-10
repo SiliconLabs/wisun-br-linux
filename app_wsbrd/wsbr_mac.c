@@ -42,7 +42,6 @@
 #include "version.h"
 #include "wsbr.h"
 #include "wsbr_mac.h"
-#include "wsbr_fhss_net.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
 #include "tun.h"
