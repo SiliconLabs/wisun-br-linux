@@ -16,6 +16,7 @@
 #include "stack/mac/fhss_ws_extension.h"
 
 struct fhss_ws_configuration;
+struct phy_rf_channel_configuration;
 
 void rcp_noop(void);
 void rcp_reset(void);
@@ -24,6 +25,7 @@ void rcp_register_fhss(void);
 void rcp_unregister_fhss(void);
 void rcp_release_fhss(void);
 void rcp_get_rx_sensitivity(void);
+void rcp_set_rf_config(const struct phy_rf_channel_configuration *config);
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
 void rcp_set_fhss_parent(const uint8_t parent[8],
                          const struct broadcast_timing_info *timing_info,

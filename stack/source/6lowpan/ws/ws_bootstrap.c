@@ -1360,11 +1360,7 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
     set_request.value_pointer = &mac_mode;
     set_request.value_size = sizeof(phy_802_15_4_mode_e);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
-    // Set RF configuration
-    set_request.attr = macRfConfiguration;
-    set_request.value_pointer = &rf_configs;
-    set_request.value_size = sizeof(phy_rf_channel_configuration_t);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_request);
+    rcp_set_rf_config(&rf_configs);
     // Set Ack wait duration
     uint8_t bits_per_symbol = 1;
     if (rf_configs.modulation == MODULATION_OFDM) {

@@ -641,29 +641,6 @@ static void wsbr_spinel_set_cca_threshold_start(struct wsbr_ctxt *ctxt, unsigned
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_rf_configuration(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    struct iobuf_write buf = { };
-    const struct phy_rf_channel_configuration *req = data;
-
-    BUG_ON(prop != SPINEL_PROP_WS_RF_CONFIGURATION);
-    BUG_ON(data_len != sizeof(struct phy_rf_channel_configuration));
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
-    spinel_push_u32(&buf, req->channel_0_center_frequency);
-    spinel_push_u32(&buf, req->channel_spacing);
-    spinel_push_u32(&buf, req->datarate);
-    spinel_push_u16(&buf, req->number_of_channels);
-    spinel_push_u8(&buf,  req->modulation);
-    spinel_push_u8(&buf,  req->modulation_index);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 6, 0)) {
-        spinel_push_bool(&buf, req->fec);
-        spinel_push_uint(&buf, req->ofdm_option);
-        spinel_push_uint(&buf, req->ofdm_mcs);
-    }
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 static void wsbr_spinel_set_request_restart(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
 {
     struct iobuf_write buf = { };
@@ -817,7 +794,6 @@ static const struct {
     { macCoordExtendedAddress,         wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { macDefaultKeySource,             wsbr_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { macCCAThresholdStart,            wsbr_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
-    { macRfConfiguration,              wsbr_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
     { macRequestRestart,               wsbr_spinel_set_request_restart,       SPINEL_PROP_WS_REQUEST_RESTART,                  },
     { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },

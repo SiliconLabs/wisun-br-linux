@@ -11,6 +11,8 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include "stack/mac/fhss_ws_extension.h"
+#include "stack/mac/platform/arm_hal_phy.h"
+
 #include "common/version.h"
 #include "common/iobuf.h"
 #include "common/spinel_defs.h"
@@ -159,6 +161,27 @@ void rcp_get_rx_sensitivity(void)
 
     spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RX_SENSITIVITY);
     spinel_push_uint(&buf, 0);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_RF_CONFIGURATION);
+    spinel_push_u32(&buf, config->channel_0_center_frequency);
+    spinel_push_u32(&buf, config->channel_spacing);
+    spinel_push_u32(&buf, config->datarate);
+    spinel_push_u16(&buf, config->number_of_channels);
+    spinel_push_u8(&buf,  config->modulation);
+    spinel_push_u8(&buf,  config->modulation_index);
+    if (!version_older_than(ctxt->rcp_version_api, 0, 6, 0)) {
+        spinel_push_bool(&buf, config->fec);
+        spinel_push_uint(&buf, config->ofdm_option);
+        spinel_push_uint(&buf, config->ofdm_mcs);
+    }
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
