@@ -228,7 +228,8 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
 void ws_bootstrap_configure_csma_ca_backoffs(struct net_if *cur, uint8_t max_backoffs, uint8_t min_be, uint8_t max_be)
 {
     rcp_set_max_csma_backoffs(max_backoffs);
-    mac_helper_mac_mlme_be_set(cur->id, min_be, max_be);
+    rcp_set_min_be(min_be);
+    rcp_set_max_be(max_be);
 }
 
 void ws_bootstrap_configure_data_request_restart(struct net_if *cur, uint8_t cca_failure_restart_max, uint8_t tx_failure_restart_max, uint16_t blacklist_min_ms, uint16_t blacklist_max_ms)

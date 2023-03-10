@@ -222,6 +222,16 @@ void rcp_set_max_csma_backoffs(uint8_t val)
     rcp_set_u8(SPINEL_PROP_WS_MAX_CSMA_BACKOFFS, val);
 }
 
+void rcp_set_min_be(uint8_t val)
+{
+    rcp_set_u8(SPINEL_PROP_WS_MIN_BE, val);
+}
+
+void rcp_set_max_be(uint8_t val)
+{
+    rcp_set_u8(SPINEL_PROP_WS_MAX_BE, val);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

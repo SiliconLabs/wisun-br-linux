@@ -33,6 +33,8 @@ void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
                            uint8_t high_limit, uint8_t low_limit);
 void rcp_set_max_mac_retry(uint8_t val);
 void rcp_set_max_csma_backoffs(uint8_t val);
+void rcp_set_min_be(uint8_t val);
+void rcp_set_max_be(uint8_t val);
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
 void rcp_set_fhss_parent(const uint8_t parent[8],
                          const struct broadcast_timing_info *timing_info,

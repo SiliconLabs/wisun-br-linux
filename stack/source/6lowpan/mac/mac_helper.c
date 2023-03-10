@@ -406,29 +406,6 @@ void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_devic
     mac_api->mlme_req(mac_api, MLME_SET, &set_req);
 }
 
-int8_t mac_helper_mac_mlme_be_set(int8_t interface_id, uint8_t min_be, uint8_t max_be)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !cur->mac_api) {
-        return -1;
-    }
-    mlme_set_t set_req;
-    set_req.attr = macMinBE;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &min_be;
-    set_req.value_size = 1;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-
-    set_req.attr = macMaxBE;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &max_be;
-    set_req.value_size = 1;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-
-    return 0;
-}
-
 int8_t mac_helper_mac_mlme_data_request_restart_set(int8_t interface_id, mlme_request_restart_config_t *request_restart_config)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
