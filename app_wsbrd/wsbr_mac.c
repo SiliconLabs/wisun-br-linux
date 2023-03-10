@@ -683,21 +683,6 @@ static void wsbr_spinel_set_mac_filter_stop(struct wsbr_ctxt *ctxt, unsigned int
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, const mlme_device_descriptor_t *req)
-{
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_DEVICE_TABLE);
-    spinel_push_u8(&buf,   entry_idx);
-    spinel_push_u16(&buf,  req->PANId);
-    spinel_push_u16(&buf,  req->ShortAddress);
-    spinel_push_fixed_u8_array(&buf, req->ExtAddress, 8);
-    spinel_push_u32(&buf,  req->FrameCounter);
-    spinel_push_bool(&buf, req->Exempt);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -734,7 +719,6 @@ static const struct {
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
     { macFilterStop,                   wsbr_spinel_set_mac_filter_stop,       SPINEL_PROP_WS_MAC_FILTER_STOP,                  },
-    { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
@@ -755,9 +739,6 @@ static void wsbr_mlme_set(const struct mac_api *api, const void *data)
     if (mlme_prop_cstr[i].prop_set) {
         // Normally, req->attr_index == 0, but nanostack is not rigorous on that
         mlme_prop_cstr[i].prop_set(ctxt, mlme_prop_cstr[i].prop, req->value_pointer, req->value_size);
-    } else if (req->attr == macDeviceTable) {
-        BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
-        wsbr_spinel_set_device_table(ctxt, req->attr_index, req->value_pointer);
     } else {
         WARN("unknown message: %02x", req->attr);
     }

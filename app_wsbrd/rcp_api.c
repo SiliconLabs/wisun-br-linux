@@ -391,3 +391,22 @@ void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
     iobuf_free(&buf);
 }
 
+void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac64, uint32_t frame_counter)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+    uint8_t empty_mac64[8] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_DEVICE_TABLE);
+    spinel_push_u8(&buf, slot);
+    spinel_push_u16(&buf, panid);
+    spinel_push_u16(&buf, mac16);
+    if (mac64)
+        spinel_push_fixed_u8_array(&buf, mac64, 8);
+    else
+        spinel_push_fixed_u8_array(&buf, empty_mac64, 8);
+    spinel_push_u32(&buf, frame_counter);
+    spinel_push_bool(&buf, false);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}

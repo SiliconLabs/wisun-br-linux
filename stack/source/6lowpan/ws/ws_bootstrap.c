@@ -104,19 +104,16 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
 
 uint16_t test_pan_version = 1;
 
-static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *src64)
+static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *mac64)
 {
-    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, src64);
-    if (!neighbor) {
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, mac64);
+
+    if (!neighbor)
         return NULL;
-    }
-    // TODO only call these for new neighbour
-    mlme_device_descriptor_t device_desc;
     neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get();
     neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get();
-    mac_helper_device_description_write(interface, &device_desc, neighbor->mac64, neighbor->mac16, 0, false);
-    mac_helper_devicetable_set(&device_desc, interface, neighbor->index);
-
+    rcp_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
+    tr_debug("neighbor[%d] = %s, lifetime=%d (new)", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     return neighbor;
 }
 
@@ -137,7 +134,7 @@ void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *s
     if (neighbor && neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT) {
         neighbor->lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
         neighbor->link_lifetime = WS_NEIGHBOR_LINK_TIMEOUT;
-        tr_info("Added new neighbor %s : index:%u", tr_eui64(src64), neighbor->index);
+        tr_debug("neighbor[%d] = %s, lifetime=%d", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     }
 }
 
@@ -149,16 +146,17 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const ui
         //mlme_device_descriptor_t device_desc;
         neighbor->lifetime = valid_time;
         neighbor->link_lifetime = valid_time;
-        tr_debug("Set short response neighbor %s : index:%u", tr_eui64(src64), neighbor->index);
+        tr_debug("neighbor[%d] = %s, lifetime=%d", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     }
 }
 
-static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *entry_ptr)
+static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
-    rcp_drop_fhss_neighbor(entry_ptr->mac64);
-    mac_helper_devicetable_remove(interface->mac_api, entry_ptr->index, entry_ptr->mac64);
-    etx_neighbor_remove(interface->id, entry_ptr->index, entry_ptr->mac64);
-    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, entry_ptr->index);
+    tr_debug("neighbor[%d] = %s, removed", neighbor->index, tr_eui64(neighbor->mac64));
+    rcp_drop_fhss_neighbor(neighbor->mac64);
+    rcp_set_neighbor(neighbor->index, 0, 0, NULL, 0);
+    etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);
+    ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
 }
 
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface)

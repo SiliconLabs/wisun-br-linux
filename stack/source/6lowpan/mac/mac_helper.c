@@ -292,56 +292,6 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
     return 0;
 }
 
-void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index, uint8_t *mac64)
-{
-    (void) mac64;
-    if (!mac_api) {
-        return;
-    }
-
-    mlme_device_descriptor_t device_desc;
-    mlme_set_t set_req;
-    memset(&device_desc, 0xff, sizeof(mlme_device_descriptor_t));
-
-    set_req.attr = macDeviceTable;
-    set_req.attr_index = attribute_index;
-    set_req.value_pointer = (void *)&device_desc;
-    set_req.value_size = sizeof(mlme_device_descriptor_t);
-    if (mac64) {
-        tr_debug("Unregister Device %u, mac64: %s", attribute_index, tr_eui64(mac64));
-    }
-    mac_api->mlme_req(mac_api, MLME_SET, &set_req);
-}
-
-void mac_helper_device_description_write(struct net_if *cur, mlme_device_descriptor_t *device_desc, const uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
-{
-    memcpy(device_desc->ExtAddress, mac64, 8);
-    device_desc->ShortAddress = mac16;
-    device_desc->PANId = mac_helper_panid_get(cur);
-    device_desc->Exempt = exempt;
-    device_desc->FrameCounter = frame_counter;
-}
-
-void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, struct net_if *cur, uint8_t attribute_index)
-{
-    tr_debug("Register Device %u, mac16 %x mac64: %s, %"PRIu32, attribute_index, device_desc->ShortAddress, tr_eui64(device_desc->ExtAddress), device_desc->FrameCounter);
-    mac_helper_devicetable_direct_set(cur->mac_api, device_desc, attribute_index);
-}
-
-void mac_helper_devicetable_direct_set(struct mac_api *mac_api, const mlme_device_descriptor_t *device_desc, uint8_t attribute_index)
-{
-    if (!mac_api) {
-        return;
-    }
-
-    mlme_set_t set_req;
-    set_req.attr = macDeviceTable;
-    set_req.attr_index = attribute_index;
-    set_req.value_pointer = (void *)device_desc;
-    set_req.value_size = sizeof(mlme_device_descriptor_t);
-    mac_api->mlme_req(mac_api, MLME_SET, &set_req);
-}
-
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit)
 {
     struct net_if *cur;

@@ -52,5 +52,7 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
 void rcp_set_frame_counter_per_key(bool enable);
 void rcp_set_frame_counter(int slot, uint32_t val);
 void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
+void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
+                      uint8_t *mac64, uint32_t frame_counter);
 
 #endif
