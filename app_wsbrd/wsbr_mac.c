@@ -698,32 +698,6 @@ static void wsbr_spinel_set_device_table(struct wsbr_ctxt *ctxt, int entry_idx, 
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_key_table(struct wsbr_ctxt *ctxt, int entry_idx,
-                                      const mlme_key_descriptor_entry_t *req)
-{
-    struct iobuf_write buf = { };
-    int lookup_len;
-
-    BUG_ON(sizeof(req->Key) != 16);
-    BUG_ON(req->KeyIdLookupListEntries > 1);
-    BUG_ON(req->KeyUsageListEntries);
-    BUG_ON(req->KeyDeviceListEntries);
-    if (!req->KeyIdLookupListEntries)
-        lookup_len = 0;
-    else if (req->KeyIdLookupList->LookupDataSize)
-        lookup_len = 9;
-    else
-        lookup_len = 5;
-
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_KEY_TABLE);
-    spinel_push_u8(&buf, entry_idx);
-    spinel_push_fixed_u8_array(&buf, req->Key, 16);
-    spinel_push_data(&buf, req->KeyIdLookupList->LookupData, lookup_len);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-    dbus_emit_keys_change(ctxt);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -761,7 +735,6 @@ static const struct {
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
     { macFilterStop,                   wsbr_spinel_set_mac_filter_stop,       SPINEL_PROP_WS_MAC_FILTER_STOP,                  },
     { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
-    { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
     { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
@@ -785,9 +758,6 @@ static void wsbr_mlme_set(const struct mac_api *api, const void *data)
     } else if (req->attr == macDeviceTable) {
         BUG_ON(req->value_size != sizeof(mlme_device_descriptor_t));
         wsbr_spinel_set_device_table(ctxt, req->attr_index, req->value_pointer);
-    } else if (req->attr == macKeyTable) {
-        BUG_ON(req->value_size != sizeof(mlme_key_descriptor_entry_t));
-        wsbr_spinel_set_key_table(ctxt, req->attr_index, req->value_pointer);
     } else {
         WARN("unknown message: %02x", req->attr);
     }

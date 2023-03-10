@@ -51,5 +51,6 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
                                 fhss_ws_tx_allow_level_e expedited_forwarding);
 void rcp_set_frame_counter_per_key(bool enable);
 void rcp_set_frame_counter(int slot, uint32_t val);
+void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
 
 #endif

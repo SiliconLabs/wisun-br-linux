@@ -370,3 +370,24 @@ void rcp_set_frame_counter(int slot, uint32_t val)
     iobuf_free(&buf);
 }
 
+void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+    uint8_t empty_key[16] = { };
+
+    BUG_ON(key && !lookup_data);
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_KEY_TABLE);
+    spinel_push_u8(&buf, slot);
+    if (key) {
+        spinel_push_fixed_u8_array(&buf, key, 16);
+        // In 15.4, lookup_data could have a size of 5, but not with Wi-SUN
+        spinel_push_data(&buf, lookup_data, 9);
+    } else {
+        spinel_push_fixed_u8_array(&buf, empty_key, 16);
+        spinel_push_data(&buf, NULL, 0);
+    }
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+

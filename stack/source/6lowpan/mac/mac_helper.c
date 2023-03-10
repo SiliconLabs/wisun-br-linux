@@ -25,6 +25,8 @@
 #include "stack/mac/mlme.h"
 
 #include "app_wsbrd/rcp_api.h"
+#include "app_wsbrd/dbus.h"
+#include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol.h"
 
 #include "6lowpan/mac/mac_helper.h"
@@ -79,62 +81,22 @@ uint8_t mac_helper_default_security_key_id_mode_get(struct net_if *interface)
 {
     return interface->mac_parameters.mac_key_id_mode;
 }
-static void mac_helper_key_lookup_set(mlme_key_id_lookup_descriptor_t *lookup, uint8_t id)
+
+int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t slot)
 {
-    memcpy(lookup->LookupData, mac_helper_default_key_source, 8);
-    lookup->LookupData[8] = id;
-    lookup->LookupDataSize = 1;
-}
+    uint8_t lookup_data[9];
 
-
-static void mac_helper_keytable_descriptor_set(struct mac_api *api, const uint8_t *key, uint8_t id, uint8_t attribute_id)
-{
-    mlme_set_t set_req;
-    mlme_key_id_lookup_descriptor_t lookup_description;
-    mlme_key_descriptor_entry_t key_description;
-    if (key) {
-        mac_helper_key_lookup_set(&lookup_description, id);
-        memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-        memcpy(key_description.Key, key, 16);
-        key_description.KeyIdLookupList = &lookup_description;
-        key_description.KeyIdLookupListEntries = 1;
-    } else {
-        memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-    }
-    set_req.attr = macKeyTable;
-    set_req.attr_index = attribute_id;
-    set_req.value_pointer = &key_description;
-    set_req.value_size = sizeof(mlme_key_descriptor_entry_t);
-
-    api->mlme_req(api, MLME_SET, &set_req);
-}
-
-
-int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor)
-{
-    if (id == 0) {
-        return -1;
-    }
-
-    mac_helper_keytable_descriptor_set(interface->mac_api, key, id, descriptor);
+    BUG_ON(!id);
+    memcpy(lookup_data, mac_helper_default_key_source, 8);
+    lookup_data[8] = id;
+    rcp_set_key(slot, lookup_data, key);
+    dbus_emit_keys_change(&g_ctxt);
     return 0;
 }
 
-int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor)
+int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t slot)
 {
-    if (!interface->mac_api) {
-        return -1;
-    }
-
-    mlme_set_t set_req;
-    mlme_key_descriptor_entry_t key_description;
-    memset(&key_description, 0, sizeof(mlme_key_descriptor_entry_t));
-
-    set_req.attr = macKeyTable;
-    set_req.value_pointer = &key_description;
-    set_req.value_size = sizeof(mlme_key_descriptor_entry_t);
-    set_req.attr_index = descriptor;
-    interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
+    rcp_set_key(slot, NULL, NULL);
     return 0;
 }
 
