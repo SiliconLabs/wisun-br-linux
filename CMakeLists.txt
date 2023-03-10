@@ -80,6 +80,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/wsbr_pcapng.c
     app_wsbrd/wsbr_fhss_mac.c
     app_wsbrd/wsbr_fhss_net.c
+    app_wsbrd/rcp_api.c
     app_wsbrd/timers.c
     app_wsbrd/tun.c
     app_wsbrd/commandline.c
@@ -281,6 +282,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/wsbr_pcapng.c
         app_wsbrd/wsbr_fhss_mac.c
         app_wsbrd/wsbr_fhss_net.c
+        app_wsbrd/rcp_api.c
         app_wsbrd/timers.c
         app_wsbrd/commandline.c
         app_wsbrd/commandline_values.c
