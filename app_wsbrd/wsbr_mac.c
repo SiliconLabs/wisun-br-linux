@@ -823,7 +823,6 @@ static const struct {
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
     { macFilterStop,                   wsbr_spinel_set_mac_filter_stop,       SPINEL_PROP_WS_MAC_FILTER_STOP,                  },
-    { macRxSensitivity,                NULL /* get only */,                   SPINEL_PROP_WS_RX_SENSITIVITY                    },
     { macDeviceTable,                  NULL /* Special */,                    SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macKeyTable,                     NULL /* Special */,                    SPINEL_PROP_WS_KEY_TABLE,                        },
     { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },

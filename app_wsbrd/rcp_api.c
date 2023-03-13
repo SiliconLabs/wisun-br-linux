@@ -152,6 +152,17 @@ void rcp_release_fhss()
     iobuf_free(&buf);
 }
 
+void rcp_get_rx_sensitivity(void)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RX_SENSITIVITY);
+    spinel_push_uint(&buf, 0);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
