@@ -186,6 +186,11 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     iobuf_free(&buf);
 }
 
+void rcp_set_regional_regulation(uint32_t val)
+{
+    rcp_set_u32(SPINEL_PROP_WS_REGIONAL_REGULATION, val);
+}
+
 void rcp_set_rx_on_idle(bool enable)
 {
     rcp_set_bool(SPINEL_PROP_WS_RX_ON_WHEN_IDLE, enable);

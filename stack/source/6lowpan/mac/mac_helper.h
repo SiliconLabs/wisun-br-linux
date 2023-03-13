@@ -44,6 +44,5 @@ int8_t mac_helper_mac_mlme_filter_start(int8_t interface_id, int16_t lqi_m, int1
 int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id);
 int8_t mac_helper_mac_mlme_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
 int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id);
-int8_t mac_helper_set_regional_regulation(const struct net_if *cur, uint32_t regulation);
 
 #endif

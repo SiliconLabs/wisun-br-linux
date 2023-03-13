@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include "app_wsbrd/rcp_api.h"
+
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
 #include "nwk_interface/protocol.h"
@@ -30,6 +32,6 @@ int ws_regulation_set(int8_t interface_id, uint32_t regulation)
     if (!cur)
         return -1;
     cur->ws_info.regulation = regulation;
-    mac_helper_set_regional_regulation(cur, regulation);
+    rcp_set_regional_regulation(regulation);
     return 0;
 }

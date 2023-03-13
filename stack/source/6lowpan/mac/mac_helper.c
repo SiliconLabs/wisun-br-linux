@@ -348,15 +348,3 @@ int8_t mac_helper_mac_mlme_filter_stop(int8_t interface_id)
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
     return 0;
 }
-
-int8_t mac_helper_set_regional_regulation(const struct net_if *cur, uint32_t regulation)
-{
-    mlme_set_t set_req;
-
-    set_req.attr = macRegionalRegulation;
-    set_req.value_pointer = &regulation;
-    set_req.value_size = sizeof(uint32_t);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-
-    return 0;
-}
