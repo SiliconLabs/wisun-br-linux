@@ -29,6 +29,7 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/mac_api.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "legacy/udp.h"
 #include "common_protocols/ipv6_constants.h"
@@ -44,17 +45,6 @@
 
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 
-void protocol_mac_reset(struct net_if *cur)
-{
-    if (cur->mac_api) {
-        mlme_reset_t reset;
-        reset.SetDefaultPIB = true;
-        cur->mac_api->mlme_req(cur->mac_api, MLME_RESET, &reset);
-    }
-}
-
-
-
 static int8_t set_6lowpan_nwk_down(struct net_if *cur)
 {
     int8_t ret_val = -1;
@@ -69,7 +59,7 @@ static int8_t set_6lowpan_nwk_down(struct net_if *cur)
             cur->mac_parameters.SecurityEnabled = false;
             cur->mac_parameters.security_frame_counter = 0;
             cur->mac_parameters.mac_security_level = 0;
-            protocol_mac_reset(cur);
+            rcp_reset_stack();
             cur->interface_mode = INTERFACE_IDLE;
         }
         lowpan_adaptation_interface_reset(cur->id);

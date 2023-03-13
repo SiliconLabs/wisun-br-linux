@@ -308,7 +308,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             break;
         case WS_DISCOVERY_START:
             tr_info("Discovery start");
-            protocol_mac_reset(cur);
+            rcp_reset_stack();
             ws_llc_reset(cur);
             lowpan_adaptation_interface_reset(cur->id);
             //Clear Pending Key Index State

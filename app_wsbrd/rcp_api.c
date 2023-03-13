@@ -20,6 +20,7 @@
 
 #include "wsbr_mac.h"
 #include "wsbr.h"
+#include "version.h"
 #include "rcp_api.h"
 
 static void rcp_set_bool(unsigned int prop, bool val)
@@ -96,6 +97,18 @@ void rcp_reset()
 
     spinel_push_u8(&buf, wsbr_get_spinel_hdr(ctxt));
     spinel_push_uint(&buf, SPINEL_CMD_RESET);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+void rcp_reset_stack()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_RESET);
+    spinel_push_bool(&buf, true);
+    spinel_push_u32(&buf, version_daemon_api);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }

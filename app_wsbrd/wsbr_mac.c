@@ -715,23 +715,6 @@ static void wsbr_mlme_start(const struct mac_api *api, const void *data)
     iobuf_free(&buf);
 }
 
-static void wsbr_mlme_reset(const struct mac_api *api, const void *data)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-    struct iobuf_write buf = { };
-    const mlme_reset_t *req = data;
-
-    BUG_ON(!api);
-    BUG_ON(ctxt != &g_ctxt);
-    // SPINEL_CMD_RESET or SPINEL_PROP_PHY_ENABLED
-    // It seems that SPINEL_CMD_RESET is too wide. It reset the whole device
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_RESET);
-    spinel_push_bool(&buf, req->SetDefaultPIB);
-    spinel_push_u32(&buf, version_daemon_api);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 int8_t wsbr_mlme(const struct mac_api *api, mlme_primitive_e id, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -742,7 +725,7 @@ int8_t wsbr_mlme(const struct mac_api *api, mlme_primitive_e id, const void *dat
         { MLME_GET,           wsbr_mlme_get },
         { MLME_SET,           wsbr_mlme_set },
         { MLME_START,         wsbr_mlme_start },
-        { MLME_RESET,         wsbr_mlme_reset },
+        { MLME_RESET,         NULL },
         // Never used
         { MLME_SCAN,          NULL },
         { MLME_POLL,          NULL }, // Only used with Thread?

@@ -27,7 +27,5 @@ int8_t nwk_6lowpan_up(struct net_if *cur);
  */
 int8_t nwk_6lowpan_down(struct net_if *cur);
 
-void protocol_mac_reset(struct net_if *cur);
-
 
 #endif /* PROTOCOL_6LOWPAN_INTERFACE_H_ */
