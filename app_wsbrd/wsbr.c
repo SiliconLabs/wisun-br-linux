@@ -140,17 +140,10 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     if (ret)
         return -2;
 
-    for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++) {
-        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->config.ws_allowed_mac_addresses[i], MAC_FILTER_ALLOWED);
-        if (ret)
-            return -3;
-    }
-
-    for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++) {
-        ret = mac_helper_mac_mlme_filter_add_long(ctxt->rcp_if_id, ctxt->config.ws_denied_mac_addresses[i], MAC_FILTER_BLOCKED);
-        if (ret)
-            return -4;
-    }
+    for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++)
+        rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
+    for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++)
+        rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], false);
 
     return 0;
 }

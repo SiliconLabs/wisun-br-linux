@@ -639,23 +639,6 @@ static void wsbr_spinel_set_mac_filter_clear(struct wsbr_ctxt *ctxt, unsigned in
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_mac_filter_add_long(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    struct iobuf_write buf = { };
-    const mlme_request_mac_filter_add_long_t *req = data;
-
-    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
-    BUG_ON(data_len != sizeof(mlme_request_mac_filter_add_long_t));
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
-    spinel_push_fixed_u8_array(&buf, req->mac64, 8);
-    spinel_push_u16(&buf, req->lqi_m);
-    spinel_push_u16(&buf, req->lqi_add);
-    spinel_push_u16(&buf, req->dbm_m);
-    spinel_push_u16(&buf, req->dbm_add);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -681,7 +664,6 @@ static const struct {
     unsigned int prop;
 } mlme_prop_cstr[] = {
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
-    { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },
     { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
