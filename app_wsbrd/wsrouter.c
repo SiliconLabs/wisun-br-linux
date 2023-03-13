@@ -234,7 +234,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     }
 
     if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0)) {
-        wsbr_rcp_get_rf_config_list(ctxt);
+        rcp_get_rf_config_list();
         while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         if (ctxt->config.list_rf_configs)

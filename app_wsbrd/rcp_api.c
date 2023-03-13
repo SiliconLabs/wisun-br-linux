@@ -195,6 +195,16 @@ void rcp_get_rx_sensitivity(void)
     iobuf_free(&buf);
 }
 
+void rcp_get_rf_config_list()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

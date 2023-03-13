@@ -638,15 +638,6 @@ void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
     iobuf_free(&buf);
 }
 
-void wsbr_rcp_get_rf_config_list(struct wsbr_ctxt *ctxt)
-{
-    struct iobuf_write buf = { };
-
-    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 static const struct {
     mlme_attr_e attr;
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
