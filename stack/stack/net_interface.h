@@ -226,12 +226,6 @@ typedef struct network_driver_setup {
     uint8_t *beacon_payload_tlv_ptr;  /**< Optional steering parameters. */
 } network_driver_setup_t;
 
-/** CCA threshold table */
-typedef struct cca_threshold_table {
-    uint8_t number_of_channels;         /**< Number of channels */
-    const int8_t *cca_threshold_table;  /**< CCA threshold table */
-} cca_threshold_table_s;
-
 /**
   * Init 6LoWPAN library
   *
@@ -843,20 +837,6 @@ int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t b
  * \return 0 on success, <0 on errors.
  */
 int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power);
-
-/**
- * \brief Get CCA threshold table.
- *
- * This function can be used to read CCA threshold table.
- * CCA threshold table structure contains number of channels and an array indicating the currently used CCA threshold value of each channel. CCA threshold values are updated by library continuously.
- * If channels are reconfigured, number of channels and table length are changed automatically. User should check the table length (number of channels) before reading the table.
- * Automatic CCA threshold feature may not be enabled before interface is up, causing function to return NULL.
- * Returned pointer to cca_threshold_table_s structure is valid until interface is destroyed. Re-reading the pointer with this function is allowed any time.
- *
- * \param interface_id Network interface ID.
- * \return NULL if automatic CCA threshold feature is not enabled, otherwise pointer to CCA threshold structure.
- */
-const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id);
 
 #endif
 

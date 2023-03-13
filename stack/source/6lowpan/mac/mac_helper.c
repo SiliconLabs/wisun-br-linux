@@ -509,10 +509,6 @@ int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_o
     set_req.value_pointer = &start_cca_thr;
     set_req.value_size = sizeof(start_cca_thr);
     cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-    /* Get CCA threshold table. Table is stored to interface structure */
-    mlme_get_t get_req;
-    get_req.attr = macCCAThreshold;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
     return 0;
 }
 

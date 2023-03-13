@@ -353,17 +353,6 @@ static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *
         ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
         break;
     }
-    case SPINEL_PROP_WS_CCA_THRESHOLD: {
-        mlme_get_conf_t req = {
-            .attr = macCCAThreshold,
-        };
-
-        req.value_size = spinel_pop_data_ptr(buf, (const uint8_t **)&req.value_pointer);
-        if (!spinel_prop_is_valid(buf, prop))
-            return;
-        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
-        break;
-    }
     case SPINEL_PROP_WS_MLME_IND: {
         const uint8_t *data;
         int id;
@@ -871,7 +860,6 @@ static const struct {
     { macMaxCSMABackoffs,              wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_CSMA_BACKOFFS,                },
     { macMinBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MIN_BE,                           },
     { macMaxBE,                        wsbr_spinel_set_u8,                    SPINEL_PROP_WS_MAX_BE,                           },
-    { macCCAThreshold,                 NULL /* get only */,                   SPINEL_PROP_WS_CCA_THRESHOLD,                    },
     { macCoordShortAddress,            wsbr_spinel_set_u16,                   SPINEL_PROP_WS_COORD_SHORT_ADDRESS,              },
     { macAckWaitDuration,              wsbr_spinel_set_u16,                   SPINEL_PROP_WS_ACK_WAIT_DURATION,                },
     { mac802_15_4Mode,                 wsbr_spinel_set_u32,                   SPINEL_PROP_WS_15_4_MODE,                        },

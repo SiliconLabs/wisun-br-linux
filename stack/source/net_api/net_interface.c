@@ -717,7 +717,6 @@ int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t b
     }
     return -1;
 }
-
 int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
 {
     struct net_if *cur;
@@ -734,17 +733,3 @@ int8_t arm_nwk_set_tx_output_power(int8_t interface_id, int8_t tx_power)
     return 0;
 }
 
-const cca_threshold_table_s *arm_nwk_get_cca_threshold_table(int8_t interface_id)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    // Interface or MAC parameters not initialized
-    if (!cur) {
-        return NULL;
-    }
-    // Automatic CCA threshold not initialized
-    if (!cur->mac_parameters.cca_thr_table.cca_threshold_table || !cur->mac_parameters.cca_thr_table.number_of_channels) {
-        return NULL;
-    }
-    return &cur->mac_parameters.cca_thr_table;
-}
