@@ -27,6 +27,7 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info);
 void rcp_register_fhss(void);
 void rcp_unregister_fhss(void);
 void rcp_release_fhss(void);
+void rcp_get_hw_addr(void);
 void rcp_get_rx_sensitivity(void);
 void rcp_get_rf_config_list(void);
 void rcp_set_rf_config(const struct phy_rf_channel_configuration *config);

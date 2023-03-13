@@ -28,8 +28,6 @@ uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
 void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop);
 void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop);
 
-void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt);
-
 void wsbr_spinel_set_bool(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
 void rcp_rx(struct wsbr_ctxt *ctxt);
 void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);

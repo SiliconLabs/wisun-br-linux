@@ -195,6 +195,17 @@ void rcp_get_rx_sensitivity(void)
     iobuf_free(&buf);
 }
 
+void rcp_get_hw_addr()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_HWADDR);
+    spinel_push_uint(&buf, 0);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_get_rf_config_list()
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

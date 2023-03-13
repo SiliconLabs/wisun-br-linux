@@ -341,7 +341,7 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
     ctxt->rcp_init_state |= RCP_HAS_RESET;
-    wsbr_rcp_get_hw_addr(ctxt);
+    rcp_get_hw_addr();
 }
 
 void wsbr_spinel_replay_interface(struct iobuf_read *buf)
