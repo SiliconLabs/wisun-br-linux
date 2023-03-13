@@ -119,29 +119,24 @@ static int get_fixed_channel(uint8_t bitmask[static 32])
     return val;
 }
 
-static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
+static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 {
     int i;
 
-    if (ctxt->config.ws_allowed_mac_address_count > 0 || ctxt->config.ws_denied_mac_address_count > 0) {
-        if (version_older_than(ctxt->rcp_version_api, 0, 3, 0))
-            FATAL(1, "RCP API is too old to enable MAC address filtering");
-    }
-
-    if (ctxt->config.ws_allowed_mac_address_count > 0)
+    BUG_ON(ctxt->config.ws_allowed_mac_address_count && ctxt->config.ws_denied_mac_address_count);
+    if (!ctxt->config.ws_allowed_mac_address_count && !ctxt->config.ws_denied_mac_address_count)
+        return;
+    if (version_older_than(ctxt->rcp_version_api, 0, 3, 0))
+        FATAL(1, "RCP API is too old to enable MAC address filtering");
+    if (ctxt->config.ws_allowed_mac_address_count)
         rcp_enable_mac_filter(false);
-    else if (ctxt->config.ws_denied_mac_address_count > 0)
+    if (ctxt->config.ws_denied_mac_address_count)
         rcp_enable_mac_filter(true);
-    else
-        return 0;
-
     rcp_clear_mac_filters();
     for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++)
         rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
     for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++)
         rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], false);
-
-    return 0;
 }
 
 static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
@@ -256,8 +251,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
         WARN_ON(ret);
     }
 
-    ret = ws_enable_mac_filtering(ctxt);
-    WARN_ON(ret);
+    ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
         FATAL_ON(version_older_than(ctxt->rcp_version_api, 0, 6, 0), 2,
