@@ -38,6 +38,7 @@ void rcp_set_max_mac_retry(uint8_t val);
 void rcp_set_max_csma_backoffs(uint8_t val);
 void rcp_set_min_be(uint8_t val);
 void rcp_set_max_be(uint8_t val);
+void rcp_set_max_async_duration(uint32_t val);
 void rcp_set_tx_power(int8_t val);
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info);
 void rcp_set_fhss_parent(const uint8_t parent[8],

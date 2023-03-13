@@ -280,7 +280,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
 
     if (!version_older_than(ctxt->rcp_version_api, 0, 17, 0))
-        mac_helper_set_async_fragmentation(ctxt->rcp_if_id, ctxt->config.ws_async_frag_duration);
+        rcp_set_max_async_duration(ctxt->config.ws_async_frag_duration);
 }
 
 static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)

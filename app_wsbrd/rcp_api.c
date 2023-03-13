@@ -251,6 +251,11 @@ void rcp_set_max_be(uint8_t val)
     rcp_set_u8(SPINEL_PROP_WS_MAX_BE, val);
 }
 
+void rcp_set_max_async_duration(uint32_t val)
+{
+    rcp_set_u32(SPINEL_PROP_WS_ASYNC_FRAGMENTATION, val);
+}
+
 void rcp_set_tx_power(int8_t val)
 {
     rcp_set_u8(SPINEL_PROP_WS_MAX_BE, (uint8_t)val);
