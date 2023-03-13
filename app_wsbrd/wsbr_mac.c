@@ -319,25 +319,6 @@ static void handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t fram
 static void wsbr_spinel_is(struct wsbr_ctxt *ctxt, int prop, struct iobuf_read *buf)
 {
     switch (prop) {
-    case SPINEL_PROP_WS_DEVICE_TABLE: {
-        struct mlme_device_descriptor data;
-        mlme_get_conf_t req = {
-            .attr = macDeviceTable,
-            .value_pointer = &data,
-            .value_size = sizeof(data),
-        };
-
-        req.attr_index    = spinel_pop_uint(buf);
-        data.PANId        = spinel_pop_u16(buf);
-        data.ShortAddress = spinel_pop_u16(buf);
-        spinel_pop_fixed_u8_array(buf, data.ExtAddress, 8);
-        data.FrameCounter = spinel_pop_u32(buf);
-        data.Exempt       = spinel_pop_bool(buf);
-        if (!spinel_prop_is_valid(buf, prop))
-            return;
-        ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
-        break;
-    }
     case SPINEL_PROP_WS_FRAME_COUNTER: {
         uint32_t data;
         mlme_get_conf_t req = {
@@ -922,9 +903,7 @@ static void wsbr_mlme_get(const struct mac_api *api, const void *data)
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;
-    if (mlme_prop_cstr[i].prop == SPINEL_PROP_WS_DEVICE_TABLE ||
-        mlme_prop_cstr[i].prop == SPINEL_PROP_WS_KEY_TABLE ||
-        mlme_prop_cstr[i].prop == SPINEL_PROP_WS_FRAME_COUNTER)
+    if (mlme_prop_cstr[i].prop == SPINEL_PROP_WS_FRAME_COUNTER)
         index = req->attr_index;
 
     spinel_push_hdr_get_prop(ctxt, &buf, mlme_prop_cstr[i].prop);

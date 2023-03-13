@@ -33,40 +33,6 @@
 
 #define TRACE_GROUP "MRsH"
 
-static void mac_mlme_device_table_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
-{
-    if (confirmation->value_size != sizeof(mlme_device_descriptor_t)) {
-        return;
-    }
-
-    mlme_device_descriptor_t *description = (mlme_device_descriptor_t *)confirmation->value_pointer;
-
-    tr_debug("Dev stable get confirmation %x", confirmation->status);
-
-    if (confirmation->status == MLME_SUCCESS) {
-        //GET ME table by extended mac64 address
-        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(info_entry->mac_parameters.mac_neighbor_table, description->ExtAddress, ADDR_802_15_4_LONG);
-
-        if (!entry) {
-            return;
-        }
-
-        if (entry->mac16 != description->ShortAddress) {
-            //Refresh Short ADDRESS
-            mlme_set_t set_request;
-            description->ShortAddress = entry->mac16;
-
-            //CALL MLME-SET
-            set_request.attr = macDeviceTable;
-            set_request.attr_index = confirmation->attr_index;
-            set_request.value_pointer = description;
-            set_request.value_size = confirmation->value_size;
-            info_entry->mac_api->mlme_req(info_entry->mac_api, MLME_SET, &set_request);
-        }
-
-    }
-}
-
 static void mac_mlme_frame_counter_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
 {
     if (confirmation->value_size != 4) {
@@ -83,10 +49,6 @@ static void mac_mlme_get_confirmation_handler(struct net_if *info_entry, mlme_ge
         return;
     }
     switch (confirmation->attr) {
-        case macDeviceTable:
-            mac_mlme_device_table_confirmation_handle(info_entry, confirmation);
-            break;
-
         case macFrameCounter:
             mac_mlme_frame_counter_confirmation_handle(info_entry, confirmation);
             break;
