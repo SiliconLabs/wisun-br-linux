@@ -1401,21 +1401,9 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
 
 static void ws_bootstrap_mac_activate(struct net_if *cur, uint16_t channel, uint16_t panid, bool coordinator)
 {
-    mlme_start_t start_req;
-    memset(&start_req, 0, sizeof(mlme_start_t));
-
     cur->mac_parameters.pan_id = panid;
     cur->mac_parameters.mac_channel = channel;
-
-    start_req.PANId = panid;
-    start_req.LogicalChannel = channel;
-    start_req.BeaconOrder = 0x0f;
-    start_req.SuperframeOrder = 0x0f;
-    start_req.PANCoordinator = coordinator;
-
-    if (cur->mac_api) {
-        cur->mac_api->mlme_req(cur->mac_api, MLME_START, (void *)&start_req);
-    }
+    rcp_start(channel, panid, coordinator);
 }
 
 void ws_bootstrap_fhss_activate(struct net_if *cur)

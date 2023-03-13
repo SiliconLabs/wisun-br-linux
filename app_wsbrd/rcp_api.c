@@ -113,6 +113,23 @@ void rcp_reset_stack()
     iobuf_free(&buf);
 }
 
+void rcp_start(uint16_t channel, uint16_t panid, bool coordinator)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_START);
+    spinel_push_u16(&buf,  panid);
+    spinel_push_u8(&buf,   channel);
+    spinel_push_u8(&buf,   0);
+    spinel_push_u32(&buf,  0);
+    spinel_push_u8(&buf,   0x0F);
+    spinel_push_u8(&buf,   0x0F);
+    spinel_push_bool(&buf, coordinator);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

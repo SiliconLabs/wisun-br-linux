@@ -694,27 +694,6 @@ static void wsbr_mlme_get(const struct mac_api *api, const void *data)
     iobuf_free(&buf);
 }
 
-static void wsbr_mlme_start(const struct mac_api *api, const void *data)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-    struct iobuf_write buf = { };
-    const mlme_start_t *req = data;
-
-    BUG_ON(!api);
-    BUG_ON(ctxt != &g_ctxt);
-    // FIXME: consider SPINEL_PROP_PHY_ENABLED
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_START);
-    spinel_push_u16(&buf,  req->PANId);
-    spinel_push_u8(&buf,   req->LogicalChannel);
-    spinel_push_u8(&buf,   req->ChannelPage);
-    spinel_push_u32(&buf,  req->StartTime);
-    spinel_push_u8(&buf,   req->BeaconOrder);
-    spinel_push_u8(&buf,   req->SuperframeOrder);
-    spinel_push_bool(&buf, req->PANCoordinator);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 int8_t wsbr_mlme(const struct mac_api *api, mlme_primitive_e id, const void *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
@@ -724,7 +703,7 @@ int8_t wsbr_mlme(const struct mac_api *api, mlme_primitive_e id, const void *dat
     } table[] = {
         { MLME_GET,           wsbr_mlme_get },
         { MLME_SET,           wsbr_mlme_set },
-        { MLME_START,         wsbr_mlme_start },
+        { MLME_START,         NULL },
         { MLME_RESET,         NULL },
         // Never used
         { MLME_SCAN,          NULL },

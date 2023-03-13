@@ -22,6 +22,7 @@ struct phy_rf_channel_configuration;
 void rcp_noop(void);
 void rcp_reset(void);
 void rcp_reset_stack(void);
+void rcp_start(uint16_t channel, uint16_t panid, bool coordinator);
 void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info);
 void rcp_register_fhss(void);
 void rcp_unregister_fhss(void);
