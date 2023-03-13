@@ -61,6 +61,7 @@ void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
 void rcp_set_default_key_source(const uint8_t lookup_data[8]);
 void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
                       uint8_t *mac64, uint32_t frame_counter);
+void rcp_enable_mac_filter(bool forward_unknown);
 void rcp_abort_edfe(void);
 
 #endif

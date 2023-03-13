@@ -445,6 +445,20 @@ void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac
     iobuf_free(&buf);
 }
 
+void rcp_enable_mac_filter(bool forward_unknown)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_START);
+    spinel_push_u16(&buf, forward_unknown ? 0x100 : 0);
+    spinel_push_u16(&buf, 0);
+    spinel_push_u16(&buf, forward_unknown ? 0x200 : 0);
+    spinel_push_u16(&buf, 0);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_abort_edfe()
 {
     rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);

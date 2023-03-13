@@ -130,13 +130,11 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     }
 
     if (ctxt->config.ws_allowed_mac_address_count > 0)
-        ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_BLOCKED);
+        rcp_enable_mac_filter(false);
     else if (ctxt->config.ws_denied_mac_address_count > 0)
-        ret = mac_helper_mac_mlme_filter_start(ctxt->rcp_if_id, MAC_FILTER_ALLOWED);
+        rcp_enable_mac_filter(true);
     else
         return 0;
-    if (ret)
-        return -1;
 
     ret = mac_helper_mac_mlme_filter_clear(ctxt->rcp_if_id);
     if (ret)
