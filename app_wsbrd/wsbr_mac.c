@@ -707,7 +707,6 @@ static const struct {
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
-    { macEdfeForceStop,                wsbr_spinel_set_bool,                  SPINEL_PROP_WS_EDFE_FORCE_STOP,                  },
     { macFilterStart,                  wsbr_spinel_set_mac_filter_start,      SPINEL_PROP_WS_MAC_FILTER_START,                 },
     { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFilterAddLong,                wsbr_spinel_set_mac_filter_add_long,   SPINEL_PROP_WS_MAC_FILTER_ADD_LONG,              },

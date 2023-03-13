@@ -1995,16 +1995,7 @@ void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks)
     } else {
         base->edfe_rx_wait_timer = 0;
         tr_debug("EDFE Data Wait Timeout");
-        //MAC edfe wait data timeout
-        if (interface->mac_api && interface->mac_api->mlme_req) {
-            mlme_set_t set_req;
-            uint8_t value = 0;
-            set_req.attr = macEdfeForceStop;
-            set_req.attr_index = 0;
-            set_req.value_pointer = &value;
-            set_req.value_size = 1;
-            interface->mac_api->mlme_req(interface->mac_api, MLME_SET, &set_req);
-        }
+        rcp_abort_edfe();
     }
 }
 

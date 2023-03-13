@@ -444,3 +444,8 @@ void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
+
+void rcp_abort_edfe()
+{
+    rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);
+}
