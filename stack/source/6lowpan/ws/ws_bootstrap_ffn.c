@@ -1190,7 +1190,7 @@ void ws_bootstrap_ffn_state_machine(struct net_if *cur)
             int8_t new_default = cur->ws_info.weakest_received_rssi - 1;
             if ((new_default < CCA_DEFAULT_DBM) && (new_default >= CCA_LOW_LIMIT) && (new_default <= CCA_HIGH_LIMIT)) {
                 // Restart automatic CCA threshold using weakest received RSSI as new default
-                mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
+                rcp_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
             }
             ws_bootstrap_ffn_start_authentication(cur);
             break;

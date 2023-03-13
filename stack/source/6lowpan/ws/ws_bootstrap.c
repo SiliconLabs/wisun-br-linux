@@ -1338,9 +1338,8 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
     rcp_set_802154_mode(IEEE_802_15_4G_2012);
     rcp_set_rf_config(&rf_configs);
     rcp_set_ack_wait_duration(ack_wait_symbols);
+    rcp_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     rcp_get_rx_sensitivity();
-    // Start automatic CCA threshold
-    mac_helper_start_auto_cca_threshold(cur->id, cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     return 0;
 }
 
