@@ -40,6 +40,5 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *
 int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr);
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor);
 int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_of_channels, int8_t default_dbm, int8_t high_limit, int8_t low_limit);
-int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id);
 
 #endif

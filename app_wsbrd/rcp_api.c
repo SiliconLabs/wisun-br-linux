@@ -484,6 +484,16 @@ void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward)
     iobuf_free(&buf);
 }
 
+void rcp_clear_mac_filters()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_CLEAR);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_abort_edfe()
 {
     rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);

@@ -121,7 +121,6 @@ static int get_fixed_channel(uint8_t bitmask[static 32])
 
 static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
 {
-    int ret;
     int i;
 
     if (ctxt->config.ws_allowed_mac_address_count > 0 || ctxt->config.ws_denied_mac_address_count > 0) {
@@ -136,10 +135,7 @@ static int8_t ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     else
         return 0;
 
-    ret = mac_helper_mac_mlme_filter_clear(ctxt->rcp_if_id);
-    if (ret)
-        return -2;
-
+    rcp_clear_mac_filters();
     for (i = 0; i < ctxt->config.ws_allowed_mac_address_count; i++)
         rcp_add_mac_filter_entry(ctxt->config.ws_allowed_mac_addresses[i], true);
     for (i = 0; i < ctxt->config.ws_denied_mac_address_count; i++)

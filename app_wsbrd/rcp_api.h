@@ -64,6 +64,7 @@ void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,
 void rcp_enable_mac_filter(bool forward_unknown);
 void rcp_disable_mac_filter(void);
 void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward);
+void rcp_clear_mac_filters(void);
 void rcp_abort_edfe(void);
 
 #endif

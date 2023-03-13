@@ -270,19 +270,3 @@ int8_t mac_helper_start_auto_cca_threshold(int8_t interface_id, uint8_t number_o
     rcp_set_cca_threshold(number_of_channels, default_dbm, high_limit, low_limit);
     return 0;
 }
-
-int8_t mac_helper_mac_mlme_filter_clear(int8_t interface_id)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    mlme_set_t set_req;
-
-    if (!cur || !cur->mac_api) {
-        return -1;
-    }
-
-    set_req.attr = macFilterClear;
-    set_req.value_pointer = NULL;
-    set_req.value_size = 0;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
-    return 0;
-}

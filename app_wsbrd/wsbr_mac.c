@@ -628,17 +628,6 @@ static void wsbr_spinel_set_eui64(struct wsbr_ctxt *ctxt, unsigned int prop, con
     iobuf_free(&buf);
 }
 
-static void wsbr_spinel_set_mac_filter_clear(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len)
-{
-    struct iobuf_write buf = { };
-
-    BUG_ON(prop != SPINEL_PROP_WS_MAC_FILTER_CLEAR);
-    BUG_ON(data_len != 0);
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
-}
-
 void wsbr_rcp_get_hw_addr(struct wsbr_ctxt *ctxt)
 {
     struct iobuf_write buf = { };
@@ -663,7 +652,6 @@ static const struct {
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
-    { macFilterClear,                  wsbr_spinel_set_mac_filter_clear,      SPINEL_PROP_WS_MAC_FILTER_CLEAR,                 },
     { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
