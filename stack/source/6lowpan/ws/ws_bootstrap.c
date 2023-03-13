@@ -1278,14 +1278,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     ws_bootstrap_configuration_reset(cur);
     addr_notification_register(ws_bootstrap_address_notification_cb);
-    //Enable MAC Security by pass
-    mlme_set_t set_req;
-    bool state = true;
-    set_req.attr = macAcceptByPassUnknowDevice;
-    set_req.attr_index = 0;
-    set_req.value_pointer = &state;
-    set_req.value_size = sizeof(bool);
-    cur->mac_api->mlme_req(cur->mac_api, MLME_SET, &set_req);
+    rcp_set_accept_unknown_secured_frames(true);
 
     // Set the default parameters for MPL
     cur->mpl_proactive_forwarding = true;

@@ -377,6 +377,11 @@ void rcp_set_security(bool enable)
     rcp_set_bool(SPINEL_PROP_WS_SECURITY_ENABLED, enable);
 }
 
+void rcp_set_accept_unknown_secured_frames(bool enable)
+{
+    rcp_set_bool(SPINEL_PROP_WS_ACCEPT_BYPASS_UNKNOW_DEVICE, enable);
+}
+
 void rcp_set_frame_counter_per_key(bool enable)
 {
     rcp_set_bool(SPINEL_PROP_WS_ENABLE_FRAME_COUNTER_PER_KEY, enable);
