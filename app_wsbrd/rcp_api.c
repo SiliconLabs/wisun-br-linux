@@ -399,6 +399,17 @@ void rcp_set_frame_counter(int slot, uint32_t val)
     iobuf_free(&buf);
 }
 
+void rcp_get_frame_counter(int slot)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    spinel_push_uint(&buf, slot);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

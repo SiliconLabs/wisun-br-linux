@@ -250,10 +250,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
     if (!cur || !cur->mac_api || !seq_ptr) {
         return -1;
     }
-    mlme_get_t get_req;
-    get_req.attr = macFrameCounter;
-    get_req.attr_index = descriptor;
-    cur->mac_api->mlme_req(cur->mac_api, MLME_GET, &get_req);
+    rcp_get_frame_counter(descriptor);
     *seq_ptr = cur->mac_parameters.security_frame_counter;
 
     return 0;

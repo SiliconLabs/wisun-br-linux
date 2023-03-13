@@ -57,6 +57,7 @@ void rcp_set_security(bool enable);
 void rcp_set_accept_unknown_secured_frames(bool enable);
 void rcp_set_frame_counter_per_key(bool enable);
 void rcp_set_frame_counter(int slot, uint32_t val);
+void rcp_get_frame_counter(int slot);
 void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key);
 void rcp_set_default_key_source(const uint8_t lookup_data[8]);
 void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16,

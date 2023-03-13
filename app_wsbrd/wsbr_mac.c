@@ -652,7 +652,6 @@ static const struct {
     void (*prop_set)(struct wsbr_ctxt *ctxt, unsigned int prop, const void *data, int data_len);
     unsigned int prop;
 } mlme_prop_cstr[] = {
-    { macFrameCounter,                 NULL /* get only */,                   SPINEL_PROP_WS_FRAME_COUNTER,                    },
     { }
 };
 
@@ -689,9 +688,6 @@ static void wsbr_mlme_get(const struct mac_api *api, const void *data)
     for (i = 0; mlme_prop_cstr[i].prop; i++)
         if (req->attr == mlme_prop_cstr[i].attr)
             break;
-    if (mlme_prop_cstr[i].prop == SPINEL_PROP_WS_FRAME_COUNTER)
-        index = req->attr_index;
-
     spinel_push_hdr_get_prop(ctxt, &buf, mlme_prop_cstr[i].prop);
     spinel_push_uint(&buf, index);
     rcp_tx(ctxt, &buf);
