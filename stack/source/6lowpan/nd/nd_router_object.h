@@ -29,8 +29,10 @@ struct ipv6_nd_opt_earo;
 
 void icmp_nd_routers_init(void);
 
-bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slaa_opt,
-                        const uint8_t *target, struct ipv6_nd_opt_earo *na_earo);
+
+bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, size_t earo_len,
+                        const uint8_t *slla_ptr, const uint8_t src_addr[16],
+                        struct ipv6_nd_opt_earo *na_earo);
 void nd_remove_registration(struct net_if *cur_interface, enum addrtype ll_type, const uint8_t *ll_address);
 
 #endif

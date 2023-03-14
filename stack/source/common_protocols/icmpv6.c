@@ -569,22 +569,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         if (has_sllao)
             goto drop; // there is no source link-layer address option in the message.
     }
-    //   RFC 6775 Section 6.5 - Processing a Neighbor Solicitation
-    // In addition to the normal validation of an NS and its options, the ARO
-    // is verified as follows (if present).  If the Length field is not two, or
-    // if the Status field is not zero, then the NS is silently ignored.
-    if (has_earo) {
-        iobuf_pop_u8(&earo); // Type
-        if (iobuf_pop_u8(&earo) != 2) // Length
-            goto drop;
-        if (iobuf_pop_u8(&earo) != ARO_SUCCESS) // Status
-             goto drop;
-    }
-    // If the source address of the NS is the unspecified address, or if no
-    // SLLAO is included, then any included ARO is ignored, that is, the NS
-    // is processed as if it did not contain an ARO.
-    if (addr_is_ipv6_unspecified(buf->src_sa.address) || !has_sllao)
-        has_earo = false;
 
     /* See RFC 4862 5.4.3 - hook for Duplicate Address Detection */
     if (addr_is_tentative_for_interface(cur, target)) {
@@ -615,7 +599,9 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
          * 2) Reply to NS now, with ARO (true return, aro_out.present true)
          * 3) Reply to NS now, without ARO (true return, aro_out.present false)
          */
-        if (!nd_ns_earo_handler(cur, earo.data, has_sllao ? sllao.data : NULL, buf->src_sa.address, &na_earo))
+        if (!nd_ns_earo_handler(cur, earo.data, earo.data_size,
+                                has_sllao ? sllao.data : NULL,
+                                buf->src_sa.address, &na_earo))
             goto drop;
     }
 

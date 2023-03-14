@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/rand.h"
+#include "common/iobuf.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
@@ -200,22 +201,32 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
 }
 
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505) EARO. */
-bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_opt, const uint8_t *slla_opt,
-                        const uint8_t *src_addr, struct ipv6_nd_opt_earo *na_earo)
+bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, size_t earo_len,
+                        const uint8_t *slla_ptr, const uint8_t src_addr[16],
+                        struct ipv6_nd_opt_earo *na_earo)
 {
+    struct iobuf_read earo = {
+        .data_size = earo_len,
+        .data = earo_ptr,
+    };
+    sockaddr_t ll_addr;
     uint8_t flags;
     uint8_t tid;
 
-    /* Ignore any ARO if source is link-local */
-    if (addr_is_ipv6_link_local(src_addr)) {
-        return true; /* Transmit NA, without ARO */
-    }
+    //   RFC 6775 Section 6.5 - Processing a Neighbor Solicitation
+    // If the source address of the NS is the unspecified address, or if no
+    // SLLAO is included, then any included ARO is ignored, that is, the NS
+    // is processed as if it did not contain an ARO.
+    if (addr_is_ipv6_unspecified(src_addr) || !slla_ptr)
+        return true;
 
-    /* If we can't parse the SLLAO, then act as if no SLLAO: ignore ARO */
-    sockaddr_t ll_addr;
-    if (!cur_interface->if_llao_parse(cur_interface, slla_opt, &ll_addr)) {
-        return true; /* Transmit NA, without ARO */
-    }
+    // Ignore ARO if source is link-local
+    if (addr_is_ipv6_link_local(src_addr))
+        return true;
+
+    // Ignore ARO if SLLAO is incorrect
+    if (!cur_interface->if_llao_parse(cur_interface, slla_ptr, &ll_addr))
+        return true;
 
     /*
      *  0                   1                   2                   3
@@ -230,11 +241,20 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_opt, c
      * |             Registration Ownership Verifier (ROVR)            |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
-    /* icmpv6_ns_handler has already checked incoming status == 0 */
-    flags = *(earo_opt + 4);
-    tid   = *(earo_opt + 5);
-    na_earo->lifetime = read_be16(earo_opt + 6);
-    memcpy(na_earo->eui64, earo_opt + 8, 8);
+    BUG_ON(iobuf_pop_u8(&earo) != ICMPV6_OPT_ADDR_REGISTRATION);
+    //   RFC 6775 Section 6.5 - Processing a Neighbor Solicitation
+    // In addition to the normal validation of an NS and its options, the ARO
+    // is verified as follows (if present).  If the Length field is not two, or
+    // if the Status field is not zero, then the NS is silently ignored.
+    if (iobuf_pop_u8(&earo) != 2) // Length
+        return false;
+    if (iobuf_pop_u8(&earo) != ARO_SUCCESS) // Status
+        return false;
+    iobuf_pop_u8(&earo); // Opaque
+    flags = iobuf_pop_u8(&earo);
+    tid   = iobuf_pop_u8(&earo);
+    na_earo->lifetime = iobuf_pop_be16(&earo);
+    iobuf_pop_data(&earo, na_earo->eui64, 8);
 
     if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags) &&
         FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags)) {
