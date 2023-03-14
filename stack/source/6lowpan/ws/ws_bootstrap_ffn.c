@@ -1349,9 +1349,6 @@ static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
         async_req.wp_requested_nested_ie_list.pom_ie = true;
     }
 
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
-
-
     async_req.security.SecurityLevel = 0;
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PAS, 1);
@@ -1412,7 +1409,6 @@ static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
     async_req.wp_requested_nested_ie_list.us_ie = true;
     async_req.wp_requested_nested_ie_list.net_name_ie = true;
 
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
     async_req.security.SecurityLevel = 0;
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PCS, 1);

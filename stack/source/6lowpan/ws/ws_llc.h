@@ -84,7 +84,6 @@ typedef struct asynch_request {
     wh_ie_sub_list_t wh_requested_ie_list;                  /**< WH-IE header list to message. */
     wp_nested_ie_sub_list_t wp_requested_nested_ie_list;    /**< WP-IE Nested IE list to message. */
     struct mlme_security security;                               /**< Request MAC security paramaters */
-    struct channel_list channel_list;                     /**< Channel List. */
 } asynch_request_t;
 
 

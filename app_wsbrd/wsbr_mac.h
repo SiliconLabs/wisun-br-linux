@@ -33,7 +33,7 @@ void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
 void wsbr_mcps_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list *asynch_channel_list,
+                       bool is_async,
                        mac_data_priority_e priority, uint8_t phy_id);
 uint8_t wsbr_mcps_purge(const struct mac_api *api, const mcps_purge_t *data);
 int8_t wsbr_mac_addr_set(const struct mac_api *api, const uint8_t *mac64);

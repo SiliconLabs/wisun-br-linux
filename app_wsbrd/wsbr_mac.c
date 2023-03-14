@@ -29,6 +29,7 @@
 #include "common/version.h"
 #include "common/ws_regdb.h"
 
+#include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
@@ -577,21 +578,33 @@ void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, u
 void wsbr_mcps_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       const struct channel_list *async_channel_list,
+                       bool is_async,
                        mac_data_priority_e priority, uint8_t phy_id)
 {
-    const struct channel_list default_chan_list = {
-        .channel_page = CHANNEL_PAGE_UNDEFINED,
-    };
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct channel_list async_channel_list = { };
     struct iobuf_write buf = { };
     int total, i;
 
     BUG_ON(ctxt != &g_ctxt);
-    BUG_ON(data->TxAckReq && async_channel_list);
+    BUG_ON(data->TxAckReq && is_async);
     BUG_ON(!ie_ext);
-    if (!async_channel_list)
-        async_channel_list = &default_chan_list;
+
+    if (is_async) {
+        async_channel_list.channel_page = CHANNEL_PAGE_10;
+        if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
+            async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
+            bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
+        } else {
+            async_channel_list.next_channel_number = 0;
+            memcpy(async_channel_list.channel_mask,
+                   cur->ws_info.fhss_conf.domain_channel_mask,
+                   sizeof(async_channel_list.channel_mask));
+        }
+    } else {
+        async_channel_list.channel_page = CHANNEL_PAGE_UNDEFINED;
+    }
 
     spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_STREAM_RAW);
     spinel_push_data(&buf, data->msdu, data->msduLength);
@@ -611,8 +624,8 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
     spinel_push_u8(&buf,   data->Key.KeyIndex);
     spinel_push_fixed_u8_array(&buf, data->Key.Keysource, 8);
     spinel_push_u16(&buf,  priority);
-    spinel_push_uint(&buf, async_channel_list->channel_page);
-    spinel_push_fixed_u8_array(&buf, async_channel_list->channel_mask, 32);
+    spinel_push_uint(&buf, async_channel_list.channel_page);
+    spinel_push_fixed_u8_array(&buf, async_channel_list.channel_mask, 32);
 
     total = 0;
     for (i = 0; i < ie_ext->payloadIovLength; i++)
@@ -630,7 +643,7 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
         spinel_push_raw(&buf, ie_ext->headerIeVectorList[i].iov_base,
                         ie_ext->headerIeVectorList[i].iov_len);
     if (!version_older_than(ctxt->rcp_version_api, 0, 7, 0))
-        spinel_push_u16(&buf, async_channel_list->next_channel_number);
+        spinel_push_u16(&buf, async_channel_list.next_channel_number);
     if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
         spinel_push_u8(&buf, phy_id);
 

@@ -956,7 +956,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
     } else {
         mcps_data_req_ie_list_t ie_list;
         memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-        wsbr_mcps_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority, 0);
+        wsbr_mcps_req_ext(cur->mac_api, &dataReq, &ie_list, false, data_priority, 0);
     }
 }
 

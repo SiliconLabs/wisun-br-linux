@@ -1118,7 +1118,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, false, message->priority, phy_mode_id);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1167,7 +1167,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     base->temp_entries->active_eapol_session = true;
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, 0);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, false, message->priority, 0);
 }
 
 
@@ -1838,7 +1838,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, true, message->priority, 0);
 
     return 0;
 }

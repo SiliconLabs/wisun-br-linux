@@ -2160,22 +2160,6 @@ void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
 }
 
-void ws_bootstrap_set_asynch_channel_list(struct net_if *cur, asynch_request_t *async_req)
-{
-    memset(&async_req->channel_list, 0, sizeof(channel_list_t));
-    if (cur->ws_info.cfg->fhss.fhss_uc_channel_function == WS_FIXED_CHANNEL) {
-        //SET 1 Channel only
-        uint16_t channel_number = cur->ws_info.cfg->fhss.fhss_uc_fixed_channel;
-        async_req->channel_list.next_channel_number = channel_number;
-        bitset(async_req->channel_list.channel_mask, channel_number);
-    } else {
-        ws_common_generate_channel_list(cur, async_req->channel_list.channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
-        async_req->channel_list.next_channel_number = 0;
-    }
-
-    async_req->channel_list.channel_page = CHANNEL_PAGE_10;
-}
-
 static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
     asynch_request_t async_req;
@@ -2190,7 +2174,6 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
         async_req.wp_requested_nested_ie_list.pom_ie = true;
     }
 
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
     async_req.security.SecurityLevel = 0;
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -2224,8 +2207,6 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         async_req.wp_requested_nested_ie_list.lgtkhash_ie = cur->ws_info.pan_information.lpan_version_set;
         async_req.wp_requested_nested_ie_list.lfnver_ie = cur->ws_info.pan_information.lpan_version_set;
     }
-
-    ws_bootstrap_set_asynch_channel_list(cur, &async_req);
 
     async_req.security.SecurityLevel = mac_helper_default_security_level_get(cur);
     async_req.security.KeyIdMode = mac_helper_default_security_key_id_mode_get(cur);
