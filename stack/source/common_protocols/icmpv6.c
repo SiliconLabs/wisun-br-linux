@@ -492,66 +492,79 @@ static bool icmpv6_nd_ws_sllao_dummy(struct iobuf_write *sllao, const uint8_t *a
  */
 static buffer_t *icmpv6_ns_handler(buffer_t *buf)
 {
+    struct iobuf_read iobuf = {
+        .data_size = buffer_data_length(buf),
+        .data = buffer_data_pointer(buf),
+    };
+    struct ipv6_nd_opt_earo na_earo = { };
     struct iobuf_write sllao_dummy = { };
+    bool has_earo, has_sllao;
+    struct iobuf_read sllao;
+    struct iobuf_read earo;
     struct net_if *cur;
     uint8_t target[16];
     bool proxy = false;
-    const uint8_t *sllao;
-    const uint8_t *earo;
-    uint8_t *dptr = buffer_data_pointer(buf);
-    struct ipv6_nd_opt_earo na_earo = { };
     buffer_t *na_buf;
 
     cur = buf->interface;
 
-    if (buf->options.code != 0 || buf->options.hop_limit != 255) {
-        goto drop;
+    iobuf_pop_data_ptr(&iobuf, 4); // Reserved
+    iobuf_pop_data(&iobuf, target, 16);
+
+    has_sllao = icmpv6_nd_option_get(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
+                                     ICMPV6_OPT_SRC_LL_ADDR, &sllao);
+    has_earo = icmpv6_nd_option_get(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf),
+                                    ICMPV6_OPT_ADDR_REGISTRATION, &earo);
+    if (!cur->ipv6_neighbour_cache.recv_addr_reg)
+        has_earo = false;
+    //   Wi-SUN - IPv6 Neighbor Discovery Optimizations
+    // Optional usage of SLLAO. The ARO already includes the EUI-64 that is the
+    // link-layer address of the node transmitting the Neighbor Solicitation.
+    // SLLAO provides a way to use a link layer address other than the EUI-64,
+    // but that comes at a 10 octet overhead, and is unnecessary as FAN assumes
+    // EUI-64 global uniqueness.
+    if (has_earo && !has_sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
+        has_sllao = icmpv6_nd_ws_sllao_dummy(&sllao_dummy, earo.data, earo.data_size);
+        sllao.data_size = sllao_dummy.len;
+        sllao.data      = sllao_dummy.data;
+        sllao.err       = false;
+        sllao.cnt       = 0;
     }
 
-    if (!icmpv6_options_well_formed_in_buffer(buf, 20)) {
-        goto drop;
-    }
-
-    sllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_SRC_LL_ADDR);
-
-    /* If no SLLAO, ignore ARO (RFC 6775 6.5) */
-    /* This rule can be bypassed by setting flag "use_eui64_as_slla_in_aro" to true */
-    if (cur->ipv6_neighbour_cache.recv_addr_reg &&
-            (cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro || sllao)) {
-        earo = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION);
-    } else {
-        earo = NULL;
-    }
-
-    /* ARO's length must be 2 and status must be 0 */
-    if (earo && (earo[1] != 2 || earo[2] != 0)) {
-        goto drop;
-    }
-
-    /* If there was no SLLAO on ARO, use mac address to create dummy one... */
-    if (earo && !sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro)
-        if (icmpv6_nd_ws_sllao_dummy(&sllao_dummy, earo, 2 * 8))
-            sllao = sllao_dummy.data;
-    // Skip the 4 reserved bytes
-    dptr += 4;
-
-    // Copy the target IPv6 address
-    memcpy(target, dptr, 16);
-    dptr += 16;
-
-    if (addr_is_ipv6_multicast(target)) {
-        goto drop;
-    }
-
+    //   RFC 4861 Section 7.1.1 - Validation of Neighbor Solicitations
+    // A node MUST silently discard any received Neighbor Solicitation
+    // messages that do not satisfy all of the following validity checks:
+    if (buf->options.hop_limit != 255)
+        goto drop; // The IP Hop Limit field has a value of 255
+    if (buf->options.code != 0)
+        goto drop; // ICMP Code is 0.
+    if (addr_is_ipv6_multicast(target))
+        goto drop; // Target Address is not a multicast address.
+    if (!icmpv6_options_well_formed_in_buffer(buf, 4 + 16))
+        goto drop; // All included options have a length that is greater than zero.
     if (addr_is_ipv6_unspecified(buf->src_sa.address)) {
-        /* Dest must be to solicited-node multicast, without source LL-addr */
-        if (sllao || memcmp(buf->dst_sa.address, ADDR_MULTICAST_SOLICITED, 13) != 0) {
-            goto drop;
-        }
-
-        /* If unspecified source, ignore ARO (RFC 6775 6.5) */
-        earo = NULL;
+        // If the IP source address is the unspecified address,
+        if (!memcmp(buf->dst_sa.address, ADDR_MULTICAST_SOLICITED, sizeof(ADDR_MULTICAST_SOLICITED)))
+            goto drop; // the IP destination address is a solicited-node multicast address.
+        if (has_sllao)
+            goto drop; // there is no source link-layer address option in the message.
     }
+    //   RFC 6775 Section 6.5 - Processing a Neighbor Solicitation
+    // In addition to the normal validation of an NS and its options, the ARO
+    // is verified as follows (if present).  If the Length field is not two, or
+    // if the Status field is not zero, then the NS is silently ignored.
+    if (has_earo) {
+        iobuf_pop_u8(&earo); // Type
+        if (iobuf_pop_u8(&earo) != 2) // Length
+            goto drop;
+        if (iobuf_pop_u8(&earo) != ARO_SUCCESS) // Status
+             goto drop;
+    }
+    // If the source address of the NS is the unspecified address, or if no
+    // SLLAO is included, then any included ARO is ignored, that is, the NS
+    // is processed as if it did not contain an ARO.
+    if (addr_is_ipv6_unspecified(buf->src_sa.address) || !has_sllao)
+        has_earo = false;
 
     /* See RFC 4862 5.4.3 - hook for Duplicate Address Detection */
     if (addr_is_tentative_for_interface(cur, target)) {
@@ -576,23 +589,20 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         }
     }
 
-    if (earo) {
+    if (has_earo) {
         /* If it had an ARO, and we're paying attention to it, possibilities:
          * 1) No reply to NS now, we need to contact border router (false return)
          * 2) Reply to NS now, with ARO (true return, aro_out.present true)
          * 3) Reply to NS now, without ARO (true return, aro_out.present false)
          */
-        if (!nd_ns_earo_handler(cur, earo, sllao, buf->src_sa.address, &na_earo)) {
+        if (!nd_ns_earo_handler(cur, earo.data, has_sllao ? sllao.data : NULL, buf->src_sa.address, &na_earo))
             goto drop;
-        }
     }
 
     /* If we're returning an ARO, then we assume the ARO handler has done the
      * necessary to the Neighbour Cache. Otherwise, normal RFC 4861 processing. */
-    if (!na_earo.present &&
-            sllao && cur->if_llao_parse(cur, sllao, &buf->dst_sa)) {
+    if (!na_earo.present && has_sllao && cur->if_llao_parse(cur, sllao.data, &buf->dst_sa))
         ipv6_neighbour_update_unsolicited(&cur->ipv6_neighbour_cache, buf->src_sa.address, buf->dst_sa.addr_type, buf->dst_sa.address);
-    }
 
     na_buf = icmpv6_build_na(cur, true, !proxy, addr_is_ipv6_multicast(buf->dst_sa.address), target,
                              na_earo.present ? &na_earo : NULL, buf->src_sa.address);
