@@ -139,8 +139,7 @@ struct buffer *icmpv6_error(struct buffer *buf, struct net_if *cur, uint8_t type
 
 bool icmpv6_options_well_formed(const uint8_t *dptr, uint_fast16_t dlen);
 bool icmpv6_options_well_formed_in_buffer(const struct buffer *buf, uint16_t offset);
-const uint8_t *icmpv6_find_option(const uint8_t *dptr, uint_fast16_t dlen, uint8_t option, uint8_t optlen);
-const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast16_t offset, uint8_t option, uint8_t optlen);
+const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast16_t offset, uint8_t option);
 
 struct net_if;
 

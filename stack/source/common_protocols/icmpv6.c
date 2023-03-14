@@ -198,6 +198,35 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
     return (buf);
 }
 
+static bool icmpv6_nd_option_get(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *res)
+{
+    struct iobuf_read input = {
+        .data_size = len,
+        .data = data,
+    };
+    int opt_start, opt_len;
+    uint8_t opt_type;
+
+    memset(res, 0, sizeof(struct iobuf_read));
+    res->err = true;
+    while (iobuf_remaining_size(&input)) {
+        opt_start = input.cnt;
+        opt_type = iobuf_pop_u8(&input);
+        opt_len = 8 * iobuf_pop_u8(&input);
+        input.cnt = opt_start;
+        if (opt_type == option) {
+            res->data = iobuf_pop_data_ptr(&input, opt_len);
+            if (!res->data)
+                return false;
+            res->err = false;
+            res->data_size = opt_len;
+            return true;
+        }
+        iobuf_pop_data_ptr(&input, opt_len);
+    }
+    return false;
+}
+
 #ifdef HAVE_IPV6_PMTUD
 /* Look at a (potentially-partial) packet that should be a copy of
  * something we sent from an ICMP error. Identify final destination if we can.
@@ -483,13 +512,13 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         goto drop;
     }
 
-    sllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_SRC_LL_ADDR, 0);
+    sllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_SRC_LL_ADDR);
 
     /* If no SLLAO, ignore ARO (RFC 6775 6.5) */
     /* This rule can be bypassed by setting flag "use_eui64_as_slla_in_aro" to true */
     if (cur->ipv6_neighbour_cache.recv_addr_reg &&
             (cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro || sllao)) {
-        earo = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0);
+        earo = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION);
     } else {
         earo = NULL;
     }
@@ -670,7 +699,7 @@ static buffer_t *icmpv6_redirect_handler(buffer_t *buf, struct net_if *cur)
         goto drop;
     }
 
-    const uint8_t *tllao = icmpv6_find_option_in_buffer(buf, 36, ICMPV6_OPT_TGT_LL_ADDR, 0);
+    const uint8_t *tllao = icmpv6_find_option_in_buffer(buf, 36, ICMPV6_OPT_TGT_LL_ADDR);
     if (tllao) {
         cur->if_llao_parse(cur, tllao, &tgt_ll);
     }
@@ -732,7 +761,9 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
         goto drop;
     }
 
-    const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 2);
+    const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION);
+    if (aro && aro[1] != 2)
+        aro = NULL;
     if (aro) {
         if (cur->ipv6_neighbour_cache.recv_na_aro) {
             icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
@@ -746,7 +777,7 @@ static buffer_t *icmpv6_na_handler(buffer_t *buf)
         goto drop;
     }
 
-    tllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_TGT_LL_ADDR, 0);
+    tllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_TGT_LL_ADDR);
     if (!tllao || !cur->if_llao_parse(cur, tllao, &buf->dst_sa)) {
         buf->dst_sa.addr_type = ADDR_NONE;
     }
@@ -802,7 +833,7 @@ void trace_icmp(buffer_t *buf, bool is_rx)
                 sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_NS)
         if (icmpv6_options_well_formed_in_buffer(buf, 20) &&
-            icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0))
+            icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION))
             strncat(frame_type, " w/ aro",
                     sizeof(frame_type) - strlen(frame_type) - 1);
     if (is_rx)
@@ -1360,31 +1391,14 @@ bool icmpv6_options_well_formed_in_buffer(const buffer_t *buf, uint16_t offset)
                                       buffer_data_length(buf) - offset);
 }
 
-/*
- * Search for the first option of the specified type (and optionally length).
- * Caller must have already checked the options are well-formed.
- * If optlen is non-zero, then options with different lengths are ignored.
- * Note that optlen is in 8-octet units.
- */
-const uint8_t *icmpv6_find_option(const uint8_t *dptr, uint_fast16_t dlen, uint8_t option, uint8_t optlen)
+// TODO: remove this function and use directly icmpv6_nd_option_get()
+const uint8_t *icmpv6_find_option_in_buffer(const buffer_t *buf, uint_fast16_t offset, uint8_t option)
 {
-    while (dlen) {
-        uint8_t type = dptr[0];
-        uint8_t len  = dptr[1];
+    struct iobuf_read res;
 
-        if (type == option && (optlen == 0 || optlen == len)) {
-            return dptr;
-        } else {
-            dptr += len * 8;
-            dlen -= len * 8;
-        }
-    }
-    return NULL;
-
-}
-
-const uint8_t *icmpv6_find_option_in_buffer(const buffer_t *buf, uint_fast16_t offset, uint8_t option, uint8_t optlen)
-{
-    return icmpv6_find_option(buffer_data_pointer(buf) + offset,
-                              buffer_data_length(buf) - offset, option, optlen);
+    icmpv6_nd_option_get(buffer_data_pointer(buf) + offset, buffer_data_length(buf) - offset, option, &res);
+    if (res.err)
+        return NULL;
+    else
+        return res.data;
 }
