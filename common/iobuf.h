@@ -62,6 +62,7 @@ void iobuf_push_le32(struct iobuf_write *buf, uint32_t val);
 void iobuf_push_be64(struct iobuf_write *buf, uint64_t val);
 void iobuf_push_le64(struct iobuf_write *buf, uint64_t val);
 void iobuf_push_data(struct iobuf_write *buf, const uint8_t *val, int num);
+void iobuf_push_data_reserved(struct iobuf_write *buf, const int num);
 void iobuf_free(struct iobuf_write *buf);
 
 uint8_t iobuf_pop_u8(struct iobuf_read *buf);

@@ -86,6 +86,13 @@ void iobuf_push_data(struct iobuf_write *buf, const uint8_t *val, int num)
     buf->len += num;
 }
 
+void iobuf_push_data_reserved(struct iobuf_write *buf, const int num)
+{
+    iobuf_enlarge_buffer(buf, num);
+    memset(buf->data + buf->len, 0xAA, num);
+    buf->len += num;
+}
+
 void iobuf_free(struct iobuf_write *buf) {
     free(buf->data);
     memset(buf, 0, sizeof(struct iobuf_write));
