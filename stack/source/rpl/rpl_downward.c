@@ -84,6 +84,7 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "app_wsbrd/dbus.h"
+#include "app_wsbrd/tun.h"
 #include "app_wsbrd/wsbr.h"
 #include "common/ns_list.h"
 #include "common/utils.h"
@@ -2070,6 +2071,9 @@ void rpl_downward_rx_ns_earo(struct net_if *net_if, const uint8_t src[16],
 
     target->path_control = 0xFF;
     target->info.non_root.refresh_timer = 0xFFFFFFFF;
+
+    tun_add_node_to_proxy_neightbl(net_if, src);
+    tun_add_ipv6_direct_route(net_if, src);
 
     // * As a border router, pretend that a DAO-ACK was received. *
     // 3. Upon receipt of a RPL DAO-ACK, the FFN MUST transmit a Neighbor
