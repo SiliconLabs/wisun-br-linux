@@ -81,7 +81,6 @@ struct wsbr_ctxt g_ctxt = {
     .mac_api.mac64_set = wsbr_mac_addr_set,
     .mac_api.mac64_get = wsbr_mac_addr_get,
 
-    .mac_api.mlme_req = wsbr_mlme,
     .mac_api.mcps_data_req = wsbr_mcps_req,
     .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
     .mac_api.mcps_purge_req = wsbr_mcps_purge,
