@@ -198,6 +198,26 @@ buffer_t *icmpv6_error(buffer_t *buf, struct net_if *cur, uint8_t type, uint8_t 
     return (buf);
 }
 
+static bool icmpv6_nd_options_validate(const uint8_t *data, size_t len)
+{
+    struct iobuf_read input = {
+        .data_size = len,
+        .data = data,
+    };
+    int opt_start, opt_len;
+
+    while (iobuf_remaining_size(&input)) {
+        opt_start = input.cnt;
+        iobuf_pop_u8(&input); // Type
+        opt_len = 8 * iobuf_pop_u8(&input);
+        if (!opt_len)
+            return false;
+        input.cnt = opt_start;
+        iobuf_pop_data_ptr(&input, opt_len);
+    }
+    return !input.err;
+}
+
 static bool icmpv6_nd_option_get(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *res)
 {
     struct iobuf_read input = {
@@ -540,7 +560,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         goto drop; // ICMP Code is 0.
     if (addr_is_ipv6_multicast(target))
         goto drop; // Target Address is not a multicast address.
-    if (!icmpv6_options_well_formed_in_buffer(buf, 4 + 16))
+    if (!icmpv6_nd_options_validate(iobuf_ptr(&iobuf), iobuf_remaining_size(&iobuf)))
         goto drop; // All included options have a length that is greater than zero.
     if (addr_is_ipv6_unspecified(buf->src_sa.address)) {
         // If the IP source address is the unspecified address,
@@ -1371,33 +1391,15 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     return (buf);
 }
 
-
-/* Check whether the options section of an ICMPv6 message is well-formed */
-bool icmpv6_options_well_formed(const uint8_t *dptr, uint_fast16_t dlen)
-{
-    if (dlen % 8) {
-        return false;
-    }
-
-    while (dlen) {
-        uint_fast16_t opt_len = dptr[1] * 8;
-        if (opt_len == 0 || opt_len > dlen) {
-            return false;
-        }
-        dptr += opt_len;
-        dlen -= opt_len;
-    }
-
-    return true;
-}
-
+// TODO: remove this function, and call directly icmpv6_nd_options_validate()
+// after popping the fields before offset from the packet.
 bool icmpv6_options_well_formed_in_buffer(const buffer_t *buf, uint16_t offset)
 {
     if (buffer_data_length(buf) < offset) {
         return false;
     }
 
-    return icmpv6_options_well_formed(buffer_data_pointer(buf) + offset,
+    return icmpv6_nd_options_validate(buffer_data_pointer(buf) + offset,
                                       buffer_data_length(buf) - offset);
 }
 
