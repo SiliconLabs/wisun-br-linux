@@ -78,6 +78,7 @@ add_library(libwsbrd STATIC
     app_wsbrd/wsbr.c
     app_wsbrd/wsbr_mac.c
     app_wsbrd/wsbr_pcapng.c
+    app_wsbrd/frame_helpers.c
     app_wsbrd/rcp_api.c
     app_wsbrd/timers.c
     app_wsbrd/tun.c
@@ -278,6 +279,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/wsrouter.c
         app_wsbrd/wsbr_mac.c
         app_wsbrd/wsbr_pcapng.c
+        app_wsbrd/frame_helpers.c
         app_wsbrd/rcp_api.c
         app_wsbrd/timers.c
         app_wsbrd/commandline.c
