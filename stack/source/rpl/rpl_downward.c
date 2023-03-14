@@ -1873,7 +1873,7 @@ static rpl_neighbour_t *rpl_instance_get_unconfirmed_parent_info(rpl_instance_t 
 
 static bool rpl_instance_push_address_registration(struct net_if *interface, rpl_neighbour_t *neighbour, if_address_entry_t *addr)
 {
-    aro_t aro;
+    struct ipv6_nd_opt_earo aro;
 
     aro.status = ARO_SUCCESS;
     aro.present = true;

@@ -438,9 +438,10 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
     uint8_t dummy_sllao[16];
     bool proxy = false;
     const uint8_t *sllao;
-    const uint8_t *aro;
+    const uint8_t *earo;
     uint8_t *dptr = buffer_data_pointer(buf);
-    aro_t aro_out = { .present = false };
+    struct ipv6_nd_opt_earo na_earo = { };
+    buffer_t *na_buf;
 
     cur = buf->interface;
 
@@ -458,21 +459,21 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
     /* This rule can be bypassed by setting flag "use_eui64_as_slla_in_aro" to true */
     if (cur->ipv6_neighbour_cache.recv_addr_reg &&
             (cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro || sllao)) {
-        aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0);
+        earo = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 0);
     } else {
-        aro = NULL;
+        earo = NULL;
     }
 
     /* ARO's length must be 2 and status must be 0 */
-    if (aro && (aro[1] != 2 || aro[2] != 0)) {
+    if (earo && (earo[1] != 2 || earo[2] != 0)) {
         goto drop;
     }
 
     /* If there was no SLLAO on ARO, use mac address to create dummy one... */
-    if (aro && !sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
+    if (earo && !sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
         dummy_sllao[0] = ICMPV6_OPT_SRC_LL_ADDR;    // Type
         dummy_sllao[1] = 2;                         // Length = 2x8 bytes
-        memcpy(dummy_sllao + 2, aro + 8, 8);        // EUI-64
+        memcpy(dummy_sllao + 2, earo + 8, 8);       // EUI-64
         memset(dummy_sllao + 10, 0, 6);             // Padding
 
         sllao = dummy_sllao;
@@ -495,7 +496,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         }
 
         /* If unspecified source, ignore ARO (RFC 6775 6.5) */
-        aro = NULL;
+        earo = NULL;
     }
 
     /* See RFC 4862 5.4.3 - hook for Duplicate Address Detection */
@@ -521,25 +522,26 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
         }
     }
 
-    if (aro) {
+    if (earo) {
         /* If it had an ARO, and we're paying attention to it, possibilities:
          * 1) No reply to NS now, we need to contact border router (false return)
          * 2) Reply to NS now, with ARO (true return, aro_out.present true)
          * 3) Reply to NS now, without ARO (true return, aro_out.present false)
          */
-        if (!nd_ns_aro_handler(cur, aro, sllao, buf->src_sa.address, &aro_out)) {
+        if (!nd_ns_earo_handler(cur, earo, sllao, buf->src_sa.address, &na_earo)) {
             goto drop;
         }
     }
 
     /* If we're returning an ARO, then we assume the ARO handler has done the
      * necessary to the Neighbour Cache. Otherwise, normal RFC 4861 processing. */
-    if (!aro_out.present &&
+    if (!na_earo.present &&
             sllao && cur->if_llao_parse(cur, sllao, &buf->dst_sa)) {
         ipv6_neighbour_update_unsolicited(&cur->ipv6_neighbour_cache, buf->src_sa.address, buf->dst_sa.addr_type, buf->dst_sa.address);
     }
 
-    buffer_t *na_buf = icmpv6_build_na(cur, true, !proxy, addr_is_ipv6_multicast(buf->dst_sa.address), target, aro_out.present ? &aro_out : NULL, buf->src_sa.address);
+    na_buf = icmpv6_build_na(cur, true, !proxy, addr_is_ipv6_multicast(buf->dst_sa.address), target,
+                             na_earo.present ? &na_earo : NULL, buf->src_sa.address);
 
     buffer_free(buf);
 
@@ -1009,7 +1011,8 @@ static void icmpv6_aro_cb(buffer_t *buf, uint8_t status)
     }
 }
 
-buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const aro_t *aro)
+buffer_t *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[16], const uint8_t *prompting_src_addr,
+                          bool unicast, bool unspecified_source, const struct ipv6_nd_opt_earo *aro)
 {
     if (!cur || addr_is_ipv6_multicast(target_addr)) {
         return NULL;
@@ -1183,18 +1186,20 @@ buffer_t *icmpv6_build_dad(struct net_if *cur, buffer_t *buf, uint8_t type, cons
  *    O              Override flag.
  */
 
-buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16])
+buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required,
+                          const uint8_t target[static 16], const struct ipv6_nd_opt_earo *earo,
+                          const uint8_t src_addr[static 16])
 {
     uint8_t *ptr;
     uint8_t flags;
 
     /* Check if ARO response and status == success, then sending can be omitted with flag */
-    if (aro && cur->ipv6_neighbour_cache.omit_na_aro_success && aro->status == ARO_SUCCESS) {
+    if (earo && cur->ipv6_neighbour_cache.omit_na_aro_success && earo->status == ARO_SUCCESS) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
     /* All other than ARO NA messages are omitted and MAC ACK is considered as success */
-    if (!tllao_required && (!aro && cur->ipv6_neighbour_cache.omit_na)) {
+    if (!tllao_required && (!earo && cur->ipv6_neighbour_cache.omit_na)) {
         return NULL;
     }
 
@@ -1227,9 +1232,9 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
 
         /* See RFC 6775 6.5.2 - errors are sent to LL64 address
          * derived from EUI-64, success to IP source address */
-        if (aro && aro->status != ARO_SUCCESS) {
+        if (earo && earo->status != ARO_SUCCESS) {
             memcpy(buf->dst_sa.address, ADDR_LINK_LOCAL_PREFIX, 8);
-            memcpy(buf->dst_sa.address + 8, aro->eui64, 8);
+            memcpy(buf->dst_sa.address + 8, earo->eui64, 8);
             buf->dst_sa.address[8] ^= 2;
         } else {
             memcpy(buf->dst_sa.address, src_addr, 16);
@@ -1265,19 +1270,19 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     // Set the target Link-Layer address
     ptr = icmpv6_write_icmp_lla(cur, ptr, ICMPV6_OPT_TGT_LL_ADDR, tllao_required, target);
 
-    if (aro) {
+    if (earo) {
         *ptr++ = ICMPV6_OPT_ADDR_REGISTRATION;
         *ptr++ = 2;
-        *ptr++ = aro->status;
+        *ptr++ = earo->status;
         *ptr++ = 0;
         ptr = write_be16(ptr, 0);
-        ptr = write_be16(ptr, aro->lifetime);
-        memcpy(ptr, aro->eui64, 8);
+        ptr = write_be16(ptr, earo->lifetime);
+        memcpy(ptr, earo->eui64, 8);
         ptr += 8;
     }
-    if (aro && (aro->status != ARO_SUCCESS && aro->status != ARO_TOPOLOGICALLY_INCORRECT)) {
+    if (earo && (earo->status != ARO_SUCCESS && earo->status != ARO_TOPOLOGICALLY_INCORRECT)) {
         /*If Aro failed we will kill the neigbour after we have succeeded in sending message*/
-        if (!ws_common_negative_aro_mark(cur, aro->eui64)) {
+        if (!ws_common_negative_aro_mark(cur, earo->eui64)) {
             tr_debug("Neighbour removed for negative response send");
             return buffer_free(buf);
         }

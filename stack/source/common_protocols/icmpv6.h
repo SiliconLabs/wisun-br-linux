@@ -104,12 +104,12 @@
 struct buffer;
 struct net_if;
 
-typedef struct aro {
+struct ipv6_nd_opt_earo {
     uint16_t lifetime;
     uint8_t status;
     uint8_t eui64[8];
     bool present;
-} aro_t;
+};
 
 typedef enum slaac_src {
     SLAAC_IID_DEFAULT,      // OPAQUE if key available and enabled on interface, else FIXED
@@ -135,8 +135,11 @@ const uint8_t *icmpv6_find_option_in_buffer(const struct buffer *buf, uint_fast1
 
 struct net_if;
 
-struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr, bool unicast, bool unspecified_source, const struct aro *aro);
-struct buffer *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required, const uint8_t target[static 16], const aro_t *aro, const uint8_t src_addr[static 16]);
+struct buffer *icmpv6_build_ns(struct net_if *cur, const uint8_t target_addr[static 16], const uint8_t *prompting_src_addr,
+                               bool unicast, bool unspecified_source, const struct ipv6_nd_opt_earo *aro);
+struct buffer *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, bool tllao_required,
+                               const uint8_t target[16], const struct ipv6_nd_opt_earo *earo,
+                               const uint8_t src_addr[16]);
 struct buffer *icmpv6_build_dad(struct net_if *cur, struct buffer *buf, uint8_t type, const uint8_t dest_addr[16], const uint8_t eui64[8], const uint8_t reg_addr[16], uint8_t status, uint16_t lifetime);
 
 void icmpv6_recv_ra_routes(struct net_if *cur, bool enable);

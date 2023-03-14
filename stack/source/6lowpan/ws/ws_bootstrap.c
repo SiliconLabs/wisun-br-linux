@@ -364,9 +364,9 @@ static bool ws_nud_message_build(struct net_if *cur, mac_neighbor_table_entry_t 
 {
     //Send NS
     uint8_t ll_target[16];
-    aro_t aro_temp;
+    struct ipv6_nd_opt_earo aro_temp;
     //SET ARO and src address pointer to NULL by default
-    aro_t *aro_ptr = NULL;
+    struct ipv6_nd_opt_earo *aro_ptr = NULL;
     uint8_t *src_address_ptr = NULL;
 
     ws_common_create_ll_address(ll_target, neighbor->mac64);

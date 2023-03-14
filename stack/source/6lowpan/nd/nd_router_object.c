@@ -149,7 +149,7 @@ static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *a
     }
 }
 
-static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const aro_t *aro)
+static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_t *neigh, const struct ipv6_nd_opt_earo *aro)
 {
     /* We are about to send an ARO response - update our Neighbour Cache accordingly */
     if (aro->status == ARO_SUCCESS && aro->lifetime != 0) {
@@ -199,8 +199,9 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
     }
 }
 
-/* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775) ARO. */
-bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, const uint8_t *slla_opt, const uint8_t *src_addr, aro_t *aro_out)
+/* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505) EARO. */
+bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_opt, const uint8_t *slla_opt,
+                        const uint8_t *src_addr, struct ipv6_nd_opt_earo *na_earo)
 {
     /* Ignore any ARO if source is link-local */
     if (addr_is_ipv6_link_local(src_addr)) {
@@ -227,28 +228,28 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
     /* icmpv6_ns_handler has already checked incoming status == 0 */
-    aro_out->lifetime = read_be16(aro_opt + 6);
-    memcpy(aro_out->eui64, aro_opt + 8, 8);
+    na_earo->lifetime = read_be16(earo_opt + 6);
+    memcpy(na_earo->eui64, earo_opt + 8, 8);
 
     /* Check if we are already using this address ourself */
     if (addr_interface_address_compare(cur_interface, src_addr) == 0) {
-        aro_out->present = true;
-        aro_out->status = ARO_DUPLICATE;
+        na_earo->present = true;
+        na_earo->status = ARO_DUPLICATE;
         return true;
     }
 
     /* TODO - check hard upper limit on registrations? */
-    aro_out->status = ws_common_allow_child_registration(cur_interface, aro_out->eui64, aro_out->lifetime);
-    if (aro_out->status != ARO_SUCCESS) {
-        aro_out->present = true;
+    na_earo->status = ws_common_allow_child_registration(cur_interface, na_earo->eui64, na_earo->lifetime);
+    if (na_earo->status != ARO_SUCCESS) {
+        na_earo->present = true;
         return true;
     }
 
     /* We need to have entry in the Neighbour Cache */
     ipv6_neighbour_t *neigh = ipv6_neighbour_lookup_or_create(&cur_interface->ipv6_neighbour_cache, src_addr);
     if (!neigh) {
-        aro_out->present = true;
-        aro_out->status = ARO_FULL;
+        na_earo->present = true;
+        na_earo->status = ARO_FULL;
         return true;
     }
 
@@ -257,7 +258,7 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
         switch (neigh->type) {
             case IP_NEIGHBOUR_TENTATIVE:
                 /* Is zero EUI-64 still possible? */
-                if (memcmp(nce_eui64, aro_out->eui64, 8) && memcmp(nce_eui64, ADDR_EUI64_ZERO, 8)) {
+                if (memcmp(nce_eui64, na_earo->eui64, 8) && memcmp(nce_eui64, ADDR_EUI64_ZERO, 8)) {
                     /* Have a Tentative NCE with different EUI-64 - ignore NS; two
                      * people trying to register at once. One should retry.
                      */
@@ -265,10 +266,10 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
                 }
                 break;
             case IP_NEIGHBOUR_REGISTERED:
-                if (memcmp(nce_eui64, aro_out->eui64, 8)) {
+                if (memcmp(nce_eui64, na_earo->eui64, 8)) {
                     /* Already registered with different EUI-64 - duplicate */
-                    aro_out->present = true;
-                    aro_out->status = ARO_DUPLICATE;
+                    na_earo->present = true;
+                    na_earo->status = ARO_DUPLICATE;
                     return true;
                 }
                 break;
@@ -280,15 +281,15 @@ bool nd_ns_aro_handler(struct net_if *cur_interface, const uint8_t *aro_opt, con
     if (neigh->type != IP_NEIGHBOUR_REGISTERED) {
         neigh->type = IP_NEIGHBOUR_TENTATIVE;
         neigh->lifetime = TENTATIVE_NCE_LIFETIME;
-        memcpy(nce_eui64, aro_out->eui64, 8);
+        memcpy(nce_eui64, na_earo->eui64, 8);
     }
 
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur_interface->ipv6_neighbour_cache, neigh, ll_addr.addr_type, ll_addr.address);
     ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-    aro_out->status = ARO_SUCCESS;
-    aro_out->present = true;
+    na_earo->status = ARO_SUCCESS;
+    na_earo->present = true;
     // Todo: this might not be needed...
-    nd_update_registration(cur_interface, neigh, aro_out);
+    nd_update_registration(cur_interface, neigh, na_earo);
     return true;
 }
