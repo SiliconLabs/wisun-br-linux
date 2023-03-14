@@ -18,6 +18,8 @@
 
 #include "interfaces.h"
 
+struct wsbr_ctxt;
+
 struct fuzz_ctxt {
     bool fuzzing_enabled;
     bool rand_predictable;
@@ -40,5 +42,7 @@ struct fuzz_ctxt {
 };
 
 extern struct fuzz_ctxt g_fuzz_ctxt;
+
+bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt);
 
 #endif

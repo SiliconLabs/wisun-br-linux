@@ -57,7 +57,7 @@ void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
     int ret, i;
     int fd = -1;
 
-    FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "interface command received during RCP init");
+    FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "interface command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "interface command received while replay is disabled");
 
     if (!init) {

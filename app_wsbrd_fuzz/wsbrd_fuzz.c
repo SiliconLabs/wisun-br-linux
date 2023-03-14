@@ -20,11 +20,12 @@
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/tun.h"
 #include "common/bus_uart.h"
+#include "common/key_value_storage.h"
 #include "common/log.h"
 #include "common/os_types.h"
 #include "common/iobuf.h"
 #include "common/spinel_buffer.h"
-#include "common/key_value_storage.h"
+#include "common/version.h"
 #include "wsbrd_fuzz.h"
 #include "commandline.h"
 #include "capture.h"
@@ -39,6 +40,18 @@ struct fuzz_ctxt g_fuzz_ctxt = {
         { -1, -1 },
     },
 };
+
+// Fuzzing command can only be processed from the main loop.
+bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
+{
+    if (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+        return false;
+    if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+        return false;
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+        return false;
+    return true;
+}
 
 int __real_uart_open(const char *device, int bitrate, bool hardflow);
 int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
@@ -125,7 +138,7 @@ static void fuzz_trigger_timer()
 
 void __wrap_wsbr_spinel_replay_timers(struct iobuf_read *buf)
 {
-    FATAL_ON(!(g_ctxt.rcp_init_state & RCP_INIT_DONE), 1, "timer command received during RCP init");
+    FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
     g_fuzz_ctxt.timer_counter = spinel_pop_u16(buf);
     if (g_fuzz_ctxt.timer_counter)
