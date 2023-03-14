@@ -13,11 +13,15 @@
 #ifndef RCP_API_H
 #define RCP_API_H
 #include <stdint.h>
+#include <sys/uio.h>
+
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 
 struct fhss_ws_configuration;
 struct phy_rf_channel_configuration;
+struct mcps_data_req;
+struct channel_list;
 
 void rcp_noop(void);
 void rcp_reset(void);
@@ -70,7 +74,14 @@ void rcp_enable_mac_filter(bool forward_unknown);
 void rcp_disable_mac_filter(void);
 void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward);
 void rcp_clear_mac_filters(void);
+
 void rcp_abort_edfe(void);
+void rcp_tx_req(const struct mcps_data_req *tx_req,
+                const struct iovec *header_ie,
+                const struct iovec *payload_ie,
+                const struct iovec *mpx_ie,
+                const struct channel_list *channel_list,
+                uint16_t priority, uint8_t phy_id);
 void rcp_tx_drop(uint8_t handle);
 
 #endif

@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "stack/mac/channel_list.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 
@@ -559,6 +560,70 @@ void rcp_clear_mac_filters()
 void rcp_abort_edfe()
 {
     rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);
+}
+
+void rcp_tx_req(const struct mcps_data_req *tx_req,
+                const struct iovec *header_ie,
+                const struct iovec *payload_ie,
+                const struct iovec *mpx_ie,
+                const struct channel_list *channel_list,
+                uint16_t priority, uint8_t phy_id)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+    uint8_t empty_channel_mask[32] = { };
+    int len;
+
+    BUG_ON(!tx_req);
+    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_STREAM_RAW);
+    spinel_push_data(&buf, tx_req->msdu, tx_req->msduLength);
+    spinel_push_u8(&buf,   tx_req->SrcAddrMode);
+    spinel_push_u8(&buf,   tx_req->DstAddrMode);
+    spinel_push_u16(&buf,  tx_req->DstPANId);
+    spinel_push_fixed_u8_array(&buf, tx_req->DstAddr, 8);
+    spinel_push_u8(&buf,   tx_req->msduHandle);
+    spinel_push_bool(&buf, tx_req->TxAckReq);
+    spinel_push_bool(&buf, tx_req->InDirectTx);
+    spinel_push_bool(&buf, tx_req->PendingBit);
+    spinel_push_bool(&buf, tx_req->SeqNumSuppressed);
+    spinel_push_bool(&buf, tx_req->PanIdSuppressed);
+    spinel_push_bool(&buf, tx_req->ExtendedFrameExchange);
+    spinel_push_u8(&buf,   tx_req->Key.SecurityLevel);
+    spinel_push_u8(&buf,   tx_req->Key.KeyIdMode);
+    spinel_push_u8(&buf,   tx_req->Key.KeyIndex);
+    spinel_push_fixed_u8_array(&buf, tx_req->Key.Keysource, 8);
+    spinel_push_u16(&buf,  priority);
+    if (channel_list) {
+        spinel_push_uint(&buf, channel_list->channel_page);
+        spinel_push_fixed_u8_array(&buf, channel_list->channel_mask, 32);
+    } else {
+        spinel_push_uint(&buf, CHANNEL_PAGE_UNDEFINED);
+        spinel_push_fixed_u8_array(&buf, empty_channel_mask, 32);
+    }
+    len = 0;
+    if (payload_ie)
+        len += payload_ie->iov_len;
+    if (mpx_ie)
+        len += mpx_ie->iov_len;
+    spinel_push_u16(&buf, len);
+    if (payload_ie)
+        spinel_push_raw(&buf, payload_ie->iov_base, payload_ie->iov_len);
+    if (mpx_ie)
+        spinel_push_raw(&buf, mpx_ie->iov_base, mpx_ie->iov_len);
+    if (header_ie)
+        spinel_push_data(&buf, header_ie->iov_base, header_ie->iov_len);
+    else
+        spinel_push_data(&buf, NULL, 0);
+    if (!version_older_than(ctxt->rcp_version_api, 0, 7, 0)) {
+        if (channel_list)
+            spinel_push_u16(&buf, channel_list->next_channel_number);
+        else
+            spinel_push_u16(&buf, 0);
+    }
+    if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
+        spinel_push_u8(&buf, phy_id);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
 }
 
 void rcp_tx_drop(uint8_t handle)

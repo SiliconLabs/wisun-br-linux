@@ -583,72 +583,31 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    struct channel_list async_channel_list = { };
-    struct iobuf_write buf = { };
-    int total, i;
+    struct channel_list async_channel_list = {
+        .channel_page = CHANNEL_PAGE_10,
+    };
 
     BUG_ON(ctxt != &g_ctxt);
     BUG_ON(data->TxAckReq && is_async);
     BUG_ON(!ie_ext);
+    BUG_ON(ie_ext->payloadIovLength > 2);
+    BUG_ON(ie_ext->headerIovLength > 1);
 
-    if (is_async) {
-        async_channel_list.channel_page = CHANNEL_PAGE_10;
-        if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
-            async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
-            bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
-        } else {
-            async_channel_list.next_channel_number = 0;
-            memcpy(async_channel_list.channel_mask,
-                   cur->ws_info.fhss_conf.domain_channel_mask,
-                   sizeof(async_channel_list.channel_mask));
-        }
+    if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
+        async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
+        bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
     } else {
-        async_channel_list.channel_page = CHANNEL_PAGE_UNDEFINED;
+        memcpy(async_channel_list.channel_mask,
+               cur->ws_info.fhss_conf.domain_channel_mask,
+               sizeof(async_channel_list.channel_mask));
     }
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_STREAM_RAW);
-    spinel_push_data(&buf, data->msdu, data->msduLength);
-    spinel_push_u8(&buf,   data->SrcAddrMode);
-    spinel_push_u8(&buf,   data->DstAddrMode);
-    spinel_push_u16(&buf,  data->DstPANId);
-    spinel_push_fixed_u8_array(&buf, data->DstAddr, 8);
-    spinel_push_u8(&buf,   data->msduHandle);
-    spinel_push_bool(&buf, data->TxAckReq);
-    spinel_push_bool(&buf, data->InDirectTx);
-    spinel_push_bool(&buf, data->PendingBit);
-    spinel_push_bool(&buf, data->SeqNumSuppressed);
-    spinel_push_bool(&buf, data->PanIdSuppressed);
-    spinel_push_bool(&buf, data->ExtendedFrameExchange);
-    spinel_push_u8(&buf,   data->Key.SecurityLevel);
-    spinel_push_u8(&buf,   data->Key.KeyIdMode);
-    spinel_push_u8(&buf,   data->Key.KeyIndex);
-    spinel_push_fixed_u8_array(&buf, data->Key.Keysource, 8);
-    spinel_push_u16(&buf,  priority);
-    spinel_push_uint(&buf, async_channel_list.channel_page);
-    spinel_push_fixed_u8_array(&buf, async_channel_list.channel_mask, 32);
-
-    total = 0;
-    for (i = 0; i < ie_ext->payloadIovLength; i++)
-        total += ie_ext->payloadIeVectorList[i].iov_len;
-    spinel_push_u16(&buf, total);
-    for (i = 0; i < ie_ext->payloadIovLength; i++)
-        spinel_push_raw(&buf, ie_ext->payloadIeVectorList[i].iov_base,
-                        ie_ext->payloadIeVectorList[i].iov_len);
-
-    total = 0;
-    for (i = 0; i < ie_ext->headerIovLength; i++)
-        total += ie_ext->headerIeVectorList[i].iov_len;
-    spinel_push_u16(&buf, total);
-    for (i = 0; i < ie_ext->headerIovLength; i++)
-        spinel_push_raw(&buf, ie_ext->headerIeVectorList[i].iov_base,
-                        ie_ext->headerIeVectorList[i].iov_len);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 7, 0))
-        spinel_push_u16(&buf, async_channel_list.next_channel_number);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
-        spinel_push_u8(&buf, phy_id);
-
-    rcp_tx(ctxt, &buf);
-    iobuf_free(&buf);
+    rcp_tx_req(data,
+               (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
+               (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
+               (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
+               is_async ? &async_channel_list : NULL,
+               priority, phy_id);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api *api,
