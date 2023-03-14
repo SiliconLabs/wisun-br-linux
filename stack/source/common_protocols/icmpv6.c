@@ -1274,8 +1274,11 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
         *ptr++ = ICMPV6_OPT_ADDR_REGISTRATION;
         *ptr++ = 2;
         *ptr++ = earo->status;
-        *ptr++ = 0;
-        ptr = write_be16(ptr, 0);
+        *ptr++ = earo->opaque;
+        *ptr++ = FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_I_MASK, earo->i)
+               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_R_MASK, earo->r)
+               | FIELD_PREP(IPV6_ND_OPT_EARO_FLAGS_T_MASK, earo->t);
+        *ptr++ = earo->tid;
         ptr = write_be16(ptr, earo->lifetime);
         memcpy(ptr, earo->eui64, 8);
         ptr += 8;

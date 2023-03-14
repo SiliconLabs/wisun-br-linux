@@ -203,6 +203,9 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
 bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_opt, const uint8_t *slla_opt,
                         const uint8_t *src_addr, struct ipv6_nd_opt_earo *na_earo)
 {
+    uint8_t flags;
+    uint8_t tid;
+
     /* Ignore any ARO if source is link-local */
     if (addr_is_ipv6_link_local(src_addr)) {
         return true; /* Transmit NA, without ARO */
@@ -218,18 +221,26 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_opt, c
      *  0                   1                   2                   3
      *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |   Type = 33   |   Length = 2  |    Status     |   Reserved    |
+     * |   Type = 33   |   Length = 2  |    Status     |    Opaque     |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |           Reserved            |     Registration Lifetime     |
+     * |  Rsvd | I |R|T|     TID       |     Registration Lifetime     |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                                                               |
-     * +                            EUI-64                             +
-     * |                                                               |
+     * |                            EUI-64                             |
+     * +                              or                               +
+     * |             Registration Ownership Verifier (ROVR)            |
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
     /* icmpv6_ns_handler has already checked incoming status == 0 */
+    flags = *(earo_opt + 4);
+    tid   = *(earo_opt + 5);
     na_earo->lifetime = read_be16(earo_opt + 6);
     memcpy(na_earo->eui64, earo_opt + 8, 8);
+
+    if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags) &&
+        FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags)) {
+        // TODO: handle NS with EARO
+        (void)tid;
+    }
 
     /* Check if we are already using this address ourself */
     if (addr_interface_address_compare(cur_interface, src_addr) == 0) {
