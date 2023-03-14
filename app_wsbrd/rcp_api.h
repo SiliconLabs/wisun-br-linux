@@ -92,7 +92,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
                        const struct iovec *mpx_ie,
                        const struct channel_list *channel_list,
                        uint8_t priority, uint8_t phy_id);
-void rcp_tx_req(const struct iovec *frame,
+void rcp_tx_req(const uint8_t *frame, int frame_len,
                 const struct ws_neighbor_class_entry *neighbor_ws,
                 uint8_t handle, uint8_t fhss_type, bool is_edfe, uint8_t priority, uint8_t phy_id);
 void rcp_tx_drop(uint8_t handle);

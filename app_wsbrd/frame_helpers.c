@@ -12,16 +12,21 @@
  */
 #include <stdbool.h>
 #include <string.h>
-
 #include "common/log.h"
+#include "common/iobuf.h"
 #include "common/string_extra.h"
 #include "common/utils.h"
 #include "common/endian.h"
 #include "common/bits.h"
 
+#include "stack/mac/mlme.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_mcps.h"
+#include "stack/mac/mac_api.h"
 
+#include "nwk_interface/protocol.h"
+
+#include "wsbr_mac.h"
 #include "frame_helpers.h"
 
 // Figure 7-2 Format of the Frame Control field
@@ -35,6 +40,11 @@
 #define IEEE802154_FCF_DST_ADDR_MODE      0b0000110000000000
 #define IEEE802154_FCF_FRAME_VERSION      0b0011000000000000
 #define IEEE802154_FCF_SRC_ADDR_MODE      0b1100000000000000
+
+#define IEEE802154_SECURITY_LEVEL             0b00000111
+#define IEEE802154_SECURITY_KEY_MODE          0b00011000
+#define IEEE802154_SECURITY_FRAME_COUNT_SUPPR 0b00100000
+#define IEEE802154_SECURITY_ASN_IN_NONCE      0b01000000
 
 // Table 7-1 Values of the Frame Type field
 #define IEEE802154_FRAME_TYPE_DATA 0b001
@@ -182,4 +192,102 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
     frame += ind->msduLength;
 
     return frame - start;
+}
+
+void wsbr_data_req_rebuild(struct iobuf_write *frame,
+                           const struct mac_api *api,
+                           const struct arm_15_4_mac_parameters *mac,
+                           const struct mcps_data_req *req,
+                           const struct mcps_data_req_ie_list *ie)
+{
+    uint8_t mac64[8], tmp[8];
+    uint16_t fcf;
+    int i;
+
+    BUG_ON(!ie);
+    wsbr_mac_addr_get(api, MAC_EXTENDED_DYNAMIC, mac64);
+    fcf = 0;
+    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA);
+    fcf |= FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   !!req->Key.SecurityLevel);
+    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_PENDING,      req->PendingBit);
+    fcf |= FIELD_PREP(IEEE802154_FCF_ACK_REQ,            req->TxAckReq);
+    fcf |= FIELD_PREP(IEEE802154_FCF_PAN_ID_COMPRESSION, req->PanIdSuppressed);
+    fcf |= FIELD_PREP(IEEE802154_FCF_SEQ_NUM_SUPPR,      req->SeqNumSuppressed);
+    fcf |= FIELD_PREP(IEEE802154_FCF_IE_PRESENT,         ie->headerIovLength || ie->payloadIovLength);
+    fcf |= FIELD_PREP(IEEE802154_FCF_DST_ADDR_MODE,      req->DstAddrMode);
+    fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_VERSION,      MAC_FRAME_VERSION_2015);
+    fcf |= FIELD_PREP(IEEE802154_FCF_SRC_ADDR_MODE,      req->SrcAddrMode);
+    iobuf_push_le16(frame, fcf);
+    if (!req->SeqNumSuppressed)
+        iobuf_push_data_reserved(frame, 1); // Sequence number
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_pan_id_comp); i++)
+        if (ieee802154_table_pan_id_comp[i].dst_addr_mode      == req->DstAddrMode &&
+            ieee802154_table_pan_id_comp[i].src_addr_mode      == req->SrcAddrMode &&
+            ieee802154_table_pan_id_comp[i].pan_id_compression == req->PanIdSuppressed)
+            break;
+    BUG_ON(i == ARRAY_SIZE(ieee802154_table_pan_id_comp), "invalid address mode");
+    if (ieee802154_table_pan_id_comp[i].dst_pan_id)
+        iobuf_push_le16(frame, req->DstPANId);
+    if (req->DstAddrMode == MAC_ADDR_MODE_64_BIT) {
+        memrcpy(tmp, req->DstAddr, 8);
+        iobuf_push_data(frame, tmp, 8);
+    } else if (req->DstAddrMode == MAC_ADDR_MODE_16_BIT) {
+        memrcpy(tmp, req->DstAddr, 2);
+        iobuf_push_data(frame, tmp, 2);
+    }
+
+    BUG_ON(req->SrcAddrMode == MAC_ADDR_MODE_16_BIT && !mac->shortAdressValid);
+    if (ieee802154_table_pan_id_comp[i].src_pan_id)
+        iobuf_push_le16(frame, mac->pan_id);
+    if (req->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
+        memrcpy(tmp, mac64, 8);
+        iobuf_push_data(frame, tmp, 8);
+    } else if (req->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
+        iobuf_push_be16(frame, mac->mac_short_address);
+    }
+
+    if (req->Key.SecurityLevel) {
+        iobuf_push_u8(frame, FIELD_PREP(IEEE802154_SECURITY_KEY_MODE, req->Key.KeyIdMode) |
+                             FIELD_PREP(IEEE802154_SECURITY_LEVEL, req->Key.SecurityLevel));
+        iobuf_push_data_reserved(frame, 4);  // Frame counter (never suppressed)
+        if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_SRC8_IDX)
+            iobuf_push_data(frame, req->Key.Keysource, 8);
+        else if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX)
+            iobuf_push_data(frame, req->Key.Keysource, 4);
+        else if (req->Key.KeyIdMode == MAC_KEY_ID_MODE_IDX)
+            iobuf_push_u8(frame, req->Key.KeyIndex);
+    }
+
+    for (i = 0; i < ARRAY_SIZE(ieee802154_table_term_ie); i++)
+        if (ieee802154_table_term_ie[i].header_ie    == !!ie->headerIovLength  &&
+            ieee802154_table_term_ie[i].payload_ie   == !!ie->payloadIovLength &&
+            ieee802154_table_term_ie[i].data_payload == !!req->msduLength)
+            break;
+
+    if (ie->headerIovLength > 0)
+        iobuf_push_data(frame, ie->headerIeVectorList[0].iov_base, ie->headerIeVectorList[0].iov_len);
+    BUG_ON(ie->headerIovLength > 1);
+
+    if (ieee802154_table_term_ie[i].ie_ht)
+        iobuf_push_le16(frame, ieee802154_table_term_ie[i].ie_ht);
+
+    if (ie->payloadIovLength > 0)
+        iobuf_push_data(frame, ie->payloadIeVectorList[0].iov_base, ie->payloadIeVectorList[0].iov_len);
+    if (ie->payloadIovLength > 1)
+        iobuf_push_data(frame, ie->payloadIeVectorList[1].iov_base, ie->payloadIeVectorList[1].iov_len);
+    BUG_ON(ie->payloadIovLength > 2);
+    if (ieee802154_table_term_ie[i].ie_pt)
+        iobuf_push_le16(frame, ieee802154_table_term_ie[i].ie_pt);
+
+    if (req->msduLength)
+        iobuf_push_data(frame, req->msdu, req->msduLength);
+
+    // MIC
+    if (req->Key.SecurityLevel == SEC_MIC32 || req->Key.SecurityLevel == SEC_ENC_MIC32)
+        iobuf_push_data_reserved(frame, 4);
+    if (req->Key.SecurityLevel == SEC_MIC64 || req->Key.SecurityLevel == SEC_ENC_MIC64)
+        iobuf_push_data_reserved(frame, 8);
+    if (req->Key.SecurityLevel == SEC_MIC128 || req->Key.SecurityLevel == SEC_ENC_MIC128)
+        iobuf_push_data_reserved(frame, 16);
 }

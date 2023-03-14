@@ -693,7 +693,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
 #define HIF_FHSS_MODE_SWITCH_MASK 0x0100
 #define HIF_FHSS_PRIORITY_MASK    0x0600
 
-void rcp_tx_req(const struct iovec *frame,
+void rcp_tx_req(const uint8_t *frame, int frame_len,
                 const struct ws_neighbor_class_entry *neighbor_ws,
                 uint8_t handle, uint8_t fhss_type, bool is_edfe,
                 uint8_t priority, uint8_t phy_id)
@@ -704,7 +704,7 @@ void rcp_tx_req(const struct iovec *frame,
 
     spinel_push_hdr_set_prop(&buf, SPINEL_PROP_FRAME);
     spinel_push_u8(&buf, handle);
-    spinel_push_data(&buf, frame->iov_base, frame->iov_len);
+    spinel_push_data(&buf, frame, frame_len);
 
     flags = 0;
     flags_offset = buf.len;

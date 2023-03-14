@@ -15,11 +15,23 @@
 
 #include <stdint.h>
 
+struct iobuf_write;
+struct mac_api;
+struct arm_15_4_mac_parameters;
 struct mcps_data_ind;
 struct mcps_data_ie_list;
+struct mcps_data_req;
+struct mcps_data_req_ie_list;
 
+// FIXME: Unify prototypes of wsbr_data_ind_rebuild() and wsbr_data_req_rebuild()
 int wsbr_data_ind_rebuild(uint8_t frame[],
                           const struct mcps_data_ind *ind,
                           const struct mcps_data_ie_list *ie);
+
+void wsbr_data_req_rebuild(struct iobuf_write *frame,
+                           const struct mac_api *api,
+                           const struct arm_15_4_mac_parameters *mac,
+                           const struct mcps_data_req *req,
+                           const struct mcps_data_req_ie_list *ie);
 
 #endif
