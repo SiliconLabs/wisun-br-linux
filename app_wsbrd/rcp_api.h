@@ -18,6 +18,14 @@
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 
+#define HIF_FHSS_TYPE_FFN_UC 0x00
+#define HIF_FHSS_TYPE_FFN_BC 0x01
+#define HIF_FHSS_TYPE_LFN_UC 0x02
+#define HIF_FHSS_TYPE_LFN_BC 0x03
+#define HIF_FHSS_TYPE_ASYNC  0x04
+#define HIF_FHSS_TYPE_LFN_PA 0x06
+
+struct ws_neighbor_class_entry;
 struct fhss_ws_configuration;
 struct phy_rf_channel_configuration;
 struct mcps_data_req;
@@ -78,12 +86,15 @@ void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward);
 void rcp_clear_mac_filters(void);
 
 void rcp_abort_edfe(void);
-void rcp_tx_req(const struct mcps_data_req *tx_req,
-                const struct iovec *header_ie,
-                const struct iovec *payload_ie,
-                const struct iovec *mpx_ie,
-                const struct channel_list *channel_list,
-                uint16_t priority, uint8_t phy_id);
+void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
+                       const struct iovec *header_ie,
+                       const struct iovec *payload_ie,
+                       const struct iovec *mpx_ie,
+                       const struct channel_list *channel_list,
+                       uint8_t priority, uint8_t phy_id);
+void rcp_tx_req(const struct iovec *frame,
+                const struct ws_neighbor_class_entry *neighbor_ws,
+                uint8_t handle, uint8_t fhss_type, bool is_edfe, uint8_t priority, uint8_t phy_id);
 void rcp_tx_drop(uint8_t handle);
 
 // Low-layer function to access the RCP

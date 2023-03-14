@@ -16,8 +16,11 @@
 
 #include "common/version.h"
 #include "common/iobuf.h"
+#include "common/utils.h"
+#include "common/endian.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
+#include "6lowpan/ws/ws_neighbor_class.h"
 
 #include "wsbr_mac.h"
 #include "wsbr.h"
@@ -609,12 +612,12 @@ void rcp_abort_edfe()
     rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);
 }
 
-void rcp_tx_req(const struct mcps_data_req *tx_req,
-                const struct iovec *header_ie,
-                const struct iovec *payload_ie,
-                const struct iovec *mpx_ie,
-                const struct channel_list *channel_list,
-                uint16_t priority, uint8_t phy_id)
+void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
+                       const struct iovec *header_ie,
+                       const struct iovec *payload_ie,
+                       const struct iovec *mpx_ie,
+                       const struct channel_list *channel_list,
+                       uint8_t priority, uint8_t phy_id)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
@@ -669,6 +672,90 @@ void rcp_tx_req(const struct mcps_data_req *tx_req,
     }
     if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
         spinel_push_u8(&buf, phy_id);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
+
+/*
+ * Values for flags field of PROP_FRAME
+ */
+#define HIF_FHSS_TYPE_MASK      0x0007
+#define HIF_FHSS_RESERVED1      0x0008
+// Values for this mask are the same than Wi-SUN: WS_FIXED_CHANNEL, WS_DH1CF and WS_TR51CF
+#define HIF_FHSS_CHAN_FUNC_MASK   0x0030
+#define   HIF_FHSS_CHAN_FUNC_FIXED   WS_FIXED_CHANNEL  // 0x00
+#define   HIF_FHSS_CHAN_FUNC_TR51    WS_TR51CF         // 0x01
+#define   HIF_FHSS_CHAN_FUNC_DH1     WS_DH1CF          // 0x02
+#define   HIF_FHSS_CHAN_FUNC_AUTO    0x03
+#define HIF_FHSS_RESERVED2        0x0040
+#define HIF_FHSS_EDFE_MASK        0x0080
+#define HIF_FHSS_MODE_SWITCH_MASK 0x0100
+#define HIF_FHSS_PRIORITY_MASK    0x0600
+
+void rcp_tx_req(const struct iovec *frame,
+                const struct ws_neighbor_class_entry *neighbor_ws,
+                uint8_t handle, uint8_t fhss_type, bool is_edfe,
+                uint8_t priority, uint8_t phy_id)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+    int flags, flags_offset, len;
+
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_FRAME);
+    spinel_push_u8(&buf, handle);
+    spinel_push_data(&buf, frame->iov_base, frame->iov_len);
+
+    flags = 0;
+    flags_offset = buf.len;
+    spinel_push_u16(&buf, 0);
+
+    flags |= FIELD_PREP(HIF_FHSS_TYPE_MASK, fhss_type);
+    switch (fhss_type) {
+    case HIF_FHSS_TYPE_FFN_UC:
+        BUG_ON(!neighbor_ws);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.uc_timing_info.utt_rx_timestamp);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.uc_timing_info.ufsi);
+        spinel_push_u8(&buf, neighbor_ws->fhss_data.uc_timing_info.unicast_dwell_interval);
+        spinel_push_u8(&buf, neighbor_ws->fhss_data.clock_drift);
+        spinel_push_u8(&buf, neighbor_ws->fhss_data.timing_accuracy);
+
+        switch (neighbor_ws->fhss_data.uc_timing_info.unicast_channel_function) {
+        case WS_FIXED_CHANNEL:
+            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_FIXED_CHANNEL);
+            spinel_push_u16(&buf, neighbor_ws->fhss_data.uc_timing_info.fixed_channel);
+            break;
+        case WS_DH1CF:
+            flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_DH1CF);
+            len = roundup(neighbor_ws->fhss_data.uc_timing_info.unicast_number_of_channels, 8) / 8;
+            spinel_push_u8(&buf, len);
+            spinel_push_fixed_u8_array(&buf, neighbor_ws->fhss_data.uc_channel_list.channel_mask, len);
+            break;
+        default:
+            BUG();
+        }
+        break;
+    case HIF_FHSS_TYPE_FFN_BC:
+        flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
+        break;
+    case HIF_FHSS_TYPE_ASYNC:
+        flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
+        spinel_push_u32(&buf, ctxt->config.ws_async_frag_duration);
+        break;
+    default:
+        BUG();
+    }
+    flags |= FIELD_PREP(HIF_FHSS_EDFE_MASK, is_edfe);
+    if (phy_id) {
+        flags |= FIELD_PREP(HIF_FHSS_MODE_SWITCH_MASK, 1);
+        spinel_push_u8(&buf, 10);
+        spinel_push_u8(&buf, phy_id);
+        spinel_push_u16(&buf, 0);
+        spinel_push_u16(&buf, 0);
+        spinel_push_u16(&buf, 0);
+    }
+    flags |= FIELD_PREP(HIF_FHSS_PRIORITY_MASK, priority);
+    write_le16(&buf.data[flags_offset], flags);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
