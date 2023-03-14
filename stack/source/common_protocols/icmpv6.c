@@ -21,6 +21,7 @@
 #include "common/rand.h"
 #include "common/bits.h"
 #include "common/named_values.h"
+#include "common/iobuf.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 
@@ -400,6 +401,35 @@ static void icmpv6_na_aro_handler(struct net_if *cur_interface, const uint8_t *d
     }
 }
 
+// Wi-SUN allows to use an ARO without an SLLAO. This function builds a dummy
+// SLLAO using the information from the ARO, which can be processed using the
+// standard ND procedure.
+static bool icmpv6_nd_ws_sllao_dummy(struct iobuf_write *sllao, const uint8_t *aro_ptr, size_t aro_len)
+{
+    struct iobuf_read earo = {
+        .data = aro_ptr,
+        .data_size = aro_len,
+    };
+    const uint8_t *eui64;
+
+    iobuf_pop_u8(&earo);          // Type
+    iobuf_pop_u8(&earo);          // Length
+    iobuf_pop_u8(&earo);          // Status
+    iobuf_pop_data_ptr(&earo, 3); // Reserved
+    iobuf_pop_be16(&earo);        // Registration Lifetime
+    eui64 = iobuf_pop_data_ptr(&earo, 8);
+
+    BUG_ON(sllao->len);
+    iobuf_push_u8(sllao, ICMPV6_OPT_SRC_LL_ADDR);
+    iobuf_push_u8(sllao, 0); // Length (filled after)
+    iobuf_push_data(sllao, eui64, 8);
+    while (sllao->len % 8)
+        iobuf_push_u8(sllao, 0); // Padding
+    sllao->data[1] = sllao->len / 8;
+
+    return !earo.err;
+}
+
 /*
  *      Neighbor Solicitation Message Format
  *
@@ -433,9 +463,9 @@ static void icmpv6_na_aro_handler(struct net_if *cur_interface, const uint8_t *d
  */
 static buffer_t *icmpv6_ns_handler(buffer_t *buf)
 {
+    struct iobuf_write sllao_dummy = { };
     struct net_if *cur;
     uint8_t target[16];
-    uint8_t dummy_sllao[16];
     bool proxy = false;
     const uint8_t *sllao;
     const uint8_t *earo;
@@ -470,14 +500,9 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
     }
 
     /* If there was no SLLAO on ARO, use mac address to create dummy one... */
-    if (earo && !sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro) {
-        dummy_sllao[0] = ICMPV6_OPT_SRC_LL_ADDR;    // Type
-        dummy_sllao[1] = 2;                         // Length = 2x8 bytes
-        memcpy(dummy_sllao + 2, earo + 8, 8);       // EUI-64
-        memset(dummy_sllao + 10, 0, 6);             // Padding
-
-        sllao = dummy_sllao;
-    }
+    if (earo && !sllao && cur->ipv6_neighbour_cache.use_eui64_as_slla_in_aro)
+        if (icmpv6_nd_ws_sllao_dummy(&sllao_dummy, earo, 2 * 8))
+            sllao = sllao_dummy.data;
     // Skip the 4 reserved bytes
     dptr += 4;
 
@@ -544,11 +569,13 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
                              na_earo.present ? &na_earo : NULL, buf->src_sa.address);
 
     buffer_free(buf);
+    iobuf_free(&sllao_dummy);
 
     return na_buf;
 
 drop:
     buf = buffer_free(buf);
+    iobuf_free(&sllao_dummy);
 
     return buf;
 
