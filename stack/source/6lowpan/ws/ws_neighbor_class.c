@@ -25,11 +25,13 @@
 #include "common/ws_regdb.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/version.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
 #include "stack/mac/mac_api.h"
 
+#include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
@@ -166,7 +168,8 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
     info->utt_rx_timestamp = timestamp;
     info->ufsi             = ufsi;
     clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
-    rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
+    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+        rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
 // Irrelevant for border router
@@ -276,7 +279,8 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                                   &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = dwell_interval;
-    rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
+    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+        rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 
 // Irrelevant for border router

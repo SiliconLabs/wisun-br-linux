@@ -25,6 +25,7 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/version.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
@@ -41,6 +42,7 @@
 #include "stack/mac/ccm.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
@@ -154,7 +156,8 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const ui
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
     tr_debug("neighbor[%d] = %s, removed", neighbor->index, tr_eui64(neighbor->mac64));
-    rcp_drop_fhss_neighbor(neighbor->mac64);
+    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+        rcp_drop_fhss_neighbor(neighbor->mac64);
     rcp_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);

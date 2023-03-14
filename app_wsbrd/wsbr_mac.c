@@ -30,9 +30,11 @@
 #include "common/ws_regdb.h"
 
 #include "nwk_interface/protocol.h"
+#include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
+#include "6lowpan/ws/ws_llc.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/channel_list.h"
@@ -40,6 +42,7 @@
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
 
+#include "frame_helpers.h"
 #include "version.h"
 #include "wsbr.h"
 #include "rcp_api.h"
@@ -536,39 +539,71 @@ void wsbr_rcp_rx(struct wsbr_ctxt *ctxt, struct iobuf_read *buf)
     }
 }
 
-void wsbr_mcps_req_ext(const struct mac_api *api,
+struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
+{
+    ws_neighbor_temp_class_t *neighbor_ws_tmp;
+    llc_neighbour_req_t neighbor_llc;
+
+    neighbor_ws_tmp = ws_llc_get_eapol_temp_entry(cur, eui64);
+    if (!neighbor_ws_tmp)
+        neighbor_ws_tmp = ws_llc_get_multicast_temp_entry(cur, eui64);
+    if (neighbor_ws_tmp)
+        return &neighbor_ws_tmp->neigh_info_list;
+    if (ws_bootstrap_neighbor_get(cur, eui64, &neighbor_llc))
+        return neighbor_llc.ws_neighbor;
+    else
+        return NULL;
+}
+
+void wsbr_data_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       bool is_async,
+                       uint8_t fhss_type,
                        mac_data_priority_e priority, uint8_t phy_id)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct ws_neighbor_class_entry *neighbor_ws;
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
     };
+    struct iobuf_write frame = { };
 
     BUG_ON(ctxt != &g_ctxt);
-    BUG_ON(data->TxAckReq && is_async);
+    BUG_ON(data->TxAckReq && fhss_type == HIF_FHSS_TYPE_ASYNC);
+    BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_NONE &&
+           (fhss_type == HIF_FHSS_TYPE_FFN_BC || fhss_type == HIF_FHSS_TYPE_LFN_BC || fhss_type == HIF_FHSS_TYPE_ASYNC));
+    BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_64_BIT &&
+           (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA));
     BUG_ON(!ie_ext);
     BUG_ON(ie_ext->payloadIovLength > 2);
     BUG_ON(ie_ext->headerIovLength > 1);
 
-    if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
-        async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
-        bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
+    if (version_older_than(ctxt->rcp_version_api, 0, 22, 0)) {
+        if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
+            async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
+            bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);
+        } else {
+            memcpy(async_channel_list.channel_mask,
+                   cur->ws_info.fhss_conf.domain_channel_mask,
+                   sizeof(async_channel_list.channel_mask));
+        }
+
+        rcp_tx_req_legacy(data,
+                          (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
+                          (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
+                          (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
+                          fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL,
+                          priority, phy_id);
     } else {
-        memcpy(async_channel_list.channel_mask,
-               cur->ws_info.fhss_conf.domain_channel_mask,
-               sizeof(async_channel_list.channel_mask));
+        neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
+        BUG_ON(!!neighbor_ws != !!data->DstAddrMode);
+        wsbr_data_req_rebuild(&frame, api, &cur->mac_parameters, data, ie_ext);
+        rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
+                   fhss_type, data->ExtendedFrameExchange, priority, phy_id);
+        iobuf_free(&frame);
     }
 
-    rcp_tx_req_legacy(data,
-                      (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
-                      (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
-                      (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
-                      is_async ? &async_channel_list : NULL,
-                      priority, phy_id);
 }
 
 uint8_t wsbr_mcps_purge(const struct mac_api *api,

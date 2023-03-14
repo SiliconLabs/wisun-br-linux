@@ -27,6 +27,7 @@
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
+#include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
 #include "stack/mac/mac_common_defines.h"
@@ -35,6 +36,7 @@
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/ws_management_api.h"
 
+#include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
@@ -1116,7 +1118,9 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, false, message->priority, phy_mode_id);
+    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
+                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
+                      message->priority, phy_mode_id);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1165,7 +1169,9 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     base->temp_entries->active_eapol_session = true;
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, false, message->priority, 0);
+    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
+                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
+                      message->priority, 0);
 }
 
 
@@ -1363,7 +1369,8 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        rcp_drop_fhss_neighbor(entry->mac64);
+        if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+            rcp_drop_fhss_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
 }
@@ -1537,7 +1544,8 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
     if (!base) {
         return;
     }
-    rcp_drop_fhss_neighbor(neighbor->mac64);
+    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+        rcp_drop_fhss_neighbor(neighbor->mac64);
     ns_list_remove(&base->temp_entries->active_multicast_temp_neigh, neighbor);
     ns_list_add_to_end(&base->temp_entries->free_temp_neigh, neighbor);
 }
@@ -1833,7 +1841,8 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, true, message->priority, 0);
+    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
+                      HIF_FHSS_TYPE_ASYNC, message->priority, 0);
 
     return 0;
 }
@@ -2004,7 +2013,8 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries->active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            rcp_drop_fhss_neighbor(entry->mac64);
+            if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+                rcp_drop_fhss_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries->active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries->free_temp_neigh, entry);
         } else {
