@@ -73,17 +73,6 @@ enum {
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
-    .mac_api.mac_initialize = wsbr_mac_init,
-    .mac_api.mac_mcps_edfe_enable = wsbr_mac_edfe_ext_init,
-    .mac_api.mac_mcps_extension_enable = wsbr_mac_mcps_ext_init,
-
-    .mac_api.mac_storage_sizes_get = wsbr_mac_storage_sizes_get,
-    .mac_api.mac64_set = wsbr_mac_addr_set,
-    .mac_api.mac64_get = wsbr_mac_addr_get,
-
-    .mac_api.mcps_data_req = wsbr_mcps_req,
-    .mac_api.mcps_data_req_ext = wsbr_mcps_req_ext,
-    .mac_api.mcps_purge_req = wsbr_mcps_purge,
 
     // FIXME: retrieve from RCP. Normally, MAC layer set this value when it
     // receive the mac802_15_4Mode request.

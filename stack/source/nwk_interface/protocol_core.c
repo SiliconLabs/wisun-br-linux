@@ -27,6 +27,7 @@
 #include "stack/mac/mac_api.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/wsbr_mac.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
@@ -315,9 +316,9 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     entry->mac_parameters.mac_default_key_index = 0;
 
     entry->mac_api = api;
-    int8_t err = entry->mac_api->mac_initialize(entry->mac_api, &mcps_data_confirm_handler, &mcps_data_indication_handler,
-                                                &mcps_purge_confirm_handler, &mlme_confirm_handler, &mlme_indication_handler,
-                                                entry->id);
+    int8_t err = wsbr_mac_init(entry->mac_api, &mcps_data_confirm_handler, &mcps_data_indication_handler,
+                               &mcps_purge_confirm_handler, &mlme_confirm_handler, &mlme_indication_handler,
+                               entry->id);
     if (err < 0) {
         goto interface_failure;
     }
@@ -463,7 +464,7 @@ struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api)
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
 
         uint8_t mac[8];
-        int8_t error = api->mac64_get(api, MAC_EXTENDED_READ_ONLY, mac);
+        int8_t error = wsbr_mac_addr_get(api, MAC_EXTENDED_READ_ONLY, mac);
         if (error) {
             tr_error("mac_ext_mac64_address_get failed: %d", error);
             return NULL;

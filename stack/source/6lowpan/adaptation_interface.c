@@ -32,6 +32,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/wsbr_mac.h"
 #include "core/ns_address_internal.h"
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -955,7 +956,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
     } else {
         mcps_data_req_ie_list_t ie_list;
         memset(&ie_list, 0, sizeof(mcps_data_req_ie_list_t));
-        cur->mac_api->mcps_data_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority, 0);
+        wsbr_mcps_req_ext(cur->mac_api, &dataReq, &ie_list, NULL, data_priority, 0);
     }
 }
 
@@ -1145,7 +1146,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
         return -1;
     }
 
-    if (!cur || !cur->mac_api || !cur->mac_api->mcps_data_req) {
+    if (!cur) {
         goto tx_error_handler;
     }
 
@@ -1619,11 +1620,8 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
             mac_purge_success = true;
         }
     } else {
-        if (cur->mac_api->mcps_purge_req) {
-            if (cur->mac_api->mcps_purge_req(cur->mac_api, &purge_req) == 0) {
-                mac_purge_success = true;
-            }
-        }
+        if (wsbr_mcps_purge(cur->mac_api, &purge_req) == 0)
+            mac_purge_success = true;
     }
 
     return mac_purge_success;

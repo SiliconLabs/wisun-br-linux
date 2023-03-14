@@ -638,12 +638,6 @@ void wsbr_mcps_req_ext(const struct mac_api *api,
     iobuf_free(&buf);
 }
 
-void wsbr_mcps_req(const struct mac_api *api,
-                   const struct mcps_data_req *data)
-{
-    return wsbr_mcps_req_ext(api, data, NULL, NULL, MAC_DATA_NORMAL_PRIORITY, 0);
-}
-
 uint8_t wsbr_mcps_purge(const struct mac_api *api,
                         const struct mcps_purge *data)
 {

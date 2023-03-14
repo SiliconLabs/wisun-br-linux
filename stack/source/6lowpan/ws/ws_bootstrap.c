@@ -41,6 +41,7 @@
 #include "stack/mac/ccm.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
@@ -625,10 +626,10 @@ static void ws_bootstrap_ll_address_validate(struct net_if *cur)
         return;
     }
 
-    cur->mac_api->mac64_get(cur->mac_api, MAC_EXTENDED_DYNAMIC, mac64);
+    wsbr_mac_addr_get(cur->mac_api, MAC_EXTENDED_DYNAMIC, mac64);
 
     if (memcmp(mac64, ADDR_UNSPECIFIED, 8) == 0) {
-        cur->mac_api->mac64_get(cur->mac_api, MAC_EXTENDED_READ_ONLY, mac64);
+        wsbr_mac_addr_get(cur->mac_api, MAC_EXTENDED_READ_ONLY, mac64);
     }
 
     if (memcmp(mac64, ADDR_UNSPECIFIED, 8) == 0) {
@@ -1125,9 +1126,8 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     }
 
     mac_description_storage_size_t buffer;
-    if (!cur->mac_api || !cur->mac_api->mac_storage_sizes_get || cur->mac_api->mac_storage_sizes_get(cur->mac_api, &buffer) != 0) {
+    if (!cur->mac_api ||  wsbr_mac_storage_sizes_get(cur->mac_api, &buffer) != 0)
         return -2;
-    }
 
     if (buffer.key_description_table_size < 4) {
         tr_error("MAC key_description_table_size too short %d<4", buffer.key_description_table_size);

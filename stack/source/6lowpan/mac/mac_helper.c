@@ -24,6 +24,7 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mlme.h"
 
+#include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
 #include "app_wsbrd/dbus.h"
 #include "app_wsbrd/wsbr.h"
@@ -133,9 +134,7 @@ bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
 int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64)
 {
     memcpy(interface->mac, mac64, 8);
-    if (interface->mac_api) {
-        interface->mac_api->mac64_set(interface->mac_api, mac64);
-    }
+    wsbr_mac_addr_set(interface->mac_api, mac64);
     return 0;
 }
 

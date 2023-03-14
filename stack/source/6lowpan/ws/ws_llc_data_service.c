@@ -35,6 +35,7 @@
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/ws_management_api.h"
 
+#include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
 #include "security/pana/pana_eap_header.h"
@@ -1117,7 +1118,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, phy_mode_id);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1166,7 +1167,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     base->temp_entries->active_eapol_session = true;
 
     ws_trace_llc_mac_req(&data_req, message);
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, 0);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, NULL, message->priority, 0);
 }
 
 
@@ -1300,7 +1301,7 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
     mcps_purge_t purge_req;
     uint8_t purge_status;
     purge_req.msduHandle = message->msg_handle;
-    purge_status = base->interface_ptr->mac_api->mcps_purge_req(base->interface_ptr->mac_api, &purge_req);
+    purge_status = wsbr_mcps_purge(base->interface_ptr->mac_api, &purge_req);
     if (purge_status == 0) {
         if (message->message_type == WS_FT_EAPOL) {
             ws_llc_mac_eapol_clear(base);
@@ -1343,7 +1344,7 @@ static void ws_llc_clean(llc_data_base_t *base)
             ws_llc_mac_eapol_clear(base);
         }
         llc_message_free(message, base);
-        base->interface_ptr->mac_api->mcps_purge_req(base->interface_ptr->mac_api, &purge_req);
+        wsbr_mcps_purge(base->interface_ptr->mac_api, &purge_req);
 
     }
 
@@ -1658,8 +1659,8 @@ int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_
     base->asynch_ind = asynch_ind_cb;
     base->asynch_confirm = asynch_cnf_cb;
     //Register MAC Extensions
-    base->interface_ptr->mac_api->mac_mcps_extension_enable(base->interface_ptr->mac_api, &ws_llc_mac_indication_cb, &ws_llc_mac_confirm_cb, &ws_llc_ack_data_req_ext);
-    base->interface_ptr->mac_api->mac_mcps_edfe_enable(base->interface_ptr->mac_api, &ws_llc_mcps_edfe_handler);
+    wsbr_mac_mcps_ext_init(base->interface_ptr->mac_api, &ws_llc_mac_indication_cb, &ws_llc_mac_confirm_cb, &ws_llc_ack_data_req_ext);
+    wsbr_mac_edfe_ext_init(base->interface_ptr->mac_api, &ws_llc_mcps_edfe_handler);
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);
     ws_llc_temp_neigh_info_table_reset(base->temp_entries);
@@ -1677,7 +1678,7 @@ int8_t ws_llc_delete(struct net_if *interface)
 
     ns_list_remove(&llc_data_base_list, base);
     //Disable Mac extension
-    base->interface_ptr->mac_api->mac_mcps_extension_enable(base->interface_ptr->mac_api, NULL, NULL, NULL);
+    wsbr_mac_mcps_ext_init(base->interface_ptr->mac_api, NULL, NULL, NULL);
     free(base->temp_entries);
     free(base);
     return 0;
@@ -1837,7 +1838,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
-    base->interface_ptr->mac_api->mcps_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
+    wsbr_mcps_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext, &request->channel_list, message->priority, 0);
 
     return 0;
 }

@@ -30,7 +30,6 @@ void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, u
 
 void rcp_rx(struct wsbr_ctxt *ctxt);
 void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
-void wsbr_mcps_req(const struct mac_api *api, const mcps_data_req_t *data);
 void wsbr_mcps_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
