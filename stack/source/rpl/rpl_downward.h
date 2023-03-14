@@ -24,6 +24,7 @@
 #include "ipv6_stack/ipv6_routing_table.h"
 
 struct net_if;
+struct ipv6_nd_opt_earo;
 struct rpl_route_info;
 struct rpl_instance;
 struct rpl_dodag;
@@ -66,6 +67,19 @@ void rpl_downward_paths_invalidate(struct rpl_instance *instance);
 #else
 #define rpl_downward_compute_paths(instance) ((void) 0)
 #define rpl_downward_paths_invalidate(instance) ((void) 0)
+#endif
+
+#ifdef HAVE_WS_BORDER_ROUTER
+void rpl_downward_rx_ns_earo(struct net_if *net_if, const uint8_t src[16],
+                             uint8_t tid, uint16_t lifetime,
+                             struct ipv6_nd_opt_earo *earo_na);
+#else
+static inline void rpl_downward_rx_ns_earo(struct net_if *net_if, const uint8_t src[16],
+                                           uint8_t tid, uint16_t lifetime,
+                                           struct ipv6_nd_opt_earo *earo_na)
+{
+    // empty
+}
 #endif
 
 #endif

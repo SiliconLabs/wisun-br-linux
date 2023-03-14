@@ -26,6 +26,7 @@
 #include "stack/net_6lowpan_parameter.h"
 #include "stack/timers.h"
 
+#include "stack/source/rpl/rpl_downward.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
@@ -258,8 +259,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
 
     if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags) &&
         FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags)) {
-        // TODO: handle NS with EARO
-        (void)tid;
+        rpl_downward_rx_ns_earo(cur_interface, src_addr, tid, na_earo->lifetime, na_earo);
     }
 
     /* Check if we are already using this address ourself */

@@ -1283,7 +1283,8 @@ buffer_t *icmpv6_build_na(struct net_if *cur, bool solicited, bool override, boo
     uint8_t flags;
 
     /* Check if ARO response and status == success, then sending can be omitted with flag */
-    if (earo && cur->ipv6_neighbour_cache.omit_na_aro_success && earo->status == ARO_SUCCESS) {
+    if (cur->ipv6_neighbour_cache.omit_na_aro_success && earo &&
+        !(earo->r && earo->t) && earo->status == ARO_SUCCESS) {
         tr_debug("Omit NA ARO success");
         return NULL;
     }
