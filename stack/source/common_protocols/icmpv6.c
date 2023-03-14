@@ -840,18 +840,33 @@ void trace_icmp(buffer_t *buf, bool is_rx)
         { " ack",   ICMPV6_CODE_RPL_DAO_ACK },
         { NULL },
     };
+    struct iobuf_read ns_earo_buf;
     char frame_type[40] = "";
+    const char *ns_aro_str;
+    uint8_t ns_earo_flags;
 
     strncat(frame_type, val_to_str(buf->options.type, icmp_frames, "[UNK]"),
             sizeof(frame_type) - strlen(frame_type) - 1);
     if (buf->options.type == ICMPV6_TYPE_INFO_RPL_CONTROL)
         strncat(frame_type, val_to_str(buf->options.code, rpl_frames, "[UNK]"),
                 sizeof(frame_type) - strlen(frame_type) - 1);
-    if (buf->options.type == ICMPV6_TYPE_INFO_NS)
-        if (icmpv6_options_well_formed_in_buffer(buf, 20) &&
-            icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION))
-            strncat(frame_type, " w/ aro",
-                    sizeof(frame_type) - strlen(frame_type) - 1);
+    if (buf->options.type == ICMPV6_TYPE_INFO_NS) {
+        if (buffer_data_length(buf) > 20 &&
+            icmpv6_nd_option_get(buffer_data_pointer(buf) + 20, buffer_data_length(buf) - 20,
+                                 ICMPV6_OPT_ADDR_REGISTRATION, &ns_earo_buf)) {
+            iobuf_pop_u8(&ns_earo_buf); // Type
+            iobuf_pop_u8(&ns_earo_buf); // Length
+            iobuf_pop_u8(&ns_earo_buf); // Status
+            iobuf_pop_u8(&ns_earo_buf); // Opaque
+            ns_earo_flags = iobuf_pop_u8(&ns_earo_buf);
+            if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, ns_earo_flags) &&
+                FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, ns_earo_flags))
+                ns_aro_str = " w/ earo";
+            else
+                ns_aro_str = " w/ aro";
+            strncat(frame_type, ns_aro_str, sizeof(frame_type) - strlen(frame_type) - 1);
+        }
+    }
     if (is_rx)
         TRACE(TR_ICMP, "rx-icmp %-9s src:%s", frame_type, tr_ipv6(buf->src_sa.address));
     else
