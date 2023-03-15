@@ -32,7 +32,7 @@ fn format_byte_array(input: &[u8]) -> String {
 fn is_parent(node: &(Vec<u8>, PropMap), target: &[u8]) -> bool {
     let parent: Option<&Vec<u8>> = prop_cast(&node.1, "parent");
     match parent {
-        Some(x) if x == target => true,
+        Some(x) if AsRef::<[u8]>::as_ref(x) == target => true,
         Some(_) => false,
         None => false,
     }
