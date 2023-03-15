@@ -91,8 +91,8 @@ void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
         return;
 
     ret = write(fd, data, size);
-    FATAL_ON(ret < 0, 2, "write: %m");
-    FATAL_ON(ret < size, 2, "write: Short write");
+    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
+    FATAL_ON(ret < size, 2, "%s: write: Short write", __func__);
 }
 
 void __real_wsbr_tun_init(struct wsbr_ctxt *ctxt);

@@ -266,7 +266,7 @@ static void dhcp_send_reply(struct dhcp_server *dhcp, struct sockaddr_in6 *dest,
           tr_ipv6(dest->sin6_addr.s6_addr));
     ret = sendto(dhcp->fd, reply->data, reply->len, 0,
                  (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
-    WARN_ON(ret < 0, "sendmsg: %m");
+    WARN_ON(ret < 0, "%s: sendmsg: %m", __func__);
 }
 
 static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,

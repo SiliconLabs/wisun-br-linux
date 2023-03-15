@@ -133,7 +133,8 @@ static void fuzz_trigger_timer()
     int ret;
 
     ret = write(g_ctxt.timerfd, &val, 8);
-    FATAL_ON(ret < 0, 2, "write: %m");
+    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
+    FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
 void __wrap_wsbr_spinel_replay_timers(struct iobuf_read *buf)

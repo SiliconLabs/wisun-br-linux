@@ -34,8 +34,8 @@ void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
     else
         fd = ctxt->capture_fd;
     ret = write(fd, data, size);
-    FATAL_ON(ret < 0, 2, "write: %m");
-    FATAL_ON(ret < size, 2, "write: Short write");
+    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
+    FATAL_ON(ret < size, 2, "%s: write: Short write", __func__);
 }
 
 static void fuzz_capture_spinel(struct fuzz_ctxt *ctxt, struct iobuf_write *buf)

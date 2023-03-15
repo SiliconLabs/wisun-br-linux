@@ -243,7 +243,7 @@ int main(int argc, char **argv)
         waitpid(pid, &wstatus, 0);
     } else if (pid == 0) {
         sxfd = open(cmdline.uart_device, O_RDWR);
-        FATAL_ON(sxfd == -1, 2, "open: %m");
+        FATAL_ON(sxfd == -1, 2, "open %s: %m", cmdline.uart_device);
         ret = dup2(sxfd, STDIN_FILENO);
         FATAL_ON(ret == -1, 2, "dup2: %m");
         ret = dup2(sxfd, STDOUT_FILENO);

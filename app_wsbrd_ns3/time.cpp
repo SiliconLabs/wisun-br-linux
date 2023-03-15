@@ -27,8 +27,8 @@ static void wsbr_ns3_timer_tick(struct wsbr_ctxt *ctxt)
     int ret;
 
     ret = write(ctxt->timerfd, &val, 8);
-    FATAL_ON(ret < 0, 2, "write: %m");
-    FATAL_ON(ret < 8, 2, "write: Short write");
+    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
+    FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
 extern "C" void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)

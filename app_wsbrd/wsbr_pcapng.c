@@ -167,7 +167,7 @@ void wsbr_pcapng_init(struct wsbr_ctxt *ctxt)
         if (errno == ENOENT)
             ctxt->pcapng_type = S_IFREG;
         else
-            FATAL(2, "stat: %m");
+            FATAL(2, "stat %s: %m", ctxt->config.pcap_file);
     } else {
         ctxt->pcapng_type = statbuf.st_mode & S_IFMT;
     }

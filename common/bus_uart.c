@@ -145,8 +145,8 @@ size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
         ret = read(ctxt->data_fd,
                    ctxt->uart_rx_buf + ctxt->uart_rx_buf_len,
                    sizeof(ctxt->uart_rx_buf) - ctxt->uart_rx_buf_len);
-        FATAL_ON(ret < 0, 2, "read: %m");
-        FATAL_ON(!ret, 2, "read: Empty read");
+        FATAL_ON(ret < 0, 2, "%s: read: %m", __func__);
+        FATAL_ON(!ret, 2, "%s: read: Empty read", __func__);
         TRACE(TR_BUS, "bus rx: %s (%d bytes)",
                tr_bytes(ctxt->uart_rx_buf + ctxt->uart_rx_buf_len, ret, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), ret);
         ctxt->uart_rx_buf_len += ret;
