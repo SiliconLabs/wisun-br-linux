@@ -1075,6 +1075,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msdu = NULL;
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
+    data_req.priority = message->priority;
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {
         data_req.SeqNumSuppressed = true;
@@ -1120,7 +1121,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
                       data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
-                      message->priority, phy_mode_id);
+                      phy_mode_id);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1143,6 +1144,7 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msdu = NULL;
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
+    data_req->priority = message->priority;
 
     ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
 }
@@ -1171,7 +1173,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
                       data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
-                      message->priority, 0);
+                      0);
 }
 
 
@@ -1838,11 +1840,12 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         // PANID not know yet must be supressed
         data_req.PanIdSuppressed = true;
     }
+    data_req.priority = message->priority;
 
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
-                      HIF_FHSS_TYPE_ASYNC, message->priority, 0);
+                      HIF_FHSS_TYPE_ASYNC, 0);
 
     return 0;
 }

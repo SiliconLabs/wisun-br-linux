@@ -57,6 +57,7 @@ typedef struct mcps_data_req {
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */
     bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     mlme_security_t Key;            /**< Security key */
+    uint8_t priority;               /**< See mac_data_priority_e */
 } mcps_data_req_t;
 
 /**

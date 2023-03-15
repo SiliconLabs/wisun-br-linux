@@ -558,8 +558,7 @@ struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint
 void wsbr_data_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
-                       uint8_t fhss_type,
-                       mac_data_priority_e priority, uint8_t phy_id)
+                       uint8_t fhss_type, uint8_t phy_id)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
@@ -594,13 +593,14 @@ void wsbr_data_req_ext(const struct mac_api *api,
                           (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
                           (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
                           fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL,
-                          priority, phy_id);
+                          phy_id);
     } else {
         neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
         BUG_ON(!!neighbor_ws != !!data->DstAddrMode);
         wsbr_data_req_rebuild(&frame, api, &cur->mac_parameters, data, ie_ext);
         rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
-                   fhss_type, data->ExtendedFrameExchange, priority, phy_id);
+                   fhss_type, data->ExtendedFrameExchange, data->priority,
+                   phy_id);
         iobuf_free(&frame);
     }
 

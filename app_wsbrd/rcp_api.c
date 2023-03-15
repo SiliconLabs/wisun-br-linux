@@ -617,7 +617,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
                        const struct iovec *payload_ie,
                        const struct iovec *mpx_ie,
                        const struct channel_list *channel_list,
-                       uint8_t priority, uint8_t phy_id)
+                       uint8_t phy_id)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
@@ -642,7 +642,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     spinel_push_u8(&buf,   tx_req->Key.KeyIdMode);
     spinel_push_u8(&buf,   tx_req->Key.KeyIndex);
     spinel_push_fixed_u8_array(&buf, tx_req->Key.Keysource, 8);
-    spinel_push_u16(&buf,  priority);
+    spinel_push_u16(&buf,  tx_req->priority);
     if (channel_list) {
         spinel_push_uint(&buf, channel_list->channel_page);
         spinel_push_fixed_u8_array(&buf, channel_list->channel_mask, 32);
