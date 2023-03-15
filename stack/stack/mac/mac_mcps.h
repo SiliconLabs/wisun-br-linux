@@ -58,6 +58,7 @@ typedef struct mcps_data_req {
     bool ExtendedFrameExchange: 1;  /**< True for Extended Frame change. This will be only checked when 2015 extension and enhanced frame is enabled */
     mlme_security_t Key;            /**< Security key */
     uint8_t priority;               /**< See mac_data_priority_e */
+    uint8_t phy_id;
 } mcps_data_req_t;
 
 /**

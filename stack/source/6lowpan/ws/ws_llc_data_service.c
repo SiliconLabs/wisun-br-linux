@@ -1063,7 +1063,6 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     ns_list_add_to_end(&base->llc_message_list, message);
 
     mcps_data_req_t data_req;
-    uint8_t phy_mode_id = ws_llc_mdr_phy_mode_get(base, data);
     message->mpx_user_handle = data->msduHandle;
     message->ack_requested = data->TxAckReq;
     message->message_type = WS_FT_DATA;
@@ -1076,6 +1075,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     data_req.msduLength = 0;
     data_req.msduHandle = message->msg_handle;
     data_req.priority = message->priority;
+    data_req.phy_id = ws_llc_mdr_phy_mode_get(base, data);
 
     if (data->ExtendedFrameExchange && data->TxAckReq) {
         data_req.SeqNumSuppressed = true;
@@ -1120,8 +1120,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
-                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
-                      phy_mode_id);
+                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1172,8 +1171,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
-                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC,
-                      0);
+                      data_req.DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC);
 }
 
 
@@ -1845,7 +1843,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext,
-                      HIF_FHSS_TYPE_ASYNC, 0);
+                      HIF_FHSS_TYPE_ASYNC);
 
     return 0;
 }

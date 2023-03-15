@@ -616,8 +616,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
                        const struct iovec *header_ie,
                        const struct iovec *payload_ie,
                        const struct iovec *mpx_ie,
-                       const struct channel_list *channel_list,
-                       uint8_t phy_id)
+                       const struct channel_list *channel_list)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
@@ -671,7 +670,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
             spinel_push_u16(&buf, 0);
     }
     if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
-        spinel_push_u8(&buf, phy_id);
+        spinel_push_u8(&buf, tx_req->phy_id);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
