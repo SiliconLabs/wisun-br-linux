@@ -40,7 +40,7 @@ bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
     char str_buf[24];
     int ret;
 
-    if (g_storage_prefix)
+    if (!g_storage_prefix)
         return true;
     str_key(eui64, 8, str_buf, sizeof(str_buf));
     snprintf(filename, sizeof(filename), "%skeys-%s", g_storage_prefix, str_buf);
