@@ -1011,7 +1011,8 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
 
     /* Deal with simpler modify-already-created-header case first. Note that no error returns. */
     if (stage == IPV6_EXTHDR_MODIFY) {
-        if (!domain) {
+        if (!domain || buf->options.mpl_fwd_workaround) {
+            buf->options.mpl_fwd_workaround = false;
             *result = IPV6_EXTHDR_MODIFY_TUNNEL;
             memcpy(buf->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16);
             buf->src_sa.addr_type = ADDR_NONE; // force auto-selection

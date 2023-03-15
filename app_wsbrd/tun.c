@@ -447,6 +447,8 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
             buffer_free(buf_6lowpan);
             return;
         }
+        if (!memcmp(buf_6lowpan->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16))
+            buf_6lowpan->options.mpl_fwd_workaround = true;
     }
 
     if (nxthdr == SOL_TCP || nxthdr == SOL_UDP) {
