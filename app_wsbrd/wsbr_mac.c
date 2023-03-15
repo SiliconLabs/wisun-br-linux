@@ -557,8 +557,7 @@ struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint
 
 void wsbr_data_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
-                       const struct mcps_data_req_ie_list *ie_ext,
-                       uint8_t fhss_type)
+                       const struct mcps_data_req_ie_list *ie_ext)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
     struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
@@ -569,11 +568,11 @@ void wsbr_data_req_ext(const struct mac_api *api,
     struct iobuf_write frame = { };
 
     BUG_ON(ctxt != &g_ctxt);
-    BUG_ON(data->TxAckReq && fhss_type == HIF_FHSS_TYPE_ASYNC);
+    BUG_ON(data->TxAckReq && data->fhss_type == HIF_FHSS_TYPE_ASYNC);
     BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_NONE &&
-           (fhss_type == HIF_FHSS_TYPE_FFN_BC || fhss_type == HIF_FHSS_TYPE_LFN_BC || fhss_type == HIF_FHSS_TYPE_ASYNC));
+           (data->fhss_type == HIF_FHSS_TYPE_FFN_BC || data->fhss_type == HIF_FHSS_TYPE_LFN_BC || data->fhss_type == HIF_FHSS_TYPE_ASYNC));
     BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_64_BIT &&
-           (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA));
+           (data->fhss_type == HIF_FHSS_TYPE_FFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_UC || data->fhss_type == HIF_FHSS_TYPE_LFN_PA));
     BUG_ON(!ie_ext);
     BUG_ON(ie_ext->payloadIovLength > 2);
     BUG_ON(ie_ext->headerIovLength > 1);
@@ -592,14 +591,14 @@ void wsbr_data_req_ext(const struct mac_api *api,
                           (ie_ext->headerIovLength >= 1)  ? &ie_ext->headerIeVectorList[0]  : NULL,
                           (ie_ext->payloadIovLength >= 1) ? &ie_ext->payloadIeVectorList[0] : NULL,
                           (ie_ext->payloadIovLength >= 2) ? &ie_ext->payloadIeVectorList[1] : NULL,
-                          fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL);
+                          data->fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL);
     } else {
         neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
         BUG_ON(!!neighbor_ws != !!data->DstAddrMode);
         wsbr_data_req_rebuild(&frame, api, &cur->mac_parameters, data, ie_ext);
         rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
-                   fhss_type, data->ExtendedFrameExchange, data->priority,
-                   data->phy_id);
+                   data->fhss_type, data->ExtendedFrameExchange,
+                   data->priority, data->phy_id);
         iobuf_free(&frame);
     }
 

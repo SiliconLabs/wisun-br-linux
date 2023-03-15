@@ -28,8 +28,7 @@ struct iobuf_read;
 void wsbr_rcp_rx(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
 void wsbr_data_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
-                       const struct mcps_data_req_ie_list *ie_ext,
-                       uint8_t hif_type);
+                       const struct mcps_data_req_ie_list *ie_ext);
 uint8_t wsbr_mcps_purge(const struct mac_api *api, const mcps_purge_t *data);
 int8_t wsbr_mac_addr_set(const struct mac_api *api, const uint8_t *mac64);
 int8_t wsbr_mac_addr_get(const struct mac_api *api,

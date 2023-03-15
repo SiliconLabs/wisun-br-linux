@@ -624,6 +624,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     int len;
 
     BUG_ON(!tx_req);
+    BUG_ON((tx_req->fhss_type == HIF_FHSS_TYPE_ASYNC) != !!channel_list);
     spinel_push_hdr_set_prop(&buf, SPINEL_PROP_STREAM_RAW);
     spinel_push_data(&buf, tx_req->msdu, tx_req->msduLength);
     spinel_push_u8(&buf,   tx_req->SrcAddrMode);

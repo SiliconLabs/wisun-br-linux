@@ -59,6 +59,7 @@ typedef struct mcps_data_req {
     mlme_security_t Key;            /**< Security key */
     uint8_t priority;               /**< See mac_data_priority_e */
     uint8_t phy_id;
+    uint8_t fhss_type;              /**< FHSS policy to send that frame */
 } mcps_data_req_t;
 
 /**
