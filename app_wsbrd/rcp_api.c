@@ -560,3 +560,8 @@ void rcp_abort_edfe()
 {
     rcp_set_bool(SPINEL_PROP_WS_EDFE_FORCE_STOP, false);
 }
+
+void rcp_tx_drop(uint8_t handle)
+{
+    rcp_set_u8(SPINEL_PROP_WS_MCPS_DROP, handle);
+}

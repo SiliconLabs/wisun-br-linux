@@ -41,6 +41,7 @@
 
 #include "version.h"
 #include "wsbr.h"
+#include "rcp_api.h"
 #include "wsbr_mac.h"
 #include "wsbr_pcapng.h"
 #include "timers.h"
@@ -789,21 +790,16 @@ uint8_t wsbr_mcps_purge(const struct mac_api *api,
                         const struct mcps_purge *data)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-    struct iobuf_write buf = { };
     struct mcps_purge_conf conf = {
         .msduHandle = data->msduHandle,
     };
 
     BUG_ON(!api);
     BUG_ON(ctxt != &g_ctxt);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 4, 0)) {
-        spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MCPS_DROP);
-        spinel_push_u8(&buf, data->msduHandle);
-        rcp_tx(ctxt, &buf);
-        iobuf_free(&buf);
-    } else {
+    if (!version_older_than(ctxt->rcp_version_api, 0, 4, 0))
+        rcp_tx_drop(data->msduHandle);
+    else
         api->purge_conf_cb(api, &conf);
-    }
     return 0;
 }
 

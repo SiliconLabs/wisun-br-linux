@@ -71,5 +71,6 @@ void rcp_disable_mac_filter(void);
 void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward);
 void rcp_clear_mac_filters(void);
 void rcp_abort_edfe(void);
+void rcp_tx_drop(uint8_t handle);
 
 #endif
