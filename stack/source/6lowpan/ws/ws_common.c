@@ -397,3 +397,14 @@ fhss_ws_configuration_t ws_common_get_current_fhss_configuration(struct net_if *
     }
     return fhss_configuration;
 }
+
+bool ws_common_is_valid_nr(uint8_t node_role)
+{
+    switch (node_role) {
+    case WS_NR_ROLE_BR:
+    case WS_NR_ROLE_ROUTER:
+    case WS_NR_ROLE_LFN:
+        return true;
+    }
+    return false;
+}

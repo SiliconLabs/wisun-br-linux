@@ -313,7 +313,8 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
 
         // Get the Node Role that supplicant indicates
         uint8_t node_role;
-        if (kde_node_role_read(kde, kde_len, &node_role) >= 0) {
+        if (kde_node_role_read(kde, kde_len, &node_role) >= 0 &&
+            ws_common_is_valid_nr(node_role)) {
             prot->sec_keys->node_role = node_role;
         } else {
             prot->sec_keys->node_role = WS_NR_ROLE_UNKNOWN;
