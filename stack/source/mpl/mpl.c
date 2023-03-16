@@ -1054,38 +1054,39 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
     if (domain->seed_id_mode > 0) {
         seed_id_len = domain->seed_id_mode;
         seed_id = domain->seed_id;
-    } else switch (domain->seed_id_mode) {
-            case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
-                uint16_t addr = mac_helper_mac16_address_get(buf->interface);
-                if (addr < 0xfffe) {
-                    write_be16(seed_id_buf, addr);
-                    seed_id = seed_id_buf;
-                    seed_id_len = 2;
-                    break;
-                }
-            // Otherwise fall through to extended
-                case MULTICAST_MPL_SEED_ID_MAC:
-                    seed_id = buf->interface->mac;
-                    seed_id_len = 8;
-                    break;
-
-                case MULTICAST_MPL_SEED_ID_IID_EUI64:
-                    seed_id = buf->interface->iid_eui64;
-                    seed_id_len = 8;
-                    break;
-
-                case MULTICAST_MPL_SEED_ID_IID_SLAAC:
-                    seed_id = buf->interface->iid_slaac;
-                    seed_id_len = 8;
-                    break;
-                }
-
-            default:
-            case MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN:
-                seed_id = addr_select_source(buf->interface, domain->address, 0);
-                seed_id_len = 16;
+    } else {
+        switch (domain->seed_id_mode) {
+        case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
+            uint16_t addr = mac_helper_mac16_address_get(buf->interface);
+            if (addr < 0xfffe) {
+                write_be16(seed_id_buf, addr);
+                seed_id = seed_id_buf;
+                seed_id_len = 2;
                 break;
+            }
         }
+        // Otherwise fall through to extended
+        case MULTICAST_MPL_SEED_ID_MAC:
+            seed_id = buf->interface->mac;
+            seed_id_len = 8;
+            break;
+
+        case MULTICAST_MPL_SEED_ID_IID_EUI64:
+            seed_id = buf->interface->iid_eui64;
+            seed_id_len = 8;
+            break;
+
+        case MULTICAST_MPL_SEED_ID_IID_SLAAC:
+            seed_id = buf->interface->iid_slaac;
+            seed_id_len = 8;
+            break;
+        default:
+        case MULTICAST_MPL_SEED_ID_IPV6_SRC_FOR_DOMAIN:
+            seed_id = addr_select_source(buf->interface, domain->address, 0);
+            seed_id_len = 16;
+            break;
+        }
+    }
 
     if (!seed_id) {
         tr_error("No MPL Seed ID");
