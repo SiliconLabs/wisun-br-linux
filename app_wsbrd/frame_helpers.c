@@ -212,14 +212,13 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
         iobuf_push_data(frame, tmp, 2);
     }
 
-    BUG_ON(req->SrcAddrMode == MAC_ADDR_MODE_16_BIT && !mac->shortAdressValid);
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         iobuf_push_le16(frame, mac->pan_id);
     if (req->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
         memrcpy(tmp, mac64, 8);
         iobuf_push_data(frame, tmp, 8);
     } else if (req->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
-        iobuf_push_be16(frame, mac->mac_short_address);
+        BUG("unsupported");
     }
 
     if (req->Key.SecurityLevel) {

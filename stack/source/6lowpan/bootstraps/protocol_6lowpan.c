@@ -203,26 +203,14 @@ static uint8_t protocol_6lowpan_llao_write(struct net_if *cur, uint8_t *opt_out,
     if (!must && addr_is_ipv6_link_local(ip_addr)) {
         return 0;
     }
-    uint16_t mac16 = mac_helper_mac16_address_get(cur);
 
-    /* Even if we have a short address, use long address if the IP address's IID matches it */
-    if (mac16 >= 0xfffe || addr_iid_matches_eui64(ip_addr + 8, cur->mac)) {
-        if (opt_out) {
-            opt_out[0] = opt_type;
-            opt_out[1] = 2;
-            memcpy(opt_out + 2, cur->mac, 8);
-            memset(opt_out + 10, 0, 6);
-        }
-        return 16;
-    } else {
-        if (opt_out) {
-            opt_out[0] = opt_type;
-            opt_out[1] = 1;
-            write_be16(opt_out + 2, mac16);
-            memset(opt_out + 4, 0, 4);
-        }
-        return 8;
+    if (opt_out) {
+        opt_out[0] = opt_type;
+        opt_out[1] = 2;
+        memcpy(opt_out + 2, cur->mac, 8);
+        memset(opt_out + 10, 0, 6);
     }
+    return 16;
 }
 
 /* Parse, and return actual size, or 0 if error */

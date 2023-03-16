@@ -169,7 +169,6 @@ typedef struct link_layer_setups {
 /** Network MAC address info. */
 typedef struct link_layer_address {
     uint16_t PANId;            /**< Network PAN-ID. */
-    uint16_t mac_short;        /**< MAC short address, if <0xfffe then is valid. */
     uint8_t mac_long[8];       /**< MAC long address (EUI-48 for Ethernet; EUI-64 for IEEE 802.15.4). */
     uint8_t iid_eui64[8];      /**< IPv6 interface identifier based on EUI-64. */
 } link_layer_address_s;

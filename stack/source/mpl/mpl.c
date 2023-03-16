@@ -1050,22 +1050,12 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_e stage, i
 
     const uint8_t *seed_id;
     uint8_t seed_id_len;
-    uint8_t seed_id_buf[16];
     if (domain->seed_id_mode > 0) {
         seed_id_len = domain->seed_id_mode;
         seed_id = domain->seed_id;
     } else {
         switch (domain->seed_id_mode) {
-        case MULTICAST_MPL_SEED_ID_MAC_SHORT: {
-            uint16_t addr = mac_helper_mac16_address_get(buf->interface);
-            if (addr < 0xfffe) {
-                write_be16(seed_id_buf, addr);
-                seed_id = seed_id_buf;
-                seed_id_len = 2;
-                break;
-            }
-        }
-        // Otherwise fall through to extended
+        case MULTICAST_MPL_SEED_ID_MAC_SHORT: // Not supported
         case MULTICAST_MPL_SEED_ID_MAC:
             seed_id = buf->interface->mac;
             seed_id_len = 8;

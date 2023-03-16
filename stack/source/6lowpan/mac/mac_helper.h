@@ -25,7 +25,6 @@ struct buffer;
 struct mac_api;
 enum addrtype;
 
-uint16_t mac_helper_mac16_address_get(const struct net_if *interface);
 uint16_t mac_helper_panid_get(const struct net_if *interface);
 void mac_helper_set_default_key_source(struct net_if *interface);
 uint8_t mac_helper_default_security_level_get(struct net_if *interface);

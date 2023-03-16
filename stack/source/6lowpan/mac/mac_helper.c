@@ -39,15 +39,6 @@ static const uint8_t mac_helper_default_key_source[8] = {0xff, 0, 0, 0, 0, 0, 0,
 static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode);
 static uint8_t mac_helper_security_mic_length_get(uint8_t security_level);
 
-uint16_t mac_helper_mac16_address_get(const struct net_if *interface)
-{
-    uint16_t shortAddress = 0xfffe;
-    if (interface) {
-        shortAddress = interface->mac_parameters.mac_short_address;
-    }
-    return shortAddress;
-}
-
 uint16_t mac_helper_panid_get(const struct net_if *interface)
 {
     uint16_t panId = 0xffff;
@@ -109,25 +100,13 @@ static bool mac_helper_write_16bit(uint16_t temp16, uint8_t *addrPtr)
  */
 bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
 {
-    bool normal = true;
+    bool normal;
 
+    BUG_ON(ptr->addr_type == ADDR_802_15_4_SHORT);
     //Set First PANID
-    normal &= mac_helper_write_16bit(interface->mac_parameters.pan_id, ptr->address);
-
-    if (ptr->addr_type != ADDR_802_15_4_LONG && ptr->addr_type != ADDR_802_15_4_SHORT) {
-        if (interface->mac_parameters.shortAdressValid) {
-            ptr->addr_type = ADDR_802_15_4_SHORT;
-        } else {
-            ptr->addr_type = ADDR_802_15_4_LONG;
-        }
-    }
-
-    if (ptr->addr_type == ADDR_802_15_4_SHORT) {
-        normal &= mac_helper_write_16bit(interface->mac_parameters.mac_short_address, &ptr->address[2]);
-    } else {
-        memcpy(&ptr->address[2], interface->mac, 8);
-    }
-
+    normal = mac_helper_write_16bit(interface->mac_parameters.pan_id, ptr->address);
+    ptr->addr_type = ADDR_802_15_4_LONG;
+    memcpy(&ptr->address[2], interface->mac, 8);
     return normal;
 }
 
@@ -159,11 +138,7 @@ uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const buffer_t *buf)
     uint_fast8_t length = 15;
 
     /*8bytes src address, 2 frame control, 1 sequence, 2 pan-id, 2 FCS*/
-    if (buf->src_sa.addr_type == ADDR_NONE) {
-        if (cur->mac_parameters.shortAdressValid) {
-            length -= 6; //Cut 6 bytes from src address
-        }
-    } else if (buf->src_sa.addr_type == ADDR_802_15_4_SHORT) {
+    if (buf->src_sa.addr_type == ADDR_802_15_4_SHORT) {
         length -= 6; //Cut 6 bytes from src address
     }
 

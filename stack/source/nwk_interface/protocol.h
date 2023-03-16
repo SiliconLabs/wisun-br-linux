@@ -139,7 +139,6 @@ typedef struct arm_15_4_mac_parameters {
     uint8_t mac_default_key_attribute_id;
     uint8_t mac_next_key_attribute_id;
     uint32_t security_frame_counter;
-    bool shortAdressValid: 1;
     /* MAC PIB boolean */
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
@@ -147,7 +146,6 @@ typedef struct arm_15_4_mac_parameters {
     channel_list_t mac_channel_list;
     uint8_t mac_channel;
     uint16_t pan_id;
-    uint16_t mac_short_address;
     mac_cordinator_s mac_cordinator_info;
     uint8_t number_of_fhss_channel_retries;
     uint16_t mac_in_direct_entry_timeout;

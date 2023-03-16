@@ -87,7 +87,6 @@ int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_p
         memcpy(mac_params->mac_long, cur->mac, 8);
         memcpy(mac_params->iid_eui64, cur->iid_eui64, 8);
         mac_params->PANId = cur->mac_parameters.pan_id;
-        mac_params->mac_short = cur->mac_parameters.mac_short_address;
     }
     return ret_val;
 }

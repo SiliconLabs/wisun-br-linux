@@ -307,7 +307,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     }
 
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
-    entry->mac_parameters.mac_short_address = 0xffff;
     entry->mac_parameters.pan_id = 0xffff;
     entry->mac_parameters.mac_in_direct_entry_timeout = 7000; //default timeout
 

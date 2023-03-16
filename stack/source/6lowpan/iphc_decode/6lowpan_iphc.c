@@ -81,8 +81,6 @@ buffer_t *lowpan_down(buffer_t *buf)
      */
     if (addr_iid_matches_eui64(ip_src + 8, cur->mac)) {
         buf->src_sa.addr_type = ADDR_802_15_4_LONG;
-    } else if (cur->mac_parameters.mac_short_address < 0xfffe && addr_iid_matches_lowpan_short(ip_src + 8, cur->mac_parameters.mac_short_address)) {
-        buf->src_sa.addr_type = ADDR_802_15_4_SHORT;
     } else {
         /* This lets mac_mlme_write_our_addr choose based on address mode */
         buf->src_sa.addr_type = ADDR_NONE;
