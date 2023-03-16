@@ -280,7 +280,6 @@ void protocol_core_interface_info_reset(struct net_if *entry);
 uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
 struct net_if *protocol_stack_interface_info_get();
-bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/]);
 struct net_if *protocol_stack_interface_generate_lowpan(struct mac_api *api);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);

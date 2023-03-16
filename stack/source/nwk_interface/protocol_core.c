@@ -477,22 +477,6 @@ struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api)
     return NULL;
 }
 
-bool nwk_interface_compare_mac_address(struct net_if *cur, uint_fast8_t addrlen, const uint8_t addr[/*addrlen*/])
-{
-    if (!cur) {
-        return false;
-    }
-
-    switch (addrlen) {
-        case 2:
-            return cur->mac_parameters.mac_short_address == read_be16(addr);
-        case 8:
-            return memcmp(addr, cur->mac, 8) == 0;
-        default:
-            return false;
-    }
-}
-
 /**
  * \brief Push Buffer to Protocol Core.
  *
