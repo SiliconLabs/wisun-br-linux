@@ -24,6 +24,27 @@
 #include "version.h"
 #include "rcp_api.h"
 
+
+void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
+{
+    spinel_trace_tx(buf);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->data, buf->len);
+}
+
+void rcp_rx(struct wsbr_ctxt *ctxt)
+{
+    static uint8_t rx_buf[4096];
+    struct iobuf_read buf = {
+        .data = rx_buf,
+    };
+
+    buf.data_size = ctxt->rcp_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
+    if (!buf.data_size)
+        return;
+    spinel_trace_rx(&buf);
+    wsbr_rcp_rx(ctxt, &buf);
+}
+
 uint8_t rcp_get_spinel_hdr()
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;

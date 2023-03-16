@@ -22,6 +22,8 @@ struct fhss_ws_configuration;
 struct phy_rf_channel_configuration;
 struct mcps_data_req;
 struct channel_list;
+struct iobuf_write;
+struct wsbr_ctxt;
 
 void rcp_noop(void);
 void rcp_reset(void);
@@ -83,6 +85,10 @@ void rcp_tx_req(const struct mcps_data_req *tx_req,
                 const struct channel_list *channel_list,
                 uint16_t priority, uint8_t phy_id);
 void rcp_tx_drop(uint8_t handle);
+
+// Low-layer function to access the RCP
+void rcp_rx(struct wsbr_ctxt *ctxt);
+void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
 
 // Only used by the fuzzer
 uint8_t rcp_get_spinel_hdr(void);

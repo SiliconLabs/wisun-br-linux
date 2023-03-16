@@ -17,6 +17,7 @@
 
 struct wsbr_ctxt;
 struct iobuf_write;
+struct iobuf_read;
 
 #define RCP_HAS_RESET          0x0001
 #define RCP_HAS_HWADDR         0x0002
@@ -24,8 +25,7 @@ struct iobuf_write;
 #define RCP_HAS_RF_CONFIG      0x0008
 #define RCP_INIT_DONE          0x0010
 
-void rcp_rx(struct wsbr_ctxt *ctxt);
-void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
+void wsbr_rcp_rx(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
 void wsbr_mcps_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,
