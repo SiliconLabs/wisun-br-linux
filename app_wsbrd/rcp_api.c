@@ -24,12 +24,38 @@
 #include "version.h"
 #include "rcp_api.h"
 
+uint8_t rcp_get_spinel_hdr()
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
+
+    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
+    if (!ctxt->spinel_tid)
+        ctxt->spinel_tid = 1;
+    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
+    return hdr;
+}
+
+static void spinel_push_hdr_set_prop(struct iobuf_write *buf, unsigned int prop)
+{
+    spinel_push_u8(buf, rcp_get_spinel_hdr());
+    spinel_push_uint(buf, SPINEL_CMD_PROP_SET);
+    spinel_push_uint(buf, prop);
+}
+
+static void spinel_push_hdr_get_prop(struct iobuf_write *buf, unsigned int prop)
+{
+    spinel_push_u8(buf, rcp_get_spinel_hdr());
+    spinel_push_uint(buf, SPINEL_CMD_PROP_GET);
+    spinel_push_uint(buf, prop);
+}
+
 static void rcp_set_bool(unsigned int prop, bool val)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_hdr_set_prop(&buf, prop);
     spinel_push_bool(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -40,7 +66,7 @@ static void rcp_set_u8(unsigned int prop, uint8_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_hdr_set_prop(&buf, prop);
     spinel_push_u8(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -51,7 +77,7 @@ static void rcp_set_u16(unsigned int prop, uint16_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_hdr_set_prop(&buf, prop);
     spinel_push_u16(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -62,7 +88,7 @@ static void rcp_set_u32(unsigned int prop, uint32_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_hdr_set_prop(&buf, prop);
     spinel_push_u32(&buf, val);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -73,7 +99,7 @@ static void rcp_set_eui64(unsigned int prop, const uint8_t val[8])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, prop);
+    spinel_push_hdr_set_prop(&buf, prop);
     spinel_push_fixed_u8_array(&buf, val, 8);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -85,7 +111,7 @@ void rcp_noop()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_u8(&buf, rcp_get_spinel_hdr());
     spinel_push_uint(&buf, SPINEL_CMD_NOOP);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -96,7 +122,7 @@ void rcp_reset()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, wsbr_get_spinel_hdr(ctxt));
+    spinel_push_u8(&buf, rcp_get_spinel_hdr());
     spinel_push_uint(&buf, SPINEL_CMD_RESET);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -107,7 +133,7 @@ void rcp_reset_stack()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_RESET);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RESET);
     spinel_push_bool(&buf, true);
     spinel_push_u32(&buf, version_daemon_api);
     rcp_tx(ctxt, &buf);
@@ -119,7 +145,7 @@ void rcp_start(uint16_t channel, uint16_t panid, bool coordinator)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_START);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_START);
     spinel_push_u16(&buf,  panid);
     spinel_push_u8(&buf,   channel);
     spinel_push_u8(&buf,   0);
@@ -136,7 +162,7 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_CREATE);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_CREATE);
     spinel_push_u8(&buf, timing_info->ws_uc_channel_function);
     spinel_push_u8(&buf, timing_info->ws_bc_channel_function);
     spinel_push_u16(&buf, timing_info->bsi);
@@ -160,7 +186,7 @@ void rcp_register_fhss()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_REGISTER);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_REGISTER);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -170,7 +196,7 @@ void rcp_unregister_fhss()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_UNREGISTER);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -180,7 +206,7 @@ void rcp_release_fhss()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DELETE);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_DELETE);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -190,7 +216,7 @@ void rcp_get_rx_sensitivity(void)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RX_SENSITIVITY);
+    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RX_SENSITIVITY);
     spinel_push_uint(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -201,7 +227,7 @@ void rcp_get_hw_addr()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_HWADDR);
+    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_HWADDR);
     spinel_push_uint(&buf, 0);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -212,7 +238,7 @@ void rcp_get_rf_config_list()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
+    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LIST);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -222,7 +248,7 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_RF_CONFIGURATION);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION);
     spinel_push_u32(&buf, config->channel_0_center_frequency);
     spinel_push_u32(&buf, config->channel_spacing);
     spinel_push_u32(&buf, config->datarate);
@@ -264,7 +290,7 @@ void rcp_set_cca_threshold(uint8_t number_of_channels, uint8_t default_dbm,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_CCA_THRESHOLD_START);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_CCA_THRESHOLD_START);
     spinel_push_u8(&buf, number_of_channels);
     spinel_push_u8(&buf, default_dbm);
     spinel_push_u8(&buf, high_limit);
@@ -279,7 +305,7 @@ void rcp_set_max_rf_retry(uint8_t max_cca_failure, uint8_t max_tx_failure,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_REQUEST_RESTART);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_REQUEST_RESTART);
     spinel_push_u8(&buf, max_cca_failure);
     spinel_push_u8(&buf, max_tx_failure);
     spinel_push_u16(&buf, blacklist_min_ms);
@@ -323,7 +349,7 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_CONF);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_CONF);
     spinel_push_u8(&buf, timing_info->ws_uc_channel_function);
     spinel_push_u8(&buf, timing_info->ws_bc_channel_function);
     spinel_push_u16(&buf, timing_info->bsi);
@@ -349,7 +375,7 @@ void rcp_set_fhss_parent(const uint8_t parent[8],
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
     spinel_push_fixed_u8_array(&buf, parent, 8);
     spinel_push_bool(&buf, force_synch);
     spinel_push_u8(&buf, timing_info->broadcast_channel_function);
@@ -370,7 +396,7 @@ void rcp_set_fhss_neighbor(const uint8_t neigh[8],
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_UPDATE_NEIGHBOR);
     spinel_push_fixed_u8_array(&buf, neigh, 8);
     spinel_push_u8(&buf, timing_info->clock_drift);
     spinel_push_u8(&buf, timing_info->timing_accuracy);
@@ -390,7 +416,7 @@ void rcp_drop_fhss_neighbor(const uint8_t eui64[8])
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_DROP_NEIGHBOR);
     spinel_push_fixed_u8_array(&buf, eui64, 8);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -417,7 +443,7 @@ void rcp_set_tx_allowance_level(fhss_ws_tx_allow_level_e normal,
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_TX_ALLOWANCE_LEVEL);
     spinel_push_uint(&buf, normal);
     spinel_push_uint(&buf, expedited_forwarding);
     rcp_tx(ctxt, &buf);
@@ -444,7 +470,7 @@ void rcp_set_frame_counter(int slot, uint32_t val)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
     spinel_push_uint(&buf, slot);
     spinel_push_u32(&buf, val);
     rcp_tx(ctxt, &buf);
@@ -456,7 +482,7 @@ void rcp_get_frame_counter(int slot)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_get_prop(ctxt, &buf, SPINEL_PROP_WS_FRAME_COUNTER);
+    spinel_push_hdr_get_prop(&buf, SPINEL_PROP_WS_FRAME_COUNTER);
     spinel_push_uint(&buf, slot);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -469,7 +495,7 @@ void rcp_set_key(uint8_t slot, const uint8_t *lookup_data, const uint8_t *key)
     uint8_t empty_key[16] = { };
 
     BUG_ON(key && !lookup_data);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_KEY_TABLE);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_KEY_TABLE);
     spinel_push_u8(&buf, slot);
     if (key) {
         spinel_push_fixed_u8_array(&buf, key, 16);
@@ -494,7 +520,7 @@ void rcp_set_neighbor(uint8_t slot, uint16_t panid, uint16_t mac16, uint8_t *mac
     struct iobuf_write buf = { };
     uint8_t empty_mac64[8] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_DEVICE_TABLE);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_DEVICE_TABLE);
     spinel_push_u8(&buf, slot);
     spinel_push_u16(&buf, panid);
     spinel_push_u16(&buf, mac16);
@@ -513,7 +539,7 @@ void rcp_enable_mac_filter(bool forward_unknown)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_START);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_START);
     spinel_push_u16(&buf, forward_unknown ? 0x100 : 0);
     spinel_push_u16(&buf, 0);
     spinel_push_u16(&buf, forward_unknown ? 0x200 : 0);
@@ -527,7 +553,7 @@ void rcp_disable_mac_filter()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_STOP);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_STOP);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -537,7 +563,7 @@ void rcp_add_mac_filter_entry(uint8_t mac64[8], bool forward)
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_ADD_LONG);
     spinel_push_fixed_u8_array(&buf, mac64, 8);
     spinel_push_u16(&buf, forward ? 0x100 : 0);
     spinel_push_u16(&buf, 0);
@@ -552,7 +578,7 @@ void rcp_clear_mac_filters()
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_WS_MAC_FILTER_CLEAR);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_MAC_FILTER_CLEAR);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -575,7 +601,7 @@ void rcp_tx_req(const struct mcps_data_req *tx_req,
     int len;
 
     BUG_ON(!tx_req);
-    spinel_push_hdr_set_prop(ctxt, &buf, SPINEL_PROP_STREAM_RAW);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_STREAM_RAW);
     spinel_push_data(&buf, tx_req->msdu, tx_req->msduLength);
     spinel_push_u8(&buf,   tx_req->SrcAddrMode);
     spinel_push_u8(&buf,   tx_req->DstAddrMode);

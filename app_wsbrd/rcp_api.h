@@ -84,4 +84,7 @@ void rcp_tx_req(const struct mcps_data_req *tx_req,
                 uint16_t priority, uint8_t phy_id);
 void rcp_tx_drop(uint8_t handle);
 
+// Only used by the fuzzer
+uint8_t rcp_get_spinel_hdr(void);
+
 #endif

@@ -24,10 +24,6 @@ struct iobuf_write;
 #define RCP_HAS_RF_CONFIG      0x0008
 #define RCP_INIT_DONE          0x0010
 
-uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt);
-void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop);
-void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop);
-
 void rcp_rx(struct wsbr_ctxt *ctxt);
 void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
 void wsbr_mcps_req_ext(const struct mac_api *api,

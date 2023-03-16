@@ -550,31 +550,6 @@ void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
     ctxt->rcp_tx(ctxt->os_ctxt, buf->data, buf->len);
 }
 
-uint8_t wsbr_get_spinel_hdr(struct wsbr_ctxt *ctxt)
-{
-    uint8_t hdr = FIELD_PREP(0xC0, 0x2) | FIELD_PREP(0x30, ctxt->spinel_iid);
-
-    ctxt->spinel_tid = (ctxt->spinel_tid + 1) % 0x10;
-    if (!ctxt->spinel_tid)
-        ctxt->spinel_tid = 1;
-    hdr |= FIELD_PREP(0x0F, ctxt->spinel_tid);
-    return hdr;
-}
-
-void spinel_push_hdr_set_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop)
-{
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_PROP_SET);
-    spinel_push_uint(buf, prop);
-}
-
-void spinel_push_hdr_get_prop(struct wsbr_ctxt *ctxt, struct iobuf_write *buf, unsigned int prop)
-{
-    spinel_push_u8(buf, wsbr_get_spinel_hdr(ctxt));
-    spinel_push_uint(buf, SPINEL_CMD_PROP_GET);
-    spinel_push_uint(buf, prop);
-}
-
 void wsbr_mcps_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext,

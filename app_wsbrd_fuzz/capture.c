@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "app_wsbrd/wsbr.h"
-#include "app_wsbrd/wsbr_mac.h"
+#include "app_wsbrd/rcp_api.h"
 #include "common/bus_uart.h"
 #include "common/crc.h"
 #include "common/log.h"
@@ -56,7 +56,7 @@ void fuzz_capture_timers(struct fuzz_ctxt *ctxt)
     if (!ctxt->timer_counter)
         return;
 
-    spinel_push_u8(&buf, wsbr_get_spinel_hdr(&g_ctxt));
+    spinel_push_u8(&buf, rcp_get_spinel_hdr());
     spinel_push_uint(&buf, SPINEL_CMD_REPLAY_TIMERS);
     spinel_push_u16(&buf, ctxt->timer_counter);
     fuzz_capture_spinel(ctxt, &buf);
@@ -70,7 +70,7 @@ void fuzz_capture_interface(struct fuzz_ctxt *ctxt, uint8_t interface,
 {
     struct iobuf_write buf = { };
 
-    spinel_push_u8(&buf, wsbr_get_spinel_hdr(&g_ctxt));
+    spinel_push_u8(&buf, rcp_get_spinel_hdr());
     spinel_push_uint(&buf, SPINEL_CMD_REPLAY_INTERFACE);
     spinel_push_u8(&buf, interface);
     spinel_push_fixed_u8_array(&buf, src_addr, 16);
