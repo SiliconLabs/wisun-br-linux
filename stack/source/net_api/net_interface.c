@@ -24,7 +24,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
 #include "common/events_scheduler.h"
 #include "common/endian.h"

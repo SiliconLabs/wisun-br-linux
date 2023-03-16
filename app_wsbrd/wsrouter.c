@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/stat.h>
-#include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/events_scheduler.h"
 #include "common/os_types.h"
@@ -299,7 +298,6 @@ int main(int argc, char *argv[])
     parse_commandline(&ctxt->config, argc, argv, print_help_node);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
-    platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix[0] ? ctxt->config.storage_prefix : NULL;
     if (ctxt->config.storage_delete)

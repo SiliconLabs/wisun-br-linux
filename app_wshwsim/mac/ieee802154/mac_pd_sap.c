@@ -17,7 +17,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"

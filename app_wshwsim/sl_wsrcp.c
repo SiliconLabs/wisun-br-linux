@@ -26,7 +26,6 @@
 #ifdef HAVE_LIBPCAP
 #  include <pcap/pcap.h>
 #endif
-#include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/events_scheduler.h"
 #include "common/os_types.h"
@@ -307,7 +306,6 @@ int main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
-    platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
     configure(ctxt, argc, argv);
     ctxt->rcp_driver_id = virtual_rf_device_register(PHY_LINK_15_4_SUBGHZ_TYPE, 2043);

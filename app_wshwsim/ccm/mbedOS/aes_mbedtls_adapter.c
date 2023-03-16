@@ -16,7 +16,6 @@
  */
 #include <stdbool.h>
 #include <mbedtls/aes.h>
-#include "common/hal_interrupt.h"
 #include "stack/mac/platform/arm_hal_aes.h"
 
 struct arm_aes_context {
@@ -28,17 +27,13 @@ static arm_aes_context_t context_list[ARM_AES_MBEDTLS_CONTEXT_MIN];
 
 static arm_aes_context_t *mbed_tls_context_get(void)
 {
-    platform_enter_critical();
     for (int i = 0; i < ARM_AES_MBEDTLS_CONTEXT_MIN; i++) {
         if (!context_list[i].reserved) {
             //Reserve context
             context_list[i].reserved = true;
-            platform_exit_critical();
             return &context_list[i];
         }
     }
-
-    platform_exit_critical();
     return NULL;
 }
 
@@ -62,7 +57,5 @@ void arm_aes_encrypt(arm_aes_context_t *aes_context, const uint8_t src[static 16
 void arm_aes_finish(arm_aes_context_t *aes_context)
 {
     mbedtls_aes_free(&aes_context->ctx);
-    platform_enter_critical();
     aes_context->reserved = false;
-    platform_exit_critical();
 }

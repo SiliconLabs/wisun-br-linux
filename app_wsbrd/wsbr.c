@@ -13,7 +13,6 @@
 #include <poll.h>
 #include <unistd.h>
 #include <signal.h>
-#include "common/hal_interrupt.h"
 #include "common/bus_uart.h"
 #include "common/bus_cpc.h"
 #include "common/dhcp_server.h"
@@ -527,7 +526,6 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
     wsbr_check_mbedtls_features();
-    platform_critical_init();
     event_scheduler_init(&ctxt->scheduler);
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete)

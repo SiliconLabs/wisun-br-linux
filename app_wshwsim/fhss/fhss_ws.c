@@ -22,7 +22,6 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
-#include "common/hal_interrupt.h"
 #include "common/endian.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/fhss_config.h"
@@ -321,13 +320,11 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!fhss_structure) {
         return;
     }
-    platform_enter_critical();
     if (fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval == 0 || fhss_structure->ws->fhss_configuration.fhss_broadcast_interval == 0) {
         // stop broadcast schedule
         fhss_structure->ws->is_on_bc_channel = false;
         fhss_structure->ws->synchronization_time = 0;
         fhss_structure->ws->broadcast_timer_running = false;
-        platform_exit_critical();
         return;
     }
 
@@ -437,7 +434,6 @@ static void fhss_broadcast_handler(const fhss_api_t *fhss_api, uint16_t delay)
         tr_info("%u BC_done", fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api));
     }
 #endif
-    platform_exit_critical();
 }
 
 static int own_floor(float value)
@@ -885,7 +881,6 @@ static int16_t fhss_ws_write_synch_info_callback(const fhss_api_t *api, uint8_t 
     if (!fhss_structure || !ptr || (frame_type != FHSS_DATA_FRAME)) {
         return -1;
     }
-    platform_enter_critical();
     struct ws_ie header_ie;
     header_ie.id = WH_IE_ID;
     if (fhss_ws_ie_header_discover(ptr, length, &header_ie, WH_SUB_ID_UTT)) {
@@ -897,7 +892,6 @@ static int16_t fhss_ws_write_synch_info_callback(const fhss_api_t *api, uint8_t 
         write_le16(header_ie.content_ptr, fhss_structure->ws->bc_slot);
         write_le24(header_ie.content_ptr + 2, broadcast_interval_offset);
     }
-    platform_exit_critical();
     //TODO return destination channel here
     return fhss_structure->rx_channel;
 }
@@ -1047,7 +1041,6 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!fhss_structure) {
         return;
     }
-    platform_enter_critical();
     int32_t delay_us = fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->next_uc_timeout;
     if (!fhss_structure->ws->uc_slot && !fhss_structure->ws->next_uc_timeout) {
         delay_us = 0;
@@ -1067,7 +1060,6 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
     if (!timeout) {
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = false;
-        platform_exit_critical();
         return;
     }
     fhss_ws_start_timer(fhss_structure, timeout - (delay_us * fhss_structure->platform_functions.fhss_resolution_divider), fhss_unicast_handler);
@@ -1079,7 +1071,6 @@ static void fhss_unicast_handler(const fhss_api_t *fhss_api, uint16_t delay)
             fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
         }
     }
-    platform_exit_critical();
 }
 
 int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure)
@@ -1112,7 +1103,6 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
     if (((uint32_t)S_TO_US(fhss_structure->ws->min_synch_interval) > (fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->synchronization_time)) && !force_synch) {
         return 0;
     }
-    platform_enter_critical();
 
     uint16_t own_bc_slot = fhss_structure->ws->bc_slot;
     uint32_t prev_synchronization_time = fhss_structure->ws->synchronization_time;
@@ -1164,7 +1154,6 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         }
         tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", tr_eui64(eui64), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
-    platform_exit_critical();
     fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));
     return 0;
 }
@@ -1202,7 +1191,6 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
             return -1;
         }
     }
-    platform_enter_critical();
     if (fhss_configuration->ws_uc_channel_function == WS_FIXED_CHANNEL || fhss_configuration->fhss_uc_dwell_interval == 0) {
         fhss_stop_timer(fhss_structure, fhss_unicast_handler);
         fhss_structure->ws->unicast_timer_running = false;
@@ -1242,7 +1230,6 @@ int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_co
     if (fhss_configuration->ws_uc_channel_function == WS_FIXED_CHANNEL) {
         fhss_structure->rx_channel = fhss_configuration->unicast_fixed_channel;
     }
-    platform_exit_critical();
     tr_info("New FHSS config:");
     tr_info("  UC channel: %d", fhss_structure->ws->fhss_configuration.unicast_fixed_channel);
     tr_info("  BC channel: %d", fhss_structure->ws->fhss_configuration.broadcast_fixed_channel);

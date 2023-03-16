@@ -24,7 +24,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common/endian.h"
-#include "common/hal_interrupt.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/events_scheduler.h"
@@ -1897,7 +1896,6 @@ static int8_t mcps_generic_packet_rebuild(protocol_interface_rf_mac_setup_s *rf_
 
 static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_build_frame_t *buffer)
 {
-    platform_enter_critical();
     mac_mlme_mac_radio_enable(rf_ptr);
     rf_ptr->macTxProcessActive = true;
     if (rf_ptr->rf_csma_extension_supported) {
@@ -1916,7 +1914,6 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
                         //Response
                         if (rf_ptr->mac_ack_tx_active) {
                             mac_csma_backoff_start(rf_ptr);
-                            platform_exit_critical();
                             return -1;
                         }
                         rf_ptr->mac_edfe_response_tx_active = true;
@@ -1933,7 +1930,6 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
             } else {
                 if (rf_ptr->mac_ack_tx_active) {
                     mac_csma_backoff_start(rf_ptr);
-                    platform_exit_critical();
                     return -1;
                 }
                 cca_enabled = true;
@@ -1959,7 +1955,6 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
                     tr_debug("Drop ACK by CCA request");
                 }
 #endif
-                platform_exit_critical();
                 return -1;
             }
             mac_csma_backoff_start(rf_ptr);
@@ -1967,7 +1962,6 @@ static int8_t mcps_pd_data_cca_trig(protocol_interface_rf_mac_setup_s *rf_ptr, m
     } else {
         timer_mac_start(rf_ptr, MAC_TIMER_CCA, (uint16_t)(buffer->tx_time / 50));
     }
-    platform_exit_critical();
     return 0;
 }
 

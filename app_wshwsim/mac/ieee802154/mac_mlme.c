@@ -27,7 +27,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "common/hal_interrupt.h"
 #include "common/bits.h"
 #include "common/rand.h"
 #include "common/log_legacy.h"
@@ -95,7 +94,6 @@ uint16_t mlme_scan_analyze_next_channel(channel_list_t *mac_channel_list, bool c
 static void mac_mlme_start_request(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     mac_pre_build_frame_t *buf;
-    platform_enter_critical();
 
     mac_mlme_rf_disable(rf_mac_setup);
     buf = rf_mac_setup->active_pd_data_request;
@@ -108,7 +106,6 @@ static void mac_mlme_start_request(protocol_interface_rf_mac_setup_s *rf_mac_set
         sw_mac_stats_update(rf_mac_setup, STAT_MAC_TX_RETRY, rf_mac_setup->mac_tx_status.retry);
         mcps_sap_pd_req_queue_write(rf_mac_setup, buf);
     }
-    platform_exit_critical();
 }
 
 int8_t mac_mlme_start_req(const mlme_start_t *s, struct protocol_interface_rf_mac_setup *rf_mac_setup)
@@ -586,13 +583,11 @@ void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode, protocol_inte
 
 static void mac_mlme_timers_disable(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
-    platform_enter_critical();
     if (rf_ptr->mac_mlme_event != ARM_NWK_MAC_MLME_IDLE) {
         os_timer_stop(rf_ptr->mlme_timer_id);
         rf_ptr->mac_mlme_event = ARM_NWK_MAC_MLME_IDLE;
     }
     timer_mac_stop(rf_ptr);
-    platform_exit_critical();
 }
 
 void mac_mlme_event_cb(void *mac_ptr)
@@ -895,10 +890,8 @@ void mac_mlme_mac_radio_disabled(protocol_interface_rf_mac_setup_s *rf_mac_setup
     if (!rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return;
     }
-    platform_enter_critical();
     timer_mac_stop(rf_mac_setup);
     mac_mlme_rf_disable(rf_mac_setup);
-    platform_exit_critical();
 }
 
 void mac_mlme_mac_radio_enable(protocol_interface_rf_mac_setup_s *rf_mac_setup)
@@ -906,9 +899,7 @@ void mac_mlme_mac_radio_enable(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     if (!rf_mac_setup || !rf_mac_setup->dev_driver || !rf_mac_setup->dev_driver->phy_driver) {
         return;
     }
-    platform_enter_critical();
     mac_mlme_rf_receiver_enable(rf_mac_setup);
-    platform_exit_critical();
 }
 
 static int8_t mac_mlme_rf_disable(protocol_interface_rf_mac_setup_s *rf_mac_setup)
@@ -980,11 +971,9 @@ int8_t mac_mlme_rf_channel_change(protocol_interface_rf_mac_setup_s *rf_mac_setu
         return 0;
     }
 
-    platform_enter_critical();
     if (rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL, &new_channel) == 0) {
         rf_mac_setup->mac_channel = new_channel;
     }
-    platform_exit_critical();
     return 0;
 }
 

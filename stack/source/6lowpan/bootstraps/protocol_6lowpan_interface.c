@@ -23,7 +23,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/blacklist/blacklist.h"

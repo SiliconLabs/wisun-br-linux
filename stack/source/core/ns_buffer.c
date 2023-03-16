@@ -21,7 +21,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <sys/socket.h>
-#include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
 #include "stack/net_interface.h"
 
@@ -97,9 +96,7 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
     }
 
     if (buf) {
-        platform_enter_critical();
         buffer_count++;
-        platform_exit_critical();
         memset(buf, 0, sizeof(buffer_t));
         buf->buf_ptr = total_size - size;
         buf->buf_end = buf->buf_ptr;
@@ -201,13 +198,11 @@ buffer_t *buffer_free_route(buffer_t *buf)
 buffer_t *buffer_free(buffer_t *buf)
 {
     if (buf) {
-        platform_enter_critical();
         if (buffer_count) {
             buffer_count--;
         } else {
             tr_error("bc neg");
         }
-        platform_exit_critical();
 
         buf = buffer_free_route(buf);
         socket_dereference(buf->socket);

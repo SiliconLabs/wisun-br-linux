@@ -16,7 +16,6 @@
  */
 #include <stdint.h>
 #include "os_timer.h"
-#include "common/hal_interrupt.h"
 #include "common/log_legacy.h"
 #include "stack/mac/sw_mac.h"
 
@@ -56,12 +55,10 @@ void timer_mac_start(protocol_interface_rf_mac_setup_s *rf_ptr, mac_event_e even
  */
 void timer_mac_stop(protocol_interface_rf_mac_setup_s *rf_ptr)
 {
-    platform_enter_critical();
     if (rf_ptr->mac_timer_id != -1) {
         os_timer_stop(rf_ptr->mac_timer_id);
         rf_ptr->timer_mac_event = MAC_STATE_IDLE;
     }
-    platform_exit_critical();
 }
 
 void timer_mac_interrupt(int timer_id, uint16_t slots)

@@ -87,7 +87,6 @@ add_library(libwsbrd STATIC
     app_wsbrd/mbedtls_config_check.c
     common/crc.c
     common/bus_uart.c
-    common/hal_interrupt.c
     common/events_scheduler.c
     common/log.c
     common/bits.c
@@ -287,7 +286,6 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd/commandline_values.c
         common/crc.c
         common/bus_uart.c
-        common/hal_interrupt.c
         common/events_scheduler.c
         common/log.c
         common/bits.c
@@ -425,7 +423,6 @@ if(COMPILE_SIMULATION_TOOLS)
         version.c
         common/crc.c
         common/bus_uart.c
-        common/hal_interrupt.c
         common/events_scheduler.c
         common/log.c
         common/bits.c
