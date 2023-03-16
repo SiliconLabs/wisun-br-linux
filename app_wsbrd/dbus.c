@@ -23,6 +23,7 @@
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
+#include "stack/source/6lowpan/ws/ws_pae_lib.h"
 #include "stack/source/6lowpan/ws/ws_pae_auth.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
@@ -336,10 +337,10 @@ static int dbus_message_append_node(
     const uint8_t parent[8],
     const uint8_t ipv6[][16],
     bool is_br,
-    bool is_authenticated,
+    supp_entry_t *supp,
     struct neighbor_info *neighbor)
 {
-    int ret;
+    int ret, val;
 
     ret = sd_bus_message_open_container(m, 'r', "aya{sv}");
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
@@ -353,11 +354,23 @@ static int dbus_message_append_node(
             ret = sd_bus_message_append(m, "b", true);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
-        } else {
-            dbus_message_open_info(m, property, "is_authenticated", "b");
-            ret = sd_bus_message_append(m, "b", (int)is_authenticated);
+            // TODO: deprecate is_border_router
+            dbus_message_open_info(m, property, "node_role", "y");
+            ret = sd_bus_message_append(m, "y", WS_NR_ROLE_BR);
             WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
             dbus_message_close_info(m, property);
+        } else if (supp) {
+            dbus_message_open_info(m, property, "is_authenticated", "b");
+            val = true;
+            ret = sd_bus_message_append(m, "b", val);
+            WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+            dbus_message_close_info(m, property);
+            if (ws_common_is_valid_nr(supp->sec_keys.node_role)) {
+                dbus_message_open_info(m, property, "node_role", "y");
+                ret = sd_bus_message_append(m, "y", supp->sec_keys.node_role);
+                WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
+                dbus_message_close_info(m, property);
+            }
         }
         if (parent) {
             dbus_message_open_info(m, property, "parent", "ay");
@@ -465,6 +478,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     int len_pae, len_rpl, ret, j;
     uint8_t eui64_pae[4096][8];
     bbr_information_t br_info;
+    supp_entry_t *supp;
     uint8_t ipv6[16];
 
     ret = ws_bbr_info_get(ctxt->rcp_if_id, &br_info);
@@ -504,8 +518,14 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
             neighbor_info_ptr = &neighbor_info;
         else
             neighbor_info_ptr = NULL;
-        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6, false,
-                                 ws_pae_key_storage_supp_exists(eui64_pae[i]), neighbor_info_ptr);
+        if (ws_pae_key_storage_supp_exists(eui64_pae[i]))
+            supp = ws_pae_key_storage_supp_read(NULL, eui64_pae[i], NULL, NULL, NULL);
+        else
+            supp = NULL;
+        dbus_message_append_node(reply, property, eui64_pae[i], parent, node_ipv6,
+                                 false, supp, neighbor_info_ptr);
+        if (supp)
+            free(supp);
     }
     ret = sd_bus_message_close_container(reply);
     WARN_ON(ret < 0, "d %s: %s", property, strerror(-ret));
