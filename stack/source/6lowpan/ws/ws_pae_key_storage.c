@@ -26,13 +26,25 @@
 #include "common/log.h"
 #include "common/rand.h"
 #include "common/parsers.h"
+#include "common/named_values.h"
 #include "common/key_value_storage.h"
 
 #include "security/protocols/sec_prot_keys.h"
+#include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_pae_lib.h"
 #include "6lowpan/ws/ws_pae_time.h"
 
 #include "6lowpan/ws/ws_pae_key_storage.h"
+
+static const struct name_value nr_values[] = {
+    { "br",        WS_NR_ROLE_BR      }, // should not happen
+    { "lfn",       WS_NR_ROLE_LFN     },
+    { "ffn-fan11", WS_NR_ROLE_ROUTER  },
+    // Absence of the Node Role KDE MUST be interpreted to
+    // mean the node is operating as a FAN 1.0 Router
+    { "ffn-fan10", WS_NR_ROLE_UNKNOWN },
+    { NULL, 0 }
+};
 
 bool ws_pae_key_storage_supp_delete(const void *instance, const uint8_t *eui64)
 {
@@ -90,6 +102,7 @@ int8_t ws_pae_key_storage_supp_write(const void *instance, supp_entry_t *pae_sup
             fprintf(info->file, "lgtk[%d].installed_hash = %s\n", i, str_buf);
         }
     }
+    fprintf(info->file, "node_role = %s\n", val_to_str(pae_supp->sec_keys.node_role, nr_values, "unknown"));
     storage_close(info);
     return 0;
 }
@@ -152,6 +165,8 @@ supp_entry_t *ws_pae_key_storage_supp_read(const void *instance, const uint8_t *
                 WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
             else
                 pae_supp->sec_keys.lgtks.ins_gtk_hash_set |= 1 << strtoull(info->value, NULL, 0);
+        } else if (!fnmatch("node_role", info->key, 0)) {
+            pae_supp->sec_keys.node_role = str_to_val(info->value, nr_values);
         } else {
             WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
         }
