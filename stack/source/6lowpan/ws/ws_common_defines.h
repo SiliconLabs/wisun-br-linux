@@ -23,8 +23,6 @@
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h" /* gtkhash_t */
 
-#define WH_IE_ELEMENT_HEADER_LENGTH 3
-
 /* Header IE Sub elements */
 #define WH_IE_UTT_TYPE              1   /**< Unicast Timing and Frame type information */
 #define WH_IE_BT_TYPE               2   /**< Broadcast timing information */
@@ -44,8 +42,6 @@
 #define WH_IE_LTO_TYPE              17  /**< LFN Timing information */
 #define WH_IE_PANID_TYPE            18  /**< PAN Identifier information */
 #define WH_IE_LBC_TYPE              128 /**< LFN Broadcast Configuration IE */
-
-#define WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH 2
 
 /* Payload IE sub elements in side WP-IE */
 /* Long form subID's */

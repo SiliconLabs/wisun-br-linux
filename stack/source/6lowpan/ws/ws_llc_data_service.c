@@ -138,8 +138,6 @@ typedef struct temp_entriest {
 
 /** EDFE response and Enhanced ACK data length */
 
-#define ENHANCED_FRAME_RESPONSE (WH_IE_ELEMENT_HEADER_LENGTH + 2 + WH_IE_ELEMENT_HEADER_LENGTH + 4 + WH_IE_ELEMENT_HEADER_LENGTH + 1 + WH_IE_ELEMENT_HEADER_LENGTH + 5)
-
 typedef struct llc_data_base {
     ns_list_link_t                  link;                           /**< List link entry */
 
@@ -928,13 +926,13 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
         header_size += 7 + 8 + 5 + 2; //UTT+BTT+ MPX + Padding
 
         //Dynamic length
-        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
+        header_size += 2 + 2 /* WP-IE header */ +
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true) +
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, false);
     } else if (MPX_KEY_MANAGEMENT_ENC_USER_ID) {
         header_size += 7 + 5 + 2;
         //Dynamic length
-        header_size += 2 + WS_WP_SUB_IE_ELEMENT_HEADER_LENGTH +
+        header_size += 2 + 2 /* WP-IE header */ +
                        ws_wp_nested_hopping_schedule_length(&base->interface_ptr->ws_info.hopping_schedule, true);
     }
     return header_size;
