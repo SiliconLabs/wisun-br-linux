@@ -110,24 +110,6 @@ static const struct {
     { MAC_ADDR_MODE_16_BIT, MAC_ADDR_MODE_16_BIT, true,  false, 1 },
 };
 
-// Table 7-6 termination IE inclusion rules
-static const struct {
-    bool header_ie;
-    bool payload_ie;
-    bool data_payload;
-    uint16_t ie_ht;
-    uint16_t ie_pt;
-} ieee802154_table_term_ie[] = {
-    { false, false, false, 0,                 0                },
-    { true,  false, false, 0,                 0                },
-    { false, true,  false, IEEE802154_IE_HT1, 0                },
-    { true,  true,  false, IEEE802154_IE_HT1, 0                },
-    { false, false, true,  0,                 0                },
-    { true,  false, true,  IEEE802154_IE_HT2, 0                },
-    { false, true,  true,  IEEE802154_IE_HT1, IEEE802154_IE_PT },
-    { true,  true,  true,  IEEE802154_IE_HT1, IEEE802154_IE_PT },
-};
-
 int wsbr_data_ind_rebuild(uint8_t frame[],
                          const struct mcps_data_ind *ind,
                          const struct mcps_data_ie_list *ie)
@@ -136,6 +118,7 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
     uint16_t fcf;
     int i;
 
+    BUG_ON(ind->msduLength);
     fcf = FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA)
         | FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   false)
         | FIELD_PREP(IEEE802154_FCF_FRAME_PENDING,      ind->PendingBit)
@@ -175,21 +158,12 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
         frame += 2;
     }
 
-    for (i = 0; i < ARRAY_SIZE(ieee802154_table_term_ie); i++)
-        if (ieee802154_table_term_ie[i].header_ie    == (bool)ie->headerIeListLength  &&
-            ieee802154_table_term_ie[i].payload_ie   == (bool)ie->payloadIeListLength &&
-            ieee802154_table_term_ie[i].data_payload == (bool)ind->msduLength)
-            break;
     memcpy(frame, ie->headerIeList, ie->headerIeListLength);
     frame += ie->headerIeListLength;
-    if (ieee802154_table_term_ie[i].ie_ht)
-        frame = write_le16(frame, ieee802154_table_term_ie[i].ie_ht);
+    if (ie->payloadIeListLength)
+        frame = write_le16(frame, IEEE802154_IE_HT1);
     memcpy(frame, ie->payloadIeList, ie->payloadIeListLength);
     frame += ie->payloadIeListLength;
-    if (ieee802154_table_term_ie[i].ie_pt)
-        frame = write_le16(frame, ieee802154_table_term_ie[i].ie_pt);
-    memcpy(frame, ind->msdu_ptr, ind->msduLength);
-    frame += ind->msduLength;
 
     return frame - start;
 }
@@ -205,6 +179,7 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     int i;
 
     BUG_ON(!ie);
+    BUG_ON(req->msduLength);
     wsbr_mac_addr_get(api, MAC_EXTENDED_DYNAMIC, mac64);
     fcf = 0;
     fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA);
@@ -259,29 +234,18 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
             iobuf_push_u8(frame, req->Key.KeyIndex);
     }
 
-    for (i = 0; i < ARRAY_SIZE(ieee802154_table_term_ie); i++)
-        if (ieee802154_table_term_ie[i].header_ie    == !!ie->headerIovLength  &&
-            ieee802154_table_term_ie[i].payload_ie   == !!ie->payloadIovLength &&
-            ieee802154_table_term_ie[i].data_payload == !!req->msduLength)
-            break;
-
     if (ie->headerIovLength > 0)
         iobuf_push_data(frame, ie->headerIeVectorList[0].iov_base, ie->headerIeVectorList[0].iov_len);
     BUG_ON(ie->headerIovLength > 1);
 
-    if (ieee802154_table_term_ie[i].ie_ht)
-        iobuf_push_le16(frame, ieee802154_table_term_ie[i].ie_ht);
+    if (ie->payloadIovLength)
+        iobuf_push_le16(frame, IEEE802154_IE_HT1);
 
     if (ie->payloadIovLength > 0)
         iobuf_push_data(frame, ie->payloadIeVectorList[0].iov_base, ie->payloadIeVectorList[0].iov_len);
     if (ie->payloadIovLength > 1)
         iobuf_push_data(frame, ie->payloadIeVectorList[1].iov_base, ie->payloadIeVectorList[1].iov_len);
     BUG_ON(ie->payloadIovLength > 2);
-    if (ieee802154_table_term_ie[i].ie_pt)
-        iobuf_push_le16(frame, ieee802154_table_term_ie[i].ie_pt);
-
-    if (req->msduLength)
-        iobuf_push_data(frame, req->msdu, req->msduLength);
 
     // MIC
     if (req->Key.SecurityLevel == SEC_MIC32 || req->Key.SecurityLevel == SEC_ENC_MIC32)
