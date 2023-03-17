@@ -29,7 +29,7 @@
 #include "wsbr_mac.h"
 #include "frame_helpers.h"
 
-// Figure 7-2 Format of the Frame Control field
+// IEEE 802.15.4-2020 Figure 7-2 Format of the Frame Control field
 #define IEEE802154_FCF_FRAME_TYPE         0b0000000000000111
 #define IEEE802154_FCF_SECURITY_ENABLED   0b0000000000001000
 #define IEEE802154_FCF_FRAME_PENDING      0b0000000000010000
@@ -46,10 +46,10 @@
 #define IEEE802154_SECURITY_FRAME_COUNT_SUPPR 0b00100000
 #define IEEE802154_SECURITY_ASN_IN_NONCE      0b01000000
 
-// Table 7-1 Values of the Frame Type field
+// IEEE 802.15.4-2020 Table 7-1 Values of the Frame Type field
 #define IEEE802154_FRAME_TYPE_DATA 0b001
 
-// Figure 7-21 Format of Header IEs
+// IEEE 802.15.4-2020 Figure 7-21 Format of Header IEs
 #define IEEE802154_HEADER_IE_LEN_MASK  0b0000000001111111
 #define IEEE802154_HEADER_IE_ID_MASK   0b0111111110000000
 #define IEEE802154_HEADER_IE_TYPE_MASK 0b1000000000000000
@@ -59,7 +59,7 @@
     | FIELD_PREP(IEEE802154_HEADER_IE_TYPE_MASK, 0  ) \
 )
 
-// Figure 7-46 Format of Payload IEs
+// IEEE 802.15.4-2020 Figure 7-47 Format of Payload IEs
 #define IEEE802154_PAYLOAD_IE_LEN_MASK  0b0000011111111111
 #define IEEE802154_PAYLOAD_IE_ID_MASK   0b0111100000000000
 #define IEEE802154_PAYLOAD_IE_TYPE_MASK 0b1000000000000000
@@ -69,20 +69,21 @@
     | FIELD_PREP(IEEE802154_PAYLOAD_IE_TYPE_MASK, 1  ) \
 )
 
-// Table 7-7 Element IDs for Header IEs
+// IEEE 802.15.4-2020 Table 7-7 Element IDs for Header IEs
 #define IEEE802154_IE_ID_HT1 0x7e
 #define IEEE802154_IE_ID_HT2 0x7f
-// Table 7-15 Payload IE Group ID
+// IEEE 802.15.4-2020 Table 7-17 Payload IE Group ID
 #define IEEE802154_IE_ID_PT  0xf
 
-// 7.4.2.17 Header Termination 1 IE
+// IEEE 802.15.4-2020 7.4.2.18 Header Termination 1 IE
 #define IEEE802154_IE_HT1 IEEE802154_HEADER_IE(0, IEEE802154_IE_ID_HT1)
-// 7.4.2.18 Header Termination 2 IE
+// IEEE 802.15.4-2020 7.4.2.19 Header Termination 2 IE
 #define IEEE802154_IE_HT2 IEEE802154_HEADER_IE(0, IEEE802154_IE_ID_HT2)
-// 7.4.3.3 Payload Termination IE
+// IEEE 802.15.4-2020 7.4.3.4 Payload Termination IE
 #define IEEE802154_IE_PT IEEE802154_PAYLOAD_IE(0, IEEE802154_IE_ID_PT)
 
-// Table 7-2 PAN ID Compression field value for frame version 0b10
+// IEEE 802.15.4-2020 Table 7-2 PAN ID Compression field value for frame version
+// 0b10
 static const struct {
     uint8_t dst_addr_mode;
     uint8_t src_addr_mode;
