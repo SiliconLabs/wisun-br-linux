@@ -81,7 +81,6 @@ typedef struct llc_ie_params {
     uint16_t                network_name_length;    /**< Network name length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
-    ws_pan_information_t    *pan_configuration;     /**< Pan configururation */
     gtkhash_t               *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
@@ -1624,11 +1623,12 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies.bs_ie)
             ws_wp_nested_bs_write(&msg->ie_buf_payload, &info->hopping_schedule);
         if (wp_ies.pan_ie)
-            ws_wp_nested_pan_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
+            ws_wp_nested_pan_write(&msg->ie_buf_payload, info->pan_information.pan_size,
+                                   info->pan_information.routing_cost, info->pan_information.version);
         if (wp_ies.net_name_ie)
             ws_wp_nested_netname_write(&msg->ie_buf_payload, base->ie_params.network_name, base->ie_params.network_name_length);
         if (wp_ies.pan_version_ie)
-            ws_wp_nested_panver_write(&msg->ie_buf_payload, base->ie_params.pan_configuration);
+            ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies.gtkhash_ie)
             ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
         if (ws_version_1_1(base->interface_ptr)) {
@@ -1820,16 +1820,6 @@ void ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash)
     }
 
     base->ie_params.lgtkhash = lgtkhash;
-}
-
-void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_information *pan_information_pointer)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-
-    base->ie_params.pan_configuration = pan_information_pointer;
 }
 
 void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes)

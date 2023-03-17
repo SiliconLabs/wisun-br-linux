@@ -514,7 +514,6 @@ static void ws_bootstrap_ffn_network_configuration_learn(struct net_if *cur)
     tr_debug("Start using PAN configuration");
 
     // Timing information can be modified here
-    ws_llc_set_pan_information_pointer(cur, &cur->ws_info.pan_information);
     gtkhash_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
     gtkhash_t *lgtkhash = ws_pae_controller_lgtk_hash_ptr_get(cur);
     ws_llc_set_gtkhash(cur, gtkhash);

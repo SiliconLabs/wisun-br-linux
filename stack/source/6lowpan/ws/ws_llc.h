@@ -203,14 +203,6 @@ void  ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash);
  */
 void  ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash);
 
-/**
- * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WS_WPIE_PAN IE element)
- * @param interface Interface pointer
- * @param pan_information_pointer pointer to Pan information this pointer must keep alive when it is configured to LLC
- *
- */
-void ws_llc_set_pan_information_pointer(struct net_if *interface, struct ws_pan_information *pan_information_pointer);
-
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);

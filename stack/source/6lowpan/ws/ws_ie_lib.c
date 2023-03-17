@@ -394,25 +394,20 @@ void ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hopping_sche
     ieee802154_ie_fill_len_nested(buf, offset, true);
 }
 
-void ws_wp_nested_pan_write(struct iobuf_write *buf,
-                            struct ws_pan_information *pan_configuration)
+void ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size,
+                            uint16_t routing_cost, uint8_t tps_version)
 {
-    bool lfn_window_style = false;
     uint8_t tmp8;
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_PAN, false);
-    if (!pan_configuration)
-        return;
-    iobuf_push_le16(buf, pan_configuration->pan_size);
-    iobuf_push_le16(buf, pan_configuration->routing_cost);
-    if (pan_configuration->version > WS_FAN_VERSION_1_0)
-        lfn_window_style = pan_configuration->lfn_window_style;
+    iobuf_push_le16(buf, pan_size);
+    iobuf_push_le16(buf, routing_cost);
     tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, pan_configuration->use_parent_bs);
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_ROUTING_METHOD_MASK,   pan_configuration->rpl_routing_method);
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, lfn_window_style);
-    tmp8 |= FIELD_PREP(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  pan_configuration->version);
+    tmp8 |= FIELD_PREP(WS_WPIE_PAN_USE_PARENT_BS_IE_MASK, 1); // use parent BS
+    tmp8 |= FIELD_PREP(WS_WPIE_PAN_ROUTING_METHOD_MASK,   1); // RPL routed
+    tmp8 |= FIELD_PREP(WS_WPIE_PAN_LFN_WINDOW_STYLE_MASK, 0); // LFN managed tx
+    tmp8 |= FIELD_PREP(WS_WPIE_PAN_FAN_TPS_VERSION_MASK,  tps_version);
     iobuf_push_u8(buf, tmp8);
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
@@ -429,15 +424,12 @@ void ws_wp_nested_netname_write(struct iobuf_write *buf,
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_panver_write(struct iobuf_write *buf,
-                               struct ws_pan_information *pan_configuration)
+void ws_wp_nested_panver_write(struct iobuf_write *buf, uint8_t pan_version)
 {
     int offset;
 
-    if (!pan_configuration)
-        return;
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_PANVER, false);
-    iobuf_push_le16(buf, pan_configuration->pan_version);
+    iobuf_push_le16(buf, pan_version);
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
