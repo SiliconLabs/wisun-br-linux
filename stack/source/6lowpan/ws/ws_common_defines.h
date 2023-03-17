@@ -23,47 +23,7 @@
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h" /* gtkhash_t */
 
-/* Header IE Sub elements */
-#define WH_IE_UTT_TYPE              1   /**< Unicast Timing and Frame type information */
-#define WH_IE_BT_TYPE               2   /**< Broadcast timing information */
-#define WH_IE_FC_TYPE               3   /**< Flow Control for Extended Direct Frame Exchange */
-#define WH_IE_RSL_TYPE              4   /**< Received Signal Level information */
-#define WH_IE_MHDS_TYPE             5   /**< MHDS information for mesh routing */
-#define WH_IE_VH_TYPE               6   /**< Vendor header information */
-#define WH_IE_EA_TYPE               9   /**< Eapol Auhtenticator EUI-64 header information */
-/* Wi-SUN FAN dfinition 1.1 */
-#define WH_IE_LUTT_TYPE             10  /**< LFN Unicast Timing and Frame Type information */
-#define WH_IE_LBT_TYPE              11  /**< LFN Broadcast Timing information */
-#define WH_IE_NR_TYPE               12  /**< Node Role IE information */
-#define WH_IE_LUS_TYPE              13  /**< LFN Unicast Schedule information */
-#define WH_IE_FLUS_TYPE             14  /**< FFN for LFN unicast Schedule information */
-#define WH_IE_LBS_TYPE              15  /**<  LFN Broadcast Schedule information */
-#define WH_IE_LND_TYPE              16  /**< LFN Network Discovery information */
-#define WH_IE_LTO_TYPE              17  /**< LFN Timing information */
-#define WH_IE_PANID_TYPE            18  /**< PAN Identifier information */
-#define WH_IE_LBC_TYPE              128 /**< LFN Broadcast Configuration IE */
-
-/* Payload IE sub elements in side WP-IE */
-/* Long form subID's */
-#define WP_PAYLOAD_IE_US_TYPE               1   /**< Unicast Schedule information */
-#define WP_PAYLOAD_IE_BS_TYPE               2   /**< Broadcast Schedule information */
-#define WP_PAYLOAD_IE_VP_TYPE               3   /**< Vendor Payload information */
-/* Wi-SUN FAN definition 1.1 */
-#define WP_PAYLOAD_IE_LCP_TYPE              4   /**< LFN Channel Plan information*/
-#define WP_PAYLOAD_IE_LBATS_TYPE            5   /**< LFN Broadcast Additional Transmit Schedule information */
-
-
-/* Short form subID's */
-#define WP_PAYLOAD_IE_PAN_TYPE      4   /**< PAN Information */
-#define WP_PAYLOAD_IE_NETNAME_TYPE  5   /**< Network Name information */
-#define WP_PAYLOAD_IE_PAN_VER_TYPE  6   /**< Pan configuration version */
-#define WP_PAYLOAD_IE_GTKHASH_TYPE  7   /**< GTK Hash information */
-/* Wi-SUN FAN definition 1.1 */
-#define WP_PAYLOAD_IE_POM_TYPE      8   /**< PHY Capability information */
-#define WP_PAYLOAD_IE_LFN_VER_TYPE  0x40   /**< LFN Version information */
-#define WP_PAYLOAD_IE_LGTKHASH_TYPE 0x41   /**< LFN GTK Hash Information */
-
-/* WS frame types to WH_IE_UTT_TYPE */
+/* WS frame types to WS_WHIE_UTT */
 #define WS_FT_PA                0          /**< PAN Advert */
 #define WS_FT_PAS               1          /**< PAN Advert Solicit */
 #define WS_FT_PC                2          /**< PAN Config */

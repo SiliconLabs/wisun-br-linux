@@ -179,7 +179,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 
 
 /**
- * @brief ws_llc_set_network_name Configure WS Network name (Data of WP_PAYLOAD_IE_NETNAME_TYPE IE element)
+ * @brief ws_llc_set_network_name Configure WS Network name (Data of WS_WPIE_NETNAME IE element)
  * @param interface Interface pointer
  * @param name_length configured network name length
  * @param name pointer to network name this pointer must keep alive when it is configured to LLC
@@ -188,7 +188,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length);
 
 /**
- * @brief ws_llc_set_gtkhash Configure WS GTK hash information (Data of WP_PAYLOAD_IE_GTKHASH_TYPE IE element)
+ * @brief ws_llc_set_gtkhash Configure WS GTK hash information (Data of WS_WPIE_GTKHASH IE element)
  * @param interface Interface pointer
  * @param gtkhash pointer to GTK hash which length is 32 bytes this pointer must keep alive when it is configured to LLC
  *
@@ -196,7 +196,7 @@ void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t na
 void  ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash);
 
 /**
- * @brief ws_llc_set_lgtkhash Configure WS LFN GTK hash information (Data of WP_PAYLOAD_IE_LGTKHASH_TYPE IE element)
+ * @brief ws_llc_set_lgtkhash Configure WS LFN GTK hash information (Data of WS_WPIE_LGTKHASH IE element)
  * @param interface Interface pointer
  * @param gtkhash pointer to LGTK hashes. This pointer must keep alive when it is configured to LLC
  *
@@ -204,7 +204,7 @@ void  ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash);
 void  ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash);
 
 /**
- * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WP_PAYLOAD_IE_PAN_TYPE IE element)
+ * @brief ws_llc_set_pan_information_pointer Configure WS PAN information (Data of WS_WPIE_PAN IE element)
  * @param interface Interface pointer
  * @param pan_information_pointer pointer to Pan information this pointer must keep alive when it is configured to LLC
  *
@@ -228,7 +228,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *interface, ws_neighbor_temp
 void ws_llc_set_base_phy_mode_id(struct net_if *interface, uint8_t phy_mode_id);
 
 /**
- * @brief Configure WS POM information (Data of WP_PAYLOAD_IE_POM_TYPE IE element)
+ * @brief Configure WS POM information (Data of WS_WPIE_POM IE element)
  * @param interface Interface pointer
  * @param phy_op_mode_number length of phy_operating_modes
  * @param phy_operating_modes pointer to phy_operating_modes array. This pointer must be kept alive when it is configured to LLC
