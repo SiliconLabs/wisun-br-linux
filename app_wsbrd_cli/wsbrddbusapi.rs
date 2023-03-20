@@ -107,6 +107,7 @@ pub trait ComSilabsWisunBorderRouter {
     fn wisun_phy_mode_id(&self) -> Result<u32, dbus::Error>;
     fn wisun_chan_plan_id(&self) -> Result<u32, dbus::Error>;
     fn wisun_pan_id(&self) -> Result<u16, dbus::Error>;
+    fn wisun_fan_version(&self) -> Result<u8, dbus::Error>;
 }
 
 impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsWisunBorderRouter for blocking::Proxy<'a, C> {
@@ -189,5 +190,9 @@ impl<'a, T: blocking::BlockingSender, C: ::std::ops::Deref<Target=T>> ComSilabsW
 
     fn wisun_pan_id(&self) -> Result<u16, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "WisunPanId")
+    }
+
+    fn wisun_fan_version(&self) -> Result<u8, dbus::Error> {
+        <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(&self, "com.silabs.Wisun.BorderRouter", "WisunFanVersion")
     }
 }

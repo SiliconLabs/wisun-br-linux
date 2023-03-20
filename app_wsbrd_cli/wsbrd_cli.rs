@@ -84,6 +84,11 @@ fn do_status(dbus_user: bool) -> Result<(), Box<dyn std::error::Error>> {
         Err(e) => return Err(Box::new(e)),
     }
 
+    match dbus_proxy.wisun_fan_version().unwrap_or(u8::MAX) {
+        1 => println!("fan_version: FAN 1.0"),
+        2 => println!("fan_version: FAN 1.1"),
+        _ => (),
+    }
     println!("domain: {}", dbus_proxy.wisun_domain().unwrap_or("[UNKNOWN]".to_string()));
     let mode         = dbus_proxy.wisun_mode().unwrap_or(0);
     let class        = dbus_proxy.wisun_class().unwrap_or(0);
