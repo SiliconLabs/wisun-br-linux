@@ -131,3 +131,4 @@ more details.
 |`WisunPhyModeId`  |`u`      |FAN 1.1 PHY mode ID, or `0` when using FAN 1.0    |
 |`WisunChanPlanId` |`u`      |FAN 1.1 channel plan ID, or `0` when using FAN 1.0|
 |`WisunPanId`      |`q`      |                                                  |
+|`WisunFanVersion` |`y`      |Semantics from Wi-SUN (`1`: FAN 1.0, `2`: FAN 1.1)|

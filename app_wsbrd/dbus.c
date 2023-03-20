@@ -648,6 +648,9 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_PROPERTY("WisunPanId", "q", dbus_get_ws_pan_id,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_CONST),
+        SD_BUS_PROPERTY("WisunFanVersion", "y", NULL,
+                        offsetof(struct wsbr_ctxt, config.ws_fan_version),
+                        SD_BUS_VTABLE_PROPERTY_CONST),
         SD_BUS_VTABLE_END
 };
 
