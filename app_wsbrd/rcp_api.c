@@ -10,9 +10,11 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include "stack/mac/mlme.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/mac/platform/arm_hal_phy.h"
+#include "stack/ws_management_api.h"
 
 #include "common/version.h"
 #include "common/iobuf.h"
@@ -20,33 +22,16 @@
 #include "common/endian.h"
 #include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
+#include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 
+#include "wsbr_pcapng.h"
 #include "wsbr_mac.h"
 #include "wsbr.h"
+#include "timers.h"
 #include "version.h"
 #include "rcp_api.h"
 
-
-void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
-{
-    spinel_trace_tx(buf);
-    ctxt->rcp_tx(ctxt->os_ctxt, buf->data, buf->len);
-}
-
-void rcp_rx(struct wsbr_ctxt *ctxt)
-{
-    static uint8_t rx_buf[4096];
-    struct iobuf_read buf = {
-        .data = rx_buf,
-    };
-
-    buf.data_size = ctxt->rcp_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
-    if (!buf.data_size)
-        return;
-    spinel_trace_rx(&buf);
-    wsbr_rcp_rx(ctxt, &buf);
-}
 
 uint8_t rcp_get_spinel_hdr()
 {
@@ -676,7 +661,6 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     iobuf_free(&buf);
 }
 
-
 /*
  * Values for flags field of PROP_FRAME
  */
@@ -763,4 +747,254 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
 void rcp_tx_drop(uint8_t handle)
 {
     rcp_set_u8(SPINEL_PROP_WS_MCPS_DROP, handle);
+}
+
+static void rcp_rx_no_op(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+}
+
+static void rcp_rx_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    wsbr_spinel_replay_interface(buf);
+}
+
+static void rcp_rx_replay_timer(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    wsbr_spinel_replay_timers(buf);
+}
+
+static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
+    const char *version_fw_str;
+
+    if (iobuf_remaining_size(buf) < 16)
+        FATAL(1, "unknown RESET format (bad firmware?)");
+    ctxt->rcp_version_api = spinel_pop_u32(buf);
+    ctxt->rcp_version_fw = spinel_pop_u32(buf);
+    version_fw_str = spinel_pop_str(buf);
+    spinel_pop_bool(buf); // is_hw_reset is no more used
+    ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
+    if (ctxt->storage_sizes.device_description_table_size <= min_device_description_table_size)
+        FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
+              min_device_description_table_size);
+    ctxt->storage_sizes.device_description_table_size -= MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
+    ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
+    ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
+    ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
+    wsbr_handle_reset(ctxt, version_fw_str);
+}
+
+static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    uint16_t crc            = spinel_pop_u16(buf);
+    uint32_t frame_len      = spinel_pop_u32(buf);
+    uint8_t header          = spinel_pop_u8(buf);
+    uint8_t irq_err_counter = spinel_pop_u8(buf);
+
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    wsbr_mac_handle_crc_error(ctxt, crc, frame_len, header, irq_err_counter);
+}
+
+static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    int val = spinel_pop_uint(buf);
+
+    if (!val) {
+        ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG;
+        ctxt->rcp_init_state |= RCP_INIT_DONE;
+    }
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+}
+
+static void rcp_rx_start_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_START, NULL);
+}
+
+static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    int val = spinel_pop_i16(buf);
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    // from -174dBm to + 80dBm, so add + 174 to real sensitivity
+    ws_device_min_sens_set(ctxt->rcp_if_id, val + 174);
+}
+
+static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    wsbr_mac_store_rf_config_list(ctxt, buf);
+    buf->cnt = 0;
+    spinel_pop_u8(buf); // header
+    spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
+    spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
+    if (ctxt->config.list_rf_configs)
+        wsbr_mac_print_rf_config_list(ctxt, buf);
+    ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG_LIST;
+}
+
+static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    ctxt->rcp_init_state |= RCP_HAS_HWADDR;
+}
+
+static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    uint32_t data;
+    mlme_get_conf_t req = {
+        .attr = macFrameCounter,
+        .value_pointer = &data,
+        .value_size = sizeof(data),
+    };
+
+    req.attr_index = spinel_pop_uint(buf);
+    data           = spinel_pop_u32(buf);
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
+}
+
+static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    const uint8_t *data;
+    int id;
+
+    id = spinel_pop_uint(buf);
+    spinel_pop_data_ptr(buf, &data);
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
+}
+
+static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    mcps_data_ind_t req = { };
+    mcps_data_ie_list_t ie_ext = { };
+
+    req.msduLength             = spinel_pop_data_ptr(buf, &req.msdu_ptr);
+    req.SrcAddrMode            = spinel_pop_u8(buf);
+    req.SrcPANId               = spinel_pop_u16(buf);
+    spinel_pop_fixed_u8_array(buf, req.SrcAddr, 8);
+    req.DstAddrMode            = spinel_pop_u8(buf);
+    req.DstPANId               = spinel_pop_u16(buf);
+    spinel_pop_fixed_u8_array(buf, req.DstAddr, 8);
+    req.mpduLinkQuality        = spinel_pop_u8(buf);
+    req.signal_dbm             = spinel_pop_i8(buf);
+    req.timestamp              = spinel_pop_u32(buf);
+    req.DSN_suppressed         = spinel_pop_bool(buf);
+    req.DSN                    = spinel_pop_u8(buf);
+    req.Key.SecurityLevel      = spinel_pop_u8(buf);
+    req.Key.KeyIdMode          = spinel_pop_u8(buf);
+    req.Key.KeyIndex           = spinel_pop_u8(buf);
+    spinel_pop_fixed_u8_array(buf, req.Key.Keysource, 8);
+    ie_ext.headerIeListLength  = spinel_pop_data_ptr(buf, &ie_ext.headerIeList);
+    ie_ext.payloadIeListLength = spinel_pop_data_ptr(buf, &ie_ext.payloadIeList);
+    if (iobuf_remaining_size(buf)) {
+        req.TxAckReq           = spinel_pop_bool(buf);
+        req.PendingBit         = spinel_pop_bool(buf);
+        req.PanIdSuppressed    = spinel_pop_bool(buf);
+        if (ctxt->config.pcap_file[0])
+            wsbr_pcapng_write_frame(ctxt, &req, &ie_ext);
+    }
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    // Note: we don't support data_ind_cb()
+    ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
+}
+
+static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    mcps_data_conf_t req = { };
+    mcps_data_conf_payload_t conf_req = { };
+
+    req.status      = spinel_pop_u8(buf);
+    req.msduHandle  = spinel_pop_u8(buf);
+    req.timestamp   = spinel_pop_u32(buf);
+    req.cca_retries = spinel_pop_u8(buf);
+    req.tx_retries  = spinel_pop_u8(buf);
+    conf_req.headerIeListLength  = spinel_pop_data_ptr(buf, &conf_req.headerIeList);
+    conf_req.payloadIeListLength = spinel_pop_data_ptr(buf, &conf_req.payloadIeList);
+    conf_req.payloadLength       = spinel_pop_data_ptr(buf, &conf_req.payloadPtr);
+    if (iobuf_remaining_size(buf)) {
+        spinel_pop_raw(buf, (uint8_t *)req.retry_per_rate, sizeof(mcps_data_retry_t) * MAX_PHY_MODE_ID_PER_FRAME);
+        req.success_phy_mode_id = spinel_pop_u8(buf);
+    }
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
+}
+
+struct {
+    uint32_t cmd;
+    uint32_t prop;
+    void (*fn)(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
+} rx_cmds[] = {
+    { SPINEL_CMD_NOOP,             (uint32_t)-1,                         rcp_rx_no_op },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_MCPS_DROP,             rcp_rx_no_op },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_STREAM_STATUS,            rcp_tx_cnf },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_STREAM_RAW,               rcp_rx_ind  },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_MLME_IND,              rcp_rx_err  },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_FRAME_COUNTER,         rcp_rx_frame_counter},
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_HWADDR,                   rcp_rx_hwaddr },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RX_SENSITIVITY,        rcp_rx_sensitivity },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION_LIST, rcp_rx_rf_list },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_LAST_STATUS,              rcp_rx_start_status },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION,      rcp_rx_rf_config_status },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RCP_CRC_ERR,           rcp_rx_crc_err },
+    { SPINEL_CMD_RESET,            (uint32_t)-1,                         rcp_rx_reset },
+    { SPINEL_CMD_REPLAY_TIMERS,    (uint32_t)-1,                         rcp_rx_replay_timer },
+    { SPINEL_CMD_REPLAY_INTERFACE, (uint32_t)-1,                         rcp_rx_replay_interface },
+    { (uint32_t)-1,                (uint32_t)-1,                         NULL },
+};
+
+void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
+{
+    spinel_trace_tx(buf);
+    ctxt->rcp_tx(ctxt->os_ctxt, buf->data, buf->len);
+}
+
+static bool rcp_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
+{
+    if (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+        return false;
+    if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+        return prop == SPINEL_PROP_HWADDR;
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+        return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
+    return true;
+}
+
+void rcp_rx(struct wsbr_ctxt *ctxt)
+{
+    static uint8_t rx_buf[4096];
+    struct iobuf_read buf = {
+        .data = rx_buf,
+    };
+    uint32_t cmd, prop;
+    int i;
+
+    buf.data_size = ctxt->rcp_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
+    if (!buf.data_size)
+        return;
+    spinel_trace_rx(&buf);
+    spinel_pop_u8(&buf); /* packet header */
+    cmd = spinel_pop_uint(&buf);
+    if (cmd != SPINEL_CMD_PROP_IS) {
+        prop = (uint32_t)-1;
+    } else {
+        prop = spinel_pop_uint(&buf);
+        if (!rcp_init_state_is_valid(ctxt, prop)) {
+            WARN("ignoring unexpected boot-up sequence");
+            return;
+        }
+    }
+    for (i = 0; rx_cmds[i].cmd != (uint32_t)-1; i++)
+        if (rx_cmds[i].cmd == cmd && rx_cmds[i].prop == prop)
+            return rx_cmds[i].fn(ctxt, prop, &buf);
+    ERROR("%s: command %04x/%04x not implemented", __func__, cmd, prop);
 }

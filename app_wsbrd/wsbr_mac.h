@@ -25,7 +25,10 @@ struct iobuf_read;
 #define RCP_HAS_RF_CONFIG      0x0008
 #define RCP_INIT_DONE          0x0010
 
-void wsbr_rcp_rx(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
+void wsbr_mac_store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
+void wsbr_mac_print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
+void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len,
+                               uint8_t header, uint8_t irq_err_counter);
 void wsbr_data_req_ext(const struct mac_api *api,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext);
