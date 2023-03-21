@@ -32,128 +32,36 @@
 #include "6lowpan/mac/mac_response_handler.h"
 
 #define TRACE_GROUP "MRsH"
-
-static void mac_mlme_frame_counter_confirmation_handle(struct net_if *info_entry, mlme_get_conf_t *confirmation)
-{
-    if (confirmation->value_size != 4) {
-        return;
-    }
-    uint32_t *temp_ptr = (uint32_t *)confirmation->value_pointer;
-    info_entry->mac_parameters.security_frame_counter = *temp_ptr;
-}
-
-static void mac_mlme_get_confirmation_handler(struct net_if *info_entry, mlme_get_conf_t *confirmation)
-{
-
-    if (!confirmation) {
-        return;
-    }
-    switch (confirmation->attr) {
-        case macFrameCounter:
-            mac_mlme_frame_counter_confirmation_handle(info_entry, confirmation);
-            break;
-        default:
-
-            break;
-
-    }
-}
-
 void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
-    struct net_if *info_entry = protocol_stack_interface_info_get_by_id(api->parent_id);
-    if (!info_entry) {
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(api->parent_id);
+    mlme_get_conf_t *conf = (mlme_get_conf_t *)data;
+
+    if (!cur)
         return;
-    }
-    //TODO: create buffer_t and call correct function
-    switch (id) {
-        case MLME_ASSOCIATE: {
-            //Unsupported
-            break;
-        }
-        case MLME_DISASSOCIATE: {
-            //Unsupported
-            break;
-        }
-        case MLME_GET: {
-            mlme_get_conf_t *dat = (mlme_get_conf_t *)data;
-            mac_mlme_get_confirmation_handler(info_entry, dat);
-            break;
-        }
-        case MLME_GTS: {
-            //Unsupported
-            break;
-        }
-        case MLME_RESET: {
-//            mlme_reset_conf_t *dat = (mlme_reset_conf_t*)data;
-            break;
-        }
-        case MLME_RX_ENABLE: {
-            //Unsupported
-            break;
-        }
-        case MLME_SCAN: {
-            break;
-        }
-        case MLME_SET: {
-//            mlme_set_conf_t *dat = (mlme_set_conf_t*)data;
-            break;
-        }
-        case MLME_START: {
-//            mlme_start_conf_t *dat = (mlme_start_conf_t*)data;
-            break;
-        }
-        case MLME_POLL:
-        case MLME_ORPHAN:
-        case MLME_COMM_STATUS:
-        case MLME_SYNC:
-        case MLME_SYNC_LOSS:
-        default: {
-            tr_error("Invalid state in mlme_confirm_handler(): %d", id);
-            break;
-        }
-    }
+    if (id != MLME_GET)
+        goto err;
+    if (conf->attr != macFrameCounter)
+        goto err;
+    if (conf->value_size != 4)
+        goto err;
+    cur->mac_parameters.security_frame_counter = *(uint32_t *)conf->value_pointer;
+    return;
+
+err:
+    ERROR("%s: received unsupported message: %02x", __func__, id);
 }
 
 void mlme_indication_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
-    switch (id) {
-        case MLME_ASSOCIATE: {
-            //Unsupported
-            //mlme_associate_ind_t *dat = (mlme_associate_ind_t*)data;
-            break;
-        }
-        case MLME_DISASSOCIATE: {
-            //Unsupported
-            //mlme_disassociate_ind_t *dat = (mlme_disassociate_ind_t*)data;
-            break;
-        }
-        case MLME_GTS: {
-            //Unsupported
-            break;
-        }
-        case MLME_ORPHAN: {
-            //Unsupported
-            break;
-        }
-        case MLME_COMM_STATUS: {
-            //Unsupported
-            // mlme_comm_status_t *dat = (mlme_comm_status_t *)data;
-            break;
-        }
-        case MLME_SYNC_LOSS:
-        case MLME_GET:
-        case MLME_RESET:
-        case MLME_RX_ENABLE:
-        case MLME_SCAN:
-        case MLME_SET:
-        case MLME_START:
-        case MLME_SYNC:
-        case MLME_POLL:
-        default: {
-            tr_error("Invalid state in mlme_indication_handler(): %d", id);
-            break;
-        }
-    }
+    mlme_comm_status_t *status = (mlme_comm_status_t *)data;
+
+    if (id != MLME_COMM_STATUS)
+        goto err;
+    TRACE(TR_DROP, "drop %-9s: from %s: %02x", "15.4", tr_ipv6(status->SrcAddr), status->status);
+    return;
+
+err:
+    ERROR("%s: received unsupported message: %02x", __func__, id);
 }
 
