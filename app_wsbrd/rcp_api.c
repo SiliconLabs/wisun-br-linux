@@ -955,7 +955,7 @@ struct {
 void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
 {
     spinel_trace_tx(buf);
-    ctxt->rcp_tx(ctxt->os_ctxt, buf->data, buf->len);
+    ctxt->rcp.device_tx(ctxt->os_ctxt, buf->data, buf->len);
 }
 
 static bool rcp_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
@@ -978,7 +978,7 @@ void rcp_rx(struct wsbr_ctxt *ctxt)
     uint32_t cmd, prop;
     int i;
 
-    buf.data_size = ctxt->rcp_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
+    buf.data_size = ctxt->rcp.device_rx(ctxt->os_ctxt, rx_buf, sizeof(rx_buf));
     if (!buf.data_size)
         return;
     spinel_trace_rx(&buf);

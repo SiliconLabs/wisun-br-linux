@@ -25,6 +25,7 @@ typedef struct sd_bus sd_bus;
 #include "common/events_scheduler.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/fhss_config.h"
+#include "rcp_api.h"
 
 #include "commandline.h"
 
@@ -48,9 +49,7 @@ struct wsbr_ctxt {
     struct mac_api mac_api;
     struct mac_description_storage_size storage_sizes;
 
-    int  (*rcp_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
-    int  (*rcp_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
-    int  rcp_driver_id;
+    struct rcp rcp;
     int  rcp_if_id;
 
     int spinel_tid;

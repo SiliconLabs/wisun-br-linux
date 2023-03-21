@@ -281,8 +281,8 @@ int main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     signal(SIGTERM, kill_handler);
     ctxt->os_ctxt = &g_os_ctxt;
-    ctxt->rcp_tx = uart_tx;
-    ctxt->rcp_rx = uart_rx;
+    ctxt->rcp.device_tx = uart_tx;
+    ctxt->rcp.device_rx = uart_rx;
     parse_commandline(&ctxt->config, argc, argv, print_help_node);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, "ws0");
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 

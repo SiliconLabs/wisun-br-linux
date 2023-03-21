@@ -32,6 +32,12 @@ struct mcps_data_req;
 struct channel_list;
 struct iobuf_write;
 struct wsbr_ctxt;
+struct os_ctxt;
+
+struct rcp {
+    int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
+    int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
+};
 
 void rcp_noop(void);
 void rcp_reset(void);

@@ -506,12 +506,12 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.pcap_file[0])
         wsbr_pcapng_init(ctxt);
     if (ctxt->config.uart_dev[0]) {
-        ctxt->rcp_tx = wsbr_uart_tx;
-        ctxt->rcp_rx = uart_rx;
+        ctxt->rcp.device_tx = wsbr_uart_tx;
+        ctxt->rcp.device_rx = uart_rx;
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     } else if (ctxt->config.cpc_instance[0]) {
-        ctxt->rcp_tx = cpc_tx;
-        ctxt->rcp_rx = cpc_rx;
+        ctxt->rcp.device_tx = cpc_tx;
+        ctxt->rcp.device_rx = cpc_rx;
         ctxt->os_ctxt->data_fd = cpc_open(ctxt->os_ctxt, ctxt->config.cpc_instance, g_enabled_traces & TR_CPC);
     } else {
         BUG();
@@ -528,7 +528,7 @@ int wsbr_main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, "ws0");
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
