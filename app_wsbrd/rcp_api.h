@@ -47,6 +47,14 @@ typedef enum mlme_primitive mlme_primitive_e;
 #define RCP_HAS_RF_CONFIG      0x0008
 #define RCP_INIT_DONE          0x0010
 
+struct rcp_rail_config {
+    uint32_t chan0_freq;
+    uint32_t chan_spacing;
+    uint16_t chan_count;
+    uint8_t  rail_phy_mode_id;
+    int      phy_mode_group;
+};
+
 struct rcp {
     int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
@@ -64,6 +72,7 @@ struct rcp {
     uint32_t neighbors_table_size;
     uint8_t  eui64[8];
     uint32_t frame_counter;
+    struct rcp_rail_config *rail_config_list;
 };
 
 void rcp_noop(void);

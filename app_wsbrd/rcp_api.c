@@ -805,6 +805,32 @@ static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iob
 
 static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
+    int phy_mode_group = 1;
+    bool is_submode;
+    int i = 0;
+
+    BUG_ON(ctxt->rcp.rail_config_list);
+    while (iobuf_remaining_size(buf)) {
+        ctxt->rcp.rail_config_list = reallocarray(ctxt->rcp.rail_config_list, i + 2, sizeof(struct rcp_rail_config));
+        ctxt->rcp.rail_config_list[i].chan0_freq = spinel_pop_u32(buf);
+        ctxt->rcp.rail_config_list[i].chan_spacing = spinel_pop_u32(buf);
+        ctxt->rcp.rail_config_list[i].chan_count = spinel_pop_u16(buf);
+        ctxt->rcp.rail_config_list[i].rail_phy_mode_id = spinel_pop_u8(buf);
+        is_submode = spinel_pop_bool(buf);
+        if (!is_submode)
+            phy_mode_group++;
+        ctxt->rcp.rail_config_list[i].phy_mode_group = phy_mode_group;
+        i++;
+    }
+    memset(&ctxt->rcp.rail_config_list[i], 0, sizeof(struct rcp_rail_config));
+    if (!spinel_prop_is_valid(buf, prop))
+        return;
+    ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG_LIST;
+
+    buf->cnt = 0;
+    spinel_pop_u8(buf); // header
+    spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
+    spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
     wsbr_mac_store_rf_config_list(ctxt, buf);
     buf->cnt = 0;
     spinel_pop_u8(buf); // header
@@ -812,7 +838,6 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
     spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
     if (ctxt->config.list_rf_configs)
         wsbr_mac_print_rf_config_list(ctxt, buf);
-    ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG_LIST;
 }
 
 static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
