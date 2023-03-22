@@ -330,7 +330,6 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
     if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
-    ctxt->rcp_init_state |= RCP_HAS_RESET;
     rcp_get_hw_addr();
 }
 

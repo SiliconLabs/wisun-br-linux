@@ -177,7 +177,6 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
           FIELD_GET(0x000000FF, ctxt->rcp_version_api));
     if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
-    ctxt->rcp_init_state |= RCP_HAS_RESET;
     rcp_get_hw_addr();
 }
 
@@ -227,7 +226,6 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         if (ctxt->config.list_rf_configs)
             exit(0);
     }
-    ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
 static void wsbr_fds_init(struct wsbr_ctxt *ctxt, struct pollfd *fds)

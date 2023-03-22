@@ -771,6 +771,7 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
     ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
     ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
+    ctxt->rcp_init_state |= RCP_HAS_RESET;
     wsbr_handle_reset(ctxt, version_fw_str);
 }
 
@@ -823,6 +824,8 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp_init_state |= RCP_HAS_HWADDR;
+    if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
+        ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
