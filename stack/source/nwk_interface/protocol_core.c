@@ -314,7 +314,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     entry->mac_api = api;
     entry->rcp = rcp;
     int8_t err = wsbr_mac_init(entry->mac_api, &ws_llc_mac_confirm_cb, &ws_llc_mac_indication_cb,
-                               &mcps_purge_confirm_handler, &mlme_confirm_handler, &mlme_indication_handler,
+                               &mlme_confirm_handler, &mlme_indication_handler,
                                entry->id);
     if (err < 0) {
         goto interface_failure;

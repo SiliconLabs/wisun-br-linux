@@ -397,8 +397,6 @@ uint8_t wsbr_mcps_purge(const struct mac_api *api,
     BUG_ON(ctxt != &g_ctxt);
     if (!version_older_than(ctxt->rcp_version_api, 0, 4, 0))
         rcp_tx_drop(data->msduHandle);
-    else
-        api->purge_conf_cb(api, &conf);
     return 0;
 }
 
@@ -454,7 +452,6 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
 int8_t wsbr_mac_init(struct mac_api *api,
                      mcps_data_confirm_ext *data_conf_cb,
                      mcps_data_indication_ext *data_ind_cb,
-                     mcps_purge_confirm *purge_conf_cb,
                      mlme_confirm *mlme_conf_cb,
                      mlme_indication *mlme_ind_cb,
                      int8_t parent_id)
@@ -463,7 +460,6 @@ int8_t wsbr_mac_init(struct mac_api *api,
 
     api->data_conf_ext_cb = data_conf_cb;
     api->data_ind_ext_cb = data_ind_cb;
-    api->purge_conf_cb = purge_conf_cb;
     api->mlme_conf_cb = mlme_conf_cb;
     api->mlme_ind_cb = mlme_ind_cb;
     api->parent_id = parent_id;

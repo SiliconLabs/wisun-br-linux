@@ -41,7 +41,6 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
 int8_t wsbr_mac_init(struct mac_api *api,
                      mcps_data_confirm_ext *data_conf_cb,
                      mcps_data_indication_ext *data_ind_cb,
-                     mcps_purge_confirm *purge_conf_cb,
                      mlme_confirm *mlme_conf_cb,
                      mlme_indication *mlme_ind_cb,
                      int8_t parent_id);

@@ -23,8 +23,6 @@
 struct mcps_data_ind;
 struct mcps_data_conf;
 
-void mcps_purge_confirm_handler(const mac_api_t *api, mcps_purge_conf_t *data);
-
 void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data);
 
 void mlme_indication_handler(const mac_api_t *api, mlme_primitive_e id, const void *data);
