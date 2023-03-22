@@ -534,25 +534,6 @@ void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, c
 
 }
 
-void ws_llc_ack_data_req_ext(const mac_api_t *api, mcps_ack_data_payload_t *data, int8_t rssi, uint8_t lqi)
-{
-    (void) lqi;
-    llc_data_base_t *base = ws_llc_discover_by_mac(api);
-    if (!base) {
-        return;
-    }
-    memset(data, 0, sizeof(mcps_ack_data_payload_t));
-
-    iobuf_free(&base->ws_enhanced_response_elements);
-    ws_wh_utt_write(&base->ws_enhanced_response_elements, WS_FT_ACK);
-    ws_wh_rsl_write(&base->ws_enhanced_response_elements, ws_neighbor_class_rsl_from_dbm_calculate(rssi));
-    base->ws_header_vector.iov_base = base->ws_enhanced_response_elements.data;
-    base->ws_header_vector.iov_len = base->ws_enhanced_response_elements.len;
-    data->ie_elements.headerIeVectorList = &base->ws_header_vector;
-    data->ie_elements.headerIovLength = 1;
-}
-
-
 static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, const mcps_data_ind_t *data, uint8_t frame_type)
 {
     struct llc_data_base *base = ws_llc_discover_by_mac(api);
