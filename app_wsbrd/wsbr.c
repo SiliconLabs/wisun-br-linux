@@ -317,9 +317,9 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 {
-    if (ctxt->rcp_init_state & RCP_HAS_HWADDR && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG))
+    if (ctxt->rcp.init_state & RCP_HAS_HWADDR && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
         FATAL(3, "unsupported radio configuration (check --list-rf-config)");
-    if (ctxt->rcp_init_state & RCP_INIT_DONE)
+    if (ctxt->rcp.init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
           FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
@@ -382,7 +382,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     } while (ret < 1);
 
     ctxt->os_ctxt->uart_inhibit_crc_warning = true;
-    while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+    while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
@@ -391,7 +391,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP API >= 0.16.0");
 
-    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+    while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
@@ -400,7 +400,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     if (!version_older_than(ctxt->rcp_version_api, 0, 16, 0)) {
         rcp_get_rf_config_list();
-        while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+        while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         if (ctxt->config.list_rf_configs)
             exit(0);

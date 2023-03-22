@@ -45,11 +45,11 @@ struct fuzz_ctxt g_fuzz_ctxt = {
 // Fuzzing command can only be processed from the main loop.
 bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
 {
-    if (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+    if (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         return false;
-    if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+    if (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         return false;
-    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
         return false;
     return true;
 }

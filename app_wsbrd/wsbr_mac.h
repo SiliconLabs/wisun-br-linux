@@ -19,12 +19,6 @@ struct wsbr_ctxt;
 struct iobuf_write;
 struct iobuf_read;
 
-#define RCP_HAS_RESET          0x0001
-#define RCP_HAS_HWADDR         0x0002
-#define RCP_HAS_RF_CONFIG_LIST 0x0004
-#define RCP_HAS_RF_CONFIG      0x0008
-#define RCP_INIT_DONE          0x0010
-
 void wsbr_mac_store_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
 void wsbr_mac_print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
 void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len,

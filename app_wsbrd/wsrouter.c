@@ -166,7 +166,7 @@ static void wsbr_tasklet(struct event_payload *event)
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
 {
-    if (ctxt->rcp_init_state & RCP_INIT_DONE)
+    if (ctxt->rcp.init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
           FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
@@ -202,7 +202,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
             i++;
     } while (ret < 1);
 
-    while (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+    while (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         rcp_rx(ctxt);
 
     if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
@@ -210,7 +210,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
     if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP >= 0.16.0");
 
-    while (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+    while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
@@ -221,7 +221,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0)) {
         rcp_get_rf_config_list();
-        while (!(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+        while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         if (ctxt->config.list_rf_configs)
             exit(0);

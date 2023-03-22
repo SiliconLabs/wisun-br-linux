@@ -771,7 +771,7 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
     ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
     ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
-    ctxt->rcp_init_state |= RCP_HAS_RESET;
+    ctxt->rcp.init_state |= RCP_HAS_RESET;
     wsbr_handle_reset(ctxt, version_fw_str);
 }
 
@@ -793,8 +793,8 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
 
     if (!val || !spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG;
-    ctxt->rcp_init_state |= RCP_INIT_DONE;
+    ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG;
+    ctxt->rcp.init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -815,7 +815,7 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
     spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
     if (ctxt->config.list_rf_configs)
         wsbr_mac_print_rf_config_list(ctxt, buf);
-    ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG_LIST;
+    ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG_LIST;
 }
 
 static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -823,9 +823,9 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
     spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp_init_state |= RCP_HAS_HWADDR;
+    ctxt->rcp.init_state |= RCP_HAS_HWADDR;
     if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
-        ctxt->rcp_init_state |= RCP_INIT_DONE;
+        ctxt->rcp.init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -942,11 +942,11 @@ void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf)
 
 static bool rcp_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
 {
-    if (!(ctxt->rcp_init_state & RCP_HAS_RESET))
+    if (!(ctxt->rcp.init_state & RCP_HAS_RESET))
         return false;
-    if (!(ctxt->rcp_init_state & RCP_HAS_HWADDR))
+    if (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         return prop == SPINEL_PROP_HWADDR;
-    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp_init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
         return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
     return true;
 }
