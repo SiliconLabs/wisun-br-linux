@@ -790,12 +790,10 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
 {
     int val = spinel_pop_uint(buf);
 
-    if (!val) {
-        ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG;
-        ctxt->rcp_init_state |= RCP_INIT_DONE;
-    }
-    if (!spinel_prop_is_valid(buf, prop))
+    if (!val || !spinel_prop_is_valid(buf, prop))
         return;
+    ctxt->rcp_init_state |= RCP_HAS_RF_CONFIG;
+    ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_start_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
