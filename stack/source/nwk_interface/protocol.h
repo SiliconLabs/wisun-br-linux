@@ -244,8 +244,6 @@ struct net_if {
     struct mac_api *mac_api;
     arm_15_4_mac_parameters_t mac_parameters;
 
-    struct eth_mac_api *eth_mac_api;
-
     int8_t (*if_down)(struct net_if *cur);
     int8_t (*if_up)(struct net_if *cur, const uint8_t * ipv6_address);
     void (*if_stack_buffer_handler)(buffer_t *);

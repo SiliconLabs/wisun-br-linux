@@ -925,12 +925,7 @@ static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t 
         return false;
     }
 
-    if (cur_interface->eth_mac_api) {
-        // either PPP or Ethernet interface.
-        latency_estimate = 1000;
-    } else {
-        latency_estimate = ws_common_latency_estimate_get(cur_interface);
-    }
+    latency_estimate = ws_common_latency_estimate_get(cur_interface);
 
     if (latency_estimate != 0) {
         *latency = latency_estimate;
@@ -967,14 +962,8 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
         return false;
     }
 
-    if (cur_interface->eth_mac_api) {
-        // either PPP or Ethernet interface.
-        network_size = 1;
-        datarate = 1000000;
-    } else {
-        network_size = ws_common_network_size_estimate_get(cur_interface);
-        datarate = ws_common_usable_application_datarate_get(cur_interface);
-    }
+    network_size = ws_common_network_size_estimate_get(cur_interface);
+    datarate = ws_common_usable_application_datarate_get(cur_interface);
 
     if (data_amount == 0) {
         // If no data amount given, use 1kB
