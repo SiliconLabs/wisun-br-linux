@@ -761,15 +761,15 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     ctxt->rcp.version_api = spinel_pop_u32(buf);
     ctxt->rcp.version_fw = spinel_pop_u32(buf);
     ctxt->rcp.version_label = strdup(spinel_pop_str(buf));
-    spinel_pop_bool(buf); // is_hw_reset is no more used
-    ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
-    if (ctxt->storage_sizes.device_description_table_size <= min_device_description_table_size)
+    spinel_pop_bool(buf); /* Formerly: is_hw_reset */
+    ctxt->rcp.neighbors_table_size = spinel_pop_u8(buf);
+    if (ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
         FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
               min_device_description_table_size);
-    ctxt->storage_sizes.device_description_table_size -= MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
-    ctxt->storage_sizes.key_description_table_size = spinel_pop_u8(buf);
-    ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
-    ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
+    ctxt->rcp.neighbors_table_size -= MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
+    spinel_pop_u8(buf); /* Formerly: key_description_table_size */
+    spinel_pop_u8(buf); /* Formerly: key_lookup_size */
+    spinel_pop_u8(buf); /* Formerly: key_usage_size */
     ctxt->rcp.init_state |= RCP_HAS_RESET;
     wsbr_handle_reset(ctxt);
 }

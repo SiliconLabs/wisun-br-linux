@@ -1126,13 +1126,9 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         return -1;
     }
 
-    mac_description_storage_size_t buffer;
-    if (!cur->mac_api ||  wsbr_mac_storage_sizes_get(cur->mac_api, &buffer) != 0)
-        return -2;
-
     rcp_set_frame_counter_per_key(true);
 
-    if (!etx_storage_list_allocate(cur->id, buffer.device_description_table_size)) {
+    if (!etx_storage_list_allocate(cur->id, cur->rcp->neighbors_table_size)) {
         return -1;
     }
     if (!etx_cached_etx_parameter_set(WS_ETX_MIN_WAIT_TIME, WS_ETX_MIN_SAMPLE_COUNT, WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT)) {
@@ -1168,7 +1164,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
             return -3;
     }
 
-    if (!ws_neighbor_class_alloc(&neigh_info, buffer.device_description_table_size)) {
+    if (!ws_neighbor_class_alloc(&neigh_info, cur->rcp->neighbors_table_size)) {
         ret_val = -1;
         goto init_fail;
     }
@@ -1177,8 +1173,9 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
     mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
-    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(buffer.device_description_table_size, ws_neighbor_entry_remove_notify
-                                                       , ws_neighbor_entry_nud_notify, cur);
+    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(cur->rcp->neighbors_table_size,
+                                                                       ws_neighbor_entry_remove_notify,
+                                                                       ws_neighbor_entry_nud_notify, cur);
     if (!cur->mac_parameters.mac_neighbor_table) {
         ret_val = -1;
         goto init_fail;

@@ -420,16 +420,3 @@ int8_t wsbr_mac_addr_get(const struct mac_api *api,
         BUG("Unknown address_type: %d", type);
     }
 }
-
-int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
-                                  struct mac_description_storage_size *buffer)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-
-    BUG_ON(!api);
-    BUG_ON(!buffer);
-    BUG_ON(ctxt != &g_ctxt);
-
-    memcpy(buffer, &ctxt->storage_sizes, sizeof(struct mac_description_storage_size));
-    return 0;
-}

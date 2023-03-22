@@ -60,6 +60,7 @@ struct rcp {
     uint32_t version_api;
     uint32_t version_fw;
     const char *version_label;
+    uint32_t neighbors_table_size;
 };
 
 void rcp_noop(void);
