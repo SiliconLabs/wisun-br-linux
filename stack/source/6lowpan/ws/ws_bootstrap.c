@@ -1130,11 +1130,6 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     if (!cur->mac_api ||  wsbr_mac_storage_sizes_get(cur->mac_api, &buffer) != 0)
         return -2;
 
-    if (buffer.key_description_table_size < 4) {
-        tr_error("MAC key_description_table_size too short %d<4", buffer.key_description_table_size);
-        return -2;
-    }
-
     rcp_set_frame_counter_per_key(true);
 
     if (!etx_storage_list_allocate(cur->id, buffer.device_description_table_size)) {
