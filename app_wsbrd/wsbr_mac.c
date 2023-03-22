@@ -451,15 +451,6 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
     return 0;
 }
 
-int8_t wsbr_mac_edfe_ext_init(struct mac_api *api,
-                              mcps_edfe_handler *edfe_ind_cb)
-{
-    BUG_ON(!api);
-
-    api->edfe_ind_cb = edfe_ind_cb;
-    return 0;
-}
-
 int8_t wsbr_mac_init(struct mac_api *api,
                      mcps_data_confirm_ext *data_conf_cb,
                      mcps_data_indication_ext *data_ind_cb,
