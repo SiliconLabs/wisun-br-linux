@@ -377,6 +377,48 @@ void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], cons
     memcpy(ctxt->dhcp_leases[i].ipv6, ipv6, 16);
 }
 
+static void wsbr_calculate_phy_operating_modes(struct wsbr_ctxt *ctxt)
+{
+    const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
+    const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
+    const struct phy_params *phy_iterator;
+    int phy_mode_group = -1;
+    int i, j, l;
+
+    BUG_ON(ARRAY_SIZE(ctxt->phy_operating_modes) <= ARRAY_SIZE(chan_params->valid_phy_modes));
+    memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
+    // MDR with custom domains are not yet supported
+    if (!chan_params || !phy_params)
+        return;
+    // OFDM cannot be used as a base PHY
+    if (phy_params->modulation == MODULATION_OFDM)
+        return;
+    if (!ws_regdb_is_std(chan_params->chan0_freq, chan_params->chan_spacing, chan_params->chan_count, phy_params->phy_mode_id))
+        return;
+    for (i = 0; ctxt->rcp.rail_config_list[i].chan0_freq; i++) {
+        if (ctxt->rcp.rail_config_list[i].rail_phy_mode_id == phy_params->rail_phy_mode_id &&
+            ctxt->rcp.rail_config_list[i].chan0_freq       == chan_params->chan0_freq &&
+            ctxt->rcp.rail_config_list[i].chan_spacing     == chan_params->chan_spacing &&
+            ctxt->rcp.rail_config_list[i].chan_count       == chan_params->chan_count) {
+            phy_mode_group = ctxt->rcp.rail_config_list[i].phy_mode_group;
+            break;
+        }
+    }
+    if (phy_mode_group < 0)
+        return;
+    l = 0;
+    ctxt->phy_operating_modes[l++] = phy_params->phy_mode_id;
+    for (j = 0; chan_params->valid_phy_modes[j]; j++) {
+        phy_iterator = ws_regdb_phy_params(chan_params->valid_phy_modes[j], 0);
+        for (i = 0; ctxt->rcp.rail_config_list[i].chan0_freq; i++) {
+            if (ctxt->rcp.rail_config_list[i].phy_mode_group == phy_mode_group &&
+                ctxt->rcp.rail_config_list[i].rail_phy_mode_id == phy_iterator->rail_phy_mode_id) {
+                ctxt->phy_operating_modes[l++] = ctxt->rcp.rail_config_list[i].rail_phy_mode_id;
+            }
+        }
+    }
+}
+
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
@@ -415,6 +457,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         rcp_get_rf_config_list();
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
+        wsbr_calculate_phy_operating_modes(ctxt);
         if (ctxt->config.list_rf_configs)
             exit(0);
     }

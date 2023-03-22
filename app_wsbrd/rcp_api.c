@@ -826,12 +826,6 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG_LIST;
-
-    buf->cnt = 0;
-    spinel_pop_u8(buf); // header
-    spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
-    spinel_pop_uint(buf); // prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST
-    wsbr_mac_store_rf_config_list(ctxt, buf);
     buf->cnt = 0;
     spinel_pop_u8(buf); // header
     spinel_pop_uint(buf); // cmd == SPINEL_CMD_PROP_IS
