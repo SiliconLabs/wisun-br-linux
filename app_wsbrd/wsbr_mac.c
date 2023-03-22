@@ -385,21 +385,6 @@ void wsbr_data_req_ext(const struct mac_api *api,
 
 }
 
-uint8_t wsbr_mcps_purge(const struct mac_api *api,
-                        const struct mcps_purge *data)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-    struct mcps_purge_conf conf = {
-        .msduHandle = data->msduHandle,
-    };
-
-    BUG_ON(!api);
-    BUG_ON(ctxt != &g_ctxt);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 4, 0))
-        rcp_tx_drop(data->msduHandle);
-    return 0;
-}
-
 int8_t wsbr_mac_addr_set(const struct mac_api *api, const uint8_t *mac64)
 {
     struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);

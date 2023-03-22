@@ -23,6 +23,7 @@
 #include "common/dhcp_server.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
+#include "common/version.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
@@ -32,7 +33,9 @@
 #include "stack/mac/mac_common_defines.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
+#include "app_wsbrd/rcp_api.h"
 #include "core/ns_address_internal.h"
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
@@ -1328,8 +1331,10 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
             mac_purge_success = true;
         }
     } else {
-        if (wsbr_mcps_purge(cur->mac_api, &purge_req) == 0)
+        if (!version_older_than(g_ctxt.rcp_version_api, 0, 4, 0)) {
+            rcp_tx_drop(msduhandle);
             mac_purge_success = true;
+        }
     }
 
     return mac_purge_success;

@@ -1282,18 +1282,14 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
         return MLME_INVALID_HANDLE;
     }
 
-    mcps_purge_t purge_req;
-    uint8_t purge_status;
-    purge_req.msduHandle = message->msg_handle;
-    purge_status = wsbr_mcps_purge(base->interface_ptr->mac_api, &purge_req);
-    if (purge_status == 0) {
-        if (message->message_type == WS_FT_EAPOL) {
-            ws_llc_mac_eapol_clear(base);
-        }
-        llc_message_free(message, base);
+    if (version_older_than(g_ctxt.rcp_version_api, 0, 4, 0))
+        return MLME_UNSUPPORTED_ATTRIBUTE;
+    rcp_tx_drop(message->msg_handle);
+    if (message->message_type == WS_FT_EAPOL) {
+        ws_llc_mac_eapol_clear(base);
     }
-
-    return purge_status;
+    llc_message_free(message, base);
+    return 0;
 }
 
 static void wc_llc_mpx_priority_set_request(const mpx_api_t *api, bool enable_mode)
@@ -1321,15 +1317,13 @@ static void ws_llc_mpx_init(mpx_class_t *mpx_class)
 static void ws_llc_clean(llc_data_base_t *base)
 {
     //Clean Message queue's
-    mcps_purge_t purge_req;
     ns_list_foreach_safe(llc_message_t, message, &base->llc_message_list) {
-        purge_req.msduHandle = message->msg_handle;
         if (message->message_type == WS_FT_EAPOL) {
             ws_llc_mac_eapol_clear(base);
         }
         llc_message_free(message, base);
-        wsbr_mcps_purge(base->interface_ptr->mac_api, &purge_req);
-
+        if (!version_older_than(g_ctxt.rcp_version_api, 0, 4, 0))
+            rcp_tx_drop(message->msg_handle);
     }
 
     ns_list_foreach_safe(llc_message_t, message, &base->temp_entries->llc_eap_pending_list) {
