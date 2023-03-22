@@ -46,6 +46,7 @@
 #include "stack/source/security/kmp/kmp_socket_if.h"
 
 #include "mbedtls_config_check.h"
+#include "commandline_values.h"
 #include "drop_privileges.h"
 #include "commandline.h"
 #include "version.h"
@@ -419,6 +420,129 @@ static void wsbr_calculate_phy_operating_modes(struct wsbr_ctxt *ctxt)
     }
 }
 
+static void print_rf_config(struct wsbr_ctxt *ctxt,
+                            const struct phy_params *phy_params, const struct chan_params *chan_params,
+                            struct rcp_rail_config *config, uint8_t phy_mode_id)
+{
+    char str[256];
+    bool is_std;
+    int i;
+
+    *str = '\0';
+    if (chan_params)
+        sprintf(str + strlen(str), " %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
+    else
+        sprintf(str + strlen(str), " ??");
+
+    if (chan_params && chan_params->op_class)
+        sprintf(str + strlen(str), "   %d", chan_params->op_class);
+    else if (chan_params)
+        sprintf(str + strlen(str), "   -");
+    else
+        sprintf(str + strlen(str), "   ?");
+
+    if (chan_params && chan_params->chan_plan_id)
+        sprintf(str + strlen(str), "  %3d", chan_params->chan_plan_id);
+    else if (chan_params)
+        sprintf(str + strlen(str), "   --");
+    else
+        sprintf(str + strlen(str), "   ??");
+
+    sprintf(str + strlen(str), "   %2d", phy_mode_id);
+
+    if (phy_params && phy_params->op_mode)
+        sprintf(str + strlen(str), "   %-2x", phy_params->op_mode);
+    else if (phy_params)
+        sprintf(str + strlen(str), "   --");
+    else
+        sprintf(str + strlen(str), "   ??");
+
+    if (phy_params && phy_params->modulation == MODULATION_OFDM) {
+        sprintf(str + strlen(str), "   OFDM");
+        sprintf(str + strlen(str), "   %1d", phy_params->ofdm_mcs);
+        sprintf(str + strlen(str), "    %1d", phy_params->ofdm_option);
+        sprintf(str + strlen(str), "   --");
+    } else if (phy_params && phy_params->modulation == MODULATION_2FSK) {
+        sprintf(str + strlen(str), "    FSK");
+        sprintf(str + strlen(str), "  --");
+        sprintf(str + strlen(str), "   --");
+        sprintf(str + strlen(str), "  %3s", val_to_str(phy_params->fsk_modulation_index, valid_fsk_modulation_indexes, "??"));
+    } else {
+        sprintf(str + strlen(str), "     ??");
+        sprintf(str + strlen(str), "  ??");
+        sprintf(str + strlen(str), "   ??");
+        sprintf(str + strlen(str), "   ??");
+    }
+
+    if (phy_params)
+        sprintf(str + strlen(str), " %4dkbps", phy_params->datarate / 1000);
+    else
+        sprintf(str + strlen(str), "   ??    ");
+
+    sprintf(str + strlen(str), " %4.1fMHz", (double)config->chan0_freq / 1000000);
+    sprintf(str + strlen(str), " %4dkHz", config->chan_spacing / 1000);
+    sprintf(str + strlen(str), "  %3d", config->chan_count);
+
+    is_std = false;
+    if (chan_params) {
+        for (i = 0; chan_params->valid_phy_modes[i]; i++) {
+            if (chan_params->valid_phy_modes[i] == phy_mode_id) {
+                is_std = true;
+                break;
+            }
+        }
+    }
+    if (is_std)
+        sprintf(str + strlen(str), "  yes");
+    else
+        sprintf(str + strlen(str), "   no");
+
+    if (chan_params && chan_params->chan_allowed)
+        sprintf(str + strlen(str), " %s", chan_params->chan_allowed);
+    else if (chan_params)
+        sprintf(str + strlen(str), " --");
+    else
+        sprintf(str + strlen(str), " ??");
+
+    INFO("%s", str);
+}
+
+void wsbr_print_rf_config_list(struct wsbr_ctxt *ctxt)
+{
+    struct rcp_rail_config *configs = ctxt->rcp.rail_config_list;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    int i, j, k;
+
+    INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans is  chans");
+    INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        std allowed");
+    for (i = 0; configs[i].chan0_freq; i++) {
+        phy_params = NULL;
+        if (i == 0 || configs[i - 1].phy_mode_group != configs[i].phy_mode_group)
+            INFO("---------------------------------------------------------------------------------------");
+        for (j = 0; phy_params_table[j].phy_mode_id; j++) {
+            if (phy_params_table[j].rail_phy_mode_id == configs[i].rail_phy_mode_id) {
+                phy_params = &phy_params_table[j];
+                for (k = 0; chan_params_table[k].chan0_freq; k++) {
+                    if (chan_params_table[k].chan0_freq == configs[i].chan0_freq &&
+                        chan_params_table[k].chan_spacing == configs[i].chan_spacing &&
+                        chan_params_table[k].chan_count == configs[i].chan_count) {
+                        chan_params = &chan_params_table[k];
+                        print_rf_config(ctxt, phy_params, chan_params,
+                                        &configs[i], phy_params->phy_mode_id);
+                    }
+                }
+                if (!chan_params)
+                    print_rf_config(ctxt, phy_params, NULL,
+                                    &configs[i], phy_params->phy_mode_id);
+            }
+        }
+        if (!phy_params)
+            print_rf_config(ctxt, NULL, NULL,
+                            &configs[i], configs[i].rail_phy_mode_id);
+    }
+}
+
 static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 {
     static const int timeout_values[] = { 2, 15, 60, 300, 900, 3600 }; // seconds
@@ -458,8 +582,10 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         wsbr_calculate_phy_operating_modes(ctxt);
-        if (ctxt->config.list_rf_configs)
+        if (ctxt->config.list_rf_configs) {
+            wsbr_print_rf_config_list(ctxt);
             exit(0);
+        }
     }
 }
 

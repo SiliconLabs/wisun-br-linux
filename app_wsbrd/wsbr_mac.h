@@ -19,7 +19,6 @@ struct wsbr_ctxt;
 struct iobuf_write;
 struct iobuf_read;
 
-void wsbr_mac_print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *buf);
 void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len,
                                uint8_t header, uint8_t irq_err_counter);
 void wsbr_data_req_ext(const struct mac_api *api,
