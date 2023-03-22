@@ -1116,19 +1116,20 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
 
 int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 {
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    ws_neighbor_class_t neigh_info;
+    uint32_t neighbors_table_size;
     int ret_val = 0;
 
-    ws_neighbor_class_t neigh_info;
+    if (!cur)
+        return -1;
+
     neigh_info.neigh_info_list = NULL;
     neigh_info.list_size = 0;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
+    neighbors_table_size = cur->rcp->neighbors_table_size - MAX_NEIGH_TEMPORARY_EAPOL_SIZE;
     rcp_set_frame_counter_per_key(true);
 
-    if (!etx_storage_list_allocate(cur->id, cur->rcp->neighbors_table_size)) {
+    if (!etx_storage_list_allocate(cur->id, neighbors_table_size)) {
         return -1;
     }
     if (!etx_cached_etx_parameter_set(WS_ETX_MIN_WAIT_TIME, WS_ETX_MIN_SAMPLE_COUNT, WS_NEIGHBOR_FIRST_ETX_SAMPLE_MIN_COUNT)) {
@@ -1164,7 +1165,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
             return -3;
     }
 
-    if (!ws_neighbor_class_alloc(&neigh_info, cur->rcp->neighbors_table_size)) {
+    if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size)) {
         ret_val = -1;
         goto init_fail;
     }
@@ -1173,7 +1174,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     lowpan_adaptation_interface_mpx_register(interface_id, NULL, 0);
 
     mac_neighbor_table_delete(cur->mac_parameters.mac_neighbor_table);
-    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(cur->rcp->neighbors_table_size,
+    cur->mac_parameters.mac_neighbor_table = mac_neighbor_table_create(neighbors_table_size,
                                                                        ws_neighbor_entry_remove_notify,
                                                                        ws_neighbor_entry_nud_notify, cur);
     if (!cur->mac_parameters.mac_neighbor_table) {

@@ -317,6 +317,8 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
+    int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
+
     if (ctxt->rcp.init_state & RCP_HAS_HWADDR && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
         FATAL(3, "unsupported radio configuration (check --list-rf-config)");
     if (ctxt->rcp.init_state & RCP_INIT_DONE)
@@ -330,6 +332,9 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
           FIELD_GET(0x000000FF, ctxt->rcp.version_api));
     if (version_older_than(ctxt->rcp.version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
+    if (ctxt->rcp.neighbors_table_size <= min_device_description_table_size)
+        FATAL(1, "RCP size of \"neighbor_timings\" table is too small (should be > %d)",
+              min_device_description_table_size);
     rcp_get_hw_addr();
 }
 
