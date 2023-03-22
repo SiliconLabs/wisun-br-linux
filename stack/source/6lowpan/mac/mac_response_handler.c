@@ -21,6 +21,7 @@
 #include "stack/mac/mlme.h"
 #include "stack/mac/mac_mcps.h"
 
+#include "app_wsbrd/wsbr.h"
 #include "nwk_interface/protocol_abstract.h"
 #include "nwk_interface/protocol.h"
 #include "core/ns_address_internal.h"
@@ -34,7 +35,7 @@
 #define TRACE_GROUP "MRsH"
 void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(api->parent_id);
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(g_ctxt.rcp_if_id);
     mlme_get_conf_t *conf = (mlme_get_conf_t *)data;
 
     if (!cur)

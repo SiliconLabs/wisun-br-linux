@@ -447,6 +447,5 @@ int8_t wsbr_mac_init(struct mac_api *api,
     api->data_ind_ext_cb = data_ind_cb;
     api->mlme_conf_cb = mlme_conf_cb;
     api->mlme_ind_cb = mlme_ind_cb;
-    api->parent_id = parent_id;
     return 0;
 }
