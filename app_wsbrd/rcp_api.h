@@ -34,10 +34,21 @@ struct iobuf_write;
 struct iobuf_read;
 struct wsbr_ctxt;
 struct os_ctxt;
+struct mac_api;
+struct mcps_data_conf;
+struct mcps_data_ind;
+struct mcps_data_conf_payload;
+struct mcps_data_ie_list;
+typedef enum mlme_primitive mlme_primitive_e;
 
 struct rcp {
     int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
+
+    void (*on_tx_cnf)(const struct mac_api *api, const struct mcps_data_conf *conf, const struct mcps_data_conf_payload *payload);
+    void (*on_rx_ind)(const struct mac_api *api, const struct mcps_data_ind *conf, const struct mcps_data_ie_list *payload);
+    void (*on_mlme_ind)(const struct mac_api *api, mlme_primitive_e id, const void *data);
+    void (*on_mlme_cnf)(const struct mac_api *api, mlme_primitive_e id, const void *data);
 };
 
 void rcp_noop(void);

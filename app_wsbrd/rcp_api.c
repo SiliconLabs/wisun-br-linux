@@ -838,7 +838,7 @@ static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct i
     data           = spinel_pop_u32(buf);
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_GET, &req);
+    ctxt->rcp.on_mlme_cnf(&ctxt->mac_api, MLME_GET, &req);
 }
 
 static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -850,7 +850,7 @@ static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     spinel_pop_data_ptr(buf, &data);
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->mac_api.mlme_ind_cb(&ctxt->mac_api, id, data);
+    ctxt->rcp.on_mlme_ind(&ctxt->mac_api, id, data);
 }
 
 static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -880,13 +880,13 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
         req.TxAckReq           = spinel_pop_bool(buf);
         req.PendingBit         = spinel_pop_bool(buf);
         req.PanIdSuppressed    = spinel_pop_bool(buf);
+        // FIXME: remove this hack
         if (ctxt->config.pcap_file[0])
             wsbr_pcapng_write_frame(ctxt, &req, &ie_ext);
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    // Note: we don't support data_ind_cb()
-    ctxt->mac_api.data_ind_ext_cb(&ctxt->mac_api, &req, &ie_ext);
+    ctxt->rcp.on_rx_ind(&ctxt->mac_api, &req, &ie_ext);
 }
 
 static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -908,7 +908,7 @@ static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
+    ctxt->rcp.on_tx_cnf(&ctxt->mac_api, &req, &conf_req);
 }
 
 // Some debug tools (fuzzers) may deflect this struct. So keep it public.

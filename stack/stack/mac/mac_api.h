@@ -65,7 +65,7 @@ typedef enum mac_data_priority          mac_data_priority_e;
  * \enum mlme_primitive_e
  * \brief Enum for MLME primitive types.
  */
-typedef enum {
+typedef enum mlme_primitive {
     MLME_ASSOCIATE,
     MLME_DISASSOCIATE,
     MLME_BEACON_NOTIFY,

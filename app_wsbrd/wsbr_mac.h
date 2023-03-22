@@ -37,10 +37,4 @@ int8_t wsbr_mac_addr_get(const struct mac_api *api,
                      mac_extended_address_type_e type, uint8_t *mac64);
 int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
                                   struct mac_description_storage_size *buffer);
-int8_t wsbr_mac_init(struct mac_api *api,
-                     mcps_data_confirm_ext *data_conf_cb,
-                     mcps_data_indication_ext *data_ind_cb,
-                     mlme_confirm *mlme_conf_cb,
-                     mlme_indication *mlme_ind_cb,
-                     int8_t parent_id);
 #endif

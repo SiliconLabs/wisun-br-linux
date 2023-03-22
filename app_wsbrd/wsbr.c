@@ -32,12 +32,14 @@
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
 
+#include "stack/source/6lowpan/mac/mac_response_handler.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
+#include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol_abstract.h"
 #include "stack/source/nwk_interface/protocol.h"
@@ -73,6 +75,11 @@ enum {
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
+
+    .rcp.on_mlme_cnf = mlme_confirm_handler,
+    .rcp.on_mlme_ind = mlme_indication_handler,
+    .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
+    .rcp.on_rx_ind = ws_llc_mac_indication_cb,
 
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,

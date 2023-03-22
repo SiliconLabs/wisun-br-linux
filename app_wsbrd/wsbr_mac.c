@@ -433,19 +433,3 @@ int8_t wsbr_mac_storage_sizes_get(const struct mac_api *api,
     memcpy(buffer, &ctxt->storage_sizes, sizeof(struct mac_description_storage_size));
     return 0;
 }
-
-int8_t wsbr_mac_init(struct mac_api *api,
-                     mcps_data_confirm_ext *data_conf_cb,
-                     mcps_data_indication_ext *data_ind_cb,
-                     mlme_confirm *mlme_conf_cb,
-                     mlme_indication *mlme_ind_cb,
-                     int8_t parent_id)
-{
-    BUG_ON(!api);
-
-    api->data_conf_ext_cb = data_conf_cb;
-    api->data_ind_ext_cb = data_ind_cb;
-    api->mlme_conf_cb = mlme_conf_cb;
-    api->mlme_ind_cb = mlme_ind_cb;
-    return 0;
-}
