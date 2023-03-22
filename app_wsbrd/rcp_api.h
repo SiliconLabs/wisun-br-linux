@@ -57,6 +57,9 @@ struct rcp {
     void (*on_mlme_cnf)(const struct mac_api *api, mlme_primitive_e id, const void *data);
 
     uint32_t init_state;
+    uint32_t version_api;
+    uint32_t version_fw;
+    const char *version_label;
 };
 
 void rcp_noop(void);

@@ -1282,7 +1282,7 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
         return MLME_INVALID_HANDLE;
     }
 
-    if (version_older_than(g_ctxt.rcp_version_api, 0, 4, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
         return MLME_UNSUPPORTED_ATTRIBUTE;
     rcp_tx_drop(message->msg_handle);
     if (message->message_type == WS_FT_EAPOL) {
@@ -1322,7 +1322,7 @@ static void ws_llc_clean(llc_data_base_t *base)
             ws_llc_mac_eapol_clear(base);
         }
         llc_message_free(message, base);
-        if (!version_older_than(g_ctxt.rcp_version_api, 0, 4, 0))
+        if (!version_older_than(g_ctxt.rcp.version_api, 0, 4, 0))
             rcp_tx_drop(message->msg_handle);
     }
 
@@ -1343,7 +1343,7 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+        if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
             rcp_drop_fhss_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
@@ -1518,7 +1518,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
     if (!base) {
         return;
     }
-    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_drop_fhss_neighbor(neighbor->mac64);
     ns_list_remove(&base->temp_entries->active_multicast_temp_neigh, neighbor);
     ns_list_add_to_end(&base->temp_entries->free_temp_neigh, neighbor);
@@ -1889,7 +1889,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries->active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+            if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
                 rcp_drop_fhss_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries->active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries->free_temp_neigh, entry);

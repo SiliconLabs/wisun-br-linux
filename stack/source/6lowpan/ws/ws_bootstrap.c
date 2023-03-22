@@ -156,7 +156,7 @@ void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const ui
 static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
 {
     tr_debug("neighbor[%d] = %s, removed", neighbor->index, tr_eui64(neighbor->mac64));
-    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_drop_fhss_neighbor(neighbor->mac64);
     rcp_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);

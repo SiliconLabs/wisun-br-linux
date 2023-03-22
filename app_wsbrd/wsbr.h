@@ -54,9 +54,6 @@ struct wsbr_ctxt {
     int spinel_tid;
     int spinel_iid;
 
-    uint32_t rcp_version_api;
-    uint32_t rcp_version_fw;
-
     uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
 
     int pcapng_fd;
@@ -73,7 +70,7 @@ struct wsbr_ctxt {
 // case, please never use it.
 extern struct wsbr_ctxt g_ctxt;
 
-void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
+void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
 void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16]);
 
 #endif

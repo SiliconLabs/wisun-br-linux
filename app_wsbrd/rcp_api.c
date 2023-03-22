@@ -183,7 +183,7 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
     spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
     spinel_push_u16(&buf, timing_info->channel_mask_size);
     spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 12, 0))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 12, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -263,7 +263,7 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     spinel_push_u16(&buf, config->number_of_channels);
     spinel_push_u8(&buf,  config->modulation);
     spinel_push_u8(&buf,  config->modulation_index);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 6, 0)) {
+    if (!version_older_than(ctxt->rcp.version_api, 0, 6, 0)) {
         spinel_push_bool(&buf, config->fec);
         spinel_push_uint(&buf, config->ofdm_option);
         spinel_push_uint(&buf, config->ofdm_mcs);
@@ -370,7 +370,7 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     spinel_push_fixed_u8_array(&buf, timing_info->unicast_channel_mask, 32);
     spinel_push_u16(&buf, timing_info->channel_mask_size);
     spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 18, 0))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 18, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -648,13 +648,13 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
         spinel_push_data(&buf, header_ie->iov_base, header_ie->iov_len);
     else
         spinel_push_data(&buf, NULL, 0);
-    if (!version_older_than(ctxt->rcp_version_api, 0, 7, 0)) {
+    if (!version_older_than(ctxt->rcp.version_api, 0, 7, 0)) {
         if (channel_list)
             spinel_push_u16(&buf, channel_list->next_channel_number);
         else
             spinel_push_u16(&buf, 0);
     }
-    if (!version_older_than(ctxt->rcp_version_api, 0, 12,0))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 12,0))
         spinel_push_u8(&buf, tx_req->phy_id);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
@@ -755,13 +755,12 @@ static void rcp_rx_no_op(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
 static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
-    const char *version_fw_str;
 
     if (iobuf_remaining_size(buf) < 16)
         FATAL(1, "unknown RESET format (bad firmware?)");
-    ctxt->rcp_version_api = spinel_pop_u32(buf);
-    ctxt->rcp_version_fw = spinel_pop_u32(buf);
-    version_fw_str = spinel_pop_str(buf);
+    ctxt->rcp.version_api = spinel_pop_u32(buf);
+    ctxt->rcp.version_fw = spinel_pop_u32(buf);
+    ctxt->rcp.version_label = strdup(spinel_pop_str(buf));
     spinel_pop_bool(buf); // is_hw_reset is no more used
     ctxt->storage_sizes.device_description_table_size = spinel_pop_u8(buf);
     if (ctxt->storage_sizes.device_description_table_size <= min_device_description_table_size)
@@ -772,7 +771,7 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     ctxt->storage_sizes.key_lookup_size = spinel_pop_u8(buf);
     ctxt->storage_sizes.key_usage_size = spinel_pop_u8(buf);
     ctxt->rcp.init_state |= RCP_HAS_RESET;
-    wsbr_handle_reset(ctxt, version_fw_str);
+    wsbr_handle_reset(ctxt);
 }
 
 static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -824,7 +823,7 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_HWADDR;
-    if (version_older_than(ctxt->rcp_version_api, 0, 11, 0))
+    if (version_older_than(ctxt->rcp.version_api, 0, 11, 0))
         ctxt->rcp.init_state |= RCP_INIT_DONE;
 }
 
@@ -946,7 +945,7 @@ static bool rcp_init_state_is_valid(struct wsbr_ctxt *ctxt, int prop)
         return false;
     if (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         return prop == SPINEL_PROP_HWADDR;
-    if (!version_older_than(ctxt->rcp_version_api, 0, 11, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 11, 0) && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
         return prop == SPINEL_PROP_WS_RF_CONFIGURATION_LIST;
     return true;
 }

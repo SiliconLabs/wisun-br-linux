@@ -168,7 +168,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
     info->utt_rx_timestamp = timestamp;
     info->ufsi             = ufsi;
     clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
-    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
@@ -279,7 +279,7 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                                   &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
     }
     ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = dwell_interval;
-    if (version_older_than(g_ctxt.rcp_version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 

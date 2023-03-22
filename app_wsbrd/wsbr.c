@@ -116,7 +116,7 @@ static void ws_enable_mac_filtering(struct wsbr_ctxt *ctxt)
     BUG_ON(ctxt->config.ws_allowed_mac_address_count && ctxt->config.ws_denied_mac_address_count);
     if (!ctxt->config.ws_allowed_mac_address_count && !ctxt->config.ws_denied_mac_address_count)
         return;
-    if (version_older_than(ctxt->rcp_version_api, 0, 3, 0))
+    if (version_older_than(ctxt->rcp.version_api, 0, 3, 0))
         FATAL(1, "RCP API is too old to enable MAC address filtering");
     if (ctxt->config.ws_allowed_mac_address_count)
         rcp_enable_mac_filter(false);
@@ -244,13 +244,13 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ws_enable_mac_filtering(ctxt);
 
     if (ctxt->config.ws_regional_regulation) {
-        FATAL_ON(version_older_than(ctxt->rcp_version_api, 0, 6, 0), 2,
+        FATAL_ON(version_older_than(ctxt->rcp.version_api, 0, 6, 0), 2,
                  "this device does not support regional regulation");
         ret = ws_regulation_set(ctxt->rcp_if_id, ctxt->config.ws_regional_regulation);
         WARN_ON(ret);
     }
 
-    if (!version_older_than(ctxt->rcp_version_api, 0, 17, 0))
+    if (!version_older_than(ctxt->rcp.version_api, 0, 17, 0))
         rcp_set_max_async_duration(ctxt->config.ws_async_frag_duration);
 }
 
@@ -310,25 +310,25 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
     ret = uart_tx(os_ctxt, buf, buf_len);
     // Old firmware may merge close Rx events
-    if (version_older_than(ctxt->rcp_version_api, 0, 4, 0))
+    if (version_older_than(ctxt->rcp.version_api, 0, 4, 0))
         usleep(20000);
     return ret;
 }
 
-void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
+void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
     if (ctxt->rcp.init_state & RCP_HAS_HWADDR && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
         FATAL(3, "unsupported radio configuration (check --list-rf-config)");
     if (ctxt->rcp.init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");
-    INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", version_fw_str,
-          FIELD_GET(0xFF000000, ctxt->rcp_version_fw),
-          FIELD_GET(0x00FFFF00, ctxt->rcp_version_fw),
-          FIELD_GET(0x000000FF, ctxt->rcp_version_fw),
-          FIELD_GET(0xFF000000, ctxt->rcp_version_api),
-          FIELD_GET(0x00FFFF00, ctxt->rcp_version_api),
-          FIELD_GET(0x000000FF, ctxt->rcp_version_api));
-    if (version_older_than(ctxt->rcp_version_api, 0, 2, 0))
+    INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
+          FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
+          FIELD_GET(0x00FFFF00, ctxt->rcp.version_fw),
+          FIELD_GET(0x000000FF, ctxt->rcp.version_fw),
+          FIELD_GET(0xFF000000, ctxt->rcp.version_api),
+          FIELD_GET(0x00FFFF00, ctxt->rcp.version_api),
+          FIELD_GET(0x000000FF, ctxt->rcp.version_api));
+    if (version_older_than(ctxt->rcp.version_api, 0, 2, 0))
         FATAL(3, "RCP API is too old");
     rcp_get_hw_addr();
 }
@@ -386,19 +386,19 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         rcp_rx(ctxt);
     ctxt->os_ctxt->uart_inhibit_crc_warning = false;
 
-    if (version_older_than(ctxt->rcp_version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+    if (version_older_than(ctxt->rcp.version_api, 0, 15, 0) && ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
         FATAL(1, "fan_version = 1.1 requires RCP API >= 0.15.0");
-    if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
+    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP API >= 0.16.0");
 
     while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
     memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
 
-    if (version_older_than(ctxt->rcp_version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
+    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
 
-    if (!version_older_than(ctxt->rcp_version_api, 0, 16, 0)) {
+    if (!version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
         rcp_get_rf_config_list();
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
