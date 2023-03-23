@@ -97,7 +97,6 @@ typedef struct ws_info {
     struct ws_mngt mngt;
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
-    uint8_t device_min_sens; // Device min sensitivity set by the application
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     parent_info_t parent_info[WS_PARENT_LIST_SIZE];
     parent_info_list_t parent_list_free;

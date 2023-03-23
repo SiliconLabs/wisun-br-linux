@@ -915,16 +915,3 @@ int ws_neighbor_info_get(
         return -1;
     return ws_bootstrap_neighbor_info_get(cur, neighbor_ptr, count);
 }
-
-int ws_device_min_sens_set(
-    int8_t interface_id,
-    uint8_t device_min_sens)
-{
-    struct net_if *cur;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur)
-        return -1;
-    DEVICE_MIN_SENS = device_min_sens;
-    cur->ws_info.device_min_sens = device_min_sens;
-    return 0;
-}

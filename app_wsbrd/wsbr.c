@@ -211,9 +211,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     rcp_set_tx_power(ctxt->config.tx_power);
 
-    ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
-    WARN_ON(ret);
-
     ret = wsbr_configure_ws_sect_time(ctxt);
     WARN_ON(ret);
 

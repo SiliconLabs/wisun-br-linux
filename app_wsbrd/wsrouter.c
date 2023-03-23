@@ -123,9 +123,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_test_version_set(ctxt->rcp_if_id, ctxt->config.ws_fan_version);
     WARN_ON(ret);
 
-    ret = ws_device_min_sens_set(ctxt->rcp_if_id, 174 - 93);
-    WARN_ON(ret);
-
     ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 

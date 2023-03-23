@@ -828,32 +828,4 @@ int ws_neighbor_info_get(
     ws_neighbour_info_t *neighbor_ptr,
     uint16_t count);
 
-/**
- * Set minimum RF sensitivity acceptable for the parent selection
- *
- * Set radio signal minimum sensitivity level acceptable for parent selection.
- * Range of -174 (0) to +80 (254) dBm.
- *
- * If device_min_sens is set to 0 then automatic adjustment is done by the stack.
- *
- * Setting a value that is not suitable for Radio might prevent the device joining to the network.
- *
- * This configuration limits the EAPOL parents accepted for Authentication and device must hear signal
- * level higher than device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS
- * to start authentication.
- *
- * ETX Calculation gives a maximum ETX if two way EWMA RSL is less than
- * device_min_sens + CAND_PARENT_THRESHOLD + CAND_PARENT_HYSTERESIS to
- * prevent selecting parents with poor signal quality
- *
- * \param interface_id Network interface ID.
- * \param device_min_sens value used in the parent selections.
- *
- * \return 0 Success.
- * \return <0 Failure.
- */
-int ws_device_min_sens_set(
-    int8_t interface_id,
-    uint8_t device_min_sens);
-
 #endif
