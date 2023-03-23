@@ -58,6 +58,8 @@
 #include "dbus.h"
 #include "tun.h"
 
+static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
+
 enum {
     POLLFD_TUN,
     POLLFD_RCP,
@@ -76,6 +78,7 @@ enum {
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
 
+    .rcp.on_reset = wsbr_handle_reset,
     .rcp.on_mlme_cnf = mlme_confirm_handler,
     .rcp.on_mlme_ind = mlme_indication_handler,
     .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
@@ -315,7 +318,7 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
     return ret;
 }
 
-void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
+static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
     int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
 

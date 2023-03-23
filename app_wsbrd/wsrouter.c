@@ -45,6 +45,8 @@
 #include "wsbr_mac.h"
 #include "timers.h"
 
+static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
+
 enum {
     POLLFD_RCP,
     POLLFD_EVENT,
@@ -54,6 +56,7 @@ enum {
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
+    .rcp.on_reset = wsbr_handle_reset,
     .rcp.on_mlme_cnf = mlme_confirm_handler,
     .rcp.on_mlme_ind = mlme_indication_handler,
     .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
@@ -164,7 +167,7 @@ static void wsbr_tasklet(struct event_payload *event)
     }
 }
 
-void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
+static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
     if (ctxt->rcp.init_state & RCP_INIT_DONE)
         FATAL(3, "MAC layer has been reset. Operation not supported");

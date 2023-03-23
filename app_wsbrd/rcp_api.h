@@ -51,6 +51,7 @@ struct rcp {
     int  (*device_tx)(struct os_ctxt *ctxt, const void *buf, unsigned int len);
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
+    void (*on_reset)(struct wsbr_ctxt *ctxt);
     void (*on_tx_cnf)(const struct mac_api *api, const struct mcps_data_conf *conf, const struct mcps_data_conf_payload *payload);
     void (*on_rx_ind)(const struct mac_api *api, const struct mcps_data_ind *conf, const struct mcps_data_ie_list *payload);
     void (*on_mlme_ind)(const struct mac_api *api, mlme_primitive_e id, const void *data);

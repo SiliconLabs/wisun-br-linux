@@ -765,7 +765,9 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     spinel_pop_u8(buf); /* Formerly: key_lookup_size */
     spinel_pop_u8(buf); /* Formerly: key_usage_size */
     ctxt->rcp.init_state |= RCP_HAS_RESET;
-    wsbr_handle_reset(ctxt);
+    WARN_ON(!ctxt->rcp.on_reset);
+    if (ctxt->rcp.on_reset)
+        ctxt->rcp.on_reset(ctxt);
 }
 
 static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
