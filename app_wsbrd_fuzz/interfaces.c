@@ -110,10 +110,10 @@ void __wrap_wsbr_tun_init(struct wsbr_ctxt *ctxt)
     ctxt->tun_fd = g_fuzz_ctxt.tun_pipe[0];
 
     memcpy(g_fuzz_ctxt.tun_gua, g_ctxt.config.ipv6_prefix, 8);
-    memcpy(g_fuzz_ctxt.tun_gua + 8, g_ctxt.hw_mac, 8);
+    memcpy(g_fuzz_ctxt.tun_gua + 8, g_ctxt.rcp.eui64, 8);
     g_fuzz_ctxt.tun_gua[8] ^= 2;
     memcpy(g_fuzz_ctxt.tun_lla, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(g_fuzz_ctxt.tun_lla + 8, g_ctxt.hw_mac, 8);
+    memcpy(g_fuzz_ctxt.tun_lla + 8, g_ctxt.rcp.eui64, 8);
     g_fuzz_ctxt.tun_lla[8] ^= 2;
 }
 

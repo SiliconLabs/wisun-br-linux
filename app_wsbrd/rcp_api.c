@@ -819,7 +819,7 @@ static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
 
 static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    spinel_pop_fixed_u8_array(buf, ctxt->hw_mac, 8);
+    spinel_pop_fixed_u8_array(buf, ctxt->rcp.eui64, 8);
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_HWADDR;

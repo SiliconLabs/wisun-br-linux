@@ -379,7 +379,7 @@ int wsbr_tun_leave_mcast_group(int sock_mcast, const char *if_name, const uint8_
 
 void wsbr_tun_init(struct wsbr_ctxt *ctxt)
 {
-    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->hw_mac,
+    ctxt->tun_fd = wsbr_tun_open(ctxt->config.tun_dev, ctxt->rcp.eui64,
                                  ctxt->config.ipv6_prefix, ctxt->config.tun_autoconf,
                                  strlen(ctxt->config.neighbor_proxy));
     // It is also possible to use Netlink interface through DEVCONF_ACCEPT_RA

@@ -61,6 +61,7 @@ struct rcp {
     uint32_t version_fw;
     const char *version_label;
     uint32_t neighbors_table_size;
+    uint8_t  eui64[8];
 };
 
 void rcp_noop(void);

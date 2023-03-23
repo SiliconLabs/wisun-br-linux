@@ -492,7 +492,7 @@ int dbus_get_nodes(sd_bus *bus, const char *path, const char *interface,
     WARN_ON(ret < 0, "%s: %s", property, strerror(-ret));
     tun_addr_get_link_local(ctxt->config.tun_dev, node_ipv6[0]);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, node_ipv6[1]);
-    dbus_message_append_node(reply, property, ctxt->hw_mac, NULL,
+    dbus_message_append_node(reply, property, ctxt->rcp.eui64, NULL,
                              node_ipv6, true, false, NULL);
 
     for (int i = 0; i < len_pae; i++) {
@@ -622,7 +622,7 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_PROPERTY("Nodes", "a(aya{sv})", dbus_get_nodes, 0,
                         SD_BUS_VTABLE_PROPERTY_EMITS_INVALIDATION),
         SD_BUS_PROPERTY("HwAddress", "ay", dbus_get_hw_address,
-                        offsetof(struct wsbr_ctxt, hw_mac),
+                        offsetof(struct wsbr_ctxt, rcp.eui64),
                         0),
         SD_BUS_PROPERTY("WisunNetworkName", "s", dbus_get_string,
                         offsetof(struct wsbr_ctxt, config.ws_name),

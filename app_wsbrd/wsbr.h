@@ -43,7 +43,6 @@ struct wsbr_ctxt {
     int  tun_fd;
     int  sock_mcast;
 
-    uint8_t hw_mac[8];
     uint8_t dynamic_mac[8];
     struct mac_api mac_api;
 

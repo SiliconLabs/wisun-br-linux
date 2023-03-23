@@ -411,7 +411,7 @@ int8_t wsbr_mac_addr_get(const struct mac_api *api,
 
     switch (type) {
     case MAC_EXTENDED_READ_ONLY:
-        memcpy(mac64, ctxt->hw_mac, 8);
+        memcpy(mac64, ctxt->rcp.eui64, 8);
         return 0;
     case MAC_EXTENDED_DYNAMIC:
         memcpy(mac64, ctxt->dynamic_mac, 8);

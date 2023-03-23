@@ -292,7 +292,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
         WARN("ws_bbr_start");
     if (ctxt->config.internal_dhcp)
-        dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->hw_mac, ipv6);
+        dhcp_start(&ctxt->dhcp_server, ctxt->config.tun_dev, ctxt->rcp.eui64, ipv6);
     if (strlen(ctxt->config.radius_secret) != 0)
         if (ws_bbr_radius_shared_secret_set(ctxt->rcp_if_id, strlen(ctxt->config.radius_secret), (uint8_t *)ctxt->config.radius_secret))
             WARN("ws_bbr_radius_shared_secret_set");
@@ -300,7 +300,7 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
         if (ws_bbr_radius_address_set(ctxt->rcp_if_id, &ctxt->config.radius_server))
             WARN("ws_bbr_radius_address_set");
     // Artificially add wsbrd to the DHCP lease list
-    wsbr_dhcp_lease_update(ctxt, ctxt->hw_mac, ipv6);
+    wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }
 
 static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
@@ -393,7 +393,7 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
-    memcpy(ctxt->dynamic_mac, ctxt->hw_mac, sizeof(ctxt->dynamic_mac));
+    memcpy(ctxt->dynamic_mac, ctxt->rcp.eui64, sizeof(ctxt->dynamic_mac));
 
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
