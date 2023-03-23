@@ -272,54 +272,6 @@ void wsbr_mac_print_rf_config_list(struct wsbr_ctxt *ctxt, struct iobuf_read *bu
     }
 }
 
-void wsbr_mac_handle_crc_error(struct wsbr_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter)
-{
-    struct retransmission_frame *buffers = ctxt->os_ctxt->retransmission_buffers;
-    int buffers_len = ARRAY_SIZE(ctxt->os_ctxt->retransmission_buffers);
-    int extra_frame;
-    int i;
-
-    for (i = 0; i < buffers_len; i++) {
-        if (buffers[i].crc == crc) {
-            if (buffers[i].frame_len < frame_len) {
-                extra_frame = (i + buffers_len - 1) % buffers_len;
-                if (buffers[extra_frame].frame[0] != header) {
-                    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): 1 packet lost, %d bytes recovered",
-                         irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
-                } else {
-                    DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered",
-                          irq_err_counter, frame_len, header, crc,
-                          buffers[extra_frame].frame_len, buffers[i].frame_len);
-                    write(ctxt->os_ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
-                }
-            } else {
-                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered",
-                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
-            }
-            write(ctxt->os_ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
-            return;
-        }
-    }
-    for (i = 0; i < buffers_len; i++) {
-        if (buffers[i].frame[0] == header) {
-            write(ctxt->os_ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
-            if (buffers[i].frame_len < frame_len) {
-                extra_frame = (i + 1) % buffers_len;
-                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered (header match)",
-                      irq_err_counter, frame_len, header, crc,
-                      buffers[i].frame_len, buffers[extra_frame].frame_len);
-                write(ctxt->os_ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
-            } else {
-                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered (header match)",
-                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
-            }
-            return;
-        }
-    }
-    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): one or several packets lost",
-         irq_err_counter, frame_len, header, crc);
-}
-
 struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint8_t eui64[8])
 {
     ws_neighbor_temp_class_t *neighbor_ws_tmp;

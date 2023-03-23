@@ -284,6 +284,7 @@ int main(int argc, char *argv[])
     ctxt->os_ctxt = &g_os_ctxt;
     ctxt->rcp.device_tx = uart_tx;
     ctxt->rcp.device_rx = uart_rx;
+    ctxt->rcp.on_crc_error = uart_handle_crc_error;
     parse_commandline(&ctxt->config, argc, argv, print_help_node);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;

@@ -510,6 +510,7 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.uart_dev[0]) {
         ctxt->rcp.device_tx = wsbr_uart_tx;
         ctxt->rcp.device_rx = uart_rx;
+        ctxt->rcp.on_crc_error = uart_handle_crc_error;
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;

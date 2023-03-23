@@ -779,7 +779,9 @@ static void rcp_rx_crc_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_r
 
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    wsbr_mac_handle_crc_error(ctxt, crc, frame_len, header, irq_err_counter);
+    WARN_ON(!ctxt->rcp.on_crc_error);
+    if (ctxt->rcp.on_crc_error)
+        ctxt->rcp.on_crc_error(ctxt->os_ctxt, crc, frame_len, header, irq_err_counter);
 }
 
 static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)

@@ -226,3 +226,51 @@ int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
+
+void uart_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter)
+{
+    struct retransmission_frame *buffers = ctxt->retransmission_buffers;
+    int buffers_len = ARRAY_SIZE(ctxt->retransmission_buffers);
+    int extra_frame;
+    int i;
+
+    for (i = 0; i < buffers_len; i++) {
+        if (buffers[i].crc == crc) {
+            if (buffers[i].frame_len < frame_len) {
+                extra_frame = (i + buffers_len - 1) % buffers_len;
+                if (buffers[extra_frame].frame[0] != header) {
+                    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): 1 packet lost, %d bytes recovered",
+                         irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+                } else {
+                    DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered",
+                          irq_err_counter, frame_len, header, crc,
+                          buffers[extra_frame].frame_len, buffers[i].frame_len);
+                    write(ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
+                }
+            } else {
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered",
+                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+            }
+            write(ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
+            return;
+        }
+    }
+    for (i = 0; i < buffers_len; i++) {
+        if (buffers[i].frame[0] == header) {
+            write(ctxt->data_fd, buffers[i].frame, buffers[i].frame_len);
+            if (buffers[i].frame_len < frame_len) {
+                extra_frame = (i + 1) % buffers_len;
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d + %d bytes recovered (header match)",
+                      irq_err_counter, frame_len, header, crc,
+                      buffers[i].frame_len, buffers[extra_frame].frame_len);
+                write(ctxt->data_fd, buffers[extra_frame].frame, buffers[extra_frame].frame_len);
+            } else {
+                DEBUG("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): %d bytes recovered (header match)",
+                      irq_err_counter, frame_len, header, crc, buffers[i].frame_len);
+            }
+            return;
+        }
+    }
+    WARN("crc error (%d overruns in %d bytes, hdr/crc: %02x/%04x): one or several packets lost",
+         irq_err_counter, frame_len, header, crc);
+}
