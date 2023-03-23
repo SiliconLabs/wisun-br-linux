@@ -220,7 +220,6 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
-    memcpy(ctxt->dynamic_mac, ctxt->rcp.eui64, sizeof(ctxt->dynamic_mac));
 
     if (ctxt->config.list_rf_configs) {
         if (version_older_than(ctxt->rcp.version_api, 0, 11, 0))

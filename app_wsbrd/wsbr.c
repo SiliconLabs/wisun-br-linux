@@ -572,7 +572,6 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
 
     while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
         rcp_rx(ctxt);
-    memcpy(ctxt->dynamic_mac, ctxt->rcp.eui64, sizeof(ctxt->dynamic_mac));
 
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");

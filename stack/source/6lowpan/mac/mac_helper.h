@@ -30,7 +30,6 @@ void mac_helper_set_default_key_source(struct net_if *interface);
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t descriptor);
 int8_t mac_helper_security_key_descriptor_clear(struct net_if *interface, uint8_t descriptor);
 bool mac_helper_write_our_addr(struct net_if *interface, struct ns_sockaddr *ptr);
-int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64);
 uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead);
 uint_fast8_t mac_helper_frame_overhead(struct net_if *cur, const struct buffer *buf);
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor);

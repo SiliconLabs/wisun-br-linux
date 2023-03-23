@@ -26,6 +26,7 @@
 
 #include "nwk_interface/protocol.h"
 
+#include "rcp_api.h"
 #include "wsbr_mac.h"
 #include "frame_helpers.h"
 
@@ -170,18 +171,17 @@ int wsbr_data_ind_rebuild(uint8_t frame[],
 }
 
 void wsbr_data_req_rebuild(struct iobuf_write *frame,
-                           const struct mac_api *api,
+                           const struct rcp *rcp,
                            const struct arm_15_4_mac_parameters *mac,
                            const struct mcps_data_req *req,
                            const struct mcps_data_req_ie_list *ie)
 {
-    uint8_t mac64[8], tmp[8];
+    uint8_t tmp[8];
     uint16_t fcf;
     int i;
 
     BUG_ON(!ie);
     BUG_ON(req->msduLength);
-    wsbr_mac_addr_get(api, MAC_EXTENDED_DYNAMIC, mac64);
     fcf = 0;
     fcf |= FIELD_PREP(IEEE802154_FCF_FRAME_TYPE,         IEEE802154_FRAME_TYPE_DATA);
     fcf |= FIELD_PREP(IEEE802154_FCF_SECURITY_ENABLED,   !!req->Key.SecurityLevel);
@@ -216,7 +216,7 @@ void wsbr_data_req_rebuild(struct iobuf_write *frame,
     if (ieee802154_table_pan_id_comp[i].src_pan_id)
         iobuf_push_le16(frame, mac->pan_id);
     if (req->SrcAddrMode == MAC_ADDR_MODE_64_BIT) {
-        memrcpy(tmp, mac64, 8);
+        memrcpy(tmp, rcp->eui64, 8);
         iobuf_push_data(frame, tmp, 8);
     } else if (req->SrcAddrMode == MAC_ADDR_MODE_16_BIT) {
         BUG("unsupported");

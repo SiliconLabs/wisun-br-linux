@@ -95,14 +95,6 @@ bool mac_helper_write_our_addr(struct net_if *interface, sockaddr_t *ptr)
     return normal;
 }
 
-int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64)
-{
-    memcpy(interface->mac, mac64, 8);
-    wsbr_mac_addr_set(interface->mac_api, mac64);
-    return 0;
-}
-
-
 /*
  * Given a buffer, with address and security flags set, compute the maximum
  * MAC payload that could be put in that buffer.

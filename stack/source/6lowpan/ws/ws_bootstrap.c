@@ -623,34 +623,14 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
 
 static void ws_bootstrap_ll_address_validate(struct net_if *cur)
 {
-    // Configure EUI64 for MAC if missing
-    uint8_t mac64[8];
-    if (!cur->mac_api) {
-        return;
-    }
-
-    wsbr_mac_addr_get(cur->mac_api, MAC_EXTENDED_DYNAMIC, mac64);
-
-    if (memcmp(mac64, ADDR_UNSPECIFIED, 8) == 0) {
-        wsbr_mac_addr_get(cur->mac_api, MAC_EXTENDED_READ_ONLY, mac64);
-    }
-
-    if (memcmp(mac64, ADDR_UNSPECIFIED, 8) == 0) {
-        // Generate random mac because it was not available
-        rand_get_n_bytes_random(mac64, 8);
-        mac64[0] |= 2; //Set Local Bit
-        mac64[0] &= ~1; //Clear multicast bit
-
-        tr_info("Generated random MAC address");
-    }
-    tr_info("MAC address: %s", tr_eui64(mac64));
-    mac_helper_mac64_set(cur, mac64);
-
-    memcpy(cur->iid_eui64, mac64, 8);
-    /* Invert U/L Bit */
+    BUG_ON(!cur->rcp);
+    BUG_ON(memcmp(cur->rcp->eui64, ADDR_UNSPECIFIED, 8) == 0);
+    memcpy(cur->mac, cur->rcp->eui64, 8);
+    memcpy(cur->iid_eui64, cur->rcp->eui64, 8);
+    memcpy(cur->iid_slaac, cur->rcp->eui64, 8);
+    /* RFC4291 2.5.1: invert the "u" bit */
     cur->iid_eui64[0] ^= 2;
-    memcpy(cur->iid_slaac, cur->iid_eui64, 8);
-
+    cur->iid_slaac[0] ^= 2;
 }
 
 /* \return 0x0100 to 0xFFFF ETX value (8 bit fraction)

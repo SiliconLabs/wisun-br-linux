@@ -109,47 +109,11 @@ void wsbr_data_req_ext(const struct mac_api *api,
     } else {
         neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
         BUG_ON(!!neighbor_ws != !!data->DstAddrMode);
-        wsbr_data_req_rebuild(&frame, api, &cur->mac_parameters, data, ie_ext);
+        wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
         rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
                    data->fhss_type, data->ExtendedFrameExchange,
                    data->priority, data->phy_id);
         iobuf_free(&frame);
     }
 
-}
-
-int8_t wsbr_mac_addr_set(const struct mac_api *api, const uint8_t *mac64)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-
-    BUG_ON(!api);
-    BUG_ON(!mac64);
-    BUG_ON(ctxt != &g_ctxt);
-
-    if (memcmp(ctxt->dynamic_mac, mac64, 8))
-        WARN("%s: Not implemented", __func__);
-
-    memcpy(ctxt->dynamic_mac, mac64, 8);
-    return 0;
-}
-
-int8_t wsbr_mac_addr_get(const struct mac_api *api,
-                     mac_extended_address_type_e type, uint8_t *mac64)
-{
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-
-    BUG_ON(!api);
-    BUG_ON(!mac64);
-    BUG_ON(ctxt != &g_ctxt);
-
-    switch (type) {
-    case MAC_EXTENDED_READ_ONLY:
-        memcpy(mac64, ctxt->rcp.eui64, 8);
-        return 0;
-    case MAC_EXTENDED_DYNAMIC:
-        memcpy(mac64, ctxt->dynamic_mac, 8);
-        return 0;
-    default:
-        BUG("Unknown address_type: %d", type);
-    }
 }

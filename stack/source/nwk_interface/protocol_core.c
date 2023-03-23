@@ -27,6 +27,7 @@
 #include "stack/mac/mac_api.h"
 #include "stack/timers.h"
 
+#include "app_wsbrd/rcp_api.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
@@ -327,22 +328,6 @@ interface_failure:
     return NULL;
 }
 
-static void protocol_6lowpan_mac_set(struct net_if *cur, const uint8_t *mac)
-{
-    memcpy(cur->iid_eui64, mac, 8);
-    /* Invert U/L Bit */
-    cur->iid_eui64[0] ^= 2;
-
-    mac_helper_mac64_set(cur, mac);
-}
-
-static void protocol_stack_interface_iid_eui64_generate(struct net_if *cur, const uint8_t *mac)
-{
-    protocol_6lowpan_mac_set(cur, mac);
-    //By default use this EUI-64-based IID for SLAAC
-    memcpy(cur->iid_slaac, cur->iid_eui64, 8);
-}
-
 void nwk_interface_print_neigh_cache()
 {
     ns_list_foreach(struct net_if, cur, &protocol_interface_info_list) {
@@ -454,14 +439,11 @@ struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api, struct r
 
     if (new_entry) {
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);
-
-        uint8_t mac[8];
-        int8_t error = wsbr_mac_addr_get(api, MAC_EXTENDED_READ_ONLY, mac);
-        if (error) {
-            tr_error("mac_ext_mac64_address_get failed: %d", error);
-            return NULL;
-        }
-        protocol_stack_interface_iid_eui64_generate(new_entry, mac);
+        memcpy(new_entry->iid_eui64, rcp->eui64, 8);
+        memcpy(new_entry->iid_slaac, rcp->eui64, 8);
+        /* RFC4291 2.5.1: invert the "u" bit */
+        new_entry->iid_eui64[0] ^= 2;
+        new_entry->iid_slaac[0] ^= 2;
         ns_list_add_to_start(&protocol_interface_info_list, new_entry);
         return new_entry;
     }
