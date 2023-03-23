@@ -301,19 +301,6 @@ void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_
     ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id    = bsi;
 }
 
-void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard)
-{
-    if (dev_min_sens_config != 0) {
-        // Automatic mode disabled
-        return;
-    }
-    uint8_t rsl_heard = ws_neighbor_class_rsl_from_dbm_calculate(dbm_heard);
-    if (DEVICE_MIN_SENS > rsl_heard) {
-        // We are hearing packet with lower than min_sens dynamically learn the sensitivity
-        DEVICE_MIN_SENS = rsl_heard;
-    }
-}
-
 uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
 {
     /* RSL MUST be calculated as the received signal level relative to standard

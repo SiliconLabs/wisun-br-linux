@@ -688,7 +688,6 @@ static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *dat
             neighbor.ws_neighbor->unicast_data_rx = true;
 
         // Calculate RSL for all UDATA packets heard
-        ws_neighbor_class_rf_sensitivity_calculate(base->interface_ptr->ws_info.device_min_sens, data->signal_dbm);
         ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
 
         if (neighbor.neighbor) {

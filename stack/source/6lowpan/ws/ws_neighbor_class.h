@@ -120,17 +120,6 @@ void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_
                                  uint8_t dwell_interval, uint32_t interval, uint16_t bsi);
 
 /**
- * ws_neighbor_class_rf_sensitivity_calculate
- *
- * Calculates minimum heard RSL value from all packets.
- * This will dynamically adjusts min sensitivity if value is not properly set
- *
- * \param rsl_heard; rsl_heard heard from Radio
- *
- */
-void ws_neighbor_class_rf_sensitivity_calculate(uint8_t dev_min_sens_config, int8_t dbm_heard);
-
-/**
  * ws_neighbor_class_rsl_from_dbm_calculate
  *
  * Calculates rsl value from dbm heard.
