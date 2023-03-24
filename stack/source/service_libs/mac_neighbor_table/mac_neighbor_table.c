@@ -114,7 +114,7 @@ void mac_neighbor_table_neighbor_timeout_update(int time_update)
             }
 
             cur->lifetime -= time_update;
-            if (!table_class->user_nud_notify_cb ||  table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX || cur->nud_active || !cur->rx_on_idle) {
+            if (!table_class->user_nud_notify_cb ||  table_class->active_nud_process > ACTIVE_NUD_PROCESS_MAX || cur->nud_active) {
                 continue;
             }
 
@@ -146,7 +146,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     table_class->neighbour_list_size++;
     memcpy(entry->mac64, mac64, 8);
     entry->mac16 = 0xffff;
-    entry->rx_on_idle = true;
     entry->ffd_device = true;
     entry->nud_active = false;
     entry->advertisment = false;

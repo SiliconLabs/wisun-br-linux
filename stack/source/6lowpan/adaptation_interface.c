@@ -278,9 +278,6 @@ static bool lowpan_adaptation_request_longer_than_mtu(struct net_if *cur, buffer
 
 static bool lowpan_adaptation_indirect_data_request(mac_neighbor_table_entry_t *entry_ptr)
 {
-    if (entry_ptr && !(entry_ptr->rx_on_idle)) {
-        return true;
-    }
     return false;
 }
 
