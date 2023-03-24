@@ -288,7 +288,7 @@ static struct net_if *protocol_interface_class_allocate()
     return entry;
 }
 
-static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api_t *api, struct rcp *rcp)
+static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api_t *api, struct rcp *rcp, int mtu)
 {
     if (!api) {
         return NULL;
@@ -298,7 +298,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
         return NULL;
     }
 
-    if (lowpan_adaptation_interface_init(entry->id, api->mtu) != 0) {
+    if (lowpan_adaptation_interface_init(entry->id) != 0) {
         goto interface_failure;
     }
 
@@ -310,6 +310,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     entry->mac_parameters.pan_id = 0xffff;
 
     entry->mac_parameters.mac_default_key_index = 0;
+    entry->mac_parameters.mtu = mtu;
 
     entry->mac_api = api;
     entry->rcp = rcp;
@@ -444,7 +445,7 @@ static int8_t net_interface_get_free_id(void)
     return -1;
 }
 
-struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api, struct rcp *rcp)
+struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api, struct rcp *rcp, int mtu)
 {
     if (!api) {
         return NULL;
@@ -455,7 +456,7 @@ struct net_if *protocol_stack_interface_generate_lowpan(mac_api_t *api, struct r
         }
     }
 
-    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(api, rcp);
+    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(api, rcp, mtu);
 
     if (new_entry) {
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);

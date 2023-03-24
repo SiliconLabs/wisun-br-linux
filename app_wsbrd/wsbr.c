@@ -74,11 +74,6 @@ enum {
 struct wsbr_ctxt g_ctxt = {
     .scheduler.event_fd = { -1, -1 },
 
-    // FIXME: retrieve from RCP. Normally, MAC layer set this value when it
-    // receive the mac802_15_4Mode request.
-    // .mac_api.mtu = MAC_IEEE_802_15_4G_MAX_PHY_PACKET_SIZE,
-    .mac_api.mtu = 2043,
-
     // avoid initializating to 0 = STDIN_FILENO
     .timerfd = -1,
     .tun_fd = -1,
@@ -494,8 +489,6 @@ int wsbr_main(int argc, char *argv[])
     g_storage_prefix = ctxt->config.storage_prefix;
     if (ctxt->config.storage_delete)
         storage_delete(files);
-    if (ctxt->config.lowpan_mtu)
-        ctxt->mac_api.mtu = ctxt->config.lowpan_mtu;
     if (ctxt->config.pan_size >= 0)
         test_pan_size_override = ctxt->config.pan_size;
     if (ctxt->config.pcap_file[0])
@@ -523,7 +516,7 @@ int wsbr_main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 

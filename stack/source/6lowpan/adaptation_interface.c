@@ -344,11 +344,8 @@ static void lowpan_list_free(fragmenter_tx_list_t *list, bool fragment_buf_free)
 }
 
 
-int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_size)
+int8_t lowpan_adaptation_interface_init(int8_t interface_id)
 {
-    if (mac_mtu_size == 0) {
-        return -2;
-    }
     //Remove old interface
     lowpan_adaptation_interface_free(interface_id);
 
@@ -976,9 +973,9 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     if (fragmented_needed) {
         // If fragmentation TX buffer not allocated, do it now.
         if (!interface_ptr->fragment_indirect_tx_buffer && !interface_ptr->mtu_size) {
-            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_api->mtu);
+            interface_ptr->fragment_indirect_tx_buffer = malloc(cur->mac_parameters.mtu);
             if (interface_ptr->fragment_indirect_tx_buffer) {
-                interface_ptr->mtu_size = cur->mac_api->mtu;
+                interface_ptr->mtu_size = cur->mac_parameters.mtu;
             } else {
                 tr_error("Failed to allocate fragmentation buffer");
                 goto tx_error_handler;

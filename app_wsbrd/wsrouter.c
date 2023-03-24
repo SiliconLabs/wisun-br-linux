@@ -52,8 +52,6 @@ enum {
 
 // See warning in wsbr.h
 struct wsbr_ctxt g_ctxt = {
-    .mac_api.mtu = 2043,
-
     // avoid initializating to 0 = STDIN_FILENO
     .pcapng_fd = -1,
 };
@@ -295,7 +293,7 @@ int main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 

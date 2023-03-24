@@ -29,7 +29,7 @@ struct mac_neighbor_table_entry;
 enum buffer_priority;
 enum addrtype;
 
-int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_size);
+int8_t lowpan_adaptation_interface_init(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_free(int8_t interface_id);
 

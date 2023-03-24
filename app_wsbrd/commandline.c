@@ -588,6 +588,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->uc_dwell_interval = 255;
     config->bc_interval = 1020;
     config->bc_dwell_interval = 255;
+    config->lowpan_mtu = 2043;
     config->ws_pmk_lifetime = 172800;
     config->ws_ptk_lifetime = 86400;
     config->ws_gtk_expire_offset = 43200;

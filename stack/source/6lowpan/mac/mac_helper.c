@@ -109,7 +109,7 @@ int8_t mac_helper_mac64_set(struct net_if *interface, const uint8_t *mac64)
  */
 uint_fast16_t mac_helper_max_payload_size(struct net_if *cur, uint_fast16_t frame_overhead)
 {
-    return cur->mac_api->mtu - frame_overhead;
+    return cur->mac_parameters.mtu - frame_overhead;
 }
 
 /*

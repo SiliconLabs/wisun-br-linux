@@ -394,13 +394,13 @@ int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, const uin
     return ipv6_route_delete(prefix, prefix_len, interface_id, next_hop, ROUTE_USER);
 }
 
-int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, struct rcp *rcp, char *interface_name_ptr)
+int8_t arm_nwk_interface_lowpan_init(mac_api_t *api, struct rcp *rcp, int mtu, char *interface_name_ptr)
 {
     if (!api) {
         return -1;
     }
 
-    struct net_if *cur = protocol_stack_interface_generate_lowpan(api, rcp);
+    struct net_if *cur = protocol_stack_interface_generate_lowpan(api, rcp, mtu);
     if (!cur) {
         return -3;
     }
