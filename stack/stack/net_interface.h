@@ -283,19 +283,6 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 int8_t arm_nwk_interface_network_driver_set(int8_t interface_id, const struct channel_list *nwk_channel_list, network_driver_setup_t *link_setup);
 
 /**
- * \brief Set the channel list configuration to be used on the network interface.
- *
- * \param interface_id Network interface ID.
- * \param nwk_channel_list Channel list to be used.
- *
- * \return >=0 Channel configuration OK.
- * \return -1 Unknown network interface ID.
- * \return -2 Empty channel list, no channels enabled.
- * \return -4 If network interface is already active and cannot be re-configured.
- */
-int8_t arm_nwk_set_channel_list(int8_t interface_id, const struct channel_list *nwk_channel_list);
-
-/**
   * \brief Get current used channel.
   *
   * \param interface_id Network interface ID.

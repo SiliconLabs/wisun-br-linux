@@ -593,35 +593,6 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
     return ret_val;
 }
 
-int8_t arm_nwk_set_channel_list(int8_t interface_id, const channel_list_t *nwk_channel_list)
-{
-    int8_t ret_val = -1;
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur) {
-        return -1;
-    }
-
-    if (arm_channel_list_validation(nwk_channel_list)) {
-        tr_debug("Given channel mask is empty!");
-        return -2;
-    }
-
-    //CHECK Value
-    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        return -4;
-    }
-
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        return -2;
-    } else {
-        // copy the channel information and store one internal pointer to it
-        cur->mac_parameters.mac_channel_list = *nwk_channel_list;
-        ret_val = 0;
-    }
-    return ret_val;
-}
-
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */

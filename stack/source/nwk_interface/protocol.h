@@ -135,8 +135,6 @@ typedef struct arm_15_4_mac_parameters {
     uint32_t security_frame_counter;
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
-    /* MAC PIB boolean */
-    channel_list_t mac_channel_list;
     uint8_t mac_channel;
     uint16_t pan_id;
     struct mac_neighbor_table *mac_neighbor_table;
