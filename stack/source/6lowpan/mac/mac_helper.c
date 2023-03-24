@@ -48,24 +48,9 @@ uint16_t mac_helper_panid_get(const struct net_if *interface)
     return panId;
 }
 
-uint8_t mac_helper_default_key_index_get(struct net_if *interface)
-{
-    return interface->mac_parameters.mac_default_key_index;
-}
-
 void mac_helper_set_default_key_source(struct net_if *interface)
 {
     rcp_set_default_key_source(mac_helper_default_key_source);
-}
-
-uint8_t mac_helper_default_security_level_get(struct net_if *interface)
-{
-    return interface->mac_parameters.mac_security_level;
-}
-
-uint8_t mac_helper_default_security_key_id_mode_get(struct net_if *interface)
-{
-    return interface->mac_parameters.mac_key_id_mode;
 }
 
 int8_t mac_helper_security_key_to_descriptor_set(struct net_if *interface, const uint8_t *key, uint8_t id, uint8_t slot)

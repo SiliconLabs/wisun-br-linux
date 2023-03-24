@@ -692,12 +692,12 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
 
     //Set Messages
     if (!buf->options.ll_security_bypass_tx) {
-        dataReq->Key.SecurityLevel = mac_helper_default_security_level_get(cur);
+        dataReq->Key.SecurityLevel = cur->mac_parameters.mac_security_level;
         if (dataReq->Key.SecurityLevel) {
             switch (buf->link_specific.ieee802_15_4.key_id_mode) {
                 case B_SECURITY_KEY_ID_MODE_DEFAULT:
-                    dataReq->Key.KeyIndex = mac_helper_default_key_index_get(cur);
-                    dataReq->Key.KeyIdMode = mac_helper_default_security_key_id_mode_get(cur);
+                    dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_key_index;
+                    dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
                     break;
                 case B_SECURITY_KEY_ID_IMPLICIT:
                     dataReq->Key.KeyIdMode = MAC_KEY_ID_MODE_IMPLICIT;
@@ -1252,7 +1252,7 @@ void lowpan_adaptation_interface_data_ind(struct net_if *cur, const mcps_data_in
         }
     } else {
         buf->link_specific.ieee802_15_4.fc_security = false;
-        if (mac_helper_default_security_level_get(cur) ||
+        if (cur->mac_parameters.mac_security_level ||
                 !mcps_data_indication_neighbor_validate(cur, &buf->src_sa)) {
             //SET By Pass
             buf->options.ll_security_bypass_rx = true;

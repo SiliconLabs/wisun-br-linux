@@ -2208,13 +2208,13 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         async_req.wp_requested_nested_ie_list.lfnver_ie = cur->ws_info.pan_information.lpan_version_set;
     }
 
-    async_req.security.SecurityLevel = mac_helper_default_security_level_get(cur);
-    async_req.security.KeyIdMode = mac_helper_default_security_key_id_mode_get(cur);
+    async_req.security.SecurityLevel = cur->mac_parameters.mac_security_level;
+    async_req.security.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
         async_req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
         cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
-        async_req.security.KeyIndex = mac_helper_default_key_index_get(cur);
+        async_req.security.KeyIndex = cur->mac_parameters.mac_default_key_index;
     }
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PC, 1);
