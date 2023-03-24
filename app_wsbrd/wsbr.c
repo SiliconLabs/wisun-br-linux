@@ -420,7 +420,7 @@ static void wsbr_calculate_phy_operating_modes(struct wsbr_ctxt *ctxt)
 
 static void print_rf_config(struct wsbr_ctxt *ctxt,
                             const struct phy_params *phy_params, const struct chan_params *chan_params,
-                            struct rcp_rail_config *config, uint8_t phy_mode_id)
+                            const struct rcp_rail_config *rail_params, uint8_t phy_mode_id)
 {
     char str[256];
     bool is_std;
@@ -431,6 +431,11 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
         sprintf(str + strlen(str), " %-2s", val_to_str(chan_params->reg_domain, valid_ws_domains, "??"));
     else
         sprintf(str + strlen(str), " ??");
+
+    if (rail_params->phy_mode_group)
+        sprintf(str + strlen(str), "   %c", 'a' - 1 + rail_params->phy_mode_group);
+    else
+        sprintf(str + strlen(str), "   %c", '-');
 
     if (chan_params && chan_params->op_class)
         sprintf(str + strlen(str), "   %d", chan_params->op_class);
@@ -477,9 +482,9 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
     else
         sprintf(str + strlen(str), "   ??    ");
 
-    sprintf(str + strlen(str), " %4.1fMHz", (double)config->chan0_freq / 1000000);
-    sprintf(str + strlen(str), " %4dkHz", config->chan_spacing / 1000);
-    sprintf(str + strlen(str), "  %3d", config->chan_count);
+    sprintf(str + strlen(str), " %4.1fMHz", (double)rail_params->chan0_freq / 1000000);
+    sprintf(str + strlen(str), " %4dkHz", rail_params->chan_spacing / 1000);
+    sprintf(str + strlen(str), "  %3d", rail_params->chan_count);
 
     is_std = false;
     if (chan_params) {
@@ -507,37 +512,56 @@ static void print_rf_config(struct wsbr_ctxt *ctxt,
 
 void wsbr_print_rf_config_list(struct wsbr_ctxt *ctxt)
 {
-    struct rcp_rail_config *configs = ctxt->rcp.rail_config_list;
+    const struct rcp_rail_config *rail_params;
     const struct chan_params *chan_params;
     const struct phy_params *phy_params;
-    int i, j, k;
+    bool entry_found;
+    int domain;
 
-    INFO("dom  cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans is  chans");
-    INFO("-ain -ss plan mode      -tion      opt. idx    rate    base    space        std allowed");
-    for (i = 0; configs[i].chan0_freq; i++) {
-        phy_params = NULL;
-        if (i == 0 || configs[i - 1].phy_mode_group != configs[i].phy_mode_group)
-            INFO("---------------------------------------------------------------------------------------");
-        for (j = 0; phy_params_table[j].phy_mode_id; j++) {
-            if (phy_params_table[j].rail_phy_mode_id == configs[i].rail_phy_mode_id) {
-                phy_params = &phy_params_table[j];
-                for (k = 0; chan_params_table[k].chan0_freq; k++) {
-                    if (chan_params_table[k].chan0_freq == configs[i].chan0_freq &&
-                        chan_params_table[k].chan_spacing == configs[i].chan_spacing &&
-                        chan_params_table[k].chan_count == configs[i].chan_count) {
-                        chan_params = &chan_params_table[k];
+    INFO("dom  phy cla chan phy  mode modula mcs ofdm mod    data    chan    chan  #chans is  chans");
+    INFO("-ain grp -ss plan mode      -tion      opt. idx    rate    base    space        std allowed");
+
+    for (domain = REG_DOMAIN_WW; domain < REG_DOMAIN_UNDEF; domain++) {
+        for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+            for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
+                if (chan_params->reg_domain != domain ||
+                    chan_params->chan0_freq != rail_params->chan0_freq ||
+                    chan_params->chan_spacing != rail_params->chan_spacing ||
+                    chan_params->chan_count != rail_params->chan_count)
+                    continue;
+                entry_found = false;
+                for (phy_params = phy_params_table; phy_params->phy_mode_id; phy_params++) {
+                    if (phy_params->rail_phy_mode_id == rail_params->rail_phy_mode_id) {
+                        entry_found = true;
                         print_rf_config(ctxt, phy_params, chan_params,
-                                        &configs[i], phy_params->phy_mode_id);
+                                        rail_params, phy_params->phy_mode_id);
                     }
                 }
-                if (!chan_params)
-                    print_rf_config(ctxt, phy_params, NULL,
-                                    &configs[i], phy_params->phy_mode_id);
+                if (!entry_found)
+                    print_rf_config(ctxt, NULL, chan_params,
+                                    rail_params, rail_params->rail_phy_mode_id);
             }
         }
-        if (!phy_params)
+    }
+    for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+        for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++)
+            if (chan_params->chan0_freq == rail_params->chan0_freq ||
+                chan_params->chan_spacing == rail_params->chan_spacing ||
+                chan_params->chan_count == rail_params->chan_count)
+                break;
+        if (chan_params->chan0_freq)
+            continue;
+        entry_found = false;
+        for (phy_params = phy_params_table; phy_params->phy_mode_id; phy_params++) {
+            if (phy_params->rail_phy_mode_id == rail_params->rail_phy_mode_id) {
+                entry_found = true;
+                print_rf_config(ctxt, phy_params, NULL,
+                                rail_params, phy_params->phy_mode_id);
+            }
+        }
+        if (!entry_found)
             print_rf_config(ctxt, NULL, NULL,
-                            &configs[i], configs[i].rail_phy_mode_id);
+                            rail_params, rail_params->rail_phy_mode_id);
     }
 }
 
