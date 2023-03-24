@@ -151,18 +151,6 @@ static void rpl_control_publish_own_addresses(rpl_domain_t *domain, rpl_instance
     }
 }
 
-void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        if (!rpl_instance_am_root(instance)) {
-            /* TODO - Wouldn't need to publish host address if within a published prefix */
-            uint32_t descriptor = 0;
-            bool want_descriptor = rpl_policy_target_descriptor_for_host_address(domain, addr, &descriptor);
-            rpl_instance_publish_dao_target(instance, addr, 128, lifetime, false, want_descriptor, descriptor);
-        }
-    }
-}
-
 /* Is unpublish a word? */
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16])
 {

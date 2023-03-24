@@ -357,15 +357,6 @@ bool rpl_policy_target_descriptor_for_own_address(rpl_domain_t *domain, const ui
     return false;
 }
 
-bool rpl_policy_target_descriptor_for_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t *descriptor_out)
-{
-    (void)domain;
-    (void)addr;
-    (void)descriptor_out;
-
-    return false;
-}
-
 uint16_t rpl_policy_of0_stretch_of_rank(const rpl_domain_t *domain)
 {
     (void)domain;
