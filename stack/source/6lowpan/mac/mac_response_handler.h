@@ -23,6 +23,4 @@
 struct mcps_data_ind;
 struct mcps_data_conf;
 
-void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data);
-
 #endif // MAC_RESPONSE_HANDLER_H

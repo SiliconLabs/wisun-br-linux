@@ -57,7 +57,6 @@ static int8_t set_6lowpan_nwk_down(struct net_if *cur)
         if (cur->interface_mode == INTERFACE_UP) {
             cur->mac_parameters.pan_id = 0xffff;
             cur->mac_parameters.SecurityEnabled = false;
-            cur->mac_parameters.security_frame_counter = 0;
             cur->mac_parameters.mac_security_level = 0;
             rcp_reset_stack();
             cur->interface_mode = INTERFACE_IDLE;

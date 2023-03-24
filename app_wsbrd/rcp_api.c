@@ -827,18 +827,13 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
 
 static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    uint32_t data;
-    mlme_get_conf_t req = {
-        .attr = macFrameCounter,
-        .value_pointer = &data,
-        .value_size = sizeof(data),
-    };
+    uint32_t value;
 
-    req.attr_index = spinel_pop_uint(buf);
-    data           = spinel_pop_u32(buf);
+    spinel_pop_uint(buf); /* Unused: key_index */
+    value = spinel_pop_u32(buf);
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp.on_mlme_cnf(&ctxt->mac_api, MLME_GET, &req);
+    ctxt->rcp.frame_counter = value;
 }
 
 static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)

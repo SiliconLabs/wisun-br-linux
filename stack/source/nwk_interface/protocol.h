@@ -133,7 +133,6 @@ typedef struct arm_15_4_mac_parameters {
     unsigned mac_security_level: 3;
     unsigned mac_key_id_mode: 2;
     uint8_t mac_default_key_index;
-    uint32_t security_frame_counter;
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
     uint8_t mac_channel;

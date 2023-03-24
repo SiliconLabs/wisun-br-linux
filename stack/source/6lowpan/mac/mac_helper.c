@@ -199,7 +199,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
         return -1;
     }
     rcp_get_frame_counter(descriptor);
-    *seq_ptr = cur->mac_parameters.security_frame_counter;
+    *seq_ptr = cur->rcp->frame_counter;
 
     return 0;
 }

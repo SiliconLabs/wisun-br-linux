@@ -33,23 +33,3 @@
 #include "6lowpan/mac/mac_response_handler.h"
 
 #define TRACE_GROUP "MRsH"
-void mlme_confirm_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(g_ctxt.rcp_if_id);
-    mlme_get_conf_t *conf = (mlme_get_conf_t *)data;
-
-    if (!cur)
-        return;
-    if (id != MLME_GET)
-        goto err;
-    if (conf->attr != macFrameCounter)
-        goto err;
-    if (conf->value_size != 4)
-        goto err;
-    cur->mac_parameters.security_frame_counter = *(uint32_t *)conf->value_pointer;
-    return;
-
-err:
-    ERROR("%s: received unsupported message: %02x", __func__, id);
-}
-
