@@ -146,7 +146,6 @@ typedef struct arm_15_4_mac_parameters {
     channel_list_t mac_channel_list;
     uint8_t mac_channel;
     uint16_t pan_id;
-    mac_cordinator_s mac_cordinator_info;
     uint8_t number_of_fhss_channel_retries;
     uint16_t mac_in_direct_entry_timeout;
     struct mac_neighbor_table *mac_neighbor_table;

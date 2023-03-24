@@ -361,7 +361,6 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_e 
 
         rcp_set_coordinator_mac16(entry->mac16);
         rcp_set_coordinator_mac64(entry->mac64);
-        cur->mac_parameters.mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_64_BIT;
         if (etx_entry) {
             protocol_stats_update(STATS_ETX_1ST_PARENT, etx_entry->etx >> 4);
         }
