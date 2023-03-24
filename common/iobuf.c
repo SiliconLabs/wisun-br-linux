@@ -211,10 +211,12 @@ uint64_t iobuf_pop_le64(struct iobuf_read *buf) {
 void iobuf_pop_data(struct iobuf_read *buf, uint8_t *val, size_t size)
 {
     if (!iobuf_validate(buf, size)) {
-        memset(val, 0, size);
+        if (val)
+            memset(val, 0, size);
         return;
     }
-    memcpy(val, buf->data + buf->cnt, size);
+    if (val)
+        memcpy(val, buf->data + buf->cnt, size);
     buf->cnt += size;
 }
 

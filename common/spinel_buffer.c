@@ -347,12 +347,15 @@ const char *spinel_pop_str(struct iobuf_read *buf)
 
 unsigned int spinel_pop_data_ptr(struct iobuf_read *buf, const uint8_t **val)
 {
+    const uint8_t *ptr;
     unsigned int size = iobuf_pop_le16(buf);
 
-    *val = iobuf_pop_data_ptr(buf, size);
+    ptr = iobuf_pop_data_ptr(buf, size);
+    if (val)
+        *val = ptr;
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
-            size ? tr_bytes(*val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+            size ? tr_bytes(ptr, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
@@ -364,10 +367,11 @@ unsigned int spinel_pop_data(struct iobuf_read *buf, uint8_t *val, unsigned int 
     size = iobuf_pop_le16(buf);
     WARN_ON(size > val_size, "hif rx: data bigger than buffer");
     ptr = iobuf_pop_data_ptr(buf, size);
-    memcpy(val, ptr, MIN(size, val_size));
+    if (val)
+        memcpy(val, ptr, MIN(size, val_size));
     if (!buf->err)
         TRACE(TR_HIF_EXTRA, "hif rx:     data: %s (%u bytes)",
-            size ? tr_bytes(val, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
+            size ? tr_bytes(ptr, size, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR) : "-", size);
     return size;
 }
 
