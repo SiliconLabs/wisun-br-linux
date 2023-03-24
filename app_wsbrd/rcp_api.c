@@ -796,11 +796,6 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
     ctxt->rcp_init_state |= RCP_INIT_DONE;
 }
 
-static void rcp_rx_start_status(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
-{
-    ctxt->mac_api.mlme_conf_cb(&ctxt->mac_api, MLME_START, NULL);
-}
-
 static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     int val = spinel_pop_i16(buf);
@@ -927,8 +922,8 @@ struct rcp_rx_cmds rx_cmds[] = {
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_HWADDR,                   rcp_rx_hwaddr },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RX_SENSITIVITY,        rcp_rx_sensitivity },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION_LIST, rcp_rx_rf_list },
-    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_LAST_STATUS,              rcp_rx_start_status },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION,      rcp_rx_rf_config_status },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_LAST_STATUS,              rcp_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RCP_CRC_ERR,           rcp_rx_crc_err },
     { SPINEL_CMD_RESET,            (uint32_t)-1,                         rcp_rx_reset },
     { SPINEL_CMD_REPLAY_TIMERS,    (uint32_t)-1,                         rcp_rx_no_op },
