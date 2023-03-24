@@ -12,10 +12,13 @@
  */
 #ifndef FUZZ_INTERFACES_H
 #define FUZZ_INTERFACES_H
+#include <stdint.h>
 
 #define IF_SOCKET_COUNT 4
 
+struct wsbr_ctxt;
 struct fuzz_ctxt;
+struct iobuf_read;
 
 enum {
     IF_TUN,
@@ -25,6 +28,7 @@ enum {
     IF_PAE_AUTH,
 };
 
+void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
 void fuzz_replay_socket_init(struct fuzz_ctxt *ctxt);
 
 #endif

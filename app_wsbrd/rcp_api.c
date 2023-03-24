@@ -28,7 +28,6 @@
 #include "wsbr_pcapng.h"
 #include "wsbr_mac.h"
 #include "wsbr.h"
-#include "timers.h"
 #include "version.h"
 #include "rcp_api.h"
 
@@ -753,16 +752,6 @@ static void rcp_rx_no_op(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
 {
 }
 
-static void rcp_rx_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
-{
-    wsbr_spinel_replay_interface(buf);
-}
-
-static void rcp_rx_replay_timer(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
-{
-    wsbr_spinel_replay_timers(buf);
-}
-
 static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
@@ -929,11 +918,8 @@ static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     ctxt->mac_api.data_conf_ext_cb(&ctxt->mac_api, &req, &conf_req);
 }
 
-struct {
-    uint32_t cmd;
-    uint32_t prop;
-    void (*fn)(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
-} rx_cmds[] = {
+// Some debug tools (fuzzers) may deflect this struct. So keep it public.
+struct rcp_rx_cmds rx_cmds[] = {
     { SPINEL_CMD_NOOP,             (uint32_t)-1,                         rcp_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_MCPS_DROP,             rcp_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_STREAM_STATUS,            rcp_tx_cnf },
@@ -947,8 +933,8 @@ struct {
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION,      rcp_rx_rf_config_status },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RCP_CRC_ERR,           rcp_rx_crc_err },
     { SPINEL_CMD_RESET,            (uint32_t)-1,                         rcp_rx_reset },
-    { SPINEL_CMD_REPLAY_TIMERS,    (uint32_t)-1,                         rcp_rx_replay_timer },
-    { SPINEL_CMD_REPLAY_INTERFACE, (uint32_t)-1,                         rcp_rx_replay_interface },
+    { SPINEL_CMD_REPLAY_TIMERS,    (uint32_t)-1,                         rcp_rx_no_op },
+    { SPINEL_CMD_REPLAY_INTERFACE, (uint32_t)-1,                         rcp_rx_no_op },
     { (uint32_t)-1,                (uint32_t)-1,                         NULL },
 };
 

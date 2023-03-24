@@ -31,6 +31,7 @@ struct phy_rf_channel_configuration;
 struct mcps_data_req;
 struct channel_list;
 struct iobuf_write;
+struct iobuf_read;
 struct wsbr_ctxt;
 struct os_ctxt;
 
@@ -107,6 +108,12 @@ void rcp_rx(struct wsbr_ctxt *ctxt);
 void rcp_tx(struct wsbr_ctxt *ctxt, struct iobuf_write *buf);
 
 // Only used by the fuzzer
+struct rcp_rx_cmds {
+    uint32_t cmd;
+    uint32_t prop;
+    void (*fn)(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf);
+};
+extern struct rcp_rx_cmds rx_cmds[];
 uint8_t rcp_get_spinel_hdr(void);
 
 #endif

@@ -46,7 +46,7 @@ static struct {
 };
 static_assert(ARRAY_SIZE(s_sockets) == IF_SOCKET_COUNT, "missing socket entries for capture/replay");
 
-void __wrap_wsbr_spinel_replay_interface(struct iobuf_read *buf)
+void fuzz_spinel_replay_interface(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     static bool init = false;
     uint8_t src_addr[16];

@@ -176,11 +176,6 @@ void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str)
     rcp_get_hw_addr();
 }
 
-void wsbr_spinel_replay_interface(struct iobuf_read *buf)
-{
-    WARN("%s: not implemented", __func__);
-}
-
 void kill_handler(int signal)
 {
     exit(0);

@@ -77,6 +77,4 @@ extern struct wsbr_ctxt g_ctxt;
 void wsbr_handle_reset(struct wsbr_ctxt *ctxt, const char *version_fw_str);
 void wsbr_dhcp_lease_update(struct wsbr_ctxt *ctxt, const uint8_t eui64[8], const uint8_t ipv6[16]);
 
-void wsbr_spinel_replay_interface(struct iobuf_read *buf);
-
 #endif

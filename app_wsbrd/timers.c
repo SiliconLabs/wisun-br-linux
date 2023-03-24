@@ -31,8 +31,3 @@ void wsbr_common_timer_process(struct wsbr_ctxt *ctxt)
     WARN_ON(val != 1, "missing timers: %"PRIu64, val - 1);
     timer_global_tick();
 }
-
-void wsbr_spinel_replay_timers(struct iobuf_read *buf)
-{
-    WARN("%s: not implemented", __func__);
-}

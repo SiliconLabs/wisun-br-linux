@@ -24,6 +24,7 @@
 #include "common/log.h"
 #include "common/os_types.h"
 #include "common/iobuf.h"
+#include "common/spinel_defs.h"
 #include "common/spinel_buffer.h"
 #include "common/version.h"
 #include "wsbrd_fuzz.h"
@@ -137,7 +138,7 @@ static void fuzz_trigger_timer()
     FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
 }
 
-void __wrap_wsbr_spinel_replay_timers(struct iobuf_read *buf)
+void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
     FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "timer command received during RCP init");
     FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
@@ -189,7 +190,14 @@ ssize_t __wrap_write(int fd, const void *buf, size_t count)
 int main(int argc, char *argv[])
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
+    int i;
 
+    for (i = 0; rx_cmds->cmd != (uint32_t)-1; i++) {
+        if (rx_cmds->cmd == SPINEL_CMD_REPLAY_TIMERS)
+            rx_cmds->fn = fuzz_spinel_replay_timers;
+        if (rx_cmds->cmd == SPINEL_CMD_REPLAY_INTERFACE)
+            rx_cmds->fn = fuzz_spinel_replay_interface;
+    }
     argc = fuzz_parse_commandline(ctxt, argv);
     return wsbr_main(argc, argv);
 }
