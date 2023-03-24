@@ -824,45 +824,6 @@ static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
     return false;
 }
 
-static bool lowpan_adaptation_make_room_for_small_packet(struct net_if *cur, fragmenter_interface_t *interface_ptr, mac_neighbor_table_entry_t *neighbour_to_count, fragmenter_tx_entry_t *new_entry)
-{
-    if (interface_ptr->max_indirect_small_packets_per_child == 0) {
-        // this means there is always space for small packets - no need to check further
-        return true;
-    }
-
-    uint_fast16_t count = 0;
-    fragmenter_tx_entry_t *low_priority_msg_ptr = NULL;
-
-    ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, tx_entry, &interface_ptr->indirect_tx_queue) {
-        mac_neighbor_table_entry_t *tx_neighbour = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, tx_entry->buf->dst_sa.address + 2, tx_entry->buf->dst_sa.addr_type);
-        if (tx_neighbour == neighbour_to_count && buffer_data_length(tx_entry->buf) <= interface_ptr->indirect_big_packet_threshold) {
-            if (!lowpan_adaptation_is_priority_message(tx_entry->buf)) {
-                // if there is sub priorities inside message example age here you could compare
-                low_priority_msg_ptr = tx_entry;
-            }
-            if (++count >= interface_ptr->max_indirect_small_packets_per_child) {
-                if (!low_priority_msg_ptr) {
-                    // take last entry if no low priority entry found
-                    if (lowpan_adaptation_is_priority_message(new_entry->buf)) {
-                        low_priority_msg_ptr = tx_entry;
-                    } else {
-                        return false;
-                    }
-                }
-                tr_debug_extra("Purge seq: %d", low_priority_msg_ptr->buf->seq);
-                if (lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, low_priority_msg_ptr) == false) {
-                    /* entry could not be purged from mac, try next entry */
-                    tr_debug_extra("Purge failed, try next");
-                    count--;
-                }
-                low_priority_msg_ptr = NULL;
-            }
-        }
-    }
-    return true;
-}
-
 static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
 {
     mcps_data_req_t dataReq;
