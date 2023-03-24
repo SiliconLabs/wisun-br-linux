@@ -123,12 +123,12 @@ void spinel_push_bool(struct iobuf_write *buf, bool val)
 
 void spinel_push_uint(struct iobuf_write *buf, unsigned int val)
 {
+    TRACE(TR_HIF_EXTRA, "hif tx:     uint: %u", val);
     do {
         iobuf_push_u8(buf, (val & 0x7F) | 0x80);
         val >>= 7;
     } while (val);
     buf->data[buf->len - 1] &= ~0x80;
-    TRACE(TR_HIF_EXTRA, "hif tx:     uint: %u", val);
 }
 
 void spinel_push_u8(struct iobuf_write *buf, uint8_t val)
