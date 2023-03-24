@@ -49,8 +49,6 @@ struct wsbr_ctxt {
     int spinel_tid;
     int spinel_iid;
 
-    uint8_t phy_operating_modes[16]; // 15 possible phy_mode_id + 1 sentinel value
-
     int pcapng_fd;
     mode_t pcapng_type;
 
