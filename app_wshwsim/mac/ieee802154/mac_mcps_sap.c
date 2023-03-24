@@ -385,11 +385,7 @@ void mcps_sap_data_req_handler_ext(protocol_interface_rf_mac_setup_s *rf_mac_set
 
     buffer->request_start_time_us = mac_mcps_sap_get_phy_timestamp(rf_mac_setup);
 
-    if (data_req->InDirectTx) {
-        mac_indirect_queue_write(rf_mac_setup, buffer);
-    } else {
-        mcps_sap_pd_req_queue_write(rf_mac_setup, buffer);
-    }
+    mcps_sap_pd_req_queue_write(rf_mac_setup, buffer);
 
 verify_status:
     if (status != MLME_SUCCESS) {

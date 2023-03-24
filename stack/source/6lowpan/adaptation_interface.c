@@ -679,7 +679,6 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
 
     //Check do we need fragmentation
 
-    dataReq->InDirectTx = false;
     dataReq->TxAckReq = buf->link_specific.ieee802_15_4.requestAck;
     dataReq->SrcAddrMode = buf->src_sa.addr_type;
     dataReq->DstAddrMode = buf->dst_sa.addr_type;
@@ -725,11 +724,7 @@ static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragme
     lowpan_adaptation_data_request_primitiv_set(buf, &dataReq, cur);
     if (tx_ptr->fragmented_data) {
         dataReq.msdu = tx_ptr->fragmenter_buf;
-        //Call fragmenter
-        bool more_fragments = lowpan_message_fragmentation_message_write(tx_ptr, &dataReq);
-        if (dataReq.InDirectTx) {
-            dataReq.PendingBit |= more_fragments;
-        }
+        lowpan_message_fragmentation_message_write(tx_ptr, &dataReq);
     } else {
         dataReq.msduLength = buffer_data_length(buf);
         dataReq.msdu = buffer_data_pointer(buf);

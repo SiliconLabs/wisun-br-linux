@@ -51,7 +51,6 @@ typedef struct mcps_data_req {
     uint8_t *msdu;                  /**< Service data unit */
     uint8_t msduHandle;             /**< Handle associated with MSDU */
     bool TxAckReq: 1;               /**< Specifies whether ACK is needed or not */
-    bool InDirectTx: 1;             /**< Specifies whether indirect or direct transmission is used */
     bool PendingBit: 1;             /**< Specifies whether more fragments are to be sent or not */
     bool SeqNumSuppressed: 1;       /**< True suppress sequence number from frame. This will be only checked when 2015 extension is enabled */
     bool PanIdSuppressed: 1;        /**< True suppress PAN-id is done when possible from frame. This will be only checked when 2015 extension is enabled */

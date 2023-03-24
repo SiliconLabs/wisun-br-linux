@@ -231,8 +231,6 @@ int8_t ws_eapol_pdu_mpx_eui64_purge(struct net_if *interface_ptr, const uint8_t 
 static void ws_eapol_pdu_data_request_primitiv_set(mcps_data_req_t *dataReq, struct net_if *cur)
 {
     memset(dataReq, 0, sizeof(mcps_data_req_t));
-
-    dataReq->InDirectTx = false;
     dataReq->TxAckReq = true;
     dataReq->SrcAddrMode = ADDR_802_15_4_LONG;
     dataReq->DstAddrMode = ADDR_802_15_4_LONG;

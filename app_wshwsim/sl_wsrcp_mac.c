@@ -463,7 +463,7 @@ static void wsmac_spinel_data_req(struct wsmac_ctxt *ctxt, mlme_attr_e attr, str
     spinel_pop_fixed_u8_array(buf, data.DstAddr, 8);
     data.msduHandle                 = spinel_pop_u8(buf);
     data.TxAckReq                   = spinel_pop_bool(buf);
-    data.InDirectTx                 = spinel_pop_bool(buf);
+    spinel_pop_bool(buf); // formerly InDirectTx
     data.PendingBit                 = spinel_pop_bool(buf);
     data.SeqNumSuppressed           = spinel_pop_bool(buf);
     data.PanIdSuppressed            = spinel_pop_bool(buf);

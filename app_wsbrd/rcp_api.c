@@ -633,7 +633,7 @@ void rcp_tx_req_legacy(const struct mcps_data_req *tx_req,
     spinel_push_fixed_u8_array(&buf, tx_req->DstAddr, 8);
     spinel_push_u8(&buf,   tx_req->msduHandle);
     spinel_push_bool(&buf, tx_req->TxAckReq);
-    spinel_push_bool(&buf, tx_req->InDirectTx);
+    spinel_push_bool(&buf, false);
     spinel_push_bool(&buf, tx_req->PendingBit);
     spinel_push_bool(&buf, tx_req->SeqNumSuppressed);
     spinel_push_bool(&buf, tx_req->PanIdSuppressed);
