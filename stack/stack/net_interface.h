@@ -796,22 +796,6 @@ void arm_print_protocols2(char sep);
 void net_get_version_information(uint8_t *ptr);
 
 /**
- * \brief Set buffer size for sleepy device parent.
- *
- * This function can be used to set sleepy device parent buffer size and packet threshold.
- *
- * Note! In Thread mode parent buffer size is automatically set during Thread initialization.
- *
- * \param interface_id Network interface ID.
- * \param big_packet_threshold Indicate how long packets are considered big. For Thread, must be 106 bytes.
- * \param small_packets_per_child_count Number of small packets stored for each sleepy children. For Thread, must be at least 1.
- * \param big_packets_total_count Total number of big packets parent can store for all sleepy children. For Thread, must be at least 1.
- * \return 0 on success, <0 on errors.
- */
-
-int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
-
-/**
  * \brief Set TX output power.
  *
  * This function can be used to set TX output power to PHY layer.

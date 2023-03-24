@@ -58,8 +58,6 @@ void lowpan_adaptation_neigh_remove_free_tx_tables(struct net_if *cur_interface,
 
 int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur, uint8_t *address_ptr, enum addrtype adr_type);
 
-int8_t lowpan_adaptation_indirect_queue_params_set(struct net_if *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child);
-
 void lowpan_adaptation_expedite_forward_enable(struct net_if *cur);
 
 bool lowpan_adaptation_expedite_forward_state_get(struct net_if *cur);

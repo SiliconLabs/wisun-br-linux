@@ -94,9 +94,6 @@ typedef struct fragmenter_interface {
     uint16_t directTxQueue_size;
     uint16_t directTxQueue_level;
     uint16_t activeTxList_size;
-    uint16_t indirect_big_packet_threshold;
-    uint16_t max_indirect_big_packets_total;
-    uint16_t max_indirect_small_packets_per_child;
     uint32_t last_rx_high_priority;
     bool fragmenter_active; /*!< Fragmenter state */
     adaptation_etx_update_cb *etx_update_cb;
@@ -1383,21 +1380,6 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
             socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
         }
     }
-
-    return 0;
-}
-
-int8_t lowpan_adaptation_indirect_queue_params_set(struct net_if *cur, uint16_t indirect_big_packet_threshold, uint16_t max_indirect_big_packets_total, uint16_t max_indirect_small_packets_per_child)
-{
-    fragmenter_interface_t *interface_ptr = lowpan_adaptation_interface_discover(cur->id);
-
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    interface_ptr->indirect_big_packet_threshold = indirect_big_packet_threshold;
-    interface_ptr->max_indirect_big_packets_total = max_indirect_big_packets_total;
-    interface_ptr->max_indirect_small_packets_per_child = max_indirect_small_packets_per_child;
 
     return 0;
 }
