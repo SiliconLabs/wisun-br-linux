@@ -74,7 +74,6 @@ typedef struct fragmenter_tx_entry {
     bool fragmented_data: 1;
     bool first_fragment: 1;
     bool indirect_data: 1;
-    bool indirect_data_cached: 1; /*!< Data cached for delayed transmission as mac request is already active */
     buffer_t *buf;
     uint8_t *fragmenter_buf;
     ns_list_link_t      link; /*!< List link entry */
@@ -505,7 +504,6 @@ static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_b
     indirec_entry->buf = NULL;
     indirec_entry->fragmented_data = false;
     indirec_entry->first_fragment = true;
-    indirec_entry->indirect_data_cached = false;
 
     return indirec_entry;
 }
@@ -1362,16 +1360,8 @@ static bool lowpan_adaptation_purge_from_mac(struct net_if *cur, fragmenter_inte
 
 static bool lowpan_adaptation_indirect_queue_free_message(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
-    tr_debug("Purge from indirect handle %u, cached %d", tx_ptr->buf->seq, tx_ptr->indirect_data_cached);
-    if (tx_ptr->indirect_data_cached == false) {
-        if (lowpan_adaptation_purge_from_mac(cur, interface_ptr, tx_ptr->buf->seq) == false) {
-            // MAC purge failed
-            return false;
-        }
-    }
-
+    tr_debug("Purge from indirect handle %u", tx_ptr->buf->seq);
     lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, SOCKET_TX_FAIL);
-
     return true;
 }
 
