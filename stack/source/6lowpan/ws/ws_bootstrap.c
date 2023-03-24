@@ -2006,7 +2006,6 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
         }
     }
     /* Deprecated: Unused by the RCP. */
-    cur->mac_parameters.mac_default_key_attribute_id = index;
     cur->mac_parameters.mac_default_key_index = index + 1;
 }
 

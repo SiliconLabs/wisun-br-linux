@@ -131,22 +131,14 @@ typedef struct arm_15_4_mac_parameters {
     /* Security API USE */
     unsigned mac_security_level: 3;
     unsigned mac_key_id_mode: 2;
-    uint8_t mac_prev_key_index;
-    uint8_t mac_next_key_index;
     uint8_t mac_default_key_index;
-    /* security mlme attribute */
-    uint8_t mac_prev_key_attribute_id;
-    uint8_t mac_default_key_attribute_id;
-    uint8_t mac_next_key_attribute_id;
     uint32_t security_frame_counter;
-    /* MAC PIB boolean */
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
     /* MAC PIB boolean */
     channel_list_t mac_channel_list;
     uint8_t mac_channel;
     uint16_t pan_id;
-    uint8_t number_of_fhss_channel_retries;
     struct mac_neighbor_table *mac_neighbor_table;
 } arm_15_4_mac_parameters_t;
 

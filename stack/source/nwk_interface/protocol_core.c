@@ -309,9 +309,6 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(mac_api
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
     entry->mac_parameters.pan_id = 0xffff;
 
-    entry->mac_parameters.mac_prev_key_attribute_id = 0;
-    entry->mac_parameters.mac_default_key_attribute_id = 1;
-    entry->mac_parameters.mac_next_key_attribute_id = 2;
     entry->mac_parameters.mac_default_key_index = 0;
 
     entry->mac_api = api;
