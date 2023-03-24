@@ -231,17 +231,6 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode)
     return header_length;
 }
 
-int8_t mac_helper_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    if (!cur || !cur->mac_api || !seq_ptr) {
-        return -1;
-    }
-
-    return mac_helper_key_link_frame_counter_read(interface_id, seq_ptr, cur->mac_parameters.mac_default_key_attribute_id);
-}
-
 int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq_ptr, uint8_t descriptor)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
