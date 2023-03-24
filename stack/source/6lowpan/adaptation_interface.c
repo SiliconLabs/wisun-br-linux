@@ -791,19 +791,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active
     return NULL;
 }
 
-static fragmenter_tx_entry_t *lowpan_adaptation_indirect_first_cached_request_get(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
-{
-    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
-        if (fragmenter_tx_entry->indirect_data_cached == true) {
-            if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
-                tr_debug_extra("first cached seq: %d", fragmenter_tx_entry->buf->seq);
-                return fragmenter_tx_entry;
-            }
-        }
-    }
-    return NULL;
-}
-
 static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
 {
     mcps_data_req_t dataReq;
