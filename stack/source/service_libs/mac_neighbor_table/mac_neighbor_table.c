@@ -147,7 +147,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     memcpy(entry->mac64, mac64, 8);
     entry->mac16 = 0xffff;
     entry->nud_active = false;
-    entry->advertisment = false;
     entry->connected_device = false;
     entry->trusted_device = false;
     entry->lifetime = NEIGHBOR_CLASS_LINK_DEFAULT_LIFETIME;
