@@ -843,14 +843,20 @@ static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct i
 
 static void rcp_rx_err(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    const uint8_t *data;
+    mlme_comm_status_t *status;
     int id;
 
     id = spinel_pop_uint(buf);
-    spinel_pop_data_ptr(buf, &data);
+    if (id != MLME_COMM_STATUS) {
+        ERROR("%s: received unsupported message: %02x", __func__, id);
+        return;
+    }
+    spinel_pop_data_ptr(buf, (const uint8_t **)&status);
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp.on_mlme_ind(&ctxt->mac_api, id, data);
+    WARN_ON(!ctxt->rcp.on_rx_err);
+    if (ctxt->rcp.on_rx_err)
+        ctxt->rcp.on_rx_err(status->SrcAddr, status->status);
 }
 
 static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)

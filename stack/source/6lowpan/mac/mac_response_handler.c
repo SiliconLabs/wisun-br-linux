@@ -53,16 +53,3 @@ err:
     ERROR("%s: received unsupported message: %02x", __func__, id);
 }
 
-void mlme_indication_handler(const mac_api_t *api, mlme_primitive_e id, const void *data)
-{
-    mlme_comm_status_t *status = (mlme_comm_status_t *)data;
-
-    if (id != MLME_COMM_STATUS)
-        goto err;
-    TRACE(TR_DROP, "drop %-9s: from %s: %02x", "15.4", tr_ipv6(status->SrcAddr), status->status);
-    return;
-
-err:
-    ERROR("%s: received unsupported message: %02x", __func__, id);
-}
-

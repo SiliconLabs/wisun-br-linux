@@ -46,6 +46,7 @@
 #include "timers.h"
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt);
+static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status);
 
 enum {
     POLLFD_RCP,
@@ -58,7 +59,7 @@ enum {
 struct wsbr_ctxt g_ctxt = {
     .rcp.on_reset = wsbr_handle_reset,
     .rcp.on_mlme_cnf = mlme_confirm_handler,
-    .rcp.on_mlme_ind = mlme_indication_handler,
+    .rcp.on_rx_err = wsbr_handle_rx_err,
     .rcp.on_tx_cnf = ws_llc_mac_confirm_cb,
     .rcp.on_rx_ind = ws_llc_mac_indication_cb,
 
@@ -165,6 +166,11 @@ static void wsbr_tasklet(struct event_payload *event)
             WARN("received unknown event: %d", event->event_type);
             break;
     }
+}
+
+static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
+{
+    TRACE(TR_DROP, "drop %-9s: from %s: %02x", "15.4", tr_ipv6(src), status);
 }
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
