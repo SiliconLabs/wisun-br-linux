@@ -86,7 +86,6 @@ typedef struct fragmenter_interface {
     int8_t interface_id;
     uint16_t local_frag_tag;
     uint8_t msduHandle;
-    fragmenter_tx_list_t indirect_tx_queue;
     uint8_t *fragment_indirect_tx_buffer; //Used for write fragmentation header
     uint16_t mtu_size;
     fragmenter_tx_entry_t active_broadcast_tx_buf; //Current active direct broadcast tx process
@@ -314,8 +313,7 @@ static uint8_t lowpan_data_request_unique_handle_get(fragmenter_interface_t *int
     while (!valid_info) {
         handle = interface_ptr->msduHandle++;
         if (!lowpan_listed_tx_handle_verify(handle, &interface_ptr->activeUnicastList)
-                && !lowpan_active_tx_handle_verify(handle, interface_ptr->active_broadcast_tx_buf.buf)
-                && !lowpan_listed_tx_handle_verify(handle, &interface_ptr->indirect_tx_queue)) {
+                && !lowpan_active_tx_handle_verify(handle, interface_ptr->active_broadcast_tx_buf.buf)) {
             valid_info = true;
         }
     }
@@ -367,7 +365,6 @@ int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_si
     interface_ptr->msduHandle = rand_get_8bit();
     interface_ptr->local_frag_tag = rand_get_16bit();
 
-    ns_list_init(&interface_ptr->indirect_tx_queue);
     ns_list_init(&interface_ptr->directTxQueue);
     ns_list_init(&interface_ptr->activeUnicastList);
     interface_ptr->activeTxList_size = 0;
@@ -392,9 +389,6 @@ int8_t lowpan_adaptation_interface_free(int8_t interface_id)
     lowpan_list_free(&interface_ptr->activeUnicastList, false);
     interface_ptr->activeTxList_size = 0;
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
-
-    //Free Indirect entry
-    lowpan_list_free(&interface_ptr->indirect_tx_queue, true);
 
     buffer_free_list(&interface_ptr->directTxQueue);
     interface_ptr->directTxQueue_size = 0;
@@ -421,9 +415,6 @@ int8_t lowpan_adaptation_interface_reset(int8_t interface_id)
     lowpan_active_buffer_state_reset(&interface_ptr->active_broadcast_tx_buf);
     //Clean fragmented message flag
     interface_ptr->fragmenter_active = false;
-
-    //Free Indirect entry
-    lowpan_list_free(&interface_ptr->indirect_tx_queue, true);
 
     buffer_free_list(&interface_ptr->directTxQueue);
     interface_ptr->directTxQueue_size = 0;
@@ -1134,14 +1125,8 @@ int8_t lowpan_adaptation_interface_tx_confirm(struct net_if *cur, const mcps_dat
         tx_ptr = &interface_ptr->active_broadcast_tx_buf;
     } else {
         tx_ptr = lowpan_listed_tx_handle_verify(confirm->msduHandle, &interface_ptr->activeUnicastList);
-        if (tx_ptr) {
+        if (tx_ptr)
             active_direct_confirm = true;
-        } else {
-            tx_ptr = lowpan_listed_tx_handle_verify(confirm->msduHandle, &interface_ptr->indirect_tx_queue);
-            if (tx_ptr) {
-                active_direct_confirm = false;
-            }
-        }
     }
 
     if (!tx_ptr) {
@@ -1383,14 +1368,6 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
 
     if (!interface_ptr) {
         return -1;
-    }
-
-    //Check first indirect queue
-    ns_list_foreach_safe(fragmenter_tx_entry_t, entry, &interface_ptr->indirect_tx_queue) {
-        if (lowpan_tx_buffer_address_compare(&entry->buf->dst_sa, address_ptr, adr_type)) {
-            //Purge from mac
-            lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, entry);
-        }
     }
 
     //Check next direct queue
