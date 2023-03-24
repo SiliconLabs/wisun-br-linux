@@ -34,7 +34,7 @@ struct iobuf_write;
 struct iobuf_read;
 struct wsbr_ctxt;
 struct os_ctxt;
-struct mac_api;
+struct net_if;
 struct mcps_data_conf;
 struct mcps_data_ind;
 struct mcps_data_conf_payload;
@@ -60,8 +60,8 @@ struct rcp {
     int  (*device_rx)(struct os_ctxt *ctxt, void *buf, unsigned int len);
 
     void (*on_reset)(struct wsbr_ctxt *ctxt);
-    void (*on_tx_cnf)(const struct mac_api *api, const struct mcps_data_conf *conf, const struct mcps_data_conf_payload *payload);
-    void (*on_rx_ind)(const struct mac_api *api, const struct mcps_data_ind *conf, const struct mcps_data_ie_list *payload);
+    void (*on_tx_cnf)(int8_t net_if_id, const struct mcps_data_conf *conf, const struct mcps_data_conf_payload *payload);
+    void (*on_rx_ind)(int8_t net_if_id, const struct mcps_data_ind *conf, const struct mcps_data_ie_list *payload);
     void (*on_rx_err)(uint8_t src[8], uint8_t status);
     void (*on_crc_error)(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter);
 

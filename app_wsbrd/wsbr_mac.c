@@ -69,19 +69,16 @@ struct ws_neighbor_class_entry *wsbr_get_neighbor(struct net_if *cur, const uint
         return NULL;
 }
 
-void wsbr_data_req_ext(const struct mac_api *api,
+void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
-    struct wsbr_ctxt *ctxt = container_of(api, struct wsbr_ctxt, mac_api);
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     struct ws_neighbor_class_entry *neighbor_ws;
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
     };
     struct iobuf_write frame = { };
 
-    BUG_ON(ctxt != &g_ctxt);
     BUG_ON(data->TxAckReq && data->fhss_type == HIF_FHSS_TYPE_ASYNC);
     BUG_ON(data->DstAddrMode != MAC_ADDR_MODE_NONE &&
            (data->fhss_type == HIF_FHSS_TYPE_FFN_BC || data->fhss_type == HIF_FHSS_TYPE_LFN_BC || data->fhss_type == HIF_FHSS_TYPE_ASYNC));
@@ -91,7 +88,7 @@ void wsbr_data_req_ext(const struct mac_api *api,
     BUG_ON(ie_ext->payloadIovLength > 2);
     BUG_ON(ie_ext->headerIovLength > 1);
 
-    if (version_older_than(ctxt->rcp.version_api, 0, 22, 0)) {
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0)) {
         if (cur->ws_info.fhss_conf.ws_uc_channel_function == WS_FIXED_CHANNEL) {
             async_channel_list.next_channel_number = cur->ws_info.fhss_conf.unicast_fixed_channel;
             bitset(async_channel_list.channel_mask, async_channel_list.next_channel_number);

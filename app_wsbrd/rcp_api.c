@@ -902,7 +902,7 @@ static void rcp_rx_ind(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp.on_rx_ind(&ctxt->mac_api, &req, &ie_ext);
+    ctxt->rcp.on_rx_ind(ctxt->rcp_if_id, &req, &ie_ext);
 }
 
 static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -924,7 +924,7 @@ static void rcp_tx_cnf(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read 
     }
     if (!spinel_prop_is_valid(buf, prop))
         return;
-    ctxt->rcp.on_tx_cnf(&ctxt->mac_api, &req, &conf_req);
+    ctxt->rcp.on_tx_cnf(ctxt->rcp_if_id, &req, &conf_req);
 }
 
 // Some debug tools (fuzzers) may deflect this struct. So keep it public.

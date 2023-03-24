@@ -174,7 +174,7 @@ static void llc_message_id_allocate(llc_message_t *message, llc_data_base_t *llc
 static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 /** LLC interface sepesific local functions */
-static llc_data_base_t *ws_llc_discover_by_interface(struct net_if *interface);
+static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface);
 static llc_data_base_t *ws_llc_discover_by_mac(const mac_api_t *api);
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
@@ -320,7 +320,7 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
     return message;
 }
 
-static llc_data_base_t *ws_llc_discover_by_interface(struct net_if *interface)
+static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface)
 {
     ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
         if (base->interface_ptr == interface) {
@@ -413,13 +413,14 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
 
 
 /** WS LLC MAC data extension confirmation  */
-void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
+void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
 {
     (void) conf_data;
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     llc_neighbour_req_t neighbor_info = { };
     neighbor_info.ws_neighbor = NULL;
     neighbor_info.neighbor = NULL;
-    llc_data_base_t *base = ws_llc_discover_by_mac(api);
+    llc_data_base_t *base = ws_llc_discover_by_interface(net_if);
     if (!base)
         return;
 
@@ -534,9 +535,9 @@ void ws_llc_mac_confirm_cb(const mac_api_t *api, const mcps_data_conf_t *data, c
 
 }
 
-static llc_data_base_t *ws_llc_mpx_frame_common_validates(const mac_api_t *api, const mcps_data_ind_t *data, uint8_t frame_type)
+static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *net_if, const mcps_data_ind_t *data, uint8_t frame_type)
 {
-    struct llc_data_base *base = ws_llc_discover_by_mac(api);
+    struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
     uint16_t pan_id;
 
     if (!base) {
@@ -592,10 +593,10 @@ static mpx_user_t *ws_llc_mpx_header_parse(llc_data_base_t *base, const mcps_dat
     return mpx_usr;
 }
 
-static void ws_llc_data_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *data,
+static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
                                 const mcps_data_ie_list_t *ie_ext)
 {
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, WS_FT_DATA);
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
     mcps_data_ind_t data_ind = *data;
     llc_neighbour_req_t neighbor;
     bool has_us, has_bs, has_pom;
@@ -726,9 +727,9 @@ static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind
     return true;
 }
 
-static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
-    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(api, data, WS_FT_EAPOL);
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
     mcps_data_ind_t data_ind = *data;
     llc_neighbour_req_t neighbor;
     struct ws_utt_ie ie_utt;
@@ -781,11 +782,11 @@ static void ws_llc_eapol_ffn_ind(const mac_api_t *api, const mcps_data_ind_t *da
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_asynch_indication(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
+static void ws_llc_asynch_indication(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
 {
     struct iobuf_read ie_buf;
 
-    llc_data_base_t *base = ws_llc_discover_by_mac(api);
+    llc_data_base_t *base = ws_llc_discover_by_interface(net_if);
     if (!base || !base->asynch_ind) {
         return;
     }
@@ -899,8 +900,9 @@ static inline bool ws_is_frame_mngt(uint8_t frame_type)
 }
 
 /** WS LLC MAC data extension indication  */
-void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
 {
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
     bool has_utt, has_lutt;
     ws_lutt_ie_t ie_lutt;
     ws_utt_ie_t ie_utt;
@@ -920,11 +922,11 @@ void ws_llc_mac_indication_cb(const mac_api_t *api, const mcps_data_ind_t *data,
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
     if (ws_is_frame_mngt(frame_type))
-        ws_llc_asynch_indication(api, data, ie_ext, frame_type);
+        ws_llc_asynch_indication(net_if, data, ie_ext, frame_type);
     else if (frame_type == WS_FT_DATA && has_utt)
-        ws_llc_data_ffn_ind(api, data, ie_ext);
+        ws_llc_data_ffn_ind(net_if, data, ie_ext);
     else if (frame_type == WS_FT_EAPOL && has_utt)
-        ws_llc_eapol_ffn_ind(api, data, ie_ext);
+        ws_llc_eapol_ffn_ind(net_if, data, ie_ext);
     else
         TRACE(TR_DROP, "drop 15.4     : unsupported frame type (0x%02x)", frame_type);
 }
@@ -1100,7 +1102,7 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     message->ie_ext.payloadIovLength = data->ExtendedFrameExchange ? 0 : 2; // Set Back 2 at response handler
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 }
 
 static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t *message)
@@ -1150,7 +1152,7 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     base->temp_entries->active_eapol_session = true;
 
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 }
 
 
@@ -1717,7 +1719,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
 
     ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
     ws_trace_llc_mac_req(&data_req, message);
-    wsbr_data_req_ext(base->interface_ptr->mac_api, &data_req, &message->ie_ext);
+    wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 
     return 0;
 }
