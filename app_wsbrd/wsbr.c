@@ -32,7 +32,6 @@
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
 
-#include "stack/source/6lowpan/mac/mac_response_handler.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"

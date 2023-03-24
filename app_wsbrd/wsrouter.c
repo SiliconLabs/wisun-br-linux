@@ -33,7 +33,6 @@
 #include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
 
-#include "stack/source/6lowpan/mac/mac_response_handler.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/core/ns_address_internal.h"
