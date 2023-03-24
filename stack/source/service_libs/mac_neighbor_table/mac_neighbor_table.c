@@ -146,7 +146,6 @@ mac_neighbor_table_entry_t *mac_neighbor_table_entry_allocate(mac_neighbor_table
     table_class->neighbour_list_size++;
     memcpy(entry->mac64, mac64, 8);
     entry->mac16 = 0xffff;
-    entry->ffd_device = true;
     entry->nud_active = false;
     entry->advertisment = false;
     entry->connected_device = false;

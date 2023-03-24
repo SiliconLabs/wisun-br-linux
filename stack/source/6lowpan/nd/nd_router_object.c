@@ -160,19 +160,6 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
-
-        /* We need to know peer is a host before publishing - this needs MLE. Not yet established
-         * what to do without MLE - might need special external/non-external prioritisation at root.
-         * This "publish for RFD" rule comes from ZigBee IP.
-         */
-        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur_interface->mac_parameters.mac_neighbor_table, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
-
-        if (entry) {
-
-            if (!entry->ffd_device) {
-                rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
-            }
-        }
         protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
 
     } else {

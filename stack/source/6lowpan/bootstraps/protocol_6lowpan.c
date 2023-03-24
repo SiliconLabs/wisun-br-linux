@@ -433,25 +433,17 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
 
 int8_t protocol_6lowpan_neighbor_address_state_synch(struct net_if *cur, const uint8_t eui64[8], const uint8_t iid[8])
 {
-    int8_t ret_val = -1;
-
     mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, eui64, ADDR_802_15_4_LONG);
-    if (entry) {
-        if (memcmp(iid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
-            iid += 6;
-            //Set Short Address to MLE
-            entry->mac16 = read_be16(iid);
-        }
-        if (!entry->ffd_device) {
-            if (entry->connected_device) {
-                mac_neighbor_table_neighbor_refresh(cur->mac_parameters.mac_neighbor_table, entry, entry->link_lifetime);
-            }
-            ret_val = 1;
-        } else {
-            ret_val = 0;
-        }
+
+    if (!entry)
+        return -1;
+
+    if (memcmp(iid, ADDR_SHORT_ADR_SUFFIC, 6) == 0) {
+        iid += 6;
+        //Set Short Address to MLE
+        entry->mac16 = read_be16(iid);
     }
-    return ret_val;
+    return 0;
 }
 
 void protocol_6lowpan_allocate_mac16(struct net_if *cur)

@@ -990,10 +990,8 @@ static void ws_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_pt
         ws_stats_update(cur, STATS_WS_CHILD_REMOVE, 1);
     }
 
-    if (entry_ptr->ffd_device) {
-        protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_ptr->mac16);
-        protocol_6lowpan_release_long_link_address_from_neighcache(cur, entry_ptr->mac64);
-    }
+    protocol_6lowpan_release_short_link_address_from_neighcache(cur, entry_ptr->mac16);
+    protocol_6lowpan_release_long_link_address_from_neighcache(cur, entry_ptr->mac64);
 
     //NUD Process Clear Here
     ws_nud_entry_remove(cur, entry_ptr);
