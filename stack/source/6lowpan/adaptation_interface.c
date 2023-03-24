@@ -754,30 +754,6 @@ static bool lowpan_adaptation_indirect_cache_sanity_check(struct net_if *cur, fr
     return false;
 }
 
-static bool lowpan_adaptation_indirect_cache_trigger(struct net_if *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
-{
-    tr_debug_extra("lowpan_adaptation_indirect_cache_trigger()");
-
-    if (ns_list_count(&interface_ptr->indirect_tx_queue) == 0) {
-        return false;
-    }
-
-    /* Trigger first cached entry */
-    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
-        if (fragmenter_tx_entry->indirect_data_cached) {
-            if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
-                tr_debug_extra("Pushing seq %d to addr %s", fragmenter_tx_entry->buf->seq, tr_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
-                fragmenter_tx_entry->indirect_data_cached = false;
-                lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry, interface_ptr);
-                return true;
-            }
-        }
-    }
-
-    /* Sanity check, If nothing can be triggered from own address, check cache queue */
-    return lowpan_adaptation_indirect_cache_sanity_check(cur, interface_ptr);
-}
-
 static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
