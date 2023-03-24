@@ -232,7 +232,6 @@ struct net_if {
     struct rpl_domain *rpl_domain;
 
     struct rcp *rcp;
-    struct mac_api *mac_api;
     arm_15_4_mac_parameters_t mac_parameters;
 
     int8_t (*if_down)(struct net_if *cur);
@@ -265,7 +264,7 @@ void protocol_core_interface_info_reset(struct net_if *entry);
 uint8_t nwk_bootstrap_ready(struct net_if *cur);
 
 struct net_if *protocol_stack_interface_info_get();
-struct net_if *protocol_stack_interface_generate_lowpan(struct mac_api *api, struct rcp *rcp, int mtu);
+struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu);
 uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_t base_reachable_time);
 void net_bootstrap_cb_run(uint8_t event);
 

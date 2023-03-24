@@ -187,7 +187,7 @@ int8_t mac_helper_key_link_frame_counter_read(int8_t interface_id, uint32_t *seq
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
-    if (!cur || !cur->mac_api || !seq_ptr) {
+    if (!cur || !seq_ptr) {
         return -1;
     }
     rcp_get_frame_counter(descriptor);

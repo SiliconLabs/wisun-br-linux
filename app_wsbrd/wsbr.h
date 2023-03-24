@@ -43,8 +43,6 @@ struct wsbr_ctxt {
     int  tun_fd;
     int  sock_mcast;
 
-    struct mac_api mac_api;
-
     struct rcp rcp;
     int  rcp_if_id;
 

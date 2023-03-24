@@ -175,7 +175,6 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base);
 
 /** LLC interface sepesific local functions */
 static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interface);
-static llc_data_base_t *ws_llc_discover_by_mac(const mac_api_t *api);
 static llc_data_base_t *ws_llc_discover_by_mpx(const mpx_api_t *api);
 
 static mpx_user_t *ws_llc_mpx_user_discover(mpx_class_t *mpx_class, uint16_t user_id);
@@ -324,16 +323,6 @@ static llc_data_base_t *ws_llc_discover_by_interface(const struct net_if *interf
 {
     ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
         if (base->interface_ptr == interface) {
-            return base;
-        }
-    }
-    return NULL;
-}
-
-static llc_data_base_t *ws_llc_discover_by_mac(const mac_api_t *api)
-{
-    ns_list_foreach(llc_data_base_t, base, &llc_data_base_list) {
-        if (base->interface_ptr->mac_api == api) {
             return base;
         }
     }

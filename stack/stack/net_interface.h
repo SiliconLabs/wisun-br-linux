@@ -244,7 +244,7 @@ int8_t net_init_core(void);
  * \return -1 api was NULL.
  * \return -3 No memory for the interface.
  */
-int8_t arm_nwk_interface_lowpan_init(struct mac_api *api, struct rcp *rcp, int mtu, char *interface_name_ptr);
+int8_t arm_nwk_interface_lowpan_init(struct rcp *rcp, int mtu, char *interface_name_ptr);
 
 /**
  * \brief Set network interface bootstrap setup.

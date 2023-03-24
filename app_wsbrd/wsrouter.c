@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->mac_api, &ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
+    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
     if (ctxt->rcp_if_id < 0)
         BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
