@@ -274,7 +274,7 @@ static int wsbr_tun_open(char *devname, const uint8_t hw_mac[static 8], uint8_t 
     if (is_user_configured) {
         err = rtnl_link_inet6_get_addr_gen_mode(link, &mode);
         if (err < 0 || mode != 1)
-            WARN("%s: unsepected addr_gen_mode", devname);
+            WARN("%s: unexpected addr_gen_mode", devname);
         if (rtnl_link_get_mtu(link) > 1280)
             WARN("%s: mtu is above 1280 (not 15.4 compliant)", devname);
         if (rtnl_link_get_txqlen(link) > 10)
