@@ -730,30 +730,6 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     }
 }
 
-static bool lowpan_adaptation_indirect_cache_sanity_check(struct net_if *cur, fragmenter_interface_t *interface_ptr)
-{
-    fragmenter_tx_entry_t *active_tx_entry;
-    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
-        if (fragmenter_tx_entry->indirect_data_cached == false) {
-            // active entry, jump to next one
-            continue;
-        }
-
-        // cached entry found, check if it has pending data reguest
-        active_tx_entry = lowpan_adaptation_indirect_mac_data_request_active(interface_ptr, fragmenter_tx_entry);
-
-        if (active_tx_entry == NULL) {
-            // entry is in cache and is not sent to mac => trigger this
-            tr_debug_extra("sanity check, push seq %d to addr %s", fragmenter_tx_entry->buf->seq, tr_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
-            fragmenter_tx_entry->indirect_data_cached = false;
-            lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry, interface_ptr);
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static fragmenter_tx_entry_t *lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
 {
     ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
