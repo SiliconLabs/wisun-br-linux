@@ -804,26 +804,6 @@ static fragmenter_tx_entry_t *lowpan_adaptation_indirect_first_cached_request_ge
     return NULL;
 }
 
-static bool lowpan_adaptation_is_priority_message(buffer_t *buf)
-{
-    // DHCP messages
-    if (buf->dst_sa.port == DHCPV6_SERVER_PORT ||
-        buf->dst_sa.port == DHCPV6_SERVER_PORT ||
-        buf->src_sa.port == DHCPV6_CLIENT_PORT ||
-        buf->src_sa.port == DHCPV6_CLIENT_PORT) {
-        return true;
-    }
-
-    // ICMPv6 messages
-    if (buf->options.type == ICMPV6_TYPE_ERROR_DESTINATION_UNREACH ||
-            buf->options.type == ICMPV6_TYPE_ERROR_PACKET_TOO_BIG ||
-            buf->options.type == ICMPV6_TYPE_ERROR_TIME_EXCEEDED ||
-            buf->options.type == ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM) {
-        return true;
-    }
-    return false;
-}
-
 static void lowpan_data_request_to_mac(struct net_if *cur, buffer_t *buf, fragmenter_tx_entry_t *tx_ptr, fragmenter_interface_t *interface_ptr)
 {
     mcps_data_req_t dataReq;
