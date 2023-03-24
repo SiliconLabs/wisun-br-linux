@@ -360,6 +360,36 @@ static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse
     free(tmp);
 }
 
+static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storage_parse_info *info,
+                                  void *raw_dest, const void *raw_param)
+{
+    struct storage_parse_info sub_info = *info; // Copy struct to reuse conf_set_enum_int
+    uint8_t *dest = raw_dest;
+    char *tmp, *substr;
+    int i;
+
+    BUG_ON(raw_dest != config->ws_phy_op_modes);
+    BUG_ON(raw_param != &valid_ws_phy_mode_ids);
+    // FIXME: expect trouble if 0xFF become valid PHY IDs.
+    if (!strcmp(info->value, "auto")) {
+        dest[0] = -1;
+        return;
+    }
+    i = 0;
+    tmp = strdup(info->value);
+    substr = strtok(tmp, ",");
+    do {
+        // Keep room for sentinel
+        FATAL_ON(i > ARRAY_SIZE(config->ws_phy_op_modes) - 2, 1,
+                 "%s:%d: too many entries (max: %zu)",
+                 info->filename, info->linenr,
+                 ARRAY_SIZE(config->ws_phy_op_modes) - 2);
+        strcpy(sub_info.value, substr);
+        conf_set_enum_int(config, &sub_info, &dest[i++], raw_param);
+    } while ((substr = strtok(NULL, ",")));
+    free(tmp);
+}
+
 static int read_cert(const char *filename, const uint8_t **ptr)
 {
     uint8_t *tmp;
@@ -483,6 +513,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "domain",                        &config->ws_domain,                        conf_set_enum,        &valid_ws_domains },
         { "mode",                          &config->ws_mode,                          conf_set_enum_int_hex, &valid_ws_modes },
         { "phy_mode_id",                   &config->ws_phy_mode_id,                   conf_set_enum_int,    &valid_ws_phy_mode_ids },
+        { "phy_operating_modes",           &config->ws_phy_op_modes,                  conf_set_phy_op_modes, &valid_ws_phy_mode_ids },
         { "class",                         &config->ws_class,                         conf_set_enum_int,    &valid_ws_classes },
         { "chan_plan_id",                  &config->ws_chan_plan_id,                  conf_set_enum_int,    &valid_ws_chan_plan_ids },
         { "regional_regulation",           &config->ws_regional_regulation,           conf_set_enum,        &valid_ws_regional_regulations },
@@ -750,6 +781,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         config->ws_fan_version = WS_FAN_VERSION_1_1;
     if (!config->ws_fan_version)
         config->ws_fan_version = WS_FAN_VERSION_1_1;
+    if (!config->ws_phy_mode_id && config->ws_phy_op_modes[0])
+        FATAL(1, "\"phy_operating_modes\" depends on \"phy_mode_id\"");
     if (config->bc_interval < config->bc_dwell_interval)
         FATAL(1, "broadcast interval %d can't be lower than broadcast dwell interval %d", config->bc_interval, config->bc_dwell_interval);
     if (config->ws_allowed_mac_address_count > 0 && config->ws_denied_mac_address_count > 0)

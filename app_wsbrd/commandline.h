@@ -50,6 +50,7 @@ struct wsbrd_conf {
     uint8_t ws_allowed_channels[32];
     int  ws_phy_mode_id;
     int  ws_chan_plan_id;
+    uint8_t ws_phy_op_modes[15];
 
     char user[LOGIN_NAME_MAX];
     char group[LOGIN_NAME_MAX];
