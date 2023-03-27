@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef BITS_H
-#define BITS_H
+#ifndef COMMON_BITS_H
+#define COMMON_BITS_H
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

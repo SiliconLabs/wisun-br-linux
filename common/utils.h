@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef COMMON_UTILS_H
+#define COMMON_UTILS_H
 
 #include <stddef.h>
 

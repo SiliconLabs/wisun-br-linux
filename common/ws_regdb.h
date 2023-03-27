@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WS_PHY_H
-#define WS_PHY_H
+#ifndef WS_REGDB_H
+#define WS_REGDB_H
 
 #include <stdint.h>
 #include <stdbool.h>

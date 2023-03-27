@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef INT24_H_
-#define INT24_H_
+#ifndef COMMON_INT24_H
+#define COMMON_INT24_H
 
 #include <stdint.h>
 

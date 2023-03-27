@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef ENDIAN_H
-#define ENDIAN_H
+#ifndef COMMON_ENDIAN_H
+#define COMMON_ENDIAN_H
 #include <stdint.h>
 #include "int24.h"
 

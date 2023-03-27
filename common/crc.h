@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef CRC_H
-#define CRC_H
+#ifndef COMMON_CRC_H
+#define COMMON_CRC_H
 
 #include <stdbool.h>
 #include <stdint.h>

@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef PARSERS_H
-#define PARSERS_H
+#ifndef COMMON_PARSERS_H
+#define COMMON_PARSERS_H
 #include <stdint.h>
 #include <sys/socket.h>
 

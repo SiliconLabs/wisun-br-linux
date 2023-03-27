@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef OS_H
-#define OS_H
+#ifndef COMMON_OS_TYPES_H
+#define COMMON_OS_TYPES_H
 
 #include <stdint.h>
 #include <stdbool.h>

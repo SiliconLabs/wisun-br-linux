@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef LOG_H
-#define LOG_H
+#ifndef COMMON_LOG_H
+#define COMMON_LOG_H
 
 #include <stdio.h>
 #include <stdint.h>
