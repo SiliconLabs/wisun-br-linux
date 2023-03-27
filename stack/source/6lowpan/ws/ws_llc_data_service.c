@@ -306,7 +306,7 @@ static llc_message_t *llc_message_allocate(llc_data_base_t *llc_base)
         return NULL;
     }
 
-    llc_message_t *message = malloc(sizeof(llc_message_t));
+    llc_message_t *message = calloc(1, sizeof(llc_message_t));
     if (!message) {
         return NULL;
     }
