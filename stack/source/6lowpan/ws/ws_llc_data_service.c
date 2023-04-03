@@ -1078,8 +1078,11 @@ static void ws_llc_lowpan_mpx_data_request(llc_data_base_t *base, mpx_user_t *us
     if (!data->TxAckReq)
         ws_wp_nested_bs_write(&message->ie_buf_payload, &base->interface_ptr->ws_info.hopping_schedule);
     // We put only POM-IE if more than 1 phy (base phy + something else)
-    if (base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
-        ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number, base->ie_params.phy_operating_modes, 0);
+    if (ws_version_1_1(base->interface_ptr) &&
+        base->ie_params.phy_operating_modes &&
+        base->ie_params.phy_op_mode_number > 1)
+        ws_wp_nested_pom_write(&message->ie_buf_payload, base->ie_params.phy_op_mode_number,
+                               base->ie_params.phy_operating_modes, 0);
 
     message->ie_iov_payload[1].iov_base = data->msdu;
     message->ie_iov_payload[1].iov_len = data->msduLength;
