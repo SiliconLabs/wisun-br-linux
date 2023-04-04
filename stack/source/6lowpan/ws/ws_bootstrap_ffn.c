@@ -1337,21 +1337,16 @@ void ws_ffn_trickle_stop(struct ws_mngt *mngt)
 
 static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
 {
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PAS;
-    //Request UTT Header and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.net_name_ie = true;
-    if (ws_version_1_1(cur)) {
-        async_req.wp_requested_nested_ie_list.pom_ie = true;
-    }
-
-    async_req.security.SecurityLevel = 0;
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_PAS,
+        .wh_ies.utt_ie      = true,
+        .wp_ies.us_ie       = true,
+        .wp_ies.net_name_ie = true,
+        .wp_ies.pom_ie      = ws_version_1_1(cur),
+    };
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PAS, 1);
-    ws_llc_asynch_request(cur, &async_req);
+    ws_llc_asynch_request(cur, &req);
 }
 
 void ws_ffn_pas_trickle(struct net_if *cur, int ticks)
@@ -1400,18 +1395,15 @@ void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds)
 
 static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
 {
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PCS;
-    //Request UTT Header and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.net_name_ie = true;
-
-    async_req.security.SecurityLevel = 0;
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_PCS,
+        .wh_ies.utt_ie      = true,
+        .wp_ies.us_ie       = true,
+        .wp_ies.net_name_ie = true,
+    };
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PCS, 1);
-    ws_llc_asynch_request(cur, &async_req);
+    ws_llc_asynch_request(cur, &req);
 }
 
 void ws_ffn_pcs_trickle(struct net_if *cur, int ticks)

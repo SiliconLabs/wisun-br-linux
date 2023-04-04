@@ -1658,7 +1658,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     msg->ie_ext.payloadIovLength = 1;
 }
 
-int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request)
+int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (!base)
@@ -1669,12 +1669,12 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
         return -1;
     }
 
-    if (request->message_type == WS_FT_PA) {
+    if (request->frame_type == WS_FT_PA) {
         if (interface->pan_advert_running)
             return -1;
         else
             interface->pan_advert_running = true;
-    } else if (request->message_type == WS_FT_PC) {
+    } else if (request->frame_type == WS_FT_PC) {
         if (interface->pan_config_running)
             return -1;
         else
@@ -1685,7 +1685,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     llc_message_t *message = llc_message_allocate(base);
     if (!message) {
         if (base->asynch_confirm) {
-            base->asynch_confirm(interface, request->message_type);
+            base->asynch_confirm(interface, request->frame_type);
         }
         return 0;
     }
@@ -1695,7 +1695,7 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     base->llc_message_list_size++;
     random_early_detection_aq_calc(base->interface_ptr->llc_random_early_detection, base->llc_message_list_size);
     ns_list_add_to_end(&base->llc_message_list, message);
-    message->message_type = request->message_type;
+    message->message_type = request->frame_type;
 
 
     mcps_data_req_t data_req;
@@ -1705,14 +1705,12 @@ int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request
     data_req.Key = request->security;
     data_req.msduHandle = message->msg_handle;
     data_req.ExtendedFrameExchange = false;
-    if (request->message_type == WS_FT_PAS) {
-        // PANID not know yet must be supressed
+    if (request->frame_type == WS_FT_PAS)
         data_req.PanIdSuppressed = true;
-    }
     data_req.priority = message->priority;
     data_req.fhss_type = HIF_FHSS_TYPE_ASYNC;
 
-    ws_llc_prepare_ie(base, message, request->wh_requested_ie_list, request->wp_requested_nested_ie_list);
+    ws_llc_prepare_ie(base, message, request->wh_ies, request->wp_ies);
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 

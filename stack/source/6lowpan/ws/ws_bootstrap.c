@@ -2136,19 +2136,14 @@ void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 
 static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PA;
-    //Request UTT Header, Pan information and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.pan_ie = true;
-    async_req.wp_requested_nested_ie_list.net_name_ie = true;
-    if (ws_version_1_1(cur)) {
-        async_req.wp_requested_nested_ie_list.pom_ie = true;
-    }
-
-    async_req.security.SecurityLevel = 0;
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_PA,
+        .wh_ies.utt_ie      = true,
+        .wp_ies.us_ie       = true,
+        .wp_ies.pan_ie      = true,
+        .wp_ies.net_name_ie = true,
+        .wp_ies.pom_ie      = ws_version_1_1(cur),
+    };
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Border routers write the NW size
@@ -2161,38 +2156,35 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
     }
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PA, 1);
-    ws_llc_asynch_request(cur, &async_req);
+    ws_llc_asynch_request(cur, &req);
 }
 
 static void ws_bootstrap_pan_config(struct net_if *cur)
 {
-    asynch_request_t async_req;
-    memset(&async_req, 0, sizeof(asynch_request_t));
-    async_req.message_type = WS_FT_PC;
-    //Request UTT Header, Pan information and US and Net name from payload
-    async_req.wh_requested_ie_list.utt_ie = true;
-    async_req.wh_requested_ie_list.bt_ie = true;
-    async_req.wp_requested_nested_ie_list.us_ie = true;
-    async_req.wp_requested_nested_ie_list.bs_ie = true;
-    async_req.wp_requested_nested_ie_list.pan_version_ie = true;
-    async_req.wp_requested_nested_ie_list.gtkhash_ie = true;
-    if (ws_version_1_1(cur)) {
-        async_req.wh_requested_ie_list.lbc_ie = cur->ws_info.pan_information.lpan_version_set;
-        async_req.wp_requested_nested_ie_list.lgtkhash_ie = cur->ws_info.pan_information.lpan_version_set;
-        async_req.wp_requested_nested_ie_list.lfnver_ie = cur->ws_info.pan_information.lpan_version_set;
-    }
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_PC,
+        .wh_ies.utt_ie         = true,
+        .wh_ies.bt_ie          = true,
+        .wh_ies.lbc_ie         = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wp_ies.us_ie          = true,
+        .wp_ies.bs_ie          = true,
+        .wp_ies.pan_version_ie = true,
+        .wp_ies.gtkhash_ie     = true,
+        .wp_ies.lgtkhash_ie    = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wp_ies.lfnver_ie      = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .security.SecurityLevel = cur->mac_parameters.mac_security_level,
+        .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
+    };
 
-    async_req.security.SecurityLevel = cur->mac_parameters.mac_security_level;
-    async_req.security.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
-        async_req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
+        req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
         cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
-        async_req.security.KeyIndex = cur->mac_parameters.mac_default_key_index;
+        req.security.KeyIndex = cur->mac_parameters.mac_default_key_index;
     }
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PC, 1);
-    ws_llc_asynch_request(cur, &async_req);
+    ws_llc_asynch_request(cur, &req);
 }
 
 static void ws_bootstrap_event_handler(struct event_payload *event)

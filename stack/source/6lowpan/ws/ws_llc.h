@@ -76,16 +76,12 @@ typedef struct wp_nested_ie_sub_list {
     bool pom_ie: 1;                 /**< PHY Operating Modes information */
 } wp_nested_ie_sub_list_t;
 
-/**
- * @brief asynch_request_t Asynch message request parameters
- */
-typedef struct asynch_request {
-    unsigned  message_type: 4;                              /**< Asynch message type: WS_FT_PA, WS_FT_PAS, WS_FT_PC or WS_FT_PCS. */
-    wh_ie_sub_list_t wh_requested_ie_list;                  /**< WH-IE header list to message. */
-    wp_nested_ie_sub_list_t wp_requested_nested_ie_list;    /**< WP-IE Nested IE list to message. */
-    struct mlme_security security;                               /**< Request MAC security paramaters */
-} asynch_request_t;
-
+struct ws_llc_mngt_req {
+    uint8_t frame_type;
+    wh_ie_sub_list_t wh_ies;
+    wp_nested_ie_sub_list_t wp_ies;
+    struct mlme_security security;
+};
 
 /**
  * @brief LLC neighbour info request parameters
@@ -175,7 +171,7 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
  * @return -2 Parameter problem
  *
  */
-int8_t ws_llc_asynch_request(struct net_if *interface, asynch_request_t *request);
+int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request);
 
 
 /**
