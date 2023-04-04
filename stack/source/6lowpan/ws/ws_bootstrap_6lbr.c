@@ -208,7 +208,7 @@ void ws_bootstrap_6lbr_asynch_confirm(struct net_if *interface, uint8_t asynch_m
             interface->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
             tr_info("Activate new default key %u", interface->ws_info.pending_key_index_info.index);
             /* Deprecated: Unused by the RCP. */
-            interface->mac_parameters.mac_default_key_index = interface->ws_info.pending_key_index_info.index + 1;
+            interface->mac_parameters.mac_default_ffn_key_index = interface->ws_info.pending_key_index_info.index + 1;
         }
     }
 }
@@ -312,7 +312,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             lowpan_adaptation_interface_reset(cur->id);
             //Clear Pending Key Index State
             cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
-            cur->mac_parameters.mac_default_key_index = 0;
+            cur->mac_parameters.mac_default_ffn_key_index = 0;
             cur->mac_parameters.mac_default_lfn_key_index = 0;
 
             ipv6_destination_cache_clean(cur->id);

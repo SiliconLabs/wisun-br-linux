@@ -696,7 +696,7 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
         if (dataReq->Key.SecurityLevel) {
             switch (buf->link_specific.ieee802_15_4.key_id_mode) {
                 case B_SECURITY_KEY_ID_MODE_DEFAULT:
-                    dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_key_index;
+                    dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
                     dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
                     break;
                 case B_SECURITY_KEY_ID_IMPLICIT:

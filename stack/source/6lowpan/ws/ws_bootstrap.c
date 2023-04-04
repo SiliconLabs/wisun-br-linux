@@ -1966,8 +1966,8 @@ static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot)
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (cur->mac_parameters.mac_default_key_index != 0 &&
-            cur->mac_parameters.mac_default_key_index != index + 1 &&
+        if (cur->mac_parameters.mac_default_ffn_key_index != 0 &&
+            cur->mac_parameters.mac_default_ffn_key_index != index + 1 &&
             index < 4) {
             /* Update the active key in the PAN Configs */
             tr_info("New Pending key Request %u", index);
@@ -1978,7 +1978,7 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
     }
     /* Deprecated: Unused by the RCP. */
     if (index < 4)
-        cur->mac_parameters.mac_default_key_index = index + 1;
+        cur->mac_parameters.mac_default_ffn_key_index = index + 1;
     else if (index >= 4 && index < 7)
         cur->mac_parameters.mac_default_lfn_key_index = index + 1;
 }
@@ -2180,7 +2180,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
         cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
-        req.security.KeyIndex = cur->mac_parameters.mac_default_key_index;
+        req.security.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
     }
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PC, 1);

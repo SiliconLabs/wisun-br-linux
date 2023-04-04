@@ -306,7 +306,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
     memset(&entry->mac_parameters, 0, sizeof(arm_15_4_mac_parameters_t));
     entry->mac_parameters.pan_id = 0xffff;
 
-    entry->mac_parameters.mac_default_key_index = 0;
+    entry->mac_parameters.mac_default_ffn_key_index = 0;
     entry->mac_parameters.mtu = mtu;
 
     entry->rcp = rcp;

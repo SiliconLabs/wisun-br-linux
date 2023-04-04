@@ -132,7 +132,7 @@ typedef struct arm_15_4_mac_parameters {
     /* Security API USE */
     unsigned mac_security_level: 3;
     unsigned mac_key_id_mode: 2;
-    uint8_t mac_default_key_index;
+    uint8_t mac_default_ffn_key_index;
     uint8_t mac_default_lfn_key_index;
     bool SecurityEnabled: 1;
     bool RxOnWhenIdle: 1;
