@@ -673,6 +673,7 @@ tx_error_handler:
 static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcps_data_req_t *dataReq, struct net_if *cur)
 {
     memset(dataReq, 0, sizeof(mcps_data_req_t));
+    mac_neighbor_table_entry_t *ngb;
 
     //Check do we need fragmentation
 
@@ -696,7 +697,12 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
         if (dataReq->Key.SecurityLevel) {
             switch (buf->link_specific.ieee802_15_4.key_id_mode) {
                 case B_SECURITY_KEY_ID_MODE_DEFAULT:
-                    dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
+                    ngb = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table,
+                                                              dataReq->DstAddr, dataReq->DstAddrMode);
+                    if (ngb && ngb->node_role == WS_NR_ROLE_LFN)
+                        dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_lfn_key_index;
+                    else
+                        dataReq->Key.KeyIndex = cur->mac_parameters.mac_default_ffn_key_index;
                     dataReq->Key.KeyIdMode = cur->mac_parameters.mac_key_id_mode;
                     break;
                 case B_SECURITY_KEY_ID_IMPLICIT:
