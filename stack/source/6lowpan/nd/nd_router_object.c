@@ -208,10 +208,6 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     if (addr_is_ipv6_unspecified(src_addr) || !slla_ptr)
         return true;
 
-    // Ignore ARO if source is link-local
-    if (addr_is_ipv6_link_local(src_addr))
-        return true;
-
     // Ignore ARO if SLLAO is incorrect
     if (!cur_interface->if_llao_parse(cur_interface, slla_ptr, &ll_addr))
         return true;
@@ -244,8 +240,17 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     na_earo->lifetime = iobuf_pop_be16(&earo);
     iobuf_pop_data(&earo, na_earo->eui64, 8);
 
+    // FIXME: It is not clear how ARO and EARO are differentiated.
     if (FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_R_MASK, flags) &&
         FIELD_GET(IPV6_ND_OPT_EARO_FLAGS_T_MASK, flags)) {
+        //   RFC 8505 Section 5.6 - Link-Local Addresses and Registration
+        // When sending an NS(EARO) to a 6LR, a 6LN MUST use a Link-Local
+        // Address as the Source Address of the registration, whatever the type
+        // of IPv6 Address that is being registered.  That Link-Local Address
+        // MUST be either an address that is already registered to the 6LR or
+        // the address that is being registered.
+        if (!addr_is_ipv6_link_local(src_addr))
+            return true;
         rpl_downward_rx_ns_earo(cur_interface, src_addr, tid, na_earo->lifetime, na_earo);
     }
 
