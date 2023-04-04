@@ -308,6 +308,22 @@ void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_
     ws_neighbor->fhss_data.ffn.bsi                  = bsi;
 }
 
+void ws_neighbor_class_lus_update(const struct net_if *net_if,
+                                  ws_neighbor_class_entry_t *ws_neighbor,
+                                  const struct ws_generic_channel_info *chan_info,
+                                  uint24_t listen_interval_ms)
+{
+    ws_neighbor->fhss_data.lfn.uc_listen_interval_ms = listen_interval_ms;
+    ws_neighbor->fhss_data.uc_chan_func = chan_info->channel_function;
+    if (chan_info->channel_function == WS_FIXED_CHANNEL) {
+        ws_neighbor->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        ws_neighbor->fhss_data.uc_chan_count = 1;
+    } else {
+        ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.uc_channel_list, chan_info,
+                                  &ws_neighbor->fhss_data.uc_chan_count);
+    }
+}
+
 uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
 {
     /* RSL MUST be calculated as the received signal level relative to standard

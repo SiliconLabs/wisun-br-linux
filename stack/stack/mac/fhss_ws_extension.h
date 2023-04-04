@@ -56,14 +56,15 @@ typedef struct fhss_ws_neighbor_timing_info {
             uint32_t bt_rx_tstamp_us;
         } ffn;
         struct {
+            uint24_t uc_listen_interval_ms; // from LUS-IE
             uint16_t uc_slot_number;        // from LUTT-IE
             uint24_t uc_interval_offset_ms; // from LUTT-IE
             uint32_t lutt_rx_tstamp_us;
         } lfn;
     };
-    uint8_t  uc_chan_func;  // from US-IE
-    uint16_t uc_chan_count; // from US-IE
-    uint16_t uc_chan_fixed; // from US-IE
+    uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
+    uint16_t uc_chan_count; // from US-IE or LUS-IE/LCP-IE
+    uint16_t uc_chan_fixed; // from US-IE or LUS-IE/LCP-IE
     uint8_t  bc_chan_func;  // from BS-IE
     uint16_t bc_chan_fixed; // from BS-IE
     ws_channel_mask_t uc_channel_list;          /**< Neighbor unicast channel list */

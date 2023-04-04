@@ -122,7 +122,11 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
 void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor, 
                                  const struct ws_generic_channel_info *chan_info,
                                  uint8_t dwell_interval, uint32_t interval, uint16_t bsi);
-
+// LFN Unicast Schedule update
+void ws_neighbor_class_lus_update(const struct net_if *net_if,
+                                  ws_neighbor_class_entry_t *ws_neighbor,
+                                  const struct ws_generic_channel_info *chan_info,
+                                  uint24_t listen_interval_ms);
 /**
  * ws_neighbor_class_rsl_from_dbm_calculate
  *
