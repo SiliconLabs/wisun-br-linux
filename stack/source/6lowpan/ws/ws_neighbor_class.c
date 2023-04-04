@@ -323,6 +323,8 @@ void ws_neighbor_class_lus_update(const struct net_if *net_if,
                                   uint24_t listen_interval_ms)
 {
     ws_neighbor->fhss_data.lfn.uc_listen_interval_ms = listen_interval_ms;
+    if (!chan_info)
+        return; // Support chan plan tag 255 (reuse previous schedule)
     ws_neighbor->fhss_data.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_FIXED_CHANNEL) {
         ws_neighbor->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
