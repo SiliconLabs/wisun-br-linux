@@ -429,6 +429,7 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
     const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
     struct mcps_data_conf mpx_confirm;
     struct mpx_user *mpx_usr;
+    struct ws_lutt_ie ie_lutt;
     struct ws_utt_ie ie_utt;
     int8_t ie_rsl;
 
@@ -449,6 +450,12 @@ static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *
                     neighbor_llc->neighbor->lifetime = neighbor_llc->neighbor->link_lifetime;
                 ws_neighbor_class_ut_update(neighbor_llc->ws_neighbor, ie_utt.ufsi, confirm->timestamp,
                                             neighbor_llc->neighbor->mac64);
+            }
+            if (ws_wh_lutt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_lutt)) {
+                if (success)
+                    neighbor_llc->neighbor->lifetime = neighbor_llc->neighbor->link_lifetime;
+                ws_neighbor_class_lut_update(neighbor_llc->ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                             confirm->timestamp, neighbor_llc->neighbor->mac64);
             }
             if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
                 ws_neighbor_class_rsl_out_calculate(neighbor_llc->ws_neighbor, ie_rsl);
