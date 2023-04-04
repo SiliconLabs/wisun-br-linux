@@ -152,7 +152,7 @@ void ws_bootstrap_6lbr_eapol_auth_relay_socket_cb(int fd)
     ws_eapol_auth_relay_socket_cb(fd);
 }
 
-void ws_bootstrap_6lbr_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_6lbr_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     // Store weakest heard packet RSSI
     if (cur->ws_info.weakest_received_rssi > data->signal_dbm) {

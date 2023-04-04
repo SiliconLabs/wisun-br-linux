@@ -149,7 +149,7 @@ typedef struct llc_data_base {
     llc_ie_params_t                 ie_params;                      /**< LLC IE header and Payload data configuration */
     temp_entriest_t                 *temp_entries;
 
-    ws_asynch_ind                   *asynch_ind;                    /**< LLC Asynch data indication call back configured by user */
+    ws_mngt_ind                     *mngt_ind; // indication callback for Wi-SUN management frames (PA/PAS/PC/PCS/LPA/LPAS/LPC/LPCS)
     ws_asynch_confirm               *asynch_confirm;                /**< LLC Asynch data confirmation call back configured by user */
     struct iobuf_write              ws_enhanced_response_elements;
     struct iovec                    ws_header_vector;
@@ -764,14 +764,14 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
-static void ws_llc_asynch_indication(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
+
+static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
 {
     struct iobuf_read ie_buf;
 
     llc_data_base_t *base = ws_llc_discover_by_interface(net_if);
-    if (!base || !base->asynch_ind) {
+    if (!base || !base->mngt_ind)
         return;
-    }
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
     if (ie_buf.err)
@@ -797,7 +797,7 @@ static void ws_llc_asynch_indication(const struct net_if *net_if, const mcps_dat
     // the content of the WP-IE instead.
     asynch_ie_list.payloadIeList       = ie_buf.data;
     asynch_ie_list.payloadIeListLength = ie_buf.data_size;
-    base->asynch_ind(base->interface_ptr, data, &asynch_ie_list, frame_type);
+    base->mngt_ind(base->interface_ptr, data, &asynch_ie_list, frame_type);
 }
 
 static const struct name_value ws_frames[] = {
@@ -909,7 +909,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
     }
 
     if (ws_is_frame_mngt(frame_type))
-        ws_llc_asynch_indication(net_if, data, ie_ext, frame_type);
+        ws_llc_mngt_ind(net_if, data, ie_ext, frame_type);
     else if (frame_type == WS_FT_DATA && has_utt)
         ws_llc_data_ffn_ind(net_if, data, ie_ext);
     else if (frame_type == WS_FT_EAPOL && has_utt)
@@ -1515,7 +1515,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
     ns_list_add_to_end(&base->temp_entries->free_temp_neigh, neighbor);
 }
 
-int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_asynch_confirm *asynch_cnf_cb)
+int8_t ws_llc_create(struct net_if *interface, ws_mngt_ind *mngt_ind_cb, ws_asynch_confirm *asynch_cnf_cb)
 {
     llc_data_base_t *base = ws_llc_discover_by_interface(interface);
     if (base) {
@@ -1530,7 +1530,7 @@ int8_t ws_llc_create(struct net_if *interface, ws_asynch_ind *asynch_ind_cb, ws_
     }
 
     base->interface_ptr = interface;
-    base->asynch_ind = asynch_ind_cb;
+    base->mngt_ind = mngt_ind_cb;
     base->asynch_confirm = asynch_cnf_cb;
     //Init MPX class
     ws_llc_mpx_init(&base->mpx_data_base);

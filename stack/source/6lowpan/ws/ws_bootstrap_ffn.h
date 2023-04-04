@@ -33,7 +33,7 @@ typedef enum auth_result auth_result_e;
 void ws_bootstrap_ffn_candidate_table_reset(struct net_if *cur);
 void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
-void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
+void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *event);
 void ws_bootstrap_ffn_state_machine(struct net_if *cur);
@@ -61,7 +61,7 @@ static inline void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, struc
 {
 }
 
-static inline void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+static inline void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     BUG("not compiled with HAVE_WS_ROUTER");
 }

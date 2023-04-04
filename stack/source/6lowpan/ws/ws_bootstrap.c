@@ -1166,13 +1166,13 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
         // Configure for LFN device
-        ws_llc_create(cur, &ws_bootstrap_lfn_asynch_ind, &ws_bootstrap_lfn_asynch_confirm);
+        ws_llc_create(cur, &ws_bootstrap_lfn_mngt_ind, &ws_bootstrap_lfn_asynch_confirm);
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         // Configure FFN device
-        ws_llc_create(cur, &ws_bootstrap_ffn_asynch_ind, &ws_bootstrap_ffn_asynch_confirm);
+        ws_llc_create(cur, &ws_bootstrap_ffn_mngt_ind, &ws_bootstrap_ffn_asynch_confirm);
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Configure as Border router
-        ws_llc_create(cur, &ws_bootstrap_6lbr_asynch_ind, &ws_bootstrap_6lbr_asynch_confirm);
+        ws_llc_create(cur, &ws_bootstrap_6lbr_mngt_ind, &ws_bootstrap_6lbr_asynch_confirm);
     }
 
     mpx_api_t *mpx_api = ws_llc_mpx_api_get(cur);

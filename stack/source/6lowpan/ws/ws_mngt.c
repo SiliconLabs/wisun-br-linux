@@ -42,7 +42,7 @@ static bool ws_mngt_ie_us_validate(struct net_if *net_if,
                                    struct ws_us_ie *ie_us,
                                    uint8_t frame_type)
 {
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, ie_us)) {
         TRACE(TR_DROP, "drop %-9s: missing US-IE", tr_ws_frame(frame_type));
         return false;
@@ -56,7 +56,7 @@ static bool ws_mngt_ie_netname_validate(struct net_if *net_if,
 {
     ws_wp_netname_t ie_netname;
 
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_netname)) {
         TRACE(TR_DROP, "drop %-9s: missing NETNAME-IE", tr_ws_frame(frame_type));
         return false;
@@ -92,7 +92,7 @@ void ws_mngt_pa_analyze(struct net_if *net_if,
         return;
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PA))
         return;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
         TRACE(TR_DROP, "drop %-9s: missing PAN-IE", tr_ws_frame(WS_FT_PA));
         return;
@@ -155,12 +155,12 @@ void ws_mngt_pc_analyze(struct net_if *net_if,
     }
     if (!ws_mngt_ie_us_validate(net_if, ie_ext, &ie_us, WS_FT_PC))
         return;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ie_bs)) {
         TRACE(TR_DROP, "drop %-9s: missing BS-IE", tr_ws_frame(WS_FT_PC));
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_pan_version)) {
         TRACE(TR_DROP, "drop %-9s: missing PANVER-IE", tr_ws_frame(WS_FT_PC));
         return;
@@ -243,7 +243,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         TRACE(TR_DROP, "drop %-9s: missing LND-IE", tr_ws_frame(WS_FT_LPAS));
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_lcp_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, ie_lus.channel_plan_tag, &ie_lcp)) {
         TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPAS));
         return;

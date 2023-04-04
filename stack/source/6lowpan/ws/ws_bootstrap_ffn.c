@@ -536,7 +536,7 @@ static void ws_bootstrap_ffn_pan_advertisement_analyse(struct net_if *cur, const
 
     //Validate Pan Conrfirmation is at packet
     ws_pan_information_t pan_information;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_pan_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_information)) {
         // Corrupted
         tr_error("No pan information");
@@ -641,7 +641,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
     }
 
     ws_lfnver_ie_t lfn_version;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_lfnver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &lfn_version)) {
         return; // LFN version
     }
@@ -649,7 +649,7 @@ static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const st
     //Read LFNGTKHASH
     gtkhash_t lgtkhash[3];
     unsigned active_lgtk_index;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_lgtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, lgtkhash, &active_lgtk_index)) {
         return;
     }
@@ -694,17 +694,17 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
         WARN("Received corrupted PAN config: no broadcast timing information");
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_bs_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_bs_ie)) {
         WARN("Received corrupted PAN config: no broadcast schedule information");
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_panver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &pan_version)) {
         WARN("Received corrupted PAN config: no PAN version");
         return;
     }
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_gtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, gtkhash)) {
         WARN("Received corrupted PAN config: no GTK hash");
         return;
@@ -877,7 +877,7 @@ static bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie
         return false;
     }
 
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
         tr_warn("No network name IE");
         return false;
@@ -895,7 +895,7 @@ static bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie
     return true;
 }
 
-void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
+void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
 {
     // Store weakest heard packet RSSI
     if (cur->ws_info.weakest_received_rssi > data->signal_dbm) {
@@ -935,7 +935,7 @@ void ws_bootstrap_ffn_asynch_ind(struct net_if *cur, const struct mcps_data_ind 
     }
 
     ws_us_ie_t ws_us;
-    // FIXME: see comment in ws_llc_asynch_indication
+    // FIXME: see comment in ws_llc_mngt_ind
     if (!ws_wp_nested_us_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &ws_us)) {
         // Corrupted
         return;
