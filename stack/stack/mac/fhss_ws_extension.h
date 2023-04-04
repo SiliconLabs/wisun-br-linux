@@ -37,39 +37,30 @@ typedef struct ws_channel_mask {
 } ws_channel_mask_t;
 
 /**
- * @brief unicast_timing_info Unicast timing/hopping schedule information structure.
- */
-typedef struct unicast_timing_info {
-    unsigned unicast_channel_function: 3;       /**< Unicast schedule channel function */
-    uint8_t unicast_dwell_interval;             /**< Unicast dwell interval */
-    uint16_t unicast_number_of_channels;        /**< Unicast number of channels */
-    uint16_t fixed_channel;                     /**< Unicast fixed channel*/
-    uint_fast24_t ufsi;                         /**< Unicast fractional sequence interval */
-    uint32_t utt_rx_timestamp;                  /**< UTT-IE reception timestamp */
-} unicast_timing_info_t;
-
-/**
- * @brief broadcast_timing_info Broadcast timing/hopping schedule information structure.
- */
-typedef struct broadcast_timing_info {
-    unsigned broadcast_channel_function: 3;     /**< Broadcast schedule channel function */
-    uint8_t broadcast_dwell_interval;           /**< Broadcast dwell interval */
-    uint16_t fixed_channel;                     /**< Broadcast fixed channel*/
-    uint16_t broadcast_slot;                    /**< Broadcast slot number */
-    uint16_t broadcast_schedule_id;             /**< Broadcast schedule identifier */
-    uint_fast24_t broadcast_interval_offset;    /**< Broadcast interval offset */
-    uint32_t broadcast_interval;                /**< Broadcast interval */
-    uint32_t bt_rx_timestamp;                   /**< BT-IE reception timestamp */
-} broadcast_timing_info_t;
-
-/**
  * @brief fhss_ws_neighbor_timing_info Neighbor timing/hopping schedule information structure.
  */
 typedef struct fhss_ws_neighbor_timing_info {
     uint8_t clock_drift;                        /**< Neighbor clock drift */
     uint8_t timing_accuracy;                    /**< Neighbor timing accuracy */
-    unicast_timing_info_t uc_timing_info;       /**< Neighbor unicast timing info */
-    broadcast_timing_info_t bc_timing_info;     /**< Neighbor broadcast timing info */
+    union {
+        struct {
+            uint8_t  uc_dwell_interval_ms;  // from US-IE
+            uint24_t ufsi;                  // from UTT-IE
+            uint32_t utt_rx_tstamp_us;
+
+            uint32_t bc_interval_ms;        // from BS-IE
+            uint16_t bsi;                   // from BS-IE
+            uint8_t  bc_dwell_interval_ms;  // from BS-IE
+            uint16_t bc_slot;               // from BT-IE
+            uint24_t bc_interval_offset_ms; // from BT-IE
+            uint32_t bt_rx_tstamp_us;
+        } ffn;
+    };
+    uint8_t  uc_chan_func;  // from US-IE
+    uint16_t uc_chan_count; // from US-IE
+    uint16_t uc_chan_fixed; // from US-IE
+    uint8_t  bc_chan_func;  // from BS-IE
+    uint16_t bc_chan_fixed; // from BS-IE
     ws_channel_mask_t uc_channel_list;          /**< Neighbor unicast channel list */
     ws_channel_mask_t bc_channel_list;          /**< Neighbor broadcast channel list */
 } fhss_ws_neighbor_timing_info_t;
@@ -90,7 +81,7 @@ typedef fhss_ws_neighbor_timing_info_t *fhss_get_neighbor_info(const fhss_api_t 
  * @param force_synch If false, synchronization is done only if minimum (internal) synchronization interval is exceed.
  * @return 0 on success, -1 on fail.
  */
-int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
+int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const struct fhss_ws_neighbor_timing_info *timing, const bool force_synch);
 
 /**
  * @brief Remove parent which was set by ns_fhss_ws_set_parent function.

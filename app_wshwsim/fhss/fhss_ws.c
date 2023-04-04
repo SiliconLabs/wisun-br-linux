@@ -565,12 +565,12 @@ static uint32_t fhss_ws_calculate_broadcast_interval_offset(fhss_structure_t *fh
 
 static uint16_t fhss_ws_calculate_destination_slot(fhss_ws_neighbor_timing_info_t *neighbor_timing_info, uint32_t tx_time)
 {
-    uint_fast24_t ufsi = neighbor_timing_info->uc_timing_info.ufsi;
-    uint32_t ufsi_timestamp = neighbor_timing_info->uc_timing_info.utt_rx_timestamp;
-    uint8_t dwell_time = neighbor_timing_info->uc_timing_info.unicast_dwell_interval;
+    uint24_t ufsi           = neighbor_timing_info->ffn.ufsi;
+    uint32_t ufsi_timestamp = neighbor_timing_info->ffn.utt_rx_tstamp_us;
+    uint8_t dwell_time      = neighbor_timing_info->ffn.uc_dwell_interval_ms;
     uint32_t seq_length = 0x10000;
-    if (neighbor_timing_info->uc_timing_info.unicast_channel_function  == WS_TR51CF) {
-        seq_length = neighbor_timing_info->uc_timing_info.unicast_number_of_channels;
+    if (neighbor_timing_info->uc_chan_func  == WS_TR51CF) {
+        seq_length = neighbor_timing_info->uc_chan_count;
     }
     uint32_t dest_ms_since_seq_start = own_ceil((float)((uint64_t)ufsi * seq_length * dwell_time) / DEF_2E24);
     return (own_floor(((float)(US_TO_MS(tx_time - ufsi_timestamp) + dest_ms_since_seq_start) / dwell_time)) % seq_length);
@@ -699,22 +699,22 @@ static int fhss_ws_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_a
     }
     if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
         fhss_ws_neighbor_timing_info_t *neighbor_timing_info = fhss_structure->ws->get_neighbor_info(api, destination_address);
-        if (!neighbor_timing_info || neighbor_timing_info->uc_timing_info.unicast_number_of_channels == 0) {
+        if (!neighbor_timing_info || neighbor_timing_info->uc_chan_count == 0) {
             fhss_stats_update(fhss_structure, STATS_FHSS_UNKNOWN_NEIGHBOR, 1);
             return -2;
         }
 
         uint16_t destination_slot = fhss_ws_calculate_destination_slot(neighbor_timing_info, tx_time);
-        int32_t tx_channel = neighbor_timing_info->uc_timing_info.fixed_channel;
-        if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_TR51CF) {
-            tx_channel = tr51_get_uc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, destination_slot, destination_address, neighbor_timing_info->uc_timing_info.unicast_number_of_channels, NULL);
+        int32_t tx_channel = neighbor_timing_info->uc_chan_fixed;
+        if (neighbor_timing_info->uc_chan_func == WS_TR51CF) {
+            tx_channel = tr51_get_uc_channel_index(fhss_structure->ws->tr51_channel_table, fhss_structure->ws->tr51_output_table, destination_slot, destination_address, neighbor_timing_info->uc_chan_count, NULL);
             tx_channel = fhss_channel_index_from_mask(neighbor_timing_info->uc_channel_list.channel_mask, tx_channel, fhss_structure->number_of_channels);
-        } else if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_DH1CF) {
+        } else if (neighbor_timing_info->uc_chan_func == WS_DH1CF) {
             tx_channel = dh1cf_get_uc_channel_index(destination_slot, destination_address, neighbor_timing_info->uc_channel_list.channel_count);
             tx_channel = fhss_channel_index_from_mask(neighbor_timing_info->uc_channel_list.channel_mask, tx_channel, fhss_structure->number_of_channels);
-        } else if (neighbor_timing_info->uc_timing_info.unicast_channel_function == WS_VENDOR_DEF_CF) {
+        } else if (neighbor_timing_info->uc_chan_func == WS_VENDOR_DEF_CF) {
             if (fhss_structure->ws->fhss_configuration.vendor_defined_cf) {
-                tx_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, destination_address, fhss_structure->ws->fhss_configuration.bsi, neighbor_timing_info->uc_timing_info.unicast_number_of_channels);
+                tx_channel = fhss_structure->ws->fhss_configuration.vendor_defined_cf(fhss_structure->fhss_api, fhss_structure->ws->bc_slot, destination_address, fhss_structure->ws->fhss_configuration.bsi, neighbor_timing_info->uc_chan_count);
             } else {
                 tr_error("FHSS: vendor defined configuration failed");
                 return -1;
@@ -1091,15 +1091,15 @@ int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure)
     return 0;
 }
 
-int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
+int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
+                       const struct fhss_ws_neighbor_timing_info *timing, const bool force_synch)
 {
     (void) eui64;
     if (!fhss_structure->ws) {
         return -1;
     }
-    if (!bc_timing_info->broadcast_interval || !bc_timing_info->broadcast_dwell_interval) {
+    if (!timing->ffn.bc_interval_ms || !timing->ffn.bc_dwell_interval_ms)
         return -1;
-    }
     if (((uint32_t)S_TO_US(fhss_structure->ws->min_synch_interval) > (fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - fhss_structure->ws->synchronization_time)) && !force_synch) {
         return 0;
     }
@@ -1110,27 +1110,27 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
     uint32_t time_since_last_synch_us = fhss_structure->ws->synchronization_time - prev_synchronization_time;
     uint32_t own_bc_interval_offset = fhss_ws_calculate_broadcast_interval_offset(fhss_structure, fhss_structure->ws->synchronization_time);
     fhss_stop_timer(fhss_structure, fhss_broadcast_handler);
-    uint32_t time_from_reception_ms = US_TO_MS(fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - bc_timing_info->bt_rx_timestamp);
-    uint32_t true_bc_interval_offset = (bc_timing_info->broadcast_interval_offset + time_from_reception_ms) % bc_timing_info->broadcast_interval;
-    if (true_bc_interval_offset >= bc_timing_info->broadcast_dwell_interval) {
+    uint32_t time_from_reception_ms = US_TO_MS(fhss_structure->callbacks.read_timestamp(fhss_structure->fhss_api) - timing->ffn.bt_rx_tstamp_us);
+    uint32_t true_bc_interval_offset = (timing->ffn.bc_interval_offset_ms + time_from_reception_ms) % timing->ffn.bc_interval_ms;
+    if (true_bc_interval_offset >= timing->ffn.bc_dwell_interval_ms) {
         fhss_structure->ws->is_on_bc_channel = false;
     }
-    uint32_t timeout = MS_TO_US(bc_timing_info->broadcast_interval - true_bc_interval_offset);
+    uint32_t timeout = MS_TO_US(timing->ffn.bc_interval_ms - true_bc_interval_offset);
 
     if (fhss_structure->ws->is_on_bc_channel) {
-        timeout -= MS_TO_US(bc_timing_info->broadcast_interval - bc_timing_info->broadcast_dwell_interval);
+        timeout -= MS_TO_US(timing->ffn.bc_interval_ms - timing->ffn.bc_dwell_interval_ms);
     }
     fhss_ws_start_timer(fhss_structure, timeout, fhss_broadcast_handler);
     fhss_structure->ws->broadcast_timer_running = true;
-    uint16_t slots_since_reception = (bc_timing_info->broadcast_interval_offset + time_from_reception_ms) / bc_timing_info->broadcast_interval;
+    uint16_t slots_since_reception = (timing->ffn.bc_interval_offset_ms + time_from_reception_ms) / timing->ffn.bc_interval_ms;
     // TODO: Calculate drift error
-    fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval = bc_timing_info->broadcast_dwell_interval;
-    fhss_structure->ws->fhss_configuration.fhss_broadcast_interval = bc_timing_info->broadcast_interval;
+    fhss_structure->ws->fhss_configuration.fhss_bc_dwell_interval  = timing->ffn.bc_dwell_interval_ms;
+    fhss_structure->ws->fhss_configuration.fhss_broadcast_interval = timing->ffn.bc_interval_ms;
     fhss_set_txrx_slot_length(fhss_structure);
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_FIXED_CHANNEL) {
         fhss_structure->ws->bc_slot = 0;
     } else {
-        fhss_structure->ws->bc_slot = bc_timing_info->broadcast_slot + slots_since_reception;
+        fhss_structure->ws->bc_slot = timing->ffn.bc_slot + slots_since_reception;
     }
     if (fhss_structure->ws->fhss_configuration.ws_bc_channel_function == WS_TR51CF) {
         fhss_structure->ws->bc_slot %= fhss_structure->number_of_channels;
@@ -1140,7 +1140,7 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
         //TODO: Compensation for fixed channel configuration
         if (SYNCH_COMPENSATION_MIN_INTERVAL <= US_TO_S(time_since_last_synch_us)) {
             // Update clock drift
-            int32_t drift_per_ms_tmp = divide_integer((int32_t)MS_TO_NS((true_bc_interval_offset - own_bc_interval_offset) + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval)), US_TO_MS(time_since_last_synch_us));
+            int32_t drift_per_ms_tmp = divide_integer((int32_t)MS_TO_NS((true_bc_interval_offset - own_bc_interval_offset) + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * timing->ffn.bc_interval_ms)), US_TO_MS(time_since_last_synch_us));
             if (drift_per_ms_tmp > MAX_DRIFT_COMPENSATION_STEP) {
                 drift_per_ms_tmp = MAX_DRIFT_COMPENSATION_STEP;
             } else if (drift_per_ms_tmp < -MAX_DRIFT_COMPENSATION_STEP) {
@@ -1150,9 +1150,9 @@ int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8],
 #ifndef __linux__
             fhss_structure->ws->drift_per_millisecond_ns += drift_per_ms_tmp;
 #endif
-            fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * bc_timing_info->broadcast_dwell_interval)));
+            fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, NS_TO_US((int64_t)(fhss_structure->ws->drift_per_millisecond_ns * timing->ffn.bc_dwell_interval_ms)));
         }
-        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", tr_eui64(eui64), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * bc_timing_info->broadcast_interval), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
+        tr_debug("synch to parent: %s, drift: %"PRIi32"ms in %"PRIu64" seconds, compensation: %"PRIi32"ns per ms", tr_eui64(eui64), true_bc_interval_offset - own_bc_interval_offset + ((int32_t)(fhss_structure->ws->bc_slot - own_bc_slot) * timing->ffn.bc_interval_ms), US_TO_S(time_since_last_synch_us), fhss_structure->ws->drift_per_millisecond_ns);
     }
     fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, US_TO_S(time_since_last_synch_us));
     return 0;

@@ -241,22 +241,22 @@ static void wsmac_spinel_set_frame_counter(struct wsmac_ctxt *ctxt, mlme_attr_e 
 
 static void wsmac_spinel_fhss_set_parent(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct iobuf_read *buf)
 {
-    broadcast_timing_info_t bc_timing_info;
+    struct fhss_ws_neighbor_timing_info timing;
     uint8_t eui64[8];
     bool force_synch;
 
     spinel_pop_fixed_u8_array(buf, eui64, 8);
-    force_synch                               = spinel_pop_bool(buf);
-    bc_timing_info.broadcast_channel_function = spinel_pop_u8(buf);
-    bc_timing_info.broadcast_dwell_interval   = spinel_pop_u8(buf);
-    bc_timing_info.fixed_channel              = spinel_pop_u16(buf);
-    bc_timing_info.broadcast_slot             = spinel_pop_u16(buf);
-    bc_timing_info.broadcast_schedule_id      = spinel_pop_u16(buf);
-    bc_timing_info.broadcast_interval_offset  = spinel_pop_u32(buf);
-    bc_timing_info.broadcast_interval         = spinel_pop_u32(buf);
-    bc_timing_info.bt_rx_timestamp            = spinel_pop_u32(buf);
+    force_synch                      = spinel_pop_bool(buf);
+    timing.bc_chan_func              = spinel_pop_u8(buf);
+    timing.ffn.bc_dwell_interval_ms  = spinel_pop_u8(buf);
+    timing.bc_chan_fixed             = spinel_pop_u16(buf);
+    timing.ffn.bc_slot               = spinel_pop_u16(buf);
+    timing.ffn.bsi                   = spinel_pop_u16(buf);
+    timing.ffn.bc_interval_offset_ms = spinel_pop_u32(buf);
+    timing.ffn.bc_interval_ms        = spinel_pop_u32(buf);
+    timing.ffn.bt_rx_tstamp_us       = spinel_pop_u32(buf);
     BUG_ON(iobuf_remaining_size(buf));
-    ns_fhss_ws_set_parent(ctxt->fhss_api, eui64, &bc_timing_info, force_synch);
+    ns_fhss_ws_set_parent(ctxt->fhss_api, eui64, &timing, force_synch);
 }
 
 static void wsmac_spinel_set_frame_counter_per_key(struct wsmac_ctxt *ctxt, mlme_attr_e attr, struct iobuf_read *buf)
@@ -301,16 +301,16 @@ static void wsmac_spinel_fhss_update_neighbor(struct wsmac_ctxt *ctxt, mlme_attr
         BUG_ON(i == ARRAY_SIZE(ctxt->neighbor_timings), "full");
     }
 
-    fhss_data->clock_drift                               = spinel_pop_u8(buf);
-    fhss_data->timing_accuracy                           = spinel_pop_u8(buf);
-    fhss_data->uc_channel_list.channel_count             = spinel_pop_u16(buf);
+    fhss_data->clock_drift                   = spinel_pop_u8(buf);
+    fhss_data->timing_accuracy               = spinel_pop_u8(buf);
+    fhss_data->uc_channel_list.channel_count = spinel_pop_u16(buf);
     spinel_pop_fixed_u8_array(buf, fhss_data->uc_channel_list.channel_mask, 32);
-    fhss_data->uc_timing_info.unicast_channel_function   = spinel_pop_u8(buf);
-    fhss_data->uc_timing_info.unicast_dwell_interval     = spinel_pop_u8(buf);
-    fhss_data->uc_timing_info.unicast_number_of_channels = spinel_pop_u16(buf);
-    fhss_data->uc_timing_info.fixed_channel              = spinel_pop_u16(buf);
-    fhss_data->uc_timing_info.ufsi                       = spinel_pop_u32(buf);
-    fhss_data->uc_timing_info.utt_rx_timestamp           = spinel_pop_u32(buf);
+    fhss_data->uc_chan_func                  = spinel_pop_u8(buf);
+    fhss_data->ffn.uc_dwell_interval_ms      = spinel_pop_u8(buf);
+    fhss_data->uc_chan_count                 = spinel_pop_u16(buf);
+    fhss_data->uc_chan_fixed                 = spinel_pop_u16(buf);
+    fhss_data->ffn.ufsi                      = spinel_pop_u32(buf);
+    fhss_data->ffn.utt_rx_tstamp_us          = spinel_pop_u32(buf);
     BUG_ON(iobuf_remaining_size(buf));
 }
 

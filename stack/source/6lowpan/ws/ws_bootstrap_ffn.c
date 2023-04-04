@@ -1272,9 +1272,9 @@ void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t
     if (!neighbor_info->ws_neighbor->synch_done) {
         ws_bootstrap_primary_parent_set(cur, neighbor_info, WS_EAPOL_PARENT_SYNCH);
     } else {
-        cur->ws_info.fhss_conf.fhss_bc_dwell_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval;
-        cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_interval;
-        rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, false);
+        cur->ws_info.fhss_conf.fhss_bc_dwell_interval  = neighbor_info->ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms;
+        cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.ffn.bc_interval_ms;
+        rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data, false);
     }
 }
 

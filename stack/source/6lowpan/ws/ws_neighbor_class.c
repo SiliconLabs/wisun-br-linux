@@ -107,29 +107,29 @@ static int own_ceil(float value)
 
 static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neighbor, uint24_t ufsi, uint32_t timestamp, const uint8_t address[8])
 {
-    if (ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp && ws_neighbor->fhss_data.uc_timing_info.ufsi) {
+    if (ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us && ws_neighbor->fhss_data.ffn.ufsi) {
         // No UFSI on fixed channel
-        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_FIXED_CHANNEL) {
+        if (ws_neighbor->fhss_data.uc_chan_func == WS_FIXED_CHANNEL) {
             return;
         }
         uint32_t seq_length = 0x10000;
-        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_TR51CF) {
-            seq_length = ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
+        if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
+            seq_length = ws_neighbor->fhss_data.uc_chan_count;
         }
-        uint32_t ufsi_prev_tmp = ws_neighbor->fhss_data.uc_timing_info.ufsi;
+        uint32_t ufsi_prev_tmp = ws_neighbor->fhss_data.ffn.ufsi;
         uint32_t ufsi_cur_tmp = ufsi;
-        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_DH1CF) {
+        if (ws_neighbor->fhss_data.uc_chan_func == WS_DH1CF) {
             if (ufsi_cur_tmp < ufsi_prev_tmp) {
                 ufsi_cur_tmp += 0xffffff;
             }
         }
         // Convert 24-bit UFSI to real time before drift calculation
-        uint32_t time_since_seq_start_prev_ms = own_ceil((float)((uint64_t)ufsi_prev_tmp * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
-        uint32_t time_since_seq_start_cur_ms = own_ceil((float)((uint64_t)ufsi_cur_tmp * seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval) / 0x1000000);
-        uint32_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+        uint32_t time_since_seq_start_prev_ms = own_ceil((float)((uint64_t)ufsi_prev_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000);
+        uint32_t time_since_seq_start_cur_ms = own_ceil((float)((uint64_t)ufsi_cur_tmp * seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms) / 0x1000000);
+        uint32_t time_since_last_ufsi_us = timestamp - ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
 
-        if (ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function == WS_TR51CF) {
-            uint32_t full_uc_schedule_ms = ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval * ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels;
+        if (ws_neighbor->fhss_data.uc_chan_func == WS_TR51CF) {
+            uint32_t full_uc_schedule_ms = ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms * ws_neighbor->fhss_data.uc_chan_count;
             uint32_t temp_ms;
 
             if (!full_uc_schedule_ms)
@@ -144,7 +144,7 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
         uint32_t ufsi_diff_ms = time_since_seq_start_cur_ms - time_since_seq_start_prev_ms;
         if (time_since_seq_start_cur_ms < time_since_seq_start_prev_ms)
             // add ufsi sequence length
-            ufsi_diff_ms += seq_length * ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval;
+            ufsi_diff_ms += seq_length * ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms;
 
         int32_t ufsi_drift_ms = (int32_t)(time_since_last_ufsi_us / 1000 - ufsi_diff_ms);
         // Only trace if there is significant error
@@ -155,18 +155,16 @@ static void ws_neighbor_calculate_ufsi_drift(ws_neighbor_class_entry_t *ws_neigh
 }
 
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
-                                 uint32_t timestamp, const uint8_t eui64[8])
+                                 uint32_t tstamp_us, const uint8_t eui64[8])
 {
-    struct unicast_timing_info *info = &neighbor->fhss_data.uc_timing_info;
+    ws_neighbor_calculate_ufsi_drift(neighbor, ufsi, tstamp_us, eui64);
 
-    ws_neighbor_calculate_ufsi_drift(neighbor, ufsi, timestamp, eui64);
-
-    if (info->utt_rx_timestamp == timestamp &&
-        info->ufsi             == ufsi)
+    if (neighbor->fhss_data.ffn.utt_rx_tstamp_us == tstamp_us &&
+        neighbor->fhss_data.ffn.ufsi             == ufsi)
         return; // Save an update
 
-    info->utt_rx_timestamp = timestamp;
-    info->ufsi             = ufsi;
+    neighbor->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
+    neighbor->fhss_data.ffn.ufsi             = ufsi;
     clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
     if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
@@ -177,9 +175,9 @@ void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t s
                                  uint24_t interval_offset,uint32_t timestamp)
 {
     neighbor->broadcast_timing_info_stored = true;
-    neighbor->fhss_data.bc_timing_info.bt_rx_timestamp           = timestamp;
-    neighbor->fhss_data.bc_timing_info.broadcast_slot            = slot_number;
-    neighbor->fhss_data.bc_timing_info.broadcast_interval_offset = interval_offset;
+    neighbor->fhss_data.ffn.bt_rx_tstamp_us       = timestamp;
+    neighbor->fhss_data.ffn.bc_slot               = slot_number;
+    neighbor->fhss_data.ffn.bc_interval_offset_ms = interval_offset;
 }
 
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
@@ -270,15 +268,15 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                            const struct ws_generic_channel_info *chan_info,
                            uint8_t dwell_interval, const uint8_t eui64[8])
 {
-    ws_neighbor->fhss_data.uc_timing_info.unicast_channel_function = chan_info->channel_function;
+    ws_neighbor->fhss_data.uc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_FIXED_CHANNEL) {
-        ws_neighbor->fhss_data.uc_timing_info.fixed_channel = chan_info->function.zero.fixed_channel;
-        ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels = 1;
+        ws_neighbor->fhss_data.uc_chan_fixed = chan_info->function.zero.fixed_channel;
+        ws_neighbor->fhss_data.uc_chan_count = 1;
     } else {
         ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.uc_channel_list, chan_info,
-                                  &ws_neighbor->fhss_data.uc_timing_info.unicast_number_of_channels);
+                                  &ws_neighbor->fhss_data.uc_chan_count);
     }
-    ws_neighbor->fhss_data.uc_timing_info.unicast_dwell_interval = dwell_interval;
+    ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
     if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
         rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
@@ -291,14 +289,14 @@ void ws_neighbor_class_bs_update(const struct net_if *net_if, ws_neighbor_class_
     uint16_t chan_cnt;
 
     ws_neighbor->broadcast_schedule_info_stored = true;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function = chan_info->channel_function;
+    ws_neighbor->fhss_data.bc_chan_func = chan_info->channel_function;
     if (chan_info->channel_function == WS_FIXED_CHANNEL)
-        ws_neighbor->fhss_data.bc_timing_info.fixed_channel = chan_info->function.zero.fixed_channel;
+        ws_neighbor->fhss_data.bc_chan_fixed = chan_info->function.zero.fixed_channel;
     else
         ws_neighbor_set_chan_list(net_if, &ws_neighbor->fhss_data.bc_channel_list, chan_info, &chan_cnt);
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval = dwell_interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_interval       = interval;
-    ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id    = bsi;
+    ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms = dwell_interval;
+    ws_neighbor->fhss_data.ffn.bc_interval_ms       = interval;
+    ws_neighbor->fhss_data.ffn.bsi                  = bsi;
 }
 
 uint8_t ws_neighbor_class_rsl_from_dbm_calculate(int8_t dbm_heard)
@@ -366,7 +364,7 @@ bool ws_neighbor_class_neighbor_duplicate_packet_check(ws_neighbor_class_entry_t
         return true;
     }
 
-    rx_timestamp -= ws_neighbor->fhss_data.uc_timing_info.utt_rx_timestamp;
+    rx_timestamp -= ws_neighbor->fhss_data.ffn.utt_rx_tstamp_us;
     rx_timestamp /= 1000000; //Convert to s
 
     //Compare only when last rx timestamp is less than 5 seconds

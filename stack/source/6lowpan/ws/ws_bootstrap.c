@@ -588,10 +588,10 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
     if (synch_req != WS_EAPOL_PARENT_SYNCH) {
         ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
     }
-    cur->ws_info.fhss_conf.ws_bc_channel_function = (fhss_ws_channel_functions_e)neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_channel_function;
+    cur->ws_info.fhss_conf.ws_bc_channel_function = (fhss_ws_channel_functions_e)neighbor_info->ws_neighbor->fhss_data.bc_chan_func;
     if (cur->ws_info.fhss_conf.ws_bc_channel_function == WS_FIXED_CHANNEL) {
-        cur->ws_info.hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
-        cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.fixed_channel;
+        cur->ws_info.hopping_schedule.bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_chan_fixed;
+        cur->ws_info.cfg->fhss.fhss_bc_fixed_channel = neighbor_info->ws_neighbor->fhss_data.bc_chan_fixed;
     } else {
         ws_common_generate_channel_list(cur,
                                         cur->ws_info.fhss_conf.broadcast_channel_mask,
@@ -608,16 +608,16 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
                                                                          cur->ws_info.fhss_conf.domain_channel_mask,
                                                                          cur->ws_info.hopping_schedule.number_of_channels);
     }
-    cur->ws_info.fhss_conf.bsi = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_schedule_id;
-    cur->ws_info.fhss_conf.fhss_bc_dwell_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_dwell_interval;
-    cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.bc_timing_info.broadcast_interval;
+    cur->ws_info.fhss_conf.bsi                     = neighbor_info->ws_neighbor->fhss_data.ffn.bsi;
+    cur->ws_info.fhss_conf.fhss_bc_dwell_interval  = neighbor_info->ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms;
+    cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.ffn.bc_interval_ms;
     cur->ws_info.fhss_conf.broadcast_fixed_channel = cur->ws_info.cfg->fhss.fhss_bc_fixed_channel;
     neighbor_info->ws_neighbor->synch_done = true;
 
     rcp_set_fhss_timings(&cur->ws_info.fhss_conf);
 
     // We have broadcast schedule set up set the broadcast parent schedule
-    rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data.bc_timing_info, synch_req != WS_PARENT_SOFT_SYNCH);
+    rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data, synch_req != WS_PARENT_SOFT_SYNCH);
 
     // Update LLC to follow updated fhss settings
     ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);

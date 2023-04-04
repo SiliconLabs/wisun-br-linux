@@ -381,7 +381,7 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
 }
 
 void rcp_set_fhss_parent(const uint8_t parent[8],
-                         const struct broadcast_timing_info *timing_info,
+                         const struct fhss_ws_neighbor_timing_info *timing_info,
                          bool force_synch)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
@@ -390,14 +390,14 @@ void rcp_set_fhss_parent(const uint8_t parent[8],
     spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_FHSS_SET_PARENT);
     spinel_push_fixed_u8_array(&buf, parent, 8);
     spinel_push_bool(&buf, force_synch);
-    spinel_push_u8(&buf, timing_info->broadcast_channel_function);
-    spinel_push_u8(&buf, timing_info->broadcast_dwell_interval);
-    spinel_push_u16(&buf, timing_info->fixed_channel);
-    spinel_push_u16(&buf, timing_info->broadcast_slot);
-    spinel_push_u16(&buf, timing_info->broadcast_schedule_id);
-    spinel_push_u32(&buf, timing_info->broadcast_interval_offset);
-    spinel_push_u32(&buf, timing_info->broadcast_interval);
-    spinel_push_u32(&buf, timing_info->bt_rx_timestamp);
+    spinel_push_u8(&buf, timing_info->bc_chan_func);
+    spinel_push_u8(&buf, timing_info->ffn.bc_dwell_interval_ms);
+    spinel_push_u16(&buf, timing_info->bc_chan_fixed);
+    spinel_push_u16(&buf, timing_info->ffn.bc_slot);
+    spinel_push_u16(&buf, timing_info->ffn.bsi);
+    spinel_push_u32(&buf, timing_info->ffn.bc_interval_offset_ms);
+    spinel_push_u32(&buf, timing_info->ffn.bc_interval_ms);
+    spinel_push_u32(&buf, timing_info->ffn.bt_rx_tstamp_us);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -414,12 +414,12 @@ void rcp_set_fhss_neighbor(const uint8_t neigh[8],
     spinel_push_u8(&buf, timing_info->timing_accuracy);
     spinel_push_u16(&buf, timing_info->uc_channel_list.channel_count);
     spinel_push_fixed_u8_array(&buf, timing_info->uc_channel_list.channel_mask, 32);
-    spinel_push_u8(&buf, timing_info->uc_timing_info.unicast_channel_function);
-    spinel_push_u8(&buf, timing_info->uc_timing_info.unicast_dwell_interval);
-    spinel_push_u16(&buf, timing_info->uc_timing_info.unicast_number_of_channels);
-    spinel_push_u16(&buf, timing_info->uc_timing_info.fixed_channel);
-    spinel_push_u32(&buf, timing_info->uc_timing_info.ufsi);
-    spinel_push_u32(&buf, timing_info->uc_timing_info.utt_rx_timestamp);
+    spinel_push_u8(&buf, timing_info->uc_chan_func);
+    spinel_push_u8(&buf, timing_info->ffn.uc_dwell_interval_ms);
+    spinel_push_u16(&buf, timing_info->uc_chan_count);
+    spinel_push_u16(&buf, timing_info->uc_chan_fixed);
+    spinel_push_u32(&buf, timing_info->ffn.ufsi);
+    spinel_push_u32(&buf, timing_info->ffn.utt_rx_tstamp_us);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -701,20 +701,20 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
     switch (fhss_type) {
     case HIF_FHSS_TYPE_FFN_UC:
         BUG_ON(!neighbor_ws);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.uc_timing_info.utt_rx_timestamp);
-        spinel_push_u32(&buf, neighbor_ws->fhss_data.uc_timing_info.ufsi);
-        spinel_push_u8(&buf, neighbor_ws->fhss_data.uc_timing_info.unicast_dwell_interval);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.ffn.utt_rx_tstamp_us);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.ffn.ufsi);
+        spinel_push_u8(&buf, neighbor_ws->fhss_data.ffn.uc_dwell_interval_ms);
         spinel_push_u8(&buf, neighbor_ws->fhss_data.clock_drift);
         spinel_push_u8(&buf, neighbor_ws->fhss_data.timing_accuracy);
 
-        switch (neighbor_ws->fhss_data.uc_timing_info.unicast_channel_function) {
+        switch (neighbor_ws->fhss_data.uc_chan_func) {
         case WS_FIXED_CHANNEL:
             flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_FIXED_CHANNEL);
-            spinel_push_u16(&buf, neighbor_ws->fhss_data.uc_timing_info.fixed_channel);
+            spinel_push_u16(&buf, neighbor_ws->fhss_data.uc_chan_fixed);
             break;
         case WS_DH1CF:
             flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_DH1CF);
-            len = roundup(neighbor_ws->fhss_data.uc_timing_info.unicast_number_of_channels, 8) / 8;
+            len = roundup(neighbor_ws->fhss_data.uc_chan_count, 8) / 8;
             spinel_push_u8(&buf, len);
             spinel_push_fixed_u8_array(&buf, neighbor_ws->fhss_data.uc_channel_list.channel_mask, len);
             break;

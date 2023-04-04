@@ -64,7 +64,7 @@ struct fhss_ws {
 
 fhss_structure_t *fhss_ws_enable(fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer);
 int fhss_ws_set_callbacks(fhss_structure_t *fhss_structure);
-int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch);
+int fhss_ws_set_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8], const struct fhss_ws_neighbor_timing_info *timing, const bool force_synch);
 int fhss_ws_remove_parent(fhss_structure_t *fhss_structure, const uint8_t eui64[8]);
 int fhss_ws_configuration_set(fhss_structure_t *fhss_structure, const fhss_ws_configuration_t *fhss_configuration);
 int fhss_ws_set_hop_count(fhss_structure_t *fhss_structure, const uint8_t hop_count);

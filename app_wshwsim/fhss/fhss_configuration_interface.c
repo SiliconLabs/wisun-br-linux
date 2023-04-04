@@ -46,13 +46,13 @@ fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration,
     return this;
 }
 
-int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info, const bool force_synch)
+int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const struct fhss_ws_neighbor_timing_info *timing, const bool force_synch)
 {
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
-    if (!fhss_structure || !eui64 || !bc_timing_info) {
+    if (!fhss_structure || !eui64 || !timing) {
         return -1;
     }
-    return fhss_ws_set_parent(fhss_structure, eui64, bc_timing_info, force_synch);
+    return fhss_ws_set_parent(fhss_structure, eui64, timing, force_synch);
 }
 
 int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8])

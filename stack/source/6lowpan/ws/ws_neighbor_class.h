@@ -105,7 +105,7 @@ void ws_neighbor_class_entry_remove(ws_neighbor_class_t *class_data, uint8_t att
 
 // Unicast Timing update
 void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t ufsi,
-                                 uint32_t timestamp, const uint8_t eui64[8]);
+                                 uint32_t tstamp_us, const uint8_t eui64[8]);
 // Broadcast Timing update
 void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t slot_number,
                                  uint24_t interval_offset, uint32_t timestamp);
