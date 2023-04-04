@@ -12,6 +12,7 @@
  */
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
+#include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
@@ -214,6 +215,28 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     }
 }
 
+void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
+{
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_LPA,
+        .wh_ies.utt     = true,
+        .wh_ies.bt      = true,
+        .wh_ies.lbt     = true,
+        .wh_ies.nr      = true,
+        .wh_ies.flus    = true,
+        .wh_ies.lbs     = true,
+        .wh_ies.panid   = true,
+        .wp_ies.bs      = true,
+        .wp_ies.pan     = true,
+        .wp_ies.netname = true,
+        .wp_ies.lcp     = true,
+    };
+
+    net_if->ws_info.pan_information.pan_size = ws_bbr_pan_size(net_if);
+    // TODO: JM-IE
+    ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_HIGH_PRIORITY);
+}
+
 void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext)
@@ -277,6 +300,6 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor, &ie_lcp.chan_plan, ie_lus.listen_interval);
     ws_neighbor_class_lnd_update(neighbor.ws_neighbor, &ie_lnd, data->timestamp);
 
-    // TODO
-    WARN("LPAS handling not yet implemented");
+    // TODO: Schedule the LPA transmission on a LFN listening slot
+    ws_mngt_lpa_send(net_if, data->SrcAddr);
 }

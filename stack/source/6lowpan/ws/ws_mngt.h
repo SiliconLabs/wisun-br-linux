@@ -14,6 +14,7 @@
 #define WS_FFN_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "common/trickle.h"
 
 /*
@@ -63,5 +64,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
 void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext);
+
+void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8]);
 
 #endif
