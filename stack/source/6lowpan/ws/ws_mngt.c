@@ -272,6 +272,9 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
         return;
     }
 
+    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                 data->timestamp, data->SrcAddr);
+
     // TODO
     WARN("LPAS handling not yet implemented");
 }

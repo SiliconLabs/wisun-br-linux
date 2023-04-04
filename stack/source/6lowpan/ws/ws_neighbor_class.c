@@ -180,6 +180,15 @@ void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t s
     neighbor->fhss_data.ffn.bc_interval_offset_ms = interval_offset;
 }
 
+void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
+                                  uint16_t slot_number, uint24_t interval_offset,
+                                  uint32_t tstamp_us, const uint8_t eui64[8])
+{
+    neighbor->fhss_data.lfn.lutt_rx_tstamp_us     = tstamp_us;
+    neighbor->fhss_data.lfn.uc_slot_number        = slot_number;
+    neighbor->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
+}
+
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;
