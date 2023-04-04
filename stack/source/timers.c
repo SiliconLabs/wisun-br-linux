@@ -3,6 +3,7 @@
 #include "stack/source/6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "stack/source/6lowpan/nd/nd_router_object.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
+#include "stack/source/6lowpan/ws/ws_mngt.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
@@ -57,6 +58,9 @@ static struct {
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                                          true),
     timer_entry(6LOWPAN_BOOTSTRAP,      nwk_bootstrap_timer,                        100,                                          true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                                         true),
+#ifdef HAVE_WS_BORDER_ROUTER
+    timer_entry(LPA,                    ws_mngt_lpa_timer_cb,                       0,                                            false),
+#endif
 };
 static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
 
@@ -69,6 +73,16 @@ void timer_start(enum timer_id id)
 void timer_stop(enum timer_id id)
 {
     s_timers[id].timeout = 0;
+}
+
+void timer_start_timeout(enum timer_id id, int timeout)
+{
+    s_timers[id].timeout = timeout / TIMER_GLOBAL_PERIOD_MS; // Rounded down
+}
+
+bool timer_is_running(enum timer_id id)
+{
+    return s_timers[id].timeout;
 }
 
 void timer_global_tick()

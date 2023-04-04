@@ -1,6 +1,8 @@
 #ifndef NS_TIMERS_H
 #define NS_TIMERS_H
 
+#include <stdbool.h>
+
 #define TIMER_GLOBAL_PERIOD_MS 50
 
 enum timer_id {
@@ -32,6 +34,9 @@ enum timer_id {
     TIMER_PAE_FAST,
     TIMER_PAE_SLOW,
     TIMER_DHCPV6_SOCKET,
+#ifdef HAVE_WS_BORDER_ROUTER
+    TIMER_LPA,
+#endif
     TIMER_COUNT,
 };
 
@@ -39,6 +44,10 @@ extern int g_monotonic_time_100ms;
 
 void timer_start(enum timer_id id);
 void timer_stop(enum timer_id id);
+
+// FIXME: This API exists only for LPA scheduling.
+void timer_start_timeout(enum timer_id id, int timeout);
+bool timer_is_running(enum timer_id id);
 
 void timer_global_tick();
 

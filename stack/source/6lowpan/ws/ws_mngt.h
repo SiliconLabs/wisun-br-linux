@@ -47,6 +47,7 @@ struct ws_mngt {
     int pcs_max_timeout;
     int pcs_count;
 #endif
+    uint8_t lpa_dst[8];
 };
 
 void ws_mngt_pa_analyze(struct net_if *net_if,
@@ -65,6 +66,6 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext);
 
-void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8]);
+void ws_mngt_lpa_timer_cb(int ticks);
 
 #endif

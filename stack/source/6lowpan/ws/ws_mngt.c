@@ -10,6 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <time.h>
+
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
@@ -22,8 +24,10 @@
 #include "stack/source/6lowpan/ws/ws_ie_validation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
+#include "stack/timers.h"
 #include "common/log.h"
 #include "common/named_values.h"
+#include "common/rand.h"
 #include "common/trickle.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_ie_list *ie_ext,
@@ -215,7 +219,7 @@ void ws_mngt_pcs_analyze(struct net_if *net_if,
     }
 }
 
-void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
+static void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_LPA,
@@ -237,6 +241,25 @@ void ws_mngt_lpa_send(struct net_if *net_if, const uint8_t dst[8])
     ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_HIGH_PRIORITY);
 }
 
+void ws_mngt_lpa_timer_cb(int ticks)
+{
+    struct net_if *net_if = protocol_stack_interface_info_get();
+
+    ws_mngt_lpa_send(net_if, net_if->ws_info.mngt.lpa_dst);
+}
+
+static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd, const uint8_t eui64[8])
+{
+    const uint16_t slot = rand_get_random_in_range(0, ie_lnd->discovery_slots);
+    const int timeout = slot * ie_lnd->discovery_slot_time + ie_lnd->response_delay;
+
+    // FIXME: The LPA slot should be chosen by the RCP. UART transmission
+    // delays likely implies that the slot is missed and one of the later
+    // slots is used instead (if any).
+    memcpy(net_if->ws_info.mngt.lpa_dst, eui64, 8);
+    timer_start_timeout(TIMER_LPA, timeout);
+}
+
 void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext)
@@ -248,6 +271,12 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     struct ws_lcp_ie ie_lcp;
     struct ws_nr_ie ie_nr;
     uint8_t rsl;
+
+    if (timer_is_running(TIMER_LPA)) {
+        TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
+              tr_ws_frame(WS_FT_LPAS), tr_eui64(net_if->ws_info.mngt.lpa_dst));
+        return;
+    }
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt)) {
         TRACE(TR_DROP, "drop %-9s: missing LUTT-IE", tr_ws_frame(WS_FT_LPAS));
@@ -300,6 +329,5 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor, &ie_lcp.chan_plan, ie_lus.listen_interval);
     ws_neighbor_class_lnd_update(neighbor.ws_neighbor, &ie_lnd, data->timestamp);
 
-    // TODO: Schedule the LPA transmission on a LFN listening slot
-    ws_mngt_lpa_send(net_if, data->SrcAddr);
+    ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
 }
