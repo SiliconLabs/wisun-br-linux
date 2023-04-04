@@ -25,6 +25,7 @@
 
 #include "6lowpan/ws/ws_neighbor_class.h"
 
+typedef enum mac_data_priority mac_data_priority_e;
 struct net_if;
 struct mcps_data_ind;
 struct mcps_data_ie_list;
@@ -166,6 +167,8 @@ struct mpx_api *ws_llc_mpx_api_get(struct net_if *interface);
  */
 int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *request);
 
+int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
+                            const uint8_t dst[8], mac_data_priority_e priority);
 
 /**
  * @brief ws_llc_set_network_name Configure WS Network name (Data of WS_WPIE_NETNAME IE element)

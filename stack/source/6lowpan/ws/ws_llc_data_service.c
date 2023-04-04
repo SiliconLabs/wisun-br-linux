@@ -199,7 +199,6 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 static bool test_skip_first_init_response = false;
 static uint8_t test_drop_data_message = 0;
 
-
 int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -1714,6 +1713,52 @@ int8_t ws_llc_asynch_request(struct net_if *interface, struct ws_llc_mngt_req *r
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
 
+    return 0;
+}
+
+// TODO: Factorize this with MPX and EAPOL
+// The Wi-SUN spec uses the term "directed frames" for LPA and LPC, but it
+// seems to just mean unicast.
+int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_req *req,
+                            const uint8_t dst[8], mac_data_priority_e priority)
+{
+    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
+    mcps_data_req_t data_req = {
+        .SeqNumSuppressed = true,
+        .PanIdSuppressed  = true,
+        .SrcAddrMode = MAC_ADDR_MODE_64_BIT,
+        .Key = req->security,
+        .priority  = priority,
+        .fhss_type = req->frame_type == WS_FT_LPA ? HIF_FHSS_TYPE_LFN_PA : HIF_FHSS_TYPE_LFN_UC,
+    };
+    llc_message_t *msg;
+
+    if (!base)
+        return -1;
+
+    msg = llc_message_allocate(base);
+    if (!msg) {
+        WARN("%s: tx abort", __func__);
+        // FIXME: No confirmation callback
+        return 0;
+    }
+
+    // Add To active list
+    llc_message_id_allocate(msg, base, false);
+    base->llc_message_list_size++;
+    random_early_detection_aq_calc(interface->llc_random_early_detection, base->llc_message_list_size);
+    ns_list_add_to_end(&base->llc_message_list, msg);
+    msg->message_type = req->frame_type;
+    msg->priority     = priority;
+
+    BUG_ON(!dst);
+    data_req.DstAddrMode = MAC_ADDR_MODE_64_BIT;
+    memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
+    data_req.msduHandle = msg->msg_handle;
+
+    ws_llc_prepare_ie(base, msg, req->wh_ies, req->wp_ies);
+    ws_trace_llc_mac_req(&data_req, msg);
+    wsbr_data_req_ext(base->interface_ptr, &data_req, &msg->ie_ext);
     return 0;
 }
 
