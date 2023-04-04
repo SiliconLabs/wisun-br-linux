@@ -767,37 +767,28 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
 
 static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
 {
+    struct llc_data_base *base = ws_llc_discover_by_interface(net_if);
+    struct mcps_data_ie_list ie_list;
     struct iobuf_read ie_buf;
 
-    llc_data_base_t *base = ws_llc_discover_by_interface(net_if);
     if (!base || !base->mngt_ind)
         return;
 
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_buf);
-    if (ie_buf.err)
+    if (ie_buf.err) {
+        TRACE(TR_DROP, "drop %-9s: missing WP-IE", tr_ws_frame(frame_type));
         return;
-
-    switch (frame_type) {
-        case WS_FT_PA:
-        case WS_FT_PC:
-        case WS_FT_PCS:
-        case WS_FT_LPA:
-        case WS_FT_LPC:
-        case WS_FT_LPCS:
-            ws_llc_release_eapol_temp_entry(base->temp_entries, data->SrcAddr);
-            break;
-        default:
-            break;
     }
 
-    mcps_data_ie_list_t asynch_ie_list;
-    asynch_ie_list.headerIeList = ie_ext->headerIeList,
-    asynch_ie_list.headerIeListLength = ie_ext->headerIeListLength;
+    ws_llc_release_eapol_temp_entry(base->temp_entries, data->SrcAddr);
+
+    ie_list.headerIeList = ie_ext->headerIeList,
+    ie_list.headerIeListLength = ie_ext->headerIeListLength;
     // FIXME: Despite the member being called "payloadIeList", we are storing
     // the content of the WP-IE instead.
-    asynch_ie_list.payloadIeList       = ie_buf.data;
-    asynch_ie_list.payloadIeListLength = ie_buf.data_size;
-    base->mngt_ind(base->interface_ptr, data, &asynch_ie_list, frame_type);
+    ie_list.payloadIeList       = ie_buf.data;
+    ie_list.payloadIeListLength = ie_buf.data_size;
+    base->mngt_ind(base->interface_ptr, data, &ie_list, frame_type);
 }
 
 static const struct name_value ws_frames[] = {
