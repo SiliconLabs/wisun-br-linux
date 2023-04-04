@@ -706,7 +706,32 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
         spinel_push_u8(&buf, neighbor_ws->fhss_data.ffn.uc_dwell_interval_ms);
         spinel_push_u8(&buf, neighbor_ws->fhss_data.clock_drift);
         spinel_push_u8(&buf, neighbor_ws->fhss_data.timing_accuracy);
-
+        break;
+    case HIF_FHSS_TYPE_FFN_BC:
+        flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
+        break;
+    case HIF_FHSS_TYPE_LFN_UC:
+        BUG_ON(!neighbor_ws);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lutt_rx_tstamp_us);
+        spinel_push_u16(&buf, neighbor_ws->fhss_data.lfn.uc_slot_number);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_interval_offset_ms);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_listen_interval_ms);
+        break;
+    case HIF_FHSS_TYPE_ASYNC:
+        spinel_push_u32(&buf, ctxt->config.ws_async_frag_duration);
+        break;
+    case HIF_FHSS_TYPE_LFN_PA:
+        BUG_ON(!neighbor_ws);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lnd_rx_tstamp_us);
+        spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.lpa_response_delay_ms);
+        spinel_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_duration_ms);
+        spinel_push_u8(&buf,  neighbor_ws->fhss_data.lfn.lpa_slot_count);
+        spinel_push_u16(&buf, neighbor_ws->fhss_data.lfn.lpa_slot_first);
+        break;
+    default:
+        BUG();
+    }
+    if (fhss_type == HIF_FHSS_TYPE_FFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_UC || fhss_type == HIF_FHSS_TYPE_LFN_PA) {
         switch (neighbor_ws->fhss_data.uc_chan_func) {
         case WS_FIXED_CHANNEL:
             flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, WS_FIXED_CHANNEL);
@@ -721,16 +746,8 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
         default:
             BUG();
         }
-        break;
-    case HIF_FHSS_TYPE_FFN_BC:
+    } else {
         flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
-        break;
-    case HIF_FHSS_TYPE_ASYNC:
-        flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
-        spinel_push_u32(&buf, ctxt->config.ws_async_frag_duration);
-        break;
-    default:
-        BUG();
     }
     flags |= FIELD_PREP(HIF_FHSS_EDFE_MASK, is_edfe);
     if (phy_id) {
