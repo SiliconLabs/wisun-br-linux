@@ -107,27 +107,28 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
 
 uint16_t test_pan_version = 1;
 
-static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *mac64)
+static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_allocate(struct net_if *interface, const uint8_t *mac64, uint8_t role)
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_entry_allocate(interface->mac_parameters.mac_neighbor_table, mac64);
 
     if (!neighbor)
         return NULL;
-    neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get();
-    neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get();
+    neighbor->node_role = role;
+    neighbor->lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
+    neighbor->link_lifetime = ws_cfg_neighbour_temporary_lifetime_get(role);
     rcp_set_neighbor(neighbor->index, mac_helper_panid_get(interface), neighbor->mac16, neighbor->mac64, 0);
     tr_debug("neighbor[%d] = %s, lifetime=%d (new)", neighbor->index, tr_eui64(neighbor->mac64), neighbor->lifetime);
     return neighbor;
 }
 
-mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64)
+static mac_neighbor_table_entry_t *ws_bootstrap_mac_neighbor_add(struct net_if *interface, const uint8_t *src64, uint8_t role)
 {
     mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(interface->mac_parameters.mac_neighbor_table, src64, MAC_ADDR_MODE_64_BIT);
     if (neighbor) {
         return neighbor;
     }
 
-    return ws_bootstrap_mac_neighbor_allocate(interface, src64);
+    return ws_bootstrap_mac_neighbor_allocate(interface, src64, role);
 }
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64)
@@ -939,12 +940,12 @@ bool ws_bootstrap_neighbor_get(struct net_if *net_if, const uint8_t eui64[8], st
     return true;
 }
 
-bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor)
+bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], struct llc_neighbour_req *neighbor, uint8_t role)
 {
     ws_bootstrap_neighbor_table_clean(net_if);
 
     neighbor->ws_neighbor = NULL;
-    neighbor->neighbor = ws_bootstrap_mac_neighbor_add(net_if, eui64);
+    neighbor->neighbor = ws_bootstrap_mac_neighbor_add(net_if, eui64, role);
     if (!neighbor->neighbor)
         return false;
 
@@ -1778,7 +1779,7 @@ static bool ws_rpl_new_parent_callback(uint8_t *ll_parent_address, void *handle,
     //Create entry
     create_ok = ws_bootstrap_neighbor_get(cur, entry->mac64, &neigh_buffer);
     if (!create_ok)
-        ws_bootstrap_neighbor_add(cur, entry->mac64, &neigh_buffer);
+        ws_bootstrap_neighbor_add(cur, entry->mac64, &neigh_buffer, WS_NR_ROLE_ROUTER);
     if (create_ok) {
         ws_neighbor_class_entry_t *ws_neigh = neigh_buffer.ws_neighbor;
         ws_bootstrap_neighbor_set_stable(cur, entry->mac64);

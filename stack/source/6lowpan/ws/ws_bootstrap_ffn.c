@@ -348,7 +348,7 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
 
     llc_neighbour_req_t neighbor_info;
     if (!ws_bootstrap_neighbor_get(cur, parent_ptr->addr, &neighbor_info) &&
-        !ws_bootstrap_neighbor_add(cur, parent_ptr->addr, &neighbor_info)) {
+        !ws_bootstrap_neighbor_add(cur, parent_ptr->addr, &neighbor_info, WS_NR_ROLE_ROUTER)) {
         //Remove Neighbour and set Link setup back
         ns_list_remove(&cur->ws_info.parent_list_reserved, parent_ptr);
         ns_list_add_to_end(&cur->ws_info.parent_list_free, parent_ptr);
@@ -749,7 +749,7 @@ static void ws_bootstrap_ffn_pan_config_analyse(struct net_if *cur, const struct
     } else {
         neighbour_pointer_valid = ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info);
         if (!neighbour_pointer_valid)
-            neighbour_pointer_valid = ws_bootstrap_neighbor_add(cur, data->SrcAddr, &neighbor_info);
+            neighbour_pointer_valid = ws_bootstrap_neighbor_add(cur, data->SrcAddr, &neighbor_info, WS_NR_ROLE_ROUTER);
         if (!neighbour_pointer_valid)
             return;
         ws_bootstrap_neighbor_set_stable(cur, data->SrcAddr);

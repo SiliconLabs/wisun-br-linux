@@ -218,6 +218,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext)
 {
+    llc_neighbour_req_t neighbor;
     struct ws_lutt_ie ie_lutt;
     struct ws_lus_ie ie_lus;
     struct ws_lnd_ie ie_lnd;
@@ -262,6 +263,12 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     rsl = ws_neighbor_class_rsl_from_dbm_calculate(data->signal_dbm);
     if (rsl < (DEVICE_MIN_SENS + ie_lnd.response_threshold)) {
         TRACE(TR_DROP, "drop %-9s: RSL below LND-IE response threshold", tr_ws_frame(WS_FT_LPAS));
+        return;
+    }
+
+    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor) &&
+        !ws_bootstrap_neighbor_add(net_if, data->SrcAddr, &neighbor, WS_NR_ROLE_LFN)) {
+        TRACE(TR_DROP, "drop %-9s: could not allocate neighbor %s", tr_ws_frame(WS_FT_LPAS), tr_eui64(data->SrcAddr));
         return;
     }
 

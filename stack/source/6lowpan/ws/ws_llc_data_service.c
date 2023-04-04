@@ -630,7 +630,7 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
     }
 
     if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, &neighbor) &&
-        !(req_new_ngb && ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, &neighbor))) {
+        !(req_new_ngb && ws_bootstrap_neighbor_add(base->interface_ptr, data->SrcAddr, &neighbor, WS_NR_ROLE_ROUTER))) {
         if (!multicast) {
             //tr_debug("Drop message no neighbor");
             return;

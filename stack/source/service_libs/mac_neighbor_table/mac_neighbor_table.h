@@ -49,6 +49,7 @@ typedef struct mac_neighbor_table_entry {
     bool            trusted_device: 1;      /*!< True mean use normal group key, false for enable pairwise key */
     bool            nud_active: 1;          /*!< True Neighbor NUD process is active, false not active process */
     unsigned        link_role: 2;           /*!< Link role: NORMAL_NEIGHBOUR, PRIORITY_PARENT_NEIGHBOUR, SECONDARY_PARENT_NEIGHBOUR, CHILD_NEIGHBOUR */
+    uint8_t         node_role;
     ns_list_link_t  link;
 } mac_neighbor_table_entry_t;
 
