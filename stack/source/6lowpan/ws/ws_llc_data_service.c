@@ -199,6 +199,16 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
 static bool test_skip_first_init_response = false;
 static uint8_t test_drop_data_message = 0;
 
+static uint8_t ws_llc_get_node_role(struct net_if *interface, const uint8_t eui64[8])
+{
+    llc_neighbour_req_t neighbor;
+
+    if (ws_bootstrap_neighbor_get(interface, eui64, &neighbor))
+        return neighbor.neighbor->node_role;
+    else
+        return WS_NR_ROLE_UNKNOWN;
+}
+
 int8_t ws_test_skip_edfe_data_send(int8_t interface_id, bool skip)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -1167,7 +1177,6 @@ static void ws_llc_eapol_data_req_init(mcps_data_req_t *data_req, llc_message_t 
     data_req->msduLength = 0;
     data_req->msduHandle = message->msg_handle;
     data_req->priority = message->priority;
-    data_req->fhss_type = data_req->DstAddrMode ? HIF_FHSS_TYPE_FFN_UC : HIF_FHSS_TYPE_FFN_BC;
     ws_llc_lowpan_mpx_header_write(message, MPX_KEY_MANAGEMENT_ENC_USER_ID);
 }
 
@@ -1191,6 +1200,11 @@ static void ws_llc_mpx_eapol_send(llc_data_base_t *base, llc_message_t *message)
     ns_list_add_to_end(&base->llc_message_list, message);
     ws_llc_eapol_data_req_init(&data_req, message);
     base->temp_entries->active_eapol_session = true;
+    BUG_ON(data_req.DstAddrMode != MAC_ADDR_MODE_64_BIT); // EAPOL frames are unicast
+    if (ws_llc_get_node_role(base->interface_ptr, message->dst_address) == WS_NR_ROLE_LFN)
+        data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
+    else
+        data_req.fhss_type = HIF_FHSS_TYPE_FFN_UC;
 
     ws_trace_llc_mac_req(&data_req, message);
     wsbr_data_req_ext(base->interface_ptr, &data_req, &message->ie_ext);
