@@ -706,6 +706,88 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
+static void ws_llc_data_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data,
+                                const mcps_data_ie_list_t *ie_ext)
+{
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_DATA);
+    mcps_data_ind_t data_ind = *data;
+    bool has_lus, has_lcp, has_pom;
+    llc_neighbour_req_t neighbor;
+    struct ws_lutt_ie ie_lutt;
+    struct iobuf_read ie_wp;
+    struct ws_lus_ie ie_lus;
+    struct ws_lcp_ie ie_lcp;
+    struct ws_pom_ie ie_pom;
+    mpx_user_t *mpx_user;
+    mpx_msg_t mpx_frame;
+
+    if (!base)
+        return;
+    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
+    if (!mpx_user)
+        return;
+
+    // TODO: Factorize this code with LPCS and EAPOL LFN indication
+    has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
+    has_pom = ws_wp_nested_pom_read(ie_wp.data, ie_wp.data_size, &ie_pom);
+    has_lcp = false;
+    if (has_lus && ie_lus.channel_plan_tag != WS_CHAN_PLAN_TAG_CURRENT) {
+        has_lcp = ws_wp_nested_lcp_read(ie_ext->headerIeList, ie_ext->headerIeListLength,
+                                        ie_lus.channel_plan_tag, &ie_lcp);
+        if (!has_lcp) {
+            TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_DATA));
+            return;
+        }
+        if (!ws_ie_validate_lcp(&base->interface_ptr->ws_info, &ie_lcp))
+            return;
+    }
+
+    if (data->Key.SecurityLevel)
+        ws_llc_release_eapol_temp_entry(base->temp_entries, data->SrcAddr);
+
+    if (!ws_bootstrap_neighbor_get(base->interface_ptr, data->SrcAddr, &neighbor)) {
+        TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_DATA), tr_eui64(data->SrcAddr));
+        return;
+    }
+
+    if (!data->DstAddrMode && !data->DSN_suppressed &&
+        !ws_neighbor_class_neighbor_duplicate_packet_check(neighbor.ws_neighbor, data->DSN, data->timestamp)) {
+        TRACE(TR_DROP, "drop %-9s: duplicate message", tr_ws_frame(WS_FT_DATA));
+        return;
+    }
+
+    if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
+        BUG("Missing LUTT-IE in ULAD frame from LFN");
+    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                 data->timestamp, data->SrcAddr);
+    if (has_lus)
+        ws_neighbor_class_lus_update(base->interface_ptr, neighbor.ws_neighbor,
+                                     has_lcp ? &ie_lcp.chan_plan : NULL,
+                                     ie_lus.listen_interval);
+
+    if (data->DstAddrMode == ADDR_802_15_4_LONG)
+        neighbor.ws_neighbor->unicast_data_rx = true;
+
+    // Calculate RSL for all UDATA packets heard
+    ws_neighbor_class_rsl_in_calculate(neighbor.ws_neighbor, data->signal_dbm);
+
+    if (neighbor.neighbor) {
+        if (data->Key.SecurityLevel)
+            mac_neighbor_table_trusted_neighbor(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor.neighbor, true);
+        if (has_pom)
+            mac_neighbor_update_pom(neighbor.neighbor, ie_pom.phy_op_mode_number,
+                                    ie_pom.phy_op_mode_id, ie_pom.mdr_command_capable);
+        ws_bootstrap_neighbor_set_stable(base->interface_ptr, data->SrcAddr);
+    }
+
+    if (!neighbor.neighbor)
+        data_ind.Key.SecurityLevel = 0;
+    data_ind.msdu_ptr = mpx_frame.frame_ptr;
+    data_ind.msduLength = mpx_frame.frame_length;
+    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+}
+
 static bool ws_llc_eapol_neighbor_get(llc_data_base_t *base, const mcps_data_ind_t *data, llc_neighbour_req_t *neighbor)
 {
     ws_neighbor_temp_class_t *tmp;
@@ -968,8 +1050,11 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
 
     if (ws_is_frame_mngt(frame_type)) {
         ws_llc_mngt_ind(net_if, data, ie_ext, frame_type);
-    } else if (frame_type == WS_FT_DATA && has_utt) {
-        ws_llc_data_ffn_ind(net_if, data, ie_ext);
+    } else if (frame_type == WS_FT_DATA) {
+        if (has_utt)
+            ws_llc_data_ffn_ind(net_if, data, ie_ext);
+        else
+            ws_llc_data_lfn_ind(net_if, data, ie_ext);
     } else if (frame_type == WS_FT_EAPOL) {
         if (has_utt)
             ws_llc_eapol_ffn_ind(net_if, data, ie_ext);
