@@ -37,49 +37,42 @@ struct mac_neighbor_table_entry;
 struct ws_neighbor_temp_class;
 struct mpx_api;
 
+struct wh_ie_list {
+    bool utt:   1;
+    bool bt:    1;
+    bool fc:    1;
+    bool rsl:   1;
+    bool ea:    1;
+    bool lutt:  1;
+    bool lbt:   1;
+    bool nr:    1;
+    bool lus:   1;
+    bool flus:  1;
+    bool lbs:   1;
+    bool lnd:   1;
+    bool lto:   1;
+    bool panid: 1;
+    bool lbc:   1;
+};
 
-/**
- * @brief wh_ie_sub_list_t ws asynch header IE elemnt request list
- */
-typedef struct wh_ie_sub_list {
-    bool utt_ie: 1;  /**< Unicast Timing and Frame type information */
-    bool bt_ie: 1;   /**< Broadcast timing information */
-    bool fc_ie: 1;   /**< Flow Control for Extended Direct Frame Exchange */
-    bool rsl_ie: 1;  /**< Received Signal Level information */
-    bool ea_ie: 1;   /**< EAPOL autheticator EUI-64 header information */
-    bool lutt_ie: 1;  /**< LFN Unicast Timing and Frame Type information */
-    bool lbt_ie: 1;   /**< LFN Broadcast Timing information */
-    bool nr_ie: 1;    /**< Node Role information */
-    bool lus_ie: 1;   /**< LFN Unicast Schedule information */
-    bool flus_ie: 1;  /**< FFN for LFN unicast Schedule information */
-    bool lbs_ie: 1;   /**< LFN Broadcast Schedule information */
-    bool lnd_ie: 1;   /**< LFN Network Discovery information */
-    bool lto_ie: 1;   /**< LFN Timing information */
-    bool panid_ie: 1; /**< PAN Identifier information */
-    bool lbc_ie: 1;   /**< LFN Broadcast Configuration information */
-} wh_ie_sub_list_t;
-
-/**
- * @brief wp_nested_ie_sub_list_t ws asynch Nested Payload sub IE element request list
- */
-typedef struct wp_nested_ie_sub_list {
-    bool us_ie: 1;                  /**< Unicast Schedule information */
-    bool bs_ie: 1;                  /**< Broadcast Schedule information */
-    bool pan_ie: 1;                 /**< PAN Information */
-    bool net_name_ie: 1;            /**< Network Name information */
-    bool pan_version_ie: 1;         /**< Pan configuration version */
-    bool gtkhash_ie: 1;             /**< GTK Hash information */
-    bool lgtkhash_ie: 1;            /**< LFN GTK Hash */
-    bool lfnver_ie: 1;              /**< LFN Version */
-    bool lcp_ie: 1;                 /**< LFN Channel Plan information */
-    bool lbats_ie: 1;               /**< LFN Broadcast Additional Transmit Schedule */
-    bool pom_ie: 1;                 /**< PHY Operating Modes information */
-} wp_nested_ie_sub_list_t;
+struct wp_ie_list {
+    bool us:       1;
+    bool bs:       1;
+    bool pan:      1;
+    bool netname:  1;
+    bool panver:   1;
+    bool gtkhash:  1;
+    bool lgtkhash: 1;
+    bool lfnver:   1;
+    bool lcp:      1;
+    bool lbats:    1;
+    bool pom:      1;
+};
 
 struct ws_llc_mngt_req {
     uint8_t frame_type;
-    wh_ie_sub_list_t wh_ies;
-    wp_nested_ie_sub_list_t wp_ies;
+    struct wh_ie_list wh_ies;
+    struct wp_ie_list wp_ies;
     struct mlme_security security;
 };
 

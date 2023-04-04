@@ -2138,11 +2138,11 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PA,
-        .wh_ies.utt_ie      = true,
-        .wp_ies.us_ie       = true,
-        .wp_ies.pan_ie      = true,
-        .wp_ies.net_name_ie = true,
-        .wp_ies.pom_ie      = ws_version_1_1(cur),
+        .wh_ies.utt     = true,
+        .wp_ies.us      = true,
+        .wp_ies.pan     = true,
+        .wp_ies.netname = true,
+        .wp_ies.pom     = ws_version_1_1(cur),
     };
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -2163,15 +2163,15 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PC,
-        .wh_ies.utt_ie         = true,
-        .wh_ies.bt_ie          = true,
-        .wh_ies.lbc_ie         = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
-        .wp_ies.us_ie          = true,
-        .wp_ies.bs_ie          = true,
-        .wp_ies.pan_version_ie = true,
-        .wp_ies.gtkhash_ie     = true,
-        .wp_ies.lgtkhash_ie    = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
-        .wp_ies.lfnver_ie      = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wh_ies.utt      = true,
+        .wh_ies.bt       = true,
+        .wh_ies.lbc      = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wp_ies.us       = true,
+        .wp_ies.bs       = true,
+        .wp_ies.panver   = true,
+        .wp_ies.gtkhash  = true,
+        .wp_ies.lgtkhash = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
+        .wp_ies.lfnver   = ws_version_1_1(cur) ? cur->ws_info.pan_information.lpan_version_set : false,
         .security.SecurityLevel = cur->mac_parameters.mac_security_level,
         .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
     };

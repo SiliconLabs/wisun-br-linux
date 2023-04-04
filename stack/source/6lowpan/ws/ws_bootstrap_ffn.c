@@ -1339,10 +1339,10 @@ static void ws_bootstrap_pan_advert_solicit(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PAS,
-        .wh_ies.utt_ie      = true,
-        .wp_ies.us_ie       = true,
-        .wp_ies.net_name_ie = true,
-        .wp_ies.pom_ie      = ws_version_1_1(cur),
+        .wh_ies.utt     = true,
+        .wp_ies.us      = true,
+        .wp_ies.netname = true,
+        .wp_ies.pom     = ws_version_1_1(cur),
     };
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PAS, 1);
@@ -1397,9 +1397,9 @@ static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
         .frame_type = WS_FT_PCS,
-        .wh_ies.utt_ie      = true,
-        .wp_ies.us_ie       = true,
-        .wp_ies.net_name_ie = true,
+        .wh_ies.utt     = true,
+        .wp_ies.us      = true,
+        .wp_ies.netname = true,
     };
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PCS, 1);
