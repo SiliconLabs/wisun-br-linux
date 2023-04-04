@@ -189,6 +189,15 @@ void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
     neighbor->fhss_data.lfn.uc_interval_offset_ms = interval_offset;
 }
 
+void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint32_t tstamp_us)
+{
+    neighbor->fhss_data.lfn.lpa_response_delay_ms = ie_lnd->response_delay;
+    neighbor->fhss_data.lfn.lpa_slot_duration_ms  = ie_lnd->discovery_slot_time;
+    neighbor->fhss_data.lfn.lpa_slot_count        = ie_lnd->discovery_slots;
+    neighbor->fhss_data.lfn.lpa_slot_first        = ie_lnd->discovery_first_slot;
+    neighbor->fhss_data.lfn.lnd_rx_tstamp_us      = tstamp_us;
+}
+
 static void ws_neighbour_excluded_mask_by_range(ws_channel_mask_t *channel_info, const ws_excluded_channel_range_t *range_info, uint16_t number_of_channels)
 {
     uint16_t range_start, range_stop;

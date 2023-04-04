@@ -113,6 +113,8 @@ void ws_neighbor_class_bt_update(ws_neighbor_class_entry_t *neighbor, uint16_t s
 void ws_neighbor_class_lut_update(ws_neighbor_class_entry_t *neighbor,
                                   uint16_t slot_number, uint24_t interval_offset,
                                   uint32_t tstamp_us, const uint8_t eui64[8]);
+// LFN Network Discovery update
+void ws_neighbor_class_lnd_update(ws_neighbor_class_entry_t *neighbor, const struct ws_lnd_ie *ie_lnd, uint32_t tstamp_us);
 
 // Unicast Schedule update
 void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_entry_t *ws_neighbor,

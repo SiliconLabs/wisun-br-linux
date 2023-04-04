@@ -60,6 +60,12 @@ typedef struct fhss_ws_neighbor_timing_info {
             uint16_t uc_slot_number;        // from LUTT-IE
             uint24_t uc_interval_offset_ms; // from LUTT-IE
             uint32_t lutt_rx_tstamp_us;
+
+            uint24_t lpa_response_delay_ms; // from LND-IE
+            uint8_t  lpa_slot_duration_ms;  // from LND-IE
+            uint8_t  lpa_slot_count;        // from LND-IE
+            uint16_t lpa_slot_first;        // from LND-IE
+            uint32_t lnd_rx_tstamp_us;
         } lfn;
     };
     uint8_t  uc_chan_func;  // from US-IE or LUS-IE/LCP-IE
