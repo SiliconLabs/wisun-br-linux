@@ -907,6 +907,11 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
+    if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 23, 0)) {
+        TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.23.0", tr_ws_frame(frame_type));
+        return;
+    }
+
     if (ws_is_frame_mngt(frame_type))
         ws_llc_asynch_indication(net_if, data, ie_ext, frame_type);
     else if (frame_type == WS_FT_DATA && has_utt)
