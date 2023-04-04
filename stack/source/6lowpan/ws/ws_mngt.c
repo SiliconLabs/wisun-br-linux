@@ -14,6 +14,7 @@
 
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
+#include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
@@ -330,4 +331,67 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     ws_neighbor_class_lnd_update(neighbor.ws_neighbor, &ie_lnd, data->timestamp);
 
     ws_mngt_lpa_schedule(net_if, &ie_lnd, data->SrcAddr);
+}
+
+static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
+{
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_LPC,
+        .wh_ies.utt      = true,
+        .wh_ies.lbt      = true,
+        .wp_ies.lfnver   = true,
+        .wp_ies.lgtkhash = true,
+        .security.SecurityLevel = net_if->mac_parameters.mac_security_level,
+        .security.KeyIdMode     = net_if->mac_parameters.mac_key_id_mode,
+        .security.KeyIndex      = net_if->mac_parameters.mac_default_lfn_key_index,
+    };
+
+    ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_MEDIUM_PRIORITY);
+}
+
+void ws_mngt_lpcs_analyze(struct net_if *net_if,
+                          const struct mcps_data_ind *data,
+                          const struct mcps_data_ie_list *ie_ext)
+{
+    llc_neighbour_req_t neighbor;
+    struct ws_lutt_ie ie_lutt;
+    struct ws_lus_ie ie_lus;
+    struct ws_lcp_ie ie_lcp;
+    bool has_lus, has_lcp;
+
+    if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt)) {
+        TRACE(TR_DROP, "drop %-s: missing LUTT-IE", tr_ws_frame(WS_FT_LPCS));
+        return;
+    }
+    BUG_ON(ie_lutt.message_type != WS_FT_LPCS);
+    if (!ws_mngt_ie_netname_validate(net_if, ie_ext, WS_FT_LPCS))
+        return;
+
+    // TODO: Factorize this code with EAPOL and MPX LFN indication
+    has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
+    has_lcp = false;
+    if (has_lus && ie_lus.channel_plan_tag != WS_CHAN_PLAN_TAG_CURRENT) {
+        has_lcp = ws_wp_nested_lcp_read(ie_ext->headerIeList, ie_ext->headerIeListLength,
+                                        ie_lus.channel_plan_tag, &ie_lcp);
+        if (!has_lcp) {
+            TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_LPCS));
+            return;
+        }
+        if (!ws_ie_validate_lcp(&net_if->ws_info, &ie_lcp))
+            return;
+    }
+
+    if (!ws_bootstrap_neighbor_get(net_if, data->SrcAddr, &neighbor)) {
+        TRACE(TR_DROP, "drop %-9s: unknown neighbor %s", tr_ws_frame(WS_FT_LPCS), tr_eui64(data->SrcAddr));
+        return;
+    }
+
+    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                 data->timestamp, data->SrcAddr);
+    if (has_lus)
+        ws_neighbor_class_lus_update(net_if, neighbor.ws_neighbor,
+                                     has_lcp ? &ie_lcp.chan_plan : NULL,
+                                     ie_lus.listen_interval);
+
+    ws_mngt_lpc_send(net_if, data->SrcAddr);
 }

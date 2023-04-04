@@ -803,6 +803,7 @@ static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_in
     has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
     ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
     has_lcp = false;
+    // TODO: Factorize this code with LPCS and MPX LFN indication
     if (has_lus && ie_lus.channel_plan_tag != WS_CHAN_PLAN_TAG_CURRENT) {
         has_lcp = ws_wp_nested_lcp_read(ie_ext->headerIeList, ie_ext->headerIeListLength,
                                         ie_lus.channel_plan_tag, &ie_lcp);
