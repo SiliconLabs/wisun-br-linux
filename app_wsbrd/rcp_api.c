@@ -185,6 +185,8 @@ void rcp_allocate_fhss(const struct fhss_ws_configuration *timing_info)
     spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 12, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
+    if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
+        spinel_push_u32(&buf, timing_info->lfn_bc_interval);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
@@ -372,6 +374,8 @@ void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
     spinel_push_u8(&buf, timing_info->config_parameters.number_of_channel_retries);
     if (!version_older_than(ctxt->rcp.version_api, 0, 18, 0))
         spinel_push_fixed_u8_array(&buf, timing_info->broadcast_channel_mask, 32);
+    if (!version_older_than(ctxt->rcp.version_api, 0, 23, 0))
+        spinel_push_u32(&buf, timing_info->lfn_bc_interval);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
 }
