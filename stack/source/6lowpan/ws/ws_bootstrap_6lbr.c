@@ -313,6 +313,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             //Clear Pending Key Index State
             cur->ws_info.pending_key_index_info.state = NO_PENDING_PROCESS;
             cur->mac_parameters.mac_default_key_index = 0;
+            cur->mac_parameters.mac_default_lfn_key_index = 0;
 
             ipv6_destination_cache_clean(cur->id);
 
