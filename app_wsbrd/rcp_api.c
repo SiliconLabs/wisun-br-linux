@@ -768,6 +768,8 @@ static void rcp_rx_reset(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_rea
     spinel_pop_u8(buf); /* Formerly: key_description_table_size */
     spinel_pop_u8(buf); /* Formerly: key_lookup_size */
     spinel_pop_u8(buf); /* Formerly: key_usage_size */
+    if (iobuf_remaining_size(buf))
+        ctxt->rcp.lfn_limit = spinel_pop_u8(buf);
     ctxt->rcp.init_state |= RCP_HAS_RESET;
     WARN_ON(!ctxt->rcp.on_reset);
     if (ctxt->rcp.on_reset)
