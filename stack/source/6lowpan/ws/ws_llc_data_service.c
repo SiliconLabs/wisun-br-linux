@@ -771,6 +771,55 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
 }
 
+static void ws_llc_eapol_lfn_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext)
+{
+    llc_data_base_t *base = ws_llc_mpx_frame_common_validates(net_if, data, WS_FT_EAPOL);
+    mcps_data_ind_t data_ind = *data;
+    llc_neighbour_req_t neighbor;
+    struct ws_lutt_ie ie_lutt;
+    struct ws_lus_ie ie_lus;
+    struct iobuf_read ie_wp;
+    struct ws_lcp_ie ie_lcp;
+    bool has_lus, has_lcp;
+    mpx_user_t *mpx_user;
+    mpx_msg_t mpx_frame;
+
+    if (!base)
+        return;
+    mpx_user = ws_llc_mpx_header_parse(base, ie_ext, &mpx_frame);
+    if (!mpx_user)
+        return;
+
+    has_lus = ws_wh_lus_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lus);
+    ieee802154_ie_find_payload(ie_ext->payloadIeList, ie_ext->payloadIeListLength, IEEE802154_IE_ID_WP, &ie_wp);
+    has_lcp = false;
+    if (has_lus && ie_lus.channel_plan_tag != WS_CHAN_PLAN_TAG_CURRENT) {
+        has_lcp = ws_wp_nested_lcp_read(ie_ext->headerIeList, ie_ext->headerIeListLength,
+                                        ie_lus.channel_plan_tag, &ie_lcp);
+        if (!has_lcp) {
+            TRACE(TR_DROP, "drop %-9s: missing LCP-IE required by LUS-IE", tr_ws_frame(WS_FT_EAPOL));
+            return;
+        }
+        if (!ws_ie_validate_lcp(&base->interface_ptr->ws_info, &ie_lcp))
+            return;
+    }
+
+    if (!ws_llc_eapol_neighbor_get(base, data, &neighbor))
+        return;
+
+    if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt))
+        BUG("Missing LUTT-IE in EAPOL frame from LFN");
+    ws_neighbor_class_lut_update(neighbor.ws_neighbor, ie_lutt.slot_number, ie_lutt.interval_offset,
+                                 data->timestamp, data->SrcAddr);
+    if (has_lus)
+        ws_neighbor_class_lus_update(base->interface_ptr, neighbor.ws_neighbor,
+                                     has_lcp ? &ie_lcp.chan_plan : NULL,
+                                     ie_lus.listen_interval);
+
+    data_ind.msdu_ptr = mpx_frame.frame_ptr;
+    data_ind.msduLength = mpx_frame.frame_length;
+    mpx_user->data_ind(&base->mpx_data_base.mpx_api, &data_ind);
+}
 
 static void ws_llc_mngt_ind(const struct net_if *net_if, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext, uint8_t frame_type)
 {
@@ -906,14 +955,18 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
         return;
     }
 
-    if (ws_is_frame_mngt(frame_type))
+    if (ws_is_frame_mngt(frame_type)) {
         ws_llc_mngt_ind(net_if, data, ie_ext, frame_type);
-    else if (frame_type == WS_FT_DATA && has_utt)
+    } else if (frame_type == WS_FT_DATA && has_utt) {
         ws_llc_data_ffn_ind(net_if, data, ie_ext);
-    else if (frame_type == WS_FT_EAPOL && has_utt)
-        ws_llc_eapol_ffn_ind(net_if, data, ie_ext);
-    else
+    } else if (frame_type == WS_FT_EAPOL) {
+        if (has_utt)
+            ws_llc_eapol_ffn_ind(net_if, data, ie_ext);
+        else
+            ws_llc_eapol_lfn_ind(net_if, data, ie_ext);
+    } else {
         TRACE(TR_DROP, "drop 15.4     : unsupported frame type (0x%02x)", frame_type);
+    }
 }
 
 static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)

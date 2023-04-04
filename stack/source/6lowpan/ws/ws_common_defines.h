@@ -51,6 +51,8 @@
 #define WS_NR_ROLE_LFN      2
 #define WS_NR_ROLE_UNKNOWN  3
 
+#define WS_CHAN_PLAN_TAG_CURRENT 255
+
 /**
  * @brief ws_pan_information_t PAN information
  */
