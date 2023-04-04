@@ -396,128 +396,125 @@ static void ws_llc_mac_eapol_clear(llc_data_base_t *base)
     }
 }
 
+static void ws_llc_eapol_confirm(struct llc_data_base *base, struct llc_message *msg,
+                                 const struct mcps_data_conf *confirm)
+{
+    struct mcps_data_conf mpx_confirm;
+    struct mpx_user *mpx_usr;
 
-/** WS LLC MAC data extension confirmation  */
+    base->temp_entries->active_eapol_session = false;
+
+    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_KEY_MANAGEMENT_ENC_USER_ID);
+    if (mpx_usr && mpx_usr->data_confirm) {
+        mpx_confirm = *confirm;
+        mpx_confirm.msduHandle = msg->mpx_user_handle;
+        mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
+    }
+
+    msg = ns_list_get_first(&base->temp_entries->llc_eap_pending_list);
+    if (msg) {
+        ns_list_remove(&base->temp_entries->llc_eap_pending_list, msg);
+        base->temp_entries->llc_eap_pending_list_size--;
+        random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection,
+                                       base->temp_entries->llc_eap_pending_list_size);
+        ws_llc_mpx_eapol_send(base, msg);
+    }
+}
+
+static void ws_llc_data_confirm(struct llc_data_base *base, struct llc_message *msg,
+                                const struct mcps_data_conf *confirm,
+                                const mcps_data_conf_payload_t *confirm_data,
+                                struct llc_neighbour_req *neighbor_llc)
+{
+    const bool success = confirm->status == MLME_SUCCESS || confirm->status == MLME_NO_DATA;
+    struct mcps_data_conf mpx_confirm;
+    struct mpx_user *mpx_usr;
+    struct ws_utt_ie ie_utt;
+    int8_t ie_rsl;
+
+    if (msg->ack_requested) {
+        switch (confirm->status) {
+        case MLME_SUCCESS:
+        case MLME_TX_NO_ACK:
+        case MLME_NO_DATA:
+            if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
+                break;
+            if (neighbor_llc->neighbor->link_lifetime != WS_NEIGHBOR_LINK_TIMEOUT)
+                break;
+            if (!base->high_priority_mode)
+                etx_transm_attempts_update(base->interface_ptr->id, confirm->tx_retries + 1, success,
+                                           neighbor_llc->neighbor->index, neighbor_llc->neighbor->mac64);
+            if (ws_wh_utt_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_utt)) {
+                if (success)
+                    neighbor_llc->neighbor->lifetime = neighbor_llc->neighbor->link_lifetime;
+                ws_neighbor_class_ut_update(neighbor_llc->ws_neighbor, ie_utt.ufsi, confirm->timestamp,
+                                            neighbor_llc->neighbor->mac64);
+            }
+            if (ws_wh_rsl_read(confirm_data->headerIeList, confirm_data->headerIeListLength, &ie_rsl))
+                ws_neighbor_class_rsl_out_calculate(neighbor_llc->ws_neighbor, ie_rsl);
+            break;
+        }
+    }
+
+    mpx_usr = ws_llc_mpx_user_discover(&base->mpx_data_base, MPX_LOWPAN_ENC_USER_ID);
+    if (mpx_usr && mpx_usr->data_confirm) {
+        mpx_confirm = *confirm;
+        mpx_confirm.msduHandle = msg->mpx_user_handle;
+        mpx_usr->data_confirm(&base->mpx_data_base.mpx_api, &mpx_confirm);
+    }
+
+    if (!neighbor_llc->ws_neighbor || !neighbor_llc->neighbor)
+        return;
+    if (neighbor_llc->neighbor->link_lifetime > WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME)
+        return;
+
+    tr_debug("remove temporary MAC neighbor by TX confirm (%s)", tr_eui64(neighbor_llc->neighbor->mac64));
+    mac_neighbor_table_neighbor_remove(base->interface_ptr->mac_parameters.mac_neighbor_table, neighbor_llc->neighbor);
+}
+
 void ws_llc_mac_confirm_cb(int8_t net_if_id, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data)
 {
-    (void) conf_data;
     struct net_if *net_if = protocol_stack_interface_info_get_by_id(net_if_id);
-    llc_neighbour_req_t neighbor_info = { };
-    neighbor_info.ws_neighbor = NULL;
-    neighbor_info.neighbor = NULL;
-    llc_data_base_t *base = ws_llc_discover_by_interface(net_if);
+    struct ws_neighbor_temp_class *neighbor_tmp;
+    struct llc_neighbour_req neighbor_llc = { };
+    struct llc_data_base *base;
+    struct llc_message *msg;
+
+    base = ws_llc_discover_by_interface(net_if);
     if (!base)
         return;
-
-    struct net_if *interface = base->interface_ptr;
-    llc_message_t *message = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
-    if (!message)
+    msg = llc_message_discover_by_mac_handle(data->msduHandle, &base->llc_message_list);
+    if (!msg)
         return;
 
-    if (message->dst_address_type == MAC_ADDR_MODE_64_BIT)
-        ws_bootstrap_neighbor_get(interface, message->dst_address, &neighbor_info);
+    if (msg->dst_address_type == MAC_ADDR_MODE_64_BIT)
+        ws_bootstrap_neighbor_get(net_if, msg->dst_address, &neighbor_llc);
 
-    if (neighbor_info.neighbor)
-        ws_llc_rate_handle_tx_conf(base, data, neighbor_info.neighbor);
+    if (neighbor_llc.neighbor)
+        ws_llc_rate_handle_tx_conf(base, data, neighbor_llc.neighbor);
 
-    uint8_t message_type = message->message_type;
-    uint8_t mpx_user_handle = message->mpx_user_handle;
-    if (message->eapol_temporary) {
-
-        if (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA) {
-            //Update timeout
-            ws_neighbor_temp_class_t *temp_entry = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, message->dst_address);
-            if (temp_entry) {
-                //Update Temporary Lifetime
-                temp_entry->eapol_temp_info.eapol_timeout = interface->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
-            }
-        }
+    if (msg->eapol_temporary && (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA)) {
+        neighbor_tmp = ws_llc_discover_temp_entry(&base->temp_entries->active_eapol_temp_neigh, msg->dst_address);
+        if (neighbor_tmp)
+            neighbor_tmp->eapol_temp_info.eapol_timeout = net_if->ws_info.cfg->timing.temp_eapol_min_timeout + 1;
     }
-    //ETX update
-    if (message->ack_requested && message_type == WS_FT_DATA) {
 
-        bool success = false;
-
-        if (message->dst_address_type == MAC_ADDR_MODE_64_BIT)
-            ws_bootstrap_neighbor_get(interface, message->dst_address, &neighbor_info);
-        switch (data->status) {
-            case MLME_SUCCESS:
-            case MLME_TX_NO_ACK:
-            case MLME_NO_DATA:
-                if (data->status == MLME_SUCCESS || data->status == MLME_NO_DATA) {
-                    success = true;
-                }
-
-                if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime == WS_NEIGHBOR_LINK_TIMEOUT) {
-
-                    if (!base->high_priority_mode) {
-                        //Update ETX only when High priority state is not activated
-                        etx_transm_attempts_update(interface->id, 1 + data->tx_retries, success, neighbor_info.neighbor->index, neighbor_info.neighbor->mac64);
-                    }
-                    ws_utt_ie_t ws_utt;
-                    if (ws_wh_utt_read(conf_data->headerIeList, conf_data->headerIeListLength, &ws_utt)) {
-                        //UTT header
-                        if (success) {
-                            neighbor_info.neighbor->lifetime = neighbor_info.neighbor->link_lifetime;
-                        }
-                        ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt.ufsi, data->timestamp, neighbor_info.neighbor->mac64);
-                    }
-
-                    int8_t rsl;
-                    if (ws_wh_rsl_read(conf_data->headerIeList, conf_data->headerIeListLength, &rsl)) {
-                        ws_neighbor_class_rsl_out_calculate(neighbor_info.ws_neighbor, rsl);
-                    }
-                }
-
-                break;
-            default:
-                break;
-        }
-
+    switch (msg->message_type) {
+    case WS_FT_DATA:
+        ws_llc_data_confirm(base, msg, data, conf_data, &neighbor_llc);
+        break;
+    case WS_FT_EAPOL:
+        ws_llc_eapol_confirm(base, msg, data);
+        break;
+    case WS_FT_PA:
+    case WS_FT_PAS:
+    case WS_FT_PC:
+    case WS_FT_PCS:
+        base->asynch_confirm(net_if, msg->message_type);
+        break;
     }
-    //Free message
-    llc_message_free(message, base);
 
-    if (message_type == WS_FT_DATA || message_type == WS_FT_EAPOL) {
-        mpx_user_t *user_cb;
-        uint16_t mpx_user_id;
-        if (message_type == WS_FT_DATA) {
-            mpx_user_id = MPX_LOWPAN_ENC_USER_ID;
-        } else {
-            mpx_user_id = MPX_KEY_MANAGEMENT_ENC_USER_ID;
-            base->temp_entries->active_eapol_session = false;
-        }
-
-        user_cb = ws_llc_mpx_user_discover(&base->mpx_data_base, mpx_user_id);
-        if (user_cb && user_cb->data_confirm) {
-            //Call MPX registered call back
-            mcps_data_conf_t data_conf = *data;
-            data_conf.msduHandle = mpx_user_handle;
-            user_cb->data_confirm(&base->mpx_data_base.mpx_api, &data_conf);
-        }
-
-        if (message_type == WS_FT_EAPOL) {
-            message = ns_list_get_first(&base->temp_entries->llc_eap_pending_list);
-            if (message) {
-                //Start A pending EAPOL
-                ns_list_remove(&base->temp_entries->llc_eap_pending_list, message);
-                base->temp_entries->llc_eap_pending_list_size--;
-                random_early_detection_aq_calc(base->interface_ptr->llc_eapol_random_early_detection, base->temp_entries->llc_eap_pending_list_size);
-                ws_llc_mpx_eapol_send(base, message);
-            }
-        } else {
-            if (neighbor_info.ws_neighbor && neighbor_info.neighbor && neighbor_info.neighbor->link_lifetime <= WS_NEIGHBOUR_TEMPORARY_NEIGH_MAX_LIFETIME) {
-                //Remove temp neighbour
-                tr_debug("Remove Temp Entry by TX confirm");
-                mac_neighbor_table_neighbor_remove(interface->mac_parameters.mac_neighbor_table, neighbor_info.neighbor);
-            }
-        }
-
-        return;
-    }
-    //Async message Confirmation
-    base->asynch_confirm(base->interface_ptr, message_type);
-
+    llc_message_free(msg, base);
 }
 
 static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *net_if, const mcps_data_ind_t *data, uint8_t frame_type)
