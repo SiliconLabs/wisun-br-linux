@@ -48,6 +48,7 @@ typedef enum mlme_primitive mlme_primitive_e;
 #define RCP_INIT_DONE          0x0010
 
 struct rcp_rail_config {
+    int      index;
     uint32_t chan0_freq;
     uint32_t chan_spacing;
     uint16_t chan_count;

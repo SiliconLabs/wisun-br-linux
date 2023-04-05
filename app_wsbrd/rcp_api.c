@@ -833,21 +833,25 @@ static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iob
 
 static void rcp_rx_rf_list(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
 {
-    int phy_mode_group = 1;
-    bool is_submode;
+    int phy_mode_group = 0;
+    bool is_submode, is_submode_prev;
     int i = 0;
 
     BUG_ON(ctxt->rcp.rail_config_list);
+    is_submode_prev = true;
     while (iobuf_remaining_size(buf)) {
         ctxt->rcp.rail_config_list = reallocarray(ctxt->rcp.rail_config_list, i + 2, sizeof(struct rcp_rail_config));
+        ctxt->rcp.rail_config_list[i].index = i;
         ctxt->rcp.rail_config_list[i].chan0_freq = spinel_pop_u32(buf);
         ctxt->rcp.rail_config_list[i].chan_spacing = spinel_pop_u32(buf);
         ctxt->rcp.rail_config_list[i].chan_count = spinel_pop_u16(buf);
         ctxt->rcp.rail_config_list[i].rail_phy_mode_id = spinel_pop_u8(buf);
         is_submode = spinel_pop_bool(buf);
-        if (!is_submode)
-            phy_mode_group++;
-        ctxt->rcp.rail_config_list[i].phy_mode_group = phy_mode_group;
+        FATAL_ON(i == 0 && is_submode, 3, "corrupted RAIL configuration");
+        if (is_submode && !is_submode_prev)
+            ctxt->rcp.rail_config_list[i - 1].phy_mode_group = ++phy_mode_group;
+        ctxt->rcp.rail_config_list[i].phy_mode_group = is_submode ? phy_mode_group : 0;
+        is_submode_prev = is_submode;
         i++;
     }
     memset(&ctxt->rcp.rail_config_list[i], 0, sizeof(struct rcp_rail_config));
