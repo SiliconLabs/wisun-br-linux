@@ -385,7 +385,7 @@ static void wsbr_calculate_phy_operating_modes(struct wsbr_ctxt *ctxt)
     int i, j, l;
 
     BUG_ON(ARRAY_SIZE(ctxt->phy_operating_modes) <= ARRAY_SIZE(chan_params->valid_phy_modes));
-    memset(ctxt->phy_operating_modes, 0, ARRAY_SIZE(ctxt->phy_operating_modes));
+    memset(ctxt->phy_operating_modes, 0, sizeof(ctxt->phy_operating_modes));
     // MDR with custom domains are not yet supported
     if (!chan_params || !phy_params)
         return;
