@@ -36,6 +36,7 @@ enum timer_id {
     TIMER_DHCPV6_SOCKET,
 #ifdef HAVE_WS_BORDER_ROUTER
     TIMER_LPA,
+    TIMER_LTS,
 #endif
     TIMER_COUNT,
 };

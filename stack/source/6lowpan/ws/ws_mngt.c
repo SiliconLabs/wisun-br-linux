@@ -396,3 +396,23 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
 
     ws_mngt_lpc_send(net_if, data->SrcAddr);
 }
+
+static void ws_mngt_lts_send(struct net_if *net_if)
+{
+    struct ws_llc_mngt_req req = {
+        .frame_type = WS_FT_LTS,
+        .wh_ies.utt    = true,
+        .wh_ies.bt     = true,
+        .wh_ies.lbt    = true,
+        .wp_ies.lfnver = true,
+    };
+
+    ws_llc_mngt_lfn_request(net_if, &req, NULL, MAC_DATA_NORMAL_PRIORITY);
+}
+
+void ws_mngt_lts_timer_cb(int ticks)
+{
+    struct net_if *net_if = protocol_stack_interface_info_get();
+
+    ws_mngt_lts_send(net_if);
+}

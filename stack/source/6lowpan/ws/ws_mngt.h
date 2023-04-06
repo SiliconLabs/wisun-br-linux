@@ -27,6 +27,7 @@
  * - LFN PAN Advertisement Solicit (LPAS)
  * - LFN PAN Configuration (LPC)
  * - LFN PAN Configuration Solicit (LPCS)
+ * - LFN Time Sync (LTS)
  */
 
 struct mcps_data_ie_list;
@@ -70,5 +71,6 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ie_list *ie_ext);
 
 void ws_mngt_lpa_timer_cb(int ticks);
+void ws_mngt_lts_timer_cb(int ticks);
 
 #endif
