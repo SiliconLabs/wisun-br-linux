@@ -488,7 +488,7 @@ void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
     tmp8 |= FIELD_PREP(WS_WPIE_LGTKHASH_ACTIVE_INDEX_MASK,  active_lgtk_index);
     iobuf_push_u8(buf, tmp8);
     for (int i = 0; i < 3; i++)
-        if (memzcmp(lgtkhash[0], 8))
+        if (memzcmp(lgtkhash[i], 8))
             iobuf_push_data(buf, lgtkhash[i], 8);
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
