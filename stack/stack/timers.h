@@ -42,12 +42,19 @@ enum timer_id {
 
 extern int g_monotonic_time_100ms;
 
+// Expose timer array to avoid boilerplate API functions when "low level"
+// operation are needed.
+struct timer {
+    const char *trace_name;
+    void (*callback)(int);
+    int period_ms;
+    bool periodic;
+    int timeout;
+};
+extern struct timer g_timers[TIMER_COUNT];
+
 void timer_start(enum timer_id id);
 void timer_stop(enum timer_id id);
-
-// FIXME: This API exists only for LPA scheduling.
-void timer_start_timeout(enum timer_id id, int timeout);
-bool timer_is_running(enum timer_id id);
 
 void timer_global_tick();
 

@@ -26,13 +26,7 @@ static void timer_update_monotonic_time(int ticks)
 
 #define timer_entry(name, callback, period_ms, is_periodic) \
     [TIMER_##name] = { #name, callback, period_ms, is_periodic, 0 }
-static struct {
-    const char *trace_name;
-    void (*callback)(int);
-    int period_ms;
-    bool periodic;
-    int timeout;
-} s_timers[] = {
+struct timer g_timers[] = {
     timer_entry(MONOTONIC_TIME,         timer_update_monotonic_time,                100,                                          true),
     timer_entry(MPL_FAST,               mpl_fast_timer,                             MPL_TICK_MS,                                  false),
     timer_entry(MPL_SLOW,               mpl_slow_timer,                             1000,                                         true),
@@ -62,42 +56,32 @@ static struct {
     timer_entry(LPA,                    ws_mngt_lpa_timer_cb,                       0,                                            false),
 #endif
 };
-static_assert(ARRAY_SIZE(s_timers) == TIMER_COUNT, "missing timer declarations");
+static_assert(ARRAY_SIZE(g_timers) == TIMER_COUNT, "missing timer declarations");
 
 void timer_start(enum timer_id id)
 {
-    BUG_ON(s_timers[id].period_ms % TIMER_GLOBAL_PERIOD_MS);
-    s_timers[id].timeout = s_timers[id].period_ms / TIMER_GLOBAL_PERIOD_MS;
+    BUG_ON(g_timers[id].period_ms % TIMER_GLOBAL_PERIOD_MS);
+    g_timers[id].timeout = g_timers[id].period_ms / TIMER_GLOBAL_PERIOD_MS;
 }
 
 void timer_stop(enum timer_id id)
 {
-    s_timers[id].timeout = 0;
-}
-
-void timer_start_timeout(enum timer_id id, int timeout)
-{
-    s_timers[id].timeout = timeout / TIMER_GLOBAL_PERIOD_MS; // Rounded down
-}
-
-bool timer_is_running(enum timer_id id)
-{
-    return s_timers[id].timeout;
+    g_timers[id].timeout = 0;
 }
 
 void timer_global_tick()
 {
-    for (int i = 0; i < ARRAY_SIZE(s_timers); i++) {
-        if (!s_timers[i].timeout)
+    for (int i = 0; i < ARRAY_SIZE(g_timers); i++) {
+        if (!g_timers[i].timeout)
             continue;
 
-        s_timers[i].timeout--; // Always advance one tick at a time
-        if (s_timers[i].timeout)
+        g_timers[i].timeout--; // Always advance one tick at a time
+        if (g_timers[i].timeout)
             continue;
 
-        s_timers[i].callback(1);
-        TRACE(TR_TIMERS, "timer: %s", s_timers[i].trace_name);
-        if (s_timers[i].periodic)
+        g_timers[i].callback(1);
+        TRACE(TR_TIMERS, "timer: %s", g_timers[i].trace_name);
+        if (g_timers[i].periodic)
             timer_start(i);
     }
 }
