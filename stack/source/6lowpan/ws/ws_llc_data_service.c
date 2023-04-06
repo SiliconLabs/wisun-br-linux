@@ -1879,9 +1879,9 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
         .SeqNumSuppressed = true,
         .PanIdSuppressed  = true,
         .SrcAddrMode = MAC_ADDR_MODE_64_BIT,
+        .DstAddrMode = dst ? MAC_ADDR_MODE_64_BIT : MAC_ADDR_MODE_NONE,
         .Key = req->security,
         .priority  = priority,
-        .fhss_type = req->frame_type == WS_FT_LPA ? HIF_FHSS_TYPE_LFN_PA : HIF_FHSS_TYPE_LFN_UC,
     };
     llc_message_t *msg;
 
@@ -1903,9 +1903,14 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
     msg->message_type = req->frame_type;
     msg->priority     = priority;
 
-    BUG_ON(!dst);
-    data_req.DstAddrMode = MAC_ADDR_MODE_64_BIT;
-    memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
+    if (dst)
+        memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
+    if (!dst)
+        data_req.fhss_type = HIF_FHSS_TYPE_LFN_BC;
+    else if (req->frame_type == WS_FT_LPA)
+        data_req.fhss_type = HIF_FHSS_TYPE_LFN_PA;
+    else
+        data_req.fhss_type = HIF_FHSS_TYPE_LFN_UC;
     data_req.msduHandle = msg->msg_handle;
 
     ws_llc_prepare_ie(base, msg, req->wh_ies, req->wp_ies);

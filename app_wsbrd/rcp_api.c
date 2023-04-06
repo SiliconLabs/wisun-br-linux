@@ -717,6 +717,9 @@ void rcp_tx_req(const uint8_t *frame, int frame_len,
         spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_interval_offset_ms);
         spinel_push_u32(&buf, neighbor_ws->fhss_data.lfn.uc_listen_interval_ms);
         break;
+    case HIF_FHSS_TYPE_LFN_BC:
+        flags |= FIELD_PREP(HIF_FHSS_CHAN_FUNC_MASK, HIF_FHSS_CHAN_FUNC_AUTO);
+        break;
     case HIF_FHSS_TYPE_ASYNC:
         spinel_push_u32(&buf, ctxt->config.ws_async_frag_duration);
         break;
