@@ -229,4 +229,6 @@ void mac_neighbor_update_pom(mac_neighbor_table_entry_t *neighbor_entry, uint8_t
  */
 uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry, uint8_t phy_mode_id);
 
+int mac_neighbor_lfn_count(const struct mac_neighbor_table *table);
+
 #endif

@@ -35,6 +35,7 @@
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/ws_management_api.h"
+#include "stack/timers.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -1905,6 +1906,10 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 
     if (dst)
         memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
+#ifdef HAVE_WS_BORDER_ROUTER
+    else if (req->wh_ies.lbt)
+        timer_start(TIMER_LTS); // FIXME: This timer should be restarted at confirmation instead
+#endif
     if (!dst)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_BC;
     else if (req->frame_type == WS_FT_LPA)

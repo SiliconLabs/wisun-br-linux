@@ -309,3 +309,13 @@ uint8_t mac_neighbor_find_phy_mode_id(mac_neighbor_table_entry_t *neighbor_entry
             return phy_mode_id;
     return 0;
 }
+
+int mac_neighbor_lfn_count(const struct mac_neighbor_table *table)
+{
+    int cnt = 0;
+
+    ns_list_foreach(struct mac_neighbor_table_entry, entry, &table->neighbour_list)
+        if (entry->node_role == WS_NR_ROLE_LFN)
+            cnt++;
+    return cnt;
+}

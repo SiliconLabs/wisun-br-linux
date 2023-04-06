@@ -162,6 +162,10 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
     rcp_set_neighbor(neighbor->index, 0, 0, NULL, 0);
     etx_neighbor_remove(interface->id, neighbor->index, neighbor->mac64);
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (!mac_neighbor_lfn_count(interface->mac_parameters.mac_neighbor_table))
+        timer_stop(TIMER_LTS);
+#endif
 }
 
 void ws_bootstrap_neighbor_list_clean(struct net_if *interface)
@@ -954,7 +958,10 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
         mac_neighbor_table_neighbor_remove(net_if->mac_parameters.mac_neighbor_table, neighbor->neighbor);
         return false;
     }
-
+#ifdef HAVE_WS_BORDER_ROUTER
+    if (role == WS_NR_ROLE_LFN && g_timers[TIMER_LTS].period_ms)
+        timer_start(TIMER_LTS);
+#endif
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return true;
 }
