@@ -582,6 +582,8 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     config->uc_dwell_interval = WS_FHSS_UC_DWELL_INTERVAL;
     config->bc_interval = WS_FHSS_BC_INTERVAL;
     config->bc_dwell_interval = WS_FHSS_BC_DWELL_INTERVAL;
+    config->lfn_bc_interval = 60000;
+    config->lfn_bc_sync_period = 5;
     config->ws_allowed_mac_address_count = 0;
     config->ws_denied_mac_address_count = 0;
     config->ws_regional_regulation = 0;
