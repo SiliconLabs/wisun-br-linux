@@ -952,6 +952,7 @@ static const struct name_value ws_frames[] = {
     { "l-adv-sol", WS_FT_LPAS },
     { "l-cfg",     WS_FT_LPC },
     { "l-cfg-sol", WS_FT_LPCS },
+    { "l-tsync",   WS_FT_LTS },
     { NULL },
 };
 

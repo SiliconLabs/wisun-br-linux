@@ -23,20 +23,22 @@
 #include "common/int24.h"
 #include "security/protocols/sec_prot.h" /* gtkhash_t */
 
-/* WS frame types to WS_WHIE_UTT */
-#define WS_FT_PA                0          /**< PAN Advert */
-#define WS_FT_PAS               1          /**< PAN Advert Solicit */
-#define WS_FT_PC                2          /**< PAN Config */
-#define WS_FT_PCS               3          /**< PAN Config Solicit */
-#define WS_FT_DATA              4          /**< data type inside MPX */
-#define WS_FT_ACK               5          /**< Enhanced ACK */
-#define WS_FT_EAPOL             6          /**< EAPOL message inside MPX */
-/* Wi-SUN FAN 1.1 */
-#define WS_FT_LPA               9           /**< LFN PAN Advert */
-#define WS_FT_LPAS              10          /**< LFN PAN Advert Solicit */
-#define WS_FT_LPC               11          /**< LFN PAN Config */
-#define WS_FT_LPCS              12          /**< LFN PAN Config Solicit */
-
+// Wi-SUN Assigned Value Registry 0v24
+//   10. Wi-SUN Frame Types
+#define WS_FT_PA     0 // PAN Advert
+#define WS_FT_PAS    1 // PAN Advert Solicit
+#define WS_FT_PC     2 // PAN Config
+#define WS_FT_PCS    3 // PAN Config Solicit
+#define WS_FT_DATA   4 // Data
+#define WS_FT_ACK    5 // Ack
+#define WS_FT_EAPOL  6 // EAPOL
+// FAN 1.1
+#define WS_FT_LPA    9 // LFN PAN Advert
+#define WS_FT_LPAS  10 // LFN PAN Advert Solicit
+#define WS_FT_LPC   11 // LFN PAN Config
+#define WS_FT_LPCS  12 // LFN PAN Config Solicit
+#define WS_FT_LTS   13 // LFN Time Sync
+#define WS_FT_EXT   15 // Extended Type
 
 /* WS excluded channel Control */
 #define WS_EXC_CHAN_CTRL_NONE 0             /**< No excluded channels */
