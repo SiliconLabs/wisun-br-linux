@@ -192,11 +192,11 @@ int main(int argc, char *argv[])
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     int i;
 
-    for (i = 0; rx_cmds->cmd != (uint32_t)-1; i++) {
-        if (rx_cmds->cmd == SPINEL_CMD_REPLAY_TIMERS)
-            rx_cmds->fn = fuzz_spinel_replay_timers;
-        if (rx_cmds->cmd == SPINEL_CMD_REPLAY_INTERFACE)
-            rx_cmds->fn = fuzz_spinel_replay_interface;
+    for (i = 0; rx_cmds[i].cmd != (uint32_t)-1; i++) {
+        if (rx_cmds[i].cmd == SPINEL_CMD_REPLAY_TIMERS)
+            rx_cmds[i].fn = fuzz_spinel_replay_timers;
+        if (rx_cmds[i].cmd == SPINEL_CMD_REPLAY_INTERFACE)
+            rx_cmds[i].fn = fuzz_spinel_replay_interface;
     }
     argc = fuzz_parse_commandline(ctxt, argv);
     return wsbr_main(argc, argv);
