@@ -24,110 +24,78 @@ bool g_enable_color_traces = true;
 
 char *str_bytes(const void *in_start, size_t in_len, const void **in_done, char *out_start, size_t out_len, int opt)
 {
-    static const char *hex_l = "0123456789abcdef";
-    static const char *hex_u = "0123456789ABCDEF";
-    const char *hex = hex_l;
+    const char *delim = "";
+    const char *ellipsis = "";
+    const char *fmt = "%s%02x";
     const uint8_t *in = in_start;
     const uint8_t *in_end = in + in_len;
     char *out = out_start;
-    char *out_end;
-
-    char *ellipsis = "\0";
-    char delim = '\0';
-    bool fit = true;
+    char *out_end = out + out_len;
+    char *ellipsis_ptr;
+    int entry_len;
 
     BUG_ON(!out);
     BUG_ON(!out_len);
-    if (opt & UPPER_HEX)
-        hex = hex_u;
+
     if (opt & DELIM_SPACE)
-        delim = ' ';
+        delim = " ";
     if (opt & DELIM_COLON)
-        delim = ':';
-    if (delim && out_len < in_len * 3)
-        fit = false;
-    if (!delim && out_len < in_len * 2 + 1)
-        fit = false;
+        delim = ":";
+    if (opt & DELIM_COMMA)
+        delim = ", ";
+    if (opt & FMT_LHEX)
+        fmt = "%s%02x";
+    if (opt & FMT_UHEX)
+        fmt = "%s%02X";
+    if (opt & FMT_DEC)
+        fmt = "%s%d";
+    if (opt & FMT_DEC_PAD)
+        fmt = "%s%3d";
+    if (opt & FMT_ASCII_PRINT)
+        fmt = "%s\\x%02x";
+    if (opt & FMT_ASCII_ALNUM)
+        fmt = "%s\\x%02x";
+    if (opt & ELLIPSIS_STAR)
+        ellipsis = "*";
+    if (opt & ELLIPSIS_DOTS)
+        ellipsis = "...";
 
-    if (!fit) {
-        if (opt & ELLIPSIS_ABRT)
-            BUG("buffer is too small");
-        if (opt & ELLIPSIS_STAR)
-            ellipsis = "*";
-        if (opt & ELLIPSIS_DOTS)
-            ellipsis = "...";
-    }
-
-    // Input buffer is null
-    if (!in) {
-        strncpy(out, "<null>", out_len - 1);
-        goto out;
-    }
-
-    // Nothing to display just return empty string
-    if (!in_len) {
-        out[0] = '\0';
-        goto out;
-    }
-
-    // We can't write at least one byte
-    if (out_len <= strlen(ellipsis) + 3) {
-        strncpy(out, ellipsis, out_len - 1);
-        goto out;
-    }
-
-    // Keep one byte for '\0'
-    out_end = out + out_len - strlen(ellipsis) - 1;
-    while (true) {
-        *out++ = hex[*in >> 4];
-        *out++ = hex[*in & 0xF];
-        in++;
-        if (in == in_end)
-            break;
-        if (delim && out_end - out < 3)
-            break;
-        if (!delim && out_end - out < 2)
-            break;
-        if (delim)
-            *out++ = delim;
-    }
-    strcpy(out, ellipsis);
-
-out:
-    out_start[out_len - 1] = '\0';
     if (in_done)
         *in_done = in;
-    return out_start;
-}
-char *str_bytes_ascii(const void *in_start, int in_len, char *out, int out_len, int opt)
-{
-    static const char *hex = "0123456789ABCDEF";
-    const char *in = in_start;
-    bool print_direct;
-    bool fit = true;
-    int i, j = 0;
 
-    for (i = 0; i < in_len; i++) {
-        print_direct = false;
-        if (isalnum(in[i]))
-            print_direct = true;
-        else if (!(opt & ONLY_ALNUM) && isprint(in[i]) && in[i] != '\\')
-            print_direct = true;
-        if (print_direct && out_len - j > 1) {
-            out[j++] = in[i];
-        } else if (!print_direct && out_len - j > 4) {
-            out[j++] = '\\';
-            out[j++] = 'x';
-            out[j++] = hex[in[i] / 16];
-            out[j++] = hex[in[i] % 16];
-        } else {
-            fit = false;
-            break;
-        }
+    if (!in) {
+        snprintf(out, out_len, "<null>");
+        return out;
     }
-    if (!fit && opt & ELLIPSIS_ABRT)
-        BUG("buffer is too small");
-    out[j++] = '\0';
+
+    if (!in_len) {
+        out[0] = '\0';
+        return out;
+    }
+
+    ellipsis_ptr = NULL;
+    while (in < in_end) {
+        if ((opt & FMT_ASCII_ALNUM && isalnum(*in)) ||
+            (opt & FMT_ASCII_PRINT && isprint(*in) && *in != '\\'))
+            entry_len = snprintf(out, out_end - out, "%s%c", in == in_start ? "" : delim, *in);
+        else
+            entry_len = snprintf(out, out_end - out, fmt, in == in_start ? "" : delim, *in);
+        if (out + entry_len + strlen(ellipsis) >= out_end && !ellipsis_ptr) {
+            if (in_done)
+                *in_done = in;
+             ellipsis_ptr = out;
+        }
+        if (out + entry_len >= out_end) {
+            if (opt & ELLIPSIS_ABRT)
+                BUG("buffer is too small");
+            snprintf(ellipsis_ptr, out_end - ellipsis_ptr, "%s", ellipsis);
+            return out;
+        }
+        out += entry_len;
+        in++;
+    }
+    if (in_done)
+        *in_done = in;
     return out;
 }
 
@@ -249,16 +217,6 @@ const char *tr_bytes(const void *in, int len, const void **in_done, int max_out,
     if (trace_idx + max_out > sizeof(trace_buffer))
         return "[OVERFLOW]";
     str_bytes(in, len, in_done, out, max_out, opt);
-    trace_idx += strlen(out) + 1;
-    BUG_ON(trace_idx > sizeof(trace_buffer));
-    return out;
-}
-
-const char *tr_bytes_ascii(const void *in, int len, int opt)
-{
-    char *out = trace_buffer + trace_idx;
-
-    str_bytes_ascii(in, len, out, sizeof(trace_buffer) - trace_idx, opt);
     trace_idx += strlen(out) + 1;
     BUG_ON(trace_idx > sizeof(trace_buffer));
     return out;

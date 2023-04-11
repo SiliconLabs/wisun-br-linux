@@ -987,7 +987,7 @@ static int8_t ws_pae_controller_nvm_nw_info_write(struct net_if *interface_ptr,
     if (!info)
         return -1;
     fprintf(info->file, "pan_id = %#04x\n", pan_id);
-    str_bytes_ascii(network_name, strlen(network_name), str_buf, sizeof(str_buf), ONLY_ALNUM);
+    str_bytes(network_name, strlen(network_name), NULL, str_buf, sizeof(str_buf), FMT_ASCII_ALNUM);
     fprintf(info->file, "network_name = %s\n", str_buf);
     str_key(gtk_eui64, 8, str_buf, sizeof(str_buf));
     fprintf(info->file, "eui64 = %s\n", str_buf);
