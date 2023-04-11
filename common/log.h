@@ -60,6 +60,11 @@
  * small enough. However, as soon as you add a description of the error, the
  * code will be probably clearer if you use the unconditional versions of these
  * macros.
+ *
+ * About the exit code used in FATAL(), for now the norm is:
+ *   1: Error in the configuration file or command line
+ *   2: A system call returned an error
+ *   3: RCP not supported or corrupted
  */
 
 extern FILE *g_trace_stream;
