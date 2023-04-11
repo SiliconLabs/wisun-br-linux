@@ -138,8 +138,11 @@ const char *tr_ipv6(const uint8_t in[16]);
 const char *tr_ipv4_prefix(uint8_t in[], int prefix_len);
 const char *tr_ipv6_prefix(const uint8_t in[], int prefix_len);
 const char *tr_bytes(const void *in, int len, const void **in_done, int max_out, int opt);
-void __tr_enter();
-void __tr_exit();
+
+__attribute__ ((format(printf, 2, 3)))
+void __tr_printf(const char *color, const char *fmt, ...);
+__attribute__ ((format(printf, 2, 0)))
+void __tr_vprintf(const char *color, const char *fmt, va_list ap);
 
 #define __TRACE(COND, MSG, ...) \
     do {                                                             \
@@ -248,15 +251,7 @@ void __tr_exit();
         }                                                            \
     } while (0)
 
-#define __PRINT(COLOR, MSG, ...) \
-    do {                                                             \
-        __tr_enter();                                                \
-        if (COLOR != 0 && g_enable_color_traces)                     \
-            fprintf(g_trace_stream, "\x1B[" #COLOR "m" MSG "\x1B[0m\n", ##__VA_ARGS__); \
-        else                                                         \
-            fprintf(g_trace_stream, MSG "\n", ##__VA_ARGS__);        \
-        __tr_exit();                                                 \
-    } while(0)
+#define __PRINT(COLOR, MSG, ...) __tr_printf(#COLOR, MSG, ##__VA_ARGS__)
 
 #define __PRINT_WITH_TIME(COLOR, MSG, ...) \
     do {                                                             \

@@ -6,6 +6,7 @@ include(GNUInstallDirs)
 
 include(CheckCCompilerFlag)
 check_c_compiler_flag(-Wall                  CC_HAVE_WALL)
+check_c_compiler_flag(-Wno-format-zero-length CC_HAVE_WNO_FORMAT_ZERO_LENGTH)
 check_c_compiler_flag(-Wno-stringop-overread CC_HAVE_WNO_STRINGOP_OVERREAD)
 check_c_compiler_flag(-Wno-stringop-overflow CC_HAVE_WNO_STRINGOP_OVERFLOW)
 check_c_compiler_flag(-funwind-tables        CC_HAVE_UNWIND_TABLES)
@@ -48,6 +49,9 @@ if(CC_HAVE_WALL)
 endif()
 
 # ... but it generate two irrelevant warnings
+if(CC_HAVE_WNO_FORMAT_ZERO_LENGTH)
+    add_compile_options(-Wno-format-zero-length)
+endif()
 if(CC_HAVE_WNO_STRINGOP_OVERREAD)
     add_compile_options(-Wno-stringop-overread)
 endif()
