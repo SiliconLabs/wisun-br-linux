@@ -45,7 +45,6 @@ typedef enum mlme_primitive mlme_primitive_e;
 #define RCP_HAS_HWADDR         0x0002
 #define RCP_HAS_RF_CONFIG_LIST 0x0004
 #define RCP_HAS_RF_CONFIG      0x0008
-#define RCP_INIT_DONE          0x0010
 
 struct rcp_rail_config {
     int      index;

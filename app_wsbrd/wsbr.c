@@ -326,10 +326,12 @@ static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
     int min_device_description_table_size = MAX_NEIGH_TEMPORARY_EAPOL_SIZE + WS_SMALL_TEMPORARY_NEIGHBOUR_ENTRIES;
 
-    if (ctxt->rcp.init_state & RCP_HAS_HWADDR && !(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
-        FATAL(3, "unsupported radio configuration (check --list-rf-config)");
-    if (ctxt->rcp.init_state & RCP_INIT_DONE)
-        FATAL(3, "MAC layer has been reset. Operation not supported");
+    if (ctxt->rcp.init_state & RCP_HAS_HWADDR) {
+        if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
+            FATAL(3, "unsupported radio configuration (check --list-rf-config)");
+        else
+            FATAL(3, "MAC layer has been reset. Operation not supported");
+    }
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
           FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
           FIELD_GET(0x00FFFF00, ctxt->rcp.version_fw),
@@ -591,22 +593,20 @@ static void wsbr_rcp_init(struct wsbr_ctxt *ctxt)
         FATAL(1, "fan_version = 1.1 requires RCP API >= 0.15.0");
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.pcap_file[0])
         FATAL(1, "pcap_file requires RCP API >= 0.16.0");
-
-    while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
-        rcp_rx(ctxt);
-
     if (version_older_than(ctxt->rcp.version_api, 0, 16, 0) && ctxt->config.list_rf_configs)
         FATAL(1, "--list-rf-configs requires RCP API >= 0.16.0");
-
-    if (!version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
+    if (version_older_than(ctxt->rcp.version_api, 0, 16, 0)) {
+        while (!(ctxt->rcp.init_state & RCP_HAS_HWADDR))
+            rcp_rx(ctxt);
+    } else {
         rcp_get_rf_config_list();
         while (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG_LIST))
             rcp_rx(ctxt);
         wsbr_calculate_phy_operating_modes(ctxt);
-        if (ctxt->config.list_rf_configs) {
-            wsbr_print_rf_config_list(ctxt);
-            exit(0);
-        }
+    }
+    if (ctxt->config.list_rf_configs) {
+        wsbr_print_rf_config_list(ctxt);
+        exit(0);
     }
 }
 

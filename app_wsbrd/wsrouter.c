@@ -170,8 +170,12 @@ static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
 {
-    if (ctxt->rcp.init_state & RCP_INIT_DONE)
-        FATAL(3, "MAC layer has been reset. Operation not supported");
+    if (ctxt->rcp.init_state & RCP_HAS_HWADDR) {
+        if (!(ctxt->rcp.init_state & RCP_HAS_RF_CONFIG))
+            FATAL(3, "unsupported radio configuration (check --list-rf-config)");
+        else
+            FATAL(3, "MAC layer has been reset. Operation not supported");
+    }
     INFO("Connected to RCP \"%s\" (%d.%d.%d), API %d.%d.%d", ctxt->rcp.version_label,
           FIELD_GET(0xFF000000, ctxt->rcp.version_fw),
           FIELD_GET(0x00FFFF00, ctxt->rcp.version_fw),

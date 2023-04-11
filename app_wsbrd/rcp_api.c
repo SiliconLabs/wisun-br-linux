@@ -817,7 +817,6 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
     if (val || !spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG;
-    ctxt->rcp.init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_sensitivity(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
@@ -866,8 +865,6 @@ static void rcp_rx_hwaddr(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_re
     if (!spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_HWADDR;
-    if (version_older_than(ctxt->rcp.version_api, 0, 11, 0))
-        ctxt->rcp.init_state |= RCP_INIT_DONE;
 }
 
 static void rcp_rx_frame_counter(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
