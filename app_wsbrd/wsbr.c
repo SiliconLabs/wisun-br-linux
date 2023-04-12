@@ -154,48 +154,159 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
     return ret;
 }
 
-static void wsbr_calculate_phy_operating_modes(struct wsbr_ctxt *ctxt)
+static const struct rcp_rail_config *wsbr_get_next_rail_config(struct wsbr_ctxt *ctxt,
+                                                               const struct rcp_rail_config *iterator)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    // FIXME: support for custom channel parameters
     const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
     const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
-    const struct phy_params *phy_iterator;
-    int phy_mode_group = -1;
-    int i, j, l;
 
-    BUG_ON(!cur);
-    BUG_ON(ARRAY_SIZE(cur->ws_info.hopping_schedule.phy_op_modes) <= ARRAY_SIZE(chan_params->valid_phy_modes));
-    memset(cur->ws_info.hopping_schedule.phy_op_modes, 0, sizeof(cur->ws_info.hopping_schedule.phy_op_modes));
-    // MDR with custom domains are not yet supported
-    if (!chan_params || !phy_params)
-        return;
-    // OFDM cannot be used as a base PHY
-    if (phy_params->modulation == MODULATION_OFDM)
-        return;
-    if (!ws_regdb_is_std(chan_params->chan0_freq, chan_params->chan_spacing, chan_params->chan_count, phy_params->phy_mode_id))
-        return;
-    for (i = 0; ctxt->rcp.rail_config_list[i].chan0_freq; i++) {
-        if (ctxt->rcp.rail_config_list[i].rail_phy_mode_id == phy_params->rail_phy_mode_id &&
-            ctxt->rcp.rail_config_list[i].chan0_freq       == chan_params->chan0_freq &&
-            ctxt->rcp.rail_config_list[i].chan_spacing     == chan_params->chan_spacing &&
-            ctxt->rcp.rail_config_list[i].chan_count       == chan_params->chan_count) {
-            phy_mode_group = ctxt->rcp.rail_config_list[i].phy_mode_group;
-            break;
+    WARN_ON(!ctxt->rcp.rail_config_list);
+    if (!ctxt->rcp.rail_config_list)
+        return NULL;
+    if (!iterator)
+        iterator = ctxt->rcp.rail_config_list;
+    else
+        iterator++;
+    while (iterator->chan0_freq) {
+        if (iterator->rail_phy_mode_id == phy_params->rail_phy_mode_id &&
+            iterator->chan0_freq       == chan_params->chan0_freq &&
+            iterator->chan_count       == chan_params->chan_count &&
+            iterator->chan_spacing     == chan_params->chan_spacing) {
+            return iterator;
         }
+        iterator++;
     }
-    if (phy_mode_group < 0)
+    return NULL;
+}
+
+static void wsbr_calculate_pom_auto(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct chan_params *chan_params;
+    const struct phy_params *phy_params;
+    const uint8_t *phy_mode;
+    int i;
+
+    for (base_rail_params = wsbr_get_next_rail_config(ctxt, NULL);
+         base_rail_params;
+         base_rail_params = wsbr_get_next_rail_config(ctxt, base_rail_params))
+        // FIXME: if base PHY is OFDM, the rail config may not be associated to
+        // any group
+        // FIXME: display a warning if several rail configs match
+        if (base_rail_params->phy_mode_group)
+            break;
+    if (!base_rail_params) {
+        INFO("No PHY operating modes available for your configuration");
         return;
-    l = 0;
-    cur->ws_info.hopping_schedule.phy_op_modes[l++] = phy_params->phy_mode_id;
-    for (j = 0; chan_params->valid_phy_modes[j]; j++) {
-        phy_iterator = ws_regdb_phy_params(chan_params->valid_phy_modes[j], 0);
-        for (i = 0; ctxt->rcp.rail_config_list[i].chan0_freq; i++) {
-            if (ctxt->rcp.rail_config_list[i].phy_mode_group == phy_mode_group &&
-                ctxt->rcp.rail_config_list[i].rail_phy_mode_id == phy_iterator->rail_phy_mode_id) {
-                cur->ws_info.hopping_schedule.phy_op_modes[l++] = ctxt->rcp.rail_config_list[i].rail_phy_mode_id;
+    }
+    i = 1;
+    cur->ws_info.hopping_schedule.rcp_rail_config_index = base_rail_params->index;
+    cur->ws_info.hopping_schedule.phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
+    for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++) {
+        for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
+            for (phy_mode = chan_params->valid_phy_modes; *phy_mode; phy_mode++) {
+                phy_params = ws_regdb_phy_params(*phy_mode, 0);
+                if (i >= ARRAY_SIZE(ctxt->config.ws_phy_op_modes))
+                    continue;
+                // Ignore FAN1.0
+                if (!chan_params->chan_plan_id)
+                    continue;
+                if (strchr((char *)cur->ws_info.hopping_schedule.phy_op_modes, *phy_mode))
+                    continue;
+                if (chan_params->reg_domain != ctxt->config.ws_domain)
+                    continue;
+                if (rail_params->phy_mode_group != base_rail_params->phy_mode_group)
+                    continue;
+                // If base PHY is OFDM, we can only switch to another MCS
+                if (base_phy_params->modulation == MODULATION_OFDM &&
+                    base_phy_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                    continue;
+                if (rail_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                    continue;
+                if (base_phy_params->phy_mode_id == phy_params->phy_mode_id)
+                    continue;
+                cur->ws_info.hopping_schedule.phy_op_modes[i++] = *phy_mode;
             }
         }
     }
+}
+
+static void wsbr_calculate_pom_manual(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const struct phy_params *base_phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
+    const struct rcp_rail_config *base_rail_params, *rail_params;
+    const struct phy_params *phy_params;
+    const uint8_t *phy_mode;
+    int found;
+    int i;
+
+    for (base_rail_params = wsbr_get_next_rail_config(ctxt, NULL);
+         base_rail_params;
+         base_rail_params = wsbr_get_next_rail_config(ctxt, base_rail_params)) {
+        // FIXME: if base PHY is OFDM, the rail config may not be associated to
+        // any group
+        if (!base_rail_params->phy_mode_group)
+            continue;
+        i = 1;
+        cur->ws_info.hopping_schedule.rcp_rail_config_index = base_rail_params->index;
+        cur->ws_info.hopping_schedule.phy_op_modes[0] = ctxt->config.ws_phy_mode_id;
+        for (phy_mode = ctxt->config.ws_phy_op_modes; *phy_mode; phy_mode++) {
+            phy_params = ws_regdb_phy_params(*phy_mode, 0);
+            found = 0;
+            if (base_phy_params->modulation == MODULATION_OFDM &&
+                base_phy_params->rail_phy_mode_id != phy_params->rail_phy_mode_id)
+                FATAL(1, "unsupported phy_operating_mode %d with phy_mode %d",
+                      phy_params->rail_phy_mode_id, base_phy_params->rail_phy_mode_id);
+            for (rail_params = ctxt->rcp.rail_config_list; rail_params->chan0_freq; rail_params++)
+                if (rail_params->phy_mode_group   == base_rail_params->phy_mode_group &&
+                    rail_params->rail_phy_mode_id == phy_params->rail_phy_mode_id)
+                    found++;
+            if (!found)
+                break;
+            if (found > 1)
+                ERROR("ambiguous RAIL configuration");
+            BUG_ON(i >= ARRAY_SIZE(cur->ws_info.hopping_schedule.phy_op_modes));
+            cur->ws_info.hopping_schedule.phy_op_modes[i++] = *phy_mode;
+        }
+        // It may exist other possible configurations (eg. user may define NA
+        // and BZ with the same parameters set). We stop on the first found.
+        if (!*phy_mode) {
+            BUG_ON(cur->ws_info.hopping_schedule.phy_op_modes[i] != 0);
+            return;
+        }
+    }
+    FATAL(1, "can't match any RAIL configuration");
+}
+
+static void wsbr_calculate_pom_disabled(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const struct rcp_rail_config *config = wsbr_get_next_rail_config(ctxt, NULL);
+
+    if (!config)
+        FATAL(1, "can't match any RAIL configuration");
+    cur->ws_info.hopping_schedule.rcp_rail_config_index = config->index;
+}
+
+static void wsbr_calculate_pom(struct wsbr_ctxt *ctxt)
+{
+    if (version_older_than(ctxt->rcp.version_api, 0, 24, 0)) {
+        if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
+            WARN("No PHY operating modes available (requires RCP API >= 0.24.0)");
+        else if (ctxt->config.ws_phy_op_modes[0])
+            FATAL(1, "phy_operating_modes requires RCP API >= 0.24.0");
+        return;
+    }
+    if (ctxt->config.ws_phy_op_modes[0] == (uint8_t)-1)
+        wsbr_calculate_pom_auto(ctxt);
+    else if (ctxt->config.ws_phy_op_modes[0])
+        wsbr_calculate_pom_manual(ctxt);
+    else
+        wsbr_calculate_pom_disabled(ctxt);
 }
 
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
@@ -226,6 +337,7 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     }
     WARN_ON(ret);
 
+    wsbr_calculate_pom(ctxt);
 
     // Note that calling ws_management_fhss_timing_configure() is redundant
     // with the two function calls bellow.
@@ -245,8 +357,6 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     if (ctxt->config.ws_pan_id >= 0)
         ws_bbr_pan_configuration_set(ctxt->rcp_if_id, ctxt->config.ws_pan_id);
-
-    wsbr_calculate_phy_operating_modes(ctxt);
 
     // Note that calls to ws_management_timing_parameters_set() and
     // ws_bbr_rpl_parameters_set() are done by the function below.
