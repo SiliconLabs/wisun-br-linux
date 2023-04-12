@@ -175,6 +175,8 @@ typedef struct phy_rf_channel_configuration {
     bool fec;                                   ///< Forward error correction, true - enabled, false - disabled
     uint8_t  ofdm_option;                       ///< OFDM option
     uint8_t  ofdm_mcs;                          ///< OFDM modulation and coding scheme
+    int      rcp_config_index;
+    bool     use_phy_op_modes;
 } phy_rf_channel_configuration_t;
 
 /** Channel page configuration */

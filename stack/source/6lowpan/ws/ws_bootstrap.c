@@ -1312,7 +1312,10 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
         ack_wait_symbols /= 4;
     ack_wait_symbols += WS_ACK_WAIT_SYMBOLS;
     rcp_set_802154_mode(IEEE_802_15_4G_2012);
-    rcp_set_rf_config_legacy(&rf_configs);
+    if (version_older_than(cur->rcp->version_api, 0, 24, 0))
+        rcp_set_rf_config_legacy(&rf_configs);
+    else
+        rcp_set_rf_config(&rf_configs);
     rcp_set_ack_wait_duration(ack_wait_symbols);
     rcp_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, CCA_DEFAULT_DBM, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
     rcp_get_rx_sensitivity();
@@ -1347,6 +1350,9 @@ int ws_bootstrap_set_domain_rf_config(struct net_if *cur)
     chan_params = ws_regdb_chan_params(hopping_schedule->regulatory_domain, hopping_schedule->channel_plan_id,
                                        hopping_schedule->operating_class);
 
+    rf_config.rcp_config_index = hopping_schedule->rcp_rail_config_index;
+    if (hopping_schedule->phy_op_modes[0])
+        rf_config.use_phy_op_modes = true;
     // We don't worry of the case where phy_params == NULL, the RCP will return
     // an error anyway.
     if (phy_params) {

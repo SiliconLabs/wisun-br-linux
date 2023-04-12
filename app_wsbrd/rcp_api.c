@@ -274,6 +274,22 @@ void rcp_set_rf_config_legacy(const struct phy_rf_channel_configuration *config)
     iobuf_free(&buf);
 }
 
+#define RF_CONFIG_FLAGS_MCS_MASK     0x0F
+#define RF_CONFIG_FLAGS_USE_POM_MASK 0x10
+
+void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
+{
+    struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct iobuf_write buf = { };
+
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_RF_CONFIG);
+    spinel_push_u16(&buf, FIELD_PREP(RF_CONFIG_FLAGS_MCS_MASK, config->ofdm_mcs) |
+                          FIELD_PREP(RF_CONFIG_FLAGS_USE_POM_MASK, config->use_phy_op_modes));
+    spinel_push_u16(&buf, config->rcp_config_index);
+    rcp_tx(ctxt, &buf);
+    iobuf_free(&buf);
+}
+
 void rcp_set_regional_regulation(uint32_t val)
 {
     rcp_set_u32(SPINEL_PROP_WS_REGIONAL_REGULATION, val);
