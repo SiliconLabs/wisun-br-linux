@@ -157,9 +157,11 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 static const struct rcp_rail_config *wsbr_get_next_rail_config(struct wsbr_ctxt *ctxt,
                                                                const struct rcp_rail_config *iterator)
 {
-    // FIXME: support for custom channel parameters
     const struct chan_params *chan_params = ws_regdb_chan_params(ctxt->config.ws_domain, ctxt->config.ws_chan_plan_id, ctxt->config.ws_class);
     const struct phy_params *phy_params = ws_regdb_phy_params(ctxt->config.ws_phy_mode_id, ctxt->config.ws_mode);
+    uint32_t chan0_freq   = chan_params ? chan_params->chan0_freq   : ctxt->config.ws_chan0_freq;
+    uint32_t chan_spacing = chan_params ? chan_params->chan_spacing : ctxt->config.ws_chan_spacing;
+    uint16_t chan_count   = chan_params ? chan_params->chan_count   : ctxt->config.ws_chan_count;
 
     WARN_ON(!ctxt->rcp.rail_config_list);
     if (!ctxt->rcp.rail_config_list)
@@ -170,11 +172,10 @@ static const struct rcp_rail_config *wsbr_get_next_rail_config(struct wsbr_ctxt 
         iterator++;
     while (iterator->chan0_freq) {
         if (iterator->rail_phy_mode_id == phy_params->rail_phy_mode_id &&
-            iterator->chan0_freq       == chan_params->chan0_freq &&
-            iterator->chan_count       == chan_params->chan_count &&
-            iterator->chan_spacing     == chan_params->chan_spacing) {
+            iterator->chan0_freq       == chan0_freq &&
+            iterator->chan_count       == chan_count &&
+            iterator->chan_spacing     == chan_spacing)
             return iterator;
-        }
         iterator++;
     }
     return NULL;
