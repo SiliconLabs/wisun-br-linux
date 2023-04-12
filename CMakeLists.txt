@@ -43,6 +43,9 @@ set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
 
+set(CMAKE_REQUIRED_LIBRARIES gcov)
+check_symbol_exists(__gcov_dump gcov.h LIBGCOV_FOUND)
+
 # Greatly improve warning messages. There is no reason to not enable that.
 if(CC_HAVE_WALL)
     add_compile_options(-Wall)
@@ -563,6 +566,9 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     if(ns3_FOUND)
+        if(NOT LIBGCOV_FOUND)
+            message(FATAL_ERROR "wsbrd-ns3 needs libgcov")
+        endif()
         # To embed wsbrd into a shared library to be used with ns-3, dependencies
         # must be compiled with -fPIC. This is also the case for MbedTLS, which
         # cannot be ensured by CMake when resolving dependencies.
@@ -581,6 +587,7 @@ if(COMPILE_SIMULATION_TOOLS)
             ${NS3_INCLUDE_DIRECTORIES}
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)
+        target_link_libraries(wsbrd-ns3 gcov)
         target_link_options(wsbrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=write
