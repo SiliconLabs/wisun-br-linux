@@ -84,7 +84,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "app_wsbrd/dbus.h"
-#include "app_wsbrd/tun.h"
 #include "app_wsbrd/wsbr.h"
 #include "common/ns_list.h"
 #include "common/utils.h"
@@ -2025,72 +2024,3 @@ bool rpl_instance_address_registration_done(struct net_if *interface, rpl_instan
     dao_target->response_wait_time = 6;
     return false;
 }
-
-#ifdef HAVE_WS_BORDER_ROUTER
-void rpl_downward_rx_ns_earo(struct net_if *net_if, const uint8_t src[16],
-                             uint8_t tid, uint16_t lifetime,
-                             struct ipv6_nd_opt_earo *na_earo)
-{
-    rpl_instance_t *instance = ns_list_get_first(&net_if->rpl_domain->instances);
-    const rpl_dodag_conf_t *conf;
-    const rpl_dodag_t *dodag;
-    rpl_dao_target_t *target;
-
-    dodag = rpl_instance_current_dodag(instance);
-    if (!dodag)
-        return;
-    conf = rpl_dodag_get_config(dodag);
-    if (!conf)
-        return;
-
-    //   Wi-SUN - LFN Neighbor Discovery
-    // * As a border router, pretend that the following DAO was received. *
-    // 2. Upon receipt of the NS(EARO), the FFN parent MUST transmit a RPL DAO
-    //    on behalf of the LFN to the Border Router. This DAO MUST be
-    //    configured as follows:
-    //   a. A RPL Target Option MUST be included and configured with the IPv6
-    //      address of the LFN.
-    target = rpl_instance_lookup_dao_target(instance, src, 128);
-    if (!target)
-        target = rpl_create_dao_target(instance, src, 128, false);
-    if (!target)
-        return;
-    //   b. A Transit Information Option MUST be included and configured as
-    //      follows:
-    //     i.   The ‘E’ flag MUST be set to 1.
-    target->external = true;
-    //     ii.  The Path Sequence field MUST be to the TID value obtained from
-    //          NS(EARO) issued by the LFN.
-    target->path_sequence = tid;
-    //     iii. The Path Lifetime field MUST be set to the lesser of:
-    //       1. The value converted from the Registration Lifetime obtained
-    //          from the NS(EARO) issued by the LFN.
-    //       2. The maximum value of DAO path lifetime (254) * the Lifetime
-    //          Unit from the latest receipt of the DODAG Configuration Option.
-    target->info.non_root.path_lifetime = MIN(lifetime * 60 / conf->lifetime_unit, 254);
-
-    target->path_control = 0xFF;
-    target->info.non_root.refresh_timer = 0xFFFFFFFF;
-
-    tun_add_node_to_proxy_neightbl(net_if, src);
-    tun_add_ipv6_direct_route(net_if, src);
-
-    // * As a border router, pretend that a DAO-ACK was received. *
-    // 3. Upon receipt of a RPL DAO-ACK, the FFN MUST transmit a Neighbor
-    //    Advertisement with Extended Address Registration Option to the LFN.
-    //    The NA and contained EARO MUST be configured as follows:
-    na_earo->present = true;
-    //   a. The Status field MUST be configured as specified in [RFC9010]
-    //      (generally copied from RPL DAO-ACK status).
-    na_earo->status = ARO_SUCCESS;
-    //   b. The ‘R’ flag MUST be set to 1 if the ‘U’ flag in the DAO-ACK Status
-    //      Field is set to 0. Otherwise, the ‘R’ flag MUST be set to 0.
-    na_earo->r = true;
-    na_earo->t = true;
-    na_earo->tid = tid;
-    //   c. The Registration Lifetime field MUST be set to the Path Lifetime
-    //      determined in step 2.b.iii above.
-    na_earo->lifetime = target->info.non_root.path_lifetime * conf->lifetime_unit / 60;
-}
-
-#endif

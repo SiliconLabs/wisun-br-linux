@@ -251,7 +251,16 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // the address that is being registered.
         if (!addr_is_ipv6_link_local(src_addr))
             return true;
-        rpl_downward_rx_ns_earo(cur_interface, src_addr, tid, na_earo->lifetime, na_earo);
+        // Normally in Wi-SUN the border router receives a DAO from the FFN
+        // parenting the LFN, and responds with a DAO-ACK triggering the
+        // sending of a NA(EARO) by the FFN to its LFN child. The case where
+        // the border router is a direct parent isn't fully described, but it
+        // makes sense to register the address and respond with a NA(EARO).
+        na_earo->present = true;
+        na_earo->status = ARO_SUCCESS;
+        na_earo->r = true;
+        na_earo->t = true;
+        na_earo->tid = tid;
     }
 
     /* Check if we are already using this address ourself */
