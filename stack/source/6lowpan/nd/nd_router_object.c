@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "app_wsbrd/tun.h" // FIXME
 #include "common/rand.h"
 #include "common/iobuf.h"
 #include "common/log_legacy.h"
@@ -160,6 +161,8 @@ static void nd_update_registration(struct net_if *cur_interface, ipv6_neighbour_
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         ipv6_route_add_metric(neigh->ip_address, 128, cur_interface->id, neigh->ip_address, ROUTE_ARO, NULL, 0, neigh->lifetime - 2, 32);
+        tun_add_node_to_proxy_neightbl(cur_interface, neigh->ip_address);
+        tun_add_ipv6_direct_route(cur_interface, neigh->ip_address);
         protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
 
     } else {
