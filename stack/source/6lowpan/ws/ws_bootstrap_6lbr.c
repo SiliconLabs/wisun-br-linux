@@ -269,6 +269,10 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
         INFO("  phy operating modes: %s", tr_bytes(hopping_schedule->phy_op_modes,
                                                    strlen((char *)hopping_schedule->phy_op_modes),
                                                    NULL, 80, FMT_DEC | DELIM_COMMA | ELLIPSIS_ABRT));
+    if (hopping_schedule->rcp_rail_config_index < 0)
+        INFO("  RCP configuration index: not supported");
+    else
+        INFO("  RCP configuration index: %d", hopping_schedule->rcp_rail_config_index);
 
 
     INFO("  channel 0 frequency: %.1fMHz", hopping_schedule->ch0_freq / 1000000.);
