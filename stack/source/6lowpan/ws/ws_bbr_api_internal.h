@@ -38,8 +38,6 @@ uint16_t ws_bbr_pan_size(struct net_if *cur);
 
 int ws_bbr_get_backbone_id();
 
-uint8_t *ws_bbr_get_phy_operating_modes();
-
 void ws_bbr_rpl_config(struct net_if *cur, uint8_t imin, uint8_t doubling, uint8_t redundancy, uint16_t dag_max_rank_increase, uint16_t min_hop_rank_increase, uint32_t lifetime);
 
 bool ws_bbr_ready_to_start(struct net_if *cur);
@@ -63,7 +61,6 @@ void ws_bbr_init(struct net_if *interface);
 #define ws_bbr_bsi_generate(interface) 0
 #define ws_bbr_pan_id_get(interface) 0
 #define ws_bbr_init(interface) (void) 0
-#define ws_bbr_get_phy_operating_modes(void) NULL
 
 #endif //HAVE_WS_BORDER_ROUTER
 

@@ -1929,7 +1929,7 @@ void ws_bootstrap_network_start(struct net_if *cur)
 {
     //Set Network names, Pan information configure, hopping schedule & GTKHash
     ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
-    ws_llc_set_phy_operating_mode(cur, ws_bbr_get_phy_operating_modes());
+    ws_llc_set_phy_operating_mode(cur, cur->ws_info.hopping_schedule.phy_op_modes);
 }
 
 void ws_bootstrap_advertise_start(struct net_if *cur)

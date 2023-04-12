@@ -1092,14 +1092,6 @@ int ws_bbr_radius_timing_validate(int8_t interface_id, bbr_radius_timing_t *timi
     return ws_pae_controller_radius_timing_validate(interface_id, timing);
 }
 
-uint8_t *ws_bbr_get_phy_operating_modes()
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(g_ctxt.rcp_if_id);
-
-    BUG_ON(!cur);
-    return cur->ws_info.hopping_schedule.phy_op_modes;
-}
-
 int ws_bbr_set_mode_switch(int8_t interface_id, int mode, uint8_t phy_mode_id, uint8_t *neighbor_mac_address)
 {
     struct net_if *interface = protocol_stack_interface_info_get_by_id(interface_id);
