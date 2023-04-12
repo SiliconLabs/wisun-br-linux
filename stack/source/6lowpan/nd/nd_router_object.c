@@ -190,9 +190,10 @@ void nd_remove_registration(struct net_if *cur_interface, addrtype_e ll_type, co
 
 /* Process ICMP Neighbor Solicitation (RFC 4861 + RFC 6775 + RFC 8505) EARO. */
 bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, size_t earo_len,
-                        const uint8_t *slla_ptr, const uint8_t src_addr[16],
+                        const uint8_t *slla_ptr, const uint8_t src_addr[16], const uint8_t target[16],
                         struct ipv6_nd_opt_earo *na_earo)
 {
+    const uint8_t *registered_addr = src_addr;
     struct iobuf_read earo = {
         .data_size = earo_len,
         .data = earo_ptr,
@@ -251,6 +252,12 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
         // the address that is being registered.
         if (!addr_is_ipv6_link_local(src_addr))
             return true;
+        //   RFC 8505 Section 5.1 - Extending the Address Registration Option
+        // The Target Address field in the NS containing the EARO is now the
+        // field that indicates the address that is being registered, as
+        // opposed to the Source Address field in the NS as specified in
+        // [RFC6775] (see Section 5.5).
+        registered_addr = target;
         // Normally in Wi-SUN the border router receives a DAO from the FFN
         // parenting the LFN, and responds with a DAO-ACK triggering the
         // sending of a NA(EARO) by the FFN to its LFN child. The case where
@@ -264,7 +271,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     }
 
     /* Check if we are already using this address ourself */
-    if (addr_interface_address_compare(cur_interface, src_addr) == 0) {
+    if (addr_interface_address_compare(cur_interface, registered_addr) == 0) {
         na_earo->present = true;
         na_earo->status = ARO_DUPLICATE;
         return true;
@@ -278,7 +285,7 @@ bool nd_ns_earo_handler(struct net_if *cur_interface, const uint8_t *earo_ptr, s
     }
 
     /* We need to have entry in the Neighbour Cache */
-    ipv6_neighbour_t *neigh = ipv6_neighbour_lookup_or_create(&cur_interface->ipv6_neighbour_cache, src_addr);
+    ipv6_neighbour_t *neigh = ipv6_neighbour_lookup_or_create(&cur_interface->ipv6_neighbour_cache, registered_addr);
     if (!neigh) {
         na_earo->present = true;
         na_earo->status = ARO_FULL;

@@ -601,7 +601,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
          */
         if (!nd_ns_earo_handler(cur, earo.data, earo.data_size,
                                 has_sllao ? sllao.data : NULL,
-                                buf->src_sa.address, &na_earo))
+                                buf->src_sa.address, target, &na_earo))
             goto drop;
     }
 
