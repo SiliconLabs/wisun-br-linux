@@ -263,6 +263,14 @@ static void ws_bootstrap_6lbr_print_config(struct net_if *cur)
     else
         INFO("  mode: 0x%x", hopping_schedule->operating_mode);
 
+    if (!hopping_schedule->phy_op_modes[0])
+        INFO("  phy operating modes: disabled");
+    else
+        INFO("  phy operating modes: %s", tr_bytes(hopping_schedule->phy_op_modes,
+                                                   strlen((char *)hopping_schedule->phy_op_modes),
+                                                   NULL, 80, FMT_DEC | DELIM_COMMA | ELLIPSIS_ABRT));
+
+
     INFO("  channel 0 frequency: %.1fMHz", hopping_schedule->ch0_freq / 1000000.);
     INFO("  channel spacing: %dkHz", ws_regdb_chan_spacing_value(hopping_schedule->channel_spacing) / 1000);
     INFO("  channel count: %d", hopping_schedule->number_of_channels);
