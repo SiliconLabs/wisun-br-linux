@@ -589,6 +589,7 @@ if(COMPILE_SIMULATION_TOOLS)
             -Wl,--wrap=wsbr_common_timer_process
             -Wl,--wrap=clock_gettime
             -Wl,--wrap=exit
+            -Wl,--wrap=__tr_printf
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()

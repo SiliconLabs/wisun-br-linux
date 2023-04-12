@@ -10,6 +10,7 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
+#include <stdarg.h>
 #include <exception>
 #include <limits.h>
 #include <string.h>
@@ -47,8 +48,28 @@ void wsbr_ns3_main(const char *config_filename)
     wsbr_main(ARRAY_SIZE(argv) - 1, argv); // Does not return
 }
 
+static char last_error[256];
+extern "C" void __wrap___tr_printf(const char *color, const char *fmt, ...)
+{
+    va_list ap;
+
+    // Hack: ERROR, FATAL and BUG pass "31" (red) or "91" (light red) as output
+    // color
+    if (!strcmp(color, "91") || !strcmp(color, "31")) {
+        va_start(ap, fmt);
+        vsnprintf(last_error, sizeof(last_error), fmt, ap);
+        va_end(ap);
+    }
+    va_start(ap, fmt);
+    __tr_vprintf(color, fmt, ap);
+    va_end(ap);
+}
+
 // exit() is not thread-safe, so aborting is preferred.
 extern "C" void __wrap_exit(int status)
 {
-    NS_ABORT_MSG("wsbrd exited");
+    if (strlen(last_error))
+        fprintf(stderr, "\x1b[31mwsbrd: %s\x1b[0m\n", last_error);
+    ns3::FatalImpl::FlushStreams();
+    std::terminate();
 }
