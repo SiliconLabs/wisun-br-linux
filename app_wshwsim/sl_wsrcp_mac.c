@@ -555,7 +555,7 @@ static const struct {
     { macCoordExtendedAddress,         wsmac_spinel_set_eui64,                 SPINEL_PROP_WS_COORD_EXTENDED_ADDRESS,           },
     { macDefaultKeySource,             wsmac_spinel_set_eui64,                 SPINEL_PROP_WS_DEFAULT_KEY_SOURCE,               },
     { macCCAThresholdStart,            wsmac_spinel_set_cca_threshold_start,   SPINEL_PROP_WS_CCA_THRESHOLD_START,              },
-    { macRfConfiguration,              wsmac_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION,                 },
+    { macRfConfiguration,              wsmac_spinel_set_rf_configuration,      SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY,          },
     { macDeviceTable,                  wsmac_spinel_set_device_table,          SPINEL_PROP_WS_DEVICE_TABLE,                     },
     { macKeyTable,                     wsmac_spinel_set_key_table,             SPINEL_PROP_WS_KEY_TABLE,                        },
     { macFrameCounter,                 wsmac_spinel_set_frame_counter,         SPINEL_PROP_WS_FRAME_COUNTER,                    },
@@ -595,7 +595,7 @@ void spinel_push_hdr_is_prop(struct wsmac_ctxt *ctxt, struct iobuf_write *buf, u
 static void wsmac_rf_status_ind(struct wsmac_ctxt *ctxt, int status)
 {
     iobuf_free(tx_buf);
-    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_RF_CONFIGURATION);
+    spinel_push_hdr_is_prop(ctxt, tx_buf, SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY);
     spinel_push_uint(tx_buf, status ? SPINEL_STATUS_FAILURE : SPINEL_STATUS_OK);
     uart_tx(ctxt->os_ctxt, tx_buf->data, tx_buf->len);
 }

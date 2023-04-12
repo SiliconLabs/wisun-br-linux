@@ -104,7 +104,7 @@ const char *spinel_prop_str(int prop)
         prop_name(WS_MAC_FILTER_CLEAR),
         prop_name(WS_MAC_FILTER_ADD_LONG),
         prop_name(WS_MAC_FILTER_STOP),
-        prop_name(WS_RF_CONFIGURATION),
+        prop_name(WS_RF_CONFIGURATION_LEGACY),
         prop_name(WS_RF_CONFIGURATION_LIST),
         prop_name(WS_ASYNC_FRAGMENTATION),
     };

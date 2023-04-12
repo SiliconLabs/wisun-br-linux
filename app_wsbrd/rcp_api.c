@@ -253,12 +253,12 @@ void rcp_get_rf_config_list()
     iobuf_free(&buf);
 }
 
-void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
+void rcp_set_rf_config_legacy(const struct phy_rf_channel_configuration *config)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     struct iobuf_write buf = { };
 
-    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION);
+    spinel_push_hdr_set_prop(&buf, SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY);
     spinel_push_u32(&buf, config->channel_0_center_frequency);
     spinel_push_u32(&buf, config->channel_spacing);
     spinel_push_u32(&buf, config->datarate);
@@ -965,7 +965,7 @@ struct rcp_rx_cmds rx_cmds[] = {
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_HWADDR,                   rcp_rx_hwaddr },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RX_SENSITIVITY,        rcp_rx_sensitivity },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION_LIST, rcp_rx_rf_list },
-    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION,      rcp_rx_rf_config_status },
+    { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RF_CONFIGURATION_LEGACY, rcp_rx_rf_config_status },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_LAST_STATUS,              rcp_rx_no_op },
     { SPINEL_CMD_PROP_IS,          SPINEL_PROP_WS_RCP_CRC_ERR,           rcp_rx_crc_err },
     { SPINEL_CMD_RESET,            (uint32_t)-1,                         rcp_rx_reset },
