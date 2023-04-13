@@ -35,6 +35,17 @@ mark_as_advanced(ns3_DIR)
 find_package(MbedTLS REQUIRED)
 mark_as_advanced(MbedTLS_DIR)
 
+# Check if MbedTLS has been compiled with -fPIC
+set(CMAKE_REQUIRED_LIBRARIES MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
+set(CMAKE_REQUIRED_LINK_OPTIONS ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS})
+set(CMAKE_REQUIRED_QUIET True)
+check_symbol_exists(mbedtls_ssl_session_init mbedtls/ssl.h MBEDTLS_COMPILED_WITH_PIC)
+unset(CMAKE_REQUIRED_QUIET)
+unset(CMAKE_REQUIRED_LINK_OPTIONS)
+if(MBEDTLS_COMPILED_WITH_PIC)
+    set_target_properties(MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509 PROPERTIES POSITION_INDEPENDENT_CODE True)
+endif()
+
 find_package(PkgConfig REQUIRED)
 # Note that old libpcap releases didn't provide pkg-config file and are not
 # detected by the line below. The user have to compile without support for
@@ -564,6 +575,10 @@ if(COMPILE_SIMULATION_TOOLS)
         if(NOT LIBGCOV_FOUND)
             message(FATAL_ERROR "wsbrd-ns3 needs libgcov")
         endif()
+        if (NOT MBEDTLS_COMPILED_WITH_PIC)
+            message(FATAL_ERROR "wsbrd-ns3 needs MbedTLS compiled with -fPIC")
+        endif()
+
         # To embed wsbrd into a shared library to be used with ns-3, dependencies
         # must be compiled with -fPIC. This is also the case for MbedTLS, which
         # cannot be ensured by CMake when resolving dependencies.
