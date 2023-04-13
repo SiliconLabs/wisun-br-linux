@@ -21,6 +21,7 @@ check_include_file(backtrace.h BACKTRACE_FOUND)
 find_package(Rust)
 find_package(Cargo)
 find_package(ns3 QUIET)
+mark_as_advanced(ns3_DIR)
 
 # Syntax "MbedTLS 2.18...<4" does not work :(
 find_package(MbedTLS REQUIRED)
