@@ -225,12 +225,10 @@ static void tun_addr_add(struct nl_sock *sock, int ifindex, const uint8_t ipv6_p
         strcat(ipv6_addr_str, "/64");
     }
     err = nl_addr_parse(ipv6_addr_str, AF_INET6, &lo_ipv6_addr);
-    if (err < 0)
-        FATAL(2, "nl_addr_parse %s: %s", ipv6_addr_str, nl_geterror(err));
+    FATAL_ON(err < 0, 2, "nl_addr_parse %s: %s", ipv6_addr_str, nl_geterror(err));
     ipv6_addr = rtnl_addr_alloc();
     err = rtnl_addr_set_local(ipv6_addr, lo_ipv6_addr);
-    if (err < 0)
-        FATAL(2, "rtnl_addr_set_local %s: %s", ipv6_addr_str, nl_geterror(err));
+    FATAL_ON(err < 0, 2, "rtnl_addr_set_local %s: %s", ipv6_addr_str, nl_geterror(err));
     rtnl_addr_set_ifindex(ipv6_addr, ifindex);
     rtnl_addr_set_flags(ipv6_addr, IN6_ADDR_GEN_MODE_EUI64);
     err = rtnl_addr_add(sock, ipv6_addr, 0);
