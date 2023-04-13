@@ -147,7 +147,8 @@ void tun_add_node_to_proxy_neightbl(struct net_if *if_entry, const uint8_t addre
     rtnl_neigh_set_dst(nl_neigh, src_ipv6_nl_addr);
     rtnl_neigh_set_flags(nl_neigh, NTF_PROXY);
     rtnl_neigh_set_flags(nl_neigh, NTF_ROUTER);
-    rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
+    err = rtnl_neigh_add(sock, nl_neigh, NLM_F_CREATE);
+    FATAL_ON(err < 0, 2, "rtnl_neigh_add: %s", nl_geterror(err));
 
     rtnl_neigh_put(nl_neigh);
 ret_free_addr:
