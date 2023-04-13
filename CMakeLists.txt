@@ -18,6 +18,14 @@ check_include_file(sl_cpc.h LIBCPC_FOUND)
 # the libbacktrace project provides a fully compatible library.
 check_include_file(backtrace.h BACKTRACE_FOUND)
 
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
+set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
+
+set(CMAKE_REQUIRED_LIBRARIES gcov)
+check_symbol_exists(__gcov_dump gcov.h LIBGCOV_FOUND)
+
 find_package(Rust)
 find_package(Cargo)
 find_package(ns3 QUIET)
@@ -35,14 +43,6 @@ pkg_check_modules(LIBCAP               IMPORTED_TARGET libcap>=2.29)
 pkg_check_modules(LIBPCAP              IMPORTED_TARGET libpcap)
 pkg_check_modules(LIBSYSTEMD           IMPORTED_TARGET libsystemd)
 pkg_check_modules(LIBNL_ROUTE REQUIRED IMPORTED_TARGET libnl-route-3.0)
-
-include(CheckSymbolExists)
-set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
-set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
-check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
-
-set(CMAKE_REQUIRED_LIBRARIES gcov)
-check_symbol_exists(__gcov_dump gcov.h LIBGCOV_FOUND)
 
 # Greatly improve warning messages. There is no reason to not enable that.
 if(CC_HAVE_WALL)
