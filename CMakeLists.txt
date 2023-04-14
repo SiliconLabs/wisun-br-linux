@@ -595,6 +595,7 @@ if(COMPILE_SIMULATION_TOOLS)
             -Wl,--wrap=wsbr_common_timer_init
             -Wl,--wrap=wsbr_common_timer_process
             -Wl,--wrap=clock_gettime
+            -Wl,--wrap=signal
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
         )
