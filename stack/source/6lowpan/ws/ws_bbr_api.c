@@ -607,6 +607,11 @@ void ws_bbr_lpan_version_increase(struct net_if *cur)
                                   cur->ws_info.pan_information.pan_version,
                                   cur->ws_info.pan_information.lpan_version,
                                   cur->ws_info.cfg->gen.network_name);
+    //   Wi-SUN FAN 1.1v06 6.3.4.6.3 FFN Discovery / Join
+    // A Border Router MUST increment PAN Version (PANVER-IE) [...] when [...]
+    // the following occurs:
+    // d. A change in LFN Version.
+    ws_bbr_pan_version_increase(cur);
 }
 
 void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
