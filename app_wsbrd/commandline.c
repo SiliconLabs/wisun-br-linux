@@ -818,4 +818,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16))
         WARN("ipv6_prefix is ignored");
 #endif
+    for (int i = 0; config->ws_phy_op_modes[i]; i++)
+        if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&
+            !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))
+            WARN("PHY %d is not standard in domain %s", config->ws_phy_op_modes[i],
+                 val_to_str(config->ws_domain, valid_ws_domains, "<unknown>"));
+
 }

@@ -259,3 +259,17 @@ int ws_regdb_chan_spacing_value(int id)
             return chan_spacing_table[i].val;
     return 0;
 }
+
+bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id)
+{
+    int i, j;
+
+    for (i = 0; chan_params_table[i].chan0_freq; i++) {
+        if (chan_params_table[i].reg_domain == reg_domain) {
+            for (j = 0; chan_params_table[i].valid_phy_modes[j]; j++)
+                if (chan_params_table[i].valid_phy_modes[j] == phy_mode_id)
+                    return true;
+        }
+    }
+    return false;
+}

@@ -109,4 +109,6 @@ const struct chan_params *ws_regdb_chan_params_universal(int chan0_freq, int cha
 int ws_regdb_chan_spacing_id(int val);
 int ws_regdb_chan_spacing_value(int id);
 
+bool ws_regdb_is_std(uint8_t reg_domain, uint8_t phy_mode_id);
+
 #endif
