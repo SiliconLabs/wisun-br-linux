@@ -27,6 +27,7 @@
 #include "common/ns_list.h"
 #include "common/ieee802154_ie.h"
 #include "common/iobuf.h"
+#include "common/utils.h"
 #include "common/version.h"
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "service_libs/etx/etx.h"
@@ -1632,10 +1633,12 @@ static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_
 
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
+    struct llc_data_base *llc_base = container_of(base, struct llc_data_base, temp_entries);
+    struct ws_info *ws_info = &llc_base->interface_ptr->ws_info;
 
     ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_eapol_temp_neigh, mac64);
     if (entry) {
-        //TODO referesh Timer here
+        entry->eapol_temp_info.eapol_timeout = ws_info->cfg->timing.temp_eapol_min_timeout + 1;
         return entry;
     }
 
