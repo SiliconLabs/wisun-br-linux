@@ -11,10 +11,10 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <stdarg.h>
+#include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include <ns3/abort.h>
 
@@ -30,7 +30,7 @@ int g_simulation_id;
 
 void wsbr_ns3_main(const char *config)
 {
-    const char *config_filename = "/tmp/wsbrd_ns3.conf";
+    char config_filename[] = "/tmp/wsbrd-ns3-XXXXXX.conf";
     int config_fd;
     char *argv[6];
     ssize_t size;
@@ -38,9 +38,8 @@ void wsbr_ns3_main(const char *config)
     BUG_ON(g_uart_cb.IsNull());
     BUG_ON(g_uart_fd < 0);
 
-    config_fd = open(config_filename, O_WRONLY | O_CREAT | O_TRUNC,
-                     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    FATAL_ON(config_fd < 0, 1, "open %s: %m", config_filename);
+    config_fd = mkstemps(config_filename, strlen(".conf"));
+    FATAL_ON(config_fd < 0, 1, "mkstemps: %m");
     size = write(config_fd, config, strlen(config));
     FATAL_ON(size < 0, 1, "write %s: %m", config_filename);
     if ((size_t)size < strlen(config))
