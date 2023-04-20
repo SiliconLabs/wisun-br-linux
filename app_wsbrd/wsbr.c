@@ -90,6 +90,8 @@ struct wsbr_ctxt g_ctxt = {
     .tun_fd = -1,
     .pcapng_fd = -1,
     .dhcp_server.fd = -1,
+
+    .os_ctxt = &g_os_ctxt,
 };
 
 // See warning in common/os_types.h
@@ -500,7 +502,6 @@ int wsbr_main(int argc, char *argv[])
     signal(SIGHUP, kill_handler);
     signal(SIGTERM, kill_handler);
     signal(SIGPIPE, SIG_IGN); // Handle writing to unread FIFO for pcapng capture
-    ctxt->os_ctxt = &g_os_ctxt;
     parse_commandline(&ctxt->config, argc, argv, print_help_br);
     if (ctxt->config.color_output != -1)
         g_enable_color_traces = ctxt->config.color_output;

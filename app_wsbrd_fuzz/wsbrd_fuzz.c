@@ -176,9 +176,7 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
 ssize_t __real_write(int fd, const void *buf, size_t count);
 ssize_t __wrap_write(int fd, const void *buf, size_t count)
 {
-    // os_ctxt is set right at the beginning of main, but AFL calls
-    // write before main so the pointer needs to be checked
-    if (g_ctxt.os_ctxt && fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_count)
+    if (fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_count)
         return count;
 
     if (fd == g_ctxt.tun_fd && g_fuzz_ctxt.replay_count)
