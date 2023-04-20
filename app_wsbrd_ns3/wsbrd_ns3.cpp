@@ -17,14 +17,19 @@
 #include <unistd.h>
 
 #include <ns3/abort.h>
+#include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
 #include <gcov.h>
 #include "app_wsbrd/libwsbrd.h"
 #include "common/utils.h"
 #include "common/log.h"
+#include "common/version.h"
 }
-#include "wsbrd_ns3.hpp"
+
+#if LIBWSBRD_NS3_VERSION < VERSION(2, 0, 0) || LIBWSBRD_NS3_VERSION >= VERSION(3, 0, 0)
+#error "Incompatible ns-3 version"
+#endif
 
 int g_simulation_id;
 

@@ -14,8 +14,7 @@
 
 #include <ns3/random-variable-stream.h>
 #include <ns3/rng-seed-manager.h>
-
-#include "wsbrd_ns3.hpp"
+#include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 {

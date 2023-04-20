@@ -14,12 +14,12 @@
 #include <unistd.h>
 
 #include <ns3/simulator.h>
+#include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
 #include "app_wsbrd/wsbr.h"
 #include "common/log.h"
 }
-#include "wsbrd_ns3.hpp"
 
 static void wsbr_ns3_timer_tick(struct wsbr_ctxt *ctxt)
 {

@@ -12,11 +12,12 @@
  */
 #include <sys/types.h>
 
+#include <ns3/libwsbrd-ns3.hpp>
+
 extern "C" {
 #include "app_wsbrd/wsbr.h"
 #include "common/os_types.h"
 }
-#include "wsbrd_ns3.hpp"
 
 ns3::Callback<int, const void *, size_t> g_uart_cb = ns3::MakeNullCallback<int, const void *, size_t>();
 

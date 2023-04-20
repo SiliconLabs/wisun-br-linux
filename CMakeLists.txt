@@ -33,8 +33,21 @@ unset(CMAKE_REQUIRED_LIBRARIES)
 
 find_package(Rust)
 find_package(Cargo)
+
 find_package(ns3 QUIET)
 mark_as_advanced(ns3_DIR)
+if(ns3_FOUND)
+    # The wsbrd simulation library only works with a ns-3 fork private to
+    # Silicon Labs. See app_wsbrd_ns3/README.md.
+    include(CheckIncludeFileCXX)
+    get_target_property(NS3_INCLUDE_DIRECTORIES ns3::libcore INTERFACE_INCLUDE_DIRECTORIES)
+    set(CMAKE_REQUIRED_INCLUDES ${NS3_INCLUDE_DIRECTORIES})
+    set(CMAKE_REQUIRED_QUIET ON)
+    unset(ns3_FOUND)
+    check_include_file_cxx(ns3/libwsbrd-ns3.hpp ns3_FOUND)
+    unset(CMAKE_REQUIRED_QUIET)
+    unset(CMAKE_REQUIRED_INCLUDES)
+endif()
 
 # Syntax "MbedTLS 2.18...<4" does not work :(
 find_package(MbedTLS REQUIRED)
@@ -595,8 +608,6 @@ if(COMPILE_SIMULATION_TOOLS)
             app_wsbrd_ns3/time.cpp
             app_wsbrd_ns3/uart.cpp
         )
-        # Only include headers, do not link
-        get_target_property(NS3_INCLUDE_DIRECTORIES ns3::libcore INTERFACE_INCLUDE_DIRECTORIES)
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
             stack/
