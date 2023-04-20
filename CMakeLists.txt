@@ -26,7 +26,9 @@ unset(CMAKE_REQUIRED_DEFINITIONS)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
 set(CMAKE_REQUIRED_LIBRARIES gcov)
+set(CMAKE_REQUIRED_QUIET True)
 check_symbol_exists(__gcov_dump gcov.h LIBGCOV_FOUND)
+unset(CMAKE_REQUIRED_QUIET)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
 find_package(Rust)
