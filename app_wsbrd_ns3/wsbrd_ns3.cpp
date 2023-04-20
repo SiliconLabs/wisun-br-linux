@@ -15,6 +15,7 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include <ns3/abort.h>
 #include <ns3/libwsbrd-ns3.hpp>
@@ -32,6 +33,15 @@ extern "C" {
 #endif
 
 int g_simulation_id;
+
+static void wsbr_ns3_cleanup(void *arg)
+{
+    char *config_filename = (char *)arg;
+    int ret;
+
+    ret = unlink(config_filename);
+    WARN_ON(ret, "unlink %s: %m", config_filename);
+}
 
 void wsbr_ns3_main(const char *config)
 {
@@ -59,7 +69,9 @@ void wsbr_ns3_main(const char *config)
     argv[4] = (char *)"-D";
     argv[5] = NULL;
 
+    pthread_cleanup_push(wsbr_ns3_cleanup, config_filename);
     wsbr_main(ARRAY_SIZE(argv) - 1, argv); // Does not return
+    pthread_cleanup_pop(true);
 }
 
 static char last_error[256];

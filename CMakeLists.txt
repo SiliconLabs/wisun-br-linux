@@ -49,6 +49,9 @@ if(ns3_FOUND)
     unset(CMAKE_REQUIRED_INCLUDES)
 endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads)
+
 # Syntax "MbedTLS 2.18...<4" does not work :(
 find_package(MbedTLS REQUIRED)
 mark_as_advanced(MbedTLS_DIR)
@@ -597,6 +600,9 @@ if(COMPILE_SIMULATION_TOOLS)
         if (NOT MBEDTLS_COMPILED_WITH_PIC)
             message(FATAL_ERROR "wsbrd-ns3 needs MbedTLS compiled with -fPIC")
         endif()
+        if(NOT Threads_FOUND)
+            message(FATAL_ERROR "wsbrd-ns3 needs libpthread")
+        endif()
 
         # To embed wsbrd into a shared library to be used with ns-3, dependencies
         # must be compiled with -fPIC. This is also the case for MbedTLS, which
@@ -615,6 +621,7 @@ if(COMPILE_SIMULATION_TOOLS)
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)
         target_link_libraries(wsbrd-ns3 gcov)
+        target_link_libraries(wsbrd-ns3 Threads::Threads)
         target_link_options(wsbrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=write
