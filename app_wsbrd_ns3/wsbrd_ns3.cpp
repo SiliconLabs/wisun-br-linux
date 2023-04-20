@@ -11,9 +11,10 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <stdarg.h>
-#include <exception>
-#include <limits.h>
 #include <string.h>
+#include <signal.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include <ns3/abort.h>
 
@@ -27,21 +28,29 @@ extern "C" {
 
 int g_simulation_id;
 
-void wsbr_ns3_main(const char *config_filename)
+void wsbr_ns3_main(const char *config)
 {
-    char config_arg[PATH_MAX];
+    const char *config_filename = "/tmp/wsbrd_ns3.conf";
+    int config_fd;
     char *argv[6];
+    ssize_t size;
 
     BUG_ON(g_uart_cb.IsNull());
     BUG_ON(g_uart_fd < 0);
 
-    // Copy arguments to make sure they won't be modified outside of this function
-    strcpy(config_arg, config_filename);
+    config_fd = open(config_filename, O_WRONLY | O_CREAT | O_TRUNC,
+                     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    FATAL_ON(config_fd < 0, 1, "open %s: %m", config_filename);
+    size = write(config_fd, config, strlen(config));
+    FATAL_ON(size < 0, 1, "write %s: %m", config_filename);
+    if ((size_t)size < strlen(config))
+        FATAL(1, "write %s: Short write", config_filename);
+    close(config_fd);
 
     // Cast to non-const, wsbrd is trusted to not modify its arguments
     argv[0] = (char *)"wsbrd";
     argv[1] = (char *)"-F";
-    argv[2] = config_arg;
+    argv[2] = (char *)config_filename;
     argv[3] = (char *)"-u/dev/null"; // Provide a UART devive so parse_commandline succeeds
     argv[4] = (char *)"-D";
     argv[5] = NULL;

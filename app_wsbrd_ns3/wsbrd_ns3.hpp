@@ -41,10 +41,11 @@ extern ns3::Callback<int, const void *, size_t> g_uart_cb;
 extern int g_uart_fd;
 
 /*
- * Launch wsbrd with the specified config file.
- * This function does not return and should be launched in a thread.
+ * Launch wsbrd with the specified config (a string with the contents of a
+ * config file). This function does not return and should be launched in a
+ * thread.
  */
-void wsbr_ns3_main(const char *config_filename);
+void wsbr_ns3_main(const char *config);
 
 } // extern "C"
 
