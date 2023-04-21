@@ -30,8 +30,8 @@
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_structures.h"
 #include "rpl/rpl_control.h"

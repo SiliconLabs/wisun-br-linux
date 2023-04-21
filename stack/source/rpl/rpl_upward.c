@@ -36,8 +36,8 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "stack/net_interface.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "core/ns_address_internal.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"

@@ -37,8 +37,8 @@
 #include "stack/ns_address.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_bbr_api.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/protocols/sec_prot_certs.h"

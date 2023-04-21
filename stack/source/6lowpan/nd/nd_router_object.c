@@ -25,12 +25,12 @@
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
-#include "stack/timers.h"
 
 #include "stack/source/rpl/rpl_downward.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/icmpv6_prefix.h"
+#include "core/timers.h"
 #include "core/ns_address_internal.h"
 #include "rpl/rpl_control.h"
 #include "rpl/rpl_data.h"

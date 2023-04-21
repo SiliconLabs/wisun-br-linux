@@ -11,9 +11,14 @@
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
 #include <time.h>
-
+#include "common/log.h"
+#include "common/named_values.h"
+#include "common/rand.h"
+#include "common/trickle.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mlme.h"
+
+#include "stack/source/core/timers.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
@@ -25,11 +30,6 @@
 #include "stack/source/6lowpan/ws/ws_ie_validation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/nwk_interface/protocol.h"
-#include "stack/timers.h"
-#include "common/log.h"
-#include "common/named_values.h"
-#include "common/rand.h"
-#include "common/trickle.h"
 
 static bool ws_mngt_ie_utt_validate(const struct mcps_data_ie_list *ie_ext,
                                     struct ws_utt_ie *ie_utt,

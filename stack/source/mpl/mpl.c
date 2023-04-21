@@ -26,16 +26,14 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "common/serial_number_arithmetic.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
-
-#include "stack/timers.h"
 
 #include "mpl/mpl.h"
 

@@ -14,9 +14,10 @@
 #include "stack/source/rpl/rpl_control.h"
 #include "stack/source/service_libs/etx/etx.h"
 #include "stack/source/legacy/dhcpv6_service.h"
-#include "stack/timers.h"
 #include "common/utils.h"
 #include "common/log.h"
+
+#include "timers.h"
 
 int g_monotonic_time_100ms = 0;
 

@@ -37,11 +37,11 @@
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/ws_management_api.h"
-#include "stack/timers.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "security/pana/pana_eap_header.h"
 #include "security/eapol/eapol_helper.h"

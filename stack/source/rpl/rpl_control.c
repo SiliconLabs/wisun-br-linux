@@ -40,8 +40,8 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "service_libs/etx/etx.h" /* slight ick */
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "core/ns_buffer.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

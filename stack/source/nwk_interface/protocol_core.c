@@ -26,10 +26,10 @@
 #include "common/endian.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/mac_api.h"
-#include "stack/timers.h"
 
 #include "app_wsbrd/rcp_api.h"
 #include "app_wsbrd/wsbr_mac.h"
+#include "core/timers.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_bootstrap.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"

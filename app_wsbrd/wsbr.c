@@ -30,7 +30,6 @@
 #include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/ws_test_api.h"
-#include "stack/timers.h"
 
 #include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
@@ -42,6 +41,7 @@
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/rpl/rpl_data.h"

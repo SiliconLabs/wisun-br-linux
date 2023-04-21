@@ -135,7 +135,6 @@ add_library(libwsbrd STATIC
     common/ws_regdb.c
     common/key_value_storage.c
     common/ieee802154_ie.c
-    stack/source/timers.c
     stack/source/6lowpan/adaptation_interface.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan.c
     stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
@@ -177,6 +176,7 @@ add_library(libwsbrd STATIC
     stack/source/common_protocols/ipv6.c
     stack/source/common_protocols/ipv6_flow.c
     stack/source/common_protocols/ipv6_resolution.c
+    stack/source/core/timers.c
     stack/source/core/ns_address_internal.c
     stack/source/core/ns_buffer.c
     stack/source/ipv6_stack/ipv6_routing_table.c
@@ -327,7 +327,6 @@ if(COMPILE_DEVTOOLS)
         common/ws_regdb.c
         common/key_value_storage.c
         common/ieee802154_ie.c
-        stack/source/timers.c
         stack/source/6lowpan/adaptation_interface.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan.c
         stack/source/6lowpan/bootstraps/protocol_6lowpan_bootstrap.c
@@ -367,6 +366,7 @@ if(COMPILE_DEVTOOLS)
         stack/source/common_protocols/ipv6.c
         stack/source/common_protocols/ipv6_flow.c
         stack/source/common_protocols/ipv6_resolution.c
+        stack/source/core/timers.c
         stack/source/core/ns_address_internal.c
         stack/source/core/ns_buffer.c
         stack/source/ipv6_stack/ipv6_routing_table.c

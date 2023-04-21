@@ -32,11 +32,11 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_common_defines.h"
-#include "stack/timers.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
+#include "core/timers.h"
 #include "core/ns_address_internal.h"
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"

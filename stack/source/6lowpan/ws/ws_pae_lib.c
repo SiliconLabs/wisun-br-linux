@@ -24,8 +24,8 @@
 #include "common/ns_list.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "security/kmp/kmp_addr.h"
 #include "security/kmp/kmp_api.h"

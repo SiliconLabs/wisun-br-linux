@@ -28,8 +28,8 @@
 #include "stack/mac/fhss_config.h"
 #include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "security/protocols/sec_prot_cfg.h"
 #include "security/kmp/kmp_addr.h"

@@ -41,11 +41,11 @@
 #include "stack/mac/sw_mac.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/ccm.h"
-#include "stack/timers.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/rcp_api.h"
+#include "core/timers.h"
 #include "nwk_interface/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "mpl/mpl.h"

@@ -30,8 +30,8 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "stack/net_interface.h"
-#include "stack/timers.h"
 
+#include "core/timers.h"
 #include "legacy/net_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ip.h"
