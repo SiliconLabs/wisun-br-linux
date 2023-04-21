@@ -22,7 +22,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
@@ -36,6 +35,8 @@
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 #include "6lowpan/ws/ws_bootstrap.h"
+
+#include "ws_test_api.h"
 
 #define TRACE_GROUP "wste"
 
