@@ -118,28 +118,6 @@ static void free_datagram(ip_fragmented_datagram_t *dgram)
     free(dgram);
 }
 
-/* We would be in trouble if last fragment is < 8 bytes, and we didn't have
- * room for the hole descriptor. Avoid a problem by ensuring that we always
- * allocate a multiple-of-8 reassembly buffer.
- */
-uint16_t ipv6_frag_set_mru(uint16_t frag_mru)
-{
-    frag_mru = (frag_mru + 7) & ~ UINT16_C(7);
-    if (frag_mru < IPV6_MIN_FRAG_MRU) {
-        frag_mru = (IPV6_MIN_FRAG_MRU + 7) & ~ UINT16_C(7);
-    }
-    if (ipv6_frag_mru != frag_mru) {
-        /* I don't want to worry about the complications of changing MRU while
-         * we've got ongoing reassembly. Simplest just to drop any pending.
-         */
-        ns_list_foreach_safe(ip_fragmented_datagram_t, dgram, &frag_list) {
-            free_datagram(dgram);
-        }
-        ipv6_frag_mru = frag_mru;
-    }
-    return ipv6_frag_mru;
-}
-
 void ipv6_frag_timer(int secs)
 {
     ns_list_foreach_safe(ip_fragmented_datagram_t, dgram, &frag_list) {

@@ -47,18 +47,11 @@
 #error "IPV6_MRU too small"
 #endif
 
-uint16_t ipv6_frag_set_mru(uint16_t frag_mru);
-
 void ipv6_frag_timer(int secs);
 buffer_t *ipv6_frag_up(buffer_t *buf, const uint8_t *ptr, uint8_t *nh_ptr, uint16_t payload_length);
 
 #else
 #include <stdint.h>
-
-static inline uint16_t ipv6_frag_set_mru(uint16_t frag_mru)
-{
-    return 0;
-}
 
 static inline void ipv6_frag_timer(int secs)
 {
