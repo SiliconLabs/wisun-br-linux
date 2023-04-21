@@ -47,41 +47,6 @@ int8_t arm_nwk_interface_lowpan_init(struct rcp *rcp, int mtu, char *interface_n
     return cur->id;
 }
 
-static int8_t arm_6lowpan_bootstrap_set_for_selected_interface(int8_t interface_id)
-{
-    struct net_if *cur;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE || cur->interface_mode == INTERFACE_UP) {
-        return -4;
-    }
-    return 0;
-}
-
-int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id,
-                                                         net_6lowpan_mode_e bootstrap_mode,
-                                                         net_6lowpan_mode_extension_e net_6lowpan_mode_extension)
-{
-    int8_t ret_val;
-    (void)bootstrap_mode;
-    ret_val = arm_6lowpan_bootstrap_set_for_selected_interface(interface_id);
-
-    if (ret_val == 0) {
-
-        if (net_6lowpan_mode_extension == NET_6LOWPAN_WS) {
-            ret_val = ws_common_init(interface_id, bootstrap_mode);
-        } else {
-            ret_val = -1;
-        }
-    }
-
-    return ret_val;
-}
-
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params)
 {
     int8_t ret_val = -2;

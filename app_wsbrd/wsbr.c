@@ -34,6 +34,7 @@
 
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
+#include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
@@ -285,10 +286,11 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     uint8_t ipv6[16];
     int ret;
 
-    ret = arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
-                                                          NET_6LOWPAN_BORDER_ROUTER,
-                                                          NET_6LOWPAN_WS);
-    WARN_ON(ret, "arm_nwk_interface_configure_6lowpan_bootstrap_set: %d", ret);
+    BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
+    BUG_ON(cur->interface_mode == INTERFACE_UP);
+    ret = ws_bootstrap_init(ctxt->rcp_if_id, NET_6LOWPAN_BORDER_ROUTER);
+    BUG_ON(ret);
+
     wsbr_configure_ws(ctxt);
     tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
     if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))

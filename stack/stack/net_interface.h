@@ -147,29 +147,6 @@ typedef enum arm_library_event_type_e {
  * \return -3 No memory for the interface.
  */
 int8_t arm_nwk_interface_lowpan_init(struct rcp *rcp, int mtu, char *interface_name_ptr);
-
-/**
- * \brief Set network interface bootstrap setup.
- *
- * \param interface_id Network interface ID.
- * \param bootstrap_mode Selected bootstrap mode:
- *      * NET_6LOWPAN_BORDER_ROUTER, Initialize border router basic setup.
- *      * NET_6LOWPAN_ROUTER, Enable normal 6LoWPAN ND and RPL to bootstrap.
- *      * NET_6LOWPAN_HOST, Enable normal 6LoWPAN ND only to bootstrap.
- *      * NET_6LOWPAN_SLEEPY_HOST, Enable normal 6LoWPAN ND only to bootstrap.
- *      * NET_6LOWPAN_NETWORK_DRIVER, 6LoWPAN radio host device no bootstrap.
- *      * NET_6LOWPAN_SNIFFER, 6LoWPAN sniffer device no bootstrap.
- *
- * \param net_6lowpan_mode_extension Define 6LoWPAN MLE and mode as ZigBeeIP or Thread.
- *
- * \return >=0 Bootstrap mode set OK.
- * \return -1 Unknown network ID.
- * \return -2 Unsupported bootstrap type in this library.
- * \return -3 No memory for 6LoWPAN stack.
- * \return -4 Null pointer parameter.
- */
-int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension);
-
 /**
  * \brief A function to read MAC PAN-ID, Short address and EUID64.
  * \param interface_id Network interface ID.

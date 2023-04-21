@@ -33,6 +33,7 @@
 #include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
 
+#include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
@@ -153,10 +154,10 @@ static void wsbr_tasklet(struct event_payload *event)
         case ARM_LIB_TASKLET_INIT_EVENT:
             // The tasklet that call arm_nwk_interface_configure_*_bootstrap_set()
             // will be used to receive ARM_LIB_NWK_INTERFACE_EVENT.
-            if (arm_nwk_interface_configure_6lowpan_bootstrap_set(ctxt->rcp_if_id,
-                                                                  NET_6LOWPAN_ROUTER,
-                                                                  NET_6LOWPAN_WS))
-                WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
+            BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
+            BUG_ON(cur->interface_mode == INTERFACE_UP);
+            ret = ws_bootstrap_init(ctxt->rcp_if_id, NET_6LOWPAN_ROUTER);
+            BUG_ON(ret);
             wsbr_configure_ws(ctxt);
             BUG_ON(cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER);
             BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
