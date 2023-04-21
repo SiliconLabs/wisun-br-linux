@@ -68,13 +68,6 @@
 #define DCACHE_MAX_ABSOLUTE     64 /* Never have more than this */
 #define DCACHE_GC_AGE           (30 * DCACHE_GC_PERIOD)    /* 10 minutes */
 
-typedef struct destination_cache_configuration {
-    uint16_t max_entries;  // Never have more than this
-    uint16_t short_term_entries; // Expire stale entries if more than this
-    uint16_t long_term_entries; // Target for basic GC - expire old entries if more than this
-    uint16_t entry_lifetime;  // 20s units - decremented once per periodic GC
-} destination_cache_config_t;
-
 typedef struct neighbour_cache_configuration {
     uint16_t max_entries; // Never have more than this
     uint16_t short_term_entries; // Expire stale entries if more than this
@@ -82,7 +75,6 @@ typedef struct neighbour_cache_configuration {
     uint16_t entry_lifetime; // 1s units - decremented every slow timer call
 } neighbour_cache_config_t;
 
-static destination_cache_config_t destination_cache_config = {DCACHE_MAX_ABSOLUTE, DCACHE_MAX_SHORT_TERM, DCACHE_MAX_LONG_TERM, DCACHE_GC_AGE};
 static neighbour_cache_config_t neighbour_cache_config = {NCACHE_MAX_ABSOLUTE, NCACHE_MAX_SHORT_TERM, NCACHE_MAX_LONG_TERM, NCACHE_GC_AGE};
 
 /* We track "lifetime" of garbage-collectible entries, resetting
@@ -870,7 +862,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
 
 
     if (!entry) {
-        if (count > destination_cache_config.max_entries) {
+        if (count > DCACHE_MAX_ABSOLUTE) {
             entry = ns_list_get_last(&ipv6_destination_cache);
             ipv6_destination_release(entry);
         }
@@ -906,7 +898,7 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
     if (addr_ipv6_scope(address, NULL) <= IPV6_SCOPE_LINK_LOCAL) {
         entry->lifetime = DCACHE_GC_AGE_LL;
     } else {
-        entry->lifetime = destination_cache_config.entry_lifetime / DCACHE_GC_PERIOD;
+        entry->lifetime = DCACHE_GC_AGE / DCACHE_GC_PERIOD;
     }
 
     return entry;
@@ -1048,7 +1040,7 @@ static void ipv6_destination_cache_gc_periodic(void)
 #endif
     }
 
-    if (gc_count <= destination_cache_config.long_term_entries) {
+    if (gc_count <= DCACHE_MAX_LONG_TERM) {
         return;
     }
 
@@ -1058,12 +1050,12 @@ static void ipv6_destination_cache_gc_periodic(void)
      * MAX_LONG_TERM.
      */
     ns_list_foreach_reverse_safe(ipv6_destination_t, entry, &ipv6_destination_cache) {
-        if (entry->lifetime == 0 || gc_count > destination_cache_config.short_term_entries) {
+        if (entry->lifetime == 0 || gc_count > DCACHE_MAX_SHORT_TERM) {
             if (ipv6_destination_release(entry)) {
                 gc_count--;
             }
 
-            if (gc_count <= destination_cache_config.long_term_entries) {
+            if (gc_count <= DCACHE_MAX_LONG_TERM) {
                 break;
             }
         }
