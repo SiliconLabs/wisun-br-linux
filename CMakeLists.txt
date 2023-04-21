@@ -486,7 +486,6 @@ if(COMPILE_DEVTOOLS)
         tools/hwsim/fhss/fhss_statistics.c
         tools/hwsim/fhss/fhss_ws.c
         tools/hwsim/os_timer.c
-        # Excluded app_wshwsim/fhss/fhss_test_api.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
