@@ -168,7 +168,6 @@ void ipv6_neighbour_cache_fast_timer(int ticks);
 void ipv6_neighbour_cache_slow_timer(int seconds);
 void ipv6_neighbour_cache_print(const ipv6_neighbour_cache_t *cache);
 void ipv6_router_gone(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry);
-int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
 int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime);
 
 /* Backwards compatibility with test app */

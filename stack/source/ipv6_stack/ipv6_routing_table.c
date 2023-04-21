@@ -121,20 +121,6 @@ static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retr
     return rand_randomise_base(t, 0x4000, 0xBFFF);
 }
 
-int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime)
-{
-    if ((max_entries < 4) || (short_term_threshold >= max_entries) || (long_term_threshold >= short_term_threshold) || (lifetime < 120)) {
-        return -1;
-    }
-
-    destination_cache_config.max_entries = max_entries;
-    destination_cache_config.short_term_entries = short_term_threshold;
-    destination_cache_config.long_term_entries = long_term_threshold;
-    destination_cache_config.entry_lifetime = lifetime;
-
-    return 0;
-}
-
 int8_t ipv6_neighbour_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime)
 {
     if ((max_entries < 4) || (short_term_threshold >= max_entries) || (long_term_threshold >= short_term_threshold) || (lifetime < 120)) {
