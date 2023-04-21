@@ -180,7 +180,6 @@ add_library(libwsbrd STATIC
     stack/source/core/ns_address_internal.c
     stack/source/core/ns_buffer.c
     stack/source/ipv6_stack/ipv6_routing_table.c
-    stack/source/net_api/net_interface.c
     stack/source/mpl/mpl.c
     stack/source/nwk_interface/protocol_core.c
     stack/source/nwk_interface/protocol_stats.c
@@ -380,7 +379,6 @@ if(COMPILE_DEVTOOLS)
         stack/source/legacy/ns_socket.c
         stack/source/legacy/sockbuf.c
         stack/source/legacy/udp.c
-        stack/source/net_api/net_interface.c
         stack/source/mpl/mpl.c
         stack/source/nwk_interface/protocol_core.c
         stack/source/nwk_interface/protocol_stats.c
