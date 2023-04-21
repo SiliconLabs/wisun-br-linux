@@ -258,15 +258,6 @@ int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert);
 int8_t arm_network_own_certificates_remove(void);
 
 /**
- * \brief A function to read the networking address information.
- * \param interface_id Network interface ID.
- * \param addr_id The address information type to be read.
- * \param address A pointer to a structure where the address information is written.
- * \return 0 On success, -1 on failure.
- */
-int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address);
-
-/**
   * \brief A function to initialize core elements of NanoStack library.
   *
   * \param core_idle is a function pointer to a function that is called whenever NanoStack is idle.

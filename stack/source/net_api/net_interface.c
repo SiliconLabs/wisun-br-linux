@@ -164,48 +164,6 @@ int8_t arm_network_own_certificates_remove(void)
     return ws_pae_controller_own_certificates_remove();
 }
 
-int8_t arm_net_address_get(int8_t interface_id, net_address_e addr_id, uint8_t *address)
-{
-    int8_t ret_val = -1;
-    struct net_if *cur;
-    const uint8_t *addr;
-
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    if (!cur->global_address_available && addr_id != ADDR_IPV6_LL) {
-        //Should also check Check Bootstrap state
-        return -1;
-    }
-
-    switch (addr_id) {
-        case ADDR_IPV6_LL:
-            ret_val = addr_interface_get_ll_address(cur, address, 0);
-            break;
-
-        case ADDR_IPV6_GP:
-            addr = addr_select_with_prefix(cur, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT);
-            if (addr) {
-                memcpy(address, addr, 16);
-                ret_val = 0;
-            }
-            break;
-
-        case ADDR_IPV6_GP_SEC:
-            addr = addr_select_with_prefix(cur, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_LONG);
-            /* Return if the "prefer long" gives a different answer to the default "prefer short". Pointer comparison is
-             * sufficient as addr_select returns a pointer into the address list. */
-            if (addr && addr != addr_select_with_prefix(cur, NULL, 0, SOCKET_IPV6_PREFER_SRC_PUBLIC | SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT)) {
-                memcpy(address, addr, 16);
-                ret_val = 0;
-            }
-            break;
-    }
-    return ret_val;
-}
-
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */
