@@ -68,15 +68,6 @@
 #define DCACHE_MAX_ABSOLUTE     64 /* Never have more than this */
 #define DCACHE_GC_AGE           (30 * DCACHE_GC_PERIOD)    /* 10 minutes */
 
-typedef struct neighbour_cache_configuration {
-    uint16_t max_entries; // Never have more than this
-    uint16_t short_term_entries; // Expire stale entries if more than this
-    uint16_t long_term_entries; // Target for basic GC - expire old entries if more than this
-    uint16_t entry_lifetime; // 1s units - decremented every slow timer call
-} neighbour_cache_config_t;
-
-static neighbour_cache_config_t neighbour_cache_config = {NCACHE_MAX_ABSOLUTE, NCACHE_MAX_SHORT_TERM, NCACHE_MAX_LONG_TERM, NCACHE_GC_AGE};
-
 /* We track "lifetime" of garbage-collectible entries, resetting
  * when used. Entries with lifetime 0 are favoured
  * for garbage-collection. */
@@ -255,7 +246,7 @@ ipv6_neighbour_t *ipv6_neighbour_lookup_or_create(ipv6_neighbour_cache_t *cache,
         }
     }
 
-    if (count >= neighbour_cache_config.max_entries && garbage_possible_entry) {
+    if (count >= NCACHE_MAX_ABSOLUTE && garbage_possible_entry) {
         //Remove Last storaged IP_NEIGHBOUR_GARBAGE_COLLECTIBLE type entry
         ipv6_neighbour_entry_remove(cache, garbage_possible_entry);
     }
@@ -306,7 +297,7 @@ ipv6_neighbour_t *ipv6_neighbour_used(ipv6_neighbour_cache_t *cache, ipv6_neighb
 {
     /* Reset the GC life, if it's a GC entry */
     if (entry->type == IP_NEIGHBOUR_GARBAGE_COLLECTIBLE) {
-        entry->lifetime = neighbour_cache_config.entry_lifetime;
+        entry->lifetime = NCACHE_GC_AGE;
     }
 
     /* Move it to the front of the list */
@@ -639,7 +630,7 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
         }
     }
 
-    if (gc_count <= neighbour_cache_config.long_term_entries) {
+    if (gc_count <= NCACHE_MAX_LONG_TERM) {
         return;
     }
 
@@ -655,9 +646,9 @@ static void ipv6_neighbour_cache_gc_periodic(ipv6_neighbour_cache_t *cache)
             continue;
         }
 
-        if (entry->lifetime == 0 || gc_count > neighbour_cache_config.short_term_entries) {
+        if (entry->lifetime == 0 || gc_count > NCACHE_MAX_SHORT_TERM) {
             ipv6_neighbour_entry_remove(cache, entry);
-            if (--gc_count <= neighbour_cache_config.long_term_entries) {
+            if (--gc_count <= NCACHE_MAX_LONG_TERM) {
                 break;
             }
         }
