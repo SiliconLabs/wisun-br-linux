@@ -139,31 +139,6 @@ int8_t arm_nwk_interface_down(int8_t interface_id)
     return ret_val;
 }
 
-int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert)
-{
-    return ws_pae_controller_trusted_certificate_add(cert);
-}
-
-int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert)
-{
-    return ws_pae_controller_trusted_certificate_remove(cert);
-}
-
-int8_t arm_network_trusted_certificates_remove(void)
-{
-    return ws_pae_controller_trusted_certificates_remove();
-}
-
-int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert)
-{
-    return ws_pae_controller_own_certificate_add(cert);
-}
-
-int8_t arm_network_own_certificates_remove(void)
-{
-    return ws_pae_controller_own_certificates_remove();
-}
-
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */

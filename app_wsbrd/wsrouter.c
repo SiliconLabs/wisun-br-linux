@@ -35,6 +35,7 @@
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
+#include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 
 #include "commandline.h"
@@ -122,10 +123,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = ws_test_version_set(ctxt->rcp_if_id, ctxt->config.ws_fan_version);
     WARN_ON(ret);
 
-    ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
+    ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 
-    ret = arm_network_trusted_certificate_add(&ctxt->config.tls_ca);
+    ret = ws_pae_controller_trusted_certificate_add(&ctxt->config.tls_ca);
     WARN_ON(ret);
 
 

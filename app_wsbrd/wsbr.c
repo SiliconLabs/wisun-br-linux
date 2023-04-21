@@ -39,6 +39,7 @@
 #include "stack/source/6lowpan/ws/ws_cfg_settings.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
+#include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/nwk_interface/protocol.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
@@ -218,10 +219,10 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
     ret = wsbr_configure_ws_sect_time(ctxt);
     WARN_ON(ret);
 
-    ret = arm_network_own_certificate_add(&ctxt->config.tls_own);
+    ret = ws_pae_controller_own_certificate_add(&ctxt->config.tls_own);
     WARN_ON(ret);
 
-    ret = arm_network_trusted_certificate_add(&ctxt->config.tls_ca);
+    ret = ws_pae_controller_trusted_certificate_add(&ctxt->config.tls_ca);
     WARN_ON(ret);
 
     for (i = 0; i < ARRAY_SIZE(ctxt->config.ws_gtk_force); i++) {

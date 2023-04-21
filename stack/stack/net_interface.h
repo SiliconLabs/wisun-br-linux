@@ -205,59 +205,6 @@ int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address);
 int8_t arm_nwk_interface_down(int8_t interface_id);
 
 /**
- * Add trusted certificate
- *
- * This is used to add trusted root or intermediate certificate in addition to those
- * added using certificate chain set call. Function can be called several times to add
- * more than one certificate.
- *
- * \param cert Certificate.
- * \return 0 on success, negative on failure.
- */
-int8_t arm_network_trusted_certificate_add(const arm_certificate_entry_s *cert);
-
-/**
- * Remove trusted certificate
- *
- * This is used to remove trusted root or intermediate certificate.
- *
- * \param cert Certificate.
- * \return 0 on success, negative on failure.
- */
-int8_t arm_network_trusted_certificate_remove(const arm_certificate_entry_s *cert);
-
-/**
- * Remove trusted certificates
- *
- * This is used to remove all trusted root or intermediate certificates.
- *
- * \return 0 on success, negative on failure.
- */
-int8_t arm_network_trusted_certificates_remove(void);
-
-/**
- * Add own certificate
- *
- * This is used to add own certificate and private key.
- * In case intermediate certificates are used, function can be called several times. Each call
- * to the function adds a certificate to own certificate chain.
- * Certificates are in bottom up order i.e. the top certificate is given last.
- *
- * \param cert Certificate.
- * \return 0 on success, negative on failure.
- */
-int8_t arm_network_own_certificate_add(const arm_certificate_entry_s *cert);
-
-/**
- * Remove own certificates
- *
- * This is used to remove own certificates (chain).
- *
- * \return 0 on success, negative on failure.
- */
-int8_t arm_network_own_certificates_remove(void);
-
-/**
   * \brief A function to initialize core elements of NanoStack library.
   *
   * \param core_idle is a function pointer to a function that is called whenever NanoStack is idle.
