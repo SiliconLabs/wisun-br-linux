@@ -121,37 +121,6 @@ static uint32_t next_probe_time(ipv6_neighbour_cache_t *cache, uint_fast8_t retr
     return rand_randomise_base(t, 0x4000, 0xBFFF);
 }
 
-int8_t ipv6_neighbour_set_current_max_cache(uint16_t max_cache)
-{
-    if (max_cache < 4) {
-        return -1;
-    }
-
-    // adjust destination cache
-    destination_cache_config.max_entries = max_cache;
-    destination_cache_config.long_term_entries = max_cache / 4;
-    if (destination_cache_config.long_term_entries < 4) {
-        destination_cache_config.long_term_entries = 4;
-    }
-    destination_cache_config.short_term_entries = max_cache / 2;
-    if (destination_cache_config.short_term_entries < destination_cache_config.long_term_entries) {
-        destination_cache_config.short_term_entries = destination_cache_config.long_term_entries;
-    }
-
-    // adjust neighbour cache
-    neighbour_cache_config.max_entries = max_cache;
-    neighbour_cache_config.long_term_entries = max_cache / 8;
-    if (neighbour_cache_config.long_term_entries < 4) {
-        neighbour_cache_config.long_term_entries = 4;
-    }
-    neighbour_cache_config.short_term_entries = max_cache / 4;
-    if (neighbour_cache_config.short_term_entries < neighbour_cache_config.long_term_entries) {
-        neighbour_cache_config.short_term_entries = neighbour_cache_config.long_term_entries;
-    }
-
-    return 0;
-}
-
 int8_t ipv6_destination_cache_configure(uint16_t max_entries, uint16_t short_term_threshold, uint16_t long_term_threshold, uint16_t lifetime)
 {
     if ((max_entries < 4) || (short_term_threshold >= max_entries) || (long_term_threshold >= short_term_threshold) || (lifetime < 120)) {
