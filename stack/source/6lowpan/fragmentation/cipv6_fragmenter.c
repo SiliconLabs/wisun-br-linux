@@ -29,7 +29,6 @@
 #include "common/rand.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack/nwk_stats_api.h"
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

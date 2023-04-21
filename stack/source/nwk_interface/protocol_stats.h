@@ -19,7 +19,7 @@
 #define PROROCOL_STATS_H
 #include <stdint.h>
 
-typedef enum {
+enum nwk_stats_type {
     STATS_IP_RX_COUNT,
     STATS_IP_TX_COUNT,
     STATS_IP_ROUTE_UP,
@@ -49,11 +49,8 @@ typedef enum {
     STATS_AL_TX_QUEUE_SIZE,
     STATS_AL_TX_CONGESTION_DROP,
     STATS_AL_TX_LATENCY
+};
 
-} nwk_stats_type_t;
-
-
-void protocol_stats_init(void);
-void protocol_stats_update(nwk_stats_type_t type, uint16_t update_val);
+void protocol_stats_update(enum nwk_stats_type type, uint16_t update_val);
 
 #endif

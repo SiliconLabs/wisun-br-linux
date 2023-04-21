@@ -189,8 +189,6 @@ static void net_automatic_loopback_route_update(struct net_if *interface, const 
 
 int8_t net_init_core(void)
 {
-    /* Reset Protocol_stats */
-    protocol_stats_init();
     protocol_core_init();
     rpl_data_init();
     // XXX application should call these!

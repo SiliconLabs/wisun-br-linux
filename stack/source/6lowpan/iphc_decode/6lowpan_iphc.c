@@ -20,7 +20,6 @@
 #include <string.h>
 #include "common/log_legacy.h"
 #include "common/endian.h"
-#include "stack/nwk_stats_api.h"
 
 #include "common_protocols/ipv6.h"
 #include "common_protocols/ipv6_resolution.h"
