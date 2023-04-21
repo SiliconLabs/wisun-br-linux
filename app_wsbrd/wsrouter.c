@@ -37,6 +37,7 @@
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
+#include "stack/source/nwk_interface/protocol.h"
 
 #include "commandline.h"
 #include "version.h"
@@ -145,6 +146,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 static void wsbr_tasklet(struct event_payload *event)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    int ret;
 
     switch (event->event_type) {
         case ARM_LIB_TASKLET_INIT_EVENT:
@@ -155,8 +158,10 @@ static void wsbr_tasklet(struct event_payload *event)
                                                                   NET_6LOWPAN_WS))
                 WARN("arm_nwk_interface_configure_6lowpan_bootstrap_set");
             wsbr_configure_ws(ctxt);
-            if (arm_nwk_interface_up(ctxt->rcp_if_id, NULL))
-                 WARN("arm_nwk_interface_up RCP");
+            BUG_ON(cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER);
+            BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
+            ret = cur->if_up(cur, NULL);
+            BUG_ON(ret);
             break;
         default:
             WARN("received unknown event: %d", event->event_type);

@@ -96,49 +96,6 @@ int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_p
     return ret_val;
 }
 
-int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address)
-{
-    int8_t ret_val = -1;
-    struct net_if *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return -1;
-    }
-
-    if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        return -4;
-    }
-
-    if (!cur->if_up || !cur->if_down) {
-        return -5;
-    }
-
-    ret_val = cur->if_up(cur, ipv6_address);
-
-
-    return ret_val;
-}
-
-int8_t arm_nwk_interface_down(int8_t interface_id)
-{
-
-    int8_t ret_val = -1;
-    struct net_if *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-
-        if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-            ret_val = -4;
-        } else if (!cur->if_up || !cur->if_down) {
-            return -5;
-        } else {
-            ret_val = cur->if_down(cur);
-        }
-
-    }
-    return ret_val;
-}
-
 /* Don't have a loopback interface we can optimise for, but we do still need a route so we
  * can talk to ourself at all, in case our address isn't in an on-link prefix.
  */

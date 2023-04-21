@@ -281,6 +281,7 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     uint8_t ipv6[16];
     int ret;
 
@@ -292,8 +293,11 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     tun_addr_get_global_unicast(ctxt->config.tun_dev, ipv6);
     if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
         FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
-    if (arm_nwk_interface_up(ctxt->rcp_if_id, ipv6))
-        WARN("arm_nwk_interface_up RCP");
+
+    BUG_ON(cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER);
+    ret = cur->if_up(cur, ipv6);
+    BUG_ON(ret);
+
     wsbr_check_link_local_addr(ctxt);
     if (ws_bbr_start(ctxt->rcp_if_id, ctxt->rcp_if_id))
         WARN("ws_bbr_start");

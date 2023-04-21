@@ -180,31 +180,6 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params);
 
 /**
- * \brief Start network interface bootstrap.
- *
- * \param interface_id Network interface ID.
- * \param ipv6_address IPv6 address of the interface (only useful for the BR)
- *
- *
- * \return >=0 Bootstrap start OK.
- * \return -1 Unknown network ID.
- * \return -2 Not configured.
- * \return -3 Active.
- */
-int8_t arm_nwk_interface_up(int8_t interface_id, const uint8_t *ipv6_address);
-
-/**
- * \brief Stop and set interface to idle.
- *
- * \param interface_id Network interface ID
- *
- * \return >=0 Process OK.
- * \return -1 Unknown network ID.
- * \return -3 Not Active.
- */
-int8_t arm_nwk_interface_down(int8_t interface_id);
-
-/**
   * \brief A function to initialize core elements of NanoStack library.
   *
   * \param core_idle is a function pointer to a function that is called whenever NanoStack is idle.
