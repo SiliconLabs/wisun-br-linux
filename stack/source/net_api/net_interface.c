@@ -35,17 +35,3 @@
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_pae_controller.h"
-
-int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params)
-{
-    int8_t ret_val = -2;
-    struct net_if *cur = 0;
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur) {
-        ret_val = 0;
-        memcpy(mac_params->mac_long, cur->mac, 8);
-        memcpy(mac_params->iid_eui64, cur->iid_eui64, 8);
-        mac_params->PANId = cur->mac_parameters.pan_id;
-    }
-    return ret_val;
-}

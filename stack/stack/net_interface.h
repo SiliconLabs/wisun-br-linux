@@ -135,13 +135,5 @@ typedef enum arm_library_event_type_e {
 #define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL      /**< Backward compatibility */
 #define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
 
-/**
- * \brief A function to read MAC PAN-ID, Short address and EUID64.
- * \param interface_id Network interface ID.
- * \param mac_params A pointer to the structure where the MAC addresses are written.
- * \return 0 On success.
- * \return Negative value if interface is not known.
- */
-int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params);
 
 #endif

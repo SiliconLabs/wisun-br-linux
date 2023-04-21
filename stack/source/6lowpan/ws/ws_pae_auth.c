@@ -1124,15 +1124,15 @@ static bool ws_pae_auth_timer_running(pae_auth_t *pae_auth)
 static void ws_pae_auth_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr)
 {
     pae_auth_t *pae_auth = ws_pae_auth_by_kmp_service_get(service);
+    struct net_if *cur;
+
     if (!pae_auth) {
         return;
     }
 
-    // Get own EUI-64
-    link_layer_address_s mac_params;
-    if (arm_nwk_mac_address_read(pae_auth->interface_ptr->id, &mac_params) >= 0) {
-        kmp_address_eui_64_set(local_addr, mac_params.mac_long);
-    }
+    cur = protocol_stack_interface_info_get_by_id(pae_auth->interface_ptr->id);
+    if (cur)
+        kmp_address_eui_64_set(local_addr, cur->mac);
 
     // Get supplicant address
     supp_entry_t *entry = kmp_api_data_get(kmp);

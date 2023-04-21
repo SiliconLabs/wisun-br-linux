@@ -1137,10 +1137,9 @@ static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *
     }
 
     // Get own EUI-64
-    link_layer_address_s mac_params;
-    if (arm_nwk_mac_address_read(pae_supp->interface_ptr->id, &mac_params) >= 0) {
-        kmp_address_eui_64_set(local_addr, mac_params.mac_long);
-    }
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(pae_supp->interface_ptr->id);
+    if (cur)
+        kmp_address_eui_64_set(local_addr, cur->mac);
 
     // BR address has been received during authentication attempt
     if (pae_supp->new_br_eui_64_fresh) {

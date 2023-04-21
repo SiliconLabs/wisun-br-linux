@@ -419,10 +419,9 @@ static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr
     if (controller->sec_keys_nw_info.updated || sec_prot_keys_gtks_are_updated(controller->sec_keys_nw_info.gtks)) {
         // Get own EUI-64
         uint8_t gtk_eui64[8] = {0};
-        link_layer_address_s mac_params;
-        if (arm_nwk_mac_address_read(interface_ptr->id, &mac_params) >= 0) {
-            memcpy(gtk_eui64, mac_params.mac_long, 8);
-        }
+        struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_ptr->id);
+        if (cur)
+            memcpy(gtk_eui64, cur->mac, 8);
         ws_pae_controller_nvm_nw_info_write(interface_ptr,
                                             controller->sec_keys_nw_info.key_pan_id,
                                             controller->sec_keys_nw_info.network_name,
@@ -951,10 +950,9 @@ static int8_t ws_pae_controller_nw_info_read(pae_controller_t *controller,
        full authentication to update keys with new EUI-64 and in case of authenticator to update new
        authenticator EUI-64 to the network. */
     uint8_t gtk_eui64[8] = {0};
-    link_layer_address_s mac_params;
-    if (arm_nwk_mac_address_read(controller->interface_ptr->id, &mac_params) >= 0) {
-        memcpy(gtk_eui64, mac_params.mac_long, 8);
-    }
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(controller->interface_ptr->id);
+    if (cur)
+        memcpy(gtk_eui64, cur->mac, 8);
     if (memcmp(nvm_gtk_eui64, gtk_eui64, 8) != 0) {
         tr_warn("NVM EUI-64 mismatch, current: %s stored: %s", tr_eui64(gtk_eui64), tr_eui64(nvm_gtk_eui64));
         sec_prot_keys_gtks_clear(gtks);
