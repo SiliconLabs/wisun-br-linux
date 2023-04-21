@@ -46,18 +46,6 @@
 
 static void lowpan_nd_address_cb(struct net_if *interface, if_address_entry_t *addr, if_address_callback_e reason);
 
-nd_parameters_s nd_params = {
-    .rs_retry_max = 3,
-    .rs_retry_interval_min = 15,
-    .ns_retry_interval_min = 100,
-    .ns_retry_linear_backoff = 100,
-    .timer_random_max = 31,
-    .ns_retry_max = 5,
-    .multihop_dad = true,
-    .send_nud_probes = true,
-    .ns_forward_timeout = 300,
-};
-
 static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_t *prefix, uint8_t prefix_len, uint32_t lifetime, uint32_t preftime, bool borRouterDevice, slaac_src_e slaac_src)
 {
     if_address_entry_t *address_entry = NULL;
@@ -68,10 +56,12 @@ static int icmp_nd_slaac_prefix_address_gen(struct net_if *cur_interface, uint8_
         if (borRouterDevice) {
             address_entry->state_timer = 0;
         } else {
-            address_entry->state_timer = 45 + rand_get_random_in_range(1, nd_params.timer_random_max);
+            // Values inherited from the nanostack
+            address_entry->state_timer = 45 + rand_get_random_in_range(1, 31);
             //Allocate Addres registration state
             if (cur_interface->if_6lowpan_dad_process.active == false) {
-                cur_interface->if_6lowpan_dad_process.count = nd_params.ns_retry_max;
+                // Number of retry is inherited from nanostack
+                cur_interface->if_6lowpan_dad_process.count = 5;
                 cur_interface->if_6lowpan_dad_process.active = true;
                 memcpy(cur_interface->if_6lowpan_dad_process.address, address_entry->address, 16);
             }

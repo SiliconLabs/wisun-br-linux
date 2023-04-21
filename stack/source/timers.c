@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "stack/source/6lowpan/iphc_decode/lowpan_context.h"
 #include "stack/source/6lowpan/lowpan_adaptation_interface.h"
 #include "stack/source/6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "stack/source/6lowpan/nd/nd_router_object.h"
