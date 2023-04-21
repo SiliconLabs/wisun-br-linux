@@ -144,13 +144,4 @@ typedef enum arm_library_event_type_e {
  */
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params);
 
-/**
-  * \brief A function to initialize core elements of NanoStack library.
-  *
-  * \param core_idle is a function pointer to a function that is called whenever NanoStack is idle.
-  * \return 0 on success.
-  * \return -1 if a null pointer is given.
-  */
-int8_t net_init_core(void);
-
 #endif
