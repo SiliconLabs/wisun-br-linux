@@ -289,7 +289,7 @@ static struct net_if *protocol_interface_class_allocate()
     return entry;
 }
 
-static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu)
+static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct rcp *rcp, int mtu, const char *name)
 {
     struct net_if *entry = protocol_interface_class_allocate();
     if (!entry) {
@@ -311,6 +311,7 @@ static struct net_if *protocol_core_interface_6lowpan_entry_get_with_mac(struct 
     entry->mac_parameters.mtu = mtu;
 
     entry->rcp = rcp;
+    entry->interface_name = name;
 
     mac_helper_set_default_key_source(entry);
 
@@ -420,9 +421,9 @@ static int8_t net_interface_get_free_id(void)
     return -1;
 }
 
-struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu)
+struct net_if *protocol_stack_interface_generate_lowpan(struct rcp *rcp, int mtu, const char *name)
 {
-    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(rcp, mtu);
+    struct net_if *new_entry = protocol_core_interface_6lowpan_entry_get_with_mac(rcp, mtu, name);
 
     if (new_entry) {
         ipv6_neighbour_cache_init(&new_entry->ipv6_neighbour_cache, new_entry->id);

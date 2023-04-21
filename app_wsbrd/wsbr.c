@@ -32,6 +32,7 @@
 #include "stack/ws_test_api.h"
 #include "stack/timers.h"
 
+#include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
@@ -282,12 +283,16 @@ static void wsbr_check_link_local_addr(struct wsbr_ctxt *ctxt)
 
 static void wsbr_network_init(struct wsbr_ctxt *ctxt)
 {
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    struct net_if *cur;
     uint8_t ipv6[16];
     int ret;
 
+    cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
+    BUG_ON(!cur);
+    protocol_6lowpan_configure_core(cur);
     BUG_ON(cur->lowpan_info & INTERFACE_NWK_ACTIVE);
     BUG_ON(cur->interface_mode == INTERFACE_UP);
+    ctxt->rcp_if_id = cur->id;
     ret = ws_bootstrap_init(ctxt->rcp_if_id, NET_6LOWPAN_BORDER_ROUTER);
     BUG_ON(ret);
 
@@ -544,10 +549,6 @@ int wsbr_main(int argc, char *argv[])
 
     if (net_init_core())
         BUG("net_init_core");
-
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
-    if (ctxt->rcp_if_id < 0)
-        BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
 
     wsbr_network_init(ctxt);
     event_scheduler_run_until_idle();

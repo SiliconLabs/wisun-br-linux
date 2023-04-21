@@ -136,18 +136,6 @@ typedef enum arm_library_event_type_e {
 #define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
 
 /**
- * \brief Create network interface base to IDLE state.
- * \param api Generates interface with 802.15.4 MAC.
- * \param interface_name_ptr String pointer to interface name. Need to end to '\0' character.
- *        Max length 32 characters including NULL at end. Note: the given name is not copied,
- *        so it must remain valid as long as the interface is.
- *
- * \return >=0 Interface ID (0-127). Application needs to save this information.
- * \return -1 api was NULL.
- * \return -3 No memory for the interface.
- */
-int8_t arm_nwk_interface_lowpan_init(struct rcp *rcp, int mtu, char *interface_name_ptr);
-/**
  * \brief A function to read MAC PAN-ID, Short address and EUID64.
  * \param interface_id Network interface ID.
  * \param mac_params A pointer to the structure where the MAC addresses are written.

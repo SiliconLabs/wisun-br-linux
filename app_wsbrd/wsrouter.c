@@ -33,6 +33,7 @@
 #include "stack/ws_test_api.h"
 #include "stack/ws_management_api.h"
 
+#include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
@@ -168,6 +169,16 @@ static void wsbr_tasklet(struct event_payload *event)
             WARN("received unknown event: %d", event->event_type);
             break;
     }
+}
+
+static void wsbr_network_init(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur;
+
+    cur = protocol_stack_interface_generate_lowpan(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
+    BUG_ON(!cur);
+    protocol_6lowpan_configure_core(cur);
+    ctxt->rcp_if_id = cur->id;
 }
 
 static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
@@ -313,9 +324,7 @@ int main(int argc, char *argv[])
     if (net_init_core())
         BUG("net_init_core");
 
-    ctxt->rcp_if_id = arm_nwk_interface_lowpan_init(&ctxt->rcp, ctxt->config.lowpan_mtu, "ws0");
-    if (ctxt->rcp_if_id < 0)
-        BUG("arm_nwk_interface_lowpan_init: %d", ctxt->rcp_if_id);
+    wsbr_network_init(ctxt);
 
     if (event_handler_create(&wsbr_tasklet, ARM_LIB_TASKLET_INIT_EVENT) < 0)
         BUG("event_handler_create");

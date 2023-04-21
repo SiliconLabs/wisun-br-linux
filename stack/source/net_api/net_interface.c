@@ -36,17 +36,6 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 
-int8_t arm_nwk_interface_lowpan_init(struct rcp *rcp, int mtu, char *interface_name_ptr)
-{
-    struct net_if *cur = protocol_stack_interface_generate_lowpan(rcp, mtu);
-    if (!cur) {
-        return -3;
-    }
-    protocol_6lowpan_configure_core(cur);
-    cur->interface_name = interface_name_ptr;
-    return cur->id;
-}
-
 int8_t arm_nwk_mac_address_read(int8_t interface_id, link_layer_address_s *mac_params)
 {
     int8_t ret_val = -2;
