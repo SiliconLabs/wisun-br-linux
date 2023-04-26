@@ -357,6 +357,7 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
                 cur->ws_info.pan_information.lpan_version_set = true;
             }
             cur->ws_info.pan_information.pan_size = 0;
+            cur->ws_info.pan_information.jm_plf = UINT8_MAX;
             cur->ws_info.pan_information.routing_cost = 0;
             cur->ws_info.pan_information.rpl_routing_method = true;
             cur->ws_info.pan_information.use_parent_bs = true;

@@ -60,6 +60,9 @@
  */
 typedef struct ws_pan_information {
     uint16_t pan_size;          /**< Number devices connected to Border Router. */
+    // TODO: move metrics to their own struct once there is more
+    uint8_t jm_version;
+    uint8_t jm_plf;
     uint16_t routing_cost;      /**< ETX to border Router. */
     uint16_t pan_version;       /**< Pan configuration version will be updatd by Border router at PAN. */
     uint16_t lpan_version;      /**< LFN Pan configuration version will be updatd by Border router at PAN. */

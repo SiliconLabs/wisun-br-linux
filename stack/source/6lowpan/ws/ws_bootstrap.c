@@ -2150,11 +2150,21 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.pom     = ws_version_1_1(cur),
+        .wp_ies.jm      = ws_version_1_1(cur),
     };
+    uint8_t plf;
 
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+        // FIXME: we would like to compute these in ws_llc before including the
+        // relevant IEs, but it is inconvenient since we are still supporting
+        // FFNs for simulation.
         // Border routers write the NW size
         cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
+        plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size, cur->ws_info.cfg->gen.network_size);
+        if (plf != cur->ws_info.pan_information.jm_plf) {
+            cur->ws_info.pan_information.jm_plf = plf;
+            cur->ws_info.pan_information.jm_version++;
+        }
         cur->ws_info.pan_information.routing_cost = 0;
     } else {
         // Nodes need to calculate routing cost

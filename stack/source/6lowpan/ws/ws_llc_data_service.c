@@ -1801,6 +1801,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                 ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
             if (wp_ies.lbats)
                 ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
+            if (wp_ies.jm && info->pan_information.jm_plf != UINT8_MAX)
+                ws_wp_nested_jm_plf_write(&msg->ie_buf_payload, info->pan_information.jm_version, info->pan_information.jm_plf);
         }
         ieee802154_ie_fill_len_payload(&msg->ie_buf_payload, ie_offset);
     }

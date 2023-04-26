@@ -68,6 +68,7 @@ struct wp_ie_list {
     bool lcp:      1;
     bool lbats:    1;
     bool pom:      1;
+    bool jm:       1;
 };
 
 struct ws_llc_mngt_req {
