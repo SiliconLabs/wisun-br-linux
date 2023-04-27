@@ -814,7 +814,7 @@ static void rcp_rx_rf_config_status(struct wsbr_ctxt *ctxt, uint32_t prop, struc
 {
     int val = spinel_pop_uint(buf);
 
-    if (!val || !spinel_prop_is_valid(buf, prop))
+    if (val || !spinel_prop_is_valid(buf, prop))
         return;
     ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG;
     ctxt->rcp.init_state |= RCP_INIT_DONE;
