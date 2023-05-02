@@ -509,20 +509,6 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
 }
 
-static void ws_bootstrap_ffn_network_configuration_learn(struct net_if *cur)
-{
-    tr_debug("Start using PAN configuration");
-
-    // Timing information can be modified here
-    gtkhash_t *gtkhash = ws_pae_controller_gtk_hash_ptr_get(cur);
-    gtkhash_t *lgtkhash = ws_pae_controller_lgtk_hash_ptr_get(cur);
-    ws_llc_set_gtkhash(cur, gtkhash);
-    ws_llc_set_lgtkhash(cur, lgtkhash);
-    // TODO update own fhss schedules we are starting to follow first parent
-
-    return;
-}
-
 static void ws_bootstrap_ffn_pan_advertisement_analyse_active(struct net_if *cur, ws_pan_information_t *pan_information)
 {
     if (pan_information->routing_cost != 0xFFFF &&
@@ -1125,7 +1111,7 @@ static void ws_bootstrap_ffn_configure_process(struct net_if *cur)
 {
 
     if (cur->ws_info.configuration_learned) {
-        ws_bootstrap_ffn_network_configuration_learn(cur);
+        tr_debug("Start using PAN configuration");
         ws_bootstrap_event_operation_start(cur);
         return;
     }

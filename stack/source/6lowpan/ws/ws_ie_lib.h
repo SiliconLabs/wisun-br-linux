@@ -130,13 +130,13 @@ void       ws_wp_nested_bs_write(struct iobuf_write *buf, const struct ws_hoppin
 void      ws_wp_nested_pan_write(struct iobuf_write *buf, uint16_t pan_size, uint16_t routing_cost, uint8_t tps_version);
 void  ws_wp_nested_netname_write(struct iobuf_write *buf, uint8_t *network_name, uint8_t network_name_length);
 void   ws_wp_nested_panver_write(struct iobuf_write *buf, uint8_t pan_version);
-void  ws_wp_nested_gtkhash_write(struct iobuf_write *buf, gtkhash_t gtkhash[4], uint8_t gtkhash_length);
+void  ws_wp_nested_gtkhash_write(struct iobuf_write *buf, const gtkhash_t gtkhash[4]);
 uint16_t ws_wp_nested_hopping_schedule_length(struct ws_hopping_schedule *hopping_schedule, bool unicast_schedule);
 /* Wi-SUN FAN 1.1 */
 void      ws_wp_nested_pom_write(struct iobuf_write *buf, uint8_t phy_op_mode_number, uint8_t *phy_operating_modes, uint8_t mdr_command_capable);
 void    ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats_ie);
 void   ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version);
-void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, gtkhash_t lgtkhash[3], unsigned active_lgtk_index);
+void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf, const gtkhash_t lgtkhash[3], uint8_t active_lgtk_index);
 void      ws_wp_nested_lcp_write(struct iobuf_write *buf, uint8_t tag, struct ws_hopping_schedule *hopping_schedule);
 void   ws_wp_nested_jm_plf_write(struct iobuf_write *buf, uint8_t version, uint8_t pan_load_factor);
 

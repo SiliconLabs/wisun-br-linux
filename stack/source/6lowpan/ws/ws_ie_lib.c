@@ -434,8 +434,7 @@ void ws_wp_nested_panver_write(struct iobuf_write *buf, uint8_t pan_version)
 }
 
 void ws_wp_nested_gtkhash_write(struct iobuf_write *buf,
-                                gtkhash_t gtkhash[4],
-                                uint8_t gtkhash_length)
+                                const gtkhash_t gtkhash[4])
 {
     int offset;
 
@@ -474,8 +473,8 @@ void ws_wp_nested_lfnver_write(struct iobuf_write *buf, uint16_t version)
 }
 
 void ws_wp_nested_lgtkhash_write(struct iobuf_write *buf,
-                                 gtkhash_t lgtkhash[3],
-                                 unsigned active_lgtk_index)
+                                 const gtkhash_t lgtkhash[3],
+                                 uint8_t active_lgtk_index)
 {
     uint8_t tmp8;
     int offset;

@@ -169,22 +169,6 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
  */
 void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t name_length);
 
-/**
- * @brief ws_llc_set_gtkhash Configure WS GTK hash information (Data of WS_WPIE_GTKHASH IE element)
- * @param interface Interface pointer
- * @param gtkhash pointer to GTK hash which length is 32 bytes this pointer must keep alive when it is configured to LLC
- *
- */
-void  ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash);
-
-/**
- * @brief ws_llc_set_lgtkhash Configure WS LFN GTK hash information (Data of WS_WPIE_LGTKHASH IE element)
- * @param interface Interface pointer
- * @param gtkhash pointer to LGTK hashes. This pointer must keep alive when it is configured to LLC
- *
- */
-void  ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash);
-
 void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update);
 
 void ws_llc_fast_timer(struct net_if *interface, uint16_t ticks);

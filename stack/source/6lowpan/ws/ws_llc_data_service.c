@@ -83,7 +83,6 @@ typedef struct llc_ie_params {
     uint16_t                network_name_length;    /**< Network name length */
     uint8_t                 gtkhash_length;         /**< GTK hash length */
     uint8_t                 phy_op_mode_number;     /**< number of PHY Operating Modes */
-    gtkhash_t               *gtkhash;               /**< Pointer to GTK HASH user must give pointer which include 4 64-bit HASH array */
     uint8_t                 *network_name;          /**< Network name */
     uint8_t                 *phy_operating_modes;   /**< PHY Operating Modes */
     /* FAN 1.1 elements */
@@ -94,7 +93,6 @@ typedef struct llc_ie_params {
     ws_lto_ie_t             *lfn_timing;            /**< LFN Timing */
     ws_panid_ie_t           *pan_id;                /**< PAN ID */
     ws_lcp_ie_t             *lfn_channel_plan;      /**< LCP IE data */
-    gtkhash_t               *lgtkhash;              /**< Pointer to LGTK HASH. User must provide a pointer to 3 gtkhash_t */
     ws_lbats_ie_t           *lbats_ie;              /**< LFN Broadcast Additional Transmit Schedule */
 } llc_ie_params_t;
 
@@ -537,10 +535,6 @@ static llc_data_base_t *ws_llc_mpx_frame_common_validates(const struct net_if *n
     uint16_t pan_id;
 
     if (!base) {
-        return NULL;
-    }
-
-    if (frame_type == WS_FT_DATA && !base->ie_params.gtkhash) {
         return NULL;
     }
 
@@ -1784,7 +1778,7 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
         if (wp_ies.panver)
             ws_wp_nested_panver_write(&msg->ie_buf_payload, info->pan_information.pan_version);
         if (wp_ies.gtkhash)
-            ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, base->ie_params.gtkhash, base->ie_params.gtkhash_length);
+            ws_wp_nested_gtkhash_write(&msg->ie_buf_payload, ws_pae_controller_gtk_hash_ptr_get(base->interface_ptr));
         if (ws_version_1_1(base->interface_ptr)) {
             // We put only POM-IE if more than 1 phy (base phy + something else)
             if (wp_ies.pom && base->ie_params.phy_operating_modes && base->ie_params.phy_op_mode_number > 1)
@@ -1795,7 +1789,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             if (wp_ies.lfnver)
                 ws_wp_nested_lfnver_write(&msg->ie_buf_payload, info->pan_information.lpan_version);
             if (wp_ies.lgtkhash)
-                ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, base->ie_params.lgtkhash, ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
+                ws_wp_nested_lgtkhash_write(&msg->ie_buf_payload, ws_pae_controller_lgtk_hash_ptr_get(base->interface_ptr),
+                                            ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
             if (wp_ies.lbats)
                 ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
             if (wp_ies.jm && info->pan_information.jm_plf != UINT8_MAX)
@@ -2004,31 +1999,6 @@ void ws_llc_set_network_name(struct net_if *interface, uint8_t *name, uint8_t na
 
     base->ie_params.network_name = name;
     base->ie_params.network_name_length = name_length;
-}
-
-void ws_llc_set_gtkhash(struct net_if *interface, gtkhash_t *gtkhash)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-
-    base->ie_params.gtkhash = gtkhash;
-    if (base->ie_params.gtkhash) {
-        base->ie_params.gtkhash_length = 32;
-    } else {
-        base->ie_params.gtkhash_length = 0;
-    }
-}
-
-void ws_llc_set_lgtkhash(struct net_if *interface, gtkhash_t *lgtkhash)
-{
-    llc_data_base_t *base = ws_llc_discover_by_interface(interface);
-    if (!base) {
-        return;
-    }
-
-    base->ie_params.lgtkhash = lgtkhash;
 }
 
 void ws_llc_set_phy_operating_mode(struct net_if *interface, uint8_t *phy_operating_modes)
