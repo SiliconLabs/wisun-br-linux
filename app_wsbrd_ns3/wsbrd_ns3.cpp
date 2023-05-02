@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include <string>
 #include <vector>
 
 #include <ns3/abort.h>
@@ -24,16 +25,20 @@
 
 extern "C" {
 #include "app_wsbrd/libwsbrd.h"
+#include "app_wsbrd_fuzz/replay.h"
+#include "app_wsbrd_fuzz/wsbrd_fuzz.h"
 #include "common/utils.h"
 #include "common/log.h"
 #include "common/version.h"
 }
 
-#if LIBWSBRD_NS3_VERSION < VERSION(2, 0, 0) || LIBWSBRD_NS3_VERSION >= VERSION(3, 0, 0)
+#if LIBWSBRD_NS3_VERSION < VERSION(2, 1, 0) || LIBWSBRD_NS3_VERSION >= VERSION(3, 0, 0)
 #error "Incompatible ns-3 version"
 #endif
 
 int g_simulation_id;
+std::string g_capture_filename;
+std::string g_capture_init_filename;
 
 static void wsbr_ns3_cleanup(void *arg)
 {
@@ -68,10 +73,18 @@ void wsbr_ns3_main(const char *config)
     args.push_back(config_filename);
     args.push_back((char *)"-u/dev/null"); // Provide a UART devive so parse_commandline succeeds
     args.push_back((char *)"-D");
+    if (!g_capture_filename.empty()) {
+        args.push_back((char *)"--capture");
+        args.push_back((char *)g_capture_filename.c_str());
+    }
+    if (!g_capture_init_filename.empty()) {
+        args.push_back((char *)"--capture-init");
+        args.push_back((char *)g_capture_init_filename.c_str());
+    }
     args.push_back(NULL);
 
     pthread_cleanup_push(wsbr_ns3_cleanup, config_filename);
-    wsbr_main(args.size() - 1, (char **)args.data()); // Does not return
+    wsbr_fuzz_main(args.size() - 1, (char **)args.data()); // Does not return
     pthread_cleanup_pop(true);
 }
 
@@ -105,4 +118,9 @@ extern "C" void __wrap_exit(int status)
         fprintf(stderr, "\x1b[31mwsbrd: %s\x1b[0m\n", last_error);
     ns3::FatalImpl::FlushStreams();
     std::terminate();
+}
+
+void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
+{
+    BUG();
 }

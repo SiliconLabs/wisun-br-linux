@@ -607,6 +607,10 @@ if(COMPILE_SIMULATION_TOOLS)
             app_wsbrd_ns3/rand.cpp
             app_wsbrd_ns3/time.cpp
             app_wsbrd_ns3/uart.cpp
+            app_wsbrd_fuzz/capture.c
+            app_wsbrd_fuzz/commandline.c
+            app_wsbrd_fuzz/interfaces.c
+            app_wsbrd_fuzz/wsbrd_fuzz.c
         )
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
