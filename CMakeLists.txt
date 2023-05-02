@@ -533,6 +533,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd_fuzz/commandline.c
         app_wsbrd_fuzz/interfaces.c
         app_wsbrd_fuzz/capture.c
+        app_wsbrd_fuzz/replay.c
         app_wsbrd_fuzz/rand.c
         app_wsbrd_fuzz/main.c
     )

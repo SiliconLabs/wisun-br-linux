@@ -10,15 +10,16 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#include <sys/eventfd.h>
-#include <unistd.h>
-
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/timers.h"
 #include "app_wsbrd/libwsbrd.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/tun.h"
+#include "app_wsbrd_fuzz/capture.h"
+#include "app_wsbrd_fuzz/commandline.h"
+#include "app_wsbrd_fuzz/interfaces.h"
+#include "app_wsbrd_fuzz/replay.h"
 #include "common/bus_uart.h"
 #include "common/key_value_storage.h"
 #include "common/log.h"
@@ -69,15 +70,6 @@ void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
 }
 
-int __real_uart_open(const char *device, int bitrate, bool hardflow);
-int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
-{
-    if (g_fuzz_ctxt.replay_count)
-        return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];
-    else
-        return __real_uart_open(device, bitrate, hardflow);
-}
-
 int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
 int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
@@ -121,36 +113,6 @@ bool __wrap_spinel_prop_is_valid(struct iobuf_read *buf, int prop)
     return true;
 }
 
-void __real_wsbr_common_timer_init(struct wsbr_ctxt *ctxt);
-void __wrap_wsbr_common_timer_init(struct wsbr_ctxt *ctxt)
-{
-    if (g_fuzz_ctxt.replay_count) {
-        g_ctxt.timerfd = eventfd(0, EFD_NONBLOCK);
-        FATAL_ON(g_ctxt.timerfd < 0, 2, "eventfd: %m");
-    } else {
-        __real_wsbr_common_timer_init(ctxt);
-    }
-}
-
-static void fuzz_trigger_timer()
-{
-    uint64_t val = 1;
-    int ret;
-
-    ret = write(g_ctxt.timerfd, &val, 8);
-    FATAL_ON(ret < 0, 2, "%s: write: %m", __func__);
-    FATAL_ON(ret < 8, 2, "%s: write: Short write", __func__);
-}
-
-void fuzz_spinel_replay_timers(struct wsbr_ctxt *ctxt, uint32_t prop, struct iobuf_read *buf)
-{
-    FATAL_ON(!fuzz_is_main_loop(&g_ctxt), 1, "timer command received during RCP init");
-    FATAL_ON(!g_fuzz_ctxt.replay_count, 1, "timer command received while replay is disabled");
-    g_fuzz_ctxt.timer_counter = spinel_pop_u16(buf);
-    if (g_fuzz_ctxt.timer_counter)
-        fuzz_trigger_timer();
-}
-
 ssize_t __real_read(int fd, void *buf, size_t count);
 ssize_t __wrap_read(int fd, void *buf, size_t count)
 {
@@ -175,18 +137,6 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     }
 
     return size;
-}
-
-ssize_t __real_write(int fd, const void *buf, size_t count);
-ssize_t __wrap_write(int fd, const void *buf, size_t count)
-{
-    if (fd == g_ctxt.os_ctxt->data_fd && g_fuzz_ctxt.replay_count)
-        return count;
-
-    if (fd == g_ctxt.tun_fd && g_fuzz_ctxt.replay_count)
-        return count;
-
-    return __real_write(fd, buf, count);
 }
 
 int wsbr_fuzz_main(int argc, char *argv[])
