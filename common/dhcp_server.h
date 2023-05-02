@@ -12,6 +12,7 @@
  */
 #ifndef DHCP_SERVER_H
 #define DHCP_SERVER_H
+#include <stddef.h>
 #include <stdint.h>
 
 /*
