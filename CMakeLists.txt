@@ -547,6 +547,7 @@ if(COMPILE_SIMULATION_TOOLS)
         target_compile_definitions(wsbrd-fuzz PRIVATE HAVE_BACKTRACE)
     endif()
     target_link_options(wsbrd-fuzz PRIVATE
+        -Wl,--wrap=parse_commandline
         -Wl,--wrap=print_help_br
         -Wl,--wrap=uart_open
         -Wl,--wrap=uart_rx

@@ -56,18 +56,22 @@ bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt)
     return true;
 }
 
-int __real_uart_open(const char *device, int bitrate, bool hardflow);
-int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
+void __real_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream));
+void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[], void (*print_help)(FILE *stream))
 {
-    // This function is the first being executed after parse_commandline in
-    // wsbr_main. Thus some checks can be put here.
+    __real_parse_commandline(config, argc, argv, print_help);
+
     if (g_fuzz_ctxt.fuzzing_enabled)
         g_ctxt.config.storage_delete = true;
     if (g_fuzz_ctxt.capture_fd >= 0 || g_fuzz_ctxt.replay_count) {
         WARN_ON(!g_ctxt.config.storage_delete, "storage_delete set to false while using capture/replay");
         WARN_ON(!g_ctxt.config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
     }
+}
 
+int __real_uart_open(const char *device, int bitrate, bool hardflow);
+int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
+{
     if (g_fuzz_ctxt.replay_count)
         return g_fuzz_ctxt.replay_fds[g_fuzz_ctxt.replay_i++];
     else
