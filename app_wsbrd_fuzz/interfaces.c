@@ -185,7 +185,7 @@ ssize_t __wrap_recv(int sockfd, void *buf, size_t len, int flags)
         return read(sockfd, buf, len);
 
     size = __real_recv(sockfd, buf, len, flags);
-    if (g_fuzz_ctxt.capture_enabled)
+    if (g_fuzz_ctxt.capture_fd >= 0)
         fuzz_capture_socket(sockfd, ADDR_UNSPECIFIED, 0, buf, size);
 
     return size;
@@ -211,7 +211,7 @@ ssize_t __wrap_recvfrom(int sockfd, void *buf, size_t len, int flags, struct soc
     }
 
     size = __real_recvfrom(sockfd, buf, len, flags, src_addr, addrlen);
-    if (g_fuzz_ctxt.capture_enabled) {
+    if (g_fuzz_ctxt.capture_fd >= 0) {
         if (src_addr) {
             BUG_ON(src_addr->sa_family != AF_INET6);
             fuzz_capture_socket(sockfd,

@@ -50,9 +50,8 @@ void __wrap_print_help_br(FILE *stream)
 
 static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 {
-    FATAL_ON(ctxt->capture_enabled, 1, "--capture used more than once");
+    FATAL_ON(ctxt->capture_fd >= 0, 1, "--capture used more than once");
     FATAL_ON(ctxt->replay_count, 1, "using --capture and --replay at the same time");
-    ctxt->capture_enabled = true;
     ctxt->capture_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     FATAL_ON(ctxt->capture_fd < 0, 2, "open '%s': %m", arg);
@@ -60,8 +59,7 @@ static void parse_opt_capture(struct fuzz_ctxt *ctxt, const char *arg)
 
 static void parse_opt_capture_init(struct fuzz_ctxt *ctxt, const char *arg)
 {
-    FATAL_ON(ctxt->capture_init_enabled, 1, "--capture-init used more than once");
-    ctxt->capture_init_enabled = true;
+    FATAL_ON(ctxt->capture_init_fd >= 0, 1, "--capture-init used more than once");
     ctxt->capture_init_fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     FATAL_ON(ctxt->capture_init_fd < 0, 2, "open '%s': %m", arg);
@@ -73,7 +71,7 @@ static void parse_opt_replay(struct fuzz_ctxt *ctxt, const char *arg)
 
     FATAL_ON(ctxt->replay_count > ARRAY_SIZE(ctxt->replay_fds), 1,
         "--replay used too many times (max %zu)", ARRAY_SIZE(ctxt->replay_fds));
-    FATAL_ON(ctxt->capture_enabled, 1, "using --capture and --replay at the same time");
+    FATAL_ON(ctxt->capture_fd >= 0, 1, "using --capture and --replay at the same time");
     ret = open(arg, O_RDONLY);
     FATAL_ON(ret < 0, 2, "open '%s': %m", arg);
     ctxt->replay_fds[ctxt->replay_count++] = ret;
@@ -159,10 +157,10 @@ int fuzz_parse_commandline(struct fuzz_ctxt *ctxt, char **argv)
     }
     argv[j] = NULL;
 
-    if (ctxt->capture_enabled || ctxt->replay_count)
+    if (ctxt->capture_fd >= 0 || ctxt->replay_count)
         ctxt->rand_predictable = true;
 
-    if (ctxt->capture_init_enabled && !ctxt->capture_enabled)
+    if (ctxt->capture_init_fd >= 0 && ctxt->capture_fd < 0)
         FATAL(1, "--capture-init used without --capture");
 
     return j;

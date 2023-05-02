@@ -26,8 +26,6 @@ struct fuzz_ctxt {
     time_t mbedtls_time;
     int timer_counter;
 
-    bool capture_enabled;
-    bool capture_init_enabled;
     int capture_fd;
     int capture_init_fd;
 

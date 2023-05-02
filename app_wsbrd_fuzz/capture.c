@@ -29,7 +29,7 @@ void fuzz_capture(struct fuzz_ctxt *ctxt, const void *data, size_t size)
     int ret;
     int fd;
 
-    if (ctxt->capture_init_enabled && !fuzz_is_main_loop(&g_ctxt))
+    if (ctxt->capture_init_fd >= 0 && !fuzz_is_main_loop(&g_ctxt))
         fd = ctxt->capture_init_fd;
     else
         fd = ctxt->capture_fd;

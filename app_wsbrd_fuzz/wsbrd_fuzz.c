@@ -40,6 +40,8 @@ struct fuzz_ctxt g_fuzz_ctxt = {
         { -1, -1 },
         { -1, -1 },
     },
+    .capture_fd      = -1,
+    .capture_init_fd = -1,
 };
 
 // Fuzzing command can only be processed from the main loop.
@@ -61,7 +63,7 @@ int __wrap_uart_open(const char *device, int bitrate, bool hardflow)
     // wsbr_main. Thus some checks can be put here.
     if (g_fuzz_ctxt.fuzzing_enabled)
         g_ctxt.config.storage_delete = true;
-    if (g_fuzz_ctxt.capture_enabled || g_fuzz_ctxt.replay_count) {
+    if (g_fuzz_ctxt.capture_fd >= 0 || g_fuzz_ctxt.replay_count) {
         WARN_ON(!g_ctxt.config.storage_delete, "storage_delete set to false while using capture/replay");
         WARN_ON(!g_ctxt.config.tun_autoconf, "tun_autoconf set to false while using capture/replay");
     }
@@ -82,16 +84,14 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
     if (fuzz_ctxt->replay_count && fuzz_ctxt->timer_counter)
         return 0;
 
-    if (!fuzz_ctxt->capture_enabled)
+    if (fuzz_ctxt->capture_fd < 0)
         return __real_uart_rx(ctxt, buf, buf_len);
 
     frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    if (fuzz_ctxt->capture_enabled) {
-        fuzz_capture_timers(fuzz_ctxt);
-        fuzz_capture(fuzz_ctxt, frame, frame_len);
-    }
+    fuzz_capture_timers(fuzz_ctxt);
+    fuzz_capture(fuzz_ctxt, frame, frame_len);
     frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
@@ -154,14 +154,14 @@ ssize_t __wrap_read(int fd, void *buf, size_t count)
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
 
     if (fd == g_ctxt.timerfd) {
-        if (g_fuzz_ctxt.capture_enabled) {
+        if (g_fuzz_ctxt.capture_fd >= 0) {
             g_fuzz_ctxt.timer_counter++;
         } else if (g_fuzz_ctxt.replay_count) {
             g_fuzz_ctxt.timer_counter--;
             if (g_fuzz_ctxt.timer_counter)
                 fuzz_trigger_timer();
         }
-    } else if (fd == g_ctxt.tun_fd && ctxt->capture_enabled) {
+    } else if (fd == g_ctxt.tun_fd && ctxt->capture_fd >= 0) {
         fuzz_capture_timers(ctxt);
         fuzz_capture_interface(ctxt, IF_TUN, ADDR_UNSPECIFIED, 0, buf, count);
     } else if (fd == g_ctxt.os_ctxt->data_fd && !size && ctxt->replay_i < ctxt->replay_count) {
