@@ -21,7 +21,6 @@
 #include <ns3/libwsbrd-ns3.hpp>
 
 extern "C" {
-#include <gcov.h>
 #include "app_wsbrd/libwsbrd.h"
 #include "common/utils.h"
 #include "common/log.h"
@@ -100,7 +99,6 @@ extern "C" sighandler_t __wrap_signal(int signum, sighandler_t handler)
 // exit() is not thread-safe, so aborting is preferred.
 extern "C" void __wrap_exit(int status)
 {
-    __gcov_dump();
     if (strlen(last_error))
         fprintf(stderr, "\x1b[31mwsbrd: %s\x1b[0m\n", last_error);
     ns3::FatalImpl::FlushStreams();

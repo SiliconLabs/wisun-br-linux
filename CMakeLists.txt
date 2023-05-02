@@ -25,12 +25,6 @@ check_symbol_exists(dladdr dlfcn.h LIBDL_FOUND)
 unset(CMAKE_REQUIRED_DEFINITIONS)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
-set(CMAKE_REQUIRED_LIBRARIES gcov)
-set(CMAKE_REQUIRED_QUIET True)
-check_symbol_exists(__gcov_dump gcov.h LIBGCOV_FOUND)
-unset(CMAKE_REQUIRED_QUIET)
-unset(CMAKE_REQUIRED_LIBRARIES)
-
 find_package(Rust)
 find_package(Cargo)
 
@@ -597,9 +591,6 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wshwping RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     if(ns3_FOUND)
-        if(NOT LIBGCOV_FOUND)
-            message(FATAL_ERROR "wsbrd-ns3 needs libgcov")
-        endif()
         if (NOT MBEDTLS_COMPILED_WITH_PIC)
             message(FATAL_ERROR "wsbrd-ns3 needs MbedTLS compiled with -fPIC")
         endif()
@@ -623,7 +614,6 @@ if(COMPILE_SIMULATION_TOOLS)
             ${NS3_INCLUDE_DIRECTORIES}
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)
-        target_link_libraries(wsbrd-ns3 gcov)
         target_link_libraries(wsbrd-ns3 Threads::Threads)
         target_link_options(wsbrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
