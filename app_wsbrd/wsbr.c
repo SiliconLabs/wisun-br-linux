@@ -195,8 +195,8 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
                                                                   ctxt->config.bc_dwell_interval, ctxt->config.bc_interval);
     WARN_ON(ret);
     ret = ws_management_fhss_lfn_configure(ctxt->rcp_if_id, ctxt->config.lfn_bc_interval, ctxt->config.lfn_bc_sync_period);
-    g_timers[TIMER_LTS].period_ms =
-        rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, TIMER_GLOBAL_PERIOD_MS);
+    g_timers[WS_TIMER_LTS].period_ms =
+        rounddown(ctxt->config.lfn_bc_interval * ctxt->config.lfn_bc_sync_period, WS_TIMER_GLOBAL_PERIOD_MS);
     WARN_ON(ret);
     if (fixed_channel == 0xFFFF) {
         ret = ws_management_channel_mask_set(ctxt->rcp_if_id, ctxt->config.ws_allowed_channels);

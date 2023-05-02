@@ -932,7 +932,7 @@ static void mpl_schedule_timer(void)
 {
     if (!mpl_timer_running) {
         mpl_timer_running = true;
-        timer_start(TIMER_MPL_FAST);
+        ws_timer_start(WS_TIMER_MPL_FAST);
     }
 }
 

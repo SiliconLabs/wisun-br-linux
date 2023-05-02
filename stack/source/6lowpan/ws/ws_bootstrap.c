@@ -164,7 +164,7 @@ static void ws_bootstrap_neighbor_delete(struct net_if *interface, mac_neighbor_
     ws_neighbor_class_entry_remove(&interface->ws_info.neighbor_storage, neighbor->index);
 #ifdef HAVE_WS_BORDER_ROUTER
     if (!mac_neighbor_lfn_count(interface->mac_parameters.mac_neighbor_table))
-        timer_stop(TIMER_LTS);
+        ws_timer_stop(WS_TIMER_LTS);
 #endif
 }
 
@@ -959,8 +959,8 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
         return false;
     }
 #ifdef HAVE_WS_BORDER_ROUTER
-    if (role == WS_NR_ROLE_LFN && !g_timers[TIMER_LTS].timeout)
-        timer_start(TIMER_LTS);
+    if (role == WS_NR_ROLE_LFN && !g_timers[WS_TIMER_LTS].timeout)
+        ws_timer_start(WS_TIMER_LTS);
 #endif
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
     return true;

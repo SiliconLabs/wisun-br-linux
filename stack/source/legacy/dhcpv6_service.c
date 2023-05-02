@@ -137,7 +137,7 @@ void dhcp_service_timer_cb(int ticks)
 {
     if (dhcp_service_timer_tick(ticks)) {
         dhcpv6_socket_timeout_timer_active = true;
-        timer_start(TIMER_DHCPV6_SOCKET);
+        ws_timer_start(WS_TIMER_DHCPV6_SOCKET);
     } else {
         dhcpv6_socket_timeout_timer_active = false;
     }
@@ -155,7 +155,7 @@ bool dhcp_service_allocate(void)
             dhcp_service->dhcp_client_socket = -1;
             dhcp_service->dhcp_server_socket = -1;
             dhcp_service->dhcp_relay_socket = -1;
-            timer_start(TIMER_DHCPV6_SOCKET);
+            ws_timer_start(WS_TIMER_DHCPV6_SOCKET);
             dhcpv6_socket_timeout_timer_active = true;
         }
     }
@@ -235,7 +235,7 @@ void dhcp_tr_set_retry_timers(msg_tr_t *msg_ptr, uint8_t msg_type)
 
         msg_ptr->timeout = msg_ptr->timeout_init;
         if (!dhcpv6_socket_timeout_timer_active) {
-            timer_start(TIMER_DHCPV6_SOCKET);
+            ws_timer_start(WS_TIMER_DHCPV6_SOCKET);
             dhcpv6_socket_timeout_timer_active = true;
         }
     }

@@ -259,7 +259,7 @@ static void ws_mngt_lpa_schedule(struct net_if *net_if, struct ws_lnd_ie *ie_lnd
     // slots is used instead (if any).
     memcpy(net_if->ws_info.mngt.lpa_dst, eui64, 8);
     // Start timer
-    g_timers[TIMER_LPA].timeout = timeout / TIMER_GLOBAL_PERIOD_MS;
+    g_timers[WS_TIMER_LPA].timeout = timeout / WS_TIMER_GLOBAL_PERIOD_MS;
 }
 
 void ws_mngt_lpas_analyze(struct net_if *net_if,
@@ -274,7 +274,7 @@ void ws_mngt_lpas_analyze(struct net_if *net_if,
     struct ws_nr_ie ie_nr;
     uint8_t rsl;
 
-    if (g_timers[TIMER_LPA].timeout) {
+    if (g_timers[WS_TIMER_LPA].timeout) {
         TRACE(TR_DROP, "drop %-9s: LPA already queued for %s",
               tr_ws_frame(WS_FT_LPAS), tr_eui64(net_if->ws_info.mngt.lpa_dst));
         return;

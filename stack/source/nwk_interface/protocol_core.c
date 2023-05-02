@@ -149,32 +149,32 @@ void protocol_core_init(void)
 {
     protocol_root_tasklet_ID = event_handler_create(&protocol_root_tasklet, ARM_LIB_TASKLET_INIT_EVENT);
 
-    timer_start(TIMER_MONOTONIC_TIME);
-    timer_start(TIMER_MPL_SLOW);
-    timer_start(TIMER_RPL_FAST);
-    timer_start(TIMER_RPL_SLOW);
-    timer_start(TIMER_PAE_FAST);
-    timer_start(TIMER_PAE_SLOW);
-    timer_start(TIMER_IPV6_DESTINATION);
-    timer_start(TIMER_IPV6_ROUTE);
-    timer_start(TIMER_IPV6_FRAG);
-    timer_start(TIMER_CIPV6_FRAG);
-    timer_start(TIMER_ICMP_FAST);
-    timer_start(TIMER_6LOWPAN_MLD_FAST);
-    timer_start(TIMER_6LOWPAN_MLD_SLOW);
-    timer_start(TIMER_6LOWPAN_ADDR_FAST);
-    timer_start(TIMER_6LOWPAN_ADDR_SLOW);
-    timer_start(TIMER_6LOWPAN_ND);
-    timer_start(TIMER_6LOWPAN_ETX);
-    timer_start(TIMER_6LOWPAN_ADAPTATION);
-    timer_start(TIMER_6LOWPAN_NEIGHBOR);
-    timer_start(TIMER_6LOWPAN_NEIGHBOR_SLOW);
-    timer_start(TIMER_6LOWPAN_NEIGHBOR_FAST);
-    timer_start(TIMER_6LOWPAN_CONTEXT);
-    timer_start(TIMER_6LOWPAN_BOOTSTRAP);
-    timer_start(TIMER_6LOWPAN_REACHABLE_TIME);
-    timer_start(TIMER_WS_COMMON_FAST);
-    timer_start(TIMER_WS_COMMON_SLOW);
+    ws_timer_start(WS_TIMER_MONOTONIC_TIME);
+    ws_timer_start(WS_TIMER_MPL_SLOW);
+    ws_timer_start(WS_TIMER_RPL_FAST);
+    ws_timer_start(WS_TIMER_RPL_SLOW);
+    ws_timer_start(WS_TIMER_PAE_FAST);
+    ws_timer_start(WS_TIMER_PAE_SLOW);
+    ws_timer_start(WS_TIMER_IPV6_DESTINATION);
+    ws_timer_start(WS_TIMER_IPV6_ROUTE);
+    ws_timer_start(WS_TIMER_IPV6_FRAG);
+    ws_timer_start(WS_TIMER_CIPV6_FRAG);
+    ws_timer_start(WS_TIMER_ICMP_FAST);
+    ws_timer_start(WS_TIMER_6LOWPAN_MLD_FAST);
+    ws_timer_start(WS_TIMER_6LOWPAN_MLD_SLOW);
+    ws_timer_start(WS_TIMER_6LOWPAN_ADDR_FAST);
+    ws_timer_start(WS_TIMER_6LOWPAN_ADDR_SLOW);
+    ws_timer_start(WS_TIMER_6LOWPAN_ND);
+    ws_timer_start(WS_TIMER_6LOWPAN_ETX);
+    ws_timer_start(WS_TIMER_6LOWPAN_ADAPTATION);
+    ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR);
+    ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_SLOW);
+    ws_timer_start(WS_TIMER_6LOWPAN_NEIGHBOR_FAST);
+    ws_timer_start(WS_TIMER_6LOWPAN_CONTEXT);
+    ws_timer_start(WS_TIMER_6LOWPAN_BOOTSTRAP);
+    ws_timer_start(WS_TIMER_6LOWPAN_REACHABLE_TIME);
+    ws_timer_start(WS_TIMER_WS_COMMON_FAST);
+    ws_timer_start(WS_TIMER_WS_COMMON_SLOW);
 }
 
 void protocol_core_interface_info_reset(struct net_if *entry)
