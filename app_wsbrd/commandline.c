@@ -603,6 +603,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         { "delete-storage", no_argument,    0,  'D' },
         { 0,             0,                 0,   0  }
     };
+    const struct phy_params *phy_params;
     struct storage_parse_info info = {
         .filename = "command line",
     };
@@ -768,6 +769,9 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         WARN("Japanese regulation domain used without ARIB regional regulation");
     if (config->ws_domain != REG_DOMAIN_JP && config->ws_regional_regulation == REG_REGIONAL_ARIB)
         FATAL(1, "ARIB is only supported with Japanese regulation domain");
+    phy_params = ws_regdb_phy_params(config->ws_phy_mode_id, config->ws_mode);
+    if (config->ws_regional_regulation == REG_REGIONAL_ARIB && phy_params && phy_params->fec)
+        FATAL(1, "ARIB is not supported with FSK FEC");
     if (!config->ws_mode && !config->ws_phy_mode_id)
         FATAL(1, "missing \"phy_mode_id\" parameter");
     if (config->ws_mode && config->ws_phy_mode_id)
