@@ -42,5 +42,6 @@ struct fuzz_ctxt {
 extern struct fuzz_ctxt g_fuzz_ctxt;
 
 bool fuzz_is_main_loop(struct wsbr_ctxt *ctxt);
+int wsbr_fuzz_main(int argc, char *argv[]);
 
 #endif

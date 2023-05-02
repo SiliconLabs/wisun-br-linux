@@ -534,6 +534,7 @@ if(COMPILE_SIMULATION_TOOLS)
         app_wsbrd_fuzz/interfaces.c
         app_wsbrd_fuzz/capture.c
         app_wsbrd_fuzz/rand.c
+        app_wsbrd_fuzz/main.c
     )
     target_compile_options(wsbrd-fuzz PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
     target_include_directories(wsbrd-fuzz PRIVATE

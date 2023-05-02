@@ -189,7 +189,7 @@ ssize_t __wrap_write(int fd, const void *buf, size_t count)
     return __real_write(fd, buf, count);
 }
 
-int main(int argc, char *argv[])
+int wsbr_fuzz_main(int argc, char *argv[])
 {
     struct fuzz_ctxt *ctxt = &g_fuzz_ctxt;
     int i;
