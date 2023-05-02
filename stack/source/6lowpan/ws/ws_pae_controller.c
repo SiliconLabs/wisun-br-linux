@@ -45,6 +45,7 @@
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
+#include "6lowpan/ws/ws_mngt.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_supp.h"
 #include "6lowpan/ws/ws_pae_auth.h"
@@ -1898,6 +1899,8 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
     }
     pae_controller_gtk_t *gtk_struct = is_lgtk ? &controller->lgtks : &controller->gtks;
 
+    if (!memcmp(gtk_struct->gtkhash, gtkhash, sizeof(gtk_struct->gtkhash)))
+        return;
     memcpy(gtk_struct->gtkhash, gtkhash, sizeof(gtk_struct->gtkhash));
 
     tr_info("%s hash set %s %s %s %s",
@@ -1918,6 +1921,8 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
     } else {
         gtk_struct->gtkhash_set = true;
     }
+    if (is_lgtk)
+        ws_mngt_lpc_pae_cb(interface_ptr);
 }
 #endif
 

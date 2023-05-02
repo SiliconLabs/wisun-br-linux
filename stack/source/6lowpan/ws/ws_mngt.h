@@ -73,4 +73,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
 void ws_mngt_lpa_timer_cb(int ticks);
 void ws_mngt_lts_timer_cb(int ticks);
 
+// Broadcast an LPC frame on LGTK hash, or active LGTK index change
+void ws_mngt_lpc_pae_cb(struct net_if *net_if);
+
 #endif

@@ -350,6 +350,12 @@ static void ws_mngt_lpc_send(struct net_if *net_if, const uint8_t dst[8])
     ws_llc_mngt_lfn_request(net_if, &req, dst, MAC_DATA_MEDIUM_PRIORITY);
 }
 
+void ws_mngt_lpc_pae_cb(struct net_if *net_if)
+{
+    if (mac_neighbor_lfn_count(net_if->mac_parameters.mac_neighbor_table))
+        ws_mngt_lpc_send(net_if, NULL);
+}
+
 void ws_mngt_lpcs_analyze(struct net_if *net_if,
                           const struct mcps_data_ind *data,
                           const struct mcps_data_ie_list *ie_ext)

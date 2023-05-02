@@ -1988,6 +1988,13 @@ static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
             cur->ws_info.pending_key_index_info.index = index;
             return;
         }
+#ifdef HAVE_WS_BORDER_ROUTER
+        if (cur->mac_parameters.mac_default_lfn_key_index != 0 &&
+            cur->mac_parameters.mac_default_lfn_key_index != index + 1 &&
+            index >= 4 && index < 7)
+            // Notify LFNs that a new LGTK has been activated.
+            ws_mngt_lpc_pae_cb(cur);
+#endif
     }
     /* Deprecated: Unused by the RCP. */
     if (index < 4)
