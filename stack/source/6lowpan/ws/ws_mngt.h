@@ -10,8 +10,8 @@
  *
  * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
  */
-#ifndef WS_FFN_H
-#define WS_FFN_H
+#ifndef WS_MNGT_H
+#define WS_MNGT_H
 
 #include <stdbool.h>
 #include <stdint.h>
