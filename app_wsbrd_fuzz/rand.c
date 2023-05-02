@@ -14,16 +14,16 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "wsbrd_fuzz.h"
+#include "app_wsbrd_fuzz/wsbrd_fuzz.h"
+#include "rand.h"
 
-ssize_t __real_getrandom(void *buf, size_t buflen, unsigned int flags);
 ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
     static bool init = false;
     uint8_t *buf8 = (uint8_t *) buf;
 
     if (!g_fuzz_ctxt.rand_predictable)
-        return __real_getrandom(buf, buflen, flags);
+        return fuzz_real_getrandom(buf, buflen, flags);
 
     if (!init) {
         srand(0);
