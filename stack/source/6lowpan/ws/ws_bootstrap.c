@@ -959,7 +959,7 @@ bool ws_bootstrap_neighbor_add(struct net_if *net_if, const uint8_t eui64[8], st
         return false;
     }
 #ifdef HAVE_WS_BORDER_ROUTER
-    if (role == WS_NR_ROLE_LFN && g_timers[TIMER_LTS].period_ms)
+    if (role == WS_NR_ROLE_LFN && !g_timers[TIMER_LTS].timeout)
         timer_start(TIMER_LTS);
 #endif
     ws_stats_update(net_if, STATS_WS_NEIGHBOUR_ADD, 1);
