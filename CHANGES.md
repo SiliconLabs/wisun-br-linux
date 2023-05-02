@@ -1,3 +1,10 @@
+v1.5.4
+------
+
+  - LFN Broadcast (LBC-IE) was not properly filled.
+  - Fix fatal error with rtnl_route_add() when neighbor_proxy was in use.
+  - Fix nodes revocation.
+
 v1.5.3
 ------
 
