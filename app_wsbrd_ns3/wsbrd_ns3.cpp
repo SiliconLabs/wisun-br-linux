@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include <vector>
+
 #include <ns3/abort.h>
 #include <ns3/libwsbrd-ns3.hpp>
 
@@ -45,8 +47,8 @@ static void wsbr_ns3_cleanup(void *arg)
 void wsbr_ns3_main(const char *config)
 {
     char config_filename[] = "/tmp/wsbrd-ns3-XXXXXX.conf";
+    std::vector<char *> args;
     int config_fd;
-    char *argv[6];
     ssize_t size;
 
     BUG_ON(g_uart_cb.IsNull());
@@ -61,15 +63,15 @@ void wsbr_ns3_main(const char *config)
     close(config_fd);
 
     // Cast to non-const, wsbrd is trusted to not modify its arguments
-    argv[0] = (char *)"wsbrd";
-    argv[1] = (char *)"-F";
-    argv[2] = (char *)config_filename;
-    argv[3] = (char *)"-u/dev/null"; // Provide a UART devive so parse_commandline succeeds
-    argv[4] = (char *)"-D";
-    argv[5] = NULL;
+    args.push_back((char *)"wsbrd");
+    args.push_back((char *)"-F");
+    args.push_back(config_filename);
+    args.push_back((char *)"-u/dev/null"); // Provide a UART devive so parse_commandline succeeds
+    args.push_back((char *)"-D");
+    args.push_back(NULL);
 
     pthread_cleanup_push(wsbr_ns3_cleanup, config_filename);
-    wsbr_main(ARRAY_SIZE(argv) - 1, argv); // Does not return
+    wsbr_main(args.size() - 1, (char **)args.data()); // Does not return
     pthread_cleanup_pop(true);
 }
 
