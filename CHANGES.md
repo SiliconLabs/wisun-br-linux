@@ -2,8 +2,8 @@ v1.5.3
 ------
 
   - PTK and PMK were not properly restored when wsbrd restarted.
-  - No longer accept invalid 6LoWPAN fragment packets
-  - No longer accept unencrypted data and PAN-config frames
+  - No longer accept invalid 6LoWPAN fragment packets.
+  - No longer accept unencrypted data and PAN-config frames.
 
 v1.5.2
 ------
