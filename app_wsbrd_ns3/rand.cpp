@@ -12,11 +12,22 @@
  */
 #include <sys/types.h>
 
+extern "C" {
+#include "app_wsbrd_fuzz/rand.h"
+}
+
 #include <ns3/random-variable-stream.h>
 #include <ns3/rng-seed-manager.h>
 #include <ns3/libwsbrd-ns3.hpp>
 
-extern "C" ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
+/*
+ * When fuzz capture is enabled, the wsbrd-fuzz generator is used (libc).
+ * Otherwise the ns-3 generator is used to enable seeding of the entire
+ * simulation. Note that since the simulation of wsbrd is not deterministic
+ * currently, using the ns-3 generator does not provide any advantages, but
+ * this may change in the future.
+ */
+ssize_t fuzz_real_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
     static bool init = false;
     static ns3::Ptr<ns3::UniformRandomVariable> rand_source =

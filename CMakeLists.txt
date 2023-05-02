@@ -610,6 +610,7 @@ if(COMPILE_SIMULATION_TOOLS)
             app_wsbrd_fuzz/capture.c
             app_wsbrd_fuzz/commandline.c
             app_wsbrd_fuzz/interfaces.c
+            app_wsbrd_fuzz/rand.c
             app_wsbrd_fuzz/wsbrd_fuzz.c
         )
         target_include_directories(wsbrd-ns3 PRIVATE
@@ -629,6 +630,8 @@ if(COMPILE_SIMULATION_TOOLS)
             -Wl,--wrap=signal
             -Wl,--wrap=exit
             -Wl,--wrap=__tr_printf
+            -Wl,--wrap=getrandom
+            -Wl,--wrap=time
         )
         install(TARGETS wsbrd-ns3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endif()

@@ -76,6 +76,7 @@ void wsbr_ns3_main(const char *config)
     if (!g_capture_filename.empty()) {
         args.push_back((char *)"--capture");
         args.push_back((char *)g_capture_filename.c_str());
+        args.push_back((char *)"--fuzz"); // Always use simplified RNG
     }
     if (!g_capture_init_filename.empty()) {
         args.push_back((char *)"--capture-init");
