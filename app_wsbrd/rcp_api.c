@@ -351,7 +351,7 @@ void rcp_set_max_async_duration(uint32_t val)
 
 void rcp_set_tx_power(int8_t val)
 {
-    rcp_set_u8(SPINEL_PROP_WS_MAX_BE, (uint8_t)val);
+    rcp_set_u8(SPINEL_PROP_PHY_TX_POWER, (uint8_t)val);
 }
 
 void rcp_set_fhss_timings(const struct fhss_ws_configuration *timing_info)
