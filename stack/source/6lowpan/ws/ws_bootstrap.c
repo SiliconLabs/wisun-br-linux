@@ -25,6 +25,7 @@
 #include "common/trickle.h"
 #include "common/log_legacy.h"
 #include "common/endian.h"
+#include "common/utils.h"
 #include "common/version.h"
 #include "service_libs/etx/etx.h"
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
@@ -444,65 +445,52 @@ void ws_bootstrap_llc_hopping_update(struct net_if *cur, const fhss_ws_configura
     cur->ws_info.hopping_schedule.fhss_bsi = fhss_configuration->bsi;
 }
 
-static void ws_bootstrap_generate_excluded_channel_list_from_active_channels(ws_excluded_channel_data_t *excluded_data, const uint8_t *selected_channel_mask, const uint8_t *global_channel_mask, uint16_t number_of_channels)
+/**
+ * @param chan_excl is filled with a list of excluded channels to be advertised
+ *   in a schedule IE (US,BS,LCP)
+ * @param chan_mask_custom is a user provided list of channels to use, ones not
+ *   allowed by the regulation are ignored
+ * @param chan_mask_reg is the list of active channels defined by the Wi-SUN
+ *   PHY specification based on the configuration parameters (regulatory domain
+ *   and class/ChanPlanId)
+ */
+static void ws_bootstrap_calc_chan_excl(ws_excluded_channel_data_t *chan_excl, const uint8_t chan_mask_custom[],
+                                        const uint8_t chan_mask_reg[], uint16_t chan_count)
 {
-    bool active_range = false;
-    int total_excluded_range_length = 0;
+    bool in_range = false;
+    int range_cnt = 0;
 
-    //Clear Old Data
-    memset(excluded_data, 0, sizeof(ws_excluded_channel_data_t));
-
-    for (uint8_t i = 0; i < number_of_channels; i++) {
-        if (!bittest(global_channel_mask, i)) {
-            //Global excluded channel
-            if (active_range) {
-                //Mark range stop here
-                active_range = false;
-            }
+    memset(chan_excl, 0, sizeof(ws_excluded_channel_data_t));
+    for (uint16_t i = 0; i < chan_count; i++) {
+        if (!bittest(chan_mask_reg, i) || bittest(chan_mask_custom, i)) {
+            if (in_range)
+                in_range = false;
             continue;
         }
 
-        if (bittest(selected_channel_mask, i)) {
-            if (active_range) {
-                //Mark range stop here
-                active_range = false;
-            }
-        } else {
-            //Mark excluded channel
-            //Swap Order already here
-            bitrset(excluded_data->channel_mask, i);
-            excluded_data->excluded_channel_count++;
+        bitrset(chan_excl->channel_mask, i);
+        chan_excl->excluded_channel_count++;
 
-            if (!active_range) {
-                active_range = true;
-                total_excluded_range_length++;
-                if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-                    excluded_data->excluded_range[total_excluded_range_length - 1].range_start = i;
-                    excluded_data->excluded_range_length = total_excluded_range_length;
-                }
-            }
-            if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-                excluded_data->excluded_range[total_excluded_range_length - 1].range_end = i;
+        if (!in_range) {
+            in_range = true;
+            range_cnt++;
+            if (range_cnt < WS_EXCLUDED_MAX_RANGE_TO_SEND) {
+                chan_excl->excluded_range[range_cnt - 1].range_start = i;
+                chan_excl->excluded_range_length = range_cnt;
             }
         }
+        if (range_cnt <= WS_EXCLUDED_MAX_RANGE_TO_SEND)
+            chan_excl->excluded_range[range_cnt - 1].range_end = i;
     }
+    chan_excl->channel_mask_bytes_inline = roundup(chan_count, 8) / 8;
 
-    excluded_data->channel_mask_bytes_inline = ((number_of_channels + 7) / 8);
-
-    if (total_excluded_range_length == 0) {
-        excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
-    } else if (total_excluded_range_length <= WS_EXCLUDED_MAX_RANGE_TO_SEND) {
-        uint8_t range_length = (total_excluded_range_length * 4) + 3;
-        if (range_length <= ((number_of_channels + 7) / 8) + 6) {
-            excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
-        } else {
-            excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
-        }
-    } else {
-        excluded_data->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
-    }
-    tr_debug("Excluded ctrl %u, excluded channel count %u, total domain channels %u",
-             excluded_data->excluded_channel_ctrl, excluded_data->excluded_channel_count, number_of_channels);
+    if (!range_cnt)
+        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_NONE;
+    else if (range_cnt <= WS_EXCLUDED_MAX_RANGE_TO_SEND &&
+             1 + range_cnt * 4 < chan_excl->channel_mask_bytes_inline)
+        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_RANGE;
+    else
+        chan_excl->excluded_channel_ctrl = WS_EXC_CHAN_CTRL_BITMASK;
 }
 
 void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_configuration_t *fhss_configuration)
@@ -512,14 +500,17 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
     ws_common_generate_channel_list(cur, fhss_configuration->unicast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
     // using bitwise AND operation for user set channel mask to remove channels not allowed in this device
     bitand(fhss_configuration->unicast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
-    //Update Excluded channels
-    ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.uc_excluded_channels, fhss_configuration->unicast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels);
+    ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.uc_excluded_channels,
+                                fhss_configuration->unicast_channel_mask,
+                                fhss_configuration->domain_channel_mask,
+                                cur->ws_info.hopping_schedule.number_of_channels);
     if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
         bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
-        // ws_bootstrap_generate_excluded_channel_list_from_active_channels()
-        // will return the same value than the previous call.
-        ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.bc_excluded_channels, fhss_configuration->broadcast_channel_mask, fhss_configuration->domain_channel_mask, cur->ws_info.hopping_schedule.number_of_channels);
+        ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
+                                    fhss_configuration->broadcast_channel_mask,
+                                    fhss_configuration->domain_channel_mask,
+                                    cur->ws_info.hopping_schedule.number_of_channels);
     }
 }
 
@@ -599,10 +590,10 @@ void ws_bootstrap_primary_parent_set(struct net_if *cur, llc_neighbour_req_t *ne
         bitand(cur->ws_info.fhss_conf.broadcast_channel_mask,
                neighbor_info->ws_neighbor->fhss_data.bc_channel_list.channel_mask, 256);
         // Update broadcast excluded channels.
-        ws_bootstrap_generate_excluded_channel_list_from_active_channels(&cur->ws_info.hopping_schedule.bc_excluded_channels,
-                                                                         cur->ws_info.fhss_conf.broadcast_channel_mask,
-                                                                         cur->ws_info.fhss_conf.domain_channel_mask,
-                                                                         cur->ws_info.hopping_schedule.number_of_channels);
+        ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
+                                    cur->ws_info.fhss_conf.broadcast_channel_mask,
+                                    cur->ws_info.fhss_conf.domain_channel_mask,
+                                    cur->ws_info.hopping_schedule.number_of_channels);
     }
     cur->ws_info.fhss_conf.bsi                     = neighbor_info->ws_neighbor->fhss_data.ffn.bsi;
     cur->ws_info.fhss_conf.fhss_bc_dwell_interval  = neighbor_info->ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms;
