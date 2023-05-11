@@ -73,6 +73,7 @@ void wsbr_data_req_ext(struct net_if *cur,
                        const struct mcps_data_req *data,
                        const struct mcps_data_req_ie_list *ie_ext)
 {
+    struct ws_neighbor_class_entry neighbor_ws_dummy = { 0 };
     struct ws_neighbor_class_entry *neighbor_ws;
     struct channel_list async_channel_list = {
         .channel_page = CHANNEL_PAGE_10,
@@ -105,7 +106,12 @@ void wsbr_data_req_ext(struct net_if *cur,
                           data->fhss_type == HIF_FHSS_TYPE_ASYNC ? &async_channel_list : NULL);
     } else {
         neighbor_ws = wsbr_get_neighbor(cur, data->DstAddr);
-        BUG_ON(!!neighbor_ws != !!data->DstAddrMode);
+        if (data->DstAddrMode && !neighbor_ws) {
+            WARN("%s: neighbor timeout before packet send", __func__);
+            // Send 0 initialized FHSS timings to the RCP, which will return a
+            // confirmation error.
+            neighbor_ws = &neighbor_ws_dummy;
+        }
         wsbr_data_req_rebuild(&frame, cur->rcp, &cur->mac_parameters, data, ie_ext);
         rcp_tx_req(frame.data, frame.len, neighbor_ws, data->msduHandle,
                    data->fhss_type, data->ExtendedFrameExchange,
