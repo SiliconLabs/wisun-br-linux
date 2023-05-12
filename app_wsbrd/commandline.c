@@ -382,10 +382,10 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
     substr = strtok(tmp, ",");
     do {
         // Keep room for sentinel
-        FATAL_ON(i > ARRAY_SIZE(config->ws_phy_op_modes) - 2, 1,
+        FATAL_ON(i >= ARRAY_SIZE(config->ws_phy_op_modes) - 1, 1,
                  "%s:%d: too many entries (max: %zu)",
                  info->filename, info->linenr,
-                 ARRAY_SIZE(config->ws_phy_op_modes) - 2);
+                 ARRAY_SIZE(config->ws_phy_op_modes) - 1);
         strcpy(sub_info.value, substr);
         conf_set_enum_int(config, &sub_info, &phy_mode_id, raw_param);
         dest[i++] = phy_mode_id;
