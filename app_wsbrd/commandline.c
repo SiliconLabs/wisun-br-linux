@@ -366,10 +366,12 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
     struct storage_parse_info sub_info = *info; // Copy struct to reuse conf_set_enum_int
     uint8_t *dest = raw_dest;
     char *tmp, *substr;
+    int phy_mode_id;
     int i;
 
     BUG_ON(raw_dest != config->ws_phy_op_modes);
     BUG_ON(raw_param != &valid_ws_phy_mode_ids);
+    memset(dest, 0, sizeof(config->ws_phy_op_modes));
     // FIXME: expect trouble if 0xFF become valid PHY IDs.
     if (!strcmp(info->value, "auto")) {
         dest[0] = -1;
@@ -385,7 +387,8 @@ static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storag
                  info->filename, info->linenr,
                  ARRAY_SIZE(config->ws_phy_op_modes) - 2);
         strcpy(sub_info.value, substr);
-        conf_set_enum_int(config, &sub_info, &dest[i++], raw_param);
+        conf_set_enum_int(config, &sub_info, &phy_mode_id, raw_param);
+        dest[i++] = phy_mode_id;
     } while ((substr = strtok(NULL, ",")));
     free(tmp);
 }
