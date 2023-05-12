@@ -1041,7 +1041,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
 
-    if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 23, 0)) {
+    if (has_lutt && version_older_than(net_if->rcp->version_api, 0, 25, 0)) {
         TRACE(TR_DROP, "drop %-9s: LFN parenting requires RCP API >= 0.23.0", tr_ws_frame(frame_type));
         return;
     }
@@ -1486,7 +1486,7 @@ static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class
 {
     //Pointer is static add to free list
     if (entry >= &base->neighbour_temporary_table[0] && entry <= &base->neighbour_temporary_table[MAX_NEIGH_TEMPORARY_EAPOL_SIZE - 1]) {
-        if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
+        if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
             rcp_drop_fhss_neighbor(entry->mac64);
         ns_list_add_to_end(&base->free_temp_neigh, entry);
     }
@@ -1663,7 +1663,7 @@ void ws_llc_free_multicast_temp_entry(struct net_if *cur, ws_neighbor_temp_class
     if (!base) {
         return;
     }
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_drop_fhss_neighbor(neighbor->mac64);
     ns_list_remove(&base->temp_entries.active_multicast_temp_neigh, neighbor);
     ns_list_add_to_end(&base->temp_entries.free_temp_neigh, neighbor);
@@ -2079,7 +2079,7 @@ void ws_llc_timer_seconds(struct net_if *interface, uint16_t seconds_update)
 
     ns_list_foreach_safe(ws_neighbor_temp_class_t, entry, &base->temp_entries.active_eapol_temp_neigh) {
         if (entry->eapol_temp_info.eapol_timeout <= seconds_update) {
-            if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
+            if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
                 rcp_drop_fhss_neighbor(entry->mac64);
             ns_list_remove(&base->temp_entries.active_eapol_temp_neigh, entry);
             ns_list_add_to_end(&base->temp_entries.free_temp_neigh, entry);

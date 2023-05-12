@@ -166,7 +166,7 @@ void ws_neighbor_class_ut_update(ws_neighbor_class_entry_t *neighbor, uint24_t u
     neighbor->fhss_data.ffn.utt_rx_tstamp_us = tstamp_us;
     neighbor->fhss_data.ffn.ufsi             = ufsi;
     clock_gettime(CLOCK_MONOTONIC, &neighbor->host_rx_timestamp);
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_set_fhss_neighbor(eui64, &neighbor->fhss_data);
 }
 
@@ -295,7 +295,7 @@ void ws_neighbor_class_us_update(const struct net_if *net_if, ws_neighbor_class_
                                   &ws_neighbor->fhss_data.uc_chan_count);
     }
     ws_neighbor->fhss_data.ffn.uc_dwell_interval_ms = dwell_interval;
-    if (version_older_than(g_ctxt.rcp.version_api, 0, 22, 0))
+    if (version_older_than(g_ctxt.rcp.version_api, 0, 25, 0))
         rcp_set_fhss_neighbor(eui64, &ws_neighbor->fhss_data);
 }
 
