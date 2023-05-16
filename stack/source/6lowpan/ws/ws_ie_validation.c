@@ -39,7 +39,7 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
                                     const char *ie_str)
 {
     if (!ws_ie_validate_chan_plan(chan_info, &ws_info->hopping_schedule)) {
-        TRACE(TR_DROP, "drop 15.4     : %s channel plan mismatch", ie_str);
+        TRACE(TR_DROP, "drop %-9s: %s channel plan mismatch", "15.4", ie_str);
         return false;
     }
 
@@ -49,7 +49,7 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
     case WS_DH1CF:
         break;
     default:
-        TRACE(TR_DROP, "drop 15.4     : %s channel function unsupported", ie_str);
+        TRACE(TR_DROP, "drop %-9s: %s channel function unsupported", "15.4", ie_str);
         return false;
     }
 
@@ -59,7 +59,7 @@ static bool ws_ie_validate_schedule(const struct ws_info *ws_info,
     case WS_EXC_CHAN_CTRL_BITMASK:
         break;
     default:
-        TRACE(TR_DROP, "drop 15.4     : %s excluded channel control unsupported", ie_str);
+        TRACE(TR_DROP, "drop %-9s: %s excluded channel control unsupported", "15.4", ie_str);
         return false;
     }
 
@@ -79,7 +79,7 @@ bool ws_ie_validate_bs(const struct ws_info *ws_info, const struct ws_bs_ie *ie_
 bool ws_ie_validate_lcp(const struct ws_info *ws_info, const struct ws_lcp_ie *ie_lcp)
 {
     if (ie_lcp->chan_plan.channel_plan != 2) {
-        TRACE(TR_DROP, "drop 15.4     : LCP-IE channel plan invalid");
+        TRACE(TR_DROP, "drop %-9s: LCP-IE channel plan invalid", "15.4");
         return false;
     }
     return ws_ie_validate_schedule(ws_info, &ie_lcp->chan_plan, "LCP-IE");
@@ -91,7 +91,7 @@ bool ws_ie_validate_netname(const struct ws_info *ws_info, const struct ws_wp_ne
 
     if (ie_netname->network_name_length != strlen(network_name) ||
         strncmp(network_name, (char *)ie_netname->network_name, ie_netname->network_name_length)) {
-        TRACE(TR_DROP, "drop 15.4-mngt: NETNAME-IE mismatch");
+        TRACE(TR_DROP, "drop %-9s: NETNAME-IE mismatch", "15.4-mngt");
         return false;
     }
     return true;

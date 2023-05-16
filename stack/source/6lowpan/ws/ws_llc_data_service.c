@@ -1027,10 +1027,10 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
     has_utt  = ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt);
     has_lutt = ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt);
     if (!has_utt && !has_lutt) {
-        TRACE(TR_DROP, "drop 15.4     : missing (L)UTT-IE");
+        TRACE(TR_DROP, "drop %-9s: missing (L)UTT-IE", "15.4");
         return;
     } else if (has_utt && has_lutt) {
-        TRACE(TR_DROP, "drop 15.4     : both UTT-IE and LUTT-IE present");
+        TRACE(TR_DROP, "drop %-9s: both UTT-IE and LUTT-IE present", "15.4");
         return;
     }
     frame_type = has_utt ? ie_utt.message_type : ie_lutt.message_type;
@@ -1053,7 +1053,7 @@ void ws_llc_mac_indication_cb(int8_t net_if_id, const mcps_data_ind_t *data, con
         else
             ws_llc_eapol_lfn_ind(net_if, data, ie_ext);
     } else {
-        TRACE(TR_DROP, "drop 15.4     : unsupported frame type (0x%02x)", frame_type);
+        TRACE(TR_DROP, "drop %-9s: unsupported frame type (0x%02x)", "15.4", frame_type);
     }
 }
 

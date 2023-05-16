@@ -367,7 +367,7 @@ void ws_mngt_lpcs_analyze(struct net_if *net_if,
     bool has_lus, has_lcp;
 
     if (!ws_wh_lutt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_lutt)) {
-        TRACE(TR_DROP, "drop %-s: missing LUTT-IE", tr_ws_frame(WS_FT_LPCS));
+        TRACE(TR_DROP, "drop %-9s: missing LUTT-IE", tr_ws_frame(WS_FT_LPCS));
         return;
     }
     BUG_ON(ie_lutt.message_type != WS_FT_LPCS);

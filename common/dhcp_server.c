@@ -146,12 +146,12 @@ static int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint
     ll_type = iobuf_pop_be16(&opt);
     if (duid_type != DHCPV6_DUID_TYPE_LINK_LAYER ||
         (ll_type != DHCPV6_DUID_HW_TYPE_EUI64 && ll_type != DHCPV6_DUID_HW_TYPE_IEEE802)) {
-        TRACE(TR_DROP, "drop dhcp: unsupported client ID option");
+        TRACE(TR_DROP, "drop %-9s: unsupported client ID option", "dhcp");
         return -ENOTSUP;
     }
     *hwaddr = iobuf_pop_data_ptr(&opt, 8);
     if (opt.err) {
-        TRACE(TR_DROP, "drop dhcp: malformed client ID option");
+        TRACE(TR_DROP, "drop %-9s: malformed client ID option", "dhcp");
         return -EINVAL;
     }
     return ll_type;
@@ -165,7 +165,7 @@ static uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_
     dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt);
     ia_id = iobuf_pop_be32(&opt);
     if (opt.err) {
-        TRACE(TR_DROP, "drop dhcp: missing IA_NA option");
+        TRACE(TR_DROP, "drop %-9s: missing IA_NA option", "dhcp");
         return UINT32_MAX;
     }
     return ia_id;
@@ -177,7 +177,7 @@ static int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
 
     dhcp_get_option(req, req_len, DHCPV6_OPT_RAPID_COMMIT, &opt);
     if (opt.err) {
-        TRACE(TR_DROP, "drop dhcp: missing rapid commit option");
+        TRACE(TR_DROP, "drop %-9s: missing rapid commit option", "dhcp");
         return -ENOTSUP;
     }
     return 0;
@@ -193,7 +193,7 @@ static int dhcp_check_status_code(const uint8_t *req, size_t req_len)
         return 0;
     status = iobuf_pop_be16(&opt);
     if (status) {
-        TRACE(TR_DROP, "drop dhcp: status code %d", status);
+        TRACE(TR_DROP, "drop %-9s: status code %d", "dhcp", status);
         return -EFAULT;
     }
     return 0;
@@ -205,7 +205,7 @@ static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
 
     dhcp_get_option(req, req_len, DHCPV6_OPT_ELAPSED_TIME, &opt);
     if (opt.err) {
-        TRACE(TR_DROP, "drop dhcp: missing elapsed time option");
+        TRACE(TR_DROP, "drop %-9s: missing elapsed time option", "dhcp");
         return -EINVAL; // Elapsed Time option is mandatory
     }
     return 0;
@@ -298,7 +298,7 @@ static int dhcp_handle_request_fwd(struct dhcp_server *dhcp,
     }
     if (dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req),
                         DHCPV6_OPT_RELAY, &opt_relay) < 0) {
-        TRACE(TR_DROP, "drop dhcp: missing relay option");
+        TRACE(TR_DROP, "drop %-9s: missing relay option", "dhcp");
         return -EINVAL;
     }
     if (dhcp_handle_request(dhcp, &opt_relay, &relay_reply))
@@ -323,7 +323,7 @@ static int dhcp_handle_request(struct dhcp_server *dhcp,
     if (msg_type == DHCPV6_MSG_RELAY_FWD)
         return dhcp_handle_request_fwd(dhcp, req, reply);
     if (msg_type != DHCPV6_MSG_SOLICIT) {
-        TRACE(TR_DROP, "drop dhcp: unsupported msg-type 0x%02x", msg_type);
+        TRACE(TR_DROP, "drop %-9s: unsupported msg-type 0x%02x", "dhcp", msg_type);
         return -EINVAL;
     }
 
@@ -362,7 +362,7 @@ void dhcp_recv(struct dhcp_server *dhcp)
     req.data_size = recvfrom(dhcp->fd, buf, sizeof(buf), 0,
                              (struct sockaddr *)&src_addr, &src_addr_len);
     if (src_addr.sin6_family != AF_INET6) {
-        TRACE(TR_DROP, "drop dhcp: not IPv6");
+        TRACE(TR_DROP, "drop %-9s: not IPv6", "dhcp");
         return;
     }
     TRACE(TR_DHCP, "rx-dhcp %-9s src:%s",
