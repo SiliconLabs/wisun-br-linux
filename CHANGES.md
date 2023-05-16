@@ -1,3 +1,30 @@
+v1.5.4
+------
+
+  - LFN Broadcast (LBC-IE) was not properly filled.
+  - Fix fatal error with rtnl_route_add() when neighbor_proxy was in use.
+  - Fix nodes revocation.
+
+v1.5.3
+------
+
+  - PTK and PMK were not properly restored when wsbrd restarted.
+  - No longer accept invalid 6LoWPAN fragment packets.
+  - No longer accept unencrypted data and PAN-config frames.
+
+v1.5.2
+------
+
+  - Fix handling of channel mask on big endian architectures. Globally all the
+    bits arrays has been rewritten to be agnostic with the CPU endianess.
+
+v1.5.1
+------
+
+  - PAN-Configuration frames now include LFN Broadcast Interval and LFN
+    Broadcast Sync Period. The user can customize these values in the
+    configuration file.
+
 v1.5
 ----
 
