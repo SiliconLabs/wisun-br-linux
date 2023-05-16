@@ -323,7 +323,7 @@ static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int b
 
 static void wsbr_handle_rx_err(uint8_t src[8], uint8_t status)
 {
-    TRACE(TR_DROP, "drop %-9s: from %s: %02x", "15.4", tr_ipv6(src), status);
+    TRACE(TR_DROP, "drop %-9s: from %s: status 0x%02x", "15.4", tr_eui64(src), status);
 }
 
 static void wsbr_handle_reset(struct wsbr_ctxt *ctxt)
