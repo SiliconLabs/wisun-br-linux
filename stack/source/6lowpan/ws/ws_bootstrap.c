@@ -1295,7 +1295,7 @@ static int ws_bootstrap_set_rf_config(struct net_if *cur, phy_rf_channel_configu
         ack_wait_symbols /= 4;
     ack_wait_symbols += WS_ACK_WAIT_SYMBOLS;
     rcp_set_802154_mode(IEEE_802_15_4G_2012);
-    if (version_older_than(cur->rcp->version_api, 0, 24, 0))
+    if (version_older_than(cur->rcp->version_api, 0, 25, 1))
         rcp_set_rf_config_legacy(&rf_configs);
     else
         rcp_set_rf_config(&rf_configs);
