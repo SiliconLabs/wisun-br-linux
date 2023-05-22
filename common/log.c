@@ -194,6 +194,18 @@ static __thread int trace_idx = 0;
  */
 static __thread int trace_nested_counter = 0;
 
+void __tr_enter()
+{
+    trace_nested_counter++;
+}
+
+void __tr_exit()
+{
+    trace_nested_counter--;
+    if (!trace_nested_counter)
+        trace_idx = 0;
+}
+
 void __tr_vprintf(const char *color, const char *fmt, va_list ap)
 {
     if (!g_trace_stream) {
@@ -202,7 +214,6 @@ void __tr_vprintf(const char *color, const char *fmt, va_list ap)
         g_enable_color_traces = isatty(fileno(g_trace_stream));
     }
 
-    trace_nested_counter++;
     if (color && strcmp(color, "0") && g_enable_color_traces) {
         fprintf(g_trace_stream, "\x1B[%sm", color);
         vfprintf(g_trace_stream, fmt, ap);
@@ -211,10 +222,6 @@ void __tr_vprintf(const char *color, const char *fmt, va_list ap)
         vfprintf(g_trace_stream, fmt, ap);
         fprintf(g_trace_stream, "\n");
     }
-    trace_nested_counter--;
-
-    if (!trace_nested_counter)
-        trace_idx = 0;
 }
 
 void __tr_printf(const char *color, const char *fmt, ...)
