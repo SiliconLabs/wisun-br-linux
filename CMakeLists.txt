@@ -395,6 +395,7 @@ if(COMPILE_DEVTOOLS)
         target_link_options(wsbrd-ns3 PRIVATE
             -Wl,--wrap=uart_open
             -Wl,--wrap=write
+            -Wl,--wrap=writev
             -Wl,--wrap=getrandom
             -Wl,--wrap=wsbr_common_timer_init
             -Wl,--wrap=wsbr_common_timer_process

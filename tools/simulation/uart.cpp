@@ -16,6 +16,7 @@
 
 extern "C" {
 #include "app_wsbrd/wsbr.h"
+#include "common/log.h"
 #include "common/os_types.h"
 }
 
@@ -35,4 +36,26 @@ extern "C" ssize_t __wrap_write(int fd, const void *buf, size_t count)
         return g_uart_cb(buf, count);
     else
         return __real_write(fd, buf, count);
+}
+
+extern "C" ssize_t __real_writev(int fd, const struct iovec *iov, int iovcnt);
+extern "C" ssize_t __wrap_writev(int fd, const struct iovec *iov, int iovcnt)
+{
+    uint8_t *buf;
+    ssize_t ret;
+
+    if (fd != g_ctxt.os_ctxt->data_fd)
+        return __real_writev(fd, iov, iovcnt);
+
+    BUG_ON(iovcnt != 3); // hdr | cmd + body | fcs
+    // TODO: change the signature of g_uart_cb to accept iovec so rebuilding
+    // the packet is not needed here.
+    buf = (uint8_t *)malloc(iov[0].iov_len + iov[1].iov_len + iov[2].iov_len);
+    FATAL_ON(!buf, 2, "malloc: %m");
+    memcpy(buf,                                   iov[0].iov_base, iov[0].iov_len);
+    memcpy(buf + iov[0].iov_len,                  iov[1].iov_base, iov[1].iov_len);
+    memcpy(buf + iov[0].iov_len + iov[1].iov_len, iov[2].iov_base, iov[2].iov_len);
+    ret = g_uart_cb(buf, iov[0].iov_len + iov[1].iov_len + iov[2].iov_len);
+    free(buf);
+    return ret;
 }
