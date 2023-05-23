@@ -50,6 +50,16 @@ static const struct rcp_rail_config *rail_get_next_config(struct wsbr_ctxt *ctxt
     return NULL;
 }
 
+static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
+{
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const struct rcp_rail_config *config = rail_get_next_config(ctxt, NULL);
+
+    if (!config)
+        FATAL(1, "can't match any RAIL configuration");
+    cur->ws_info.hopping_schedule.rcp_rail_config_index = config->index;
+}
+
 static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
@@ -70,6 +80,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
             break;
     if (!base_rail_params) {
         INFO("No PHY operating modes available for your configuration");
+        rail_fill_pom_disabled(ctxt);
         return;
     }
     i = 1;
@@ -150,16 +161,6 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
         }
     }
     FATAL(1, "can't match any RAIL configuration");
-}
-
-static void rail_fill_pom_disabled(struct wsbr_ctxt *ctxt)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
-    const struct rcp_rail_config *config = rail_get_next_config(ctxt, NULL);
-
-    if (!config)
-        FATAL(1, "can't match any RAIL configuration");
-    cur->ws_info.hopping_schedule.rcp_rail_config_index = config->index;
 }
 
 void rail_fill_pom(struct wsbr_ctxt *ctxt)
