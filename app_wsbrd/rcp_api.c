@@ -288,6 +288,10 @@ void rcp_set_rf_config(const struct phy_rf_channel_configuration *config)
     spinel_push_u16(&buf, config->rcp_config_index);
     rcp_tx(ctxt, &buf);
     iobuf_free(&buf);
+
+    // Contrary to PROP_SET/RF_CONFIG_LEGACY, no confirmation is returned.
+    // However it should not be possible to send incorrect radio parameters.
+    ctxt->rcp.init_state |= RCP_HAS_RF_CONFIG;
 }
 
 void rcp_set_regional_regulation(uint32_t val)
