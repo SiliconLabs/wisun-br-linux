@@ -160,7 +160,7 @@ static void rail_fill_pom_manual(struct wsbr_ctxt *ctxt)
             return;
         }
     }
-    FATAL(1, "can't match any RAIL configuration");
+    FATAL(1, "phy_operating_modes: can't match any RAIL configuration");
 }
 
 void rail_fill_pom(struct wsbr_ctxt *ctxt)
