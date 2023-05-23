@@ -8,7 +8,7 @@ v1.6
   - Allow to drop root privileges after startup (see "user" and "group"
     parameters).
   - User can now choose to enable "PHY mode switch" and can specify the
-    phy_mode_id he wants to use. This new parameter allows to use "PHY mode
+    phy_mode_id he wants to use. This new parameter also allows to use "PHY mode
     switch" with custom regulation domains.
   - Don't enable "PHY mode switch" if FAN version is FAN1.0.
   - Value of the POM-IE and the hardware RF configuration index are now
@@ -47,6 +47,7 @@ v1.6
    - Fix case where the node request a new GTK. A full 4-way-handcheck was
      triggered while 2-way-handcheck was sufficient.
    - Fix IPv6 encapsulation when destination is ff03::fc (= all MPL forwarders)
+   - Fix display of HIF traces for packet < 9 bytes.
    - Chan plan 1 was automatically used when the user specified a channel
      mask.
    - Warn the user if the chosen PHY is not specified in the chosen regulation
