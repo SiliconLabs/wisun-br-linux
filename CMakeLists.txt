@@ -603,10 +603,10 @@ if(COMPILE_SIMULATION_TOOLS)
         # cannot be ensured by CMake when resolving dependencies.
         set_property(TARGET libwsbrd PROPERTY POSITION_INDEPENDENT_CODE ON)
         add_library(wsbrd-ns3 SHARED
-            app_wsbrd_ns3/wsbrd_ns3.cpp
-            app_wsbrd_ns3/rand.cpp
-            app_wsbrd_ns3/time.cpp
-            app_wsbrd_ns3/uart.cpp
+            tools/simulation/wsbrd_ns3.cpp
+            tools/simulation/rand.cpp
+            tools/simulation/time.cpp
+            tools/simulation/uart.cpp
             tools/fuzz/capture.c
             tools/fuzz/commandline.c
             tools/fuzz/interfaces.c
