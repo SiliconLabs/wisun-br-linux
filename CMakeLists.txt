@@ -516,7 +516,7 @@ if(COMPILE_SIMULATION_TOOLS)
     add_executable(wssimserver
         common/log.c
         common/bits.c
-        app_wssimserver/wssimserver.c)
+        tools/simserver/wssimserver.c)
     target_include_directories(wssimserver PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
