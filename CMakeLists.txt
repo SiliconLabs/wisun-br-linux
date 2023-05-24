@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION  3.16.3)
 project(wsbrd)
-set(COMPILE_SIMULATION_TOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
+set(COMPILE_DEVTOOLS OFF CACHE BOOL "Keep unset if you don't consider to develop new features")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
 
@@ -303,7 +303,7 @@ add_executable(wsbrd-fwup
 target_include_directories(wsbrd-fwup PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 install(TARGETS wsbrd-fwup RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-if(COMPILE_SIMULATION_TOOLS)
+if(COMPILE_DEVTOOLS)
 
     add_executable(wsnode
         version.c
