@@ -568,7 +568,7 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wsbrd-fuzz RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     add_executable(wshwping
-        app_wshwping/wshwping.c
+        tools/hwping/wshwping.c
         common/bits.c
         common/log.c
         common/crc.c
