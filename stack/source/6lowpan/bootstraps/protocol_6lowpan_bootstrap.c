@@ -31,10 +31,10 @@
 #include "service_libs/etx/etx.h"
 #include "common/events_scheduler.h"
 #include "stack/mac/mac_api.h"
-#include "stack/net_interface.h"
 
 #include "nwk_interface/protocol.h"
 #include "common_protocols/icmpv6.h"
+#include "core/net_interface.h"
 #include "legacy/udp.h"
 #include "rpl/rpl_control.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

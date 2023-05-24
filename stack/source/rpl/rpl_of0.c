@@ -21,9 +21,9 @@
 #include "common/endian.h"
 #include "common/serial_number_arithmetic.h"
 #include "service_libs/etx/etx.h"
-#include "stack/net_interface.h"
 
 #include "nwk_interface/protocol_abstract.h"
+#include "core/net_interface.h"
 #include "common_protocols/ipv6_resolution.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_objective.h"

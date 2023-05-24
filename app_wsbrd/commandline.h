@@ -20,7 +20,7 @@
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
 #include <linux/if.h>
 
-#include "stack/net_interface.h"
+#include "core/net_interface.h"
 
 // This struct is filled by parse_commandline() and never modified after.
 struct wsbrd_conf {

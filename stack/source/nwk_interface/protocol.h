@@ -30,10 +30,10 @@
 #include "common/trickle.h"
 #include "stack/mac/platform/arm_hal_phy.h"
 #include "stack/mac/channel_list.h"
-#include "stack/net_interface.h"
 
 // Users of protocol.h can assume it includes these headers
 #include "nwk_interface/protocol_abstract.h"
+#include "core/net_interface.h"
 #include "core/ns_buffer.h"
 
 // Headers below this are implementation details - users of protocol.h shouldn't rely on them

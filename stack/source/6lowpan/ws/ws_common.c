@@ -32,11 +32,11 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "service_libs/blacklist/blacklist.h"
 #include "common/events_scheduler.h"
-#include "stack/net_interface.h"
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_common_defines.h"
 #include "stack/mac/mac_api.h"
 
+#include "core/net_interface.h"
 #include "common_protocols/icmpv6.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"

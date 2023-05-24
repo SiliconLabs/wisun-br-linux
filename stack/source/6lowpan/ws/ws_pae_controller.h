@@ -21,8 +21,8 @@
 
 #include <stdint.h>
 #include <sys/socket.h>
-#include "stack/net_interface.h"
 
+#include "core/net_interface.h"
 #include "security/protocols/sec_prot.h"
 #include "security/protocols/sec_prot_keys.h"
 

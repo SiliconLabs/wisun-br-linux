@@ -605,6 +605,7 @@ if(COMPILE_DEVTOOLS)
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
             stack/
+            stack/source/
             ${NS3_INCLUDE_DIRECTORIES}
         )
         target_link_libraries(wsbrd-ns3 libwsbrd)

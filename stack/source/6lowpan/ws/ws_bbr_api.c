@@ -27,7 +27,6 @@
 #include "common/log_legacy.h"
 #include "common/endian.h"
 #include "common/events_scheduler.h"
-#include "stack/net_interface.h"
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
@@ -36,6 +35,7 @@
 #include "rpl/rpl_data.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ip.h"
+#include "core/net_interface.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/lowpan_adaptation_interface.h"

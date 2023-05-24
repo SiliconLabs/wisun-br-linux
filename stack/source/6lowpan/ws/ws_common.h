@@ -25,8 +25,8 @@
 #include "service_libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "stack/mac/net_fhss.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/net_interface.h"
 
+#include "core/net_interface.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
