@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/security/kmp/kmp_socket_if.h"
-#include "stack/ws_bbr_api.h"
+#include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
 #include "common/log.h"

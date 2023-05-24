@@ -30,6 +30,7 @@
 #include "common/ws_regdb.h"
 
 #include "nwk_interface/protocol.h"
+#include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
@@ -40,7 +41,6 @@
 #include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
 #include "stack/ws_management_api.h"
-#include "stack/ws_bbr_api.h"
 
 #include "frame_helpers.h"
 #include "version.h"

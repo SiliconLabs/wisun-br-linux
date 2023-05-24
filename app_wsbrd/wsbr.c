@@ -27,11 +27,11 @@
 #include "common/log_legacy.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
-#include "stack/ws_bbr_api.h"
 #include "stack/ws_management_api.h"
 
 #include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
+#include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_bootstrap.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"

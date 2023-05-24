@@ -29,7 +29,6 @@
 #include "common/events_scheduler.h"
 #include "stack/net_interface.h"
 #include "stack/ws_management_api.h"
-#include "stack/ws_bbr_api.h"
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
@@ -43,6 +42,7 @@
 #include "6lowpan/lowpan_adaptation_interface.h"
 
 #include "6lowpan/mac/mpx_api.h"
+#include "6lowpan/ws/ws_bbr_api.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"

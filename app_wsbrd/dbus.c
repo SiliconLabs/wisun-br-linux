@@ -18,8 +18,8 @@
 #include "common/named_values.h"
 #include "common/utils.h"
 #include "common/log.h"
-#include "stack/ws_bbr_api.h"
 
+#include "stack/source/6lowpan/ws/ws_bbr_api.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
