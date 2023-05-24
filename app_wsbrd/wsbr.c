@@ -27,7 +27,6 @@
 #include "common/log_legacy.h"
 #include "stack/mac/fhss_api.h"
 #include "stack/mac/mac_filter_api.h"
-#include "stack/ws_management_api.h"
 
 #include "stack/source/6lowpan/bootstraps/protocol_6lowpan.h"
 #include "stack/source/6lowpan/mac/mac_helper.h"
@@ -40,6 +39,7 @@
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_llc.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
+#include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/ws/ws_test_api.h"
 #include "stack/source/core/timers.h"
 #include "stack/source/core/ns_address_internal.h"

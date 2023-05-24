@@ -36,11 +36,11 @@
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_llc.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/channel_list.h"
 #include "stack/mac/mlme.h"
-#include "stack/ws_management_api.h"
 
 #include "frame_helpers.h"
 #include "version.h"

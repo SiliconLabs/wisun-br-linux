@@ -28,7 +28,6 @@
 #include "common/endian.h"
 #include "common/events_scheduler.h"
 #include "stack/net_interface.h"
-#include "stack/ws_management_api.h"
 
 #include "core/timers.h"
 #include "nwk_interface/protocol.h"
@@ -52,6 +51,7 @@
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
+#include "6lowpan/ws/ws_management_api.h"
 
 #define TRACE_GROUP "BBRw"
 

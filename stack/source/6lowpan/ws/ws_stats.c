@@ -17,10 +17,10 @@
  */
 #include <stdint.h>
 #include "common/log_legacy.h"
-#include "stack/ws_management_api.h"
 
 #include "nwk_interface/protocol.h"
 #include "6lowpan/ws/ws_common.h"
+#include "6lowpan/ws/ws_management_api.h"
 
 #include "6lowpan/ws/ws_stats.h"
 

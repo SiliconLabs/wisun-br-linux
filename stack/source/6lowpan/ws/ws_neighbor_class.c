@@ -29,11 +29,11 @@
 #include "common/version.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/ws_management_api.h"
 #include "stack/mac/mac_api.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/rcp_api.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_ie_lib.h"

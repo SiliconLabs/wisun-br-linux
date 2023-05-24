@@ -22,9 +22,9 @@
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/ws_management_api.h"
 
 #include "nwk_interface/protocol.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_cfg_settings.h"

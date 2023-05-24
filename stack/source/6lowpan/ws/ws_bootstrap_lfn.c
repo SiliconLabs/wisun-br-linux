@@ -30,7 +30,6 @@
 #include "service_libs/random_early_detection/random_early_detection_api.h"
 #include "common/events_scheduler.h"
 #include "stack/net_interface.h"
-#include "stack/ws_management_api.h"
 #include "stack/net_rpl.h"
 #include "stack/mac/platform/topo_trace.h"
 #include "stack/mac/mac_common_defines.h"
@@ -51,6 +50,7 @@
 #include "6lowpan/bootstraps/protocol_6lowpan.h"
 #include "6lowpan/bootstraps/protocol_6lowpan_interface.h"
 #include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/mac/mac_ie_lib.h"
 

@@ -34,9 +34,9 @@
 #include "common/parsers.h"
 #include "common/utils.h"
 #include "common/log.h"
-#include "stack/ws_management_api.h"
 
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/6lowpan/ws/ws_management_api.h"
 #include "stack/source/6lowpan/lowpan_mtu.h"
 #include "stack/source/core/ns_address_internal.h"
 

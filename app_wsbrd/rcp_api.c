@@ -14,7 +14,6 @@
 #include "stack/mac/channel_list.h"
 #include "stack/mac/fhss_ws_extension.h"
 #include "stack/mac/platform/arm_hal_phy.h"
-#include "stack/ws_management_api.h"
 
 #include "common/version.h"
 #include "common/iobuf.h"
@@ -24,6 +23,7 @@
 #include "common/spinel_buffer.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
+#include "6lowpan/ws/ws_management_api.h"
 
 #include "wsbr_pcapng.h"
 #include "wsbr_mac.h"

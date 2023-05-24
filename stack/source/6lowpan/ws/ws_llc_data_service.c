@@ -36,7 +36,6 @@
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
 #include "stack/mac/fhss_ws_extension.h"
-#include "stack/ws_management_api.h"
 
 #include "app_wsbrd/wsbr.h"
 #include "app_wsbrd/wsbr_mac.h"
@@ -55,6 +54,7 @@
 #include "6lowpan/ws/ws_ie_validation.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_mpx_header.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
 

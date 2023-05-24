@@ -30,7 +30,6 @@
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/ws_management_api.h"
 #include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
@@ -53,6 +52,7 @@
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_cfg_settings.h"
+#include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_pae_timers.h"
 #include "6lowpan/ws/ws_pae_lib.h"

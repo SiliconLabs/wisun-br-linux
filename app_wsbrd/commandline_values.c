@@ -13,10 +13,10 @@
 #include "common/log.h"
 #include "common/ws_regdb.h"
 
-#include "stack/ws_management_api.h"
 #include "stack/mac/channel_list.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
+#include "stack/source/6lowpan/ws/ws_management_api.h"
 
 #include "commandline_values.h"
 
