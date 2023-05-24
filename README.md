@@ -128,6 +128,21 @@ Finally, launch `wsbrd` with:
 
 `wsbrd` lists the useful options in the output of `wsbrd --help`.
 
+# Tools
+
+A suite of tools is provided for various tasks around `wsbrd` and its RCP. For
+more detail, refer to the `README.md` present in the relevant source folder
+(under [`tools/`](tools)), or the `--help` message output by the application.
+Some of these are not compiled by default and require setting
+`COMPILE_DEVTOOLS=ON` when configuring the project with CMake.
+
+| Application  | Description                                           |
+|--------------|-------------------------------------------------------|
+| `wsbrd_cli`  | A simple application for querying the D-Bus interface |
+| `wsbrd-fwup` | A tool for updating the RCP firware                   |
+| `wsbrd-fuzz` | A tool for fuzzing and debugging `wsbrd`              |
+| `wshwping`   | A tool for testing the serial link                    |
+
 # Using `wsbrd_cli` and the D-Bus Interface
 
 `wsbrd_cli` is a small utility to retrieve the status of the Wi-SUN network. Its
