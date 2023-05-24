@@ -291,7 +291,7 @@ if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
 endif()
 
 add_executable(wsbrd-fwup
-    app_wsbrd_fwup/wsbrd_fwup.c
+    tools/fwup/wsbrd_fwup.c
     common/bits.c
     common/log.c
     common/crc.c
