@@ -29,9 +29,9 @@
 #include "common/endian.h"
 #include "common/rand.h"
 #include "stack/mac/platform/arm_hal_phy.h"
-#include "stack/ns_address.h"
 
 #include "nwk_interface/protocol.h"
+#include "core/ns_address.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ipv6_flow.h"
 #include "6lowpan/bootstraps/protocol_6lowpan.h"

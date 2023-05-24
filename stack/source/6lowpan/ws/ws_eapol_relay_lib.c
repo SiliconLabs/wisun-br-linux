@@ -22,9 +22,9 @@
 #include <netinet/in.h>
 #include "common/log_legacy.h"
 #include "common/ns_list.h"
-#include "stack/ns_address.h"
 
 #include "legacy/net_socket.h"
+#include "core/ns_address.h"
 #include "6lowpan/ws/ws_config.h"
 #include "6lowpan/ws/ws_eapol_relay_lib.h"
 

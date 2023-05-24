@@ -30,8 +30,8 @@
 #include "common/ns_list.h"
 #include "common/events_scheduler.h"
 #include "stack/mac/fhss_config.h"
-#include "stack/ns_address.h"
 
+#include "core/ns_address.h"
 #include "nwk_interface/protocol.h"
 #include "rpl/rpl_protocol.h"
 #include "rpl/rpl_control.h"

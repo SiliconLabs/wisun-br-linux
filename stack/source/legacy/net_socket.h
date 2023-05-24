@@ -22,7 +22,8 @@
 
 #include <stdint.h>
 #include <sys/socket.h>
-#include "stack/ns_address.h"
+
+#include "core/ns_address.h"
 
 /**
  * \file socket_api.h

@@ -28,12 +28,12 @@
 #include "stack/mac/fhss_config.h"
 #include "stack/mac/mac_api.h"
 #include "stack/mac/mac_mcps.h"
-#include "stack/ns_address.h"
 
 #include "legacy/net_socket.h"
 #include "nwk_interface/protocol.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/ip.h"
+#include "core/ns_address.h"
 #include "6lowpan/mac/mac_helper.h"
 #include "6lowpan/mac/mpx_api.h"
 #include "6lowpan/ws/ws_config.h"
