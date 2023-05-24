@@ -13,7 +13,7 @@
 #include <sys/types.h>
 
 extern "C" {
-#include "app_wsbrd_fuzz/rand.h"
+#include "tools/fuzz/rand.h"
 }
 
 #include <ns3/random-variable-stream.h>

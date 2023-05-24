@@ -1,5 +1,5 @@
-#include "app_wsbrd_fuzz/wsbrd_fuzz.h"
-#include "app_wsbrd_fuzz/rand.h"
+#include "tools/fuzz/wsbrd_fuzz.h"
+#include "tools/fuzz/rand.h"
 
 ssize_t __real_getrandom(void *buf, size_t buflen, unsigned int flags);
 ssize_t fuzz_real_getrandom(void *buf, size_t buflen, unsigned int flags)

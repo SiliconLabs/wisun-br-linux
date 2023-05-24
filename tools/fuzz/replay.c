@@ -3,7 +3,7 @@
 
 #include "app_wsbrd/timers.h"
 #include "app_wsbrd/wsbr.h"
-#include "app_wsbrd_fuzz/wsbrd_fuzz.h"
+#include "tools/fuzz/wsbrd_fuzz.h"
 #include "common/log.h"
 #include "common/os_types.h"
 #include "common/spinel_buffer.h"

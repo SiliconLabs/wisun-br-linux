@@ -523,13 +523,13 @@ if(COMPILE_SIMULATION_TOOLS)
     install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
     add_executable(wsbrd-fuzz
-        app_wsbrd_fuzz/wsbrd_fuzz.c
-        app_wsbrd_fuzz/commandline.c
-        app_wsbrd_fuzz/interfaces.c
-        app_wsbrd_fuzz/capture.c
-        app_wsbrd_fuzz/replay.c
-        app_wsbrd_fuzz/rand.c
-        app_wsbrd_fuzz/main.c
+        tools/fuzz/wsbrd_fuzz.c
+        tools/fuzz/commandline.c
+        tools/fuzz/interfaces.c
+        tools/fuzz/capture.c
+        tools/fuzz/replay.c
+        tools/fuzz/rand.c
+        tools/fuzz/main.c
     )
     target_compile_options(wsbrd-fuzz PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
     target_include_directories(wsbrd-fuzz PRIVATE
@@ -607,11 +607,11 @@ if(COMPILE_SIMULATION_TOOLS)
             app_wsbrd_ns3/rand.cpp
             app_wsbrd_ns3/time.cpp
             app_wsbrd_ns3/uart.cpp
-            app_wsbrd_fuzz/capture.c
-            app_wsbrd_fuzz/commandline.c
-            app_wsbrd_fuzz/interfaces.c
-            app_wsbrd_fuzz/rand.c
-            app_wsbrd_fuzz/wsbrd_fuzz.c
+            tools/fuzz/capture.c
+            tools/fuzz/commandline.c
+            tools/fuzz/interfaces.c
+            tools/fuzz/rand.c
+            tools/fuzz/wsbrd_fuzz.c
         )
         target_include_directories(wsbrd-ns3 PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}

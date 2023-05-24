@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "app_wsbrd_fuzz/wsbrd_fuzz.h"
+#include "tools/fuzz/wsbrd_fuzz.h"
 #include "rand.h"
 
 ssize_t __wrap_getrandom(void *buf, size_t buflen, unsigned int flags)
