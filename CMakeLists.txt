@@ -280,9 +280,9 @@ if(RUST_FOUND AND CARGO_FOUND AND RUST_VERSION VERSION_GREATER_EQUAL 1.31)
     add_custom_target(cargo-wsbrd_cli ALL DEPENDS wsbrd_cli)
     add_custom_command(OUTPUT wsbrd_cli
         COMMAND ${CARGO_COMMAND} build ${RUST_BUILD_FLAG} --target=${RUST_TARGET} --target-dir=cargo/
-                                       --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/app_wsbrd_cli/Cargo.toml
+                                       --manifest-path=${CMAKE_CURRENT_SOURCE_DIR}/tools/wsbrd_cli/Cargo.toml
         COMMAND ${CMAKE_COMMAND} -E copy ${RUST_TARGET_DIR}/wsbrd_cli wsbrd_cli
-        DEPENDS app_wsbrd_cli/Cargo.toml app_wsbrd_cli/wsbrd_cli.rs app_wsbrd_cli/wsbrddbusapi.rs
+        DEPENDS tools/wsbrd_cli/Cargo.toml tools/wsbrd_cli/wsbrd_cli.rs tools/wsbrd_cli/wsbrddbusapi.rs
         USES_TERMINAL
     )
     set_target_properties(cargo-wsbrd_cli PROPERTIES ADDITIONAL_CLEAN_FILES cargo)
