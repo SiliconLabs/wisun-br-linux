@@ -461,36 +461,36 @@ if(COMPILE_SIMULATION_TOOLS)
         common/iobuf.c
         common/slist.c
         common/spinel_buffer.c
-        app_wshwsim/timer_sys_stub.c
-        app_wshwsim/sl_wsrcp.c
-        app_wshwsim/sl_wsrcp_mac.c
-        app_wshwsim/sl_rf_driver.c
-        app_wshwsim/hal_fhss_timer.c
-        app_wshwsim/mac/rf_driver_storage.c
-        app_wshwsim/mac/ieee802154/mac_cca_threshold.c
-        app_wshwsim/mac/ieee802154/mac_fhss_callbacks.c
-        app_wshwsim/mac/ieee802154/mac_filter.c
-        app_wshwsim/mac/ieee802154/mac_header_helper_functions.c
-        app_wshwsim/mac/ieee802154/mac_indirect_data.c
-        app_wshwsim/mac/ieee802154/mac_mcps_sap.c
-        app_wshwsim/mac/ieee802154/mac_mlme.c
-        app_wshwsim/mac/ieee802154/mac_pd_sap.c
-        app_wshwsim/mac/ieee802154/mac_security_mib.c
-        app_wshwsim/mac/ieee802154/mac_timer.c
-        app_wshwsim/mac/ieee802154/sw_mac.c
-        app_wshwsim/ccm/ccm_security.c
-        app_wshwsim/ccm/mbedOS/aes_mbedtls_adapter.c
-        app_wshwsim/fhss/channel_functions.c
-        app_wshwsim/fhss/fhss_common.c
-        app_wshwsim/fhss/fhss_configuration_interface.c
-        app_wshwsim/fhss/fhss_statistics.c
-        app_wshwsim/fhss/fhss_ws.c
-        app_wshwsim/os_timer.c
+        tools/hwsim/timer_sys_stub.c
+        tools/hwsim/sl_wsrcp.c
+        tools/hwsim/sl_wsrcp_mac.c
+        tools/hwsim/sl_rf_driver.c
+        tools/hwsim/hal_fhss_timer.c
+        tools/hwsim/mac/rf_driver_storage.c
+        tools/hwsim/mac/ieee802154/mac_cca_threshold.c
+        tools/hwsim/mac/ieee802154/mac_fhss_callbacks.c
+        tools/hwsim/mac/ieee802154/mac_filter.c
+        tools/hwsim/mac/ieee802154/mac_header_helper_functions.c
+        tools/hwsim/mac/ieee802154/mac_indirect_data.c
+        tools/hwsim/mac/ieee802154/mac_mcps_sap.c
+        tools/hwsim/mac/ieee802154/mac_mlme.c
+        tools/hwsim/mac/ieee802154/mac_pd_sap.c
+        tools/hwsim/mac/ieee802154/mac_security_mib.c
+        tools/hwsim/mac/ieee802154/mac_timer.c
+        tools/hwsim/mac/ieee802154/sw_mac.c
+        tools/hwsim/ccm/ccm_security.c
+        tools/hwsim/ccm/mbedOS/aes_mbedtls_adapter.c
+        tools/hwsim/fhss/channel_functions.c
+        tools/hwsim/fhss/fhss_common.c
+        tools/hwsim/fhss/fhss_configuration_interface.c
+        tools/hwsim/fhss/fhss_statistics.c
+        tools/hwsim/fhss/fhss_ws.c
+        tools/hwsim/os_timer.c
         # Excluded app_wshwsim/fhss/fhss_test_api.c
     )
     target_include_directories(wshwsim PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        app_wshwsim/
+        tools/hwsim/
         stack/
     )
     # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
