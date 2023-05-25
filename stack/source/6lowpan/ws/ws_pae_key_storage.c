@@ -205,9 +205,13 @@ int ws_pae_key_storage_list(uint8_t eui64[][8], int len)
 
 bool ws_pae_key_storage_supp_exists(const uint8_t eui64[8])
 {
+    char eui64_str[STR_MAX_LEN_EUI64];
     char filename[PATH_MAX];
+    int ret;
 
-    snprintf(filename, sizeof(filename), "%skeys-%s", g_storage_prefix, tr_key(eui64, 8));
+    str_eui64(eui64, eui64_str);
+    ret = snprintf(filename, sizeof(filename), "%skeys-%s", g_storage_prefix, eui64_str);
+    BUG_ON(ret >= sizeof(filename), "g_storage_prefix too big");
     return !access(filename, F_OK);
 }
 
