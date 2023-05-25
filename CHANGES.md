@@ -7,9 +7,12 @@ v1.6
     "lfn_broadcast_sync_period" parameters.
   - Allow to drop root privileges after startup (see "user" and "group"
     parameters).
-  - User can now choose to enable "PHY mode switch" and can specify the
-    phy_mode_id he wants to use. This new parameter also allows to use "PHY mode
-    switch" with custom regulation domains.
+  - The new phy_operating_modes parameter allow to enable "PHY mode switch" and
+    specify the phy_mode_id he wants to use. Note that previously, "PHY mode
+    switch" was enabled opportunistically. To get this behaviour, user now has
+    to specify "phy_operating_modes=auto".
+  - phy_operating_modes also allows to use "PHY mode switch" with custom
+    regulation domains.
   - Don't enable "PHY mode switch" if FAN version is FAN1.0.
   - Value of the POM-IE and the hardware RF configuration index are now
     displayed on startup.
