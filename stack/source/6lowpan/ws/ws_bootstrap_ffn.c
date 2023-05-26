@@ -353,42 +353,6 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
 }
 
-static void ws_bootstrap_ffn_pan_advertisement_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
-{
-
-    (void)data;
-    (void)ws_utt;
-    (void)ws_us;
-    /*
-     * An inconsistent transmission is defined as:
-     * A PAN Advertisement Solicit with NETNAME-IE matching that of the receiving node.
-     */
-    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params);
-    /*
-     *  A consistent transmission is defined as
-     *  a PAN Advertisement Solicit with NETNAME-IE / Network Name matching that configured on the receiving node.
-     */
-    trickle_consistent_heard(&cur->ws_info.mngt.trickle_pas);
-    /*
-     *  Optimized PAN discovery to select the parent faster if we hear solicit from someone else
-     */
-
-    if (ws_bootstrap_state_discovery(cur)  && ws_cfg_network_config_get(cur) <= CONFIG_MEDIUM &&
-            cur->bootstrap_state_machine_cnt > cur->ws_info.mngt.trickle_params.Imin * 2) {
-
-        cur->bootstrap_state_machine_cnt = cur->ws_info.mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info.mngt.trickle_params.Imin);
-
-        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
-    }
-
-    if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, data->SrcAddr, ADDR_802_15_4_LONG);
-        if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            ws_bootstrap_parent_confirm(cur, NULL);
-        }
-    }
-}
-
 static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const struct mcps_data_ie_list *ie_ext)
 {
     if (!ws_version_1_1(cur) || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
