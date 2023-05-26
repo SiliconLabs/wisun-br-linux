@@ -2257,8 +2257,6 @@ void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_st
 
 void ws_bootstrap_trickle_timer(struct net_if *cur, uint16_t ticks)
 {
-    ws_ffn_pas_trickle(cur, ticks);
-    ws_ffn_pcs_trickle(cur, ticks);
     if (cur->ws_info.mngt.trickle_pa_running &&
             trickle_timer(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params, ticks)) {
         // send PAN advertisement
@@ -2276,7 +2274,6 @@ void ws_bootstrap_asynch_trickle_stop(struct net_if *cur)
 {
     cur->ws_info.mngt.trickle_pa_running = false;
     cur->ws_info.mngt.trickle_pc_running = false;
-    ws_ffn_trickle_stop(&cur->ws_info.mngt);
 }
 
 

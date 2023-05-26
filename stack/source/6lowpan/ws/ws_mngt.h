@@ -40,14 +40,6 @@ struct ws_mngt {
     trickle_t trickle_pc;
     bool trickle_pa_running: 1;
     bool trickle_pc_running: 1;
-#ifdef HAVE_WS_ROUTER
-    trickle_t trickle_pas;
-    trickle_t trickle_pcs;
-    bool trickle_pas_running: 1;
-    bool trickle_pcs_running: 1;
-    int pcs_max_timeout;
-    int pcs_count;
-#endif
     uint8_t lpa_dst[8];
 };
 
