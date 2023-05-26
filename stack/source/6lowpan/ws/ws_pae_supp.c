@@ -125,7 +125,6 @@ typedef struct pae_supp {
 #define LAST_INTERVAL_MAX_SECS             240  /* 4 minutes */
 
 static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result);
-static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
@@ -164,11 +163,6 @@ static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
     } else {
         pae_supp->entry_address_active = false;
     }
-}
-
-static bool ws_pae_supp_address_is_set(pae_supp_t *pae_supp)
-{
-    return pae_supp->entry_address_active;
 }
 
 int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name)
@@ -428,42 +422,6 @@ static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_
         pae_supp->auth_requested = false;
         pae_supp->auth_completed(pae_supp->interface_ptr, result, pae_supp->target_addr.eui_64);
     }
-}
-
-static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp)
-{
-    if (!pae_supp->auth_requested) {
-        // If not making initial authentication updates target (RPL parent) for each EAPOL-key message
-        uint8_t parent_eui_64[8];
-        if (ws_pae_supp_parent_eui_64_get(pae_supp->interface_ptr, parent_eui_64) >= 0) {
-            // Stores target/parent address
-            kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, parent_eui_64);
-            // Sets parent address in use
-            ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
-        } else if (ws_pae_supp_address_is_set(pae_supp)) {
-            /* If there is no RPL parent but there is target address from initial authentication
-               bootstrap, tries to use it. This can happen if BR updates keys after EAPOL authentication
-               but before bootstrap is completed and RPL parent is known */
-            tr_info("EAPOL initial auth target used");
-        } else {
-            // No target, failure
-            return -1;
-        }
-
-        ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_REAUTHENTICATION_TICKS);
-        tr_info("PAE wait for auth seconds: %i", WAIT_FOR_REAUTHENTICATION_TICKS / 10);
-    }
-
-    kmp_api_t *kmp = ws_pae_supp_kmp_create_and_start(pae_supp->kmp_service, IEEE_802_1X_MKA_KEY, pae_supp);
-    if (!kmp) {
-        return -1;
-    }
-
-    tr_info("EAPOL target: %s", tr_eui64(kmp_address_eui_64_get(&pae_supp->entry.addr)));
-
-    kmp_api_create_request(kmp, IEEE_802_1X_MKA_KEY, &pae_supp->entry.addr, &pae_supp->entry.sec_keys);
-
-    return 0;
 }
 
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2)
