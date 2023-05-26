@@ -118,38 +118,6 @@ static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id,
     return ret;
 }
 
-int8_t kmp_eapol_pdu_if_receive(struct net_if *interface_ptr, const uint8_t *eui_64, const void *pdu, uint16_t size)
-{
-    kmp_service_t *service = NULL;
-
-    ns_list_foreach(kmp_eapol_pdu_if_t, entry, &kmp_eapol_pdu_if_list) {
-        if (entry->interface_ptr == interface_ptr) {
-            service = entry->kmp_service;
-            break;
-        }
-    }
-
-    if (!service) {
-        return -1;
-    }
-
-    kmp_addr_t addr;
-    kmp_address_init(KMP_ADDR_EUI_64, &addr, eui_64);
-
-    const eapol_kmp_pdu_t *eapol_kmp_pdu = pdu;
-    uint16_t data_pdu_size = size - sizeof(uint8_t);
-    const void *data_pdu = &eapol_kmp_pdu->kmp_data;
-
-    kmp_type_e type = kmp_api_type_from_id_get(eapol_kmp_pdu->kmp_id);
-    if (type == KMP_TYPE_NONE) {
-        return -1;
-    }
-
-    int8_t ret = kmp_service_msg_if_receive(service, 0, type, &addr, data_pdu, data_pdu_size, 0);
-
-    return ret;
-}
-
 static int8_t kmp_eapol_pdu_if_tx_status(struct net_if *interface_ptr, eapol_pdu_tx_status_e tx_status, uint8_t tx_identifier)
 {
     kmp_service_t *service = NULL;
