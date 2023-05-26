@@ -736,16 +736,6 @@ int8_t sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash);
 int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk);
 
 /**
- * sec_prot_keys_gtk_hash_empty checks if GTK hash field is empty
- *
- * \param gtk_hash GTK hash
- *
- * \return TRUE GTK hash is empty, FALSE GTK hash is set
- *
- */
-bool sec_prot_keys_gtk_hash_empty(gtkhash_t gtkhash);
-
-/**
  * sec_prot_keys_gtk_install_order_last_get gets install order of the last GTK to be installd
  *
  * \param gtks GTK keys

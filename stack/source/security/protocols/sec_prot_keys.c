@@ -638,15 +638,6 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
     return 0;
 }
 
-bool sec_prot_keys_gtk_hash_empty(gtkhash_t gtkhash)
-{
-    if (memzcmp(gtkhash, sizeof(gtkhash_t)) == 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 int8_t sec_prot_keys_gtk_install_order_last_get(sec_prot_gtk_keys_t *gtks)
 {
     int8_t install_order = -1;
