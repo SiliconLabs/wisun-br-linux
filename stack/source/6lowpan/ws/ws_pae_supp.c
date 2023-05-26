@@ -375,27 +375,6 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
-void ws_pae_supp_cb_register(struct net_if *interface_ptr,
-                             ws_pae_supp_auth_completed *completed,
-                             ws_pae_supp_auth_next_target *auth_next_target,
-                             ws_pae_supp_nw_key_insert *nw_key_insert,
-                             ws_pae_supp_nw_key_index_set *nw_key_index_set,
-                             ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get,
-                             ws_pae_supp_nw_info_updated *nw_info_updated)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return;
-    }
-
-    pae_supp->auth_completed = completed;
-    pae_supp->auth_next_target = auth_next_target;
-    pae_supp->nw_key_insert = nw_key_insert;
-    pae_supp->nw_key_index_set = nw_key_index_set;
-    pae_supp->gtk_hash_ptr_get = gtk_hash_ptr_get;
-    pae_supp->nw_info_updated = nw_info_updated;
-}
-
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
 {
     ns_list_foreach(pae_supp_t, entry, &pae_supp_list) {

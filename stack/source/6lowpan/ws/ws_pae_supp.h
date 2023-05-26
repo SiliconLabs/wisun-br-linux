@@ -161,25 +161,6 @@ typedef gtkhash_t *ws_pae_supp_gtk_hash_ptr_get(struct net_if *interface_ptr);
  *
  */
 typedef void ws_pae_supp_nw_info_updated(struct net_if *interface_ptr);
-
-/**
- * ws_pae_supp_cb_register register PEA supplicant callbacks
- *
- * \param interface_ptr interface
- * \param completed authentication completed callback
- * \param nw_key_insert network key index callback
- * \param nw_key_index_set network send key index callback
- * \param nw_info_updated security keys network information updated callback
- *
- */
-void ws_pae_supp_cb_register(struct net_if *interface_ptr,
-                             ws_pae_supp_auth_completed *completed,
-                             ws_pae_supp_auth_next_target *auth_next_target,
-                             ws_pae_supp_nw_key_insert *nw_key_insert,
-                             ws_pae_supp_nw_key_index_set *nw_key_index_set,
-                             ws_pae_supp_gtk_hash_ptr_get *gtk_hash_ptr_get,
-                             ws_pae_supp_nw_info_updated *nw_info_updated);
-
 #endif
 
 #endif
