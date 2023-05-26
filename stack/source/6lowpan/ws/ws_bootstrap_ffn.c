@@ -107,19 +107,6 @@ static parent_info_t *ws_bootstrap_ffn_candidate_parent_allocate(struct net_if *
     return entry;
 }
 
-parent_info_t *ws_bootstrap_ffn_candidate_parent_get(struct net_if *cur, const uint8_t *addr, bool create)
-{
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info.parent_list_reserved) {
-        if (memcmp(entry->addr, addr, 8) == 0) {
-            return entry;
-        }
-    }
-    if (create) {
-        return ws_bootstrap_ffn_candidate_parent_allocate(cur, addr);
-    }
-    return NULL;
-}
-
 static bool ws_bootstrap_ffn_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
 {
     // Return true if P2 is better
