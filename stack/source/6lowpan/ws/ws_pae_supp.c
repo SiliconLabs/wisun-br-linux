@@ -675,26 +675,6 @@ static pae_supp_t *ws_pae_supp_by_kmp_service_get(kmp_service_t *service)
     return NULL;
 }
 
-static void ws_pae_supp_tasklet_handler(struct event_payload *event)
-{
-    if (event->event_type == PAE_TASKLET_INIT) {
-
-    } else if (event->event_type == PAE_TASKLET_EVENT) {
-        pae_supp_t *pae_supp = NULL;
-
-        ns_list_foreach(pae_supp_t, entry, &pae_supp_list) {
-            if (entry->interface_ptr->id == event->event_id) {
-                pae_supp = entry;
-                break;
-            }
-        }
-
-        if (pae_supp) {
-            kmp_service_event_if_event(pae_supp->kmp_service, event->data_ptr);
-        }
-    }
-}
-
 void ws_pae_supp_fast_timer(uint16_t ticks)
 {
     ns_list_foreach(pae_supp_t, pae_supp, &pae_supp_list) {
