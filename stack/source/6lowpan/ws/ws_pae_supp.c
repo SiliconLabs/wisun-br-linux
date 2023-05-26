@@ -137,7 +137,6 @@ static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, 
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
-static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result);
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr);
 static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
@@ -601,20 +600,6 @@ static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_
     }
 
     return -1;
-}
-
-static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result)
-{
-    kmp_service_t *service = kmp_api_service_get(kmp);
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return;
-    }
-
-    // KMP-CREATE.request has failed, authentication error
-    if (result != KMP_RESULT_OK) {
-        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
-    }
 }
 
 static void ws_pae_supp_kmp_api_create_indication(kmp_api_t *kmp, kmp_type_e type, kmp_addr_t *addr)
