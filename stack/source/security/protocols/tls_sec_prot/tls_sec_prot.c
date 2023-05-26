@@ -86,7 +86,6 @@ typedef struct tls_sec_prot_queue {
 #endif
 
 static uint16_t tls_sec_prot_size(void);
-static int8_t client_tls_sec_prot_init(sec_prot_t *prot);
 static int8_t server_tls_sec_prot_init(sec_prot_t *prot);
 
 static void tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
@@ -141,38 +140,6 @@ int8_t server_tls_sec_prot_register(kmp_service_t *service)
 static uint16_t tls_sec_prot_size(void)
 {
     return sizeof(tls_sec_prot_int_t) + tls_sec_prot_lib_size();
-}
-
-static int8_t client_tls_sec_prot_init(sec_prot_t *prot)
-{
-    prot->create_req = tls_sec_prot_create_request;
-    prot->create_resp = NULL;
-    prot->receive = tls_sec_prot_receive;
-    prot->delete = tls_sec_prot_delete;
-    prot->state_machine = client_tls_sec_prot_state_machine;
-    prot->timer_timeout = tls_sec_prot_timer_timeout;
-    prot->finished_send = tls_sec_prot_finished_send;
-
-    tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
-
-    sec_prot_init(&data->common);
-    sec_prot_state_set(prot, &data->common, TLS_STATE_INIT);
-
-    memset(data->new_pmk, 0, PMK_LEN);
-    data->finished = false;
-    // Set from security parameters
-    eap_tls_sec_prot_lib_message_init(&data->tls_recv);
-    eap_tls_sec_prot_lib_message_init(&data->tls_send);
-    data->int_timer = 0;
-    data->fin_timer = 0;
-    data->fin_timer_timeout = false;
-    data->timer_running = false;
-    data->calculating = false;
-#ifdef SERVER_TLS_EC_CALC_QUEUE
-    data->queued = false;
-#endif
-    data->library_init = false;
-    return 0;
 }
 
 static int8_t server_tls_sec_prot_init(sec_prot_t *prot)
