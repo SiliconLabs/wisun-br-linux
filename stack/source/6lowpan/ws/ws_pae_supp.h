@@ -39,14 +39,6 @@
 
 #ifdef HAVE_PAE_SUPP
 /**
- * ws_pae_supp_fast_timer PAE supplicant fast timer call
- *
- * \param ticks elapsed ticks
- *
- */
-void ws_pae_supp_fast_timer(uint16_t ticks);
-
-/**
  * ws_pae_supp_slow_timer PAE supplicant slow timer call
  *
  * \param ticks elapsed seconds

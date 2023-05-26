@@ -582,27 +582,6 @@ static pae_supp_t *ws_pae_supp_by_kmp_service_get(kmp_service_t *service)
     return NULL;
 }
 
-void ws_pae_supp_fast_timer(uint16_t ticks)
-{
-    ns_list_foreach(pae_supp_t, pae_supp, &pae_supp_list) {
-        if (!ws_pae_supp_timer_running(pae_supp)) {
-            continue;
-        }
-
-        // Updates KMP timers and supplicant authentication ongoing timer
-        bool running = ws_pae_lib_supp_timer_update(NULL, &pae_supp->entry, ticks, kmp_service_timer_if_timeout);
-
-        // Checks whether timer needs to be active
-        if (!ws_pae_supp_authentication_ongoing(pae_supp) && !running) {
-            tr_debug("PAE idle");
-            // If not already completed, restart bootstrap
-            ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_ERR_UNSPEC);
-
-            ws_pae_supp_timer_stop(pae_supp);
-        }
-    }
-}
-
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp)
 {
     /* When either bootstrap initial authentication or re-authentication is ongoing */
