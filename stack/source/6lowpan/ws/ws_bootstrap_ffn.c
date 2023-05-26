@@ -271,26 +271,6 @@ void ws_bootstrap_ffn_network_discovery_configure(struct net_if *cur)
     ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
 }
 
-// Start configuration learning
-static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
-{
-    tr_debug("router configuration learn start");
-    ws_bootstrap_state_change(cur, ER_SCAN);
-
-    cur->ws_info.configuration_learned = false;
-
-    // Clear all temporary information
-    ws_bootstrap_ip_stack_reset(cur);
-
-    cur->ws_info.mngt.pcs_count = 0;
-    //Calculate max time for config learn state
-    cur->ws_info.mngt.pcs_max_timeout = trickle_timer_max(&cur->ws_info.mngt.trickle_params, PCS_MAX);
-    // Reset advertisement solicit trickle to start discovering network
-    cur->ws_info.mngt.trickle_pcs_running = true;
-    trickle_start(&cur->ws_info.mngt.trickle_pcs, "CFG SOL", &cur->ws_info.mngt.trickle_params);
-    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
-}
-
 /*
  * Statemachine state functions
  * */
