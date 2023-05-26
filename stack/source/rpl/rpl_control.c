@@ -550,16 +550,6 @@ void rpl_control_disable_ra_routes(struct rpl_domain *domain)
     }
 }
 
-bool rpl_control_have_dodag(rpl_domain_t *domain)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        if (rpl_instance_current_dodag(instance)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 typedef void rpl_control_predicate_loop_fn_t(rpl_instance_t *instance, rpl_dodag_version_t *version, void *arg);
 
 typedef struct rpl_loopfn_trigger_unicast_dio_arg {

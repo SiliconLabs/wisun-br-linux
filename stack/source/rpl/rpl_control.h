@@ -192,8 +192,6 @@ void rpl_control_transmit_dio_trigger(struct net_if *cur, struct rpl_domain *dom
 /* Manually trigger RPL parent selection */
 void rpl_control_parent_selection_trigger(struct rpl_domain *domain);
 
-bool rpl_control_have_dodag(struct rpl_domain *domain);
-
 /* APIs used to manipulate configuration at the root */
 struct rpl_dodag *rpl_control_create_dodag_root(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const rpl_dodag_conf_t *conf, uint16_t rank, uint8_t g_mop_prf);
 void rpl_control_delete_dodag_root(rpl_domain_t *domain, struct rpl_dodag *dodag);
