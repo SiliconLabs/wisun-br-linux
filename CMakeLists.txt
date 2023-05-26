@@ -502,15 +502,6 @@ if(COMPILE_DEVTOOLS)
     endif()
     install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-    add_executable(wssimserver
-        common/log.c
-        common/bits.c
-        tools/simserver/wssimserver.c)
-    target_include_directories(wssimserver PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-    install(TARGETS wssimserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
     add_executable(wsbrd-fuzz
         tools/fuzz/wsbrd_fuzz.c
         tools/fuzz/commandline.c
