@@ -281,15 +281,6 @@ uint8_t *sec_prot_keys_ptk_eui_64_get(sec_prot_keys_t *sec_keys)
     return sec_keys->ptk_eui_64;
 }
 
-void sec_prot_keys_ptk_eui_64_delete(sec_prot_keys_t *sec_keys)
-{
-    if (sec_keys->ptk_eui_64_set) {
-        sec_keys->updated = true;
-    }
-    memset(sec_keys->ptk_eui_64, 0, 8);
-    sec_keys->ptk_eui_64_set = false;
-}
-
 bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds)
 {
     if (!sec_keys->ptk_set) {

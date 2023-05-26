@@ -411,14 +411,6 @@ void sec_prot_keys_ptk_eui_64_write(sec_prot_keys_t *sec_keys, const uint8_t *eu
 uint8_t *sec_prot_keys_ptk_eui_64_get(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_ptk_eui_64_delete deletes PTK EUI-64
- *
- * \param sec_keys security keys
- *
- */
-void sec_prot_keys_ptk_eui_64_delete(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_ptk_lifetime_decrement decrements PTK lifetime
  *
  * \param sec_keys security keys
