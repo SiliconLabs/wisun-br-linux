@@ -224,44 +224,6 @@ int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
     return 0;
 }
 
-int8_t ws_pae_supp_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash, del_gtk_on_mismatch);
-    if (mismatch > GTK_NO_MISMATCH) {
-        tr_info("GTK hash update %s %s %s %s",
-                trace_array(gtkhash[0], 8),
-                trace_array(gtkhash[1], 8),
-                trace_array(gtkhash[2], 8),
-                trace_array(gtkhash[3], 8));
-
-        /* Mismatch, initiate EAPOL (if authentication not already ongoing or if not on
-           wait time for the authenticator to answer) */
-        if (!pae_supp->gtk_update_trickle_running || pae_supp->initial_key_retry_cnt == 0) {
-            uint8_t timer_expirations = KEY_UPDATE_RETRY_COUNT;
-            // For GTK lifetime mismatch send only once
-            if (mismatch == GTK_LIFETIME_MISMATCH) {
-                timer_expirations = LIFETIME_MISMATCH_RETRY_COUNT;
-            }
-            // Start trickle timer
-            ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp, timer_expirations);
-
-            // Starts supplicant timer
-            ws_pae_supp_timer_start(pae_supp);
-        }
-    }
-
-    // Modify keys
-    pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false, false);
-
-    return 0;
-}
-
 int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
