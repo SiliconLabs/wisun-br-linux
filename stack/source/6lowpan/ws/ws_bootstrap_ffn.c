@@ -88,46 +88,6 @@ static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *
     return ns_list_get_first(&cur->ws_info.parent_list_reserved);
 }
 
-static bool ws_bootstrap_ffn_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
-{
-    // Return true if P2 is better
-    // signal lower than threshold for both
-    // pan_cost
-    // signal quality
-
-    if (p2->tx_fail > p1->tx_fail) {
-        return false;
-    }
-
-    if (p2->tx_fail < p1->tx_fail) {
-        return true;
-    }
-
-    if (p1->link_acceptable && !p2->link_acceptable) {
-        // Link acceptable is always better than not
-        return true;
-    }
-    if (!p1->link_acceptable && p2->link_acceptable) {
-        // Link acceptable is always better than not
-        return false;
-    }
-
-    // Select the lowest PAN cost
-    uint16_t p1_pan_cost = (p1->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p1->pan_information.pan_size / PS_WEIGHT_FACTOR);
-    uint16_t p2_pan_cost = (p2->pan_information.routing_cost / PRC_WEIGHT_FACTOR) + (p2->pan_information.pan_size / PS_WEIGHT_FACTOR);
-    if (p1_pan_cost > p2_pan_cost) {
-        return true;
-    } else if (p1_pan_cost < p2_pan_cost) {
-        return false;
-    }
-
-    // If pan cost is the same then we select the one we hear highest
-    if (p1->signal_dbm < p2->signal_dbm) {
-        return true;
-    }
-    return false;
-}
-
 static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
 {
     uint16_t pan_id = cur->ws_info.network_pan_id;
