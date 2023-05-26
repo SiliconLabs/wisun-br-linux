@@ -45,7 +45,6 @@
 
 typedef enum {
     TLS_STATE_INIT = SEC_STATE_INIT,
-    TLS_STATE_CREATE_REQ = SEC_STATE_CREATE_REQ,
     TLS_STATE_CREATE_RESP = SEC_STATE_CREATE_RESP,
     TLS_STATE_CREATE_IND = SEC_STATE_CREATE_IND,
 
@@ -93,7 +92,6 @@ static void tls_sec_prot_delete(sec_prot_t *prot);
 static int8_t tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void tls_sec_prot_finished_send(sec_prot_t *prot);
 
-static void client_tls_sec_prot_state_machine(sec_prot_t *prot);
 static void server_tls_sec_prot_state_machine(sec_prot_t *prot);
 
 static void tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
@@ -253,98 +251,6 @@ static void tls_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
     }
 
     sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
-}
-
-static void client_tls_sec_prot_state_machine(sec_prot_t *prot)
-{
-    tls_sec_prot_int_t *data = tls_sec_prot_get(prot);
-    int8_t result;
-
-    switch (sec_prot_state_get(&data->common)) {
-        case TLS_STATE_INIT:
-            tr_debug("TLS: init");
-            sec_prot_state_set(prot, &data->common, TLS_STATE_CREATE_REQ);
-            prot->timer_start(prot);
-            // Set default timeout for the total maximum length of the negotiation
-            sec_prot_default_timeout_set(&data->common);
-            break;
-
-        // Wait KMP-CREATE.request
-        case TLS_STATE_CREATE_REQ:
-            tr_debug("TLS: start");
-
-            prot->create_conf(prot, SEC_RESULT_OK);
-
-            sec_prot_state_set(prot, &data->common, TLS_STATE_CONFIGURE);
-
-            prot->state_machine_call(prot);
-            break;
-
-        case TLS_STATE_CONFIGURE:
-            if (tls_sec_prot_tls_configure_and_connect(prot, false) < 0) {
-                sec_prot_result_set(&data->common, SEC_RESULT_CONF_ERROR);
-                sec_prot_state_set(prot, &data->common, TLS_STATE_FINISH);
-                return;
-            }
-            sec_prot_state_set(prot, &data->common, TLS_STATE_PROCESS);
-            prot->state_machine(prot);
-            break;
-
-        case TLS_STATE_PROCESS:
-            result = tls_sec_prot_lib_process((tls_security_t *) &data->tls_sec_inst);
-
-            if (result == TLS_SEC_PROT_LIB_CALCULATING) {
-                data->calculating = true;
-                prot->state_machine_call(prot);
-                return;
-            } else {
-                data->calculating = false;
-            }
-
-            if (data->tls_send.data) {
-                prot->send(prot, data->tls_send.data, data->tls_send.handled_len);
-                eap_tls_sec_prot_lib_message_init(&data->tls_send);
-            }
-
-            if (result != TLS_SEC_PROT_LIB_CONTINUE) {
-                if (result == TLS_SEC_PROT_LIB_ERROR) {
-                    tr_error("TLS: error");
-                    sec_prot_result_set(&data->common, SEC_RESULT_ERROR);
-                }
-                sec_prot_state_set(prot, &data->common, TLS_STATE_FINISH);
-            }
-            break;
-
-        case TLS_STATE_FINISH:
-            tr_debug("TLS: finish");
-
-            data->calculating = false;
-
-            if (sec_prot_result_ok_check(&data->common)) {
-                sec_prot_keys_pmk_write(prot->sec_keys, data->new_pmk, prot->sec_cfg->timer_cfg.pmk_lifetime);
-            }
-
-            // KMP-FINISHED.indication,
-            prot->finished_ind(prot, sec_prot_result_get(&data->common), prot->sec_keys);
-            sec_prot_state_set(prot, &data->common, TLS_STATE_FINISHED);
-
-            tls_sec_prot_lib_free((tls_security_t *) &data->tls_sec_inst);
-            data->library_init = false;
-            break;
-
-        case TLS_STATE_FINISHED:
-            tr_debug("TLS: finished, free %s", data->library_init ? "T" : "F");
-            if (data->library_init) {
-                tls_sec_prot_lib_free((tls_security_t *) &data->tls_sec_inst);
-                data->library_init = false;
-            }
-            prot->timer_stop(prot);
-            prot->finished(prot);
-            break;
-
-        default:
-            break;
-    }
 }
 
 static void server_tls_sec_prot_state_machine(sec_prot_t *prot)
