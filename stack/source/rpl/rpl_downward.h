@@ -57,9 +57,7 @@ bool rpl_instance_address_registration_done(struct net_if *interface, struct rpl
 struct rpl_dao_target *rpl_instance_get_active_target_confirmation(struct rpl_instance *instance);
 bool rpl_instance_parent_selection_ready(struct rpl_instance *instance);
 
-#ifdef HAVE_RPL_DAO_HANDLING
 bool rpl_instance_dao_received(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, bool multicast, const uint8_t *opts, uint16_t opts_len, uint8_t *status_out);
-#endif
 
 void rpl_downward_transit_error(struct rpl_instance *instance, const uint8_t *target_addr, const uint8_t *transit_addr);
 void rpl_downward_compute_paths(struct rpl_instance *instance);

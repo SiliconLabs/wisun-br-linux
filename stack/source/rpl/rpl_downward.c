@@ -1038,7 +1038,6 @@ void rpl_downward_transit_error(rpl_instance_t *instance, const uint8_t *target_
     }
 }
 
-#ifdef HAVE_RPL_DAO_HANDLING
 static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool storing, const uint8_t *src, int8_t interface_id, const uint8_t *target_start, const uint8_t *target_end, const uint8_t *transit_opt, bool *new_info, uint8_t *status)
 {
     (void) status;
@@ -1218,7 +1217,6 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
 
     return true;
 }
-#endif // HAVE_RPL_DAO_HANDLING
 
 /* Link the graph ready for routing. "Canonical" database information stores
  * transits per target - in effect edges from children to parents.
@@ -1476,7 +1474,6 @@ void rpl_downward_paths_invalidate(rpl_instance_t *instance)
     dbus_emit_nodes_change(&g_ctxt);
 }
 
-#ifdef HAVE_RPL_DAO_HANDLING
 bool rpl_instance_dao_received(rpl_instance_t *instance, const uint8_t src[16], int8_t interface_id, bool multicast, const uint8_t *opts, uint16_t opts_len, uint8_t *status)
 {
     rpl_dodag_t *dodag = rpl_instance_current_dodag(instance);
@@ -1551,7 +1548,6 @@ bool rpl_instance_dao_received(rpl_instance_t *instance, const uint8_t src[16], 
 
     return true;
 }
-#endif // HAVE_RPL_DAO_HANDLING
 
 static uint16_t rpl_instance_address_registration_start(rpl_instance_t *instance, rpl_dao_target_t *pending_target)
 {

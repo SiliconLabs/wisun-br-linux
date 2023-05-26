@@ -1559,7 +1559,6 @@ void rpl_control_transmit_dis(rpl_domain_t *domain, struct net_if *cur, uint8_t 
     tr_info("Transmit DIS");
 }
 
-#ifdef HAVE_RPL_DAO_HANDLING
 /*
  *         0                   1                   2                   3
  *       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -1599,7 +1598,6 @@ static void rpl_control_transmit_dao_ack(rpl_domain_t *domain, struct net_if *cu
     buffer_data_end_set(buf, ptr);
     rpl_control_transmit(domain, cur, ICMPV6_CODE_RPL_DAO_ACK, buf, dst);
 }
-#endif // HAVE_RPL_DAO_HANDLING
 
 static buffer_t *rpl_control_dao_ack_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf)
 {
@@ -1685,7 +1683,6 @@ bool rpl_control_transmit_dao(rpl_domain_t *domain, struct net_if *cur, rpl_inst
     return ptr[1] & RPL_DAO_FLAG_ACK_REQ;
 }
 
-#ifdef HAVE_RPL_DAO_HANDLING
 static buffer_t *rpl_control_dao_handler(struct net_if *cur, rpl_domain_t *domain, buffer_t *buf, bool multicast)
 {
     if (buffer_data_length(buf) < 4) {
@@ -1748,7 +1745,6 @@ if (reply_ok && ((flags &RPL_DAO_FLAG_ACK_REQ) || status != 0))
 }
 return buffer_free(buf);
 }
-#endif // HAVE_RPL_DAO_HANDLING
 
 buffer_t *rpl_control_handler(buffer_t *buf)
 {
@@ -1770,10 +1766,8 @@ buffer_t *rpl_control_handler(buffer_t *buf)
             return rpl_control_dis_handler(cur, domain, buf, multicast);
         case ICMPV6_CODE_RPL_DIO:
             return rpl_control_dio_handler(cur, domain, buf);
-#ifdef HAVE_RPL_DAO_HANDLING
         case ICMPV6_CODE_RPL_DAO:
             return rpl_control_dao_handler(cur, domain, buf, multicast);
-#endif
         case ICMPV6_CODE_RPL_DAO_ACK:
             return rpl_control_dao_ack_handler(cur, domain, buf);
         default:
