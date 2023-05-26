@@ -1576,11 +1576,6 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
     tr_info("RPL event %d", event);
 }
 
-bool ws_eapol_relay_state_active(struct net_if *cur)
-{
-    return true;
-}
-
 static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local)
 {
     struct net_if *cur = (struct net_if *) handle;

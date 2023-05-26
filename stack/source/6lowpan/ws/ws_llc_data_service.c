@@ -1076,10 +1076,6 @@ static uint16_t ws_mpx_header_size_get(llc_data_base_t *base, uint16_t user_id)
 
 static bool ws_eapol_handshake_first_msg(uint8_t *pdu, uint16_t length, struct net_if *cur)
 {
-    if (!ws_eapol_relay_state_active(cur)) {
-        return false;
-    }
-
     eapol_pdu_t eapol_pdu;
     uint8_t kmp_type = *pdu++;
     length--;
@@ -1315,8 +1311,7 @@ static void ws_llc_mpx_eapol_request(llc_data_base_t *base, mpx_user_t *user_cb,
     message->message_type = WS_FT_EAPOL;
 
     ws_wh_utt_write(&message->ie_buf_header, message->message_type);
-    if (ws_eapol_relay_state_active(base->interface_ptr))
-        ws_wh_bt_write(&message->ie_buf_header);
+    ws_wh_bt_write(&message->ie_buf_header);
     if (eapol_handshake_first_msg) {
         uint8_t eapol_auth_eui64[8];
         ws_pae_controller_border_router_addr_read(base->interface_ptr, eapol_auth_eui64);

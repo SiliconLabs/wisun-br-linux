@@ -106,8 +106,6 @@ void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t
 
 void ws_dhcp_client_address_delete(struct net_if *cur, uint8_t *prefix);
 
-bool ws_eapol_relay_state_active(struct net_if *cur);
-
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64);
