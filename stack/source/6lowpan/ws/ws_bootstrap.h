@@ -29,8 +29,6 @@ typedef enum {
     WS_DISCOVERY_START,      /**< discovery start*/
     WS_OPERATION_START,      /**< active operation start*/
     WS_ROUTING_READY,        /**< RPL routing connected to BR*/
-    WS_FAST_DISCONNECT,      /**< Do fast timeout after Border router timeout*/
-    WS_NORMAL_DISCONNECT,    /**< Border have been rebooted so Slow poison Process*/
     WS_TEST_PROC_TRIGGER     /**< Trigger test procedure */
 } ws_bootstrap_event_type_e;
 
@@ -140,7 +138,6 @@ bool ws_bootstrap_state_discovery(struct net_if *cur);
 bool ws_bootstrap_state_configure(struct net_if *cur);
 bool ws_bootstrap_state_wait_rpl(struct net_if *cur);
 bool ws_bootstrap_state_active(struct net_if *cur);
-void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type);
 void ws_bootstrap_state_change(struct net_if *cur, icmp_state_e nwk_bootstrap_state);
 
 void ws_bootstrap_primary_parent_set(struct net_if *cur, struct llc_neighbour_req *neighbor_info, ws_parent_synch_e synch_req);

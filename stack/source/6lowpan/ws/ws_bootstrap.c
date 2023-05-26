@@ -2182,33 +2182,6 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
  * State machine
  *
  * */
-void ws_bootstrap_state_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type)
-{
-    if (cur->nwk_bootstrap_state == ER_RPL_NETWORK_LEAVING) {
-        //Already moved to leaving state.
-        return;
-    }
-    // We are no longer connected
-    cur->ws_info.connected_time = 0;
-
-    if (cur->rpl_domain && cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-        //Stop Asych Timer
-        ws_bootstrap_asynch_trickle_stop(cur);
-        tr_debug("Start Network soft leaving");
-        if (event_type == WS_FAST_DISCONNECT) {
-            rpl_control_instant_poison(cur, cur->rpl_domain);
-            cur->bootstrap_state_machine_cnt = 80; //Give 8 seconds time to send Poison
-        } else {
-            rpl_control_poison(cur->rpl_domain, 1);
-            cur->bootstrap_state_machine_cnt = 6000; //Give 10 minutes time for poison if RPL is not report
-        }
-
-    } else {
-        ws_bootstrap_event_discovery_start(cur);
-    }
-    cur->nwk_bootstrap_state = ER_RPL_NETWORK_LEAVING;
-}
-
 bool ws_bootstrap_state_discovery(struct net_if *cur)
 {
     if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {

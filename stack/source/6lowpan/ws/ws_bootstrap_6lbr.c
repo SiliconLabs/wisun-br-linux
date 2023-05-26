@@ -451,13 +451,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             ws_bootstrap_advertise_start(cur);
             ws_bootstrap_state_change(cur, ER_BOOTSTRAP_DONE);
             break;
-        case WS_FAST_DISCONNECT:
-            ws_bootstrap_state_disconnect(cur, WS_FAST_DISCONNECT);
-            break;
-        case WS_NORMAL_DISCONNECT:
-            ws_bootstrap_state_disconnect(cur, WS_NORMAL_DISCONNECT);
-            break;
-
         case WS_TEST_PROC_TRIGGER:
             ws_bootstrap_test_procedure_trigger_exec(cur, (ws_bootstrap_procedure_e) event->data_ptr);
             break;
