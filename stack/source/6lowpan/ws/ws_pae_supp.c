@@ -135,8 +135,6 @@ static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
-static int8_t ws_pae_supp_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
-static int8_t ws_pae_supp_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
 static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
@@ -866,40 +864,6 @@ static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_s
     trickle_start(&pae_supp->gtk_req_trickle_timer, "GTK REQ", &pae_supp->gtk_req_trickle_params);
     pae_supp->gtk_update_trickle_running = true;
     pae_supp->initial_key_retry_cnt = timer_expirations;
-}
-
-static int8_t ws_pae_supp_timer_if_start(kmp_service_t *service, kmp_api_t *kmp)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    if (ws_pae_supp_timer_start(pae_supp) < 0) {
-        return -1;
-    }
-
-    kmp_entry_t *entry = kmp_api_data_get(kmp);
-    if (!entry) {
-        return -1;
-    }
-    ws_pae_lib_kmp_timer_start(&pae_supp->entry.kmp_list, entry);
-    return 0;
-}
-
-static int8_t ws_pae_supp_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    kmp_entry_t *entry = kmp_api_data_get(kmp);
-    if (!entry) {
-        return -1;
-    }
-    ws_pae_lib_kmp_timer_stop(&pae_supp->entry.kmp_list, entry);
-    return 0;
 }
 
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp)
