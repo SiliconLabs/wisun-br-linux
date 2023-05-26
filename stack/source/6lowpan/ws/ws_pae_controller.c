@@ -1971,18 +1971,6 @@ int8_t ws_pae_controller_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t
     return 0;
 }
 
-int8_t ws_pae_controller_lgtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    memcpy(controller->lgtks.gtkhash, gtkhash, sizeof(controller->lgtks.gtkhash));
-
-    return 0;
-}
-
 void ws_pae_controller_fast_timer(int ticks)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {

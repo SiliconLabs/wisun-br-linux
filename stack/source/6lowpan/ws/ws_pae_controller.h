@@ -527,18 +527,6 @@ int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
 int8_t ws_pae_controller_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash);
 
 /**
- * ws_pae_controller_gtk_hash_update GTK hash has been updated (on PAN configuration)
- *
- * \param interface_ptr interface
- * \param gtkhash new GTK hash
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_lgtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash);
-
-/**
  * ws_pae_controller_nw_key_index_update key index been updated (on PAN configuration)
  *
  * \param interface_ptr interface
