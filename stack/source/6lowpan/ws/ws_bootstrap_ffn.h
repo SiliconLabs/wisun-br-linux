@@ -31,7 +31,6 @@ typedef enum auth_result auth_result_e;
 
 #ifdef HAVE_WS_ROUTER
 
-void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *event);
 void ws_bootstrap_ffn_state_machine(struct net_if *cur);
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds);
 
@@ -49,7 +48,6 @@ void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds);
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 
-#define ws_bootstrap_ffn_event_handler(cur, event) ((void) 0)
 #define ws_bootstrap_ffn_state_machine(cur) ((void) 0)
 #define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
 
