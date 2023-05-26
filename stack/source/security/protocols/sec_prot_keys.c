@@ -638,62 +638,6 @@ int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk)
     return 0;
 }
 
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash, bool del_gtk_on_mismatch)
-{
-    gtk_mismatch_e mismatch = GTK_NO_MISMATCH;
-
-    for (uint8_t i = 0; i < GTK_NUM; i++) {
-        // If hash is not set, stop using the key
-        if (sec_prot_keys_gtk_hash_empty(gtkhash[i])) {
-            if (sec_prot_keys_gtk_is_set(gtks, i)) {
-                uint32_t lifetime = sec_prot_keys_gtk_lifetime_get(gtks, i);
-                if (lifetime > GTK_EXPIRE_MISMATCH_TIME) {
-                    tr_info("GTK mismatch %i expired time, lifetime: %"PRIu32"", i, lifetime);
-                    // Only indicate mismatch in case fresh hash is received
-                    if (mismatch < GTK_LIFETIME_MISMATCH && del_gtk_on_mismatch) {
-                        mismatch = GTK_LIFETIME_MISMATCH;
-                    }
-                }
-                // Only delete in case fresh hash is received
-                if (del_gtk_on_mismatch) {
-                    sec_prot_keys_gtk_clear(gtks, i);
-                }
-            }
-        } else {
-            // Check is hash matches to existing key
-            uint8_t gtk_hash[8];
-            uint8_t *gtk = sec_prot_keys_gtk_get(gtks, i);
-            if (!gtk) {
-                // Hash set but GTK is not known, set mismatch
-                tr_info("GTK mismatch: %i", i);
-                if (mismatch < GTK_HASH_MISMATCH) {
-                    mismatch = GTK_HASH_MISMATCH;
-                }
-                continue;
-            }
-
-            sec_prot_lib_gtkhash_generate(gtk, gtk_hash);
-
-            if (memcmp(gtk_hash, gtkhash[i], sizeof(gtkhash[i])) == 0) {
-                // Key is fresh (or active, if old do not change state)
-                sec_prot_keys_gtk_status_fresh_set(gtks, i);
-            } else {
-                // Hash does not match, set mismatch and delete key
-                tr_info("GTK mismatch: %i", i);
-                if (mismatch < GTK_HASH_MISMATCH) {
-                    mismatch = GTK_HASH_MISMATCH;
-                }
-                // Only delete in case fresh hash is received
-                if (del_gtk_on_mismatch) {
-                    sec_prot_keys_gtk_clear(gtks, i);
-                }
-            }
-        }
-    }
-
-    return mismatch;
-}
-
 bool sec_prot_keys_gtk_hash_empty(gtkhash_t gtkhash)
 {
     if (memzcmp(gtkhash, sizeof(gtkhash_t)) == 0) {

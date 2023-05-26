@@ -736,18 +736,6 @@ int8_t sec_prot_keys_gtk_hash_generate(uint8_t *gtk, uint8_t *gtk_hash);
 int8_t sec_prot_keys_gtk_valid_check(uint8_t *gtk);
 
 /**
- * sec_prot_keys_gtks_hash_update update GTKs based on GTK hash
- *
- * \param gtks GTK keys
- * \param gtk_hash GTK hash
- * \param del_gtk_on_mismatch Delete GTK in case of mismatch
- *
- * \return GTK mismatch type or no mismatch
- *
- */
-gtk_mismatch_e sec_prot_keys_gtks_hash_update(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
-
-/**
  * sec_prot_keys_gtk_hash_empty checks if GTK hash field is empty
  *
  * \param gtk_hash GTK hash
