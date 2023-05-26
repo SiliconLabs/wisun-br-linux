@@ -353,52 +353,6 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
 }
 
-static void ws_bootstrap_ffn_pan_config_lfn_analyze(struct net_if *cur, const struct mcps_data_ie_list *ie_ext)
-{
-    if (!ws_version_1_1(cur) || cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        return;
-    }
-
-    ws_lfnver_ie_t lfn_version;
-    // FIXME: see comment in ws_llc_mngt_ind
-    if (!ws_wp_nested_lfnver_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &lfn_version)) {
-        return; // LFN version
-    }
-
-    //Read LFNGTKHASH
-    gtkhash_t lgtkhash[3];
-    unsigned active_lgtk_index;
-    // FIXME: see comment in ws_llc_mngt_ind
-    if (!ws_wp_nested_lgtkhash_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, lgtkhash, &active_lgtk_index)) {
-        return;
-    }
-
-    if (!cur->ws_info.pan_information.lpan_version_set) {
-        if (!cur->ws_info.configuration_learned) {
-            trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
-        }
-    } else {
-        if (cur->ws_info.pan_information.lpan_version == lfn_version.lfn_version) {
-            return;
-        }
-
-        if (serial_number_cmp16(cur->ws_info.pan_information.lpan_version, lfn_version.lfn_version)) {
-            // older version heard ignoring the message
-            return;
-        }
-    }
-
-    tr_info("Updated LFN PAN configuration own:%d, heard:%d",
-            cur->ws_info.pan_information.lpan_version, lfn_version.lfn_version);
-    cur->ws_info.pan_information.lpan_version = lfn_version.lfn_version;
-    cur->ws_info.pan_information.lpan_version_set = true;
-
-    //Set Active key index and hash inline bits
-    ws_pae_controller_lgtk_hash_update(cur, lgtkhash);
-    ws_pae_controller_nw_key_index_update(cur, active_lgtk_index + GTK_NUM);
-    //TODO Analyze HASH's and set LFN group key index
-}
-
 static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
 {
     if (data->SrcPANId != cur->ws_info.network_pan_id) {
