@@ -324,7 +324,6 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     if (!memcmp(ipv6, ADDR_UNSPECIFIED, 16))
         FATAL(1, "no gua found on %s", ctxt->config.tun_dev);
 
-    BUG_ON(cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER);
     ret = cur->if_up(cur, ipv6);
     BUG_ON(ret);
 

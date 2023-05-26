@@ -179,11 +179,7 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
 void ws_common_state_machine(struct net_if *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // Configure as Border router
-        ws_bootstrap_6lbr_state_machine(cur);
-    }
-
+    ws_bootstrap_6lbr_state_machine(cur);
 }
 
 void ws_common_seconds_timer(int seconds)
@@ -307,12 +303,6 @@ uint8_t ws_common_allow_child_registration(struct net_if *interface, const uint8
         return ARO_SUCCESS;
     }
 
-    //Verify that we have Selected Parent
-    if (interface->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && !rpl_control_parent_candidate_list_size(interface, true)) {
-        tr_info("Do not accept new ARO child: no selected parent");
-        return ARO_TOPOLOGICALLY_INCORRECT;
-    }
-
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur, &interface->mac_parameters.mac_neighbor_table->neighbour_list) {
 
         if (ipv6_neighbour_has_registered_by_eui64(&interface->ipv6_neighbour_cache, cur->mac64)) {
@@ -370,12 +360,7 @@ void ws_common_secondary_parent_update(struct net_if *interface)
 
 void ws_common_border_router_alive_update(struct net_if *interface)
 {
-    if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        return;
-    }
-
-    // After successful DAO ACK connection to border router is verified
-    interface->ws_info.pan_timeout_timer = interface->ws_info.cfg->timing.pan_timeout;
+    // empty
 }
 
 bool ws_common_is_valid_nr(uint8_t node_role)

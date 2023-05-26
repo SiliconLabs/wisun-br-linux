@@ -817,7 +817,7 @@ int8_t ws_cfg_mpl_set(struct net_if *cur, ws_mpl_cfg_t *new_cfg, uint8_t flags)
     (void) flags;
 
     // In Wi-SUN Border router will have modified settings to improve reliability
-    if (cur && cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur) {
         // Border router sends multiple packets to ensure start of sequence
         if (new_cfg->mpl_trickle_timer_exp < MPL_BORDER_ROUTER_MIN_EXPIRATIONS) {
             new_cfg->mpl_trickle_timer_exp = MPL_BORDER_ROUTER_MIN_EXPIRATIONS;

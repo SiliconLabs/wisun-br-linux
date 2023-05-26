@@ -99,10 +99,6 @@ typedef enum arm_internal_event_type {
 } arm_internal_event_type_e;
 
 typedef enum {
-    ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER,
-} arm_nwk_bootstrap_mode_e;
-
-typedef enum {
     ARM_NWK_IDLE_MODE = 0,
     ARM_NWK_GP_IP_MODE,
     ARM_NWK_LL_IP_MODE,
@@ -181,7 +177,6 @@ struct net_if {
     uint8_t zone_index[16];
     const char *interface_name;
     ns_list_link_t link;
-    arm_nwk_bootstrap_mode_e bootstrap_mode;
     arm_nwk_interface_mode_e nwk_mode;
     uint8_t configure_flags;
     uint8_t lowpan_info;

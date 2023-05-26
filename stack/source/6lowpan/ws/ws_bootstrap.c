@@ -223,12 +223,9 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
     }
 
     // Addressing in Wi-SUN interface was changed for Border router send new event so Application can update the state
-    if (interface->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER &&
-            interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-        if (interface->bootstrap_state_machine_cnt == 0) {
+    if (interface->nwk_bootstrap_state == ER_BOOTSTRAP_DONE &&
+        interface->bootstrap_state_machine_cnt == 0)
             interface->bootstrap_state_machine_cnt = 10; //Re trigger state check
-        }
-    }
 }
 
 static int ws_bootstrap_tasklet_init(struct net_if *cur)
@@ -502,14 +499,12 @@ void ws_bootstrap_fhss_configure_channel_masks(struct net_if *cur, fhss_ws_confi
                                 fhss_configuration->unicast_channel_mask,
                                 fhss_configuration->domain_channel_mask,
                                 cur->ws_info.hopping_schedule.number_of_channels);
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
-        bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
-        ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
-                                    fhss_configuration->broadcast_channel_mask,
-                                    fhss_configuration->domain_channel_mask,
-                                    cur->ws_info.hopping_schedule.number_of_channels);
-    }
+    ws_common_generate_channel_list(cur, fhss_configuration->broadcast_channel_mask, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.hopping_schedule.regulatory_domain, cur->ws_info.hopping_schedule.operating_class, cur->ws_info.hopping_schedule.channel_plan_id);
+    bitand(fhss_configuration->broadcast_channel_mask, cur->ws_info.cfg->fhss.fhss_channel_mask, 256);
+    ws_bootstrap_calc_chan_excl(&cur->ws_info.hopping_schedule.bc_excluded_channels,
+                                fhss_configuration->broadcast_channel_mask,
+                                fhss_configuration->domain_channel_mask,
+                                cur->ws_info.hopping_schedule.number_of_channels);
 }
 
 static int8_t ws_bootstrap_fhss_initialize(struct net_if *cur)
@@ -705,10 +700,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         tr_error("fhss initialization failed");
         return -3;
     }
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        //BBR init like NVM read
-        ws_bbr_init(cur);
-    }
+    ws_bbr_init(cur);
 
     ws_bootstrap_ll_address_validate(cur);
 
@@ -804,15 +796,7 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->configure_flags = INTERFACE_BOOTSTRAP_DEFINED;
     cur->configure_flags |= INTERFACE_SECURITY_DEFINED;
     cur->lowpan_info = 0;
-
-    switch (cur->bootstrap_mode) {
-        case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
-            cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
-            break;
-
-        default:
-            tr_error("Invalid bootstrap_mode");
-    }
+    cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
 
     cur->nwk_bootstrap_state = ER_ACTIVE_SCAN;
     cur->ws_info.network_pan_id = 0xffff;
@@ -1115,7 +1099,6 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
     switch (bootstrap_mode) {
         case NET_6LOWPAN_BORDER_ROUTER:
-            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
             break;
         default:
             return -3;
@@ -1138,10 +1121,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         goto init_fail;
     }
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // Configure as Border router
-        ws_llc_create(cur, &ws_bootstrap_6lbr_mngt_ind, &ws_bootstrap_6lbr_asynch_confirm);
-    }
+    ws_llc_create(cur, &ws_bootstrap_6lbr_mngt_ind, &ws_bootstrap_6lbr_asynch_confirm);
 
     mpx_api_t *mpx_api = ws_llc_mpx_api_get(cur);
     if (!mpx_api) {
@@ -1557,13 +1537,6 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
                                           cur->ws_info.cfg->gen.network_name);
             // Network key is valid, indicate border router IID to controller
             ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
-            //Update here Suplikant target by validated Primary Parent
-            if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
-                if (mac_neighbor) {
-                    ws_pae_controller_set_target(cur, cur->ws_info.network_pan_id, mac_neighbor->mac64);
-                }
-            }
 
             // After successful DAO ACK connection to border router is verified
             ws_common_border_router_alive_update(cur);
@@ -1605,11 +1578,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
 
 bool ws_eapol_relay_state_active(struct net_if *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER || cur->nwk_bootstrap_state == ER_BOOTSTRAP_DONE) {
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local)
@@ -1870,9 +1839,6 @@ void ws_bootstrap_rpl_activate(struct net_if *cur)
     rpl_control_set_initial_dao_ack_wait(WS_MAX_DAO_INITIAL_TIMEOUT);
     rpl_control_set_mrhof_parent_set_size(WS_MAX_PARENT_SET_COUNT);
     rpl_control_set_force_tunnel(true);
-    if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        rpl_control_set_memory_limits(WS_NODE_RPL_SOFT_MEM_LIMIT, WS_NODE_RPL_HARD_MEM_LIMIT);
-    }
     // Set RPL Link ETX Validation Threshold to 2.5 - 33.0
     // This setup will set ETX 0x800 to report ICMP error 18% probability
     // When ETX start go over 0x280 forward dropping probability start increase  linear to 100% at 0x2100
@@ -1937,24 +1903,21 @@ static void ws_bootstrap_nw_key_clear(struct net_if *cur, uint8_t slot)
 
 static void ws_bootstrap_nw_key_index_set(struct net_if *cur, uint8_t index)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        if (cur->mac_parameters.mac_default_ffn_key_index != 0 &&
-            cur->mac_parameters.mac_default_ffn_key_index != index + 1 &&
-            index < 4) {
-            /* Update the active key in the PAN Configs */
-            tr_info("New Pending key Request %u", index);
-            cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
-            cur->ws_info.pending_key_index_info.index = index;
-            return;
-        }
-#ifdef HAVE_WS_BORDER_ROUTER
-        if (cur->mac_parameters.mac_default_lfn_key_index != 0 &&
-            cur->mac_parameters.mac_default_lfn_key_index != index + 1 &&
-            index >= 4 && index < 7)
-            // Notify LFNs that a new LGTK has been activated.
-            ws_mngt_lpc_pae_cb(cur);
-#endif
+    if (cur->mac_parameters.mac_default_ffn_key_index != 0 &&
+        cur->mac_parameters.mac_default_ffn_key_index != index + 1 &&
+        index < 4) {
+        /* Update the active key in the PAN Configs */
+        tr_info("New Pending key Request %u", index);
+        cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ADVERTISMENT;
+        cur->ws_info.pending_key_index_info.index = index;
+        return;
     }
+    if (cur->mac_parameters.mac_default_lfn_key_index != 0 &&
+        cur->mac_parameters.mac_default_lfn_key_index != index + 1 &&
+        index >= 4 && index < 7)
+        // Notify LFNs that a new LGTK has been activated.
+        ws_mngt_lpc_pae_cb(cur);
+
     /* Deprecated: Unused by the RCP. */
     if (index < 4)
         cur->mac_parameters.mac_default_ffn_key_index = index + 1;
@@ -1978,31 +1941,29 @@ static void ws_bootstrap_nw_info_updated(struct net_if *cur, uint16_t pan_id, ui
     /* For border router, the PAE controller reads PAN ID, PAN version and network name from storage.
      * If they are set, takes them into use here.
      */
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // Get network name
-        ws_gen_cfg_t gen_cfg;
-        if (ws_cfg_gen_get(&gen_cfg) < 0) {
-            return;
-        }
-
-        // If PAN ID has not been set, set it
-        if (cur->ws_info.network_pan_id == 0xffff) {
-            cur->ws_info.network_pan_id = pan_id;
-            // Sets PAN version
-            cur->ws_info.pan_information.pan_version = pan_version;
-            cur->ws_info.pan_information.pan_version_set = true;
-            cur->ws_info.pan_information.lpan_version = lpan_version;
-            cur->ws_info.pan_information.lpan_version_set = true;
-        }
-
-        // If network name has not been set, set it
-        if (strlen(gen_cfg.network_name) == 0) {
-            strncpy(gen_cfg.network_name, network_name, 32);
-        }
-
-        // Stores the settings
-        ws_cfg_gen_set(cur, &gen_cfg, 0);
+    // Get network name
+    ws_gen_cfg_t gen_cfg;
+    if (ws_cfg_gen_get(&gen_cfg) < 0) {
+        return;
     }
+
+    // If PAN ID has not been set, set it
+    if (cur->ws_info.network_pan_id == 0xffff) {
+        cur->ws_info.network_pan_id = pan_id;
+        // Sets PAN version
+        cur->ws_info.pan_information.pan_version = pan_version;
+        cur->ws_info.pan_information.pan_version_set = true;
+        cur->ws_info.pan_information.lpan_version = lpan_version;
+        cur->ws_info.pan_information.lpan_version_set = true;
+    }
+
+    // If network name has not been set, set it
+    if (strlen(gen_cfg.network_name) == 0) {
+        strncpy(gen_cfg.network_name, network_name, 32);
+    }
+
+    // Stores the settings
+    ws_cfg_gen_set(cur, &gen_cfg, 0);
 }
 
 static bool ws_bootstrap_eapol_congestion_get(struct net_if *cur, uint16_t active_supp)
@@ -2115,23 +2076,17 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
     };
     uint8_t plf;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // FIXME: we would like to compute these in ws_llc before including the
-        // relevant IEs, but it is inconvenient since we are still supporting
-        // FFNs for simulation.
-        // Border routers write the NW size
-        cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
-        plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size, cur->ws_info.cfg->gen.network_size);
-        if (plf != cur->ws_info.pan_information.jm_plf) {
-            cur->ws_info.pan_information.jm_plf = plf;
-            cur->ws_info.pan_information.jm_version++;
-        }
-        cur->ws_info.pan_information.routing_cost = 0;
-    } else {
-        // Nodes need to calculate routing cost
-        // PAN size is saved from latest PAN advertisement
-        cur->ws_info.pan_information.routing_cost = ws_bootstrap_routing_cost_calculate(cur);
+    // FIXME: we would like to compute these in ws_llc before including the
+    // relevant IEs, but it is inconvenient since we are still supporting
+    // FFNs for simulation.
+    // Border routers write the NW size
+    cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
+    plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size, cur->ws_info.cfg->gen.network_size);
+    if (plf != cur->ws_info.pan_information.jm_plf) {
+        cur->ws_info.pan_information.jm_plf = plf;
+        cur->ws_info.pan_information.jm_version++;
     }
+    cur->ws_info.pan_information.routing_cost = 0;
 
     ws_stats_update(cur, STATS_WS_ASYNCH_TX_PA, 1);
     ws_llc_asynch_request(cur, &req);
@@ -2154,7 +2109,7 @@ static void ws_bootstrap_pan_config(struct net_if *cur)
         .security.KeyIdMode     = cur->mac_parameters.mac_key_id_mode,
     };
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER && cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
+    if (cur->ws_info.pending_key_index_info.state == PENDING_KEY_INDEX_ADVERTISMENT) {
         req.security.KeyIndex =  cur->ws_info.pending_key_index_info.index + 1;
         cur->ws_info.pending_key_index_info.state = PENDING_KEY_INDEX_ACTIVATE;
     } else {
@@ -2173,9 +2128,7 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
         return;
     }
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        ws_bootstrap_6lbr_event_handler(cur, event);
-    }
+    ws_bootstrap_6lbr_event_handler(cur, event);
 }
 
 /*
@@ -2440,12 +2393,12 @@ void ws_bootstrap_packet_congestion_init(struct net_if *cur)
 
     uint16_t min_th, max_th;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_BR_MIN_QUEUE_SIZE, WS_CONGESTION_BR_MAX_QUEUE_SIZE);
-    } else {
-        max_th = ws_bootstrap_define_congestin_max_threshold(heap_size, WS_CONGESTION_PACKET_SIZE, packet_per_seconds, WS_CONGESTION_QUEUE_DELAY, WS_CONGESTION_NODE_MIN_QUEUE_SIZE, WS_CONGESTION_NODE_MAX_QUEUE_SIZE);
-    }
-
+    max_th = ws_bootstrap_define_congestin_max_threshold(heap_size,
+                                                         WS_CONGESTION_PACKET_SIZE,
+                                                         packet_per_seconds,
+                                                         WS_CONGESTION_QUEUE_DELAY,
+                                                         WS_CONGESTION_BR_MIN_QUEUE_SIZE,
+                                                         WS_CONGESTION_BR_MAX_QUEUE_SIZE);
     min_th = max_th / 2;
     tr_info("Wi-SUN packet congestion minTh %u, maxTh %u, drop probability %u weight %u, Packet/Seconds %u", min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH, packet_per_seconds);
     cur->random_early_detection = random_early_detection_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
@@ -2480,11 +2433,8 @@ int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedu
         case PROCEDURE_PCS:
         case PROCEDURE_EAPOL:
         case PROCEDURE_RPL:
-            if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-                tr_info("Not allowed on Border Router");
-                return -1;
-            }
-            break;
+            tr_info("Not allowed on Border Router");
+            return -1;
         default:
             break;
     }

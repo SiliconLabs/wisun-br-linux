@@ -661,10 +661,6 @@ void ws_bbr_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     (void)seconds;
 
-    if (cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        // Not a border router
-        return;
-    }
     if (!cur->rpl_domain) {
         // RPL not started
         return;

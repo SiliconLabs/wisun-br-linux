@@ -223,7 +223,6 @@ uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_
 
 static void protocol_core_base_init(struct net_if *entry)
 {
-    entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
     entry->bootStrapId = -1;
     entry->if_ns_transmit = NULL;
     entry->if_common_forwarding_out_cb = NULL;
@@ -465,28 +464,13 @@ void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, st
     cur->lowpan_info &= ~INTERFACE_NWK_BOOTSTRAP_ACTIVE;
     cur->bootstrap_state_machine_cnt = 0;
 
-    if (posted_event == ARM_NWK_BOOTSTRAP_READY) {
+    if (posted_event == ARM_NWK_BOOTSTRAP_READY)
+        return;
 
-        switch (cur->bootstrap_mode) {
-
-            case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
-                break;
-
-            default:
-                if (!cur->rpl_domain) {
-                    tr_info("NON RPL Ready");
-                    //nwk_protocol_poll_mode_disable(cur->nwk_id, 0);
-                } else {
-                    tr_info("RPL Ready");
-                }
-        }
-    } else {
-        if (cur->if_down) {
-            cur->if_down(cur);
-        } else {
-            tr_debug("if_down() NULL");
-        }
-    }
+    if (cur->if_down)
+        cur->if_down(cur);
+    else
+        tr_debug("if_down() NULL");
 }
 
 void net_bootstrap_cb_run(uint8_t event)
