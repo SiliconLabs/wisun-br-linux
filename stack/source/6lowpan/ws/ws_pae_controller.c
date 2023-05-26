@@ -395,11 +395,6 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interf
     return 0;
 }
 
-int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
-{
-    return -1;
-}
-
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)
 {
     // Adds, removes and updates network keys to MAC based on new GTKs

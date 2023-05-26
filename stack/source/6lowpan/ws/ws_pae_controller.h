@@ -297,18 +297,6 @@ int8_t ws_pae_controller_radius_timing_validate(int8_t interface_id, struct bbr_
 int8_t ws_pae_controller_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, uint16_t pan_version, uint16_t lpan_version, char *network_name);
 
 /**
- * ws_pae_controller_nw_key_valid network key is valid i.e. used successfully on bootstrap
- *
- * \param interface_ptr interface
- * \param br_iid border router IID for which the keys are valid
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid);
-
-/**
  * ws_pae_controller_border_router_addr_write write border router address
  *
  * \param interface_ptr interface

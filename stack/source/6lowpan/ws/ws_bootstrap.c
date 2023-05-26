@@ -1524,8 +1524,6 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
                                           cur->ws_info.pan_information.pan_version,
                                           cur->ws_info.pan_information.lpan_version,
                                           cur->ws_info.cfg->gen.network_name);
-            // Network key is valid, indicate border router IID to controller
-            ws_pae_controller_nw_key_valid(cur, &dodag_info.dodag_id[8]);
         }
 
         if (!cur->ws_info.mngt.trickle_pa_running || !cur->ws_info.mngt.trickle_pc_running) {
