@@ -2563,10 +2563,6 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
                 tr_info("wrong state: Destination advertisement object not triggered");
             }
             break;
-        case PROCEDURE_PAS:
-        case PROCEDURE_PAS_TRICKLE_INCON:
-            ws_ffn_pas_test_exec(cur, procedure);
-            break;
         case PROCEDURE_PA:
             if (cur->ws_info.mngt.trickle_pa_running) {
                 tr_info("trigger PAN advertisement");
@@ -2575,10 +2571,6 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
             } else {
                 tr_info("wrong state: PAN advertisement not triggered");
             }
-            break;
-        case PROCEDURE_PCS:
-        case PROCEDURE_PCS_TRICKLE_INCON:
-            ws_ffn_pcs_test_exec(cur, procedure);
             break;
         case PROCEDURE_PC:
             if (cur->ws_info.mngt.trickle_pc_running) {
@@ -2635,11 +2627,7 @@ static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32
 
     cur->ws_info.test_proc_trg.auto_trg_enabled = true;
 
-    if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
-        ws_ffn_pas_test_trigger(cur, seconds);
-    } else if (cur->nwk_bootstrap_state == ER_SCAN) {
-        ws_ffn_pcs_test_trigger(cur, seconds);
-    } else if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
+    if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
         if (cur->ws_info.test_proc_trg.dis_trigger_timer > seconds) {
             cur->ws_info.test_proc_trg.dis_trigger_timer -= seconds;
         } else  {

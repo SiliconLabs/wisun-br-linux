@@ -326,41 +326,6 @@ void ws_ffn_pas_trickle(struct net_if *cur, int ticks)
     }
 }
 
-void ws_ffn_pas_test_exec(struct net_if *cur, int procedure)
-{
-    tr_info("trigger PAN advertisement Solicit");
-    if (procedure != PROCEDURE_PAS_TRICKLE_INCON) {
-        tr_info("send PAN advertisement Solicit");
-        ws_bootstrap_pan_advert_solicit(cur);
-    }
-    if (cur->ws_info.mngt.trickle_pas_running) {
-        trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pas, &cur->ws_info.mngt.trickle_params);
-    }
-}
-
-void ws_ffn_pas_test_trigger(struct net_if *cur, int seconds)
-{
-    if (cur->ws_info.mngt.trickle_pas_running) {
-        if (cur->ws_info.test_proc_trg.pas_trigger_timer > seconds) {
-            cur->ws_info.test_proc_trg.pas_trigger_timer -= seconds;
-        } else  {
-            if (cur->ws_info.test_proc_trg.pas_trigger_count > 2) {
-                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS_TRICKLE_INCON);
-            } else {
-                cur->ws_info.test_proc_trg.pas_trigger_count++;
-                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PAS);
-            }
-            cur->ws_info.test_proc_trg.pas_trigger_timer = (cur->ws_info.mngt.trickle_params.Imin / 10);
-        }
-        if (cur->ws_info.test_proc_trg.eapol_trigger_timer > seconds) {
-            cur->ws_info.test_proc_trg.eapol_trigger_timer -= seconds;
-        } else {
-            ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_EAPOL);
-            cur->ws_info.test_proc_trg.eapol_trigger_timer = (cur->ws_info.mngt.trickle_params.Imin / 10) / 2;
-        }
-    }
-}
-
 static void ws_bootstrap_pan_config_solicit(struct net_if *cur)
 {
     struct ws_llc_mngt_req req = {
@@ -402,39 +367,6 @@ void ws_ffn_pcs_trickle(struct net_if *cur, int ticks)
             trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pas, &cur->ws_info.mngt.trickle_params);
             ws_bootstrap_event_discovery_start(cur);
             return;
-        }
-    }
-}
-
-void ws_ffn_pcs_test_exec(struct net_if *cur, int procedure)
-{
-    if (cur->ws_info.mngt.trickle_pcs_running || ws_bootstrap_state_active(cur)) {
-        tr_info("trigger PAN configuration Solicit");
-        if (procedure != PROCEDURE_PCS_TRICKLE_INCON) {
-            tr_info("send PAN configuration Solicit");
-            ws_bootstrap_pan_config_solicit(cur);
-        }
-        if (cur->ws_info.mngt.trickle_pcs_running) {
-            trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
-        }
-    } else {
-        tr_info("wrong state: PAN configuration Solicit not triggered");
-    }
-}
-
-void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds)
-{
-    if (cur->ws_info.mngt.trickle_pcs_running) {
-        if (cur->ws_info.test_proc_trg.pcs_trigger_timer > seconds) {
-            cur->ws_info.test_proc_trg.pcs_trigger_timer -= seconds;
-        } else  {
-            if (cur->ws_info.test_proc_trg.pcs_trigger_count > 2) {
-                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PCS_TRICKLE_INCON);
-            } else {
-                cur->ws_info.test_proc_trg.pcs_trigger_count++;
-                ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_PCS);
-            }
-            cur->ws_info.test_proc_trg.pcs_trigger_timer = (cur->ws_info.mngt.trickle_params.Imin / 10);
         }
     }
 }
