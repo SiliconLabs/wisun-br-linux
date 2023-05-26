@@ -375,33 +375,6 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
     }
 }
 
-int8_t ws_pae_supp_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated)
-{
-    (void) pan_id;
-    (void) network_name;
-
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    if (updated) {
-        tr_info("Delete old keys, new PAN ID: %i network name: %s", pan_id, network_name);
-        // Delete pair wise keys
-        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
-        // Delete GTKs
-        sec_prot_keys_gtks_clear(pae_supp->sec_keys_nw_info->gtks);
-        // If data is changed, store to NVM
-        if (sec_prot_keys_are_updated(&pae_supp->entry.sec_keys) ||
-                sec_prot_keys_gtks_are_updated(pae_supp->sec_keys_nw_info->gtks)) {
-            ws_pae_supp_nvm_update(pae_supp);
-        }
-    }
-    return 0;
-}
-
 void ws_pae_supp_cb_register(struct net_if *interface_ptr,
                              ws_pae_supp_auth_completed *completed,
                              ws_pae_supp_auth_next_target *auth_next_target,

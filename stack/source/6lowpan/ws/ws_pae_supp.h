@@ -102,20 +102,6 @@ int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *g
 int8_t ws_pae_supp_eapol_target_remove(struct net_if *interface_ptr);
 
 /**
- * ws_pae_auth_nw_info_set set network information
- *
- * \param interface_ptr interface
- * \param pan_id PAD ID
- * \param network_name network name
- * \param updated data has been updated
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_nw_info_set(struct net_if *interface_ptr, uint16_t pan_id, char *network_name, bool updated);
-
-/**
  * ws_pae_supp_nw_key_index_set network send key index set callback
  *
  * \param interface_ptr interface
