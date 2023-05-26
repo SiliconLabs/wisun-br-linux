@@ -46,7 +46,6 @@
 #include "6lowpan/ws/ws_llc.h"
 #include "6lowpan/ws/ws_bootstrap.h"
 #include "6lowpan/ws/ws_bootstrap_6lbr.h"
-#include "6lowpan/ws/ws_bootstrap_ffn.h"
 #include "6lowpan/ws/ws_bbr_api_internal.h"
 #include "6lowpan/ws/ws_pae_controller.h"
 #include "6lowpan/ws/ws_management_api.h"
@@ -197,7 +196,6 @@ void ws_common_seconds_timer(int seconds)
     ws_bbr_seconds_timer(cur, seconds);
     ws_bootstrap_seconds_timer(cur, seconds);
     ws_bootstrap_6lbr_seconds_timer(cur, seconds);
-    ws_bootstrap_ffn_seconds_timer(cur, seconds);
     blacklist_ttl_update(seconds);
 }
 

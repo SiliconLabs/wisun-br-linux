@@ -49,7 +49,6 @@
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_bootstrap.h"
-#include "6lowpan/ws/ws_bootstrap_ffn.h"
 #include "6lowpan/ws/ws_ie_lib.h"
 #include "6lowpan/ws/ws_ie_validation.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
