@@ -128,30 +128,6 @@ static bool ws_bootstrap_ffn_candidate_parent_compare(parent_info_t *p1, parent_
     return false;
 }
 
-static void ws_bootstrap_ffn_candidate_parent_sort(struct net_if *cur, parent_info_t *new_entry)
-{
-    //Remove from the list
-
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info.parent_list_reserved) {
-
-        if (entry == new_entry) {
-            // own entry skip it
-            continue;
-        }
-
-        if (ws_bootstrap_ffn_candidate_parent_compare(entry, new_entry)) {
-            // New entry is better
-            //tr_debug("candidate list new is better");
-            ns_list_remove(&cur->ws_info.parent_list_reserved, new_entry);
-            ns_list_add_before(&cur->ws_info.parent_list_reserved, entry, new_entry);
-            return;
-        }
-    }
-    // This is the last entry
-    ns_list_remove(&cur->ws_info.parent_list_reserved, new_entry);
-    ns_list_add_to_end(&cur->ws_info.parent_list_reserved, new_entry);
-}
-
 static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
 {
     uint16_t pan_id = cur->ws_info.network_pan_id;
