@@ -238,17 +238,6 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
  * Statemachine state functions
  * */
 
-static void ws_bootstrap_ffn_configure_process(struct net_if *cur)
-{
-
-    if (cur->ws_info.configuration_learned) {
-        tr_debug("Start using PAN configuration");
-        ws_bootstrap_event_operation_start(cur);
-        return;
-    }
-    return;
-}
-
 void ws_bootstrap_ffn_rpl_wait_process(struct net_if *cur)
 {
 
