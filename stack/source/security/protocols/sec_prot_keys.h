@@ -459,15 +459,6 @@ void sec_prot_keys_updated_reset(sec_prot_keys_t *sec_keys);
 uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks);
 
 /**
- * sec_prot_keys_gtkl_set sets GTK liveness storage
- *
- * \param sec_keys security keys
- * \param gtkl bit field indicating GTK liveness
- *
- */
-void sec_prot_keys_gtkl_set(sec_prot_gtk_t *sec_gtks, uint8_t gtkl);
-
-/**
  * sec_prot_keys_gtkl_set checks whether GTK is live on GTK liveness storage
  *
  * \param sec_keys security keys

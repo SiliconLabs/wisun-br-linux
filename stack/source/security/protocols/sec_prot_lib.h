@@ -139,19 +139,6 @@ uint8_t *sec_prot_lib_message_build(uint8_t *ptk, uint8_t *kde, uint16_t kde_len
 uint8_t *sec_prot_lib_message_handle(uint8_t *ptk, uint16_t *kde_len, struct eapol_pdu *eapol_pdu);
 
 /**
- * sec_prot_lib_gtk_read reads GTK, GTKL and lifetime KDEs
- *
- * \param kde KDEs
- * \param kde_len length of the KDEs
- * \param sec_keys security keys
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t sec_prot_lib_gtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_gtks);
-int8_t sec_prot_lib_lgtk_read(uint8_t *kde, uint16_t kde_len, sec_prot_gtk_t *sec_lgtks);
-
-/**
  * sec_prot_lib_mic_validate validates MIC
  *
  * \param ptk PTK for MIC validation

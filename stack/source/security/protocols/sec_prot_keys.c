@@ -331,11 +331,6 @@ uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks)
     return gtkl;
 }
 
-void sec_prot_keys_gtkl_set(sec_prot_gtk_t *sec_gtks, uint8_t gtkl)
-{
-    sec_gtks->gtkl = gtkl;
-}
-
 bool sec_prot_keys_gtkl_gtk_is_live(sec_prot_gtk_t *sec_gtks, uint8_t index)
 {
     if (index >= GTK_NUM) {
