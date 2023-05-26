@@ -835,12 +835,9 @@ static void ws_llc_eapol_ffn_ind(const struct net_if *net_if, const mcps_data_in
     if (!ws_wh_utt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_utt))
         BUG("missing UTT-IE in EAPOL frame from FFN");
     ws_neighbor_class_ut_update(neighbor.ws_neighbor, ie_utt.ufsi, data->timestamp, data->SrcAddr);
-    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt)) {
+    if (ws_wh_bt_read(ie_ext->headerIeList, ie_ext->headerIeListLength, &ie_bt))
         ws_neighbor_class_bt_update(neighbor.ws_neighbor, ie_bt.broadcast_slot_number,
                                     ie_bt.broadcast_interval_offset, data->timestamp);
-        if (neighbor.neighbor)
-            ws_bootstrap_ffn_eapol_parent_synch(base->interface_ptr, &neighbor);
-    }
     if (has_us)
         ws_neighbor_class_us_update(base->interface_ptr, neighbor.ws_neighbor, &ie_us.chan_plan,
                                     ie_us.dwell_interval, data->SrcAddr);

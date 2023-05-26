@@ -1223,27 +1223,6 @@ void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
     }
 }
 
-void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, llc_neighbour_req_t *neighbor_info)
-{
-    BUG_ON(cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER);
-    if (cur->ws_info.configuration_learned || !neighbor_info->ws_neighbor->broadcast_schedule_info_stored || !neighbor_info->ws_neighbor->broadcast_timing_info_stored) {
-        return;
-    }
-
-    if (ws_bootstrap_ffn_candidate_parent_get(cur, neighbor_info->neighbor->mac64, false) == NULL) {
-        return;
-    }
-
-    //Store Brodacst Shedule
-    if (!neighbor_info->ws_neighbor->synch_done) {
-        ws_bootstrap_primary_parent_set(cur, neighbor_info, WS_EAPOL_PARENT_SYNCH);
-    } else {
-        cur->ws_info.fhss_conf.fhss_bc_dwell_interval  = neighbor_info->ws_neighbor->fhss_data.ffn.bc_dwell_interval_ms;
-        cur->ws_info.fhss_conf.fhss_broadcast_interval = neighbor_info->ws_neighbor->fhss_data.ffn.bc_interval_ms;
-        rcp_set_fhss_parent(neighbor_info->neighbor->mac64, &neighbor_info->ws_neighbor->fhss_data, false);
-    }
-}
-
 const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
 {
     ws_bootstrap_ffn_candidate_parent_mark_failure(cur, previous_eui_64);
