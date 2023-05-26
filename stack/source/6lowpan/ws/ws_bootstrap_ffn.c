@@ -252,17 +252,6 @@ void ws_bootstrap_ffn_rpl_wait_process(struct net_if *cur)
     return;
 }
 
-static void ws_bootstrap_ffn_start_authentication(struct net_if *cur)
-{
-    // Set PAN ID and network name to controller
-    ws_pae_controller_nw_info_set(cur, cur->ws_info.network_pan_id,
-                                  cur->ws_info.pan_information.pan_version,
-                                  cur->ws_info.pan_information.lpan_version,
-                                  cur->ws_info.cfg->gen.network_name);
-
-    ws_pae_controller_authenticate(cur);
-}
-
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     /* Border router keep alive check
