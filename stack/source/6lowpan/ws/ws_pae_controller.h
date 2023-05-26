@@ -54,17 +54,6 @@ struct ws_timing_cfg;
 int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64);
 
 /**
- * ws_pae_controller_authenticate start PAE supplicant authentication
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_authenticate(struct net_if *interface_ptr);
-
-/**
  * ws_pae_controller_authenticator_start start PAE authenticator
  *
  * \param interface_ptr interface
