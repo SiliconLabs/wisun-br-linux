@@ -644,23 +644,6 @@ error:
     return ret_val;
 }
 
-int8_t ws_pae_controller_nw_key_index_update(struct net_if *interface_ptr, uint8_t index)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    if (controller->pae_nw_key_index_update) {
-        if (index > GTK_NUM)
-            controller->pae_nw_key_index_update(interface_ptr, index - GTK_NUM, true);
-        else
-            controller->pae_nw_key_index_update(interface_ptr, index, false);
-    }
-
-    return 0;
-}
-
 void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
