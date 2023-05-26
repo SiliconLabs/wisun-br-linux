@@ -34,9 +34,7 @@ void rpl_data_sr_invalidate(void);
 
 /* Public API */
 void rpl_data_init(void);
-#ifdef HAVE_RPL_ROOT
 void rpl_data_init_root(void);
-#endif
 ipv6_route_predicate_fn_t *rpl_data_get_route_predicate(struct rpl_domain *domain, const buffer_t *buf);
 bool rpl_data_process_hbh(buffer_t *buf, struct net_if *cur, uint8_t *opt, const struct ns_sockaddr *ll_src);
 bool rpl_data_remember_outer(buffer_t *buf);

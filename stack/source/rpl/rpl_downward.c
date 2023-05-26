@@ -106,9 +106,7 @@
 
 #define TRACE_GROUP "RPLd"
 
-#ifdef HAVE_RPL_ROOT
 static void rpl_downward_topo_sort_invalidate(rpl_instance_t *instance);
-#endif
 
 #define DEFAULT_DAO_DELAY 10 /* *100ms ticks = 1s */
 
@@ -284,12 +282,10 @@ rpl_dao_target_t *rpl_create_dao_target(rpl_instance_t *instance, const uint8_t 
     target->prefix_len = prefix_len;
     target->path_sequence = rpl_seq_init();
     target->root = root;
-#ifdef HAVE_RPL_ROOT
     if (root) {
         ns_list_init(&target->info.root.transits);
     }
     rpl_downward_topo_sort_invalidate(instance);
-#endif
 
     ns_list_add_to_end(&instance->dao_targets, target);
     return target;
@@ -303,7 +299,6 @@ void rpl_delete_dao_target(rpl_instance_t *instance, rpl_dao_target_t *target)
 
     ns_list_remove(&instance->dao_targets, target);
 
-#ifdef HAVE_RPL_ROOT
     if (target->root) {
         ns_list_foreach_safe(rpl_dao_root_transit_t, transit, &target->info.root.transits) {
             ns_list_remove(&target->info.root.transits, transit);
@@ -312,7 +307,6 @@ void rpl_delete_dao_target(rpl_instance_t *instance, rpl_dao_target_t *target)
         ipv6_route_table_remove_info(-1, ROUTE_RPL_DAO_SR, target);
         rpl_downward_topo_sort_invalidate(target->instance);
     }
-#endif
     rpl_free(target, sizeof * target);
 }
 
@@ -947,7 +941,6 @@ void rpl_instance_send_dao_no_path(rpl_instance_t *instance, rpl_dao_target_t *t
 }
 #endif
 
-#ifdef HAVE_RPL_ROOT
 static uint_fast8_t rpl_downward_path_control_to_preference(uint8_t pc)
 {
     if (pc >= 0x40) {
@@ -1044,7 +1037,6 @@ void rpl_downward_transit_error(rpl_instance_t *instance, const uint8_t *target_
         }
     }
 }
-#endif // HAVE_RPL_ROOT
 
 #ifdef HAVE_RPL_DAO_HANDLING
 static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool storing, const uint8_t *src, int8_t interface_id, const uint8_t *target_start, const uint8_t *target_end, const uint8_t *transit_opt, bool *new_info, uint8_t *status)
@@ -1228,7 +1220,6 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
 }
 #endif // HAVE_RPL_DAO_HANDLING
 
-#ifdef HAVE_RPL_ROOT
 /* Link the graph ready for routing. "Canonical" database information stores
  * transits per target - in effect edges from children to parents.
  * For our path finding we need to match transits by prefix - eg all 2002::xx
@@ -1484,7 +1475,6 @@ void rpl_downward_paths_invalidate(rpl_instance_t *instance)
     // FIXME: do not include app_wsbrd
     dbus_emit_nodes_change(&g_ctxt);
 }
-#endif // HAVE_RPL_ROOT
 
 #ifdef HAVE_RPL_DAO_HANDLING
 bool rpl_instance_dao_received(rpl_instance_t *instance, const uint8_t src[16], int8_t interface_id, bool multicast, const uint8_t *opts, uint16_t opts_len, uint8_t *status)
@@ -1779,7 +1769,6 @@ void rpl_downward_print_instance(rpl_instance_t *instance)
         rpl_downward_compute_paths(instance);
     }
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
-#ifdef HAVE_RPL_ROOT
         if (target->root) {
             tr_debug("  %-40s %02x seq=%d%s cost=%"PRIu32"%s%s%s",
                      tr_ipv6_prefix(target->prefix, target->prefix_len),
@@ -1792,7 +1781,6 @@ void rpl_downward_print_instance(rpl_instance_t *instance)
                 tr_debug("    ->%-36s %02x cost=%"PRIu16, tr_ipv6(transit->transit), transit->path_control, transit->cost);
             }
         } else
-#endif
         {
             tr_debug("  %-40s %02x seq=%d%s%s%s",
                      tr_ipv6_prefix(target->prefix, target->prefix_len),
@@ -1818,7 +1806,6 @@ uint16_t rpl_downward_route_table_get(rpl_instance_t *instance, uint8_t *prefix,
         return 0;
     }
 
-#ifdef HAVE_RPL_ROOT
     rpl_downward_compute_paths(instance);
 
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
@@ -1845,7 +1832,6 @@ uint16_t rpl_downward_route_table_get(rpl_instance_t *instance, uint8_t *prefix,
         }
         /* We dont put non roots to list so border router is not visible as a node in list*/
     }
-#endif
     return index;
 }
 

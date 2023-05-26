@@ -1783,7 +1783,6 @@ buffer_t *rpl_control_handler(buffer_t *buf)
     }
 }
 
-#ifdef HAVE_RPL_ROOT
 /* Buffer contains ICMP payload, so 4 bytes unused, followed by invoking packet */
 buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, struct net_if *cur)
 {
@@ -1804,7 +1803,6 @@ buffer_t *rpl_control_source_route_error_handler(buffer_t *buf, struct net_if *c
 
     return buf;
 }
-#endif
 
 void rpl_control_fast_timer(int ticks)
 {

@@ -944,11 +944,9 @@ buffer_t *icmpv6_up(buffer_t *buf)
         /* fall through */
 
         case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
-#ifdef HAVE_RPL_ROOT
             if (buf->options.type == ICMPV6_TYPE_ERROR_DESTINATION_UNREACH && buf->options.code == ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR) {
                 buf = rpl_control_source_route_error_handler(buf, cur);
             }
-#endif
         /* fall through */
 
         default:

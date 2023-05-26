@@ -61,13 +61,8 @@ bool rpl_instance_parent_selection_ready(struct rpl_instance *instance);
 bool rpl_instance_dao_received(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, bool multicast, const uint8_t *opts, uint16_t opts_len, uint8_t *status_out);
 #endif
 
-#ifdef HAVE_RPL_ROOT
 void rpl_downward_transit_error(struct rpl_instance *instance, const uint8_t *target_addr, const uint8_t *transit_addr);
 void rpl_downward_compute_paths(struct rpl_instance *instance);
 void rpl_downward_paths_invalidate(struct rpl_instance *instance);
-#else
-#define rpl_downward_compute_paths(instance) ((void) 0)
-#define rpl_downward_paths_invalidate(instance) ((void) 0)
-#endif
 
 #endif

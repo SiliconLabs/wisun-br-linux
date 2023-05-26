@@ -252,13 +252,11 @@ rpl_dodag_t *rpl_instance_current_dodag(const rpl_instance_t *instance)
     return instance->current_dodag_version ? instance->current_dodag_version->dodag : NULL;
 }
 
-#ifdef HAVE_RPL_ROOT
 bool rpl_instance_am_root(const rpl_instance_t *instance)
 {
     rpl_dodag_t *dodag = rpl_instance_current_dodag(instance);
     return dodag ? rpl_dodag_am_root(dodag) : false;
 }
-#endif
 
 uint8_t rpl_instance_mop(const rpl_instance_t *instance)
 {
@@ -826,7 +824,6 @@ void rpl_dodag_set_root(rpl_dodag_t *dodag, bool root)
     }
 }
 
-#ifdef HAVE_RPL_ROOT
 bool rpl_dodag_am_root(const rpl_dodag_t *dodag)
 {
     return dodag->root;
@@ -836,7 +833,6 @@ bool rpl_dodag_was_root(const rpl_dodag_t *dodag)
 {
     return dodag->was_root;
 }
-#endif
 
 void rpl_dodag_set_leaf(rpl_dodag_t *dodag, bool leaf)
 {

@@ -66,11 +66,7 @@ void rpl_delete_instance(rpl_instance_t *instance);
 bool rpl_instance_purge(rpl_instance_t *instance);
 void rpl_instance_set_dodag_version(rpl_instance_t *instance, rpl_dodag_version_t *version, uint16_t rank);
 rpl_dodag_t *rpl_instance_current_dodag(const rpl_instance_t *instance);
-#ifdef HAVE_RPL_ROOT
 bool rpl_instance_am_root(const rpl_instance_t *instance);
-#else
-#define rpl_instance_am_root(instance) false
-#endif
 uint8_t rpl_instance_mop(const rpl_instance_t *instance);
 rpl_dodag_version_t *rpl_instance_current_dodag_version(const rpl_instance_t *instance);
 rpl_neighbour_t *rpl_instance_preferred_parent(const rpl_instance_t *instance);
@@ -101,13 +97,8 @@ void rpl_delete_dodag(rpl_dodag_t *dodag);
 void rpl_delete_dodag_root(rpl_dodag_t *dodag);
 uint8_t rpl_dodag_mop(const rpl_dodag_t *dodag);
 void rpl_dodag_set_root(rpl_dodag_t *dodag, bool root);
-#ifdef HAVE_RPL_ROOT
 bool rpl_dodag_am_root(const rpl_dodag_t *dodag);
 bool rpl_dodag_was_root(const rpl_dodag_t *dodag);
-#else
-#define rpl_dodag_am_root(dodag) false
-#define rpl_dodag_was_root(dodag) false
-#endif
 uint8_t rpl_dodag_get_version_number_as_root(const rpl_dodag_t *dodag);
 void rpl_dodag_set_version_number_as_root(rpl_dodag_t *dodag, uint8_t number);
 void rpl_dodag_set_leaf(rpl_dodag_t *dodag, bool leaf);

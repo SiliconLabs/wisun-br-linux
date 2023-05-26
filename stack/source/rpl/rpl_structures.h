@@ -159,9 +159,7 @@ struct rpl_dao_target {
     bool trig_confirmation_state: 1;         /* Enable confirmation to parent's */
     bool active_confirmation_state: 1;
     union {
-#ifdef HAVE_RPL_ROOT
         rpl_dao_root_t root;            /* Info specific to a non-storing root */
-#endif
         rpl_dao_non_root_t non_root;    /* Info for other nodes (any in storing, non-root in non-storing) */
     } info;
     ns_list_link_t link;

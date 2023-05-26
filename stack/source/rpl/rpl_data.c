@@ -50,7 +50,6 @@
 
 #define RPL_DATA_SR_INIT_SIZE (16*4)
 
-#ifdef HAVE_RPL_ROOT
 typedef struct rpl_data_sr {
     rpl_dao_target_t *target;   /* Target - note may be a prefix */
     uint16_t iaddr_size;
@@ -60,7 +59,6 @@ typedef struct rpl_data_sr {
 } rpl_data_sr_t;
 
 static rpl_data_sr_t *rpl_data_sr;
-#endif
 
 static const uint8_t *rpl_data_get_dodagid(const buffer_t *buf);
 
@@ -701,7 +699,6 @@ not_forwarding_error:
     return false;
 }
 
-#ifdef HAVE_RPL_ROOT
 /* TODO - every target involved here should be non-External. Add checks */
 static bool rpl_data_compute_source_route(const uint8_t *final_dest, rpl_dao_target_t *const target)
 {
@@ -1041,7 +1038,6 @@ static buffer_t *rpl_data_exthdr_provider_srh(buffer_t *buf, ipv6_exthdr_stage_e
             return buffer_free(buf);
     }
 }
-#endif // HAVE_RPL_ROOT
 
 buffer_t *rpl_data_process_routing_header(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t *hdrlen_out, bool *forward_out)
 {
@@ -1218,12 +1214,9 @@ void rpl_data_init(void)
     ipv6_set_exthdr_provider(ROUTE_RPL_FWD_ERROR, rpl_data_exthdr_provider_fwd_error_hbh);
 }
 
-#ifdef HAVE_RPL_ROOT
 /* Set up handlers for DODAG root (creation of source routing headers) */
 void rpl_data_init_root(void)
 {
     ipv6_set_exthdr_provider(ROUTE_RPL_DAO_SR, rpl_data_exthdr_provider_srh);
     ipv6_route_table_set_next_hop_fn(ROUTE_RPL_DAO_SR, rpl_data_route_next_hop);
 }
-#endif
-
