@@ -439,69 +439,6 @@ if(COMPILE_DEVTOOLS)
     endif()
     install(TARGETS wsnode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-    add_executable(wshwsim
-        version.c
-        common/crc.c
-        common/bus_uart.c
-        common/events_scheduler.c
-        common/log.c
-        common/bits.c
-        common/endian.c
-        common/rand.c
-        common/iobuf.c
-        common/slist.c
-        common/spinel_buffer.c
-        tools/hwsim/timer_sys_stub.c
-        tools/hwsim/sl_wsrcp.c
-        tools/hwsim/sl_wsrcp_mac.c
-        tools/hwsim/sl_rf_driver.c
-        tools/hwsim/hal_fhss_timer.c
-        tools/hwsim/mac/rf_driver_storage.c
-        tools/hwsim/mac/ieee802154/mac_cca_threshold.c
-        tools/hwsim/mac/ieee802154/mac_fhss_callbacks.c
-        tools/hwsim/mac/ieee802154/mac_filter.c
-        tools/hwsim/mac/ieee802154/mac_header_helper_functions.c
-        tools/hwsim/mac/ieee802154/mac_indirect_data.c
-        tools/hwsim/mac/ieee802154/mac_mcps_sap.c
-        tools/hwsim/mac/ieee802154/mac_mlme.c
-        tools/hwsim/mac/ieee802154/mac_pd_sap.c
-        tools/hwsim/mac/ieee802154/mac_security_mib.c
-        tools/hwsim/mac/ieee802154/mac_timer.c
-        tools/hwsim/mac/ieee802154/sw_mac.c
-        tools/hwsim/ccm/ccm_security.c
-        tools/hwsim/ccm/mbedOS/aes_mbedtls_adapter.c
-        tools/hwsim/fhss/channel_functions.c
-        tools/hwsim/fhss/fhss_common.c
-        tools/hwsim/fhss/fhss_configuration_interface.c
-        tools/hwsim/fhss/fhss_statistics.c
-        tools/hwsim/fhss/fhss_ws.c
-        tools/hwsim/os_timer.c
-    )
-    target_include_directories(wshwsim PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        tools/hwsim/
-        stack/
-    )
-    # target_compile_definitions(wshwsim PRIVATE FHSS_CHANNEL_DEBUG)
-    # target_compile_definitions(wshwsim PRIVATE TIMING_TOOL_TRACES)
-    # target_compile_definitions(wshwsim PRIVATE EXTRA_DEBUG_INFO)
-    target_link_libraries(wshwsim PRIVATE MbedTLS::mbedtls)
-    target_link_libraries(wshwsim PRIVATE util)
-    if(LIBPCAP_FOUND)
-        target_compile_definitions(wshwsim PRIVATE HAVE_LIBPCAP)
-        target_link_libraries(wshwsim PRIVATE PkgConfig::LIBPCAP)
-    endif()
-    if(BACKTRACE_FOUND)
-        target_compile_definitions(wshwsim PRIVATE HAVE_BACKTRACE)
-        target_sources(wshwsim PRIVATE common/backtrace_show.c)
-        target_link_libraries(wshwsim PRIVATE backtrace)
-    endif()
-    if(LIBDL_FOUND)
-        target_compile_definitions(wshwsim PRIVATE HAVE_LIBDL)
-        target_link_libraries(wshwsim PRIVATE ${CMAKE_DL_LIBS})
-    endif()
-    install(TARGETS wshwsim RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
     add_executable(wsbrd-fuzz
         tools/fuzz/wsbrd_fuzz.c
         tools/fuzz/commandline.c
