@@ -167,8 +167,6 @@ void ws_common_secondary_parent_update(struct net_if *interface);
 
 uint8_t ws_common_temporary_entry_size(uint8_t mac_table_size);
 
-void ws_common_border_router_alive_update(struct net_if *interface);
-
 int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
 bool ws_common_is_valid_nr(uint8_t node_role);

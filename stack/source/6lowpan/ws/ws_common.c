@@ -353,11 +353,6 @@ void ws_common_secondary_parent_update(struct net_if *interface)
     ws_bootstrap_secondary_parent_update(interface);
 }
 
-void ws_common_border_router_alive_update(struct net_if *interface)
-{
-    // empty
-}
-
 bool ws_common_is_valid_nr(uint8_t node_role)
 {
     switch (node_role) {
