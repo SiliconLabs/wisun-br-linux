@@ -61,7 +61,6 @@ typedef struct key_sec_prot_int {
 static uint16_t key_sec_prot_size(void);
 static int8_t auth_key_sec_prot_init(sec_prot_t *prot);
 
-static void key_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void key_sec_prot_delete(sec_prot_t *prot);
 static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
@@ -114,13 +113,6 @@ static int8_t auth_key_sec_prot_init(sec_prot_t *prot)
 static void key_sec_prot_delete(sec_prot_t *prot)
 {
     (void) prot;
-}
-
-static void key_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys)
-{
-    (void) sec_keys;
-
-    prot->state_machine_call(prot);
 }
 
 static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result)
