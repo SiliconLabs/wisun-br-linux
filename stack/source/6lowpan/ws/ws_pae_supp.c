@@ -133,7 +133,6 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
-static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
@@ -579,17 +578,6 @@ static pae_supp_t *ws_pae_supp_by_kmp_service_get(kmp_service_t *service)
     }
 
     return NULL;
-}
-
-static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp)
-{
-    /* When either bootstrap initial authentication or re-authentication is ongoing */
-    if (pae_supp->initial_key_timer || pae_supp->initial_key_retry_timer || pae_supp->gtk_update_trickle_running ||
-            ws_pae_lib_supp_timer_is_running(&pae_supp->entry)) {
-        return true;
-    }
-
-    return false;
 }
 
 void ws_pae_supp_slow_timer(uint16_t seconds)
