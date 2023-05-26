@@ -33,17 +33,10 @@ typedef enum auth_result auth_result_e;
 
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds);
 
-const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id);
-
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 
 #define ws_bootstrap_ffn_seconds_timer(cur, seconds) ((void) 0)
-
-static inline const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
-{
-    BUG("not compiled with HAVE_WS_ROUTER");
-}
 #endif
 
 #endif

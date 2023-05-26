@@ -104,7 +104,6 @@ typedef struct pae_controller {
     ws_pae_controller_pan_ver_increment *pan_ver_increment;          /**< PAN version increment callback */
     ws_pae_controller_pan_ver_increment *lpan_ver_increment;         /**< LFN-PAN version increment callback */
     ws_pae_controller_nw_info_updated *nw_info_updated;              /**< Network information updated callback */
-    ws_pae_controller_auth_next_target *auth_next_target;            /**< Authentication next target callback */
     ws_pae_controller_congestion_get *congestion_get;                /**< Congestion get callback */
     ws_pae_controller_ip_addr_get *ip_addr_get;                      /**< IP address get callback */
     ws_pae_delete *pae_delete;                                       /**< PAE delete callback */
@@ -228,7 +227,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 #endif
 
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
-                                     ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_key_clear *nw_key_clear,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
@@ -256,7 +254,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
     controller->pan_ver_increment = pan_ver_increment;
     controller->lpan_ver_increment = lpan_ver_increment;
     controller->nw_info_updated = nw_info_updated;
-    controller->auth_next_target = auth_next_target;
     controller->congestion_get = congestion_get;
     return 0;
 }
@@ -683,7 +680,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     controller->nw_frame_counter_set = NULL;
     controller->pan_ver_increment = NULL;
     controller->nw_info_updated = NULL;
-    controller->auth_next_target = NULL;
     controller->congestion_get = NULL;
 
     memset(&controller->sec_cfg, 0, sizeof(sec_cfg_t));

@@ -278,21 +278,3 @@ void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
         }
     }
 }
-
-const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const uint8_t *previous_eui_64, uint16_t *pan_id)
-{
-    ws_bootstrap_ffn_candidate_parent_mark_failure(cur, previous_eui_64);
-
-    // Gets best target
-    parent_info_t *parent_info = ws_bootstrap_ffn_candidate_parent_get_best(cur);
-    if (parent_info) {
-        /* On failure still continues with the new parent, and on next call,
-           will try to set the neighbor again */
-        ws_bootstrap_ffn_neighbor_set(cur, parent_info, true);
-        *pan_id = parent_info->pan_id;
-        return parent_info->addr;
-    }
-
-    // If no targets found, retries the last one
-    return previous_eui_64;
-}

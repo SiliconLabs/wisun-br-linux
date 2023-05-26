@@ -530,18 +530,6 @@ typedef void ws_pae_controller_nw_frame_counter_set(struct net_if *interface_ptr
 typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t slot);
 
 /**
- * ws_pae_controller_auth_next_target get next target to attempt authentication
- *
- * \param interface_ptr interface
- * \param previous_eui_64 EUI-64 of previous target
- * \param pan_id pan id
- *
- * \return EUI-64 of the next target or previous target if new one not available
- *
- */
-typedef const uint8_t *ws_pae_controller_auth_next_target(struct net_if *interface_ptr, const uint8_t *previous_eui_64, uint16_t *pan_id);
-
-/**
  * ws_pae_controller_pan_ver_increment PAN version increment callback
  *
  * \param interface_ptr interface
@@ -591,7 +579,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  *
  */
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
-                                     ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_key_clear *nw_key_clear,
                                      ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set,
