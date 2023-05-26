@@ -48,7 +48,6 @@
 #include "6lowpan/ws/ws_mngt.h"
 #include "6lowpan/ws/ws_management_api.h"
 #include "6lowpan/ws/ws_pae_timers.h"
-#include "6lowpan/ws/ws_pae_supp.h"
 #include "6lowpan/ws/ws_pae_auth.h"
 #include "6lowpan/ws/ws_pae_time.h"
 #include "6lowpan/ws/ws_pae_key_storage.h"
