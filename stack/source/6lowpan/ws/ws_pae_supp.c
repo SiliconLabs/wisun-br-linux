@@ -132,7 +132,6 @@ static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
-static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
@@ -676,29 +675,6 @@ static pae_supp_t *ws_pae_supp_by_kmp_service_get(kmp_service_t *service)
     }
 
     return NULL;
-}
-
-static int8_t ws_pae_supp_event_send(kmp_service_t *service, void *data)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    struct event_payload event = {
-        .receiver = tasklet_id,
-        .sender = 0,
-        .event_id = pae_supp->interface_ptr->id,
-        .data_ptr = data,
-        .event_type = PAE_TASKLET_EVENT,
-        .priority = ARM_LIB_LOW_PRIORITY_EVENT,
-    };
-
-    if (event_send(&event) != 0) {
-        return -1;
-    }
-
-    return 0;
 }
 
 static void ws_pae_supp_tasklet_handler(struct event_payload *event)
