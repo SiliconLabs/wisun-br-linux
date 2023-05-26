@@ -82,22 +82,6 @@ int8_t kmp_eapol_pdu_if_register(kmp_service_t *service, struct net_if *interfac
     return 0;
 }
 
-int8_t kmp_eapol_pdu_if_unregister(kmp_service_t *service)
-{
-    if (!service) {
-        return -1;
-    }
-
-    ns_list_foreach_safe(kmp_eapol_pdu_if_t, entry, &kmp_eapol_pdu_if_list) {
-        if (entry->kmp_service == service) {
-            ns_list_remove(&kmp_eapol_pdu_if_list, entry);
-            free(entry);
-            kmp_service_msg_if_register(service, 0, NULL, 0, 0);
-        }
-    }
-    return 0;
-}
-
 static int8_t kmp_eapol_pdu_if_send(kmp_service_t *service, uint8_t instance_id, kmp_type_e kmp_id, const kmp_addr_t *addr, void *pdu, uint16_t size, uint8_t tx_identifier, uint8_t conn_number, uint8_t flags)
 {
     (void) instance_id; // Only one instance of eapol interface possible

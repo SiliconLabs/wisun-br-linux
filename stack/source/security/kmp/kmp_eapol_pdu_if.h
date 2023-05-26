@@ -40,17 +40,6 @@ struct kmp_service;
 int8_t kmp_eapol_pdu_if_register(struct kmp_service *service, struct net_if *interface_ptr);
 
 /**
- * kmp_eapol_pdu_if_unregister unregister EAPOL PDU interface from KMP service
- *
- * \param service KMP service to unregister from
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t kmp_eapol_pdu_if_unregister(struct kmp_service *service);
-
-/**
  * kmp_eapol_pdu_if_receive receive EAPOL PDU to KMP service
  *
  * \param interface_ptr interface
