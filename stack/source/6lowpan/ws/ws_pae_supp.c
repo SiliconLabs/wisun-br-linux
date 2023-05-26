@@ -126,7 +126,6 @@ typedef struct pae_supp {
 
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
-static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
@@ -223,41 +222,6 @@ static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2)
         return 0;
     }
     return -1;
-}
-
-static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name)
-{
-    // Checks how many times authentication has been tried with current network keys
-    if (pae_supp->nw_keys_used_cnt >= STORED_KEYS_MAXIMUM_USE_COUNT) {
-        tr_debug("Keys not valid, delete GTKs");
-
-        // Delete GTKs
-        sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
-        sec_prot_keys_gtks_updated_set(pae_supp->sec_keys_nw_info->gtks);
-        ws_pae_supp_nvm_update(pae_supp);
-
-        pae_supp->nw_keys_used_cnt = 0;
-        return -1;
-    }
-
-    /* Checks if keys match to network name and PAN ID and that needed keys exists (PMK,
-       PTK and a GTK), and calls inserts function that will update the network keys as
-       needed */
-    if ((ws_pae_supp_network_name_compare(dest_network_name, pae_supp->sec_keys_nw_info->network_name) == 0 &&
-            pan_id == pae_supp->sec_keys_nw_info->key_pan_id) &&
-            (sec_prot_keys_gtk_count(pae_supp->sec_keys_nw_info->gtks) > 0) &&
-            (sec_prot_keys_pmk_get(&pae_supp->entry.sec_keys) != NULL) &&
-            (sec_prot_keys_ptk_get(&pae_supp->entry.sec_keys) != NULL)) {
-        tr_debug("Existing keys used, counter %i", pae_supp->nw_keys_used_cnt);
-        if (pae_supp->nw_key_insert(pae_supp->interface_ptr, pae_supp->sec_keys_nw_info->gtks, false, false) >= 0) {
-            tr_debug("Keys inserted");
-        }
-        pae_supp->nw_keys_used_cnt++;
-        return 0;
-    } else {
-        pae_supp->nw_keys_used_cnt = 0;
-        return -1;
-    }
 }
 
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
