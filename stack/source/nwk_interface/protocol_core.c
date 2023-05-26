@@ -223,7 +223,7 @@ uint32_t protocol_stack_interface_set_reachable_time(struct net_if *cur, uint32_
 
 static void protocol_core_base_init(struct net_if *entry)
 {
-    entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
+    entry->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER;
     entry->bootStrapId = -1;
     entry->if_ns_transmit = NULL;
     entry->if_common_forwarding_out_cb = NULL;

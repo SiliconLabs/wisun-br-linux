@@ -302,8 +302,7 @@ void protocol_6lowpan_register_handlers(struct net_if *cur)
     cur->if_map_ip_to_link_addr = protocol_6lowpan_map_ip_to_link_addr;
     cur->if_map_link_addr_to_ip = protocol_6lowpan_map_link_addr_to_ip;
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER ||
-            cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         cur->ipv6_neighbour_cache.recv_addr_reg = true;
         cur->ipv6_neighbour_cache.recv_ns_aro = true;
     }

@@ -180,10 +180,7 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
 void ws_common_state_machine(struct net_if *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
-        // Configure FFN device
-        ws_bootstrap_ffn_state_machine(cur);
-    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         // Configure as Border router
         ws_bootstrap_6lbr_state_machine(cur);
     }

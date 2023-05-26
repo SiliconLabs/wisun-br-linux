@@ -1106,11 +1106,6 @@ void ws_bootstrap_ffn_rpl_wait_process(struct net_if *cur)
         cur->ws_info.connected_time = cur->ws_info.uptime;
         ws_bootstrap_event_routing_ready(cur);
     } else if (!rpl_control_have_dodag(cur->rpl_domain)) {
-        // RPL not ready send DIS message if possible
-        if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
-            // TODO Multicast DIS should be sent only if no DIO heard for some time
-            rpl_control_transmit_dis(cur->rpl_domain, cur, 0, 0, NULL, 0, ADDR_LINK_LOCAL_ALL_RPL_NODES);
-        }
         // set timer for next DIS
         cur->bootstrap_state_machine_cnt = rand_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
     }
