@@ -423,16 +423,6 @@ uint8_t *sec_prot_keys_ptk_eui_64_get(sec_prot_keys_t *sec_keys);
 bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds);
 
 /**
- * sec_prot_keys_are_updated returns security keys have been updated flag
- *
- * \param sec_keys security keys
- *
- * \return TRUE keys have been updated, FALSE keys have not been updated
- *
- */
-bool sec_prot_keys_are_updated(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_updated_reset resets security keys have been updated flag
  *
  * \param sec_keys security keys
