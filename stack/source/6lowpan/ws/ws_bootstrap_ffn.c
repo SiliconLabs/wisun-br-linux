@@ -283,56 +283,6 @@ void ws_bootstrap_ffn_network_discovery_configure(struct net_if *cur)
     ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
 }
 
-// Start network scan
-static void ws_bootstrap_ffn_start_discovery(struct net_if *cur)
-{
-    tr_debug("router discovery start");
-    // Remove network keys from MAC
-    ws_pae_controller_nw_keys_remove(cur);
-    ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
-    cur->ws_info.configuration_learned = false;
-    cur->ws_info.pan_timeout_timer = 0;
-    cur->ws_info.weakest_received_rssi = 0;
-
-    // Clear RPL information
-    rpl_control_free_domain_instances_from_interface(cur);
-    // Clear EAPOL relay address
-    ws_eapol_relay_delete(cur);
-
-    // Clear ip stack from old information
-    ws_bootstrap_ip_stack_reset(cur);
-    // New network scan started old addresses not assumed valid anymore
-    ws_bootstrap_ffn_ip_stack_addr_clear(cur);
-
-    if ((cur->lowpan_info & INTERFACE_NWK_BOOTSTRAP_ACTIVE) != INTERFACE_NWK_BOOTSTRAP_ACTIVE) {
-        // we have sent bootstrap ready event and now
-        // restarted discovery so bootstrap down event is sent
-        cur->lowpan_info |= INTERFACE_NWK_BOOTSTRAP_ACTIVE;
-    }
-
-    // Start advertisement solicit trickle and calculate when we are checking the status
-    cur->ws_info.mngt.trickle_pas_running = true;
-    if (cur->ws_info.mngt.trickle_pas.I != cur->ws_info.mngt.trickle_params.Imin) {
-        // Trickle not reseted so starting a new interval
-        trickle_start(&cur->ws_info.mngt.trickle_pas, "ADV SOL", &cur->ws_info.mngt.trickle_params);
-    }
-
-    // Discovery statemachine is checkked after we have sent the Solicit
-    uint32_t time_to_solicit = 0;
-    if (cur->ws_info.mngt.trickle_pas.t > cur->ws_info.mngt.trickle_pas.now) {
-        time_to_solicit = cur->ws_info.mngt.trickle_pas.t - cur->ws_info.mngt.trickle_pas.now;
-    }
-
-    time_to_solicit += cur->ws_info.mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info.mngt.trickle_params.Imin);
-
-    if (time_to_solicit > 0xffff) {
-        time_to_solicit = 0xffff;
-    }
-    cur->bootstrap_state_machine_cnt = time_to_solicit;
-
-    tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
-}
-
 // Start configuration learning
 static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
 {
