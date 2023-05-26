@@ -706,19 +706,6 @@ bool sec_prot_keys_gtk_status_is_live(sec_prot_gtk_keys_t *gtks, uint8_t index);
 uint8_t sec_prot_keys_gtk_status_get(sec_prot_gtk_keys_t *gtks, uint8_t index);
 
 /**
- * sec_prot_keys_gtk_status_get sets GTK status
- *
- * \param gtks GTK keys
- * \param index index
- * \param status status
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t status);
-
-/**
  * sec_prot_keys_gtks_hash_generate generate GTK hash based on all GTKs
  *
  * \param gtks GTK keys

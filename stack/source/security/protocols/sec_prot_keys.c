@@ -608,20 +608,6 @@ uint8_t sec_prot_keys_gtk_status_get(sec_prot_gtk_keys_t *gtks, uint8_t index)
     return gtks->gtk[index].status;
 }
 
-int8_t sec_prot_keys_gtk_status_set(sec_prot_gtk_keys_t *gtks, uint8_t index, uint8_t status)
-{
-    if (index >= GTK_NUM || !gtks->gtk[index].set) {
-        return -1;
-    }
-
-    if (gtks->gtk[index].status != status) {
-        gtks->updated = true;
-    }
-
-    gtks->gtk[index].status = status;
-    return 0;
-}
-
 void sec_prot_keys_gtks_hash_generate(sec_prot_gtk_keys_t *gtks, gtkhash_t *gtkhash)
 {
     for (uint8_t i = 0; i < GTK_NUM; i++) {
