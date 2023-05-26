@@ -749,7 +749,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
 
     ws_nud_table_reset(cur);
 
-    ws_bootstrap_ffn_candidate_table_reset(cur);
     // Zero uptime counters
     cur->ws_info.uptime = 0;
     cur->ws_info.authentication_time = 0;
@@ -790,7 +789,6 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     ws_eapol_relay_delete(cur);
     ws_eapol_auth_relay_delete(cur);
     ws_pae_controller_stop(cur);
-    ws_bootstrap_ffn_candidate_table_reset(cur);
     blacklist_clear();
     cur->if_common_forwarding_out_cb = NULL;
 

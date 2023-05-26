@@ -31,7 +31,6 @@ typedef enum auth_result auth_result_e;
 
 #ifdef HAVE_WS_ROUTER
 
-void ws_bootstrap_ffn_candidate_table_reset(struct net_if *cur);
 void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
 void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
@@ -53,10 +52,6 @@ void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds);
 
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
-
-static inline void ws_bootstrap_ffn_candidate_table_reset(struct net_if *cur)
-{
-}
 
 static inline void ws_bootstrap_ffn_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info)
 {
