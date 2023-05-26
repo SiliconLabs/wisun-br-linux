@@ -124,7 +124,6 @@ typedef struct pae_supp {
 #define LAST_INTERVAL_MIN_SECS             120  /* 2 minutes */
 #define LAST_INTERVAL_MAX_SECS             240  /* 4 minutes */
 
-static void ws_pae_supp_free(pae_supp_t *pae_supp);
 static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result);
 static int8_t ws_pae_supp_initial_key_send(pae_supp_t *pae_supp);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
@@ -559,24 +558,6 @@ void ws_pae_supp_cb_register(struct net_if *interface_ptr,
     pae_supp->nw_key_index_set = nw_key_index_set;
     pae_supp->gtk_hash_ptr_get = gtk_hash_ptr_get;
     pae_supp->nw_info_updated = nw_info_updated;
-}
-
-static void ws_pae_supp_free(pae_supp_t *pae_supp)
-{
-    if (!pae_supp) {
-        return;
-    }
-
-    ws_pae_lib_supp_delete(&pae_supp->entry);
-
-    kmp_eapol_pdu_if_unregister(pae_supp->kmp_service);
-
-    ws_eapol_pdu_cb_unregister(pae_supp->interface_ptr, &eapol_pdu_recv_cb_data);
-
-    kmp_service_delete(pae_supp->kmp_service);
-
-    ns_list_remove(&pae_supp_list, pae_supp);
-    free(pae_supp);
 }
 
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
