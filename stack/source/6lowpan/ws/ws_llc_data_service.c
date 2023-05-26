@@ -184,9 +184,6 @@ static uint8_t ws_llc_mpx_data_purge_request(const mpx_api_t *api, struct mcps_p
 static void ws_llc_mpx_init(mpx_class_t *mpx_class);
 
 static void ws_llc_temp_neigh_info_table_reset(temp_entriest_t *base);
-#ifndef HAVE_WS_BORDER_ROUTER
-static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
-#endif
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64);
 static void ws_llc_temp_entry_free(temp_entriest_t *base, ws_neighbor_temp_class_t *entry);
 static ws_neighbor_temp_class_t *ws_llc_discover_temp_entry(ws_neighbor_temp_list_t *list, const uint8_t *mac64);
@@ -638,14 +635,6 @@ static void ws_llc_data_ffn_ind(const struct net_if *net_if, const mcps_data_ind
         if (!multicast) {
             //tr_debug("Drop message no neighbor");
             return;
-        } else {
-#ifndef HAVE_WS_BORDER_ROUTER
-            ws_neighbor_temp_class_t *tmp = ws_allocate_multicast_temp_entry(&base->temp_entries, data->SrcAddr);
-
-            neighbor.ws_neighbor = &tmp->neigh_info_list;
-            tmp->mpduLinkQuality = data->mpduLinkQuality;
-            tmp->signal_dbm = data->signal_dbm;
-#endif
         }
     }
 
@@ -1583,39 +1572,6 @@ static void ws_init_temporary_neigh_data(ws_neighbor_temp_class_t *entry, const 
     memcpy(entry->mac64, mac64, 8);
     entry->eapol_temp_info.eapol_rx_relay_filter = 0;
 }
-
-
-
-#ifndef HAVE_WS_BORDER_ROUTER
-static ws_neighbor_temp_class_t *ws_allocate_multicast_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
-{
-
-    ws_neighbor_temp_class_t *entry = ws_llc_discover_temp_entry(&base->active_multicast_temp_neigh, mac64);
-    if (entry) {
-        ns_list_remove(&base->active_multicast_temp_neigh, entry);
-        ns_list_add_to_start(&base->active_multicast_temp_neigh, entry);
-        return entry;
-    }
-
-    if (ns_list_count(&base->active_multicast_temp_neigh) < MAX_NEIGH_TEMPORARY_MULTICAST_SIZE) {
-        entry = ns_list_get_first(&base->free_temp_neigh);
-    }
-
-    if (entry) {
-        ns_list_remove(&base->free_temp_neigh, entry);
-    } else {
-        //Replace last entry and put it to first
-        entry = ns_list_get_last(&base->active_multicast_temp_neigh);
-        rcp_drop_fhss_neighbor(entry->mac64);
-        ns_list_remove(&base->active_multicast_temp_neigh, entry);
-    }
-    //Add to list
-    ns_list_add_to_start(&base->active_multicast_temp_neigh, entry);
-    //Clear Old data
-    ws_init_temporary_neigh_data(entry, mac64);
-    return entry;
-}
-#endif
 
 static ws_neighbor_temp_class_t *ws_allocate_eapol_temp_entry(temp_entriest_t *base, const uint8_t *mac64)
 {
