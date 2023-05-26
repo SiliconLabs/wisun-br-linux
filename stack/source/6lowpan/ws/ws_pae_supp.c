@@ -124,7 +124,6 @@ typedef struct pae_supp {
 #define LAST_INTERVAL_MIN_SECS             120  /* 2 minutes */
 #define LAST_INTERVAL_MAX_SECS             240  /* 4 minutes */
 
-static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result);
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
 static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan_id, char *dest_network_name);
@@ -409,15 +408,6 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
     storage_close(info);
 
     return 0;
-}
-
-static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result)
-{
-    pae_supp->initial_key_retry_timer = 0;
-    if (pae_supp->auth_requested && pae_supp->auth_completed) {
-        pae_supp->auth_requested = false;
-        pae_supp->auth_completed(pae_supp->interface_ptr, result, pae_supp->target_addr.eui_64);
-    }
 }
 
 static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2)
