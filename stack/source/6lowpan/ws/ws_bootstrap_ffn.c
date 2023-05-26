@@ -344,44 +344,6 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
     return 0;
 }
 
-static void ws_bootstrap_ffn_pan_information_store(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us, ws_pan_information_t *pan_information)
-{
-
-    parent_info_t *new_entry;
-    /* Have List of 20 heard neighbours
-     * Order those as best based on pan cost
-     * In single pan order based on signal quality
-     * in single PAN limit the amount of devices to 5
-     * If there is no advertisement heard for last hour Clear the neigbour.
-     */
-
-    // Discovery state processing
-    //tr_info("neighbour: addr:%s panid:%x signal:%d", tr_eui64(data->SrcAddr), data->SrcPANId, data->signal_dbm);
-
-    // Clean old entries
-    ws_bootstrap_ffn_candidate_list_clean(cur, WS_PARENT_LIST_MAX_PAN_IN_DISCOVERY, g_monotonic_time_100ms, data->SrcPANId);
-
-    new_entry = ws_bootstrap_ffn_candidate_parent_get(cur, data->SrcAddr, true);
-    if (!new_entry) {
-        tr_warn("neighbour creation fail");
-        return;
-    }
-    // Safe the information
-    ws_bootstrap_ffn_candidate_parent_store(new_entry, data, ws_utt, ws_us, pan_information);
-    if (!new_entry->link_acceptable) {
-        // This entry is either poor quality or changed to poor quality link so we will remove this
-        // Todo in future possibility to try poor link parents if we have not found any good link parents
-        tr_info("neighbour not accepted: addr:%s panid:%x rsl:%d device_min_sens: %d", tr_eui64(new_entry->addr), new_entry->pan_id, ws_neighbor_class_rsl_from_dbm_calculate(new_entry->signal_dbm), DEVICE_MIN_SENS);
-        ns_list_remove(&cur->ws_info.parent_list_reserved, new_entry);
-        ns_list_add_to_end(&cur->ws_info.parent_list_free, new_entry);
-        return;
-    }
-    // set to the correct place in list
-    ws_bootstrap_ffn_candidate_parent_sort(cur, new_entry);
-
-    return;
-}
-
 static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery)
 {
     ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
