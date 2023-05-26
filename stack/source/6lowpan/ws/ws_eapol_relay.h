@@ -20,8 +20,6 @@
 #define WS_EAPOL_RELAY_H_
 #include <stdint.h>
 
-#ifdef HAVE_EAPOL_RELAY
-
 /*
  * EAPOL relay conveys EAPOL PDUs between authenticator EAPOL relay and local
  * MPX interface.
@@ -66,12 +64,5 @@ int8_t ws_eapol_relay_start(struct net_if *interface_ptr, uint16_t local_port, c
  *
  */
 int8_t ws_eapol_relay_delete(struct net_if *interface_ptr);
-
-#else
-
-#define ws_eapol_relay_start(interface_ptr, local_port, remote_addr, remote_port);
-#define ws_eapol_relay_delete(interface_ptr);
-
-#endif
 
 #endif
