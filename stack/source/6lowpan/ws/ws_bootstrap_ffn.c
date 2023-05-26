@@ -286,29 +286,6 @@ static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, c
     }
 }
 
-static void ws_bootstrap_ffn_candidate_list_clean(struct net_if *cur, uint8_t pan_max, uint32_t current_time, uint16_t pan_id)
-{
-    int pan_count = 0;
-
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info.parent_list_reserved) {
-
-        if ((current_time - entry->age) > WS_PARENT_LIST_MAX_AGE) {
-            ns_list_remove(&cur->ws_info.parent_list_reserved, entry);
-            ns_list_add_to_end(&cur->ws_info.parent_list_free, entry);
-            continue;
-        }
-        if (entry->pan_id == pan_id) {
-            // Same panid if there is more than limited amount free those
-            pan_count++;
-            if (pan_count > pan_max) {
-                ns_list_remove(&cur->ws_info.parent_list_reserved, entry);
-                ns_list_add_to_end(&cur->ws_info.parent_list_free, entry);
-                continue;
-            }
-        }
-    }
-}
-
 static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
 {
     uint16_t pan_id = cur->ws_info.network_pan_id;
