@@ -125,19 +125,6 @@ static uint16_t tls_sec_prot_send_buffer_size_get(sec_prot_t *prot);
 static NS_LIST_DEFINE(tls_sec_prot_queue, tls_sec_prot_queue_t, link);
 #endif
 
-int8_t client_tls_sec_prot_register(kmp_service_t *service)
-{
-    if (!service) {
-        return -1;
-    }
-
-    if (kmp_service_sec_protocol_register(service, TLS_PROT, tls_sec_prot_size, client_tls_sec_prot_init) < 0) {
-        return -1;
-    }
-
-    return 0;
-}
-
 int8_t server_tls_sec_prot_register(kmp_service_t *service)
 {
     if (!service) {
