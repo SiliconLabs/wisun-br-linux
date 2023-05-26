@@ -353,15 +353,6 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
 }
 
-void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
-{
-    if (asynch_message == WS_FT_PA)
-        interface->pan_advert_running = false;
-    else if (asynch_message == WS_FT_PC)
-        interface->pan_config_running = false;
-    ws_stats_update(interface, STATS_WS_ASYNCH_TX, 1);
-}
-
 void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *event)
 {
     ws_bootstrap_event_type_e event_type;
