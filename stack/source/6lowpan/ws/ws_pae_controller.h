@@ -504,14 +504,6 @@ gtkhash_t *ws_pae_controller_lgtk_hash_ptr_get(struct net_if *interface_ptr);
 int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr);
 
 /**
- * ws_pae_controller_nw_keys_remove remove network keys
- *
- * \param interface_ptr interface
- *
- */
-void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr);
-
-/**
  * ws_pae_controller_nw_key_insert network key insert callback
  *
  * \param interface_ptr interface

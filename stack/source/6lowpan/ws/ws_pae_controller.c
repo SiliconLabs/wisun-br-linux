@@ -644,19 +644,6 @@ error:
     return ret_val;
 }
 
-void ws_pae_controller_nw_keys_remove(struct net_if *interface_ptr)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return;
-    }
-
-    /* Stores frame counters if incremented by threshold and removes network keys from PAE
-       controller and MAC */
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, false);
-    ws_pae_controller_frame_counter_store_and_nw_keys_remove(interface_ptr, controller, true, true);
-}
-
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk)
 {
     pae_controller_gtk_t *gtks;
