@@ -128,7 +128,6 @@ static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
-static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 
@@ -213,12 +212,6 @@ static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
     }
 
     return NULL;
-}
-
-static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp)
-{
-    pae_supp->timer_running = true;
-    return 0;
 }
 
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64)
