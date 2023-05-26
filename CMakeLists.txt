@@ -226,7 +226,6 @@ target_include_directories(libwsbrd PRIVATE
     stack/source/
     stack/
 )
-target_compile_options(libwsbrd PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
 # target_compile_definitions(libwsbrd PRIVATE EXTRA_DEBUG_INFO)
 target_link_libraries(libwsbrd PRIVATE PkgConfig::LIBNL_ROUTE)
 target_link_libraries(libwsbrd PRIVATE MbedTLS::mbedtls MbedTLS::mbedcrypto MbedTLS::mbedx509)
@@ -308,7 +307,6 @@ if(COMPILE_DEVTOOLS)
         tools/fuzz/rand.c
         tools/fuzz/main.c
     )
-    target_compile_options(wsbrd-fuzz PRIVATE -include stack/source/configs/cfg_ws_border_router.h)
     target_include_directories(wsbrd-fuzz PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         stack/
