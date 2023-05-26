@@ -125,7 +125,6 @@ typedef struct pae_supp {
 #define LAST_INTERVAL_MAX_SECS             240  /* 4 minutes */
 
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp);
-static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2);
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
@@ -214,14 +213,6 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
     storage_close(info);
 
     return 0;
-}
-
-static int8_t ws_pae_supp_network_name_compare(char *name1, char *name2)
-{
-    if (strlen(name1) == strlen(name2) && strcmp(name1, name2) == 0) {
-        return 0;
-    }
-    return -1;
 }
 
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
