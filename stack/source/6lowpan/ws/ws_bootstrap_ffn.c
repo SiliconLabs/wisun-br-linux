@@ -347,56 +347,6 @@ static void ws_bootstrap_ffn_start_authentication(struct net_if *cur)
     ws_pae_controller_authenticate(cur);
 }
 
-/*
- * State machine
- */
-
-void ws_bootstrap_ffn_state_machine(struct net_if *cur)
-{
-
-    switch (cur->nwk_bootstrap_state) {
-        case ER_WAIT_RESTART:
-            tr_debug("WS SM:Wait for startup");
-            ws_bootstrap_event_discovery_start(cur);
-            break;
-        case ER_ACTIVE_SCAN:
-            tr_debug("WS SM:Active Scan");
-            ws_bootstrap_ffn_network_scan_process(cur);
-            break;
-        case ER_SCAN:
-            tr_debug("WS SM:configuration Scan");
-            ws_bootstrap_ffn_configure_process(cur);
-            break;
-        case ER_PANA_AUTH:
-            tr_info("authentication start");
-            // Advertisements stopped during the EAPOL
-            ws_bootstrap_asynch_trickle_stop(cur);
-            ws_bootstrap_ffn_fhss_configure(cur, false);
-            int8_t new_default = cur->ws_info.weakest_received_rssi - 1;
-            if ((new_default < CCA_DEFAULT_DBM) && (new_default >= CCA_LOW_LIMIT) && (new_default <= CCA_HIGH_LIMIT)) {
-                // Restart automatic CCA threshold using weakest received RSSI as new default
-                rcp_set_cca_threshold(cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.weakest_received_rssi - 1, CCA_HIGH_LIMIT, CCA_LOW_LIMIT);
-            }
-            ws_bootstrap_ffn_start_authentication(cur);
-            break;
-        case ER_RPL_SCAN:
-            tr_debug("WS SM:Wait RPL to contact DODAG root");
-            ws_bootstrap_ffn_rpl_wait_process(cur);
-            break;
-        case ER_BOOTSTRAP_DONE:
-            tr_info("WS SM:Bootstrap Done");
-            // Bootstrap_done event to application
-            nwk_bootstrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
-            break;
-        case ER_RPL_NETWORK_LEAVING:
-            tr_debug("WS SM:RPL Leaving ready trigger discovery");
-            ws_bootstrap_event_discovery_start(cur);
-            break;
-        default:
-            tr_warn("WS SM:Invalid state %d", cur->nwk_bootstrap_state);
-    }
-}
-
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     /* Border router keep alive check
