@@ -136,7 +136,6 @@ static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_s
 static bool ws_pae_supp_authentication_ongoing(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
-static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
@@ -742,11 +741,6 @@ static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp)
 {
     pae_supp->timer_running = false;
     return 0;
-}
-
-static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp)
-{
-    return pae_supp->timer_running;
 }
 
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64)
