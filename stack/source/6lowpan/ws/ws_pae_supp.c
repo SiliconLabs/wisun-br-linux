@@ -141,7 +141,6 @@ static int8_t ws_pae_supp_timer_if_stop(kmp_service_t *service, kmp_api_t *kmp);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
 static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
-static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
@@ -991,40 +990,6 @@ static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_
     }
 
     return -1;
-}
-
-static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr)
-{
-    (void) kmp;
-
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return;
-    }
-
-    // Get own EUI-64
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(pae_supp->interface_ptr->id);
-    if (cur)
-        kmp_address_eui_64_set(local_addr, cur->mac);
-
-    // BR address has been received during authentication attempt
-    if (pae_supp->new_br_eui_64_fresh) {
-        kmp_address_eui_64_set(remote_addr, pae_supp->new_br_eui_64);
-    } else {
-        uint8_t *eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
-        // BR address is set on security keys (confirmed using 4WH)
-        if (eui_64) {
-            kmp_address_eui_64_set(remote_addr, eui_64);
-        } else {
-            // For initial EAPOL key, if BR address has been received during previous attempt, generate PMKID using it
-            if (pae_supp->new_br_eui_64_set && kmp_api_type_get(kmp) >= IEEE_802_1X_INITIAL_KEY) {
-                kmp_address_eui_64_set(remote_addr, pae_supp->new_br_eui_64);
-            } else {
-                memset(remote_addr, 0, sizeof(kmp_addr_t));
-                tr_error("No border router EUI-64");
-            }
-        }
-    }
 }
 
 static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type)
