@@ -1938,22 +1938,6 @@ int8_t ws_pae_controller_lgtk_active_index_get(struct net_if *interface_ptr)
     return controller->lgtks.gtk_index;
 }
 
-int8_t ws_pae_controller_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    memcpy(controller->gtks.gtkhash, gtkhash, sizeof(controller->gtks.gtkhash));
-
-    if (controller->pae_gtk_hash_update) {
-        return controller->pae_gtk_hash_update(interface_ptr, controller->gtks.gtkhash, true);
-    }
-
-    return 0;
-}
-
 void ws_pae_controller_fast_timer(int ticks)
 {
     ns_list_foreach(pae_controller_t, entry, &pae_controller_list) {
