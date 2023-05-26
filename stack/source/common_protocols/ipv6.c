@@ -345,11 +345,6 @@ uint16_t ipv6_mtu(buffer_t *buf)
     }
 }
 
-static bool ipv6_fragmentation_needed(buffer_t *buf)
-{
-    return false;
-}
-
 /* Input: IP payload. dst/src as source and final destination, type=NH, tclass set.
  * Output: IP header added. With RPL HbH/SRH if necessary.
  *         Buffer source/destination = IP source/destination (matching contents)
@@ -510,16 +505,6 @@ drop:
     buf->options.code = 0;
 
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_FWD);
-
-    /* Divert to fragmentation if necessary */
-    if (ipv6_fragmentation_needed(buf)) {
-        if (buf->options.ipv6_dontfrag) {
-            tr_debug("Packet too big");
-            goto drop;
-        } else {
-            return ipv6_frag_down(buf);
-        }
-    }
 
     return buf;
 }
