@@ -1061,7 +1061,7 @@ static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, 
     return true;
 }
 
-int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
+int ws_bootstrap_init(int8_t interface_id)
 {
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
     ws_neighbor_class_t neigh_info;
@@ -1095,13 +1095,6 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     if (blacklist_init() != 0) {
         tr_error("MLE blacklist init failed.");
         return -1;
-    }
-
-    switch (bootstrap_mode) {
-        case NET_6LOWPAN_BORDER_ROUTER:
-            break;
-        default:
-            return -3;
     }
 
     if (!ws_neighbor_class_alloc(&neigh_info, neighbors_table_size)) {

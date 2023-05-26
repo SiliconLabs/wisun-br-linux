@@ -76,7 +76,7 @@ struct mcps_data_ind;
 
 extern uint16_t test_pan_version;
 
-int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
+int ws_bootstrap_init(int8_t interface_id);
 
 void ws_bootstrap_state_machine(struct net_if *cur);
 

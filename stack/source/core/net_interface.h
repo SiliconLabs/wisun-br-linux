@@ -44,16 +44,6 @@ typedef enum net_address {
     ADDR_IPV6_LL              /**< Node default link local address. */
 } net_address_e;
 
-/** Bootstrap modes */
-typedef enum {
-    NET_6LOWPAN_BORDER_ROUTER,  /**< Root device for 6LoWPAN ND. */
-    NET_6LOWPAN_ROUTER,         /**< Router device. */
-    NET_6LOWPAN_HOST,           /**< Host device DEFAULT setting. */
-    NET_6LOWPAN_SLEEPY_HOST,    /**< Sleepy host device. */
-    NET_6LOWPAN_NETWORK_DRIVER, /**< 6LoWPAN radio host device, no bootstrap. */
-    NET_6LOWPAN_SNIFFER         /**< Sniffer device, no bootstrap. */
-} net_6lowpan_mode_e;
-
 /**  6LoWPAN Extension modes. */
 typedef enum {
     NET_6LOWPAN_ND_WITHOUT_MLE,         /**< **UNSUPPORTED** */
