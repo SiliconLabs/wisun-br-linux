@@ -234,24 +234,6 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
     return 0;
 }
 
-/*
- * Statemachine state functions
- * */
-
-void ws_bootstrap_ffn_rpl_wait_process(struct net_if *cur)
-{
-
-    if (cur->ws_info.rpl_state == RPL_EVENT_DAO_DONE) {
-        // RPL routing is ready
-        cur->ws_info.connected_time = cur->ws_info.uptime;
-        ws_bootstrap_event_routing_ready(cur);
-    } else if (!rpl_control_have_dodag(cur->rpl_domain)) {
-        // set timer for next DIS
-        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(WS_RPL_DIS_TIMEOUT / 2, WS_RPL_DIS_TIMEOUT);
-    }
-    return;
-}
-
 void ws_bootstrap_ffn_seconds_timer(struct net_if *cur, uint32_t seconds)
 {
     /* Border router keep alive check
