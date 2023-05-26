@@ -142,17 +142,6 @@ static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
 static int8_t tasklet_id = -1;
 static NS_LIST_DEFINE(pae_supp_list, pae_supp_t, link);
 
-static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
-{
-    if (address) {
-        // Sets target address in use
-        pae_supp->entry.addr = *address;
-        pae_supp->entry_address_active = true;
-    } else {
-        pae_supp->entry_address_active = false;
-    }
-}
-
 int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
     (void) br_iid;
