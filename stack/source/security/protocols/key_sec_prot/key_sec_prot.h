@@ -30,16 +30,6 @@ struct kmp_service;
  */
 
 /**
- * supp_key_sec_prot_register register supplicant EAPOL-Key protocol to KMP service
- *
- * \param service KMP service
- *
- * \return < 0 failure
- * \return >= 0 success
- */
-int8_t supp_key_sec_prot_register(struct kmp_service *service);
-
-/**
  * auth_key_sec_prot_register register authenticator EAPOL-Key protocol to KMP service
  *
  * \param service KMP service

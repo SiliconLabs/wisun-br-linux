@@ -75,23 +75,6 @@ static void auth_key_sec_prot_state_machine(sec_prot_t *prot);
 
 #define key_sec_prot_get(prot) (key_sec_prot_int_t *) &prot->data
 
-int8_t supp_key_sec_prot_register(kmp_service_t *service)
-{
-    if (!service) {
-        return -1;
-    }
-
-    if (kmp_service_sec_protocol_register(service, IEEE_802_1X_MKA_KEY, key_sec_prot_size, supp_key_sec_prot_init) < 0) {
-        return -1;
-    }
-
-    if (kmp_service_sec_protocol_register(service, IEEE_802_11_GKH_KEY, key_sec_prot_size, supp_key_sec_prot_init) < 0) {
-        return -1;
-    }
-
-    return 0;
-}
-
 int8_t auth_key_sec_prot_register(kmp_service_t *service)
 {
     if (!service) {
