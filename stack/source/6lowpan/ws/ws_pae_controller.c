@@ -273,23 +273,6 @@ int8_t ws_pae_controller_auth_cb_register(struct net_if *interface_ptr, ws_pae_c
     return 0;
 }
 
-int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    controller->target_pan_id = target_pan_id;
-    memcpy(controller->target_eui_64, target_eui_64, 8);
-
-    return 0;
-}
-
 static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks)
 {
     if (!sec_keys_nw_info) {

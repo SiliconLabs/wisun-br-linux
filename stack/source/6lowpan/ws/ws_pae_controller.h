@@ -41,19 +41,6 @@ struct bbr_radius_timing;
 struct ws_timing_cfg;
 
 /**
- * ws_pae_controller_set_target sets EAPOL target for PAE supplicant
- *
- * \param interface_ptr interface
- * \param target_pan_id EAPOL target PAN ID
- * \param target_eui_64 EAPOL target
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t target_pan_id, uint8_t *target_eui_64);
-
-/**
  * ws_pae_controller_authenticator_start start PAE authenticator
  *
  * \param interface_ptr interface
