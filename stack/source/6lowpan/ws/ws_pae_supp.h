@@ -91,17 +91,6 @@ int8_t ws_pae_supp_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkh
 int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
 
 /**
- * ws_pae_supp_eapol_target_remove remove EAPOL target set using authentication start
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_eapol_target_remove(struct net_if *interface_ptr);
-
-/**
  * ws_pae_supp_nw_key_index_set network send key index set callback
  *
  * \param interface_ptr interface

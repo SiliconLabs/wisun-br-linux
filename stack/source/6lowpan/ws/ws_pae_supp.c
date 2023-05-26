@@ -277,19 +277,6 @@ int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *g
     return 0;
 }
 
-int8_t ws_pae_supp_eapol_target_remove(struct net_if *interface_ptr)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    // Sets target/parent address to null
-    ws_pae_supp_address_set(pae_supp, NULL);
-
-    return 0;
-}
-
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 {
     // Indicate to PAE controller that NW info or GTKs may have been changed
