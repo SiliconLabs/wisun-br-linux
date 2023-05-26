@@ -423,14 +423,6 @@ uint8_t *sec_prot_keys_ptk_eui_64_get(sec_prot_keys_t *sec_keys);
 bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t seconds);
 
 /**
- * sec_prot_keys_updated_reset resets security keys have been updated flag
- *
- * \param sec_keys security keys
- *
- */
-void sec_prot_keys_updated_reset(sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_fresh_gtkl_get gets GTK liveness based on GTK status fields
  *
  * \param gtks GTK keys

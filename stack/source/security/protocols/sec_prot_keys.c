@@ -299,11 +299,6 @@ bool sec_prot_keys_ptk_lifetime_decrement(sec_prot_keys_t *sec_keys, uint8_t sec
     return false;
 }
 
-void sec_prot_keys_updated_reset(sec_prot_keys_t *sec_keys)
-{
-    sec_keys->updated = false;
-}
-
 uint8_t sec_prot_keys_fresh_gtkl_get(sec_prot_gtk_keys_t *gtks)
 {
     uint8_t gtkl = 0;
