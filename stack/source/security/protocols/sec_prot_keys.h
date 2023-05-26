@@ -626,15 +626,6 @@ uint32_t sec_prot_keys_gtk_lifetime_decrement(sec_prot_gtk_keys_t *gtks, uint8_t
 bool sec_prot_keys_gtks_are_updated(sec_prot_gtk_keys_t *gtks);
 
 /**
- * sec_prot_keys_gtks_updated_set sets GTKs have been updated flag
- *
- * \param gtks GTK keys
- *
- *
- */
-void sec_prot_keys_gtks_updated_set(sec_prot_gtk_keys_t *gtks);
-
-/**
  * sec_prot_keys_gtks_updated_set resets GTKs have been updated flag
  *
  * \param gtks GTK keys

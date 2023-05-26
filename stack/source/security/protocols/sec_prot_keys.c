@@ -507,11 +507,6 @@ bool sec_prot_keys_gtks_are_updated(sec_prot_gtk_keys_t *gtks)
     return gtks->updated;
 }
 
-void sec_prot_keys_gtks_updated_set(sec_prot_gtk_keys_t *gtks)
-{
-    gtks->updated = true;
-}
-
 void sec_prot_keys_gtks_updated_reset(sec_prot_gtk_keys_t *gtks)
 {
     gtks->updated = false;
