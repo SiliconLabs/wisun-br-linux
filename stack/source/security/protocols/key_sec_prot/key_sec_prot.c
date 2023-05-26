@@ -61,7 +61,6 @@ static int8_t auth_key_sec_prot_init(sec_prot_t *prot);
 
 static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void key_sec_prot_delete(sec_prot_t *prot);
-static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void key_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 
@@ -118,93 +117,6 @@ static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e res
 
     sec_prot_result_set(&data->common, result);
     prot->state_machine_call(prot);
-}
-
-static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys)
-{
-    uint8_t result = 0;
-    uint16_t kde_len = KDE_GTKL_LEN + KDE_NR_LEN + KDE_LGTKL_LEN;
-
-    uint8_t *pmk = sec_prot_keys_pmk_get(sec_keys);
-    uint8_t pmkid[PMKID_LEN];
-    if (pmk) {
-        if (sec_prot_lib_pmkid_generate(prot, pmkid, false, false, NULL) >= 0) {
-            kde_len += KDE_PMKID_LEN;
-        } else {
-            pmk = NULL;
-        }
-    }
-
-    uint8_t *ptk = sec_prot_keys_ptk_get(sec_keys);
-    uint8_t ptkid[PTKID_LEN];
-    if (ptk) {
-        if (sec_prot_lib_ptkid_generate(prot, ptkid, false) >= 0) {
-            kde_len += KDE_PTKID_LEN;
-        } else {
-            ptk = NULL;
-        }
-    }
-
-    uint8_t *kde_start = malloc(kde_len);
-    if (!kde_start) {
-        return -1;
-    }
-
-    uint8_t *kde_end = kde_start;
-
-    if (pmk) {
-        kde_end = kde_pmkid_write(kde_end, pmkid);
-    }
-
-    if (ptk) {
-        kde_end = kde_ptkid_write(kde_end, ptkid);
-    }
-
-    uint8_t gtkl = 0;
-    if (sec_keys->node_role != WS_NR_ROLE_LFN) {
-        gtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->gtks.keys);
-        kde_end = kde_gtkl_write(kde_end, gtkl);
-    }
-
-    uint8_t lgtkl = 0;
-    if (sec_keys->node_role != WS_NR_ROLE_UNKNOWN) {
-        kde_end = kde_node_role_write(kde_end, sec_keys->node_role);
-
-        lgtkl = sec_prot_keys_fresh_gtkl_get(sec_keys->lgtks.keys);
-        kde_end = kde_lgtkl_write(kde_end, lgtkl);
-    }
-
-    kde_len = kde_end - kde_start;
-
-    eapol_pdu_t eapol_pdu;
-
-    uint16_t eapol_pdu_size = eapol_pdu_key_frame_init(&eapol_pdu, kde_len, kde_start);
-
-    uint8_t *eapol_decoded_data = malloc(eapol_pdu_size + prot->header_size); // In future fill with data that defines eapol message
-    if (!eapol_decoded_data) {
-        result = -1;
-        goto initial_key_exit;
-    }
-
-    eapol_pdu.msg.key.key_information.install = false;
-    eapol_pdu.msg.key.key_information.pairwise_key = false;
-    eapol_pdu.msg.key.key_information.request = true;
-    eapol_pdu.msg.key.replay_counter = 0;
-    eapol_pdu.msg.key.key_length = 0;
-    eapol_write_pdu_frame(eapol_decoded_data + prot->header_size, &eapol_pdu);
-
-    TRACE(TR_EAP, "tx-eap  tls-init  src:%s",
-          tr_eui64(sec_prot_remote_eui_64_addr_get(prot)));
-    tr_debug("Initial EAPOL-Key send, PMKID %s PTKID %s GTKL %x", pmk ? "set" : "not set", ptk ? "set" : "not set", gtkl);
-
-    if (prot->send(prot, eapol_decoded_data, eapol_pdu_size + prot->header_size) < 0) {
-        result = -1;
-    }
-
-initial_key_exit:
-    free(kde_start);
-
-    return result;
 }
 
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size)
