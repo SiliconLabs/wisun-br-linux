@@ -2081,10 +2081,6 @@ void ws_bootstrap_event_discovery_start(struct net_if *cur)
 {
     ws_bootstrap_event_trig(WS_DISCOVERY_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
-void ws_bootstrap_event_configuration_start(struct net_if *cur)
-{
-    ws_bootstrap_event_trig(WS_CONFIGURATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
-}
 
 void ws_bootstrap_event_operation_start(struct net_if *cur)
 {

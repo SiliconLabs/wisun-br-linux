@@ -431,10 +431,6 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
 
             ws_bootstrap_event_operation_start(cur);
             break;
-
-        case WS_CONFIGURATION_START:
-            tr_info("Configuration start");
-            break;
         case WS_OPERATION_START:
             tr_info("Operation start");
             // Advertisements stopped during the RPL scan

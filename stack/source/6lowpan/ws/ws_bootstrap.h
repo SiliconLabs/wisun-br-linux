@@ -27,7 +27,6 @@
 typedef enum {
     WS_INIT_EVENT = 0,       /**< tasklet initializion event*/
     WS_DISCOVERY_START,      /**< discovery start*/
-    WS_CONFIGURATION_START,  /**< configuration learn start*/
     WS_OPERATION_START,      /**< active operation start*/
     WS_ROUTING_READY,        /**< RPL routing connected to BR*/
     WS_FAST_DISCONNECT,      /**< Do fast timeout after Border router timeout*/
@@ -129,8 +128,6 @@ int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedu
 
 /*State machine transactions*/
 void ws_bootstrap_event_discovery_start(struct net_if *cur);
-
-void ws_bootstrap_event_configuration_start(struct net_if *cur);
 
 void ws_bootstrap_event_operation_start(struct net_if *cur);
 
