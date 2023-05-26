@@ -220,7 +220,6 @@ rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
 void rpl_control_set_domain_on_interface(struct net_if *cur, rpl_domain_t *domain, bool downstream);
 void rpl_control_remove_domain_from_interface(struct net_if *cur);
-void rpl_control_free_domain_instances_from_interface(struct net_if *cur);
 void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, rpl_new_parent_callback_t new_parent_add, rpl_parent_dis_callback_t parent_dis, void *cb_handle);
 
 /* Target publishing */
