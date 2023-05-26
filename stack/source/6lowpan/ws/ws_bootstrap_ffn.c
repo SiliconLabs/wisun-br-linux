@@ -234,30 +234,6 @@ static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *p
     return 0;
 }
 
-static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery)
-{
-    ws_bootstrap_fhss_set_defaults(cur, &cur->ws_info.fhss_conf);
-    ws_bootstrap_fhss_configure_channel_masks(cur, &cur->ws_info.fhss_conf);
-
-    // Discovery is done using fixed channel
-    if (discovery) {
-        cur->ws_info.fhss_conf.ws_uc_channel_function = WS_FIXED_CHANNEL;
-    } else {
-        cur->ws_info.fhss_conf.ws_uc_channel_function = (fhss_ws_channel_functions_e)cur->ws_info.cfg->fhss.fhss_uc_channel_function;
-    }
-    cur->ws_info.fhss_conf.ws_bc_channel_function = WS_FIXED_CHANNEL;
-    cur->ws_info.fhss_conf.fhss_broadcast_interval = 0;
-    uint8_t tmp_uc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_uc_fixed_channel, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.fhss_conf.domain_channel_mask);
-    uint8_t tmp_bc_fixed_channel = ws_bootstrap_randomize_fixed_channel(cur->ws_info.cfg->fhss.fhss_bc_fixed_channel, cur->ws_info.hopping_schedule.number_of_channels, cur->ws_info.fhss_conf.domain_channel_mask);
-    cur->ws_info.fhss_conf.unicast_fixed_channel = tmp_uc_fixed_channel;
-    cur->ws_info.fhss_conf.broadcast_fixed_channel = tmp_bc_fixed_channel;
-    rcp_set_fhss_timings(&cur->ws_info.fhss_conf);
-    rcp_set_fhss_hop_count(0xff);
-    ws_bootstrap_llc_hopping_update(cur, &cur->ws_info.fhss_conf);
-
-    return 0;
-}
-
 /*
  * Statemachine state functions
  * */
