@@ -1087,47 +1087,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
     return 0;
 }
 
-#ifdef HAVE_PAE_SUPP
-int8_t ws_pae_controller_supp_init(struct net_if *interface_ptr)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    if (ws_pae_supp_init(controller->interface_ptr, &controller->certs, &controller->sec_cfg, &controller->sec_keys_nw_info) < 0) {
-        return -1;
-    }
-
-    controller->pae_delete = ws_pae_supp_delete;
-    controller->pae_fast_timer = ws_pae_supp_fast_timer;
-    controller->pae_slow_timer = ws_pae_supp_slow_timer;
-    controller->pae_br_addr_write = ws_pae_supp_border_router_addr_write;
-    controller->pae_br_addr_read = ws_pae_supp_border_router_addr_read;
-    controller->pae_gtk_hash_update = ws_pae_supp_gtk_hash_update;
-    controller->pae_nw_key_index_update = ws_pae_supp_nw_key_index_update;
-    controller->pae_nw_info_set = ws_pae_supp_nw_info_set;
-
-    ws_pae_supp_cb_register(controller->interface_ptr,
-                            controller->auth_completed,
-                            controller->auth_next_target,
-                            ws_pae_controller_nw_key_check_and_insert,
-                            ws_pae_controller_active_nw_key_set,
-                            ws_pae_controller_gtk_hash_ptr_get,
-                            ws_pae_controller_nw_info_updated_check);
-
-    ws_pae_controller_frame_counter_read(controller);
-    ws_pae_controller_nw_info_read(controller, controller->sec_keys_nw_info.gtks, controller->sec_keys_nw_info.lgtks);
-    // Set active key back to fresh so that it can be used again after re-start
-    sec_prot_keys_gtk_status_active_to_fresh_set(&controller->gtks.gtks);
-    sec_prot_keys_gtk_status_active_to_fresh_set(&controller->lgtks.gtks);
-    sec_prot_keys_gtks_updated_reset(&controller->gtks.gtks);
-    sec_prot_keys_gtks_updated_reset(&controller->lgtks.gtks);
-
-    return 0;
-}
-#endif
-
 #ifdef HAVE_PAE_AUTH
 int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
 {

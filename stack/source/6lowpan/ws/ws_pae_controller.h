@@ -115,17 +115,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr);
 int8_t ws_pae_controller_configure(struct net_if *interface_ptr, struct ws_sec_timer_cfg *sec_timer_cfg, struct ws_sec_prot_cfg *sec_prot_cfg, struct ws_timing_cfg *timing_cfg);
 
 /**
- * ws_pae_controller_init initializes PAE supplicant
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_supp_init(struct net_if *interface_ptr);
-
-/**
  * ws_pae_controller_init initializes PAE authenticator
  *
  * \param interface_ptr interface
