@@ -88,7 +88,6 @@ typedef struct tls_sec_prot_queue {
 static uint16_t tls_sec_prot_size(void);
 static int8_t server_tls_sec_prot_init(sec_prot_t *prot);
 
-static void tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static void tls_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result);
 static void tls_sec_prot_delete(sec_prot_t *prot);
 static int8_t tls_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
@@ -184,14 +183,6 @@ static void tls_sec_prot_delete(sec_prot_t *prot)
         tls_sec_prot_lib_free((tls_security_t *) &data->tls_sec_inst);
     }
     tls_sec_prot_queue_remove(prot);
-}
-
-static void tls_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys)
-{
-    prot->sec_keys = sec_keys;
-
-    // Call state machine
-    prot->state_machine_call(prot);
 }
 
 static void tls_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e result)
