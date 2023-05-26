@@ -684,17 +684,6 @@ int8_t sec_prot_keys_gtk_status_active_set(sec_prot_gtk_keys_t *gtks, uint8_t in
 int8_t sec_prot_keys_gtk_status_active_get(sec_prot_gtk_keys_t *gtks);
 
 /**
- * sec_prot_keys_gtk_status_active_to_fresh_set sets active GTK to fresh GTK
- *
- * \param gtks GTK keys
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t sec_prot_keys_gtk_status_active_to_fresh_set(sec_prot_gtk_keys_t *gtks);
-
-/**
  * sec_prot_keys_gtk_status_is_live checks whether GTK is active
  *
  * \param gtks GTK keys
