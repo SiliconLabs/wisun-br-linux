@@ -204,20 +204,6 @@ int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_
     return 1;
 }
 
-int8_t ws_pae_supp_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    memcpy(pae_supp->new_br_eui_64, eui_64, 8);
-    pae_supp->new_br_eui_64_set = true;
-    pae_supp->new_br_eui_64_fresh = true;
-
-    return 0;
-}
-
 int8_t ws_pae_supp_border_router_addr_read(struct net_if *interface_ptr, uint8_t *eui_64)
 {
     pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);

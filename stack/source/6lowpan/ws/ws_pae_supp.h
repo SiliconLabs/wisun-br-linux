@@ -54,18 +54,6 @@
 int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name);
 
 /**
- * ws_pae_supp_border_router_addr_write write border router address
- *
- * \param interface_ptr interface
- * \param eui_64 pointer to EUI-64
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_border_router_addr_write(struct net_if *interface_ptr, const uint8_t *eui_64);
-
-/**
  * ws_pae_supp_border_router_addr_read read border router address
  *
  * \param interface_ptr interface
