@@ -79,15 +79,6 @@
 
 #define TRACE_GROUP "wsbs"
 
-static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *cur)
-{
-    ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info.parent_list_reserved) {
-        tr_info("candidate list a:%s panid:%x cost:%d size:%d rssi:%d txFailure:%u age:%"PRIu32, tr_eui64(entry->addr), entry->pan_id, entry->pan_information.routing_cost, entry->pan_information.pan_size, entry->signal_dbm, entry->tx_fail, g_monotonic_time_100ms - entry->age);
-    }
-
-    return ns_list_get_first(&cur->ws_info.parent_list_reserved);
-}
-
 static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
 {
     uint16_t pan_id = cur->ws_info.network_pan_id;
