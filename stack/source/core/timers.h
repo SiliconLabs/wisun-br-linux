@@ -34,10 +34,8 @@ enum timer_id {
     WS_TIMER_PAE_FAST,
     WS_TIMER_PAE_SLOW,
     WS_TIMER_DHCPV6_SOCKET,
-#ifdef HAVE_WS_BORDER_ROUTER
     WS_TIMER_LPA,
     WS_TIMER_LTS,
-#endif
     WS_TIMER_COUNT,
 };
 

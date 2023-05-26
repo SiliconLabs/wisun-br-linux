@@ -347,11 +347,7 @@ uint16_t ipv6_mtu(buffer_t *buf)
 
 static bool ipv6_fragmentation_needed(buffer_t *buf)
 {
-#ifdef HAVE_WS_BORDER_ROUTER
     return false;
-#else
-    return buffer_data_length(buf) > ipv6_mtu(buf);
-#endif
 }
 
 /* Input: IP payload. dst/src as source and final destination, type=NH, tclass set.
@@ -882,7 +878,6 @@ static buffer_t *ipv6_handle_routing_header(buffer_t *buf, struct net_if *cur, u
     return buf;
 }
 
-#ifdef HAVE_WS_BORDER_ROUTER
 static buffer_t *ipv6_tun_up(buffer_t *b)
 {
     ssize_t status;
@@ -893,7 +888,6 @@ static buffer_t *ipv6_tun_up(buffer_t *b)
         tr_warn("packet not sent to tun interface: %m");
     return buffer_free(b);
 }
-#endif
 
 static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct net_if *cur, const sockaddr_t *ll_src)
 {
@@ -940,12 +934,8 @@ static buffer_t *ipv6_consider_forwarding_unicast_packet(buffer_t *buf, struct n
             buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
             return buf;
         }
-#ifdef HAVE_WS_BORDER_ROUTER
         // If we can't route inside the network, let's try outside !
         return ipv6_tun_up(buf);
-#else
-        return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
-#endif
     }
 
     struct net_if *out_interface;
@@ -1078,8 +1068,6 @@ no_forward:
     }
 }
 
-
-#ifdef HAVE_WS_BORDER_ROUTER
 static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
 {
     if (next_header == IPV6_NH_DEST_OPT || next_header == IPV6_NH_ROUTING || next_header == IPV6_NH_IPV6)
@@ -1088,7 +1076,6 @@ static bool is_for_linux(uint8_t next_header, const uint8_t *data_ptr)
         return false;
     return true;
 }
-#endif
 
 buffer_t *ipv6_forwarding_up(buffer_t *buf)
 {
@@ -1257,10 +1244,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
         if (!buf) {
             return NULL;
         }
-#ifdef HAVE_WS_BORDER_ROUTER
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
-#endif
     } else { /* unicast */
         if (!for_us) {
             if (cur->if_common_forwarding_out_cb) {
@@ -1268,10 +1253,8 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
             }
             return ipv6_consider_forwarding_unicast_packet(buf, cur, &ll_src);
         }
-#ifdef HAVE_WS_BORDER_ROUTER
         if (is_for_linux(*nh_ptr, ptr))
             return ipv6_tun_up(buf);
-#endif
     }
 
     /* Its destination is us (or we're intercepting) - start munching headers */

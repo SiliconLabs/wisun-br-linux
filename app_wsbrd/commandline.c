@@ -815,17 +815,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
     if (config->ws_lgtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
         FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
-#ifdef HAVE_WS_BORDER_ROUTER
     if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
     if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && !config->tun_autoconf)
         FATAL(1, "\"ipv6_prefix\" is only available when \"tun_autoconf\" is set");
-#else
-    if (!config->uart_dev[0])
-        FATAL(1, "missing \"uart_device\" parameter");
-    if (memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16))
-        WARN("ipv6_prefix is ignored");
-#endif
     for (int i = 0; config->ws_phy_op_modes[i]; i++)
         if (config->ws_phy_op_modes[i] != (uint8_t)-1 &&
             !ws_regdb_is_std(config->ws_domain, config->ws_phy_op_modes[i]))

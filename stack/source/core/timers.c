@@ -54,10 +54,8 @@ struct ws_timer g_timers[] = {
     timer_entry(6LOWPAN_CONTEXT,        lowpan_context_timer,                       100,                     true),
     timer_entry(6LOWPAN_BOOTSTRAP,      nwk_bootstrap_timer,                        100,                     true),
     timer_entry(6LOWPAN_REACHABLE_TIME, update_reachable_time,                      1000,                    true),
-#ifdef HAVE_WS_BORDER_ROUTER
     timer_entry(LPA,                    ws_mngt_lpa_timer_cb,                       0,                       false),
     timer_entry(LTS,                    ws_mngt_lts_timer_cb,                       0,                       true),
-#endif
 };
 static_assert(ARRAY_SIZE(g_timers) == WS_TIMER_COUNT, "missing timer declarations");
 

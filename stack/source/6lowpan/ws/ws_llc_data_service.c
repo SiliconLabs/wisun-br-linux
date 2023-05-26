@@ -1848,10 +1848,8 @@ int ws_llc_mngt_lfn_request(struct net_if *interface, const struct ws_llc_mngt_r
 
     if (dst)
         memcpy(data_req.DstAddr, dst, sizeof(data_req.DstAddr));
-#ifdef HAVE_WS_BORDER_ROUTER
     else if (req->wh_ies.lbt)
         ws_timer_start(WS_TIMER_LTS); // FIXME: This timer should be restarted at confirmation instead
-#endif
     if (!dst)
         data_req.fhss_type = HIF_FHSS_TYPE_LFN_BC;
     else if (req->frame_type == WS_FT_LPA)

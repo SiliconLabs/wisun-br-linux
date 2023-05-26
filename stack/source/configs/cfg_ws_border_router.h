@@ -15,8 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define HAVE_WS_BORDER_ROUTER
-
 #define HAVE_PAE_AUTH
 #define HAVE_EAPOL_RELAY
 #define HAVE_RPL_ROOT

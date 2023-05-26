@@ -19,9 +19,6 @@
 #ifndef WS_BBR_API_PRIVATE_H_
 #define WS_BBR_API_PRIVATE_H_
 
-
-#ifdef HAVE_WS_BORDER_ROUTER
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -48,21 +45,5 @@ bool ws_bbr_backbone_address_get(uint8_t *address);
 uint16_t ws_bbr_bsi_generate(struct net_if *interface);
 uint16_t ws_bbr_pan_id_get(struct net_if *interface);
 void ws_bbr_init(struct net_if *interface);
-
-#else
-
-#define ws_bbr_seconds_timer( cur, seconds)
-#define ws_bbr_pan_version_increase(cur)
-#define ws_bbr_lpan_version_increase(cur)
-#define ws_bbr_pan_size(cur) 0
-#define ws_bbr_get_backbone_id() -1
-#define ws_bbr_rpl_config( cur, imin, doubling, redundancy, dag_max_rank_increase, min_hop_rank_increase, lifetime)
-#define ws_bbr_ready_to_start(cur) true
-#define ws_bbr_backbone_address_get(address) 0
-#define ws_bbr_bsi_generate(interface) 0
-#define ws_bbr_pan_id_get(interface) 0
-#define ws_bbr_init(interface) (void) 0
-
-#endif //HAVE_WS_BORDER_ROUTER
 
 #endif
