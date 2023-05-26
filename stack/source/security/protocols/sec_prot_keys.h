@@ -299,18 +299,6 @@ void sec_prot_keys_pmk_replay_cnt_set(sec_prot_keys_t *sec_keys, uint64_t counte
 bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_pmk_replay_cnt_compare compares received replay counter value to PMK replay counter
- *
- * \param received_counter received replay counter
- * \param sec_keys security keys
- *
- * \return TRUE received replay counter is valid
- * \return FALSE received replay counter is not valid
- *
- */
-bool sec_prot_keys_pmk_replay_cnt_compare(uint64_t received_counter, sec_prot_keys_t *sec_keys);
-
-/**
  * sec_prot_keys_pmk_mismatch_set set PMK mismatch
  *
  * \param sec_keys security keys

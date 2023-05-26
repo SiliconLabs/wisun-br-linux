@@ -185,19 +185,6 @@ bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys)
     return true;
 }
 
-bool sec_prot_keys_pmk_replay_cnt_compare(uint64_t received_counter, sec_prot_keys_t *sec_keys)
-{
-    // If previous value is set must be greater
-    if (sec_keys->pmk_key_replay_cnt_set && received_counter > sec_keys->pmk_key_replay_cnt) {
-        return true;
-    } else if (!sec_keys->pmk_key_replay_cnt_set && received_counter >= sec_keys->pmk_key_replay_cnt) {
-        // Otherwise allows also same value e.g. zero
-        return true;
-    }
-
-    return false;
-}
-
 void sec_prot_keys_pmk_mismatch_set(sec_prot_keys_t *sec_keys)
 {
     sec_keys->pmk_mismatch = true;
