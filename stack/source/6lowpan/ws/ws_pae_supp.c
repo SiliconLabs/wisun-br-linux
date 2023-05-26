@@ -491,17 +491,6 @@ static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
     return NULL;
 }
 
-static pae_supp_t *ws_pae_supp_by_kmp_service_get(kmp_service_t *service)
-{
-    ns_list_foreach(pae_supp_t, entry, &pae_supp_list) {
-        if (entry->kmp_service == service) {
-            return entry;
-        }
-    }
-
-    return NULL;
-}
-
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations)
 {
     // Starts trickle for the key update
