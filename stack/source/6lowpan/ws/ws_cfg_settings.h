@@ -113,12 +113,6 @@ typedef struct ws_sec_timer_cfg {
     uint16_t lgtk_new_act_time;         /**< LGTK_NEW_ACTIVATION_TIME (1/X of expire offset); default 720 */
     uint8_t  lgtk_new_install_req;      /**< LGTK_NEW_INSTALL_REQUIRED; percent of LGTK lifetime; range 1-100; default 80 */
     uint16_t lfn_revocat_lifetime_reduct; /**< LFN_REVOCATION_LIFETIME_REDUCTION (reduction of lifetime); default 30 */
-#ifdef HAVE_PAE_SUPP
-    uint16_t gtk_request_imin;          /**< GTK_REQUEST_IMIN; minutes; range 1-255; default 4 */
-    uint16_t gtk_request_imax;          /**< GTK_REQUEST_IMAX; minutes; range (2-2^8)*Imin; default 64 */
-    uint16_t gtk_max_mismatch;          /**< GTK_MAX_MISMATCH; minutes; default 64 */
-    uint16_t lgtk_max_mismatch;         /**< LGTK_MAX_MISMATCH; minutes; default 64 */
-#endif
 } ws_sec_timer_cfg_t;
 
 /**

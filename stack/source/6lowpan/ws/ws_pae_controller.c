@@ -397,20 +397,7 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interf
 
 int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
-#ifdef HAVE_PAE_SUPP
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    return ws_pae_supp_nw_key_valid(interface_ptr, br_iid);
-#else
     return -1;
-#endif
 }
 
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk)

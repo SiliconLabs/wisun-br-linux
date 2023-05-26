@@ -971,12 +971,6 @@ static int8_t ws_cfg_sec_timer_default_set(ws_sec_timer_cfg_t *cfg)
     cfg->lgtk_new_act_time = DEFAULT_LGTK_NEW_ACTIVATION_TIME;
     cfg->lgtk_new_install_req = DEFAULT_LGTK_NEW_INSTALL_REQUIRED;
     cfg->lfn_revocat_lifetime_reduct = DEFAULT_LFN_REVOCATION_LIFETIME_REDUCTION;
-#ifdef HAVE_PAE_SUPP
-    cfg->gtk_request_imin = DEFAULT_GTK_REQUEST_IMIN;
-    cfg->gtk_request_imax = DEFAULT_GTK_REQUEST_IMAX;
-    cfg->gtk_max_mismatch = DEFAULT_GTK_MAX_MISMATCH;
-    cfg->lgtk_max_mismatch = DEFAULT_LGTK_MAX_MISMATCH;
-#endif
 
     return CFG_SETTINGS_OK;
 }
@@ -1004,15 +998,6 @@ int8_t ws_cfg_sec_timer_validate(ws_sec_timer_cfg_t *new_cfg)
 
         return CFG_SETTINGS_CHANGED;
     }
-
-#ifdef HAVE_PAE_SUPP
-    if (cfg->gtk_request_imin != new_cfg->gtk_request_imin ||
-        cfg->gtk_request_imax != new_cfg->gtk_request_imax ||
-        cfg->gtk_max_mismatch != new_cfg->gtk_max_mismatch ||
-        cfg->lgtk_max_mismatch != new_cfg->lgtk_max_mismatch)
-        return CFG_SETTINGS_CHANGED;
-#endif
-
     return CFG_SETTINGS_OK;
 }
 

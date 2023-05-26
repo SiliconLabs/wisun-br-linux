@@ -57,14 +57,6 @@ void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_c
     timer_settings->lgtk.new_act_time = new_timer_settings->lgtk_new_act_time;
     timer_settings->lgtk.new_install_req = new_timer_settings->lgtk_new_install_req;
     timer_settings->lgtk.revocat_lifetime_reduct = new_timer_settings->lfn_revocat_lifetime_reduct;
-#ifdef HAVE_PAE_SUPP
-    timer_settings->gtk.request_imin = new_timer_settings->gtk_request_imin * SECONDS_IN_MINUTE;
-    timer_settings->gtk.request_imax = new_timer_settings->gtk_request_imax * SECONDS_IN_MINUTE;
-    timer_settings->gtk.max_mismatch = new_timer_settings->gtk_max_mismatch * SECONDS_IN_MINUTE;
-    timer_settings->lgtk.request_imin = 0;
-    timer_settings->lgtk.request_imax = 0;
-    timer_settings->lgtk.max_mismatch = new_timer_settings->lgtk_max_mismatch * SECONDS_IN_MINUTE;
-#endif
 
     ws_pae_timers_calculate(&timer_settings->gtk);
     ws_pae_timers_calculate(&timer_settings->lgtk);
@@ -81,35 +73,6 @@ static void ws_pae_timers_calculate(struct sec_timer_gtk_cfg *timer_gtk_settings
     }
     tr_info("(L)GTK timers revocation lifetime: %"PRIu32", new activation time: %"PRIu32", time to update: %"PRIu32"",
             gtk_revocation_lifetime, new_gtk_activation_time, time_to_gtk_update);
-
-#ifdef HAVE_PAE_SUPP
-    // If time to update results smaller GTK request Imax use it for calculation otherwise use GTK max mismatch
-    if (time_to_gtk_update < timer_gtk_settings->max_mismatch) {
-        // If time to update is smaller than GTK request Imax update GTK request values
-        if (timer_gtk_settings->request_imax > time_to_gtk_update) {
-            timer_gtk_settings->request_imin = time_to_gtk_update / 4;
-            timer_gtk_settings->request_imax = time_to_gtk_update / 2;
-            tr_info("GTK request timers adjusted Imin: %i, Imax: %i", timer_gtk_settings->request_imin, timer_gtk_settings->request_imax);
-        }
-    } else if (timer_gtk_settings->request_imax > timer_gtk_settings->max_mismatch) {
-        // If GTK request Imax is larger than GTK max mismatch update GTK request values
-
-        // For small GTK max mismatch times, scale the Imin to be larger than default  4 / 64;
-        uint16_t scaler;
-        if (timer_gtk_settings->max_mismatch < 50) {
-            scaler = 10;
-        } else if (timer_gtk_settings->max_mismatch > 600) {
-            scaler = 1;
-        } else {
-            // About 1 minute mismatch, results 37 seconds Imin and 60 seconds Imax
-            scaler = (600 - timer_gtk_settings->max_mismatch) / 54;
-        }
-
-        timer_gtk_settings->request_imin = timer_gtk_settings->max_mismatch * scaler * DEFAULT_GTK_REQUEST_IMIN / DEFAULT_GTK_REQUEST_IMAX;
-        timer_gtk_settings->request_imax = timer_gtk_settings->max_mismatch;
-        tr_info("GTK request timers adjusted Imin: %i, Imax: %i", timer_gtk_settings->request_imin, timer_gtk_settings->request_imax);
-    }
-#endif
 }
 
 bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds)
