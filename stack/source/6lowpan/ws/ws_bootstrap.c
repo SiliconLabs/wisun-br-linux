@@ -2086,10 +2086,7 @@ void ws_bootstrap_event_configuration_start(struct net_if *cur)
 {
     ws_bootstrap_event_trig(WS_CONFIGURATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
-void ws_bootstrap_event_authentication_start(struct net_if *cur)
-{
-    ws_bootstrap_state_change(cur, ER_PANA_AUTH);
-}
+
 void ws_bootstrap_event_operation_start(struct net_if *cur)
 {
     ws_bootstrap_event_trig(WS_OPERATION_START, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);

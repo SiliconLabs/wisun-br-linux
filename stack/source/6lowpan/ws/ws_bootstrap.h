@@ -132,8 +132,6 @@ void ws_bootstrap_event_discovery_start(struct net_if *cur);
 
 void ws_bootstrap_event_configuration_start(struct net_if *cur);
 
-void ws_bootstrap_event_authentication_start(struct net_if *cur);
-
 void ws_bootstrap_event_operation_start(struct net_if *cur);
 
 void ws_bootstrap_event_routing_ready(struct net_if *cur);
