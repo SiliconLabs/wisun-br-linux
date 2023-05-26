@@ -275,42 +275,6 @@ void ws_bootstrap_ffn_network_discovery_configure(struct net_if *cur)
  * Statemachine state functions
  * */
 
-static void ws_bootstrap_ffn_network_scan_process(struct net_if *cur)
-{
-
-    parent_info_t *selected_parent_ptr;
-
-    tr_debug("analyze network discovery result");
-
-select_best_candidate:
-    selected_parent_ptr = ws_bootstrap_ffn_candidate_parent_get_best(cur);
-
-    if (!selected_parent_ptr) {
-        // Configure LLC for network discovery
-        ws_bootstrap_ffn_network_discovery_configure(cur);
-        // randomize new channel and start MAC
-        ws_bootstrap_fhss_activate(cur);
-        // Next check will be after one trickle
-        uint32_t random_start = cur->ws_info.mngt.trickle_params.Imin + rand_get_random_in_range(0, cur->ws_info.mngt.trickle_params.Imin);
-        if (random_start > 0xffff) {
-            random_start = 0xffff;
-        }
-        cur->bootstrap_state_machine_cnt = random_start;
-
-        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
-        return;
-    }
-    tr_info("selected parent:%s panid %u", tr_eui64(selected_parent_ptr->addr), selected_parent_ptr->pan_id);
-
-    if (ws_bootstrap_ffn_neighbor_set(cur, selected_parent_ptr, false) < 0) {
-        goto select_best_candidate;
-    }
-
-    ws_pae_controller_set_target(cur, selected_parent_ptr->pan_id, selected_parent_ptr->addr); // temporary!!! store since auth
-    ws_bootstrap_event_authentication_start(cur);
-    return;
-}
-
 static void ws_bootstrap_ffn_configure_process(struct net_if *cur)
 {
 
