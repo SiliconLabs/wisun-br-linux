@@ -207,9 +207,6 @@ void rpl_control_force_leaf(rpl_domain_t *domain, bool leaf);
 /*Process routes from DIOs and add those as real routes. if routes are not processed assume DODAGID as default route*/
 void rpl_control_process_routes(rpl_domain_t *domain, bool process_routes);
 
-/* Manually send poison on all existing instances a few times */
-void rpl_control_poison(rpl_domain_t *domain, uint8_t poison_count);
-
 /* force DAO to verify connections before given time*/
 void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds);
 

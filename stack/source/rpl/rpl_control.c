@@ -696,13 +696,6 @@ void rpl_control_set_dodag_pref(rpl_dodag_t *dodag, uint8_t pref)
     }
 }
 
-void rpl_control_poison(rpl_domain_t *domain, uint8_t count)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_instance_poison(instance, count);
-    }
-}
-
 void rpl_control_force_leaf(rpl_domain_t *domain, bool leaf)
 {
     domain->force_leaf = leaf;
