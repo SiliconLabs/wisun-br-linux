@@ -137,7 +137,6 @@ static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, 
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
-static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys);
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
 
 
@@ -599,58 +598,6 @@ static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_
     }
 
     return -1;
-}
-
-static bool ws_pae_supp_kmp_api_finished_indication(kmp_api_t *kmp, kmp_result_e result, kmp_sec_keys_t *sec_keys)
-{
-    kmp_service_t *service = kmp_api_service_get(kmp);
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return false;
-    }
-
-    kmp_type_e type = kmp_api_type_get(kmp);
-
-    // Whenever EAP-TLS, 4WH or GKH completes increase timer for wait for authentication
-    if (type < IEEE_802_1X_INITIAL_KEY && result == KMP_RESULT_OK) {
-        ws_pae_lib_supp_timer_ticks_set(&pae_supp->entry, WAIT_FOR_AUTHENTICATION_TICKS);
-    }
-
-    /* When 4WH or GKH completes inserts keys and indicates authentication completed
-       (if not alredy indicated) */
-    if ((type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result == KMP_RESULT_OK) {
-        if (sec_keys) {
-            sec_prot_keys_t *keys = sec_keys;
-            pae_supp->nw_key_insert(pae_supp->interface_ptr, keys->gtks.keys, false, false);
-        }
-
-        ws_pae_supp_authenticate_response(pae_supp, AUTH_RESULT_OK);
-    }
-
-    /* If initial EAPOL-key message sending fails to tx no acknowledge, indicates failure so
-       that bootstrap can decide if EAPOL target should be changed */
-    else if (type > IEEE_802_1X_INITIAL_KEY && (result == KMP_RESULT_ERR_TX_NO_ACK || result == KMP_RESULT_ERR_TX_UNSPEC)) {
-        tr_info("Initial EAPOL-Key TX failure, target: %s", tr_eui64(kmp_address_eui_64_get(&pae_supp->entry.addr)));
-        /* Fails authentication only if other authentication protocols are not yet
-           started by authenticator */
-        if (ws_pae_lib_kmp_list_count(&pae_supp->entry.kmp_list) <= 1) {
-            // Continues with trickle but selects different parent
-            pae_supp->tx_failure_on_initial_key = true;
-        }
-
-    } else if ((type == IEEE_802_1X_MKA || type == IEEE_802_11_4WH || type == IEEE_802_11_GKH) && result != KMP_RESULT_OK) {
-
-        if (!pae_supp->auth_requested && ws_pae_supp_gtk_hash_mismatch_check(pae_supp) < 0) {
-            // Start trickle timer
-            ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp, KEY_UPDATE_RETRY_COUNT);
-
-            // Starts supplicant timer
-            ws_pae_supp_timer_start(pae_supp);
-        }
-
-    }
-
-    return false;
 }
 
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
