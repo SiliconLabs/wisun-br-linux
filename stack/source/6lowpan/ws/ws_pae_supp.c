@@ -561,21 +561,6 @@ void ws_pae_supp_cb_register(struct net_if *interface_ptr,
     pae_supp->nw_info_updated = nw_info_updated;
 }
 
-int8_t ws_pae_supp_delete(struct net_if *interface_ptr)
-{
-    if (!interface_ptr) {
-        return -1;
-    }
-
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    ws_pae_supp_free(pae_supp);
-    return 0;
-}
-
 static void ws_pae_supp_free(pae_supp_t *pae_supp)
 {
     if (!pae_supp) {

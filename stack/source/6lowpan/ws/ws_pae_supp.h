@@ -39,17 +39,6 @@
 
 #ifdef HAVE_PAE_SUPP
 /**
- * ws_pae_supp_delete deletes PAE supplicant
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_delete(struct net_if *interface_ptr);
-
-/**
  * ws_pae_supp_fast_timer PAE supplicant fast timer call
  *
  * \param ticks elapsed ticks
