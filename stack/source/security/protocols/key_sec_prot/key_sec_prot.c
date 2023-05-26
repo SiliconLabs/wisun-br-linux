@@ -46,9 +46,7 @@
 
 typedef enum {
     KEY_STATE_INIT = SEC_STATE_INIT,
-    KEY_STATE_CREATE_REQ = SEC_STATE_CREATE_REQ,
     KEY_STATE_CREATE_RESP = SEC_STATE_CREATE_RESP,
-    KEY_STATE_TX_DONE = SEC_STATE_FIRST,
     KEY_STATE_INITIAL_KEY_RECEIVED,
     KEY_STATE_FINISH = SEC_STATE_FINISH,
     KEY_STATE_FINISHED = SEC_STATE_FINISHED
@@ -67,7 +65,6 @@ static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *s
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
 static void key_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 
-static void supp_key_sec_prot_state_machine(sec_prot_t *prot);
 static void auth_key_sec_prot_state_machine(sec_prot_t *prot);
 
 #define key_sec_prot_get(prot) (key_sec_prot_int_t *) &prot->data
@@ -312,54 +309,6 @@ static void key_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks)
 {
     key_sec_prot_int_t *data = key_sec_prot_get(prot);
     sec_prot_timer_timeout_handle(prot, &data->common, NULL, ticks);
-}
-
-static void supp_key_sec_prot_state_machine(sec_prot_t *prot)
-{
-    key_sec_prot_int_t *data = key_sec_prot_get(prot);
-
-    switch (sec_prot_state_get(&data->common)) {
-        case KEY_STATE_INIT:
-            tr_debug("Initial-key init");
-            sec_prot_state_set(prot, &data->common, KEY_STATE_CREATE_REQ);
-            prot->timer_start(prot);
-            break;
-
-        case KEY_STATE_CREATE_REQ:
-            // KMP-CREATE.confirm
-            prot->create_conf(prot, sec_prot_result_get(&data->common));
-
-            // Send initial-key message
-            if (key_sec_prot_initial_key_send(prot, prot->sec_keys) < 0) {
-                // Error on sending, ready to be deleted
-                sec_prot_state_set(prot, &data->common, KEY_STATE_FINISH);
-                return;
-            }
-
-            // Waits for TX acknowledge
-            sec_prot_state_set(prot, &data->common, KEY_STATE_TX_DONE);
-            break;
-
-        case KEY_STATE_TX_DONE:
-            sec_prot_state_set(prot, &data->common, KEY_STATE_FINISH);
-            break;
-
-        case KEY_STATE_FINISH:
-            // KMP-FINISHED.indication,
-            prot->finished_ind(prot, sec_prot_result_get(&data->common), 0);
-            sec_prot_state_set(prot, &data->common, KEY_STATE_FINISHED);
-            data->common.ticks = KEY_SEC_FINISHED_TIMEOUT;
-            break;
-
-        case KEY_STATE_FINISHED:
-            tr_debug("Initial-key finished");
-            prot->timer_stop(prot);
-            prot->finished(prot);
-            break;
-
-        default:
-            break;
-    }
 }
 
 static void auth_key_sec_prot_state_machine(sec_prot_t *prot)
