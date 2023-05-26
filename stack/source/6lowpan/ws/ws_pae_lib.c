@@ -123,11 +123,6 @@ bool ws_pae_lib_kmp_list_empty(kmp_list_t *kmp_list)
     return ns_list_is_empty(kmp_list);
 }
 
-uint8_t ws_pae_lib_kmp_list_count(kmp_list_t *kmp_list)
-{
-    return ns_list_count(kmp_list);
-}
-
 void ws_pae_lib_kmp_timer_start(kmp_list_t *kmp_list, kmp_entry_t *entry)
 {
     if (ns_list_get_first(kmp_list) != entry) {

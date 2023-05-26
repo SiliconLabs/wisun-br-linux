@@ -136,16 +136,6 @@ kmp_entry_t *ws_pae_lib_kmp_list_entry_get(kmp_list_t *kmp_list, kmp_api_t *kmp)
 bool ws_pae_lib_kmp_list_empty(kmp_list_t *kmp_list);
 
 /**
- * ws_pae_lib_kmp_list_count counts entries on KMP list
- *
- * \param kmp_list KMP list
- *
- * \return count of entries on the list
- *
- */
-uint8_t ws_pae_lib_kmp_list_count(kmp_list_t *kmp_list);
-
-/**
  * ws_pae_lib_kmp_timer_start starts KMP timer
  *
  * \param kmp_list KMP list
