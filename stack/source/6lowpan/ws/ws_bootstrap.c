@@ -810,10 +810,6 @@ void ws_bootstrap_configuration_reset(struct net_if *cur)
     cur->lowpan_info = 0;
 
     switch (cur->bootstrap_mode) {
-        //        case NET_6LOWPAN_SLEEPY_HOST:
-        case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST:
-            break;
-
         case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER:
         case ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER:
             cur->lowpan_info |= INTERFACE_NWK_ROUTER_DEVICE;
@@ -1123,10 +1119,6 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     }
 
     switch (bootstrap_mode) {
-        //        case NET_6LOWPAN_SLEEPY_HOST:
-        case NET_6LOWPAN_HOST:
-            cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST;
-            break;
         case NET_6LOWPAN_ROUTER:
             cur->bootstrap_mode = ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER;
             break;
@@ -1154,10 +1146,7 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         goto init_fail;
     }
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
-        // Configure for LFN device
-        ws_llc_create(cur, &ws_bootstrap_lfn_mngt_ind, &ws_bootstrap_lfn_asynch_confirm);
-    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         // Configure FFN device
         ws_llc_create(cur, &ws_bootstrap_ffn_mngt_ind, &ws_bootstrap_ffn_asynch_confirm);
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
@@ -2208,9 +2197,7 @@ static void ws_bootstrap_event_handler(struct event_payload *event)
         return;
     }
 
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
-        ws_bootstrap_lfn_event_handler(cur, event);
-    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         ws_bootstrap_ffn_event_handler(cur, event);
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         ws_bootstrap_6lbr_event_handler(cur, event);

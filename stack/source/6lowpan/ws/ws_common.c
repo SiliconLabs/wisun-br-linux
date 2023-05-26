@@ -181,10 +181,7 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
 
 void ws_common_state_machine(struct net_if *cur)
 {
-    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST) {
-        // Configure for LFN device
-        ws_bootstrap_lfn_state_machine(cur);
-    } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
+    if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER) {
         // Configure FFN device
         ws_bootstrap_ffn_state_machine(cur);
     } else if (cur->bootstrap_mode == ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {

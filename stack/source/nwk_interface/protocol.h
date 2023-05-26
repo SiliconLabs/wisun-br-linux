@@ -101,8 +101,6 @@ typedef enum arm_internal_event_type {
 
 typedef enum {
     ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_ROUTER = 0,
-    ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_HOST,
-    ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_SLEEPY_HOST,
     ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER,
 } arm_nwk_bootstrap_mode_e;
 
