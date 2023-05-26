@@ -204,28 +204,6 @@ int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_
     return 1;
 }
 
-int8_t ws_pae_supp_border_router_addr_read(struct net_if *interface_ptr, uint8_t *eui_64)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    // Check if there is border router EUI-64 on used on 4WH PTK generation
-    uint8_t *br_eui_64 = sec_prot_keys_ptk_eui_64_get(&pae_supp->entry.sec_keys);
-    if (!br_eui_64) {
-        // Check if there is border router EUI-64 indicated by the bootstrap when bootstrap completed
-        if (!pae_supp->comp_br_eui_64_set) {
-            return -1;
-        }
-        br_eui_64 = pae_supp->comp_br_eui_64;
-    }
-
-    memcpy(eui_64, br_eui_64, 8);
-
-    return 0;
-}
-
 int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
     (void) br_iid;
