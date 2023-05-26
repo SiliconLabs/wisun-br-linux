@@ -35,6 +35,7 @@
 #include "6lowpan/fragmentation/cipv6_fragmenter.h"
 #include "6lowpan/lowpan_adaptation_interface.h"
 #include "6lowpan/mac/mac_helper.h"
+#include "6lowpan/ws/ws_bootstrap_6lbr.h"
 #include "6lowpan/ws/ws_common.h"
 #include "6lowpan/ws/ws_llc.h"
 #include "common_protocols/ipv6.h"
@@ -478,10 +479,8 @@ void net_bootstrap_cb_run(uint8_t event)
     int8_t nwk_id = (int8_t) event;
     struct net_if *cur = protocol_stack_interface_info_get_by_id(nwk_id);
 
-    if (cur) {
-        //event_scheduler_set_active_tasklet(protocol_read_tasklet_id());
-        ws_common_state_machine(cur);
-    }
+    if (cur)
+        ws_bootstrap_6lbr_state_machine(cur);
 }
 
 void protocol_core_dhcpv6_allocated_address_remove(struct net_if *cur, uint8_t *guaPrefix)

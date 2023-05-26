@@ -177,11 +177,6 @@ int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
     return ws_bootstrap_init(interface_id, bootstrap_mode);
 }
 
-void ws_common_state_machine(struct net_if *cur)
-{
-    ws_bootstrap_6lbr_state_machine(cur);
-}
-
 void ws_common_seconds_timer(int seconds)
 {
     struct net_if *cur = protocol_stack_interface_info_get();

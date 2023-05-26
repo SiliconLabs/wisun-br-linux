@@ -171,8 +171,6 @@ void ws_common_border_router_alive_update(struct net_if *interface);
 
 int ws_common_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode);
 
-void ws_common_state_machine(struct net_if *cur);
-
 bool ws_common_is_valid_nr(uint8_t node_role);
 
 uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size);
