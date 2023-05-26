@@ -65,7 +65,6 @@ static void key_sec_prot_create_response(sec_prot_t *prot, sec_prot_result_e res
 static void key_sec_prot_delete(sec_prot_t *prot);
 static int8_t key_sec_prot_initial_key_send(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
 static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t size);
-static int8_t key_sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e tx_status);
 static void key_sec_prot_timer_timeout(sec_prot_t *prot, uint16_t ticks);
 
 static void supp_key_sec_prot_state_machine(sec_prot_t *prot);
@@ -306,21 +305,6 @@ static int8_t key_sec_prot_receive(sec_prot_t *prot, const void *pdu, uint16_t s
         return -1;
     }
 
-    return 0;
-}
-
-static int8_t key_sec_prot_tx_status_ind(sec_prot_t *prot, sec_prot_tx_status_e tx_status)
-{
-    key_sec_prot_int_t *data = key_sec_prot_get(prot);
-
-    // Indicates TX failure
-    if (tx_status == SEC_PROT_TX_ERR_TX_NO_ACK) {
-        sec_prot_result_set(&data->common, SEC_RESULT_ERR_TX_NO_ACK);
-    } else if (tx_status != SEC_PROT_TX_OK) {
-        // Indicates other failure
-        sec_prot_result_set(&data->common, SEC_RESULT_ERR_TX_UNSPEC);
-    }
-    prot->state_machine_call(prot);
     return 0;
 }
 

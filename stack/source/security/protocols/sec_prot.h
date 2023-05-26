@@ -36,8 +36,6 @@ typedef struct sec_prot_keys sec_prot_keys_t;
 typedef enum {
     SEC_RESULT_OK = 0,
     SEC_RESULT_ERR_NO_MEM = -1,
-    SEC_RESULT_ERR_TX_NO_ACK = -2,
-    SEC_RESULT_ERR_TX_UNSPEC = -3,
     SEC_RESULT_TIMEOUT = -4,
     SEC_RESULT_ERROR = -5,
     SEC_RESULT_CONF_ERROR = -6,
