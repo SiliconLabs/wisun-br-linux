@@ -133,7 +133,6 @@ static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
 static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
-static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
@@ -602,42 +601,6 @@ static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_
     }
 
     return -1;
-}
-
-static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp)
-{
-    // Create new instance
-    kmp_api_t *kmp = kmp_api_create(service, type, 0, pae_supp->sec_cfg);
-    if (!kmp) {
-        return NULL;
-    }
-
-    // Updates parent address
-    kmp_api_addr_set(kmp, &pae_supp->entry.addr);
-
-    // Sets security keys to KMP
-    kmp_api_sec_keys_set(kmp, &pae_supp->entry.sec_keys);
-
-    kmp_api_cb_register(
-        kmp, ws_pae_supp_kmp_api_create_confirm,
-        ws_pae_supp_kmp_api_create_indication,
-        ws_pae_supp_kmp_api_finished_indication,
-        ws_pae_supp_kmp_api_finished);
-
-    kmp_entry_t *kmp_entry = ws_pae_lib_kmp_list_add(&pae_supp->entry.kmp_list, kmp);
-    if (!kmp_entry) {
-        kmp_api_delete(kmp);
-        return NULL;
-    }
-
-    kmp_api_data_set(kmp, kmp_entry);
-
-    if (kmp_api_start(kmp) < 0) {
-        ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
-        return NULL;
-    }
-
-    return kmp;
 }
 
 static void ws_pae_supp_kmp_api_create_confirm(kmp_api_t *kmp, kmp_result_e result)
