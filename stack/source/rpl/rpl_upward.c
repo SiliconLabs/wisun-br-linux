@@ -345,14 +345,6 @@ void rpl_instance_poison(rpl_instance_t *instance, uint8_t count)
     rpl_instance_inconsistency(instance);
 }
 
-void rpl_control_instant_poison(struct net_if *cur, rpl_domain_t *domain)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_instance_poison(instance, 1);
-        rpl_instance_dio_trigger(instance, cur, NULL);
-    }
-}
-
 void rpl_instance_force_leaf(rpl_instance_t *instance)
 {
     instance->current_rank = RPL_RANK_INFINITE;

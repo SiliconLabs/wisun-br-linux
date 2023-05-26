@@ -260,7 +260,6 @@ bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
-void rpl_control_instant_poison(struct net_if *cur, rpl_domain_t *domain);
 
 
 #endif
