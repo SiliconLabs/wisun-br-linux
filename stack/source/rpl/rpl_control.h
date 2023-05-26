@@ -258,7 +258,6 @@ struct rpl_instance *rpl_control_lookup_instance(rpl_domain_t *domain, uint8_t i
 bool rpl_control_get_instance_dao_target_count(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const uint8_t *prefix, uint16_t *target_count);
 bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl_dodag_info *dodag_info);
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
-const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
 uint8_t rpl_policy_mrhof_parent_set_size_get(const rpl_domain_t *domain);
 void rpl_control_instant_poison(struct net_if *cur, rpl_domain_t *domain);

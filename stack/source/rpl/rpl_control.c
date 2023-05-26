@@ -1894,19 +1894,6 @@ const rpl_dodag_conf_t *rpl_control_get_dodag_config(const rpl_instance_t *insta
     return rpl_dodag_get_config(dodag);
 }
 
-const uint8_t *rpl_control_preferred_parent_addr(const rpl_instance_t *instance, bool global)
-{
-    const rpl_neighbour_t *parent = rpl_instance_preferred_parent(instance);
-    if (!parent) {
-        return NULL;
-    }
-    if (global) {
-        return rpl_neighbour_global_address(parent);
-    } else {
-        return rpl_neighbour_ll_address(parent);
-    }
-}
-
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance)
 {
     return rpl_instance_current_rank(instance);
