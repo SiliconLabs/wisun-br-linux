@@ -128,11 +128,9 @@ typedef struct pae_controller_config {
 
 static void ws_pae_controller_keys_nw_info_init(sec_prot_keys_nw_info_t *sec_keys_nw_info, sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *lgtks);
 static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr);
-#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address);
 static bool ws_pae_controller_auth_congestion_get(struct net_if *interface_ptr, uint16_t active_supp);
 static int8_t  ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t gtk_index);
-#endif
 static pae_controller_t *ws_pae_controller_get(struct net_if *interface_ptr);
 static void ws_pae_controller_frame_counter_timer(uint16_t seconds, pae_controller_t *entry);
 static void ws_pae_controller_frame_counter_store(pae_controller_t *entry, bool use_threshold, bool is_lgtk);
@@ -143,10 +141,8 @@ static int8_t ws_pae_controller_nvm_frame_counter_read(uint64_t *stored_time,
 static pae_controller_t *ws_pae_controller_get_or_create(int8_t interface_id);
 static int8_t ws_pae_controller_nw_key_check_and_insert(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool force_install, bool is_lgtk);
 static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_if *interface_ptr, pae_controller_t *controller, bool use_threshold, bool is_lgtk);
-#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk);
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
-#endif
 static void ws_pae_controller_data_init(pae_controller_t *controller);
 static int8_t ws_pae_controller_frame_counter_read(pae_controller_t *controller);
 static void ws_pae_controller_frame_counter_reset(frame_counters_t *frame_counters);
@@ -171,7 +167,6 @@ pae_controller_config_t pae_controller_config = {
     .ext_cert_valid_enabled = false
 };
 
-#ifdef HAVE_PAE_AUTH
 int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint16_t local_port, const uint8_t *remote_addr, uint16_t remote_port)
 {
     (void) local_port;
@@ -224,7 +219,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 
     return 0;
 }
-#endif
 
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
                                      ws_pae_controller_nw_key_set *nw_key_set,
@@ -358,7 +352,6 @@ static void ws_pae_controller_nw_info_updated_check(struct net_if *interface_ptr
     }
 }
 
-#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_auth_ip_addr_get(struct net_if *interface_ptr, uint8_t *address)
 {
     if (!interface_ptr) {
@@ -401,7 +394,6 @@ static int8_t ws_pae_controller_auth_nw_frame_counter_read(struct net_if *interf
     controller->nw_frame_counter_read(interface_ptr, counter, gtk_index);
     return 0;
 }
-#endif
 
 int8_t ws_pae_controller_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
@@ -601,7 +593,6 @@ static void ws_pae_controller_frame_counter_store_and_nw_keys_remove(struct net_
     }
 }
 
-#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interface_ptr, uint8_t index, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -637,7 +628,6 @@ static void ws_pae_controller_nw_key_index_check_and_set(struct net_if *interfac
         gtks->key_index_set = true;
     }
 }
-#endif
 
 int8_t ws_pae_controller_init(struct net_if *interface_ptr)
 {
@@ -969,7 +959,6 @@ static int8_t ws_pae_controller_nvm_nw_info_read(struct net_if *interface_ptr,
     return 0;
 }
 
-#ifdef HAVE_PAE_AUTH
 int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1039,7 +1028,6 @@ int8_t ws_pae_controller_auth_init(struct net_if *interface_ptr)
 
     return 0;
 }
-#endif
 
 int8_t ws_pae_controller_stop(struct net_if *interface_ptr)
 {
@@ -1650,10 +1638,6 @@ int8_t ws_pae_controller_active_key_update(int8_t interface_id, uint8_t index)
 
 int8_t ws_pae_controller_node_keys_remove(int8_t interface_id, uint8_t *eui_64)
 {
-#ifndef HAVE_PAE_AUTH
-    (void) eui_64;
-#endif
-
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
     if (!controller) {
         return -1;
@@ -1674,7 +1658,6 @@ int8_t ws_pae_controller_node_access_revoke_start(int8_t interface_id, bool is_l
 
 int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
 {
-#ifdef HAVE_PAE_AUTH
     pae_controller_config.node_limit = limit;
     pae_controller_config.node_limit_set = true;
 
@@ -1686,16 +1669,10 @@ int8_t ws_pae_controller_node_limit_set(int8_t interface_id, uint16_t limit)
     ws_pae_auth_node_limit_set(controller->interface_ptr, limit);
 
     return 0;
-#else
-    (void) interface_id;
-    (void) limit;
-    return -1;
-#endif
 }
 
 int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, bool enabled)
 {
-#ifdef HAVE_PAE_AUTH
     pae_controller_config.ext_cert_valid_enabled = enabled;
 
     pae_controller_t *controller = ws_pae_controller_get_or_create(interface_id);
@@ -1706,14 +1683,8 @@ int8_t ws_pae_controller_ext_certificate_validation_set(int8_t interface_id, boo
     sec_prot_certs_ext_certificate_validation_set(&controller->certs, enabled);
 
     return 0;
-#else
-    (void) interface_id;
-    (void) enabled;
-    return -1;
-#endif
 }
 
-#ifdef HAVE_PAE_AUTH
 static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool is_lgtk)
 {
     pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
@@ -1747,7 +1718,6 @@ static void ws_pae_controller_gtk_hash_set(struct net_if *interface_ptr, gtkhash
     if (is_lgtk)
         ws_mngt_lpc_pae_cb(interface_ptr);
 }
-#endif
 
 gtkhash_t *ws_pae_controller_gtk_hash_ptr_get(struct net_if *interface_ptr)
 {

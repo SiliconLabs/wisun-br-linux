@@ -19,8 +19,6 @@
 #ifndef WS_EAPOL_AUTH_RELAY_H_
 #define WS_EAPOL_AUTH_RELAY_H_
 
-#ifdef HAVE_PAE_AUTH
-
 #include <stdint.h>
 
 /*
@@ -59,12 +57,5 @@ int8_t ws_eapol_auth_relay_start(struct net_if *interface_ptr, uint16_t local_po
  *
  */
 int8_t ws_eapol_auth_relay_delete(struct net_if *interface_ptr);
-
-#else
-
-#define ws_eapol_auth_relay_start(interface_ptr, local_port, remote_addr, remote_port)
-#define ws_eapol_auth_relay_delete(interface_ptr)
-
-#endif
 
 #endif

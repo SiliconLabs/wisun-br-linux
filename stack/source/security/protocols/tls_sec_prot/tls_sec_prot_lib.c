@@ -97,9 +97,7 @@ static int tls_sec_prot_lib_ssl_export_keys(void *p_expkey, const unsigned char 
 static int tls_sec_prot_lib_x509_crt_verify(void *ctx, mbedtls_x509_crt *crt, int certificate_depth, uint32_t *flags);
 static int8_t tls_sec_prot_lib_subject_alternative_name_validate(mbedtls_x509_crt *crt);
 static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt);
-#ifdef HAVE_PAE_AUTH
 static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
-#endif
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags);
 #endif
 #ifdef TLS_SEC_PROT_LIB_TLS_DEBUG
@@ -114,13 +112,8 @@ static void *tls_sec_prot_lib_mem_calloc(size_t count, size_t size);
 static void tls_sec_prot_lib_mem_free(void *ptr);
 #endif
 
-#if defined(HAVE_PAE_AUTH)
 #define is_server_is_set (is_server == true)
 #define is_server_is_not_set (is_server == false)
-#else
-#define is_server_is_set false
-#define is_server_is_not_set true
-#endif
 
 int8_t tls_sec_prot_lib_init(tls_security_t *sec)
 {
@@ -309,9 +302,6 @@ static int tls_sec_prot_lib_configure_certificates(tls_security_t *sec, const se
 
 int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_prot_certs_t *certs)
 {
-#if !defined(HAVE_PAE_AUTH)
-    (void) is_server;
-#endif
 
     if (!sec) {
         return -1;
@@ -321,11 +311,9 @@ int8_t tls_sec_prot_lib_connect(tls_security_t *sec, bool is_server, const sec_p
     if (is_server_is_not_set) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_server_verify;
     }
-#ifdef HAVE_PAE_AUTH
     if (is_server_is_set) {
         sec->crt_verify = tls_sec_prot_lib_x509_crt_idevid_ldevid_verify;
     }
-#endif
 #endif
 
     if ((mbedtls_ssl_config_defaults(&sec->conf,
@@ -605,7 +593,6 @@ static int8_t tls_sec_prot_lib_extended_key_usage_validate(mbedtls_x509_crt *crt
     return 0;
 }
 
-#ifdef HAVE_PAE_AUTH
 static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags)
 {
     // For both IDevID and LDevId both subject alternative name or extended key usage must be valid
@@ -619,7 +606,6 @@ static int tls_sec_prot_lib_x509_crt_idevid_ldevid_verify(tls_security_t *sec, m
     }
     return 0;
 }
-#endif
 
 static int tls_sec_prot_lib_x509_crt_server_verify(tls_security_t *sec, mbedtls_x509_crt *crt, uint32_t *flags)
 {

@@ -43,8 +43,6 @@
 #include "6lowpan/ws/ws_eapol_auth_relay.h"
 #include "app_wsbrd/wsbr.h"
 
-#ifdef HAVE_PAE_AUTH
-
 #define TRACE_GROUP "wsar"
 
 typedef struct eapol_auth_relay {
@@ -223,5 +221,3 @@ static int8_t ws_eapol_auth_relay_send_to_kmp(eapol_auth_relay_t *eapol_auth_rel
         tr_debug("ws_eapol_auth_relay_send_to_kmp: %m");
     return 0;
 }
-
-#endif /* HAVE_PAE_AUTH */

@@ -19,8 +19,6 @@
 #ifndef WS_PAE_AUTH_H_
 #define WS_PAE_AUTH_H_
 
-#ifdef HAVE_PAE_AUTH
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
@@ -309,25 +307,5 @@ void ws_pae_auth_cb_register(struct net_if *interface_ptr,
 
 int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len);
 void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bool is_lgtk);
-
-#else
-
-#define ws_pae_auth_init(interface_ptr, next_gtks, certs, sec_cfg, sec_keys_nw_info, frame_counters) 1
-#define ws_pae_auth_timing_adjust(timing)
-#define ws_pae_auth_addresses_set(interface_ptr, local_port, remote_addr, remote_port) 1
-#define ws_pae_auth_delete NULL
-#define ws_pae_auth_cb_register(interface_ptr, hash_set, nw_key_insert, nw_key_index_set, nw_info_updated, ip_addr_get, congestion_get, nw_frame_cnt_read) {(void) hash_set;}
-#define ws_pae_auth_start(interface_ptr)
-#define ws_pae_auth_gtks_updated NULL
-#define ws_pae_auth_nw_key_index_update NULL
-#define ws_pae_auth_nw_info_set NULL
-#define ws_pae_auth_node_keys_remove(interface_ptr, eui64) -1
-#define ws_pae_auth_node_access_revoke_start(interface_ptr, is_lgtk, new_gtk) -1
-#define ws_pae_auth_node_limit_set(interface_ptr, limit)
-#define ws_pae_auth_fast_timer NULL
-#define ws_pae_auth_slow_timer NULL
-#define ws_pae_auth_radius_address_set(interface_ptr, remote_addr) -1
-
-#endif
 
 #endif

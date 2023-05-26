@@ -58,8 +58,6 @@
 
 #include "6lowpan/ws/ws_pae_auth.h"
 
-#ifdef HAVE_PAE_AUTH
-
 #define TRACE_GROUP "wspa"
 
 #define PAE_TASKLET_INIT                       1
@@ -1667,7 +1665,6 @@ void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bo
     sec_prot_gtk_keys_t *keys;
     pae_auth_t *pae_auth;
     int lifetime;
-
     interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
     BUG_ON(!interface_ptr);
     pae_auth = ws_pae_auth_get(interface_ptr);
@@ -1682,5 +1679,3 @@ void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bo
     ws_pae_auth_gtk_insert(keys, key, lifetime, is_lgtk);
     ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
 }
-
-#endif /* HAVE_PAE_AUTH */
