@@ -31,7 +31,6 @@ typedef enum auth_result auth_result_e;
 
 #ifdef HAVE_WS_ROUTER
 
-void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type);
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message);
 void ws_bootstrap_ffn_event_handler(struct net_if *cur, struct event_payload *event);
 void ws_bootstrap_ffn_state_machine(struct net_if *cur);
@@ -50,11 +49,6 @@ void ws_ffn_pcs_test_trigger(struct net_if *cur, int seconds);
 
 #else
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
-
-static inline void ws_bootstrap_ffn_mngt_ind(struct net_if *cur, const struct mcps_data_ind *data, const struct mcps_data_ie_list *ie_ext, uint8_t message_type)
-{
-    BUG("not compiled with HAVE_WS_ROUTER");
-}
 
 static inline void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
