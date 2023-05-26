@@ -207,23 +207,6 @@ int8_t ws_pae_controller_authenticate(struct net_if *interface_ptr)
 
     return 0;
 }
-
-int8_t ws_pae_controller_bootstrap_done(struct net_if *interface_ptr)
-{
-    pae_controller_t *controller = ws_pae_controller_get(interface_ptr);
-    if (!controller) {
-        return -1;
-    }
-
-    // RPL parent is known, remove EAPOL target that what was set using the authenticate call */
-    ws_pae_supp_eapol_target_remove(interface_ptr);
-
-    /* Trigger GTK hash update to supplicant, so it can check whether keys have been updated
-       during bootstrap. Does nothing if GTKs are up to date. */
-    ws_pae_supp_gtk_hash_update(interface_ptr, controller->gtks.gtkhash, false);
-
-    return 0;
-}
 #endif
 
 #ifdef HAVE_PAE_AUTH

@@ -65,17 +65,6 @@ int8_t ws_pae_controller_set_target(struct net_if *interface_ptr, uint16_t targe
 int8_t ws_pae_controller_authenticate(struct net_if *interface_ptr);
 
 /**
- * ws_pae_controller_bootstrap_done indicates to PAE controller that bootstrap is ready
- *
- * \param interface_ptr interface
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_controller_bootstrap_done(struct net_if *interface_ptr);
-
-/**
  * ws_pae_controller_authenticator_start start PAE authenticator
  *
  * \param interface_ptr interface
