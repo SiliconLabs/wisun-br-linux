@@ -425,65 +425,6 @@ static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp)
     return 0;
 }
 
-static int8_t ws_pae_supp_nvm_keys_read(pae_supp_t *pae_supp)
-{
-    struct storage_parse_info *info = storage_open_prefix("pairwise-keys", "r");
-    sec_prot_keys_t *sec_keys = &pae_supp->entry.sec_keys;
-    uint64_t current_time = ws_pae_current_time_get();
-    int ret;
-
-    if (!info)
-        return -1;
-    sec_keys->pmk_lifetime = 0;
-    sec_keys->ptk_lifetime = 0;
-    for (;;) {
-        ret = storage_parse_line(info);
-        if (ret == EOF)
-            break;
-        if (ret) {
-            WARN("%s:%d: invalid line: '%s'", info->filename, info->linenr, info->line);
-        } else if (!fnmatch("authenticator_eui64", info->key, 0)) {
-            if (parse_byte_array(sec_keys->ptk_eui_64, 8, info->value))
-                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-            else
-                sec_keys->ptk_eui_64_set = true;
-        } else if (!fnmatch("pmk", info->key, 0)) {
-            if (parse_byte_array(sec_keys->pmk, PMK_LEN, info->value))
-                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-            else
-                sec_keys->pmk_set = true;
-        } else if (!fnmatch("ptk", info->key, 0)) {
-            if (parse_byte_array(sec_keys->ptk, PTK_LEN, info->value))
-                WARN("%s:%d: invalid value: %s", info->filename, info->linenr, info->value);
-            else
-                sec_keys->ptk_set = true;
-        } else if (!fnmatch("pmk.lifetime", info->key, 0)) {
-            if (current_time < strtoull(info->value, NULL, 0))
-                sec_keys->pmk_lifetime = strtoull(info->value, NULL, 0) - current_time;
-            else
-                WARN("%s:%d: expired PMK lifetime: %s", info->filename, info->linenr, info->value);
-        } else if (!fnmatch("ptk.lifetime", info->key, 0)) {
-            if (current_time < strtoull(info->value, NULL, 0))
-                sec_keys->ptk_lifetime = strtoull(info->value, NULL, 0) - current_time;
-            else
-                WARN("%s:%d: expired PTK lifetime: %s", info->filename, info->linenr, info->value);
-        } else if (!fnmatch("pmk.replay_counter", info->key, 0)) {
-            sec_keys->pmk_key_replay_cnt = strtoull(info->value, NULL, 0);
-            sec_keys->pmk_key_replay_cnt_set = true;
-        } else {
-            WARN("%s:%d: invalid key: '%s'", info->filename, info->linenr, info->line);
-        }
-    }
-    sec_keys->updated = false;
-    if (!sec_keys->ptk_lifetime)
-        sec_keys->ptk_set = false;
-    if (!sec_keys->pmk_lifetime)
-        sec_keys->pmk_set = false;
-    storage_close(info);
-
-    return 0;
-}
-
 static void ws_pae_supp_authenticate_response(pae_supp_t *pae_supp, auth_result_e result)
 {
     pae_supp->initial_key_retry_timer = 0;
