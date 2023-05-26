@@ -39,14 +39,6 @@
 
 #ifdef HAVE_PAE_SUPP
 /**
- * ws_pae_supp_slow_timer PAE supplicant slow timer call
- *
- * \param ticks elapsed seconds
- *
- */
-void ws_pae_supp_slow_timer(uint16_t seconds);
-
-/**
  * ws_pae_supp_authenticate start EAPOL authentication
  *
  * \param interface_ptr interface
