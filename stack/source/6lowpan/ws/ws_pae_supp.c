@@ -155,54 +155,6 @@ static void ws_pae_supp_address_set(pae_supp_t *pae_supp, kmp_addr_t *address)
     }
 }
 
-int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    if (ws_pae_supp_nw_keys_valid_check(pae_supp, dest_pan_id, dest_network_name) >= 0) {
-        pae_supp->auth_completed(interface_ptr, AUTH_RESULT_OK, NULL);
-        return 0;
-    }
-
-    // Delete GTKs
-    sec_prot_keys_gtks_init(pae_supp->sec_keys_nw_info->gtks);
-
-    /* Network name or PAN ID has changed, delete key data associated with border router
-       i.e PMK, PTK, EA-IE data (border router EUI-64) */
-    if (ws_pae_supp_network_name_compare(pae_supp->sec_keys_nw_info->network_name, dest_network_name) != 0 ||
-            (pae_supp->sec_keys_nw_info->key_pan_id != 0xFFFF && pae_supp->sec_keys_nw_info->key_pan_id != dest_pan_id)) {
-        sec_prot_keys_pmk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_delete(&pae_supp->entry.sec_keys);
-        sec_prot_keys_ptk_eui_64_delete(&pae_supp->entry.sec_keys);
-    }
-
-    pae_supp->sec_keys_nw_info->key_pan_id = dest_pan_id;
-
-    // Prepare to receive new border router address
-    pae_supp->new_br_eui_64_fresh = false;
-    pae_supp->comp_br_eui_64_set = false;
-
-    // Stores target/parent address
-    kmp_address_init(KMP_ADDR_EUI_64, &pae_supp->target_addr, dest_eui_64);
-    // Sets target address in use
-    ws_pae_supp_address_set(pae_supp, &pae_supp->target_addr);
-
-    pae_supp->auth_requested = true;
-
-    // Randomizes the sending of initial EAPOL-Key message
-    pae_supp->initial_key_timer = rand_get_random_in_range(INITIAL_KEY_TIMER_MIN, INITIAL_KEY_TIMER_MAX);
-
-    // Starts supplicant timer
-    ws_pae_supp_timer_start(pae_supp);
-
-    tr_debug("PAE active, timer %i", pae_supp->initial_key_timer);
-
-    return 1;
-}
-
 int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
 {
     (void) br_iid;

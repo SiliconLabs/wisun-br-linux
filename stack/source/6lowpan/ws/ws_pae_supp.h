@@ -39,21 +39,6 @@
 
 #ifdef HAVE_PAE_SUPP
 /**
- * ws_pae_supp_authenticate start EAPOL authentication
- *
- * \param interface_ptr interface
- * \param dest_pan_id EAPOL target PAN ID
- * \param dest_eui_64 EAPOL target
- * \param dest_network_name EAPOL target network name
- *
- * \return < 0 failure
- * \return 0 authentication done, continue
- * \return > 0 authentication started
- *
- */
-int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_id, uint8_t *dest_eui_64, char *dest_network_name);
-
-/**
  * ws_pae_supp_nw_key_valid network key is valid i.e. used successfully on bootstrap
  *
  * \param interface_ptr interface
