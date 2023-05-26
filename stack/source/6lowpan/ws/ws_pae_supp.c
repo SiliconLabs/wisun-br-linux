@@ -130,7 +130,6 @@ static int8_t ws_pae_supp_nw_keys_valid_check(pae_supp_t *pae_supp, uint16_t pan
 static int8_t ws_pae_supp_nvm_keys_write(pae_supp_t *pae_supp);
 static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr);
 static void ws_pae_supp_tasklet_handler(struct event_payload *event);
-static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations);
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
@@ -333,19 +332,6 @@ static pae_supp_t *ws_pae_supp_get(struct net_if *interface_ptr)
     }
 
     return NULL;
-}
-
-static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_supp, uint8_t timer_expirations)
-{
-    // Starts trickle for the key update
-    pae_supp->gtk_req_trickle_params.Imin = pae_supp->sec_cfg->timer_cfg.gtk.request_imin;
-    pae_supp->gtk_req_trickle_params.Imax = pae_supp->sec_cfg->timer_cfg.gtk.request_imax;
-    pae_supp->gtk_req_trickle_params.k = 0;
-    pae_supp->gtk_req_trickle_params.TimerExpirations = timer_expirations;
-
-    trickle_start(&pae_supp->gtk_req_trickle_timer, "GTK REQ", &pae_supp->gtk_req_trickle_params);
-    pae_supp->gtk_update_trickle_running = true;
-    pae_supp->initial_key_retry_cnt = timer_expirations;
 }
 
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp)
