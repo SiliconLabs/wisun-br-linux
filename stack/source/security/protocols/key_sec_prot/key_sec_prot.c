@@ -59,7 +59,6 @@ typedef struct key_sec_prot_int {
 } key_sec_prot_int_t;
 
 static uint16_t key_sec_prot_size(void);
-static int8_t supp_key_sec_prot_init(sec_prot_t *prot);
 static int8_t auth_key_sec_prot_init(sec_prot_t *prot);
 
 static void key_sec_prot_create_request(sec_prot_t *prot, sec_prot_keys_t *sec_keys);
@@ -95,21 +94,6 @@ int8_t auth_key_sec_prot_register(kmp_service_t *service)
 static uint16_t key_sec_prot_size(void)
 {
     return sizeof(key_sec_prot_int_t);
-}
-
-static int8_t supp_key_sec_prot_init(sec_prot_t *prot)
-{
-    prot->create_req = key_sec_prot_create_request;
-    prot->tx_status_ind = key_sec_prot_tx_status_ind;
-    prot->delete = key_sec_prot_delete;
-    prot->state_machine = supp_key_sec_prot_state_machine;
-    prot->timer_timeout = key_sec_prot_timer_timeout;
-
-    key_sec_prot_int_t *data = key_sec_prot_get(prot);
-    sec_prot_init(&data->common);
-    sec_prot_state_set(prot, &data->common, KEY_STATE_INIT);
-
-    return 0;
 }
 
 static int8_t auth_key_sec_prot_init(sec_prot_t *prot)
