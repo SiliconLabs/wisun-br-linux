@@ -318,15 +318,6 @@ void ws_pae_lib_supp_delete(supp_entry_t *entry);
 void ws_pae_lib_supp_timer_ticks_set(supp_entry_t *entry, uint32_t ticks);
 
 /**
- *  ws_pae_lib_supp_timer_ticks_add adds supplicant timer ticks
- *
- * \param entry supplicant entry
- * \param ticks ticks
- *
- */
-void ws_pae_lib_supp_timer_ticks_add(supp_entry_t *entry, uint32_t ticks);
-
-/**
  *  ws_pae_lib_supp_timer_is_running checks whether supplicant timer is running
  *
  * \param entry supplicant entry
