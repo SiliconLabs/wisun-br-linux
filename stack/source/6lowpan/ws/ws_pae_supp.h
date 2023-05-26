@@ -79,18 +79,6 @@ int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid);
 int8_t ws_pae_supp_gtk_hash_update(struct net_if *interface_ptr, gtkhash_t *gtkhash, bool del_gtk_on_mismatch);
 
 /**
- * ws_pae_supp_nw_key_index_update key index been updated (on PAN configuration)
- *
- * \param interface_ptr interface
- * \param index key index
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_nw_key_index_update(struct net_if *interface_ptr, uint8_t index, bool is_lgtk);
-
-/**
  *  ws_pae_supp_gtks_set set supplicant GTKs
  *
  * \param interface_ptr interface
