@@ -530,16 +530,6 @@ typedef void ws_pae_controller_nw_frame_counter_set(struct net_if *interface_ptr
 typedef void ws_pae_controller_nw_frame_counter_read(struct net_if *interface_ptr, uint32_t *counter, uint8_t slot);
 
 /**
- * ws_pae_controller_auth_completed authentication completed callback
- *
- * \param interface_ptr interface
- * \param result result, either ok or failure reason
- * \param target_eui_64 EAPOL target in case of failure or NULL
- *
- */
-typedef void ws_pae_controller_auth_completed(struct net_if *interface_ptr, auth_result_e result, uint8_t *target_eui_64);
-
-/**
  * ws_pae_controller_auth_next_target get next target to attempt authentication
  *
  * \param interface_ptr interface
@@ -601,7 +591,6 @@ typedef bool ws_pae_controller_congestion_get(struct net_if *interface_ptr, uint
  *
  */
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
-                                     ws_pae_controller_auth_completed *completed,
                                      ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_key_clear *nw_key_clear,

@@ -96,7 +96,6 @@ typedef struct pae_controller {
     uint32_t frame_cnt_store_force_timer;                            /**< Timer to force storing of frame counter, if no other updates */
     sec_cfg_t sec_cfg;                                               /**< Security configuration (configuration set values) */
     struct net_if *interface_ptr;                  /**< List link entry */
-    ws_pae_controller_auth_completed *auth_completed;                /**< Authentication completed callback, continue bootstrap */
     ws_pae_controller_nw_key_set *nw_key_set;                        /**< Key set callback */
     ws_pae_controller_nw_key_clear *nw_key_clear;                    /**< Key clear callback */
     ws_pae_controller_nw_send_key_index_set *nw_send_key_index_set;  /**< Send key index set callback */
@@ -229,7 +228,6 @@ int8_t ws_pae_controller_authenticator_start(struct net_if *interface_ptr, uint1
 #endif
 
 int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
-                                     ws_pae_controller_auth_completed *completed,
                                      ws_pae_controller_auth_next_target *auth_next_target,
                                      ws_pae_controller_nw_key_set *nw_key_set,
                                      ws_pae_controller_nw_key_clear *nw_key_clear,
@@ -250,7 +248,6 @@ int8_t ws_pae_controller_cb_register(struct net_if *interface_ptr,
         return -1;
     }
 
-    controller->auth_completed = completed;
     controller->nw_key_set = nw_key_set;
     controller->nw_key_clear = nw_key_clear;
     controller->nw_send_key_index_set = nw_send_key_index_set;
@@ -680,7 +677,6 @@ int8_t ws_pae_controller_init(struct net_if *interface_ptr)
     }
 
     controller->interface_ptr = interface_ptr;
-    controller->auth_completed = NULL;
     controller->nw_key_set = NULL;
     controller->nw_key_clear = NULL;
     controller->nw_send_key_index_set = NULL;

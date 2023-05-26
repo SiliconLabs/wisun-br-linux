@@ -1177,7 +1177,6 @@ int ws_bootstrap_init(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode)
         goto init_fail;
     }
     if (ws_pae_controller_cb_register(cur,
-                                      ws_bootstrap_authentication_completed,
                                       ws_bootstrap_authentication_next_target,
                                       ws_bootstrap_nw_key_set,
                                       ws_bootstrap_nw_key_clear,

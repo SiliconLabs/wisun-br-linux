@@ -297,39 +297,6 @@ const uint8_t *ws_bootstrap_authentication_next_target(struct net_if *cur, const
     return previous_eui_64;
 }
 
-void ws_bootstrap_authentication_completed(struct net_if *cur, auth_result_e result, uint8_t *target_eui_64)
-{
-    if (result == AUTH_RESULT_OK) {
-        tr_info("authentication success eui64:%s", tr_eui64(target_eui_64));
-        if (target_eui_64) {
-            // Authentication was made contacting the authenticator
-            cur->ws_info.authentication_time = cur->ws_info.uptime;
-        }
-        ws_bootstrap_event_configuration_start(cur);
-    } else if (result == AUTH_RESULT_ERR_TX_ERR) {
-        // eapol parent selected is not working
-        tr_debug("authentication TX failed");
-
-        ws_bootstrap_ffn_candidate_parent_mark_failure(cur, target_eui_64);
-        // Go back for network scanning
-        ws_bootstrap_state_change(cur, ER_ACTIVE_SCAN);
-
-        // Start PAS interval between imin - imax.
-        cur->ws_info.mngt.trickle_pas_running = true;
-        trickle_start(&cur->ws_info.mngt.trickle_pas, "ADV SOL", &cur->ws_info.mngt.trickle_params);
-
-        // Parent selection is made before imin/2 so if there is parent candidates solicit is not sent
-        cur->bootstrap_state_machine_cnt = rand_get_random_in_range(10, cur->ws_info.mngt.trickle_params.Imin >> 1);
-        tr_info("Making parent selection in %u s", (cur->bootstrap_state_machine_cnt / 10));
-    } else {
-        tr_debug("authentication failed");
-        // What else to do to start over again...
-        // Trickle is reseted when entering to discovery from state 2
-        trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pas, &cur->ws_info.mngt.trickle_params);
-        ws_bootstrap_event_discovery_start(cur);
-    }
-}
-
 void ws_ffn_trickle_stop(struct ws_mngt *mngt)
 {
     mngt->trickle_pas_running = false;
