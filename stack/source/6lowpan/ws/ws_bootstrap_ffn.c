@@ -184,21 +184,6 @@ static void ws_bootstrap_ffn_candidate_parent_sort(struct net_if *cur, parent_in
     ns_list_add_to_end(&cur->ws_info.parent_list_reserved, new_entry);
 }
 
-static void ws_bootstrap_ffn_candidate_parent_mark_failure(struct net_if *cur, const uint8_t *addr)
-{
-    parent_info_t *entry = ws_bootstrap_ffn_candidate_parent_get(cur, addr, false);
-    if (entry) {
-        if (entry->tx_fail >= 2) {
-            ns_list_remove(&cur->ws_info.parent_list_reserved, entry);
-            ns_list_add_to_end(&cur->ws_info.parent_list_free, entry);
-        } else {
-            entry->tx_fail++;
-            ws_bootstrap_ffn_candidate_parent_sort(cur, entry);
-        }
-
-    }
-}
-
 static int8_t ws_bootstrap_ffn_neighbor_set(struct net_if *cur, parent_info_t *parent_ptr, bool clear_list)
 {
     uint16_t pan_id = cur->ws_info.network_pan_id;
