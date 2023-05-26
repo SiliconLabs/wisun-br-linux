@@ -142,7 +142,6 @@ void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_p
 
 // Bootstrap state machine state Functions
 bool ws_bootstrap_state_discovery(struct net_if *cur);
-bool ws_bootstrap_state_authenticate(struct net_if *cur);
 bool ws_bootstrap_state_configure(struct net_if *cur);
 bool ws_bootstrap_state_wait_rpl(struct net_if *cur);
 bool ws_bootstrap_state_active(struct net_if *cur);

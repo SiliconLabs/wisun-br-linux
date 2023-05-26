@@ -2228,15 +2228,6 @@ bool ws_bootstrap_state_discovery(struct net_if *cur)
     return false;
 }
 
-bool ws_bootstrap_state_authenticate(struct net_if *cur)
-{
-    // Think about the state value
-    if (cur->nwk_bootstrap_state == ER_PANA_AUTH) {
-        return true;
-    }
-    return false;
-}
-
 bool ws_bootstrap_state_configure(struct net_if *cur)
 {
     // Think about the state value
@@ -2299,8 +2290,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     /*Update join state statistics*/
     if (ws_bootstrap_state_discovery(cur)) {
         ws_stats_update(cur, STATS_WS_STATE_1, 1);
-    } else if (ws_bootstrap_state_authenticate(cur)) {
-        ws_stats_update(cur, STATS_WS_STATE_2, 1);
     } else if (ws_bootstrap_state_configure(cur)) {
         ws_stats_update(cur, STATS_WS_STATE_3, 1);
     } else if (ws_bootstrap_state_wait_rpl(cur)) {
@@ -2355,8 +2344,6 @@ int ws_bootstrap_stack_info_get(struct net_if *cur, struct ws_stack_info *info_p
     info_ptr->device_min_sens = DEVICE_MIN_SENS;
     if (ws_bootstrap_state_discovery(cur)) {
         info_ptr->join_state = 1;
-    } else if (ws_bootstrap_state_authenticate(cur)) {
-        info_ptr->join_state = 2;
     } else if (ws_bootstrap_state_configure(cur)) {
         info_ptr->join_state = 3;
     } else if (ws_bootstrap_state_wait_rpl(cur)) {

@@ -82,7 +82,6 @@ typedef enum icmp_state {
     ER_ADDRESS_REQ  = 3,
     ER_BIND_COMP    = 4,
     ER_RPL_SCAN     = 6,    // State 4 Wi-SUN
-    ER_PANA_AUTH    = 9,    // State 2 Wi-SUN
     ER_BOOTSTRAP_DONE,      // State 5 Wi-SUN
     ER_BOOTSTRAP_IP_ADDRESS_ALLOC_FAIL,
     ER_BOOTSTRAP_DAD_FAIL,

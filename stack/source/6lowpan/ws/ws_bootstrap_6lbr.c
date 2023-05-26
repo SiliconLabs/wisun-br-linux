@@ -486,9 +486,6 @@ void ws_bootstrap_6lbr_state_machine(struct net_if *cur)
         case ER_SCAN:
             tr_debug("WS SM:configuration Scan");
             break;
-        case ER_PANA_AUTH:
-            tr_info("authentication start");
-            break;
         case ER_RPL_SCAN:
             tr_debug("WS SM:Wait RPL to contact DODAG root");
             break;
