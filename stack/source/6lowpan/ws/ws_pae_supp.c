@@ -143,7 +143,6 @@ static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
 static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
 static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
-static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
@@ -1172,20 +1171,3 @@ static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
     // Delete KMP
     ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
 }
-
-static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return NULL;
-    }
-
-    kmp_api_t *kmp = ws_pae_lib_kmp_list_instance_id_get(&pae_supp->entry.kmp_list, instance_id);
-    if (!kmp) {
-        return NULL;
-    }
-
-    return kmp;
-}
-
-
