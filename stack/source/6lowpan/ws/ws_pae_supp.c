@@ -143,7 +143,6 @@ static int8_t ws_pae_supp_timer_stop(pae_supp_t *pae_supp);
 static bool ws_pae_supp_timer_running(pae_supp_t *pae_supp);
 static void ws_pae_supp_kmp_service_addr_get(kmp_service_t *service, kmp_api_t *kmp, kmp_addr_t *local_addr, kmp_addr_t *remote_addr);
 static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_api_t *kmp, kmp_type_e type);
-static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size);
 static kmp_api_t *ws_pae_supp_kmp_tx_status_ind(kmp_service_t *service, uint8_t instance_id);
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
@@ -1039,67 +1038,6 @@ static kmp_api_t *ws_pae_supp_kmp_service_api_get(kmp_service_t *service, kmp_ap
     }
 
     return ws_pae_lib_kmp_list_type_get(&pae_supp->entry.kmp_list, type);
-}
-
-static kmp_api_t *ws_pae_supp_kmp_incoming_ind(kmp_service_t *service, uint8_t instance_id, kmp_type_e type, const kmp_addr_t *addr, const void *pdu, uint16_t size)
-{
-    (void) instance_id;
-    (void) pdu;
-    (void) size;
-
-    // Should be MKA, 4WH or GKH and never initial EAPOL-key for supplicant
-    if (type > IEEE_802_1X_INITIAL_KEY) {
-        return NULL;
-    }
-
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return NULL;
-    }
-
-    // If target address is not set or authentication is not ongoing
-    if (!pae_supp->entry_address_active || !ws_pae_supp_authentication_ongoing(pae_supp)) {
-        tr_info("Incoming KMP rejected, auth not ongoing, type: %i ", type);
-        // Does no longer wait for authentication, ignores message
-        return NULL;
-    }
-
-    // Updates parent address
-    kmp_address_copy(&pae_supp->entry.addr, addr);
-
-    // Check if ongoing
-    kmp_api_t *kmp = ws_pae_lib_kmp_list_type_get(&pae_supp->entry.kmp_list, type);
-    /* If kmp receiving is enabled or it is not GKH, routes message to existing KMP.
-
-       For GKH creates an instance to handle message. If message is not valid (e.g. repeated
-       message counter), GKH ignores message and waits for timeout. All further messages
-       are routed to that instance. If valid message arrives, GKH instance handles the
-       message, replies to authenticator and terminates. */
-    if (kmp && (!kmp_api_receive_disable(kmp) || type != IEEE_802_11_GKH)) {
-        return kmp;
-    }
-
-    // Create new instance
-    kmp = ws_pae_supp_kmp_create_and_start(service, type, pae_supp);
-
-    // Adds ticks to wait for authenticator to continue timer
-    ws_pae_lib_supp_timer_ticks_add(&pae_supp->entry, START_AUTHENTICATION_TICKS);
-
-    // For EAP-TLS create also TLS in addition to EAP-TLS
-    if (type == IEEE_802_1X_MKA) {
-        if (ws_pae_lib_kmp_list_type_get(&pae_supp->entry.kmp_list, TLS_PROT) != NULL) {
-            // TLS already exists, wait for it to be deleted
-            ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
-            return NULL;
-        }
-        // Create TLS instance */
-        if (ws_pae_supp_kmp_create_and_start(service, TLS_PROT, pae_supp) == NULL) {
-            ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
-            return NULL;
-        }
-    }
-
-    return kmp;
 }
 
 static kmp_api_t *ws_pae_supp_kmp_create_and_start(kmp_service_t *service, kmp_type_e type, pae_supp_t *pae_supp)
