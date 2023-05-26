@@ -2089,10 +2089,6 @@ void ws_bootstrap_event_routing_ready(struct net_if *cur)
     ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 
-void ws_bootstrap_event_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type)
-{
-    ws_bootstrap_event_trig(event_type, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
-}
 void ws_bootstrap_event_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedure_e procedure)
 {
     if (cur->bootStrapId < 0) {

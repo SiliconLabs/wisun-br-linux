@@ -133,8 +133,6 @@ void ws_bootstrap_event_operation_start(struct net_if *cur);
 
 void ws_bootstrap_event_routing_ready(struct net_if *cur);
 
-void ws_bootstrap_event_disconnect(struct net_if *cur, ws_bootstrap_event_type_e event_type);
-
 void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_procedure_e procedure);
 
 // Bootstrap state machine state Functions
