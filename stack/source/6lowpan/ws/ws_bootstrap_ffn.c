@@ -835,32 +835,6 @@ static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, cons
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
 }
 
-static bool ws_bootstrap_network_name_matches(const struct mcps_data_ie_list *ie_ext, const char *network_name_ptr)
-{
-    ws_wp_netname_t network_name;
-
-    if (!network_name_ptr || !ie_ext) {
-        return false;
-    }
-
-    // FIXME: see comment in ws_llc_mngt_ind
-    if (!ws_wp_nested_netname_read(ie_ext->payloadIeList, ie_ext->payloadIeListLength, &network_name)) {
-        tr_warn("No network name IE");
-        return false;
-    }
-
-    if (network_name.network_name_length != strlen(network_name_ptr)) {
-        return false;
-    }
-
-    if (strncmp(network_name_ptr, (char *)network_name.network_name, network_name.network_name_length) != 0) {
-        return false;
-    }
-
-    // names have equal length and same characters
-    return true;
-}
-
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
     if (asynch_message == WS_FT_PA)
