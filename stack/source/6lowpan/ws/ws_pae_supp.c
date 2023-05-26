@@ -135,9 +135,6 @@ static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
 
-static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
-
-
 static const eapol_pdu_recv_cb_data_t eapol_pdu_recv_cb_data = {
     .priority = EAPOL_PDU_RECV_HIGH_PRIORITY,
     .filter_requsted = false,
@@ -570,16 +567,4 @@ static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_
     }
 
     return -1;
-}
-
-static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp)
-{
-    kmp_service_t *service = kmp_api_service_get(kmp);
-    pae_supp_t *pae_supp = ws_pae_supp_by_kmp_service_get(service);
-    if (!pae_supp) {
-        return;
-    }
-
-    // Delete KMP
-    ws_pae_lib_kmp_list_delete(&pae_supp->entry.kmp_list, kmp);
 }
