@@ -1733,32 +1733,6 @@ neigh_create_ok:
 #endif
     return create_ok;
 }
-uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur)
-{
-    mac_neighbor_table_entry_t *mac_neighbor = mac_neighbor_entry_get_priority(cur->mac_parameters.mac_neighbor_table);
-    if (!mac_neighbor) {
-        return 0xffff;
-    }
-    ws_neighbor_class_entry_t *ws_neighbor =  ws_neighbor_class_entry_get(&cur->ws_info.neighbor_storage, mac_neighbor->index);
-    if (!ws_neighbor) {
-        return 0xffff;
-    }
-
-    uint16_t etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_neighbor->mac64);
-    if (etx == 0) {
-        etx = WS_ETX_MAX; //SET maximum value here if ETX is unknown
-    } else {
-        //Scale to 128 based ETX (local read return 0x100 - 0xffff
-        etx = etx >> 1;
-    }
-    // Make the 0xffff as maximum value
-    if (ws_neighbor->routing_cost + etx > 0xffff) {
-        return 0xffff;
-    }
-
-    return ws_neighbor->routing_cost + etx;
-}
-
 static struct rpl_instance *ws_bootstrap_get_rpl_instance(struct net_if *cur)
 {
     if (!cur || !cur->rpl_domain) {

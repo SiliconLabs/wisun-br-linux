@@ -169,6 +169,4 @@ void ws_bootstrap_advertise_start(struct net_if *cur);
 
 void ws_bootstrap_network_start(struct net_if *cur);
 
-uint16_t ws_bootstrap_routing_cost_calculate(struct net_if *cur);
-
 #endif
