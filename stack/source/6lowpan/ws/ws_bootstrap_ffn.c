@@ -258,19 +258,6 @@ static int8_t ws_bootstrap_ffn_fhss_configure(struct net_if *cur, bool discovery
     return 0;
 }
 
-void ws_bootstrap_ffn_network_discovery_configure(struct net_if *cur)
-{
-    // Reset information to defaults
-    cur->ws_info.network_pan_id = 0xffff;
-
-    ws_common_regulatory_domain_config(cur, &cur->ws_info.hopping_schedule);
-    ws_bootstrap_set_domain_rf_config(cur);
-    ws_bootstrap_ffn_fhss_configure(cur, true);
-
-    //Set Network names, Pan information configure, hopping schedule & GTKHash
-    ws_llc_set_network_name(cur, (uint8_t *)cur->ws_info.cfg->gen.network_name, strlen(cur->ws_info.cfg->gen.network_name));
-}
-
 /*
  * Statemachine state functions
  * */
