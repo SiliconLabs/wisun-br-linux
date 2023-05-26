@@ -88,25 +88,6 @@ static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *
     return ns_list_get_first(&cur->ws_info.parent_list_reserved);
 }
 
-static parent_info_t *ws_bootstrap_ffn_candidate_parent_allocate(struct net_if *cur, const uint8_t *addr)
-{
-    parent_info_t *entry = ns_list_get_first(&cur->ws_info.parent_list_free);
-    if (entry) {
-        memcpy(entry->addr, addr, 8);
-        ns_list_remove(&cur->ws_info.parent_list_free, entry);
-        ns_list_add_to_end(&cur->ws_info.parent_list_reserved, entry);
-    } else {
-        // If there is no free entries always allocate the last one of reserved as it is the worst
-        entry = ns_list_get_last(&cur->ws_info.parent_list_reserved);
-
-    }
-    if (entry) {
-        entry->tx_fail = 0;
-        entry->link_acceptable = false;
-    }
-    return entry;
-}
-
 static bool ws_bootstrap_ffn_candidate_parent_compare(parent_info_t *p1, parent_info_t *p2)
 {
     // Return true if P2 is better
