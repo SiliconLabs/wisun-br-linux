@@ -164,11 +164,6 @@ uint64_t sec_prot_keys_pmk_replay_cnt_get(sec_prot_keys_t *sec_keys)
     return sec_keys->pmk_key_replay_cnt;
 }
 
-void sec_prot_keys_pmk_replay_cnt_set(sec_prot_keys_t *sec_keys, uint64_t counter)
-{
-    sec_keys->pmk_key_replay_cnt_set = true;
-    sec_keys->pmk_key_replay_cnt = counter;
-}
 bool sec_prot_keys_pmk_replay_cnt_increment(sec_prot_keys_t *sec_keys)
 {
     // Start from zero i.e. does not increment on first call

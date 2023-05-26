@@ -279,15 +279,6 @@ uint32_t sec_prot_keys_pmk_lifetime_get(sec_prot_keys_t *sec_keys);
 uint64_t sec_prot_keys_pmk_replay_cnt_get(sec_prot_keys_t *sec_keys);
 
 /**
- * sec_prot_keys_pmk_replay_cnt_set sets PMK replay counter value
- *
- * \param sec_keys security keys
- * \param counter new value for replay counter
- *
- */
-void sec_prot_keys_pmk_replay_cnt_set(sec_prot_keys_t *sec_keys, uint64_t counter);
-
-/**
  * sec_prot_keys_pmk_replay_cnt_increment increments PMK replay counter value by one
  *
  * \param sec_keys security keys
