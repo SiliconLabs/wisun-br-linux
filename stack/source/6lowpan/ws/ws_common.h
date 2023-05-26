@@ -36,26 +36,6 @@ extern uint16_t test_max_child_count_override;
 
 struct ws_cfg;
 
-typedef struct parent_info {
-#ifndef HAVE_WS_BORDER_ROUTER
-    uint16_t             pan_id;             /**< PAN ID */
-    uint8_t              addr[8];            /**< address */
-    uint8_t              link_quality;       /**< LQI value measured during reception of the MPDU */
-    uint8_t              tx_fail;
-    int8_t               signal_dbm;         /**< This extension for normal IEEE 802.15.4 Data indication */
-    ws_pan_information_t pan_information;
-    ws_utt_ie_t          ws_utt;
-    ws_us_ie_t           ws_us;
-    uint32_t             timestamp;                 /**< Timestamp when packet was received */
-    uint32_t             age;                       /**< Age of entry in 100ms ticks */
-    uint8_t              excluded_channel_data[32]; /**< Channel mask Max length and it accept 8 different range*/
-    bool                 link_acceptable: 1;        /**< True when Link quality is in acceptable level*/
-#endif
-    ns_list_link_t       link;
-} parent_info_t;
-
-typedef NS_LIST_HEAD(parent_info_t, link) parent_info_list_t;
-
 typedef struct ws_nud_table_entry {
     void                            *neighbor_info;
     uint16_t                        timer;                    /*!< Timer which resolution is 100ms*/
@@ -99,9 +79,6 @@ typedef struct ws_info {
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
-    parent_info_t parent_info[WS_PARENT_LIST_SIZE];
-    parent_info_list_t parent_list_free;
-    parent_info_list_t parent_list_reserved;
     ws_bsi_block_t ws_bsi_block;
     uint16_t aro_registration_timer;       /**< Aro registration timer */
     uint16_t rpl_version_timer;            /**< RPL version update timeout */

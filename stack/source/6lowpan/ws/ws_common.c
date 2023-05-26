@@ -143,9 +143,6 @@ int8_t ws_common_allocate_and_init(struct net_if *cur)
     ns_list_init(&cur->ws_info.active_nud_process);
     ns_list_init(&cur->ws_info.free_nud_entries);
 
-    ns_list_init(&cur->ws_info.parent_list_free);
-    ns_list_init(&cur->ws_info.parent_list_reserved);
-
     cur->ws_info.version = test_pan_version;
 
     cur->ws_info.network_pan_id = 0xffff;
