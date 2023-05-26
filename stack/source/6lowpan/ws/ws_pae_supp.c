@@ -134,7 +134,6 @@ static void ws_pae_supp_initial_key_update_trickle_timer_start(pae_supp_t *pae_s
 static int8_t ws_pae_supp_timer_start(pae_supp_t *pae_supp);
 static int8_t ws_pae_supp_eapol_pdu_address_check(struct net_if *interface_ptr, const uint8_t *eui_64);
 static int8_t ws_pae_supp_parent_eui_64_get(struct net_if *interface_ptr, uint8_t *eui_64);
-static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp);
 
 static void ws_pae_supp_kmp_api_finished(kmp_api_t *kmp);
 
@@ -261,23 +260,6 @@ int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
     // Update NVM if data has been changed
     ws_pae_supp_nvm_update(pae_supp);
 
-    return 0;
-}
-
-static int8_t ws_pae_supp_gtk_hash_mismatch_check(pae_supp_t *pae_supp)
-{
-    gtkhash_t *gtkhash = pae_supp->gtk_hash_ptr_get(pae_supp->interface_ptr);
-    if (!gtkhash) {
-        return -1;
-    }
-
-    // Check GTK hashes and initiate EAPOL procedure if mismatch is detected */
-    gtk_mismatch_e mismatch = sec_prot_keys_gtks_hash_update(pae_supp->sec_keys_nw_info->gtks, gtkhash, false);
-    if (mismatch != GTK_NO_MISMATCH) {
-        return -1;
-    }
-
-    tr_info("GTKs match to GTK hash");
     return 0;
 }
 
