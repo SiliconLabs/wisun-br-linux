@@ -353,48 +353,6 @@ static void ws_bootstrap_ffn_start_configuration_learn(struct net_if *cur)
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pcs, &cur->ws_info.mngt.trickle_params);
 }
 
-static void ws_bootstrap_ffn_pan_config_solicit_analyse(struct net_if *cur, const struct mcps_data_ind *data, ws_utt_ie_t *ws_utt, ws_us_ie_t *ws_us)
-{
-    if (data->SrcPANId != cur->ws_info.network_pan_id) {
-        return;
-    }
-
-    /* TODO smart neighbour process
-     *
-     * Unsecure packet we cant trust the device?
-     *
-     * Question mark in specification also present, now we create neighbour.
-     * this is moved in future to NS/ND processing triggered by RPL
-     *
-     */
-
-    llc_neighbour_req_t neighbor_info;
-    if (ws_bootstrap_neighbor_get(cur, data->SrcAddr, &neighbor_info)) {
-        ws_neighbor_class_ut_update(neighbor_info.ws_neighbor, ws_utt->ufsi, data->timestamp, data->SrcAddr);
-        ws_neighbor_class_us_update(cur, neighbor_info.ws_neighbor, &ws_us->chan_plan, ws_us->dwell_interval, data->SrcAddr);
-    }
-
-    if (ws_bootstrap_state_active(cur) && cur->bootstrap_mode != ARM_NWK_BOOTSTRAP_MODE_6LoWPAN_BORDER_ROUTER) {
-        mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_address_discover(cur->mac_parameters.mac_neighbor_table, data->SrcAddr, ADDR_802_15_4_LONG);
-        if (neighbor && neighbor->link_role == PRIORITY_PARENT_NEIGHBOUR) {
-            ws_bootstrap_parent_confirm(cur, NULL);
-        }
-    }
-
-    /*
-     * A consistent transmission is defined as a PAN Configuration Solicit with
-     * a PAN-ID matching that of the receiving node and a NETNAME-IE / Network Name
-     * matching that configured on the receiving node.
-     */
-    trickle_consistent_heard(&cur->ws_info.mngt.trickle_pcs);
-    /*
-     *  inconsistent transmission is defined as either:
-     *  A PAN Configuration Solicit with a PAN-ID matching that of the receiving node and
-     *  a NETNAME-IE / Network Name matching the network name configured on the receiving
-     */
-    trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
-}
-
 void ws_bootstrap_ffn_asynch_confirm(struct net_if *interface, uint8_t asynch_message)
 {
     if (asynch_message == WS_FT_PA)
