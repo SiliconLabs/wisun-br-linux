@@ -79,18 +79,6 @@
 
 #define TRACE_GROUP "wsbs"
 
-static void ws_bootstrap_ffn_ip_stack_addr_clear(struct net_if *cur)
-{
-    tr_debug("ip stack address clear");
-    ns_list_foreach_safe(if_address_entry_t, addr, &cur->ip_addresses) {
-        if (addr->source != ADDR_SOURCE_STATIC &&
-                addr_ipv6_scope(addr->address, cur) > IPV6_SCOPE_LINK_LOCAL) {
-            // Remove all exept User set address
-            addr_delete_entry(cur, addr);
-        }
-    }
-}
-
 static parent_info_t *ws_bootstrap_ffn_candidate_parent_get_best(struct net_if *cur)
 {
     ns_list_foreach_safe(parent_info_t, entry, &cur->ws_info.parent_list_reserved) {
