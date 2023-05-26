@@ -66,18 +66,6 @@ int8_t ws_pae_supp_authenticate(struct net_if *interface_ptr, uint16_t dest_pan_
 int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid);
 
 /**
- *  ws_pae_supp_gtks_set set supplicant GTKs
- *
- * \param interface_ptr interface
- * \param gtks GTKs
- *
- * \return < 0 failure
- * \return >= 0 success
- *
- */
-int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk);
-
-/**
  * ws_pae_supp_nw_key_index_set network send key index set callback
  *
  * \param interface_ptr interface

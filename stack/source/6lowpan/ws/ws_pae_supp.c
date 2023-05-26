@@ -223,21 +223,6 @@ int8_t ws_pae_supp_nw_key_valid(struct net_if *interface_ptr, uint8_t *br_iid)
     return 0;
 }
 
-int8_t ws_pae_supp_gtks_set(struct net_if *interface_ptr, sec_prot_gtk_keys_t *gtks, bool is_lgtk)
-{
-    pae_supp_t *pae_supp = ws_pae_supp_get(interface_ptr);
-    if (!pae_supp) {
-        return -1;
-    }
-
-    if (is_lgtk)
-        *pae_supp->sec_keys_nw_info->lgtks = *gtks;
-    else
-        *pae_supp->sec_keys_nw_info->gtks = *gtks;
-
-    return 0;
-}
-
 static void ws_pae_supp_nvm_update(pae_supp_t *pae_supp)
 {
     // Indicate to PAE controller that NW info or GTKs may have been changed
