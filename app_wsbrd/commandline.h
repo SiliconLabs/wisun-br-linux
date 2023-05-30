@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <sys/socket.h> // Compatibility with linux headers < 4.12
-#include <linux/if.h>
+#include <net/if.h>
 
 #include "core/net_interface.h"
 
@@ -33,8 +33,8 @@ struct wsbrd_conf {
     int  uart_baudrate;
     bool uart_rtscts;
 
-    char tun_dev[IFNAMSIZ];
-    char neighbor_proxy[IFNAMSIZ];
+    char tun_dev[IF_NAMESIZE];
+    char neighbor_proxy[IF_NAMESIZE];
     bool tun_autoconf;
     bool internal_dhcp;
 
