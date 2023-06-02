@@ -1505,13 +1505,6 @@ static buffer_t *rpl_control_dis_handler(struct net_if *cur, rpl_domain_t *domai
     return buffer_free(buf);
 }
 
-void rpl_control_transmit_dio_trigger(struct net_if *cur, struct rpl_domain *domain)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_instance_dio_trigger(instance, cur, NULL);
-    }
-}
-
 void rpl_control_parent_selection_trigger(struct rpl_domain *domain)
 {
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
