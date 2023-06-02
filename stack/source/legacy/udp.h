@@ -22,16 +22,4 @@
 
 typedef struct buffer buffer_t;
 
-static inline buffer_t *udp_down(buffer_t *buf)
-{
-    WARN("6lbr shouldn't reach this point");
-    return NULL;
-}
-
-static inline buffer_t *udp_up(buffer_t *buf)
-{
-    WARN("6lbr shouldn't reach this point");
-    return NULL;
-}
-
 #endif

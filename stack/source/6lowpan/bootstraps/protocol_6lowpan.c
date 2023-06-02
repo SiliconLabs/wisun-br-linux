@@ -108,11 +108,6 @@ void protocol_6lowpan_stack(buffer_t *b)
                     /* Build ICMP Header */
                     b = icmpv6_down(b);
                     break;
-                case B_TO_UDP:
-                    /* Build UDP Header */
-                    b = udp_down(b);
-                    break;
-
                 case B_TO_IPV6:
                     /* Build IP header */
                     b = ipv6_down(b);
@@ -160,11 +155,6 @@ void protocol_6lowpan_stack(buffer_t *b)
                     /* Packet Reasemley */
                     b = cipv6_frag_reassembly(cur->id, b);
 
-                    break;
-
-                case B_TO_UDP:
-                    /* Parse UDP Message */
-                    b = udp_up(b);
                     break;
                 case B_TO_IPV6_FWD:
                     /* Handle IP Payload */
