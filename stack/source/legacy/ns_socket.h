@@ -34,12 +34,6 @@ static inline void socket_init(void)
 {
 }
 
-static inline socket_error_e socket_up(buffer_t *buf)
-{
-    WARN();
-    return 0;
-}
-
 static inline void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status)
 {
     buffer_free(buf);

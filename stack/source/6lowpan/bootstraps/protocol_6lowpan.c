@@ -139,12 +139,6 @@ void protocol_6lowpan_stack(buffer_t *b)
         } else {
             /* Direction UP */
             switch (b->info & B_TO_MASK) {
-                case B_TO_APP:
-                    /* Push Socket Interface */
-                    socket_up(b);
-                    b = NULL;
-                    break;
-
                 case B_TO_ICMP:
                     /* Parse ICMP Message */
                     b = icmpv6_up(b);
