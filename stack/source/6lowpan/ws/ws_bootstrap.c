@@ -2118,7 +2118,7 @@ void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_t
     neighbor_info.ws_neighbor = ws_neighbor_class_entry_get(&interface->ws_info.neighbor_storage, neighbor->index);
     ws_bootstrap_primary_parent_set(interface, &neighbor_info, WS_PARENT_HARD_SYNCH);
     ws_common_create_ll_address(link_local_address, neighbor->mac64);
-    dhcp_client_server_address_update(interface->id, NULL, link_local_address);
+    WARN();
     ws_bootstrap_secondary_parent_update(interface);
 }
 
