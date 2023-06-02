@@ -194,8 +194,6 @@ typedef struct ipv6_destination {
     ns_list_link_t                  link;
 } ipv6_destination_t;
 
-#define ipv6_destination_pmtu(d) IPV6_MIN_LINK_MTU
-
 void ipv6_destination_cache_print();
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);
 ipv6_destination_t *ipv6_destination_lookup_or_create_with_route(const uint8_t *address, int8_t interface_id, ipv6_route_info_t *route_out);
