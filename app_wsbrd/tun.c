@@ -421,6 +421,10 @@ void wsbr_tun_read(struct wsbr_ctxt *ctxt)
     if (lowpan_adaptation_queue_size(ctxt->rcp_if_id) > 2)
         return;
     iobuf.data_size = read(ctxt->tun_fd, buf, sizeof(buf));
+    if (iobuf.data_size < 0) {
+        WARN("%s: read: %m", __func__);
+        return;
+    }
 
     ip_version = FIELD_GET(IPV6_VERSION_MASK, iobuf_pop_be32(&iobuf));
     if (ip_version != 6) {
