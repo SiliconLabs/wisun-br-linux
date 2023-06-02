@@ -20,9 +20,5 @@
 
 #include <stdint.h>
 
-static inline void ipv6_frag_timer(int secs)
-{
-}
-
 #endif
 

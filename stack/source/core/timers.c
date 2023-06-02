@@ -8,7 +8,6 @@
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/core/ns_address_internal.h"
 #include "stack/source/ipv6_stack/ipv6_routing_table.h"
-#include "stack/source/legacy/ipv6_fragmentation_rx.h"
 #include "stack/source/nwk_interface/protocol_core.h"
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl_control.h"
@@ -35,7 +34,6 @@ struct ws_timer g_timers[] = {
     timer_entry(RPL_SLOW,               rpl_control_slow_timer,                     1000,                    true),
     timer_entry(IPV6_DESTINATION,       ipv6_destination_cache_timer,               DCACHE_GC_PERIOD * 1000, true),
     timer_entry(IPV6_ROUTE,             ipv6_route_table_ttl_update,                1000,                    true),
-    timer_entry(IPV6_FRAG,              ipv6_frag_timer,                            1000,                    true),
     timer_entry(CIPV6_FRAG,             cipv6_frag_timer,                           1000,                    true),
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
