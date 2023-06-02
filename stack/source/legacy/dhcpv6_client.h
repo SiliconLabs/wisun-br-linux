@@ -22,9 +22,4 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_client_for_this_interface, bool no_address_hint)
-{
-    WARN();
-}
-
 #endif

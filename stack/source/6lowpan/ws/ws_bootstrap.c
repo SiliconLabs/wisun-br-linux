@@ -723,7 +723,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
     } else {
         WARN();
         dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
-        dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
     }
 
     ws_nud_table_reset(cur);
