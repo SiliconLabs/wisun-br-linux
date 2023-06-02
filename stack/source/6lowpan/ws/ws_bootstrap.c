@@ -1386,10 +1386,6 @@ void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t
     }
 }
 
-void ws_dhcp_client_address_delete(struct net_if *cur, uint8_t *prefix)
-{
-}
-
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
 {
     rpl_control_register_address(interface, addr);
