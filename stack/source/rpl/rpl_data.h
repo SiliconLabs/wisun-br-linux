@@ -43,6 +43,5 @@ bool rpl_data_is_rpl_parent_route(ipv6_route_src_t source);
 bool rpl_data_forwarding_error(buffer_t *buf);
 buffer_t *rpl_data_process_routing_header(buffer_t *buf, struct net_if *cur, uint8_t *ptr, uint16_t *hdrlen_out, bool *forward_out);
 buffer_t *rpl_data_source_route_error_handler(buffer_t *buf, struct net_if *cur);
-bool rpl_data_get_srh_last_address(const uint8_t *srh, uint8_t *addr_out);
 
 #endif

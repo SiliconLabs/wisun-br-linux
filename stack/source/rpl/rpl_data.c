@@ -1180,30 +1180,6 @@ error:
     return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_SRC_RTE_HDR_ERR, 0);
 }
 
-bool rpl_data_get_srh_last_address(const uint8_t *rh, uint8_t *addr_out)
-{
-    uint_fast8_t len = rh[1];
-    uint_fast8_t segs_left = rh[3];
-    uint_fast8_t cmpr_i = rh[4] >> 4;
-    uint_fast8_t cmpr_e = rh[4] & 0xF;
-    uint_fast8_t pad = rh[5] >> 4;
-
-    const uint8_t *last_addr_ptr = rh + 8 + (len * 8) - pad - (16 - cmpr_e);
-
-    if (segs_left == 0) {
-        return true;
-    }
-
-    if (segs_left > 1) {
-        /* Get last "I" destination in */
-        memcpy(addr_out + cmpr_i, last_addr_ptr - (16 - cmpr_i), 16 - cmpr_i);
-    }
-
-    /* Then modify "E" destination */
-    memcpy(addr_out + cmpr_e, last_addr_ptr, 16 - cmpr_e);
-    return true;
-}
-
 /* Set up handlers for general RPL nodes (hop-by-hop headers, DIO routes) */
 void rpl_data_init(void)
 {
