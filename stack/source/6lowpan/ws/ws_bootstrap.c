@@ -1378,12 +1378,6 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
     }
 }
 
-
-void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t *parent_link_local)
-{
-    WARN();
-}
-
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
 {
     rpl_control_register_address(interface, addr);
@@ -1564,11 +1558,8 @@ static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t
         } else {
             icmpv6_slaac_prefix_update(cur, prefix->prefix, prefix->prefix_len, 0, 0);
         }
-    } else if (prefix->prefix_len) {
-        // Create new address using DHCP
-        if (parent_link_local) {
-            ws_dhcp_client_address_request(cur, prefix->prefix, parent_link_local);
-        }
+    } else if (prefix->prefix_len && parent_link_local) {
+        WARN();
     }
 }
 

@@ -77,8 +77,6 @@ void ws_nud_entry_remove_active(struct net_if *cur, void *neighbor);
 
 void ws_nud_active_timer(struct net_if *cur, uint16_t ticks);
 
-void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t *parent_link_local);
-
 void ws_bootstrap_eapol_parent_synch(struct net_if *cur, struct llc_neighbour_req *neighbor_info);
 
 void ws_bootstrap_neighbor_set_stable(struct net_if *interface, const uint8_t *src64);
