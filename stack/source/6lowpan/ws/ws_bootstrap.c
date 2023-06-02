@@ -198,14 +198,6 @@ static void ws_bootstrap_address_notification_cb(struct net_if *interface, const
             interface->global_address_available = true;
         }
     } else if (reason == ADDR_CALLBACK_DELETED) {
-        // What to do?
-        // Go through address list and check if there is global address still available
-        if (addr->source == ADDR_SOURCE_DHCP) {
-            //Deprecate dhcpv address
-            uint8_t address[16];
-            memcpy(address, addr->address, 16);
-            dhcp_client_global_address_delete(interface->id, NULL, address);
-        }
         //Discover prefix policy
         addr_policy_remove_by_label(WS_NON_PREFFRED_LABEL);
 
@@ -1383,9 +1375,6 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
         if (cur) {
             ws_address_reregister_trig(cur);
         }
-    } else {
-        //Delete dhcpv6 client
-        dhcp_client_global_address_delete(interface, dhcp_addr, prefix);
     }
 }
 
@@ -1399,7 +1388,6 @@ void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t
 
 void ws_dhcp_client_address_delete(struct net_if *cur, uint8_t *prefix)
 {
-    dhcp_client_global_address_delete(cur->id, NULL, prefix);
 }
 
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
@@ -1586,10 +1574,6 @@ static void ws_rpl_prefix_callback(prefix_entry_t *prefix, void *handle, uint8_t
         // Create new address using DHCP
         if (parent_link_local) {
             ws_dhcp_client_address_request(cur, prefix->prefix, parent_link_local);
-        } else {
-            /* Deprecate address and remove client */
-            tr_debug("Prefix invalidation %s", tr_ipv6(prefix->prefix));
-            dhcp_client_global_address_delete(cur->id, NULL, prefix->prefix);
         }
     }
 }
