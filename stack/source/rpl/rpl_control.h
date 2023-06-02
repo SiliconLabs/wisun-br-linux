@@ -205,9 +205,6 @@ void rpl_control_force_leaf(rpl_domain_t *domain, bool leaf);
 /*Process routes from DIOs and add those as real routes. if routes are not processed assume DODAGID as default route*/
 void rpl_control_process_routes(rpl_domain_t *domain, bool process_routes);
 
-/* force DAO to verify connections before given time*/
-void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds);
-
 /* APIs to create domains and map them to interfaces */
 rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);

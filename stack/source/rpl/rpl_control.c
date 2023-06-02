@@ -706,13 +706,6 @@ void rpl_control_force_leaf(rpl_domain_t *domain, bool leaf)
     }
 }
 
-void rpl_control_dao_timeout(rpl_domain_t *domain, uint16_t seconds)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_instance_dao_timeout(instance, seconds);
-    }
-}
-
 void rpl_control_process_routes(rpl_domain_t *domain, bool process_routes)
 {
     domain->process_routes = process_routes;
