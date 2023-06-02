@@ -1255,10 +1255,6 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buf = ipv6_handle_options(buf, cur, ptr, IPV6_NH_DEST_OPT, payload_length, &hdrlen, &ll_src, ptr - buffer_data_pointer(buf) < frag_offset);
                 nh_ptr = ptr;
                 break;
-#ifdef HAVE_IPV6_FRAGMENT
-            case IPV6_NH_FRAGMENT:
-                return ipv6_frag_up(buf, ptr, nh_ptr, payload_length);
-#endif
             case IPV6_NH_ROUTING: {
                 bool forward = false;
                 buf = ipv6_handle_routing_header(buf, cur, ptr, payload_length, &hdrlen, &forward, ptr - buffer_data_pointer(buf) < frag_offset);

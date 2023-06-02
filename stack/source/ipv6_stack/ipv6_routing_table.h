@@ -194,9 +194,6 @@ typedef struct ipv6_destination {
     uint16_t                        pmtu;               // note this may be less than 1280 - upper layers may choose to send smaller based on this
     uint16_t                        pmtu_lifetime;      // seconds
 #endif
-#ifdef HAVE_IPV6_FRAGMENT
-    uint32_t                        fragment_id;
-#endif
     ipv6_neighbour_t                *last_neighbour;    // last neighbour used (only for reachability confirmation)
     ns_list_link_t                  link;
 } ipv6_destination_t;
