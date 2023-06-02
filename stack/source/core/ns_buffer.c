@@ -27,7 +27,6 @@
 #include "nwk_interface/protocol_stats.h"
 #include "core/net_interface.h"
 #include "core/ns_address_internal.h"
-#include "legacy/ns_socket.h"
 
 #include "core/ns_buffer.h"
 

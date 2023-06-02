@@ -25,7 +25,6 @@
 #include "common/ns_list.h"
 #include "service_libs/etx/etx.h"
 
-#include "legacy/ns_socket.h"
 #include "core/ns_address_internal.h"
 #include "nwk_interface/protocol.h"
 #include "6lowpan/nd/nd_router_object.h" // for gp_address_ functions - better place?

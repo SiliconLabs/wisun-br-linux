@@ -38,7 +38,7 @@
 #include "app_wsbrd/rcp_api.h"
 #include "core/timers.h"
 #include "core/ns_address_internal.h"
-#include "legacy/ns_socket.h"
+#include "core/ns_error_types.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
 #include "common_protocols/icmpv6.h"

@@ -40,7 +40,6 @@
 #include "6lowpan/ws/ws_llc.h"
 #include "common_protocols/ipv6.h"
 #include "common_protocols/icmpv6.h"
-#include "legacy/ns_socket.h"
 #include "mpl/mpl.h"
 #include "rpl/rpl_control.h"
 
