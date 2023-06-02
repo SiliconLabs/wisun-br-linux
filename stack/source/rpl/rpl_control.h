@@ -219,7 +219,6 @@ bool rpl_control_is_dodag_parent_candidate(struct net_if *interface, const uint8
 bool rpl_control_probe_parent_candidate(struct net_if *interface, const uint8_t ll_addr[16]);
 uint16_t rpl_control_neighbor_info_get(struct net_if *interface, const uint8_t ll_addr[16], uint8_t *global_address);
 bool rpl_possible_better_candidate(struct net_if *interface, struct rpl_instance *rpl_instance, const uint8_t ll_addr[16], uint16_t candidate_rank, uint16_t etx);
-uint16_t rpl_control_parent_candidate_list_size(struct net_if *interface, bool parent_list);
 uint16_t rpl_control_candidate_list_size(struct net_if *interface, struct rpl_instance *rpl_instance);
 uint16_t rpl_control_selected_parent_count(struct net_if *interface, struct rpl_instance *rpl_instance);
 void rpl_control_neighbor_delete(struct net_if *interface, const uint8_t ll_addr[16]);

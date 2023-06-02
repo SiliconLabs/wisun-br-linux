@@ -327,25 +327,6 @@ bool rpl_possible_better_candidate(struct net_if *interface, rpl_instance_t *rpl
 
 }
 
-
-uint16_t rpl_control_parent_candidate_list_size(struct net_if *interface, bool parent_list)
-{
-    if (!interface->rpl_domain) {
-        return 0;
-    }
-
-    uint16_t parent_list_size = 0;
-
-    // go through instances and parents and check if they match the address.
-    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
-        uint16_t current_size = rpl_instance_address_candidate_count(instance, parent_list);
-        if (current_size > parent_list_size) {
-            parent_list_size = current_size;
-        }
-    }
-    return parent_list_size;
-}
-
 void rpl_control_neighbor_delete_from_instance(struct net_if *interface, rpl_instance_t *instance, const uint8_t ll_addr[16])
 {
     rpl_neighbour_t *neighbour = rpl_lookup_neighbour_by_ll_address(instance, ll_addr, interface->id);
