@@ -455,8 +455,7 @@ void protocol_push(buffer_t *b)
         cur->if_stack_buffer_handler(b);
         return;
     }
-
-    socket_tx_buffer_event_and_free(b, SOCKET_TX_FAIL);
+    buffer_free(b);
 }
 
 void nwk_bootstrap_state_update(arm_nwk_interface_status_type_e posted_event, struct net_if *cur)

@@ -160,7 +160,7 @@ buffer_t *buffer_headroom(buffer_t *buf, uint16_t size)
         } else {
             tr_error("HeadRoom Fail");
             protocol_stats_update(STATS_BUFFER_HEADROOM_FAIL, 1);
-            socket_tx_buffer_event_and_free(buf, SOCKET_NO_RAM);
+            buffer_free(buf);
             buf = NULL;
         }
     } else if (buf->buf_ptr < size) {

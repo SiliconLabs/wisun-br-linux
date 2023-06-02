@@ -142,9 +142,7 @@ buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
         ns_list_add_to_start(&frags_list, frag_buf);
     }
 
-    /* Now have a list of fragment buffers - report "success" to the socket */
-    /* (TCP may save the dgram payload here? It strips off headers, so okay...) */
-    socket_tx_buffer_event_and_free(dgram_buf, SOCKET_TX_DONE);
+    buffer_free(dgram_buf);
 
     /* Push the fragments. Backwards, as it happens, but who cares? */
     ns_list_foreach_safe(buffer_t, f, &frags_list) {
@@ -162,7 +160,6 @@ failed:
         ns_list_remove(&frags_list, f);
         buffer_free(f);
     }
-
-    socket_tx_buffer_event_and_free(dgram_buf, SOCKET_NO_RAM);
+    buffer_free(dgram_buf);
     return NULL;
 }

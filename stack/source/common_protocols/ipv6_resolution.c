@@ -124,7 +124,7 @@ static void ipv6_trigger_resolve_query(struct net_if *cur_interface, buffer_t *b
     while (count >= RESOLUTION_QUEUE_LIMIT) {
         buffer_t *b = ns_list_get_first(&n->queue);
         ns_list_remove(&n->queue, b);
-        socket_tx_buffer_event_and_free(b, SOCKET_NO_ROUTE);
+        buffer_free(b);
         count--;
     }
     tr_debug("Queueing for: %s", tr_ipv6(n->ip_address));

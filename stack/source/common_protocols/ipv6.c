@@ -358,9 +358,7 @@ buffer_t *ipv6_down(buffer_t *buf)
     /* Note ipv6_buffer_route can change interface */
     if (!route) {
         tr_warn("ipv6_down route fail");
-drop:
-        socket_tx_buffer_event_and_free(buf, SOCKET_NO_ROUTE);
-        return NULL;
+        goto drop;
     }
 
     cur = buf->interface;
@@ -507,6 +505,10 @@ drop:
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_FWD);
 
     return buf;
+
+drop:
+    buffer_free(buf);
+    return NULL;
 }
 
 /* Input: IP packet, either locally-generated, or received and okay to forward
@@ -635,9 +637,8 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
 
     buf->info = (buffer_info_t)(B_DIR_DOWN | B_FROM_IPV6 | B_TO_IPV6_TXRX);
     return buf;
-
 drop:
-    socket_tx_buffer_event_and_free(buf, SOCKET_NO_ROUTE);
+    buffer_free(buf);
     return NULL;
 }
 

@@ -666,7 +666,7 @@ tx_error_handler:
         neigh_entry_ptr->nud_active = false;
 
     }
-    socket_tx_buffer_event_and_free(buf, SOCKET_TX_FAIL);
+    buffer_free(buf);
     return NULL;
 
 }
@@ -967,9 +967,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
             buf->adaptation_timestamp--;
         }
     } else if (lowpan_adaptation_interface_check_buffer_timeout(buf)) {
-        // Remove old buffers
-        socket_tx_buffer_event_and_free(buf, SOCKET_TX_FAIL);
-        return -1;
+        goto tx_error_handler;
     }
 
     //Update priority status
@@ -999,7 +997,7 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
             if (dropped) {
                 ns_list_remove(&interface_ptr->directTxQueue, dropped);
                 interface_ptr->directTxQueue_size--;
-                socket_tx_buffer_event_and_free(dropped, SOCKET_TX_FAIL);
+                buffer_free(dropped);
                 protocol_stats_update(STATS_AL_TX_CONGESTION_DROP, 1);
             }
         }
@@ -1037,11 +1035,9 @@ int8_t lowpan_adaptation_interface_tx(struct net_if *cur, buffer_t *buf)
     lowpan_data_request_to_mac(cur, buf, tx_ptr, interface_ptr);
     return 0;
 
-
 tx_error_handler:
-    socket_tx_buffer_event_and_free(buf, SOCKET_NO_RAM);
+    buffer_free(buf);
     return -1;
-
 }
 
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
@@ -1100,8 +1096,7 @@ static void lowpan_adaptation_data_process_clean(fragmenter_interface_t *interfa
         free(tx_ptr);
         interface_ptr->activeTxList_size--;
     }
-
-    socket_tx_buffer_event_and_free(buf, socket_event);
+    buffer_free(buf);
 }
 
 
@@ -1386,7 +1381,7 @@ int8_t lowpan_adaptation_free_messages_from_queues_by_address(struct net_if *cur
             interface_ptr->directTxQueue_size--;
             //Update Average QUEUE
             lowpan_adaptation_tx_queue_level_update(cur, interface_ptr);
-            socket_tx_buffer_event_and_free(entry, SOCKET_TX_FAIL);
+            buffer_free(entry);
         }
     }
 

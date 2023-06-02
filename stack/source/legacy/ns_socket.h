@@ -34,11 +34,6 @@ static inline void socket_init(void)
 {
 }
 
-static inline void socket_tx_buffer_event_and_free(buffer_t *buf, uint8_t status)
-{
-    buffer_free(buf);
-}
-
 static inline void socket_list_print(char sep)
 {
     WARN();
