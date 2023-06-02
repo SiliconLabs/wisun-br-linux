@@ -84,7 +84,6 @@ void ipv6_interface_resolution_failed(ipv6_neighbour_cache_t *cache, ipv6_neighb
          * unlike original case. If we want this, we should do it in ICMP
          * RX handling, so we get events for external errors.
          */
-        buf = socket_tx_buffer_event(buf, SOCKET_NO_ROUTE);
         if (buf) {
             buf = icmpv6_error(buf, cur_interface, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, code, 0);
             protocol_push(buf);
