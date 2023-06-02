@@ -13,7 +13,6 @@
 #include "stack/source/mpl/mpl.h"
 #include "stack/source/rpl/rpl_control.h"
 #include "stack/source/service_libs/etx/etx.h"
-#include "stack/source/legacy/dhcpv6_service.h"
 #include "common/utils.h"
 #include "common/log.h"
 
@@ -41,7 +40,6 @@ struct ws_timer g_timers[] = {
     timer_entry(ICMP_FAST,              icmp_fast_timer,                            100,                     true),
     timer_entry(PAE_FAST,               ws_pae_controller_fast_timer,               100,                     true),
     timer_entry(PAE_SLOW,               ws_pae_controller_slow_timer,               1000,                    true),
-    timer_entry(DHCPV6_SOCKET,          dhcp_service_timer_cb,                      100,                     false),
     timer_entry(6LOWPAN_ADDR_FAST,      addr_fast_timer,                            100,                     true),
     timer_entry(6LOWPAN_ADDR_SLOW,      addr_slow_timer,                            1000,                    true),
     timer_entry(WS_COMMON_FAST,         ws_common_fast_timer,                       100,                     true),

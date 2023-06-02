@@ -22,8 +22,4 @@
 #include <stdint.h>
 #include "common/log.h"
 
-static inline void dhcp_service_timer_cb(int ticks)
-{
-}
-
 #endif
