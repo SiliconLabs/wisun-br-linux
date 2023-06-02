@@ -1675,22 +1675,6 @@ void rpl_instance_dao_request(struct rpl_instance *instance, struct rpl_neighbou
     rpl_instance_dao_trigger(instance, 0);
 }
 
-void rpl_instance_dao_timeout(struct rpl_instance *instance, uint16_t seconds)
-{
-    // Forces DAO timeout to happen before given time distributed in given time
-    ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
-        if (!target->published || target->info.non_root.refresh_timer == 0) {
-            continue;
-        }
-        if (target->info.non_root.refresh_timer < seconds) {
-            continue;
-        }
-        // Shorten the timeout
-        target->info.non_root.refresh_timer = rand_get_random_in_range(1, seconds);
-    }
-}
-
-
 void rpl_downward_dao_slow_timer(rpl_instance_t *instance, uint16_t seconds)
 {
     if (!instance) {
