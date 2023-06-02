@@ -39,14 +39,4 @@ static inline void socket_list_print(char sep)
     WARN();
 }
 
-static inline socket_t *socket_reference(socket_t *socket)
-{
-    return NULL;
-}
-
-static inline socket_t *socket_dereference(socket_t *socket)
-{
-    return NULL;
-}
-
 #endif

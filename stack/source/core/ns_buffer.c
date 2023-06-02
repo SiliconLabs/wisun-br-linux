@@ -206,7 +206,6 @@ buffer_t *buffer_free(buffer_t *buf)
         }
 
         buf = buffer_free_route(buf);
-        socket_dereference(buf->socket);
         free(buf->predecessor);
         free(buf->rpl_option);
         free(buf);
@@ -266,9 +265,8 @@ void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr)
 
 socket_t *buffer_socket_set(buffer_t *buf, socket_t *socket)
 {
-    buf->socket = socket_dereference(buf->socket);
-    buf->socket = socket_reference(socket);
-    return buf->socket;
+    buf->socket = NULL;
+    return NULL;
 }
 
 /* Copy metadata information from src into dst.
