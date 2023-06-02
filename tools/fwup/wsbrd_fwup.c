@@ -115,7 +115,7 @@ static size_t read_data(struct os_ctxt *ctxt, uint8_t *buf, int buf_len)
         }
 
         if (pollfd.revents & POLLIN || ctxt->uart_next_frame_ready)
-            len = uart_rx(ctxt, buf, buf_len);
+            len = uart_legacy_rx(ctxt, buf, buf_len);
     } while (!len);
     return len;
 }
@@ -126,7 +126,7 @@ static void send_btl_update(struct os_ctxt *ctxt)
 
     spinel_push_u8(&tx_buf, 0);
     spinel_push_uint(&tx_buf, SPINEL_CMD_BOOTLOADER_UPDATE);
-    uart_tx(ctxt, tx_buf.data, tx_buf.len);
+    uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     iobuf_free(&tx_buf);
 }
 

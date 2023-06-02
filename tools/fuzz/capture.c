@@ -44,7 +44,7 @@ static void fuzz_capture_spinel(struct fuzz_ctxt *ctxt, struct iobuf_write *buf)
     uint8_t *frame = malloc(buf->data_size * 2 + 3);
     size_t frame_len;
 
-    frame_len = uart_encode_hdlc(frame, buf->data, buf->data_size, crc);
+    frame_len = uart_legacy_encode_hdlc(frame, buf->data, buf->data_size, crc);
     fuzz_capture(ctxt, frame, frame_len);
     free(frame);
 }

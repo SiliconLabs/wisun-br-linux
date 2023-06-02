@@ -71,8 +71,8 @@ void __wrap_parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
     }
 }
 
-int __real_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
-int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int __real_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len);
+int __wrap_uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     struct fuzz_ctxt *fuzz_ctxt = &g_fuzz_ctxt;
     uint8_t frame[4096];
@@ -82,14 +82,14 @@ int __wrap_uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
         return 0;
 
     if (fuzz_ctxt->capture_fd < 0)
-        return __real_uart_rx(ctxt, buf, buf_len);
+        return __real_uart_legacy_rx(ctxt, buf, buf_len);
 
-    frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
+    frame_len = uart_legacy_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
     fuzz_capture_timers(fuzz_ctxt);
     fuzz_capture(fuzz_ctxt, frame, frame_len);
-    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
+    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
 

@@ -81,7 +81,7 @@ int uart_open(const char *device, int bitrate, bool hardflow)
     return fd;
 }
 
-static int uart_tx_append(uint8_t *buf, uint8_t byte)
+static int uart_legacy_tx_append(uint8_t *buf, uint8_t byte)
 {
     if (byte == 0x7D || byte == 0x7E) {
         buf[0] = 0x7D;
@@ -93,29 +93,29 @@ static int uart_tx_append(uint8_t *buf, uint8_t byte)
     }
 }
 
-size_t uart_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
+size_t uart_legacy_encode_hdlc(uint8_t *out, const uint8_t *in, size_t in_len, uint16_t crc)
 {
     uint8_t crc_bytes[2];
     int frame_len;
 
     frame_len = 0;
     for (int i = 0; i < in_len; i++)
-        frame_len += uart_tx_append(out + frame_len, in[i]);
+        frame_len += uart_legacy_tx_append(out + frame_len, in[i]);
     write_le16(crc_bytes, crc);
-    frame_len += uart_tx_append(out + frame_len, crc_bytes[0]);
-    frame_len += uart_tx_append(out + frame_len, crc_bytes[1]);
+    frame_len += uart_legacy_tx_append(out + frame_len, crc_bytes[0]);
+    frame_len += uart_legacy_tx_append(out + frame_len, crc_bytes[1]);
     out[frame_len++] = 0x7E;
     return frame_len;
 }
 
-int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
+int uart_legacy_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 {
     uint16_t crc = crc16(buf, buf_len);
     uint8_t *frame = malloc(buf_len * 2 + 3);
     int frame_len;
     int ret;
 
-    frame_len = uart_encode_hdlc(frame, buf, buf_len, crc);
+    frame_len = uart_legacy_encode_hdlc(frame, buf, buf_len, crc);
     TRACE(TR_BUS, "bus tx: %s (%d bytes)",
           tr_bytes(frame, frame_len, NULL, 128, DELIM_SPACE | ELLIPSIS_STAR), frame_len);
     TRACE(TR_HDLC, "hdlc tx: %s (%d bytes)",
@@ -136,7 +136,7 @@ int uart_tx(struct os_ctxt *ctxt, const void *buf, unsigned int buf_len)
 /*
  * Returns the next HDLC frame if available, terminator included.
  */
-size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
+size_t uart_legacy_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
 {
     int frame_start, frame_len;
     int ret, i;
@@ -184,7 +184,7 @@ size_t uart_rx_hdlc(struct os_ctxt *ctxt, uint8_t *buf, size_t buf_len)
     return frame_len;
 }
 
-size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len, bool inhibit_crc_warning)
+size_t uart_legacy_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t in_len, bool inhibit_crc_warning)
 {
     int i = 0, frame_len = 0;
 
@@ -215,19 +215,19 @@ size_t uart_decode_hdlc(uint8_t *out, size_t out_len, const uint8_t *in, size_t 
     return frame_len;
 }
 
-int uart_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
+int uart_legacy_rx(struct os_ctxt *ctxt, void *buf, unsigned int buf_len)
 {
     uint8_t frame[4096];
     size_t frame_len;
 
-    frame_len = uart_rx_hdlc(ctxt, frame, sizeof(frame));
+    frame_len = uart_legacy_rx_hdlc(ctxt, frame, sizeof(frame));
     if (!frame_len)
         return 0;
-    frame_len = uart_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
+    frame_len = uart_legacy_decode_hdlc(buf, buf_len, frame, frame_len, ctxt->uart_inhibit_crc_warning);
     return frame_len;
 }
 
-void uart_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter)
+void uart_legacy_handle_crc_error(struct os_ctxt *ctxt, uint16_t crc, uint32_t frame_len, uint8_t header, uint8_t irq_err_counter)
 {
     struct retransmission_frame *buffers = ctxt->retransmission_buffers;
     int buffers_len = ARRAY_SIZE(ctxt->retransmission_buffers);

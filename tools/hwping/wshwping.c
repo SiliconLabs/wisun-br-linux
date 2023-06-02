@@ -212,7 +212,7 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
     if (cmdline->cpc_instance[0])
         cpc_tx(ctxt, tx_buf.data, tx_buf.len);
     else
-        uart_tx(ctxt, tx_buf.data, tx_buf.len);
+        uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
     spinel_trace_tx(&tx_buf);
     iobuf_free(&tx_buf);
 }
@@ -238,7 +238,7 @@ static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, 
             if (cmdline->cpc_instance[0])
                 len = cpc_rx(ctxt, buf, buf_len);
             else
-                len = uart_rx(ctxt, buf, buf_len);
+                len = uart_legacy_rx(ctxt, buf, buf_len);
         }
     } while (!len);
     return len;

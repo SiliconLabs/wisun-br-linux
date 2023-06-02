@@ -367,12 +367,12 @@ static void wsbr_network_init(struct wsbr_ctxt *ctxt)
     wsbr_dhcp_lease_update(ctxt, ctxt->rcp.eui64, ipv6);
 }
 
-static int wsbr_uart_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
+static int wsbr_uart_legacy_tx(struct os_ctxt *os_ctxt, const void *buf, unsigned int buf_len)
 {
     struct wsbr_ctxt *ctxt = &g_ctxt;
     int ret;
 
-    ret = uart_tx(os_ctxt, buf, buf_len);
+    ret = uart_legacy_tx(os_ctxt, buf, buf_len);
     // Old firmware may merge close Rx events
     if (version_older_than(ctxt->rcp.version_api, 0, 4, 0))
         usleep(20000);
@@ -578,9 +578,9 @@ int wsbr_main(int argc, char *argv[])
     if (ctxt->config.pcap_file[0])
         wsbr_pcapng_init(ctxt);
     if (ctxt->config.uart_dev[0]) {
-        ctxt->rcp.device_tx = wsbr_uart_tx;
-        ctxt->rcp.device_rx = uart_rx;
-        ctxt->rcp.on_crc_error = uart_handle_crc_error;
+        ctxt->rcp.device_tx = wsbr_uart_legacy_tx;
+        ctxt->rcp.device_rx = uart_legacy_rx;
+        ctxt->rcp.on_crc_error = uart_legacy_handle_crc_error;
         ctxt->os_ctxt->data_fd = uart_open(ctxt->config.uart_dev, ctxt->config.uart_baudrate, ctxt->config.uart_rtscts);
     } else if (ctxt->config.cpc_instance[0]) {
         ctxt->rcp.device_tx = cpc_tx;
