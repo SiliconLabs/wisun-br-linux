@@ -101,7 +101,6 @@ static void ws_bootstrap_lpan_version_increment(struct net_if *cur);
 static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *neighbor);
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
-static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16]);
 
 uint16_t test_pan_version = 1;
 
@@ -1340,23 +1339,6 @@ static void ws_bootstrap_set_fhss_hop(struct net_if *cur)
     uint8_t own_hop = (own_rank - rank_inc) / rank_inc;
     rcp_set_fhss_hop_count(own_hop);
     tr_debug("own hop: %u, own rank: %u, rank inc: %u", own_hop, own_rank, rank_inc);
-}
-
-static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16])
-{
-    if (memcmp(ll_addr, ADDR_LINK_LOCAL_PREFIX, 8)) {
-        return;
-    }
-
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return;
-    }
-
-    uint8_t mac64[8];
-    memcpy(mac64, ll_addr + 8, 8);
-    mac64[0] ^= 2;
-    ws_bootstrap_mac_neighbor_short_time_set(cur, mac64, WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME);
 }
 
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
