@@ -1479,13 +1479,6 @@ static buffer_t *rpl_control_dis_handler(struct net_if *cur, rpl_domain_t *domai
     return buffer_free(buf);
 }
 
-void rpl_control_parent_selection_trigger(struct rpl_domain *domain)
-{
-    ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
-        rpl_instance_run_parent_selection(instance);
-    }
-}
-
 void rpl_control_transmit_dis(rpl_domain_t *domain, struct net_if *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst)
 {
     uint16_t length = 2;

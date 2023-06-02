@@ -187,8 +187,6 @@ struct buffer *rpl_control_source_route_error_handler(struct buffer *buf, struct
 
 /* Manually send DIS packets for bootstrap */
 void rpl_control_transmit_dis(struct rpl_domain *domain, struct net_if *cur, uint8_t pred, uint8_t instance_id, const uint8_t *dodagid, const uint8_t version, const uint8_t *dst);
-/* Manually trigger RPL parent selection */
-void rpl_control_parent_selection_trigger(struct rpl_domain *domain);
 
 /* APIs used to manipulate configuration at the root */
 struct rpl_dodag *rpl_control_create_dodag_root(rpl_domain_t *domain, uint8_t instance_id, const uint8_t *dodagid, const rpl_dodag_conf_t *conf, uint16_t rank, uint8_t g_mop_prf);
