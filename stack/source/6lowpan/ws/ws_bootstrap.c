@@ -102,7 +102,6 @@ static ws_nud_table_entry_t *ws_nud_entry_discover(struct net_if *cur, void *nei
 static void ws_nud_entry_remove(struct net_if *cur, mac_neighbor_table_entry_t *entry_ptr);
 static bool ws_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
 static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t ll_addr[static 16]);
-static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32_t seconds);
 
 uint16_t test_pan_version = 1;
 
@@ -2003,14 +2002,6 @@ void ws_bootstrap_event_routing_ready(struct net_if *cur)
     ws_bootstrap_event_trig(WS_ROUTING_READY, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, NULL);
 }
 
-void ws_bootstrap_event_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedure_e procedure)
-{
-    if (cur->bootStrapId < 0) {
-        return;
-    }
-    ws_bootstrap_event_trig(WS_TEST_PROC_TRIGGER, cur->bootStrapId, ARM_LIB_LOW_PRIORITY_EVENT, (void *) procedure);
-}
-
 void ws_bootstrap_configuration_trickle_reset(struct net_if *cur)
 {
     trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
@@ -2165,8 +2156,6 @@ void ws_bootstrap_seconds_timer(struct net_if *cur, uint32_t seconds)
     cur->ws_info.uptime++;
 
     ws_llc_timer_seconds(cur, seconds);
-
-    ws_bootstrap_test_procedure_trigger_timer(cur, seconds);
 }
 
 void ws_bootstrap_primary_parent_update(struct net_if *interface, mac_neighbor_table_entry_t *neighbor)
@@ -2357,169 +2346,3 @@ void ws_bootstrap_packet_congestion_init(struct net_if *cur)
     cur->random_early_detection = random_early_detection_create(min_th, max_th, WS_CONGESTION_RED_DROP_PROBABILITY, RED_AVERAGE_WEIGHT_EIGHTH);
 
 }
-
-static bool auto_test_proc_trg_enabled = false;
-
-int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedure_e procedure)
-{
-    switch (procedure) {
-        case PROCEDURE_AUTO_ON:
-            tr_info("Trigger bootstrap test procedures automatically");
-            auto_test_proc_trg_enabled = true;
-            return 0;
-        case PROCEDURE_AUTO_OFF:
-            tr_info("Disable automatic bootstrap test procedure triggering");
-            auto_test_proc_trg_enabled = false;
-            return 0;
-        default:
-            break;
-    }
-
-    if (!cur) {
-        return -1;
-    }
-
-    switch (procedure) {
-        case PROCEDURE_DIS:
-        case PROCEDURE_DAO:
-        case PROCEDURE_PAS:
-        case PROCEDURE_PCS:
-        case PROCEDURE_EAPOL:
-        case PROCEDURE_RPL:
-            tr_info("Not allowed on Border Router");
-            return -1;
-        default:
-            break;
-    }
-
-    if (cur->interface_mode != INTERFACE_UP) {
-        tr_info("Interface is not up");
-        return -1;
-    }
-
-    ws_bootstrap_event_test_procedure_trigger(cur, procedure);
-    return 0;
-}
-
-void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_procedure_e procedure)
-{
-    switch (procedure) {
-        case PROCEDURE_DIS:
-            if (cur->nwk_bootstrap_state == ER_RPL_SCAN || ws_bootstrap_state_active(cur)) {
-                tr_info("trigger DODAG information object solicit");
-                rpl_control_transmit_dis(cur->rpl_domain, cur, 0, 0, NULL, 0, ADDR_LINK_LOCAL_ALL_RPL_NODES);
-            } else {
-                tr_info("wrong state: DODAG information object solicit not triggered");
-            }
-            break;
-        case PROCEDURE_DIO:
-            if (ws_bootstrap_state_active(cur)) {
-                tr_info("trigger DODAG information object");
-                rpl_control_transmit_dio_trigger(cur, cur->rpl_domain);
-            } else {
-                tr_info("wrong state: DODAG information object not triggered");
-            }
-            break;
-        case PROCEDURE_DAO:
-            // Can be triggered if in correct state and there is selected RPL parent
-            if ((cur->nwk_bootstrap_state == ER_RPL_SCAN || ws_bootstrap_state_active(cur))
-                    && rpl_control_parent_candidate_list_size(cur, true) > 0) {
-                tr_info("trigger Destination advertisement object");
-                rpl_control_dao_timeout(cur->rpl_domain, 2);
-            } else {
-                tr_info("wrong state: Destination advertisement object not triggered");
-            }
-            break;
-        case PROCEDURE_PA:
-            if (cur->ws_info.mngt.trickle_pa_running) {
-                tr_info("trigger PAN advertisement");
-                ws_bootstrap_pan_advert(cur);
-                trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pa, &cur->ws_info.mngt.trickle_params);
-            } else {
-                tr_info("wrong state: PAN advertisement not triggered");
-            }
-            break;
-        case PROCEDURE_PC:
-            if (cur->ws_info.mngt.trickle_pc_running) {
-                tr_info("trigger PAN configuration");
-                ws_bootstrap_pan_config(cur);
-                trickle_inconsistent_heard(&cur->ws_info.mngt.trickle_pc, &cur->ws_info.mngt.trickle_params);
-            } else {
-                tr_info("wrong state: PAN configuration not triggered");
-            }
-            break;
-        case PROCEDURE_EAPOL:
-            if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN) {
-                tr_info("trigger EAPOL target selection");
-                if (cur->bootstrap_state_machine_cnt > 3) {
-                    cur->bootstrap_state_machine_cnt = 3;
-                }
-            } else {
-                tr_info("wrong state: EAPOL target selection not triggered");
-            }
-            break;
-        case PROCEDURE_RPL: {
-            bool neigth_has_ext = false;
-            for (int n = 0; n < cur->mac_parameters.mac_neighbor_table->list_total_size; n++) {
-                mac_neighbor_table_entry_t *mac_entry = mac_neighbor_table_attribute_discover(cur->mac_parameters.mac_neighbor_table, n);
-                if (mac_entry) {
-                    uint16_t etx = ws_local_etx_read(cur, ADDR_802_15_4_LONG, mac_entry->mac64);
-                    if (etx != 0xFFFF) {
-                        neigth_has_ext = true;
-                    }
-                }
-            }
-            /* If selecting RPL parent, there is some RPL candidates and neighbors with ETX try
-               the RPL parent selection procedure */
-            if (cur->nwk_bootstrap_state == ER_RPL_SCAN && neigth_has_ext &&
-                    rpl_control_parent_candidate_list_size(cur, false) > 0) {
-                tr_info("trigger RPL parent selection");
-                rpl_control_parent_selection_trigger(cur->rpl_domain);
-            } else {
-                tr_info("wrong state: RPL parent selection not triggered");
-            }
-            break;
-        }
-        default:
-            break;
-    }
-}
-
-static void ws_bootstrap_test_procedure_trigger_timer(struct net_if *cur, uint32_t seconds)
-{
-    if (!auto_test_proc_trg_enabled) {
-        cur->ws_info.test_proc_trg.auto_trg_enabled = false;
-        return;
-    }
-
-    cur->ws_info.test_proc_trg.auto_trg_enabled = true;
-
-    if (cur->nwk_bootstrap_state == ER_RPL_SCAN) {
-        if (cur->ws_info.test_proc_trg.dis_trigger_timer > seconds) {
-            cur->ws_info.test_proc_trg.dis_trigger_timer -= seconds;
-        } else  {
-            ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_DIS);
-            cur->ws_info.test_proc_trg.dis_trigger_timer_val *= 2;
-            if (cur->ws_info.test_proc_trg.dis_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4) {
-                cur->ws_info.test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 4;
-            }
-            cur->ws_info.test_proc_trg.dis_trigger_timer = cur->ws_info.test_proc_trg.dis_trigger_timer_val;
-        }
-        if (cur->ws_info.test_proc_trg.rpl_trigger_timer > seconds) {
-            cur->ws_info.test_proc_trg.rpl_trigger_timer -= seconds;
-        } else  {
-            ws_bootstrap_test_procedure_trigger_exec(cur, PROCEDURE_RPL);
-            cur->ws_info.test_proc_trg.rpl_trigger_timer_val *= 2;
-            if (cur->ws_info.test_proc_trg.rpl_trigger_timer_val > (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2) {
-                cur->ws_info.test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) * 2;
-            }
-            cur->ws_info.test_proc_trg.rpl_trigger_timer = cur->ws_info.test_proc_trg.rpl_trigger_timer_val;
-        }
-    } else {
-        cur->ws_info.test_proc_trg.dis_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
-        cur->ws_info.test_proc_trg.rpl_trigger_timer_val = (WS_RPL_DIS_INITIAL_TIMEOUT / 10) / 2;
-        cur->ws_info.test_proc_trg.pas_trigger_count = 0;
-        cur->ws_info.test_proc_trg.pcs_trigger_count = 0;
-    }
-}
-

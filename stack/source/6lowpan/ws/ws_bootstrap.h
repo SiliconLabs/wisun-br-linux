@@ -29,32 +29,7 @@ typedef enum {
     WS_DISCOVERY_START,      /**< discovery start*/
     WS_OPERATION_START,      /**< active operation start*/
     WS_ROUTING_READY,        /**< RPL routing connected to BR*/
-    WS_TEST_PROC_TRIGGER     /**< Trigger test procedure */
 } ws_bootstrap_event_type_e;
-
-/* Bootstrap internal test procedures, these must match to ws_test_proc_e
-   on net_ws_test_ext.h */
-typedef enum {
-    PROCEDURE_DIS,
-    PROCEDURE_DIO,
-    PROCEDURE_DAO,
-
-    PROCEDURE_PAS,
-    PROCEDURE_PA,
-    PROCEDURE_PCS,
-    PROCEDURE_PC,
-
-    PROCEDURE_EAPOL,
-    PROCEDURE_RPL,
-    PROCEDURE_AUTO_ON,
-    PROCEDURE_AUTO_OFF,
-
-    /* Above must match to ws_test_proc_e */
-
-    PROCEDURE_PAS_TRICKLE_INCON,
-    PROCEDURE_PCS_TRICKLE_INCON
-
-} ws_bootstrap_procedure_e;
 
 typedef enum {
     WS_PARENT_SOFT_SYNCH = 0,  /**< let FHSS make decision if synchronization is needed*/
@@ -116,8 +91,6 @@ int ws_bootstrap_neighbor_info_get(struct net_if *cur, struct ws_neighbour_info 
 
 void ws_bootstrap_mac_neighbor_short_time_set(struct net_if *interface, const uint8_t *src64, uint32_t valid_time);
 
-int ws_bootstrap_test_procedure_trigger(struct net_if *cur, ws_bootstrap_procedure_e procedure);
-
 /*
  * Functions shared with different bootstrap modes
  */
@@ -128,8 +101,6 @@ void ws_bootstrap_event_discovery_start(struct net_if *cur);
 void ws_bootstrap_event_operation_start(struct net_if *cur);
 
 void ws_bootstrap_event_routing_ready(struct net_if *cur);
-
-void ws_bootstrap_test_procedure_trigger_exec(struct net_if *cur, ws_bootstrap_procedure_e procedure);
 
 // Bootstrap state machine state Functions
 bool ws_bootstrap_state_discovery(struct net_if *cur);

@@ -97,25 +97,3 @@ int ws_test_neighbour_temporary_lifetime_set(int8_t interface_id, uint32_t tempo
     ws_cfg_neighbour_temporary_lifetime_set(temporary_lifetime);
     return 0;
 }
-
-int ws_test_procedure_trigger(int8_t interface_id, ws_test_proc_e procedure, void *parameters)
-{
-    struct net_if *cur = NULL;;
-
-    (void) parameters;
-    if (interface_id > 0) {
-        cur = protocol_stack_interface_info_get_by_id(interface_id);
-        if (!cur)
-            return -1;
-    } else {
-        cur = protocol_stack_interface_info_get_wisun_mesh();
-        if (!cur) {
-            if (procedure != PROC_AUTO_ON && procedure != PROC_AUTO_OFF) {
-                return -1;
-            }
-        }
-    }
-
-    return ws_bootstrap_test_procedure_trigger(cur, procedure);
-}
-

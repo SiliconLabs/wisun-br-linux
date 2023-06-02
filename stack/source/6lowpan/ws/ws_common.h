@@ -59,19 +59,6 @@ typedef struct ws_bsi_block {
     uint16_t old_bsi;
 } ws_bsi_block_t;
 
-typedef struct ws_test_proc_trg {
-    uint16_t eapol_trigger_timer;
-    uint16_t pas_trigger_timer;
-    uint16_t pcs_trigger_timer;
-    uint16_t dis_trigger_timer;
-    uint16_t dis_trigger_timer_val;
-    uint16_t rpl_trigger_timer;
-    uint16_t rpl_trigger_timer_val;
-    uint8_t pas_trigger_count;
-    uint8_t pcs_trigger_count;
-    bool auto_trg_enabled;
-} ws_test_proc_trg_t;
-
 typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info {
@@ -92,7 +79,6 @@ typedef struct ws_info {
     ws_nud_table_entry_t nud_table_entrys[ACTIVE_NUD_PROCESS_MAX];
     ws_nud_table_list_t active_nud_process;
     ws_nud_table_list_t free_nud_entries;
-    ws_test_proc_trg_t test_proc_trg;
     struct ws_cfg *cfg;                  /**< Wi-SUN configuration */
     struct ws_pan_information pan_information;
     ws_hopping_schedule_t hopping_schedule;

@@ -915,8 +915,6 @@ uint32_t ws_common_authentication_time_get(struct net_if *cur)
     return cur->ws_info.uptime - cur->ws_info.authentication_time;
 }
 
-#define ws_test_proc_auto_trg(cur) ((cur)->ws_info.test_proc_trg.auto_trg_enabled == true)
-
 static bool protocol_6lowpan_latency_estimate_get(int8_t interface_id, uint32_t *latency)
 {
     struct net_if *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
@@ -988,7 +986,7 @@ static bool protocol_6lowpan_stagger_estimate_get(int8_t interface_id, uint32_t 
     }
 
     // For small networks sets 10 seconds stagger
-    if (network_size <= 100 || ws_test_proc_auto_trg(cur_interface)) {
+    if (network_size <= 100) {
         stagger_value = 10;
     } else {
         stagger_value = 1 + ((data_amount * 1024 * 8 * network_size) / datarate);
