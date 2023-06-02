@@ -22,11 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16])
-{
-    WARN();
-}
-
 static inline void dhcp_relay_agent_disable(int8_t interface)
 {
     WARN();

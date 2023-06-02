@@ -1474,9 +1474,7 @@ static void ws_bootstrap_rpl_callback(rpl_event_e event, void *handle)
         struct rpl_instance *instance = rpl_control_enumerate_instances(cur->rpl_domain, NULL);
 
         if (instance && rpl_control_read_dodag_info(instance, &dodag_info)) {
-            tr_debug("Enable DHCPv6 relay");
-            dhcp_relay_agent_enable(cur->id, dodag_info.dodag_id);
-
+            WARN();
             tr_debug("Start EAPOL relay");
             // Set both own port and border router port to 10253
             ws_eapol_relay_start(cur, EAPOL_RELAY_SOCKET_PORT, dodag_info.dodag_id, EAPOL_RELAY_SOCKET_PORT);
