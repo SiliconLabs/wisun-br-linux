@@ -722,7 +722,6 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
     } else {
         WARN();
-        dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
     }
 
     ws_nud_table_reset(cur);

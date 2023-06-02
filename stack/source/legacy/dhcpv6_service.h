@@ -22,12 +22,6 @@
 #include <stdint.h>
 #include "common/log.h"
 
-static inline int dhcp_service_link_local_rx_cb_set(int8_t interface_id, void *notify_cb)
-{
-    WARN();
-    return -1;
-}
-
 static inline void dhcp_service_timer_cb(int ticks)
 {
 }
