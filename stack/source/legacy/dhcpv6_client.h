@@ -22,11 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_client_init(int8_t interface, uint16_t link_type)
-{
-    WARN();
-}
-
 static inline void dhcp_client_delete(int8_t interface)
 {
     WARN();

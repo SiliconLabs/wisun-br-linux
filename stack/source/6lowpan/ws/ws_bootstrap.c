@@ -721,7 +721,7 @@ static int8_t ws_bootstrap_up(struct net_if *cur, const uint8_t *ipv6_address)
         tr_debug("global unicast address of interface ws0 is %s", tr_ipv6(ipv6_address));
         memcpy(cur->ipv6_configure.static_prefix64, ipv6_address, 8);
     } else {
-        dhcp_client_init(cur->id, DHCPV6_DUID_HARDWARE_IEEE_802_NETWORKS_TYPE);
+        WARN();
         dhcp_service_link_local_rx_cb_set(cur->id, ws_bootstrap_dhcp_neighbour_update_cb);
         dhcp_client_configure(cur->id, true, true, true); //RENEW uses SOLICIT, Interface will use 1 instance for address get, IAID address hint is not used.
         dhcp_client_solicit_timeout_set(cur->id, WS_DHCP_SOLICIT_TIMEOUT, WS_DHCP_SOLICIT_MAX_RT, WS_DHCP_SOLICIT_MAX_RC, WS_DHCP_SOLICIT_MAX_DELAY);
