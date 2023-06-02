@@ -1381,9 +1381,7 @@ static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[
 
 void ws_dhcp_client_address_request(struct net_if *cur, uint8_t *prefix, uint8_t *parent_link_local)
 {
-    if (dhcp_client_get_global_address(cur->id, parent_link_local, prefix, ws_dhcp_client_global_adress_cb) != 0) {
-        tr_error("DHCPp client request fail");
-    }
+    WARN();
 }
 
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])

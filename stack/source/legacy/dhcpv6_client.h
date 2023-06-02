@@ -22,12 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], void *error_cb)
-{
-    WARN();
-    return -1;
-}
-
 static inline void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16])
 {
     WARN();
