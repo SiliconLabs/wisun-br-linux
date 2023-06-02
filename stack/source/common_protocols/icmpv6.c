@@ -952,7 +952,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
         default:
             if (buf) {
                 buf->info = (buffer_info_t)(B_FROM_ICMP | B_TO_APP | B_DIR_UP);
-                buf->options.type = (uint8_t) SOCKET_FAMILY_IPV6;
                 buf->options.code = IPV6_NH_ICMPV6;
                 buf->dst_sa.port = 0xffff;
                 /* Put back ICMP header */

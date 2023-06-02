@@ -24,12 +24,6 @@
 
 typedef struct socket socket_t;
 
-// FIXME: this enum is referenced, but the purpose is not clear
-typedef enum socket_family {
-    SOCKET_FAMILY_NONE,
-    SOCKET_FAMILY_IPV6,
-} socket_family_e;
-
 static inline void socket_init(void)
 {
 }
