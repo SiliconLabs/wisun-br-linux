@@ -22,11 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_client_solicit_timeout_set(int8_t interface, uint16_t timeout, uint16_t max_rt, uint8_t max_rc, uint8_t max_delay)
-{
-    WARN();
-}
-
 static inline void dhcp_client_configure(int8_t interface, bool renew_uses_solicit, bool one_client_for_this_interface, bool no_address_hint)
 {
     WARN();
