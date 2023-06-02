@@ -190,19 +190,11 @@ typedef struct ipv6_destination {
     int8_t                          interface_id;       // fixed if link-local destination, else variable and gets set from redirect interface and/or last_neighbour interface
     uint16_t                        refcount;
     uint16_t                        lifetime;           // Life in GC calls, so 20s units
-#ifdef HAVE_IPV6_PMTUD
-    uint16_t                        pmtu;               // note this may be less than 1280 - upper layers may choose to send smaller based on this
-    uint16_t                        pmtu_lifetime;      // seconds
-#endif
     ipv6_neighbour_t                *last_neighbour;    // last neighbour used (only for reachability confirmation)
     ns_list_link_t                  link;
 } ipv6_destination_t;
 
-#ifdef HAVE_IPV6_PMTUD
-#define ipv6_destination_pmtu(d) ((d)->pmtu)
-#else
 #define ipv6_destination_pmtu(d) IPV6_MIN_LINK_MTU
-#endif
 
 void ipv6_destination_cache_print();
 ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, int8_t interface_id);

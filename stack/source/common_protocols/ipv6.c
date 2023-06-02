@@ -194,22 +194,6 @@ buffer_routing_info_t *ipv6_buffer_route_to(buffer_t *buf, const uint8_t *next_h
         route->route_info.source = ROUTE_MPL;
     }
 
-#ifdef HAVE_IPV6_PMTUD
-    /* Update PMTU with first-hop link MTU (for initialisation, and may need to
-     * reduce an existing entry if route has changed) */
-    if (dest_entry->pmtu > outgoing_if->ipv6_neighbour_cache.link_mtu) {
-        dest_entry->pmtu = outgoing_if->ipv6_neighbour_cache.link_mtu;
-        dest_entry->pmtu_lifetime = outgoing_if->pmtu_lifetime;
-    }
-    /* Route can also limit PMTU */
-    if (dest_entry->pmtu > route->route_info.pmtu) {
-        dest_entry->pmtu = route->route_info.pmtu;
-        dest_entry->pmtu_lifetime = outgoing_if->pmtu_lifetime;
-    }
-    /* Buffer then gets this PMTU (overwriting what we wrote from the route) */
-    route->route_info.pmtu = dest_entry->pmtu;
-#endif
-
     dest_entry->interface_id = route->route_info.interface_id;
     if (!addr_is_ipv6_multicast(dest_entry->destination)) {
         dest_entry->last_neighbour = ipv6_neighbour_lookup_or_create(&outgoing_if->ipv6_neighbour_cache, route->route_info.next_hop_addr);

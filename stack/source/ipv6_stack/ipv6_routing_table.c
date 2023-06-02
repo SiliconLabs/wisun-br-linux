@@ -785,9 +785,6 @@ void ipv6_destination_cache_print()
         if (entry->redirected) {
             tr_debug("     Redirect %s%%%u", tr_ipv6(entry->redirect_addr), entry->interface_id);
         }
-#ifdef HAVE_IPV6_PMTUD
-        tr_debug("     PMTU %u (life %u)", entry->pmtu, entry->pmtu_lifetime);
-#endif
     }
 }
 
@@ -867,10 +864,6 @@ ipv6_destination_t *ipv6_destination_lookup_or_create(const uint8_t *address, in
         entry->refcount = 1;
         entry->redirected = false;
         entry->last_neighbour = NULL;
-#ifdef HAVE_IPV6_PMTUD
-        entry->pmtu = 0xffff;
-        entry->pmtu_lifetime = 0;
-#endif
         if (interface_specific) {
             entry->interface_id = interface_id;
         } else {
@@ -1006,26 +999,6 @@ static void ipv6_destination_cache_gc_periodic(void)
             entry->lifetime--;
         }
         gc_count++;
-#ifdef HAVE_IPV6_PMTUD
-        /* Purge old PMTU values */
-        if (entry->pmtu_lifetime) {
-            if (entry->pmtu_lifetime <= DCACHE_GC_PERIOD) {
-                tr_info("Resetting PMTU for: %s", tr_ipv6(entry->destination));
-                entry->pmtu_lifetime = 0;
-                uint16_t old_mtu = entry->pmtu;
-                if (entry->interface_id >= 0) {
-                    entry->pmtu = ipv6_neighbour_cache_by_interface_id(entry->interface_id)->link_mtu;
-                } else {
-                    entry->pmtu = 0xffff;
-                }
-                if (entry->pmtu != old_mtu) {
-                    //   socket_pmtu_changed(entry->destination, entry->interface_id, old_mtu, entry->pmtu);
-                }
-            } else {
-                entry->pmtu_lifetime -= DCACHE_GC_PERIOD;
-            }
-        }
-#endif
     }
 
     if (gc_count <= DCACHE_MAX_LONG_TERM) {

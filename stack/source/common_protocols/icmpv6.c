@@ -247,113 +247,6 @@ static bool icmpv6_nd_option_get(const uint8_t *data, size_t len, uint16_t optio
     return false;
 }
 
-#ifdef HAVE_IPV6_PMTUD
-/* Look at a (potentially-partial) packet that should be a copy of
- * something we sent from an ICMP error. Identify final destination if we can.
- */
-static bool icmpv6_identify_final_destination(buffer_t *buf, uint8_t *dest)
-{
-    const uint8_t *ptr = buffer_data_pointer(buf);
-
-    /* Start with destination in IP header */
-    memcpy(dest, ptr + 24, 16);
-    /* Have to look for routing header */
-    uint8_t nh = ptr[6];
-    uint16_t hlen = 40;
-    uint16_t len = buffer_data_length(buf);
-    ptr += 40;
-    len -= 40;
-    for (;;) {
-        if (len < hlen) {
-            return false;
-        }
-        ptr += hlen;
-        len -= hlen;
-
-        /* Only need to process stuff we can send... */
-        switch (nh) {
-            case IPV6_NH_HOP_BY_HOP:
-            case IPV6_NH_DEST_OPT:
-                if (len < 2) {
-                    return false;
-                }
-                hlen = (ptr[1] + 1) * 8;
-                nh = ptr[0];
-                break;
-            case IPV6_NH_ROUTING:
-                if (len < 4) {
-                    return false;
-                }
-                /* If segments left is zero, IP dest is okay */
-                if (ptr[3] == 0) {
-                    return true;
-                }
-                if (ptr[2] != IPV6_ROUTING_TYPE_RPL) {
-                    return false;
-                }
-                hlen = (ptr[1] + 1) * 8;
-                if (len < hlen) {
-                    return false;
-                }
-                return rpl_data_get_srh_last_address(ptr, dest);
-            case IPV6_NH_FRAGMENT:
-            case IPV6_NH_IPV6:
-            case IPV6_NH_ICMPV6:
-            case IPV6_NH_UDP:
-            case IPV6_NH_TCP:
-                /* If we've reached this header, it's too late for routing */
-                return true;
-            default:
-                /* Unrecognised header - can't have come from us... */
-                return false;
-        }
-    }
-}
-
-buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
-{
-    tr_info("ICMP packet too big from: %s", tr_ipv6(buf->src_sa.address));
-
-    /* Need 4 for MTU, plus at least the IP header */
-    if (buffer_data_length(buf) < 4 + 40) {
-        return buffer_free(buf);
-    }
-
-    struct net_if *cur = buf->interface;
-
-    const uint8_t *ptr = buffer_data_pointer(buf);
-    uint32_t mtu = read_be32(ptr);
-
-    /* RFC 8201 - ignore MTU smaller than minimum */
-    if (mtu < IPV6_MIN_LINK_MTU) {
-        return buffer_free(buf);
-    }
-
-    ptr = buffer_data_strip_header(buf, 4);
-
-    /* Check source is us */
-    if (addr_interface_address_compare(cur, ptr + 8)) {
-        return buffer_free(buf);
-    }
-
-    uint8_t final_dest[16];
-    if (!icmpv6_identify_final_destination(buf, final_dest)) {
-        return buffer_free(buf);
-    }
-
-    ipv6_destination_t *dest = ipv6_destination_lookup_or_create(final_dest, cur->id);
-
-    if (dest && mtu < dest->pmtu) {
-
-        tr_info("Reducing PMTU to %"PRIu32" for: %s", mtu, tr_ipv6(final_dest));
-        dest->pmtu = mtu;
-        dest->pmtu_lifetime = cur->pmtu_lifetime;
-    }
-
-    return buffer_free(buf);
-}
-#endif
-
 static buffer_t *icmpv6_echo_request_handler(buffer_t *buf)
 {
     struct net_if *cur = buf->interface;
@@ -957,13 +850,6 @@ buffer_t *icmpv6_up(buffer_t *buf)
                 buffer_data_reserve_header(buf, 4);
             }
             break;
-
-#ifdef HAVE_IPV6_PMTUD
-        case ICMPV6_TYPE_ERROR_PACKET_TOO_BIG:
-            buf = icmpv6_packet_too_big_handler(buf);
-            break;
-#endif
-
         case ICMPV6_TYPE_INFO_RPL_CONTROL:
             buf = rpl_control_handler(buf);
             break;
