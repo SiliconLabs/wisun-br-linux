@@ -22,11 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_relay_agent_disable(int8_t interface)
-{
-    WARN();
-}
-
 static inline void dhcp_client_init(int8_t interface, uint16_t link_type)
 {
     WARN();
