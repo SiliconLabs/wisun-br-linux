@@ -28,8 +28,6 @@
 #include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
 
-#include "legacy/ipv6_fragmentation_rx.h"
-#include "legacy/ipv6_fragmentation_tx.h"
 #include "common_protocols/ip.h"
 #include "common_protocols/icmpv6.h"
 #include "common_protocols/ipv6_resolution.h"
