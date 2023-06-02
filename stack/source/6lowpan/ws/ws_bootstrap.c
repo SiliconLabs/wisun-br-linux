@@ -1364,20 +1364,6 @@ static void ws_bootstrap_dhcp_neighbour_update_cb(int8_t interface_id, uint8_t l
     ws_bootstrap_mac_neighbor_short_time_set(cur, mac64, WS_NEIGHBOUR_DHCP_ENTRY_LIFETIME);
 }
 
-static void ws_dhcp_client_global_adress_cb(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], bool register_status)
-{
-    (void)prefix;
-    (void)interface;
-    //TODO add handler for negative status
-    tr_info("DHCPv6 %s status %u with link %s", tr_ipv6(prefix), register_status, tr_ipv6(dhcp_addr));
-    if (register_status) {
-        struct net_if *cur = protocol_stack_interface_info_get_by_id(interface);
-        if (cur) {
-            ws_address_reregister_trig(cur);
-        }
-    }
-}
-
 void ws_address_registration_update(struct net_if *interface, const uint8_t addr[16])
 {
     rpl_control_register_address(interface, addr);
