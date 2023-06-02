@@ -27,7 +27,6 @@
 #include "stack/mac/sw_mac.h"
 
 #include "app_wsbrd/rcp_api.h"
-#include "legacy/udp.h"
 #include "legacy/ns_socket.h"
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"

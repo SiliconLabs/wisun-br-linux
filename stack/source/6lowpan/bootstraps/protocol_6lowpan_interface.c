@@ -32,7 +32,6 @@
 
 #include "app_wsbrd/rcp_api.h"
 #include "nwk_interface/protocol.h"
-#include "legacy/udp.h"
 #include "common_protocols/ipv6_constants.h"
 #include "common_protocols/icmpv6.h"
 #include "rpl/rpl_control.h"
