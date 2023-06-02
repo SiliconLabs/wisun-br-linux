@@ -117,9 +117,6 @@ buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
         /* Clone the buffer header, apart from size+ptr */
         buffer_copy_metadata(frag_buf, dgram_buf, false);
 
-        /* We splat the socket, so no upper-layer callbacks from the fragments */
-        buffer_socket_set(frag_buf, NULL);
-
         /* Construct the new packet contents */
         buffer_data_length_set(frag_buf, unfrag_len + 8 + frag_len);
         uint8_t *ptr = buffer_data_pointer(frag_buf);

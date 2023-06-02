@@ -24,7 +24,6 @@
 
 #include "nwk_interface/protocol.h"
 #include "nwk_interface/protocol_stats.h"
-#include "legacy/ns_socket.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 #include "rpl/rpl_data.h"
 #include "mpl/mpl.h"
@@ -532,14 +531,12 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
                 buffer_t *clone = buffer_clone(buf);
                 if (clone) {
                     clone->options.multicast_loop = true; // Flags that this is the loopback
-                    buffer_socket_set(clone, NULL);
                     clone->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
                     protocol_push(clone);
                 }
                 buf->options.multicast_loop = false; // Clear flag, to ensure only 1 clone (eg if tunnelling)
             }
         } else {
-            buffer_socket_set(buf, NULL);
             buf->info = (buffer_info_t)(B_DIR_UP | B_FROM_IPV6_FWD | B_TO_IPV6_FWD);
             return buf;
         }

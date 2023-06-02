@@ -101,7 +101,6 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
         memset(buf, 0, sizeof(buffer_t));
         buf->buf_ptr = total_size - size;
         buf->buf_end = buf->buf_ptr;
-        buf->socket = NULL;
         buf->interface = NULL;
         //buf->bad_channel = 0xffff;
         //buf->bc_sending_superframe = 0xff;
@@ -244,8 +243,6 @@ buffer_t *buffer_turnaround(buffer_t *buf)
     buf->rpl_instance_known = false;
     buf->link_specific.ieee802_15_4.useDefaultPanId = true;
 
-    buffer_socket_set(buf, NULL);
-
     /* Most cases this will be a response to an RX, so no existing routing
      * info, but in the case of TX resolution failure, we're reversing and
      * need to re-evaluate routing.
@@ -261,12 +258,6 @@ void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr)
             memcpy(buf->predecessor, addr, sizeof * buf->predecessor);
         }
     }
-}
-
-socket_t *buffer_socket_set(buffer_t *buf, socket_t *socket)
-{
-    buf->socket = NULL;
-    return NULL;
 }
 
 /* Copy metadata information from src into dst.
@@ -293,7 +284,6 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
     buffer_t *to_wipe = non_clonable_to_dst ? src : dst;
     to_wipe->rpl_option = NULL;
     to_wipe->predecessor = NULL;
-    to_wipe->socket = NULL;
 }
 
 /**
@@ -340,7 +330,6 @@ buffer_t *buffer_clone(buffer_t *buf)
     *result_ptr = *buf;
     result_ptr->predecessor = NULL;
     result_ptr->route = NULL; // Don't clone routing info
-    result_ptr->socket = NULL; // Don't clone Socket info
     result_ptr->options.multicast_loop = false; // Don't loop back more copies!
     result_ptr->rpl_option = NULL;
     result_ptr->buf_ptr = buf_ptr;

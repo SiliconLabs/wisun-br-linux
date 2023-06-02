@@ -200,7 +200,6 @@ typedef struct buffer {
     sockaddr_t          src_sa;                 /*!< Source sockaddr */
     sockaddr_t          *predecessor;           /*!< Predecessor - used by RPL */
     struct net_if *interface; /*!< Pointer to interface */
-    struct socket       *socket;                /*!< Indicate is data came trough socket */
     buffer_info_t       info;                   /*!< Protocol information */
     uint8_t             seq;                    /*!< Packet MAC header sequence number */
     uint16_t            buf_ptr;                /*!< Current pointer in the buffer */
@@ -287,9 +286,6 @@ void buffer_copy_metadata(buffer_t *dst, buffer_t *src, bool non_clonable_to_dst
 
 /** remember the predecessor address, if needed */
 void buffer_note_predecessor(buffer_t *buf, const sockaddr_t *addr);
-
-/** set the socket pointer in the buffer (dealing with reference counting) */
-struct socket *buffer_socket_set(buffer_t *buf, struct socket *socket);
 
 /** set buffer_priority */
 #define buffer_priority_set(x,z)  ((x)->priority = (z))
