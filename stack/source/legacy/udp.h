@@ -22,14 +22,6 @@
 
 typedef struct buffer buffer_t;
 
-#ifdef HAVE_UDP
-
-void udp_checksum_write(buffer_t *buf);
-buffer_t *udp_down(buffer_t *buf);
-buffer_t *udp_up(buffer_t *buf);
-
-#else
-
 static inline buffer_t *udp_down(buffer_t *buf)
 {
     WARN("6lbr shouldn't reach this point");
@@ -41,8 +33,5 @@ static inline buffer_t *udp_up(buffer_t *buf)
     WARN("6lbr shouldn't reach this point");
     return NULL;
 }
-
-#endif
-
 
 #endif
