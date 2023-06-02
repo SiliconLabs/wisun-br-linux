@@ -39,12 +39,6 @@ static inline void socket_list_print(char sep)
     WARN();
 }
 
-static inline socket_t *socket_lookup_ipv6(uint8_t protocol, const sockaddr_t *local_addr, const sockaddr_t *remote_addr, bool allow_wildcards)
-{
-    WARN();
-    return NULL;
-}
-
 static inline socket_t *socket_reference(socket_t *socket)
 {
     return NULL;

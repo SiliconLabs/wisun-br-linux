@@ -1298,16 +1298,7 @@ buffer_t *ipv6_forwarding_up(buffer_t *buf)
                 buf->options.type = *nh_ptr;
                 return ipv6_tunnel_exit(buf, ptr);
             default: {
-                if (buf->options.ll_security_bypass_rx) {
-                    tr_warn("Drop: unsecured by BAD Next header %u", *nh_ptr);
-                    goto bad_nh;
-                }
-                buffer_socket_set(buf, socket_lookup_ipv6(*nh_ptr, &buf->dst_sa, &buf->src_sa, true));
-                if (!buf->socket) {
-                    goto bad_nh;
-                }
-                buf->info = (buffer_info_t)(B_DIR_UP | B_TO_APP | B_FROM_IPV6_FWD);
-                goto upper_layer;
+                goto bad_nh;
             }
 bad_nh:
             return icmpv6_error(buf, cur, ICMPV6_TYPE_ERROR_PARAMETER_PROBLEM, ICMPV6_CODE_PARAM_PRB_UNREC_NEXT_HDR, nh_ptr - buffer_data_pointer(buf));
