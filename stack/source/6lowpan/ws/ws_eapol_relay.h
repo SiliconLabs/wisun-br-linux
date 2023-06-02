@@ -36,9 +36,7 @@
  */
 
 int ws_eapol_relay_get_socket_fd();
-#ifndef HAVE_SOCKET_API
 void ws_eapol_relay_socket_cb(int fd);
-#endif
 
 /**
  *  ws_eapol_relay_start start EAPOL relay
