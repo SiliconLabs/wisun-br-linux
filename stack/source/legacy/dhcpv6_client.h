@@ -22,11 +22,6 @@
 #include <stdbool.h>
 #include "common/log.h"
 
-static inline void dhcp_client_delete(int8_t interface)
-{
-    WARN();
-}
-
 static inline int dhcp_client_server_address_update(int8_t interface, uint8_t *prefix, uint8_t server_address[static 16])
 {
     WARN();

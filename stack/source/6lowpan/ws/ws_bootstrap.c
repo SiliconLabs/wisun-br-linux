@@ -764,7 +764,6 @@ static int8_t ws_bootstrap_down(struct net_if *cur)
     ws_bootstrap_asynch_trickle_stop(cur);
     ws_llc_reset(cur);
     ws_nud_table_reset(cur);
-    dhcp_client_delete(cur->id);
     ws_eapol_relay_delete(cur);
     ws_eapol_auth_relay_delete(cur);
     ws_pae_controller_stop(cur);
