@@ -43,6 +43,7 @@
 #define __CTZ(value) __builtin_ctz(value)
 #define FIELD_GET(mask, reg) (((reg) & (mask)) >> __CTZ(mask))
 #define FIELD_PREP(mask, val) (((val) << __CTZ(mask)) & (mask))
+#define FIELD_MAX(mask) ((mask) >> __CTZ(mask))
 
 /*
  * Functions bit*() allow to work on array of bytes. So they can work on bits
