@@ -110,10 +110,10 @@ be used display the error to the user of for debugging purpose.
     Known error codes:
      - `0x01`: unsupported host API (`REQ_HOST_API`)
      - `0x02`: unsupported radio configuration (`REQ_SET_RADIO_CONFIG`)
-     - `0x03`: radio not configured (`REQ_ENABLE_RADIO`)
-     - `0x04`: enable to allocate entry (`REQ_SET_FRAME_COUNTER_RX`)
-     - `0x05`: enable to allocate entry (`REQ_SET_SRC16_FILTER`)
-     - `0x06`: enable to allocate entry (`REQ_SET_SRC64_FILTER`)
+     - `0x03`: radio not configured (`REQ_RADIO_ENABLE`)
+     - `0x04`: enable to allocate entry (`REQ_SEC_SET_FRAME_COUNTER_RX`)
+     - `0x05`: enable to allocate entry (`REQ_FILTER_SET_SRC16`)
+     - `0x06`: enable to allocate entry (`REQ_FILTER_SET_SRC64`)
      - `0xFF`: unexpected assert
 
  - `char error_string[]`  
@@ -130,10 +130,10 @@ This command should be sent after `IND_RESET`, before any other command.
 Send and receive data
 ---------------------
 
-### `0x10 REQ_TX`
+### `0x10 REQ_DATA_TX`
 
  - `uint8_t id`  
-    An arbitrary ID send back in `CNF_TX`. Also used in `REQ_DROP_FRAME`.
+    An arbitrary ID send back in `CNF_DATA_TX`. Also used in `REQ_DATA_TX_ABORT`.
 
  - `uint16_t payload_len`  
     Length of the next field
@@ -154,7 +154,7 @@ Send and receive data
       - "LFN Broadcast Slot Number" in the LBT-IE
       - "LFN Broadcast Interval Offset" in the LBT-IE
       - If the auxiliary security header is present, the device will encrypt the
-        15.4 payload (see `REQ_SET_KEY`) and fill the MIC and the frame
+        15.4 payload (see `REQ_SEC_SET_KEY`) and fill the MIC and the frame
         counter
 
  - `uint16_t flags`  
@@ -183,7 +183,7 @@ Only present if `FHSS_TYPE_FFN_UC`:
  - `uint64_t rx_timestamp_mac_us`  
     Timestamp (relative to the date of the RCP reset) of the last received
     message for this node. The host will use the `timestamp_mac_us` value from
-    commands `CNF_TX` and `IND_RX`.  
+    commands `CNF_DATA_TX` and `IND_DATA_RX`.
     FIXME: Is uint32_t in milliseconds would be sufficient? Should we spend 4
     extra bytes for this data?
 
@@ -202,7 +202,7 @@ Only present if `FHSS_TYPE_LFN_UC`:
  - `uint64_t rx_timestamp_mac_ms`  
     Timestamp (relative to the date of the RCP reset) of the last received
     message for this node. The relevant information can found in the field
-    `timestamp_mac_us` of commands `CNF_TX` and `IND_RX`.  
+    `timestamp_mac_us` of commands `CNF_DATA_TX` and `IND_DATA_RX`.
     FIXME: Is uint32_t in milliseconds would be sufficient? Should we spend 4
     extra bytes for this data?
 
@@ -266,20 +266,20 @@ Only present if `USE_MODE_SWITCH`:
  - `uint8_t phy_modes[2][4]`  
     An array of `phy_mode_id` and number of attempt to do for each of them.
 
-### `0x11 REQ_DROP_FRAME`
+### `0x11 REQ_DATA_TX_ABORT`
 
  - `uint16_t id`  
-    `id` provided in `REQ_TX`
+    `id` provided in `REQ_DATA_TX`
 
-### `0x12 CNF_TX`
+### `0x12 CNF_DATA_TX`
 
-Status of the earlier `REQ_TX`.
+Status of the earlier `REQ_DATA_TX`.
 
 This API contains several timestamps. Instead encoding absolute timestamps, it
 provide difference with the last step. Thus the message is shorter.
 
  - `uint8_t id`  
-    `id` provided in `REQ_TX`
+    `id` provided in `REQ_DATA_TX`
 
  - `uint8_t status`  
     Fine if 0. The fields below may be invalid if `status != 0`
@@ -344,7 +344,7 @@ Only present if `HAVE_MODE_SWITCH_STAT`:
     Number time each `phy_mode` has been used. Sum of these fields is equal to
     `tx_count2`.
 
-### `0x13 IND_RX`
+### `0x13 IND_DATA_RX`
 
  - `uint16_t payload_len`  
     Length of the next field. Maximum value is 2047.
@@ -381,25 +381,25 @@ Only present if `HAVE_MODE_SWITCH_STAT`:
 Radio configuration
 -------------------
 
-### `0x20 REQ_ENABLE_RADIO`
+### `0x20 REQ_RADIO_ENABLE`
 
-Start (or stop) receiving radio data. `REQ_SET_RADIO_CONFIG`,
-`REQ_SET_CONF_FHSS_UC` (and probably several others) must have been called
+Start (or stop) receiving radio data. `REQ_RADIO_CONFIG_SET`,
+`REQ_FHSS_CONFIG_SET_UC` (and probably several others) must have been called
 before this function.
 
  - `bool value`  
     Only `true` is implemented
 
-### `0x21 REQ_LIST_RADIO_CONFIG`
+### `0x21 REQ_RADIO_CONFIG_LIST`
 
 Get the list of radio configuration supported by the device.
 
 Body of this command is empty.
 
-### `0x22 CNF_LIST_RADIO_CONFIG`
+### `0x22 CNF_RADIO_CONFIG_LIST`
 
  - `bool list_end`  
-    If not set, the list will continue in another `CNF_LIST_RADIO_CONFIG`.
+    If not set, the list will continue in another `CNF_RADIO_CONFIG_LIST`.
 
  - `uint8_t len`  
     Number of entries in next field.
@@ -414,7 +414,7 @@ Body of this command is empty.
     - `uint32_t chan_spacing_hz`
     - `uint16_t chan_count`
 
-### `0x23 REQ_SET_RADIO_CONFIG`
+### `0x23 REQ_RADIO_CONFIG_SET`
 
 Configure the radio parameters.
 
@@ -424,7 +424,7 @@ Configure the radio parameters.
  - `uint8_t mcs`  
     MCS to be used if `index` points to an OFDM modulation
 
-### `0x24 REQ_SET_REGIONAL_REGULATION`
+### `0x24 REQ_RADIO_SET_REGIONAL_REGULATION`
 
 Allow to enable specific RF regulation rules. Most of the regulations only make
 sense with a specific channel configuration.
@@ -435,7 +435,7 @@ sense with a specific channel configuration.
     - `2`: Japan (ARIB)
     - `3`: Europe (ETSI)
 
-### `0x25 REQ_SET_TX_POWER`
+### `0x25 REQ_RADIO_SET_TX_POWER`
 
 FIXME: define unit
 
@@ -446,7 +446,7 @@ FIXME: define default value
 Frequency Hopping (FHSS) configuration
 --------------------------------------
 
-### `0x30 REQ_SET_CONF_FHSS_UC`
+### `0x30 REQ_FHSS_CONFIG_SET_UC`
 
  - `uint16_t flags`  
     A bitfield
@@ -486,7 +486,7 @@ Always present:
  - `bool disallow_tx_on_rx_slots`  
     TBD.
 
-### `0x31 REQ_SET_CONF_FHSS_FFN_BC`
+### `0x31 REQ_FHSS_CONFIG_SET_FFN_BC`
 
  - `uint16_t flags`  
     A bitfield:
@@ -527,7 +527,7 @@ Always present:
  - `uint8_t ffn_bc_timing accuracy`  
     (unused)
 
-### `0x32 REQ_SET_CONF_FHSS_LFN_BC`
+### `0x32 REQ_FHSS_CONFIG_SET_LFN_BC`
 
  - `uint16_t flags`  
     A bitfield:
@@ -562,7 +562,7 @@ Always present:
 
  - `uint8_t lfn_bc_sync_period`  
 
-### `0x33 REQ_SET_CONF_FHSS_ASYNC`
+### `0x33 REQ_FHSS_CONFIG_SET_ASYNC`
 
  - `uint16_t flags`  
     A bitfield:
@@ -592,7 +592,7 @@ Only present if `FHSS_CHAN_FUNC_TR51`:
 Security
 --------
 
-### `0x40 REQ_SET_KEY`
+### `0x40 REQ_SEC_SET_KEY`
 
  - `uint8_t slot`  
     Key slot to assign. The Wi-SUN RCP have 8 slots.
@@ -617,7 +617,7 @@ Only present if KEY_IDENTIFY_MODE_INDEX:
  - `uint8_t key_index`  
     The `Key Index` to match in the auxiliary security header.
 
-### `0x41 REQ_SET_FRAME_COUNTER_TX`
+### `0x41 REQ_SEC_SET_FRAME_COUNTER_TX`
 
  - `uint8_t slot`  
     Key slot to assign.
@@ -627,7 +627,7 @@ Only present if KEY_IDENTIFY_MODE_INDEX:
 
 FIXME: This API is useless for now.
 
-### `0x42 REQ_SET_FRAME_COUNTER_RX`
+### `0x42 REQ_SEC_SET_FRAME_COUNTER_RX`
 
  - `uint16_t panid`  
  - `uint16_t addr16`  
@@ -646,7 +646,7 @@ neighbor table?
 Filtering
 ---------
 
-### `0x50 REQ_SET_FILTERS`
+### `0x50 REQ_FILTER_CONFIGURE`
 
 Ask the device to discard certain frames to the host. By default, all the
 filters are enabled.
@@ -666,7 +666,7 @@ filters are enabled.
      - `0x1000 FILTER_NOT_DATA_FRAME_TYPE` (mainly received Ack)
      - `0x2000 FILTER_RCP_GENERATED` (mainly transmitted Ack)
 
-### `0x58 REQ_FILTER_MIN_RSSI`
+### `0x58 REQ_FILTER_SET_MIN_RSSI`
 
 If `FILTER_BAD_RSSI` is set, drop frames with RSSI inferior to this value.
 
@@ -676,14 +676,14 @@ FIXME: define units
 
  - `int32_t value`  
 
-### `0x59 REQ_FILTER_DST64`
+### `0x59 REQ_FILTER_SET_DST64`
 
 If `FILTER_BAD_DEST` is set, drop unicast frames which destination is not this
 address. By default, it use the EUI64 returned in `IND_RESET`.
 
  - `uint8_t value[8]`  
 
-### `0x5A REQ_FILTER_DST16`
+### `0x5A REQ_FILTER_SET_DST16`
 
 If `FILTER_BAD_DEST` is set, drop unicast frames which destination is not this
 address. Default value of `0xFFFF` (all frame with using short address are
@@ -691,7 +691,7 @@ discarded).
 
  - `uint16_t value`  
 
-### `0x5B REQ_FILTER_PANID`
+### `0x5B REQ_FILTER_SET_PANID`
 
 If `FILTER_BAD_PANID` is set, drop frames which destination is not this PAN ID.
 
@@ -699,7 +699,7 @@ FIXME: define default value
 
  - `uint16_t value`  
 
-### `0x5C REQ_FILTER_SRC64`
+### `0x5C REQ_FILTER_SET_SRC64`
 
 If `FILTER_BAD_SRC64` is set, drop frames coming from denied extended addresses.
 
@@ -720,7 +720,7 @@ a IND_FATAL and reset.
 FIXME: should we add a field in IND_RESET to have the number of entry in the
 filter table?
 
-### `0x5D REQ_FILTER_SRC16`
+### `0x5D REQ_FILTER_SET_SRC16`
 
 If `FILTER_BAD_SRC16` is set, drop frames coming from denied short addresses.
 
