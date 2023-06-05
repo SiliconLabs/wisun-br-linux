@@ -58,6 +58,7 @@ struct commandline_args {
     bool reset;
     bool quiet;
     bool verbose;
+    bool uart_legacy;
 };
 
 void print_help(FILE *stream, int exit_code)
@@ -79,6 +80,7 @@ void print_help(FILE *stream, int exit_code)
     fprintf(stream, "  -w, --window=NUM       Send NUM requests ahead of the replies. These frames\n");
     fprintf(stream, "                         are not accounted in results (default: auto)\n");
     fprintf(stream, "  -r, --reset            Reset the RCP before measurement\n");
+    fprintf(stream, "  -l, --legacy           Use legacy UART encoding\n");
     fprintf(stream, "  -q, --quiet            Do not show progress\n");
     fprintf(stream, "  -v, --verbose          Show intermediate results\n");
     fprintf(stream, "  -T, --trace=TAG[,TAG]  Enable traces marked with TAG. Valid tags: bus, cpc, hdlc, hif,\n");
@@ -89,7 +91,7 @@ void print_help(FILE *stream, int exit_code)
 
 void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
 {
-    const char *opts_short = "u:C:B:s:c:w:rT:qvh";
+    const char *opts_short = "u:C:B:s:c:w:rT:qvhl";
     static const struct option opts_long[] = {
         { "uart",     required_argument, 0,  'u' },
         { "cpc",      required_argument, 0,  'C' },
@@ -102,6 +104,7 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
         { "quiet",    no_argument,       0,  'q' },
         { "verbose",  no_argument,       0,  'v' },
         { "help",     no_argument,       0,  'h' },
+        { "legacy",   no_argument,       0,  'l' },
         { 0,          0,                 0,   0  }
     };
     const char *substr;
@@ -141,6 +144,9 @@ void parse_commandline(struct commandline_args *cmd, int argc, char *argv[])
                 break;
             case 'v':
                 cmd->verbose = true;
+                break;
+            case 'l':
+                cmd->uart_legacy = true;
                 break;
             case 'T':
                 substr = strtok(optarg, ",");
@@ -211,8 +217,10 @@ static void send(struct os_ctxt *ctxt, struct commandline_args *cmdline, uint16_
 
     if (cmdline->cpc_instance[0])
         cpc_tx(ctxt, tx_buf.data, tx_buf.len);
-    else
+    else if (cmdline->uart_legacy)
         uart_legacy_tx(ctxt, tx_buf.data, tx_buf.len);
+    else
+        uart_tx(ctxt, tx_buf.data, tx_buf.len);
     spinel_trace_tx(&tx_buf);
     iobuf_free(&tx_buf);
 }
@@ -237,8 +245,10 @@ static size_t read_data(struct os_ctxt *ctxt, struct commandline_args *cmdline, 
         if (pollfd.revents & POLLIN || ctxt->uart_data_ready) {
             if (cmdline->cpc_instance[0])
                 len = cpc_rx(ctxt, buf, buf_len);
-            else
+            else if (cmdline->uart_legacy)
                 len = uart_legacy_rx(ctxt, buf, buf_len);
+            else
+                len = uart_rx(ctxt, buf, buf_len);
         }
     } while (!len);
     return len;
@@ -320,10 +330,21 @@ static void print_progress(struct commandline_args *cmdline, int out, int in)
 
 static void print_throughput(struct timespec *ts, struct commandline_args *cmdline)
 {
-    // 1 hdr + 1 cmd + 2 cnt + 2 reply size + 2 crc + 1 term
-    double real_payload = cmdline->payload_size + 9;
     double real_exchanges_count = cmdline->number_of_exchanges;
     double real_time = ts->tv_sec + ts->tv_nsec / 1000000000.;
+    double real_payload;
+
+    if (cmdline->uart_legacy) {
+        // 1 hdr + 1 cmd + 2 cnt + 2 reply size + 2 crc + 1 term
+        real_payload = cmdline->payload_size + 9;
+        if (cmdline->cpc_instance[0])
+            WARN("throughput bias due to CPC encoding");
+        else
+            WARN("throughput bias due to HDLC byte escaping");
+    } else {
+        // 2 len + 2 fcs + 1 cmd + 2 cnt + 2 reply size + 2 fcs
+        real_payload = cmdline->payload_size + 11;
+    }
 
     INFO("throughput: %.0lf bytes/sec", real_payload * real_exchanges_count / real_time);
     INFO("equivalent baudrate: %.0lf bits/sec", 10 * real_payload * real_exchanges_count / real_time);
