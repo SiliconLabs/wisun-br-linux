@@ -18,7 +18,7 @@ application.
 
 ### `SetModeSwitch` (`ayi`)
 
-There are 2 ways to configure mode switch, either global or per neighbor. Each
+There are two ways to configure mode switch, either global or per neighbor. Each
 neighbor can either use the global config, or a node-specific setting.
 
 - `ay`: EUI-64 of a neighbor node on which to configure mode switch, or empty
@@ -47,25 +47,24 @@ Example:
 ### `SetSlotAlgorithm` (`y`)
 
 The slot algorithm is an experimental feature that tries to avoid collisions
-during radio transmission at the expense of additional latency. It is
-disabled by default.
+during radio transmission at the expense of additional latency. It is disabled
+by default.
 
 - `y`: `0` for disabled, `1` for enabled
 
 ### `JoinMulticastGroup` and `LeaveMulticastGroup` (`ay`)
 
 In order to send or receive multicast traffic from outside the Wi-SUN network,
-this API must be used to join the appropriate multicast group (appart for the
-mandatory Wi-SUN multicast group subscriptions `ff02::1`, `ff02::2`,
-`ff02::1a`, `ff03::1`, `ff03::2` and `ff03::fc`)
+this API must be used to join the appropriate multicast group (apart from the
+mandatory Wi-SUN multicast group subscriptions `ff02::1`, `ff02::2`, `ff02::1a`,
+`ff03::1`, `ff03::2` and `ff03::fc`)
 
 - `ay`: IPv6 multicast address
 
 ### `RevokePairwiseKeys` (`ay`)
 
-Remove the Pairwise Transient Key (PTK) and Pairwise Master Key (PMK)
-associated with a node as described in the Wi-SUN FAN specification
-section 6.5.2.5.
+Remove the Pairwise Transient Key (PTK) and Pairwise Master Key (PMK) associated
+with a node as described in the Wi-SUN FAN specification section 6.5.2.5.
 
 - `ay`: 64 bit MAC address of the node to be revoked
 
@@ -73,7 +72,7 @@ section 6.5.2.5.
 
 Destroy all (L)GTKs except the current active one (and potentially the next
 key), reduce the current (or next) key's lifetime, and add a new key, as
-descibed in the Wi-SUN FAN specification section 6.5.2.5.
+described in the Wi-SUN FAN specification section 6.5.2.5.
 
 - `ay`: Explicit key to add as the new GTK (for testing), or 0 length array to
   generate a random key
@@ -84,13 +83,13 @@ descibed in the Wi-SUN FAN specification section 6.5.2.5.
 ### `Nodes` (`a(aya{sv})`)
 
 Returns an array of the nodes connected to the Wi-SUN network, with associated
-data. Each node is identified by its MAC address, and has a series of
-properties provided as key-value pairs. A D-Bus signal is emitted whenenever
-the routing graph is refreshed.
+data. Each node is identified by its MAC address, and has a series of properties
+provided as key-value pairs. A D-Bus signal is emitted whenever the routing
+graph is refreshed.
 
 - `ay`: EUI64
 - `a{sv}`: list of properties identified by a string, as described in the
-  following table. Not all properties are guarantied to be present per node
+  following table. Not all properties are guaranteed to be present per node
   (ex: a node without parent has no `parent` field)
 
 | Key              |Signature| Comment                                                                  |
@@ -107,9 +106,9 @@ the routing graph is refreshed.
 
 ### `Gtks` and `Gaks` (`aay`)
 
-Returns a list of the 4 Group Transient (or Temporal) Keys (GTKs) or Group AES
-Keys (GAKs) used in the network. A signal is emitted upon change. Refer to the
-Wi-SUN FAN and IEEE 802.11 specifications for more details.
+Returns a list of the four Group Transient (or Temporal) Keys (GTKs) or Group
+AES Keys (GAKs) used in the network. A signal is emitted upon change. Refer to
+the Wi-SUN FAN and IEEE 802.11 specifications for more details.
 
 ### `HwAddress` (`ay`)
 
@@ -117,9 +116,8 @@ EUI64 (MAC address) of the RCP
 
 ### Wi-SUN configuration
 
-The following properties return the corresponding value set during
-configuration (commandline or config file). See `examples/wsbrd.conf` for
-more details.
+The following properties return the corresponding value set during configuration
+(commandline or config file). See `examples/wsbrd.conf` for more details.
 
 | Property name    |Signature| Comment                                          |
 |------------------|---------|--------------------------------------------------|

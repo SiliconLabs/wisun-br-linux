@@ -5,50 +5,49 @@ v1.6
     Router. Support for LFN needs FAN1.1 to be enabled (as in release 1.5).
   - The configuration file now accept "lfn_broadcast_interval" and
     "lfn_broadcast_sync_period" parameters.
-  - Allow to drop root privileges after startup (see "user" and "group"
+  - Allow dropping root privileges after startup (see "user" and "group"
     parameters).
-  - The new phy_operating_modes parameter allow to enable "PHY mode switch" and
-    specify the phy_mode_id he wants to use. Note that previously, "PHY mode
-    switch" was enabled opportunistically. To get this behaviour, user now has
-    to specify "phy_operating_modes=auto".
-  - phy_operating_modes also allows to use "PHY mode switch" with custom
+  - The new phy_operating_modes parameter allow enabling "PHY mode switch" and
+    specifying the list of PHY mode IDs to use. Note that previously "PHY mode
+    switch" was enabled opportunistically. To get this behavior, specify
+    "phy_operating_modes=auto".
+  - phy_operating_modes also allows using "PHY mode switch" with custom
     regulation domains.
   - Don't enable "PHY mode switch" if FAN version is FAN1.0.
   - Value of the POM-IE and the hardware RF configuration index are now
     displayed on startup.
   - "--list-rf-configs" now displays what configurations can be associated in a
     group for phy_mode_switch
-  - DBus interface now report:
+  - DBus interface now reports:
     * if the node is authenticated (is_authenticated)
     * if the node is heard by the border router (is_neighbor)
-    * the RSSI if the node is a neighbor (rssi)
-    * the RSL measured if the node is a neighbor (rsl)
-    * the RSL advertised by the node if it is a neighbor (rsl_adv)
+    * the RSSI, if the node is a neighbor (rssi)
+    * the RSL measured, if the node is a neighbor (rsl)
+    * the RSL advertised by the node, if it is a neighbor (rsl_adv)
     * the node roles (node_role)
     * LGTKs and LGAKs
     * FAN version
    - DBus API RevokeNode has been renamed in RevokePairwiseKeys.
    - DBus API RevokeApply has been renamed in RevokeGroupKeys.
-   - wsbrd_cli now report LGTKs, LGAKs, phy_mode_id, channel_plan_id and FAN
+   - wsbrd_cli now reports LGTKs, LGAKs, phy_mode_id, channel_plan_id and FAN
      version.
-   - wsbrd_cli now compile with Rust 2015 (2018 was required before this
+   - wsbrd_cli now compiles with Rust 2015 (2018 was required before this
      change).
-   - New tool "hwping" allows to test link with the RCP.
-   - New tool "fwup" allows upgrade the RCP.
-   - Introduce "traces = drop" to traces the reasons the packed are dropped by
+   - New tool "hwping" allows testing a link with the RCP.
+   - New tool "fwup" allows upgrading the RCP.
+   - Introduce "traces = drop" to traces the reasons the packets are dropped by
      wsbrd. This option may be used to check if remote nodes send malformed
      data. The frames dropped by the RCP are not reported by this interface.
    - All the OFDM MCS (0 to 7) are now accepted in the configuration file.
    - The default tx_power value was too high for most of the devices. The
-     default value (14dBm) is saner.
-   - Allow to remove the cached data on start with --delete-storage. The
-     previous method was to assign "-" to "storage_prefix". It is not longer
-     supported.
+     default value (14 dBm) is saner.
+   - Allow removing the cached data on start with --delete-storage. The previous
+     method was to assign "-" to "storage_prefix". It is not longer supported.
    - JM-IE is now reported.
    - Properly report a fatal error if the network name (or any other string
      parameter) is too long.
-   - Fix case where the node request a new GTK. A full 4-way-handcheck was
-     triggered while 2-way-handcheck was sufficient.
+   - Fix case where the node requests a new GTK. A full 4-way-handshake was
+     triggered while 2-way-handshake was sufficient.
    - Fix IPv6 encapsulation when destination is ff03::fc (= all MPL forwarders)
    - Fix display of HIF traces for packet < 9 bytes.
    - Chan plan 1 was automatically used when the user specified a channel
@@ -56,7 +55,8 @@ v1.6
    - Warn the user if the chosen PHY is not specified in the chosen regulation
      domain.
    - Since the frame with FSK+FEC modulation can be longer than the constraints
-     defined by ARIB, FEC modulations are no more accepted when ARIB is enabled.
+     defined by ARIB, FEC modulations are no longer accepted when ARIB is
+     enabled.
    - Clean up output of cmake.
 
 v1.5.4
