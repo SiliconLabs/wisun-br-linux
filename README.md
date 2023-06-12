@@ -1,21 +1,15 @@
-<table border="0">
-  <tr>
-    <td align="left" valign="middle">
-    <h1>Wi-SUN Linux Border Router</h1>
-  </td>
-  <td align="left" valign="middle">
-    <a href="https://wi-sun.org/">
-      <img src="misc/wisun-logo.png" title="Wi-SUN" alt="Wi-SUN Logo" width="300"/>
-    </a>
-  </td>
-  </tr>
-</table>
+[<img align="right" src="misc/wisun-logo.png" width="300" alt="Wi-SUN Logo">][0]
 
-The goal of this project is to implement the Wi-SUN protocol on Linux devices
-and allow the use of Linux hosts as Border Routers for Wi-SUN networks. For the
-time being, the implementation is mostly a port of Silicon Labs' embedded stack
-on a Linux host. However, the ultimate goal is to replace services currently
-provided by the stack with native Linux services.
+Wi-SUN Linux Border Router
+==========================
+
+The goal of this project is to implement the [Wi-SUN protocol][0] on Linux
+devices and allow the use of Linux hosts as Border Routers for Wi-SUN networks.
+For the time being, the implementation is mostly a port of Silicon Labs'
+embedded stack on a Linux host. However, the ultimate goal is to replace
+services currently provided by the stack with native Linux services.
+
+[0]: https://wi-sun.org/
 
 # Quick Start Guide
 
@@ -411,3 +405,5 @@ frame size (or to enable `IPV6_DONTFRAG`).
 
 Therefore, sending UDP packets with `IPV6_DONTFRAG` is recommended. Use
 `IPV6_PATHMTU` and `IPV6_RECVPATHMTU` to determine the optimal packet size.
+
+<br clear="right"/><!-- Right align the Wi-SUN Logo -->
