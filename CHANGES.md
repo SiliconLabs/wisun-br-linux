@@ -58,6 +58,8 @@ v1.6
      defined by ARIB, FEC modulations are no longer accepted when ARIB is
      enabled.
    - Clean up output of cmake.
+   - Relocate side tools to a subdirectory to make them less visible
+   - Mention the tools in README
 
 v1.5.4
 ------
