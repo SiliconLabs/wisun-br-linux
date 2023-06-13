@@ -116,11 +116,7 @@ bool ws_pae_timers_gtk_new_install_required(struct sec_timer_gtk_cfg *timer_gtk_
 {
     uint32_t gtk_new_install_req_seconds = timer_gtk_cfg->expire_offset - timer_gtk_cfg->new_install_req * timer_gtk_cfg->expire_offset / 100;
 
-    if (seconds < gtk_new_install_req_seconds) {
-        return true;
-    } else {
-        return false;
-    }
+    return timer_gtk_cfg->new_install_req > 0 && seconds < gtk_new_install_req_seconds;
 }
 
 bool ws_pae_timers_gtk_new_activation_time(struct sec_timer_gtk_cfg *timer_gtk_cfg, uint32_t seconds)
