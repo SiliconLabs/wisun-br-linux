@@ -1,3 +1,8 @@
+v1.5.5
+------
+
+  - Backport the fix for memory leak introduced in 1.6.1.
+
 v1.5.4
 ------
 
