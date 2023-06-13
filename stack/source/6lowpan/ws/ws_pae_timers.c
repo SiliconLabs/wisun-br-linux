@@ -72,18 +72,6 @@ void ws_pae_timers_settings_init(sec_timer_cfg_t *timer_settings, ws_sec_timer_c
 
 static void ws_pae_timers_calculate(struct sec_timer_gtk_cfg *timer_gtk_settings)
 {
-    // Calculate GTK_NEW_INSTALL_REQUIRED < 100 * (1 - 1 / REVOCATION_LIFETIME_REDUCTION)
-    uint8_t calc_gtk_new_install_req = 100 - (100 / timer_gtk_settings->revocat_lifetime_reduct);
-
-    if (timer_gtk_settings->expire_offset < 3600) {
-        // For very short GTKs give some more time to distribute the new GTK key to network, tune this if needed
-        calc_gtk_new_install_req = calc_gtk_new_install_req * 60 / 100;
-    }
-
-    if (timer_gtk_settings->new_install_req > calc_gtk_new_install_req) {
-        tr_info("(L)GTK new install required adjusted %i", calc_gtk_new_install_req);
-        timer_gtk_settings->new_install_req = calc_gtk_new_install_req;
-    }
     uint32_t gtk_revocation_lifetime = timer_gtk_settings->expire_offset / timer_gtk_settings->revocat_lifetime_reduct;
     uint32_t new_gtk_activation_time = timer_gtk_settings->expire_offset / timer_gtk_settings->new_act_time;
 
