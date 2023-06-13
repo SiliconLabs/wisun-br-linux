@@ -139,7 +139,7 @@ static pae_auth_t *ws_pae_auth_by_kmp_service_get(kmp_service_t *service);
 static int8_t ws_pae_auth_event_send(kmp_service_t *service, void *data);
 static void ws_pae_auth_tasklet_handler(struct event_payload *event);
 static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, uint8_t gtk_index, uint16_t seconds);
-static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk);
+static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, const uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk);
 static void ws_pae_auth_gtk_key_insert(sec_prot_gtk_keys_t *gtks, sec_prot_gtk_keys_t *next_gtks, uint32_t lifetime, bool is_lgtk);
 static int8_t ws_pae_auth_new_gtk_activate(sec_prot_gtk_keys_t *gtks);
 static int8_t ws_pae_auth_timer_if_start(kmp_service_t *service, kmp_api_t *kmp);
@@ -990,7 +990,7 @@ static uint32_t ws_pae_auth_lifetime_key_frame_cnt_check(pae_auth_t *pae_auth, u
     return decrement_seconds;
 }
 
-static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk)
+static void ws_pae_auth_gtk_insert(sec_prot_gtk_keys_t *gtks, const uint8_t gtk[GTK_LEN], int lifetime, bool is_lgtk)
 {
     int i_install, i_last;
 
@@ -1661,5 +1661,26 @@ int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len)
     return len_ret;
 }
 
-#endif /* HAVE_PAE_AUTH */
+void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bool is_lgtk)
+{
+    struct net_if *interface_ptr;
+    sec_prot_gtk_keys_t *keys;
+    pae_auth_t *pae_auth;
+    int lifetime;
 
+    interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
+    BUG_ON(!interface_ptr);
+    pae_auth = ws_pae_auth_get(interface_ptr);
+    BUG_ON(!pae_auth);
+    if (is_lgtk) {
+        keys     = pae_auth->sec_keys_nw_info->lgtks;
+        lifetime = pae_auth->sec_cfg->timer_cfg.lgtk.expire_offset;
+    } else {
+        keys     = pae_auth->sec_keys_nw_info->gtks;
+        lifetime = pae_auth->sec_cfg->timer_cfg.gtk.expire_offset;
+    }
+    ws_pae_auth_gtk_insert(keys, key, lifetime, is_lgtk);
+    ws_pae_auth_network_keys_from_gtks_set(pae_auth, false, is_lgtk);
+}
+
+#endif /* HAVE_PAE_AUTH */

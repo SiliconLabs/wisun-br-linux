@@ -290,6 +290,36 @@ static int dbus_revoke_group_keys(sd_bus_message *m, void *userdata, sd_bus_erro
     return 0;
 }
 
+static int dbus_install_group_key(sd_bus_message *m, void *userdata,
+                                  sd_bus_error *ret_error, bool is_lgtk)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    const uint8_t *gtk;
+    size_t len;
+    int ret;
+
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&gtk, &len);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    if (len != GTK_LEN)
+        return sd_bus_error_set_errno(ret_error, EINVAL);
+
+    ws_pae_auth_gtk_install(ctxt->rcp_if_id, gtk, is_lgtk);
+
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_install_gtk(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_install_group_key(m, userdata, ret_error, false);
+}
+
+static int dbus_install_lgtk(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    return dbus_install_group_key(m, userdata, ret_error, true);
+}
+
 void dbus_emit_nodes_change(struct wsbr_ctxt *ctxt)
 {
     sd_bus_emit_properties_changed(ctxt->dbus,
@@ -613,6 +643,12 @@ static const sd_bus_vtable dbus_vtable[] = {
         SD_BUS_METHOD_WITH_ARGS("RevokeGroupKeys",
                                 SD_BUS_ARGS("ay", new_gtk, "ay", new_lgtk), SD_BUS_NO_RESULT,
                                 dbus_revoke_group_keys, 0),
+        SD_BUS_METHOD_WITH_ARGS("InstallGtk",
+                                SD_BUS_ARGS("ay", gtk), SD_BUS_NO_RESULT,
+                                dbus_install_gtk, 0),
+        SD_BUS_METHOD_WITH_ARGS("InstallLgtk",
+                                SD_BUS_ARGS("ay", lgtk), SD_BUS_NO_RESULT,
+                                dbus_install_lgtk, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),

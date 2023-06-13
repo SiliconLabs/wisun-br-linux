@@ -78,6 +78,14 @@ described in the Wi-SUN FAN specification section 6.5.2.5.
   generate a random key
 - `ay`: Idem for LGTKs
 
+### `InstallGtk` and `InstallLgtk` (`ay`)
+
+Install a new explicit (L)GTK in the next available slot. This is only meant for
+debug and test. Might be used in conjunction with `(l)gtk_new_install_required =
+0` to fully manage the key installation process.
+
+- `ay` 16 bytes long group key
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)

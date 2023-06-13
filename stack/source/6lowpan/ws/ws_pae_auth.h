@@ -308,6 +308,7 @@ void ws_pae_auth_cb_register(struct net_if *interface_ptr,
                              ws_pae_auth_nw_frame_counter_read *nw_frame_cnt_read);
 
 int ws_pae_auth_supp_list(int8_t interface_id, uint8_t eui64[][8], int len);
+void ws_pae_auth_gtk_install(int8_t interface_id, const uint8_t key[GTK_LEN], bool is_lgtk);
 
 #else
 
