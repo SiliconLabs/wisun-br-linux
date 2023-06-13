@@ -811,6 +811,10 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
         if (config->ws_lgtk_force[0] || config->ws_lgtk_force[1] || config->ws_lgtk_force[2])
             FATAL(1, "\"lgtk[i]\" is incompatible with \"fan_version = 1.0\"");
     }
+    if (config->ws_gtk_new_install_required >= (100 - 100 / config->ws_ffn_revocation_lifetime_reduction))
+        FATAL(1, "unsatisfied condition gtk_new_install_required < 100 * (1 - 1 / ffn_revocation_lifetime_reduction)");
+    if (config->ws_lgtk_new_install_required >= (100 - 100 / config->ws_lfn_revocation_lifetime_reduction))
+        FATAL(1, "unsatisfied condition lgtk_new_install_required < 100 * (1 - 1 / lfn_revocation_lifetime_reduction)");
 #ifdef HAVE_WS_BORDER_ROUTER
     if (!memcmp(config->ipv6_prefix, ADDR_UNSPECIFIED, 16) && config->tun_autoconf)
         FATAL(1, "missing \"ipv6_prefix\" parameter");
