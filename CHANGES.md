@@ -1,3 +1,14 @@
+v1.6.1
+------
+
+  - Fix memory leak.
+  - DBus interface now declare parameter names.
+  - DBus interface now implement `InstallGtk` and `InstallLgtk`.
+  - Allow disabling automatic key installation. This feature is used in
+    conjunction with `InstallGtk` and `InstallLgtk` for the certification
+    process.
+  - Cosmetic changes in README.
+
 v1.6
 ----
 
