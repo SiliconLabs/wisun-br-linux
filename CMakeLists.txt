@@ -161,6 +161,7 @@ add_library(libwsbrd STATIC
     stack/source/6lowpan/ws/ws_eapol_relay.c
     stack/source/6lowpan/ws/ws_eapol_relay_lib.c
     stack/source/6lowpan/ws/ws_ie_lib.c
+    stack/source/6lowpan/ws/ws_ie_custom.c
     stack/source/6lowpan/ws/ws_ie_validation.c
     stack/source/6lowpan/ws/ws_llc_data_service.c
     stack/source/6lowpan/ws/ws_management_api.c

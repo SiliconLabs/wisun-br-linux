@@ -31,6 +31,7 @@
 #include "6lowpan/ws/ws_common_defines.h"
 #include "6lowpan/ws/ws_neighbor_class.h"
 #include "6lowpan/ws/ws_mngt.h"
+#include "6lowpan/ws/ws_ie_custom.h"
 
 extern uint16_t test_max_child_count_override;
 
@@ -63,6 +64,7 @@ typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 
 typedef struct ws_info {
     struct ws_mngt mngt;
+    struct ws_ie_custom_list ie_custom_list;
     uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
