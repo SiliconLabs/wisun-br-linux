@@ -1673,6 +1673,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                               struct wh_ie_list wh_ies, struct wp_ie_list wp_ies)
 {
     struct ws_info *info = &base->interface_ptr->ws_info;
+    struct ws_ie_custom *ie_custom;
+    bool has_ie_custom_wp = false;
     int ie_offset;
 
     if (wh_ies.utt)
@@ -1707,12 +1709,20 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
     if (wh_ies.lbc)
         ws_wh_lbc_write(&msg->ie_buf_header, info->cfg->fhss.lfn_bc_interval,
                         info->cfg->fhss.lfn_bc_sync_period);
+    SLIST_FOREACH(ie_custom, &info->ie_custom_list, link) {
+        if (!(ie_custom->frame_type_mask & (1 << msg->message_type)))
+            continue;
+        if (ie_custom->ie_type == WS_IE_CUSTOM_TYPE_HEADER)
+            iobuf_push_data(&msg->ie_buf_header, ie_custom->buf.data, ie_custom->buf.len);
+        else
+            has_ie_custom_wp = true;
+    }
     msg->ie_iov_header.iov_base = msg->ie_buf_header.data;
     msg->ie_iov_header.iov_len = msg->ie_buf_header.len;
     msg->ie_ext.headerIeVectorList = &msg->ie_iov_header;
     msg->ie_ext.headerIovLength = 1;
 
-    if (!ws_wp_ie_is_empty(wp_ies)) {
+    if (!ws_wp_ie_is_empty(wp_ies) || has_ie_custom_wp) {
         ie_offset = ieee802154_ie_push_payload(&msg->ie_buf_payload, IEEE802154_IE_ID_WP);
         if (wp_ies.us)
             ws_wp_nested_us_write(&msg->ie_buf_payload, &info->hopping_schedule);
@@ -1744,6 +1754,10 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
             if (wp_ies.jm && info->pan_information.jm_plf != UINT8_MAX)
                 ws_wp_nested_jm_plf_write(&msg->ie_buf_payload, info->pan_information.jm_version, info->pan_information.jm_plf);
         }
+        SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
+            if (ie_custom->frame_type_mask & (1 << msg->message_type) &&
+                ie_custom->ie_type != WS_IE_CUSTOM_TYPE_HEADER)
+                iobuf_push_data(&msg->ie_buf_payload, ie_custom->buf.data, ie_custom->buf.len);
         ieee802154_ie_fill_len_payload(&msg->ie_buf_payload, ie_offset);
     }
     msg->ie_iov_payload[0].iov_len = msg->ie_buf_payload.len;
