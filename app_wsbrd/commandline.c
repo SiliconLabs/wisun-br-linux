@@ -346,7 +346,7 @@ static void conf_set_bitmask(struct wsbrd_conf *config, const struct storage_par
         FATAL(1, "%s:%d: invalid range: %s", info->filename, info->linenr, info->value);
 }
 
-static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+static void conf_add_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
 {
     const struct name_value *specs = raw_param;
     unsigned int *dest = raw_dest;
@@ -358,6 +358,14 @@ static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse
         *dest |= str_to_val(substr, specs);
     } while ((substr = strtok(NULL, ",")));
     free(tmp);
+}
+
+static void conf_set_flags(struct wsbrd_conf *config, const struct storage_parse_info *info, void *raw_dest, const void *raw_param)
+{
+    unsigned int *dest = raw_dest;
+
+    *dest = 0;
+    conf_add_flags(config, info, dest, raw_param);
 }
 
 static void conf_set_phy_op_modes(struct wsbrd_conf *config, const struct storage_parse_info *info,
@@ -504,7 +512,7 @@ static void parse_config_line(struct wsbrd_conf *config, struct storage_parse_in
         { "use_tap",                       NULL,                                      conf_deprecated,      NULL },
         { "ipv6_prefix",                   &config->ipv6_prefix,                      conf_set_netmask,     NULL },
         { "storage_prefix",                config->storage_prefix,                    conf_set_string,      (void *)sizeof(config->storage_prefix) },
-        { "trace",                         &g_enabled_traces,                         conf_set_flags,       &valid_traces },
+        { "trace",                         &g_enabled_traces,                         conf_add_flags,       &valid_traces },
         { "internal_dhcp",                 &config->internal_dhcp,                    conf_set_bool,        NULL },
         { "radius_server",                 &config->radius_server,                    conf_set_netaddr,     NULL },
         { "radius_secret",                 config->radius_secret,                     conf_set_string,      (void *)sizeof(config->radius_secret) },
@@ -682,7 +690,7 @@ void parse_commandline(struct wsbrd_conf *config, int argc, char *argv[],
                 break;
             case 'T':
                 strcpy(info.key, "trace");
-                conf_set_flags(config, &info, &g_enabled_traces, valid_traces);
+                conf_add_flags(config, &info, &g_enabled_traces, valid_traces);
                 break;
             case 'n':
                 snprintf(config->ws_name, sizeof(config->ws_name), "%s", optarg); // safe strncpy()
