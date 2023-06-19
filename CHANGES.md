@@ -1,3 +1,9 @@
+v1.6.2
+------
+
+ - Revert DBus parameter name declaration to allow for systemd versions older
+   than v246.
+
 v1.6.1
 ------
 
