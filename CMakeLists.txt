@@ -18,6 +18,11 @@ check_include_file(sl_cpc.h LIBCPC_FOUND)
 # the libbacktrace project provides a fully compatible library.
 check_include_file(backtrace.h BACKTRACE_FOUND)
 
+check_include_file(sys/queue.h SYSQUEUE_FOUND)
+if(NOT SYSQUEUE_FOUND)
+    message(FATAL_ERROR "wsbrd needs sys/queue.h")
+endif()
+
 include(CheckSymbolExists)
 set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
