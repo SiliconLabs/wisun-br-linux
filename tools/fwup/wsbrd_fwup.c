@@ -228,8 +228,8 @@ int main(int argc, char **argv)
     struct os_ctxt ctxt = { };
     char *sx_args[] = { "sx", "-vv", cmdline.gbl_file_path, NULL };
 
-    check_if_sx_is_installed();
     parse_commandline(&cmdline, argc, argv);
+    check_if_sx_is_installed();
 
     ctxt.data_fd = uart_open(cmdline.uart_device, cmdline.uart_baudrate, false);
     ctxt.trig_fd = ctxt.data_fd;
