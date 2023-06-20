@@ -170,6 +170,7 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
     uint8_t buffer[4096] = { };
     struct iobuf_read rx_buf = { };
 
+    ctxt->uart_inhibit_crc_warning = true;
     rx_buf.data = buffer;
     rx_buf.data_size = read_data(ctxt, buffer, sizeof(buffer));
     if (!rx_buf.data_size) {
@@ -177,7 +178,6 @@ static void handle_rcp_reset(struct os_ctxt *ctxt)
         return;
     }
 
-    ctxt->uart_inhibit_crc_warning = true;
     spinel_pop_u8(&rx_buf);
     cmd = spinel_pop_uint(&rx_buf);
     if (cmd == SPINEL_CMD_NOOP) {
