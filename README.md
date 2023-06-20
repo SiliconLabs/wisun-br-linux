@@ -55,7 +55,7 @@ On Debian and its derivatives, install the necessary dependencies (except for
 mbedTLS) with:
 
     sudo apt-get install libnl-3-dev libnl-route-3-dev libcap-dev libpcap-dev \
-        libsystemd-dev libdbus-1-dev cargo cmake ninja-build pkg-config
+        libsystemd-dev libdbus-1-dev cargo cmake ninja-build pkg-config lrzsz
 
 Debian does not (yet) package `mbedTLS` > 2.18 so you must build it from
 sources. Note that support for `cmake` has been added to `mbedTLS` 2.27. So, if
