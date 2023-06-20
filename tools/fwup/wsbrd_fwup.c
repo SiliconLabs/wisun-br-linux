@@ -204,7 +204,7 @@ static void check_if_sx_is_installed()
 {
     pid_t pid;
     int wstatus;
-    char *sx_args[] = { "sx", "--version" };
+    char *sx_args[] = { "sx", "--version", NULL };
 
     pid = fork();
     if (pid > 0) {
