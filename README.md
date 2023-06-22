@@ -375,6 +375,14 @@ You can enforce the session used with an environment variable
 
     sudo env DBUS_STARTER_BUS_TYPE=system wsbrd ...
 
+## LFNs and the D-Bus interface
+
+Low function nodes (LFN) that are connected directly to the border router do
+not appear as having parent when querrying the D-Bus `Nodes` API. This is due
+to them being routed differently, and will be fixed in an future version. Tools
+like `wsbrd_cli` and the web GUI that rely on this D-Bus API are affected by
+this limitation.
+
 ## I Have Issues when Trying to Send UDP Data
 
 Path MTU Discovery works as expected on the Wi-SUN network. The Border Router
