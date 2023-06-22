@@ -401,17 +401,31 @@ options:
 
 On the receiver, the buffer must be large enough (up to 64 kB) to handle the
 fragmented packet. This feature is sometimes limited on embedded devices.
+[IPv6][12] requires at least 1500 bytes available during reception, and warns
+on sending more:
+
+> A node must be able to accept a fragmented packet that, after reassembly, is
+> as large as 1500 octets.  A node is permitted to accept fragmented packets
+> that reassemble to more than 1500 octets. An upper-layer protocol or
+> application that depends on IPv6 fragmentation to send packets larger than
+> the MTU of a path should not send packets larger than 1500 octets unless it
+> has assurance that the destination is capable of reassembling packets of that
+> larger size.
+
 Typically, on Silicon Labs nodes, the default fragmentation buffer size is 1504
-bytes.
+bytes. Therefore, if you send a buffer greater than 1504 bytes (including IP
+and MAC headers), the packet will be silently dropped.
 
-Therefore, if you send a buffer greater than 1504 bytes (including IP and MAC
-headers), the packet will be silently dropped.
-
-As another consequence, the commonly used tool `nc` cannot be used with Wi-SUN
-networks. Indeed, `nc` sends 16 kB-long UDP frames. There is no option to reduce
+As another consequence, the commonly used tool `nc` cannot be used to stress
+Wi-SUN networks with a continuous data stream, as `nc` sends 16 kB-long UDP
+when fed an endless source such as `/dev/urandom`. There is no option to reduce
 frame size (or to enable `IPV6_DONTFRAG`).
 
 Therefore, sending UDP packets with `IPV6_DONTFRAG` is recommended. Use
 `IPV6_PATHMTU` and `IPV6_RECVPATHMTU` to determine the optimal packet size.
+Read [RFC 8900][13] for more insights on the question.
+
+[12]: https://www.rfc-editor.org/rfc/rfc8200.html#section-5
+[13]: https://www.rfc-editor.org/rfc/rfc8900.html
 
 <br clear="right"/><!-- Right align the Wi-SUN Logo -->
