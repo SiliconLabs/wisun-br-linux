@@ -15,6 +15,12 @@
 #include <stdint.h>
 #include <string.h>
 
+/*
+ * Provide some non-standard extentions to string.h.
+ *
+ * These functions keep the same name and call conventions than string.h.
+ */
+
 static inline int memzcmp(const void *src, size_t size)
 {
 	const uint8_t *buf = src;
