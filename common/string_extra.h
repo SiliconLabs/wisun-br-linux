@@ -23,13 +23,13 @@
 
 static inline int memzcmp(const void *src, size_t size)
 {
-	const uint8_t *buf = src;
+    const uint8_t *buf = src;
 
-	if (!size)
-		return 0;
-	if (*buf)
-		return 1;
-	return memcmp(buf, buf + 1, size - 1);
+    if (!size)
+        return 0;
+    if (*buf)
+        return 1;
+    return memcmp(buf, buf + 1, size - 1);
 }
 
 static inline void *memrcpy(void *dst, const void *src, size_t size)
