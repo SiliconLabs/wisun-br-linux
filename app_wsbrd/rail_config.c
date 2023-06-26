@@ -90,7 +90,7 @@ static void rail_fill_pom_auto(struct wsbr_ctxt *ctxt)
         for (chan_params = chan_params_table; chan_params->chan0_freq; chan_params++) {
             for (phy_mode = chan_params->valid_phy_modes; *phy_mode; phy_mode++) {
                 phy_params = ws_regdb_phy_params(*phy_mode, 0);
-                if (i >= ARRAY_SIZE(ctxt->config.ws_phy_op_modes) - 1)
+                if (i >= ARRAY_SIZE(cur->ws_info.hopping_schedule.phy_op_modes) - 1)
                     continue;
                 // Ignore FAN1.0
                 if (!chan_params->chan_plan_id)
