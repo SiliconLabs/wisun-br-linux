@@ -86,6 +86,51 @@ debug and test. Might be used in conjunction with `(l)gtk_new_install_required =
 
 - `ay` 16 bytes long group key
 
+### `IeCustomInsert` (`yyayay`)
+
+Insert a custom Wi-SUN Information Element (IE). There can only be one IE
+inserted per type and ID, specifying an existing custom IE will overwrite it,
+or remove it if there are no target frames. This is designed for testing but
+can also be used to insert vendor IEs (VH-IE or VP-IE for header and payload
+respectively). The PAN version will be incremented each time this method is
+called. Inserting a custom IE conflicting with a natively inserted IE is not
+recommended, as packets will contain two instances of the IE with different
+contents.
+
+- `y`: IE type, `0` for Wi-SUN header IE (WH-IE), `1` for nested short Wi-SUN
+  payload IE (WP-IE), `2` for nested long WP-IE
+- `y`: IE ID (such as `0x06` for VH-IE or `0x03` for VP-IE)
+- `ay`: IE content (does not include the IE base nor the sub-ID field for
+  WH-IEs)
+- `ay`: list of Wi-SUN frame types that the IE should be included in, only a
+  subset of frames are supported:
+
+|Frame Type ID| Description         |Abbreviation|
+|-------------|---------------------|------------|
+|      `0x00` |PAN Advertisement    | PA         |
+|      `0x02` |PAN Configuration    | PC         |
+|      `0x09` |LFN PAN Advertisement| LPA        |
+|      `0x0b` |LFN PAN Configuration| LPC        |
+
+Example:
+
+    # Insert a vendor header IE (VH-IE) in PC frames, using the Silicon Labs
+    # Wi-SUN Vendor Identification Number (VIN), and the string "foo" as
+    # content. Refer to the Wi-SUN FAN specification for the vendor IE
+    # structure.
+    IeCustomInsert
+      0                         # Type WH-IE
+      0x06                      # ID VH-IE
+      [26, 'f', 'o', 'o', '\0'] # Silicon Labs VIN followed by "foo"
+      [0x02]                    # Insert in PC frames
+
+[1]: https://app.swaggerhub.com/apis/Wi-SUN/TestBedUnitAPI/1.1.4#/default/put_config_borderRouter_informationElements
+
+### `IeCustomClear`
+
+Remove all custom IEs inserted using `IeCustomInsert`, and increment the PAN
+version.
+
 ## Properties
 
 ### `Nodes` (`a(aya{sv})`)

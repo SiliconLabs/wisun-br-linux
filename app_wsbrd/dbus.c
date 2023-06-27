@@ -20,6 +20,7 @@
 #include "common/log.h"
 
 #include "stack/source/6lowpan/ws/ws_bbr_api.h"
+#include "stack/source/6lowpan/ws/ws_bbr_api_internal.h"
 #include "stack/source/6lowpan/ws/ws_common.h"
 #include "stack/source/6lowpan/ws/ws_pae_controller.h"
 #include "stack/source/6lowpan/ws/ws_pae_key_storage.h"
@@ -305,6 +306,61 @@ static int dbus_install_group_key(sd_bus_message *m, void *userdata,
         return sd_bus_error_set_errno(ret_error, EINVAL);
 
     ws_pae_auth_gtk_install(ctxt->rcp_if_id, gtk, is_lgtk);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_ie_custom_clear(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+
+    ws_ie_custom_clear(&net_if->ws_info.ie_custom_list);
+    ws_bbr_pan_version_increase(net_if);
+    sd_bus_reply_method_return(m, NULL);
+    return 0;
+}
+
+static int dbus_ie_custom_insert(sd_bus_message *m, void *userdata, sd_bus_error *ret_error)
+{
+    struct wsbr_ctxt *ctxt = userdata;
+    struct net_if *net_if = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
+    const uint8_t *frame_type_list;
+    uint16_t frame_type_mask;
+    size_t frame_type_count;
+    uint8_t ie_type, ie_id;
+    const uint8_t *content;
+    size_t content_len;
+    int ret;
+
+    ret = sd_bus_message_read(m, "yy", &ie_type, &ie_id);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&content, &content_len);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    ret = sd_bus_message_read_array(m, 'y', (const void **)&frame_type_list, &frame_type_count);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+
+    frame_type_mask = 0;
+    for (size_t i = 0; i < frame_type_count; i++) {
+        switch (frame_type_list[i]) {
+        case WS_FT_PA:
+        case WS_FT_PC:
+        case WS_FT_LPA:
+        case WS_FT_LPC:
+            break;
+        default:
+            return sd_bus_error_set_errno(ret_error, -EINVAL);
+        }
+        frame_type_mask |= 1 << frame_type_list[i];
+    }
+    ret = ws_ie_custom_update(&net_if->ws_info.ie_custom_list, ie_type, ie_id,
+                              content, content_len, frame_type_mask);
+    if (ret < 0)
+        return sd_bus_error_set_errno(ret_error, -ret);
+    ws_bbr_pan_version_increase(net_if);
 
     sd_bus_reply_method_return(m, NULL);
     return 0;
@@ -641,6 +697,10 @@ static const sd_bus_vtable dbus_vtable[] = {
                       dbus_install_gtk, 0),
         SD_BUS_METHOD("InstallLgtk", "ay", NULL,
                       dbus_install_lgtk, 0),
+        SD_BUS_METHOD("IeCustomClear", NULL, NULL,
+                      dbus_ie_custom_clear, 0),
+        SD_BUS_METHOD("IeCustomInsert", "yyayay", NULL,
+                      dbus_ie_custom_insert, 0),
         SD_BUS_PROPERTY("Gtks", "aay", dbus_get_gtks,
                         offsetof(struct wsbr_ctxt, rcp_if_id),
                         SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
