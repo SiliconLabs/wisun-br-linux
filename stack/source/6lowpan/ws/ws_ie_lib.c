@@ -514,18 +514,20 @@ void ws_wp_nested_lbats_write(struct iobuf_write *buf, struct ws_lbats_ie *lbats
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 
-void ws_wp_nested_jm_plf_write(struct iobuf_write *buf, uint8_t version, uint8_t pan_load_factor)
+void ws_wp_nested_jm_write(struct iobuf_write *buf, const struct ws_jm *jm)
 {
     uint8_t tmp8;
     int offset;
 
     offset = ieee802154_ie_push_nested(buf, WS_WPIE_JM, false);
-    iobuf_push_u8(buf, version);
-    tmp8 = 0;
-    tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_ID_MASK,  WS_JM_PLF);
-    tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_LEN_MASK, 1);
-    iobuf_push_u8(buf, tmp8);
-    iobuf_push_u8(buf, pan_load_factor);
+    iobuf_push_u8(buf, jm->version);
+    if (jm->mask & (1 << WS_JM_PLF)) {
+        tmp8 = 0;
+        tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_ID_MASK,  WS_JM_PLF);
+        tmp8 |= FIELD_PREP(WS_WPIE_JM_METRIC_LEN_MASK, 1);
+        iobuf_push_u8(buf, tmp8);
+        iobuf_push_u8(buf, jm->plf);
+    }
     ieee802154_ie_fill_len_nested(buf, offset, false);
 }
 

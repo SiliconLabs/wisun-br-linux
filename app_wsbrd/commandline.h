@@ -87,6 +87,7 @@ struct wsbrd_conf {
     int  bc_interval;
     int  lfn_bc_interval;
     int  lfn_bc_sync_period;
+    unsigned int ws_join_metrics;
 
     uint8_t ws_allowed_mac_addresses[10][8];
     uint8_t ws_allowed_mac_address_count;

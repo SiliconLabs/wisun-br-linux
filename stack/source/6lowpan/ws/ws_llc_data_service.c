@@ -1751,8 +1751,8 @@ static void ws_llc_prepare_ie(llc_data_base_t *base, llc_message_t *msg,
                                             ws_pae_controller_lgtk_active_index_get(base->interface_ptr));
             if (wp_ies.lbats)
                 ws_wp_nested_lbats_write(&msg->ie_buf_payload, base->ie_params.lbats_ie);
-            if (wp_ies.jm && info->pan_information.jm_plf != UINT8_MAX)
-                ws_wp_nested_jm_plf_write(&msg->ie_buf_payload, info->pan_information.jm_version, info->pan_information.jm_plf);
+            if (wp_ies.jm)
+                ws_wp_nested_jm_write(&msg->ie_buf_payload, &info->pan_information.jm);
         }
         SLIST_FOREACH(ie_custom, &info->ie_custom_list, link)
             if (ie_custom->frame_type_mask & (1 << msg->message_type) &&

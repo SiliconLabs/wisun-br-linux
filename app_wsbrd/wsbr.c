@@ -164,12 +164,16 @@ static int wsbr_configure_ws_sect_time(struct wsbr_ctxt *ctxt)
 static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 {
     int ret, i;
+    struct net_if *cur = protocol_stack_interface_info_get_by_id(ctxt->rcp_if_id);
     int fixed_channel = get_fixed_channel(ctxt->config.ws_allowed_channels);
     uint8_t channel_function = (fixed_channel == 0xFFFF) ? WS_DH1CF : WS_FIXED_CHANNEL;
     uint8_t *gtks[4] = { };
     bool gtk_force = false;
     uint8_t *lgtks[3] = { };
     bool lgtk_force = false;
+
+    // FIXME: no ws_management_xxx() setter
+    cur->ws_info.pan_information.jm.mask = ctxt->config.ws_join_metrics;
 
     ret = ws_management_node_init(ctxt->rcp_if_id, ctxt->config.ws_domain,
                                   ctxt->config.ws_name);

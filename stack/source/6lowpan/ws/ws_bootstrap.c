@@ -1943,7 +1943,7 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
         .wp_ies.pan     = true,
         .wp_ies.netname = true,
         .wp_ies.pom     = ws_version_1_1(cur),
-        .wp_ies.jm      = ws_version_1_1(cur),
+        .wp_ies.jm      = ws_version_1_1(cur) && cur->ws_info.pan_information.jm.mask,
     };
     uint8_t plf;
 
@@ -1952,10 +1952,13 @@ static void ws_bootstrap_pan_advert(struct net_if *cur)
     // FFNs for simulation.
     // Border routers write the NW size
     cur->ws_info.pan_information.pan_size = ws_bbr_pan_size(cur);
-    plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size, cur->ws_info.cfg->gen.network_size);
-    if (plf != cur->ws_info.pan_information.jm_plf) {
-        cur->ws_info.pan_information.jm_plf = plf;
-        cur->ws_info.pan_information.jm_version++;
+    if (cur->ws_info.pan_information.jm.mask & (1 << WS_JM_PLF)) {
+        plf = ws_common_calc_plf(cur->ws_info.pan_information.pan_size,
+                                    cur->ws_info.cfg->gen.network_size);
+        if (plf != cur->ws_info.pan_information.jm.plf) {
+            cur->ws_info.pan_information.jm.plf = plf;
+            cur->ws_info.pan_information.jm.version++;
+        }
     }
     cur->ws_info.pan_information.routing_cost = 0;
 

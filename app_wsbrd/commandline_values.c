@@ -14,6 +14,7 @@
 #include "common/ws_regdb.h"
 
 #include "stack/mac/channel_list.h"
+#include "stack/source/6lowpan/ws/ws_ie_lib.h"
 #include "stack/source/6lowpan/ws/ws_regulation.h"
 #include "stack/source/6lowpan/ws/ws_common_defines.h"
 #include "stack/source/6lowpan/ws/ws_management_api.h"
@@ -85,6 +86,11 @@ const struct name_value valid_traces[] = {
     { "timers",    TR_TIMERS },
     { "drop",      TR_DROP },
     { NULL },
+};
+
+const struct name_value valid_join_metrics[] = {
+    { "none", 0 },
+    { "plf",  1u << WS_JM_PLF },
 };
 
 const struct name_value valid_tristate[] = {
