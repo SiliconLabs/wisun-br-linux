@@ -222,6 +222,9 @@ static void wsbr_configure_ws(struct wsbr_ctxt *ctxt)
 
     // FIXME: no ws_management_xxx() setter
     cur->ws_info.pan_information.version = ctxt->config.ws_fan_version;
+    cur->ws_info.fan_features = WS_FAN_FEATURE_FFN_1_0;
+    if (ctxt->config.ws_fan_version == WS_FAN_VERSION_1_1)
+        cur->ws_info.fan_features |= WS_FAN_FEATURE_FFN_1_1 | WS_FAN_FEATURE_LFN;
 
     rcp_set_tx_power(ctxt->config.tx_power);
 

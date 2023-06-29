@@ -65,6 +65,7 @@ typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 typedef struct ws_info {
     struct ws_mngt mngt;
     struct ws_ie_custom_list ie_custom_list;
+    unsigned int fan_features;
     uint8_t rpl_state; // state from rpl_event_e
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     ws_bsi_block_t ws_bsi_block;
