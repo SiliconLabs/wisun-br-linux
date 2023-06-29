@@ -65,7 +65,6 @@ typedef NS_LIST_HEAD(ws_nud_table_entry_t, link) ws_nud_table_list_t;
 typedef struct ws_info {
     struct ws_mngt mngt;
     struct ws_ie_custom_list ie_custom_list;
-    uint8_t version; // Wi-SUN version information 1 = 1.0 2 = 1.x
     uint8_t rpl_state; // state from rpl_event_e
     int8_t weakest_received_rssi; // Weakest received signal (dBm)
     ws_bsi_block_t ws_bsi_block;
@@ -136,6 +135,6 @@ bool ws_common_is_valid_nr(uint8_t node_role);
 
 uint8_t ws_common_calc_plf(uint16_t pan_size, uint8_t network_size);
 
-#define ws_version_1_0(cur) ((cur)->ws_info.version == 1)
-#define ws_version_1_1(cur) ((cur)->ws_info.version > 1)
+#define ws_version_1_0(cur) ((cur)->ws_info.pan_information.version == 1)
+#define ws_version_1_1(cur) ((cur)->ws_info.pan_information.version > 1)
 #endif //WS_COMMON_H_

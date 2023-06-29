@@ -45,14 +45,8 @@ int ws_test_version_set(int8_t interface_id, uint8_t version)
     struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
 
     test_pan_version = version;
-    if (cur) {
-        cur->ws_info.version = version;
-        if (ws_version_1_0(cur)) {
-            cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
-        } else if (ws_version_1_1(cur)) {
-            cur->ws_info.pan_information.version = WS_FAN_VERSION_1_1;
-        }
-    }
+    if (cur)
+        cur->ws_info.pan_information.version = version;
     return 0;
 }
 

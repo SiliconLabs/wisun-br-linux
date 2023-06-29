@@ -373,15 +373,10 @@ void ws_bootstrap_6lbr_event_handler(struct net_if *cur, struct event_payload *e
             cur->ws_info.pan_information.routing_cost = 0;
             cur->ws_info.pan_information.rpl_routing_method = true;
             cur->ws_info.pan_information.use_parent_bs = true;
-            cur->ws_info.pan_information.version = WS_FAN_VERSION_1_0;
             // initialize for FAN 1.1 defaults
-            if (ws_version_1_1(cur)) {
-                cur->ws_info.pan_information.version = WS_FAN_VERSION_1_1;
-                if (!cur->ws_info.pan_information.lpan_version_set) {
-                    //Randomize LFN version
-                    cur->ws_info.pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
-                    cur->ws_info.pan_information.lpan_version_set = true;
-                }
+            if (ws_version_1_1(cur) && !cur->ws_info.pan_information.lpan_version_set) {
+                cur->ws_info.pan_information.lpan_version = rand_get_random_in_range(0, 0xffff);
+                cur->ws_info.pan_information.lpan_version_set = true;
             }
 
             ws_bbr_pan_version_increase(cur);
