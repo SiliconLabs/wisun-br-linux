@@ -40,16 +40,6 @@
 
 #define TRACE_GROUP "wste"
 
-int ws_test_version_set(int8_t interface_id, uint8_t version)
-{
-    struct net_if *cur = protocol_stack_interface_info_get_by_id(interface_id);
-
-    test_pan_version = version;
-    if (cur)
-        cur->ws_info.pan_information.version = version;
-    return 0;
-}
-
 int ws_test_max_child_count_set(int8_t interface_id, uint16_t child_count)
 {
     test_max_child_count_override = child_count;
